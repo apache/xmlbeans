@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE tabs PUBLIC "-//APACHE//DTD Cocoon Documentation Tab V1.0//EN" "http://apache.org/forrest/dtd/tab-cocoon-v10.dtd">
 <tabs software="XMLBeans" title="XMLBeans" copyright="" xmlns:xlink="http://www.w3.org/1999/xlink">
     <!-- The rules are:
@@ -11,6 +11,7 @@
     <tab id="home" label="Home" dir=""/>
     <tab id="download" label="Download" dir="sourceAndBinaries" indexfile="index.html"/>
     <tab id="documentation" label="Documentation" dir="documentation" indexfile="index.html"/>
+    <tab id="samples" label="Samples" dir="samples" indexfile="index.html"/>
     <tab id="community" label="Community" dir="community" indexfile="index.html"/>
     <tab id="project" label="Project" dir="projectManagement" indexfile="index.html"/>
     <tab id="resources" label="Resources" dir="resources" indexfile="index.html" />
