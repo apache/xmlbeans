@@ -20,8 +20,10 @@ limitations under the License.
     <target name="clean" depends="
         clean-SampleTemplate,
         clean-MixedContent,
+        clean-OrderMatters,
         clean-SchemaEnum,
-        clean-SubstitutionGroup">
+        clean-SubstitutionGroup,
+        clean-DateTime">
         <delete dir="build"/>
     </target>
 
@@ -33,6 +35,10 @@ limitations under the License.
         <ant dir="cursor/MixedContent" target="clean"/>
     </target>
 
+    <target name="clean-OrderMatters">
+        <ant dir="cursor/OrderMatters" target="clean"/>
+    </target>
+
     <target name="clean-SchemaEnum">
         <ant dir="enumeration/SchemaEnum" target="clean"/>
     </target>
@@ -41,13 +47,19 @@ limitations under the License.
         <ant dir="substitutiongroup/SubstitutionGroup" target="clean"/>
     </target>
 
+    <target name="clean-DateTime">
+        <ant dir="values/DateTime" target="clean"/>
+    </target>
+
     <!-- ========================== build ==== -->
 
     <target name="build" depends="
         build-SampleTemplate,
         build-MixedContent,
+        build-OrderMatters,
         build-SchemaEnum,
-        build-SubstitutionGroup">
+        build-SubstitutionGroup,
+        build-DateTime">
     </target>
 
     <target name="build-SampleTemplate">
@@ -58,6 +70,10 @@ limitations under the License.
         <ant dir="cursor/MixedContent" target="build"/>
     </target>
 
+    <target name="build-OrderMatters">
+        <ant dir="cursor/OrderMatters" target="build"/>
+    </target>
+
     <target name="build-SchemaEnum">
         <ant dir="enumeration/SchemaEnum" target="build"/>
     </target>
@@ -66,14 +82,20 @@ limitations under the License.
         <ant dir="substitutiongroup/SubstitutionGroup" target="build"/>
     </target>
 
+    <target name="build-DateTime">
+        <ant dir="values/DateTime" target="build"/>
+    </target>
+
     <!-- ========================== test ==== -->
     <!-- to ensure all samples build and run -->
 
     <target name="test" depends="
         test-SampleTemplate,
         test-MixedContent,
+        test-OrderMatters,
         test-SchemaEnum,
-        test-SubstitutionGroup">
+        test-SubstitutionGroup,
+        test-DateTime">
     </target>
 
     <target name="test-SampleTemplate">
@@ -84,6 +106,10 @@ limitations under the License.
         <ant dir="cursor/MixedContent" target="test"/>
     </target>
 
+    <target name="test-OrderMatters">
+        <ant dir="cursor/OrderMatters" target="test"/>
+    </target>
+
     <target name="test-SchemaEnum">
         <ant dir="enumeration/SchemaEnum" target="test"/>
     </target>
@@ -92,13 +118,19 @@ limitations under the License.
         <ant dir="substitutiongroup/SubstitutionGroup" target="test"/>
     </target>
 
+    <target name="test-DateTime">
+        <ant dir="values/DateTime" target="test"/>
+    </target>
+
     <!-- ========================== dist ==== -->
 
     <target name="dist" depends="
         dist-SampleTemplate,
         dist-MixedContent,
+        dist-OrderMatters,
         dist-SchemaEnum,
-        dist-SubstitutionGroup">
+        dist-SubstitutionGroup,
+        dist-DateTime">
         <zip destfile="build/samples.zip"
             basedir=".."
             includes="samples/**"
@@ -143,6 +175,21 @@ limitations under the License.
             />
     </target>
 
+    <target name="dist-OrderMatters">
+        <mkdir dir="build"/>
+        <zip destfile="build/OrderMatters.zip"
+            basedir="cursor"
+            includes="OrderMatters/**"
+            excludes="OrderMatters/build/**"
+            />
+        <tar destfile="build/OrderMatters.tgz"
+            basedir="cursor"
+            includes="OrderMatters/**"
+            excludes="OrderMatters/build/**"
+            compression="gzip"
+            />
+    </target>
+
     <target name="dist-SchemaEnum">
         <mkdir dir="build"/>
         <zip destfile="build/SchemaEnum.zip"
@@ -169,6 +216,21 @@ limitations under the License.
             basedir="substitutiongroup"
             includes="SubstitutionGroup/**"
             excludes="SubstitutionGroup/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-DateTime">
+        <mkdir dir="build"/>
+        <zip destfile="build/DateTime.zip"
+            basedir="values"
+            includes="DateTime/**"
+            excludes="DateTime/build/**"
+            />
+        <tar destfile="build/DateTime.tgz"
+            basedir="values"
+            includes="DateTime/**"
+            excludes="DateTime/build/**"
             compression="gzip"
             />
     </target>

@@ -34,14 +34,14 @@ public class SubstitutionGroupTest
         SubstitutionGroup sample = new SubstitutionGroup();
 
         // Create a schema type instance from the XML indicated by the path.
-		SubstitutionGroup subGrp = new SubstitutionGroup();
-		PurchaseOrderDocument poDoc = subGrp.parseXml(args[0]);
+        SubstitutionGroup subGrp = new SubstitutionGroup();
+        PurchaseOrderDocument poDoc = subGrp.parseXml(args[0]);
 
         // Validate the XML.
         assert sample.validateXml(poDoc);
 
         // Create a new document that adds two elements.
-		PurchaseOrderDocument newDoc = sample.createDocument(poDoc, args[1]);
+        PurchaseOrderDocument newDoc = sample.createDocument(poDoc, args[1]);
 
         // Validate the XML.
         assert sample.validateXml(newDoc);

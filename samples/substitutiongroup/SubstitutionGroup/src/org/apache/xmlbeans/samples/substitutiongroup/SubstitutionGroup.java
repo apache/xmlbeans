@@ -102,8 +102,10 @@ public class SubstitutionGroup
         // comment as defined in Easypo.xsd.
         for (int i=0;i<invHeaders.length;i++){
             System.out.println("\nInvoiceHeader["+i+"]");
-            System.out.println("Element Name (Local Part): " + invHeaders[i].xgetComment().newCursor().getName().getLocalPart());
+            XmlCursor cursor = invHeaders[i].xgetComment().newCursor();
+            System.out.println("Element Name (Local Part): " + cursor.getName().getLocalPart());
             System.out.println("Element Value: " + invHeaders[i].getComment().trim());
+            cursor.dispose();
         }
     }
 
@@ -132,13 +134,15 @@ public class SubstitutionGroup
         book.setId(1000);
         book.setTitle("Where the Red Fern Grows");
         invHeaders.setProduct(book);
-        invHeaders.getProduct().newCursor().setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "book"));
+        XmlCursor cursor = invHeaders.getProduct().newCursor();
+        cursor.setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "book"));
+        cursor.dispose();
 
-		// Creating a new comment - with substitution group member bill-comment element.
-		invHeaders.setComment("This is a new bill-comment");
-		XmlCursor cursor = invHeaders.xgetComment().newCursor();
-		cursor.setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "bill-comment"));
-		cursor.dispose();
+        // Creating a new comment - with substitution group member bill-comment element.
+        invHeaders.setComment("This is a new bill-comment");
+        cursor = invHeaders.xgetComment().newCursor();
+        cursor.setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "bill-comment"));
+        cursor.dispose();
 
         // Add another invoice-header.
         invHeaders = purchaseOrderElement.addNewInvoiceHeader();
@@ -157,13 +161,15 @@ public class SubstitutionGroup
         clothing.setId(2000);
         clothing.setColor(ClothingType.Color.BLUE);
         invHeaders.setProduct(clothing);
-		invHeaders.getProduct().newCursor().setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "clothing"));
+        cursor = invHeaders.getProduct().newCursor();
+        cursor.setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "clothing"));
+        cursor.dispose();
 
-		// Creating a new comment - with substitution group member bill-comment element.
-		invHeaders.setComment("This is a new bill-comment");
-		cursor = invHeaders.xgetComment().newCursor();
-		cursor.setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "ship-comment"));
-		cursor.dispose();
+        // Creating a new comment - with substitution group member bill-comment element.
+        invHeaders.setComment("This is a new bill-comment");
+        cursor = invHeaders.xgetComment().newCursor();
+        cursor.setName(new QName("http://xmlbeans.apache.org/samples/substitutiongroup/easypo", "ship-comment"));
+        cursor.dispose();
 
         // Validate it.
         validateXml(poDoc);
