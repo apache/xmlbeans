@@ -19,14 +19,41 @@ import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.compile.JAXRPCSchemaBinder;
+import org.apache.xmlbeans.impl.binding.compile.SchemaToJavaResult;
+import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
 import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
+import java.io.File;
+import java.util.Iterator;
 
 public class BindingTests extends TestCase
 {
     public BindingTests(String name) { super(name); }
     public static Test suite() { return new TestSuite(BindingTests.class); }
+    
+    public void testJAXRPCBinding() throws Exception
+    {
+        File typesonlyfile = TestEnv.xbeanCase("schema/typesonly/typesonly.xsd");
+        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[] { SchemaDocument.Factory.parse(typesonlyfile) }, XmlBeans.getBuiltinTypeSystem(), null);
+        SchemaToJavaResult result = JAXRPCSchemaBinder.bind(sts, BuiltinBindingLoader.getInstance());
+        result.getBindingFileGenerator().printBindingFile(System.out);
+        JavaCodeGenerator javacode = result.getJavaCodeGenerator();
+        for (Iterator i = javacode.getToplevelClasses().iterator(); i.hasNext(); )
+        {
+            String javaclass = (String)i.next();
+            System.out.println("=======================");
+            System.out.println(javaclass);
+            System.out.println("=======================");
+            javacode.printSourceCode(javaclass, System.out);
+        }
+        System.out.flush();
+    }
 
     public void testBindingFile() throws Exception
     {

@@ -132,6 +132,16 @@ public abstract class BindingProperty
         return loader.getBindingType(tJava, tXml);
     }
     
+    public JavaName getJavaTypeName()
+    {
+        return tJava;
+    }
+    
+    public XmlName getXmlTypeName()
+    {
+        return tXml;
+    }
+    
     public void setBindingType(BindingType bType)
     {
         this.tJava = bType.getJavaName();

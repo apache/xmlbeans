@@ -121,7 +121,6 @@ public abstract class BindingType
         return isXmlObj;
     }
 
-
     /* REGISTRY OF SUBCLASSES */
 
     private static final Class[] ctorArgs = new Class[] {org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType.class};

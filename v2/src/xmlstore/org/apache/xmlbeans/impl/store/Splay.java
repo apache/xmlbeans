@@ -3190,7 +3190,7 @@ public abstract class Splay extends Goobers
             return;
         }
 
-        if (parentType.get_element_type( getName(), typeName ) != sType && complain)
+        if (parentType.get_element_type( getName(), typeName ) != sType)
         {
             if (complain)
             {

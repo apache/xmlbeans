@@ -85,6 +85,19 @@ public final class JavaName
     }
     
     /**
+     * Builds a JavaName for the array containing items with
+     * the given JavaName.
+     */ 
+    public static JavaName forArray(JavaName itemType, int depth)
+    {
+        // efficiency later
+        String arrayBrackets = "";
+        while (depth > 0)
+            arrayBrackets += "[]";
+        return forString(itemType.toString() + arrayBrackets);
+    }
+    
+    /**
      * Do not use this constructor; use forClassName instead.
      */ 
     private JavaName(String className)
