@@ -414,7 +414,18 @@ public interface XmlCursor extends XmlTokenSource
      * For NAMESPACE, the local part of the name is the prefix, while 
      * the URI is the namespace defined. For PROCINST, the local part 
      * is the target and the uri is "".
-     * 
+     * <p>
+     * In the following example, <code>xmlObject</code> represents
+     * an XML instance whose root element is not preceded by any other XML.
+     * This code prints the root element name (here, the local name, or 
+     * name without URI).
+     * <pre>
+     * XmlCursor cursor = xmlObject.newCursor();
+     * cursor.toFirstContentToken();
+     * String elementName = cursor.getName().getLocalPart();
+     * System.out.println(elementName);
+     * </pre>
+     *
      * @return  The name of the XML at this cursor's location; null if there
      * is no name.
      */

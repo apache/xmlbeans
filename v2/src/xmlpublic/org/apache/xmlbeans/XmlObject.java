@@ -68,7 +68,9 @@ import java.io.IOException;
  *     and use {@link #validate(XmlOptions)}.
  * <li>Use {@link #newCursor} to access the full XML infoset, for example,
  *     if you need to determine interleaved element order or manipulate
- *     annotations, comments, or mixed content.  See {@link XmlCursor}.
+ *     annotations, comments, or mixed content.  You can get an element name with
+ *     a cursor by calling {@link XmlCursor#getName() cursor.getName()} when the 
+ *     cursor is positioned at an element's START token. See {@link XmlCursor}.
  * <li>Use {@link #selectPath} to find other XmlObjects in the subtree underneath
  *     this XmlObject using relative XPaths.  (In selectPath, "." indicates
  *     the current element or attribute.)
