@@ -2391,6 +2391,9 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
     static abstract class LoadContext
     {
+        protected abstract void startDTD ( String name, String publicId, String systemId );
+        protected abstract void endDTD   (                                               );
+        
         protected abstract void startElement ( QName name );
         protected abstract void endElement   (            );
         
@@ -2646,10 +2649,12 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         public void startDTD ( String name, String publicId, String systemId ) throws SAXException
         {
+            _context.startDTD( name, publicId, systemId );
         }
 
         public void endDTD ( ) throws SAXException
         {
+            _context.endDTD();
         }
 
         public void startPrefixMapping ( String prefix, String uri ) throws SAXException
