@@ -326,8 +326,13 @@ final class ByNameRuntimeBindingType
         {
             final QName xsi_type = context.getXsiType();
 
-            if (xsi_type != null)
-                return context.getTypeUnmarshaller(xsi_type);
+            if (xsi_type != null) {
+                TypeUnmarshaller typed_um = context.getTypeUnmarshaller(xsi_type);
+                if (typed_um != null)
+                    return typed_um;
+                //reaching here means some problem with extracting the
+                //marshaller for the xsi type, so just use the expected one
+            }
 
             if (context.hasXsiNil())
                 return NullUnmarshaller.getInstance();
