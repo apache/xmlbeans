@@ -112,7 +112,7 @@ class MarshallerImpl
         MarshalContext ctx = new MarshalContext(nscontext, bindingLoader,
                                                 typeTable, errors);
 
-        return new MarshalResult(prop, obj, elem_qn, ctx);
+        return new MarshalResult(prop, obj, ctx);
     }
 
     public XMLStreamReader marshallType(Object obj,
@@ -126,7 +126,7 @@ class MarshallerImpl
         //TODO: REVIEW: should we move this method to the context?
         BindingType type = determineBindingType(obj, schemaType, javaType);
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
-        return new MarshalResult(prop, obj, elementName, context);
+        return new MarshalResult(prop, obj, context);
     }
 
     private BindingType determineBindingType(Object obj,

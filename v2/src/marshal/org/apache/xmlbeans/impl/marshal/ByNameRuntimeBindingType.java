@@ -93,7 +93,7 @@ final class ByNameRuntimeBindingType
 
     //prepare internal data structures for use
     public void initialize(RuntimeBindingTypeTable typeTable,
-                    BindingLoader loader)
+                           BindingLoader loader)
     {
         int idx = 0;
         for (Iterator itr = byNameBean.getProperties().iterator(); itr.hasNext();) {
@@ -125,6 +125,11 @@ final class ByNameRuntimeBindingType
     public BindingType getType()
     {
         return byNameBean;
+    }
+
+    RuntimeBindingProperty getProperty(int index)
+    {
+        return properties[index];
     }
 
     //TODO: optimize this linear scan
@@ -161,6 +166,11 @@ final class ByNameRuntimeBindingType
         return null;
     }
 
+    public int getPropertyCount()
+    {
+        return properties.length;
+    }
+
 
     private static final class Property implements RuntimeBindingProperty
     {
@@ -168,8 +178,11 @@ final class ByNameRuntimeBindingType
         private final BindingType bindingType;
         private final TypeUnmarshaller unmarshaller;
         private final Class propertyClass;
+        private final Method getMethod;
         private final Method setMethod;
         private final boolean javaPrimitive;
+        private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
+        private static final Class[] EMPTY_CLASS_ARRAY = new Class[]{};
 
         Property(Class beanClass,
                  QNameProperty prop,
@@ -187,6 +200,7 @@ final class ByNameRuntimeBindingType
                 throw (RuntimeException)(new RuntimeException(msg).initCause(e));
             }
 
+            getMethod = getGetterMethod(prop, beanClass);
             setMethod = getSetterMethod(prop, beanClass, propertyClass);
             javaPrimitive = propertyClass.isPrimitive();
         }
@@ -222,9 +236,8 @@ final class ByNameRuntimeBindingType
 
             if (xsi_type == null)
                 return unmarshaller;
-            else
-                if (xsi_type == UnmarshalContext.XSI_NIL_MARKER)
-                    return NullUnmarshaller.getInstance();
+            else if (xsi_type == UnmarshalContext.XSI_NIL_MARKER)
+                return NullUnmarshaller.getInstance();
 
             return context.getTypeUnmarshaller(xsi_type);
         }
@@ -254,14 +267,37 @@ final class ByNameRuntimeBindingType
         //non simple type props can throw some runtime exception.
         public CharSequence getLexical(Object parent, MarshalContext context)
         {
-            return "FIXME this="+this;
+            //TODO: FIXME: this is not correct!
+
+            if (parent instanceof CharSequence) {
+                return (CharSequence)parent;
+            } else {
+                return String.valueOf(parent);
+            }
         }
 
-        private static Method getSetterMethod(QNameProperty bindingProperty1,
+        public Object getValue(Object parentObject, MarshalContext context)
+        {
+            assert parentObject != null;
+            try {
+                return getMethod.invoke(parentObject, EMPTY_OBJECT_ARRAY);
+            }
+            catch (SecurityException e) {
+                throw new XmlRuntimeException(e);
+            }
+            catch (IllegalAccessException e) {
+                throw new XmlRuntimeException(e);
+            }
+            catch (InvocationTargetException e) {
+                throw new XmlRuntimeException(e);
+            }
+        }
+
+        private static Method getSetterMethod(QNameProperty binding_prop,
                                               Class beanClass,
                                               Class propClass)
         {
-            String setter = bindingProperty1.getSetterName();
+            String setter = binding_prop.getSetterName();
             try {
                 final Method set_method =
                     beanClass.getMethod(setter, new Class[]{propClass});
@@ -274,6 +310,25 @@ final class ByNameRuntimeBindingType
                 throw new XmlRuntimeException(e);
             }
         }
+
+
+        private static Method getGetterMethod(QNameProperty binding_prop,
+                                              Class beanClass)
+        {
+            String getter = binding_prop.getGetterName();
+            try {
+                final Method get_method =
+                    beanClass.getMethod(getter, EMPTY_CLASS_ARRAY);
+                return get_method;
+            }
+            catch (NoSuchMethodException e) {
+                throw new XmlRuntimeException(e);
+            }
+            catch (SecurityException e) {
+                throw new XmlRuntimeException(e);
+            }
+        }
+
 
         boolean isAttribute()
         {

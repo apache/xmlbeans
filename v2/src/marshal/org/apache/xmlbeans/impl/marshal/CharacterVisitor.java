@@ -62,17 +62,13 @@ import java.util.NoSuchElementException;
 final class CharacterVisitor
     extends XmlTypeVisitor
 {
-    private final RuntimeBindingProperty property;
-    private final MarshalContext context;
 
-    public CharacterVisitor(RuntimeBindingProperty property,
+
+    CharacterVisitor(RuntimeBindingProperty property,
                             Object parentObject,
                             MarshalContext context)
     {
-        super(parentObject);
-        assert property != null;
-        this.property = property;
-        this.context = context;
+        super(parentObject, property, context);
     }
 
     private static CharSequence getCharData(RuntimeBindingProperty property,
@@ -82,28 +78,25 @@ final class CharacterVisitor
         return property.getLexical(parentObject, context);
     }
 
-    protected void advance()
+
+    protected int getState()
     {
+        return CHARS;
     }
 
-    protected boolean hasMoreChildren()
+    protected int advance()
     {
-        return false;
+        return CHARS;
     }
 
-    protected XmlTypeVisitor getCurrChild()
+    public XmlTypeVisitor getCurrentChild()
     {
-        throw new NoSuchElementException("no children");
+        throw new AssertionError("no children");
     }
 
     protected QName getName()
     {
-        throw new IllegalStateException();
-    }
-
-    protected boolean isCharacters()
-    {
-        return true;
+        throw new AssertionError("no name on " + this);
     }
 
     protected int getAttributeCount()
@@ -113,17 +106,17 @@ final class CharacterVisitor
 
     protected String getAttributeValue(int idx)
     {
-        throw new IllegalStateException();
+        throw new AssertionError("no attributes on " + this);
     }
 
     protected QName getAttributeName(int idx)
     {
-        throw new IllegalStateException();
+        throw new AssertionError("no attributes on " + this);
     }
 
     protected CharSequence getCharData()
     {
-        return getCharData(property, parentObject, context);
+        return getCharData(bindingProperty, parentObject, marshalContext);
     }
 
 }

@@ -56,47 +56,57 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+
 import javax.xml.namespace.QName;
 
-class ByNameTypeVisitor extends XmlTypeVisitor
+class ByNameTypeVisitor extends NamedXmlTypeVisitor
 {
+    private final ByNameRuntimeBindingType type;
+    private final int propCount;
+    private int propIdx = -1;
 
-    public ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
-                             MarshalContext context)
+    ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
+                      MarshalContext context)
     {
-        super(obj);
+        super(obj, property, context);
+        final ByNameBean bean_type = (ByNameBean)property.getType();
+        //TODO: avoid new
+        type = new ByNameRuntimeBindingType(bean_type);
+        type.initialize(context.getTypeTable(), context.getLoader());
+
+        //TODO: FIXME: proper null handling
+        propCount = obj == null ? 0 : type.getPropertyCount();
     }
 
-    // needs to update _currProp AND _currPropObj
-    protected void advance()
+    protected int getState()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        if (propIdx < 0) return START;
+
+        if (propIdx >= propCount) return END;
+
+        return CONTENT;
     }
 
-    protected boolean hasMoreChildren()
+    protected int advance()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        assert propIdx < propCount; //ensure we don't go past the end
+        ++propIdx;
+        return getState();
     }
 
-    //return XmlTypeVisitorFactory.createXmlTypeVisitor(_currProp.get, _currPropObj);
-    protected XmlTypeVisitor getCurrChild()
+    public XmlTypeVisitor getCurrentChild()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
-    }
-
-    protected QName getName()
-    {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
-    }
-
-    protected boolean isCharacters()
-    {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        final RuntimeBindingProperty property = type.getProperty(propIdx);
+        assert property != null;
+        Object prop_obj = property.getValue(parentObject, marshalContext);
+        return MarshalResult.createVisitor(property, prop_obj, marshalContext);
     }
 
     protected int getAttributeCount()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        //TODO: FIXME use real values
+        return 0;
     }
 
     protected String getAttributeValue(int idx)
@@ -113,5 +123,6 @@ class ByNameTypeVisitor extends XmlTypeVisitor
     {
         throw new IllegalStateException("not text");
     }
+
 
 }

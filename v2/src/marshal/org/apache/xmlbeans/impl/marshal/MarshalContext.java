@@ -80,6 +80,8 @@ public final class MarshalContext
         this.loader = loader;
         this.typeTable = typeTable;
         this.errors = errors;
+
+        namespaceContext.openScope(); //TODO: verify this
     }
 
     Collection getErrorCollection()

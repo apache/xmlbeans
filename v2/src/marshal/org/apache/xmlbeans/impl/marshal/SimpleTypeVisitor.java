@@ -58,60 +58,42 @@ package org.apache.xmlbeans.impl.marshal;
 
 import javax.xml.namespace.QName;
 
-final class SimpleTypeVisitor extends XmlTypeVisitor
+final class SimpleTypeVisitor extends NamedXmlTypeVisitor
 {
-    private final RuntimeBindingProperty property;
-    private final MarshalContext context;
-
-    private boolean beforeChild = true;
-    private String prefix;
+    private int state = START;
 
     public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
                              MarshalContext context)
     {
-        super(obj);
-        this.property = property;
-        this.context = context;
+        super(obj, property, context);
     }
 
-    protected void advance()
+    protected int getState()
     {
-        beforeChild = false;
+        return state;
     }
 
-    protected boolean hasMoreChildren()
+    protected int advance()
     {
-        return beforeChild;
-    }
-
-    protected XmlTypeVisitor getCurrChild()
-    {
-        return new CharacterVisitor(property, parentObject, context);
-    }
-
-    protected QName getName()
-    {
-        //TODO: optimize this method (and related) 
-        final QName pname = property.getName();
-        final String uri = pname.getNamespaceURI();
-
-        assert uri != null;  //QName's should use "" for no namespace
-
-        if (uri.length() == 0) {
-            return new QName(pname.getLocalPart());
-        } else {
-
-            if (prefix == null) {
-                prefix = context.ensurePrefix(uri);
-            }
-
-            return new QName(uri, pname.getLocalPart(), prefix);
+        final int newstate;
+        switch (state) {
+            case START:
+                newstate = CHARS;
+                break;
+            case CHARS:
+                newstate = END;
+                break;
+            default:
+                throw new AssertionError("invalid state: " + state);
         }
+        state = newstate;
+        return newstate;
     }
 
-    protected boolean isCharacters()
+    public XmlTypeVisitor getCurrentChild()
     {
-        return false;
+        assert state == CHARS;
+        return new CharacterVisitor(bindingProperty, parentObject, marshalContext);
     }
 
     protected int getAttributeCount()
@@ -132,7 +114,7 @@ final class SimpleTypeVisitor extends XmlTypeVisitor
 
     protected CharSequence getCharData()
     {
-        throw new IllegalStateException("not text");
+        throw new AssertionError("not text");
     }
 
 }
