@@ -1,0 +1,956 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<META http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Tutorial: First Steps with XMLBeans</title>
+<link type="text/css" href="../skin/page.css" rel="stylesheet">
+</head>
+<body text="#000000" bgcolor="#FFFFFF">
+<!--================= start Navigation Path ==================-->
+<table summary="navigation path" width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td nowrap="nowrap" valign="middle" bgcolor="#CFDCED" height="20"><img height="1" width="5" alt="" src="../skin/images/spacer.gif" class="spacer"><!--===== breadcrumb trail (javascript-generated) ====--><font size="2" face="Arial, Helvetica, Sans-serif"><script src="../skin/breadcrumbs.js" language="JavaScript" type="text/javascript"></script></font></td>
+</tr>
+<tr>
+<td bgcolor="#4C6C8F" height="2"><img height="2" width="2" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+</table>
+<!--================= end Navigation Path ==================-->
+<!--================= start Banner ==================-->
+<table summary="header with logos" width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<!--================= start Group Logo ==================-->
+<td bgcolor="#294563"><a href="http://xml.apache.org/"><img border="0" class="logoImage" alt="Apache XML" src="../images/group-logo.gif"></a></td>
+<!--================= end Group Logo ==================-->
+<!--================= start Project Logo ==================--><td width="100%" align="center" bgcolor="#294563"><a href="http://xmlbeans.apache.org/"><img border="0" class="logoImage" alt="XMLBeans" src="../images/project-logo.gif"></a></td>
+<!--================= end Project Logo ==================-->
+<!--================= start Search ==================--><td valign="top" rowspan="2" bgcolor="#294563">
+<form target="_blank" action="http://www.google.com/search" method="get">
+<table summary="search" border="0" cellspacing="0" cellpadding="0" bgcolor="#4C6C8F">
+<tr>
+<td colspan="3"><img height="10" width="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td><img height="1" width="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td nowrap="nowrap"><input value="xmlbeans.apache.org" name="sitesearch" type="hidden"><input size="15" name="q" id="query" type="text"><img height="1" width="5" alt="" src="../skin/images/spacer.gif" class="spacer"><input name="Search" value="Search" type="submit">
+<br>
+<font face="Arial, Helvetica, Sans-serif" size="2" color="white">
+                      the Apache XMLBeans site
+                      
+                      
+                    </font></td><td><img height="1" width="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td><img alt="" border="0" height="10" width="9" src="../skin/images/search-left.gif"></td><td><img height="1" width="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td><img alt="" border="0" height="10" width="9" src="../skin/images/search-right.gif"></td>
+</tr>
+</table>
+</form>
+</td>
+<!--================= start Search ==================--><td bgcolor="#294563"><img height="10" width="10" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td valign="bottom" bgcolor="#294563" colspan="2">
+<!--================= start Tabs ==================-->
+<div class="tab">
+<table summary="tab bar" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../index.html">Home</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
+</tr>
+</table>
+</td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../sourceAndBinaries/index.html">Download</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
+</tr>
+</table>
+</td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
+<table summary="selected tab" style="height: 1.8em" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-left.gif"></td><td valign="middle" bgcolor="#4C6C8F"><font color="#ffffff" size="2" face="Arial, Helvetica, Sans-serif"><b><a class="base-selected" href="../documentation/index.html">Documentation</a></b></font></td><td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-right.gif"></td>
+</tr>
+</table>
+</td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../samples/index.html">Samples</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
+</tr>
+</table>
+</td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../community/index.html">Community</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
+</tr>
+</table>
+</td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../projectManagement/index.html">Project</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
+</tr>
+</table>
+</td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../resources/index.html">Resources</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+</div>
+<!--================= end Tabs ==================-->
+</td><td bgcolor="#294563"><img alt="" width="1" height="1" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td bgcolor="#4C6C8F" colspan="4"><img width="1" height="10" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+</table>
+<!--================= end Banner ==================-->
+<!--================= start Menu, NavBar, Content ==================-->
+<table summary="page content" bgcolor="#ffffff" width="100%" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td valign="top">
+<table summary="menu" border="0" cellspacing="0" cellpadding="0">
+<tr>
+<!--================= start left top NavBar ==================-->
+<td rowspan="3" valign="top">
+<table summary="blue line" border="0" cellpadding="0" cellspacing="0">
+<tr>
+<td bgcolor="#294563"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td bgcolor="#CFDCED"><font color="#4C6C8F" size="4" face="Arial, Helvetica, Sans-serif">&nbsp;</font></td>
+</tr>
+<tr>
+<td bgcolor="#294563"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+</table>
+</td>
+<!--================= end left top NavBar ==================--><td bgcolor="#294563"><img width="1" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td valign="bottom" bgcolor="#4C6C8F"><img width="10" height="10" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td nowrap="nowrap" valign="top" bgcolor="#4C6C8F">
+<!--================= start Menu items ==================-->
+<div class="menu">
+<ul>
+<li>
+<font color="#CFDCED">Documentation</font>
+<ul>
+        
+        
+<li>
+<span class="sel"><font color="#ffcc00">Tutorial: First Steps</font></span>
+</li>
+        
+<li>
+<a href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" title="View Frequently Asked Questions">FAQ</a>
+</li>
+        
+<li>
+<a href="../documentation/index.html#XMLBeans+Version+1+User+Documentation" title="Check out the user guide.">User Guide</a>
+</li>
+        
+<li>
+<a href="../documentation/../docs/reference/index.html" title="Look over references.">V1 Javadoc</a>
+</li>
+        
+<li>
+<a href="../documentation/../docs/v2/reference/index.html" title="Look over references.">V2 Javadoc</a>
+</li>
+        
+<li>
+<a href="../documentation/../samples/index.html" title="Download sample code.">Sample Code</a>
+</li>
+        
+<li>
+<a href="../documentation/conInstallGuide.html" title="Install XMLBeans">Installing XMLBeans</a>
+</li>
+        
+<li>
+<a href="http://wiki.apache.org/xmlbeans/" title="XmlBeans Wiki pages">Wiki Pages</a>
+</li>
+    
+</ul>
+</li>
+</ul>
+</div>
+<!--================= end Menu items ==================-->
+</td><td valign="bottom" bgcolor="#4C6C8F"><img width="10" height="10" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td bgcolor="#294563"><img width="1" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td valign="bottom" align="left" colspan="2" rowspan="2" bgcolor="#4C6C8F"><img height="10" width="10" border="0" alt="" src="../skin/images/menu-left.gif"></td><td bgcolor="#4C6C8F"><img height="10" width="10" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td valign="bottom" align="right" colspan="2" rowspan="2" bgcolor="#4C6C8F"><img height="10" width="10" border="0" alt="" src="../skin/images/menu-right.gif"></td>
+</tr>
+<tr>
+<td height="1" bgcolor="#294563"><img width="1" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+</table>
+</td><td valign="top" width="100%">
+<table summary="content" width="100%" border="0" cellpadding="0" cellspacing="0">
+<!--================= start middle NavBar ==================-->
+<tr>
+<td colspan="4" bgcolor="#294563"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td align="left" width="10" bgcolor="#CFDCED"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td align="left" width="50%" bgcolor="#CFDCED"><font color="#4C6C8F" size="3" face="Arial, Helvetica, Sans-serif">
+                &nbsp;
+                
+                </font><img width="10" height="8" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td align="right" width="50%" bgcolor="#CFDCED"><font color="#4C6C8F" size="3" face="Arial, Helvetica, Sans-serif">
+                &nbsp;
+                
+                </font><img width="10" height="8" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td width="10" bgcolor="#CFDCED"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<tr>
+<td colspan="4" bgcolor="#294563"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<!--================= end middle NavBar ==================-->
+<!--================= start Content==================-->
+<tr>
+<td align="left" width="10"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td><td colspan="2" align="left" width="100%">
+<div class="content">
+<table class="title" summary="">
+<tr>
+<td valign="middle">
+<h1>Tutorial: First Steps with XMLBeans</h1>
+</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="tutorial_getstarted.pdf"><img alt="PDF" src="../skin/images/pdfdoc.gif" class="skin"><br>
+          PDF</a></td>
+</tr>
+</table>
+        
+<a name="N1000C"></a>
+<h3></h3>
+<div style="margin-left: 0 ; border: 2px">
+<p>This tutorial introduces XMLBeans basics. Through it, you'll get a hands on view of
+                the three technologies that make up version 1 of XMLBeans: strongly-typed access to
+                XML through compiled schema, type-agnostic access to XML through the XML cursor.
+                This tutorial describes what XMLBeans is and introduces a few of the tools that come
+                with an XMLBeans installation.</p>
+<p>To get started, you'll need the following:</p>
+<ul>
+                
+<li>JDK 1.4 for version 1 XMLBeans releases. You can download the JDK <a target="_top" href="http://java.sun.com/j2se/1.4.2/download.html">here</a>.</li>
+                
+<li>An XMLBeans version 1 installation. If you don't have this yet, you'll find
+                    installation instructions at <a href="conInstallGuide.html">Installing XMLBeans</a>.</li>
+                
+<li>An editor for writing Java code. This could be a text editor or your favorite
+                    Java IDE.</li>
+            
+</ul>
+<p>You'll create a few files as part of this tutorial. Start out by creating a new
+                tutorials directory just under your XMLBEANS_HOME directory. This will hold the
+                files you create in the course of this tutorial. While you're at it, create the
+                following subdirectories under the tutorials directory: classes, instances, src,
+                lib. If you're working with XMLBeans version 1.0.3, your hierarchy should look
+                something like this:</p>
+<pre class="code">xmlbeans-1.0.3
+    ...
+    tutorials
+        gettingstarted
+            classes
+            instances
+            lib
+            src</pre>
+</div>
+        
+<a name="N10034"></a><a name="Get+Acquainted+with+the+Basics"></a>
+<h3>Get Acquainted with the Basics</h3>
+<div style="margin-left: 0 ; border: 2px">
+<p>XMLBeans version 1 includes multiple related technologies for handling XML. In a
+                nutshell, XMLBeans offers three complementary technologies:</p>
+<ul>
+                
+<li>A schema-oriented way to view XML instances through Java types based on the schema.</li>
+                
+<li>A schema-agnostic way to traverse the full XML infoset.</li>
+                
+<li>A schema object model through which, in Java code, you can examine a compiled
+                    XML schema. (Note: this aspect of XMLBeans is not covered in this tutorial. For
+                    more information, see <a href="../docs/guide/conIntroToTheSchemaTypeSystem.html">Introduction to the
+                        Schema Type System.</a>
+                
+</li>
+            
+</ul>
+<p>There's much more, but that's a start. Each of these three pieces is useful for
+                different goals, and you may find yourself writing code that uses all three in the
+                same application. The rest of this tutorial will introduce you to these technologies.</p>
+</div>
+        
+<a name="N10051"></a><a name="Getting+Started+with+Handling+XML+Through+Schema"></a>
+<h3>Getting Started with Handling XML Through Schema</h3>
+<div style="margin-left: 0 ; border: 2px">
+<p>One of the things XMLBeans does best is provide a way for you to handle XML by using
+                a schema to which the XML conforms. With XMLBeans you can compile one or more schema
+                (XSD) files to generate Java types. By binding XML instance documents to these Java
+                types, you provide yourself a way to access the instances in Java in a
+                schema-oriented way.</p>
+<p>Try this now with XML you got when you installed XMLBeans. To start out, open a
+                command prompt and cd to the directory containing your XMLBeans installation. If you
+                installed version 1.0.3 to your root directory, you'd do this on Windows:</p>
+<pre class="code">cd \xmlbeans-1.0.3</pre>
+<p>If you followed the installation instructions at Installing XMLBeans, you should be
+                able to execute the scripts you got in the \bin directory. Use one of these now &mdash;
+                xpretty &mdash; to take a look at easypo schema contained in easypo.xsd, like so (if
+                you're using a UNIX OS this script isn't available, so you'll need to open the file
+                in an editor):</p>
+<pre class="code">xpretty schemas\easypo\easypo.xsd</pre>
+<p>After the copyright text, you should see the following:</p>
+<pre class="code">&lt;xs:schema
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:po="http://openuri.org/easypo"
+    targetNamespace="http://openuri.org/easypo"
+    elementFormDefault="qualified"&gt;
+    &lt;xs:element name="purchase-order"&gt;
+        &lt;xs:complexType&gt;
+            &lt;xs:sequence&gt;
+                &lt;xs:element name="customer" type="po:customer"/&gt;
+                &lt;xs:element name="date" type="xs:dateTime"/&gt;
+                &lt;xs:element name="line-item" type="po:line-item" minOccurs="0" maxOccurs="unbounded"/&gt;
+                &lt;xs:element name="shipper" type="po:shipper" minOccurs="0" maxOccurs="1"/&gt;
+            &lt;/xs:sequence&gt;
+        &lt;/xs:complexType&gt;
+    &lt;/xs:element&gt;
+    &lt;xs:complexType name="customer"&gt;
+        &lt;xs:sequence&gt;
+            &lt;xs:element name="name" type="xs:string"/&gt;
+            &lt;xs:element name="address" type="xs:string"/&gt;
+        &lt;/xs:sequence&gt;
+        &lt;xs:attribute name="age" type="xs:int"/&gt;
+        &lt;xs:attribute name="moo" type="xs:int" default="100"/&gt;
+        &lt;xs:attribute name="poo" type="xs:int" fixed="200"/&gt;
+    &lt;/xs:complexType&gt;
+    &lt;xs:complexType name="line-item"&gt;
+        &lt;xs:sequence&gt;
+            &lt;xs:element name="description" type="xs:string"/&gt;
+            &lt;xs:element name="per-unit-ounces" type="xs:decimal"/&gt;
+            &lt;xs:element name="price" type="xs:decimal"/&gt;
+            &lt;xs:element name="quantity" type="xs:integer"/&gt;
+        &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+    &lt;xs:complexType name="shipper"&gt;
+        &lt;xs:sequence&gt;
+            &lt;xs:element name="name" type="xs:string"/&gt;
+            &lt;xs:element name="per-ounce-rate" type="xs:decimal"/&gt;
+        &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+&lt;/xs:schema&gt;</pre>
+<p>If you don't know anything about schema, here are a few basics for this one:</p>
+<ul>
+                
+<li>This schema is a blueprint, defining the rules for creating a certain "shape" of
+                    XML for purchase orders.</li>
+                
+<li>The purchase order XML defined here would have a <span class="codefrag">&lt;purchase-order&gt;</span>
+                    element that has four immediate children: <span class="codefrag">&lt;customer&gt;</span>,
+                    <span class="codefrag">&lt;date&gt;</span>, <span class="codefrag">&lt;line-item&gt;</span>, and <span class="codefrag">&lt;shipper&gt;</span> &mdash;
+                    in that sequence.</li>
+                
+<li>Each of the four child elements has its own children in a particular structure,
+                    as defined in the schema's respective <span class="codefrag">&lt;complexType&gt;</span> elements.</li>
+            
+</ul>
+<p>Now take a look at an XML document based on this schema. Copy the following XML from
+                this page into a new XML file called easypo.xml, then put the file in the
+                tutorials\gettingstarted\instances directory you created at the beginning of this tutorial.</p>
+<pre class="code">&lt;purchase-order xmlns="http://openuri.org/easypo"&gt;
+    &lt;customer&gt;
+        &lt;name&gt;Gladys Kravitz&lt;/name&gt;
+        &lt;address&gt;Anytown, PA&lt;/address&gt;
+    &lt;/customer&gt;
+    &lt;date&gt;2003-01-07T14:16:00-05:00&lt;/date&gt;
+    &lt;line-item&gt;
+        &lt;description&gt;Burnham's Celestial Handbook, Vol 1&lt;/description&gt;
+        &lt;per-unit-ounces&gt;5&lt;/per-unit-ounces&gt;
+        &lt;price&gt;21.79&lt;/price&gt;
+        &lt;quantity&gt;2&lt;/quantity&gt;
+    &lt;/line-item&gt;
+    &lt;line-item&gt;
+        &lt;description&gt;Burnham's Celestial Handbook, Vol 2&lt;/description&gt;
+        &lt;per-unit-ounces&gt;5&lt;/per-unit-ounces&gt;
+        &lt;price&gt;19.89&lt;/price&gt;
+        &lt;quantity&gt;2&lt;/quantity&gt;
+    &lt;/line-item&gt;
+    &lt;shipper&gt;
+        &lt;name&gt;ZipShip&lt;/name&gt;
+        &lt;per-ounce-rate&gt;0.74&lt;/per-ounce-rate&gt;
+    &lt;/shipper&gt;
+&lt;/purchase-order&gt;</pre>
+<p>This XML represents a purchase order in through which Gladys, an amateur astronomer,
+                is buying two books to use as references in her stargazing (along with an extra copy
+                of each for her niece). Because this XML is an instance of the schema, you'll
+                recognize the <span class="codefrag">&lt;purchase-order&gt;</span> element and its children,
+                <span class="codefrag">&lt;customer&gt;</span>, <span class="codefrag">&lt;date&gt;</span>, <span class="codefrag">&lt;line-item&gt;</span>, and <span class="codefrag">&lt;shipper&gt;</span>.</p>
+<p>Now to try these examples out with XMLBeans. Among the tools included with XMLBeans
+                is scomp, a script that executes the schema compiler (part of the XMLBeans API) to
+                compile a schema or directory of schemas. Use scomp to compile the easypo schema. On
+                Windows, use the following command (this script is also available on UNIX):</p>
+<pre class="code">scomp -out tutorials\gettingstarted\lib\easypo.jar schemas\easypo\easypo.xsd</pre>
+<p>You'll end up with easypo.jar in the lib directory of your tutorial hierarchy.</p>
+<a name="N100B8"></a><a name="Results+of+Compiling+the+Schema"></a>
+<h4>Results of Compiling the Schema</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>[This section describes the interfaces generated by the schema compiler. If
+                    you're familiar with this want to skip to writing Java code, go to <a href="#writing_code_that_uses_types">Writing Code
+                    that Uses Generated Types</a>.]</p>
+<p>The schema compiler's output is designed not only to provide a JavaBeans-oriented
+                    view of your schema, but to anticipate the shortcuts you're likely to want. If
+                    you compare the contents of easypo.xsd with the Java types generated by
+                    compiling it, you'll see obvious parallels. For each of the elements and schema
+                    types defined in the schema, the schema compiler has generated Java types. The
+                    package name corresponds to the schema's namespace URI.</p>
+<p>For example, take another look at the &lt;purchase-order&gt; element
+                    defined in the schema:</p>
+<pre class="code">&lt;xs:element name="purchase-order"&gt;
+    &lt;xs:complexType&gt;
+        &lt;xs:sequence&gt;
+            &lt;xs:element name="customer" type="po:customer"/&gt;
+            &lt;xs:element name="date" type="xs:dateTime"/&gt;
+            &lt;xs:element name="line-item" type="po:line-item" minOccurs="0" maxOccurs="unbounded"/&gt;
+            &lt;xs:element name="shipper" type="po:shipper" minOccurs="0" maxOccurs="1"/&gt;
+        &lt;/xs:sequence&gt;
+    &lt;/xs:complexType&gt;
+&lt;/xs:element&gt;</pre>
+<p>This snippet defines the <span class="codefrag">&lt;purchase-order&gt;</span> element as having a
+                    "local" complex type (also known as an "anonymous" complex type). This type
+                    includes a sequence of child elements (in the schema world,
+                    <span class="codefrag">&lt;sequence&gt;</span> is a "compositor" and each <span class="codefrag">&lt;element&gt;</span> is a
+                    "particle"). The <span class="codefrag">&lt;date&gt;</span> element is specified as an xs:dateTime, a
+                    built-in type defined by the W3C's schema data type specification; the other
+                    three elements are complex types defined elsewhere in this schema.</p>
+<a name="N100DF"></a><a name="Options+for+Accessing+Elements+of+Built-In+Schema+Types"></a>
+<h5>Options for Accessing Elements of Built-In Schema Types</h5>
+<div style="margin-left: 0 ; border: 2px">
+<p>To represent the <span class="codefrag">&lt;purchase-order&gt;</span> element, the
+                        schema compiler has generated a <span class="codefrag">PurchaseOrder</span> interface that
+                        extends <span class="codefrag">java.lang.Object</span> and <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlObject.html">
+                            <span class="codefrag">org.apache.xmlbeans.XmlObject</span>
+                        </a>. However, you'll find that this interface is actually contained
+                        within a <span class="codefrag">PurchaseOrderDocument</span> interface. XMLBeans does this
+                        for <span class="codefrag">"global"</span> element and attributes &mdash; those defined at the
+                        top level of the schema. This is to provide you with a way to get and set
+                        the global item as a whole piece, which would be difficult to do if it
+                        weren't contained by anything. In other words, you need a type on which to
+                        methods such as <span class="codefrag">getPurchaseOrder</span> and
+                        <span class="codefrag">setPurchaseOrder</span> and this <span class="codefrag">"Document"</span>
+                        interface fills that role.</p>
+<p> For each of <span class="codefrag">&lt;purchase-order&gt;</span>'s four child
+                        elements, the <span class="codefrag">PurchaseOrder</span> interface exposes accessors
+                        according to JavaBeans conventions. For example, for the
+                        <span class="codefrag">&lt;date&gt;</span> element you have the following:</p>
+<pre class="code">public abstract java.util.Calendar getDate()
+public abstract void setDate ( java.util.Calendar )</pre>
+<p>This is one of two ways that the schema compiler provides for access to the
+                        <span class="codefrag">&lt;date&gt;</span> element &mdash; a more convenient, Java-native
+                        way, one might say. These accessors are a kind of convenience pair (you're
+                        likely to want a <span class="codefrag">Calendar</span> instance when working with a date).
+                        However, because the <span class="codefrag">&lt;date&gt;</span> element's type,
+                        <span class="codefrag">xs:dateTime</span>, is a built-in schema type, the schema compiler
+                        provides accessors that get and set its value with another Java type that
+                        XMLBeans defines:</p>
+<pre class="code">public abstract org.apache.xmlbeans.XmlDateTime xgetDate()
+public abstract void xsetDate( org.apache.xmlbeans.XmlDateTime )</pre>
+<p>
+                        
+<a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlDateTime.html">
+                            <span class="codefrag">XmlDateTime</span>
+                        </a> can be seen as a Rosetta Stone. With it, you can get and set the
+                        element's value using <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Calendar.html">
+                            <span class="codefrag">java.util.Calendar</span>
+                        </a>, <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/util/Date.html">
+                            <span class="codefrag">java.util.Date</span>
+                        </a>, and <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/GDate.html">
+                            <span class="codefrag">org.apache.xmlbeans.GDate</span>
+                        </a>. (For a full list of how built-in schema types are mapped to Java
+                        types by the compiler, see <a href="http://xmlbeans.apache.org/docs/guide/conXMLBeansSupportBuiltInSchemaTypes.html">XMLBeans
+                            Support for Built-In Schema Types</a>.) </p>
+</div>
+<a name="N10150"></a><a name="Access+for+Elements+of+User-Defined+Schema+Types"></a>
+<h5>Access for Elements of User-Defined Schema Types</h5>
+<div style="margin-left: 0 ; border: 2px">
+<p>For the three elements whose types are defined <em>within</em> the schema,
+                        the compiler generates separate Java types and uses these in accessors &mdash; as
+                        below for the <span class="codefrag">&lt;customer&gt;</span> element's
+                        <span class="codefrag">customer</span> type.</p>
+<pre class="code">public abstract org.openuri.easypo.Customer getCustomer()
+public abstract void setCustomer( org.openuri.easypo.Customer )</pre>
+<p>In other words you can call <span class="codefrag">getCustomer</span> to retrieve its
+                        <span class="codefrag">Customer</span> instance, then update the instance's contents &mdash; which
+                        is how you update the content of the <span class="codefrag">&lt;customer&gt;</span>
+                        element it represents. </p>
+<p>Along the same lines, you get a convenience method for complex types like
+                        <span class="codefrag">customer</span>, like so:</p>
+<pre class="code">public abstract org.openuri.easypo.Customer addNewCustomer()</pre>
+<p>Through an <span class="codefrag">add*</span> method such as this one, you can add a new
+                        <span class="codefrag">&lt;customer&gt;</span> element to the
+                        <span class="codefrag">&lt;purchase-order&gt;</span> element. The method returns a
+                        <span class="codefrag">Customer</span> instance so that you can update the new element's
+                        contents. </p>
+<p>Other convenience methods are provided for elements and attributes that
+                        schema defines as optional. The <span class="codefrag">&lt;shipper&gt;</span> element
+                        is optional because the schema specifies its <span class="codefrag">minOccurs</span>
+                        attribute value as <span class="codefrag">0</span> (the default value for this attribute is
+                        <span class="codefrag">1</span>). As a result, the element need not exist in the XML in order
+                        for the instance to be valid. To find out if it's there and to remove it if
+                        it is, you get these methods:</p>
+<pre class="code">public boolean isSetShipper ( ) 
+public abstract void unsetShipper ( )</pre>
+</div>
+<a name="N101A2"></a><a name="Arrays+for+Accessing+Elements+That+May+Occur+More+Than+Once"></a>
+<h5>Arrays for Accessing Elements That May Occur More Than Once</h5>
+<div style="margin-left: 0 ; border: 2px">
+<p>Another optional element defined by the schema is
+                        <span class="codefrag">&lt;line-item&gt;</span>. However, there's an important
+                        difference for <span class="codefrag">&lt;line-item&gt;</span> &mdash; its
+                        <span class="codefrag">maxOccurs</span> attribute's value is "unbounded,"
+                        meaning it may occur multiple times as a child of
+                        <span class="codefrag">&lt;purchase-order&gt;</span> (like <span class="codefrag">minOccurs</span>,
+                        the default of <span class="codefrag">maxOccurs</span> is <span class="codefrag">1</span>). A common Java way
+                        to handle multiple instances of the same type is through an array of that
+                        type &mdash; and that's exactly what the schema compiler gives you:</p>
+<pre class="code">// Get or set the whole array.
+public abstract org.openuri.easypo.LineItem[] getLineItemArray ( )
+public abstract void setLineItemArray ( org.openuri.easypo.LineItem[] )
+
+// Get or set a single item.
+public abstract org.openuri.easypo.LineItem getLineItemArray ( int )
+public abstract void setLineItemArray( int, org.openuri.easypo.LineItem )
+
+// Add or remove an item.
+public abstract org.openuri.easypo.LineItem insertNewLineItem( int )
+public abstract void removeLineItem( int )
+
+// Get the array's size (without having to get the array, then call .length).
+public abstract int sizeOfLineItemArray()</pre>
+<p>Finally, you'll notice that the schema compiler has generated a <span class="codefrag">field</span>:</p>
+<pre class="code">public static final org.apache.xmlbeans.SchemaType type</pre>
+<p>You can use this field for access to a <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/SchemaType.html">
+                            <span class="codefrag">SchemaType</span>
+                        </a> instance that represents the underlying schema type itself. This
+                        will be covered in the last part of this tutorial.</p>
+<div class="frame note">
+<div class="label">Note</div>
+<div class="content">For more information about the types generated from schema, see <a href="../docs/guide/conJavaTypesGeneratedFromUserDerived.html">Java Types Generated from User-Derived Schema Types</a>. To learn more about generated methods, see <a href="../docs/guide/conMethodsForGeneratedJavaTypes.html">Methods for Types Generated from Schema</a>. Also, XMLBeans provides its own Java types for built-in schema data types such as <span class="codefrag">xs:dateTime</span>, <span class="codefrag">xs:decimal</span>, and so on. To read more about these, see <a href="../docs/guide/conXMLBeansSupportBuiltInSchemaTypes.html">XMLBeans Support for Built-In Schema Types</a>.</div>
+</div>
+</div>
+</div>
+<a name="writing_code_that_uses_types"></a><a name="N101F4"></a><a name="Writing+Code+that+Uses+Generated+Types"></a>
+<h4>Writing Code that Uses Generated Types</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>You're going to write a bit of code to add a new line item to the purchase order.
+                    It turns out that Gladys wants to add another book to her order. Your code will
+                    accept the existing order along with raw data for the new item, then add the
+                    item and return the updated XML.</p>
+<p>Start out by creating a POUpdater.java file in the
+                    <span class="codefrag">tutorials\gettingstarted\src</span> directory. Add the following code to
+                    that file:</p>
+<pre class="code">public class POUpdater
+{
+    private static String addLineItem(File purchaseOrder, String itemDescription,
+                                      String perUnitOuncesString, 
+                                      String itemPriceString, String itemQuantityString)
+    {
+        // Bind the incoming XML to an XMLBeans type.
+        PurchaseOrderDocument poDoc = null;
+        try
+        {
+            poDoc = PurchaseOrderDocument.Factory.parse(purchaseOrder);
+        } catch (XmlException e)
+        {
+            e.printStackTrace();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        return poDoc.toString();
+    }
+}</pre>
+<p>So far, the <span class="codefrag">addLineItem</span> method binds the incoming XML to an XMLBeans
+                    type generated by compiling the schema. This snippet creates a method that
+                    receives a <span class="codefrag">File</span> instance representing the purchase order XML, as
+                    well as strings containing the raw data that will comprise the new item added.
+                    You bind the XML <em>document</em> &mdash; the root element and its children &mdash; to the
+                    <span class="codefrag">PurchaseOrderDocument</span> interface. This interface, like all types
+                    extending <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlObject.html">
+                        <span class="codefrag">XmlObject</span>
+                    </a> (including all types generated from schema), provides a
+                    <span class="codefrag">Factory</span> class with which to create new instances. The
+                    <span class="codefrag">Factory</span> class provides various versions of the <span class="codefrag">parse</span>
+                    method, each receiving XML source as a different Java type.</p>
+<p>The method's next bit of code, show below, converts the incoming raw data into
+                    types that can be used when creating the new <span class="codefrag">&lt;line-item&gt;</span> element.
+                    It then adds the new element and sets that element's children's values. Remember
+                    that, in XMLBeans, you get at the type representing a global element by going
+                    through the <span class="codefrag">"Document"</span> type that contains it &mdash; here, with the
+                    <span class="codefrag">getPurchaseOrder</span> method. </p>
+<pre class="code">BigDecimal perUnitOunces = new BigDecimal(perUnitOuncesString);
+BigDecimal itemPrice = new BigDecimal(itemPriceString);
+BigInteger itemQuantity = new BigInteger(itemQuantityString);
+
+LineItem newItem = poDoc.getPurchaseOrder().addNewLineItem();
+newItem.setDescription(itemDescription);
+newItem.setPerUnitOunces(perUnitOunces);
+newItem.setPrice(itemPrice);
+newItem.setQuantity(itemQuantity);</pre>
+<p>That's pretty much all there is to it. The JavaBeans-style access provided by
+                    compiling your schema greatly simplifies your access to XML instances based on
+                    the schema. </p>
+<p>Here's a full version of the <span class="codefrag">POUpdater</span> class, with the
+                    <span class="codefrag">addLineItem</span> method accessible via a <span class="codefrag">main</span> method.</p>
+<pre class="code">public class POUpdater
+{
+    public static void main(String[] args)
+    {
+        File poXmlFile = new File(args[0]);
+        String updatedPoXml = addLineItem(poXmlFile, args[1], args[2],
+            args[3], args[4]);
+        System.out.println(updatedPoXml);
+    }
+
+    private static String addLineItem(File purchaseOrder, String itemDescription,
+                                      String perUnitOuncesString, 
+                                      String itemPriceString, String itemQuantityString)
+    {
+        PurchaseOrderDocument poDoc = null;
+        try
+        {
+            // Bind the incoming XML to an XMLBeans type.
+            poDoc = PurchaseOrderDocument.Factory.parse(purchaseOrder);
+        } catch (XmlException e)
+        {
+            e.printStackTrace();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        // Convert incoming data to types that can be used in accessors.
+        BigDecimal perUnitOunces = new BigDecimal(perUnitOuncesString);
+        BigDecimal itemPrice = new BigDecimal(itemPriceString);
+        BigInteger itemQuantity = new BigInteger(itemQuantityString);
+
+        // Add the new &lt;line-item&gt; element.
+        LineItem newItem = poDoc.getPurchaseOrder().addNewLineItem();
+        newItem.setDescription(itemDescription);
+        newItem.setPerUnitOunces(perUnitOunces);
+        newItem.setPrice(itemPrice);
+        newItem.setQuantity(itemQuantity);
+
+        return poDoc.toString();
+    }
+}</pre>
+<p>Now, compile the new class with a command such as the following (the line is
+                    broken for readability):</p>
+<pre class="code">javac -classpath $XMLBEANS_HOME/lib/xbean.jar:tutorials/gettingstarted/lib/easypo.jar 
+    POUpdater instances/easypo/easypo.xml "a new item" 5.0 20.00 6</pre>
+<p>After you compile, you can try out the class with the following command (again,
+                    broken for readability):</p>
+<pre class="code">java -cp tutorials/gettingstarted/classes:$XMLBEANS_HOME/lib/xbean.jar:tutorials/gettingstarted/lib/easypo.jar 
+    POUpdater tutorials/gettingstarted/instances/easypo.xml "a new item" 5.0 20.00 6</pre>
+<p>The output should look like the instance output above, but with the following
+                    added as the last <span class="codefrag">&lt;line-item&gt;</span> element, immediately
+                    before the <span class="codefrag">&lt;shipper&gt;</span> element. </p>
+<pre class="code">&lt;line-item&gt;
+    &lt;description&gt;Backyard Astronomer's Guide, The&lt;/description&gt;
+    &lt;per-unit-ounces&gt;5.0&lt;/per-unit-ounces&gt;
+    &lt;price&gt;49.95&lt;/price&gt;
+    &lt;quantity&gt;2&lt;/quantity&gt;
+&lt;/line-item&gt;</pre>
+<p>Obviously, you need a schema to use this aspect of XMLBeans. But you may find
+                    yourself creating a schema where you only have instances so that you can compile
+                    it to generate those Java types &mdash; just to make your life a little easier.</p>
+</div>
+</div>
+        
+<a name="N1026F"></a><a name="Getting+Started+with+the+XML+Cursor"></a>
+<h3>Getting Started with the XML Cursor</h3>
+<div style="margin-left: 0 ; border: 2px">
+<p>The XML cursor &mdash; represented in the API by the <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlCursor.html">
+                    <span class="codefrag">org.apache.xmlbeans.XmlCursor</span>
+                </a> interface &mdash; is designed to (among other things) complement the
+                JavaBeans-style access you get from types generated by compiling schema. The cursor
+                provides the ability to move over the XML in a more fine-grained manner. For
+                example, in the preceding code you added a new
+                <span class="codefrag">&lt;line-item&gt;</span> element, but you had no control over where
+                the new element went. XMLBeans just inserted it as the last
+                <span class="codefrag">&lt;line-item&gt;</span>. The simplicity provided by get/set pairs is
+                clearly an advantage with the Java types you get from schema, but when you care
+                about finer control &mdash; such as element order &mdash; then turn to <span class="codefrag">XmlCursor</span>. </p>
+<p>You might say that <span class="codefrag">XmlCursor</span> provides a schema-agnostic view of the XML.
+                From a cursor's perspective, the XML is a series of <em>tokens</em>.
+                These tokens are divided into categories called <em>token types</em>
+                represented by constants of <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlCursor.TokenType.html">
+                    <span class="codefrag">org.apache.xmlbeans.XmlCursor.TokenType</span>
+                </a>. Token types include <span class="codefrag">START</span> (for the beginning of an element),
+                <span class="codefrag">END</span> (for its end), <span class="codefrag">ATTR</span> (for an attribute), and
+                <span class="codefrag">TEXT</span> (for an element's text content). With a cursor, you navigate
+                through XML by moving the cursor from token to token.</p>
+<a name="N102A7"></a><a name="Adding+a+New+%3Cline-item%3E+Element%2C+Cursor-Style+"></a>
+<h4>Adding a New &lt;line-item&gt; Element, Cursor-Style </h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>In this section you'll insert the same new <span class="codefrag">&lt;line-item&gt;</span>
+                    element, but with care this time to ensure that it's in the right place in the
+                    list, alphabetically. For simplicity's sake, assume that the
+                    <span class="codefrag">&lt;line-item&gt;</span> elements in the document you receive are
+                    already in alphabetical order (which, it so happens, they are). You just need to
+                    make sure the addition follows suit.</p>
+<p>Create a new method called <span class="codefrag">addLineItemWithCursor</span>. You'll use this as
+                    an alternative to the previous method. As in the <span class="codefrag">addLineItem</span>
+                    method, you'll need to parse the incoming XML into the types you generated, so
+                    your new method should start out looking like this:</p>
+<pre class="code">private static String addLineItemWithCursor(File purchaseOrder, String itemDescription,
+    String perUnitOunces, String itemPrice, String itemQuantity)
+{
+    PurchaseOrderDocument poDoc = null;
+    try
+    {
+        poDoc = PurchaseOrderDocument.Factory.parse(purchaseOrder);
+    } catch (XmlException e)
+    {
+        e.printStackTrace();
+    } catch (IOException e)
+    {
+        e.printStackTrace();
+    }
+    PurchaseOrderDocument.PurchaseOrder po = poDoc.getPurchaseOrder();
+}</pre>
+<p>Next, you'll need to add something through which you can check for alphabet
+                    order. For this, you can use a class that implements <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/text/Collator.html">
+                        <span class="codefrag">java.text.Collator</span>
+                    </a>. As it turns out, <a href="http://java.sun.com/j2se/1.4.2/docs/api/java/text/RuleBasedCollator.html">
+                        <span class="codefrag">java.text.RuleBasedCollator</span>
+                    </a> does just what you need by comparing words to find out if one should
+                    precede the other. You'll instantiate a <span class="codefrag">RuleBasedCollator </span> with the
+                    following code:</p>
+<pre class="code">RuleBasedCollator collator =
+        (RuleBasedCollator)Collator.getInstance(new Locale("en", "US", ""));</pre>
+<p>Now it's time to get started with the cursor. You can add a new cursor to any
+                    XMLBeans type that extends <span class="codefrag">XmlObject</span> &mdash; including the generated
+                    types that represent your schema. When you add a cursor with the
+                    <span class="codefrag">newCursor</span> method, the cursor is created at the beginning of the XML
+                    represented by the type on which you're calling the method. For example, the
+                    following line of code will create a cursor that immediately precedes the XML
+                    represented by <span class="codefrag">PurchaseOrder</span>:</p>
+<pre class="code">XmlCursor cursor = po.newCursor();</pre>
+<p>In other words, after this code, the cursor will immediately precede the
+                    <span class="codefrag">&lt;purchase-order&gt;</span> element &mdash; it will be at that
+                    element's <span class="codefrag">START</span> token. The
+                    <span class="codefrag">&lt;purchase-order&gt;</span> element has an <span class="codefrag">xmlns</span>
+                    attribute, so if you called <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlCursor.html#toNextToken()">
+                        <span class="codefrag">cursor.toNextToken()</span>
+                    </a>, you would move the cursor to an <span class="codefrag">ATTR</span> token that represents
+                    the attribute, as illustrated here.</p>
+<p>
+                    
+<img alt="Token types" height="212" src="../../../resources/images/tokentypes.jpg" width="644">
+                </p>
+<p>But for for the moment, the code will leave the cursor where it is. Instead,
+                    you'll call another method to get the URI for the default namespace &mdash; you're
+                    going to need that when adding new elements, as you'll see.</p>
+<pre class="code">String namespaceUri = cursor.namespaceForPrefix("");</pre>
+<p>To do the real work, you'll write code to get, JavaBeans-style, the array
+                    representing <span class="codefrag">&lt;line-item&gt;</span> elements and loop through
+                    the array to find the first line item whose description belongs <em>after</em>
+                    the one you want to insert. Then your code will insert the new line item before
+                    the one it found.</p>
+<p>In particular, you'll reassign the existing cursor instance to a new cursor at
+                    the <span class="codefrag">&lt;line-item&gt;</span> element before which you want to insert.</p>
+<pre class="code">cursor = lineItem.newCursor();</pre>
+<p>Then you'll begin a new element there; giving the new element the default
+                    namespace URI will ensure that the element belongs to the same namespace as the
+                    XML around it.</p>
+<pre class="code">cursor.beginElement("line-item", namespaceUri);</pre>
+<p>The <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlCursor.html#beginElement(java.lang.String,%20java.lang.String)">
+                        <span class="codefrag">beginElement</span>
+                    </a> method creates a new element where the cursor is (if doing so will
+                    result in well-formed XML) and leaves the cursor between the new element's
+                    <span class="codefrag">START</span> and <span class="codefrag">END</span> tokens. </p>
+<p>Finally, your code will populate the new <span class="codefrag">&lt;line-item&gt;</span>
+                    element with child elements through further calls to <span class="codefrag">beginElement</span>
+                    and by inserting text for the elements' values. Here's snippet to show how this works:</p>
+<pre class="code">cursor.beginElement("description", namespaceUri);
+cursor.insertChars(itemDescription);
+cursor.toNextToken();
+cursor.beginElement("per-unit-ounces", namespaceUri);
+// ... and so on for the other children...</pre>
+<p>The following illustrates the shifting and moving of tokens that occurs between
+                    inserting a new cursor and beginning a new element.</p>
+<p>
+                    
+<img alt="Inserting a new cursor." height="153" src="../../../resources/images/tokentypes_newcursor.jpg" width="476">
+                </p>
+<p>
+                    
+<img alt="Beginning a new element." height="166" src="../../../resources/images/beginelement.jpg" width="419">
+                </p>
+<p>
+                    
+<img alt="After the new element begins." height="129" src="../../../resources/images/after_beginelement.jpg" width="449">
+                </p>
+<p>Cursor operations are like this. You move the cursor from token to token as if
+                    from one train car to another. Copying, moving or removing elements shifts
+                    tokens to make room for others or to close up a space left behind.</p>
+<div class="frame note">
+<div class="label">Note</div>
+<div class="content">The token type names (<span class="codefrag">START</span>,
+                        <span class="codefrag">END</span>, <span class="codefrag">ATTR</span>, and so on) will tempt you to equate
+                        tokens with actual parts of the XML markup &mdash; resist the temptation. The
+                        tokens are abstractions, not tags. For example, an element expressed in an
+                        instance document as <span class="codefrag">&lt;foo
+                        bar="baz"/&gt;</span> will have a <span class="codefrag">START</span>,
+                        <span class="codefrag">ATTR</span>, and <span class="codefrag">END</span> token even though it does not have
+                        an end tag. You can learn more about token types at <a href="../docs/guide/conUnderstandingXMLTokens.html">Understanding XML Tokens</a>.</div>
+</div>
+<p>Here's the method's full code:</p>
+<pre class="code">private static String addLineItemWithCursor(File purchaseOrder, String itemDescription,
+    String perUnitOunces, String itemPrice, String itemQuantity)
+{
+    PurchaseOrderDocument poDoc = null;
+    try
+    {
+        poDoc = PurchaseOrderDocument.Factory.parse(purchaseOrder);
+    } catch (XmlException e)
+    {
+        e.printStackTrace();
+    } catch (IOException e)
+    {
+        e.printStackTrace();
+    }
+
+    PurchaseOrderDocument.PurchaseOrder po = poDoc.getPurchaseOrder();
+
+    // Set up the collator for alphabetizing.
+    RuleBasedCollator collator =
+        (RuleBasedCollator)Collator.getInstance(new Locale("en", "US", ""));
+    XmlCursor cursor = po.newCursor();
+
+    // Get the document's URI so you can use it to insert.
+    String namespaceUri = cursor.namespaceForPrefix("");
+
+    // Get the array of &lt;line-item&gt; elements.
+    LineItem[] lineItems = po.getLineItemArray();
+
+    // Loop through the element array to discover where to insert the new one.
+    for (int i = 0; i &lt; lineItems.length; i++)
+    {
+        LineItem lineItem = lineItems[i];
+
+        // Find out if the new line item's description belongs before the
+        // current line item's.
+        int comparison = collator.compare(itemDescription, lineItem.getDescription());
+
+        // If the comparison returns -1, then insert the new line item (and
+        // its children) before the current one.
+        if (comparison &lt; 0)
+        {
+            cursor = lineItem.newCursor();
+
+            // Begin the new &lt;line-item&gt; element.
+            cursor.beginElement("line-item", namespaceUri);
+
+            // Begin the new &lt;description&gt; element and insert its text value.
+            cursor.beginElement("description", namespaceUri);
+            cursor.insertChars(itemDescription);
+
+            // Move on and do the same for the other elements.
+            cursor.toNextToken();
+            cursor.beginElement("per-unit-ounces", namespaceUri);
+            cursor.insertChars(perUnitOunces);
+            cursor.toNextToken();
+            cursor.beginElement("prices", namespaceUri);
+            cursor.insertChars(itemPrice);
+            cursor.toNextToken();
+            cursor.beginElement("quantity", namespaceUri);
+            cursor.insertChars(itemQuantity);
+            break;
+        }
+    }
+    // Speed the cursor's garbage collection and return the updated XML.
+    cursor.dispose();
+    return poDoc.toString();
+}</pre>
+<p>Before testing, you'll want to update your main method so that it calls the
+                    <span class="codefrag">addLineItemCursor</span> method rather than the <span class="codefrag">addLineItem</span>
+                    method you used earlier.</p>
+<pre class="code">public static void main(String[] args)
+{
+    File poXmlFile = new File(args[0]);
+    // String updatedPoXml = addLineItem(poXmlFile, args[1], args[2],
+    //     args[3], args[4]);
+    String updatedPoXml = addLineItemWithCursor(poXmlFile, args[1], args[2],
+        args[3], args[4]);
+    System.out.println(updatedPoXml);
+} </pre>
+<p>Test the <span class="codefrag">POUpdater</span> class just as you did before. This time, you
+                    should see the new <span class="codefrag">&lt;line-item&gt;</span> element added as the
+                    first in the set, rather than at the end.</p>
+<p>Before moving on, you should give some thought to another aspect of working with
+                    cursors. The cursor's support for changing the XML outside any schema
+                    constraints also means that, without care, you can stray far from schema
+                    validity. If validity matters, be sure to consider calling the <a href="http://xmlbeans.apache.org/docs/reference/org/apache/xmlbeans/XmlObject.html#validate()">
+                        <span class="codefrag">validate</span>
+                    </a> method before passing the edited XML along.</p>
+<div class="frame note">
+<div class="label">Note</div>
+<div class="content">To learn more about using the <span class="codefrag">XmlCursor</span> interface, see <a href="../docs/guide/conNavigatingXMLwithCursors.html">Navigating XML with Cursors</a>.</div>
+</div>
+</div>
+</div>
+        
+<a name="N103C4"></a><a name="Where+to+Go+from+Here"></a>
+<h3>Where to Go from Here</h3>
+<div style="margin-left: 0 ; border: 2px">
+<ul>
+                
+<li>Be sure to check out the <a href="http://xmlbeans.apache.org/documentation/index.html">XMLBeans documentation</a>.</li>
+                
+<li>The <a href="http://xmlbeans.apache.org/resources/index.html">XMLBeans
+                    Resources</a> page provides links to lots of articles.</li>
+            
+</ul>
+</div>
+    
+<div class="attribution"></div>
+</div>
+</td><td width="10"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
+</tr>
+<!--================= end Content==================-->
+</table>
+</td>
+</tr>
+</table>
+<!--================= end Menu, NavBar, Content ==================-->
+<!--================= start Footer ==================-->
+<table summary="footer" cellspacing="0" cellpadding="0" width="100%" border="0">
+<tr>
+<td colspan="2" height="1" bgcolor="#4C6C8F"><img height="1" width="1" alt="" src="../skin/images/spacer.gif" class="spacer"><a href="../skin/images/label.gif"></a><a href="../skin/images/page.gif"></a><a href="../skin/images/chapter.gif"></a><a href="../skin/images/chapter_open.gif"></a><a href="../skin/images/current.gif"></a><a href="/favicon.ico"></a></td>
+</tr>
+<tr>
+<td colspan="2" bgcolor="#CFDCED" class="copyright" align="center"><font size="2" face="Arial, Helvetica, Sans-Serif">Copyright &copy;
+          2004&nbsp;The Apache Software Foundation. All rights reserved.<script type="text/javascript" language="JavaScript"><!--
+              document.write(" - "+"Last Published: " + document.lastModified);
+            //  --></script></font></td>
+</tr>
+<tr>
+<td colspan="2" align="left" bgcolor="#CFDCED" class="logos"></td>
+</tr>
+</table>
+<!--================= end Footer ==================-->
+</body>
+</html>

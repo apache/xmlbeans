@@ -48,7 +48,7 @@
                       <link href="samples.zip">zip</link>
                       <link href="samples.tgz">tgz</link>
                     </td>
-                    <td>2004-09-15</td>
+                    <td>2004-10-28</td>
                     <td>all</td>
                 </tr>
                 <tr>
@@ -65,6 +65,24 @@
                       <link href="MixedContent.tgz">tgz</link>
                     </td>
                     <td>2004-09-15</td>
+                    <td>cursor</td>
+                </tr>
+                <tr>
+                    <td>
+                        <link href="OrderMatters.html">
+                            <strong>OrderMatters</strong>
+                        </link>
+                        <br/>
+                        This samples gives an quick overview of how to use
+                        XmlBeans with both the strongly typed XmlObjects
+                        (StatementDocument, Transaction) and with the
+                        XmlCursor.
+                    </td>
+                    <td>
+                      <link href="OrderMatters.zip">zip</link>
+                      <link href="OrderMatters.tgz">tgz</link>
+                    </td>
+                    <td>2004-10-28</td>
                     <td>cursor</td>
                 </tr>
                 <tr>
@@ -94,8 +112,25 @@
                       <link href="SubstitutionGroup.zip">zip</link>
                       <link href="SubstitutionGroup.tgz">tgz</link>
                     </td>
-                    <td>2004-10-15</td>
+                    <td>2004-10-28</td>
                     <td>schema: substitution groups</td>
+                </tr>
+                <tr>
+                    <td>
+                        <link href="DateTime.html">
+                            <strong>DateTime</strong>
+                        </link>
+                        <br/>
+                        This sample demonstrates how you can work with XML
+                        Schema primitive types date,
+                        dateTime, time, duration, gDay.
+                    </td>
+                    <td>
+                      <link href="DateTime.zip">zip</link>
+                      <link href="DateTime.tgz">tgz</link>
+                    </td>
+                    <td>2004-10-28</td>
+                    <td>values</td>
                 </tr>
                 <tr>
                     <td>

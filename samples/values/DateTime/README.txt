@@ -24,15 +24,13 @@ For eg:
 
 Schema Type             Formal Class            Natural Java Class
 xs:date                 XmlDate                 java.util.Calendar (XmlCalendar)
-xs:duration             XmlDuration             - *
+xs:duration             XmlDuration             org.apache.xmlbeans.GDuration
 xs:dateTime             XmlDateTime             java.util.Calendar (XmlCalendar)
 xs:time                 XmlTime                 java.util.Calendar (XmlCalendar)
 
 The XmlCalendar is a subclass of GregorianCalendar that modifies several key
 details in the behavior of GregorianCalendar to make it more useful when
 dealing with XML dates.
-
-*javax.xml.datatype.Duration(J2SE 5.0)
 
 
 When you run this sample:

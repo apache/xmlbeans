@@ -2,7 +2,7 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Sample Template</title>
+<title>OrderMatters Sample</title>
 <link type="text/css" href="../skin/page.css" rel="stylesheet">
 </head>
 <body text="#000000" bgcolor="#FFFFFF">
@@ -163,7 +163,7 @@
 </li>
             
 <li>
-<a href="../samples/OrderMatters.html">OrderMatters</a>
+<span class="sel"><font color="#ffcc00">OrderMatters</font></span>
 </li>
             
 <li>
@@ -179,7 +179,7 @@
 </li>
             
 <li>
-<span class="sel"><font color="#ffcc00">SampleTemplate</font></span>
+<a href="../samples/SampleTemplate.html">SampleTemplate</a>
 </li>
         
 </ul>
@@ -225,8 +225,8 @@
 <table class="title" summary="">
 <tr>
 <td valign="middle">
-<h1>Sample Template</h1>
-</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="SampleTemplate.pdf"><img alt="PDF" src="../skin/images/pdfdoc.gif" class="skin"><br>
+<h1>OrderMatters Sample</h1>
+</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="OrderMatters.pdf"><img alt="PDF" src="../skin/images/pdfdoc.gif" class="skin"><br>
           PDF</a></td>
 </tr>
 </table>
@@ -234,15 +234,19 @@
 <a name="N1000C"></a><a name="Description"></a>
 <h3>Description</h3>
 <div style="margin-left: 0 ; border: 2px">
-<p>Available: 2004-09-15</p>
-<p>This sample template is the recommended way of writing a
-              sample.  If you'd like to contribute, please do!
-              Once you've written it, post a new
-              <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10436">Jira</a>
-              bug with component=Samples. For ideas, see
-              <a href="http://wiki.apache.org/xmlbeans/XmlBeansSampleSuggestions">XmlBeansSampleSuggestions</a>
-              on the wiki.  Thanks for submitting!
-            </p>
+<p>Author: Eric Vasilik</p>
+<p>Available: 2004-10-28</p>
+<p>Versions: xmlbeans-1.0.3, xmlbeans-v2</p>
+<p>This samples gives an quick overview of how to use XmlBeans with both the
+            strongly typed XmlObjects (StatementDocument, Transaction) and with the
+            XmlCursor.
+            <br>
+            In the sample, a instance of a statement is iterated over twice -- once using
+            the strongly typed array approach and once with an XmlCursor.  When walking
+            over the array the programmer naivly adds up deposit amounts before the
+            withdrawal amounts.  The end result is a positive balance.  When walking over
+            the array using XmlCursor, the transaction amounts are processed in order and
+            the end result is a negative balance.</p>
 </div>
         
 <a name="N10021"></a><a name="Files"></a>
@@ -250,131 +254,39 @@
 <div style="margin-left: 0 ; border: 2px">
 <p>
               
-<a href="SampleTemplate.zip">Zip of all files (SampleTemplate.zip)</a>
+<a href="OrderMatters.zip">Zip of all files (OrderMatters.zip)</a>
             
 </p>
 <p>
               
-<a href="SampleTemplate.tgz">Tar gzip of all files
-                (SampleTemplate.tgz)</a>
+<a href="OrderMatters.tgz">Tar gzip of all files (OrderMatters.tgz)</a>
             
 </p>
 <p>
                 
-<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/SampleTemplate/README.txt">Readme file</a>
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/OrderMatters/README.txt">Readme file</a>
             
 </p>
-</div>
-        
-<a name="N1003D"></a><a name="Authoring+Samples"></a>
-<h3>Authoring Samples</h3>
-<div style="margin-left: 0 ; border: 2px">
 <p>
-            If you have an idea for a sample that you'd like to share with the
-            community, we'd be happy to review and add it to the collection!
-            Because we want all of the samples available from this site to be
-            useful (and you probably do, too), we'd like you to follow the
-            guidelines on this page when writing an XMLBeans sample.
-          </p>
-<p>
-            To contrubute the sample, please create a new Jira bug with
-            component=Samples and attach the sample zip to the bug.
-          </p>
-<div class="frame note">
-<div class="label">Note</div>
-<div class="content">
-            All sample code accepted for use on the XMLBeans web site becomes
-            the property of the Apache Software Foundation. In other words,
-            thanks for donating a sample!
-          </div>
-</div>
-<a name="N1004C"></a><a name="Sample+scope"></a>
-<h4>Sample scope</h4>
-<div style="margin-left: 0 ; border: 2px">
-<p>
-              Try to keep your sample reasonably small and well-defined. It's
-              going to be more useful, and more easily found, if it's about
-              something specific -- handling schema enums (or some other
-              particular aspect of schema), handling validation errors,
-              constructing mixed content with a cursor, and so on.  Large
-              samples that do lots of things are often hard to get to know and
-              learn something useful from. </p>
-<p>
-              Your code will be most useful if it can be copied and pasted
-              into someone else's app. However, schema dependencies will
-              differ greatly from user to user, so samples that use generated
-              types will tend to be fairly specific. Moreover, code that
-              effectively demonstrates how a particular aspect of XMLBeans
-              works is a good teacher, even if would take quite a bit of
-              massaging to coerce it to another application.
-            </p>
-</div>
-<a name="N10059"></a><a name="Code+comments"></a>
-<h4>Code comments</h4>
-<div style="margin-left: 0 ; border: 2px">
-<p>
-              Obviously, comments are an essential part of making a sample
-              useful. In general, the more comments your code has, the better.
-              But here are a few guidelines that we ask you to keep in mind:
-            </p>
-<ul>
-              
-<li>
-                Each sample file (including non-Java files) must include the
-                Apache copyright notice. If it's not there when it's accepted,
-                we'll add it.
-              </li>
-              
-<li>
-                Each class and method should include a comment in the Javadoc
-                style. It's not necessary to include specific Javadoc
-                annotations (@param, @return, and so on), but your sample
-                isn't as useful to others unless it's commented well.
-              </li>
-              
-<li>
-                Class-level comments should describe what the class
-                demonstrates. In particular, the comments should be sure to
-                describe the XMLBeans technologies that the class includes.
-                Other description text should describe what the sample's user
-                should expect to see when they run the sample.
-              </li>
-              
-<li>
-                Method-level comments should describe what the method does.
-                Comments should focus on the role of XMLBeans technologies.
-              </li>
-              
-<li>
-                Where useful, add more comments!
-              </li>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/OrderMatters/src/org/apache/xmlbeans/samples/cursor/OrderMatters.java">OrderMatters.java</a>
             
-</ul>
-</div>
-<a name="N10075"></a><a name="Code+conventions"></a>
-<h4>Code conventions</h4>
-<div style="margin-left: 0 ; border: 2px">
+</p>
 <p>
-              To help make XMLBeans samples as a set easier for others to use,
-              we encourage you to follow a few simple code conventions. In
-              this way, users can spend less time deciphering code and more
-              time getting the things it demonstrates. Most of these are
-              common practice anyway.
-            </p>
-<ul>
-              
-<li>Package name words should all be lower-case.</li>
-              
-<li>
-                Package names should begin with 'org.apache.xmlbeans.samples'
-                and end with the sample's name, and should
-                indicate what the sample illustrates. Examples are
-                'org.apache.xmlbeans.samples.anytype.*' or '
-                'org.apache.xmlbeans.samples.dynamiccompilation.*'
-              </li>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/OrderMatters/schemas/stmt.xsd">stmt.xsd</a>
             
-</ul>
-</div>
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/OrderMatters/xml/stmt.xml">stmt.xml</a>
+            
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/OrderMatters/build.xml">build.xml</a>
+            
+</p>
 </div>
     
 <div class="attribution"></div>
