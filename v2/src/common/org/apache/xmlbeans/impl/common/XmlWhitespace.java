@@ -81,7 +81,17 @@ public class XmlWhitespace
 
     public static boolean isAllSpace(String v)
     {
-        for (int i = 0; i < v.length(); i++)
+        for (int i = 0, len = v.length(); i < len; i++)
+        {
+            if (!isSpace(v.charAt(i)))
+                return false;
+        }
+        return true;
+    }
+
+    public static boolean isAllSpace(CharSequence v)
+    {
+        for (int i = 0, len = v.length(); i < len; i++)
         {
             if (!isSpace(v.charAt(i)))
                 return false;

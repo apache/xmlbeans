@@ -61,6 +61,7 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
+import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
 import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
 import org.apache.xmlbeans.impl.marshal.util.collections.ReflectiveArrayIterator;
@@ -201,7 +202,10 @@ final class MarshalResult implements XMLStreamReader
 
     public String getNamespaceURI(String s)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        if (s == null)
+            throw new IllegalArgumentException("prefix cannot be null");
+
+        return getNamespaceContext().getNamespaceURI(s);
     }
 
     public boolean isStartElement()
@@ -216,18 +220,30 @@ final class MarshalResult implements XMLStreamReader
 
     public boolean isCharacters()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return currentEventType == CHARACTERS;
     }
 
     public boolean isWhiteSpace()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        if (!isCharacters()) return false;
+        CharSequence seq = currVisitor.getCharData();
+        return XmlWhitespace.isAllSpace(seq);
     }
 
-    public String getAttributeValue(String s, String s1)
+    public String getAttributeValue(String uri, String lname)
     {
         initAttributes();
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+
+        //TODO: do better than this basic and slow implementation
+        for (int i = 0, len = getAttributeCount(); i < len; i++) {
+            final QName aname = getAttributeName(i);
+
+            if (lname.equals(aname.getLocalPart())) {
+                if (uri == null || uri.equals(aname.getNamespaceURI()))
+                    return getAttributeValue(i);
+            }
+        }
+        return null;
     }
 
     public int getAttributeCount()
@@ -316,14 +332,55 @@ final class MarshalResult implements XMLStreamReader
 
     public char[] getTextCharacters()
     {
-        return getText().toCharArray();
+        CharSequence seq = currVisitor.getCharData();
+        if (seq instanceof String) {
+            return seq.toString().toCharArray();
+        }
+
+        final int len = seq.length();
+        char[] val = new char[len];
+        for(int i = 0 ; i < len ; i++) {
+            val[i] = seq.charAt(i);
+        }
+        return val;
     }
 
-    public int getTextCharacters(int i, char[] chars, int i1, int i2)
-        throws XMLStreamException
-    {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
-    }
+
+      public int getTextCharacters(int sourceStart,
+                                   char[] target,
+                                   int targetStart,
+                                   int length)
+          throws XMLStreamException
+      {
+          if (length < 0)
+              throw new IndexOutOfBoundsException("negative length: " + length);
+
+          if (targetStart < 0)
+              throw new IndexOutOfBoundsException("negative targetStart: " + targetStart);
+
+          final int target_length = target.length;
+          if (targetStart >= target_length)
+              throw new IndexOutOfBoundsException("targetStart(" + targetStart + ") past end of target(" + target_length + ")");
+
+          if ((targetStart + length) > target_length) {
+              throw new IndexOutOfBoundsException("insufficient data in target(length is " + target_length + ")");
+          }
+
+          CharSequence seq = currVisitor.getCharData();
+          if (seq instanceof String) {
+              final String s = seq.toString();
+              s.getChars(sourceStart, sourceStart + length, target, targetStart);
+              return length;
+          }
+
+          final int len = seq.length();
+          char[] val = new char[len];
+          int cnt = 0;
+          for (int src_idx = sourceStart, dest_idx = targetStart; cnt < length; cnt++) {
+              target[dest_idx++] = seq.charAt(src_idx++);
+          }
+          return cnt;
+      }
 
     public int getTextStart()
     {
@@ -337,12 +394,21 @@ final class MarshalResult implements XMLStreamReader
 
     public String getEncoding()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return null;
     }
 
     public boolean hasText()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        //we'll likely never return some of these but just in case...
+        switch (currentEventType) {
+            case COMMENT:
+            case DTD:
+            case ENTITY_REFERENCE:
+            case CHARACTERS:
+                return true;
+            default:
+                return false;
+        }
     }
 
     public Location getLocation()
@@ -378,22 +444,22 @@ final class MarshalResult implements XMLStreamReader
 
     public String getVersion()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return null;
     }
 
     public boolean isStandalone()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return false;
     }
 
     public boolean standaloneSet()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return false;
     }
 
     public String getCharacterEncodingScheme()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return null;
     }
 
     public String getPITarget()
