@@ -30,7 +30,7 @@ import java.io.UnsupportedEncodingException;
  *
  * @author Jeffrey Rodriguez
  * @author Sandy Gao
- * @version $Id: Base64.java,v 1.3 2004/02/12 20:05:56 ericvas Exp $
+ * @version $Id$
  */
 public final class  Base64 {
 
