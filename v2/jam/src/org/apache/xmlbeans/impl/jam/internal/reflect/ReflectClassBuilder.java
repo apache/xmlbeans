@@ -16,8 +16,6 @@ package org.apache.xmlbeans.impl.jam.internal.reflect;
 
 import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
-import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
-import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.provider.JamClassPopulator;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
@@ -38,55 +36,29 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
     "org.apache.xmlbeans.impl.jam.internal.java15.Reflect15DelegateImpl";
 
   // ========================================================================
-  // Public static utilities
-
-  public static JamClassBuilder getSystemClassBuilder(JamServiceContext ctx) {
-    return new ReflectClassBuilder(ClassLoader.getSystemClassLoader(),ctx);
-  }
-
-  // ========================================================================
   // Variables
 
   private ClassLoader mLoader;
   private Reflect15Delegate mDelegate = null;
-  private JamLogger mLogger = null;
 
   // ========================================================================
   // Constructors
 
-  public ReflectClassBuilder(ClassLoader rcl, JamServiceContext ctx) {
+  public ReflectClassBuilder(ClassLoader rcl) {
     if (rcl == null) throw new IllegalArgumentException("null rcl");
-    if (ctx == null) throw new IllegalArgumentException("null ctx");
-    mLogger = ctx;
     mLoader = rcl;
-    try {
-      // class for name this because it's 1.5 specific.  if it fails, we
-      // don't want to use the extractor
-      Class.forName("java.lang.annotation.Annotation");
-    } catch (ClassNotFoundException e) {
-      issue14RuntimeWarning(e,mLogger);
-      return;
-    }
-    // ok, if we could load that, let's new up the extractor delegate
-    try {
-      mDelegate = (Reflect15Delegate)
-        Class.forName(JAVA15_DELEGATE).newInstance();
-      mDelegate.init((ElementContext)ctx);
-      // if this fails for any reason, things are in a bad state
-    } catch (ClassNotFoundException e) {
-      issue14BuildWarning(e,mLogger);
-    } catch (IllegalAccessException e) {
-      issue14BuildWarning(e,mLogger);
-    } catch (InstantiationException e) {
-      issue14BuildWarning(e,mLogger);
-    }
   }
 
   // ========================================================================
   // JamClassBuilder implementation
 
-  public MClass build(String packageName, String className)
-  {
+  public void init(ElementContext ctx) {
+    super.init(ctx);
+    initDelegate(ctx);
+  }
+
+  public MClass build(String packageName, String className) {
+    assertInitialized();
     if (getLogger().isVerbose(this)) {
       getLogger().verbose("trying to build '"+packageName+"' '"+className+"'");
     }
@@ -109,6 +81,7 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
   // JamClassPopulator implementation
 
   public void populate(MClass dest) {
+    assertInitialized();
     Class src = (Class)dest.getArtifact();
     dest.setModifiers(src.getModifiers());
     dest.setIsInterface(src.isInterface());
@@ -160,6 +133,34 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
         inner.setArtifact(inners[i]);
         populate(inner);
       }
+    }
+  }
+
+
+  // ========================================================================
+  // Private methods
+
+  private void initDelegate(ElementContext ctx) {
+    try {
+      // class for name this because it's 1.5 specific.  if it fails, we
+      // don't want to use the extractor
+      Class.forName("java.lang.annotation.Annotation");
+    } catch (ClassNotFoundException e) {
+      issue14RuntimeWarning(e);
+      return;
+    }
+    // ok, if we could load that, let's new up the extractor delegate
+    try {
+      mDelegate = (Reflect15Delegate)
+        Class.forName(JAVA15_DELEGATE).newInstance();
+      mDelegate.init((ElementContext)ctx);
+      // if this fails for any reason, things are in a bad state
+    } catch (ClassNotFoundException e) {
+      issue14BuildWarning(e);
+    } catch (IllegalAccessException e) {
+      issue14BuildWarning(e);
+    } catch (InstantiationException e) {
+      issue14BuildWarning(e);
     }
   }
 

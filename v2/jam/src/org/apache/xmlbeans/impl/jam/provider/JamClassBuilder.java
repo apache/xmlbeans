@@ -37,6 +37,13 @@ public abstract class JamClassBuilder {
   // ========================================================================
   // Public methods
 
+  /**
+   * This method is called by JAM to initialize this class builder.  Extending
+   * classes can override this to perform additional initialization work
+   * (just remember to call super.init()!).
+   *
+   * @param ctx
+   */
   public void init(ElementContext ctx) {
     if (mContext != null) {
       throw new IllegalStateException("init called more than once");
@@ -44,6 +51,28 @@ public abstract class JamClassBuilder {
     if (ctx == null) throw new IllegalArgumentException("null ctx");
     mContext = ctx;
   }
+
+
+  // ========================================================================
+  // Abstract methods
+
+  /**
+   * <p>This is called by JAM when it attempts to load a class.  If the
+   * builder has access to an artifact (typically a java source or classfile)
+   * that represents the given type, it should call createClassToBuild() to get
+   * a new instance of MClass and then return it.  No caching should be
+   * performed - if an MClass is going to be returned, it should be a new
+   * instance returned by createClassToBuild()</p>
+   *
+   * <p>If no artififact is available, the builder should just return null,
+   * signalling that other JamClassBuilders should attempt to build the
+   * class.</p>
+   *
+   * @param packageName
+   * @param className
+   * @return
+   */
+  public abstract MClass build(String packageName, String className);
 
   // ========================================================================
   // Protected methods
@@ -70,6 +99,7 @@ public abstract class JamClassBuilder {
     if (packageName == null) throw new IllegalArgumentException("null pkg");
     if (className == null) throw new IllegalArgumentException("null class");
     if (pop == null) throw new IllegalArgumentException("null pop");
+    assertInitialized();
     className = className.replace('.','$');
     ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs,pop);
     return out;
@@ -95,58 +125,52 @@ public abstract class JamClassBuilder {
     if (mContext == null) throw new IllegalStateException("init not called");
     if (packageName == null) throw new IllegalArgumentException("null pkg");
     if (className == null) throw new IllegalArgumentException("null class");
+    assertInitialized();
     className = className.replace('.','$');
     ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs);
     return out;
   }
 
-  protected JamLogger getLogger() {
-    if (mContext == null) throw new IllegalStateException("init not called");
-    return mContext;
-  }
+  protected JamLogger getLogger() { return mContext; }
 
-  // ========================================================================
-  // Abstract methods
-  
+
   /**
-   * <p>This is called by JAM when it attempts to load a class.  If the
-   * builder has access to an artifact (typically a java source or classfile)
-   * that represents the given type, it should call createClassToBuild() to get
-   * a new instance of MClass and then return it.  No caching should be
-   * performed - if an MClass is going to be returned, it should be a new
-   * instance returned by createClassToBuild()</p>
-   *
-   * <p>If no artififact is available, the builder should just return null,
-   * signalling that other JamClassBuilders should attempt to build the
-   * class.</p>
-   *
-   * @param packageName
-   * @param className
-   * @return
-   */ 
-  public abstract MClass build(String packageName, String className);
+   * Asserts that init() has been called on this class builder.
+   */
+  protected final void assertInitialized() {
+    if (mContext == null) {
+      throw new IllegalStateException(this+" not yet initialized.");
+    }
+  }
 
-  // ========================================================================
-  // Protected methods
-
-  protected void issue14BuildWarning(Throwable t, JamLogger logger) {
-    if (!mWarningAlreadyIssued && logger != null) {
-      logger.warning("This build of JAM was produced under JDK 1.4." +
-                      "Even though you are running under JDK 1.5, "+
+  /**
+   * Displays a warning indicating that the current build of JAM was
+   * done under 1.4 (or earlier), which precludes the use of 1.5-specific
+   * features.
+   */
+  protected void issue14BuildWarning(Throwable t) {
+    assertInitialized();
+    if (!mWarningAlreadyIssued && mContext != null) {
+      mContext.warning("This build of JAM was not with JDK 1.5." +
+                      "Even though you are now running under JDK 1.5, "+
                       "JSR175-style annotations will not be available");
-      if (logger.isVerbose(this)) logger.verbose(t);
+      if (mContext.isVerbose(this)) mContext.verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
 
-  protected void issue14RuntimeWarning(Throwable t, JamLogger logger) {
-    if (!mWarningAlreadyIssued && logger != null) {
-      logger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
+  /**
+   * Displays a warning indicating that JAM is running under 1.4 (or earlier),
+   * which precludes the use of 1.5-specific features.
+   */
+  protected void issue14RuntimeWarning(Throwable t) {
+    assertInitialized();
+    if (!mWarningAlreadyIssued && mContext != null) {
+      mContext.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
                       "source annotations will not be available");
-      if (logger.isVerbose(this)) logger.verbose(t);
+      if (mContext.isVerbose(this)) mContext.verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
-
 
 }

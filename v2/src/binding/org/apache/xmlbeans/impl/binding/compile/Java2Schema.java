@@ -109,7 +109,6 @@ public class Java2Schema extends BindingCompiler {
     if (classesToBind == null) {
       throw new IllegalArgumentException("null classes");
     }
-/*
     for(int i=0; i<classesToBind.length; i++) {
       if (classesToBind[i].isUnresolvedType()) {
         throw new IllegalArgumentException
@@ -119,9 +118,9 @@ public class Java2Schema extends BindingCompiler {
       }
     }
     if (classesToBind.length == 0) {
-      throw new IllegalArgumentException("No input classes found.");
+      System.out.println("WARNING! No input classes found!!");
+      //throw new IllegalArgumentException("No input classes found.");
     }
-    */
     mClasses = classesToBind;
   }
 
