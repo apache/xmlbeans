@@ -70,6 +70,16 @@ abstract class SoapUnmarshalResult
     protected Object unmarshalBindingType(BindingType bindingType)
         throws XmlException
     {
+        updateSoapAttributes();
+
+        {
+            final String ref = soapAttributeHolder.ref;
+            if (ref != null) {
+                baseReader = relocateStreamToRef(ref);
+                updateSoapAttributes();
+            }
+        }
+
         updateAttributeState();
 
         final TypeUnmarshaller um;
@@ -230,7 +240,7 @@ abstract class SoapUnmarshalResult
         final QName idname = getIdAttributeName();
         final QName refname = getRefAttributeName();
 
-        //for perf, we assume that the id and ref attirbutes are
+        //for perf, we assume that the id and ref attributes are
         //in the same namespace.  This is true for soap 1.1 and 1.2
         assert idname.getNamespaceURI().equals(refname.getNamespaceURI());
 
