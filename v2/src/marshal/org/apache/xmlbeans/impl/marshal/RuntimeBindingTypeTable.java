@@ -29,7 +29,6 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
-import org.apache.xmlbeans.impl.binding.bts.SimpleContentProperty;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
@@ -397,23 +396,20 @@ final class RuntimeBindingTypeTable
             final SimpleContentRuntimeBindingType rtt =
                 runtimeTypeFactory.createRuntimeType(scb, this, loader);
             m = new SimpleContentBeanMarshaller(rtt, this, loader);
-            putTypeMarshaller(scb, m);
-            return m;
-        }
-
-
-        if (binding_type instanceof SimpleBindingType) {
+        } else if (binding_type instanceof SimpleBindingType) {
             SimpleBindingType stype = (SimpleBindingType)binding_type;
 
             final BindingTypeName asif_name = stype.getAsIfBindingTypeName();
             if (asif_name == null)
                 throw new XmlException("no asif for " + stype);
 
-            //TODO: consider inserting non null return values into our map
-            return lookupMarshaller(asif_name, loader);
+            m = lookupMarshaller(asif_name, loader);
         }
 
-        return null;
+        if (m != null)
+            putTypeMarshaller(binding_type, m);
+
+        return m;
     }
 
 

@@ -19,9 +19,9 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
+import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
-import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import javax.xml.namespace.QName;
 import java.util.Collection;
@@ -158,6 +158,8 @@ final class ByNameRuntimeBindingType
     protected static final class ElementQNameProperty
         extends QNamePropertyBase
     {
+        protected final int propertyIndex;
+
         ElementQNameProperty(int property_index,
                              Class beanClass,
                              boolean bean_has_multis,
@@ -168,8 +170,9 @@ final class ByNameRuntimeBindingType
                              RuntimeTypeFactory rttFactory)
             throws XmlException
         {
-            super(property_index, beanClass, bean_has_multis,
+            super(beanClass, bean_has_multis,
                   prop, intermediateResolver, typeTable, loader, rttFactory);
+            propertyIndex = property_index;
             assert !prop.isAttribute();
         }
 
