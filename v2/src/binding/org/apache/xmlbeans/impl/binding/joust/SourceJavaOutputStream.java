@@ -82,6 +82,45 @@ public class SourceJavaOutputStream
   private static final String COMMENT_LINE_DELIMITERS = "\n\r\f";
   private static final String INDENT_STRING = "  ";
 
+  private static final char[] hexLow = {
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
+  };
+
+  private static final char[] hexHigh = {
+    '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0',
+    '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1', '1',
+    '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2', '2',
+    '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3', '3',
+    '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4', '4',
+    '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5', '5',
+    '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6', '6',
+    '7', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7', '7',
+    '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8', '8',
+    '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9', '9',
+    'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A', 'A',
+    'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B', 'B',
+    'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C', 'C',
+    'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D', 'D',
+    'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E', 'E',
+    'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F',
+  };
+
+
   // ========================================================================
   // Variables
 
@@ -107,6 +146,9 @@ public class SourceJavaOutputStream
                          String extendsClassName,
                          String[] interfaceNames)
           throws IOException {
+    simpleName = makeI18nSafe(simpleName);
+    packageName = makeI18nSafe(packageName);
+    extendsClassName = makeI18nSafe(extendsClassName);
     mConstructorName = simpleName;
     mOut = startNewFile(packageName, simpleName);
     mOut.println("package " + packageName + ";");
@@ -124,7 +166,7 @@ public class SourceJavaOutputStream
     if (interfaceNames != null && interfaceNames.length > 0) {
       mOut.print(" implements ");
       for (int i = 0; i < interfaceNames.length; i++) {
-        mOut.print(interfaceNames[i]);
+        mOut.print(makeI18nSafe(interfaceNames[i]));
         if (i < interfaceNames.length - 1) mOut.print(", ");
       }
     }
@@ -138,7 +180,9 @@ public class SourceJavaOutputStream
                              String simpleName,
                              String[] interfaceNames)
           throws IOException {
-    mConstructorName = simpleName;
+    simpleName = makeI18nSafe(simpleName);
+    packageName = makeI18nSafe(packageName);
+    mConstructorName = null;
     mOut = startNewFile(packageName, simpleName);
     mOut.println("package " + packageName + ";");
     // We need to write up the actual class declaration and save it until
@@ -149,7 +193,7 @@ public class SourceJavaOutputStream
     if (interfaceNames != null && interfaceNames.length > 0) {
       mOut.print(" extends ");
       for (int i = 0; i < interfaceNames.length; i++) {
-        mOut.print(interfaceNames[i]);
+        mOut.print(makeI18nSafe(interfaceNames[i]));
         if (i < interfaceNames.length - 1) mOut.print(", ");
       }
     }
@@ -163,6 +207,8 @@ public class SourceJavaOutputStream
                              String fieldName,
                              Expression defaultValue) throws IOException {
     printIndents();
+    typeName = makeI18nSafe(typeName);
+    fieldName = makeI18nSafe(fieldName);
     mOut.print(Modifier.toString(modifiers));
     mOut.print(" ");
     mOut.print(typeName);
@@ -193,6 +239,8 @@ public class SourceJavaOutputStream
                                 String[] paramNames,
                                 String[] exceptionClassNames)
           throws IOException {
+    methodName = makeI18nSafe(methodName);
+    returnTypeName = makeI18nSafe(returnTypeName);
     printIndents();
     mOut.print(Modifier.toString(modifiers));
     mOut.print(" ");
@@ -211,9 +259,9 @@ public class SourceJavaOutputStream
       for (int i = 0; i < ret.length; i++) {
         mOut.print((i == 0) ? "(" : ", ");
         ret[i] = newVar(paramNames[i]);
-        mOut.print(paramTypeNames[i]);
+        mOut.print(makeI18nSafe(paramTypeNames[i]));
         mOut.print(' ');
-        mOut.print(paramNames[i]);
+        mOut.print(makeI18nSafe(paramNames[i]));
       }
       mOut.print(")");
     }
@@ -221,7 +269,7 @@ public class SourceJavaOutputStream
     if (exceptionClassNames != null && exceptionClassNames.length > 0) {
       for (int i = 0; i < exceptionClassNames.length; i++) {
         mOut.print((i == 0) ? " throws " : ", ");
-        mOut.print(exceptionClassNames[i]);
+        mOut.print(makeI18nSafe(exceptionClassNames[i]));
       }
     }
     mOut.println();
@@ -232,7 +280,8 @@ public class SourceJavaOutputStream
   public void writeComment(String comment) throws IOException {
     printIndents();
     mOut.println("/**");
-    StringTokenizer st = new StringTokenizer(comment, COMMENT_LINE_DELIMITERS);
+    StringTokenizer st = new StringTokenizer(makeI18nSafe(comment),
+                                             COMMENT_LINE_DELIMITERS);
     while (st.hasMoreTokens()) {
       printIndents();
       mOut.print(" * ");
@@ -291,7 +340,7 @@ public class SourceJavaOutputStream
   }
 
   public Expression createString(String value) {
-    return newExp("\"" + value + "\"");
+    return newExp("\"" + makeI18nSafe(value) + "\"");
   }
 
   public Expression createInt(int value) {
@@ -312,7 +361,7 @@ public class SourceJavaOutputStream
     return new PrintWriter(mWriterFactory.createWriter(packageName, simpleName));
   }
 
-  private void printIndents() throws IOException {
+  private void printIndents() {
     for (int i = 0; i < mIndentLevel; i++) mOut.print(INDENT_STRING);
   }
 
@@ -325,7 +374,7 @@ public class SourceJavaOutputStream
     if (mIndentLevel < 0) throw new IllegalStateException(); //sanity check
   }
 
-  private void closeOut() throws IOException {
+  private void closeOut() {
     if (mOut != null) {
       mOut.close();
       mOut = null;
@@ -333,19 +382,56 @@ public class SourceJavaOutputStream
   }
 
   private static Expression newExp(final String s) {
+    final String memento = makeI18nSafe(s);
     return new Expression() {
       public Object getMemento() {
-        return s;
+        return memento;
       }
     };
   }
 
-  private static Variable newVar(final String s) {
+  private static Variable newVar(String s) {
+    final String memento = makeI18nSafe(s);
     return new Variable() {
       public Object getMemento() {
-        return s;
+        return memento;
       }
     };
+  }
+
+  private static String makeI18nSafe(String s) {
+    for (int i = 0; i < s.length(); i++) {
+      if (s.charAt(i) > 127)
+        return buildI18nSafe(s);
+    }
+    return s;
+  }
+
+  private static String buildI18nSafe(String s) {
+    StringBuffer mI18nSafeBuffer = new StringBuffer();
+    int i = 0;
+    int j = 0;
+    for (; ;) {
+      for (; i < s.length(); i++) {
+        if (s.charAt(i) > 127)
+          break;
+      }
+      if (j < i)
+        mI18nSafeBuffer.append(s.substring(j, i));
+      for (; i < s.length(); i++) {
+        int ch = s.charAt(i);
+        if (ch <= 127)
+          break;
+        int highByte = ch >>> 8;
+        int lowByte = ch & 0xFF;
+        mI18nSafeBuffer.append("\\u");
+        mI18nSafeBuffer.append(hexHigh[highByte]);
+        mI18nSafeBuffer.append(hexLow[highByte]);
+        mI18nSafeBuffer.append(hexHigh[lowByte]);
+        mI18nSafeBuffer.append(hexLow[lowByte]);
+      }
+      j = i;
+    }
   }
 
   // ========================================================================

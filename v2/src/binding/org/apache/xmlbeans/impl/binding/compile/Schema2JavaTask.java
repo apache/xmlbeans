@@ -62,13 +62,14 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Schema2JavaTask extends MatchingTask
+public class Schema2JavaTask extends BindingCompilerTask
 {
 
     // =========================================================================
@@ -137,15 +138,15 @@ public class Schema2JavaTask extends MatchingTask
     }
 
     // =========================================================================
-    // Task implementation
+    // BindingCompilerTask implementation
 
     /**
      * Execute the task.
      */
-    public void execute() throws BuildException
+    protected BindingCompiler createCompiler() throws BuildException
     {
+        //get the files
         checkParameters();
-        
         // scan source directories and dest directory to build up
         startScan();
         
@@ -163,8 +164,28 @@ public class Schema2JavaTask extends MatchingTask
 
             scanDir(srcDir, files);
         }
+        File[] xsdFiles = (File[])mXsdFiles.toArray(new File[mXsdFiles.size()]);
 
-        compile();
+        TylarLoader tylarLoader = null;
+
+        if (mClasspath != null) {
+          File[] classpath = namesToFiles(mClasspath.list());
+          tylarLoader = SimpleTylarLoader.forClassPath(classpath);
+      }
+
+      //build up the inputs
+      SchemaSourceSet input = null;
+      try {
+          input = SimpleSourceSet.forXsdFiles(xsdFiles, tylarLoader);
+      } catch (IOException e) {
+          log(e.getMessage());
+          throw new BuildException(e);
+      } catch (XmlException e) {
+          log(e.getMessage());
+          throw new BuildException(e);
+      }
+      //return the compiler
+      return new Schema2Java(input);
     }
     
     protected void startScan()
@@ -186,43 +207,6 @@ public class Schema2JavaTask extends MatchingTask
         return result;
     }
 
-    protected void compile() throws BuildException
-    {
-        File[] xsdFiles = (File[])mXsdFiles.toArray(new File[mXsdFiles.size()]);
-        
-        TylarLoader tylarLoader = null;
-        
-        if (mClasspath != null)
-        {
-            File[] classpath = namesToFiles(mClasspath.list());
-            tylarLoader = SimpleTylarLoader.forClassPath(classpath);
-        }
-        
-        // bind
-        SchemaSourceSet input = null;
-        try {
-            input = SimpleSourceSet.forXsdFiles(xsdFiles, tylarLoader);
-        }
-        catch (IOException e) {
-            log(e.getMessage());
-            throw new BuildException(e);
-        }
-        catch (XmlException e) {
-            log(e.getMessage());
-            throw new BuildException(e);
-        }
-        TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);
-        SchemaToJavaResult result = Schema2Java.bind(input);
-
-        try {
-            tb.buildTylar(result);
-        }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-            throw new BuildException(ioe);
-        }
-        log("Schema2Java complete, output in " + mDestDir);
-    }
 
     // =========================================================================
     // Private methods

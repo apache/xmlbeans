@@ -72,12 +72,10 @@ import java.io.IOException;
  * than a 'builder.'
  *
  * @author Patrick Calahan <pcal@bea.com>
+ *
+ * @deprecated
  */
 public interface TylarBuilder {
 
-  public void buildTylar(Java2SchemaResult result) throws IOException;
-
-  public void buildTylar(SchemaToJavaResult result) throws IOException;
-    
   public void buildTylar(BindingFileResult result) throws IOException;
 }
