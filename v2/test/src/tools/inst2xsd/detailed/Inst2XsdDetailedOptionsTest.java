@@ -412,12 +412,4 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
         compare(cmdLine, exp);
     }
 
-
-    public void test_no_param() throws Exception {
-        XmlObject[] api = runInst2Xsd(new XmlObject[]{null}, null);
-        checkLength(api, 1);
-        log(api);
-        Inst2Xsd.main(null);
-
-    }
 }
