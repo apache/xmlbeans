@@ -109,9 +109,7 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        DOMImplementation impl = Public2.getDomImplementation();
-        
-        Document doc = impl.createDocument( "ns:foo", "a", null );
+        Document doc = Public2.parse( "<a><?moo foo?><!--comment--></a>" );;
 
         Public2.dump( doc );
 
