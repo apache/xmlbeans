@@ -6,10 +6,8 @@
 	</header>
 	<body>
 		<section>
-			<title>XMLBeans Version 1.02 Binary and Development Kit</title>
-			<note>Incubated Build.  XMLBeans is in the incubation process at Apache and the build provided here is not sanctioned as 
-			an official Apache Release.</note>
-			<p><link href="http://www.apache.org/dyn/closer.cgi/xml/xmlbeans">Download XMLBeans Version 1.02 from one of the Apache mirrors.</link></p>
+			<title>XMLBeans Version 1.03 Binary and Development Kit</title>
+			<p><link href="http://www.apache.org/dyn/closer.cgi/xml/xmlbeans">Download XMLBeans Version 1.03 from one of the Apache mirrors.</link></p>
 			<p><link href="http://www.apache.org/dist/xml/xmlbeans/">You can also download from main Apache Distribution Site</link></p>
 			<p><link href="http://xml.apache.org/mirrors.cgi">Here is the main Apache XML Project Downloads page (Including XMLBeans)</link></p>
 			<p>You should verify the integrity of the files that you download.  <link href="http://xml.apache.org/mirrors.cgi#verify">Here are some
