@@ -149,7 +149,7 @@
 
     <fileset id="tools.ext.lib" dir="${xbeans.test.tools.lib}">
         <include name="**/*.jar"/>
-    <include name="**/*.jar"/>
+        <include name="**/*.jar"/>
     </fileset>
 
     <fileset id="tools.ext.lib" dir="${xbeans.test.tools.lib}">
@@ -202,8 +202,8 @@
         <path refid="build.classpath"/>
         <fileset refid="test.build.jars"/>
 
-	<!--1.4 JDK compat:JDK Xerces missing DocumentRange-->
-	
+        <!--1.4 JDK compat:JDK Xerces missing DocumentRange-->
+
         <pathelement path="${xbeans.test.tools.lib}/xerces1.4.4.jar"/>
     </path>
     <!-- END: Filesets and Paths                                         -->
@@ -237,10 +237,14 @@
 
     <!--Schemas for bvts: Please keep this list up-to-date in order to minimize
          the build time for checkintests-->
-        <property name="checkin.schema.dirs"
-                  value="${schema.dirs}"/>
-        <property name="checkin.schema.standalone.files"
-                  value="${schema.standalone.files}"/>
+    <property name="checkin.schema.dirs"
+        value=" ${build.dir.test.schemas}/xbean/simple/dumb,
+         ${build.dir.test.schemas}/xbean/xmlcursor,
+         ${build.dir.test.schemas}/xbean/xmlobject,
+         ${build.dir.test.schemas}/xbean/ValidatingStream
+       "/>
+    <property name="checkin.schema.standalone.files"
+        value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
 
 
     <property name="schema.compiler" value="org.apache.xmlbeans.impl.tool.SchemaCompiler"/>
@@ -248,12 +252,32 @@
     <target name="build.schemas" depends="init, copy.schemas, uncompress"
         description="Build test schemas.">
         <echo message="basedir: ${basedir}"/>
-        <foreach list="${schema.dirs}"
-            target="scomp.dir"
-            param="schemasrc" trim="true"/>
-        <foreach list="${schema.standalone.files}"
-            target="scomp.single"
-            param="schemasrc" trim="true"/>
+        <!--compile checkin schemas only for checkin -->
+        <if>
+            <or>
+                <not>
+                    <isset property="tests.spec"/>
+                </not>
+                <equals arg1="${tests.spec}" arg2="**/checkin/**"/>
+            </or>
+            <then>
+                <foreach list="${checkin.schema.dirs}"
+                    target="scomp.dir"
+                    param="schemasrc" trim="true"/>
+                <foreach list="${checkin.schema.standalone.files}"
+                    target="scomp.single"
+                    param="schemasrc" trim="true"/>
+            </then>
+            <else>
+                <foreach list="${schema.dirs}"
+                    target="scomp.dir"
+                    param="schemasrc" trim="true"/>
+                <foreach list="${schema.standalone.files}"
+                    target="scomp.single"
+                    param="schemasrc" trim="true"/>
+            </else>
+        </if>
+
 
         <jar destfile="${build.dir.test.lib}/xmlcases.jar"
             basedir="${build.dir.test.schemas}" update="false"
@@ -293,7 +317,7 @@
                 <echo message="Jar uptodate for ${schemasrc}"/>
             </then>
             <else>
-                 <antcall target="scomp"/>
+                <antcall target="scomp"/>
             </else>
         </if>
     </target>
@@ -371,8 +395,8 @@
         <basename path="${archivefile}" property="dir.name" suffix=".tar.bz2"/>
         <!-- FIXME: it's not sufficient to just check if dir exists -->
         <condition property="uncompress.uptodate">
-              <available file="${build.dir.test.schemas}/${dir.name}" type="dir" /> 
-              </condition>
+            <available file="${build.dir.test.schemas}/${dir.name}" type="dir"/>
+        </condition>
     </target>
     <!-- helper target -->
     <target name="uncompress.helper" depends="uncompress.uptodate,do.uncompress"/>
@@ -426,30 +450,7 @@
             </then>
             <else>
                 <echo message="build.area is not set"/>
-                <!--compile checkin schemas only for checkin
-                <if>
-                    <or>
-                    <not><isset property="tests.spec"/></not>
-                    <equals arg1="${tests.spec}" arg2="**/checkin/**"/>
-                    </or>
-                    <then>
-                         <antcall target="init"/>
-                         <antcall target="copy.schemas"/>
-                          <antcall target="uncompress"/>
-                         <antcall target="build.test.tools"/>
-                        <antcall target="build.xmlcases"/>
-                          <foreach list="${checkin.schema.dirs}"
-                                   target="scomp.dir"
-                                   param="schemasrc" trim="true"/>
-                           <foreach list="${checkin.schema.standalone.files}"
-                    target="scomp.single"
-                    param="schemasrc" trim="true"/>
-                    </then>
-                    <else>
-                        <antcall target="build.schemas"/>
-                    </else>
-                </if>
-                -->
+
                 <antcall target="build.schemas"/>
                 <antcall target="build.tests"/>
 
@@ -490,12 +491,19 @@
     <!-- Builds the tests -->
     <!-- NOTE: This target depends on build.schemas, but we do not
                explicitly put it on the depends list. -->
-<!--ADD THIS LATER: ,extensions.build-->
+    <!--ADD THIS LATER: ,extensions.build-->
     <target name="build.tests" depends="init, build.test.tools, build.xpath"
         description="Build the tests">
-
-        <javac srcdir="${xbeans.test.src}"
-              excludes="**/extensions/**"
+         <if>
+            <or>
+                <not>
+                    <isset property="tests.spec"/>
+                </not>
+                <equals arg1="${tests.spec}" arg2="**/checkin/**"/>
+            </or>
+            <then>
+                 <javac srcdir="${xbeans.test.src}"
+            excludes="**/extensions/**,**/detailed/**,**/drt/**"
             destdir="${build.dir.test.src}"
             classpathref="test.run.classpath"
             debug="on"
@@ -504,7 +512,20 @@
             verbose="false"
             failonerror="true">
         </javac>
-
+            </then>
+        <else>
+        <javac srcdir="${xbeans.test.src}"
+            excludes="**/extensions/**,**/drt/**"
+            destdir="${build.dir.test.src}"
+            classpathref="test.run.classpath"
+            debug="on"
+            source="1.4"
+            optimize="on"
+            verbose="false"
+            failonerror="true">
+        </javac>
+        </else>
+        </if>
         <jar destfile="${build.dir.test.lib}/testcases.jar"
             basedir="${build.dir.test.src}" update="true"
             excludes="**/*.java"/>
@@ -556,10 +577,10 @@
                     param="schemasrc" trim="true"/>
             </then>
         </if>
-         <if>
+        <if>
             <isset property="compile.extensions"/>
             <then>
-                 <!--antcall target="extensions.build"/-->
+                <!--antcall target="extensions.build"/-->
             </then>
         </if>
         <antcall target="build.xmlcases"/>
@@ -615,7 +636,7 @@
 
         </foreachloop>
     </target>
--->
+    -->
     <target name="build.area.xmlobject">
         <property name="this.schema.dirs"
             value="${build.dir.test.schemas}/xbean/xmlobject,
@@ -630,17 +651,17 @@
 
         <property name="includes.for.compile"
             value="**/xmlobject/**/*.java"/>
-         <property name="excludes.from.compile"
+        <property name="excludes.from.compile"
             value="**/extensions/**"/>
-           <!--   <property name="includes.for.compile"
-              value="**/xmlobject/checkin/*.java,
-                    **/xmlobject/common/*.java,
-                    **/xmlobject/detailed/*.java,
-                    **/xmlobject/schematypes/*.java,
-                    **/xmlobject/xmlloader/*.java"/>-->
+        <!--   <property name="includes.for.compile"
+           value="**/xmlobject/checkin/*.java,
+                 **/xmlobject/common/*.java,
+                 **/xmlobject/detailed/*.java,
+                 **/xmlobject/schematypes/*.java,
+                 **/xmlobject/xmlloader/*.java"/>-->
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
-       
+
     </target>
 
     <target name="build.area.xmlcursor">
@@ -692,9 +713,9 @@
             value="**/checkin/**/*.java, **/common/**/*.java"/>
         <property name="excludes.from.compile"
             value="**/extensions/**"/>
-         <property name="this.schema.dirs"
+        <property name="this.schema.dirs"
             value="${checkin.schema.dirs}"/>
-         <property name="this.schema.standalone.dirs"
+        <property name="this.schema.standalone.dirs"
             value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
@@ -753,13 +774,15 @@
         </junitX>
         <antcall target="generate.html.report"/>
         <echo message="${junit.failcount}"/>
-         <if>
-          <not>
-             <equals arg1="${junit.failcount}" arg2="0"/>
-          </not>
-          <then><fail message="Test run had failures"/> </then>
+        <if>
+            <not>
+                <equals arg1="${junit.failcount}" arg2="0"/>
+            </not>
+            <then>
+                <fail message="Test run had failures"/>
+            </then>
         </if>
-        
+
     </target>
 
     <target name="generate.html.report">
