@@ -57,23 +57,26 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
         return new SchemaTypeLoaderImpl(new SchemaTypeLoader[] { BuiltinSchemaTypeSystem.get() } , null, Thread.currentThread().getContextClassLoader());
     }
 
-    private static ThreadLocal _threadTypeSystem =
+    private static ThreadLocal _threadTypeSystems =
         new ThreadLocal()
         {
-            protected Object initialValue() { return buildContextTypeLoader(); }
+            protected Object initialValue() { return new HashMap(); }
         };
 
     public static SchemaTypeLoaderImpl getContextTypeLoader()
     {
-        SchemaTypeLoaderImpl candidate = (SchemaTypeLoaderImpl)_threadTypeSystem.get();
-        if (candidate._classLoader != Thread.currentThread().getContextClassLoader())
+        HashMap candidates = (HashMap) _threadTypeSystems.get();
+        ClassLoader threadContextClassLoader = Thread.currentThread().getContextClassLoader();
+        SchemaTypeLoaderImpl candidate = (SchemaTypeLoaderImpl) candidates.get( threadContextClassLoader );
+
+        if (candidate == null)
         {
             candidate = buildContextTypeLoader();
-            _threadTypeSystem.set(candidate);
+            candidates.put( threadContextClassLoader, candidate );
         }
         return candidate;
     }
-
+    
     public static SchemaTypeLoader build(SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader)
     {
         if (searchPath == null)
