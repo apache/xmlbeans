@@ -58,10 +58,14 @@ public class JavadocClassBuilder extends JamClassBuilder {
     mServiceContext = ctx;
     mLogger = ctx.getLogger();
     try {
+      // class for name this because it's 1.5 specific.  if it fails, we
+      // don't want to use the extractor
+      Class.forName("com.sun.javadoc.AnnotationDesc");
       mExtractor = (JavadocAnnotationExtractor)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
+
     } catch (ClassNotFoundException e) {
-      mLogger.error(e);
+      mLogger.warning(e);
     } catch (IllegalAccessException e) {
       mLogger.verbose(e);
     } catch (InstantiationException e) {

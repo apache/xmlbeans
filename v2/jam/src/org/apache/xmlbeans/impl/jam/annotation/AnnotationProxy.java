@@ -319,10 +319,15 @@ public abstract class AnnotationProxy {
       while (currentIndex < size && beginning != -1) {
         beginning = value.indexOf("//", currentIndex);
         if (-1 != beginning) {
-          String tmp = value.substring(beginning);
+          if (beginning > 0 && value.charAt(beginning-1) == ':') {
+            //this is a quick fix for problem of unquoted url values.  for
+            //now, just say it's not a comment if preceded by ':'.  should
+            //review this later
+            currentIndex = beginning+2;
+            continue;
+          }
           int end = value.indexOf('\n', beginning);
           if (-1 == end) end = size;
-
           // We have identified a portion to remove, copy the one we want to
           // keep
           result = result + value.substring(currentIndex, beginning).trim() + "\n";

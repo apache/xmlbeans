@@ -59,10 +59,13 @@ public class ReflectClassBuilder extends JamClassBuilder {
     mLogger = ctx;
     mLoader = rcl;
     try {
+      // class for name this because it's 1.5 specific.  if it fails, we
+      // don't want to use the extractor
+      Class.forName("java.lang.annotation.Annotation");
       mExtractor = (ReflectAnnotationExtractor)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
     } catch (ClassNotFoundException e) {
-      mLogger.error(e);
+      mLogger.warning(e);
     } catch (IllegalAccessException e) {
       mLogger.verbose(e);
     } catch (InstantiationException e) {
