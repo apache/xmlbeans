@@ -401,6 +401,16 @@ public class CodeGenUtil
             return result;
         }
 
+        result = new File(home + sep + "bin", tool);
+        if (result.isFile()) {
+            return result;
+        }
+
+        result = new File(result.getPath() + ".exe");
+        if (result.isFile()) {
+            return result;
+        }
+
         // just return the original toolFile and hope that it is on the PATH.
         return toolFile;
     }
