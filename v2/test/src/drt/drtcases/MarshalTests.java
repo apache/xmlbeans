@@ -145,7 +145,7 @@ public class MarshalTests extends TestCase
         com.mytest.MyClass mc = new com.mytest.MyClass();
         mc.setMyatt("attval");
         com.mytest.YourClass myelt = new com.mytest.YourClass();
-        myelt.setAttrib(999.777f);
+        myelt.setAttrib(99999.777f);
         myelt.setMyFloat(5555.4444f);
 //        myelt.setMyClass(new com.mytest.MyClass());
         myelt.setMyClass(null);
@@ -175,7 +175,7 @@ public class MarshalTests extends TestCase
     }
 
 
-    public void testByNameMarshalPerf()
+    public void DISABLED_testByNameMarshalPerf()
         throws Exception
     {
         //crank up these numbers to see real perf testing

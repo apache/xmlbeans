@@ -54,50 +54,38 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-/**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
- */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+public final class EmptyIterator
+    implements Iterator
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private static final Iterator INSTANCE = new EmptyIterator();
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+    public static Iterator getInstance()
     {
-        this.lexerPrinter = lexerPrinter;
+        return INSTANCE;
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
-    {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
-    }
-
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
-    {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
-    }
-
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
+    private EmptyIterator()
     {
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public boolean hasNext()
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        return false;
     }
 
+    public Object next()
+    {
+        throw new NoSuchElementException();
+    }
 
+    public void remove()
+    {
+        throw new UnsupportedOperationException();
+    }
 }
+

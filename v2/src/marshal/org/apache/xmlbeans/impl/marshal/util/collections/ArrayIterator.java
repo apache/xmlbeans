@@ -54,50 +54,47 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-/**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
- */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+public final class ArrayIterator
+    implements Iterator
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private final Object[] array;
+    private final int maxIndex;
+    private int index;
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+    public ArrayIterator(Object[] a)
     {
-        this.lexerPrinter = lexerPrinter;
+        this(a, 0, a.length);
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public ArrayIterator(Object[] a, int off, int len)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        if (off < 0) throw new IllegalArgumentException();
+        if (off > a.length) throw new IllegalArgumentException();
+        if (len > a.length - off) throw new IllegalArgumentException();
+        array = a;
+        index = off;
+        maxIndex = len + off;
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    public boolean hasNext()
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
+        return index < maxIndex;
     }
 
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
+    public Object next()
     {
+        if (index >= maxIndex) throw new NoSuchElementException();
+        return array[index++];
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public void remove()
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        throw new UnsupportedOperationException();
     }
-
-
 }
+

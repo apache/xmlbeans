@@ -54,50 +54,44 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-/**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
- */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+import java.util.Collection;
+import java.util.TreeSet;
+
+
+public final class TreeSetBasedObjectAccumulator
+    extends ObjectAccumulator
 {
-    private final AtomicLexerPrinter lexerPrinter;
-
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+    public TreeSetBasedObjectAccumulator(Class component_type,
+                                         int initial_capacity,
+                                         boolean return_collection)
     {
-        this.lexerPrinter = lexerPrinter;
+        super(component_type, initial_capacity, return_collection);
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public TreeSetBasedObjectAccumulator(Class component_type,
+                                         int initial_capacity)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        super(component_type, initial_capacity);
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    public TreeSetBasedObjectAccumulator(Class component_type)
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
+        super(component_type);
     }
 
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
+    protected Collection createNewStore(int capacity)
     {
+        return new java.util.TreeSet();
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public TreeSet getTreeSetStore()
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        assert (store instanceof TreeSet);
+        return (TreeSet)store;
     }
-
 
 }
+

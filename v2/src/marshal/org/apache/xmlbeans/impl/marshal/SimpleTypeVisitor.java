@@ -67,13 +67,13 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
 
     private static final String NIL_ATT_VAL =
         XsTypeConverter.printBoolean(true).intern();
-    private final CharacterVisitor char_visitor;
+    private final CharacterVisitor charVisitor;
 
     public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
                              MarshalContextImpl context)
     {
         super(obj, property, context);
-        char_visitor = new CharacterVisitor(getBindingProperty(), getParentObject(), marshalContext);
+        charVisitor = new CharacterVisitor(getBindingProperty(), getParentObject(), marshalContext);
     }
 
     protected int getState()
@@ -86,7 +86,11 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
         final int newstate;
         switch (state) {
             case START:
-                newstate = CHARS;
+                if (getParentObject() == null) {
+                    newstate = END;
+                } else {
+                    newstate = CHARS;
+                }
                 break;
             case CHARS:
                 newstate = END;
@@ -101,7 +105,7 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     public XmlTypeVisitor getCurrentChild()
     {
         assert state == CHARS;
-        return char_visitor;
+        return charVisitor;
     }
 
     protected void initAttributes()

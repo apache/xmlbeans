@@ -61,6 +61,9 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
+import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
+import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
+import org.apache.xmlbeans.impl.marshal.util.collections.ReflectiveArrayIterator;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -68,6 +71,9 @@ import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.Stack;
+import java.util.Iterator;
+import java.util.Collection;
+
 
 final class MarshalResult implements XMLStreamReader
 {
@@ -398,6 +404,22 @@ final class MarshalResult implements XMLStreamReader
     public String getPIData()
     {
         throw new IllegalStateException();
+    }
+
+    static Iterator getCollectionIterator(Object value)
+    {
+        //TODO & FIXME: refactor this into seperate classes
+        if (value == null) {
+            return EmptyIterator.getInstance();
+        } else if (value instanceof Collection) {
+            return ((Collection)value).iterator();
+        } else if (value instanceof Object[]) {
+            return new ArrayIterator((Object[])value);
+        } else if (value.getClass().isArray()) {
+            return new ReflectiveArrayIterator(value);
+        } else {
+            throw new AssertionError("bad type: " + value.getClass());
+        }
     }
 
     private void initAttributes()

@@ -34,6 +34,25 @@
                 <bin:setter>setSomeBool</bin:setter>
                 <bin:qname>java:SomeBool</bin:qname>
             </bin:qname-property>
+            <bin:qname-property>
+                <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>java.lang.String</bin:javatype>
+                <bin:getter>getStrs</bin:getter>
+                <bin:setter>setStrs</bin:setter>
+                <bin:collection>java.util.List</bin:collection>
+                <bin:qname>java:Strs</bin:qname>
+                <bin:multiple>true</bin:multiple>
+                <bin:nillable>true</bin:nillable>
+            </bin:qname-property>
+            <bin:qname-property>
+                <bin:xmlcomponent>t=boolean@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>boolean</bin:javatype>
+                <bin:getter>getBools</bin:getter>
+                <bin:setter>setBools</bin:setter>
+                <bin:collection>java.util.List</bin:collection>
+                <bin:qname>java:Bools</bin:qname>
+                <bin:multiple>true</bin:multiple>
+            </bin:qname-property>
         </bin:binding-type>
         <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <bin:xmlcomponent>t=MyClass@java:com.mytest</bin:xmlcomponent>

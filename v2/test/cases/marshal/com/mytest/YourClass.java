@@ -56,12 +56,39 @@
 
 package com.mytest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class YourClass
 {
     private MyClass myClass;
     private float myFloat;
     private float attrib;
     private boolean someBool;
+    private List bools = newBoolList();
+    private List strs = newStringList();
+
+    private List newStringList()
+    {
+        ArrayList l = new ArrayList();
+//        l.add("one");
+//        l.add("two");
+//        l.add(null);
+//        l.add("three");
+//        return l;
+        return null;
+    }
+
+    private List newBoolList()
+    {
+        ArrayList l = new ArrayList();
+//        l.add(Boolean.TRUE);
+//        l.add(Boolean.FALSE);
+//        l.add(null);
+//        l.add(Boolean.TRUE);
+//        l.add(Boolean.FALSE);
+        return l;
+    }
 
     public float getMyFloat()
     {
@@ -93,6 +120,17 @@ public class YourClass
         this.someBool = someBool;
     }
 
+    public List getBools()
+    {
+        return bools;
+    }
+
+    public void setBools(List bools)
+    {
+        this.bools = bools;
+    }
+
+
     /**
      *  @xsdgen:attribute.name Attrib
      */
@@ -106,6 +144,16 @@ public class YourClass
         this.attrib = attrib;
     }
 
+    public List getStrs()
+    {
+        return strs;
+    }
+
+    public void setStrs(List strs)
+    {
+        this.strs = strs;
+    }
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -115,7 +163,10 @@ public class YourClass
 
         if (attrib != yourClass.attrib) return false;
         if (myFloat != yourClass.myFloat) return false;
+        if (someBool != yourClass.someBool) return false;
+        if (bools != null ? !bools.equals(yourClass.bools) : yourClass.bools != null) return false;
         if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
+        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
 
         return true;
     }
@@ -126,6 +177,9 @@ public class YourClass
         result = (myClass != null ? myClass.hashCode() : 0);
         result = 29 * result + Float.floatToIntBits(myFloat);
         result = 29 * result + Float.floatToIntBits(attrib);
+        result = 29 * result + (someBool ? 1 : 0);
+        result = 29 * result + (bools != null ? bools.hashCode() : 0);
+        result = 29 * result + (strs != null ? strs.hashCode() : 0);
         return result;
     }
 
@@ -134,8 +188,10 @@ public class YourClass
         return "com.mytest.YourClass{" +
             "myClass=" + myClass +
             ", myFloat=" + myFloat +
-            ", someBool=" + someBool +
             ", attrib=" + attrib +
+            ", someBool=" + someBool +
+            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
+            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
             "}";
     }
 

@@ -57,17 +57,17 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import javax.xml.namespace.QName;
+import java.util.Collection;
 
-final class CharacterVisitor
+class CharacterVisitor
     extends XmlTypeVisitor
 {
-
-
     CharacterVisitor(RuntimeBindingProperty property,
                      Object parentObject,
                      MarshalContextImpl context)
     {
         super(parentObject, property, context);
+        assert (!(parentObject instanceof Collection));
     }
 
 
@@ -108,7 +108,9 @@ final class CharacterVisitor
 
     protected CharSequence getCharData()
     {
-        return getBindingProperty().getLexical(getParentObject(), marshalContext);
+        final Object parent = getParentObject();
+        assert parent != null : "bad visitor: this="+this;
+        return getBindingProperty().getLexical(parent, marshalContext);
     }
 
 }

@@ -103,7 +103,7 @@ final class ByNameRuntimeBindingType
         }
     }
 
-    public Object createIntermediary(UnmarshalContextImpl context)
+    Object createIntermediary(UnmarshalContextImpl context)
     {
         return ClassLoadingUtils.newInstance(javaClass);
     }
@@ -116,15 +116,10 @@ final class ByNameRuntimeBindingType
         return ClassLoadingUtils.loadClass(jclass, backup);
     }
 
-    public Object getFinalObjectFromIntermediary(Object retval,
+    Object getFinalObjectFromIntermediary(Object retval,
                                                  UnmarshalContextImpl context)
     {
         return retval;
-    }
-
-    public BindingType getType()
-    {
-        return byNameBean;
     }
 
     RuntimeBindingProperty getProperty(int index)
@@ -179,7 +174,6 @@ final class ByNameRuntimeBindingType
         private final BindingType bindingType;
         private final TypeUnmarshaller unmarshaller;
         private final TypeMarshaller marshaller; // used only for simple types
-        private final Class propertyClass;
         private final Method getMethod;
         private final Method setMethod;
         private final boolean javaPrimitive;
@@ -196,17 +190,36 @@ final class ByNameRuntimeBindingType
             this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
             this.marshaller = lookupMarshaller(prop, typeTable, loader);
             this.bindingType = loader.getBindingType(prop.getTypeName());
-            try {
-                this.propertyClass = getJavaClass(bindingType, getClass().getClassLoader());
-            }
-            catch (ClassNotFoundException e) {
-                final String msg = "error loading " + bindingType.getName().getJavaName();
-                throw (RuntimeException)(new RuntimeException(msg).initCause(e));
-            }
+
+            final Class propertyClass = getPropertyClass(prop, bindingType);
 
             getMethod = getGetterMethod(prop, beanClass);
             setMethod = getSetterMethod(prop, beanClass, propertyClass);
             javaPrimitive = propertyClass.isPrimitive();
+        }
+
+        private Class getPropertyClass(QNameProperty prop, BindingType btype)
+        {
+            assert btype != null;
+
+            final Class propertyClass;
+            try {
+                final ClassLoader our_cl = getClass().getClassLoader();
+                final JavaName collectionClass = prop.getCollectionClass();
+
+                if (collectionClass == null) {
+                    propertyClass = getJavaClass(btype, our_cl);
+                } else {
+                    final String col = collectionClass.toString();
+                    propertyClass = ClassLoadingUtils.loadClass(col, our_cl);
+                }
+            }
+            catch (ClassNotFoundException ex) {
+                final String s = "error loading " +
+                    btype.getName().getJavaName();
+                throw (RuntimeException)(new RuntimeException(s).initCause(ex));
+            }
+            return propertyClass;
         }
 
 
@@ -282,6 +295,7 @@ final class ByNameRuntimeBindingType
         //non simple type props can throw some runtime exception.
         public CharSequence getLexical(Object value, MarshalContextImpl context)
         {
+            assert value != null;
             assert marshaller != null : "no marhsaller for " + bindingProperty;
             return marshaller.print(value, context);
         }
@@ -313,6 +327,16 @@ final class ByNameRuntimeBindingType
 
             Object val = getValue(parentObject, context);
             return (val != null);
+        }
+
+        public boolean isMultiple()
+        {
+            return bindingProperty.isMultiple();
+        }
+
+        public boolean isNillable()
+        {
+            return bindingProperty.isNillable();
         }
 
         private static Method getSetterMethod(QNameProperty binding_prop,

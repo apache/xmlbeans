@@ -124,4 +124,15 @@ class RuntimeGlobalProperty
     {
         return true;
     }
+
+    public boolean isMultiple()
+    {
+        return false;
+    }
+
+    public boolean isNillable()
+    {
+        //TODO & FIXME: we need the real information from the schema here
+        return true;
+    }
 }
