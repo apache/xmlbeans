@@ -61,6 +61,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.jar.JarEntry;
@@ -86,7 +87,7 @@ public class DefaultTylarLoader implements TylarLoader {
   private static final char[] OTHER_SEPCHARS = {'\\'};
   private static final char SEPCHAR = '/';
 
-  private static final boolean VERBOSE = false;
+  private static final boolean VERBOSE = true;
 
   private static final String BINDING_FILE_JARENTRY =
           normalizeEntryName(TylarConstants.BINDING_FILE);
@@ -105,7 +106,8 @@ public class DefaultTylarLoader implements TylarLoader {
     return DEFAULT_INSTANCE;
   }
 
-  private static /*final*/ TylarLoader DEFAULT_INSTANCE = new DefaultTylarLoader();
+  private static /*final*/ TylarLoader
+          DEFAULT_INSTANCE = new DefaultTylarLoader();
 
   /**
    * This is a gross quick hack to support pluggability for tylar loader.
@@ -146,7 +148,7 @@ public class DefaultTylarLoader implements TylarLoader {
       } catch(Exception e) {
         //sometimes File can't deal for some reason, so as a last ditch
         //we assume it's a jar and read the stream directly
-        return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
+        return loadFromJar(uri.toURL().openStream(),uri);
       }
       if (!file.exists()) throw new FileNotFoundException(uri.toString());
       if (file.isDirectory()) {
@@ -186,7 +188,8 @@ public class DefaultTylarLoader implements TylarLoader {
    * exception, you can be sure that the tylars binding files and schemas are
    * valid.
    *
-   * @param in input stream on the jar file
+   * @param in input stream on the jar file.  This should NOT be a
+   * JarInputStream
    * @param source uri from which the tylar was retrieved.  This is used
    * for informational purposes only, but it is required.
    * @return Handle to the tylar
@@ -195,12 +198,16 @@ public class DefaultTylarLoader implements TylarLoader {
   public static Tylar loadFromJar(InputStream in, URI source)
           throws IOException, XmlException
   {
+    // FIXME this will be broken if the InputStream is already a
+    // JarInputStream (or some InputStream in front of a JIS).
+    // Gotta sort this out. pcal 12/18/03
     if (in == null) throw new IllegalArgumentException("null in");
     if (source == null) throw new IllegalArgumentException("null uri");
     HackJarInputStream hin = new HackJarInputStream(in);
     JarEntry entry;
     BindingFile bf = null;
     Collection schemas = null;
+    if (VERBOSE) System.out.println("Reading jar entries");
     while ((entry = hin.getNextJarEntry()) != null) {
       if (entry.isDirectory()) continue;
       String name = normalizeEntryName(entry.getName());
@@ -221,6 +228,7 @@ public class DefaultTylarLoader implements TylarLoader {
       }
       hin.closeEntry();
     }
+    if (VERBOSE) System.out.println("Done reading jar entries");
     if (bf == null) {
       throw new IOException
               ("resource at '"+source+
