@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.common.XPath;
@@ -108,7 +108,7 @@ public abstract class Query
     {
         if (_xqrlCompileQuery == null) {
             try {
-                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.newstore2.XqrlImpl");
+                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.store.XqrlImpl");
 
                 _xqrlCompileQuery =
                         xqrlImpl.getDeclaredMethod("compileQuery",

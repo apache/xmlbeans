@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import org.xml.sax.Locator;
 import org.xml.sax.Attributes;
@@ -70,15 +70,15 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 
-import org.apache.xmlbeans.impl.newstore2.Saaj.SaajCallback;
+import org.apache.xmlbeans.impl.store.Saaj.SaajCallback;
 
-import org.apache.xmlbeans.impl.newstore2.DomImpl.Dom;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.TextNode;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.CdataNode;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
+import org.apache.xmlbeans.impl.store.DomImpl.Dom;
+import org.apache.xmlbeans.impl.store.DomImpl.TextNode;
+import org.apache.xmlbeans.impl.store.DomImpl.CdataNode;
+import org.apache.xmlbeans.impl.store.DomImpl.SaajTextNode;
+import org.apache.xmlbeans.impl.store.DomImpl.SaajCdataNode;
 
-import org.apache.xmlbeans.impl.newstore2.Cur.Locations;
+import org.apache.xmlbeans.impl.store.Cur.Locations;
 
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlLineNumber;

@@ -88,19 +88,15 @@ public class NamespaceContext implements PrefixResolver
         }
     }
 
-    private static ThreadLocal tl_namespaceContextStack = new ThreadLocal()
-    {
-        protected Object initialValue() { return new SoftReference(new NamespaceContextStack()); }
-    };
+    private static ThreadLocal tl_namespaceContextStack = new ThreadLocal();
 
     private static NamespaceContextStack getNamespaceContextStack()
     {
-        SoftReference softRef = (SoftReference)tl_namespaceContextStack.get();
-        NamespaceContextStack namespaceContextStack = (NamespaceContextStack) (softRef).get();
+        NamespaceContextStack namespaceContextStack = (NamespaceContextStack) tl_namespaceContextStack.get();
         if (namespaceContextStack==null)
         {
             namespaceContextStack = new NamespaceContextStack();
-            tl_namespaceContextStack.set(new SoftReference(namespaceContextStack));
+            tl_namespaceContextStack.set(namespaceContextStack);
         }
         return namespaceContextStack;
     }
@@ -110,6 +106,20 @@ public class NamespaceContext implements PrefixResolver
         getNamespaceContextStack().push(next);
     }
             
+    public static void pop()
+    {
+        NamespaceContextStack nsContextStack = getNamespaceContextStack();
+        nsContextStack.pop();
+
+        if (nsContextStack.stack.size()==0)
+            tl_namespaceContextStack.set(null);
+    }
+
+    public static PrefixResolver getCurrent()
+    {
+        return getNamespaceContextStack().current;
+    }
+
     public String getNamespaceForPrefix(String prefix)
     {
         if (prefix != null && prefix.equals("xml"))
@@ -153,15 +163,5 @@ public class NamespaceContext implements PrefixResolver
                 assert false : "Improperly initialized NamespaceContext.";
                 return null;
         }
-    }
-
-    public static PrefixResolver getCurrent()
-    {
-        return getNamespaceContextStack().current;
-    }
-    
-    public static void pop()
-    {
-        getNamespaceContextStack().pop();
     }
 }

@@ -23,8 +23,8 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
-import org.apache.xmlbeans.impl.newstore2.CharUtil;
-import org.apache.xmlbeans.impl.newstore2.CharUtil.CharJoin;
+import org.apache.xmlbeans.impl.store.CharUtil;
+import org.apache.xmlbeans.impl.store.CharUtil.CharJoin;
 
 public class CharUtilTests extends TestCase
 {

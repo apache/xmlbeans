@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import javax.xml.stream.Location;

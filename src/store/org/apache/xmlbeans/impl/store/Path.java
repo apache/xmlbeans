@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import java.util.*;
 
@@ -211,7 +211,7 @@ public abstract class Path
     {
         if (_xqrlCompilePath == null) {
             try {
-                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.newstore2.XqrlImpl");
+                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.store.XqrlImpl");
 
                 _xqrlCompilePath =
                         xqrlImpl.getDeclaredMethod("compilePath",
