@@ -161,7 +161,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             throw e;
         }
         
-        Assert.assertTrue("Expected partial schema type system", ((SchemaTypeSystemImpl)sts).isPartial());
+        Assert.assertTrue("Expected partial schema type system", ((SchemaTypeSystemImpl)sts).isIncomplete());
 
 
         //call some stupid methods on STS

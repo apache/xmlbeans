@@ -225,7 +225,7 @@ public class SchemaTypeSystemCompiler
             throw new XmlException(errorWatcher.firstError());
         }
 
-        if (stsi != null && !stsi.isPartial() && filer != null)
+        if (stsi != null && !stsi.isIncomplete() && filer != null)
         {
             stsi.save(filer);
             generateTypes(stsi, filer, options);
@@ -322,7 +322,7 @@ public class SchemaTypeSystemCompiler
                 if (state.allowPartial() && state.getRecovered() == errorWatcher.size())
                 {
                     // if partial type system allowed and all errors were recovered
-                    state.get().sts().setPartial(true);
+                    state.get().sts().setIncomplete(true);
                 }
                 else
                 {
@@ -330,6 +330,9 @@ public class SchemaTypeSystemCompiler
                     return null;
                 }
             }
+
+            if (system != null)
+                ((SchemaTypeSystemImpl) system).setIncomplete(true);
 
             return state.get().sts();
         }
@@ -424,7 +427,7 @@ public class SchemaTypeSystemCompiler
     public static boolean generateTypes(SchemaTypeSystem system, Filer filer, XmlOptions options)
     {
         // partial type systems not allowed to be saved
-        if (system instanceof SchemaTypeSystemImpl && ((SchemaTypeSystemImpl)system).isPartial())
+        if (system instanceof SchemaTypeSystemImpl && ((SchemaTypeSystemImpl)system).isIncomplete())
             return false;
         
         boolean success = true;
