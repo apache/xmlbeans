@@ -72,4 +72,10 @@ public class Inst2XsdDetailedTypeTest extends Inst2XsdTestBase {
         runTypeChecking(getTypeXml("false"), "boolean");
     }
 
+    public void test_QName() throws Exception {
+        runTypeChecking(getTypeXml("xsd:string"), "QName");
+        runTypeChecking(getTypeXml("xsi:int"), "QName");
+        runTypeChecking(getTypeXml("foo:baz"), "QName");
+    }
+
 }

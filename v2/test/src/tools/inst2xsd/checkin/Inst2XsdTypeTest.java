@@ -111,13 +111,7 @@ public class Inst2XsdTypeTest extends Inst2XsdTestBase {
         runTypeChecking(getTypeXml("00:00:00"), "time");
         runTypeChecking(getTypeXml("13:20:00Z"), "time");
     }
-
-    public void test_QName() throws Exception {
-        runTypeChecking(getTypeXml("xsd:string"), "QName");
-        runTypeChecking(getTypeXml("xsi:int"), "QName");
-        runTypeChecking(getTypeXml("foo:baz"), "QName");
-    }
-
+    
     public void test_CDATA() throws Exception {
         runTypeChecking(getTypeXml("<![CDATA[ " +
                                    "function matchwo(a, b) {" +
