@@ -12,16 +12,19 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JMember;
+import org.apache.xmlbeans.impl.jam.JComment;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EMember extends EElement, JMember {
+public interface EComment extends JComment {
 
-  public void setModifiers(int modifiers);
+  /**
+   * Sets the text of this comment.
+   */
+  public void setText(String text);
+
 }

@@ -15,7 +15,6 @@
 package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.editable.*;
-import org.apache.xmlbeans.impl.jam.JComment;
 
 import java.io.*;
 
@@ -57,7 +56,6 @@ public class DefaultCommentProcessor
   // Protected methods
 
   protected void visit(EElement element) {
-    /*
     EComment[] comments = element.getEditableComments();
     if (comments == null || comments.length == 0) return;
     for(int i=0; i<comments.length; i++) {
@@ -65,24 +63,28 @@ public class DefaultCommentProcessor
       if (!text.startsWith("/*")) {
         element.removeComment(comments[i]);
       } else {
-        StringWriter sw = new StringWriter();
-        BufferedWriter out = new BufferedWriter(sw);
+        StringWriter out = new StringWriter();
         BufferedReader in = new BufferedReader(new StringReader(text));
         String line;
+        boolean addBreak = false;
         try {
           while((line = in.readLine()) != null) {
             line = line.trim();
-            if (line.equalsxxxfixme("* /")) continue;
+            if (line.equals("*/")) continue;
             int offset = line.indexOf('*');
-            if (offset == line.length()) continue;
-            out.write(line.substring(offset+1));
+            do {
+              offset++;
+            }  while(offset < line.length() && line.charAt(offset) == '*');
+            if (addBreak) out.write('\n');
+            if (offset >= line.length()) continue;
+            out.write(line.substring(offset+1).trim());
+            addBreak = true;
           }
-          comments[i].setText(sw.toString());
+          comments[i].setText(out.toString());
         } catch(IOException veryUnexpected) {
           veryUnexpected.printStackTrace();
         }
       }
-      }
-*/
+    }
   }
 }

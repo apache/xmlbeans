@@ -92,4 +92,8 @@ public class SourcesJamTest extends JamTestBase {
   protected boolean isParameterNamesKnown() {
     return true;
   }
+
+  protected boolean isCommentsAvailable() {
+    return true;
+  }
 }

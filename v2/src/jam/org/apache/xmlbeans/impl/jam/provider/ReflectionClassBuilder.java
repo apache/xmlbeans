@@ -45,7 +45,7 @@ public class ReflectionClassBuilder implements EClassBuilder {
    * @deprecated just to wean us off the R* impls.
    */
   public static JClassLoader createRClassLoader(ClassLoader cl) {
-    return new JClassLoaderImpl(new ReflectionClassBuilder(cl),null);
+    return new JClassLoaderImpl(new ReflectionClassBuilder(cl));
   }
 
   public static EClassBuilder getSystemClassBuilder() {

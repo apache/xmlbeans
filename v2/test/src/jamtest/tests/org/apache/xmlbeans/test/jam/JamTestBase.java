@@ -90,6 +90,7 @@ public abstract class JamTestBase extends TestCase {
    DUMMY+".Baz",
    DUMMY+".Foo",
    DUMMY+".FooImpl",
+   DUMMY+".HeavilyCommented",
    DUMMY+".MyException"
   };
 
@@ -119,6 +120,20 @@ public abstract class JamTestBase extends TestCase {
     }
   };
 
+  // this needs to correspond to the methods on the FooImpl dummyclass
+  private static final String[] HEAVILY_COMMENTS = {
+    "A simple comment.",
+    "A comment which\nspans\n\nseveral\n\n\nlines."
+  };
+  /**
+   * A comment which
+   * spans
+   *
+   * several
+   *
+   *
+   * lines.
+   */
 
   private static final boolean VERBOSE = false;
 
@@ -157,6 +172,8 @@ public abstract class JamTestBase extends TestCase {
   //even the classes case make the annotations available using a special
   //JStore
   protected abstract boolean isParameterNamesKnown();
+
+  protected abstract boolean isCommentsAvailable();
 
   // ========================================================================
   // Utility methods
@@ -204,6 +221,24 @@ public abstract class JamTestBase extends TestCase {
     resolveCheckRecursively(mResult.getAllClasses(),new HashSet());
   }
 
+
+  /**
+   * Test comment parsing on the HeavilyCommented dummy class.
+   */
+  public void testComments() {
+    if (!isCommentsAvailable()) return;
+    JClass hcImpl = mLoader.loadClass(DUMMY+".HeavilyCommented");
+    JMethod[] methods = hcImpl.getDeclaredMethods();
+    for(int i=0; i<methods.length; i++) {
+      JComment[] comments = methods[i].getComments();
+      assertTrue(methods[i].getSimpleName()+" has "+comments.length+
+                 "comments, expecting exactly one.",
+                 (comments.length == 1));
+      assertTrue("'"+comments[0].getText()+"'\ndoes not match expected\n'" +
+                 HEAVILY_COMMENTS[i]+"'",
+                 HEAVILY_COMMENTS[i].equals(comments[0].getText()));
+    }
+  }
 
 
   /**

@@ -261,7 +261,7 @@ public class JServiceParamsImpl implements JServiceParams, JStoreParams
     if (mCommentInitializer != null) {
       initers.add(mCommentInitializer);
     } else {
-      //FIXME initers.add(new DefaultCommentInitializer());
+      initers.add(DefaultCommentProcessor.getInstance());
     }
     if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
     // now go
