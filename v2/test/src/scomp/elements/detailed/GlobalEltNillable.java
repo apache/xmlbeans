@@ -133,7 +133,7 @@ public class GlobalEltNillable extends BaseCase {
                 " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
                 " xsi:nil=\"true\" testattribute=\"foobar\"/>");
         try {
-            assertTrue(testElt.validate());
+            assertTrue(testElt.validate(validateOptions));
         }
         catch (Throwable t) {
             showErrors();

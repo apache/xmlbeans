@@ -68,9 +68,10 @@ public class ElementWC extends BaseCase {
                 " xmlns:ns=\"http://xbean/scomp/namespace/ElementWC\"" +
                 " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
                 " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\"" +
-                " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault " +
-                "GlobalEltDefault.xsd\"> " +
-                "<elt:child/></ns:AnyStrict>");
+               // " xsi:schemaLocation=\"http://xbean/scomp/element/GlobalEltDefault " +
+              //  "GlobalEltDefault.xsd\"
+                "> " +
+                "<elt:GlobalEltDefaultStr/></ns:AnyStrict>");
         if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));

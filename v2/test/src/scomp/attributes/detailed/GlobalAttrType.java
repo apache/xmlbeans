@@ -91,9 +91,11 @@ public class GlobalAttrType extends BaseCase {
         }
         XmlInteger ival = XmlInteger.Factory.newInstance();
         ival.setBigIntegerValue(BigInteger.ZERO);
+
         testDoc.setAttAnyType(ival);
 
-        assertEquals("0", testDoc.getAttAnyType().getStringValue());
+        assertEquals(BigInteger.ZERO,
+                testDoc.getAttAnyType().changeType(XmlInteger.type));
         try {
             assertTrue(testDoc.validate(validateOptions));
         }
