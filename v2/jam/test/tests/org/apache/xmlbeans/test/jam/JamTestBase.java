@@ -288,14 +288,11 @@ public abstract class JamTestBase extends TestCase {
 */
 
 
-/*
   public void testIsEnum() {
     JClass gts = mLoader.loadClass(DUMMY+".MyEnum");
     assertTrue(gts.getQualifiedName()+".isEnumType() must be true",
                gts.isEnumType() == true);
-//    System.out.println("=========== "+gts.getSuperclass().getQualifiedName());
   }
-  */
 
   public void testGenerics() {
     JClass gts = mLoader.loadClass(DUMMY+".MyGenericThingSubclass");

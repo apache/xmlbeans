@@ -212,7 +212,7 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
         getLogger().verbose("including '"+files[i]+"'");
       }
     }
-    JavadocRunner jdr = new JavadocRunner();
+    JavadocRunner jdr = JavadocRunner.newInstance();
     try {
       PrintWriter out = null;
       if (getLogger().isVerbose(this)) {
