@@ -3,6 +3,7 @@
   <property name='build_dir'   value='../build/jam'/>
 
   <property name='src_dir'     value='src'/>
+  <property name='src15_dir'   value='src15'/>
   <property name="site_dir"    value='website'/>
 
   <property name='jam_jar'      value='${build_dir}/jam.jar'/>
@@ -13,6 +14,12 @@
   <property name='gen_dir'     value='${build_dir}/generatedsrc'/>
   <property name='classes_dir' value='${build_dir}/classes'/>
   <property name='antlr_jar'   value='external/lib/antlr.jar'/>
+  <property name='javac.source' value='1.34xxx'/>
+  <property name='javac.target' value='1.34xxx'/>
+
+
+
+
 
   <!--FIXME need to do get the jar ourselves -->
   <property name='staxapi_jar'   value='../build/lib/jsr173_api.jar'/>
@@ -45,12 +52,15 @@
     -->
   </target>
 
-  
 
-  <target name='compile' depends='exclude15,jsr173,parser'>
+  <target name='compile' depends='jsr173,parser,compile14,
+                                  do15compile.check,compile15'/>
+
+  <target name='compile14'>
     <mkdir dir='${classes_dir}'/>
     <javac srcdir='${src_dir}' destdir='${classes_dir}'
-           debug='on' excludes='${exclude15}'>
+           source='1.4' target='1.4'
+           debug='on'>
       <src path='${src_dir}'/>
       <src path='${gen_dir}'/>
       <classpath>
@@ -60,10 +70,21 @@
         <pathelement path='${java.class.path}'/>
       </classpath>
     </javac>
-
-
   </target>
 
+  <target name='compile15' if='do15compile'>
+    <mkdir dir='${classes_dir}'/>
+    <javac srcdir='${src15_dir}' destdir='${classes_dir}'
+           source='1.5' target='1.5'
+           debug='on'>
+      <classpath>
+        <pathelement location='${antlr_jar}'/>
+        <pathelement location='${staxapi_jar}'/>
+        <pathelement path='${classes_dir}'/>
+        <pathelement path='${java.class.path}'/>
+      </classpath>
+    </javac>
+  </target>
 
   <target name='jsr173'>
     <ant dir='..' target='jsr173.jar' inheritAll='false' />
@@ -75,7 +96,7 @@
     <ant dir='${tests_dir}' target='all' inheritAll='false' />
   </target>
 
-  <target name="javadocs" depends='compile'>
+  <target name='javadocs' depends='compile'>
     <mkdir dir='${javadocbuild_dir}' />
     <javadoc packagenames='*'
              destdir='${javadocbuild_dir}'
@@ -127,6 +148,7 @@
     <mkdir dir='${classes_dir}'/>
 
     <javac srcdir='${src_dir}' destdir='${classes_dir}' 
+           source='${javac.source}' target='${javac.target}'
            includes='**/tools/*.java'/>
 
     <java classname='org.apache.xmlbeans.impl.jam.tools.Repackage' 
@@ -145,15 +167,16 @@
     </ant>
   </target>
 
-  <target name='exclude15' depends='exclude15.check,exclude15.warn'/>
+  <target name='do15compile.check' 
+    depends='do15compile.look,no15.warn'/>
 
-  <target name='exclude15.check'>
-    <condition property='exclude15'>
+  <target name='do15compile.look'>
+    <condition property='do15compile'>
       <contains string='${java.version}' substring='1.5'/>
     </condition>
   </target>
 
-  <target name='exclude15.warn' unless='exclude15'>
+  <target name='no15.warn' unless='do15compile'>
     <echo message='======================================================'/>
     <echo message='W A R N I N G:  You are building JAM without JDK 1.5.'/>
     <echo message='The resulting build of JAM will not support'/>
@@ -163,11 +186,7 @@
     <echo message='JAM under 1.5.'/>
     <echo message='======================================================'/>
 
-    <!-- not clear why, but setting this value on the condition element
-         above doesn't seem to work.  so, just do it here -->
-    <property name='exclude15' value='**/internal/java15/**/*.java'/>
   </target>
-
 
 
 
