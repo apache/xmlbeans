@@ -40,7 +40,8 @@
 
 <!--        test bad xsi type TODO: handle better-->
 <!--        <n1:SomeDate xsi:type='xsd:string'>2002-03-06T08:04:39.265Z</n1:SomeDate>-->
-        <n1:SomeDate>2002-03-06T08:04:39.265Z</n1:SomeDate>
+        <n1:SomeDate xsi:type='xsd:dateTime'>2002-03-06T08:04:39.265Z</n1:SomeDate>
+<!--        <n1:SomeDate>2002-03-06T08:04:39.265Z</n1:SomeDate>-->
 
 
     </n1:Myelt>
