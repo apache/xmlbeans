@@ -185,7 +185,7 @@ public class Both2BindTask extends BindingCompilerTask {
   }
 
   public void setDestFile(File file) {
-    log("WARNING!!! the 'destFile' attribute is deprecated and will soon\n" +
+    log("note: the 'destFile' attribute is deprecated and will soon\n" +
             "be removed.  You should instead use destJar, which generates\n" +
             "a full tylar jar (which contains, among other things, the\n" +
             "binding file).  You should not be directly using the binding " +
