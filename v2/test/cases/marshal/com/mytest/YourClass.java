@@ -164,12 +164,16 @@ public class YourClass
      *  @xsdgen:attribute.name Attrib
      */
     public float getAttrib()
+        throws MyException
     {
         return attrib;
     }
 
     public void setAttrib(float attrib)
+        throws MyException
     {
+//        if (attrib < 0.001f)
+//           throw new MyException("too small: " + attrib);
         this.attrib = attrib;
     }
 
