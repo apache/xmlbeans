@@ -47,6 +47,7 @@ public class Inst2XsdCommon {
         return opt;
     }
 
+
     public static String base = "<a xmlns=\"baseNamespace\">" +
             "<b>abc</b>" +
             "<c>123</c>" +
