@@ -151,6 +151,12 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     MAnnotation ann = new AnnotationImpl(getContext(),proxy,annName);
     if (mAllAnnotations == null) mAllAnnotations = new ArrayList();
     mAllAnnotations.add(ann);
+
+    // if one doesn't exist yet, then create the first one
+    if (getMutableAnnotation(annName) == null) {
+      if (mName2Annotation == null) mName2Annotation = new HashMap();
+      mName2Annotation.put(ann.getSimpleName(),ann);
+    }
     return ann;
   }
 
