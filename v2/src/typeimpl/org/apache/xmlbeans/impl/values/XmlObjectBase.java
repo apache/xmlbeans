@@ -666,9 +666,9 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             // ordinary commit except no clearing of nil flag
             if ((_flags & FLAG_STORE) != 0)
             {
+                get_store().invalidate_text();
                 _flags &= ~FLAGS_DATED;
                 get_store().invalidate_nil();
-                get_store().invalidate_text();
             }
             else
             {
