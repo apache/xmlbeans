@@ -33,7 +33,7 @@ final class RuntimeGlobalProperty
         this.runtimeBindingType = runtimeBindingType;
     }
 
-    public BindingType getType()
+    private BindingType getType()
     {
         return runtimeBindingType.getBindingType();
     }

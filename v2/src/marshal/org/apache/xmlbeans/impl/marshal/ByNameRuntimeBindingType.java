@@ -18,14 +18,12 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.MethodName;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
-import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
 
@@ -179,12 +177,7 @@ final class ByNameRuntimeBindingType
 
         final QName qn = prop.getQName();
 
-        if (qn.getLocalPart().equals(localname)) {
-            //QNames always uses "" for no namespace, but the incoming uri
-            //might use null or "".
-            return qn.getNamespaceURI().equals(uri == null ? "" : uri);
-        }
-        return false;
+        return UnmarshalResult.doesElementMatch(qn, localname, uri);
     }
 
     public int getElementPropertyCount()
@@ -251,12 +244,13 @@ final class ByNameRuntimeBindingType
             this.beanClass = beanClass;
             this.beanHasMulti = bean_has_multis;
             this.bindingProperty = prop;
-            this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
-            this.marshaller = lookupMarshaller(prop.getTypeName(), typeTable, loader);
+            final BindingTypeName type_name = prop.getTypeName();
+            this.unmarshaller = typeTable.lookupUnmarshaller(type_name, loader);
+            this.marshaller = typeTable.lookupMarshaller(type_name, loader);
 
-            final BindingType binding_type = loader.getBindingType(prop.getTypeName());
+            final BindingType binding_type = loader.getBindingType(type_name);
             if (binding_type == null) {
-                throw new XmlException("unable to load " + prop.getTypeName());
+                throw new XmlException("unable to load " + type_name);
             }
             runtimeBindingType =
                 rttFactory.createRuntimeType(binding_type, typeTable, loader);
@@ -361,11 +355,6 @@ final class ByNameRuntimeBindingType
         }
 
 
-        public BindingType getType()
-        {
-            return getRuntimeBindingType().getBindingType();
-        }
-
         public RuntimeBindingType getRuntimeBindingType()
         {
             return runtimeBindingType;
@@ -383,54 +372,6 @@ final class ByNameRuntimeBindingType
         public QName getName()
         {
             return bindingProperty.getQName();
-        }
-
-        private TypeUnmarshaller lookupUnmarshaller(BindingProperty prop,
-                                                    RuntimeBindingTypeTable table,
-                                                    BindingLoader loader)
-            throws XmlException
-        {
-            assert prop != null;
-            final BindingTypeName type_name = prop.getTypeName();
-            assert type_name != null;
-            final BindingType binding_type = loader.getBindingType(type_name);
-            if (binding_type == null) {
-                throw new XmlException("failed to load type: " + type_name);
-            }
-
-            TypeUnmarshaller um =
-                table.getOrCreateTypeUnmarshaller(binding_type, loader);
-            if (um == null) {
-                throw new AssertionError("failed to get unmarshaller for " +
-                                         type_name);
-            }
-            return um;
-        }
-
-        private TypeMarshaller lookupMarshaller(BindingTypeName type_name,
-                                                RuntimeBindingTypeTable typeTable,
-                                                BindingLoader loader)
-            throws XmlException
-        {
-            final BindingType binding_type = loader.getBindingType(type_name);
-            if (binding_type == null) {
-                final String msg = "unable to load type for " + type_name;
-                throw new XmlException(msg);
-            }
-            TypeMarshaller m = typeTable.getTypeMarshaller(binding_type);
-            if (m != null) return m;
-
-            if (binding_type instanceof SimpleBindingType) {
-                SimpleBindingType stype = (SimpleBindingType)binding_type;
-
-                final BindingTypeName asif_name = stype.getAsIfBindingTypeName();
-                if (asif_name == null)
-                    throw new XmlException("no asif for " + stype);
-
-                return lookupMarshaller(asif_name, typeTable, loader);
-            }
-
-            return null;
         }
 
 

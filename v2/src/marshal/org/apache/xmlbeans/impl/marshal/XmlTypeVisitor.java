@@ -86,7 +86,7 @@ abstract class XmlTypeVisitor
     {
         return this.getClass().getName() +
             " prop=" + bindingProperty.getName() +
-            " type=" + bindingProperty.getType().getName();
+            " type=" + bindingProperty.getRuntimeBindingType().getBindingType();
     }
 
     protected QName fillPrefix(final QName pname)

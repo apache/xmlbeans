@@ -78,9 +78,9 @@
     <xs:complexContent>
       <xs:extension base="tns:binding-type">
         <xs:sequence>
+          <xs:element name="item-name" type="xs:QName"/>
           <xs:element name="item-type" type="tns:mapping"/>
-          <xs:element name="array-rank" type="xs:int" minOccurs="0"/>
-          <xs:element name="element-qname" type="xs:QName" minOccurs="0"/>
+          <xs:element name="nillable" type="xs:boolean" default="false" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 final class ByNameUnmarshaller implements TypeUnmarshaller
 {
@@ -60,7 +59,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
                 context.skipElement();
             } else {
                 //TODO: implement first one wins?, this is last one wins
-                fillElementProp(prop, context, inter);
+                UnmarshalResult.fillElementProp(prop, context, inter);
             }
         }
 
@@ -76,49 +75,6 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     }
 
 
-    private static void fillElementProp(RuntimeBindingProperty prop,
-                                        UnmarshalResult context,
-                                        Object inter)
-        throws XmlException
-    {
-        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
-        assert um != null;
-
-        try {
-            final String lexical_default = prop.getLexicalDefault();
-            if (lexical_default != null) {
-                context.setNextElementDefault(lexical_default);
-            }
-            final Object prop_val = um.unmarshal(context);
-            prop.fill(inter, prop_val);
-        }
-        catch (InvalidLexicalValueException ilve) {
-            //unlike attributes, the error has been added to the context
-            //already via BaseSimpleTypeConveter...
-        }
-    }
-
-
-    private static void fillAttributeProp(RuntimeBindingProperty prop,
-                                          UnmarshalResult context,
-                                          Object inter)
-        throws XmlException
-    {
-        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
-        assert um != null;
-
-        try {
-            final Object prop_val = um.unmarshalAttribute(context);
-            prop.fill(inter, prop_val);
-        }
-        catch (InvalidLexicalValueException ilve) {
-            //TODO: review error messages
-            String msg = "invalid value for " + prop.getName() +
-                ": " + ilve.getMessage();
-            context.addError(msg, ilve.getLocation());
-        }
-    }
-
     private void deserializeAttributes(Object inter, UnmarshalResult context)
         throws XmlException
     {
@@ -126,7 +82,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
             RuntimeBindingProperty prop = findMatchingAttributeProperty(context);
 
             if (prop != null) {
-                fillAttributeProp(prop, context, inter);
+                UnmarshalResult.fillAttributeProp(prop, context, inter);
             }
 
             context.advanceAttribute();

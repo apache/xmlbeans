@@ -20,15 +20,14 @@ import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
 
-final class SimpleTypeVisitor extends NamedXmlTypeVisitor
+final class SimpleTypeVisitor
+    extends NamedXmlTypeVisitor
 {
+    private final CharacterVisitor charVisitor;
+
     private int state = START;
     private QName attributeName;
     private String xsiTypeAttVal;
-
-    private static final String NIL_ATT_VAL =
-        XsTypeConverter.printBoolean(true).intern();
-    private final CharacterVisitor charVisitor;
 
     public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
                              MarshalResult result)
@@ -95,7 +94,6 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     protected int getAttributeCount()
         throws XmlException
     {
-        //TODO: xsi:type for polymorphism
         return attributeName == null ? 0 : 1;
     }
 

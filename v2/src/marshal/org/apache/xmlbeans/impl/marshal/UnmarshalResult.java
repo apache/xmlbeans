@@ -28,6 +28,7 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -824,6 +825,66 @@ final class UnmarshalResult
         catch (XMLStreamException e) {
             throw new XmlException(e);
         }
+    }
+
+    static void fillElementProp(RuntimeBindingProperty prop,
+                                UnmarshalResult context,
+                                Object inter)
+        throws XmlException
+    {
+        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
+        assert um != null;
+
+        try {
+            final String lexical_default = prop.getLexicalDefault();
+            if (lexical_default != null) {
+                context.setNextElementDefault(lexical_default);
+            }
+            final Object prop_val = um.unmarshal(context);
+            prop.fill(inter, prop_val);
+        }
+        catch (InvalidLexicalValueException ilve) {
+            //unlike attributes, the error has been added to the context
+            //already via BaseSimpleTypeConveter...
+        }
+    }
+
+    static void fillAttributeProp(RuntimeBindingProperty prop,
+                                  UnmarshalResult context,
+                                  Object inter)
+        throws XmlException
+    {
+        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
+        assert um != null;
+
+        try {
+            final Object prop_val = um.unmarshalAttribute(context);
+            prop.fill(inter, prop_val);
+        }
+        catch (InvalidLexicalValueException ilve) {
+            //TODO: review error messages
+            String msg = "invalid value for " + prop.getName() +
+                ": " + ilve.getMessage();
+            context.addError(msg, ilve.getLocation());
+        }
+    }
+
+    /**
+     * Do the supplied localname, uri pair match the given qname?
+     *
+     * @param qn          name of element
+     * @param localname   candidate localname
+     * @param uri         candidtate uri
+     * @return
+     */
+    static boolean doesElementMatch(QName qn, String localname, String uri)
+    {
+        if (qn.getLocalPart().equals(localname)) {
+            //QNames always uses "" for no namespace, but the incoming uri
+            //might use null or "".
+            return qn.getNamespaceURI().equals(uri == null ? "" : uri);
+        }
+        return false;
     }
 
 }

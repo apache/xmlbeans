@@ -44,6 +44,11 @@ public class YourClass
     private QName qn = new QName("URI" + RND.nextInt(), "LNAME"+RND.nextInt());
     private QName qn2 = new QName("URI" + RND.nextInt(), "LNAME"+RND.nextInt());
 
+
+    private String[] wrappedArrayOne = {"W1", "W2"};
+    private String[][] wrappedArrayTwo = {wrappedArrayOne, null, wrappedArrayOne};
+
+
     //hack alert
     static final Random RND = new Random();
 
@@ -214,6 +219,25 @@ public class YourClass
         this.qn2 = qn2;
     }
 
+    public String[] getWrappedArrayOne()
+    {
+        return wrappedArrayOne;
+    }
+
+    public void setWrappedArrayOne(String[] wrappedArrayOne)
+    {
+        this.wrappedArrayOne = wrappedArrayOne;
+    }
+
+    public String[][] getWrappedArrayTwo()
+    {
+        return wrappedArrayTwo;
+    }
+
+    public void setWrappedArrayTwo(String[][] wrappedArrayTwo)
+    {
+        this.wrappedArrayTwo = wrappedArrayTwo;
+    }
 
     public boolean equals(Object o)
     {
@@ -231,6 +255,7 @@ public class YourClass
         if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
         if (!Arrays.equals(myClassArray, yourClass.myClassArray)) return false;
         if (!Arrays.equals(stringArray, yourClass.stringArray)) return false;
+        if (!Arrays.equals(wrappedArrayOne, yourClass.wrappedArrayOne)) return false;
 //        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
 
         if (qn != null ? !qn.equals(yourClass.qn) : yourClass.qn != null) return false;
