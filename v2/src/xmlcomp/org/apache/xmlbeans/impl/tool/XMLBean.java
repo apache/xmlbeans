@@ -241,6 +241,7 @@ public class XMLBean extends MatchingTask
                 javac.setExecutable(forkedExecutable);
                 javac.setFailonerror(failonerror);
                 javac.setFork(fork);
+                if (source != null) javac.setSource(source);
                 javac.setIncludeantruntime(includeAntRuntime);
                 javac.setIncludejavaruntime(includeJavaRuntime);
                 javac.setSrcdir(new Path(project, srcgendir.getAbsolutePath()));
@@ -671,6 +672,12 @@ public class XMLBean extends MatchingTask
     {
         this.memoryMaximumSize = memoryMaximumSize;
     }
+
+  //REVIEW this allows people to deal with the case where they drag in
+  //more files for compilation than they should.  not sure if this is
+  //a good thing or not
+  private String source = null;
+  public void setSource(String s) { source = s; }
 
     /**
      * Gets the XML Catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)
