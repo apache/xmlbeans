@@ -65,12 +65,13 @@ public class DefaultJProvider extends BaseJProvider {
   // Public methods
 
   public JClassLoader createSourceLoader(JServiceParamsImpl params,
-                                              JClassLoader parent)
+                                         JClassLoader parent)
           throws IOException
   {
     //FIXME someday should make the name of the service class to use here
     //settable via a system property
     File[] files = params.getSourceFiles();
+    if (files == null || files.length == 0) return parent;
     String sourcePath = (params.getInputSourcepath() == null) ? null :
             params.getInputSourcepath().toString();
     String classPath = (params.getInputClasspath() == null) ? null :
