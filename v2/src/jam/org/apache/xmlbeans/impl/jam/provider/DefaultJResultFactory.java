@@ -45,11 +45,11 @@ public class DefaultJResultFactory extends JServiceFactory {
   // ========================================================================
   // JServiceFactory implementation
 
-  public JServiceParams createResultParams() {
+  public JServiceParams createServiceParams() {
     return new JServiceParamsImpl();
   }
 
-  public JService createResult(JServiceParams jsps) throws IOException {
+  public JService createService(JServiceParams jsps) throws IOException {
     //assert that they aren't implementing JServiceParams themselves or
     //getting them from somewhere else
     if (!(jsps instanceof JServiceParamsImpl)) {

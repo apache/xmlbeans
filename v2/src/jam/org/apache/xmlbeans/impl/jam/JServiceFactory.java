@@ -64,7 +64,7 @@ public abstract class JServiceFactory {
    * Create a new JServiceParams instance.  The params can be populated
    * and then given to the createService method to create a new JService.
    */
-  public abstract JServiceParams createResultParams();
+  public abstract JServiceParams createServiceParams();
 
   /**
    * Create a new JService from the given parameters.
@@ -73,18 +73,18 @@ public abstract class JServiceFactory {
    * @throws IllegalArgumentException if the params is null or not
    * an instance returned by createServiceParams().
    */
-  public abstract JService createResult(JServiceParams params) throws IOException;
+  public abstract JService createService(JServiceParams params) throws IOException;
 
   // ========================================================================
   // main() method
 
   public static void main(String[] args) {
     try {
-      JServiceParams sp = getInstance().createResultParams();
+      JServiceParams sp = getInstance().createServiceParams();
       for(int i=0; i<args.length; i++) {
         sp.includeSourceFiles(new File("."),args[i]);
       }
-      JService service = getInstance().createResult(sp);
+      JService service = getInstance().createService(sp);
       JamPrinter jp = JamPrinter.newInstance();
       PrintWriter out = new PrintWriter(System.out);
       for(JClassIterator i = service.getClasses(); i.hasNext(); ) {

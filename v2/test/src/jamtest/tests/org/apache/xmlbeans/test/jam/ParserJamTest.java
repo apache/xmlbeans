@@ -39,9 +39,9 @@ public class ParserJamTest extends JamTestBase {
 
   protected JService getResultToTest() throws IOException {
     JServiceFactory jsf = new NewJServiceFactory();
-    JServiceParams params = jsf.createResultParams();
+    JServiceParams params = jsf.createServiceParams();
     params.includeSourceFiles(getDummyclassesSourceRoot(),"**/*.java");
-    return jsf.createResult(params);
+    return jsf.createService(params);
   }
 
   protected boolean isAnnotationsAvailable() {
