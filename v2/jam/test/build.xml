@@ -83,11 +83,11 @@
   <target name='compile15' if='do15compile'>
     <mkdir dir='${cases_build_dir}'/>
     <javac srcdir='${cases_src_150_dir}' destdir='${cases_build_dir}'
-           source='1.4' target='1.4'
+           source='1.5' target='1.5'
            debug='on'   classpathref='classpath'/>
     <mkdir dir='${tests_build_dir}'/>
     <javac srcdir='${tests_src_150_dir}' destdir='${tests_build_dir}'
-           source='1.4' target='1.4'
+           source='1.5' target='1.5'
            debug='on'   classpathref='classpath'/>
   </target>
 
