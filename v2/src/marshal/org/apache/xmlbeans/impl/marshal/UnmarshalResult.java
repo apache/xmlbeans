@@ -32,6 +32,7 @@ import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import javax.xml.namespace.QName;
 import javax.xml.namespace.NamespaceContext;
@@ -182,20 +183,28 @@ final class UnmarshalResult
 
         final TypeUnmarshaller um;
         final ObjectFactory of = extractObjectFactory();
-        if (of == null) {
-            if (hasXsiNil())
-                um = NullUnmarshaller.getInstance();
-            else
+
+        try {
+            if (of == null) {
+                if (hasXsiNil())
+                    um = NullUnmarshaller.getInstance();
+                else
+                    um = typeTable.getOrCreateTypeUnmarshaller(bindingType,
+                                                               bindingLoader);
+                return um.unmarshal(this);
+            } else {
+                final RuntimeBindingType rtt = getRuntimeType(bindingType);
+                final Object initial_obj = of.createObject(rtt.getJavaType());
                 um = typeTable.getOrCreateTypeUnmarshaller(bindingType,
                                                            bindingLoader);
-            return um.unmarshal(this);
-        } else {
-            final RuntimeBindingType rtt = getRuntimeType(bindingType);
-            final Object initial_obj = of.createObject(rtt.getJavaType());
-            um = typeTable.getOrCreateTypeUnmarshaller(bindingType,
-                                                       bindingLoader);
-            um.unmarshal(initial_obj, this);
-            return initial_obj;
+                um.unmarshal(initial_obj, this);
+                return initial_obj;
+            }
+        }
+        catch (InvalidLexicalValueException ilve) {
+            //top level simple types can end up here for invalid lexical values
+            assert !errors.isEmpty();
+            return null;
         }
     }
 

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.GDateSpecification;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
@@ -24,30 +25,20 @@ import java.util.Calendar;
 
 
 /**
- * convert between schema date/time types and java.util.Calendar
+ * convert between schema Duration and GDuration
  */
-final class JavaCalendarTypeConverter
+final class DurationTypeConverter
     extends BaseSimpleTypeConverter
 {
-    private final int schemaType;
-
-    /**
-     *
-     * @param schemaType  use codes from SchemaType
-     */
-    JavaCalendarTypeConverter(int schemaType)
-    {
-        this.schemaType = schemaType;
-    }
 
     protected Object getObject(UnmarshalResult context) throws XmlException
     {
-        return context.getCalendarValue();
+        return context.getGDurationValue();
     }
 
     public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
-        return context.getAttributeCalendarValue();
+        return context.getAttributeGDurationValue();
     }
 
     public Object unmarshalAttribute(CharSequence lexical_value,
@@ -55,9 +46,7 @@ final class JavaCalendarTypeConverter
         throws XmlException
     {
         try {
-            GDateSpecification gd =
-                XsTypeConverter.getGDateValue(lexical_value, schemaType);
-            return gd.getCalendar();
+            return new GDuration(lexical_value);
         }
         catch (IllegalArgumentException e) {
             throw new InvalidLexicalValueException(e, result.getLocation());
@@ -67,8 +56,7 @@ final class JavaCalendarTypeConverter
 
     public CharSequence print(Object value, MarshalResult result)
     {
-        Calendar cal = (Calendar)value;
-        GDateSpecification gd = XsTypeConverter.getGDateValue(cal, schemaType);
-        return gd.toString();
+        GDuration cal = (GDuration)value;
+        return cal.toString();
     }
 }
