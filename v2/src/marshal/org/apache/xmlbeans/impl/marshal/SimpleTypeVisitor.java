@@ -70,10 +70,10 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     private final CharacterVisitor charVisitor;
 
     public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
-                             MarshallerImpl context)
+                             MarshalResult result)
     {
-        super(obj, property, context);
-        charVisitor = new CharacterVisitor(getBindingProperty(), getParentObject(), marshalContext);
+        super(obj, property, result);
+        charVisitor = new CharacterVisitor(property, obj, result);
     }
 
     protected int getState()

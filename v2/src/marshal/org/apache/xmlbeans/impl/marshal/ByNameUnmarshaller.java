@@ -69,7 +69,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         this.type = new ByNameRuntimeBindingType(type);
     }
 
-    public Object unmarshal(UnmarshallerImpl context)
+    public Object unmarshal(UnmarshalResult context)
     {
         final Object inter = type.createIntermediary(context);
         deserializeAttributes(inter, context);
@@ -77,14 +77,14 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         return type.getFinalObjectFromIntermediary(inter, context);
     }
 
-    public Object unmarshalAttribute(UnmarshallerImpl context)
+    public Object unmarshalAttribute(UnmarshalResult context)
     {
         throw new UnsupportedOperationException("not an attribute: " +
                                                 type.getSchemaTypeName());
     }
 
     //TODO: cleanup this code.  We are doing extra work for assertion checking
-    private void deserializeContents(Object inter, UnmarshallerImpl context)
+    private void deserializeContents(Object inter, UnmarshalResult context)
     {
         assert context.isStartElement();
         final String ourStartUri = context.getNamespaceURI();
@@ -116,7 +116,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
 
 
     private static void fillElementProp(RuntimeBindingProperty prop,
-                                        UnmarshallerImpl context,
+                                        UnmarshalResult context,
                                         Object inter)
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
@@ -134,7 +134,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
 
 
     private static void fillAttributeProp(RuntimeBindingProperty prop,
-                                          UnmarshallerImpl context,
+                                          UnmarshalResult context,
                                           Object inter)
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
@@ -152,7 +152,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         }
     }
 
-    private void deserializeAttributes(Object inter, UnmarshallerImpl context)
+    private void deserializeAttributes(Object inter, UnmarshalResult context)
     {
         while (context.hasMoreAttributes()) {
             RuntimeBindingProperty prop = findMatchingAttributeProperty(context);
@@ -165,7 +165,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         }
     }
 
-    private RuntimeBindingProperty findMatchingAttributeProperty(UnmarshallerImpl context)
+    private RuntimeBindingProperty findMatchingAttributeProperty(UnmarshalResult context)
     {
         String uri = context.getCurrentAttributeNamespaceURI();
         String lname = context.getCurrentAttributeLocalName();
@@ -173,7 +173,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         return type.getMatchingAttributeProperty(uri, lname);
     }
 
-    private RuntimeBindingProperty findMatchingElementProperty(UnmarshallerImpl context)
+    private RuntimeBindingProperty findMatchingElementProperty(UnmarshalResult context)
     {
         String uri = context.getNamespaceURI();
         String lname = context.getLocalName();

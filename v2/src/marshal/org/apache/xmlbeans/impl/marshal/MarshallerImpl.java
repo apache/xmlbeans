@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
@@ -73,37 +74,31 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Collection;
 
 final class MarshallerImpl
     implements Marshaller
 {
+    //per binding context constants
     private final BindingLoader loader;
     private final RuntimeBindingTypeTable typeTable;
-    private final ScopedNamespaceContext namespaceContext;
+
+    //TODO: this needs to be moved into the binding context
     private final RuntimeTypeFactory runtimeTypeFactory =
         new RuntimeTypeFactory();
-    private final Collection errors;
-    private final XmlOptions options;
 
-    private int prefixCnt = 0;
+    //REVIEW: can this be static?
+    private final XMLOutputFactory xmlOutputFactory =
+        XMLOutputFactory.newInstance();
 
-    private static final String NSPREFIX = "n";
     private static final String XML_VERSION = "1.0";
 
-    MarshallerImpl(NamespaceContext root_nsctx,
-                   BindingLoader loader,
-                   RuntimeBindingTypeTable typeTable,
-                   XmlOptions options)
+    MarshallerImpl(BindingLoader loader,
+                   RuntimeBindingTypeTable typeTable)
     {
-        this.namespaceContext = new ScopedNamespaceContext(root_nsctx);
         this.loader = loader;
         this.typeTable = typeTable;
-        this.errors = BindingContextImpl.extractErrorHandler(options);
-        this.options = options;
-
-        namespaceContext.openScope();
     }
 
     public XMLStreamReader marshal(Object obj,
@@ -135,7 +130,18 @@ final class MarshallerImpl
         }
 
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(btype, elem_qn);
-        return new MarshalResult(prop, obj, this);
+
+        //TODO: review null options param
+        return new MarshalResult(runtimeTypeFactory, loader, typeTable,
+                                 nscontext, prop, obj, null);
+    }
+
+    public XMLStreamReader marshal(Object obj,
+                                   XmlOptions options)
+        throws XmlException
+    {
+        //TODO: actually use the options!
+        return marshal(obj, EmptyNamespaceContext.getInstance());
     }
 
     private static JavaTypeName determineJavaType(Object obj)
@@ -160,22 +166,96 @@ final class MarshallerImpl
         }
     }
 
+    public void marshal(XMLStreamWriter writer, Object obj, XmlOptions options)
+        throws XmlException
+    {
+        //TODO: javadoc that pretty is not supported here.
+
+        String encoding = getEncoding(options);
+        marshalToOutputStream(obj, encoding, writer);
+    }
+
+    private static String getEncoding(XmlOptions options)
+    {
+        return (String)XmlOptions.safeGet(options,
+                                          XmlOptions.CHARACTER_ENCODING);
+    }
+
     public void marshal(OutputStream out, Object obj)
         throws XmlException
     {
-        String encoding = (String)options.get(XmlOptions.CHARACTER_ENCODING);
-        if (encoding != null) {
-            marshal(out, obj, encoding);
+        try {
+            XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(out);
+            XMLStreamReader rdr = marshal(obj, writer.getNamespaceContext());
+            XmlReaderToWriter.writeAll(rdr, writer);
+        }
+        catch (XMLStreamException xse) {
+            throw new XmlException(xse);
+        }
+    }
+
+    public void marshal(OutputStream out, Object obj, XmlOptions options)
+        throws XmlException
+    {
+        if (options != null && options.hasOption(XmlOptions.SAVE_PRETTY_PRINT)) {
+            marshalPretty(out, obj, options);
         } else {
+            final String encoding = getEncoding(options);
+            final XMLStreamWriter writer;
             try {
-                final XMLOutputFactory xof = XMLOutputFactory.newInstance();
-                final XMLStreamWriter writer = xof.createXMLStreamWriter(out);
-                marshal(writer, obj);
+                writer = createXmlStreamWriter(out, encoding);
             }
             catch (XMLStreamException e) {
                 throw new XmlException(e);
             }
+            marshalToOutputStream(obj, encoding, writer);
         }
+    }
+
+    private void marshalPretty(OutputStream out,
+                               Object obj,
+                               XmlOptions options)
+        throws XmlException
+    {
+        XMLStreamReader rdr = marshal(obj, EmptyNamespaceContext.getInstance());
+        XmlObject xobj = XmlObject.Factory.parse(rdr);
+        try {
+            xobj.save(out, options);
+        }
+        catch (IOException e) {
+            throw new XmlException(e);
+        }
+    }
+
+    private void marshalToOutputStream(Object obj,
+                                       final String encoding,
+                                       XMLStreamWriter writer)
+        throws XmlException
+    {
+        try {
+            if (encoding != null)
+                writer.writeStartDocument(encoding, XML_VERSION);
+
+            marshal(writer, obj);
+            writer.writeEndDocument();
+            writer.close();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
+    }
+
+    private XMLStreamWriter createXmlStreamWriter(OutputStream out,
+                                                  final String encoding)
+        throws XMLStreamException
+    {
+        XMLStreamWriter writer;
+        if (encoding != null) {
+            writer = xmlOutputFactory.createXMLStreamWriter(out, encoding);
+        } else {
+            writer = xmlOutputFactory.createXMLStreamWriter(out);
+        }
+        return writer;
     }
 
     public void marshal(OutputStream out, Object obj, String encoding)
@@ -185,19 +265,12 @@ final class MarshallerImpl
             throw new IllegalArgumentException("null encoding");
         }
 
-        try {
-            XMLOutputFactory output_factory = XMLOutputFactory.newInstance();
-            XMLStreamWriter writer =
-                output_factory.createXMLStreamWriter(out, encoding);
-            writer.writeStartDocument(encoding, XML_VERSION);
-            marshal(writer, obj);
-            writer.writeEndDocument();
-            writer.close();
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
+        XmlOptions opts = new XmlOptions();
+        opts.setCharacterEncoding(encoding);
+
+        marshal(out, obj, opts);
     }
+
 
     public XMLStreamReader marshalType(Object obj,
                                        QName elementName,
@@ -219,7 +292,8 @@ final class MarshallerImpl
             throw new XmlException(msg);
         }
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
-        return new MarshalResult(prop, obj, this);
+        return new MarshalResult(runtimeTypeFactory, loader, typeTable,
+                                 namespaceContext, prop, obj, null);
     }
 
     public void marshalType(XMLStreamWriter writer,
@@ -240,6 +314,29 @@ final class MarshallerImpl
         }
     }
 
+    public void marshalType(XMLStreamWriter writer,
+                            Object obj,
+                            QName elementName,
+                            QName schemaType,
+                            String javaType,
+                            XmlOptions options)
+        throws XmlException
+    {
+        //TODO: actually use the options!!
+        marshalType(writer, obj, elementName, schemaType, javaType);
+    }
+
+    public XMLStreamReader marshalType(Object obj,
+                                       QName elementName,
+                                       QName schemaType,
+                                       String javaType,
+                                       XmlOptions options)
+        throws XmlException
+    {
+        //TODO: actually use the options!!
+        return marshalType(obj, elementName, schemaType, javaType, EmptyNamespaceContext.getInstance());
+    }
+
 
     //TODO: refine this algorithm to deal better
     //with primitives/interfaces/other oddities
@@ -247,10 +344,10 @@ final class MarshallerImpl
     //till we hit a class that we can deal with.
 
     //returns null if we fail
-    private static BindingType lookupBindingType(Class instance_type,
-                                                 JavaTypeName java_type,
-                                                 XmlTypeName xml_type,
-                                                 BindingLoader loader)
+    static BindingType lookupBindingType(Class instance_type,
+                                         JavaTypeName java_type,
+                                         XmlTypeName xml_type,
+                                         BindingLoader loader)
     {
         //look first for exact match
         {
@@ -306,12 +403,6 @@ final class MarshallerImpl
         return loader.getBindingType(btname);
     }
 
-
-    Collection getErrorCollection()
-    {
-        return errors;
-    }
-
     BindingLoader getLoader()
     {
         return loader;
@@ -320,55 +411,6 @@ final class MarshallerImpl
     RuntimeBindingTypeTable getTypeTable()
     {
         return typeTable;
-    }
-
-    ScopedNamespaceContext getNamespaceContext()
-    {
-        return namespaceContext;
-    }
-
-    RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
-    {
-        final BindingTypeName type_name = type.getName();
-        String expectedJavaClass = type_name.getJavaName().toString();
-        String actualJavaClass = instance.getClass().getName();
-        if (!actualJavaClass.equals(expectedJavaClass)) {
-            final BindingType actual_type = lookupBindingType(instance.getClass(),
-                                                              type_name.getJavaName(),
-                                                              type_name.getXmlName(),
-                                                              loader);
-            if (actual_type != null) {
-                System.out.println("****** USING: " + actual_type + " SUBT for " + type);
-                type = actual_type;          //redefine type param
-            }
-            //else go with original type and hope for the best...
-        }
-        return runtimeTypeFactory.createRuntimeType(type, typeTable, loader);
-    }
-
-    String ensurePrefix(String uri)
-    {
-        String prefix = namespaceContext.getPrefix(uri);
-        if (prefix == null) {
-            prefix = bindNextPrefix(uri);
-        }
-        assert prefix != null;
-        return prefix;
-    }
-
-    private String bindNextPrefix(final String uri)
-    {
-        assert uri != null;
-        String testuri;
-        String prefix;
-        do {
-            prefix = NSPREFIX + (++prefixCnt);
-            testuri = namespaceContext.getNamespaceURI(prefix);
-        }
-        while (testuri != null);
-        assert prefix != null;
-        namespaceContext.bindNamespace(prefix, uri);
-        return prefix;
     }
 
 }

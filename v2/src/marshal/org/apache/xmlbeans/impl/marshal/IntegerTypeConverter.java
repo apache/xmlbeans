@@ -63,19 +63,19 @@ import java.math.BigInteger;
 final class IntegerTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshallerImpl context)
+    protected Object getObject(UnmarshalResult context)
     {
         BigInteger val = context.getBigIntegerValue();
         return val;
     }
 
-    public Object unmarshalAttribute(UnmarshallerImpl context)
+    public Object unmarshalAttribute(UnmarshalResult context)
     {
         return context.getAttributeBigIntegerValue();
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshallerImpl context)
+    public CharSequence print(Object value, MarshalResult result)
     {
         BigInteger val = (BigInteger)value;
         return XsTypeConverter.printInteger(val);

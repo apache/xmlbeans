@@ -63,20 +63,20 @@ import java.io.InputStream;
 final class Base64BinaryTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshallerImpl context)
+    protected Object getObject(UnmarshalResult context)
     {
         final InputStream val = context.getBase64Value();
         return MarshalStreamUtils.inputStreamToBytes(val);
     }
 
-    public Object unmarshalAttribute(UnmarshallerImpl context)
+    public Object unmarshalAttribute(UnmarshalResult context)
     {
         final InputStream val = context.getAttributeBase64Value();
         return MarshalStreamUtils.inputStreamToBytes(val);
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshallerImpl context)
+    public CharSequence print(Object value, MarshalResult result)
     {
         byte[] val = (byte[])value;
         return XsTypeConverter.printBase64Binary(val);

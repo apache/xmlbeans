@@ -202,14 +202,16 @@ public class MarshalTests extends TestCase
         options.setErrorListener(errors);
 
         Marshaller ctx =
-            bindingContext.createMarshaller(options);
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
+
 
         final XMLStreamReader reader =
             ctx.marshalType(orig,
 //                           new QName("uri", "lname"),
                             new QName("lname"),
                             new QName("http://www.w3.org/2001/XMLSchema", xsd_type),
-                            orig.getClass().getName(), null);
+                            orig.getClass().getName(), options);
 
 
         System.out.println("==================OBJ: " + orig);
@@ -257,12 +259,15 @@ public class MarshalTests extends TestCase
         options.setErrorListener(errors);
 
         Marshaller ctx =
-            bindingContext.createMarshaller(options);
+            bindingContext.createMarshaller();
+
+        Assert.assertNotNull(ctx);
+
 
         final XMLStreamReader reader =
             ctx.marshalType(mc, new QName("java:com.mytest", "load"),
                             new QName("java:com.mytest", "MyClass"),
-                            mc.getClass().getName(), null);
+                            mc.getClass().getName(), options);
 
 //
 //        final XMLStreamReader reader =
@@ -302,12 +307,15 @@ public class MarshalTests extends TestCase
         Collection errors = new LinkedList();
         options.setErrorListener(errors);
 
+
         Marshaller ctx =
-            bindingContext.createMarshaller(options);
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
+
 
         ctx.marshalType(w, mc, new QName("java:com.mytest", "load"),
                         new QName("java:com.mytest", "MyClass"),
-                        mc.getClass().getName());
+                        mc.getClass().getName(), options);
 
         System.out.println("=======IN-OBJ: " + mc);
         System.out.println("=======OUT-XML: " + PrettyPrinter.indent(sw.getBuffer().toString()));
@@ -338,9 +346,9 @@ public class MarshalTests extends TestCase
         Collection errors = new LinkedList();
         options.setErrorListener(errors);
         Marshaller ctx =
-            bindingContext.createMarshaller(options);
-
-        ctx.marshal(w, mc);
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
+        ctx.marshal(w, mc, options);
 
         //now unmarshall from String and compare objects...
         StringReader sr = new StringReader(sw.getBuffer().toString());
@@ -371,17 +379,20 @@ public class MarshalTests extends TestCase
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
+        final String encoding = "UTF-16";
+
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
         options.setErrorListener(errors);
+        options.setCharacterEncoding(encoding);
         Marshaller ctx =
-            bindingContext.createMarshaller(options);
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
 
-        final String encoding = "UTF-16";
-        ctx.marshal(baos, mc, encoding);
+        ctx.marshal(baos, mc, options);
         baos.close();
         final byte[] buf = baos.toByteArray();
-        System.out.println("Doc="+new String(buf, encoding));
+        System.out.println("16Doc="+new String(buf, encoding));
 
         //now unmarshall from String and compare objects...
         Unmarshaller umctx = bindingContext.createUnmarshaller((new XmlOptions()));
@@ -441,12 +452,14 @@ public class MarshalTests extends TestCase
             errors.clear();
 
             Marshaller ctx =
-                bindingContext.createMarshaller(options);
+                bindingContext.createMarshaller();
+            Assert.assertNotNull(ctx);
+
 
             final XMLStreamReader reader =
                 ctx.marshalType(top_obj, elem_name,
                                 schemaType,
-                                class_name, null);
+                                class_name, options);
 
 
 //            //DEBUG!!!
@@ -513,12 +526,14 @@ public class MarshalTests extends TestCase
         options.setErrorListener(errors);
 
         Marshaller ctx =
-            bindingContext.createMarshaller(options);
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
+
 
         final XMLStreamReader reader =
             ctx.marshalType(top_obj, elem_name,
                             schemaType,
-                            class_name, null);
+                            class_name, options);
 
         Unmarshaller umctx =
             bindingContext.createUnmarshaller(options);
@@ -529,13 +544,15 @@ public class MarshalTests extends TestCase
     }
 
     private static void dumpReader(final XMLStreamReader reader)
-        throws XMLStreamException, XmlException, IOException
+        throws XMLStreamException
     {
         final boolean write_doc = true;
         if (write_doc) {
             StringWriter sw = new StringWriter();
+
             XMLStreamWriter xsw =
-                XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+                XMLOutputFactory.newInstance().createXMLStreamWriter(sw); 
+
 
             XmlReaderToWriter.writeAll(reader, xsw);
 
@@ -543,7 +560,8 @@ public class MarshalTests extends TestCase
 
             final String xmldoc = sw.getBuffer().toString();
             System.out.println("DOC:");
-            System.out.println(PrettyPrinter.indent(xmldoc));
+//            System.out.println(PrettyPrinter.indent(xmldoc));
+            System.out.println((xmldoc));
         } else {
             int i = 0;
             System.out.println((i++) + "\tSTATE: " + XmlStreamUtils.printEvent(reader));
@@ -610,34 +628,6 @@ public class MarshalTests extends TestCase
 
     }
 
-
-    //temp hacked up test for dd stuff
-//    public void testJ2EEByNameBeanUnmarshal()
-//        throws Exception
-//    {
-//        File loc = new File("/tmp/j2ee14-binding.xml");
-//        File bcdoc = loc;
-//
-//        BindingContext bindingContext =
-//            BindingContextFactory.newInstance().createBindingContext(bcdoc);
-//
-//        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
-//
-//        Assert.assertNotNull(unmarshaller);
-//
-//        File doc = new File("/tmp/j2ee14-instance.xml");
-//
-//        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-//        XMLStreamReader xrdr =
-//            xmlInputFactory.createXMLStreamReader(new FileReader(doc));
-//
-//        UnmarshalContext um_ctx =
-//            bindingContext.createUnmarshallContext(new ArrayList(), xrdr);
-//        Object obj = unmarshaller.unmarshal(um_ctx);
-//
-//        System.out.println("obj = " + obj);
-//        Assert.assertTrue(!um_ctx.hasErrors());
-//    }
 
     public void testByNameBeanUnmarshalType()
         throws Exception

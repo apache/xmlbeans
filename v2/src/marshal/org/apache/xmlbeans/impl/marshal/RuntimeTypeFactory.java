@@ -65,17 +65,16 @@ import java.util.Map;
 
 /**
  * caching factory for runtime binding types
- *
- * currently NOT thread safe (by design)
  */
 
 final class RuntimeTypeFactory
 {
     private final Map typeMap = new HashMap();
 
-    public RuntimeBindingType createRuntimeType(BindingType type,
-                                                RuntimeBindingTypeTable type_table,
-                                                BindingLoader binding_loader)
+    //TODO: use a hash map that is sync only on write!!
+    public synchronized RuntimeBindingType createRuntimeType(BindingType type,
+                                                             RuntimeBindingTypeTable type_table,
+                                                             BindingLoader binding_loader)
     {
         RuntimeBindingType rtype = (RuntimeBindingType)typeMap.get(type);
         if (rtype == null) {

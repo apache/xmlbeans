@@ -65,9 +65,9 @@ abstract class NamedXmlTypeVisitor
 
     NamedXmlTypeVisitor(Object parentObject,
                         RuntimeBindingProperty property,
-                        MarshallerImpl context)
+                        MarshalResult result)
     {
-        super(parentObject, property, context);
+        super(parentObject, property, result);
 
         //TODO: optimize to avoid object creation
         name = addPrefixToName(getBindingProperty().getName());
@@ -87,7 +87,7 @@ abstract class NamedXmlTypeVisitor
         if (uri.length() == 0) {
             return new QName(pname.getLocalPart());
         } else {
-            String prefix = marshalContext.ensurePrefix(uri);
+            String prefix = marshalResult.ensurePrefix(uri);
             return new QName(uri, pname.getLocalPart(), prefix);
         }
     }

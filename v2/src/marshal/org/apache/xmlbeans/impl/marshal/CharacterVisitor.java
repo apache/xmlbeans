@@ -66,9 +66,9 @@ final class CharacterVisitor
 
     CharacterVisitor(RuntimeBindingProperty property,
                      Object parentObject,
-                     MarshallerImpl context)
+                     MarshalResult result)
     {
-        super(parentObject, property, context);
+        super(parentObject, property, result);
         assert (!(parentObject instanceof Collection));
 
         //we are getting the lexical value here because in certain cases
@@ -128,7 +128,7 @@ final class CharacterVisitor
     {
         final Object parent = getParentObject();
         assert parent != null : "bad visitor: this=" + this;
-        return getBindingProperty().getLexical(parent, marshalContext);
+        return getBindingProperty().getLexical(parent, marshalResult);
     }
 
 }

@@ -89,7 +89,7 @@ final class RuntimeGlobalProperty
         return false;
     }
 
-    public TypeUnmarshaller getTypeUnmarshaller(UnmarshallerImpl context)
+    public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
     {
         throw new UnsupportedOperationException();
     }
@@ -100,27 +100,27 @@ final class RuntimeGlobalProperty
     }
 
     //non simple type props can throw some runtime exception.
-    public CharSequence getLexical(Object parent, MarshallerImpl context)
+    public CharSequence getLexical(Object parent, MarshalResult result)
     {
         //TODO: polymorphism checks
 
         final TypeMarshaller tm =
-            context.getTypeTable().getTypeMarshaller(type);
+            result.getTypeTable().getTypeMarshaller(type);
 
         if (tm == null) {
             throw new XmlRuntimeException("lookup failed for " + type);
         }
 
-        final CharSequence retval = tm.print(parent, context);
+        final CharSequence retval = tm.print(parent, result);
         return retval;
     }
 
-    public Object getValue(Object parent_obj, MarshallerImpl context)
+    public Object getValue(Object parent_obj, MarshalResult result)
     {
         throw new AssertionError("UNIMP: " + this);
     }
 
-    public boolean isSet(Object parentObject, MarshallerImpl context)
+    public boolean isSet(Object parentObject, MarshalResult result)
     {
         return true;
     }

@@ -58,6 +58,10 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
+/**
+ * Used to unmarshall objects with xsi:nil="true"
+ * Just skips the contents and returns null
+ */
 final class NullUnmarshaller
     implements TypeUnmarshaller
 {
@@ -67,13 +71,13 @@ final class NullUnmarshaller
     {
     }
 
-    public Object unmarshal(UnmarshallerImpl context)
+    public Object unmarshal(UnmarshalResult context)
     {
         context.skipElement();
         return null;
     }
 
-    public Object unmarshalAttribute(UnmarshallerImpl context)
+    public Object unmarshalAttribute(UnmarshalResult context)
     {
         throw new UnsupportedOperationException();
     }

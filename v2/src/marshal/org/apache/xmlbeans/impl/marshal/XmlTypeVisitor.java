@@ -62,15 +62,15 @@ abstract class XmlTypeVisitor
 {
     private final Object parentObject;
     private final RuntimeBindingProperty bindingProperty;
-    protected final MarshallerImpl marshalContext;
+    protected final MarshalResult marshalResult;
 
     XmlTypeVisitor(Object parentObject,
                    RuntimeBindingProperty property,
-                   MarshallerImpl context)
+                   MarshalResult result)
     {
         this.parentObject = parentObject;
         this.bindingProperty = property;
-        this.marshalContext = context;
+        marshalResult = result;
     }
 
 
@@ -132,7 +132,7 @@ abstract class XmlTypeVisitor
         if (uri.length() == 0) {
             return new QName(pname.getLocalPart());
         } else {
-            String prefix = marshalContext.ensurePrefix(uri);
+            String prefix = marshalResult.ensurePrefix(uri);
             return new QName(uri, pname.getLocalPart(), prefix);
         }
     }

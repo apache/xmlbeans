@@ -64,27 +64,27 @@ final class QNameTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    protected Object getObject(UnmarshallerImpl context)
+    protected Object getObject(UnmarshalResult context)
     {
         QName val = context.getQNameValue();
         return val;
     }
 
-    public Object unmarshalAttribute(UnmarshallerImpl context)
+    public Object unmarshalAttribute(UnmarshalResult context)
     {
         return context.getAttributeQNameValue();
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshallerImpl context)
+    public CharSequence print(Object value, MarshalResult result)
     {
         QName val = (QName)value;
         final String uri = val.getNamespaceURI();
         if (uri.length() > 0) {
-            context.ensurePrefix(uri);
+            result.ensurePrefix(uri);
         }
         return XsTypeConverter.printQName(val,
-                                          context.getNamespaceContext(),
-                                          context.getErrorCollection());
+                                          result.getNamespaceContext(),
+                                          result.getErrorCollection());
     }
 }

@@ -66,9 +66,43 @@ package org.apache.xmlbeans;
  */
 public interface BindingContext
 {
+    /**
+     * @deprecated options are ignored and must be passed to Unmarshaller methods
+     *
+     * @return Unmarshaller object
+     * @throws XmlException
+     */
+    Unmarshaller createUnmarshaller()
+        throws XmlException;
+
+    /**
+     * Create an Unmarshaller object capable of unmarshalling types
+     * known by this context
+     *
+     * @param options
+     * @return
+     * @throws XmlException
+     */
     Unmarshaller createUnmarshaller(XmlOptions options)
         throws XmlException;
 
+    /**
+     * Create an Marshaller object capable of marshalling types
+     * known by this context
+     *
+     * @return Marshaller object
+     * @throws XmlException
+     */
+    Marshaller createMarshaller()
+        throws XmlException;
+
+    /**
+     * @deprecated options are ignored and must be passed to Marshaller methods
+     *
+     * @param options
+     * @return
+     * @throws XmlException
+     */
     Marshaller createMarshaller(XmlOptions options)
         throws XmlException;
 
