@@ -48,8 +48,8 @@ public final class ReflectionUtils
         catch (IllegalArgumentException e) {
             throw new XmlException(e);
         }
-        catch (InvocationTargetException e) {
-            throw new XmlException(e);
+        catch (InvocationTargetException ite) {
+            throw new XmlException(ite.getTargetException());
         }
     }
 
