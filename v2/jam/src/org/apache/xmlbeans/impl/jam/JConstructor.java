@@ -22,4 +22,23 @@ package org.apache.xmlbeans.impl.jam;
  */
 public interface JConstructor extends JInvokable {
 
+  /**
+   * <p>Returns a qualied name for this method as specified by
+   * <code>java.lang.reflect.Constructor.toString()</code>:</p>
+   *
+   * <p><i>Returns a string describing this Constructor. The string is formatted
+   * as the constructor access modifiers, if any, followed by the
+   * fully-qualified name of the declaring class, followed by a parenthesized,
+   * comma-separated list of the constructor's formal parameter types.
+   * For example:<i></p>
+   *
+   * <p><i>public java.util.Hashtable(int,float)</i></p>
+   *
+   * <p><i>The only possible modifiers for constructors are the access modifiers
+   * public, protected or private. Only one of these may appear, or none if
+   * the constructor has default (package) access.</i></p>
+   */
+  public String getQualifiedName();
+
+
 }

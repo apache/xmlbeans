@@ -25,6 +25,7 @@ import java.util.Enumeration;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.annotation.Annotation;
 import java.io.StringWriter;
 
 /**
@@ -128,9 +129,9 @@ public abstract class AnnotationProxy {
    * <p>Extending classes are free to override this method if different
    * behavior is required.</p>
    */
-  public void initFromAnnotationInstance(Object jsr175annotationObject) {
+  public void initFromAnnotationInstance(Class annType,
+                                         Object jsr175annotationObject) {
     if (jsr175annotationObject == null) throw new IllegalArgumentException();
-    Class annType = jsr175annotationObject.getClass();
     //FIXME this is a bit clumsy right now - I think we need to be a little
     // more surgical in identifying the annotation member methods
     Method[] methods = annType.getMethods();

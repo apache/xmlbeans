@@ -57,26 +57,40 @@ public class JavadocClassBuilder extends JamClassBuilder {
     if (ctx == null) throw new IllegalArgumentException("null context");
     mServiceContext = ctx;
     mLogger = ctx.getLogger();
-    try {
-      // class for name this because it's 1.5 specific.  if it fails, we
-      // don't want to use the extractor
-      Class.forName("com.sun.javadoc.AnnotationDesc");
-      mExtractor = (JavadocAnnotationExtractor)
-        Class.forName(JAVA15_EXTRACTOR).newInstance();
-
-    } catch (ClassNotFoundException e) {
-      mLogger.warning(e);
-    } catch (IllegalAccessException e) {
-      mLogger.verbose(e);
-    } catch (InstantiationException e) {
-      mLogger.verbose(e);
-      //if this fails, we'll assume it's because we're not under 1.5
-      ctx.verbose(e);
-    }
     String pct = ctx.getProperty(PARSETAGS_PROPERTY);
     if (pct != null) {
       mParseTags = Boolean.valueOf(pct).booleanValue();
       mLogger.verbose("mParseTags="+mParseTags,this);
+    }
+    try {
+      // class for name this because it's 1.5 specific.  if it fails, we
+      // don't want to use the extractor
+      Class.forName("com.sun.javadoc.AnnotationDesc");
+    } catch (ClassNotFoundException e) {
+      mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
+                      "source annotations will not be understood");
+      if (mLogger.isVerbose(this)) {
+        mLogger.verbose(e);
+      }
+      return;
+    }
+    // ok, if we could load that, let's new up the extractor delegate
+    try {
+      mExtractor = (JavadocAnnotationExtractor)
+        Class.forName(JAVA15_EXTRACTOR).newInstance();
+      // if this fails for any reason, things are in a bad state
+    } catch (ClassNotFoundException e) {
+      mLogger.error("Internal error, failed to instantiate "+
+                    JAVA15_EXTRACTOR);
+      mLogger.error(e);
+    } catch (IllegalAccessException e) {
+      mLogger.error("Internal error, failed to instantiate "+
+                    JAVA15_EXTRACTOR);
+      mLogger.error(e);
+    } catch (InstantiationException e) {
+      mLogger.error("Internal error, failed to instantiate "+
+                    JAVA15_EXTRACTOR);
+      mLogger.error(e);
     }
   }
 
@@ -154,7 +168,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
       className;
     ClassDoc cd = mRootDoc.classNamed(loadme);
     if (cd == null) {
-      if (true || getLogger().isVerbose(this)) {
+      if (getLogger().isVerbose(this)) {
         getLogger().verbose("no ClassDoc for "+loadme);
       }
       return null;

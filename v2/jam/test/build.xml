@@ -18,6 +18,7 @@
 
  <!-- use build/classes instead of xbean.jar for develpment convenience -->
     <pathelement path='${build_dir}/classes' />
+    <pathelement path='${dummy_dir}' />
     <pathelement location='${test_build_dir}' />
     <pathelement location='${junit_jar}'/>
     <pathelement path='${java.class.path}' />
@@ -30,21 +31,21 @@
 
   <property name='classpath-value' refid='classpath'/>
 
-  <target name='all' depends='build,run' />
+  <target name='all' depends='compile,run' />
 
-  <target name='build' >
-    <mkdir dir='${test_build_dir}'/>
-    <javac
-       srcdir='tests'
-       destdir='${test_build_dir}'
-       classpathref='classpath'
-       includes='**/*.java'
-     />
+  <target name='compile' >
     <mkdir dir='${dummy_dir}'/>
     <javac
        source='1.5' target='1.5'
        srcdir='dummyclasses'
        destdir='${dummy_dir}'
+       classpathref='classpath'
+       includes='**/*.java'
+     />
+    <mkdir dir='${test_build_dir}'/>
+    <javac
+       srcdir='tests'
+       destdir='${test_build_dir}'
        classpathref='classpath'
        includes='**/*.java'
      />

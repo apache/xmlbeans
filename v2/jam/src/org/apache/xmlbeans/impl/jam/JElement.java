@@ -56,10 +56,10 @@ public abstract interface JElement {
   public String getSimpleName();
 
   /**
-   * <p>Returns a fully-qualified name for this abstraction.  The
-   * exact format of the name depends on the particular abstraction.
-   * Please refer to the JAM package documentation for more details on
-   * naming conventions.</p>
+   * <p>Returns a qualified name for this abstraction.  The exact format of
+   * this name depends on the particular abstraction.  Please refer to the
+   * documentation for each JElement subclass for a detailed description
+   * of the qualified name formats.</p>
    */
   public String getQualifiedName();
 
@@ -84,4 +84,10 @@ public abstract interface JElement {
    * @return
    */
   public Object getArtifact();
+
+  /**
+   * <p>Returns the same String as getQualifiedName().</p>
+   */
+  public String toString();
+  
 }

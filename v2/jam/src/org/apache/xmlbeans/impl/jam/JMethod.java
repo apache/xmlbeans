@@ -55,6 +55,29 @@ public interface JMethod extends JInvokable {
    */
   public boolean isSynchronized();
 
+  /**
+   * <p>Returns a qualied name for this method as specified by
+   * <code>java.lang.reflect.Method.toString()</code>:</p>
+   *
+   * <p><i>
+   * Returns a string describing this Method. The string is formatted as
+   * the method access modifiers, if any, followed by the method return
+   * type, followed by a space, followed by the class declaring the method,
+   * followed by a period, followed by the method name, followed by a
+   * parenthesized, comma-separated list of the method's formal parameter
+   * types. If the method throws checked exceptions, the parameter list is
+   * followed by a space, followed by the word throws followed by a
+   * comma-separated list of the thrown exception types. For example:</i></p>
+   *
+   * <p><i>public boolean java.lang.Object.equals(java.lang.Object)</i></p>
+   *
+   * <p><i>The access modifiers are placed in canonical order as specified by
+   * "The Java Language Specification". This is public, protected or private
+   * first, and then other modifiers in the following order: abstract,
+   * static, final, synchronized native.</i></p>
+   */
+  public String getQualifiedName();
+
 
   /**
    * Returns the name of this class in the format described in section

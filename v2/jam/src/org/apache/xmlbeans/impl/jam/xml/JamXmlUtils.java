@@ -17,14 +17,17 @@ package org.apache.xmlbeans.impl.jam.xml;
 import org.apache.xmlbeans.impl.jam.JamService;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.provider.JamServiceFactoryImpl;
+import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.internal.CachedClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceImpl;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
+import java.util.Arrays;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -46,12 +49,25 @@ public class JamXmlUtils {
   public JamService createService(InputStream in)
     throws IOException, XMLStreamException
   {
-    JamServiceFactoryImpl jsf = (JamServiceFactoryImpl)JamServiceFactory.getInstance();
+    if (in == null) throw new IllegalArgumentException("null stream");
+    JamServiceFactory jsf = JamServiceFactory.getInstance();
+    JamServiceParams params = jsf.createServiceParams();
     CachedClassBuilder cache = new CachedClassBuilder();
-    JamService out = jsf.createService(cache);
+    // finish initalizing the params and create the service
+    ((JamServiceContextImpl)params).addBaseBuilder(cache);
+    JamService out = jsf.createService(params);
+    // now go read the xml.  we have to do this afterwards so that the
+    // classloader has been created and is available for linking.
     JamXmlReader reader = new JamXmlReader(cache,in);
     reader.read();
-    ((JamServiceImpl)out).setClassNames(cache.getClassNames());//FIXME!! gross
+    {
+      // slightly gross hack to get the class names into the service
+      List classNames = Arrays.asList(cache.getClassNames());
+      classNames.addAll(Arrays.asList(out.getClassNames()));
+      String[] nameArray = new String[classNames.size()];
+      classNames.toArray(nameArray);
+      ((JamServiceImpl)out).setClassNames(nameArray);
+    }
     return out;
   }
 

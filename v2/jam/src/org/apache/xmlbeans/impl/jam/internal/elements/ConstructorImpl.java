@@ -18,6 +18,10 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
+import org.apache.xmlbeans.impl.jam.JParameter;
+
+import java.lang.reflect.Modifier;
+import java.io.StringWriter;
 
 /**
  *
@@ -38,6 +42,38 @@ public final class ConstructorImpl extends InvokableImpl implements MConstructor
 
   public void accept(MVisitor visitor) { visitor.visit(this); }
 
-  public void accept(JVisitor visitor) { visitor.visit(this); }  
+  public void accept(JVisitor visitor) { visitor.visit(this); }
+
+  public String getQualifiedName() {
+    StringWriter sbuf = new StringWriter();
+    sbuf.write(Modifier.toString(getModifiers()));
+    sbuf.write(' ');
+    sbuf.write(getSimpleName());
+    sbuf.write('(');
+    {
+    JParameter[] params = getParameters();
+    if (params != null && params.length > 0) {
+      for(int i=0; i<params.length; i++) {
+        sbuf.write(params[i].getType().getQualifiedName());
+        if (i<params.length-1) sbuf.write(',');
+      }
+    }
+    }
+    sbuf.write(')');
+    /* REVIEW the docs on java.lang.reflect.Constructor don't say include
+       the exceptions.  That seems wrong, but we'll go with it for now.
+    {
+      JClass[] thrown = getExceptionTypes();
+      if (thrown != null && thrown.length > 0) {
+        sbuf.write(" throws ");
+        for(int i=0; i<thrown.length; i++) {
+          sbuf.write(thrown[i].getQualifiedName());
+          if (i<thrown.length-1) sbuf.write(',');
+        }
+      }
+    }
+    */
+    return sbuf.toString();
+  }
 
 }

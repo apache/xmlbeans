@@ -34,32 +34,41 @@ public class Reflect15AnnotationExtractor implements ReflectAnnotationExtractor 
   public void extractAnnotations(MMember dest, Method src) {
     Annotation[] anns = src.getDeclaredAnnotations();
     if (anns == null) return;
-    for(int i=0; i<anns.length; i++) dest.addAnnotationForInstance(anns[i]);
+    for(int i=0; i<anns.length; i++) {
+      dest.addAnnotationForInstance(anns[i].annotationType(),anns[i]);
+    }
   }
 
   public void extractAnnotations(MConstructor dest, Constructor src) {
     Annotation[] anns = src.getDeclaredAnnotations();
     if (anns == null) return;
-    for(int i=0; i<anns.length; i++) dest.addAnnotationForInstance(anns[i]);
+    for(int i=0; i<anns.length; i++) {
+      dest.addAnnotationForInstance(anns[i].annotationType(),anns[i]);
+    }
   }
 
   public void extractAnnotations(MField dest, Field src) {
     Annotation[] anns = src.getDeclaredAnnotations();
     if (anns == null) return;
-    for(int i=0; i<anns.length; i++) dest.addAnnotationForInstance(anns[i]);
+    for(int i=0; i<anns.length; i++) {
+      dest.addAnnotationForInstance(anns[i].annotationType(),anns[i]);
+    }
   }
 
   public void extractAnnotations(MClass dest, Class src) {
     Annotation[] anns = src.getDeclaredAnnotations();
     if (anns == null) return;
-    for(int i=0; i<anns.length; i++) dest.addAnnotationForInstance(anns[i]);
+    for(int i=0; i<anns.length; i++) {
+      dest.addAnnotationForInstance(anns[i].annotationType(),anns[i]);
+    }
   }
 
   public void extractAnnotations(MParameter dest, Method src, int paramNum) {
     Annotation[][] anns = src.getParameterAnnotations();
     if (anns == null) return;
     for(int i=0; i<anns[paramNum].length; i++) {
-      dest.addAnnotationForInstance(anns[paramNum][i]);
+      dest.addAnnotationForInstance(anns[paramNum][i].annotationType(),
+                                    anns[paramNum][i]);
     }
   }
 
@@ -69,14 +78,15 @@ public class Reflect15AnnotationExtractor implements ReflectAnnotationExtractor 
     try {
       anns = src.getParameterAnnotations();
     } catch(NullPointerException wtf) {
-      //FIXME sun code throws an NPE here
+      //FIXME workaround, sun code throws an NPE here
 //      System.err.println("[Reflect15AnnotationExtractor] Ignoring apprent bug in reflection");
       //wtf.printStackTrace();
       return;
     }
     if (anns == null) return;
     for(int i=0; i<anns[paramNum].length; i++) {
-      dest.addAnnotationForInstance(anns[paramNum][i]);
+      dest.addAnnotationForInstance(anns[paramNum][i].annotationType(),
+                                    anns[paramNum][i]);
     }
   }
 }

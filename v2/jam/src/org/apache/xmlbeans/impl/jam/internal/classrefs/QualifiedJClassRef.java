@@ -52,7 +52,7 @@ public class QualifiedJClassRef implements JClassRef {
    */
   public static JClassRef create(String qcname, JamClassLoader cl) {
     if (qcname == null) throw new IllegalArgumentException("null qcname");
-    if (cl == null) throw new IllegalArgumentException("null ctx");
+    if (cl == null) throw new IllegalArgumentException("null classloader");
     return new QualifiedJClassRef(qcname,cl);
   }
 

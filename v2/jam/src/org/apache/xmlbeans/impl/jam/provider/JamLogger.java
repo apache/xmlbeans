@@ -23,6 +23,8 @@ public interface JamLogger {
 
   public boolean isVerbose(Object o);
 
+  public void setShowWarnings(boolean b);
+
   /**
    * <p>Outputs a debug message if appropriate for the given object.</p>
    */

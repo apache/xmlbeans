@@ -77,6 +77,7 @@ import java.util.*;
 
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.RFEAnnotation;
 
 /**
  * <p>Abstract base class for basic jam test cases.  These test cases work
@@ -200,6 +201,13 @@ public abstract class JamTestBase extends TestCase {
   //even the classes case make the annotations available using a special
   //JStore
   protected abstract boolean isAnnotationsAvailable();
+
+
+  //kind of a quick hack for now, should remove this and make sure that
+  //even the classes case make the annotations available using a special
+  //JStore
+  protected abstract boolean is175AnnotationInstanceAvailable();
+
 
   //kind of a quick hack for now, should remove this and make sure that
   //even the classes case make the annotations available using a special
@@ -364,7 +372,14 @@ public abstract class JamTestBase extends TestCase {
 
   public void test175Annotations() throws IOException, XMLStreamException {
     JClass clazz = resolved(mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass"));
-    //dump(clazz);
+    JAnnotation ann = clazz.getAnnotation(RFEAnnotation.class);
+    assertTrue("no "+RFEAnnotation.class+ " on "+clazz.getQualifiedName(),
+               ann != null);
+    if (!is175AnnotationInstanceAvailable()) return; //FIXME test untyped access
+    RFEAnnotation rfe = (RFEAnnotation)ann.getAnnotationInstance();
+    assertTrue("id = "+rfe.id(), rfe.id() == 4561414);
+    assertTrue("synopsis = '"+rfe.synopsis()+"'",
+               rfe.synopsis().equals("Balance the federal budget"));
   }
 
   public void testRecursiveResolve() {
@@ -398,6 +413,7 @@ public abstract class JamTestBase extends TestCase {
     GoldenInvokable.doComparison(fooImpl.getDeclaredMethods(),
                               methods,isParameterNamesKnown(),this);
   }
+
 
 
   public void testInterfaceIsAssignableFrom()
