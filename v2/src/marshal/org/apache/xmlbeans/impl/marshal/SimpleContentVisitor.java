@@ -20,7 +20,7 @@ import org.apache.xmlbeans.XmlException;
 abstract class SimpleContentVisitor
     extends NamedXmlTypeVisitor
 {
-    private final CharacterVisitor charVisitor;
+    private final CharSequence chars;
 
     private int state = START;
 
@@ -29,7 +29,17 @@ abstract class SimpleContentVisitor
         throws XmlException
     {
         super(obj, property, result);
-        charVisitor = new CharacterVisitor(property, obj, result);
+
+        //we are getting the lexical value here because in certain cases
+        //this action could end up modifying the namespace context.
+        //(qname, type substitution).
+        if (obj == null) {
+            //REVIEW: should this be a special subclass for nil types?
+            //Any use of this value should cause an npe later on.
+            chars = null;
+        } else {
+            chars = property.getLexical(obj, marshalResult);
+        }
     }
 
     protected int getState()
@@ -63,12 +73,14 @@ abstract class SimpleContentVisitor
         throws XmlException
     {
         assert state == CHARS;
-        return charVisitor;
+        return this;
     }
 
     protected CharSequence getCharData()
     {
-        throw new AssertionError("not text");
+        assert state == CHARS;
+        assert getParentObject() != null; // should have skipped this
+        return chars;
     }
 
 
