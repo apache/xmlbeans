@@ -296,7 +296,7 @@ public final class SchemaTypeCodePrinter
         emit("private static final org.apache.xmlbeans.SchemaTypeSystem loadTypeSystem()");
         emit("{");
         indent();
-        emit("try { return (org.apache.xmlbeans.SchemaTypeSystem)Class.forName(\"org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl\", true, " + shortName + ".class.getClassLoader()).getConstructor(new Class[] { Class.class }).newInstance(new Object[] { " + shortName + ".class }); }");
+        emit("try { return (org.apache.xmlbeans.SchemaTypeSystem)Class.forName(\"org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl\", true, " + shortName + ".class.getClassLoader()).getConstructor(new Class[] { Class.class }).newInstance(new java.lang.Object[] { " + shortName + ".class }); }");
         emit("catch (ClassNotFoundException e) { throw new RuntimeException(\"Cannot load org.apache.xmlbeans.impl.SchemaTypeSystemImpl: make sure xbean.jar is on the classpath.\", e); }");
         emit("catch (Exception e) { throw new RuntimeException(\"Could not instantiate SchemaTypeSystemImpl (\" + e.toString() + \"): is the version of xbean.jar correct?\", e); }");
         outdent();
@@ -827,7 +827,7 @@ public final class SchemaTypeCodePrinter
             outdent();
             emit(");");
             emit("private static final long serialVersionUID = 1L;");
-            emit("private Object readResolve() { return forInt(intValue()); } ");
+            emit("private java.lang.Object readResolve() { return forInt(intValue()); } ");
             outdent();
             emit("}");
         }
@@ -1355,7 +1355,7 @@ public final class SchemaTypeCodePrinter
                 break;
 
             case SchemaProperty.JAVA_OBJECT:
-                emit("Object[] result = new Object[targetList.size()];");
+                emit("java.lang.Object[] result = new java.lang.Object[targetList.size()];");
                 emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
                 emit("    result[i] = ((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getObjectValue();");
                 break;
