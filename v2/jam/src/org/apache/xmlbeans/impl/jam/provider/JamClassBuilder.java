@@ -133,19 +133,19 @@ public abstract class JamClassBuilder {
 
   protected void issue14BuildWarning(Throwable t) {
     if (!mWarningAlreadyIssued) {
-      mLogger.warning("This build of JAM was produced under JDK 1.4." +
+      getLogger().warning("This build of JAM was produced under JDK 1.4." +
                       "Even though you are running under JDK 1.5, "+
                       "JSR175-style annotations will not be available");
-      mLogger.verbose(t);
+      getLogger().verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
 
   protected void issue14RuntimeWarning(Throwable t) {
     if (!mWarningAlreadyIssued) {
-      mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
+      getLogger().warning("You are running under a pre-1.5 JDK.  JSR175-style "+
                       "source annotations will not be available");
-      mLogger.verbose(t);
+      getLogger().verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
