@@ -69,7 +69,8 @@ public interface JFileSet {
 
   // ========================================================================
   // Public methods
-
+  
+  
   public void include(String pattern);
 
   public void exclude(String pattern);
@@ -78,6 +79,8 @@ public interface JFileSet {
 
   public void setCaseSensitive(boolean b);
 
+  // REVIEW: why can't JFileSet just be the following method and none of the
+  // others? (davidbau)
   public File[] getFiles() throws IOException;
 
   //  public boolean setFollowSymlinks(boolean b);

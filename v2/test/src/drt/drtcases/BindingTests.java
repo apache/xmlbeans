@@ -24,8 +24,7 @@ import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.binding.compile.SchemaToJavaResult;
 import org.apache.xmlbeans.impl.binding.compile.JavaCodeResult;
 import org.apache.xmlbeans.impl.binding.compile.SchemaSourceSet;
-import org.apache.xmlbeans.impl.binding.compile.SimpleSchemaSourceSet;
-import org.apache.xmlbeans.impl.binding.compile.SimpleSchemaToJavaResultCompiler;
+import org.apache.xmlbeans.impl.binding.compile.SimpleSourceSet;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import javax.xml.namespace.QName;
@@ -43,11 +42,11 @@ public class BindingTests extends TestCase
     {
         // bind
         File typesonlyfile = TestEnv.xbeanCase("schema/typesonly/typesonly.xsd");
-        SchemaSourceSet input = SimpleSchemaSourceSet.forFile(typesonlyfile, null);
+        SchemaSourceSet input = SimpleSourceSet.forXsdFile(typesonlyfile, null);
         SchemaToJavaResult result = Schema2Java.bind(input);
         if (verbose)
         {
-            result.getBindingFileResult().printBindingFile(System.out);
+            result.getBindingFile().write().save(System.out);
             JavaCodeResult javacode = result.getJavaCodeResult();
             for (Iterator i = javacode.getToplevelClasses().iterator(); i.hasNext(); )
             {
@@ -59,11 +58,11 @@ public class BindingTests extends TestCase
                 System.out.flush();
             }
         }
-        
+
         // now compile
-        SimpleSchemaToJavaResultCompiler.Params params = new SimpleSchemaToJavaResultCompiler.Params();
-        File theJar = TestEnv.xbeanOutput("schema/binding/typesonly.jar");
-        params.setOutputJar(theJar);
+        // SimpleSchemaToJavaResultCompiler.Params params = new SimpleSchemaToJavaResultCompiler.Params();
+        // File theJar = TestEnv.xbeanOutput("schema/binding/typesonly.jar");
+        // params.setOutputJar(theJar);
         // to test later
         //SimpleSchemaToJavaResultCompiler.compile(result, params);
     }

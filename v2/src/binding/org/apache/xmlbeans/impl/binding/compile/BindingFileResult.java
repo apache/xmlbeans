@@ -56,10 +56,12 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+
 import java.io.IOException;
 import java.io.OutputStream;
 
 public interface BindingFileResult
 {
-    void printBindingFile(OutputStream output) throws IOException;
+    BindingFile getBindingFile();
 }

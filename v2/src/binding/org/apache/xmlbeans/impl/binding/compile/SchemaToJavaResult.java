@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.compile.BindingFileResult;
 import org.apache.xmlbeans.impl.binding.compile.JavaCodeResult;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 
 /**
  * The result of a Schema->Java binding.
@@ -67,7 +68,11 @@ import org.apache.xmlbeans.impl.binding.compile.JavaCodeResult;
  */
 public interface SchemaToJavaResult
 {
-    BindingFileResult getBindingFileResult();
+    /**
+     * Returns the BindingFile object that was produced by Java2Schema.  May
+     * return null if catastrophic errors were encountered.
+     */
+    BindingFile getBindingFile();
     JavaCodeResult getJavaCodeResult();
     SchemaSourceSet getSchemaSourceSet();
 }
