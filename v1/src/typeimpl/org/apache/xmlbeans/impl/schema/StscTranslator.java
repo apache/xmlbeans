@@ -458,6 +458,8 @@ public class StscTranslator
     /**
      * Translates a local or global schema element.
      */
+    // check rule 3.3.3
+    // http://www.w3c.org/TR/#section-Constraints-on-XML-Representations-of-Element-Declarations
     public static SchemaLocalElementImpl translateElement(
         Element xsdElt, String targetNamespace, boolean chameleon,
         List anonymousTypes, SchemaType outerType)
@@ -478,7 +480,6 @@ public class StscTranslator
 
         String name = xsdElt.getName();
         QName ref = xsdElt.getRef();
-
 
 
         if (ref != null && name != null)
@@ -506,14 +507,44 @@ public class StscTranslator
         {
             if (xsdElt.getType() != null || xsdElt.getSimpleType() != null || xsdElt.getComplexType() != null)
             {
-                state.error("Element reference cannot also specify a type", XmlErrorContext.INVALID_NAME, xsdElt.xgetName());
+                state.error("Element reference cannot also specify a type", XmlErrorContext.INVALID_NAME, xsdElt);
                 // recovery: let the name go through anyway.
             }
             
             if (xsdElt.getForm() != null)
             {
-                state.error("Element reference cannot also specify form", XmlErrorContext.INVALID_NAME, xsdElt.xgetName());
+                state.error("Element reference cannot also specify form", XmlErrorContext.INVALID_NAME, xsdElt);
                 // recovery: let the name go through anyway.
+            }
+            
+            if (xsdElt.sizeOfKeyArray() > 0 || xsdElt.sizeOfKeyrefArray() > 0 || xsdElt.sizeOfUniqueArray() > 0)
+            {
+                state.warning("Element reference cannot also contain key, keyref, or unique", XmlErrorContext.INVALID_NAME, xsdElt);
+                // recovery: ignore
+            }
+            
+            if (xsdElt.isSetDefault())
+            {
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify default", XmlErrorContext.INVALID_NAME, xsdElt);
+                // recovery: ignore
+            }
+            
+            if (xsdElt.isSetFixed())
+            {
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify fixed", XmlErrorContext.INVALID_NAME, xsdElt);
+                // recovery: ignore
+            }
+            
+            if (xsdElt.isSetBlock())
+            {
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify block", XmlErrorContext.INVALID_NAME, xsdElt);
+                // recovery: ignore
+            }
+            
+            if (xsdElt.isSetNillable())
+            {
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify nillable", XmlErrorContext.INVALID_NAME, xsdElt);
+                // recovery: ignore
             }
             
             assert(xsdElt instanceof LocalElement);
