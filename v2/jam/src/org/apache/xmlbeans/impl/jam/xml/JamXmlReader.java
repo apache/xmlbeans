@@ -15,6 +15,7 @@
 package org.apache.xmlbeans.impl.jam.xml;
 
 import org.apache.xmlbeans.impl.jam.internal.CachedClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.mutable.MField;
 import org.apache.xmlbeans.impl.jam.mutable.MInvokable;
@@ -24,6 +25,7 @@ import org.apache.xmlbeans.impl.jam.mutable.MMethod;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
 import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -44,29 +46,37 @@ import java.net.URISyntaxException;
 
   private XMLStreamReader mIn;
   private CachedClassBuilder mCache;
+  private ElementContext mContext;
 
   // ========================================================================
   // Constructors
 
-  public JamXmlReader(CachedClassBuilder cache, InputStream in)
+  public JamXmlReader(CachedClassBuilder cache, 
+                      InputStream in, 
+                      ElementContext ctx)
     throws XMLStreamException
   {
-    this(cache,XMLInputFactory.newInstance().createXMLStreamReader(in));
+    this(cache,XMLInputFactory.newInstance().createXMLStreamReader(in),ctx);
   }
 
   public JamXmlReader(CachedClassBuilder cache,
-                      Reader in)
+                      Reader in,
+                      ElementContext ctx)
     throws XMLStreamException
   {
-    this(cache,XMLInputFactory.newInstance().createXMLStreamReader(in));
+    this(cache,XMLInputFactory.newInstance().createXMLStreamReader(in),ctx);
   }
 
-  public JamXmlReader(CachedClassBuilder cache, XMLStreamReader in)
+  public JamXmlReader(CachedClassBuilder cache,
+                      XMLStreamReader in,
+                      ElementContext ctx)
   {
     if (cache == null) throw new IllegalArgumentException("null cache");
     if (in == null) throw new IllegalArgumentException("null cache");
+    if (ctx == null) throw new IllegalArgumentException("null ctx");
     mIn = in;
     mCache = cache;
+    mContext = ctx;
   }
 
   // ========================================================================
@@ -193,8 +203,14 @@ import java.net.URISyntaxException;
       while(ANNOTATIONVALUE.equals(getElementName())) {
         nextElement();
         String name = assertCurrentString(NAME);
+        String type = assertCurrentString(TYPE);
         String value = assertCurrentString(VALUE);
-        ann.setSimpleValue(name,value, null);//FIXME
+        JClass jclass = mContext.getClassLoader().loadClass(type);
+        if (jclass.isArrayType()) {
+          //FIXME
+          throw new IllegalStateException("Array types in XML currently NYI");
+        }
+        ann.setSimpleValue(name,value, jclass);//FIXME
         assertEnd(ANNOTATIONVALUE);
         nextElement();
       }

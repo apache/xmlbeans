@@ -36,7 +36,7 @@ public interface JAnnotationValue {
    *
    * <p>Note that for javadoc tags, this method always returns a String.</p>
    */
-  public Object getValue();
+  //public Object getValue();
 
 
   /**
@@ -138,7 +138,7 @@ public interface JAnnotationValue {
    *
    * <p>This method always returns null for javadoc tags.</p>
    */
-  public Object[] asArray();
+  //public Object[] asArray();
 
   /**
    * <p>If this member is known to be an array of classes, returns an

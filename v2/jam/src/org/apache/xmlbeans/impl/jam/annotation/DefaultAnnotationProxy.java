@@ -62,6 +62,8 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
    */
   public void setValue(String name, Object value, JClass type) {
     if (name == null) throw new IllegalArgumentException("null name");
+    if (type == null) throw new IllegalArgumentException("null type");
+    if (value == null) throw new IllegalArgumentException("null value");
     name = name.trim();
     mValues.add(new AnnotationValueImpl((ElementContext)getLogger(),//yikes, nasty.  FIXME
                                         name,value,type));

@@ -18,12 +18,10 @@ import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 import java.util.Properties;
 import java.util.Enumeration;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * <p>Provides a proxied view of some annotation artifact.  JAM calls the
@@ -111,7 +109,6 @@ public abstract class AnnotationProxy {
   // ========================================================================
   // Public methods
 
-
   //REVIEW i'm not sure this is sufficient.  they might need access to
   //the whole tag (including the name) when doing this.  they may
   //want to tell us what the tag name is.  a bit of a chicken-and-egg
@@ -132,20 +129,26 @@ public abstract class AnnotationProxy {
    * <p>Extending classes are free to override this method if different
    * behavior is required.</p>
    */
-
   public void initFromJavadocTag(String tagline) {
+    //FIXME AND REVIEW so we're saying that tag values are always strings,
+    //at least by default.  not clear that we can do any better than that.
+    //even if so, the way this is implemented here with this cast
+    //is somewhat gross
+    JClass type =
+      ((ElementContext)mContext).getClassLoader().loadClass("java.lang.String");
     if (tagline == null) throw new IllegalArgumentException("null tagline");
     tagline = tagline.trim();
     if (tagline.length() == 0) return;
     Properties props = new Properties();
     parseAssignments(props,tagline);
     if (props.size() == 0) {
-      setValue(SINGLE_MEMBER_NAME,tagline, null);
+      setValue(SINGLE_MEMBER_NAME,tagline, type);
     } else {
       Enumeration names = props.propertyNames();
+
       while(names.hasMoreElements()) {
         String name = (String)names.nextElement();
-        setValue(name,props.getProperty(name), null);
+        setValue(name,props.getProperty(name), type);
       }
     }
   }
@@ -157,7 +160,7 @@ public abstract class AnnotationProxy {
    * <p>Returns an instance of JamLogger that this AnnotationProxy should use
    * for logging debug and error messages.</p>
    */
-  protected JamLogger getLogger() { return mContext; }
+  protected JamLogger getLogger() { return mContext.getLogger(); }
 
 
   // ========================================================================

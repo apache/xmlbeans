@@ -27,4 +27,5 @@ public @interface EmployeeAnnotation {
     String lastName();
     AddressAnnotation address();
     Constants.Bool active();
+    int[] specialDigits();
 }

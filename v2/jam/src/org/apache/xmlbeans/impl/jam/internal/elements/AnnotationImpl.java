@@ -72,24 +72,36 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
   }
 
   public void setSimpleValue(String name, Object value, JClass type) {
+    if (name == null) throw new IllegalArgumentException("null name");
+    if (type == null) throw new IllegalArgumentException("null type");
+    if (value == null) throw new IllegalArgumentException("null value");
     mProxy.setValue(name,value,type);
   }
 
-  public void setSimpleValueArray(String name, Object[] value, JClass type) {
-    throw new IllegalStateException("NYI");
-  }
-
   public MAnnotation createNestedValue(String name, String annTypeName) {
+    if (name == null) throw new IllegalArgumentException("null name");
+    if (annTypeName == null) throw new IllegalArgumentException("null typename");
     AnnotationProxy p = getContext().createProxyForAnnotationType(annTypeName);
     AnnotationImpl out = new AnnotationImpl(getContext(),p,annTypeName);
-    mProxy.setValue(name,out,null);//REVIEW null?
+    JClass type  = getContext().getClassLoader().loadClass(annTypeName);
+    mProxy.setValue(name,out,type);
     return out;
   }
 
   public MAnnotation[] createNestedValueArray(String name,
-                                              String annTypeName,
+                                              String annComponentTypeName,
                                               int dimensions) {
-    throw new IllegalStateException("NYI");
+    if (name == null) throw new IllegalArgumentException("null name");
+    if (annComponentTypeName == null) throw new IllegalArgumentException("null typename");
+    if (dimensions < 0) throw new IllegalArgumentException("dimensions = "+dimensions);
+    MAnnotation[] out = new MAnnotation[dimensions];
+    for(int i=0; i<out.length; i++) {
+      AnnotationProxy p = getContext().createProxyForAnnotationType(annComponentTypeName);
+      out[i] = new AnnotationImpl(getContext(),p,annComponentTypeName);
+    }
+    JClass type  = getContext().getClassLoader().loadClass("[L"+annComponentTypeName+";");
+    mProxy.setValue(name,out,type);
+    return out;
   }
 
   // ========================================================================

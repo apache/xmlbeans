@@ -14,24 +14,14 @@
  */
 package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
 
+import java.lang.annotation.*;
 
-@EmployeeGroupAnnotation(
-  employees={
-  @EmployeeAnnotation(
-    firstName       = "Boog",
-    lastName        = "Powell",
-    address = @AddressAnnotation(street="123 shady lane", city="Cooperstown",zip=123456),
-    specialDigits={8,6,7,5,3,0,9},
-    active=Constants.Bool.TRUE),
+/**
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
+ */
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface EmployeeGroupAnnotation {
 
-  @EmployeeAnnotation(
-    firstName       = "Takako",
-    lastName        = "Minekawa",
-    address = @AddressAnnotation(street="456 Shinjuku", city="Tokyo",zip=5478),
-    specialDigits={8,6,7,5,3,0,9},
-    active=Constants.Bool.FALSE)
-
-  }
-)
-public class NestedAnnotatedClass {
+  EmployeeAnnotation[] employees();
 }

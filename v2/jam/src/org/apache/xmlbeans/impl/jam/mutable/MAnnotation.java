@@ -31,14 +31,12 @@ public interface MAnnotation extends JAnnotation, MElement {
 
   public void setAnnotationInstance(Object o);
 
-  public void setSimpleValue(String name, Object value, JClass type);
-
-  public void setSimpleValueArray(String name, Object[] value, JClass type);
+  public void setSimpleValue(String name, Object value, JClass declaredType);
 
   public MAnnotation createNestedValue(String name, String annTypeName);
 
   public MAnnotation[] createNestedValueArray(String name,
-                                              String annTypeName,
+                                              String componentTypeName,
                                               int dimensions);
 
   //public AnnotationProxy getMutableProxy();//i think this is bad
