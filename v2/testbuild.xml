@@ -491,8 +491,8 @@
     <!-- Builds the tests -->
     <!-- NOTE: This target depends on build.schemas, but we do not
                explicitly put it on the depends list. -->
-    <!--ADD THIS LATER: ,extensions.build-->
-    <target name="build.tests" depends="init, build.test.tools, build.xpath"
+    
+    <target name="build.tests" depends="init, build.test.tools, build.xpath,extensions.build"
         description="Build the tests">
          <if>
             <or>
@@ -503,7 +503,7 @@
             </or>
             <then>
                  <javac srcdir="${xbeans.test.src}"
-            excludes="**/extensions/**,**/detailed/**,**/drt/**"
+            excludes="**/detailed/**,**/drt/**"
             destdir="${build.dir.test.src}"
             classpathref="test.run.classpath"
             debug="on"
@@ -515,7 +515,7 @@
             </then>
         <else>
         <javac srcdir="${xbeans.test.src}"
-            excludes="**/extensions/**,**/drt/**"
+            excludes="**/drt/**"
             destdir="${build.dir.test.src}"
             classpathref="test.run.classpath"
             debug="on"
@@ -580,7 +580,7 @@
         <if>
             <isset property="compile.extensions"/>
             <then>
-                <!--antcall target="extensions.build"/-->
+                <antcall target="extensions.build"/>
             </then>
         </if>
         <antcall target="build.xmlcases"/>
@@ -598,7 +598,7 @@
             excludes="**/*.java"
             update="${testcasesjar.update}"/>
     </target>
-    <!--Extensions feature: a bit tricky to build 
+    <!--Extensions feature: a bit tricky to build -->
     <target name="extensions.build" depends="init">
         <echo message="Building extensions"/>
         <foreachloop
@@ -625,7 +625,7 @@
                             classpathref="build.classpath"
                             fork="true">
                             <arg line="-out ${build.dir.test.schemas.lib}/${feature.basename}_${testcase}.jar
-                             ${case}/existing/*.java
+                             ${case}/existing
                              ${xbeans.test.cases}/xbean/extensions/${feature.basename}/${testcase}"
                                 />
                         </java>
@@ -636,7 +636,7 @@
 
         </foreachloop>
     </target>
-    -->
+    
     <target name="build.area.xmlobject">
         <property name="this.schema.dirs"
             value="${build.dir.test.schemas}/xbean/xmlobject,
