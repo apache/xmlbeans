@@ -56,6 +56,8 @@
 
 package org.apache.xmlbeans;
 
+import org.xml.sax.EntityResolver;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Collection;
@@ -563,6 +565,21 @@ public class XmlOptions implements java.io.Serializable
         return set( VALIDATE_ON_SET );
     }
 
+    /**
+     * If this option is set when compiling a schema, then the given
+     * EntityResolver will be consulted in order to resolve any
+     * URIs while downloading imported schemas.
+     *
+     * EntityResolvers are currently only used by compileXsd; they
+     * are not consulted by other functions, for example, parse.
+     * This will likely change in the future.
+     * 
+     * @see XmlBeans#compileXsd
+     */
+    public XmlOptions setEntityResolver(EntityResolver resolver) {
+        return set( ENTITY_RESOLVER, resolver );
+    }
+
 
     //
     // Complete set of XmlOption's
@@ -641,6 +658,9 @@ public class XmlOptions implements java.io.Serializable
     public static final String COMPILE_MDEF_NAMESPACES         =  "COMPILE_MDEF_NAMESPACES";
     /** @exclude */
     public static final String VALIDATE_ON_SET                 =  "VALIDATE_ON_SET";
+    /** @exclude */
+    public static final String ENTITY_RESOLVER                 =  "ENTITY_RESOLVER";
+    
 
     private static final XmlOptions EMPTY_OPTIONS;
     static {
