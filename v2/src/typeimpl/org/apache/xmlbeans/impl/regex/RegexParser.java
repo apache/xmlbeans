@@ -598,53 +598,61 @@ class RegexParser {
           case T_PLUS:  return this.processPlus(tok);
           case T_QUESTION: return this.processQuestion(tok);
           case T_CHAR:
-            if (this.chardata == '{') {
-                                                // this.offset -> next of '{'
-                int off = this.offset;
+            if (this.chardata == '{' && this.offset < this.regexlen) {
+
+                int off = this.offset;          // this.offset -> next of '{'
                 int min = 0, max = -1;
-                if (off >= this.regexlen)  break;
-                ch = this.regex.charAt(off++);
-                if (ch != ',' && (ch < '0' || ch > '9'))  break;
-                if (ch != ',') {                // 0-9
-                    min = ch-'0';
+
+                if ((ch = this.regex.charAt(off++)) >= '0' && ch <= '9') {
+
+                    min = ch -'0';
                     while (off < this.regexlen
                            && (ch = this.regex.charAt(off++)) >= '0' && ch <= '9') {
                         min = min*10 +ch-'0';
-                        ch = -1;
+                        if (min < 0)
+                            throw ex("parser.quantifier.5", this.offset);
                     }
-                    if (ch < 0)  break;
                 }
-                //if (off >= this.regexlen)  break;
+                else {
+                    throw ex("parser.quantifier.1", this.offset);
+                }
+
                 max = min;
                 if (ch == ',') {
-                    if (off >= this.regexlen
-                        || ((ch = this.regex.charAt(off++)) < '0' || ch > '9')
-                        && ch != '}')
-                        break;
-                    if (ch == '}') {
-                        max = -1;           // {min,}
-                    } else {
-                        max = ch-'0';       // {min,max}
+
+                   if (off >= this.regexlen) {
+                       throw ex("parser.quantifier.3", this.offset);
+                   }
+                   else if ((ch = this.regex.charAt(off++)) >= '0' && ch <= '9') {                       
+
+                        max = ch -'0';       // {min,max}
                         while (off < this.regexlen
                                && (ch = this.regex.charAt(off++)) >= '0'
                                && ch <= '9') {
                             max = max*10 +ch-'0';
-                            ch = -1;
+                            if (max < 0)
+                                throw ex("parser.quantifier.5", this.offset);
                         }
-                        if (ch < 0)  break;
-                        //if (min > max)
-                        //    throw new ParseException("parseFactor(): min > max: "+min+", "+max);
+
+                        if (min > max)
+                            throw ex("parser.quantifier.4", this.offset);
+                   }
+                   else { // assume {min,}
+                        max = -1;           
                     }
                 }
-                if (ch != '}')  break;
-                                                // off -> next of '}'
-                if (this.checkQuestion(off)) {
+
+               if (ch != '}')
+                   throw ex("parser.quantifier.2", this.offset);
+
+               if (this.checkQuestion(off)) {  // off -> next of '}'
                     tok = Token.createNGClosure(tok);
                     this.offset = off+1;
                 } else {
                     tok = Token.createClosure(tok);
                     this.offset = off;
                 }
+
                 tok.setMin(min);
                 tok.setMax(max);
                 //System.err.println("CLOSURE: "+min+", "+max);
@@ -729,6 +737,8 @@ class RegexParser {
             break;
 
           case T_CHAR:
+            if (this.chardata == ']' || this.chardata == '{' || this.chardata == '}')
+                throw this.ex("parser.atom.4", this.offset-1);
             tok = Token.createChar(this.chardata);
             int high = this.chardata;
             this.next();
@@ -749,45 +759,23 @@ class RegexParser {
     }
 
     protected RangeToken processBacksolidus_pP(int c) throws ParseException {
-        boolean positive = c == 'p';
-        this.next();
-        if (this.read() != T_CHAR)  throw this.ex("parser.atom.2", this.offset-1);
-        RangeToken tok;
-        switch (this.chardata) {
-          case 'L':                             // Letter
-            tok = Token.getRange("L", positive);  break;
-          case 'M':                             // Mark
-            tok = Token.getRange("M", positive);  break;
-          case 'N':                             // Number
-            tok = Token.getRange("N", positive);  break;
-          case 'Z':                             // Separator
-            tok = Token.getRange("Z", positive);  break;
-          case 'C':                             // Other
-            tok = Token.getRange("C", positive);  break;
-          case 'P':                             // Punctuation
-            tok = Token.getRange("P", positive);  break;
-          case 'S':                             // Symbol
-            tok = Token.getRange("S", positive);  break;
-          case '{':
-            // this.offset points the next of '{'.
-            //pstart = this.offset;
-            int namestart = this.offset;
-            int nameend = this.regex.indexOf('}', namestart);
-            if (nameend < 0)  throw this.ex("parser.atom.3", this.offset);
-            String pname = this.regex.substring(namestart, nameend);
-            this.offset = nameend+1;
-            tok = Token.getRange(pname, positive,
-                                 this.isSet(RegularExpression.XMLSCHEMA_MODE));
-            /*
-              if (this.isSet(RegularExpression.IGNORE_CASE))
-              tok = RangeToken.createCaseInsensitiveToken(tok);
-            */
-            break;
 
-          default:
+        this.next();
+        if (this.read() != T_CHAR || this.chardata != '{')
             throw this.ex("parser.atom.2", this.offset-1);
-        }
-        return tok;
+
+        // handle category escape
+        boolean positive = c == 'p';
+        int namestart = this.offset;
+        int nameend = this.regex.indexOf('}', namestart);
+
+        if (nameend < 0)
+            throw this.ex("parser.atom.3", this.offset);
+
+        String pname = this.regex.substring(namestart, nameend);
+        this.offset = nameend+1;
+
+        return Token.getRange(pname, positive, this.isSet(RegularExpression.XMLSCHEMA_MODE));
     }
 
     int processCIinCharacterClass(RangeToken tok, int c) {

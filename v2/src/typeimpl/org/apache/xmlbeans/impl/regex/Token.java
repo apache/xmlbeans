@@ -688,9 +688,6 @@ class Token implements java.io.Serializable {
         /*A000..A48F;*/ "Yi Syllables",
         /*A490..A4CF;*/ "Yi Radicals",
         /*AC00..D7A3;*/ "Hangul Syllables",
-        /*D800..DB7F;*/ "High Surrogates",
-        /*DB80..DBFF;*/ "High Private Use Surrogates",
-        /*DC00..DFFF;*/ "Low Surrogates",
         /*E000..F8FF;*/ "Private Use",
         /*F900..FAFF;*/ "CJK Compatibility Ideographs",
         /*FB00..FB4F;*/ "Alphabetic Presentation Forms",
@@ -702,7 +699,7 @@ class Token implements java.io.Serializable {
         /*FEFF..FEFF;*/ "Specials",
         /*FF00..FFEF;*/ "Halfwidth and Fullwidth Forms",
          //missing Specials add manually
-        /*10300..1032F;*/ "Old Italic",		// 87
+        /*10300..1032F;*/ "Old Italic",		// 84
         /*10330..1034F;*/ "Gothic",
         /*10400..1044F;*/ "Deseret",
         /*1D000..1D0FF;*/ "Byzantine Musical Symbols",
@@ -728,10 +725,10 @@ class Token implements java.io.Serializable {
         +"\u2300\u23FF\u2400\u243F\u2440\u245F\u2460\u24FF\u2500\u257F\u2580\u259F\u25A0\u25FF\u2600\u26FF\u2700\u27BF"
         +"\u2800\u28FF\u2E80\u2EFF\u2F00\u2FDF\u2FF0\u2FFF\u3000\u303F\u3040\u309F\u30A0\u30FF\u3100\u312F\u3130\u318F"
         +"\u3190\u319F\u31A0\u31BF\u3200\u32FF\u3300\u33FF\u3400\u4DB5\u4E00\u9FFF\uA000\uA48F\uA490\uA4CF"
-        +"\uAC00\uD7A3\uD800\uDB7F\uDB80\uDBFF\uDC00\uDFFF\uE000\uF8FF\uF900\uFAFF\uFB00\uFB4F\uFB50\uFDFF"
+        +"\uAC00\uD7A3\uE000\uF8FF\uF900\uFAFF\uFB00\uFB4F\uFB50\uFDFF"
         +"\uFE20\uFE2F\uFE30\uFE4F\uFE50\uFE6F\uFE70\uFEFE\uFEFF\uFEFF\uFF00\uFFEF";
     static final int[] nonBMPBlockRanges = {
-        0x10300, 0x1032F,       // 87
+        0x10300, 0x1032F,       // 84
         0x10330, 0x1034F,
         0x10400, 0x1044F,
         0x1D000, 0x1D0FF,
@@ -741,7 +738,7 @@ class Token implements java.io.Serializable {
         0x2F800, 0x2FA1F,
         0xE0000, 0xE007F
     };
-    private static final int NONBMP_BLOCK_START = 87;
+    private static final int NONBMP_BLOCK_START = 84;
 
     static protected RangeToken getRange(String name, boolean positive) {
         if (Token.categories.size() == 0) {
