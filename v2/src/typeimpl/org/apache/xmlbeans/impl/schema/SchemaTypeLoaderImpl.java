@@ -64,7 +64,6 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     public static SchemaTypeLoaderImpl getContextTypeLoader ( )
     {
         ClassLoader cl = Thread.currentThread().getContextClassLoader();
-
         ArrayList a = (ArrayList) _cachedTypeSystems.get();
 
         int candidate = -1;
@@ -75,20 +74,32 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
             SchemaTypeLoaderImpl tl = (SchemaTypeLoaderImpl) ((SoftReference) a.get( i )).get();
 
             if (tl == null)
+            {
+                assert i > candidate;
                 a.remove( i-- );
+            }
             else if (tl._classLoader == cl)
             {
+                assert candidate == -1 && result == null;
+                
                 candidate = i;
                 result = tl;
+
+                break;
             }
         }
 
-        if (candidate == -1)
+        if (candidate < 0)
         {
-            result =  new SchemaTypeLoaderImpl( new SchemaTypeLoader[] { BuiltinSchemaTypeSystem.get() } , null, cl );
+            result =
+                new SchemaTypeLoaderImpl(
+                    new SchemaTypeLoader[] { BuiltinSchemaTypeSystem.get() }, null, cl );
+            
+            candidate = a.size();
             a.add( new SoftReference( result ) );
-            candidate = a.size() - 1;
         }
+
+        // Make sure the most recently accessed entry is at the beginning of the array
 
         if (candidate > 0)
         {
