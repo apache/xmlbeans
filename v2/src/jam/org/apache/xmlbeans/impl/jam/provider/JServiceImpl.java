@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam.provider;
 
-import org.apache.xmlbeans.impl.jam.JResult;
+import org.apache.xmlbeans.impl.jam.JService;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JClassIterator;
 import org.apache.xmlbeans.impl.jam.JClass;
@@ -24,7 +24,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JResultImpl implements JResult {
+public class JServiceImpl implements JService {
 
   // ========================================================================
   // Variables
@@ -35,7 +35,7 @@ public class JResultImpl implements JResult {
   // ========================================================================
   // Constructors
 
-  public JResultImpl(JClassLoader jcl, String[] classes) {
+  public JServiceImpl(JClassLoader jcl, String[] classes) {
     if (jcl == null) throw new IllegalArgumentException("null jcl");
     if (classes == null) throw new IllegalArgumentException("null classes");
     mClassLoader = jcl;
@@ -43,7 +43,7 @@ public class JResultImpl implements JResult {
   }
 
   // ========================================================================
-  // JResult implementation
+  // JService implementation
 
   public JClassLoader getClassLoader() {
     return mClassLoader;

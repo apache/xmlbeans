@@ -44,7 +44,7 @@ import org.apache.xmlbeans.impl.jam.provider.ReflectionClassBuilder;
  * }
  * </pre>
  *
- * @deprecated Please us JResultFactory instead.
+ * @deprecated Please us JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */

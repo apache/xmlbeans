@@ -15,14 +15,14 @@
 
 package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JResult;
+import org.apache.xmlbeans.impl.jam.JService;
 import org.apache.xmlbeans.impl.jam.JClass;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EResult extends JResult {
+public interface EService extends JService {
 
   public EClass addNewClass(String packageName, String className);
 

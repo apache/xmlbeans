@@ -64,7 +64,7 @@ import java.util.Properties;
 /**
  * <p>Structure containing information given to a BaseJProvider subclass in
  * order to instantiate a new JStore.  This interface really just provides
- * an 'inside look' at JResultParams - it's usually going to be implemented
+ * an 'inside look' at JServiceParams - it's usually going to be implemented
  * by the same object.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>

@@ -58,7 +58,9 @@
         <pathelement path='${classpath-value}'/> <!--ref no workie-->
       </classpath>
       <formatter type='plain' usefile='false'/>
+<!--
       <test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>
+-->
       <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
       <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
 

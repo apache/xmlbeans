@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.editable.EResult;
+import org.apache.xmlbeans.impl.jam.editable.EService;
 import org.apache.xmlbeans.impl.jam.editable.EClass;
 import org.apache.xmlbeans.impl.jam.*;
 
@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class EResultImpl implements EResult, JClassLoader {
+public class EServiceImpl implements EService, JClassLoader {
 
   // ========================================================================
   // Variables
@@ -38,7 +38,7 @@ public class EResultImpl implements EResult, JClassLoader {
   // ========================================================================
   // Constructors
 
-  public EResultImpl(EResultParamsImpl params) {
+  public EServiceImpl(EServiceParamsImpl params) {
     System.out.println("\n\n\n\n============= NEW ERESULTIMPL");
     Thread.dumpStack();
     mBaseClassLoader = params.getParentClassLoader();
@@ -46,7 +46,7 @@ public class EResultImpl implements EResult, JClassLoader {
   }
 
   // ========================================================================
-  // EResult implementation
+  // EService implementation
 
   public EClass addNewClass(String packageName, String className) {
     EClassImpl out = new EClassImpl(packageName,className,this);
@@ -64,7 +64,7 @@ public class EResultImpl implements EResult, JClassLoader {
   }
 
   // ========================================================================
-  // JResult implementation
+  // JService implementation
 
   public String[] getClassNames() {
     String[] out = new String[mClasses.values().size()];
