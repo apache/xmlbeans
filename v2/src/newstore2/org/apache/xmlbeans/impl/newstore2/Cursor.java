@@ -69,6 +69,16 @@ public final class Cursor implements XmlCursor
         return true;
     }
 
+    Locale locale ( )
+    {
+        return _locale;
+    }
+    
+    Cur tempCur ( )
+    {
+        return _cur.tempCur();
+    }
+
     public void dump ( )
     {
         _cur.dump();
@@ -85,6 +95,8 @@ public final class Cursor implements XmlCursor
     
     public TokenType _currentTokenType ( )
     {
+        assert isValid();
+        
         switch ( _cur.kind() )
         {
         case   ROOT   : return TokenType.STARTDOC;
@@ -103,6 +115,8 @@ public final class Cursor implements XmlCursor
 
     public TokenType _toNextToken ( )
     {
+        assert isValid();
+        
         switch ( _cur.kind() )
         {
         case ROOT :
@@ -758,7 +772,10 @@ public final class Cursor implements XmlCursor
     
     public void _beginElement ( QName name )
     {
-        throw new RuntimeException( "Not implemented" );
+        assert isValid();
+
+        _insertElement( name );
+        _toPrevToken();
     }
     
     public void _beginElement ( String localName )

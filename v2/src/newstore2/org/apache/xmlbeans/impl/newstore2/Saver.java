@@ -60,7 +60,11 @@ abstract class Saver
 
         _wantFragTest = wantFragTest;
 
-        _cur = makeSaveCur( c, options );
+        _cur = new NormalSaveCur( c.weakCur( this ) );
+        
+        if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT ))
+            _cur = new PrettySaveCur( _cur, options );
+        
         _preProcess = true;
 
         _namespaceStack = new ArrayList();
@@ -202,7 +206,12 @@ abstract class Saver
                             _cur.next();
                     }
                     else
-                        _cur.nextNonAttr();
+                    {
+                        _cur.next();
+
+                        while ( _cur.isAttr() )
+                            _cur.next();
+                    }
                     
                     break;
                 }
@@ -442,7 +451,7 @@ abstract class Saver
                 if (c.isXmlns())
                 {
                     String prefix = c.getXmlnsPrefix();
-                    String uri = c.getValueString();
+                    String uri = c.getXmlnsUri();
                     
                     if (ensureDefaultEmpty && prefix.length() == 0 && uri.length() > 0)
                         continue;
@@ -1543,18 +1552,18 @@ abstract class Saver
     //
     //
 
-    private final SaveCur makeSaveCur ( Cur c, XmlOptions options )
+    private static abstract class SaveCur
     {
-        SaveCur sc = new NormalSaveCur( c.weakCur( this ) );
+        boolean isRoot       ( ) { return kind() == ROOT;     }
+        boolean isElem       ( ) { return kind() == ELEM;     }
+        boolean isAttr       ( ) { return kind() == ATTR;     }
+        boolean isText       ( ) { return kind() == TEXT;     }
+        boolean isComment    ( ) { return kind() == COMMENT;  }
+        boolean isProcinst   ( ) { return kind() == PROCINST; }
+        boolean isFinish     ( ) { return Cur.kindIsFinish( kind() ); }
+        boolean isContainer  ( ) { return Cur.kindIsContainer( kind() ); }
+        boolean isNormalAttr ( ) { return kind() == ATTR && !isXmlns(); }
         
-        if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT ))
-            sc = new PrettySaveCur( sc, options );
-
-        return sc;
-    }
-
-    private abstract class SaveCur
-    {
         abstract boolean atTop ( );
         abstract boolean atEndOfTop ( );
         
@@ -1562,20 +1571,12 @@ abstract class Saver
         
         abstract int kind ( );
         
-        abstract QName getName ( );
+        abstract QName  getName ( );
         abstract String getLocal ( );
         abstract String getXmlnsPrefix ( );
+        abstract String getXmlnsUri ( );
         
-        abstract boolean isRoot       ( );
-        abstract boolean isElem       ( );
-        abstract boolean isAttr       ( );
-        abstract boolean isText       ( );
-        abstract boolean isComment    ( );
-        abstract boolean isProcinst   ( );
-        abstract boolean isFinish     ( );
-        abstract boolean isContainer  ( );
-        abstract boolean isNormalAttr ( );
-        abstract boolean isXmlns      ( );
+        abstract boolean isXmlns ( );
         
         abstract boolean hasChildren  ( );
         abstract boolean hasText      ( );
@@ -1587,24 +1588,22 @@ abstract class Saver
         abstract void    toEnd ( );
         
         abstract boolean next ( );
-        abstract boolean nextNonAttr ( );
 
-        abstract void    push ( );
-        abstract boolean pop ( );
-        abstract void    clearSelection ( );
-        abstract void    addAttrToSelection ( );
-        abstract void    removeSelection ( int i );
-        abstract int     selectionCount ( );
-        abstract void    moveToSelection ( int i );
+        abstract void push ( );
+        abstract void pop ( );
+        abstract void clearSelection ( );
+        abstract void addAttrToSelection ( );
+        abstract void removeSelection ( int i );
+        abstract int  selectionCount ( );
+        abstract void moveToSelection ( int i );
 
-        abstract String getValueString ( );
         abstract Object getChars ( );
 
         int _offSrc;
         int _cchSrc;
     }
     
-    private final class NormalSaveCur extends SaveCur
+    private static final class NormalSaveCur extends SaveCur
     {
         NormalSaveCur ( Cur c )
         {
@@ -1631,17 +1630,9 @@ abstract class Saver
         QName getName ( ) { return _cur.getName(); }
         String getLocal ( ) { return _cur.getLocal(); }
         String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
+        String getXmlnsUri    ( ) { return _cur.getXmlnsUri(); }
         
-        boolean isRoot       ( ) { return _cur.isRoot();       }
-        boolean isElem       ( ) { return _cur.isElem();       }
-        boolean isAttr       ( ) { return _cur.isAttr();       }
-        boolean isText       ( ) { return _cur.isText();       }
-        boolean isComment    ( ) { return _cur.isComment();    }
-        boolean isProcinst   ( ) { return _cur.isProcinst();   }
-        boolean isFinish     ( ) { return _cur.isFinish();     }
-        boolean isContainer  ( ) { return _cur.isContainer();  }
-        boolean isNormalAttr ( ) { return _cur.isNormalAttr(); }
-        boolean isXmlns      ( ) { return _cur.isXmlns();      }
+        boolean isXmlns      ( ) { return _cur.isXmlns();     }
         
         boolean hasChildren  ( ) { return _cur.hasChildren(); }
         boolean hasText      ( ) { return _cur.hasText();     }
@@ -1658,19 +1649,15 @@ abstract class Saver
         
         boolean next ( ) { return _cur.next(); }
         
-        boolean nextNonAttr ( ) { return _cur.nextNonAttr(); }
-        
-        void    push ( )            { _cur.push(); }
-        boolean pop ( )             { return _cur.pop(); }
-        void    clearSelection ( )  { _cur.clearSelection(); }
-        void    addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addToSelection(); }
-        int     selectionCount ( )  { return _cur.selectionCount(); }
+        void push ( )            { _cur.push(); }
+        void pop ( )             { _cur.pop(); }
+        void clearSelection ( )  { _cur.clearSelection(); }
+        void addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addToSelection(); }
+        int  selectionCount ( )  { return _cur.selectionCount(); }
         
         void moveToSelection ( int i ) { _cur.moveToSelection( i ); }
         void removeSelection ( int i ) { _cur.removeSelection( i ); }
-        
-        String getValueString ( ) { return _cur.getValueString(); }
-        
+
         Object getChars ( )
         {
             Object o = _cur.getChars( -1 );
@@ -1685,11 +1672,79 @@ abstract class Saver
         private Cur _top;
     }
     
-    private final class PrettySaveCur extends SaveCur
+//    private static final class FragmentSaveCur extends SaveCur
+//    {
+//        NormalSaveCur ( SaveCur c )
+//        {
+//            assert !c.isRoot();
+//            
+//            _cur = c;
+//        }
+//
+//        void release ( )
+//        {
+//            _cur.release();
+//            _cur = null;
+//
+//            if (_top != null)
+//            {
+//                _top.release();
+//                _top = null;
+//            }
+//        }
+//        
+//        int kind ( ) { return _cur.kind(); }
+//        
+//        QName getName ( ) { return _cur.getName(); }
+//        String getLocal ( ) { return _cur.getLocal(); }
+//        String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
+//        String getXmlnsUri    ( ) { return _cur.getXmlnsUri(); }
+//        
+//        boolean isXmlns      ( ) { return _cur.isXmlns();     }
+//        
+//        boolean hasChildren  ( ) { return _cur.hasChildren(); }
+//        boolean hasText      ( ) { return _cur.hasText();     }
+//        
+//        boolean atTop      ( ) { assert _top != null; return _cur.isSamePos( _top ); }
+//        boolean atEndOfTop ( ) { assert _top != null; return _cur.isAtEndOf( _top ); }
+//        
+//        boolean toFirstAttr ( ) { return _cur.toFirstAttr(); }
+//        boolean toNextAttr  ( ) { return _cur.toNextAttr();  }
+//        boolean toPrevAttr  ( ) { return _cur.toPrevAttr();  }
+//        boolean toParentRaw ( ) { return _cur.toParentRaw(); }
+//        
+//        void toEnd ( ) { _cur.toEnd(); }
+//        
+//        boolean next ( ) { return _cur.next(); }
+//        
+//        void push ( )            { _cur.push(); }
+//        void pop ( )             { _cur.pop(); }
+//        void clearSelection ( )  { _cur.clearSelection(); }
+//        void addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addToSelection(); }
+//        int  selectionCount ( )  { return _cur.selectionCount(); }
+//        
+//        void moveToSelection ( int i ) { _cur.moveToSelection( i ); }
+//        void removeSelection ( int i ) { _cur.removeSelection( i ); }
+//
+//        Object getChars ( )
+//        {
+//            Object o = _cur.getChars( -1 );
+//            
+//            _offSrc = _cur._offSrc;
+//            _cchSrc = _cur._cchSrc;
+//
+//            return o;
+//        }
+//        
+//        private SaveCur _cur;
+//    }
+
+    private static final class PrettySaveCur extends SaveCur
     {
         PrettySaveCur ( SaveCur c, XmlOptions options )
         {
             _sb = new StringBuffer();
+            _stack = new ArrayList();
             
             _cur = c;
 
@@ -1712,53 +1767,104 @@ abstract class Saver
 
         void release ( ) { _cur.release(); }
         
-        int kind ( ) { return _cur.kind(); }
+        int kind ( ) { return _txt == null ? _cur.kind() : TEXT; }
         
-        QName getName ( ) { return _cur.getName(); }
-        String getLocal ( ) { return _cur.getLocal(); }
-        String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
+        QName  getName ( )        { assert _txt == null; return _cur.getName(); }
+        String getLocal ( )       { assert _txt == null; return _cur.getLocal(); }
+        String getXmlnsPrefix ( ) { assert _txt == null; return _cur.getXmlnsPrefix(); }
+        String getXmlnsUri    ( ) { assert _txt == null; return _cur.getXmlnsUri(); }
         
-        boolean isRoot       ( ) { return _cur.isRoot();       }
-        boolean isElem       ( ) { return _cur.isElem();       }
-        boolean isAttr       ( ) { return _cur.isAttr();       }
-        boolean isText       ( ) { return _cur.isText();       }
-        boolean isComment    ( ) { return _cur.isComment();    }
-        boolean isProcinst   ( ) { return _cur.isProcinst();   }
-        boolean isFinish     ( ) { return _cur.isFinish();     }
-        boolean isContainer  ( ) { return _cur.isContainer();  }
-        boolean isNormalAttr ( ) { return _cur.isNormalAttr(); }
-        boolean isXmlns      ( ) { return _cur.isXmlns();      }
+        boolean isRoot       ( ) { return _txt == null ? _cur.isRoot()       : false; }
+        boolean isElem       ( ) { return _txt == null ? _cur.isElem()       : false; }
+        boolean isAttr       ( ) { return _txt == null ? _cur.isAttr()       : false; }
+        boolean isText       ( ) { return _txt == null ? _cur.isText()       : true;  }
+        boolean isComment    ( ) { return _txt == null ? _cur.isComment()    : false; }
+        boolean isProcinst   ( ) { return _txt == null ? _cur.isProcinst()   : false; }
+        boolean isFinish     ( ) { return _txt == null ? _cur.isFinish()     : false; }
+        boolean isContainer  ( ) { return _txt == null ? _cur.isContainer()  : false; }
+        boolean isNormalAttr ( ) { return _txt == null ? _cur.isNormalAttr() : false; }
+        boolean isXmlns      ( ) { return _txt == null ? _cur.isXmlns()      : false; }
         
-        boolean hasChildren  ( ) { return _cur.hasChildren(); }
-        boolean hasText      ( ) { return _cur.hasText();     }
+        boolean hasChildren  ( ) { return _txt == null ? _cur.hasChildren() : false; }
+        boolean hasText      ( ) { return _txt == null ? _cur.hasText()     : false; }
         
-        boolean atTop      ( ) { return _cur.atTop(); }
-        boolean atEndOfTop ( ) { return _cur.atEndOfTop(); }
+        boolean atTop      ( ) { return _txt == null ? _cur.atTop() : false;      }
+        boolean atEndOfTop ( ) { return _txt == null ? _cur.atEndOfTop() : false; }
         
-        boolean toFirstAttr ( ) { return _cur.toFirstAttr(); }
-        boolean toNextAttr ( ) { return _cur.toNextAttr(); }
-        boolean toPrevAttr ( ) { return _cur.toPrevAttr(); }
+        boolean toFirstAttr ( ) { assert _txt == null; return _cur.toFirstAttr(); }
+        boolean toNextAttr  ( ) { assert _txt == null; return _cur.toNextAttr(); }
+        boolean toPrevAttr  ( ) { assert _txt == null; return _cur.toPrevAttr(); }
         boolean toParentRaw ( ) { return _cur.toParentRaw(); }
         
-        void toEnd ( ) { _cur.toEnd(); }
+        void toEnd ( ) { assert _txt == null; _cur.toEnd(); }
         
-        boolean next ( ) { return _cur.next(); }
+        boolean next ( )
+        {
+            if (_txt != null)
+            {
+                assert _txt.length() > 0;
+                assert !_cur.isText();
+                _txt = null;
+                
+                return true;
+            }
+
+            int kind = kind();
+
+            if (!_cur.next())
+                return false;
+
+            _sb.delete( 0, _sb.length() );
+
+            if (kind == ROOT || kind == ELEM)
+            {
+                _sb.append( "[after container]" );
+                
+                if (_cur.isText())
+                {
+                    Object src = _cur.getChars();
+                    CharUtil.getString( _sb, _cur._offSrc, _cur._cchSrc );
+                    _cur.next();
+                }
+
+                trim( _sb );
+                
+                if (_sb.length() > 0)
+                    _txt = _sb.toString();
+
+            }
+            else if (kind < 0 && kind != -ATTR)
+            {
+            }
+
+            return true;
+        }
         
-        boolean nextNonAttr ( ) { return _cur.nextNonAttr(); }
+        void push ( ) { _cur.push(); _stack.add( _txt ); }
         
-        void    push ( )            { _cur.push(); }
-        boolean pop ( )             { return _cur.pop(); }
-        void    clearSelection ( )  { _cur.clearSelection(); }
-        void    addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addAttrToSelection(); }
-        int     selectionCount ( )  { return _cur.selectionCount(); }
+        void pop ( ) { _cur.pop(); _txt = (String) _stack.remove( _stack.size() - 1 ); }
         
-        void moveToSelection ( int i ) { _cur.moveToSelection( i ); }
+        void clearSelection ( )  { _cur.clearSelection(); }
+        int  selectionCount ( )  { return _cur.selectionCount(); }
+        
+        void addAttrToSelection ( )
+        {
+            assert _cur.isAttr() && _txt == null;
+            _cur.addAttrToSelection();
+        }
+        
+        void moveToSelection ( int i ) { _cur.moveToSelection( i ); assert isAttr(); }
         void removeSelection ( int i ) { _cur.removeSelection( i ); }
-        
-        String getValueString ( ) { return _cur.getValueString(); }
         
         Object getChars ( )
         {
+            if (_txt != null)
+            {
+                _offSrc = 0;
+                _cchSrc = _txt.length();
+                return _txt;
+            }
+            
             Object o = _cur.getChars();
             
             _offSrc = _cur._offSrc;
@@ -1767,13 +1873,32 @@ abstract class Saver
             return o;
         }
         
+        final static void trim ( StringBuffer sb )
+        {
+            int i;
+
+            for ( i = 0 ; i < sb.length() ; i++ )
+                if (!Locale.isWhiteSpace( sb.charAt( i ) ))
+                    break;
+
+            sb.delete( 0, i );
+
+            for ( i = sb.length() ; i > 0 ; i-- )
+                if (!Locale.isWhiteSpace( sb.charAt( i - 1 ) ))
+                    break;
+
+            sb.delete( i, sb.length() );
+        }
+
         private SaveCur _cur;
 
         private int _prettyIndent;
         private int _prettyOffset;
 
-        private boolean      _text;
+        private String       _txt;
         private StringBuffer _sb;
+        
+        private ArrayList    _stack;
     }
     
     //

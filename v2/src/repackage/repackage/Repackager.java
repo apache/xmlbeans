@@ -110,17 +110,33 @@ public class Repackager
         }
     }
 
-    public void repackage ( StringBuffer sb )
+    public StringBuffer repackage ( StringBuffer sb )
     {
+        StringBuffer result = null;
+
         for ( int i = 0 ; i < _fromMatchers.length ; i++ )
         {
-            Matcher matcher = (Matcher) _fromMatchers[ i ];
+            Matcher m = (Matcher) _fromMatchers[ i ];
+            
+            m.reset( sb );
+            
+            for ( boolean found = m.find() ; found ; found = m.find() )
+            {
+                if (result == null)
+                    result = new StringBuffer();
 
-            matcher.reset( sb );
+                m.appendReplacement( result, _toPackageNames[ i ] );
+            }
 
-            while ( matcher.find() )
-                sb.replace( matcher.start(), matcher.end(), _toPackageNames[ i ] );
+            if (result != null)
+            {
+                m.appendTail( result );
+                sb = result;
+                result = null;
+            }
         }
+
+        return sb;
     }
 
     public List getFromPackages ( )

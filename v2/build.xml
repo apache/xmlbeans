@@ -641,7 +641,7 @@
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
-                 xmlstore.classes, newstore.classes, newstore2.classes,
+                 xmlstore.classes, newstore2.classes,
                  saaj_api.classes, binding.classes, marshal.classes, xpath.classes,
                  oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes, resolver.jar">
@@ -656,7 +656,6 @@
       <fileset dir="build/classes/xsdschema"/>
       <fileset dir="build/classes/xmlschema"/>
       <fileset dir="build/classes/xmlstore"/>
-<!--      <fileset dir="build/classes/newstore"/> to fix build - pcal -->
       <fileset dir="build/classes/newstore2"/>
       <fileset dir="build/classes/saaj_api"/>
       <fileset dir="build/classes/xmlinputstream"/>
@@ -905,30 +904,6 @@
       <classpath id="saaj_api.compile.path">
       </classpath>
     </javac>
-
-  </target>
-
-  <!-- newstore target ============================================== -->
-
-  <target name="newstore.classes"
-        depends="dirs, common.classes, xmlpublic.classes, saaj_api.classes">
-<!--
-
-Commenting out to fix the build - looks like these sources no longer exist.
-Probably should remove this target entirely.  pcal 2/29/04
-
-    <mkdir dir="build/classes/newstore"/>
-    <javac srcdir="src/newstore" destdir="build/classes/newstore" source="1.4" debug="on">
-      <classpath id="newstore.compile.path">
-        <pathelement location="build/lib/jsr173_api.jar"/>
-        <pathelement location="build/classes/common"/>
-        <pathelement location="build/classes/xmlinputstream"/>
-        <pathelement location="build/classes/xmlpublic"/>
-        <pathelement location="build/classes/saaj_api"/>
-      </classpath>
-
-    </javac>
--->
 
   </target>
 

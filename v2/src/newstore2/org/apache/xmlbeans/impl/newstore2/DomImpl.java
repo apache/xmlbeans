@@ -86,6 +86,7 @@ final class DomImpl
 
         void   dump ( );
         void   dump ( PrintStream o );
+        void   dump ( PrintStream o, Object ref );
     };
     
     static Dom parent      ( Dom d ) { return node_getParentNode ( d ); }
@@ -321,16 +322,24 @@ final class DomImpl
         if (prefix.equals( "xml" ) && !uri.equals( Locale._xml1998Uri ))
             throw new NamespaceErr( "Invalid prefix - begins with 'xml'" );
 
-        if (isAttr && prefix.length() > 0)
+        if (isAttr)
         {
-            if (local.equals( "xmlns" ))
-                throw new NamespaceErr( "Invalid namespace - attr is default namespace already" );
+            if (prefix.length() > 0)
+            {
+                if (local.equals( "xmlns" ))
+                    throw new NamespaceErr( "Invalid namespace - attr is default namespace already" );
 
-            if (Locale.beginsWithXml( local ))
-                throw new NamespaceErr( "Invalid namespace - attr prefix begins with 'xml'" );
+                if (Locale.beginsWithXml( local ))
+                    throw new NamespaceErr( "Invalid namespace - attr prefix begins with 'xml'" );
 
-            if (prefix.equals( "xmlns" ) && !uri.equals( Locale._xmlnsUri ))
-                throw new NamespaceErr( "Invalid namespace - uri is not '" + Locale._xmlnsUri+";" );
+                if (prefix.equals( "xmlns" ) && !uri.equals( Locale._xmlnsUri ))
+                    throw new NamespaceErr( "Invalid namespace - uri is not '" + Locale._xmlnsUri+";" );
+            }
+            else
+            {
+                if (local.equals( "xmlns" ) && !uri.equals( Locale._xmlnsUri ))
+                    throw new NamespaceErr( "Invalid namespace - uri is not '" + Locale._xmlnsUri+";" );
+            }
         }
         else if (Locale.beginsWithXml( prefix ))
             throw new NamespaceErr( "Invalid prefix - begins with 'xml'" );
@@ -355,7 +364,13 @@ final class DomImpl
         else
         {
             validateNcName( name.substring( 0, i ) );
-            validateNcName( name.substring( i + 1 ) );
+            
+            String local = name.substring( i + 1 );
+            
+            if (local.indexOf( ':' ) >= 0)
+                throw new NamespaceErr( "Invalid qualified name, more than one colon" );
+            
+            validateNcName( local );
         }
     }
 
@@ -679,27 +694,27 @@ final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static Attr _document_createAttributeNS ( Dom d, String uri, String local )
+    public static Attr _document_createAttributeNS ( Dom d, String uri, String qname )
     {
         Locale l = d.locale();
 
         Dom a;
 
-        if (l.noSync())         { l.enter(); try { a = document_createAttributeNS( d, uri, local ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { a = document_createAttributeNS( d, uri, local ); } finally { l.exit(); } }
+        if (l.noSync())         { l.enter(); try { a = document_createAttributeNS( d, uri, qname ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { a = document_createAttributeNS( d, uri, qname ); } finally { l.exit(); } }
 
         return (Attr) a;
     }
     
-    public static Dom document_createAttributeNS ( Dom d, String uri, String local )
+    public static Dom document_createAttributeNS ( Dom d, String uri, String qname )
     {
-        validateNcName( local );
+        validateQualifiedName( qname );
 
         Locale l = d.locale();
 
         Cur c = l.tempCur();
 
-        c.createAttr( l.makeQualifiedQName( uri, local ) );
+        c.createAttr( l.makeQualifiedQName( uri, qname ) );
 
         Dom e = c.getDom();
 
@@ -952,7 +967,7 @@ final class DomImpl
 
                 String prefix = n.getPrefix();
                 
-                if (prefix != null)
+                if (prefix != null && prefix.length() > 0)
                     node_setPrefix( i, prefix );
             }
 
@@ -980,7 +995,7 @@ final class DomImpl
 
                 String prefix = n.getPrefix();
                 
-                if (prefix != null)
+                if (prefix != null && prefix.length() > 0)
                     node_setPrefix( i, prefix );
             }
 
@@ -1540,8 +1555,10 @@ final class DomImpl
     
     public static Dom node_replaceChild ( Dom p, Dom newChild, Dom oldChild )
     {
-        node_insertBefore( p, newChild, oldChild );
+        Dom nextNode = node_getNextSibling( oldChild );
+        
         node_removeChild( p, oldChild );
+        node_insertBefore( p, newChild, nextNode );
 
         return oldChild;
     }
@@ -2527,7 +2544,7 @@ final class DomImpl
         Locale l = e.locale();
 
         if (attr == null)
-            throw new NotFoundErr( "Attr to set is null" );
+            throw new IllegalArgumentException( "Attr to set is null" );
 
         Dom a;
         
@@ -3386,9 +3403,17 @@ final class DomImpl
             return newNodes;
         }
 
+        public void dump ( PrintStream o, Object ref )
+        {
+            if (_src instanceof Dom)
+                ((Dom) _src).dump( o, ref );
+            else
+                o.println( "Lonely CharNode: \"" + CharUtil.getString( _src, _off, _cch ) + "\"" );
+        }
+        
         public void dump ( PrintStream o )
         {
-            o.print( "CharNode: \"" + CharUtil.getString( _src, _off, _cch ) + "\"" );
+            dump( o, (Object) this );
         }
 
         public void dump ( )
@@ -3462,7 +3487,7 @@ final class DomImpl
             super( l );
         }
 
-        public int nodeKind ( ) { return DomImpl.CDATA; }
+        public int nodeType ( ) { return DomImpl.CDATA; }
 
         public String name ( ) { return "#cdata-section"; }
     }

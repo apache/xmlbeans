@@ -150,47 +150,37 @@ public class Repackage
     public void repackageNonJavaFile(String name)
         throws IOException
     {
-        File sourceFile = new File(_sourceBase, name);
-        File targetFile = new File(_targetBase, name);
-        if (sourceFile.lastModified() < targetFile.lastModified())
-        {
-            _skippedFiles += 1;
-            return;
-        }
+        File sourceFile = new File( _sourceBase, name );
+        File targetFile = new File( _targetBase, name );
         
-        StringBuffer sb = readFile(sourceFile);
-        _repackager.repackage( sb );
-        writeFile(targetFile, sb );
+        if (sourceFile.lastModified() < targetFile.lastModified())
+            _skippedFiles += 1;
+        else
+            writeFile( targetFile, _repackager.repackage( readFile( sourceFile ) ) );
     }
     
     public void repackageNonJavaFile ( String sourceName, String targetName )
         throws IOException
     {
-        File sourceFile = new File(_sourceBase, sourceName);
-        File targetFile = new File(_targetBase, targetName);
-        if (sourceFile.lastModified() < targetFile.lastModified())
-        {
-            _skippedFiles += 1;
-            return;
-        }
+        File sourceFile = new File( _sourceBase, sourceName );
+        File targetFile = new File( _targetBase, targetName );
         
-        StringBuffer sb = readFile(sourceFile);
-        _repackager.repackage(sb);
-        writeFile(targetFile, sb);
+        if (sourceFile.lastModified() < targetFile.lastModified())
+            _skippedFiles += 1;
+        else
+            writeFile( targetFile, _repackager.repackage( readFile( sourceFile ) ) );
     }
     
     public void justMoveNonJavaFile ( String sourceName, String targetName )
         throws IOException
     {
-        File sourceFile = new File(_sourceBase, sourceName);
-        File targetFile = new File(_targetBase, targetName);
-        if (sourceFile.lastModified() < targetFile.lastModified())
-        {
-            _skippedFiles += 1;
-            return;
-        }
+        File sourceFile = new File( _sourceBase, sourceName );
+        File targetFile = new File( _targetBase, targetName );
         
-        copyFile(sourceFile, targetFile);
+        if (sourceFile.lastModified() < targetFile.lastModified())
+            _skippedFiles += 1;
+        else
+            copyFile( sourceFile, targetFile );
     }
     
     public void repackageJavaFile ( String name )
@@ -317,8 +307,7 @@ public class Repackage
             return;
         }
 
-        _repackager.repackage( sb );
-        writeFile( new File( _targetBase, name ), sb );
+        writeFile( new File( _targetBase, name ), _repackager.repackage( sb ) );
     }
 
     void writeFile ( File f, StringBuffer chars )

@@ -294,6 +294,20 @@ final class Locale implements DOMImplementation, SaajCallback
         return _noSync;
     }
     
+    static final boolean isWhiteSpace ( char ch )
+    {
+        switch ( ch )
+        {
+            case ' ':
+            case '\t':
+            case '\n':
+            case '\r':
+                return true;
+            default:
+                return false;
+        }
+    }
+
     static boolean beginsWithXml ( String name )
     {
         if (name.length() < 3)
