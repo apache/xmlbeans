@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlRuntimeException;
+
 import java.lang.reflect.Array;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -134,12 +136,10 @@ final class ClassLoadingUtils
             return javaClass.newInstance();
         }
         catch (InstantiationException e) {
-            //TODO: real error handling
-            throw (RuntimeException)(new RuntimeException(e.getMessage()).initCause(e));
+            throw new XmlRuntimeException(e);
         }
         catch (IllegalAccessException e) {
-            //TODO: real error handling
-            throw (RuntimeException)(new RuntimeException(e.getMessage()).initCause(e));
+            throw new XmlRuntimeException(e);
         }
     }
 

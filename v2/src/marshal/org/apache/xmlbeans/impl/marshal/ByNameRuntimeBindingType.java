@@ -48,12 +48,6 @@ final class ByNameRuntimeBindingType
     private final boolean hasMulti;  //has any multi properties
     private final boolean hasDefaultAttributes;  //has any attributes with defaults
 
-    //is this a subtype of something besides the ultimate parent type?
-    //(XmlObject or java.lang.Object, though only the latter
-    //is currently considered)
-    private final boolean isSubType;
-
-
     //DO NOT CALL THIS CONSTRUCTOR, use the RuntimeTypeFactory
     ByNameRuntimeBindingType(ByNameBean btype)
         throws XmlException
@@ -94,18 +88,6 @@ final class ByNameRuntimeBindingType
         elementProperties = new Property[elem_prop_cnt];
         hasMulti = has_multi;
         hasDefaultAttributes = has_attribute_defaults;
-
-        isSubType = determineIsSubType(javaClass);
-    }
-
-    private static boolean determineIsSubType(Class javaClass)
-    {
-        int cnt = 0;
-        for (Class p = javaClass.getSuperclass(); p != null; p = p.getSuperclass()) {
-            if (cnt > 0) return true;
-            cnt++;
-        }
-        return false;
     }
 
     //prepare internal data structures for use
@@ -227,11 +209,6 @@ final class ByNameRuntimeBindingType
         return attributeProperties.length;
     }
 
-    public boolean isSubType()
-    {
-        return isSubType;
-    }
-
     public boolean hasDefaultAttributes()
     {
         return hasDefaultAttributes;
@@ -346,6 +323,7 @@ final class ByNameRuntimeBindingType
         }
 
         private Class getPropertyClass(QNameProperty prop, BindingType btype)
+            throws XmlException
         {
             assert btype != null;
 
@@ -364,7 +342,7 @@ final class ByNameRuntimeBindingType
             catch (ClassNotFoundException ex) {
                 final String s = "error loading " +
                     btype.getName().getJavaName();
-                throw (RuntimeException)(new RuntimeException(s).initCause(ex));
+                throw new XmlException(ex);
             }
             return propertyClass;
         }
@@ -372,6 +350,7 @@ final class ByNameRuntimeBindingType
 
         private Class getCollectionElementClass(QNameProperty prop,
                                                 BindingType btype)
+            throws XmlException
         {
             assert btype != null;
 
@@ -388,7 +367,7 @@ final class ByNameRuntimeBindingType
             catch (ClassNotFoundException ex) {
                 final String s = "error loading " +
                     btype.getName().getJavaName();
-                throw (RuntimeException)(new RuntimeException(s).initCause(ex));
+                throw new XmlException(ex);
             }
         }
 
@@ -538,7 +517,6 @@ final class ByNameRuntimeBindingType
             return invokeMethod(parentObject, getMethod, EMPTY_OBJECT_ARRAY);
         }
 
-        //TODO: check isSet methods
         public boolean isSet(Object parentObject, MarshalResult result)
             throws XmlException
         {
@@ -549,6 +527,26 @@ final class ByNameRuntimeBindingType
                 (Boolean)invokeMethod(parentObject, issetMethod,
                                       EMPTY_OBJECT_ARRAY);
             return isset.booleanValue();
+        }
+
+        //REVIEW: this method needs optimization
+        public boolean isTypeSubstituted(Object property_value,
+                                         MarshalResult result)
+            throws XmlException
+        {
+            if (javaPrimitive) return false;
+
+            final Class instance_class = property_value.getClass();
+            final Class prop_class = propClass();
+            if (instance_class.equals(prop_class))
+                return false;
+
+            return true;
+        }
+
+        private Class propClass() {
+            return collectionElementClass == null ?
+                propertyClass : collectionElementClass;
         }
 
         private static Object invokeMethod(Object target,

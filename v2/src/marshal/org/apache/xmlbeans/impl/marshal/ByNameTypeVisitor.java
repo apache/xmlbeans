@@ -30,6 +30,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     private final ByNameRuntimeBindingType type;
     private final int maxElementPropCount;
     private final int maxAttributePropCount;
+    private final boolean needsXsiType;
     private int elemPropIdx = -1;
     private List attributeNames;
     private List attributeValues;
@@ -45,7 +46,13 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         super(obj, property, result);
         final BindingType pt = property.getType();
 
-        type = (ByNameRuntimeBindingType)result.createRuntimeBindingType(pt, obj);
+        needsXsiType = property.isTypeSubstituted(obj, result);
+        if (needsXsiType) {
+            type = (ByNameRuntimeBindingType)result.createRuntimeBindingType(pt, obj);
+        } else {
+            type = (ByNameRuntimeBindingType)result.createRuntimeBindingType(pt);
+        }
+
         maxElementPropCount = obj == null ? 0 : type.getElementPropertyCount();
         maxAttributePropCount = obj == null ? 0 : type.getAttributePropertyCount();
     }
@@ -182,15 +189,13 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         final List vals = new ArrayList();
         final List names = new ArrayList();
 
-        if (getParentObject() == null) {
+        final Object parent = getParentObject();
+        if (parent == null) {
             QName nil_qn = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
             names.add(nil_qn);
             vals.add(XsTypeConverter.printBoolean(true));
         } else {
-
-            //TODO: this is too simple.  We also need to know if we
-            //have actually been used a polymorphic way
-            if (type.isSubType()) {
+            if (needsXsiType) {
                 QName aname = fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
                 names.add(aname);
                 QName tn = fillPrefix(type.getSchemaTypeName());
@@ -203,9 +208,9 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
             for (int i = 0, len = maxAttributePropCount; i < len; i++) {
                 final RuntimeBindingProperty prop = type.getAttributeProperty(i);
 
-                if (!prop.isSet(getParentObject(), marshalResult)) continue;
+                if (!prop.isSet(parent, marshalResult)) continue;
 
-                final Object value = prop.getValue(getParentObject(),
+                final Object value = prop.getValue(parent,
                                                    marshalResult);
 
                 final CharSequence val = prop.getLexical(value,

@@ -85,7 +85,8 @@ final class MarshallerImpl
             throw new XmlException(msg);
         }
 
-        RuntimeGlobalProperty prop = new RuntimeGlobalProperty(btype, elem_qn);
+        RuntimeGlobalProperty prop =
+            new RuntimeGlobalProperty(btype, elem_qn);
 
         //TODO: review null options param
         return new MarshalResult(runtimeTypeFactory, loader, typeTable,
@@ -247,7 +248,10 @@ final class MarshallerImpl
                 " schema type: " + schemaType;
             throw new XmlException(msg);
         }
-        RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
+
+        RuntimeGlobalProperty prop =
+            new RuntimeGlobalProperty(type, elementName);
+
         return new MarshalResult(runtimeTypeFactory, loader, typeTable,
                                  namespaceContext, prop, obj, null);
     }

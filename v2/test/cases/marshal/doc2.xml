@@ -29,7 +29,9 @@
         <n1:SomeBool>0</n1:SomeBool>
         <n1:SomeBool>1</n1:SomeBool>
 
-        <n1:BooleanArray>true</n1:BooleanArray>
+        <n1:BooleanArray>
+             true 
+        </n1:BooleanArray>
         <n1:BooleanArray>1</n1:BooleanArray>
 
     </n1:Myelt>
