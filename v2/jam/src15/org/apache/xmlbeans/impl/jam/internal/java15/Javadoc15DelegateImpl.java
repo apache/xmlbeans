@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.jam.internal.javadoc.Javadoc15Delegate;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.Parameter;
@@ -39,10 +40,10 @@ import com.sun.javadoc.AnnotationTypeDoc;
  */
 public class Javadoc15DelegateImpl implements Javadoc15Delegate {
 
-
 //temporary
-private static boolean DEFAULTS_ENABLED = true;
-public static final void setDefaultsEnabled(boolean b) { DEFAULTS_ENABLED = b; }
+public static final void setDefaultsEnabled(boolean b) {
+  JamServiceFactory.setAnnotationDefaultsEnabled(b);
+}
 
   // ========================================================================
   // Variables
@@ -106,7 +107,7 @@ public static final void setDefaultsEnabled(boolean b) { DEFAULTS_ENABLED = b; }
         setAnnotationValue(name,jmt,aval,dest,sp);
       }
     }
-if (!DEFAULTS_ENABLED) return;
+if (!JamServiceFactory.ANNOTATION_DEFAULTS_ENABLED) return;
     { // also set values for the type's defaults
       AnnotationTypeDoc atd = src.annotationType();
       AnnotationTypeElementDoc[] elements = atd.elements();
