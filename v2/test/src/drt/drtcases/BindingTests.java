@@ -56,6 +56,7 @@ public class BindingTests extends TestCase
             if (verbose) bf.write().save(System.out);
           }
           public void writeSchema(SchemaDocument xsd, String filepath) {}
+          public void close() {}
         };
         //FIXME this is kinda dumb, just emulating current behavior.
         //real test should create a tylar on disk  -pcal
