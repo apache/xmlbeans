@@ -53,48 +53,76 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable.impl;
 
+import org.apache.xmlbeans.impl.jam.editable.EMethod;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.internal.VoidJClass;
+
+import java.lang.reflect.Modifier;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
+ * Standard implementation of EMethod.  It's probably bad inheritance to
+ * extend EConstructorImpl, but it's convenient and no one should ever care
+ * since this is a private class; there is no inheritance between method and
+ * constructor in the public API.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public class EMethodImpl extends EConstructorImpl implements EMethod {
+
 
   // ========================================================================
   // Variables
 
-  private JClassBuilder[] mServices;
+  private String mReturnTypeName = null;
 
   // ========================================================================
   // Constructors
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  public EMethodImpl(String simpleName, JClass containingClass) {
+    super(simpleName,containingClass);
   }
 
   // ========================================================================
-  // JClassBuilder implementation
+  // EMethod implementation
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
+  public void setReturnType(String className) {
+    mReturnTypeName = className;
+  }
+
+  public void setReturnType(JClass c) {
+    setReturnType(c.getQualifiedName());
+  }
+
+  // ========================================================================
+  // JMethod implementation
+
+  public JClass getReturnType() {
+    if (mReturnTypeName == null) {
+      return VoidJClass.getInstance();
+    } else {
+      return getClassLoader().loadClass(mReturnTypeName);
     }
-    return null;
   }
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
+  public boolean isFinal() {
+    return Modifier.isFinal(getModifiers());
   }
 
+  public boolean isStatic() {
+    return Modifier.isStatic(getModifiers());
+  }
+
+  public boolean isAbstract() {
+    return Modifier.isAbstract(getModifiers());
+  }
+
+  public boolean isNative() {
+    return Modifier.isNative(getModifiers());
+  }
+
+  public boolean isSynchronized() {
+    return Modifier.isSynchronized(getModifiers());
+  }
 }

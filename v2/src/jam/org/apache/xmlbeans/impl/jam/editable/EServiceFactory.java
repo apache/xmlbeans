@@ -53,48 +53,81 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.JService;
+import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
+import org.apache.xmlbeans.impl.jam.editable.impl.EServiceParamsImpl;
+import org.apache.xmlbeans.impl.jam.editable.impl.EServiceImpl;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public class EServiceFactory {
 
   // ========================================================================
-  // Variables
+  // Constants
 
-  private JClassBuilder[] mServices;
+  private static final EServiceFactory INSTANCE = new EServiceFactory();
 
   // ========================================================================
-  // Constructors
+  // Singleton
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  /**
+   * Return the factory singleton.
+   */
+  public static EServiceFactory getInstance() { return INSTANCE; }
+
+  private EServiceFactory() {}
+
+  // ========================================================================
+  // Public methods
+
+  /**
+   * Create a new JServiceParams instance.  The params can be populated
+   * and then given to the createService method to create a new JService.
+   */
+  public EServiceParams createServiceParams() {
+    return new EServiceParamsImpl();
   }
 
-  // ========================================================================
-  // JClassBuilder implementation
+  /**
+   * Create a new JService from the given parameters.
+   *
+   * @throws IllegalArgumentException if the params is null or not
+   * an instance returned by createServiceParams().
+   */
+  public EService createService(EServiceParams params) {
+    return new EServiceImpl((EServiceParamsImpl)params);
+  }
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
+  public static void main(String[] args) {
+    PrintWriter out = new PrintWriter(System.out);
+    out.println("Running EServiceTest");
+    try {
+      EServiceFactory factory = EServiceFactory.getInstance();
+      EServiceParams params = factory.createServiceParams();
+      EService service = factory.createService(params);
+      //
+      //dumb test code
+      //
+      EClass testClass = service.addNewClass("com.bea.pcal","TestClass");
+      EClass fooClass = service.addNewClass("com.bea.pcal","Foo");
+      testClass.addNewMethod("getFoo").setReturnType(fooClass);
+      testClass.addNewField("com.bea.pcal.Foo","localFoo");
+      //
+
+      JamPrinter.newInstance().print(service.getClasses(),out);
+
+    } catch(Exception e) {
+      e.printStackTrace();
     }
-    return null;
+    out.flush();
+    System.out.flush();
+    System.err.flush();
   }
-
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
-  }
-
 }

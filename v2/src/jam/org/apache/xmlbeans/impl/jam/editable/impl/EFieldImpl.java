@@ -53,17 +53,77 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam;
+package org.apache.xmlbeans.impl.jam.editable.impl;
+
+import org.apache.xmlbeans.impl.jam.editable.EField;
+import org.apache.xmlbeans.impl.jam.JClass;
+
+import java.lang.reflect.Modifier;
 
 /**
+ * Standard implementation of EField.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JAnnotationMemberDeclaration extends JMethod {
+public class EFieldImpl extends EMemberImpl implements EField {
 
-  public JClass getType();
+  // ========================================================================
+  // Variables
 
-  public Object getDefaultValue();
+  private String mTypeClassName;
 
-  public JAnnotationDeclaration getContainingAnnotationDeclaration();
+  // ========================================================================
+  // Constructors
+
+  /*package*/ EFieldImpl(String simpleName,
+                         JClass containingClass,
+                         String typeClassName) {
+    super(simpleName,containingClass);
+    mTypeClassName = typeClassName;
+  }
+
+  // ========================================================================
+  // JElement implementation
+
+  public String getQualifiedName() {
+    //REVIEW
+    return getContainingClass().getQualifiedName()+"."+getSimpleName();
+  }
+
+  // ========================================================================
+  // EField implementation
+
+  public void setType(JClass type) {
+    setType(type.getQualifiedName());
+  }
+
+  public void setType(String typeClassName) {
+    if (typeClassName == null) {
+      throw new IllegalArgumentException("null type class");
+    }
+    mTypeClassName = typeClassName;
+  }
+
+  // ========================================================================
+  // JField implementation
+
+  public JClass getType() {
+    return getClassLoader().loadClass(mTypeClassName);
+  }
+
+  public boolean isFinal() {
+    return Modifier.isFinal(getModifiers());
+  }
+
+  public boolean isStatic() {
+    return Modifier.isStatic(getModifiers());
+  }
+
+  public boolean isVolatile() {
+    return Modifier.isVolatile(getModifiers());
+  }
+
+  public boolean isTransient() {
+    return Modifier.isTransient(getModifiers());
+  }
 }

@@ -53,48 +53,59 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.editable.EServiceParams;
+import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.JFactory;
+
+import java.io.PrintWriter;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
+ * FIXME - implement this
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public class EServiceParamsImpl implements EServiceParams {
 
   // ========================================================================
   // Variables
 
-  private JClassBuilder[] mServices;
+  private JClassLoader mParentLoader =
+          JFactory.getInstance().getSystemClassLoader();//FIXME
+  private JAnnotationLoader mAnnLoader = null;
+  private boolean mVerbose = false;
 
   // ========================================================================
-  // Constructors
+  // Package methods
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  /*package*/ JClassLoader getParentClassLoader() {
+    return mParentLoader;
+  }
+
+  /*package*/ boolean isVerbose() {
+    return mVerbose;
+  }
+
+  /*package*/ JAnnotationLoader getAnnotationLoader() {
+    return mAnnLoader;
   }
 
   // ========================================================================
-  // JClassBuilder implementation
+  // EServiceParams implementation
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
+  public void setAnnotationLoader(JAnnotationLoader ann) {
+    mAnnLoader = ann;
   }
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
+  public void setLogger(PrintWriter out) {
   }
 
+  public void setVerbose(boolean v) {
+    mVerbose = v;
+  }
+
+  public void setParentClassLoader(JClassLoader loader) {
+  }
 }

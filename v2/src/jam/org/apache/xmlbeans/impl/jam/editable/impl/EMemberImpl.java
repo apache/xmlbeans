@@ -53,48 +53,72 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.editable.EMember;
+import org.apache.xmlbeans.impl.jam.*;
+
+import java.lang.reflect.Modifier;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public abstract class EMemberImpl extends EElementImpl implements EMember {
 
   // ========================================================================
   // Variables
 
-  private JClassBuilder[] mServices;
+  private int mModifiers = 0;
+  private JClass mContainingClass = null;
 
   // ========================================================================
   // Constructors
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  protected EMemberImpl(String simpleName, JClass containingClass) {
+    super(simpleName,containingClass.getClassLoader());
+    if (containingClass == null) {
+      throw new IllegalArgumentException("null class");
+    }
+    mContainingClass = containingClass;
+  }
+
+  protected EMemberImpl(String simpleName, JClassLoader loader) {
+    super(simpleName,loader);
   }
 
   // ========================================================================
-  // JClassBuilder implementation
+  // JMember implementation
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
+  public JClass getContainingClass() {
+    return mContainingClass;
   }
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
+  public int getModifiers() {
+    return mModifiers;
+  }
+
+  public boolean isPackagePrivate() {
+    return !isPrivate() && !isPublic() && !isProtected();
+  }
+
+  public boolean isPrivate() {
+    return Modifier.isPrivate(mModifiers);
+  }
+
+  public boolean isProtected() {
+    return Modifier.isProtected(mModifiers);
+  }
+
+  public boolean isPublic() {
+    return Modifier.isPublic(mModifiers);
+  }
+
+  // ========================================================================
+  // EMember implementation
+
+  public void setModifiers(int modifiers) {
+    mModifiers = modifiers;
   }
 
 }

@@ -53,48 +53,116 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.editable.EElement;
+import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
+import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
+import org.apache.xmlbeans.impl.jam.*;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public abstract class EElementImpl implements EElement {
 
-  // ========================================================================
+    // ========================================================================
   // Variables
 
-  private JClassBuilder[] mServices;
+  private String mSimpleName;
+  private ESourcePosition mPosition = null;
+  private JClassLoader mClassLoader;
 
   // ========================================================================
   // Constructors
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  protected EElementImpl(String simpleName, JClassLoader loader) {
+    if (simpleName == null) throw new IllegalArgumentException("null name");
+    mSimpleName = simpleName;
+    if (loader == null) throw new IllegalArgumentException("null loader");
+    mClassLoader = loader;
   }
 
   // ========================================================================
-  // JClassBuilder implementation
+  // JElement implementation
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
+  public String getSimpleName() {
+    return mSimpleName;
+  }
+
+  public JSourcePosition getSourcePosition() {
+    return mPosition;
+  }
+
+  //FIXME
+  public JComment[] getComments() {
+    return new JComment[0];
+  }
+
+
+  //FIXME
+  public JAnnotation[] getAnnotations() {
+    return new JAnnotation[0];
+  }
+
+  //FIXME
+  public JAnnotation[] getAnnotations(String named) {
+    return new JAnnotation[0];
+  }
+
+  public JAnnotation getAnnotation(String named) {
     return null;
   }
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
+  public JElement getParent() {
+    return null;
   }
+
+  // ========================================================================
+  // EElement implementation
+
+  public void setSimpleName(String name) {
+    mSimpleName = name;
+  }
+
+  public EAnnotation createAnnotation() {
+    return null;
+  }
+
+  public ESourcePosition createSourcePosition() {
+    return mPosition = new ESourcePositionImpl();
+  }
+
+  public void removeSourcePosition() {
+    mPosition = null;
+  }
+
+  public ESourcePosition getEditableSourcePosition() {
+    return mPosition;
+  }
+
+  public void removeAnnotation(EAnnotation ann) {
+  }
+
+  public EAnnotation[] getEditableAnnotations() {
+    return null;
+  }
+
+  public EAnnotation getEditableAnnotation(String named) {
+    return null;
+  }
+
+  public EAnnotation[] getEditableAnnotations(String named) {
+    return null;
+  }
+
+  // ========================================================================
+  // Public methods & JClass impl
+
+  public JClassLoader getClassLoader() {
+    return mClassLoader;
+  }
+
+
 
 }

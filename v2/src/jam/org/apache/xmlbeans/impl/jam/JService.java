@@ -56,8 +56,10 @@
 package org.apache.xmlbeans.impl.jam;
 
 /**
- * A JService describes two kinds of information
- * - a
+ * Exposes a set of java classes which met a set of criteria described
+ * in a JServiceParams object.  A JService exposes both a particular set of
+ * JClasses, as well as a JClassLoader which can be used to load related
+ * classes.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */

@@ -98,7 +98,7 @@ public interface JAnnotationMember {
    * Returns the a representation of the declaration of this member in its
    * annotation type declaration.
    */
-  public JAnnotationMemberDeclaration getDeclaration();
+  public JAnnotationMemberDefinition getDefinition();
 
   /**
    * Returns the String value of the annotation.  Returns an empty string

@@ -53,48 +53,57 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable.impl;
 
+import org.apache.xmlbeans.impl.jam.editable.EParameter;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.JMember;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public class EParameterImpl extends EMemberImpl implements EParameter {
 
   // ========================================================================
   // Variables
 
-  private JClassBuilder[] mServices;
+  private String mTypeClassName;
 
   // ========================================================================
   // Constructors
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  /*package*/ EParameterImpl(String simpleName,
+                             JMember containingMember,
+                             String typeName)
+  {
+    super(simpleName,containingMember.getContainingClass());
+    setType(typeName);
   }
 
   // ========================================================================
-  // JClassBuilder implementation
+  // JElement implementation
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
+  public String getQualifiedName() {
+    return getContainingClass().getQualifiedName();//FIXME
   }
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
+  // ========================================================================
+  // EParameter implementation
+
+  public void setType(String typeName) {
+    if (typeName == null) throw new IllegalArgumentException("null typename");
+    mTypeClassName = typeName;
   }
 
+  public void setType(JClass type) {
+    setType(type.getQualifiedName());
+  }
+
+  // ========================================================================
+  // JParameter implementation
+
+  public JClass getType() {
+    return getClassLoader().loadClass(mTypeClassName);
+  }
 }

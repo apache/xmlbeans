@@ -53,48 +53,35 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
-
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+package org.apache.xmlbeans.impl.jam;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
+ * Note that the member definition is actually a JMethod.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public interface JAnnotationMemberDefinition extends JMethod {
 
-  // ========================================================================
-  // Variables
+  //FIXME so, if the type is an annotation, what are they supposed to do?
+  /**
+   * Returns a JClass representing the type of this annotation memeber.
+   * Note that it is entirely possible that the JClass returned by this
+   * method will be a JAnnotationDefinition.  Note that getType() and
+   * getReturnType() will return exactly the same value.
+   *
+   * @return
+   */
+  public JClass getType();
 
-  private JClassBuilder[] mServices;
+  /**
+   * Returns an object representing the default value of this annotation
+   * member.
+   *
+   * @return
+   */
+  public Object getDefaultValue();
 
-  // ========================================================================
-  // Constructors
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
-  }
-
-  // ========================================================================
-  // JClassBuilder implementation
-
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
-  }
-
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
-  }
-
+  //REVIEW I don't want to expose this unless somebody really needs it
+  //public JAnnotationDefinition getContainingAnnotationDefinition();
 }
