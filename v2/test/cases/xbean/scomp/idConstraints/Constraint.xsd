@@ -1,8 +1,10 @@
 <xsd:schema
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns="http://xbean/scomp/idConstraint/Constraint"
+   xmlns:con="http://xbean/scomp/idConstraint/Constraint"
     targetNamespace="http://xbean/scomp/idConstraint/Constraint"
     elementFormDefault="qualified"
+    attributeFormDefault="qualified"
     >
 
 
@@ -42,17 +44,17 @@
 
     <xsd:element name="productList" type="ProductListType">
         <xsd:unique name="deptProdUnique">
-            <xsd:selector xpath="product"/>
-            <xsd:field xpath="department/@name"/>
-            <xsd:field xpath="id"/>
+            <xsd:selector xpath="con:product"/>
+            <xsd:field xpath="con:department/@con:name"/>
+            <xsd:field xpath="con:id"/>
         </xsd:unique>
     </xsd:element>
 
     <xsd:element name="KeyProductList" type="OtherProductListType">
         <xsd:unique name="deptProdKey">
-            <xsd:selector xpath="product"/>
-            <xsd:field xpath="department/@name"/>
-            <xsd:field xpath="id"/>
+            <xsd:selector xpath="con:product"/>
+            <xsd:field xpath="con:department/@con:name"/>
+            <xsd:field xpath="con:id"/>
         </xsd:unique>
     </xsd:element>
 
@@ -63,9 +65,7 @@
             <xsd:sequence maxOccurs="unbounded">
                 <xsd:element name="item">
                     <xsd:complexType>
-                        <xsd:sequence>
-                            <xsd:element name="SKU"/>
-                        </xsd:sequence>
+                         <xsd:attribute name="SKU"/>
                          <xsd:attribute name="deptId"/>
                     </xsd:complexType>
                 </xsd:element>
@@ -81,9 +81,9 @@
                 <xsd:sequence maxOccurs="unbounded">
                     <xsd:element name="order" type="OrderType">
                         <xsd:keyref name="ProdRef" refer="deptProdKey">
-                            <xsd:selector xpath="item"/>
-                            <xsd:field xpath="@deptId"/>
-                            <xsd:field xpath="SKU"/>
+                            <xsd:selector xpath="con:item"/>
+                            <xsd:field xpath="@con:deptId"/>
+                            <xsd:field xpath="@con:SKU"/>
                         </xsd:keyref>
                     </xsd:element>
                 </xsd:sequence>

@@ -24,51 +24,54 @@ import xbean.scomp.derivation.attributeWCExtension.*;
  */
 public class AttributeWCExtension extends BaseCase {
 
-   /**
-    * Strict wildcard ##local
-    * Base type didn't have wildcards
-    * @throws Throwable
-    */
+    /**
+     * Strict wildcard ##local
+     * Base type didn't have wildcards
+     *
+     * @throws Throwable
+     */
 
     public void testRestrictBaseWOWC() throws Throwable {
         String input = "<pre:BaseNoWC " +
                 " xmlns:pre=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                  " xmlns:base=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
+                " xmlns:base=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
                 " base:testattribute=\"val\"" +
                 " base:testattributeInt=\"3\"" +
                 " pre:testAttr=\"val1\"/>";
         BaseNoWCDocument doc = BaseNoWCDocument.Factory.parse(input);
-        if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
 
         assertTrue(doc.validate(validateOptions));
 
     }
-   /**
-    * Strict validation: attr should be found AND valid
-    * @throws Throwable
-    */
+
+    /**
+     * Strict validation: attr should be found AND valid
+     *
+     * @throws Throwable
+     */
     public void testAnyStrict() throws Throwable {
         String input = "<foo:AnyStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-
-                " testAttr=\"val1\"/>";
+                " foo:testAttr=\"val1\"/>";
         AnyStrictDocument doc = AnyStrictDocument.Factory.parse(input);
-         if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
 
     /**
-    * Lax validation:IF attr is found, it should be valid
-    * @throws Throwable
-    */
+     * Lax validation:IF attr is found, it should be valid
+     *
+     * @throws Throwable
+     */
     public void testAnyLax() throws Throwable {
         String input = "<foo:AnyLax " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
                 " testAttr=\"val1\"/>";
         AnyLaxDocument doc = AnyLaxDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
 
@@ -79,7 +82,7 @@ public class AttributeWCExtension extends BaseCase {
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
                 " testAttr=\"val1\"/>";
         AnySkipDocument doc = AnySkipDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
@@ -93,20 +96,21 @@ public class AttributeWCExtension extends BaseCase {
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
                 " testAttr=\"val1\"/>";
         UriListLaxDocument doc = UriListLaxDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
 
     /**
-     * any valid XML should be OK
+     * any valid XML should be OK,
+     * as long as NS is other or target
      */
     public void test2ListsSkip() throws Throwable {
         String input = "<foo:UriListSkip " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " testAttr=\"val1\"/>";
+                " foo:testAttr=\"val1\"/>";
         UriListSkipDocument doc = UriListSkipDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
@@ -114,9 +118,10 @@ public class AttributeWCExtension extends BaseCase {
     public void test2ListsStrict() throws Throwable {
         String input = "<foo:UriListStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " testAttr=\"val1\"/>";
+                " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrFixed\"" +
+                " at:testattributeStr=\"XBeanAttrStr\"/>";
         UriListStrictDocument doc = UriListStrictDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
@@ -125,11 +130,11 @@ public class AttributeWCExtension extends BaseCase {
      * target and local here too
      */
     public void testOtherListLax() throws Throwable {
-        String input =  "<foo:OtherListLax " +
+        String input = "<foo:OtherListLax " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
                 " testAttr=\"val1\"/>";
         OtherListLaxDocument doc = OtherListLaxDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
@@ -137,9 +142,9 @@ public class AttributeWCExtension extends BaseCase {
     public void testOtherListSkip() throws Throwable {
         String input = "<foo:OtherListSkip " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " undeclAttr=\"val1\"/>";
+                " foo:undeclAttr=\"val1\"/>";
         OtherListSkipDocument doc = OtherListSkipDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
@@ -147,9 +152,11 @@ public class AttributeWCExtension extends BaseCase {
     public void testOtherListStrict() throws Throwable {
         String input = "<foo:OtherListStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " undeclAttr=\"val1\"/>";
+                " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrFixed\"" +
+                " at:testattributeStr=\"XBeanAttrStr\"/>";
+
         OtherListStrictDocument doc = OtherListStrictDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
@@ -159,31 +166,35 @@ public class AttributeWCExtension extends BaseCase {
      * Other other should be equivalent to ##any
      */
     public void testOtherOtherLax() throws Throwable {
-          String input =  "<foo:OtherOtherLax " +
+        String input = "<foo:OtherOtherLax " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " testAttr=\"val1\"/>";
+                " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\""+
+                " at:testAttr=\"val1\"/>";
         OtherOtherLaxDocument doc = OtherOtherLaxDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
 
     public void testOtherOtherSkip() throws Throwable {
-            String input = "<foo:OtherOtherSkip " +
+        String input = "<foo:OtherOtherSkip " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " foobar=\"val1\"/>";
+                " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\""+
+                " at:foobar=\"val1\"/>";
         OtherOtherSkipDocument doc = OtherOtherSkipDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }
 
     public void testOtherOtherStrict() throws Throwable {
-          String input = "<foo:OtherOtherStrict " +
+        String input = "<foo:OtherOtherStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " testAttr=\"val1\"/>";
-       OtherOtherStrictDocument doc = OtherOtherStrictDocument.Factory.parse(input);
-          if ( !doc.validate(validateOptions) )
+                " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrFixed\"" +
+                " at:testattributeStr=\"XBeanAttrStr\"/>";
+
+        OtherOtherStrictDocument doc = OtherOtherStrictDocument.Factory.parse(input);
+        if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
     }

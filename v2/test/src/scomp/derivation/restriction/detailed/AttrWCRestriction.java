@@ -42,7 +42,7 @@ public class AttrWCRestriction extends BaseCase {
           input="<foo:Any2Concrete " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
                  " xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
-                " at:testattributeInt=\"3\"/>";
+                " at:testatt=\"3\"/>";
           doc=
                  Any2ConcreteDocument.Factory.parse(input);
         assertTrue ( !doc.validate(validateOptions));
@@ -95,7 +95,7 @@ public class AttrWCRestriction extends BaseCase {
     public void testList2SubsetStrict()throws Throwable{
           input="<foo:List2Subset " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCRestriction\"" +
-                 " xmlns:at=\"http://apache.org\"" +
+                 " xmlns:at=\"http://ap.org\"" +
                 " at:testattribute=\"XBean\"/>";
          List2SubsetDocument doc=
                  List2SubsetDocument.Factory.parse(input);
