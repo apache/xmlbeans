@@ -300,7 +300,11 @@ public class Java2Schema extends BindingCompiler {
    */
   private boolean getAnnotation(JElement elem, String annName, boolean dflt) {
     JAnnotation ann = elem.getAnnotation(annName);
-    return (ann == null) ? dflt : ann.getBooleanValue();
+//    return (ann == null) ? dflt : ann.getBooleanValue();
+    if (ann == null) return false;
+    String a = ann.getStringValue();
+    if (a == null || a.trim().length() == 0) return true; //ewww
+    return ann.getBooleanValue();
   }
 
   /**
