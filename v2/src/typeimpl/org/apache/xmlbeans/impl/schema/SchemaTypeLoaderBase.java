@@ -19,8 +19,8 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLInputStream;
 
 // NEWSTORE START
-import org.apache.xmlbeans.impl.newstore2.Locale;
-//import org.apache.xmlbeans.impl.store.Root;
+//import org.apache.xmlbeans.impl.newstore2.Locale;
+import org.apache.xmlbeans.impl.store.Root;
 // NEWSTORE END
 
 import org.apache.xmlbeans.SchemaAttributeGroup;
@@ -187,8 +187,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.newInstance( this, type, options );
 
 // NEWSTORE START
-        return Locale.newInstance( this, type, options );
-//        return Root.newInstance( this, type, options );
+//        return Locale.newInstance( this, type, options );
+        return Root.newInstance( this, type, options );
 // NEWSTORE END
     }
 
@@ -200,8 +200,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.parse( this, xmlText, type, options );
 
 // NEWSTORE START
-        return Locale.parseToXmlObject( this, xmlText, type, options );
-//        return Root.parse( this, xmlText, type, options );
+//        return Locale.parseToXmlObject( this, xmlText, type, options );
+        return Root.parse( this, xmlText, type, options );
 // NEWSTORE END
     }
 
@@ -213,8 +213,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.parse( this, xis, type, options );
         
 // NEWSTORE START
-        return Locale.parseToXmlObject( this, xis, type, options );
-//        return Root.parse( this, xis, type, options );
+//        return Locale.parseToXmlObject( this, xis, type, options );
+        return Root.parse( this, xis, type, options );
 // NEWSTORE END
     }
 
@@ -226,8 +226,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.parse( this, xsr, type, options );
 
 // NEWSTORE START
-        return Locale.parseToXmlObject( this, xsr, type, options );
-//        return Root.parse( this, xsr, type, options );
+//        return Locale.parseToXmlObject( this, xsr, type, options );
+        return Root.parse( this, xsr, type, options );
 // NEWSTORE END
     }
     
@@ -343,8 +343,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.parse( this, jiois, type, options );
 
 // NEWSTORE START
-        XmlObject result = Locale.parseToXmlObject( this, jiois, type, options );
-//        XmlObject result = Root.parse( this, jiois, type, options );
+//        XmlObject result = Locale.parseToXmlObject( this, jiois, type, options );
+        XmlObject result = Root.parse( this, jiois, type, options );
 // NEWSTORE END
 
         if (digestStream != null)
@@ -361,8 +361,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.parse( this, jior, type, options );
 
 // NEWSTORE START
-        return Locale.parseToXmlObject( this, jior, type, options );
-//        return Root.parse( this, jior, type, options );
+//        return Locale.parseToXmlObject( this, jior, type, options );
+        return Root.parse( this, jior, type, options );
 // NEWSTORE END
     }
 
@@ -374,8 +374,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.parse( this, node, type, options );
 
 // NEWSTORE START
-        return Locale.parseToXmlObject( this, node, type, options );
-//        return Root.parse( this, node, type, options );
+//        return Locale.parseToXmlObject( this, node, type, options );
+        return Root.parse( this, node, type, options );
 // NEWSTORE END
     }
 
@@ -387,8 +387,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             return hook.newXmlSaxHandler( this, type, options );
 
 // NEWSTORE START
-        return Locale.newSaxHandler( this, type, options );
-//        return Root.newSaxHandler( this, type, options );
+//        return Locale.newSaxHandler( this, type, options );
+        return Root.newSaxHandler( this, type, options );
 // NEWSTORE END
     }
 

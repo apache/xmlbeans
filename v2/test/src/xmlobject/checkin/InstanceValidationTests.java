@@ -557,16 +557,16 @@ public class InstanceValidationTests extends TestCase
             File[] schemasF = { schemeFile, xmlFile };
 
 // NEWSTORE START
-            stl = makeSchemaTypeLoader( schemasF );
-//            Root.disableStoreValidation();
-//            try
-//            {
-//                stl = makeSchemaTypeLoader( schemasF );
-//            }
-//            finally
-//            {
-//                Root.enableStoreValidation();
-//            }
+//            stl = makeSchemaTypeLoader( schemasF );
+            Root.disableStoreValidation();
+            try
+            {
+                stl = makeSchemaTypeLoader( schemasF );
+            }
+            finally
+            {
+                Root.enableStoreValidation();
+            }
 // NEWSTORE END
 
             SchemaType type =
@@ -1246,67 +1246,67 @@ public class InstanceValidationTests extends TestCase
         }
 
 // NEWSTORE START
-//        public void testValidate4 ( )
-//            throws Exception
-//        {
-//            String schema =
-//                "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
-//                "\n" +
-//                "  <xs:element name='any'>\n" +
-//                "  </xs:element>\n" +
-//                "\n" +
-//                "  <xs:simpleType name='kindaPrime'>\n" +
-//                "    <xs:restriction base='xs:decimal'>\n" +
-//                "      <xs:pattern value='[0-9]*[13579]'/>\n" +
-//                "      <xs:enumeration value='3'/>\n" +
-//                "      <xs:enumeration value='5'/>\n" +
-//                "      <xs:enumeration value='7'/>\n" +
-//                "      <xs:enumeration value='11'/>\n" +
-//                "      <xs:enumeration value='13'/>\n" +
-//                "      <xs:enumeration value='17'/>\n" +
-//                "      <xs:enumeration value='19'/>\n" +
-//                "    </xs:restriction>\n" +
-//                "  </xs:simpleType>\n" +
-//                "\n" +
-//                "</xs:schema>\n" +
-//                "";
-//
-//            String[] schemas = { schema };
-//
-//            SchemaTypeLoader stl = makeSchemaTypeLoader( schemas );
-//
-//            XmlObject x =
-//                stl.parse(
-//                    "<any " + ns + " xsi:type='kindaPrime'>100</any>",
-//                    null, null );
-//
-//            // Make sure the unvalidated stream is OK
-//
-//            XMLInputStream xis = x.newXMLInputStream();
-//
-//            while ( xis.hasNext() )
-//                xis.next();
-//
-//            // Make sure the validated stream fails
-//
-//            boolean blewChunks = false;
-//
-//            xis =
-//                stl.newValidatingXMLInputStream(
-//                    x.newXMLInputStream(), null, null );
-//
-//            try
-//            {
-//                while ( xis.hasNext() )
-//                    xis.next();
-//            }
-//            catch ( XMLStreamValidationException e )
-//            {
-//                blewChunks = true;
-//            }
-//
-//            Assert.assertTrue( blewChunks );
-//        }
+        public void testValidate4 ( )
+            throws Exception
+        {
+            String schema =
+                "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
+                "\n" +
+                "  <xs:element name='any'>\n" +
+                "  </xs:element>\n" +
+                "\n" +
+                "  <xs:simpleType name='kindaPrime'>\n" +
+                "    <xs:restriction base='xs:decimal'>\n" +
+                "      <xs:pattern value='[0-9]*[13579]'/>\n" +
+                "      <xs:enumeration value='3'/>\n" +
+                "      <xs:enumeration value='5'/>\n" +
+                "      <xs:enumeration value='7'/>\n" +
+                "      <xs:enumeration value='11'/>\n" +
+                "      <xs:enumeration value='13'/>\n" +
+                "      <xs:enumeration value='17'/>\n" +
+                "      <xs:enumeration value='19'/>\n" +
+                "    </xs:restriction>\n" +
+                "  </xs:simpleType>\n" +
+                "\n" +
+                "</xs:schema>\n" +
+                "";
+
+            String[] schemas = { schema };
+
+            SchemaTypeLoader stl = makeSchemaTypeLoader( schemas );
+
+            XmlObject x =
+                stl.parse(
+                    "<any " + ns + " xsi:type='kindaPrime'>100</any>",
+                    null, null );
+
+            // Make sure the unvalidated stream is OK
+
+            XMLInputStream xis = x.newXMLInputStream();
+
+            while ( xis.hasNext() )
+                xis.next();
+
+            // Make sure the validated stream fails
+
+            boolean blewChunks = false;
+
+            xis =
+                stl.newValidatingXMLInputStream(
+                    x.newXMLInputStream(), null, null );
+
+            try
+            {
+                while ( xis.hasNext() )
+                    xis.next();
+            }
+            catch ( XMLStreamValidationException e )
+            {
+                blewChunks = true;
+            }
+
+            Assert.assertTrue( blewChunks );
+        }
 // NEWSTORE END
 
         public void testValidate5 ( )
