@@ -638,6 +638,7 @@ public class MarshalTests extends TestCase
         MyClass mc = (MyClass)obj;
 
         final YourClass myelt = mc.getMyelt();
+        Assert.assertNotNull(myelt);
         Assert.assertEquals(myelt.getBools(), source_mc.getMyelt().getBools());
         Assert.assertTrue(Arrays.equals(myelt.getWrappedArrayOne(),
                                         source_mc.getMyelt().getWrappedArrayOne()));
@@ -697,7 +698,7 @@ public class MarshalTests extends TestCase
 
         myelt.setMyClassArray(new MyClass[]{sub,
                                             new MyClass(),
-//                                            mc,
+                                            mc,
                                             sub});
 
         final MySubSubClass subsub = new MySubSubClass();
@@ -724,9 +725,7 @@ public class MarshalTests extends TestCase
         obj_array2[3] = null;
 
         myelt.objectArrayTwo = obj_array2;
-        //TODO: fix bug this causes in marshalling
         obj_array[7] = obj_array2;
-
 
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
