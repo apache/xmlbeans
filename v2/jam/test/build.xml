@@ -130,6 +130,7 @@ for now because JDK versioning problems when running in ant
     <condition property='suffix' value='_150'>
      <isset property='do15compile'/>
     </condition>
+    <property name='suffix' value=''/>
     <property name='sources_test' value='org.apache.xmlbeans.test.jam.SourcesJamTest${suffix}'/>
     <property name='reflect_test' value='org.apache.xmlbeans.test.jam.ReflectJamTest${suffix}'/>
 
