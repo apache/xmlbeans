@@ -285,7 +285,9 @@
         </copy>
 
         <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
-        <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/ar/xbean.jar"/>
+        <copy todir="build/private/xmlbeans-${product.version}/lib">
+            <fileset dir="build/lib" includes="xbean.jar,jsr173_api.jar"/>
+        </copy>
 
         <mkdir dir="build/private/xmlbeans-${product.version}/docs"/>
         <copy todir="build/private/xmlbeans-${product.version}/docs">
