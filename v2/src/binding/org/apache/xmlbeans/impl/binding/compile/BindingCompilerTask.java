@@ -55,7 +55,6 @@
 */
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.tools.ant.Task;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
@@ -77,14 +76,15 @@ public abstract class BindingCompilerTask extends MatchingTask {
   private File mDestDir = null;
   private File mDestJar = null;
   private boolean mVerbose = false;
+  private boolean mIgnoreErrors = false;
 
   // ========================================================================
   // Abstract methods
 
   /**
    * Subclasses are only responsible for getting additional attributes
-   * and creating a BindingCompiler - this is how we get it.  This will
-   * never be called until after the execute() method has begun.
+   * from the ant script and creating a BindingCompiler; this is how we get
+   * that compiler.  This will method    * never be called until after the execute() method has begun.
    */
   protected abstract BindingCompiler createCompiler() throws BuildException;
 
@@ -105,7 +105,11 @@ public abstract class BindingCompilerTask extends MatchingTask {
     mDestJar = jar;
   }
 
-  public void setVerbose(boolean v) { mVerbose = v; }
+  public void setVerbose(boolean v) {
+    mVerbose = v;
+  }
+
+  public void setIgnoreErrors(boolean v) { mIgnoreErrors = v; }
 
   // ========================================================================
   // Task implementation
@@ -116,19 +120,32 @@ public abstract class BindingCompilerTask extends MatchingTask {
    * BindingCompiler.
    */
   public final void execute() throws BuildException {
-    BindingCompiler bc = createCompiler();
-    bc.setLogger(createLogger());
+    if (mDestDir == null && mDestJar == null) {
+      throw new BuildException("must specify destdir or destjar");
+    }
     Tylar tylar = null;
-    if (mDestDir != null) {
-      tylar = bc.bindAsExplodedTylar(mDestDir);
-    } else if (mDestJar != null) {
-      tylar = bc.bindAsJarredTylar(mDestJar);
+    try {
+      BindingCompiler bc = createCompiler();
+      bc.setIgnoreSeverErrors(mIgnoreErrors);
+      bc.setLogger(createLogger());
+      bc.setVerbose(mVerbose);
+      if (mDestDir != null) {
+        tylar = bc.bindAsExplodedTylar(mDestDir);
+      } else if (mDestJar != null) {
+        tylar = bc.bindAsJarredTylar(mDestJar);
+      } else {
+        throw new IllegalStateException();
+      }
+    } catch(Exception unexpected) {
+      unexpected.printStackTrace();
+      throw new BuildException(unexpected);
     }
     if (tylar == null) {
       throw new BuildException("fatal errors encountered, "+
                                "see log for details.");
     }
     log("binding task complete, output at "+tylar.getLocation());
+
   }
 
   // ========================================================================

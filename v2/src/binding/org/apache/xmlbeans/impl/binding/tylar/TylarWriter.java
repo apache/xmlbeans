@@ -86,8 +86,18 @@ public interface TylarWriter {
 
   /**
    * Returns the JavaOutputStream which should be used for creating new java
-   * code to be stored in this tylar.
+   * code to be stored in this tylar.  Note that the caller should never
+   * close this stream directly; it will be closed by TylarWriter.close();
    */
   public JavaOutputStream getJavaOutputStream();
+
+  /**
+   * Should be exactly once called when the tylar is complete.  This signals
+   * the implementation that any outstanding files should be flushed to disk,
+   * for example.  It also signals that the JavaOutputStream associated with
+   * this tylar should be closed (which in some cases may trigger compilation
+   * of java sources).
+   */
+  public void close() throws IOException;
 
 }

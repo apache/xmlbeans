@@ -55,10 +55,8 @@
 */
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylar;
-import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
-import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xmlbeans.impl.binding.tylar.Tylar;
+import org.apache.xmlbeans.impl.binding.tylar.*;
+import org.apache.xmlbeans.impl.binding.joust.CompilingJavaOutputStream;
 import org.apache.xmlbeans.impl.jam.JElement;
 import java.io.File;
 import java.io.IOException;
@@ -89,11 +87,26 @@ public abstract class BindingCompiler {
   // Variables
 
   private BindingLogger mLogger = DEFAULT_LOG;
-  private boolean mAnyErrors = false;
+  private boolean mAnyErrorsFound = false;
   private boolean mIgnoreErrors = false;
+  private boolean mVerbose = false;
+  private boolean mDoCompile = true;
+
+  // this is the joust we use to build up the tylar that is passed to
+  // the subclass' bind() methods in all cases.  However, BindingCompiler
+  // makes no assumption that the subclass will actually make use of any
+  // of the codegen facilities - they're just there if you want them.
+  private CompilingJavaOutputStream mJoust;
 
   // ========================================================================
-  // Abstract methods
+  // Constructors
+
+  public BindingCompiler() {
+    mJoust = new CompilingJavaOutputStream();
+  }
+
+  // ========================================================================
+  // Abstract/Overrideable methods
 
   /**
    * Implemented by extending class, does the real binding work using the
@@ -112,9 +125,14 @@ public abstract class BindingCompiler {
    */
   public ExplodedTylar bindAsExplodedTylar(File tylarDestDir)
   {
-    ExplodedTylarImpl tylar = null;
+    mJoust.setSourceDir(new File(tylarDestDir,TylarConstants.SRC_ROOT));
+    if (mDoCompile) {
+      // signal the compile outputstream to compile classes
+      mJoust.setCompilationDir(tylarDestDir);
+    }
+    ExplodedTylarImpl tylar;
     try {
-      tylar = ExplodedTylarImpl.create(tylarDestDir);
+      tylar = ExplodedTylarImpl.create(tylarDestDir,mJoust);
     } catch(IOException ioe) {
       logError(ioe);
       return null;
@@ -125,8 +143,16 @@ public abstract class BindingCompiler {
         return null;
       }
     }
-    bind(tylar);
-    return !mAnyErrors || mIgnoreErrors ? tylar : null;
+    bind((TylarWriter)tylar);
+    try {
+      // close it up.  this may cause the generated code to be compiled.
+      System.out.println("COMPILE!!!!!!!!!!!!!!!!!!");
+      if (mDoCompile) logVerbose("Compiling java sources...");
+      tylar.close();
+    } catch(IOException ioe) {
+      logError(ioe);
+    }
+    return !mAnyErrorsFound || mIgnoreErrors ? tylar : null;
   }
 
   /**
@@ -167,6 +193,53 @@ public abstract class BindingCompiler {
     mIgnoreErrors = true;
   }
 
+  /**
+   * Sets whether this BindingCompiler should keep any generated java source
+   * code it generates.  The default is true.  Note that not all
+   * BindingCompilers generate any source code at all, so setting this may
+   * have no effect.
+   */
+  public void setCompileJava(boolean b) {
+    mDoCompile = b;
+  }
+
+  /**
+   * Sets the location of javac to be invoked.  Default compiler is used
+   * if this is not set.  Ignored if doCompile is set to false.  Also note
+   * that not all BindingCompilers generate any source code at all, so
+   * setting this may have no effect.
+   */
+  public void setJavac(String javacPath) {
+    mJoust.setJavac(javacPath);
+  }
+
+  /**
+   * Sets the classpath to use for compilation of generated sources.
+   * The System classpath is used by default.  This is ignored if doCompile is
+   * false.  Also note that not all BindingCompilers generate any source
+   * code at all, so setting this may have no effect.
+   */
+  public void setJavacClasspath(File[] classpath) {
+    mJoust.setJavacClasspath(classpath);
+  }
+
+  /**
+   * Sets whether this BindingCompiler should keep any generated java source
+   * code it generates.  The default is true.  This will have no effect if
+   * doCompile is set to false.  Also note that not all BindingCompilers
+   * generate any source code at all, so setting this may have no effect.
+   */
+  public void setKeepGeneratedJava(boolean b) {
+    mJoust.setKeepGenerated(b);
+  }
+
+  /**
+   * Enables verbose output to our BindingLogger.
+   */
+  public void setVerbose(boolean b) {
+    mJoust.setVerbose(b);
+    mVerbose = b;
+  }
 
   // ========================================================================
   // Protected logging methods
@@ -176,10 +249,13 @@ public abstract class BindingCompiler {
    * on the given java construct.  The binding process should attempt
    * to continue even after such errors are encountered so as to identify
    * as many errors as possible in a single pass.
+   *
+   * @return true if processing should attempt to continue.
    */
-  protected void logError(JElement context, Throwable error) {
-    mAnyErrors = true;
+  protected boolean logError(JElement context, Throwable error) {
+    mAnyErrorsFound = true;
     mLogger.log(Level.SEVERE,null,error,context);
+    return mIgnoreErrors;
   }
 
   /**
@@ -187,10 +263,14 @@ public abstract class BindingCompiler {
    * on the given java construct.  The binding process should attempt
    * to continue even after such errors are encountered so as to identify
    * as many errors as possible in a single pass.
+   *
+   * @return true if processing should attempt to continue.
+   *
    */
-  protected void logError(JElement context, String msg) {
-    mAnyErrors = true;
+  protected boolean logError(JElement context, String msg) {
+    mAnyErrorsFound = true;
     mLogger.log(Level.SEVERE,msg,null,context);
+    return mIgnoreErrors;
   }
 
   /**
@@ -198,18 +278,24 @@ public abstract class BindingCompiler {
    * on the given java construct.  The binding process should attempt
    * to continue even after such errors are encountered so as to identify
    * as many errors as possible in a single pass.
+   *
+   * @return true if processing should attempt to continue.
    */
-  protected void logError(String msg) {
-    mAnyErrors = true;
+  protected boolean logError(String msg) {
+    mAnyErrorsFound = true;
     mLogger.log(Level.SEVERE,msg,null);
+    return mIgnoreErrors;
   }
 
   /**
    * Logs a message that fatal error that occurred.
+   *
+   * @return true if processing should attempt to continue.
    */
-  protected void logError(Throwable t) {
-    mAnyErrors = true;
+  protected boolean logError(Throwable t) {
+    mAnyErrorsFound = true;
     mLogger.log(Level.SEVERE,null,t);
+    return mIgnoreErrors;
   }
 
   /**
@@ -217,7 +303,15 @@ public abstract class BindingCompiler {
    * mode.
    */
   protected void logVerbose(JElement context, String msg) {
-    mLogger.log(Level.FINEST,msg,null,context);
+    if (mVerbose) mLogger.log(Level.FINEST,msg,null,context);
+  }
+
+  /**
+   * Logs an informative message that should be printed only in 'verbose'
+   * mode.
+   */
+  protected void logVerbose(String msg) {
+    if (mVerbose) mLogger.log(Level.FINEST,msg,null);
   }
 
   // ========================================================================

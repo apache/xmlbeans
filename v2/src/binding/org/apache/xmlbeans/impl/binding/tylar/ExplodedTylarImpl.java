@@ -66,10 +66,7 @@ import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.impl.binding.joust.FileWriterFactory;
-import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
-import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
-import org.apache.xmlbeans.impl.binding.joust.ValidatingJavaOutputStream;
+import org.apache.xmlbeans.impl.binding.joust.*;
 import org.apache.xmlbeans.impl.common.JarHelper;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
@@ -121,7 +118,6 @@ public class ExplodedTylarImpl
     return load(dir, createDefaultJoust(dir));
   }
 
-
   /**
    * Creates a new tylar from the given directory.  The directory must exist
    * or be creatable.
@@ -129,7 +125,7 @@ public class ExplodedTylarImpl
   public static ExplodedTylarImpl create(File dir, JavaOutputStream joust)
           throws IOException {
     if (dir.exists()) {
-      if (dir.isFile()) throw new IOException("already a file at '" + dir + "'");
+      if (dir.isFile()) throw new IOException("Already a file at " + dir);
     } else {
       if (!dir.mkdirs()) throw new IOException("Failed to create " + dir);
     }
@@ -191,6 +187,10 @@ public class ExplodedTylarImpl
 
   public JavaOutputStream getJavaOutputStream() {
     return mJoust;
+  }
+
+  public void close() throws IOException {
+    mJoust.close();
   }
 
   // ========================================================================
@@ -258,16 +258,19 @@ public class ExplodedTylarImpl
   // Private methods
 
   private static JavaOutputStream createDefaultJoust(File dir) {
+    File srcDir = new File(dir,TylarConstants.SRC_ROOT);
     return new ValidatingJavaOutputStream
-            (new SourceJavaOutputStream(new FileWriterFactory(dir)));
+            (new SourceJavaOutputStream(new FileWriterFactory(srcDir)));
   }
 
   private static void parseSchemas(File schemaDir, Collection out)
           throws IOException, XmlException {
     File[] xsds = schemaDir.listFiles();
-    for (int i = 0; i < xsds.length; i++) {
-      if (VERBOSE) System.out.println("parsing "+xsds[i]);
-      out.add(parseXsd(xsds[i]));
+    if (xsds != null) {
+      for (int i = 0; i < xsds.length; i++) {
+        if (VERBOSE) System.out.println("parsing "+xsds[i]);
+        out.add(parseXsd(xsds[i]));
+      }
     }
   }
 
