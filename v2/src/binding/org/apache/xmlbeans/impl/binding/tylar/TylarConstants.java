@@ -34,5 +34,6 @@ public interface TylarConstants {
   public static final String SRC_ROOT     = "META-INF"+SEP+"src";
   public static final String BINDING_FILE = "META-INF"+SEP+"binding-file.xml";
   public static final String SCHEMA_DIR   = "META-INF"+SEP+"schemas";
+  public static final String STS_DIR      = "META-INF"+SEP+"schema_type_system"; 
 
 }

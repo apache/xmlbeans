@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SchemaTypeLoader;
 
 /**
  * Provides context/initialzation information for a TypeMatcher instance.
@@ -42,7 +43,7 @@ public interface TypeMatcherContext {
    * Returns a SchemaTypeLoader to be used as a basis for the binding process.
    * Normally, this will simply be the builtin loader.
    */
-  public SchemaTypeSystem getBaseSchemaTypeSystem();
+  public SchemaTypeLoader getBaseSchemaTypeLoader();
 
   /**
    * Returns a JClassLoader to be used as a basis for the binding process.

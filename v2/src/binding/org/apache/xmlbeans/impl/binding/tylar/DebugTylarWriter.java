@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.IOException;
@@ -93,6 +94,10 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
 
   public void writeSchema(SchemaDocument xsd, String fp) throws IOException {
     xsd.save(mOut,mOptions);
+  }
+
+  public void writeSchemaTypeSystem(SchemaTypeSystem sts) throws IOException {
+    //FIXME implement me
   }
 
   public JavaOutputStream getJavaOutputStream() {

@@ -54,9 +54,26 @@ public abstract class BaseTylarImpl implements Tylar {
     return CompositeBindingLoader.forPath(loaders);
   }
 
-  public SchemaTypeSystem getSchemaTypeSystem()
+  public JamClassLoader getJamClassLoader()
   {
     // REVIEW should consider caching this result
+    // create a classloader chain that runs throw all of the base tylars
+    ClassLoader cl = createClassLoader(ClassLoader.getSystemClassLoader());
+    return JamServiceFactory.getInstance().createJamClassLoader(cl);
+  }
+
+  // ========================================================================
+  // Protected methods
+
+  /**
+   * <p>Creates a schema type system by compiling all of the schema documents
+   * returned by getSchemas().  This can be used as a fallback for 
+   * implementing getSchemaTypeSystem().
+   *
+   * @return
+   */
+  protected SchemaTypeSystem getDefaultSchemaTypeSystem()
+  {
     SchemaDocument[] xsds = getSchemas();
     XmlObject[] xxds = new XmlObject[xsds.length];
     for(int i=0; i<xsds.length; i++) xxds[i] = xsds[i].getSchema();
@@ -70,11 +87,5 @@ public abstract class BaseTylarImpl implements Tylar {
     }
   }
 
-  public JamClassLoader getJamClassLoader()
-  {
-    // REVIEW should consider caching this result
-    // create a classloader chain that runs throw all of the base tylars
-    ClassLoader cl = createClassLoader(ClassLoader.getSystemClassLoader());
-    return JamServiceFactory.getInstance().createJamClassLoader(cl);
-  }
+
 }

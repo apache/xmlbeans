@@ -19,7 +19,7 @@ import java.net.URI;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
-import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
@@ -69,7 +69,7 @@ public interface Tylar {
    * that results from compiling all of the schemas returned by getSchemas()
    * plus the BuiltinSchemaTypeSystem.
    */
-  public SchemaTypeSystem getSchemaTypeSystem();
+  public SchemaTypeLoader getSchemaTypeLoader();
 
 
   /**

@@ -67,9 +67,9 @@ public class JavadocClassBuilder extends JamClassBuilder {
       // don't want to use the extractor
       Class.forName("com.sun.javadoc.AnnotationDesc");
     } catch (ClassNotFoundException e) {
-      mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
-                      "source annotations will not be understood");
       if (mLogger.isVerbose(this)) {
+        mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
+                        "source annotations will not be understood");
         mLogger.verbose(e);
       }
       return;

@@ -24,6 +24,8 @@ import java.util.ArrayList;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
@@ -39,6 +41,7 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
   private URI mSourceURI;
   private BindingFile mBindingFile = null;
   private Collection mSchemas = null;
+  private SchemaTypeSystem mSts = null;
 
   // ========================================================================
   // Constructors
@@ -73,6 +76,13 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
     return out;
   }
 
+  public SchemaTypeLoader getSchemaTypeLoader() {
+    if (mSts == null) {
+      mSts = getDefaultSchemaTypeSystem();
+    }
+    return mSts;
+  }
+
   public URI getLocation() {
     return mSourceURI;
   }
@@ -98,6 +108,10 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
   public void writeSchema(SchemaDocument xsd, String path) {
     if (mSchemas == null) mSchemas = new ArrayList();
     mSchemas.add(xsd);
+  }
+
+  public void writeSchemaTypeSystem(SchemaTypeSystem sts) {
+    mSts = sts;
   }
 
   public JavaOutputStream getJavaOutputStream() {

@@ -63,9 +63,9 @@ public class ReflectClassBuilder extends JamClassBuilder {
       // don't want to use the extractor
       Class.forName("java.lang.annotation.Annotation");
     } catch (ClassNotFoundException e) {
-      mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
-                      "class annotations will not be understood");
       if (mLogger.isVerbose(this)) {
+        mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
+                        "class annotations will not be understood");
         mLogger.verbose(e);
       }
       return;
