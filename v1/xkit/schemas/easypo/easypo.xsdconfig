@@ -1,4 +1,4 @@
-<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config"
+<xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config"
            xmlns:ep="http://openuri.org/easypo">
 
   <xb:namespace uri="http://openuri.org/easypo">

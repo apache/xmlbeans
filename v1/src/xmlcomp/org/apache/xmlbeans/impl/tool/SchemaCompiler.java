@@ -72,7 +72,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SimpleValue;
-import com.bea.x2002.x09.xbean.config.ConfigDocument;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 
 import java.io.File;
 import java.util.*;
@@ -630,6 +630,7 @@ public class SchemaCompiler
                     XmlOptions options = new XmlOptions();
                     options.setLoadLineNumbers();
                     options.setLoadMessageDigest();
+                    options.setLoadSubstituteNamespaces(MAP_COMPATIBILITY_CONFIG_URIS);
 
                     XmlObject schemadoc = loader.parse(xsdFiles[i], null, options);
                     if (!(schemadoc instanceof SchemaDocument))
@@ -717,6 +718,7 @@ public class SchemaCompiler
                 {
                     XmlOptions options = new XmlOptions();
                     options.put( XmlOptions.LOAD_LINE_NUMBERS );
+                    options.setLoadSubstituteNamespaces(MAP_COMPATIBILITY_CONFIG_URIS);
 
                     XmlObject configdoc = loader.parse(configFiles[i], null, options);
                     if (!(configdoc instanceof ConfigDocument))
@@ -951,5 +953,12 @@ public class SchemaCompiler
         return false;
     }
 
-
+    private static final String CONFIG_URI = "http://xml.apache.org/xmlbeans/2004/02/xbean/config";
+    private static final String COMPATIBILITY_CONFIG_URI = "http://www.bea.com/2002/09/xbean/config";
+    private static final Map MAP_COMPATIBILITY_CONFIG_URIS;
+    static
+    {
+        MAP_COMPATIBILITY_CONFIG_URIS = new HashMap();
+        MAP_COMPATIBILITY_CONFIG_URIS.put(COMPATIBILITY_CONFIG_URI, CONFIG_URI);
+    }
 }

@@ -116,7 +116,7 @@ import org.xml.sax.XMLReader;
 import org.apache.xmlbeans.xml.stream.XMLEvent;
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLName;
-import com.bea.x2002.x09.xbean.config.ConfigDocument;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 
 public class EricTest
 {
