@@ -79,7 +79,7 @@ public class ValidatingInfoXMLStreamReader
      */
     public SchemaType getCurrentElementSchemaType()
     {
-        return _validator.getCurrentElementSchemaType();
+        return _validator==null ? null : _validator.getCurrentElementSchemaType();
     }
 
     /**
@@ -87,7 +87,7 @@ public class ValidatingInfoXMLStreamReader
      */
     public SchemaLocalElement getCurrentElement ( )
     {
-        return _validator.getCurrentElement();
+        return _validator==null ? null : _validator.getCurrentElement();
     }
 
     /**
@@ -97,7 +97,7 @@ public class ValidatingInfoXMLStreamReader
      */
     public SchemaParticle getCurrentWildcardElement()
     {
-        return _validator.getCurrentWildcardElement();
+        return _validator==null ? null : _validator.getCurrentWildcardElement();
     }
 
     /**
@@ -106,7 +106,7 @@ public class ValidatingInfoXMLStreamReader
      */
     public SchemaLocalAttribute getCurrentAttribute()
     {
-        return _validator.getCurrentAttribute();
+        return _validator==null ? null : _validator.getCurrentAttribute();
     }
 
     /**
@@ -114,66 +114,66 @@ public class ValidatingInfoXMLStreamReader
      */
     public SchemaAttributeModel getCurrentWildcardAttribute()
     {
-        return _validator.getCurrentWildcardAttribute();
+        return _validator==null ? null : _validator.getCurrentWildcardAttribute();
     }
 
     public String getStringValue()
     {
-        return _validator.getStringValue();
+        return _validator==null ? null : _validator.getStringValue();
     }
 
     public BigDecimal getDecimalValue()
     {
-        return _validator.getDecimalValue();
+        return _validator==null ? null : _validator.getDecimalValue();
     }
 
     public boolean getBooleanValue()
     {
-        return _validator.getBooleanValue();
+        return _validator==null ? false : _validator.getBooleanValue();
     }
 
     public float getFloatValue()
     {
-        return _validator.getFloatValue();
+        return _validator==null ? 0 : _validator.getFloatValue();
     }
 
     public double getDoubleValue()
     {
-        return _validator.getDoubleValue();
+        return _validator==null ? 0 : _validator.getDoubleValue();
     }
 
     public QName getQNameValue()
     {
-        return _validator.getQNameValue();
+        return _validator==null ? null : _validator.getQNameValue();
     }
 
     public GDate getGDateValue()
     {
-        return _validator.getGDateValue();
+        return _validator==null ? null : _validator.getGDateValue();
     }
 
     public GDuration getGDurationValue()
     {
-        return _validator.getGDurationValue();
+        return _validator==null ? null : _validator.getGDurationValue();
     }
 
     public byte[] getByteArrayValue()
     {
-        return _validator.getByteArrayValue();
+        return _validator==null ? null : _validator.getByteArrayValue();
     }
 
     public List getListValue()
     {
-        return _validator.getListValue();
+        return _validator==null ? null : _validator.getListValue();
     }
 
     public List getListTypes()
     {
-        return _validator.getListTypes();
+        return _validator==null ? null : _validator.getListTypes();
     }
 
     public SchemaType getUnionType()
     {
-        return _validator.getUnionType();
+        return _validator==null ? null : _validator.getUnionType();
     }
 }
