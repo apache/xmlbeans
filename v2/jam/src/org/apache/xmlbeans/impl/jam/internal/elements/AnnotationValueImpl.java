@@ -37,13 +37,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
   // Constructors
 
   public AnnotationValueImpl(ElementContext ctx,
-                              String simpleName,
-                              Object value) {
+                             String name,
+                             Object value) {
     if (ctx == null) throw new IllegalArgumentException("null ctx");
-    if (simpleName == null) throw new IllegalArgumentException("null name");
+    if (name == null) throw new IllegalArgumentException("null name");
     if (value == null) throw new IllegalArgumentException("null value");
     mContext = ctx;
-    mName = simpleName;
+    mName = name;
     mValue = value;
   }
 

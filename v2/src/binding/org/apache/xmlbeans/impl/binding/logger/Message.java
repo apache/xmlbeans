@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.binding.logger;
 
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.jam_old.JElement;
+import org.apache.xmlbeans.impl.jam.JElement;
 
 import java.util.logging.Level;
 

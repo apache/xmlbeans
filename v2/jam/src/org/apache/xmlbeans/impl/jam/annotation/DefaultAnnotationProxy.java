@@ -60,6 +60,8 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
    * find a bunch of setters that we don't have.</p>
    */
   public void setValue(String name, Object value) {
+    if (name == null) throw new IllegalArgumentException("null name");
+    name = name.trim();
     mValues.add(new AnnotationValueImpl((ElementContext)getLogger(),//yikes, nasty.  FIXME
                                         name,value));
   }

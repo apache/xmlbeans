@@ -20,8 +20,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
 import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
-import org.apache.xmlbeans.impl.jam_old.JClassLoader;
-import org.apache.xmlbeans.impl.jam_old.JFactory;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.*;
 
 import java.io.File;
@@ -243,14 +243,13 @@ public abstract class BindingCompiler extends BindingLogger
    * @throws IllegalStateException if this method is called before
    * the abstract bind() method is called.
    */
-  public JClassLoader getBaseJavaTypeLoader()
+  public JamClassLoader getBaseJavaTypeLoader()
   {
     assertCompilationStarted(true);
     if (mBaseTylar == null) {
-      return JFactory.getInstance().
-                createClassLoader(ClassLoader.getSystemClassLoader(),null,null);
+      return JamServiceFactory.getInstance().createSystemJamClassLoader();
     } else {
-      return mBaseTylar.getJClassLoader();
+      return mBaseTylar.getJamClassLoader();
     }
   }
 

@@ -19,14 +19,14 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.impl.jam_old.JClassLoader;
-import org.apache.xmlbeans.impl.jam_old.JFactory;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.*;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import java.net.URI;
 
 /**
- * Base class for simplifying implementation of the Tylar interface.
+ * <p>Base class for simplifying implementation of the Tylar interface.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
@@ -70,11 +70,11 @@ public abstract class BaseTylarImpl implements Tylar {
     }
   }
 
-  public JClassLoader getJClassLoader()
+  public JamClassLoader getJamClassLoader()
   {
     // REVIEW should consider caching this result
     // create a classloader chain that runs throw all of the base tylars
     ClassLoader cl = createClassLoader(ClassLoader.getSystemClassLoader());
-    return JFactory.getInstance().createClassLoader(cl,null,null);
+    return JamServiceFactory.getInstance().createJamClassLoader(cl);
   }
 }
