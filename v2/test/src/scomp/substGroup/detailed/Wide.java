@@ -23,6 +23,8 @@ import xbean.scomp.substGroup.deep.ItemsDocument;
 
 import java.math.BigInteger;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+
 /**
  * @owner: ykadiysk
  * Date: Jul 29, 2004
@@ -72,7 +74,7 @@ public class Wide extends BaseCase {
                 " <number>SKU25</number>" +
                 " <name>Oxford Shirt</name>" +
                 " <size>12</size>" +
-                " <color>blue</color>" +
+                " <color>white</color>" +
                 "</pre:businessshirt>" +
                 "<base:product>" +
                 " <number>SKU45</number>" +
@@ -90,7 +92,9 @@ public class Wide extends BaseCase {
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
 
         assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -115,7 +119,9 @@ public class Wide extends BaseCase {
         items.setProductArray(new ProductType[]{bShirt, bu, genericProd});
         //shirt must be white
         assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            "cvc-attribute"
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 

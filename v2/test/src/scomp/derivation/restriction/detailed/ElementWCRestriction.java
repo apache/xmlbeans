@@ -17,6 +17,7 @@ package scomp.derivation.restriction.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.elementWCRestriction.*;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -61,7 +62,9 @@ public class ElementWCRestriction extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
 
@@ -75,7 +78,10 @@ public class ElementWCRestriction extends BaseCase {
         clearErrors();
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
 
@@ -111,7 +117,9 @@ public class ElementWCRestriction extends BaseCase {
                 UriSkipDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -151,9 +159,12 @@ public class ElementWCRestriction extends BaseCase {
                 "<ConcreteElt " +
                 "xmlns=\"http://xbean/scomp/derivation/ElementWCRestriction\"" +
                 "<testElt>foo</testElt></ConcreteElt>";
+        clearErrors();
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
     }

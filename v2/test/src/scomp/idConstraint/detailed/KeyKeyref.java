@@ -18,6 +18,7 @@ package scomp.idConstraint.detailed;
 import scomp.common.BaseCase;
 import xbean.scomp.idConstraint.constraint.*;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -78,7 +79,9 @@ public class KeyKeyref extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"c-props-correct"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -154,7 +157,11 @@ public class KeyKeyref extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        //TODO: is this the right error
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT,
+           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -230,7 +237,9 @@ public class KeyKeyref extends BaseCase {
         CompanyDBDocument doc = CompanyDBDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 

@@ -17,6 +17,7 @@ package scomp.contentType.complex.modelGroup.detailed;
 import scomp.common.BaseCase;
 import xbean.scomp.contentType.modelGroup.NestedChoiceInSequenceDocument;
 import xbean.scomp.contentType.modelGroup.NestedChoiceInSequenceT;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -66,7 +67,9 @@ public class NestSequenceChoiceTest extends BaseCase {
         elt.setOptchildStr("boo");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
         elt.unsetOptchildDouble();
@@ -94,7 +97,9 @@ public class NestSequenceChoiceTest extends BaseCase {
         //optChildStr is missing
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -124,7 +129,11 @@ public class NestSequenceChoiceTest extends BaseCase {
                 NestedChoiceInSequenceDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+       // TODO: why are there 2 different errors: just the order is swapped
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 

@@ -34,6 +34,7 @@ public class NewLoader extends Loader{
         }
     }
     
+
     public org.w3c.dom.Document loadSync ( String sXml )
     {
         org.w3c.dom.Document doc = load( sXml );

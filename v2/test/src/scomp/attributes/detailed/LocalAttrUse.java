@@ -109,7 +109,7 @@ public class LocalAttrUse extends BaseCase {
 
         showErrors();
         String[] errExpected = new String[]{
-            "cvc-attribute",
+            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
             XmlErrorCodes.
                       ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
                   };
@@ -135,9 +135,9 @@ public class LocalAttrUse extends BaseCase {
         showErrors();
         //attr locally valid for fixed val
         String[] errExpected = new String[]{
-            "cvc-attribute",
-            XmlErrorCodes.
-                      ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+           XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
+           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE ,
+           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
                       };
         assertTrue(compareErrorCodes(errExpected));
 
@@ -183,7 +183,7 @@ public class LocalAttrUse extends BaseCase {
         assertTrue(!elt.validate(validateOptions));
         showErrors();
         //does Kevin have the right code here? doesn't seem so to me?
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{"WHAT TO EXPECT???"};
         assertTrue(compareErrorCodes(errExpected));
 
 

@@ -17,6 +17,7 @@ package scomp.contentType.complex.modelGroup.detailed;
 import xbean.scomp.contentType.modelGroup.SequenceEltDocument;
 import xbean.scomp.contentType.modelGroup.SequenceT;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlErrorCodes;
 import scomp.common.BaseCase;
 
 import java.math.BigInteger;
@@ -29,15 +30,17 @@ import java.math.BigInteger;
 public class SequenceTest extends BaseCase {
 
     public void testWrongOrder() throws Throwable {
-        SequenceEltDocument doc = SequenceEltDocument.Factory.parse("<SequenceElt xmlns=\"http://xbean/scomp/contentType/ModelGroup\">" +
+        SequenceEltDocument doc = SequenceEltDocument.Factory
+                .parse("<foo:SequenceElt xmlns:foo=\"http://xbean/scomp/contentType/ModelGroup\">" +
                 "<child1>1</child1>" +
                 "<child3>2</child3>" +
                 "<child2>Foobar</child2>" +
-                "</SequenceElt>   ");
+                "</foo:SequenceElt>   ");
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -59,7 +62,11 @@ public class SequenceTest extends BaseCase {
         assertEquals(3, errorList.size());
 
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }

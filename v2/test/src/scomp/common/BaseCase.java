@@ -92,10 +92,10 @@ public class BaseCase extends TestCase {
         res.append("\n Expected codes(from LTGfmt file):\n");
           int i=0;
           for (;i < errorCodes.length; i++ )
-              res.append( errorCodes[i]+"\t" );
+              res.append( errorCodes[i]+"\n" );
           res.append("\nBut Got: \n");
              for ( i=0 ;i < actual_errorCodes.size(); i++ )
-              res.append( actual_errorCodes.get(i)+"\t" );
+              res.append( actual_errorCodes.get(i)+"\n" );
 
           return res.toString();
 

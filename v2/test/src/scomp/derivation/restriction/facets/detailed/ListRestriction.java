@@ -55,7 +55,9 @@ public class ListRestriction extends BaseCase {
         clearErrors();
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }

@@ -22,6 +22,7 @@ import xbean.scomp.derivation.complexExtension.ExtendedMixedT;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -45,13 +46,31 @@ public class MixedContentExtension extends BaseCase {
         cur.toFirstContentToken();
         cur.toEndToken();
         cur.toNextToken();
-        cur.insertChars("SOME CDATA HERE");
+         cur.toNextToken();
+        cur.insertChars(" SOME CDATA HERE");
+        String resultStr=
+                "<com:ExtendedMixedElt extendedAttr=\"FOOBAR_val\" " +
+                "xmlns:com=\"http://xbean/scomp/derivation/ComplexExtension\">" +
+                "<Child2/>" +
+                "2" +
+                "<child1>10</child1>" +
+                " SOME CDATA HERE" +
+                "<child3>1</child3>" +
+                "</com:ExtendedMixedElt>";
+        assertEquals(resultStr, doc.xmlText());
+
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
-                     assertTrue(compareErrorCodes(errExpected));
+        //TODO: Order check: is this the right errors? last one seems redundant given second-to-last
+        //need ch1, ch2
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+         };
+        assertTrue(compareErrorCodes(errExpected));
 
-        System.err.println(doc.xmlText());
+
     }
 
 

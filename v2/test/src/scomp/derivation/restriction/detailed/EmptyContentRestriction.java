@@ -18,6 +18,7 @@ import xbean.scomp.derivation.emtpy.RestrictedEmptyEltDocument;
 import xbean.scomp.derivation.emtpy.RestrictedEmptyT;
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -25,6 +26,7 @@ import org.apache.xmlbeans.XmlCursor;
  * Time: 5:22:07 PM
  */
 public class EmptyContentRestriction extends BaseCase {
+
     public void testRestriction() throws Throwable {
         RestrictedEmptyEltDocument doc = RestrictedEmptyEltDocument.Factory.newInstance();
 
@@ -32,7 +34,9 @@ public class EmptyContentRestriction extends BaseCase {
         elt.setEmptyAttr("foobar");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
         elt.setEmptyAttr("myval");
@@ -55,7 +59,9 @@ public class EmptyContentRestriction extends BaseCase {
         clearErrors();
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
 

@@ -76,7 +76,9 @@ public class MixedContentTest extends BaseCase {
         cur.insertChars("Random mixed content");
         assertTrue( !testElt.validate(validateOptions) );
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
             assertTrue(compareErrorCodes(errExpected));
 
 
@@ -156,7 +158,14 @@ public class MixedContentTest extends BaseCase {
 
     }
 
+ /**
+  * see CR related to CR194159:
 
+clause 5.2.2.1 of
+  "Validation Rule: Element Locally Valid (Element)" says
+  if there is a fixed value constraint, the element may not have element children.
+  * @throws XmlException
+  */
     public void testMixedFixed() throws XmlException{
         MixedFixedEltDocument doc=
               MixedFixedEltDocument.Factory

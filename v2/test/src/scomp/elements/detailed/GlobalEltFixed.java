@@ -18,6 +18,7 @@ package scomp.elements.detailed;
 import scomp.common.BaseCase;
 import xbean.scomp.element.globalEltFixed.GlobalEltFixedIntDocument;
 import xbean.scomp.element.globalEltFixed.GlobalEltFixedStrDocument;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -63,7 +64,8 @@ public class GlobalEltFixed extends BaseCase {
                 "> -1 </GlobalEltFixedInt>");
         assertTrue(!testEltInt.validate(validateOptions));
         assertEquals(1, errorList.size());
-        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE};
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -74,7 +76,8 @@ public class GlobalEltFixed extends BaseCase {
                 "> XBean </GlobalEltFixedStr>");
         assertTrue(!testEltStr.validate(validateOptions));
         assertEquals(1, errorList.size());
-        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        String[] errExpected = new String[]{
+             XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE};
         assertTrue(compareErrorCodes(errExpected));
 
     }
