@@ -887,6 +887,7 @@ public final class Validator
     private void findDetailedErrorBegin(Event event, State state, QName qName)
     {
         ArrayList expectedNames = new ArrayList();
+        ArrayList optionalNames = new ArrayList();
 
         SchemaProperty[] eltProperties = state._type.getElementProperties();
         for (int ii = 0; ii < eltProperties.length; ii++)
@@ -894,15 +895,22 @@ public final class Validator
             //Get the element from the schema
             SchemaProperty sProp = eltProperties[ii];
 
-            // test if the element is valid and has min occurs > 0
-            if (state.test(sProp.getName()) && 1 == sProp.getMinOccurs().compareTo(BigInteger.ZERO))
-                expectedNames.add(sProp.getName());
+            // test if the element is valid
+            if (state.test(sProp.getName()))
+            {
+                if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs()))
+                    optionalNames.add(sProp.getName());
+                else
+                    expectedNames.add(sProp.getName());
+            }
         }
 
-        if (expectedNames.size() > 0)
+        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+
+        if (names.size() > 0)
         {
             StringBuffer buf = new StringBuffer();
-            for (Iterator iter = expectedNames.iterator(); iter.hasNext();)
+            for (Iterator iter = names.iterator(); iter.hasNext();)
             {
                 QName qname = (QName) iter.next();
                 buf.append(QNameHelper.pretty(qname));
@@ -911,8 +919,8 @@ public final class Validator
             }
 
             emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-                new Object[] { new Integer(expectedNames.size()), buf.toString(), QNameHelper.pretty(qName) },
-                qName, null, expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
+                new Object[] { new Integer(names.size()), buf.toString(), QNameHelper.pretty(qName) },
+                qName, null, names, XmlValidationError.INCORRECT_ELEMENT, state._type);
         }
         else
         {
@@ -927,21 +935,29 @@ public final class Validator
         SchemaProperty[] eltProperties  = state._type.getElementProperties();
 
         ArrayList expectedNames = new ArrayList();
+        ArrayList optionalNames = new ArrayList();
 
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
             SchemaProperty sProp = eltProperties[ii];
 
-            // test if the element is valid and has min occurs > 0
-            if (state.test(sProp.getName()) && 1 == sProp.getMinOccurs().compareTo(BigInteger.ZERO))
-                expectedNames.add(sProp.getName());
+            // test if the element is valid
+            if (state.test(sProp.getName()))
+            {
+                if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs()))
+                    optionalNames.add(sProp.getName());
+                else
+                    expectedNames.add(sProp.getName());
+            }
         }
 
-        if (expectedNames.size() > 0)
+        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+
+        if (names.size() > 0)
         {
             StringBuffer buf = new StringBuffer();
-            for (Iterator iter = expectedNames.iterator(); iter.hasNext();)
+            for (Iterator iter = names.iterator(); iter.hasNext();)
             {
                 QName qname = (QName) iter.next();
                 buf.append(QNameHelper.pretty(qname));
@@ -950,8 +966,8 @@ public final class Validator
             }
 
             emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT,
-                new Object[] { new Integer(expectedNames.size()), buf.toString() },
-                null, null, expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
+                new Object[] { new Integer(names.size()), buf.toString() },
+                null, null, names, XmlValidationError.INCORRECT_ELEMENT, state._type);
         }
         else
         {
