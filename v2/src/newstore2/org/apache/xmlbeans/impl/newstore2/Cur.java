@@ -75,7 +75,7 @@ final class Cur
         _locale = l;
     }
 
-    static boolean kindIsContainer ( int t ) { return t == ELEM || t == ROOT; }
+    static boolean kindIsContainer ( int t ) { return t ==  ELEM || t ==  ROOT; }
     
     int kind ( ) { assert isNormal(); return _xobj == null ? NONE : _xobj.kind( _pos ); }
 
@@ -345,7 +345,7 @@ final class Cur
 
         return true;
     }
-
+    
     void toEnd ( )
     {
         assert _xobj != null && isNormal() && _pos == 0;
@@ -852,6 +852,9 @@ final class Cur
         {
             Xobj newXo = xo.newNode();
 
+
+// BUGBUG - am I copying too much -- sometimes I do not want to copy
+// the text after ... test copying an element with txt after ...
             newXo._srcValue = xo._srcValue;
             newXo._srcAfter = xo._srcAfter;
             newXo._offValue = xo._offValue;
@@ -1052,10 +1055,10 @@ final class Cur
 
         assert _curKind == TEMP;
 
-//        if (_obj instanceof Locale.Ref)
-//            ((Locale.Ref) _obj).clear();
-//
-//        _obj = null;
+        if (_obj instanceof Locale.Ref)
+            ((Locale.Ref) _obj).clear();
+
+        _obj = null;
 
         _curKind = -1;
 
@@ -2110,11 +2113,11 @@ final class Cur
         }
     }
     
-//    private static void dumpCharNodes ( PrintStream o, CharNode nodes )
-//    {
-//        for ( CharNode n = nodes ; n != null ; n = n._next )
-//            o.print( " " + (n instanceof TextNode ? "TEXT" : "CDATA") + "[" + n._cch + "]" );
-//    }
+    private static void dumpCharNodes ( PrintStream o, CharNode nodes )
+    {
+        for ( CharNode n = nodes ; n != null ; n = n._next )
+            o.print( " " + (n instanceof TextNode ? "TEXT" : "CDATA") + "[" + n._cch + "]" );
+    }
     
     private static void dumpXobj ( PrintStream o, Xobj xo, int level, Xobj ref )
     {
@@ -2132,23 +2135,33 @@ final class Cur
         o.print( kindName( xo.kind() ) );
 
         if (xo._name != null)
-            o.print( " " + xo._name );
+        {
+            o.print( " " );
+            
+            if (xo._name.getPrefix().length() > 0)
+                o.print( xo._name.getPrefix() + ":" );
+            
+            o.print( xo._name.getLocalPart() );
 
-//        if (xo._srcValue != null || xo._charNodesValue != null)
-//        {
-//            o.print( " Value( " );
-//            CharUtil.dumpChars( o, xo._srcValue, xo._offValue, xo._cchValue );
-//            dumpCharNodes( o, xo._charNodesValue );
-//            o.print( " )" );
-//        }
+            if (xo._name.getNamespaceURI().length() > 0)
+                o.print( "@" + xo._name.getNamespaceURI() );
+        }
 
-//        if (xo._srcAfter != null || xo._charNodesAfter != null)
-//        {
-//            o.print( " After( " );
-//            CharUtil.dumpChars( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
-//            dumpCharNodes( o, xo._charNodesAfter );
-//            o.print( " )" );
-//        }
+        if (xo._srcValue != null || xo._charNodesValue != null)
+        {
+            o.print( " Value( " );
+            CharUtil.dumpChars( o, xo._srcValue, xo._offValue, xo._cchValue );
+            dumpCharNodes( o, xo._charNodesValue );
+            o.print( " )" );
+        }
+
+        if (xo._srcAfter != null || xo._charNodesAfter != null)
+        {
+            o.print( " After( " );
+            CharUtil.dumpChars( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
+            dumpCharNodes( o, xo._charNodesAfter );
+            o.print( " )" );
+        }
 
         dumpCurs( o, xo );
 

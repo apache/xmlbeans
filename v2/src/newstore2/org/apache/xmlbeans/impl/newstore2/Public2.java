@@ -12,6 +12,8 @@ import java.io.PrintStream;
 
 import org.apache.xmlbeans.impl.newstore2.DomImpl.Dom;
 
+import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
+
 public final class Public2
 {
     private static Locale newLocale ( Saaj saaj )
@@ -92,6 +94,29 @@ public final class Public2
 
         if (l.noSync())         { l.enter(); try { return DomImpl.getXmlStreamReader( d ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return DomImpl.getXmlStreamReader( d ); } finally { l.exit(); } }
+    }
+
+    public static String save ( Node n )
+    {
+        assert n instanceof Dom;
+
+        Dom d = (Dom) n;
+        
+        Locale l = d.locale();
+
+        if (l.noSync())         { l.enter(); try { return saveImpl( d ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return saveImpl( d ); } finally { l.exit(); } }
+    }
+    
+    public static String saveImpl ( Dom d )
+    {
+        Cur c = d.tempCur();
+        
+        String s = new TextSaver( c, null, null ).saveToString();
+
+        c.release();
+
+        return s;
     }
     
     public static void dump ( PrintStream o, Dom d )
