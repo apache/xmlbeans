@@ -67,4 +67,12 @@ public interface EElement extends JElement {
    * </p>
    */
   public void acceptAndWalk(EElementVisitor visitor);
+
+  /**
+   * <p>This is not something you want to mess with.  It's here only for the
+   * benefit of some JAM implementations which need a handle back to the
+   * actual implementation-specific object which is being proxied by this
+   * JElement.</p>
+     */
+  public void setArtifact(Object o);
 }

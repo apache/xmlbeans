@@ -50,6 +50,7 @@ public abstract class MemberImpl extends AnnotatedElementImpl implements EMember
 
   public JClass getContainingClass() {
     System.out.println("--------cont class in Memberiml "+this.getClass());
+    Thread.dumpStack();
     JElement p = getParent();
     //FIXME very gross
     if (p instanceof JClass) return (JClass)p;
