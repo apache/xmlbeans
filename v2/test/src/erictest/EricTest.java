@@ -115,10 +115,17 @@ public class EricTest
     {
         Document doc = Public2.parse( "<a><b id='1'/><b id='2'/></a>" );
 
-        Cache cache = new Cache( doc, new QName( "id" ) );
+        XMLStreamReader xs = Public2.getStream( doc );
 
-        Public2.dump( cache.lookup( "1" ) );
-        Public2.dump( cache.lookup( "2" ) );
+        xs.next();
+        xs.next();
+
+        Public2.dump( Public2.getNode( xs ) );
+
+//        Cache cache = new Cache( doc, new QName( "id" ) );
+//
+//        Public2.dump( cache.lookup( "1" ) );
+//        Public2.dump( cache.lookup( "2" ) );
     }
 
     public static class Cache

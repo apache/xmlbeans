@@ -500,7 +500,7 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
 
         try
         {
-            save( os, options );
+            _save( os, options );
         }
         finally
         {
@@ -510,7 +510,7 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     
     public void _save ( OutputStream os, XmlOptions options ) throws IOException
     {
-        InputStream is = newInputStream( options );
+        InputStream is = _newInputStream( options );
 
         try
         {
@@ -534,7 +534,7 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     
     public void _save ( Writer w, XmlOptions options ) throws IOException
     {
-        Reader r = newReader( options );
+        Reader r = _newReader( options );
 
         try
         {

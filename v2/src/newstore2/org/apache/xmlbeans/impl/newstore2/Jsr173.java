@@ -30,8 +30,30 @@ import javax.xml.stream.Location;
 
 import org.apache.xmlbeans.XmlOptions;
 
+import org.w3c.dom.Node;
+
 public class Jsr173
 {
+    public static Node nodeFromStream ( XMLStreamReader xs )
+    {
+        assert xs instanceof Jsr173GateWay;
+
+        Jsr173GateWay gw = (Jsr173GateWay) xs;
+
+        Locale l = gw._l;
+                  
+        if (l.noSync())         { l.enter(); try { return nodeFromStreamImpl( gw ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return nodeFromStreamImpl( gw ); } finally { l.exit(); } }
+        
+    }
+    
+    public static Node nodeFromStreamImpl ( Jsr173GateWay gw )
+    {
+        Cur c = gw._xs.getCur();
+
+        return c.isNode() ? (Node) c.getDom() : (Node) null;
+    }
+
     public static XMLStreamReader newXmlStreamReader ( Cur c, Object src, int off, int cch )
     {
         XMLStreamReaderBase xs = new XMLStreamReaderForString( c, src, off, cch );
@@ -1114,10 +1136,17 @@ public class Jsr173
     //
     //
 
-    private static final class SyncedJsr173 implements XMLStreamReader, Location, NamespaceContext
+    private static class Jsr173GateWay
     {
-//        public SyncedJsr173 ( XMLStreamReaderBase xs ) { _xs = xs; }
-        public SyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { _l = l; _xs = xs; }
+        public Jsr173GateWay ( Locale l, XMLStreamReaderBase xs ) { _l = l; _xs = xs; }
+        
+        Locale              _l;
+        XMLStreamReaderBase _xs;
+    }
+
+    private static final class SyncedJsr173 extends Jsr173GateWay implements XMLStreamReader, Location, NamespaceContext
+    {
+        public SyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { super( l, xs ); }
         
         public Object getProperty ( java.lang.String name ) { synchronized ( _l ) { _l.enter(); try { return _xs.getProperty( name ); } finally { _l.exit(); } } }
         public int next ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.next(); } finally { _l.exit(); } } }
@@ -1172,14 +1201,11 @@ public class Jsr173
         public String getLocationURI ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLocationURI(); } finally { _l.exit(); } } }
         public String getPublicId() { synchronized ( _l ) { _l.enter(); try { return _xs.getPublicId(); } finally { _l.exit(); } } }
         public String getSystemId() { synchronized ( _l ) { _l.enter(); try { return _xs.getSystemId(); } finally { _l.exit(); } } }
-        
-        private Locale              _l;
-        private XMLStreamReaderBase _xs;
     }
 
-    private static final class UnsyncedJsr173 implements XMLStreamReader, Location, NamespaceContext
+    private static final class UnsyncedJsr173 extends Jsr173GateWay implements XMLStreamReader, Location, NamespaceContext
     {
-        public UnsyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { _l = l; _xs = xs; }
+        public UnsyncedJsr173 ( Locale l, XMLStreamReaderBase xs ) { super( l, xs ); }
         
         public Object getProperty ( java.lang.String name ) { try { _l.enter(); return _xs.getProperty( name ); } finally { _l.exit(); } }
         public int next ( ) throws XMLStreamException { try { _l.enter(); return _xs.next(); } finally { _l.exit(); } }
@@ -1234,9 +1260,6 @@ public class Jsr173
         public String getLocationURI ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLocationURI(); } finally { _l.exit(); } } }
         public String getPublicId() { synchronized ( _l ) { _l.enter(); try { return _xs.getPublicId(); } finally { _l.exit(); } } }
         public String getSystemId() { synchronized ( _l ) { _l.enter(); try { return _xs.getSystemId(); } finally { _l.exit(); } } }
-        
-        private Locale              _l;
-        private XMLStreamReaderBase _xs;
     }
 }
 
