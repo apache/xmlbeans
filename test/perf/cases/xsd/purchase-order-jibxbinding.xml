@@ -1,0 +1,22 @@
+<binding>
+	<mapping name="purchase-order" class="org.apache.xmlbeans.test.performance.jibx.binding.JibxPurchaseOrder">
+		<namespace uri="http://openuri.org/easypo" default="elements"/>
+		<structure name="customer" field="customer">
+			<value name="name" field="name"/>
+			<value name="address" field="address"/>
+		</structure>
+		<value name="date" field="date"/>
+		<collection field="lineitems">
+			<structure name="line-item" type="org.apache.xmlbeans.test.performance.jibx.binding.Lineitem">
+				<value name="description" field="description"/>
+				<value name="per-unit-ounces" field="perunitounces"/>
+				<value name="price" field="price"/>
+				<value name="quantity" field="quantity"/>
+			</structure>
+		</collection>
+		<structure name="shipper" field="shipper">
+			<value name="name" field="name"/>
+			<value name="per-ounce-rate" field="perouncerate"/>
+		</structure>
+	</mapping>
+</binding>
