@@ -38,6 +38,24 @@
     </xs:complexType>
   </xs:element>
 
+  <xs:element name="salesreport">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="unit" minOccurs="0" maxOccurs="unbounded">
+          <xs:simpleType>
+            <xs:restriction base="xs:string">
+              <xs:enumeration value="one"/>
+              <xs:enumeration value="two"/>
+              <!-- skip a few -->
+              <xs:enumeration value="ninety-nine"/>
+              <xs:enumeration value="one-hundred"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
   <!-- bug CR128906: gen'd java code must qualify java.lang.* types -->
   <xs:simpleType name="object">
     <xs:restriction base="xs:token">

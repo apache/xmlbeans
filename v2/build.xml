@@ -463,7 +463,7 @@
 
   <target name="enumtest.check">
     <uptodate property="enumtest.notRequired" targetfile="build/private/lib/enumtest.jar">
-      <srcfiles dir="test/cases/schema/simple" includes="**/*.xsd"/>
+      <srcfiles dir="test/src/enumtest" includes="**/*.xsd"/>
       <srcfiles dir="build/ar" includes="xbean.jar"/>
     </uptodate>
   </target>

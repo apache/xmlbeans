@@ -1247,11 +1247,16 @@ public final class SchemaTypeCodePrinter
         switch (javaType)
         {
             case SchemaProperty.XML_OBJECT:
-            case SchemaProperty.JAVA_ENUM:
                 emit(type + "[] result = new " + type + "[targetList.size()];");
                 emit("targetList.toArray(result);");
                 break;
 
+            case SchemaProperty.JAVA_ENUM:
+                emit(type + "[] result = new " + type + "[targetList.size()];");
+                emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
+                emit("    result[i] = (" + type + ")((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getEnumValue();");
+                break;
+                
             case SchemaProperty.JAVA_BOOLEAN:
                 emit("boolean[] result = new boolean[targetList.size()];");
                 emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
