@@ -325,15 +325,16 @@ public class Java2Schema extends BindingCompiler {
       }
       String propName;
       { // determine the property name to use and set it
-        propName = getAnnotation(props[i],TAG_AT_NAME,null);
+        propName = getAnnotation(props[i], TAG_AT_NAME, null);
         if (propName != null) {
           facade.newAttributeProperty(props[i]);
-          facade.setSchemaName(propName);
         } else {
           facade.newElementProperty(props[i]);
-          facade.setSchemaName(getAnnotation
-                         (props[i],TAG_EL_NAME,props[i].getSimpleName()));
+          propName = getAnnotation(props[i], TAG_EL_NAME,
+                                   props[i].getSimpleName());
         }
+        assert propName != null;
+        facade.setSchemaName(propName);
       }
       { // determine the property type to use and set it
         JClass propType = null;
