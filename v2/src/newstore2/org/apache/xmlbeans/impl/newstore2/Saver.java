@@ -72,17 +72,53 @@ class Saver
                 _done = true;
             else
             {
-//                Cur 
+                Cur prev = _cur.isContainer() ? _cur.tempCur() : null;
+
+                int k = _cur.kind();
+
+                assert
+                    k == Cur.ROOT || k == Cur.ELEM
+                        || k == Cur.COMMENT || k == Cur.PROCINST ||
+                            k == - Cur.ROOT || k == - Cur.ELEM;
+
+                switch ( k )
+                {
+                case Cur.ROOT :
+                case Cur.ELEM :
+                {
+                    _cur.nextNonAttr();
+
+                    break;
+                }
+
+                case - Cur.ROOT :
+                case - Cur.ELEM :
+                {
+                    _cur.next();
+                    break;
+                }
+
+                case Cur.COMMENT :
+                case Cur.PROCINST :
+                {   
+                    _cur.toEnd();
+                    _cur.next();
+                    break;
+                }
+                }
+                
+
+                // todo - deal with text after here
+                
+                Cur.release( prev );
             }
         }
         
         if (_done)
         {
-            _cur.release();
-            _cur = null;
-
-            if (_end != null) { _end.release(); _end = null; }
-            if (_top != null) { _top.release(); _top = null; }
+            _cur.release();      _cur = null;
+            Cur.release( _end ); _end = null;
+            Cur.release( _top ); _top = null;
             
             return false;
         }

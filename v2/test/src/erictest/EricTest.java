@@ -95,6 +95,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.EntityReference;
 import org.w3c.dom.Text;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.DOMImplementation;
@@ -113,11 +114,16 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<foo xmlns:ns='xxx' ns:x='y'>asas<ns:bar/>asas</foo>" );
+        Document doc = Public2.parse( "<a><b/><c x='y'/> </a>" );
 
         Public2.dump( doc );
 
-        doc.insertBefore( doc.createElement( "moo" ), doc.getDocumentElement() );
+        Node p = doc.getDocumentElement();
+        Node n = p.getFirstChild().getNextSibling();
+
+        p.removeChild( n );
+        
+        Public2.dump( doc );
 
         System.out.println( Public2.save( doc ) );
 

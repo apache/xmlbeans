@@ -33,6 +33,8 @@ import javax.xml.soap.SOAPHeader;
 import javax.xml.soap.SOAPHeaderElement;
 import javax.xml.soap.SOAPPart;
 
+import org.apache.xmlbeans.impl.common.XMLChar;
+
 import javax.xml.stream.XMLStreamReader;
 
 import java.io.PrintStream;
@@ -144,6 +146,12 @@ final class DomImpl
     {
         NotSupportedError ( ) { this( "This operation is not supported" ); }
         NotSupportedError ( String message ) { super( NOT_SUPPORTED_ERR, message ); }
+    }
+
+    static class InvalidCharacterError extends DOMException
+    {
+        InvalidCharacterError ( ) { this( "The name contains an invalid character" ); }
+        InvalidCharacterError ( String message ) { super( INVALID_CHARACTER_ERR, message ); }
     }
 
     //
@@ -279,6 +287,25 @@ final class DomImpl
         }
     }
 
+    private static void validateNcName ( String prefix )
+    {
+        if (prefix != null && prefix.length() > 0 && !XMLChar.isValidNCName( prefix ))
+            throw new InvalidCharacterError();
+    }
+    
+    private static void validateQualifiedName ( String name )
+    {
+        int i = name.indexOf( ':' );
+
+        if (i < 0)
+            validateNcName( name );
+        else
+        {
+            validateNcName( name.substring( 0, i ) );
+            validateNcName( name.substring( i + 1 ) );
+        }
+    }
+
     private static void removeNode ( Dom n )
     {
         Cur cTo = n.tempCur();
@@ -290,7 +317,10 @@ final class DomImpl
         CharNode fromNodes = cFrom.getCharNodes();
 
         if (fromNodes != null)
+        {
+            cFrom.setCharNodes( null );
             cTo.setCharNodes( CharNode.appendNodes( cTo.getCharNodes(), fromNodes ) );
+        }
 
         cTo.moveNode( null );
 
@@ -417,6 +447,8 @@ final class DomImpl
     public static Document domImplementation_createDocument (
         Locale l, String namespaceURI, String qualifiedName, DocumentType doctype )
     {
+        validateQualifiedName( qualifiedName );
+        
         Cur c = l.tempCur();
 
         c.createDomDocumentRoot();
@@ -526,7 +558,7 @@ final class DomImpl
 
     public static Dom document_createElement ( Dom d, String name )
     {
-        // TODO - validate the name here
+        validateQualifiedName( name );
         
         Locale l = d.locale();
 
@@ -559,7 +591,8 @@ final class DomImpl
 
     public static Dom document_createElementNS ( Dom d, String uri, String qname )
     {
-        // TODO - validate the name here
+        validateQualifiedName( qname );
+        
         Locale l = d.locale();
         
         Cur c = l.tempCur();
@@ -591,7 +624,7 @@ final class DomImpl
 
     public static Dom document_createAttribute ( Dom d, String name )
     {
-        // TODO - validate the name here
+        validateQualifiedName( name );
 
         Locale l = d.locale();
 
@@ -610,27 +643,27 @@ final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static Attr _document_createAttributeNS ( Dom d, String uri, String qname )
+    public static Attr _document_createAttributeNS ( Dom d, String uri, String local )
     {
         Locale l = d.locale();
 
         Dom a;
 
-        if (l.noSync())         { l.enter(); try { a = document_createAttributeNS( d, uri, qname ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { a = document_createAttributeNS( d, uri, qname ); } finally { l.exit(); } }
+        if (l.noSync())         { l.enter(); try { a = document_createAttributeNS( d, uri, local ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { a = document_createAttributeNS( d, uri, local ); } finally { l.exit(); } }
 
         return (Attr) a;
     }
     
-    public static Dom document_createAttributeNS ( Dom d, String uri, String qname )
+    public static Dom document_createAttributeNS ( Dom d, String uri, String local )
     {
-        // TODO - validate the name here
+        validateNcName( local );
 
         Locale l = d.locale();
 
         Cur c = l.tempCur();
 
-        c.createAttr( l.makeQualifiedQName( uri, qname ) );
+        c.createAttr( l.makeQualifiedQName( uri, local ) );
 
         Dom e = c.getDom();
 
@@ -696,12 +729,37 @@ final class DomImpl
 
     public static ProcessingInstruction _document_createProcessingInstruction ( Dom d, String target, String data )
     {
-        throw new RuntimeException( "Not implemented" );
+        Locale l = d.locale();
+
+        Dom pi;
+
+        if (l.noSync())         { l.enter(); try { pi = document_createProcessingInstruction( d, target, data ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { pi = document_createProcessingInstruction( d, target, data ); } finally { l.exit(); } }
+
+        return (ProcessingInstruction) pi;
     }
     
     public static Dom document_createProcessingInstruction ( Dom d, String target, String data )
     {
-        throw new RuntimeException( "Not implemented" );
+        validateNcName( target );
+        
+        Locale l = d.locale();
+
+        Cur c = l.tempCur();
+
+        c.createProcinst( target );
+
+        Dom pi = c.getDom();
+
+        if (data != null)
+        {
+            c.next();
+            c.insertChars( data, 0, data.length() );
+        }
+
+        c.release();
+
+        return pi;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -820,6 +878,9 @@ final class DomImpl
 
     public static Dom document_importNode ( Dom d, Node n, boolean deep )
     {
+        if (n == null)
+            return null;
+        
         Dom i;
 
         boolean copyChildren = false;
@@ -1425,8 +1486,8 @@ final class DomImpl
 
         Dom d;
 
-        if (l.noSync())         { l.enter(); try { d = node_insertBefore( p, nc, oc ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { d = node_insertBefore( p, nc, oc ); } finally { l.exit(); } }
+        if (l.noSync())         { l.enter(); try { d = node_replaceChild( p, nc, oc ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { d = node_replaceChild( p, nc, oc ); } finally { l.exit(); } }
 
         return (Node) d;
         
@@ -1831,6 +1892,8 @@ final class DomImpl
     
     public static void node_setPrefix ( Dom n, String prefix )
     {
+        validateNcName( prefix );
+        
         // TODO - make it possible to set the prefix of an xmlns
         // TODO - test to make use prefix: xml maps to the predefined namespace
         // if set???? hmmm ... perhaps I should not allow the setting of any
@@ -2242,6 +2305,9 @@ final class DomImpl
 
     public static Attr _element_removeAttributeNode ( Dom e, Attr oldAttr )
     {
+        if (oldAttr == null)
+            throw new NotFoundErr( "Attribute to remove is null" );
+        
         if (oldAttr.getOwnerElement() != e)
             throw new NotFoundErr( "Attribute to remove does not belong to this element" );
 
@@ -2855,7 +2921,7 @@ final class DomImpl
         // TODO - fix this *really* cheesy/bad/lousy perf impl
         //        also fix all the funcitons which follow
 
-        if (arg == null || arg.length() == 0)
+        if (arg != null && arg.length() != 0)
             _node_setNodeValue( cd, _node_getNodeValue( cd ) + arg );
     }
 
