@@ -13,6 +13,8 @@
  *  limitations under the License.
  */
 
+package org.apache.xmlbeans.impl.xsd2inst;
+
 /*
  * TODO:
 *  Comment on enumerations?
@@ -62,8 +64,6 @@ import java.util.HashSet;
 import java.util.Arrays;
 
 import javax.xml.namespace.QName;
-
-package org.apache.xmlbeans.impl.xsd2inst;
 
 public class SampleXmlUtil
 {
