@@ -65,10 +65,13 @@ abstract class XmlTypeVisitor
         throws XmlException;
 
     protected abstract QName getName();
+
     protected abstract String getLocalPart();
+
     protected abstract String getNamespaceURI();
+
     protected abstract String getPrefix();
-    
+
 
     //guaranteed to be called before any getAttribute* or getNamespace* method
     protected void initAttributes()

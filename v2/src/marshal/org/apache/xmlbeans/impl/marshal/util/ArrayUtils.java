@@ -15,13 +15,13 @@
 
 package org.apache.xmlbeans.impl.marshal.util;
 
-import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
 import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
+import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
 import org.apache.xmlbeans.impl.marshal.util.collections.ReflectiveArrayIterator;
 
 import java.lang.reflect.Array;
-import java.util.Iterator;
 import java.util.Collection;
+import java.util.Iterator;
 
 public final class ArrayUtils
 {
@@ -81,14 +81,14 @@ public final class ArrayUtils
 
     public static void main(String[] args)
     {
-        Object a = new int[]{3,4,5,34423,45};
-        Object b = new int[]{3,4,5,34423,45};
+        Object a = new int[]{3, 4, 5, 34423, 45};
+        Object b = new int[]{3, 4, 5, 34423, 45};
 
         if (a == b) throw new AssertionError("bad objs");
         if (!arrayEquals(a, b)) throw new AssertionError("bad equals");
 
-        a = new int[][]{{1,2,3},{3,4,5}};
-        b = new int[][]{{1,2,3},{3,4,5}};
+        a = new int[][]{{1, 2, 3}, {3, 4, 5}};
+        b = new int[][]{{1, 2, 3}, {3, 4, 5}};
 
         if (a == b) throw new AssertionError("bad objs");
         if (!arrayEquals(a, b)) throw new AssertionError("bad equals");

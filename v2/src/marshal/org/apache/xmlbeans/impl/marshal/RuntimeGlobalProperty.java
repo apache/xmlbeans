@@ -29,7 +29,7 @@ final class RuntimeGlobalProperty
     public RuntimeGlobalProperty(QName rootElement,
                                  RuntimeBindingType runtimeBindingType)
     {
-        //We can pass null becuase the global element properties never have 
+        //We can pass null becuase the global element properties never have
         //a parent object, so this resolve should never be needed.
         //If it is somehow used we'll find out thanks to NPE.
         super(null);
@@ -51,9 +51,8 @@ final class RuntimeGlobalProperty
                                                    MarshalResult result)
         throws XmlException
     {
-        return MarshalResult.findActualRuntimeType(parentObject,
-                                                   runtimeBindingType,
-                                                   result);
+        return result.determineRuntimeBindingType(runtimeBindingType,
+                                                  parentObject);
     }
 
     public QName getName()
@@ -77,14 +76,10 @@ final class RuntimeGlobalProperty
         throws XmlException
     {
         //TODO: polymorphism checks
-
-        final BindingType type = getType();
-
-        final TypeMarshaller tm =
-            result.getTypeTable().getTypeMarshaller(type);
+        final TypeMarshaller tm = getRuntimeBindingType().getMarshaller();
 
         if (tm == null) {
-            throw new XmlException("lookup failed for " + type);
+            throw new XmlException("Unable find marshaller for " + getType());
         }
 
         final CharSequence retval = tm.print(parent, result);

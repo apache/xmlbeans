@@ -17,10 +17,6 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 
-import javax.xml.namespace.QName;
-import java.util.ArrayList;
-import java.util.List;
-
 final class SimpleContentTypeVisitor
     extends SimpleContentVisitor
 {

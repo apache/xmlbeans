@@ -25,7 +25,8 @@ final class CollapseStringTypeConverter
     private static final TypeConverter INSTANCE
         = new CollapseStringTypeConverter();
 
-    static TypeConverter getInstance() {
+    static TypeConverter getInstance()
+    {
         return INSTANCE;
     }
 

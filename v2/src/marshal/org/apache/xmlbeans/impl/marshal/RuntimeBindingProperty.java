@@ -16,12 +16,12 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
-import org.apache.xmlbeans.impl.binding.bts.JavaInstanceFactory;
-import org.apache.xmlbeans.impl.binding.bts.ParentInstanceFactory;
-import org.apache.xmlbeans.impl.binding.bts.MethodName;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.JavaInstanceFactory;
+import org.apache.xmlbeans.impl.binding.bts.MethodName;
+import org.apache.xmlbeans.impl.binding.bts.ParentInstanceFactory;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import javax.xml.namespace.QName;

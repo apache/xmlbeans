@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import javax.xml.namespace.QName;
@@ -41,15 +42,24 @@ abstract class RuntimeBindingType
     private final Class javaClass;
     private final boolean javaPrimitive;
     private final boolean javaFinal;
+    private TypeMarshaller marshaller;
+    private TypeUnmarshaller unmarshaller;
 
     RuntimeBindingType(BindingType binding_type)
+        throws XmlException
+    {
+        this(binding_type, null, null);
+    }
+
+    RuntimeBindingType(BindingType binding_type,
+                       TypeMarshaller m,
+                       TypeUnmarshaller um)
         throws XmlException
     {
         bindingType = binding_type;
 
         try {
             javaClass = getJavaClass(binding_type, getClass().getClassLoader());
-
         }
         catch (ClassNotFoundException e) {
             ClassLoader context_cl =
@@ -61,6 +71,8 @@ abstract class RuntimeBindingType
 
         javaPrimitive = javaClass.isPrimitive();
         javaFinal = ReflectionUtils.isClassFinal(javaClass);
+        unmarshaller = um;
+        marshaller = m;
     }
 
     Object getObjectFromIntermediate(Object inter)
@@ -79,10 +91,36 @@ abstract class RuntimeBindingType
      * @param typeTable
      * @param bindingLoader
      */
-    abstract void initialize(RuntimeBindingTypeTable typeTable,
-                             BindingLoader bindingLoader,
-                             RuntimeTypeFactory rttFactory)
+    protected abstract void initialize(RuntimeBindingTypeTable typeTable,
+                                       BindingLoader bindingLoader)
         throws XmlException;
+
+    /**
+     * prepare internal data structures for use
+     *
+     * @param typeTable
+     * @param bindingLoader
+     */
+    final void external_initialize(RuntimeBindingTypeTable typeTable,
+                                   BindingLoader bindingLoader)
+        throws XmlException
+    {
+        this.initialize(typeTable, bindingLoader);
+
+        if (marshaller == null)
+            marshaller = typeTable.createMarshaller(bindingType, bindingLoader);
+
+        if (bindingType instanceof SimpleBindingType) {
+            if (marshaller == null) {
+                throw new AssertionError("null marshaller for " + bindingType);
+            }
+        }
+
+        if (unmarshaller == null)
+            unmarshaller = typeTable.createUnmarshaller(bindingType, bindingLoader);
+
+        assert unmarshaller != null;
+    }
 
     final Class getJavaType()
     {
@@ -97,6 +135,17 @@ abstract class RuntimeBindingType
     final boolean isJavaFinal()
     {
         return javaFinal;
+    }
+
+    final protected TypeUnmarshaller getUnmarshaller()
+    {
+        assert unmarshaller != null;
+        return unmarshaller;
+    }
+
+    final protected TypeMarshaller getMarshaller()
+    {
+        return marshaller;
     }
 
     protected static Class getJavaClass(BindingType btype, ClassLoader backup)
@@ -171,31 +220,27 @@ abstract class RuntimeBindingType
         protected final RuntimeBindingType runtimeBindingType;
         protected final Class propertyClass;
         protected final Class collectionElementClass; //null for non collections
-        protected final TypeUnmarshaller unmarshaller;
-        protected final TypeMarshaller marshaller; // used only for simple types
-
 
         BeanRuntimeProperty(Class beanClass,
                             BindingProperty prop,
                             RuntimeBindingType containingType,
                             RuntimeBindingTypeTable typeTable,
-                            BindingLoader loader,
-                            RuntimeTypeFactory rttFactory)
+                            BindingLoader loader)
             throws XmlException
         {
             super(prop, containingType);
             this.beanClass = beanClass;
             this.containingType = containingType;
             final BindingTypeName type_name = prop.getTypeName();
-            this.unmarshaller = typeTable.lookupUnmarshaller(type_name, loader);
-            this.marshaller = typeTable.lookupMarshaller(type_name, loader);
+
 
             final BindingType binding_type = loader.getBindingType(type_name);
             if (binding_type == null) {
                 throw new XmlException("unable to load " + type_name);
             }
+
             runtimeBindingType =
-                rttFactory.createRuntimeType(binding_type, typeTable, loader);
+                typeTable.createRuntimeType(binding_type, loader);
             assert runtimeBindingType != null;
 
             propertyClass = getPropertyClass(prop, binding_type);
@@ -289,16 +334,14 @@ abstract class RuntimeBindingType
                                                       MarshalResult result)
             throws XmlException
         {
-            return MarshalResult.findActualRuntimeType(property_value,
-                                                       runtimeBindingType,
-                                                       result);
+            return result.determineRuntimeBindingType(runtimeBindingType, property_value);
         }
 
 
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
             throws XmlException
         {
-            return context.determineTypeUnmarshaller(unmarshaller);
+            return context.determineTypeUnmarshaller(runtimeBindingType.getUnmarshaller());
         }
 
         final boolean isSet(Object parentObject, MarshalResult result)
@@ -334,11 +377,11 @@ abstract class RuntimeBindingType
             assert  result != null :
                 "null value for " + getName() + " class=" + beanClass;
 
-            assert marshaller != null :
+            assert runtimeBindingType.getMarshaller() != null :
                 "null marshaller for prop=" + getName() + " java-type=" +
                 beanClass + " propType=" + runtimeBindingType;
 
-            return marshaller.print(value, result);
+            return runtimeBindingType.getMarshaller().print(value, result);
         }
 
     }

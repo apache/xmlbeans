@@ -19,6 +19,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 //TODO: rename this class
+
 abstract class AttributeUnmarshaller
     implements TypeUnmarshaller
 {

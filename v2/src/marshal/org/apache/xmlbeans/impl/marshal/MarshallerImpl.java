@@ -23,8 +23,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
-import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 
 import javax.xml.namespace.NamespaceContext;
@@ -96,9 +96,7 @@ final class MarshallerImpl
         assert btype != null;
 
         final RuntimeBindingType runtime_type =
-            typeTable.getRuntimeTypeFactory().createRuntimeType(btype,
-                                                                typeTable,
-                                                                loader);
+            typeTable.createRuntimeType(btype, loader);
 
         if (obj != null &&
             !runtime_type.isJavaPrimitive() &&

@@ -15,21 +15,30 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.SoapMarshaller;
 import org.apache.xmlbeans.EncodingStyle;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SoapMarshaller;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-import javax.xml.stream.XMLStreamReader;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 class SoapMarshallerImpl implements SoapMarshaller
 {
+    //per binding context constants
+    private final BindingLoader loader;
+    private final RuntimeBindingTypeTable typeTable;
+    private final EncodingStyle encodingStyle;
+
+
     SoapMarshallerImpl(BindingLoader loader,
                        RuntimeBindingTypeTable typeTable,
                        EncodingStyle encodingStyle)
     {
+        this.loader = loader;
+        this.typeTable = typeTable;
+        this.encodingStyle = encodingStyle;
     }
 
     public XMLStreamReader marshalType(Object obj,
@@ -42,11 +51,7 @@ class SoapMarshallerImpl implements SoapMarshaller
         throw new AssertionError("UNIMP: this=" + this);
     }
 
-    public XMLStreamReader marshalReferenced(Object obj,
-                                             QName elementName,
-                                             QName schemaType,
-                                             String javaType,
-                                             XmlOptions options)
+    public XMLStreamReader marshalReferenced(XmlOptions options)
         throws XmlException
     {
         throw new AssertionError("UNIMP: this=" + this);

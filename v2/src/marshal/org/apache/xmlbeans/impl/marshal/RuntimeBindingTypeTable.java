@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -39,6 +39,7 @@ import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -46,127 +47,146 @@ import java.util.Map;
  */
 final class RuntimeBindingTypeTable
 {
-    private final Map unmarshallerMap;
-    private final Map marshallerMap;
-    private final RuntimeTypeFactory runtimeTypeFactory;
+    //concurrent hashMap allows us to do hash lookups outside of any sync blocks,
+    //and successful lookups involve no locking, which should be
+    //99% of the cases in any sort of long running process
+    private final Map initedTypeMap;
+
+    private final Map tempTypeMap = new HashMap();
+
+    //access to this object must be inside a synchronized block.
+    private final FactoryTypeVisitor typeVisitor = new FactoryTypeVisitor();
+
 
     private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
 
-    private static final ConcurrentReaderHashMap BUILTIN_MARSHALLER_MAP;
-    private static final ConcurrentReaderHashMap BUILTIN_UNMARSHALLER_MAP;
+    private static final ConcurrentReaderHashMap BUILTIN_TYPE_MAP;
 
     static
     {
         final RuntimeBindingTypeTable tbl =
-            new RuntimeBindingTypeTable(null);
-        tbl.addBuiltins();
-        BUILTIN_UNMARSHALLER_MAP = (ConcurrentReaderHashMap)tbl.unmarshallerMap;
-        BUILTIN_MARSHALLER_MAP = (ConcurrentReaderHashMap)tbl.marshallerMap;
+            new RuntimeBindingTypeTable();
+        //tbl.addBuiltins();
+        tbl.addBuiltinTypes();
+        BUILTIN_TYPE_MAP = (ConcurrentReaderHashMap)tbl.initedTypeMap;
     }
+
 
     static RuntimeBindingTypeTable createTable()
     {
         final RuntimeBindingTypeTable tbl =
-            new RuntimeBindingTypeTable((Map)BUILTIN_UNMARSHALLER_MAP.clone(),
-                                        (Map)BUILTIN_MARSHALLER_MAP.clone(),
-                                        new RuntimeTypeFactory());
+            new RuntimeBindingTypeTable(
+                (Map)BUILTIN_TYPE_MAP.clone()
+            );
         return tbl;
     }
 
 
-    private RuntimeBindingTypeTable(Map unmarshallerMap,
-                                    Map marshallerMap,
-                                    RuntimeTypeFactory runtimeTypeFactory)
+    private RuntimeBindingTypeTable(Map typeMap)
     {
-        this.unmarshallerMap = unmarshallerMap;
-        this.marshallerMap = marshallerMap;
-        this.runtimeTypeFactory = runtimeTypeFactory;
+        this.initedTypeMap = typeMap;
     }
 
-    private RuntimeBindingTypeTable(RuntimeTypeFactory runtimeTypeFactory)
+    private RuntimeBindingTypeTable()
     {
-        this(new ConcurrentReaderHashMap(),
-             new ConcurrentReaderHashMap(),
-             runtimeTypeFactory);
+        this(new ConcurrentReaderHashMap());
     }
 
-    private TypeUnmarshaller createTypeUnmarshaller(BindingType type,
-                                                    BindingLoader loader)
+    RuntimeBindingType createRuntimeType(BindingType type,
+                                         BindingLoader binding_loader)
         throws XmlException
     {
-        final TypeUnmarshaller type_um;
+        //return runtimeTypeFactory.createRuntimeType(type, this, binding_loader);
 
-        type_um = createTypeUnmarshallerInternal(type, loader);
+        assert type != null;
+        RuntimeBindingType rtype = (RuntimeBindingType)initedTypeMap.get(type);
+        if (rtype != null) return rtype;
 
-        putTypeUnmarshaller(type, type_um);
-        type_um.initialize(this, loader);
-        return type_um;
-    }
-
-    private TypeUnmarshaller createTypeUnmarshallerInternal(BindingType type,
-                                                            BindingLoader loader)
-        throws XmlException
-    {
-        TypeVisitor type_visitor =
-            new TypeVisitor(this, loader, runtimeTypeFactory);
-        type.accept(type_visitor);
-        return type_visitor.getUnmarshaller();
-    }
-
-    RuntimeTypeFactory getRuntimeTypeFactory()
-    {
-        return runtimeTypeFactory;
-    }
-
-    TypeUnmarshaller getOrCreateTypeUnmarshaller(BindingType type,
-                                                 BindingLoader loader)
-        throws XmlException
-    {
-        TypeUnmarshaller um = (TypeUnmarshaller)unmarshallerMap.get(type);
-        if (um == null) {
-            um = createTypeUnmarshaller(type, loader);
+        //safe but slow creation of new type.
+        synchronized (this) {
+            rtype = (RuntimeBindingType)tempTypeMap.get(type);
+            if (rtype == null) {
+                rtype = allocateType(type);
+                tempTypeMap.put(type, rtype);
+                rtype.external_initialize(this, binding_loader);
+                initedTypeMap.put(type, rtype);
+                tempTypeMap.remove(type); // save some memory.
+            }
         }
-        return um;
+        assert rtype != null;
+        return rtype;
     }
 
-
-    TypeUnmarshaller getTypeUnmarshaller(BindingType type)
+    private RuntimeBindingType allocateType(BindingType type)
+        throws XmlException
     {
-        return (TypeUnmarshaller)unmarshallerMap.get(type);
+        type.accept(typeVisitor);
+        return typeVisitor.getRuntimeBindingType();
     }
 
-    TypeMarshaller getTypeMarshaller(BindingType type)
+
+    //overloaded, more strongly typed versions of createRuntimeType.
+    //the idea being that this class maintains the matching of the
+    //two type hiearchies and all casting is done here.
+    private WrappedArrayRuntimeBindingType createRuntimeType(WrappedArrayType type,
+                                                             BindingLoader binding_loader)
+        throws XmlException
     {
-        return (TypeMarshaller)marshallerMap.get(type);
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, binding_loader);
+        return (WrappedArrayRuntimeBindingType)rtt;
     }
 
-    private void putTypeUnmarshaller(BindingType type, TypeUnmarshaller um)
+    private ListArrayRuntimeBindingType createRuntimeType(ListArrayType type,
+                                                          BindingLoader binding_loader)
+        throws XmlException
     {
-        assert type != null;
-        assert um != null;
-
-        unmarshallerMap.put(type, um);
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, binding_loader);
+        return (ListArrayRuntimeBindingType)rtt;
     }
 
-    private void putTypeMarshaller(BindingType type, TypeMarshaller m)
+
+    private ByNameRuntimeBindingType createRuntimeType(ByNameBean type,
+                                                       BindingLoader binding_loader)
+        throws XmlException
     {
-        assert type != null;
-        assert m != null;
-
-        marshallerMap.put(type, m);
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, binding_loader);
+        return (ByNameRuntimeBindingType)rtt;
     }
 
-    private void addXsdBuiltin(String xsdType,
-                               Class javaClass,
-                               TypeConverter converter)
+    private SimpleContentRuntimeBindingType createRuntimeType(SimpleContentBean type,
+                                                              BindingLoader binding_loader)
+        throws XmlException
     {
-        final JavaTypeName jName = JavaTypeName.forClassName(javaClass.getName());
-        addXsdBuiltin(xsdType, jName, converter);
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, binding_loader);
+        return (SimpleContentRuntimeBindingType)rtt;
     }
 
-    private void addXsdBuiltin(String xsdType,
-                               JavaTypeName jName,
-                               TypeConverter converter)
+    private JaxrpcEnumRuntimeBindingType createRuntimeType(JaxrpcEnumType type,
+                                                           BindingLoader binding_loader)
+        throws XmlException
+    {
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, binding_loader);
+        return (JaxrpcEnumRuntimeBindingType)rtt;
+    }
+
+
+    //avoids a cast to deal with overloaded methods
+    private RuntimeBindingType createRuntimeTypeInternal(BindingType type,
+                                                         BindingLoader loader)
+        throws XmlException
+    {
+        return createRuntimeType(type, loader);
+    }
+
+
+    private void addBuiltinType(String xsdType,
+                                JavaTypeName jName,
+                                TypeConverter converter)
     {
         final BindingLoader default_builtin_loader =
             BuiltinBindingLoader.getBuiltinBindingLoader(false);
@@ -184,177 +204,192 @@ final class RuntimeBindingTypeTable
             throw new AssertionError("failed to find builtin for java:" + jName +
                                      " - xsd:" + xName);
         }
-        putTypeMarshaller(btype, converter);
-        putTypeUnmarshaller(btype, converter);
+        assert (btype instanceof BuiltinBindingType) :
+            "unexpected type: " + btype;
 
-        assert getTypeMarshaller(btype) == converter;
-        assert getTypeUnmarshaller(btype) == converter;
+        final BuiltinRuntimeBindingType builtin;
+        try {
+            builtin = new BuiltinRuntimeBindingType((BuiltinBindingType)btype,
+                                                    converter);
+        }
+        catch (XmlException e) {
+            throw new AssertionError(e);
+        }
+        initedTypeMap.put(btype, builtin);
     }
 
 
-    private void addBuiltins()
+    private void addBuiltinType(String xsdType,
+                                Class javaClass,
+                                TypeConverter converter)
     {
-        addXsdBuiltin("anyType", Object.class, new ObjectAnyTypeConverter());
+        final JavaTypeName jName = JavaTypeName.forClassName(javaClass.getName());
+        addBuiltinType(xsdType, jName, converter);
+    }
+
+    private void addBuiltinTypes()
+    {
+        addBuiltinType("anyType", Object.class, new ObjectAnyTypeConverter());
 
         final FloatTypeConverter float_conv = new FloatTypeConverter();
-        addXsdBuiltin("float", float.class, float_conv);
-        addXsdBuiltin("float", Float.class, float_conv);
+        addBuiltinType("float", float.class, float_conv);
+        addBuiltinType("float", Float.class, float_conv);
 
         final DoubleTypeConverter double_conv = new DoubleTypeConverter();
-        addXsdBuiltin("double", double.class, double_conv);
-        addXsdBuiltin("double", Double.class, double_conv);
+        addBuiltinType("double", double.class, double_conv);
+        addBuiltinType("double", Double.class, double_conv);
 
         final IntegerTypeConverter integer_conv = new IntegerTypeConverter();
         final Class bigint = BigInteger.class;
-        addXsdBuiltin("integer", bigint, integer_conv);
-        addXsdBuiltin("nonPositiveInteger", bigint, integer_conv);
-        addXsdBuiltin("negativeInteger", bigint, integer_conv);
-        addXsdBuiltin("nonNegativeInteger", bigint, integer_conv);
-        addXsdBuiltin("positiveInteger", bigint, integer_conv);
-        addXsdBuiltin("unsignedLong", bigint, integer_conv);
+        addBuiltinType("integer", bigint, integer_conv);
+        addBuiltinType("nonPositiveInteger", bigint, integer_conv);
+        addBuiltinType("negativeInteger", bigint, integer_conv);
+        addBuiltinType("nonNegativeInteger", bigint, integer_conv);
+        addBuiltinType("positiveInteger", bigint, integer_conv);
+        addBuiltinType("unsignedLong", bigint, integer_conv);
 
-        addXsdBuiltin("decimal", BigDecimal.class,
-                      new DecimalTypeConverter());
+        addBuiltinType("decimal", BigDecimal.class,
+                       new DecimalTypeConverter());
 
         final LongTypeConverter long_conv = new LongTypeConverter();
-        addXsdBuiltin("long", long.class, long_conv);
-        addXsdBuiltin("long", Long.class, long_conv);
-        addXsdBuiltin("unsignedInt", long.class, long_conv);
-        addXsdBuiltin("unsignedInt", Long.class, long_conv);
+        addBuiltinType("long", long.class, long_conv);
+        addBuiltinType("long", Long.class, long_conv);
+        addBuiltinType("unsignedInt", long.class, long_conv);
+        addBuiltinType("unsignedInt", Long.class, long_conv);
 
         final IntTypeConverter int_conv = new IntTypeConverter();
-        addXsdBuiltin("int", int.class, int_conv);
-        addXsdBuiltin("int", Integer.class, int_conv);
-        addXsdBuiltin("unsignedShort", int.class, int_conv);
-        addXsdBuiltin("unsignedShort", Integer.class, int_conv);
+        addBuiltinType("int", int.class, int_conv);
+        addBuiltinType("int", Integer.class, int_conv);
+        addBuiltinType("unsignedShort", int.class, int_conv);
+        addBuiltinType("unsignedShort", Integer.class, int_conv);
 
         final ShortTypeConverter short_conv = new ShortTypeConverter();
-        addXsdBuiltin("short", short.class, short_conv);
-        addXsdBuiltin("short", Short.class, short_conv);
-        addXsdBuiltin("unsignedByte", short.class, short_conv);
-        addXsdBuiltin("unsignedByte", Short.class, short_conv);
+        addBuiltinType("short", short.class, short_conv);
+        addBuiltinType("short", Short.class, short_conv);
+        addBuiltinType("unsignedByte", short.class, short_conv);
+        addBuiltinType("unsignedByte", Short.class, short_conv);
 
         final ByteTypeConverter byte_conv = new ByteTypeConverter();
-        addXsdBuiltin("byte", byte.class, byte_conv);
-        addXsdBuiltin("byte", Byte.class, byte_conv);
+        addBuiltinType("byte", byte.class, byte_conv);
+        addBuiltinType("byte", Byte.class, byte_conv);
 
         final BooleanTypeConverter boolean_conv = new BooleanTypeConverter();
-        addXsdBuiltin("boolean", boolean.class, boolean_conv);
-        addXsdBuiltin("boolean", Boolean.class, boolean_conv);
+        addBuiltinType("boolean", boolean.class, boolean_conv);
+        addBuiltinType("boolean", Boolean.class, boolean_conv);
 
-        addXsdBuiltin("anyURI",
-                      java.net.URI.class,
-                      new AnyUriToUriTypeConverter());
+        addBuiltinType("anyURI",
+                       java.net.URI.class,
+                       new AnyUriToUriTypeConverter());
 
         final Class str = String.class;
-        addXsdBuiltin("anySimpleType", str, new AnySimpleTypeConverter());
+        addBuiltinType("anySimpleType", str, new AnySimpleTypeConverter());
         final StringTypeConverter string_conv = new StringTypeConverter();
-        addXsdBuiltin("string", str, string_conv);
-        addXsdBuiltin("normalizedString", str, string_conv);
-        addXsdBuiltin("token", str, string_conv);
-        addXsdBuiltin("language", str, string_conv);
-        addXsdBuiltin("Name", str, string_conv);
-        addXsdBuiltin("NCName", str, string_conv);
-        addXsdBuiltin("NMTOKEN", str, string_conv);
-        addXsdBuiltin("ID", str, string_conv);
-        addXsdBuiltin("IDREF", str, string_conv);
-        addXsdBuiltin("ENTITY", str, string_conv);
+        addBuiltinType("string", str, string_conv);
+        addBuiltinType("normalizedString", str, string_conv);
+        addBuiltinType("token", str, string_conv);
+        addBuiltinType("language", str, string_conv);
+        addBuiltinType("Name", str, string_conv);
+        addBuiltinType("NCName", str, string_conv);
+        addBuiltinType("NMTOKEN", str, string_conv);
+        addBuiltinType("ID", str, string_conv);
+        addBuiltinType("IDREF", str, string_conv);
+        addBuiltinType("ENTITY", str, string_conv);
 
         final TypeConverter collapsing_string_conv =
             CollapseStringTypeConverter.getInstance();
 
-        addXsdBuiltin("duration", str, collapsing_string_conv);
-        addXsdBuiltin("gDay", str, collapsing_string_conv);
-        addXsdBuiltin("gMonth", str, collapsing_string_conv);
-        addXsdBuiltin("gMonthDay", str, collapsing_string_conv);
-        addXsdBuiltin("gYear", str, collapsing_string_conv);
-        addXsdBuiltin("gYearMonth", str, collapsing_string_conv);
+        addBuiltinType("duration", str, collapsing_string_conv);
+        addBuiltinType("gDay", str, collapsing_string_conv);
+        addBuiltinType("gMonth", str, collapsing_string_conv);
+        addBuiltinType("gMonthDay", str, collapsing_string_conv);
+        addBuiltinType("gYear", str, collapsing_string_conv);
+        addBuiltinType("gYearMonth", str, collapsing_string_conv);
 
-        addXsdBuiltin("anyURI",
-                      str,
-                      new AnyUriToStringTypeConverter());
+        addBuiltinType("anyURI",
+                       str,
+                       new AnyUriToStringTypeConverter());
 
         final Class str_array = (new String[0]).getClass();
         final StringListArrayConverter string_list_array_conv =
             new StringListArrayConverter();
-        addXsdBuiltin("ENTITIES", str_array,
-                      string_list_array_conv);
-        addXsdBuiltin("IDREFS", str_array,
-                      string_list_array_conv);
-        addXsdBuiltin("NMTOKENS", str_array,
-                      string_list_array_conv);
+        addBuiltinType("ENTITIES", str_array,
+                       string_list_array_conv);
+        addBuiltinType("IDREFS", str_array,
+                       string_list_array_conv);
+        addBuiltinType("NMTOKENS", str_array,
+                       string_list_array_conv);
 
-        addXsdBuiltin("duration",
-                      GDuration.class,
-                      new DurationTypeConverter());
+        addBuiltinType("duration",
+                       GDuration.class,
+                       new DurationTypeConverter());
 
         final Class calendar_class = java.util.Calendar.class;
-        addXsdBuiltin("dateTime",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_DATE_TIME));
+        addBuiltinType("dateTime",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_DATE_TIME));
 
-        addXsdBuiltin("dateTime",
-                      java.util.Date.class,
-                      new JavaDateTypeConverter(SchemaType.BTC_DATE_TIME));
+        addBuiltinType("dateTime",
+                       java.util.Date.class,
+                       new JavaDateTypeConverter(SchemaType.BTC_DATE_TIME));
 
-        addXsdBuiltin("time",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_TIME));
+        addBuiltinType("time",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_TIME));
 
-        addXsdBuiltin("date",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_DATE));
+        addBuiltinType("date",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_DATE));
 
-        addXsdBuiltin("date",
-                      java.util.Date.class,
-                      new JavaDateTypeConverter(SchemaType.BTC_DATE));
+        addBuiltinType("date",
+                       java.util.Date.class,
+                       new JavaDateTypeConverter(SchemaType.BTC_DATE));
 
-        addXsdBuiltin("gDay",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_G_DAY));
+        addBuiltinType("gDay",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_G_DAY));
 
-        addXsdBuiltin("gMonth",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH));
+        addBuiltinType("gMonth",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH));
 
-        addXsdBuiltin("gMonthDay",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH_DAY));
+        addBuiltinType("gMonthDay",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH_DAY));
 
-        addXsdBuiltin("gYear",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR));
+        addBuiltinType("gYear",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR));
 
-        addXsdBuiltin("gYearMonth",
-                      calendar_class,
-                      new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR_MONTH));
-
-
-        addXsdBuiltin("gDay",
-                      int.class,
-                      new IntDateTypeConverter(SchemaType.BTC_G_DAY));
-        addXsdBuiltin("gMonth",
-                      int.class,
-                      new IntDateTypeConverter(SchemaType.BTC_G_MONTH));
-        addXsdBuiltin("gYear",
-                      int.class,
-                      new IntDateTypeConverter(SchemaType.BTC_G_YEAR));
+        addBuiltinType("gYearMonth",
+                       calendar_class,
+                       new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR_MONTH));
 
 
-        addXsdBuiltin("QName",
-                      QName.class,
-                      new QNameTypeConverter());
+        addBuiltinType("gDay",
+                       int.class,
+                       new IntDateTypeConverter(SchemaType.BTC_G_DAY));
+        addBuiltinType("gMonth",
+                       int.class,
+                       new IntDateTypeConverter(SchemaType.BTC_G_MONTH));
+        addBuiltinType("gYear",
+                       int.class,
+                       new IntDateTypeConverter(SchemaType.BTC_G_YEAR));
+
+
+        addBuiltinType("QName",
+                       QName.class,
+                       new QNameTypeConverter());
 
         final JavaTypeName byte_array_jname =
             JavaTypeName.forArray(JavaTypeName.forString("byte"), 1);
 
-        addXsdBuiltin("base64Binary",
-                      byte_array_jname,
-                      new Base64BinaryTypeConverter());
+        addBuiltinType("base64Binary",
+                       byte_array_jname,
+                       new Base64BinaryTypeConverter());
 
-        addXsdBuiltin("hexBinary",
-                      byte_array_jname,
-                      new HexBinaryTypeConverter());
+        addBuiltinType("hexBinary",
+                       byte_array_jname,
+                       new HexBinaryTypeConverter());
 
         //TODO: InputStream based hexBinary and base64Binary converters
     }
@@ -364,8 +399,6 @@ final class RuntimeBindingTypeTable
                                                                  RuntimeBindingTypeTable table)
         throws XmlException
     {
-        TypeUnmarshaller um = table.getTypeUnmarshaller(stype);
-        if (um != null) return um;
 
         int curr_ws = XmlWhitespace.WS_UNSPECIFIED;
         SimpleBindingType curr = stype;
@@ -397,9 +430,9 @@ final class RuntimeBindingTypeTable
         }
         assert resolved != null;
 
-
         //special processing for whitespace facets.
         //TODO: assert that our type is derived from xsd:string
+        //for actual ws facet cases
         switch (curr_ws) {
             case XmlWhitespace.WS_UNSPECIFIED:
                 break;
@@ -413,8 +446,8 @@ final class RuntimeBindingTypeTable
                 throw new AssertionError("invalid whitespace: " + curr_ws);
         }
 
-
-        um = table.getTypeUnmarshaller(resolved);
+        TypeUnmarshaller um =
+            table.createRuntimeType(resolved, loader).getUnmarshaller();
         if (um != null) return um;
 
         String msg = "unable to get simple type unmarshaller for " + stype +
@@ -422,31 +455,16 @@ final class RuntimeBindingTypeTable
         throw new AssertionError(msg);
     }
 
-    TypeUnmarshaller lookupUnmarshaller(BindingTypeName type_name,
+    TypeUnmarshaller createUnmarshaller(BindingType binding_type,
                                         BindingLoader loader)
         throws XmlException
     {
-        assert type_name != null;
+        TypeVisitor type_visitor = new TypeVisitor(this, loader);
+        binding_type.accept(type_visitor);
+        final TypeUnmarshaller type_um = type_visitor.getUnmarshaller();
 
-        final BindingType binding_type = loader.getBindingType(type_name);
-        if (binding_type == null) {
-            throw new XmlException("failed to load type: " + type_name);
-        }
-
-        return lookupUnmarshaller(binding_type, loader);
-    }
-
-    TypeUnmarshaller lookupUnmarshaller(BindingType binding_type,
-                                        BindingLoader loader)
-        throws XmlException
-    {
-        TypeUnmarshaller um =
-            this.getOrCreateTypeUnmarshaller(binding_type, loader);
-        if (um == null) {
-            throw new AssertionError("failed to get unmarshaller for " +
-                                     binding_type);
-        }
-        return um;
+        type_um.initialize(this, loader);
+        return type_um;
     }
 
     /**
@@ -458,8 +476,8 @@ final class RuntimeBindingTypeTable
      * @return marshaller or null if not found.
      * @throws XmlException
      */
-    TypeMarshaller lookupMarshaller(BindingTypeName type_name,
-                                    BindingLoader loader)
+    private TypeMarshaller createMarshaller(BindingTypeName type_name,
+                                            BindingLoader loader)
         throws XmlException
     {
         final BindingType binding_type = loader.getBindingType(type_name);
@@ -468,7 +486,7 @@ final class RuntimeBindingTypeTable
             throw new XmlException(msg);
         }
 
-        return lookupMarshaller(binding_type, loader);
+        return createMarshaller(binding_type, loader);
     }
 
     /**
@@ -479,18 +497,19 @@ final class RuntimeBindingTypeTable
      * @return  marshaller or null if not found.
      * @throws XmlException
      */
-    TypeMarshaller lookupMarshaller(BindingType binding_type,
+    TypeMarshaller createMarshaller(BindingType binding_type,
                                     BindingLoader loader)
         throws XmlException
     {
-        TypeMarshaller m = this.getTypeMarshaller(binding_type);
-        if (m != null) return m;
+        final TypeMarshaller m;
+
+        //REVIEW: consider using vistor
 
         if (binding_type instanceof SimpleContentBean) {
             SimpleContentBean scb = (SimpleContentBean)binding_type;
             final SimpleContentRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(scb, this, loader);
-            m = new SimpleContentBeanMarshaller(rtt, this, loader);
+                createRuntimeType(scb, loader);
+            m = new SimpleContentBeanMarshaller(rtt);
         } else if (binding_type instanceof SimpleBindingType) {
             SimpleBindingType stype = (SimpleBindingType)binding_type;
 
@@ -498,21 +517,26 @@ final class RuntimeBindingTypeTable
             if (asif_name == null)
                 throw new XmlException("no asif for " + stype);
 
-            m = lookupMarshaller(asif_name, loader);
+            m = createMarshaller(asif_name, loader);
         } else if (binding_type instanceof JaxrpcEnumType) {
             JaxrpcEnumType enum_type = (JaxrpcEnumType)binding_type;
             final JaxrpcEnumRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(enum_type, this, loader);
+                createRuntimeType(enum_type, loader);
             m = new JaxrpcEnumMarsahller(rtt);
         } else if (binding_type instanceof ListArrayType) {
             ListArrayType la_type = (ListArrayType)binding_type;
             final ListArrayRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(la_type, this, loader);
+                createRuntimeType(la_type, loader);
             m = new ListArrayConverter(rtt);
+        } else if (binding_type instanceof BuiltinBindingType) {
+            final RuntimeBindingType rtt =
+                createRuntimeType(binding_type, loader);
+            m = rtt.getMarshaller();
+            assert m != null;
+        } else {
+            //not a known simple type
+            m = null;
         }
-
-        if (m != null)
-            putTypeMarshaller(binding_type, m);
 
         return m;
     }
@@ -522,18 +546,15 @@ final class RuntimeBindingTypeTable
         implements BindingTypeVisitor
     {
         private final BindingLoader loader;
-        private final RuntimeTypeFactory runtimeTypeFactory;
-        private final RuntimeBindingTypeTable runtimeBindingTypeTable;
+        private final RuntimeBindingTypeTable typeTable;
 
         private TypeUnmarshaller typeUnmarshaller;
 
         public TypeVisitor(RuntimeBindingTypeTable runtimeBindingTypeTable,
-                           BindingLoader loader,
-                           RuntimeTypeFactory runtimeTypeFactory)
+                           BindingLoader loader)
         {
-            this.runtimeBindingTypeTable = runtimeBindingTypeTable;
+            this.typeTable = runtimeBindingTypeTable;
             this.loader = loader;
-            this.runtimeTypeFactory = runtimeTypeFactory;
         }
 
         public void visit(BuiltinBindingType builtinBindingType)
@@ -547,9 +568,7 @@ final class RuntimeBindingTypeTable
             throws XmlException
         {
             ByNameRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(byNameBean,
-                                                     runtimeBindingTypeTable,
-                                                     loader);
+                typeTable.createRuntimeType(byNameBean, loader);
 
             typeUnmarshaller = new ByNameUnmarshaller(rtt);
         }
@@ -559,9 +578,7 @@ final class RuntimeBindingTypeTable
             throws XmlException
         {
             SimpleContentRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(simpleContentBean,
-                                                     runtimeBindingTypeTable,
-                                                     loader);
+                typeTable.createRuntimeType(simpleContentBean, loader);
 
             typeUnmarshaller = new SimpleContentUnmarshaller(rtt);
         }
@@ -570,17 +587,17 @@ final class RuntimeBindingTypeTable
             throws XmlException
         {
             typeUnmarshaller =
-                createSimpleTypeUnmarshaller(simpleBindingType, loader,
-                                             runtimeBindingTypeTable);
+                typeTable.createSimpleTypeUnmarshaller(simpleBindingType,
+                                                       loader,
+                                                       typeTable);
         }
 
         public void visit(JaxrpcEnumType jaxrpcEnumType)
             throws XmlException
         {
             JaxrpcEnumRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(jaxrpcEnumType,
-                                                     runtimeBindingTypeTable,
-                                                     loader);
+                typeTable.createRuntimeType(jaxrpcEnumType,
+                                            loader);
 
             typeUnmarshaller = new JaxrpcEnumUnmarshaller(rtt);
         }
@@ -596,9 +613,7 @@ final class RuntimeBindingTypeTable
             throws XmlException
         {
             WrappedArrayRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(wrappedArrayType,
-                                                     runtimeBindingTypeTable,
-                                                     loader);
+                typeTable.createRuntimeType(wrappedArrayType, loader);
             typeUnmarshaller = new WrappedArrayUnmarshaller(rtt);
         }
 
@@ -606,9 +621,7 @@ final class RuntimeBindingTypeTable
             throws XmlException
         {
             ListArrayRuntimeBindingType rtt =
-                runtimeTypeFactory.createRuntimeType(listArrayType,
-                                                     runtimeBindingTypeTable,
-                                                     loader);
+                typeTable.createRuntimeType(listArrayType, loader);
             typeUnmarshaller = new ListArrayConverter(rtt);
         }
 
@@ -619,5 +632,67 @@ final class RuntimeBindingTypeTable
         }
 
     }
+
+
+    private static final class FactoryTypeVisitor
+        implements BindingTypeVisitor
+    {
+        private RuntimeBindingType runtimeBindingType;
+
+        public RuntimeBindingType getRuntimeBindingType()
+        {
+            return runtimeBindingType;
+        }
+
+        public void visit(BuiltinBindingType builtinBindingType)
+            throws XmlException
+        {
+            runtimeBindingType = new BuiltinRuntimeBindingType(builtinBindingType);
+        }
+
+        public void visit(ByNameBean byNameBean)
+            throws XmlException
+        {
+            runtimeBindingType = new ByNameRuntimeBindingType(byNameBean);
+        }
+
+        public void visit(SimpleContentBean simpleContentBean)
+            throws XmlException
+        {
+            runtimeBindingType = new SimpleContentRuntimeBindingType(simpleContentBean);
+        }
+
+        public void visit(SimpleBindingType simpleBindingType)
+            throws XmlException
+        {
+            runtimeBindingType = new SimpleRuntimeBindingType(simpleBindingType);
+        }
+
+        public void visit(JaxrpcEnumType jaxrpcEnumType)
+            throws XmlException
+        {
+            runtimeBindingType = new JaxrpcEnumRuntimeBindingType(jaxrpcEnumType);
+        }
+
+        public void visit(SimpleDocumentBinding simpleDocumentBinding)
+            throws XmlException
+        {
+            throw new AssertionError("not valid here: " + simpleDocumentBinding);
+        }
+
+        public void visit(WrappedArrayType wrappedArrayType)
+            throws XmlException
+        {
+            runtimeBindingType = new WrappedArrayRuntimeBindingType(wrappedArrayType);
+        }
+
+        public void visit(ListArrayType listArrayType)
+            throws XmlException
+        {
+            runtimeBindingType = new ListArrayRuntimeBindingType(listArrayType);
+        }
+
+    }
+
 
 }

@@ -66,9 +66,9 @@ abstract class AttributeRuntimeBindingType
 
 
     //prepare internal data structures for use
-    void initialize(RuntimeBindingTypeTable typeTable,
-                    BindingLoader loader,
-                    RuntimeTypeFactory rttFactory)
+    public void initialize(RuntimeBindingTypeTable typeTable,
+                           BindingLoader loader
+                           )
         throws XmlException
     {
         int att_idx = 0;
@@ -83,11 +83,12 @@ abstract class AttributeRuntimeBindingType
                     new AttributeQNameProperty(
                         getJavaType(), hasMulti(),
                         bprop, this,
-                        typeTable, loader, rttFactory);
+                        typeTable, loader);
                 initAttributeProperty(aprop, att_idx++);
             } else {
                 initElementProperty(bprop, elem_idx++,
-                                    typeTable, loader, rttFactory);
+                                    typeTable, loader
+                );
             }
 
         }
@@ -96,8 +97,7 @@ abstract class AttributeRuntimeBindingType
     protected abstract void initElementProperty(final QNameProperty prop,
                                                 int elem_idx,
                                                 RuntimeBindingTypeTable typeTable,
-                                                BindingLoader loader,
-                                                RuntimeTypeFactory rttFactory)
+                                                BindingLoader loader)
         throws XmlException;
 
     private void initAttributeProperty(final AttributeQNameProperty prop,
@@ -189,12 +189,12 @@ abstract class AttributeRuntimeBindingType
                                QNameProperty prop,
                                RuntimeBindingType containing_type,
                                RuntimeBindingTypeTable typeTable,
-                               BindingLoader loader,
-                               RuntimeTypeFactory rttFactory)
+                               BindingLoader loader)
             throws XmlException
         {
             super(beanClass, bean_has_multis,
-                  prop, containing_type, typeTable, loader, rttFactory);
+                  prop, containing_type, typeTable, loader
+            );
             assert prop.isAttribute();
         }
 
@@ -204,7 +204,7 @@ abstract class AttributeRuntimeBindingType
         {
             assert bindingProperty.isAttribute();
             //don't need any xsi stuff for attributes.
-            return unmarshaller;
+            return runtimeBindingType.getUnmarshaller();
         }
     }
 
@@ -222,11 +222,11 @@ abstract class AttributeRuntimeBindingType
                              QNameProperty prop,
                              RuntimeBindingType containing_type,
                              RuntimeBindingTypeTable typeTable,
-                             BindingLoader loader,
-                             RuntimeTypeFactory rttFactory)
+                             BindingLoader loader)
             throws XmlException
         {
-            super(beanClass, prop, containing_type, typeTable, loader, rttFactory);
+            super(beanClass, prop, containing_type, typeTable, loader
+            );
 
             if (prop.getQName() == null) {
                 final String msg = "property " + prop + " of " +

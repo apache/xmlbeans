@@ -69,19 +69,11 @@ public interface SoapMarshaller
      * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
      * </ul>
      *
-     * @param obj
-     * @param elementName
-     * @param schemaType
-     * @param javaType the java type in the format returned by Class.getName()
      * @param options
      * @return
      * @throws XmlException
      */
-    XMLStreamReader marshalReferenced(Object obj,
-                                      QName elementName,
-                                      QName schemaType,
-                                      String javaType,
-                                      XmlOptions options)
+    XMLStreamReader marshalReferenced(XmlOptions options)
         throws XmlException;
 
 

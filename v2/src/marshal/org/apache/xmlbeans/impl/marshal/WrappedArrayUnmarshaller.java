@@ -97,7 +97,7 @@ public class WrappedArrayUnmarshaller
         throw new AssertionError("not used");
     }
 
-    
+
     public void unmarshalAttribute(Object object, UnmarshalResult result)
         throws XmlException
     {

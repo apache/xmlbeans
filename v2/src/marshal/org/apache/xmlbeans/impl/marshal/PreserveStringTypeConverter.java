@@ -25,7 +25,8 @@ final class PreserveStringTypeConverter
     private static final TypeConverter INSTANCE
         = new PreserveStringTypeConverter();
 
-    static TypeConverter getInstance() {
+    static TypeConverter getInstance()
+    {
         return INSTANCE;
     }
 

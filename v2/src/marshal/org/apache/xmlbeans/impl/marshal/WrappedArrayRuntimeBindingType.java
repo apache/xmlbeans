@@ -40,9 +40,8 @@ final class WrappedArrayRuntimeBindingType
         wrappedArrayType = binding_type;
     }
 
-    void initialize(RuntimeBindingTypeTable typeTable,
-                    BindingLoader bindingLoader,
-                    RuntimeTypeFactory rttFactory)
+    public void initialize(RuntimeBindingTypeTable typeTable,
+                           BindingLoader bindingLoader)
         throws XmlException
     {
         final BindingTypeName item_type_name = wrappedArrayType.getItemType();
@@ -56,11 +55,11 @@ final class WrappedArrayRuntimeBindingType
         }
 
         final RuntimeBindingType item_rtt =
-            rttFactory.createRuntimeType(item_type, typeTable, bindingLoader);
+            typeTable.createRuntimeType(item_type, bindingLoader);
 
         elementProperty =
             new WAProperty(this, wrappedArrayType.getItemName(),
-                           item_rtt, typeTable, bindingLoader,
+                           item_rtt,
                            wrappedArrayType.isItemNillable());
 
 
@@ -90,15 +89,11 @@ final class WrappedArrayRuntimeBindingType
     {
         private final QName itemName;
         private final RuntimeBindingType itemType;
-        private final TypeMarshaller marshaller; // used only for simple types
-        private final TypeUnmarshaller unmarshaller;
         private final boolean nillable;
 
         WAProperty(RuntimeBindingType containing_type,
                    QName item_name,
                    RuntimeBindingType item_type,
-                   RuntimeBindingTypeTable type_table,
-                   BindingLoader loader,
                    boolean nillable)
             throws XmlException
         {
@@ -106,12 +101,6 @@ final class WrappedArrayRuntimeBindingType
 
             itemName = item_name;
             itemType = item_type;
-
-            final BindingType binding_type = item_type.getBindingType();
-            marshaller =
-                type_table.lookupMarshaller(binding_type, loader);
-            unmarshaller =
-                type_table.lookupUnmarshaller(binding_type, loader);
             this.nillable = nillable;
 
         }
@@ -130,9 +119,7 @@ final class WrappedArrayRuntimeBindingType
                                                 MarshalResult result)
             throws XmlException
         {
-            return MarshalResult.findActualRuntimeType(property_value,
-                                                       itemType,
-                                                       result);
+            return result.determineRuntimeBindingType(itemType, property_value);
         }
 
         QName getName()
@@ -143,7 +130,7 @@ final class WrappedArrayRuntimeBindingType
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
             throws XmlException
         {
-            return context.determineTypeUnmarshaller(unmarshaller);
+            return context.determineTypeUnmarshaller(itemType.getUnmarshaller());
         }
 
         public void fill(Object inter, Object prop_obj)
@@ -159,9 +146,9 @@ final class WrappedArrayRuntimeBindingType
         {
             assert value != null;
             assert  result != null;
-            assert marshaller != null;
+            assert itemType.getMarshaller() != null;
 
-            return marshaller.print(value, result);
+            return itemType.getMarshaller().print(value, result);
         }
 
         Object getValue(Object parentObject, MarshalResult result)

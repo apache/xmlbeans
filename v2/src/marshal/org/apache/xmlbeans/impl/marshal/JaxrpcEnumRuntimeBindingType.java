@@ -17,9 +17,9 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
@@ -37,13 +37,13 @@ final class JaxrpcEnumRuntimeBindingType
         jaxrpcEnumType = type;
     }
 
-    void initialize(RuntimeBindingTypeTable typeTable,
-                    BindingLoader bindingLoader,
-                    RuntimeTypeFactory rttFactory)
+    public void initialize(RuntimeBindingTypeTable typeTable,
+                           BindingLoader bindingLoader
+                           )
         throws XmlException
     {
         itemInfo = new ItemInfo(jaxrpcEnumType, getJavaType(), typeTable,
-                                bindingLoader, rttFactory);
+                                bindingLoader);
     }
 
     CharSequence print(Object value,
@@ -80,8 +80,7 @@ final class JaxrpcEnumRuntimeBindingType
 
     private static final class ItemInfo
     {
-        private final TypeMarshaller itemMarshaller;
-        private final TypeUnmarshaller itemUnmarshaller;
+        private final RuntimeBindingType itemType;
         private final Method getValueMethod;
         private final Method fromValueMethod;
         private final Method toXmlMethod;
@@ -89,8 +88,7 @@ final class JaxrpcEnumRuntimeBindingType
         ItemInfo(JaxrpcEnumType jaxrpcEnumType,
                  Class enum_java_class,
                  RuntimeBindingTypeTable typeTable,
-                 BindingLoader loader,
-                 RuntimeTypeFactory rttFactory)
+                 BindingLoader loader)
             throws XmlException
         {
             final BindingTypeName base_name = jaxrpcEnumType.getBaseTypeName();
@@ -104,15 +102,8 @@ final class JaxrpcEnumRuntimeBindingType
                 throw new XmlException(msg);
             }
 
-
-            itemMarshaller = typeTable.lookupMarshaller(item_type, loader);
-            if (itemMarshaller == null) {
-                String m = "unable to locate marshaller for " + item_type;
-                throw new XmlException(m);
-            }
-            itemUnmarshaller =
-                typeTable.getOrCreateTypeUnmarshaller(item_type, loader);
-            assert itemUnmarshaller != null;
+            itemType =
+                typeTable.createRuntimeType(item_type, loader);
 
             fromValueMethod =
                 ReflectionUtils.getMethodOnClass(jaxrpcEnumType.getFromValueMethod(),
@@ -131,8 +122,11 @@ final class JaxrpcEnumRuntimeBindingType
                                                  enum_java_class);
 
             //final sanity checks
-            final RuntimeBindingType itemType =
-                rttFactory.createRuntimeType(item_type, typeTable, loader);
+            TypeMarshaller itemMarshaller = itemType.getMarshaller();
+            if (itemMarshaller == null) {
+                String m = "unable to locate marshaller for " + item_type;
+                throw new XmlException(m);
+            }
 
             final Class[] parms = fromValueMethod.getParameterTypes();
             if (parms.length != 1) {
@@ -152,12 +146,12 @@ final class JaxrpcEnumRuntimeBindingType
 
         TypeMarshaller getItemMarshaller()
         {
-            return itemMarshaller;
+            return itemType.getMarshaller();
         }
 
         TypeUnmarshaller getItemUnmarshaller()
         {
-            return itemUnmarshaller;
+            return itemType.getUnmarshaller();
         }
 
         Method getGetValueMethod()

@@ -16,13 +16,11 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
-import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.ByteArrayInputStream;
 
 /**
  * converter for: byte[] <-> hexBinary

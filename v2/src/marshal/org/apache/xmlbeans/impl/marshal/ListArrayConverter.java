@@ -64,7 +64,6 @@ final class ListArrayConverter
         );
     }
 
-    //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
         throws XmlException
     {
