@@ -30,7 +30,6 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 
 import javax.xml.namespace.QName;
 
-import org.apache.xmlbeans.impl.store.Cursor;
 import xmlcursor.common.*;
 
 import java.util.*;

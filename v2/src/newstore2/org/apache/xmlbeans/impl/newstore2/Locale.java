@@ -2220,9 +2220,9 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         Cur c = getCur();
 
         assert c._tempFrame == -1;
-        assert c._value == null;
+        assert c._ref == null;
 
-        c._value = new Ref( c, o );
+        c._ref = new Ref( c, o );
         
         return c;
     }
@@ -2300,7 +2300,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         assert c._state == Cur.POOLED;
         assert c._prev == null && c._next == null;
         assert c._xobj == null && c._pos == Cur.NO_POS;
-        assert c._value == null;
+        assert c._ref == null;
 
         _registered = c.listInsert( _registered );
         c._state = Cur.REGISTERED;

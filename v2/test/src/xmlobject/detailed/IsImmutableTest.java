@@ -34,7 +34,6 @@ import java.util.*;
 import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.impl.store.Cursor;
 
 import java.util.Vector;
 

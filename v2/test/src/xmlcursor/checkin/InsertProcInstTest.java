@@ -29,7 +29,6 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 
 import javax.xml.namespace.QName;
 
-import org.apache.xmlbeans.impl.store.Cursor;
 
 import java.net.URL;
 

@@ -2564,7 +2564,7 @@ final class Cur
 
         if (_state != POOLED && _state != DISPOSED)
         {
-            // Clean up ant state
+            // Clean up any state
             
             while ( _stackTop != -1 )
                 popButStay();
@@ -2584,16 +2584,13 @@ final class Cur
 
             // Release weak reference and attacked value
 
-            if (_value != null && _value instanceof Locale.Ref)
+            if (_ref != null)
             {
-                Locale.Ref r = (Locale.Ref) _value;
-
-                r.clear();
-                r._cur = null;
+                _ref.clear();
+                _ref._cur = null;
             }
 
-            _value = null;
-            _key = null;
+            _ref = null;
 
             // Unregister and either diapose of cursor or add it back to pool
 
@@ -3402,8 +3399,7 @@ final class Cur
     Cur _next;
     Cur _prev;
     
-    Object _key;
-    Object _value;
+    Locale.Ref _ref;
 
     int _stackTop;
 
