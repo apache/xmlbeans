@@ -63,11 +63,10 @@ import java.math.BigDecimal;
 final class DecimalTypeConverter
     extends BaseSimpleTypeConverter
 {
-    public Object unmarshal(UnmarshalContextImpl context)
+
+    protected Object getObject(UnmarshalContextImpl context)
     {
         BigDecimal val = context.getBigDecimalValue();
-        assert context.isEndElement();
-        context.next();
         return val;
     }
 

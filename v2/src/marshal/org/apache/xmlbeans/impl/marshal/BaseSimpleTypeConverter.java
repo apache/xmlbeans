@@ -71,4 +71,17 @@ abstract class BaseSimpleTypeConverter
     {
     }
 
+    public final Object unmarshal(UnmarshalContextImpl context)
+    {
+        try {
+            return getObject(context);
+        }
+        finally {
+            assert context.isEndElement();
+            context.next();
+        }
+    }
+
+    protected abstract Object getObject(UnmarshalContextImpl context);
+
 }

@@ -58,6 +58,9 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
+import org.apache.xmlbeans.XmlError;
 
 final class ByNameUnmarshaller implements TypeUnmarshaller
 {
@@ -120,8 +123,15 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
         assert um != null;
 
-        final Object prop_val = um.unmarshal(context);
-        prop.fill(inter, prop_val);
+        try {
+            final Object prop_val = um.unmarshal(context);
+            prop.fill(inter, prop_val);
+        }
+        catch (InvalidLexicalValueException ilve) {
+            //TODO: add location information
+            XmlError err = XmlError.forMessage(ilve.getMessage());
+            context.getErrorCollection().add(err);
+        }
     }
 
 
@@ -132,9 +142,15 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
         assert um != null;
 
-
-        final Object prop_val = um.unmarshalAttribute(context);
-        prop.fill(inter, prop_val);
+        try {
+            final Object prop_val = um.unmarshalAttribute(context);
+            prop.fill(inter, prop_val);
+        }
+        catch (InvalidLexicalValueException ilve) {
+            //TODO: add location information
+            XmlError err = XmlError.forMessage(ilve.getMessage());
+            context.getErrorCollection().add(err);
+        }
     }
 
     private void deserializeAttributes(Object inter, UnmarshalContextImpl context)
