@@ -149,10 +149,12 @@ public class Java2Schema extends BindingCompiler {
    * @param clazz Java type for which to return a binding.
    */
   private BindingType getBindingTypeFor(JClass clazz) {
-    BindingType out =
-            mLoader.getBindingType(mLoader.lookupTypeFor(getJavaName(clazz)));
-    if (out == null) out = createBindingTypeFor(clazz);
-    return out;
+    BindingTypeName btn = mLoader.lookupTypeFor(getJavaName(clazz));
+    if (btn != null) {
+      BindingType out = mLoader.getBindingType(btn);
+      if (out != null) return out;
+    }
+    return createBindingTypeFor(clazz);
   }
 
   /**
