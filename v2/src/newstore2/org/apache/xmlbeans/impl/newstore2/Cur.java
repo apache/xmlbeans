@@ -72,6 +72,7 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.CdataNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -90,6 +91,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlLocale;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 
 final class Cur
 {
@@ -119,6 +121,9 @@ final class Cur
         _pos = NO_POS;
         _state = UNREGISTERED;
 
+        // BUGBUG -- locations should be thread local ... cursors cannot be used by multiple 
+        // threads ...
+        
         _locations = _locale._locations;
         
         _textLocations = -1;
@@ -142,15 +147,13 @@ final class Cur
         return _pos == 0 ? _xobj.kind() : _pos == END_POS ? -_xobj.kind() : TEXT;
     }
 
-    boolean isRoot      ( ) { return _pos == 0 && _xobj.kind() == ROOT;     }
-    boolean isElem      ( ) { return _pos == 0 && _xobj.kind() == ELEM;     }
-    boolean isAttr      ( ) { return _pos == 0 && _xobj.kind() == ATTR;     }
-    boolean isComment   ( ) { return _pos == 0 && _xobj.kind() == COMMENT;  }
-    boolean isProcinst  ( ) { return _pos == 0 && _xobj.kind() == PROCINST; }
-    
+    boolean isRoot      ( ) { assert isPositioned(); return _pos == 0 && _xobj.kind() == ROOT;     }
+    boolean isElem      ( ) { assert isPositioned(); return _pos == 0 && _xobj.kind() == ELEM;     }
+    boolean isAttr      ( ) { assert isPositioned(); return _pos == 0 && _xobj.kind() == ATTR;     }
+    boolean isComment   ( ) { assert isPositioned(); return _pos == 0 && _xobj.kind() == COMMENT;  }
+    boolean isProcinst  ( ) { assert isPositioned(); return _pos == 0 && _xobj.kind() == PROCINST; }
     boolean isText      ( ) { assert isPositioned(); return _pos > 0; }
     boolean isEnd       ( ) { assert isPositioned(); return _pos == END_POS && _xobj.kind() ==ELEM;}
-    
     boolean isNode      ( ) { assert isPositioned(); return _pos == 0; }
     boolean isContainer ( ) { assert isPositioned(); return _pos == 0       && kindIsContainer( _xobj.kind() ); }
     boolean isFinish    ( ) { assert isPositioned(); return _pos == END_POS && kindIsContainer( _xobj.kind() ); }
@@ -163,30 +166,29 @@ final class Cur
     String  getLocal ( ) { return getName().getLocalPart(); }
     String  getUri   ( ) { return getName().getNamespaceURI(); }
 
-    String  getXmlnsPrefix ( ) { assert isNode() || isXmlns(); return _xobj.getXmlnsPrefix(); }
-    String  getXmlnsUri    ( ) { assert isNode() || isXmlns(); return _xobj.getXmlnsUri(); }
+    String  getXmlnsPrefix ( ) { assert isXmlns(); return _xobj.getXmlnsPrefix(); }
+    String  getXmlnsUri    ( ) { assert isXmlns(); return _xobj.getXmlnsUri(); }
 
     boolean isDomDocRoot  ( ) { return isRoot() && _xobj.getDom() instanceof Document; }
     boolean isDomFragRoot ( ) { return isRoot() && _xobj.getDom() instanceof DocumentFragment; }
 
     private int cchRight ( ) { assert isPositioned(); return _xobj.cchRight( _pos ); }
+    
+    private int cchLeft ( )
+    {
+        assert isPositioned();
+
+        Xobj x = getDenormal();
+
+        int pa = x.posAfter();
+
+        return _posTemp - (_posTemp < pa ? 1 : pa);
+    }
 
     //
     // Creation methods
     //
 
-    private void createHelper ( Xobj xo )
-    {
-        if (isPositioned())
-        {
-            Cur from = tempCur( xo, 0 );
-            from.moveNode( this );
-            from.release();
-        }
-
-        moveTo( xo );
-    }
-    
     void createRoot ( )
     {
         createDomDocFragRoot();
@@ -202,55 +204,6 @@ final class Cur
         moveTo( createDomDocumentRootXobj( _locale ) );
     }
     
-    static Xobj createDomDocumentRootXobj ( Locale l )
-    {
-        Xobj xo;
-
-        if (l._saaj == null)
-            xo = new DocumentXobj( l );
-        else
-            xo = new SoapPartDocXobj( l );
-        
-        if (l._ownerDoc == null)
-            l._ownerDoc = xo.getDom();
-
-        return xo;
-    }
-
-    void createElement ( QName name )
-    {
-        createElement( name, null );
-    }
-    
-    void createElement ( QName name, QName parentName )
-    {
-        createHelper( createElementXobj( _locale, name, parentName ) );
-    }
-
-    static Xobj createElementXobj ( Locale l, QName name, QName parentName )
-    {
-        if (l._saaj != null)
-        {
-            Class c = l._saaj.identifyElement( name, parentName );
-
-            if (c == SOAPElement.class)       return new SoapElementXobj       ( l, name );
-            if (c == SOAPBody.class)          return new SoapBodyXobj          ( l, name );
-            if (c == SOAPBodyElement.class)   return new SoapBodyElementXobj   ( l, name );
-            if (c == SOAPEnvelope.class)      return new SoapEnvelopeXobj      ( l, name );
-            if (c == SOAPHeader.class)        return new SoapHeaderXobj        ( l, name );
-            if (c == SOAPHeaderElement.class) return new SoapHeaderElementXobj ( l, name );
-            if (c == SOAPFaultElement.class)  return new SoapFaultElementXobj  ( l, name );
-            if (c == Detail.class)            return new DetailXobj            ( l, name );
-            if (c == DetailEntry.class)       return new DetailEntryXobj       ( l, name );
-            if (c == SOAPFault.class)         return new SoapFaultXobj         ( l, name );
-
-            if (c != null)
-                throw new IllegalStateException();
-        }
-        
-        return new ElementXobj( l, name );
-    }
-            
     void createAttr ( QName name )
     {
         createHelper( new AttrXobj( _locale, name ) );
@@ -266,13 +219,74 @@ final class Cur
         createHelper( new ProcInstXobj( _locale, target ) );
     }
     
+    void createElement ( QName name )
+    {
+        createElement( name, null );
+    }
+    
+    void createElement ( QName name, QName parentName )
+    {
+        createHelper( createElementXobj( _locale, name, parentName ) );
+    }
+
+    static Xobj createDomDocumentRootXobj ( Locale l )
+    {
+        Xobj xo;
+
+        if (l._saaj == null)
+            xo = new DocumentXobj( l );
+        else
+            xo = new SoapPartDocXobj( l );
+        
+        if (l._ownerDoc == null)
+            l._ownerDoc = xo.getDom();
+
+        return xo;
+    }
+
+    static Xobj createElementXobj ( Locale l, QName name, QName parentName )
+    {
+        if (l._saaj == null)
+            return new ElementXobj( l, name );
+        
+        Class c = l._saaj.identifyElement( name, parentName );
+
+        if (c == SOAPElement.class)       return new SoapElementXobj       ( l, name );
+        if (c == SOAPBody.class)          return new SoapBodyXobj          ( l, name );
+        if (c == SOAPBodyElement.class)   return new SoapBodyElementXobj   ( l, name );
+        if (c == SOAPEnvelope.class)      return new SoapEnvelopeXobj      ( l, name );
+        if (c == SOAPHeader.class)        return new SoapHeaderXobj        ( l, name );
+        if (c == SOAPHeaderElement.class) return new SoapHeaderElementXobj ( l, name );
+        if (c == SOAPFaultElement.class)  return new SoapFaultElementXobj  ( l, name );
+        if (c == Detail.class)            return new DetailXobj            ( l, name );
+        if (c == DetailEntry.class)       return new DetailEntryXobj       ( l, name );
+        if (c == SOAPFault.class)         return new SoapFaultXobj         ( l, name );
+        
+        throw new IllegalStateException( "Unknown SAAJ element class: " + c );
+    }
+            
+    private void createHelper ( Xobj x )
+    {
+        assert x._locale == _locale;
+
+        // insert the new Xobj into an exisiting tree.
+        
+        if (isPositioned())
+        {
+            Cur from = tempCur( x, 0 );
+            from.moveNode( this );
+            from.release();
+        }
+
+        moveTo( x );
+    }
+    
     //
     // General operations
     //
 
     boolean isSamePos ( Cur that )
     {
-        assert that._locale == _locale; // TODO - make this work across locals
         assert isNormal() && that.isNormal();
         
         return _xobj == that._xobj && _pos == that._pos;
@@ -280,9 +294,7 @@ final class Cur
     
     boolean isJustAfterEnd ( Cur that )
     {
-        assert that._locale == _locale; // TODO - make this work across locals
-        assert isNormal() && that.isNormal();
-        assert that.isNode();
+        assert isNormal() && that.isNormal() && that.isNode();
 
         if (_xobj == that._xobj)
             return _pos == that._xobj.posAfter();
@@ -292,26 +304,25 @@ final class Cur
     
     boolean isAtEndOf ( Cur that )
     {
-        assert that._locale == _locale; // TODO - make this work across locals
-        assert isNormal() && that.isNormal();
-        assert that.isNode();
+        assert isNormal() && that.isNormal() && that.isNode();
 
         return _xobj == that._xobj && _pos == END_POS;
     }
 
-    void setName ( QName name )
+    void setName ( QName newName )
     {
-        assert isNode() && (_xobj.isElem() || _xobj.isAttr() || _xobj.isProcinst());
-        assert name != null;
+        assert isNode() && newName != null;
 
-        notifyGeneralChange();
-        
-        _xobj._name = name;
-        
-        _locale._versionAll++;
-        _locale._versionSansText++;
+        _xobj.setName( newName );
     }
     
+    void changeLocale ( Locale newLocale )
+    {
+        assert newLocale != _locale;
+
+        throw new RuntimeException( "Not implemented" );
+    }
+
     private void moveTo ( Xobj x )
     {
         moveTo( x, 0 );
@@ -321,8 +332,9 @@ final class Cur
     {
         assert x == null || _locale == x._locale; // TODO - make this work across locals
         
-        // This cursor may not be normalized upon entry, dont assert IsNormal() here
+        // This cursor may not be normalized upon entry, don't assert isNormal() here
         
+        assert x != null || p == NO_POS;
         assert x == null || x.isNormal( p );
         
         assert _state == UNREGISTERED || _state == REGISTERED || _state == EMBEDDED;
@@ -360,27 +372,53 @@ final class Cur
                 if (x != null)
                 {
                     if (_curKind == PERM)
+                    {
                         x._embedded = listInsert( x._embedded );
+                    }
                     else if (p > 0)
                     {
                         _locale._registered = listInsert( _locale._registered );
                         _state = REGISTERED;
                     }
                     else
+                    {
                         _state = UNREGISTERED;
+                    }
                 }
                 else
+                {
                     _state = UNREGISTERED;
+                }
             }
         }
         
         _xobj = x;
         _pos = p;
 
-        if (p > 0 && _state == UNREGISTERED)
-            registerForTextChange();
+// TODO - I don't think the following condition can be met (code above prohibits it), so I took
+// this out ... remove permanently later if no problems exist...  Basically, this cur will
+// never be un the unregistered state if p > 0 by the time I get here
+//
+//        if (p > 0 && _state == UNREGISTERED)
+//            registerForTextChange();
 
         assert isNormal();
+    }
+
+    void embed ( )
+    {
+        assert isNormal();
+        assert _state == REGISTERED;
+
+        _locale._registered = listRemove( _locale._registered );
+
+        if (_pos > 0)
+        {
+            _xobj._embedded = listInsert( _xobj._embedded );
+            _state = EMBEDDED;
+        }
+        else
+            _state = UNREGISTERED;
     }
 
     void moveToCur ( Cur to )
@@ -792,15 +830,11 @@ final class Cur
             removeSelection( 0 );
     }
 
-    boolean toParent ( )
-    {
-        return toParent( false );
-    }
+    boolean toParent    ( ) { return toParent( false ); }
+    boolean toParentRaw ( ) { return toParent( true  ); }
     
-    boolean toParentRaw ( )
-    {
-        return toParent( true );
-    }
+    Xobj getParent    ( ) { return getParent( false ); }
+    Xobj getParentRaw ( ) { return getParent( true  ); }
     
     boolean hasParent ( )
     {
@@ -814,26 +848,20 @@ final class Cur
         return _xobj._parent != null;
     }
     
-    boolean toParent ( boolean raw )
+    Xobj getParent ( boolean raw )
     {
         assert isPositioned();
 
         if (_pos == END_POS || (_pos >= 1 && _pos < _xobj.posAfter()))
-        {
-            moveTo( _xobj );
-            return true;
-        }
+            return _xobj;
 
         assert _pos == 0 || _xobj._parent != null;
 
         if (_xobj._parent != null)
-        {
-            moveTo( _xobj._parent );
-            return true;
-        }
+            return _xobj._parent;
         
         if (raw || _xobj.isRoot())
-            return false;
+            return null;
 
         Cur r = _locale.tempCur();
         
@@ -845,7 +873,17 @@ final class Cur
         moveNode( r );
         r.release();
 
-        moveTo( root );
+        return root;
+    }
+    
+    boolean toParent ( boolean raw )
+    {
+        Xobj parent = getParent( raw );
+
+        if (parent == null)
+            return false;
+
+        moveTo( parent );
 
         return true;
     }
@@ -854,9 +892,8 @@ final class Cur
     {
         assert isNode();
         _xobj.ensureOccupancy();
-        return _xobj.hasText();
+        return _xobj.hasTextNoEnureOccupancy();
     }
-
 
     boolean hasAttrs ( )
     {
@@ -920,14 +957,125 @@ final class Cur
         return false;
     }
 
+    String getAttrValue ( QName name )
+    {
+        String s = null;
+        
+        push();
+
+        if (toAttr( name ))
+            s = getValueAsString();
+        
+        pop();
+
+        return s;
+    }
+
+    void setValueAsQName ( QName qname )
+    {
+        assert isNode();
+
+        String value  = qname.getLocalPart();
+        String ns     = qname.getNamespaceURI();
+        
+        String prefix =
+            prefixForNamespace(
+                ns, qname.getPrefix().length() > 0 ? qname.getPrefix() : null, true );
+
+        if (prefix.length() > 0)
+            value = prefix + ":" + value;
+
+        setValue( value );
+    }
+
+    void setValue ( String value )
+    {
+        assert isNode();
+        
+        moveNodeContents( null, false );
+        
+        next();
+        
+        insertChars( value, 0, value.length() );
+    }
+
+    private void removeFollowingAttrs ( )
+    {
+        assert isAttr();
+        
+        QName attrName = getName();
+
+        push();
+        
+        if (toNextAttr())
+        {
+            while ( isAttr() )
+            {
+                if (getName().equals( attrName ))
+                    moveNode( null );
+                else if (!toNextAttr())
+                    break;
+            }
+        }
+
+        pop();
+    }
+
+    void setAttrAsQName ( QName name, QName value )
+    {
+        assert isContainer();
+
+        if (toAttr( name ))
+            removeFollowingAttrs();
+        else
+        {
+            next();
+            createAttr( name );
+        }
+        
+        setValueAsQName( value );
+
+        toParent();
+    }
+    
+    boolean removeAttr ( QName name )
+    {
+        assert isContainer();
+
+        return _xobj.removeAttr( name );
+    }
+
+    void setAttr ( QName name, String value )
+    {
+        assert isContainer();
+
+        _xobj.setAttr( name, value );
+    }
+    
+    boolean toAttr ( QName name )
+    {
+        assert isNode();
+
+        Xobj a = _xobj.getAttr( name );
+
+        if (a == null)
+            return false;
+
+        moveTo( a );
+
+        return true;
+    }
+
     boolean toFirstAttr ( )
     {
         assert isNode();
 
-        if (_xobj._firstChild == null || !_xobj._firstChild.isAttr())
+        Xobj firstAttr = _xobj.firstAttr();
+
+        if (firstAttr == null)
             return false;
 
-        moveTo( _xobj._firstChild );
+        moveTo( firstAttr );
 
         return true;
     }
@@ -949,10 +1097,12 @@ final class Cur
     {
         assert isAttr();
 
-        if (_xobj._nextSibling == null || !_xobj._nextSibling.isAttr())
+        Xobj nextAttr = _xobj.nextAttr();
+
+        if (nextAttr == null)
             return false;
         
-        moveTo( _xobj._nextSibling );
+        moveTo( nextAttr );
 
         return true;
     }
@@ -965,6 +1115,26 @@ final class Cur
             return false;
         
         moveTo( _xobj._prevSibling );
+
+        return true;
+    }
+
+    boolean skip ( )
+    {
+        assert isNode();
+
+        if (_xobj.isRoot())
+            return false;
+        
+        if (_xobj.isAttr())
+        {
+            if (_xobj._nextSibling == null || !_xobj._nextSibling.isAttr())
+                return false;
+
+            moveTo( _xobj._nextSibling, 0 );
+        }
+        else
+            moveTo( getNormal( _xobj, _xobj.posAfter() ), _posTemp );
 
         return true;
     }
@@ -1184,7 +1354,7 @@ final class Cur
 
     void setCharNodes ( CharNode nodes )
     {
-        assert nodes == null || _locale == nodes._locale; // TODO - locales
+        assert _locale == nodes._locale; // TODO - locales
         assert isPositioned();
         assert !_xobj.isRoot() || _pos > 0;
         
@@ -1280,6 +1450,11 @@ final class Cur
         return _xobj.getXsiTypeName();
     }
     
+    final QName valueAsQName ( )
+    {
+        throw new RuntimeException( "Not implemented" );
+    }
+    
     final String namespaceForPrefix ( String prefix, boolean defaultAlwaysMapped )
     {
         assert isContainer();
@@ -1287,24 +1462,111 @@ final class Cur
         return _xobj.namespaceForPrefix( prefix, defaultAlwaysMapped );
     }
 
-    final String prefixForNamespace ( String ns )
+    final String prefixForNamespace ( String ns, String suggestion, boolean createIfMissing )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (ns == null)
+            ns = "";
+
+        // special cases
+        
+        if (ns.equals( Locale._xml1998Uri ))
+            return "xml";
+        
+        if (ns.equals( Locale._xmlnsUri ))
+            return "xmlns";
+
+        // Get the closest container for the spot we're on
+
+        Xobj base = isContainer() ? _xobj : getParent();
+
+        // Special handling for the no-namespace case
+        
+        if (ns.length() == 0)
+        {
+            // Search for a namespace decl which defines the default namespace
+
+            Xobj a = base.findXmlnsForPrefix( "" );
+
+            // If I did not find a default decl or the decl maps to the no namespace, then
+            // the default namespace is mapped to ""
+            
+            if (a == null || a.getXmlnsUri().length() == 0)
+                return "";
+
+            // At this point, I've found a default namespace which is *not* the no-namespace.
+            // If I can't modify the document to mape the desired no-namespace, I must fail.
+            
+            if (!createIfMissing)
+                return null;
+
+            // Ok, I need to make the default namespace on the nearest container map to ""
+
+            base.setAttr( _locale.createXmlns( null ), "" );
+            
+            return "";
+        }
+
+        // Look for an exisiting mapping for the desired uri which has a visible prefix 
+
+        for ( Xobj c = base ; c != null ; c = c._parent )
+            for ( Xobj a = c.firstAttr() ; a != null ; a = a.nextAttr() )
+                if (a.isXmlns() && a.getXmlnsUri().equals( ns ))
+                    if (base.findXmlnsForPrefix( a.getXmlnsPrefix() ) == a)
+                        return a.getXmlnsPrefix();
+
+        // No exisiting xmlns I can use, need to create one.  See if I can first
+
+        if (!createIfMissing)
+            return null;
+
+        // Sanitize the suggestion.
+
+        if (suggestion != null &&
+              (suggestion.length() == 0 || suggestion.toLowerCase().startsWith( "xml" ) ||
+                    base.findXmlnsForPrefix( suggestion ) != null))
+        {
+            suggestion = null;
+        }
+
+        // If no suggestion, make one up
+
+        if (suggestion == null)
+        {
+            String prefixBase = QNameHelper.suggestPrefix( ns );
+            
+            suggestion = prefixBase;
+            
+            for ( int i = 1 ; ; suggestion = prefixBase + i++ )
+                if (base.findXmlnsForPrefix( suggestion ) == null)
+                    break;
+        }
+
+        // Add a new namespace decl at the top elem if one exists, otherwise at root
+
+        Xobj c = base;
+
+        while ( !c.isRoot() && !c.ensureParent().isRoot() )
+            c = c._parent;
+        
+        base.setAttr( _locale.createXmlns( suggestion ), ns );
+
+        return suggestion;
     }
+
+    //
+    // is this node a proper ancestor of the cursor positioned at that.  If that is just before
+    // or just after this node, then it is not an ancestor (edge case).
+    //
 
     boolean ancestorOf ( Cur that )
     {
-        assert _locale == that._locale; // TODO - locales
         assert isNode() && that.isPositioned();
 
+        if (_locale != that._locale)
+            return false;
+
         if (_xobj == that._xobj)
-        {
-            if (that._pos == 0)
-                return false;
-                  
-            if (that._pos == END_POS || (that._pos > 0 && that._pos < _xobj.posAfter()))
-                return true;
-        }
+            return that._pos == END_POS || (that._pos > 0 && that._pos < _xobj.posAfter());
         
         if (_xobj._firstChild == null)
             return false;
@@ -1315,10 +1577,42 @@ final class Cur
 
         return false;
     }
+
+    // attr is going to be moved/removed, invalidate parent if it is a special attr
+
+    private void invalidateSpecialAttr ( Xobj attr, Cur to )
+    {
+        assert attr.isAttr();
+        assert to == null || to._pos == 0 || to._pos == END_POS;
+
+        boolean isXsiType = attr._name.equals( Locale._xsiType );
+        boolean isXsiNil  = attr._name.equals( Locale._xsiNil );
+
+        if (isXsiType || isXsiNil)
+        {
+            if (attr._parent != null)
+            {
+                if (isXsiType) attr._parent.disconnectNonRootUsers();
+                if (isXsiNil ) attr._parent.invalidateNil();
+            }
+
+            if (to != null)
+            {
+                Xobj newParent = to._pos == 0 ? to._xobj._parent : to._xobj;
+
+                if (isXsiType) newParent.disconnectNonRootUsers();
+                if (isXsiNil ) newParent.invalidateNil();
+            }
+        }
+    }
     
     void moveNode ( Cur to )
     {
         // TODO - should assert that is an attr is being moved, it is ok there
+
+        // TODO - when moving between locales, need to embed everything to make sure it moves
+        // properly
+
         assert isNode() && !isRoot();
         assert to == null || _locale == to._locale; // TODO - locales
         assert to == null || to.isPositioned();
@@ -1358,30 +1652,46 @@ final class Cur
         toEnd();
         nextWithAttrs();
 
-// TODO - I need to invalidate a user here and alos in the to (Say there is no next, just a
-// node moveing) ...
+        if (xobjToMove._parent != null)
+            xobjToMove._parent.invalidateUser();
 
-// TODO - gotta disconnect users and such .... 
+        assert !xobjToMove.isRoot();
+
+        // Remove chars to the right of to, remembering them
+        
+        int cchRight = to == null ? 0 : to.cchRight();
+        Object srcRight = cchRight > 0 ? to.moveChars( null, cchRight ) : null;
+        int offRight = to == null ? 0 : to._offSrc;
+        
+        assert to._pos == 0 || to._pos == END_POS;
+        
+        xobjToMove.disconnectUsers( true );
+
+        if (xobjToMove.isAttr())
+            invalidateSpecialAttr( xobjToMove, to );
 
         xobjToMove.removeXobj();
 
         if (to != null)
         {
-            Object srcRight = null;
-            int cchRight = to.cchRight();
-            
-            if (cchRight > 0)
-                srcRight = to.moveChars( null, cchRight );
-
-            assert to._pos == 0 || to._pos == END_POS;
+            Xobj newParent = null;
 
             if (to._pos == 0)
+            {
                 to._xobj.insertXobj( xobjToMove );
+                newParent = to._xobj._parent;
+            }
             else
+            {
                 to._xobj.appendXobj( xobjToMove );
+                newParent = to._xobj;
+            }
+
+            if (newParent != null)
+                newParent.invalidateUser();
 
             if (srcRight != null)
-                to.insertChars( srcRight, to._offSrc, cchRight );
+                to.insertChars( srcRight, offRight, cchRight );
         }
 
         // TODO - inc version for two locals ....
@@ -1401,17 +1711,29 @@ final class Cur
         assert isNode();
         assert to == null || _locale == to._locale; // TODO - locales
         assert to == null || to.isPositioned();
-//        assert to == null || !ancestorOf( to );
         assert to == null || (!to.isNode() || !to.isRoot());
 
         boolean hasAttrs = hasAttrs();
 
-        // Check for moving nothing
+        // Check for moving nothing.  Subnodes refers to children *and* attrs
 
-        boolean noChildrenToMove = !hasChildren() && (!moveAttrs || !hasAttrs);
+        boolean noSubNodesToMove = !hasChildren() && (!moveAttrs || !hasAttrs);
 
-        if (!hasText() && noChildrenToMove)
-            return;
+        if (noSubNodesToMove)
+        {
+            // Special check for vacancy so that I don't pull a value from the TypeStore
+            // to just turn sround and remove it.  Because I use this fcn to clear out
+            // the contents for TypeStore invalidations, need to short circuit this.
+
+            if (_xobj.isVacant())
+            {
+                _xobj.clearBit( Xobj.VACANT ); 
+                return;
+            }
+
+            if (!hasText())
+                return;
+        }
 
         // See if if to is just inside this node, If so, no-op
 
@@ -1465,14 +1787,9 @@ final class Cur
             }
         }
 
-// TODO - I need to invalidate a user here and alos in the to (Say there is no next, just a
-// node moveing) ...
+        // The value text is not associated with a child, so it needs to be moved separately.
 
-        // If I'm not moving the attrs, there may be value text associated with this node which
-        // would exist at the end of the last attr.  Take this text from the attr and put it
-        // where it needs to go.
-
-        if (!moveAttrs && hasAttrs && hasText())
+        if (hasText())
         {
             push();
             next();
@@ -1485,7 +1802,7 @@ final class Cur
             
         assert to == null || to._pos == 0 || to._pos == END_POS;
 
-        if (noChildrenToMove)
+        if (noSubNodesToMove)
             return;
 
         //
@@ -1493,17 +1810,56 @@ final class Cur
         Xobj firstXobj = _xobj._firstChild;
         Xobj lastXobj = _xobj._lastChild;
 
-        while ( !moveAttrs && firstXobj.isAttr() )
-            firstXobj = firstXobj._nextSibling;
+        // Either skip past the attrs, or see if we're moving a special xsi attr
+
+        if (moveAttrs)
+        {
+            for ( Xobj x = firstXobj ; x != null && x.isAttr() ; x = x._nextSibling )
+                invalidateSpecialAttr( x, to );
+        }
+        else
+        {
+            while ( firstXobj != null && firstXobj.isAttr() )
+                firstXobj = firstXobj._nextSibling;
+        }
+
+        // What if we had only attrs as children
+
+        if (firstXobj == null)
+            return;
+
+        for ( Xobj x = firstXobj ; ; x = x._nextSibling )
+        {
+            assert !x.isRoot();
+            
+            x.disconnectUsers( true );
+            
+            if (x == lastXobj)
+                break;
+        }
+
+        // If we're just moving attrs, no content invalidation
+        
+        if (!lastXobj.isAttr())
+            _xobj.invalidateUser();
 
         _xobj.removeXobjs( firstXobj, lastXobj );
         
         if (to != null)
         {
             if (to._pos == 0)
+            {
                 to._xobj.insertXobjs( firstXobj, lastXobj );
+
+                if (to._xobj._parent != null)
+                    to._xobj._parent.invalidateUser();
+            }
             else
+            {
                 to._xobj.appendXobjs( firstXobj, lastXobj );
+                
+                to._xobj.invalidateUser();
+            }
         }
 
         _locale._versionAll++;
@@ -1591,6 +1947,8 @@ final class Cur
                 return src;
             }
 
+            // Copy the chars, I'll remove the originals next
+            
             if (_pos < pa)
                 to.insertChars( _xobj._srcValue, _xobj._offValue + _pos - 1, cchMove );
             else
@@ -1598,10 +1956,14 @@ final class Cur
         }
 
         notifyTextChange();
+
+        // Move any curs.  I don't have to check for a null to, because I handle that case above
         
         for ( Cur e = _xobj.getEmbedded() ; e != null ; e = e._next )
             if (e != this && inChars( e, cchMove ))
                 e.moveTo( to._xobj, to._pos + e._pos - _pos );
+
+        // Now, remove the original chars
 
         Object srcMoved;
         int    offMoved;
@@ -1624,6 +1986,18 @@ final class Cur
             _xobj._cchValue = _locale._charUtil._cchSrc;
 
             _xobj.invalidateUser();
+
+            // Perform xsi attr invalidations.  No need to check for this in the following else
+            // because it's text after which cannot be in an attr
+
+            if (_xobj._parent != null && _xobj.isAttr())
+            {
+                if (_xobj._name.equals( Locale._xsiType ))
+                    _xobj._parent.disconnectNonRootUsers();
+                
+                if (_xobj._name.equals( Locale._xsiNil ))
+                    _xobj._parent.invalidateNil();
+            }
         }
         else
         {
@@ -1704,7 +2078,28 @@ final class Cur
                     e._pos += cch;
         }
 
-        if (p >= x.posAfter())
+        if (p < x.posAfter())
+        {
+            x._srcValue =
+                _locale._charUtil.insertChars(
+                    p - 1,
+                    x._srcValue, x._offValue, x._cchValue, src, off, cch );
+
+            x._offValue = _locale._charUtil._offSrc;
+            x._cchValue = _locale._charUtil._cchSrc;
+
+            x.invalidateUser();
+
+            if (x._parent != null && x.isAttr())
+            {
+                if (x._name.equals( Locale._xsiType ))
+                    x._parent.disconnectNonRootUsers();
+                
+                if (x._name.equals( Locale._xsiNil ))
+                    x._parent.invalidateNil();
+            }
+        }
+        else
         {
             x._srcAfter =
                 _locale._charUtil.insertChars(
@@ -1716,18 +2111,6 @@ final class Cur
 
             if (x._parent != null)
                 x.invalidateUser();
-        }
-        else
-        {
-            x._srcValue =
-                _locale._charUtil.insertChars(
-                    p - 1,
-                    x._srcValue, x._offValue, x._cchValue, src, off, cch );
-
-            x._offValue = _locale._charUtil._offSrc;
-            x._cchValue = _locale._charUtil._cchSrc;
-
-            x.invalidateUser();
         }
 
         // If the normalized pos was -1 (before the end), need to set
@@ -1783,6 +2166,13 @@ final class Cur
         assert isNormal() && _xobj != null;
 
         return _xobj.getString( _pos, cch, Locale.WS_PRESERVE );
+    }
+
+    String getString ( int cch, int wsr )
+    {
+        assert isNormal() && _xobj != null;
+
+        return _xobj.getString( _pos, cch, wsr );
     }
 
     String getValueAsString ( int wsr )
@@ -1962,13 +2352,16 @@ final class Cur
     // Is a cursor (c) in the chars defined by cch chars after where this
     // Cur is positioned.
     
-    private boolean inChars ( Cur c, int cch )
+    boolean inChars ( Cur c, int cch )
     {
         assert _locale == c._locale; // TODO - locales
         assert isPositioned() && isText() && cchRight() >= cch;
         assert c.isPositioned();
 
         // No need to ensureOccupancy here
+
+        if (cch < 0)
+            cch = cchRight();
 
         return (c._xobj != _xobj || c._pos <= 0) ? false : c._pos >= _pos && c._pos < _pos + cch;
     }
@@ -2036,11 +2429,69 @@ final class Cur
         return x;
     }
 
-//    void setType ( SchemaType type )
-//    {
-//        assert isNormal() && isPositioned() && _pos == 0;
-//        _xobj.setType( type );
-//    }
+    // May throw IllegalArgumentException if can't change the type
+    
+    void setType ( SchemaType type )
+    {
+        assert type != null;
+        assert isUserNode();
+
+        TypeStoreUser user = peekUser();
+
+        if (user != null && user.get_schema_type() == type)
+            return;
+
+        if (isRoot())
+        {
+            _xobj.setStableType( type );
+            return;
+        }
+
+        // Gotta get the parent user to make sure this type is ok here
+
+        TypeStoreUser parentUser = _xobj.ensureParent().getUser();
+
+        // One may only set the type of an attribute to its 'natural' type because
+        // attributes cannot take advantage of the xsiType attribute.
+
+        if (isAttr())
+        {
+            if (parentUser.get_attribute_type( getName() ) != type)
+            {
+                throw
+                    new IllegalArgumentException(
+                        "Can't set type of attribute to " + type.toString() );
+            }
+
+            return;
+        }
+
+        assert isElem();
+
+        // First check to see if this type can be here sans xsi:type.
+        // If so, make sure there is no xsi:type
+
+        if (parentUser.get_element_type( getName(), null ) == type)
+        {
+            removeAttr( Locale._xsiType );
+            return;
+        }
+
+        // If the desired type has no name, then it cannot be
+        // referenced via xsi:type
+
+        QName typeName = type.getName();
+
+        if (typeName == null)
+            throw new IllegalArgumentException( "Can't set type of element, type is un-named" );
+
+        // See if setting xsiType would result in the target type
+        
+        if (parentUser.get_element_type( getName(), typeName ) != type)
+            throw new IllegalArgumentException( "Can't set type of element, invalid type" );
+
+        setAttrAsQName( Locale._xsiType, typeName );
+    }
 
     TypeStoreUser peekUser ( )
     {
@@ -2056,19 +2507,19 @@ final class Cur
         return _xobj.getUser();
     }
 
-    void setStableUser ( TypeStoreUser user )
-    {
-        assert isUserNode();
-        
-        // Note - this better be a virgin user
-        
-        _xobj.setStableUser( user );
-    }
-
     Dom getDom ( )
     {
         assert isNormal();
-        assert isPositioned() && kind() != TEXT;
+        assert isPositioned();
+
+        if (isText())
+        {
+            int cch = cchLeft();
+
+            for ( CharNode cn = getCharNodes() ; ; cn = cn._next )
+                if ((cch -= cn._cch) < 0)
+                    return cn;
+        }
 
         return _xobj.getDom();
     }
@@ -2178,7 +2629,7 @@ final class Cur
         return head;
     }
 
-    private boolean isNormal ( )
+    boolean isNormal ( )
     {
         if (_state == POOLED || _state == DISPOSED)
             return false;
@@ -2204,6 +2655,10 @@ final class Cur
     {
         CurLoadContext ( Locale l, XmlOptions options )
         {
+// TODO - use a thread local charUtil to load the xml -- don't use the
+// locales charUtil, let the Locales _charUtil be specific to it because
+// it is not thread safe to share a thread local charUtil between Locales
+            
             options = options = XmlOptions.maskNull( options );
 
             if (options.hasOption( XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT ))
@@ -2429,8 +2884,8 @@ final class Cur
                     while ( !c.isElem() )
                         if (c.isText()) c.moveChars( null, -1 ); else c.moveNode( null );
 
-                    c.toEnd();
-                    c.next();
+                    assert c.isElem();
+                    c.skip();
 
                     while ( !c.isFinish() )
                         if (c.isText()) c.moveChars( null, -1 ); else c.moveNode( null );
@@ -2450,6 +2905,8 @@ final class Cur
                 
                 if (isFrag)
                 {
+                    c.moveTo( _frontier );
+                    
                     if (c.toFirstAttr())
                     {
                         for ( ; ; )
@@ -2566,7 +3023,7 @@ final class Cur
         String getXmlnsPrefix ( ) { return Locale.xmlnsPrefix( _name ); }
         String getXmlnsUri    ( ) { return getValue(); }
 
-        boolean hasText ( )
+        boolean hasTextNoEnureOccupancy ( )
         {
             if (_cchValue > 0)
                 return true;
@@ -2599,8 +3056,12 @@ final class Cur
         final int cchRight ( int p )
         {
             assert isNormal( p );
-            if (p <= 0) return 0;
+            
+            if (p <= 0)
+                return 0;
+            
             int pa = posAfter();
+            
             return p < pa ? pa - p - 1 : posMax() - p;
         }
 
@@ -2624,20 +3085,7 @@ final class Cur
 
         Cur getEmbedded ( )
         {
-            for ( Cur c ; (c = _locale._registered) != null ; )
-            {
-                assert c.isNormal();
-                
-                _locale._registered = c.listRemove( _locale._registered );
-
-                if (c._pos > 0)
-                {
-                    c._xobj._embedded = c.listInsert( c._xobj._embedded );
-                    c._state = EMBEDDED;
-                }
-                else
-                    c._state = UNREGISTERED;
-            }
+            _locale.unregisterCurs();
             
             return _embedded;
         }
@@ -2646,10 +3094,117 @@ final class Cur
         //
         //
 
+        final Xobj findXmlnsForPrefix ( String prefix )
+        {
+            assert isContainer() && prefix != null;
+
+            for ( Xobj c = this ; c != null ; c = c._parent )
+                for ( Xobj a = c.firstAttr() ; a != null ; a = a.nextAttr() )
+                    if (a.isXmlns() && a.getXmlnsPrefix().equals( prefix ))
+                        return a;
+
+            return null;
+        }
+
+        final boolean removeAttr ( QName name )
+        {
+            assert isContainer();
+
+            Xobj a = getAttr( name );
+
+            if (a == null)
+                return false;
+
+            Cur c = a.tempCur();
+
+            for ( ; ; )
+            {
+                c.moveNode( null );
+
+                a = getAttr( name );
+
+                if (a == null)
+                    break;
+
+                c.moveTo( a );
+            }
+
+            c.release();
+
+            return true;
+        }
+
+        final Xobj setAttr ( QName name, String value )
+        {
+            assert isContainer();
+
+            Cur c = tempCur();
+
+            if (c.toAttr( name ))
+                c.removeFollowingAttrs();
+            else
+            {
+                c.next();
+                c.createAttr( name );
+            }
+
+            c.setValue( value );
+
+            Xobj a = c._xobj;
+
+            c.release();
+
+            return a;
+        }
+
+        final void setName ( QName newName )
+        {
+            assert isAttr() || isElem() || isProcinst();
+            assert newName != null;
+
+            if (!_name.equals( newName ) || !_name.getPrefix().equals( newName.getPrefix() ))
+            {
+                _locale.notifyGeneralChangeListeners();
+
+                QName oldName = _name;
+
+                _name = newName;
+
+                if (!isProcinst())
+                {
+                    Xobj disconnectFromHere = this;
+                    
+                    if (isAttr() && _parent != null)
+                    {
+                        if (oldName.equals( Locale._xsiType ) || newName.equals( Locale._xsiType ))
+                            disconnectFromHere = _parent;
+                            
+                        if (oldName.equals( Locale._xsiNil ) || newName.equals( Locale._xsiNil ))
+                            _parent.invalidateNil();
+                    }
+
+                    disconnectFromHere.disconnectNonRootUsers();
+                }
+
+                _locale._versionAll++;
+                _locale._versionSansText++;
+            }
+        }
+
         final Xobj ensureParent ( )
         {
             assert _parent != null || (!isRoot() && cchAfter() == 0);
             return _parent == null ? new DocumentFragXobj( _locale ).appendXobj( this ) : _parent;
+        }
+
+        final Xobj firstAttr ( )
+        {
+            return _firstChild == null || !_firstChild.isAttr() ? null : _firstChild;
+        }
+        
+        final Xobj nextAttr ( )
+        {
+            return _nextSibling == null || !_nextSibling.isAttr() ? null : _nextSibling;
         }
 
         final boolean isValid ( )
@@ -2944,22 +3499,68 @@ final class Cur
         
         final boolean isStableUser    ( ) { return bitIsSet( STABLEUSER ); }
 
-        void setStableUser ( TypeStoreUser user )
+        void invalidateNil ( )
         {
-            // TODO - need to remove all descendent users (except those
-            // which are stable)
+            if (_user != null)
+                _user.invalidate_nilvalue();
+        }
 
-            // TODO - if there is a user here already and we're vacant,
-            // need to get the text from the old user before putting in
-            // the new user
+        void setStableType ( SchemaType type )
+        {
+            assert isValid();
+            assert isRoot(); // Only at root for now
 
-            assert _user == null; // TODO - do the above to remove this
+            disconnectUsers( true );
 
-            _user = user;
+            assert _user == null;
+
+            _user = ((TypeStoreUserFactory) type).createTypeStoreUser();
 
             _user.attach_store( this );
 
             setBit( STABLEUSER );
+        }
+
+        void disconnectNonRootUsers ( )
+        {
+            disconnectUsers( !isRoot() );
+        }
+        
+        void disconnectUsers ( boolean doMe )
+        {
+            Xobj x = this;
+
+            main_loop:
+            for ( ; ; )
+            {
+                if (x._firstChild != null && x._user != null &&
+                        (!x.isStableUser() || (x == this && doMe)))
+                {
+                    x = x._firstChild;
+                    continue;
+                }
+
+                for ( ; ; x = x._parent )
+                {
+                    // post document order process here
+
+                    if (x._user != null && (x != this || doMe))
+                    {
+                        x.ensureOccupancy();
+                        x._user.disconnect_store();
+                        x._user = null;
+                    }
+
+                    if (x == this)
+                        break main_loop;
+
+                    if (x._nextSibling != null)
+                    {
+                        x = x._nextSibling;
+                        break;
+                    }
+                }
+            }
         }
 
         /**
@@ -2988,8 +3589,6 @@ final class Cur
         
         final String namespaceForPrefix ( String prefix, boolean defaultAlwaysMapped )
         {
-            assert isContainer();
-
             if (prefix == null)
                 prefix = "";
             
@@ -3046,9 +3645,9 @@ final class Cur
         
         final Xobj getAttr ( QName name )
         {
-            for ( Xobj c = _firstChild ; c != null && c.isAttr() ; c = c._nextSibling )
-                if (c._name.equals( Locale._xsiType ))
-                    return c;
+            for ( Xobj x = _firstChild ; x != null && x.isAttr() ; x = x._nextSibling )
+                if (x._name.equals( Locale._xsiType ))
+                    return x;
 
             return null;
         }
@@ -3069,7 +3668,12 @@ final class Cur
 
             if (_user == null)
             {
-                TypeStoreUser parentUser = _parent.getUser();
+                // BUGBUG - this is recursive
+                
+                TypeStoreUser parentUser =
+                    _parent == null
+                        ? ((TypeStoreUserFactory) XmlBeans.NO_TYPE).createTypeStoreUser()
+                        : _parent.getUser();
 
                 _user =
                     isElem()
@@ -3143,40 +3747,43 @@ final class Cur
         
         public boolean is_attribute    ( ) { assert isValid(); return isAttr();               }
         public boolean validate_on_set ( ) { assert isValid(); return _locale._validateOnSet; }
+
+        // TODO - need to set up the frame here for now ... when I have converted the code gen,
+        // do it there and remove it from here.
+        //
+        // Note that not all of these need the temp frame ...
         
         public void invalidate_text ( )
         {
-            assert isValid();
+            _locale.enter();
 
-            if (!isVacant())
+            try
             {
-                if (hasText() || hasChildren())
+                assert isValid();
+
+                if (!isVacant())
                 {
-                    // TODO - may have to inhibit invalidations here
-
-                    Cur c = tempCur();
-
-                    c.push();
-                    c.next();
-
-                    do
+                    if (hasTextNoEnureOccupancy() || hasChildren())
                     {
-                        assert !c.isAtEndOfLastPush();
-                        
-                        if (c.isText())
-                            c.moveChars( null, -1 );
-                        else
-                            c.moveNode( null );
-                    }
-                    while ( !c.isAtEndOfLastPush() );
+                        TypeStoreUser user = _user;
+                        _user = null;
 
-                    c.release();
+                        Cur c = tempCur();
+                        c.moveNodeContents( null, false );
+                        c.release();
+
+                        _user = user;
+                    }
+
+                    setBit( VACANT );
                 }
 
-                setBit( VACANT );
+                assert isValid();
             }
-
-            assert isValid();
+            finally
+            {
+                _locale.exit();
+            }
         }
         
         public String fetch_text ( int whitespaceRule )
@@ -3188,21 +3795,178 @@ final class Cur
         
         public XmlCursor new_cursor ( )
         {
-            Cur c = tempCur();
-            XmlCursor xc = new Cursor( c );
-            c.release();
-            return xc;
+            _locale.enter();
+            
+            try
+            {
+                Cur c = tempCur();
+                XmlCursor xc = new Cursor( c );
+                c.release();
+                return xc;
+
+            }
+            finally
+            {
+                _locale.exit();
+            }
         }
         
-        public TypeStoreUser find_element_user ( QName name, int i )
+        public SchemaField get_schema_field ( )
         {
-            assert isValid() && isContainer();
+            assert isValid();
 
-            for ( Xobj c = _firstChild ; c != null ; c = c._nextSibling )
-                if (c.isElem() && c._name.equals( name ) && --i < 0)
-                    return c.getUser();
+            if (isRoot())
+                return null;
 
-            return null;
+            TypeStoreUser parentUser = ensureParent().getUser();
+
+            if (isAttr())
+                return parentUser.get_attribute_field( _name );
+
+            assert isElem();
+
+            TypeStoreVisitor visitor = parentUser.new_visitor();
+
+            if (visitor == null)
+                return null;
+
+            for ( Xobj x = _parent._firstChild ; ; x = x._nextSibling )
+            {
+                if (x.isElem())
+                {
+                    visitor.visit( x._name );
+
+                    if (x == this)
+                        return visitor.get_schema_field();
+                }
+            }
+        }
+
+        public void validate ( ValidatorListener eventSink )
+        {
+            _locale.enter();
+            
+            try
+            {
+                Cur c = tempCur();
+                Validate validate = new Validate( c, eventSink );
+                c.release();
+            }
+            finally
+            {
+                _locale.exit();
+            }
+        }
+        
+        public TypeStoreUser change_type ( SchemaType type )
+        {
+            _locale.enter();
+            
+            try
+            {
+                Cur c = tempCur();
+                c.setType( type );
+                c.release();
+            }
+            finally
+            {
+                _locale.exit();
+            }
+
+            return _user;
+        }
+        
+        public QName get_xsi_type ( )
+        {
+            return getXsiTypeName();
+        }
+
+        public void store_text ( String text )
+        {
+            _locale.enter();
+            
+            try
+            {
+                Cur c = tempCur();
+                
+                c.moveNodeContents( null, false );
+                
+                if (text != null && text.length() > 0)
+                {
+                    c.next();
+                    c.insertChars( text, 0, text.length() );
+                }
+                
+                c.release();
+            }
+            finally
+            {
+                _locale.exit();
+            }
+        }
+        
+        public int compute_flags ( )
+        {
+            if (isRoot())
+                return 0;
+            
+            TypeStoreUser parentUser = ensureParent().getUser();
+
+            if (isAttr())
+                return parentUser.get_attributeflags( _name );
+
+            int f = parentUser.get_elementflags( _name );
+
+            if (f != -1)
+                return f;
+            
+            TypeStoreVisitor visitor = parentUser.new_visitor();
+
+            if (visitor == null)
+                return 0;
+            
+            for ( Xobj x = _parent._firstChild ; ; x = x._nextSibling )
+            {
+                if (x.isElem())
+                {
+                    visitor.visit( x._name );
+
+                    if (x == this)
+                        return visitor.get_elementflags();
+                }
+            }
+        }
+        
+        public String compute_default_text ( )
+        {
+            if (isRoot())
+                return null;
+            
+            TypeStoreUser parentUser = ensureParent().getUser();
+
+            if (isAttr())
+                return parentUser.get_default_attribute_text( _name );
+
+            String result = parentUser.get_default_element_text( _name );
+
+            if (result != null)
+                return result;
+
+            TypeStoreVisitor visitor = parentUser.new_visitor();
+
+            if (visitor == null)
+                return null;
+            
+            for ( Xobj x = _parent._firstChild ; ; x = x._nextSibling )
+            {
+                if (x.isElem())
+                {
+                    visitor.visit( x._name );
+
+                    if (x == this)
+                        return visitor.get_default_text();
+                }
+            }
         }
         
         public boolean find_nil ( )
@@ -3210,119 +3974,267 @@ final class Cur
             if (isAttr())
                 return false;
 
-            Xobj a = getAttr( Locale._xsiNil );
+            _locale.enter();
 
-            if (a == null)
-                return false;
+            try
+            {
+                Xobj a = getAttr( Locale._xsiNil );
 
-            String value = getValue( Locale.WS_COLLAPSE );
+                if (a == null)
+                    return false;
 
-            return value.equals( "true" ) || value.equals( "1" ); 
-        }
-        
-        public void validate ( ValidatorListener vEventSink )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public TypeStoreUser change_type ( SchemaType sType )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public QName get_xsi_type ( )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public void store_text ( String text )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public String compute_default_text ( )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public int compute_flags ( )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public SchemaField get_schema_field ( )
-        {
-            throw new RuntimeException( "Not implemeneted" );
+                String value = a.getValue( Locale.WS_COLLAPSE );
+
+                return value.equals( "true" ) || value.equals( "1" );
+            }
+            finally
+            {
+                _locale.exit();
+            }
         }
         
         public void invalidate_nil ( )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            if (isAttr())
+                return;
+
+            _locale.enter();
+
+            try
+            {
+                if (!_user.build_nil())
+                    removeAttr( Locale._xsiNil );
+                else
+                    setAttr( Locale._xsiNil, "true" );
+            }
+            finally
+            {
+                _locale.exit();
+            }
         }
         
         public int count_elements ( QName name )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            int count = 0;
+            
+            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && x._name.equals( name ))
+                    count++;
+
+            return count;
         }
         
         public int count_elements ( QNameSet names )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            int count = 0;
+            
+            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && names.contains( x._name ))
+                    count++;
+
+            return count;
+        }
+        
+        public TypeStoreUser find_element_user ( QName name, int i )
+        {
+            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && x._name.equals( name ) && --i < 0)
+                    return x.getUser();
+
+            return null;
         }
         
         public TypeStoreUser find_element_user ( QNameSet names, int i )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && names.contains( x._name ) && --i < 0)
+                    return x.getUser();
+
+            return null;
         }
         
         public void find_all_element_users ( QName name, List fillMeUp )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && x._name.equals( name ))
+                    fillMeUp.add( x.getUser() );
         }
         
-        public void find_all_element_users ( QNameSet name, List fillMeUp )
+        public void find_all_element_users ( QNameSet names, List fillMeUp )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && names.contains( x._name ))
+                    fillMeUp.add( x.getUser() );
+        }
+
+        private static TypeStoreUser insertElement ( QName name, Xobj x, int pos )
+        {
+            x._locale.enter();
+
+            try
+            {
+                Cur c = x._locale.tempCur();
+                c.moveTo( x, pos );
+                c.createElement( name );
+                TypeStoreUser user = c.getUser();
+                c.release();
+                return user;
+            }
+            finally
+            {
+                x._locale.exit();
+            }
         }
         
         public TypeStoreUser insert_element_user ( QName name, int i )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            if (i < 0)
+                throw new IndexOutOfBoundsException();
+
+            if (!isContainer())
+                throw new IllegalStateException();
+            
+            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && x._name.equals( name ) && --i < 0)
+                    return insertElement( name, x, 0 );
+
+            return add_element_user( name );
         }
         
-        public TypeStoreUser insert_element_user ( QNameSet set, QName name, int i )
+        public TypeStoreUser insert_element_user ( QNameSet names, QName name, int i )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            if (i < 0)
+                throw new IndexOutOfBoundsException();
+
+            if (!isContainer())
+                throw new IllegalStateException();
+            
+            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && names.contains( x._name ) && --i < 0)
+                    return insertElement( name, x, 0 );
+
+            return add_element_user( name );
         }
         
         public TypeStoreUser add_element_user ( QName name )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            if (!isContainer())
+                throw new IllegalStateException();
+
+            QNameSet endSet = null;
+            Xobj candidate = null;
+
+            for ( ; ; )
+            {
+                Xobj x = candidate == null ? _lastChild : candidate._prevSibling;
+
+                while ( x != null && !x.isElem() )
+                    x = x._prevSibling;
+
+                if (x == null || x._name.equals( name ))
+                    break;
+
+                if (endSet == null)
+                    endSet = _user.get_element_ending_delimiters( name );
+
+                if (endSet.contains( x._name ))
+                    candidate = x;
+            }
+
+            return
+                candidate == null
+                    ? insertElement( name, this, END_POS )
+                    : insertElement( name, candidate, 0 );
         }
         
+        private static void removeElement ( Xobj x )
+        {
+            if (x == null)
+                throw new IndexOutOfBoundsException();
+            
+            x._locale.enter();
+
+            try
+            {
+                Cur c = x.tempCur();
+                c.moveNode( null );
+                c.release();
+            }
+            finally
+            {
+                x._locale.exit();
+            }
+        }
+                
         public void remove_element ( QName name, int i )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            if (i < 0)
+                throw new IndexOutOfBoundsException();
+
+            if (!isContainer())
+                throw new IllegalStateException();
+
+            Xobj x;
+            
+            for ( x = _firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && x._name.equals( name ) && --i < 0)
+                    break;
+
+            removeElement( x );
         }
         
         public void remove_element ( QNameSet names, int i )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            if (i < 0)
+                throw new IndexOutOfBoundsException();
+
+            if (!isContainer())
+                throw new IllegalStateException();
+
+            Xobj x;
+            
+            for ( x = _firstChild ; x != null ; x = x._nextSibling )
+                if (x.isElem() && names.contains( x._name ) && --i < 0)
+                    break;
+
+            removeElement( x );
         }
         
         public TypeStoreUser find_attribute_user ( QName name )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            Xobj a = getAttr( name );
+
+            return a == null ? null : a.getUser();
         }
         
         public TypeStoreUser add_attribute_user ( QName name )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            if (getAttr( name ) != null)
+                throw new IndexOutOfBoundsException();
+
+            _locale.enter();
+
+            try
+            {
+                return setAttr( name, "" ).getUser();
+            }
+            finally
+            {
+                _locale.exit();
+            }
         }
         
         public void remove_attribute ( QName name )
         {
-            throw new RuntimeException( "Not implemeneted" );
+            try
+            {
+                if (!removeAttr( name ))
+                    throw new IndexOutOfBoundsException();
+            }
+            finally
+            {
+                _locale.exit();
+            }
         }
         
         public TypeStoreUser copy_contents_from ( TypeStore source )

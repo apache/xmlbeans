@@ -19,6 +19,13 @@ import java.io.PrintStream;
 
 public final class CharUtil
 {
+    public static CharIterator getThreadLocalCharIterator ( Object src, int off, int cch )
+    {
+        CharIterator charIter = (CharIterator) tl_charIter.get();
+        charIter.init( src, off, cch );
+        return charIter;
+    }
+    
     public static CharUtil getThreadLocalCharUtil ( )
     {
         return (CharUtil) tl_charUtil.get();
@@ -98,35 +105,39 @@ public final class CharUtil
         }
     }
 
-    public Object stripRight ( Object src, int off, int cch )
+    public static final boolean isWhiteSpace ( Object src, int off, int cch )
     {
         assert isValid( src, off, cch );
-        
+
         if (cch > 0)
         {
-            int oldCch = cch;
+            if (src instanceof char[])
+            {
+                for ( char[] chars = (char[]) src ; cch > 0 ; cch-- )
+                    if (!isWhiteSpace( chars[ off++ ] ))
+                        return false;
+            }
+            else if (src instanceof String)
+            {
+                for ( String s = (String) src ; cch > 0 ; cch-- )
+                    if (!isWhiteSpace( s.charAt( off++ ) ))
+                        return false;
+            }
+            else
+            {
+                CharIterator charIter = getThreadLocalCharIterator( src, off, cch );
+                
+                while ( isWhiteSpace( charIter.currChar() ) && --cch > 0 )
+                    charIter.next();
 
-            _charIterator.init( src, off, cch );
-            _charIterator.setPos( cch - 1 );
-
-            while ( isWhiteSpace( _charIterator.currChar() ) && --cch > 0 )
-                _charIterator.prev();
+                if (cch != 0)
+                    return false;
+            }
         }
         
-        if (cch == 0)
-        {
-            _offSrc = 0;
-            _cchSrc = 0;
-            
-            return null;
-        }
-
-        _offSrc = off;
-        _cchSrc = cch;
-
-        return src;
+        return true;
     }
-    
+
     public Object stripLeft ( Object src, int off, int cch )
     {
         assert isValid( src, off, cch );
@@ -151,10 +162,10 @@ public final class CharUtil
             {
                 int oldCch = cch;
             
-                _charIterator.init( src, off, cch );
+                CharIterator charIter = getThreadLocalCharIterator( src, off, cch );
                 
-                while ( isWhiteSpace( _charIterator.currChar() ) && --cch > 0 )
-                    _charIterator.next();
+                while ( isWhiteSpace( charIter.currChar() ) && --cch > 0 )
+                    charIter.next();
                 
                 off += oldCch - cch;
             }
@@ -174,6 +185,35 @@ public final class CharUtil
         return src;
     }
 
+    public Object stripRight ( Object src, int off, int cch )
+    {
+        assert isValid( src, off, cch );
+        
+        if (cch > 0)
+        {
+            int oldCch = cch;
+
+            CharIterator charIter = getThreadLocalCharIterator( src, off, cch );
+            charIter.setPos( cch - 1 );
+
+            while ( isWhiteSpace( charIter.currChar() ) && --cch > 0 )
+                charIter.prev();
+        }
+        
+        if (cch == 0)
+        {
+            _offSrc = 0;
+            _cchSrc = 0;
+            
+            return null;
+        }
+
+        _offSrc = off;
+        _cchSrc = cch;
+
+        return src;
+    }
+    
     public Object insertChars (
         int posInsert,
         Object src, int off, int cch,
@@ -791,8 +831,9 @@ public final class CharUtil
     private static ThreadLocal tl_charUtil =
         new ThreadLocal() { protected Object initialValue() { return new CharUtil( 1024 * 32 ); } };
 
-    private CharIterator _charIterator = new CharIterator();
-
+    private static ThreadLocal tl_charIter =
+        new ThreadLocal() { protected Object initialValue() { return new CharIterator(); } };
+    
     private static final int MAX_COPY = 8;
 //    private static final int MAX_COPY = 64;
 

@@ -1334,8 +1334,7 @@ final class DomImpl
         {
             lc = c.getDom();
             
-            c.toEnd();
-            c.next();
+            c.skip();
 
             if ((nodes = c.getCharNodes()) != null)
                 lc = null;
@@ -1418,8 +1417,7 @@ final class DomImpl
         {
             Cur c = n.tempCur();
 
-            c.toEnd();
-            c.next();
+            c.skip();
 
             if ((ns = c.getCharNodes()) == null)
             {
@@ -2245,6 +2243,8 @@ final class DomImpl
                 
             case ATTR :
             {
+                // Try to set an exisiting text node to contain the new value
+                
                 NodeList children = ((Node) n).getChildNodes();
 
                 while ( children.getLength() > 1 )

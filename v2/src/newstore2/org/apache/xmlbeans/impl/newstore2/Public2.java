@@ -283,29 +283,18 @@ public final class Public2
     public static void dump ( Node n )      { dump( System.out, n ); }
     public static void dump ( XmlCursor c ) { dump( System.out, c ); }
 
-    public static void test ( Node n ) throws Exception
+    public static void test ( ) throws Exception
     {
-        Dom d = (Dom) n;
+        Locale l1 = newLocale( null );
 
-        Locale l = d.locale();
-        
-//        Locale l = Locale.getLocale( XmlBeans.getContextTypeLoader(), null );
-        
-        l.enter();
+        Cur c = l1.tempCur();
+        c.next();
+        c.createElement( new QName( "foo" ) );
 
-        try
-        {
-            doTest( l, d );
-        }
-        finally
-        {
-            l.exit();
-        }
-    }
-        
-    public static void doTest ( Locale l, Dom d )
-    {
-        DomImpl.impl_saajCallback_setSaajData( d, new Object() );
+        Locale lTo = newLocale( null );
+        Cur cTo = lTo.tempCur();
+        cTo.next();
+        c.moveNode( cTo );
     }
 }
  

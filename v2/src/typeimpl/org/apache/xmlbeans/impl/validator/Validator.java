@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.validator;
 
-import org.apache.xmlbeans.impl.common.Chars;
 import org.apache.xmlbeans.impl.common.IdentityConstraint;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -83,7 +82,6 @@ public final class Validator
         _constraintEngine = new IdentityConstraint(_errorListener, type.isDocumentType());
 
         _globalTypes = globalLoader;
-        _chars = new Chars();
         _rootType = type;
         _rootField = field;
 
@@ -355,10 +353,10 @@ public final class Validator
 
         SchemaType xsiType = null;
 
-        if (event.getXsiType( _chars ))
+        String value = event.getXsiType();
+        
+        if (value != null)
         {
-            String value = _chars.asString();
-
             // Turn off the listener so a public error message
             // does not get generated, but I can see if there was
             // an error through the error state
@@ -518,10 +516,12 @@ public final class Validator
         boolean isNil = false;
         boolean hasNil = false;
 
-        if (event.getXsiNil(_chars))
+        String nilValue = event.getXsiNil();
+        
+        if (nilValue != null)
         {
             _vc._event = event;
-            isNil = JavaBooleanHolder.validateLexical(_chars.asString(), _vc);
+            isNil = JavaBooleanHolder.validateLexical(nilValue, _vc);
             hasNil = true;
         }
 
@@ -1035,8 +1035,8 @@ public final class Validator
 
         if (!emptyContent)
         {
-            event.getText( _chars, type.getWhiteSpaceRule() );
-            value = _chars.asString();
+            int wsr = type.getWhiteSpaceRule();
+            value = wsr == SchemaType.WS_PRESERVE ? event.getText() : event.getText( wsr );
         }
 
         // See if I can apply a default/fixed value
@@ -1572,7 +1572,6 @@ public final class Validator
     private SchemaType         _rootType;
     private SchemaField        _rootField;
     private SchemaTypeLoader   _globalTypes;
-    private Chars              _chars;
     private State              _stateStack;
     private int                _errorState;
     private Collection         _errorListener;

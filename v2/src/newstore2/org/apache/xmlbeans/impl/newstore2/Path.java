@@ -195,10 +195,7 @@ public abstract class Path
                 doAttrs( ret, c );
                 
                 if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement( _cur ))
-                {
-                    _cur.toEnd();
-                    _cur.next();
-                }
+                    _cur.skip();
             }
             else
                 _cur.next();

@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.validator;
 
-import org.apache.xmlbeans.impl.common.Chars;
 import org.apache.xmlbeans.impl.common.XMLNameHelper;
 import org.apache.xmlbeans.impl.common.GenericXmlInputStream;
 import org.apache.xmlbeans.impl.common.ValidatorListener.Event;
@@ -284,48 +283,24 @@ public final class ValidatingXMLInputStream
         }
     }
 
-    public boolean getXsiType ( Chars chars )
+    public String getXsiType ( )
     {
-        if (_xsiType == null)
-            return false;
-
-        chars.string = _xsiType;
-        chars.buffer = null;
-
-        return true;
+        return _xsiType;
     }
     
-    public boolean getXsiNil ( Chars chars )
+    public String getXsiNil ( )
     {
-        if (_xsiNil == null)
-            return false;
-
-        chars.string = _xsiNil;
-        chars.buffer = null;
-
-        return true;
+        return _xsiNil;
     }
 
-    public boolean getXsiLoc ( Chars chars )
+    public String getXsiLoc ( )
     {
-        if (_xsiLoc == null)
-            return false;
-
-        chars.string = _xsiLoc;
-        chars.buffer = null;
-
-        return true;
+        return _xsiLoc;
     }
 
-    public boolean getXsiNoLoc ( Chars chars )
+    public String getXsiNoLoc ( )
     {
-        if (_xsiNoLoc == null)
-            return false;
-
-        chars.string = _xsiNoLoc;
-        chars.buffer = null;
-
-        return true;
+        return _xsiNoLoc;
     }
 
     public QName getName ( )
@@ -333,19 +308,16 @@ public final class ValidatingXMLInputStream
         return XMLNameHelper.getQName( _name );
     }
 
-    public void getText ( Chars chars )
+    public String getText ( )
     {
-        chars.string = _text.toString();
-        chars.buffer = null;
+        return _text.toString();
     }
 
-    public void getText ( Chars chars, int wsr )
+    public String getText ( int wsr )
     {
-        chars.string = XmlWhitespace.collapse( _text.toString(), wsr );
-        chars.buffer = null;
+        return XmlWhitespace.collapse( _text.toString(), wsr );
     }
 
-    // TODO - very expensive to get a string here
     public boolean textIsWhitespace ( )
     {
         for ( int i = 0 ; i < _text.length() ; i++ )

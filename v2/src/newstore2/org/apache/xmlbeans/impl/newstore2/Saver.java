@@ -182,8 +182,7 @@ abstract class Saver
             {
                 start.moveToCur( c );
                 end.moveToCur( c );
-                end.toEnd();
-                end.next();
+                end.skip();
 
                 cur = new FragSaveCur( start, end, null );
             }
@@ -227,8 +226,7 @@ abstract class Saver
                 
                 start.moveToCur( c );
                 end.moveToCur( c );
-                end.toEnd();
-                end.next();
+                end.skip();
             }
 
             cur = new FragSaveCur( start, end, fragName );
@@ -298,112 +296,55 @@ abstract class Saver
         return _saveNamespacesFirst;
     }
 
-    private final void checkVersion ( )
-    {
-        if (_version != _locale.version())
-            throw new ConcurrentModificationException( "Document changed during save" );
-    }
-
     protected final boolean process ( )
     {
         assert _locale.entered();
+
+        if (_cur == null)
+            return false;
         
-        checkVersion();
-
-        if (_postPop)
+        if (_version != _locale.version())
+            throw new ConcurrentModificationException( "Document changed during save" );
+        
+        switch ( _cur.kind() )
         {
-            popMappings();
-            _postPop = false;
-        }
-
-        if (_postProcess)
-        {
-            int k = _cur.kind();
-            
-            if (k == -ROOT)
-                _done = true;
-            else
-            {
-                switch ( k )
-                {
-                case ROOT :
-                case ELEM :
-                {
-                    if (_skipContainer)
-                    {
-                        assert _cur.isElem();
-                        _cur.toEnd();
-                    }
-
-                    _cur.next();
-                    
-                    break;
-                }
-                    
-                case - ROOT :
-                case - ELEM :
-                case TEXT :
-                    _cur.next();
-                    break;
-                    
-                case COMMENT :
-                case PROCINST :
-                    _cur.toEnd();
-                    _cur.next();
-                    break;
-                                               
-                default : throw new RuntimeException( "Unexpected kind" );
-                }
-            }
-
-            if (_postPop)
-            {
-                popMappings();
-                _postPop = false;
-            }
-
-            _postProcess = false;
-        }
-
-        if (_done)
-        {
-            if (_cur != null)
+            case   ROOT     : {                                       break; }
+            case   ELEM     : { processElement();                     break; }
+            case - ELEM     : { processFinish ();                     break; }
+            case   TEXT     : { emitText      ( _cur );               break; }
+            case   COMMENT  : { emitComment   ( _cur ); _cur.toEnd(); break; }
+            case   PROCINST : { emitProcinst  ( _cur ); _cur.toEnd(); break; }
+                              
+            case - ROOT :
             {
                 _cur.release();
                 _cur = null;
+                
+                return false;
             }
-            
-            return false;
-        }
-
-        checkVersion();
-
-        switch ( _cur.kind() )
-        {
-            case   ELEM     : { _skipContainer = processElement();   break; }
-            case - ELEM     : { emitFinish( _cur ); _postPop = true; break; }
-            case   TEXT     : { emitText( _cur );                    break; }
-            case   COMMENT  : { emitComment( _cur );                 break; }
-            case   PROCINST : { emitProcinst( _cur );                break; }
-
-            case   ROOT :
-            case - ROOT :
-                break;
                 
             default : throw new RuntimeException( "Unexpected kind" );
         }
 
-        _postProcess = true;
-
+        _cur.next();
+        
         return true;
     }
 
-    private final boolean processElement ( )
+    private final void processFinish ( )
+    {
+        emitFinish( _cur );
+        popMappings();
+    }
+    
+    private final void processElement ( )
     {
         assert _cur.isElem() && _cur.getName() != null;
 
         QName name = _cur.getName();
 
+        // TODO - check for doctype to save out here
+        // TODO - check for doctype to save out here
         // TODO - check for doctype to save out here
 
         ;
@@ -484,7 +425,11 @@ abstract class Saver
             _preComputedNamespaces = null;
         }
 
-        return emitElement( _cur, _attrNames, _attrValues );
+        if (emitElement( _cur, _attrNames, _attrValues ))
+        {
+            popMappings();
+            _cur.toEnd();
+        }
     }
 
     //
@@ -1934,6 +1879,8 @@ abstract class Saver
         final boolean isContainer  ( ) { return Cur.kindIsContainer( kind() ); }
         final boolean isNormalAttr ( ) { return kind() == ATTR && !isXmlns(); }
 
+        final boolean skip ( ) { toEnd(); return next(); }
+
         abstract void release ( );
         
         abstract int kind ( );
@@ -2596,11 +2543,6 @@ abstract class Saver
     private final long   _version;
     
     private SaveCur _cur;
-
-    private boolean _postProcess;
-    private boolean _postPop;
-    private boolean _done;
-    private boolean _skipContainer;
 
     private List    _ancestorNamespaces;
     private Map     _suggestedPrefixes;

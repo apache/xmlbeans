@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import org.apache.xmlbeans.impl.common.Chars;
 import org.apache.xmlbeans.impl.common.EncodingMap;
 import org.apache.xmlbeans.impl.common.GenericXmlInputStream;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
@@ -3778,54 +3777,28 @@ public abstract class Saver implements NamespaceManager
             return null;
         }
 
-        public boolean getXsiType ( Chars chars )
+        public String getXsiType ( )
+            { return _xsiType == null ? null : getString( PRESERVE, null, _xsiType, 0 ); }
+
+        public String getXsiNil ( )
+            { return _xsiNil == null ? null : getString( PRESERVE, null, _xsiNil, 0 ); }
+
+        public String getXsiLoc ( )
+            { return _xsiLoc == null ? null : getString( PRESERVE, null, _xsiLoc, 0 ); }
+
+        public String getXsiNoLoc ( )
+            { return _xsiNoLoc == null ? null : getString( PRESERVE, null, _xsiNoLoc, 0 ); }
+
+        public QName getName ( ) { return _name; }
+
+        private String getString ( int wsr, String string, Splay sText, int pText )
         {
-            if (_xsiType == null)
-                return false;
+            setChars( wsr, string, sText, pText );
 
-            setChars( chars, PRESERVE, null, _xsiType, 0 );
-
-            return true;
+            return _string == null ? new String( _buffer, _offset, _length ) : _string;
         }
 
-        public boolean getXsiNil ( Chars chars )
-        {
-            if (_xsiNil == null)
-                return false;
-
-
-            setChars( chars, PRESERVE, null, _xsiNil, 0 );
-
-            return true;
-        }
-
-        public boolean getXsiLoc ( Chars chars )
-        {
-            if (_xsiLoc == null)
-                return false;
-
-            setChars( chars, PRESERVE, null, _xsiLoc, 0 );
-
-            return true;
-        }
-
-        public boolean getXsiNoLoc ( Chars chars )
-        {
-            if (_xsiNoLoc == null)
-                return false;
-
-            setChars( chars, PRESERVE, null, _xsiNoLoc, 0 );
-
-            return true;
-        }
-
-        public QName getName ( )
-        {
-            return _name;
-        }
-
-        private void setChars (
-            Chars chars, int wsr, String string, Splay sText, int pText )
+        private void setChars ( int wsr, String string, Splay sText, int pText )
         {
             assert string != null || sText != null;
 
@@ -3833,30 +3806,24 @@ public abstract class Saver implements NamespaceManager
 
             Root r = getRoot();
 
-            chars.buffer = null;
-            chars.string = null;
+            _buffer = null;
+            _string = null;
 
             if (string != null)
             {
-                chars.string = string;
+                _string = string;
             }
             else if (pText == 0)
             {
-                chars.buffer = r._text._buf;
-                chars.length = sText.getCch();
-
-                chars.offset =
-                    r._text.unObscure(
-                        r.getCp( sText ), chars.length );
+                _buffer = r._text._buf;
+                _length = sText.getCch();
+                _offset = r._text.unObscure( r.getCp( sText ), _length );
             }
             else if (pText == 1 && sText.isLeaf())
             {
-                chars.buffer = r._text._buf;
-                chars.length = sText.getCchValue();
-
-                chars.offset =
-                    r._text.unObscure(
-                        r.getCp( sText ), chars.length );
+                _buffer = r._text._buf;
+                _length = sText.getCchValue();
+                _offset = r._text.unObscure( r.getCp( sText ), _length );
             }
             else
             {
@@ -3864,8 +3831,7 @@ public abstract class Saver implements NamespaceManager
 
                 boolean moreText = false;
 
-                for ( Splay t = sText.nextNonAttrSplay() ; ;
-                      t = t.nextSplay() )
+                for ( Splay t = sText.nextNonAttrSplay() ; ; t = t.nextSplay() )
                 {
                     if (!t.isComment() && !t.isProcinst())
                         break;
@@ -3879,13 +3845,9 @@ public abstract class Saver implements NamespaceManager
 
                 if (!moreText)
                 {
-                    chars.buffer = r._text._buf;
-                    chars.length = sText.getCchAfter();
-
-                    chars.offset =
-                        r._text.unObscure(
-                            sText.getCpForPos( r, pText ),
-                            chars.length );
+                    _buffer = r._text._buf;
+                    _length = sText.getCchAfter();
+                    _offset = r._text.unObscure( sText.getCpForPos( r, pText ), _length );
                 }
                 else
                 {
@@ -3893,14 +3855,11 @@ public abstract class Saver implements NamespaceManager
 
                     int cch = sText.getCchAfter();
 
-                    int off =
-                        r._text.unObscure(
-                            sText.getCpForPos( r, pText ), cch );
+                    int off = r._text.unObscure( sText.getCpForPos( r, pText ), cch );
 
                     sb.append( r._text._buf, off, cch );
 
-                    for ( Splay t = sText.nextNonAttrSplay() ; ;
-                          t = t.nextSplay() )
+                    for ( Splay t = sText.nextNonAttrSplay() ; ; t = t.nextSplay() )
                     {
                         if (!t.isComment() && !t.isProcinst())
                             break;
@@ -3908,20 +3867,16 @@ public abstract class Saver implements NamespaceManager
                         if (t.getCchAfter() > 0)
                         {
                             cch = t.getCchAfter();
-
-                            off =
-                                r._text.unObscure(
-                                    t.getCpForPos( r, 1 ), cch );
-
+                            off = r._text.unObscure( t.getCpForPos( r, 1 ), cch );
                             sb.append( r._text._buf, off, cch );
                         }
                     }
 
-                    chars.length = sb.length();
-                    chars.buffer = new char [ chars.length ];
-                    chars.offset = 0;
+                    _length = sb.length();
+                    _buffer = new char [ _length ];
+                    _offset = 0;
 
-                    sb.getChars( 0, chars.length, chars.buffer, 0 );
+                    sb.getChars( 0, _length, _buffer, 0 );
                 }
             }
 
@@ -3930,7 +3885,11 @@ public abstract class Saver implements NamespaceManager
                 // TODO - this is quick, dirty and very inefficient
                 //        make it faster!
 
-                String str = chars.asString();
+                String str =
+                    _string == null
+                        ? _buffer == null ? "" : new String( _buffer, _offset, _length )
+                        : _string;
+                
                 StringBuffer sb = new StringBuffer();
                 int state = -1, nSpaces = 0, cch = str.length();
 
@@ -3965,31 +3924,29 @@ public abstract class Saver implements NamespaceManager
                     sb.append( ch );
                 }
 
-                chars.string = sb.toString();
-                chars.buffer = null;
+                _string = sb.toString();
+                _buffer = null;
             }
         }
 
-        public void getText ( Chars chars )
+        public String getText ( )
         {
-            getText( chars, PRESERVE );
+            return getText( PRESERVE );
         }
 
-        public void getText ( Chars chars, int wsr )
+        public String getText ( int wsr )
         {
             if (!_hasText)
                 throw new RuntimeException( "No text for this event");
 
-            setChars( chars, wsr, _eventText, _sText, _pText );
+            return getString( wsr, _eventText, _sText, _pText );
         }
 
         // TODO - rather expensive to make Chars and getText and get
         // String
         public boolean textIsWhitespace ( )
         {
-            Chars chars = new Chars();
-            getText( chars );
-            String s = chars.asString();
+            String s = getText();
 
             for ( int i = 0 ; i < s.length() ; i++ )
             {
@@ -4013,6 +3970,12 @@ public abstract class Saver implements NamespaceManager
         private Splay             _startSplay;
         private boolean           _emittedText;
 
+        private boolean _hasText;
+        private String  _string;
+        private char[]  _buffer;
+        private int     _length;
+        private int     _offset;
+
         private QName   _name;
         private Splay   _xsiType;
         private Splay   _xsiNil;
@@ -4023,7 +3986,6 @@ public abstract class Saver implements NamespaceManager
         private int     _pText;
         private Splay   _sLoc;
         private int     _pLoc;
-        private boolean _hasText;
     }
 
     //
