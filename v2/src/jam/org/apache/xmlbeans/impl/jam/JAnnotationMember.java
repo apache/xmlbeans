@@ -107,6 +107,13 @@ public interface JAnnotationMember {
   public JAnnotation getValueAsAnnotation();
 
   /**
+   * Returns the value of this member as a JClass.  Returns null if the
+   * value cannot be understood as a class name or if the type of the member
+   * is known to be something other than java.lang.Class.
+   */
+  public JClass getValueAsClass();
+
+  /**
    * Returns the String value of the annotation.  Returns an empty string
    * by default.
    */
