@@ -86,9 +86,12 @@ public abstract class JamClassBuilder {
    * class to create
    * @param className simple name of the class to create.
    * @param importSpecs array of import specs to be used in the class,
-   * or null if not known or relevant.  Import specs are only needed if
-   * the builder is planning on setting any unqualified type references
-   * on the class.
+   * or null if not known or relevant.  Import specs are only strictly
+   * required if the builder is planning on setting any unqualified type
+   * references on the class.  The importspec values will be used in
+   * determining what is retuned by JClass.getImportedPackages() and
+   * getImportedClasses().  Note that an importSpec does not include the
+   * word 'import' - e.g. it should only be 'java.util.List' or 'java.util.*'
    */
   protected MClass createClassToBuild(String packageName,
                                       String className,

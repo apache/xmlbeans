@@ -63,10 +63,18 @@ public class JamClassLoaderImpl implements JamClassLoader {
 
   public final JClass loadClass(String fd)
   {
-    MClass out = cacheGet(fd);
+    fd = fd.trim();
+    JClass out = cacheGet(fd);
     if (out != null) return out;
-    if (fd.startsWith("[")) {
-      return ArrayClassImpl.createClassForFD(fd,this);
+    if (fd.indexOf('[') != -1) { // must be some kind of array name
+      String normalFd = ArrayClassImpl.normalizeArrayName(fd);
+      out = cacheGet(normalFd); // an array by any other name?
+      if (out == null) {
+        out = ArrayClassImpl.createClassForFD(normalFd,this);
+        cachePut(out,normalFd);
+      }
+      cachePut(out,fd); // so we know it by the requested name as well
+      return out;
     }
     {
       // check for loading inner class by name.  if it's not in the cache
@@ -142,22 +150,26 @@ public class JamClassLoaderImpl implements JamClassLoader {
     mFd2ClassCache.put("void",new VoidClassImpl(mContext));
   }
 
-  private void cachePut(MClass clazz) {
+  private void cachePut(JClass clazz) {
     mFd2ClassCache.put(new String(clazz.getFieldDescriptor().trim()),
                        new WeakReference(clazz));
   }
 
-  private MClass cacheGet(String fd) {
+  private void cachePut(JClass clazz, String cachedName) {
+    mFd2ClassCache.put(cachedName, new WeakReference(clazz));
+  }
+
+  private JClass cacheGet(String fd) {
     Object out = mFd2ClassCache.get(fd.trim());
     if (out == null) return null;
-    if (out instanceof MClass) return (MClass)out;
+    if (out instanceof JClass) return (JClass)out;
     if (out instanceof WeakReference) {
       out = ((WeakReference)out).get();
       if (out == null) {
         mFd2ClassCache.remove(fd.trim());
         return null;
       } else {
-        return (MClass)out;
+        return (JClass)out;
       }
     }
     throw new IllegalStateException();

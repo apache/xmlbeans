@@ -267,6 +267,24 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Test methods
 
+
+  public void testArrayNames() {
+    doOneArrayTest("int[]","[I");
+    doOneArrayTest("boolean[][]","[[Z");
+    doOneArrayTest("java.lang.Object[]","[Ljava.lang.Object;");    
+    doOneArrayTest("java.lang.String[][][]","[[[Ljava.lang.String;");
+  }
+
+  private void doOneArrayTest(String decl, String fd) {
+    JClass a = mLoader.loadClass(decl);
+    JClass b = mLoader.loadClass(fd);
+    assertTrue("didn't get same array class for int array", a == b);
+    assertTrue("it isn't an array!", a.isArrayType());
+    assertTrue("wrong name ", a.getQualifiedName().equals(decl));
+    assertTrue("wrong fd ", a.getFieldDescriptor().equals(fd));
+  }
+
+
   public void testInnerClasses() {
     // make sure we can load it by name this way
     resolved(mLoader.loadClass(INNER_A));
@@ -332,6 +350,7 @@ public abstract class JamTestBase extends TestCase {
                  tns.asString().equals(VAL));
     }
   }
+
 
   public void testAnnotationValuesById() {
     if (!isAnnotationsAvailable()) return;
@@ -464,6 +483,8 @@ public abstract class JamTestBase extends TestCase {
       String[] akas = aka.asStringArray();
       assertTrue("akas is null",akas != null);
       assertTrue("akas length is "+akas.length, akas.length == 3);
+      assertTrue("akas type is not an array ", type.isArrayType());
+
       for(int i=0; i<akas.length; i++) {
         assertTrue("akas "+i+" is empty '"+akas[i]+"'",
                    (akas[i] != null && akas[i].trim().length() > 0));
@@ -505,6 +526,8 @@ public abstract class JamTestBase extends TestCase {
       assertTrue("specialDigits type is "+specialDigitsType.getFieldDescriptor()+
                  ", expecting "+int[].class.getName(),
                  specialDigitsType.getFieldDescriptor().equals(int[].class.getName()));
+      assertTrue("specialDigits type is not an array ",
+                 specialDigitsType.isArrayType());
     }
     {
       JAnnotationValue addressValue = boog.getValue("address");
