@@ -1245,6 +1245,7 @@ public final class Validator
         case SchemaType.BTC_ANY_SIMPLE :
         {
             // Always valid!
+            _stringValue = value;
             break;
         }
         case SchemaType.BTC_STRING :
@@ -1361,6 +1362,7 @@ public final class Validator
         }
         case SchemaType.BTC_NOTATION :
             // Unimplemented.
+            _stringValue = value;
             break;
 
         default :

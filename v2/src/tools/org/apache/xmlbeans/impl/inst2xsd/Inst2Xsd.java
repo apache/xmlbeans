@@ -45,9 +45,8 @@ import java.util.HashSet;
 public class Inst2Xsd
 {
     public static void main(String[] args)
-        throws IOException, XmlException
     {
-        if (args.length == 0)
+        if (args==null || args.length == 0)
         {
             printHelp();
             System.exit(0);
@@ -157,21 +156,51 @@ public class Inst2Xsd
 
         File[] xmlFiles = cl.filesEndingWith(".xml");
         XmlObject[] xmlInstances = new XmlObject[xmlFiles.length];
-        for (int i = 0; i < xmlFiles.length; i++)
+
+        if ( xmlInstances.length==0 )
         {
-            xmlInstances[i] = XmlObject.Factory.parse(xmlFiles[i]);
+            printHelp();
+            System.exit(0);
+            return;
+        }
+
+        int i = 0;
+        try
+        {
+            for (i = 0; i < xmlFiles.length; i++)
+            {
+                xmlInstances[i] = XmlObject.Factory.parse(xmlFiles[i]);
+            }
+        }
+        catch (XmlException e)
+        {
+            System.err.println("Invalid xml file: '" + xmlFiles[i].getName() + "'. " + e.getMessage());
+            return;
+        }
+        catch (IOException e)
+        {
+            System.err.println("Could not read file: '" + xmlFiles[i].getName() + "'. " + e.getMessage());
+            return;
         }
 
         SchemaDocument[] schemaDocs = inst2xsd(xmlInstances, inst2XsdOptions);
 
-        for (int i = 0; i < schemaDocs.length; i++)
+        try
         {
-            SchemaDocument schema = schemaDocs[i];
+            for (i = 0; i < schemaDocs.length; i++)
+            {
+                SchemaDocument schema = schemaDocs[i];
 
-            if (inst2XsdOptions.isVerbose())
-                System.out.println("----------------------\n\n" + schema);
+                if (inst2XsdOptions.isVerbose())
+                    System.out.println("----------------------\n\n" + schema);
 
-            schema.save(new File(outDir, outPrefix + i + ".xsd"), new XmlOptions().setSavePrettyPrint());
+                schema.save(new File(outDir, outPrefix + i + ".xsd"), new XmlOptions().setSavePrettyPrint());
+            }
+        }
+        catch (IOException e)
+        {
+            System.err.println("Could not write file: '" + outDir + File.pathSeparator +  outPrefix + i + ".xsd" + "'. " + e.getMessage());
+            return;
         }
 
         if (validate)

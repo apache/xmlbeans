@@ -17,16 +17,15 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.impl.common.IOUtil;
 
-import java.util.Map;
-import java.util.LinkedHashMap;
+import java.io.File;
+import java.net.URI;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Collection;
-import java.io.File;
-import java.io.FileFilter;
-import java.net.URI;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class CommandLine
 {
@@ -41,7 +40,7 @@ public class CommandLine
             {
                 String opt = args[i].substring(1);
                 String val = null;
-                if (scheme != null && scheme.contains(opt) && i < args.length)
+                if (scheme != null && scheme.contains(opt) && i+1 < args.length)
                     val = args[++i];
                 else
                     val = "";
@@ -56,7 +55,7 @@ public class CommandLine
 
         _args = (String[])endargs.toArray(new String[endargs.size()]);
     }
-    
+
     public static void printLicense()
     {
         try
@@ -116,7 +115,7 @@ public class CommandLine
             for (int i = 0; i < args.length; i++)
             {
                 files[i] = new File(args[i]);
-                if (!noBaseDir && (_baseDir == null)) 
+                if (!noBaseDir && (_baseDir == null))
                 {
                     if (files[i].isDirectory())
                         _baseDir = files[i];
@@ -126,7 +125,7 @@ public class CommandLine
                 else
                 {
                     URI currUri = files[i].toURI();
-                    
+
                     // Give up on the basedir. There may be none
                     if (_baseDir != null && _baseDir.toURI().relativize(currUri).equals(currUri))
                     {
