@@ -21,6 +21,8 @@ import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
 import java.util.Iterator;
+import java.util.List;
+import java.util.ArrayList;
 
 final class TypeRegistry
 {
@@ -281,8 +283,19 @@ final class TypeRegistry
 
     wa.setItemNillable(type.isItemNillable());
 
-    if (type.getRanks() >= 0)
-      wa.setRanks(type.getRanks());
+    final int[] ranks = type.getRanks();
+    if (ranks != null) {
+      List rl = new ArrayList(ranks.length);
+      for (int i = 0, alen = ranks.length; i < alen; i++) {
+        final int rank = ranks[i];
+        if (rank < 0) {
+          throw new IllegalStateException("negative rank at index " +
+                                          i + ": " + rank);
+        }
+        rl.add(new Integer(rank));
+      }
+      wa.setRanks(rl);
+    }
   }
 
   private static void writeListArrayType(org.apache.xml.xmlbeans.bindingConfig.BindingType node,
@@ -434,11 +447,22 @@ final class TypeRegistry
 
     type.setItemNillable(node.getItemNillable());
 
-
-    if (node.isSetRanks())
-      type.setRanks(node.getRanks());
-    else
-      type.setRanks(-1);
+    if (node.isSetRanks()) {
+      final java.util.List ranks_list = node.getRanks();
+      if (!ranks_list.isEmpty()) {
+        final int len = ranks_list.size();
+        int[] new_ranks = new int[len];
+        for (int i = 0; i < len; i++) {
+          final int r = ((Integer)ranks_list.get(i)).intValue();
+          if (r < 0) {
+            String msg = "illegal negative array rank: " + ranks_list;
+            throw new IllegalArgumentException(msg);
+          }
+          new_ranks[i] = r;
+        }
+        type.setRanks(new_ranks);
+      }
+    }
   }
 
   static void fillTypeFromNode(SimpleDocumentBinding simpleDocumentBinding,

@@ -799,7 +799,8 @@ public class Schema2Java extends BindingCompiler {
       }
       SOAPArrayType aType = getWsdlArrayType(scratch.getSchemaType());
       if (aType != null)
-        bType.setRanks(aType.getDimensions().length);
+        //TODO: FIXME -- align with bts
+        bType.setRanks(new int[]{aType.getDimensions().length});
 
       return;
     }
