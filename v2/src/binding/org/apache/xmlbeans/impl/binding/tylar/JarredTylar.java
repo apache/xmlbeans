@@ -90,6 +90,8 @@ public class JarredTylar implements Tylar {
   private static final String SCHEMA_DIR =
           normalizeEntryName(TylarConstants.SCHEMA_DIR);
 
+  private static final String SCHEMA_EXT = ".xsd";
+
   // ========================================================================
   // Variables
 
@@ -120,19 +122,12 @@ public class JarredTylar implements Tylar {
       String name = normalizeEntryName(entry.getName());
       if (name.equals(BINDING_FILE)) {
         if (VERBOSE) System.out.println("parsing binding file "+name);
-        //FIXME this doesn't always work
-        //  bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(in));
-        // so we do this instead
-        bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse
-                                (getEntryContents(in)));
-      } else if (name.startsWith(SCHEMA_DIR)) {
+        bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(in));
+      } else if (name.startsWith(SCHEMA_DIR) && name.endsWith(SCHEMA_EXT)) {
         if (schemas == null) schemas = new ArrayList();
         if (VERBOSE) System.out.println("parsing schema "+name);
         //FIXME this doesn't work
-        //   schemas.add(SchemaDocument.Factory.parse(in));
-        // so we do this instead
-        schemas.add(SchemaDocument.Factory.parse
-                    (new StringReader(getEntryContents(in))));
+        schemas.add(SchemaDocument.Factory.parse(in));
       } else {
         if (VERBOSE) {
           System.out.println("ignoring unknown jar entry: "+name);
@@ -206,21 +201,8 @@ public class JarredTylar implements Tylar {
   }
 
   /**
-   * This is a temporary hack around a problem I don't fully understand yet.
-   * For some reason, the SchemaDocument.Factory and BindingDocument.Factory
-   * parse methods don't deal very well with being handed the raw
-   * JavaInputStream.  Instead, we spoonfeed them by building up the contents
-   * into a buffer here and then handing it off to them.  Probably some
-   * encoding thing, not sure what is going wrong, but at least this works
-   * for now.
-   *
-   * The trace I get when thing go awry looks something like this:
-   *
-   * org.apache.xmlbeans.XmlException: error: Premature end of file.
-   *    at org.apache.xmlbeans.impl.store.Root$SaxLoader.load(Root.java:802)
-   *    at org.apache.xmlbeans.impl.store.Root.loadXml(Root.java:1075)
-   *    at org.apache.xmlbeans.impl.store.Root.loadXml(Root.java:1061)
-   * ...
+   * Grab the contents of the current entry and stuffs them into a string -
+   * sometimes useful for debugging.
    */
   private static String getEntryContents(JarInputStream in) throws IOException {
     StringWriter writer = new StringWriter();
@@ -230,9 +212,9 @@ public class JarredTylar implements Tylar {
       writer.write(new String(buffer, 0, count));
     }
     if (VERBOSE) {
-      System.out.println("=== SCHEMA CONTENTS ===");
+      System.out.println("=== ENTRY CONTENTS ===");
       System.out.println(writer.toString());
-      System.out.println("=== END SCHEMA CONTENTS ===");
+      System.out.println("=== ENTRY CONTENTS ===");
     }
     return writer.toString();
   }
