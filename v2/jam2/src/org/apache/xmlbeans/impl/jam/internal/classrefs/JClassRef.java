@@ -25,7 +25,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
  * to itself) as an optimization for the case where we don't need or want
  * lazy type resolution</p>.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JClassRef {
 

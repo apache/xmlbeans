@@ -20,7 +20,7 @@ import org.apache.xmlbeans.impl.jam.editable.EComment;
 /**
  * <p>Implementation
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public final class CommentImpl extends ElementImpl implements EComment {
 

@@ -22,7 +22,7 @@ import java.io.StringWriter;
 
 
 /**
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public final class ArrayClassImpl extends BuiltinClassImpl {
 

@@ -26,7 +26,7 @@ import java.util.Map;
  *
  * @deprecated need to move this down under elements, and expose an EProperty.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class PropertyImpl implements JProperty {
 

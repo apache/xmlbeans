@@ -16,7 +16,7 @@ package org.apache.xmlbeans.test.jam.dummyclasses;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class HeavilyCommented {
 

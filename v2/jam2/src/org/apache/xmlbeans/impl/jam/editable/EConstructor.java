@@ -20,7 +20,7 @@ import org.apache.xmlbeans.impl.jam.JConstructor;
 /**
  * Editable representation of a java constructor.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface EConstructor extends JConstructor, EInvokable {
 

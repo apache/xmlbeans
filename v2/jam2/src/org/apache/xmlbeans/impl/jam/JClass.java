@@ -30,7 +30,7 @@ package org.apache.xmlbeans.impl.jam;
  * this, because it seems unlikely and it seems heavyweight.  Seems
  * ok?</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JClass extends JMember {
 

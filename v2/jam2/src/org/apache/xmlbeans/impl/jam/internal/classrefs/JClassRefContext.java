@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.jam.JamClassLoader;
  * needs to perform lazy type resolution.  This information is typically
  * provided by the JClass implementation.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JClassRefContext {
 

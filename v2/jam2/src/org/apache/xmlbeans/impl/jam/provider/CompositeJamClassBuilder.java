@@ -20,7 +20,7 @@ import org.apache.xmlbeans.impl.jam.editable.EClass;
  * <p>Composite implementation of JamClassBuilder.  When building,
  * the first one in the list to not return null wins.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class CompositeJamClassBuilder extends JamClassBuilder {
 

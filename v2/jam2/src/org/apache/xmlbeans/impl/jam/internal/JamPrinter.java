@@ -25,7 +25,7 @@ import java.util.Collection;
 /**
  * Utility class for printing out a JAM.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class JamPrinter {
 

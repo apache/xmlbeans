@@ -12,7 +12,7 @@ import org.apache.xmlbeans.impl.jam.editable.EComment;
 import java.util.Map;
 
 /**
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class AnnotatedElementImpl extends ElementImpl
   implements EAnnotatedElement

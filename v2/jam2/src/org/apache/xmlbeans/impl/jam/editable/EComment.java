@@ -18,7 +18,7 @@ import org.apache.xmlbeans.impl.jam.JComment;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface EComment extends JComment {
 

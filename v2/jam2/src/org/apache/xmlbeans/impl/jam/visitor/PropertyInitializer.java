@@ -15,7 +15,7 @@
 package org.apache.xmlbeans.impl.jam.visitor;
 
 /**
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class PropertyInitializer extends ElementVisitor {
 

@@ -59,7 +59,7 @@ package org.apache.xmlbeans.impl.jam;
  * <p>Base abstraction for something which can be invoked, i.e. a
  * JConstructor or JMethod.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract interface JInvokable extends JMember {
   /**

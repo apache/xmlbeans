@@ -20,7 +20,7 @@ import java.net.URI;
 /**
  * Describes a specific point in a source file.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JSourcePosition {
 

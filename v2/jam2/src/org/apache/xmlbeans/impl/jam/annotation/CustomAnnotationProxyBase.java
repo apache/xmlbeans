@@ -22,7 +22,7 @@ package org.apache.xmlbeans.impl.jam.annotation;
  * documentation on <code>setMemberValue()</code> and
  * <code>getValue()</code> for details.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class CustomAnnotationProxyBase extends AnnotationProxy {
 

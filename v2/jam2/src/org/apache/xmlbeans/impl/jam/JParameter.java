@@ -19,7 +19,7 @@ package org.apache.xmlbeans.impl.jam;
  * Represents a single parameter of a Java method or constructor.
  * This type and name information as well as associated metadata.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JParameter extends JElement {
 

@@ -35,7 +35,7 @@ package org.apache.xmlbeans.impl.jam;
  * which returns a bit-field that is identical to that described in
  * java.lang.reflect.Modifier.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract interface JMember extends JAnnotatedElement {
 

@@ -21,7 +21,7 @@ package org.apache.xmlbeans.impl.jam;
  * place (code comments) JComment is a distinct entity from
  * JAnnotation.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JComment extends JElement {
 

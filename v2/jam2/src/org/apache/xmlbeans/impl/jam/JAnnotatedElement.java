@@ -6,7 +6,7 @@ import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
  * <p>Base abstraction for JElements which can carry annotations and comments.
  * The only JElements which cannot do this are JAnnotation and JComment.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract interface JAnnotatedElement extends JElement {
 

@@ -68,7 +68,7 @@ import java.util.*;
  * getService() method which should create the service from sources, or
  * classes, or whatever is appropriate.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class JamTestBase extends TestCase {
 

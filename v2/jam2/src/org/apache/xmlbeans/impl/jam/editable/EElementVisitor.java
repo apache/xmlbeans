@@ -16,7 +16,7 @@ package org.apache.xmlbeans.impl.jam.editable;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface EElementVisitor {
 

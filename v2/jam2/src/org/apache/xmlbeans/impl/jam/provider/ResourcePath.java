@@ -23,7 +23,7 @@ import java.net.URL;
 /**
  * Represent a file search path, such as a classpath or sourcepath.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class ResourcePath {
 

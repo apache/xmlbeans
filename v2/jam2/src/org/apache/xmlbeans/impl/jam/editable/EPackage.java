@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.jam.editable;
 import org.apache.xmlbeans.impl.jam.JPackage;
 
 /**
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface EPackage extends  JPackage, EAnnotatedElement {
 }

@@ -19,7 +19,7 @@ package org.apache.xmlbeans.impl.jam;
  * Object which can load representations of a java.lang.Class.
  * Analagous to a java.lang.ClassLoader.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JamClassLoader {
 

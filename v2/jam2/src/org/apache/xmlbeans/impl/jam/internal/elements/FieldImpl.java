@@ -28,7 +28,7 @@ import java.lang.reflect.Modifier;
 /**
  * <p>Implementation of JField and EField.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public final class FieldImpl extends MemberImpl implements EField {
 

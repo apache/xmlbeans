@@ -29,7 +29,7 @@ import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
  * which exposes nested attributes (which may in turn be either simple
  * or complex.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface JAnnotation extends JElement {
 

@@ -24,7 +24,7 @@ import org.apache.xmlbeans.impl.jam.JamClassLoader;
  * hit here is probably not significant, but someday we might want to provide
  * switch to enable caching of references.</p>
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class QualifiedJClassRef implements JClassRef {
 

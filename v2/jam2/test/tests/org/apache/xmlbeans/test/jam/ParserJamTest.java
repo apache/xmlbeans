@@ -23,7 +23,7 @@ import java.io.IOException;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class ParserJamTest extends JamTestBase {
 

@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.jam.JField;
 /**
  * Editable representation of a java field.
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface EField extends JField, EMember {
 
