@@ -851,9 +851,11 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void notifyChange ( )
     {
-        // Force any path to get exausted
+        // Force any path to get exausted, cursor may be disposed, but still be on the notification
+        // list.
 
-        _getSelectionCount();
+        if (_cur != null)
+            _getSelectionCount();
     }
 
     public void setNextChangeListener ( ChangeListener listener )

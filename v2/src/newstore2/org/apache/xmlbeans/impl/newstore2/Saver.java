@@ -285,6 +285,7 @@ abstract class Saver
             case   ELEM     : { processElement();                     break; }
             case - ELEM     : { processFinish ();                     break; }
             case   TEXT     : { emitText      ( _cur );               break; }
+                
             case   COMMENT  : { emitComment   ( _cur ); _cur.toEnd(); break; }
             case   PROCINST : { emitProcinst  ( _cur ); _cur.toEnd(); break; }
                               
@@ -2733,11 +2734,14 @@ abstract class Saver
                         spaces( _sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth );
                     }
                     
-                    if (prevKind != ROOT && k != -ROOT)
-                        _sb.append( _newLine );
-                    
-                    int d = k < 0 ? _depth - 1 : _depth;
-                    spaces( _sb, _sb.length(), _prettyOffset + _prettyIndent * d );
+                    if (k != -ROOT)
+                    {
+                        if (prevKind != ROOT)
+                            _sb.append( _newLine );
+                        
+                        int d = k < 0 ? _depth - 1 : _depth;
+                        spaces( _sb, _sb.length(), _prettyOffset + _prettyIndent * d );
+                    }
                 }
 
                 if (_sb.length() > 0)
