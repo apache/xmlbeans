@@ -687,6 +687,7 @@
             showOutput="${showoutput}"
             reportFile="${report.log.file}"
             fork="true"
+            resultproperty="junit.failcount"
             failonerror="true">
             <classpath>
                 <path refid="test.run.classpath"/>
@@ -704,6 +705,14 @@
                 includes="${tests.spec}"/>
         </junitX>
         <antcall target="generate.html.report"/>
+        <echo message="${junit.failcount}"/>
+         <if>
+          <not>
+             <equals arg1="${junit.failcount}" arg2="0"/>
+          </not>
+          <then><fail message="Test run had failures"/> </then>
+        </if>
+        
     </target>
 
     <target name="generate.html.report">
