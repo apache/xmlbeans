@@ -13,6 +13,10 @@
   <property name='javadocbuild_dir'    value='${sitebuild_dir}/javadocs'/>
   <property name='gen_dir'     value='${build_dir}/generatedsrc'/>
   <property name='classes_dir' value='${build_dir}/classes'/>
+  <property name='lib_dir' value='external/lib'/>
+  <property name='findbugs_home' value='external/findbugs'/>
+
+  <property name='findbugs_jar' value='${findbugs_home}/lib/findbugs-ant.jar'/>
   <property name='antlr_jar'   value='external/lib/antlr.jar'/>
   <property name='javac.source' value='1.34xxx'/>
   <property name='javac.target' value='1.34xxx'/>
@@ -22,6 +26,25 @@
   <property name='staxapi_jar'   value='../build/lib/jsr173_api.jar'/>
 
   <property name='tests_dir'   value='test'/>
+
+
+  <target name='findbugs'>
+
+    <property environment="env"/>
+    
+
+    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
+             classpath='${findbugs_jar}'/>
+    <findbugs home="${findbugs_home}"
+              output="xml"
+              outputFile="${build_dir}/jam-findbugs.xml" >
+      <auxClasspath path="${staxapi_jar};${env.ANT_HOME}/lib/ant.jar" />
+      <sourcePath path="${src_dir}" />
+      <class location="${build_dir}" />
+    </findbugs>
+
+
+  </target>
 
   <target name='clean'>
     <delete dir='${build_dir}'/>
@@ -90,6 +113,8 @@
     <ant dir='..' target='jsr173_ri.jar' inheritAll='false' />
     <ant dir='..' target='jsr173_api.jar' inheritAll='false' />
   </target>
+
+
 
   <target name='test'>
     <ant dir='${tests_dir}' target='all' inheritAll='false' />
