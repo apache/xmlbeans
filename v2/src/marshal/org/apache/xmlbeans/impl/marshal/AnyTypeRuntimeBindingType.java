@@ -4,15 +4,21 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 
-final class BuiltinRuntimeBindingType
+import javax.xml.namespace.QName;
+
+final class AnyTypeRuntimeBindingType
     extends RuntimeBindingType
 {
-    BuiltinRuntimeBindingType(BuiltinBindingType type,
+    static final QName ANY_TYPE_NAME =
+        new QName(RuntimeBindingTypeTable.XSD_NS, "anyType");
+
+    AnyTypeRuntimeBindingType(BuiltinBindingType type,
                               TypeConverter converter)
         throws XmlException
     {
         super(type, converter, converter);
         assert converter != null;
+        assert ANY_TYPE_NAME.equals(type.getName().getXmlName().getQName());
     }
 
     void accept(RuntimeTypeVisitor visitor)
@@ -29,7 +35,7 @@ final class BuiltinRuntimeBindingType
 
     boolean hasElementChildren()
     {
-        return false;
+        return true;
     }
 
 

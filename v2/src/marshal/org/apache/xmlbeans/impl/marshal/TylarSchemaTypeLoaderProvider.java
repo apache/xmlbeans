@@ -37,6 +37,7 @@ final class TylarSchemaTypeLoaderProvider
         if (schemaTypeLoader == null) {
             try {
                 schemaTypeLoader = tylar.getSchemaTypeLoader();
+                //TODO: clean up this error handling
                 //REVIEW - Scott: this method throws now, not sure how you
                 //want to handle it.
             }

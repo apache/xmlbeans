@@ -86,6 +86,11 @@ public final class CharList
         set(index, ((Character)value).charValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
 
     public void set(int index, char value)
     {

@@ -59,7 +59,7 @@ final class RuntimeBindingTypeTable
     private final FactoryTypeVisitor typeVisitor = new FactoryTypeVisitor();
 
 
-    private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
+    static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
     private static final String SOAPENC_NS = "http://schemas.xmlsoap.org/soap/encoding/";
 
 
@@ -233,10 +233,15 @@ final class RuntimeBindingTypeTable
         assert (btype instanceof BuiltinBindingType) :
             "unexpected type: " + btype;
 
-        final BuiltinRuntimeBindingType builtin;
+        final RuntimeBindingType builtin;
         try {
-            builtin = new BuiltinRuntimeBindingType((BuiltinBindingType)btype,
-                                                    converter);
+            if (xml_type.equals(AnyTypeRuntimeBindingType.ANY_TYPE_NAME)) {
+                builtin = new AnyTypeRuntimeBindingType((BuiltinBindingType)btype,
+                                                        converter);
+            } else {
+                builtin = new BuiltinRuntimeBindingType((BuiltinBindingType)btype,
+                                                        converter);
+            }
         }
         catch (XmlException e) {
             throw new AssertionError(e);
@@ -753,6 +758,7 @@ final class RuntimeBindingTypeTable
     {
         private RuntimeBindingType runtimeBindingType;
 
+
         public RuntimeBindingType getRuntimeBindingType()
         {
             return runtimeBindingType;
@@ -761,7 +767,8 @@ final class RuntimeBindingTypeTable
         public void visit(BuiltinBindingType builtinBindingType)
             throws XmlException
         {
-            runtimeBindingType = new BuiltinRuntimeBindingType(builtinBindingType);
+            throw new AssertionError("not used");
+
         }
 
         public void visit(ByNameBean byNameBean)

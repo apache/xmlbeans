@@ -22,6 +22,9 @@ public interface RuntimeTypeVisitor
     void visit(BuiltinRuntimeBindingType builtinRuntimeBindingType)
         throws XmlException;
 
+    void visit(AnyTypeRuntimeBindingType builtinRuntimeBindingType)
+        throws XmlException;
+
     void visit(ByNameRuntimeBindingType byNameRuntimeBindingType)
         throws XmlException;
 

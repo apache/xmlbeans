@@ -160,6 +160,31 @@ final class WrappedArrayRuntimeBindingType
             acc.append(prop_obj);
         }
 
+        protected void fillPlaceholder(Object inter)
+        {
+            Accumulator acc = (Accumulator)inter;
+            acc.appendDefault();
+        }
+
+        //non index properties can return unsupported...
+        protected int getSize(Object inter)
+        {
+            Accumulator acc = (Accumulator)inter;
+            return acc.size();
+        }
+
+        protected void fill(Object final_obj, int index, Object prop_val)
+        {
+            assert final_obj != null;
+            assert !(final_obj instanceof Accumulator);
+
+            //TODO: fix case for collections.  Can only work with List types
+            assert final_obj.getClass().isArray();
+
+            Array.set(final_obj, index, prop_val);
+        }
+
+
         Object getValue(Object parentObject, MarshalResult result)
             throws XmlException
         {
@@ -203,6 +228,5 @@ final class WrappedArrayRuntimeBindingType
         {
             return null;
         }
-
     }
 }

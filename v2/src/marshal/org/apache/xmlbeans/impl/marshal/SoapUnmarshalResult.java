@@ -15,9 +15,11 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.ObjectFactory;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
@@ -27,6 +29,9 @@ import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.List;
 
 abstract class SoapUnmarshalResult
     extends UnmarshalResult
@@ -35,6 +40,8 @@ abstract class SoapUnmarshalResult
         new SoapAttributeHolder();
     private final RefObjectTable refObjectTable;
     private final StreamRefNavigator streamRefNavigator;
+    private List fillEvents;
+    private IdentityHashMap interToFinalMap;
 
     SoapUnmarshalResult(BindingLoader loader,
                         RuntimeBindingTypeTable typeTable,
@@ -60,6 +67,67 @@ abstract class SoapUnmarshalResult
         return reader;
     }
 
+    protected Object unmarshalBindingType(BindingType bindingType)
+        throws XmlException
+    {
+        updateAttributeState();
+
+        final TypeUnmarshaller um;
+        final ObjectFactory of = extractObjectFactory();
+
+        Object retval;
+
+        try {
+            final RuntimeBindingType rtt = getRuntimeType(bindingType);
+            if (of == null) {
+                if (hasXsiNil())
+                    um = NullUnmarshaller.getInstance();
+                else
+                    um = rtt.getUnmarshaller();
+                retval = um.unmarshal(this);
+            } else {
+                final Object initial_obj = of.createObject(rtt.getJavaType());
+                um = rtt.getUnmarshaller();
+                final Object inter = rtt.createIntermediary(this, initial_obj);
+                um.unmarshalIntoIntermediary(inter, this);
+                retval = rtt.getFinalObjectFromIntermediary(inter, this);
+            }
+        }
+        catch (InvalidLexicalValueException ilve) {
+            //top level simple types can end up here for invalid lexical values
+            assert !errors.isEmpty();
+            retval = null;
+        }
+
+        fireFillEvents();
+
+        return retval;
+    }
+
+    private void fireFillEvents()
+
+    {
+        if (fillEvents == null || fillEvents.isEmpty()) return;
+
+        for (int i = 0, len = fillEvents.size(); i < len; i++) {
+            final FillEvent event = (FillEvent)fillEvents.get(i);
+            final Object prop_val = refObjectTable.getObjectForRef(event.ref);
+            assert prop_val != null; //TODO: unmask null values
+
+            event.prop.fill(getFinalObjForInter(event.inter),
+                            event.index, prop_val);
+        }
+    }
+
+    private Object getFinalObjForInter(Object inter)
+    {
+        assert interToFinalMap != null;
+        final Object final_obj = interToFinalMap.get(inter);
+        assert final_obj != null;
+        return final_obj;
+    }
+
+
     void extractAndFillElementProp(final RuntimeBindingProperty prop,
                                    Object inter)
         throws XmlException
@@ -68,41 +136,8 @@ abstract class SoapUnmarshalResult
 
         final XMLStreamReaderExt curr_reader = baseReader;
 
-        updateSoapAttributes();
-
-        final String ref = soapAttributeHolder.ref;
-        Object tmpval = null;
-        if (ref != null) {
-            tmpval = getObjectForRefFromTable(ref);
-            if (tmpval == null) {
-                Object tmp_inter = getInterForRefFromTable(ref);
-                if (tmp_inter == null) {
-                    baseReader = relocateStreamToRef(ref);
-                    updateSoapAttributes();
-                    updateAttributeState();
-                } else {
-                    throw new AssertionError("FIXME");
-                }
-            } else {
-                prop.fill(inter, tmpval);
-                skipElement();
-            }
-        }
-
-        if (tmpval == null) {
-            try {
-                final RuntimeBindingType actual_rtt =
-                    this.determineActualRuntimeType(prop.getRuntimeBindingType());
-
-                final Object this_val =
-                    unmarshalElementProperty(prop, inter, actual_rtt);
-
-                prop.fill(inter, this_val);
-            }
-            catch (InvalidLexicalValueException ilve) {
-                //unlike attributes, the error has been added to the this
-                //already via BaseSimpleTypeConveter...
-            }
+        if (!processRef(prop, inter)) {
+            basicExtractAndFill(prop, inter);
         }
 
         if (baseReader != curr_reader) {
@@ -111,20 +146,67 @@ abstract class SoapUnmarshalResult
         }
     }
 
-    private Object getObjectForRefFromTable(String ref)
+    //beware this method  has side effects.
+    //returns true iff this method filled the prop value (from ref cache).
+    private boolean processRef(final RuntimeBindingProperty prop,
+                               final Object inter)
+        throws XmlException
     {
-        //TODO: mask null values
+        updateSoapAttributes();
 
-        final Object obj = refObjectTable.getObjectForRef(ref);
-        return obj;
+        final String ref = soapAttributeHolder.ref;
+        if (ref == null) return false;
+
+        final RefObjectTable.RefEntry entry = refObjectTable.getEntryForRef(ref);
+
+        //TODO: cleanup all the null checking...
+        //TODO: mask null values in refObjectTable
+
+        final Object tmpval = entry == null ? null : entry.final_obj;
+        if (tmpval == null) {
+            final Object tmp_inter = entry == null ? null : entry.inter;
+            if (tmp_inter == null) {
+                baseReader = relocateStreamToRef(ref);
+                updateSoapAttributes();
+                updateAttributeState();
+                return false;
+            } else {
+                enqueueFillEvent(inter, ref, prop);
+                prop.fillPlaceholder(inter);
+                skipElement();
+                return true;
+            }
+        } else {
+            prop.fill(inter, tmpval);
+            skipElement();
+            return true;
+        }
     }
 
-    private Object getInterForRefFromTable(String ref)
+    private void enqueueFillEvent(Object inter,
+                                  String ref,
+                                  RuntimeBindingProperty prop)
     {
-        //TODO: mask null values
+        if (fillEvents == null) {
+            fillEvents = new ArrayList();
+        }
+        fillEvents.add(new FillEvent(ref, prop, prop.getSize(inter), inter));
+    }
 
-        final Object obj = refObjectTable.getInterForRef(ref);
-        return obj;
+    private void basicExtractAndFill(RuntimeBindingProperty prop,
+                                     Object inter)
+        throws XmlException
+    {
+        try {
+            final Object this_val =
+                unmarshalElementProperty(prop, inter);
+
+            prop.fill(inter, this_val);
+        }
+        catch (InvalidLexicalValueException ilve) {
+            //unlike attributes, the error has been added to the this
+            //already via BaseSimpleTypeConveter...
+        }
     }
 
     private XMLStreamReaderExt relocateStreamToRef(String ref)
@@ -219,10 +301,11 @@ abstract class SoapUnmarshalResult
     protected abstract QName getRefAttributeName();
 
     private Object unmarshalElementProperty(RuntimeBindingProperty prop,
-                                            Object inter,
-                                            RuntimeBindingType actual_rtt)
+                                            Object inter)
         throws XmlException
     {
+        final RuntimeBindingType actual_rtt =
+            this.determineActualRuntimeType(prop.getRuntimeBindingType());
         {
             final String lexical_default = prop.getLexicalDefault();
             if (lexical_default != null) {
@@ -230,25 +313,35 @@ abstract class SoapUnmarshalResult
             }
         }
 
+        final String id = soapAttributeHolder.id;
+
         final Object this_val;
 
-
-        if (actual_rtt.hasElementChildren()) {
+        if (!hasXsiNil() && actual_rtt.hasElementChildren()) {
             final Object prop_inter = prop.createIntermediary(inter, actual_rtt, this);
-
-            final String id = soapAttributeHolder.id;
             final boolean update_again = updateRefTable(actual_rtt, prop_inter, id);
-
             actual_rtt.getUnmarshaller().unmarshalIntoIntermediary(prop_inter, this);
             this_val = actual_rtt.getFinalObjectFromIntermediary(prop_inter, this);
+            interToFinalMap().put(prop_inter, this_val);
             if (update_again) {
                 refObjectTable.putObjectForRef(id, this_val);
             }
         } else {
             TypeUnmarshaller um = getUnmarshaller(actual_rtt);
             this_val = um.unmarshal(this);
+            if (id != null) {
+                refObjectTable.putForRef(id, this_val, this_val);
+            }
         }
         return this_val;
+    }
+
+    private IdentityHashMap interToFinalMap()
+    {
+        if (interToFinalMap == null) {
+            interToFinalMap = new IdentityHashMap();
+        }
+        return interToFinalMap;
     }
 
     private boolean updateRefTable(RuntimeBindingType actual_rtt,
@@ -281,5 +374,23 @@ abstract class SoapUnmarshalResult
             ref = null;
         }
     }
+
+
+    private static final class FillEvent
+    {
+        final String ref;
+        final RuntimeBindingProperty prop;
+        final int index;
+        final Object inter;
+
+        public FillEvent(String ref, RuntimeBindingProperty prop, int index, Object inter)
+        {
+            this.ref = ref;
+            this.prop = prop;
+            this.index = index;
+            this.inter = inter;
+        }
+    }
+
 
 }

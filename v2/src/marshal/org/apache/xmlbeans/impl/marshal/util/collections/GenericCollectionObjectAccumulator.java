@@ -57,6 +57,12 @@ public final class GenericCollectionObjectAccumulator
         throw new UnsupportedOperationException("no indexed access");
     }
 
+
+    public int size()
+    {
+        return container.size();
+    }
+
     public Object getFinalArray()
     {
         return container;

@@ -86,6 +86,11 @@ public final class ByteList
         set(index, ((Number)value).byteValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
     /**
      * Appends the specified element to the end of this list.
      *

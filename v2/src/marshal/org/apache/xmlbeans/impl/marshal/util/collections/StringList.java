@@ -82,6 +82,11 @@ public final class StringList
         set(index, (String)value);
     }
 
+    public int size()
+    {
+        return size;
+    }
+
     public void set(final int index, String value)
     {
         ensureCapacity(index + 1);

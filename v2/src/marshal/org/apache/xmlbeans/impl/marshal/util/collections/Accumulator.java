@@ -31,6 +31,7 @@ public interface Accumulator
 
     void set(int index, Object value);
 
+    int size();
 
     /**
      * This method must be idempotent between calls to add or set.

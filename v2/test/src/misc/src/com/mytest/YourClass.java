@@ -74,6 +74,8 @@ public class YourClass
     public String stringField = "FLD-" + RND.nextInt();
     public int intField = RND.nextInt();
 
+    public Object[] objectArray;
+    public Object[] objectArrayTwo;
 
     //hack alert
     static final Random RND = new Random();

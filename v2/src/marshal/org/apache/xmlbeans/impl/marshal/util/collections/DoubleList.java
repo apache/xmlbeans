@@ -85,6 +85,11 @@ public final class DoubleList
         set(index, ((Number)value).doubleValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
 
     public void set(int index, double value)
     {

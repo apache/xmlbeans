@@ -25,6 +25,7 @@ import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -89,7 +90,8 @@ abstract class RuntimeBindingType
     protected Object createIntermediary(UnmarshalResult context)
     {
         //TODO: make this abstract
-        throw new UnsupportedOperationException("this=" + this);
+        throw new UnsupportedOperationException("this=" + this + " at " + XmlStreamUtils.printEvent(context.baseReader));
+
     }
 
 
@@ -266,6 +268,7 @@ abstract class RuntimeBindingType
         }
     }
 
+    //really means "can have element children"
     abstract boolean hasElementChildren();
 
 
