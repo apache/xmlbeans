@@ -2867,7 +2867,7 @@ final class DomImpl
     {
         String s = _characterData_getData( c );
 
-        if (offset > s.length() || count < 0)
+        if (offset < 0 || offset > s.length() || count < 0)
             throw new IndexSizeError();
 
         if (offset + count > s.length())
@@ -2903,7 +2903,7 @@ final class DomImpl
     {
         String s = _characterData_getData( c );
         
-        if (offset > s.length())
+        if (offset < 0 || offset > s.length())
             throw new IndexSizeError();
 
         if (arg != null && arg.length() > 0)
@@ -2918,7 +2918,7 @@ final class DomImpl
     {
         String s = _characterData_getData( c );
 
-        if (offset > s.length() || count < 0)
+        if (offset < 0 || offset > s.length() || count < 0)
             throw new IndexSizeError();
 
         if (offset + count > s.length())
@@ -2948,7 +2948,7 @@ final class DomImpl
     {
         String s = _characterData_getData( c );
 
-        if (offset > s.length() || count < 0)
+        if (offset < 0 || offset > s.length() || count < 0)
             throw new IndexSizeError();
 
         if (offset + count > s.length())
@@ -2967,7 +2967,7 @@ final class DomImpl
         
         String s = _characterData_getData( t );
 
-        if (offset > s.length())
+        if (offset < 0 || offset > s.length())
             throw new IndexSizeError();
 
         _characterData_deleteData( t, offset, s.length() - offset );
