@@ -35,6 +35,16 @@ final class BooleanTypeConverter
         return Boolean.valueOf(b);
     }
 
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        final boolean b = XsTypeConverter.lexBoolean(lexical_value);
+        return Boolean.valueOf(b);
+    }
+
+
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {

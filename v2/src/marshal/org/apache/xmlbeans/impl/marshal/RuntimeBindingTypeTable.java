@@ -102,7 +102,9 @@ final class RuntimeBindingTypeTable
         return type_um;
     }
 
-    private TypeUnmarshaller createTypeUnmarshallerInternal(BindingType type, BindingLoader loader) throws XmlException
+    private TypeUnmarshaller createTypeUnmarshallerInternal(BindingType type,
+                                                            BindingLoader loader)
+        throws XmlException
     {
         TypeVisitor type_visitor =
             new TypeVisitor(this, loader, runtimeTypeFactory);
@@ -110,7 +112,8 @@ final class RuntimeBindingTypeTable
         return type_visitor.getUnmarshaller();
     }
 
-    RuntimeTypeFactory getRuntimeTypeFactory() {
+    RuntimeTypeFactory getRuntimeTypeFactory()
+    {
         return runtimeTypeFactory;
     }
 
@@ -234,8 +237,13 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("boolean", boolean.class, boolean_conv);
         addXsdBuiltin("boolean", Boolean.class, boolean_conv);
 
+        addXsdBuiltin("anyURI",
+                      java.net.URI.class,
+                      new AnyUriToUriTypeConverter());
+
         final StringTypeConverter string_conv = new StringTypeConverter();
         final Class str = String.class;
+        addXsdBuiltin("anySimpleType", str, new AnySimpleTypeConverter());
         addXsdBuiltin("string", str, string_conv);
         addXsdBuiltin("normalizedString", str, string_conv);
         addXsdBuiltin("token", str, string_conv);
@@ -250,6 +258,14 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("anyURI",
                       str,
                       new AnyUriToStringTypeConverter());
+
+        final Class str_array = (new String[0]).getClass();
+        addXsdBuiltin("ENTITIES", str_array,
+                      new StringListArrayConverter());
+        addXsdBuiltin("IDREFS", str_array,
+                      new StringListArrayConverter());
+        addXsdBuiltin("NMTOKENS", str_array,
+                      new StringListArrayConverter());
 
         addXsdBuiltin("dateTime",
                       Calendar.class,
@@ -269,6 +285,7 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("hexBinary",
                       byte_array_jname,
                       new HexBinaryTypeConverter());
+
     }
 
     private static TypeUnmarshaller createSimpleTypeUnmarshaller(SimpleBindingType stype,
@@ -416,6 +433,11 @@ final class RuntimeBindingTypeTable
             final JaxrpcEnumRuntimeBindingType rtt =
                 runtimeTypeFactory.createRuntimeType(enum_type, this, loader);
             m = new JaxrpcEnumMarsahller(rtt);
+        } else if (binding_type instanceof ListArrayType) {
+            ListArrayType la_type = (ListArrayType)binding_type;
+            final ListArrayRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(la_type, this, loader);
+            m = new ListArrayConverter(rtt);
         }
 
         if (m != null)
@@ -512,7 +534,11 @@ final class RuntimeBindingTypeTable
         public void visit(ListArrayType listArrayType)
             throws XmlException
         {
-            // todo: implement
+            ListArrayRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(listArrayType,
+                                                     runtimeBindingTypeTable,
+                                                     loader);
+            typeUnmarshaller = new ListArrayConverter(rtt);
         }
 
         public TypeUnmarshaller getUnmarshaller()

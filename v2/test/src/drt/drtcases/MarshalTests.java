@@ -135,6 +135,7 @@ public class MarshalTests extends TestCase
         testSimpleTypeUnmarshal(new Double(23432.43234), "double");
         testSimpleTypeUnmarshal(new Double(23432.43234), "double");
 
+        testStringTypeUnmarshal("anySimpleType");
         testStringTypeUnmarshal("string");
         testStringTypeUnmarshal("normalizedString");
         testStringTypeUnmarshal("token");
@@ -155,6 +156,12 @@ public class MarshalTests extends TestCase
         final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
         testSimpleTypeUnmarshal(bytes, "AQIDBAUG", "base64Binary");
         testSimpleTypeUnmarshal(bytes, "010203040506", "hexBinary");
+
+        final String[] strs = new String[]{"foo", "bar"};
+        testSimpleTypeUnmarshal(strs, "foo bar", "ENTITIES");
+        testSimpleTypeUnmarshal(strs, "foo bar", "IDREFS");
+        testSimpleTypeUnmarshal(strs, "foo bar", "NMTOKENS");
+
     }
 
     private void testStringTypeUnmarshal(String xsd_type)
@@ -176,6 +183,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal(new BigDecimal("43434343342.233434342"), "decimal");
         testSimpleTypeMarshal(new Float(5555.5555f), "float");
         testSimpleTypeMarshal(new Double(1231.444), "double");
+        testSimpleTypeMarshal(new URI("http://www.apache.org/"), "anyURI");
+
         testSimpleTypeMarshal("some text here", "string");
         testSimpleTypeMarshal("aToken", "token");
         testSimpleTypeMarshal("       ", "string");
@@ -186,6 +195,7 @@ public class MarshalTests extends TestCase
         final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
         testSimpleTypeMarshal(bytes, "base64Binary");
         testSimpleTypeMarshal(bytes, "hexBinary");
+
 
     }
 

@@ -35,6 +35,14 @@ final class QNameTypeConverter
         return context.getAttributeQNameValue();
     }
 
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        return XsTypeConverter.lexQName(lexical_value,
+                                        result.getNamespaceContext());
+    }
+
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {

@@ -131,6 +131,14 @@ public class WrappedArrayUnmarshaller
         throw new AssertionError("not used");
     }
 
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        throw new AssertionError("not used");
+    }
+
+    
     public void unmarshalAttribute(Object object, UnmarshalResult result)
         throws XmlException
     {

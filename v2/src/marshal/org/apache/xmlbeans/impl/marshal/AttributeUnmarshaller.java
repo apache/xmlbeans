@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
+//TODO: rename this class
 abstract class AttributeUnmarshaller
     implements TypeUnmarshaller
 {
@@ -49,6 +50,14 @@ abstract class AttributeUnmarshaller
     }
 
     public Object unmarshalAttribute(UnmarshalResult context)
+    {
+        throw new UnsupportedOperationException("not an attribute: " +
+                                                type.getSchemaTypeName());
+    }
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
     {
         throw new UnsupportedOperationException("not an attribute: " +
                                                 type.getSchemaTypeName());

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 final class ShortTypeConverter
     extends BaseSimpleTypeConverter
@@ -32,6 +33,21 @@ final class ShortTypeConverter
         short val = context.getAttributeShortValue();
         return new Short(val);
     }
+
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        try {
+            final short b = XsTypeConverter.lexShort(lexical_value);
+            return new Short(b);
+        }
+        catch (NumberFormatException e) {
+            throw new InvalidLexicalValueException(e, result.getLocation());
+        }
+    }
+
 
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)

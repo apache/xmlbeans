@@ -264,9 +264,54 @@
             </bin:qname-property>
 
 
+            <bin:qname-property>
+                <bin:xmlcomponent>t=SimpleStringList@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>java.lang.String[]</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getSimpleStringArray</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setSimpleStringArray</bin:method-name>
+                    <bin:param-type>java.lang.String[]</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:simpleStringArray</bin:qname>
+            </bin:qname-property>
+
+            <bin:qname-property>
+                <bin:xmlcomponent>t=SimpleLongList@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>long[]</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getSimpleLongArray</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setSimpleLongArray</bin:method-name>
+                    <bin:param-type>long[]</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:simpleLongArray</bin:qname>
+            </bin:qname-property>
+
+
 
         </bin:binding-type>
 
+
+        <bin:binding-type xsi:type="bin:list-array">
+            <bin:xmlcomponent>t=SimpleStringList@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>java.lang.String[]</bin:javatype>
+            <bin:item-type>
+                <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>java.lang.String</bin:javatype>
+            </bin:item-type>
+        </bin:binding-type>
+
+        <bin:binding-type xsi:type="bin:list-array">
+            <bin:xmlcomponent>t=SimpleLongList@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>long[]</bin:javatype>
+            <bin:item-type>
+                <bin:xmlcomponent>t=long@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>long</bin:javatype>
+            </bin:item-type>
+        </bin:binding-type>
 
         <bin:binding-type xsi:type="bin:simple-content-bean">
             <bin:xmlcomponent>t=SimpleContentExample@java:com.mytest</bin:xmlcomponent>
@@ -364,6 +409,7 @@
             </bin:item-type>
             <bin:item-nillable>true</bin:item-nillable>
         </bin:binding-type>
+
 
         <bin:binding-type xsi:type="bin:wrapped-array">
             <bin:xmlcomponent>t=ArrayOfArrayOfString@java:com.mytest</bin:xmlcomponent>

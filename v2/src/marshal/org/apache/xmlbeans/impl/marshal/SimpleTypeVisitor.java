@@ -26,7 +26,8 @@ final class SimpleTypeVisitor
     private QName attributeName;
     private String xsiTypeAttVal;
 
-    public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
+    public SimpleTypeVisitor(RuntimeBindingProperty property,
+                             Object obj,
                              MarshalResult result)
         throws XmlException
     {

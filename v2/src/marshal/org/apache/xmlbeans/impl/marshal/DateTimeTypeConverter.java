@@ -37,6 +37,15 @@ final class DateTimeTypeConverter
         return context.getAttributeCalendarValue();
     }
 
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        final XmlCalendar xml_cal =
+            XsTypeConverter.lexDateTime(lexical_value);
+        return xml_cal;
+    }
+
     public CharSequence print(Object value, MarshalResult result)
     {
         Calendar c = (Calendar)value;

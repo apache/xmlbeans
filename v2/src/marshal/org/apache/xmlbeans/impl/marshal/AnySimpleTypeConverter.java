@@ -17,42 +17,33 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
-import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
-final class IntTypeConverter
+final class AnySimpleTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalResult context) throws XmlException
+    protected Object getObject(UnmarshalResult context)
+        throws XmlException
     {
-        int val = context.getIntValue();
-        return new Integer(val);
+        return context.getStringValue();
     }
 
-    public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
+    public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
     {
-        int val = context.getAttributeIntValue();
-        return new Integer(val);
+        return context.getAttributeStringValue();
     }
-
 
     public Object unmarshalAttribute(CharSequence lexical_value,
                                      UnmarshalResult result)
         throws XmlException
     {
-        try {
-            final int f = XsTypeConverter.lexInt(lexical_value);
-            return new Integer(f);
-        }
-        catch (NumberFormatException ne) {
-            throw new InvalidLexicalValueException(ne, result.getLocation());
-        }
+        return XsTypeConverter.lexString(lexical_value, result.getErrors());
     }
-
 
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {
-        Integer val = (Integer)value;
-        return XsTypeConverter.printInt(val.intValue());
+        String val = (String)value;
+        return XsTypeConverter.printString(val);
     }
 }

@@ -151,7 +151,8 @@ final class MarshalResult implements XMLStreamReader
         do {
             prefix = NSPREFIX + (++prefixCnt);
             testuri = namespaceContext.getNamespaceURI(prefix);
-        } while (testuri != null);
+        }
+        while (testuri != null);
         assert prefix != null;
         namespaceContext.bindNamespace(prefix, uri);
         return prefix;
@@ -527,22 +528,6 @@ final class MarshalResult implements XMLStreamReader
         throw new IllegalStateException();
     }
 
-    static Iterator getCollectionIterator(Object value)
-    {
-        //TODO & FIXME: refactor this into seperate classes
-        if (value == null) {
-            return EmptyIterator.getInstance();
-        } else if (value instanceof Collection) {
-            return ((Collection)value).iterator();
-        } else if (value instanceof Object[]) {
-            return new ArrayIterator((Object[])value);
-        } else if (value.getClass().isArray()) {
-            return new ReflectiveArrayIterator(value);
-        } else {
-            throw new AssertionError("bad type: " + value.getClass());
-        }
-    }
-
     private void initAttributes()
     {
         if (!initedAttributes) {
@@ -605,7 +590,7 @@ final class MarshalResult implements XMLStreamReader
 
         BindingType btype = expected_type.getBindingType();
         //TODO: improve this method by going up the type hierarchy
-        //also avoid duplicate work with going on in this next call.
+        //also avoid duplicate work going on in this next call.
         return result.createRuntimeBindingType(btype, property_value);
     }
 
@@ -716,8 +701,11 @@ final class MarshalResult implements XMLStreamReader
         }
 
         public void visit(ListArrayType listArrayType)
+            throws XmlException
         {
-            // todo: implement
+            xmlTypeVisitor = new SimpleTypeVisitor(runtimeBindingProperty,
+                                                   parentObject,
+                                                   marshalResult);
         }
 
     }

@@ -35,6 +35,13 @@ final class AnyUriToStringTypeConverter
         return context.getAttributeAnyUriValue();
     }
 
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        return lexical_value.toString();
+    }
+
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {
