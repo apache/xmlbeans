@@ -115,6 +115,7 @@ public class ImplComparisonTest {
     for(int i=0; i<elements.length; i++) {
       out.put(elements[i].getSimpleName(),elements[i]);
     }
+    return out;
   }
 
   private List getSortedClassList(JService service) {
