@@ -56,21 +56,15 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.Task;
+import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JFactory;
 import org.apache.xmlbeans.impl.jam.JFileSet;
-import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylar;
-import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
-import org.apache.xmlbeans.impl.binding.tylar.Tylar;
-import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 
 /**
  * Ant task definition for binding in the start-with-java case.
@@ -78,35 +72,18 @@ import java.util.logging.Level;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class Java2SchemaTask extends Task {
+public class Java2SchemaTask extends BindingCompilerTask {
 
   // =========================================================================
   // Variables
 
-  private File mDestDir = null;
-  private File mDestJar = null;
   private Path mSourcepath = null;
   private Path mClasspath = null;
   private String mIncludes = null;
   private Path mSrcDir = null;
-  private boolean mVerbose = false;
 
   // =========================================================================
   // Task attributes
-
-  public void setDestDir(File dir) {
-    if (mDestJar != null) {
-      throw new BuildException("You can set only one of destjar and destdir");
-    }
-    mDestDir = dir;
-  }
-
-  public void setDestJar(File jar) throws BuildException {
-    if (mDestDir != null) {
-      throw new BuildException("You can set only one of destjar and destdir");
-    }
-    mDestJar = jar;
-  }
 
   /**
    * Set the source directories to find the source Java files.
@@ -161,19 +138,14 @@ public class Java2SchemaTask extends Task {
     mIncludes = includes;
   }
 
-  public void setVerbose(boolean v) { mVerbose = v; }
-
   public void setCompileSources(boolean ignoredRightNow) {}
 
   public void setCopySources(boolean ignoredRightNow) {}
 
   // =========================================================================
-  // Task implementation
+  // BindingCompilerTask implementation
 
-  /**
-   * Execute the task.
-   */
-  public void execute() throws BuildException {
+  protected BindingCompiler createCompiler() throws BuildException {
     JFactory jf = JFactory.getInstance();
     String[] list = mSrcDir.list();
     if (list.length == 0) throw new BuildException("srcDir attribute required");
@@ -197,34 +169,6 @@ public class Java2SchemaTask extends Task {
       public TylarLoader getTylarLoader() { return null; }
       public void compileJavaToBinaries(File classesDir) {}
     };
-    Java2Schema j2b = new Java2Schema(input,createLogger());
-    Tylar tylar = null;
-    if (mDestDir != null) {
-      tylar = j2b.bindAsExplodedTylar(mDestDir);
-    } else if (mDestJar != null) {
-      tylar = j2b.bindAsJarredTylar(mDestJar);
-    }
-    if (tylar == null) {
-      throw new BuildException("fatal errors encountered, "+
-                               "see log for details.");
-    }
-    log("Java2SchemaTask complete, output at "+tylar.getLocation());
-  }
-
-  private BindingLogger createLogger() {
-    SimpleBindingLogger logger = new SimpleBindingLogger();
-    if (mVerbose) logger.setThresholdLevel(Level.FINEST);
-    return logger;
-  }
-
-  // =========================================================================
-  // Private methods
-
-  private void printErrors(Throwable[] errs) {
-    if (errs == null || errs.length == 0) return;
-    for(int i=0; i<errs.length; i++) {
-      errs[i].printStackTrace();
-    }
-    System.out.flush();
+    return new Java2Schema(input);
   }
 }

@@ -73,6 +73,9 @@ import org.apache.xmlbeans.SchemaTypeLoader;
  * information to link against.  At runtime, it is used to provide
  * the complete java/schema/binding type information to marshal
  * with.
+ *
+ * @deprecated REVIEW I think this interface is unnecessary - why do we need
+ * anything besides a BindingLoader to represent existing bindings?  -pcal
  */ 
 public interface TylarLoader
 {

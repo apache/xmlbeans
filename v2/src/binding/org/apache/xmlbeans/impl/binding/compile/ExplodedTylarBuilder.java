@@ -59,22 +59,21 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.tools.ant.BuildException;
 
 import java.io.IOException;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Iterator;
-import java.util.Collection;
+
 
 /**
  * Simple implementation of TylarBuilder that just dumps everything in a
  * directory.
  *
  * @author Patrick Calahan <pcal@bea.com>
+ *
+ * @deprecated
  */
 public class ExplodedTylarBuilder implements TylarBuilder {
 
@@ -100,14 +99,6 @@ public class ExplodedTylarBuilder implements TylarBuilder {
 
   // =========================================================================
   // TylarBuilder implementation
-
-  public void buildTylar(Java2SchemaResult result) throws IOException {
-    createTargetDir();
-    // write schemas
-    writeXsdFiles(result.getSchemas());
-    // print the binding file
-    writeBindingFile(result.getBindingFile());
-  }
 
   protected void writeBindingFile(BindingFile bf) throws IOException {
     File file = new File(mDir, "binding-file.xml"); //FIXME naming
@@ -152,7 +143,7 @@ public class ExplodedTylarBuilder implements TylarBuilder {
       }
     }
   }
-
+/*
   protected void writeJavaFiles(JavaCodeResult jcg) throws IOException {
     Collection classnames = jcg.getToplevelClasses();
     for (Iterator i = classnames.iterator(); i.hasNext();) {
@@ -175,6 +166,7 @@ public class ExplodedTylarBuilder implements TylarBuilder {
       }
     }
   }
+  */
 
   protected void createTargetDir() {
     if (!mDir.exists()) {
@@ -185,16 +177,6 @@ public class ExplodedTylarBuilder implements TylarBuilder {
       if (!mDir.isDirectory())
         throw new IllegalArgumentException("not a directory: " + mDir);
     }
-  }
-
-  public void buildTylar(SchemaToJavaResult result) throws IOException {
-    createTargetDir();
-
-    // print the java files
-    writeJavaFiles(result.getJavaCodeResult());
-
-    // print the binding file
-    writeBindingFile(result.getBindingFile());
   }
 
     public void buildTylar(BindingFileResult result) throws IOException {

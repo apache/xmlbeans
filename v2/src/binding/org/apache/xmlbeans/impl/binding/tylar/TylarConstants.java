@@ -71,11 +71,8 @@ public interface TylarConstants {
 
   public static final char SEP = File.separatorChar;
 
-  public static final String SRC_ROOT = "src";
+  public static final String SRC_ROOT     = "META-INF"+SEP+"src";
+  public static final String BINDING_FILE = "META-INF"+SEP+"binding-file.xml";
+  public static final String SCHEMA_DIR   = "META-INF"+SEP+"schemas";
 
-  public static final String METAINF = "META-INF";
-
-  public static final String BINDING_FILE = METAINF + SEP + "binding-file.xml";
-
-  public static final String SCHEMA_DIR = METAINF + SEP + "schemas";
 }

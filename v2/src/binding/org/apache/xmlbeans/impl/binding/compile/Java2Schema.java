@@ -78,7 +78,7 @@ import java.io.IOException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class Java2Schema {
+public class Java2Schema extends BindingCompiler {
 
   // =========================================================================
   // Constants
@@ -114,8 +114,6 @@ public class Java2Schema {
   private SchemaDocument mSchemaDocument;
   private SchemaDocument.Schema mSchema;
   private JavaSourceSet mInput;
-  private BindingLogger mLogger = null;
-  private boolean mAnySevereErrors = false;
 
   // =========================================================================
   // Constructors
@@ -124,68 +122,19 @@ public class Java2Schema {
    * Initializes a Java2Schema instance to perform binding on the given
    * inputs, but does not actually do any binding work.
    */
-  public Java2Schema(JavaSourceSet jtsi, BindingLogger logger) {
+  public Java2Schema(JavaSourceSet jtsi) {
     if (jtsi == null) throw new IllegalArgumentException("null jtsi");
-    if (logger == null) throw new IllegalArgumentException("null logger");
     mInput = jtsi;
-    mLogger = logger;
   }
 
-  // =========================================================================
-  // Public methods
+  // ========================================================================
+  // BindingCompiler implementation
 
   /**
-   * Performs the binding and returns an exploded tylar in the specified
-   * directory.  Returns null if any severe errors were encountered.
+   * Does the binding work on the inputs passed to the constructor and writes
+   * out the tylar.
    */
-  public ExplodedTylar bindAsExplodedTylar(File tylarDestDir)
-  {
-    Java2SchemaResult result = bind();
-    if (result == null) return null;
-    ExplodedTylarImpl tylar = null;
-    try {
-      tylar = ExplodedTylarImpl.create(tylarDestDir);
-    } catch(IOException ioe) {
-      logError(ioe);
-      return null;
-    }
-    if (!tylarDestDir.exists()) {
-      if (!tylarDestDir.mkdirs()) {
-        logError("failed to create "+tylarDestDir);
-        return null;
-      }
-    }
-    buildTylar(result,(TylarWriter)tylar);
-    return mAnySevereErrors && !IGNORE_SEVERE_ERRORS ? null : tylar;
-  }
-
-  /**
-   * Performs the binding and returns a tylar in the specified jar file.
-   * Returns null if any severe errors were encountered.
-   */
-  public Tylar bindAsJarredTylar(File tylarJar) {
-    File tempDir = null;
-    try {
-      tempDir = createTempDir();
-      tempDir.deleteOnExit();//REVIEW maybe we should delete it ourselves?
-      ExplodedTylar et = bindAsExplodedTylar(tempDir);
-      return et.toJar(tylarJar);
-    } catch(IOException ioe) {
-      logError(ioe);
-      return null;
-    }
-  }
-
-  /**
-   * Does the binding work on the inputs passed to the constructor and returns
-   * the raw result object.  Returns null if any severe errors were
-   * encountered.
-   *
-   * Although this method is public, it should only be used if you know what
-   * you're doing - you're probably better off using one of the other 'bind'
-   * methods which return tylars.
-   */
-  public Java2SchemaResult bind() {
+  protected void bind(TylarWriter writer) {
     JClass[] classes = mInput.getJClasses();
     mBindingFile = new BindingFile();
     mLoader = PathBindingLoader.forPath
@@ -198,48 +147,21 @@ public class Java2Schema {
       //here we just derive it from the first class in the list
       mSchema.setTargetNamespace(getTargetNamespace(classes[0]));
     }
+    //This does the binding
     for(int i=0; i<classes.length; i++) getBindingTypeFor(classes[i]);
-    if (mAnySevereErrors && !IGNORE_SEVERE_ERRORS) return null;
-    //build the result object
-    final BindingFile bf = mBindingFile;
-    final SchemaDocument[] schemas = {mSchemaDocument};
-    return new Java2SchemaResult() {
-      public BindingFile getBindingFile() { return bf; }
-      public SchemaDocument[] getSchemas() { return schemas; }
-    };
+    //
+    try {
+      writer.writeBindingFile(mBindingFile);
+      writer.writeSchema(mSchemaDocument,"schema-0.xsd");
+    } catch(IOException ioe) {
+      logError(ioe);
+    }
   }
 
 
   // ========================================================================
   // Private methods
 
-  private static File createTempDir() throws IOException
-  {
-    //FIXME this is not great
-    String prefix = "java2schema-"+System.currentTimeMillis();
-    File directory = null;
-    File f = File.createTempFile(prefix, null);
-    directory = f.getParentFile();
-    f.delete();
-    File out = new File(directory, prefix);
-    if (!out.mkdirs()) throw new IOException("Uknown problem creating temp file");
-    return out;
-  }
-
-  /**
-   * Feeds a tylar builder with the given compilation results.
-   */
-  private void buildTylar(Java2SchemaResult result, TylarWriter builder) {
-    try {
-      builder.writeBindingFile(result.getBindingFile());
-      SchemaDocument[] xsds = result.getSchemas();
-      for(int i=0; i<xsds.length; i++) {
-        builder.writeSchema(xsds[i],"schema-"+i+".xsd");//FIXME dumb naming
-      }
-    } catch(IOException ioe) {
-      logError(ioe);
-    }
-  }
 
   /**
    * Returns a bts BindingType for the given JClass.  If such a type
@@ -444,54 +366,6 @@ public class Java2Schema {
     return JAVA_URI_SCHEME + pkg_name;
   }
 
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.  The binding process should attempt
-   * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.
-   */
-  private void logError(JElement context, Throwable error) {
-    mAnySevereErrors = true;
-    mLogger.log(Level.SEVERE,null,error,context);
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.  The binding process should attempt
-   * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.
-   */
-  private void logError(JElement context, String msg) {
-    mAnySevereErrors = true;
-    mLogger.log(Level.SEVERE,msg,null,context);
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.  The binding process should attempt
-   * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.
-   */
-  private void logError(String msg) {
-    mAnySevereErrors = true;
-    mLogger.log(Level.SEVERE,msg,null);
-  }
-
-  /**
-   * Logs a message that fatal error that occurred.
-   */
-  private void logError(Throwable t) {
-    mAnySevereErrors = true;
-    mLogger.log(Level.SEVERE,null,t);
-  }
-
-  /**
-   * Logs an informative message that should be printed only in 'verbose'
-   * mode.
-   */
-  private void logVerbose(JElement context, String msg) {
-    mLogger.log(Level.FINEST,msg,null,context);
-  }
 
   /*
 
