@@ -16,7 +16,6 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 final class ByNameUnmarshaller
     extends AttributeUnmarshaller

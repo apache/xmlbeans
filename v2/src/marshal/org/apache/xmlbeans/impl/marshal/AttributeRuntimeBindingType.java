@@ -85,10 +85,10 @@ abstract class AttributeRuntimeBindingType
 
             if (is_att) {
                 final AttributeQNameProperty aprop =
-                    new AttributeQNameProperty(att_idx,
-                                               getJavaType(), hasMulti(),
-                                               bprop, this,
-                                               typeTable, loader, rttFactory);
+                    new AttributeQNameProperty(
+                        getJavaType(), hasMulti(),
+                        bprop, this,
+                        typeTable, loader, rttFactory);
                 initAttributeProperty(aprop, att_idx++);
             } else {
                 initElementProperty(bprop, elem_idx++,
@@ -182,8 +182,7 @@ abstract class AttributeRuntimeBindingType
     protected static final class AttributeQNameProperty
         extends QNamePropertyBase
     {
-        AttributeQNameProperty(int property_index,
-                               Class beanClass,
+        AttributeQNameProperty(Class beanClass,
                                boolean bean_has_multis,
                                QNameProperty prop,
                                IntermediateResolver intermediateResolver,
@@ -192,7 +191,7 @@ abstract class AttributeRuntimeBindingType
                                RuntimeTypeFactory rttFactory)
             throws XmlException
         {
-            super(property_index, beanClass, bean_has_multis,
+            super(beanClass, bean_has_multis,
                   prop, intermediateResolver, typeTable, loader, rttFactory);
             assert prop.isAttribute();
         }
@@ -211,15 +210,12 @@ abstract class AttributeRuntimeBindingType
     protected static abstract class QNamePropertyBase
         extends RuntimePropertyBase
     {
-        //TODO: push index down to element subclass
-        protected final int propertyIndex;
         protected final boolean beanHasMulti;          //consider a subclass
         protected final QNameProperty bindingProperty;
         protected final String lexicalDefaultValue;
         protected final Object typedDefaultValue;
 
-        QNamePropertyBase(int property_index,
-                          Class beanClass,
+        QNamePropertyBase(Class beanClass,
                           boolean bean_has_multis,
                           QNameProperty prop,
                           IntermediateResolver intermediateResolver,
@@ -231,12 +227,11 @@ abstract class AttributeRuntimeBindingType
             super(beanClass, prop, intermediateResolver, typeTable, loader, rttFactory);
 
             if (prop.getQName() == null) {
-                final String msg = "property " + property_index + " of " +
+                final String msg = "property " + prop + " of " +
                     beanClass + " has no qname";
                 throw new IllegalArgumentException(msg);
             }
 
-            this.propertyIndex = property_index;
             this.beanHasMulti = bean_has_multis;
             this.bindingProperty = prop;
 

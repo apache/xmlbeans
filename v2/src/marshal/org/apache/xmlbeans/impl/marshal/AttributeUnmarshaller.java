@@ -42,7 +42,6 @@ abstract class AttributeUnmarshaller implements TypeUnmarshaller
                                                 type.getSchemaTypeName());
     }
 
-    //TODO: cleanup this code.  We are doing extra work for assertion checking
     protected abstract void deserializeContents(Object inter,
                                                 UnmarshalResult context)
         throws XmlException;
