@@ -65,6 +65,8 @@ public abstract class BuiltinJClass implements JClass {
 
   public JComment[] getComments() { return BaseJElement.NO_COMMENT; }
 
+  public JComment getComment() { return null; }
+
   // ========================================================================
   // JMember implementation
 

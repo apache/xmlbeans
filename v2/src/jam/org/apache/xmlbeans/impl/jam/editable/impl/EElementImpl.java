@@ -34,7 +34,7 @@ public abstract class EElementImpl implements EElement {
   private ESourcePosition mPosition = null;
   private JClassLoader mClassLoader;
   private List mAnnotations = null;
-  private List mComments = null;
+  private EComment mComment = null;
 
   // ========================================================================
   // Constructors
@@ -63,10 +63,6 @@ public abstract class EElementImpl implements EElement {
     return mPosition;
   }
 
-  public JComment[] getComments() {
-    return getEditableComments();
-  }
-
   public JAnnotation[] getAnnotations() {
     return getEditableAnnotations();
   }
@@ -75,25 +71,23 @@ public abstract class EElementImpl implements EElement {
     return getEditableAnnotation(named);
   }
 
+  public JComment getComment() {
+    return getEditableComment();
+  }
+
   // ========================================================================
   // EElement implementation
 
-  public EComment[] getEditableComments() {
-    if (mComments == null) mComments = new ArrayList();
-    EComment[] out = new EComment[mComments.size()];
-    mComments.toArray(out);
-    return out;
+  public EComment getEditableComment() {
+    return mComment;
   }
 
-  public EComment addNewComment() {
-    if (mComments == null) mComments = new ArrayList();
-    EComment out = new ECommentImpl();
-    mComments.add(out);
-    return out;
+  public EComment createComment() {
+    return mComment = new ECommentImpl();
   }
 
-  public void removeComment(EComment comment) {
-    if (mComments != null) mComments.remove(comment);
+  public void removeComment() {
+    mComment = null;
   }
 
   public void setSimpleName(String name) {
@@ -181,4 +175,8 @@ public abstract class EElementImpl implements EElement {
     return getAnnotations(); //FIXME remove this method please
   }
 
+  public JComment[] getComments() {
+    JComment c = getComment();
+    return (c == null) ? new JComment[0] : new JComment[] {c};
+  }
 }

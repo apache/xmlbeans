@@ -23,11 +23,11 @@ import org.apache.xmlbeans.impl.jam.JElement;
  */
 public interface EElement extends JElement {
 
-  public EComment[] getEditableComments();
+  public EComment getEditableComment();
 
-  public EComment addNewComment();
+  public EComment createComment();
 
-  public void removeComment(EComment comment);
+  public void removeComment();
 
   public void setSimpleName(String name);
 

@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.jam.JFileSet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.StringTokenizer;
 
 /**
  * Ant task definition for binding in the start-with-java case.
@@ -118,7 +119,8 @@ public class Java2SchemaTask extends BindingCompilerTask {
     if (list.length == 0) throw new BuildException("srcDir attribute required");
     if (list.length > 1) throw new BuildException("multiple srcDirs NYI");
     JFileSet fs = jf.createFileSet(new File(list[0]));
-    fs.include(mIncludes);
+    StringTokenizer st = new StringTokenizer(mIncludes,",");
+    while(st.hasMoreTokens()) fs.include(st.nextToken().trim());
     String classpathString = null;
     if (mClasspath != null) {
       //this will be removed after jam factory is refactored

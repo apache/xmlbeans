@@ -12,39 +12,16 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.test.jam.dummyclasses;
+package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public abstract class HeavilyCommented {
-
-  /**
-   * A simple comment.
-   */
-  protected abstract void simpleComment();
-
-  /**
-   * A comment which
-   * spans
-   *
-   * several
-   *
-   *
-   * lines.
-   */
-  protected abstract void multilineComment();
-
-
-
-  /**
-   * Here is some
-   **funky
-   comment text
-                            but it should still
-   **** parse correctly
-   */
-//  protected abstract void strangeComment();
-
+public @interface RFEAnnotation {
+    int    id();        // Unique ID number associated with RFE
+    String synopsis();  // Synopsis of RFE
+    String engineer()  default "[unassigned]";
+    String date()      default "[unimplemented]";
 }
+

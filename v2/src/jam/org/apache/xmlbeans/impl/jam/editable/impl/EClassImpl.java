@@ -27,7 +27,7 @@ import java.lang.reflect.Modifier;
 
 /**
  *
- * @author Patrick Calahan <pcal@bea.com>
+ * @author Patrick Calahan <jdclasspcal@bea.com>
  */
 public class EClassImpl extends EMemberImpl
         implements EClass, JClassRef, JClassRefContext
