@@ -19,8 +19,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-import tools.xml.XmlComparator;
 import junit.framework.Assert;
+import tools.xml.XmlComparator;
 
 /**
  *
@@ -28,14 +28,15 @@ import junit.framework.Assert;
  */
 public class XPathCommon {
 
-    public static void display(XmlObject[] rObj) {
+    public static String display(XmlObject[] rObj) {
         XmlOptions xm = new XmlOptions();
         xm.setSavePrettyPrint();
         xm.setLoadStripWhitespace();
-
+        StringBuffer sb=new StringBuffer();
         for (int i = 0; i < rObj.length; i++) {
-            System.out.println("[" + i + "] -- " + rObj[i].xmlText(xm));
+            sb.append("[" + i + "] -- " + rObj[i].xmlText(xm)+"\n");
         }
+        return sb.toString();
     }
 
 
@@ -66,25 +67,30 @@ public class XPathCommon {
         return st.toString();
     }
 
-    public static void display(XmlCursor rObj) {
+    public static String display(XmlCursor rObj) {
         XmlOptions xm = new XmlOptions();
         xm.setSavePrettyPrint();
         xm.setLoadStripWhitespace();
-
+        StringBuffer sb=new StringBuffer();
         int i = 0;
         while (rObj.toNextSelection()) {
-            System.err.println("[cursor-" + i + "] -- " + rObj.xmlText(xm));
+            sb.append("[cursor-" + i + "] -- " + rObj.xmlText(xm)+"\n");
             i++;
         }
+        return sb.toString();
     }
 
     private static void check(XmlCursor actual, XmlCursor expected) {
         try {
             XmlComparator.Diagnostic diag = new XmlComparator.Diagnostic();
-            boolean match = XmlComparator.lenientlyCompareTwoXmlStrings(actual.toString(), expected.toString(), diag);
+            boolean match = XmlComparator.lenientlyCompareTwoXmlStrings(
+                actual.xmlText(),
+                expected.xmlText(), diag);
 
-            Assert.assertTrue("***********************\nFound difference: \nactual=\n'" + actual +
-                              "'\nexpected=\n'" + expected + "'\ndiagnostic=" + diag, match);
+            Assert.assertTrue("***********************\nFound difference: \nactual=\n'" +
+                actual.xmlText() +
+                              "'\nexpected=\n'" + expected.xmlText()
+                + "'\ndiagnostic=" + diag, match);
         } catch (XmlException e) {
             throw new RuntimeException(e);
         }
@@ -103,18 +109,21 @@ public class XPathCommon {
         for (int i = 0; i < rObj.length; i++){
             check(rObj[i].newCursor(), rSet[i].newCursor());
         }
-        System.out.println("Test Passed");
+        // This should be done in the test if no exception occurs...don't print here
+        // System.out.println("Test Passed");
     }
 
     public static void compare(XmlCursor rObj, XmlObject[] rSet) throws Exception {
-
         if (rObj.getSelectionCount() != rSet.length) {
-            System.out.println("EXPECTED ==");
+            StringBuffer message = new StringBuffer();
+
+            message.append("EXPECTED ==\n");
             display(rSet);
-            System.out.println("ACTUAL ==");
+            message.append("ACTUAL ==\n");
             display(rObj);
 
-            throw new Exception("Compare failure == Result Count was not equal to actual count\n" +
+            throw new Exception(message.toString()+
+                "\nCompare failure == Result Count was not equal to actual count\n" +
                     "Actual Count: "+rObj.getSelectionCount() +" Expected Count: "+rSet.length+"\n" +
                     "Actual:" + getPrint(rObj) + "\nExpected:" + getPrint(rSet));
         }
@@ -126,8 +135,8 @@ public class XPathCommon {
             check(rObj, rSet[i].newCursor());
             i++;
         }
-
-        System.out.println("Test Passed");
+        // This should be done in the test if no exception occurs...don't print here
+       // System.out.println("Test Passed");
     }
 
     public static void checkLength(XmlCursor rObj, int count) throws Exception{

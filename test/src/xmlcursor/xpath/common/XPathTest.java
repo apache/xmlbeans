@@ -36,31 +36,36 @@ import java.io.IOException;
  *
  * @author jacobd
  *         Date: Dec 8, 2003
- *
- *
  */
-public class XPathTest extends BasicCursorTestCase {
-    public XPathTest(String sName) {
+public class XPathTest
+    extends BasicCursorTestCase
+{
+    public XPathTest(String sName)
+    {
         super(sName);
     }
 
-    public static Test suite() {
+    public static Test suite()
+    {
         return new TestSuite(XPathTest.class);
     }
 
-    static String fixPath(String path) {
-        return "$this" + path;
+    static String fixPath(String path)
+    {
+        // return "$this" + path;
+        return path;
     }
 
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample1() throws Exception {
+    public void testZvonExample1()
+        throws Exception
+    {
         System.out.println("====== Example-1 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon1.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon1.xml"));
 
         String ex1Simple = "/AAA";
         String ex1Expanded = "";
@@ -107,13 +112,14 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample2() throws Exception {
+    public void testZvonExample2()
+        throws Exception
+    {
         System.out.println("====== Example-2 ==========");
 
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon2.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon2.xml"));
         String ex1Simple = "//BBB";
         String ex1Expanded = "";
 
@@ -147,12 +153,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample3() throws Exception {
+    public void testZvonExample3()
+        throws Exception
+    {
         System.out.println("====== Example-3 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon3.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon3.xml"));
         String ex1Simple = "/AAA/CCC/DDD/*";
         String ex1R1 = "<BBB/>"; // * 5
         String ex1R2 = "<EEE/>";
@@ -171,24 +178,24 @@ public class XPathTest extends BasicCursorTestCase {
                                              XmlObject.Factory.parse(ex2R1),
                                              XmlObject.Factory.parse(ex2R2)};
         String ex3Simple = "//*";
-       /* String ex3R0 = "<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>";
-        String ex3R1 = "<XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX>";
-        String ex3R2 = "<CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC>";
-        String ex3R3 = "<CCC><BBB><BBB><BBB/></BBB></BBB></CCC>";
-        String ex3R4 = "<DDD><BBB/><BBB/><EEE/><FFF/></DDD>";
-        String ex3R5 = "<DDD><BBB/><BBB/><EEE/><FFF/></DDD>";
-        String ex3R6 = "<BBB><BBB><BBB/></BBB></BBB>";
-        String ex3R7 = "<BBB/>";
-        String ex3R8 = "<BBB/>";
-        String ex3R9 = "<EEE/>";
-        String ex3R10 = "<FFF/>";
-        String ex3R11 = "<BBB/>";
-        String ex3R12 = "<BBB/>";
-        String ex3R13 = "<EEE/>";
-        String ex3R14 = "<FFF/>";
-        String ex3R15 = "<BBB><BBB/></BBB>";
-        String ex3R16 = "<BBB/>";
-       */
+        /* String ex3R0 = "<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>";
+         String ex3R1 = "<XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX>";
+         String ex3R2 = "<CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC>";
+         String ex3R3 = "<CCC><BBB><BBB><BBB/></BBB></BBB></CCC>";
+         String ex3R4 = "<DDD><BBB/><BBB/><EEE/><FFF/></DDD>";
+         String ex3R5 = "<DDD><BBB/><BBB/><EEE/><FFF/></DDD>";
+         String ex3R6 = "<BBB><BBB><BBB/></BBB></BBB>";
+         String ex3R7 = "<BBB/>";
+         String ex3R8 = "<BBB/>";
+         String ex3R9 = "<EEE/>";
+         String ex3R10 = "<FFF/>";
+         String ex3R11 = "<BBB/>";
+         String ex3R12 = "<BBB/>";
+         String ex3R13 = "<EEE/>";
+         String ex3R14 = "<FFF/>";
+         String ex3R15 = "<BBB><BBB/></BBB>";
+         String ex3R16 = "<BBB/>";
+        */
         //according to Galax the document order is :
         String ex3R0 = "<AAA><XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX><CCC><DDD><BBB/><BBB/><EEE/><FFF/></DDD></CCC><CCC><BBB><BBB><BBB/></BBB></BBB></CCC></AAA>";
         String ex3R1 = "<XXX><DDD><BBB/><BBB/><EEE/><FFF/></DDD></XXX>";
@@ -202,7 +209,7 @@ public class XPathTest extends BasicCursorTestCase {
 
         String ex3R8 = "<DDD><BBB/><BBB/><EEE/><FFF/></DDD>";
 
-        String ex3R9= "<BBB/>";
+        String ex3R9 = "<BBB/>";
         String ex3R10 = "<BBB/>";
         String ex3R11 = "<EEE/>";
         String ex3R12 = "<FFF/>";
@@ -255,12 +262,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample4() throws Exception {
+    public void testZvonExample4()
+        throws Exception
+    {
         System.out.println("====== Example-4 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar( "xbean/xmlcursor/xpath/zvon4.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon4.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/BBB[1]";
         String ex2Simple = "/AAA/BBB[last()]";
@@ -286,12 +294,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample5() throws Exception {
+    public void testZvonExample5()
+        throws Exception
+    {
         System.out.println("====== Example-5 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon5.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon5.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//@id";
@@ -316,8 +325,7 @@ public class XPathTest extends BasicCursorTestCase {
 
         String ex5Simple = "//BBB[not(@*)]";
         XmlObject[] ex5Xml = new XmlObject[]{
-            XmlObject.Factory.parse("<BBB/>"),
-             XmlObject.Factory.parse("<BBB/>")
+            XmlObject.Factory.parse("<BBB/>")
         };
 
         System.out.println("Test 1: " + ex1Simple);
@@ -359,12 +367,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample6() throws Exception {
+    public void testZvonExample6()
+        throws Exception
+    {
         System.out.println("====== Example-16 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon6.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon6.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//BBB[@id='b1']";
@@ -377,7 +386,7 @@ public class XPathTest extends BasicCursorTestCase {
         String ex3Simple = "//BBB[normalize-space(@name)='bbb']";
         XmlObject[] ex3Xml = new XmlObject[]{
             XmlObject.Factory.parse("<BBB name=\" bbb \"/>")
-                                             ,
+            ,
             XmlObject.Factory.parse("<BBB name=\"bbb\"/>")};
 
         System.out.println("Test 1: " + ex1Simple);
@@ -404,12 +413,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample7() throws Exception {
+    public void testZvonExample7()
+        throws Exception
+    {
         System.out.println("====== Example-7 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon7.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon7.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//*[count(BBB)=2]";
@@ -422,7 +432,7 @@ public class XPathTest extends BasicCursorTestCase {
         String ex3Simple = "//*[count(*)=3]";
         XmlObject[] ex3Xml = new XmlObject[]{
             XmlObject.Factory.parse(
-                    "<AAA><CCC><BBB/><BBB/><BBB/></CCC><DDD><BBB/><BBB/></DDD><EEE><CCC/><DDD/></EEE></AAA>"),
+                "<AAA><CCC><BBB/><BBB/><BBB/></CCC><DDD><BBB/><BBB/></DDD><EEE><CCC/><DDD/></EEE></AAA>"),
             XmlObject.Factory.parse("<CCC><BBB/><BBB/><BBB/></CCC>")};
 
         System.out.println("Test 1: " + ex1Simple);
@@ -449,23 +459,22 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample8() throws Exception {
+    public void testZvonExample8()
+        throws Exception
+    {
         System.out.println("====== Example-8 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon8.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon8.xml"));
         XmlCursor xc = xDoc.newCursor();
-        String ex1Simple = "//*[xf:get-local-name-from-QName(xf:node-name(.))='BBB']";
+        String ex1Simple = "//*[name()='BBB']";
         XmlObject[] ex1Xml = new XmlObject[]{XmlObject.Factory.parse("<BBB/>"),
                                              XmlObject.Factory.parse("<BBB/>"),
                                              XmlObject.Factory.parse("<BBB/>"),
                                              XmlObject.Factory.parse("<BBB/>"),
                                              XmlObject.Factory.parse("<BBB/>"),
         };
-        String ex2Simple = "//*[xf:starts-with(" +
-                "xf:get-local-name-from-QName(xf:node-name(.))" +
-                ",'B')]";
+        String ex2Simple = "//*[starts-with(name(),'B')]";
         XmlObject[] ex2Xml = new XmlObject[]{
             XmlObject.Factory.parse("<BCC><BBB/><BBB/><BBB/></BCC>"),
             XmlObject.Factory.parse("<BBB/>"),
@@ -487,9 +496,7 @@ public class XPathTest extends BasicCursorTestCase {
          XmlObject.Factory.parse("<BBB/>")};
          */
 
-        String ex3Simple = "//*[xf:contains(" +
-                "xf:get-local-name-from-QName(xf:node-name(.))" +
-                ",'C')]";
+        String ex3Simple = "//*[contains(name(),'C')]";
         XmlObject[] ex3Xml = new XmlObject[]{
             XmlObject.Factory.parse("<BCC><BBB/><BBB/><BBB/></BCC>"),
             XmlObject.Factory.parse("<BEC><CCC/><DBD/></BEC>"),
@@ -520,26 +527,23 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample9() throws Exception {
+    public void testZvonExample9()
+        throws Exception
+    {
         System.out.println("====== Example-9 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon9.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon9.xml"));
         XmlCursor xc = xDoc.newCursor();
-        String ex1Simple = "//*[xf:string-length(" +
-                "xf:get-local-name-from-QName(xf:node-name(.))" +
-                ") = 3]";
+        String ex1Simple = "//*[string-length(name()) = 3]";
         XmlObject[] ex1Xml = new XmlObject[]{
             XmlObject.Factory.parse(
-                    "<AAA><Q/><SSSS/><BB/><CCC/><DDDDDDDD/><EEEE/></AAA>"),
+                "<AAA><Q/><SSSS/><BB/><CCC/><DDDDDDDD/><EEEE/></AAA>"),
             XmlObject.Factory.parse("<CCC/>")};
-        String ex2Simple = "//*[xf:string-length(" +
-                "xf:get-local-name-from-QName(xf:node-name(.)))" +
-                " < 3]";
+        String ex2Simple = "//*[string-length(name()) < 3]";
         XmlObject[] ex2Xml = new XmlObject[]{XmlObject.Factory.parse("<Q/>"),
                                              XmlObject.Factory.parse("<BB/>")};
-        String ex3Simple = "//*[xf:string-length(xf:get-local-name-from-QName(xf:node-name(.))) > 3]";
+        String ex3Simple = "//*[string-length(name()) > 3]";
         XmlObject[] ex3Xml = new XmlObject[]{
             XmlObject.Factory.parse("<SSSS/>"),
             XmlObject.Factory.parse("<DDDDDDDD/>"),
@@ -569,37 +573,39 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample10() throws Exception {
+    public void testZvonExample10()
+        throws Exception
+    {
         System.out.println("====== Example-10 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon10.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon10.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "$this//CCC | $this//BBB";
         //document order
         XmlObject[] ex1Xml = new XmlObject[]{
-                                             XmlObject.Factory.parse("<BBB/>"),
-                                             XmlObject.Factory.parse("<CCC/>"),
-                                             XmlObject.Factory.parse("<CCC/>")
+            XmlObject.Factory.parse("<BBB/>"),
+            XmlObject.Factory.parse("<CCC/>"),
+            XmlObject.Factory.parse("<CCC/>")
 
         };
         // Nodes are returned in document order
         String ex2Simple = "$this/AAA/EEE | $this//BBB";
 
-        //Galax confirms this order
         XmlObject[] ex2Xml = new XmlObject[]{
-                                            XmlObject.Factory.parse("<EEE/>") ,
-                                             XmlObject.Factory.parse("<BBB/>")
+            XmlObject.Factory.parse("<BBB/>"),
+            XmlObject.Factory.parse("<EEE/>")
 
         };
 
         String ex3Simple = "./AAA/EEE |.//DDD/CCC | ./AAA | .//BBB";
-        XmlObject[] ex3Xml = new XmlObject[]{XmlObject.Factory.parse("<EEE/>"),
-                                             XmlObject.Factory.parse("<CCC/>"),
-                                             XmlObject.Factory.parse(
-                                                     "<AAA><BBB/><CCC/><DDD><CCC/></DDD><EEE/></AAA>"),
-                                             XmlObject.Factory.parse("<BBB/>")};
+        XmlObject[] ex3Xml = new XmlObject[]{
+            XmlObject.Factory.parse(
+                            "<AAA><BBB/><CCC/><DDD><CCC/></DDD><EEE/></AAA>"),            
+            XmlObject.Factory.parse("<BBB/>"),
+            XmlObject.Factory.parse("<CCC/>"),
+            XmlObject.Factory.parse("<EEE/>")
+        };
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -625,12 +631,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample11() throws Exception {
+    public void testZvonExample11()
+        throws Exception
+    {
         System.out.println("====== Example-11 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon11.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon11.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -689,31 +696,32 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample12() throws Exception {
+    public void testZvonExample12()
+        throws Exception
+    {
         System.out.println("====== Example-12 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon12.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon12.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/descendant::*";
         XmlObject[] ex1Xml = new XmlObject[]{
             XmlObject.Factory.parse(
-                    "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>"),
+                "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>"),
             XmlObject.Factory.parse(
-                    "<BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB>"),
+                "<BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB>"),
 
             XmlObject.Factory.parse("<DDD><CCC><DDD/><EEE/></CCC></DDD>"),
 
-             XmlObject.Factory.parse("<CCC><DDD/><EEE/></CCC>"),
+            XmlObject.Factory.parse("<CCC><DDD/><EEE/></CCC>"),
 
 
             XmlObject.Factory.parse("<DDD/>"),
 
 
             XmlObject.Factory.parse("<EEE/>"),
-              XmlObject.Factory.parse(
-                    "<CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC>"),
+            XmlObject.Factory.parse(
+                "<CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC>"),
             XmlObject.Factory.parse("<DDD><EEE><DDD><FFF/></DDD></EEE></DDD>"),
             XmlObject.Factory.parse("<EEE><DDD><FFF/></DDD></EEE>"),
             XmlObject.Factory.parse("<DDD><FFF/></DDD>"),
@@ -728,7 +736,7 @@ public class XPathTest extends BasicCursorTestCase {
 
         String ex3Simple = "//CCC/descendant::*";
         XmlObject[] ex3Xml = new XmlObject[]{
-              XmlObject.Factory.parse("<DDD/>"),
+            XmlObject.Factory.parse("<DDD/>"),
             XmlObject.Factory.parse("<EEE/>"),
             XmlObject.Factory.parse("<DDD><EEE><DDD><FFF/></DDD></EEE></DDD>"),
             XmlObject.Factory.parse("<EEE><DDD><FFF/></DDD></EEE>"),
@@ -738,9 +746,10 @@ public class XPathTest extends BasicCursorTestCase {
         };
         String ex4Simple = "//CCC/descendant::DDD";
         XmlObject[] ex4Xml = new XmlObject[]{
+            XmlObject.Factory.parse("<DDD/>"),
             XmlObject.Factory.parse("<DDD><EEE><DDD><FFF/></DDD></EEE></DDD>"),
             XmlObject.Factory.parse("<DDD><FFF/></DDD>"),
-            XmlObject.Factory.parse("<DDD/>")};
+        };
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -773,22 +782,23 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample13() throws Exception {
+    public void testZvonExample13()
+        throws Exception
+    {
         System.out.println("====== Example-13 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon13.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon13.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "//DDD/parent::*";
 
         XmlObject[] ex1Xml = new XmlObject[]{
             XmlObject.Factory.parse(
-                    "<BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB>"),
+                "<BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB>"),
 
             XmlObject.Factory.parse("<CCC><DDD/><EEE/></CCC>"),
             XmlObject.Factory.parse(
-                    "<CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC>"),
+                "<CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC>"),
             XmlObject.Factory.parse("<EEE><DDD><FFF/></DDD></EEE>")};
 
         System.out.println("Test 1: " + ex1Simple);
@@ -801,35 +811,34 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample14() throws Exception {
+    public void testZvonExample14()
+        throws Exception
+    {
         System.out.println("====== Example-14 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon14.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon14.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/BBB/DDD/CCC/EEE/ancestor::*";
         XmlObject[] ex1Xml = new XmlObject[]{
-            XmlObject.Factory.parse("<CCC><DDD/><EEE/></CCC>"),
+            XmlObject.Factory.parse(
+                "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>"),
+            XmlObject.Factory.parse(
+                "<BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB>"),
             XmlObject.Factory.parse("<DDD><CCC><DDD/><EEE/></CCC></DDD>"),
-            XmlObject.Factory.parse(
-                    "<BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB>"),
-            XmlObject.Factory.parse(
-                    "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>"),
-            XmlObject.Factory.parse(
-                    "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>")};
+            XmlObject.Factory.parse("<CCC><DDD/><EEE/></CCC>")
+        };
 
         String ex2Simple = "//FFF/ancestor::*";
         XmlObject[] ex2Xml = new XmlObject[]{
-            XmlObject.Factory.parse("<DDD><FFF/></DDD>"),
-            XmlObject.Factory.parse("<EEE><DDD><FFF/></DDD></EEE>"),
+            XmlObject.Factory.parse(
+                "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>"),
+            XmlObject.Factory.parse(
+                "<CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC>"),
             XmlObject.Factory.parse("<DDD><EEE><DDD><FFF/></DDD></EEE></DDD>"),
-            XmlObject.Factory.parse(
-                    "<CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC>"),
-            XmlObject.Factory.parse(
-                    "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>"),
-            XmlObject.Factory.parse(
-                    "<AAA><BBB><DDD><CCC><DDD/><EEE/></CCC></DDD></BBB><CCC><DDD><EEE><DDD><FFF/></DDD></EEE></DDD></CCC></AAA>")};
+            XmlObject.Factory.parse("<EEE><DDD><FFF/></DDD></EEE>"),
+            XmlObject.Factory.parse("<DDD><FFF/></DDD>")
+        };
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -849,23 +858,24 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample15() throws Exception {
+    public void testZvonExample15()
+        throws Exception
+    {
         System.out.println("====== Example-15 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon15.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon15.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/BBB/following-sibling::*";
         XmlObject[] ex1Xml = new XmlObject[]{
             XmlObject.Factory.parse(
-                    "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
+                "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
             XmlObject.Factory.parse("<CCC><DDD/></CCC>")};
         String ex2Simple = "//CCC/following-sibling::*";
         XmlObject[] ex2Xml = new XmlObject[]{XmlObject.Factory.parse("<DDD/>"),
                                              XmlObject.Factory.parse("<FFF/>"),
                                              XmlObject.Factory.parse(
-                                                     "<FFF><GGG/></FFF>")};
+                                                 "<FFF><GGG/></FFF>")};
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -885,23 +895,24 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample16() throws Exception {
+    public void testZvonExample16()
+        throws Exception
+    {
         System.out.println("====== Example-16 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon16.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon16.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/preceding-sibling::*";
         XmlObject[] ex1Xml = new XmlObject[]{
             XmlObject.Factory.parse("<BBB><CCC/><DDD/></BBB>")};
         String ex2Simple = "//CCC/preceding-sibling::*";
         XmlObject[] ex2Xml = new XmlObject[]{
-            XmlObject.Factory.parse(
-                    "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
             XmlObject.Factory.parse("<BBB><CCC/><DDD/></BBB>"),
-            XmlObject.Factory.parse("<DDD/>"),
-            XmlObject.Factory.parse("<EEE/>")};
+            XmlObject.Factory.parse(
+                "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
+            XmlObject.Factory.parse("<EEE/>"),
+            XmlObject.Factory.parse("<DDD/>")};
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -921,12 +932,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample17() throws Exception {
+    public void testZvonExample17()
+        throws Exception
+    {
         System.out.println("====== Example-17 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon17.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon17.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/following::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -937,9 +949,9 @@ public class XPathTest extends BasicCursorTestCase {
             XmlObject.Factory.parse("<FFF><GGG/></FFF>"),
             XmlObject.Factory.parse("<GGG/>"),
             XmlObject.Factory.parse(
-                    "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
+                "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
             XmlObject.Factory.parse(
-                    "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
+                "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
             XmlObject.Factory.parse("<EEE/>"),
             XmlObject.Factory.parse("<DDD/>"),
             XmlObject.Factory.parse("<CCC/>"),
@@ -965,54 +977,48 @@ public class XPathTest extends BasicCursorTestCase {
     }
 
     /**
-     * @throws Exception
+     * the preceding axis contains all nodes that are descendants of the root
+     * of the tree in which the context node is found, are not ancestors of
+     * the context node, and occur before the context node in document order
      *
+     * @throws Exception
      */
-    public void testZvonExample18() throws Exception {
+    public void testZvonExample18()
+        throws Exception
+    {
         System.out.println("====== Example-18 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon18.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon18.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/preceding::*";
         XmlObject[] ex1Xml = new XmlObject[]{
-            XmlObject.Factory.parse("<CCC><DDD/></CCC>"),
-            XmlObject.Factory.parse(
-                    "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
-            XmlObject.Factory.parse("<DDD/>"),
-            XmlObject.Factory.parse(
-                    "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
-            XmlObject.Factory.parse("<FFF><GGG/></FFF>"),
-            XmlObject.Factory.parse("<FFF/>"),
-            XmlObject.Factory.parse("<CCC/>"),
-            XmlObject.Factory.parse("<DDD/>"),
-            XmlObject.Factory.parse("<EEE/>"),
-            XmlObject.Factory.parse("<GGG/>"),
             XmlObject.Factory.parse("<BBB><CCC/><ZZZ><DDD/></ZZZ></BBB>"),
-            XmlObject.Factory.parse("<ZZZ><DDD/></ZZZ>"),
             XmlObject.Factory.parse("<CCC/>"),
-            XmlObject.Factory.parse("<DDD/>")};
+            XmlObject.Factory.parse("<ZZZ><DDD/></ZZZ>"),
+            XmlObject.Factory.parse("<DDD/>")
+        };
 
         String ex2Simple = "//GGG/preceding::*";
-        XmlObject[] ex2Xml = new XmlObject[]{XmlObject.Factory.parse("<GGG/>"),
-                                             XmlObject.Factory.parse(
-                                                     "<FFF><GGG/></FFF>"),
-                                             XmlObject.Factory.parse("<FFF/>"),
-                                             XmlObject.Factory.parse("<CCC/>"),
-                                             XmlObject.Factory.parse("<DDD/>"),
-                                             XmlObject.Factory.parse("<EEE/>"),
-                                             XmlObject.Factory.parse(
-                                                     "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
-                                             XmlObject.Factory.parse(
-                                                     "<CCC><DDD/></CCC>"),
-                                             XmlObject.Factory.parse(
-                                                     "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
-                                             XmlObject.Factory.parse("<DDD/>"),
-                                             XmlObject.Factory.parse(
-                                                     "<BBB><CCC/><ZZZ><DDD/></ZZZ></BBB>"),
-                                             XmlObject.Factory.parse(
-                                                     "<ZZZ><DDD/></ZZZ>"),
-                                             XmlObject.Factory.parse("<CCC/>"),
-                                             XmlObject.Factory.parse("<DDD/>")};
+        XmlObject[] ex2Xml = new XmlObject[]{
+            XmlObject.Factory.parse("<BBB><CCC/><ZZZ><DDD/></ZZZ></BBB>"),
+            XmlObject.Factory.parse("<CCC/>"),
+            XmlObject.Factory.parse("<ZZZ><DDD/></ZZZ>"),
+            XmlObject.Factory.parse("<DDD/>"),
+
+            XmlObject.Factory.parse("<EEE/>"),
+            XmlObject.Factory.parse("<DDD/>"),
+            XmlObject.Factory.parse("<CCC/>"),
+            XmlObject.Factory.parse("<FFF/>")
+
+            /*XmlObject.Factory.parse(
+                                               "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
+                                           XmlObject.Factory.parse(
+                                               "<CCC><DDD/></CCC>"),
+                                           XmlObject.Factory.parse(
+                                               "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
+                                           XmlObject.Factory.parse("<DDD/>"),
+                                           */
+        };
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -1032,20 +1038,21 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample19() throws Exception {
+    public void testZvonExample19()
+        throws Exception
+    {
         System.out.println("====== Example-19 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon19.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon19.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/descendant-or-self::*";
 
         XmlObject[] ex1Xml = new XmlObject[]{
             XmlObject.Factory.parse(
-                    "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
+                "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
             XmlObject.Factory.parse(
-                    "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
+                "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
             XmlObject.Factory.parse("<EEE/>"),
             XmlObject.Factory.parse("<DDD/>"),
             XmlObject.Factory.parse("<CCC/>"),
@@ -1055,11 +1062,11 @@ public class XPathTest extends BasicCursorTestCase {
         String ex2Simple = "//CCC/descendant-or-self::*";
 
         XmlObject[] ex2Xml = new XmlObject[]{
-              XmlObject.Factory.parse("<CCC/>"),
+            XmlObject.Factory.parse("<CCC/>"),
             XmlObject.Factory.parse("<CCC/>"),
             XmlObject.Factory.parse("<CCC><DDD/></CCC>"),
             XmlObject.Factory.parse("<DDD/>"),
-          };
+        };
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -1079,36 +1086,36 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample20() throws Exception {
+    public void testZvonExample20()
+        throws Exception
+    {
         System.out.println("====== Example-20 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon20.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon20.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "/AAA/XXX/DDD/EEE/ancestor-or-self::*";
-        XmlObject[] ex1Xml = new XmlObject[]{XmlObject.Factory.parse("<EEE/>"),
-                                             XmlObject.Factory.parse(
-                                                     "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
-                                             XmlObject.Factory.parse(
-                                                     "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
-                                             XmlObject.Factory.parse(
-                                                     "<AAA><BBB><CCC/><ZZZ><DDD/></ZZZ></BBB><XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
-                                             XmlObject.Factory.parse(
-                                                     "<AAA><BBB><CCC/><ZZZ><DDD/></ZZZ></BBB><XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>")};
+        XmlObject[] ex1Xml = new XmlObject[]{
+            XmlObject.Factory.parse(
+                "<AAA><BBB><CCC/><ZZZ><DDD/></ZZZ></BBB><XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
+            XmlObject.Factory.parse(
+                "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
+            XmlObject.Factory.parse(
+                "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
+            XmlObject.Factory.parse("<EEE/>"),
+        };
         String ex2Simple = "//GGG/ancestor-or-self::*";
-        XmlObject[] ex2Xml = new XmlObject[]{XmlObject.Factory.parse("<GGG/>"),
-                                             XmlObject.Factory.parse(
-                                                     "<FFF><GGG/></FFF>"),
-                                             XmlObject.Factory.parse(
-                                                     "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
-                                             XmlObject.Factory.parse(
-                                                     "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
-                                             XmlObject.Factory.parse(
-                                                     "<AAA><BBB><CCC/><ZZZ><DDD/></ZZZ></BBB><XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
-                                             XmlObject.Factory.parse(
-                                                     "<AAA><BBB><CCC/><ZZZ><DDD/></ZZZ></BBB><XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>")};
+        XmlObject[] ex2Xml = new XmlObject[]{
+            XmlObject.Factory.parse(
+                "<AAA><BBB><CCC/><ZZZ><DDD/></ZZZ></BBB><XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
+            XmlObject.Factory.parse(
+                "<XXX><DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD></XXX>"),
+            XmlObject.Factory.parse(
+                "<DDD><EEE/><DDD/><CCC/><FFF/><FFF><GGG/></FFF></DDD>"),
+            XmlObject.Factory.parse("<FFF><GGG/></FFF>"),
+            XmlObject.Factory.parse("<GGG/>"),
+        };
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -1128,68 +1135,71 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample21() throws Exception {
+    public void testZvonExample21()
+        throws Exception
+    {
         System.out.println("====== Example-21 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon21.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon21.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "//GGG/ancestor::*";
         XmlObject[] ex1Xml = new XmlObject[]{
+
             XmlObject.Factory.parse(
-                    "<FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF>"),
+                "<AAA><BBB><CCC/><ZZZ/></BBB><XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
             XmlObject.Factory.parse(
-                    "<DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD>"),
+                "<XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX>"),
             XmlObject.Factory.parse(
-                    "<XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX>"),
+                "<DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD>"),
             XmlObject.Factory.parse(
-                    "<AAA><BBB><CCC/><ZZZ/></BBB><XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
-            XmlObject.Factory.parse(
-                    "<AAA><BBB><CCC/><ZZZ/></BBB><XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>")};
+                "<FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF>"),
+        };
         String ex2Simple = "//GGG/descendant::*";
         XmlObject[] ex2Xml = new XmlObject[]{
             XmlObject.Factory.parse("<JJJ><QQQ/></JJJ>"),
-            XmlObject.Factory.parse("<JJJ/>"),
-            XmlObject.Factory.parse("<QQQ/>")};
+            XmlObject.Factory.parse("<QQQ/>"),
+            XmlObject.Factory.parse("<JJJ/>")};
         String ex3Simple = "//GGG/following::*";
         XmlObject[] ex3Xml = new XmlObject[]{XmlObject.Factory.parse("<HHH/>"),
                                              XmlObject.Factory.parse(
-                                                     "<CCC><DDD/></CCC>"),
+                                                 "<CCC><DDD/></CCC>"),
                                              XmlObject.Factory.parse("<DDD/>")};
         String ex4Simple = "//GGG/preceding::*";
-        //ykadiysk: printout is in order of closing tags upstream
-        XmlObject[] ex4Xml = new XmlObject[]{XmlObject.Factory.parse("<HHH/>"),
-                                             XmlObject.Factory.parse("<EEE/>"),
-                                             XmlObject.Factory.parse(
-                                                     "<BBB><CCC/><ZZZ/></BBB>"),
-                                             XmlObject.Factory.parse("<ZZZ/>"),
-                                             XmlObject.Factory.parse("<CCC/>")
+        XmlObject[] ex4Xml = new XmlObject[]{
+            XmlObject.Factory.parse("<BBB><CCC/><ZZZ/></BBB>"),
+            XmlObject.Factory.parse("<CCC/>"),
+            XmlObject.Factory.parse("<ZZZ/>"),
+            XmlObject.Factory.parse("<EEE/>"),
+            XmlObject.Factory.parse("<HHH/>"),
         };
         String ex5Simple = "//GGG/self::*";
         XmlObject[] ex5Xml = new XmlObject[]{
             XmlObject.Factory.parse("<GGG><JJJ><QQQ/></JJJ><JJJ/></GGG>")};
+
         String ex6Simple = "//GGG/ancestor::* | //GGG/descendant::* | //GGG/following::* | //GGG/preceding::* | //GGG/self::*";
         XmlObject[] ex6Xml = new XmlObject[]{
             XmlObject.Factory.parse(
-                    "<AAA><BBB><CCC/><ZZZ/></BBB><XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
+                "<AAA><BBB><CCC/><ZZZ/></BBB><XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX><CCC><DDD/></CCC></AAA>"),
             XmlObject.Factory.parse("<BBB><CCC/><ZZZ/></BBB>"),
             XmlObject.Factory.parse("<CCC/>"),
             XmlObject.Factory.parse("<ZZZ/>"),
             XmlObject.Factory.parse(
-                    "<XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX>"),
+                "<XXX><DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD></XXX>"),
             XmlObject.Factory.parse(
-                    "<DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD>"),
+                "<DDD><EEE/><FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF></DDD>"),
             XmlObject.Factory.parse("<EEE/>"),
             XmlObject.Factory.parse(
-                    "<FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF>"),
+                "<FFF><HHH/><GGG><JJJ><QQQ/></JJJ><JJJ/></GGG><HHH/></FFF>"),
             XmlObject.Factory.parse("<HHH/>"),
             XmlObject.Factory.parse("<GGG><JJJ><QQQ/></JJJ><JJJ/></GGG>"),
             XmlObject.Factory.parse("<JJJ><QQQ/></JJJ>"),
             XmlObject.Factory.parse("<QQQ/>"),
             XmlObject.Factory.parse("<JJJ/>"),
+            XmlObject.Factory.parse("<HHH/>"),
             XmlObject.Factory.parse("<CCC><DDD/></CCC>"),
-            XmlObject.Factory.parse("<DDD/>")};
+            XmlObject.Factory.parse("<DDD/>"),
+        };
 
         System.out.println("Test 1: " + ex1Simple);
         XmlCursor x1 = xDoc.newCursor();
@@ -1216,17 +1226,19 @@ public class XPathTest extends BasicCursorTestCase {
         XmlCursor x4 = xDoc.newCursor();
         x4.selectPath(fixPath(ex4Simple));
         int i = 0;
-        System.out.println("****************HERE");
+        /*   System.out.println("****************HERE");
 
-        while (i < x4.getSelectionCount()) {
-            x4.toSelection(i++);
-            System.out.println(x4.getName() + ((i - 1) + ""));
-        }
+           while (i < x4.getSelectionCount())
+           {
+               x4.toSelection(i++);
+               System.out.println(x4.getName() + ((i - 1) + ""));
+           }
 
-        System.out.println("****************SETS");
-        XPathCommon.display(x4);
-        //XPathCommon.display(ex4Xml);
-        System.out.println("**************END SETS");
+           System.out.println("****************SETS");
+           XPathCommon.display(x4);
+           //XPathCommon.display(ex4Xml);
+           System.out.println("**************END SETS");
+        */
         XPathCommon.compare(x4, ex4Xml);
         x4.dispose();
 
@@ -1248,12 +1260,13 @@ public class XPathTest extends BasicCursorTestCase {
 
     /**
      * @throws Exception
-     *
      */
-    public void testZvonExample22() throws Exception {
+    public void testZvonExample22()
+        throws Exception
+    {
         System.out.println("====== Example-22 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon22.xml"));
+            JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon22.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//BBB[position() mod 2 = 0 ]";
@@ -1291,11 +1304,14 @@ public class XPathTest extends BasicCursorTestCase {
     }
 
 
-    public static void main(String[] rgs) {
-        try {
+    public static void main(String[] rgs)
+    {
+        try
+        {
             new XPathTest("").testZvonExample21();
         }
-        catch (Exception e) {
+        catch (Exception e)
+        {
             e.printStackTrace();
         }
     }
