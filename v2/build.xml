@@ -465,7 +465,6 @@
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/common"/>
-        <pathelement location="build/classes/binding"/>
         <pathelement location="build/classes/typeimpl"/>
         <pathelement location="build/classes/newstore2"/>
       </classpath>
