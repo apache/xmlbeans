@@ -37,6 +37,7 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.values.*;
+import org.apache.xmlbeans.impl.config.ExtensionHolder;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.Constructor;
@@ -87,6 +88,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private String _fullJavaName;
     private String _shortJavaImplName;
     private String _fullJavaImplName;
+    private ExtensionHolder _extensionHolder;
 
     // runtime java type support: volatile because they're cached
     private volatile Class _javaClass;
@@ -531,6 +533,17 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         int index = Math.max(_fullJavaName.lastIndexOf('$'),
                              _fullJavaName.lastIndexOf('.')) + 1;
         _shortJavaName = _fullJavaName.substring(index);
+    }
+
+    public void setExtensionHolder(ExtensionHolder extHolder)
+    {
+        assertResolved();
+        _extensionHolder = extHolder;
+    }
+
+    public ExtensionHolder getExtensionHolder()
+    {
+        return _extensionHolder;
     }
 
     public void setShortJavaImplName(String name)

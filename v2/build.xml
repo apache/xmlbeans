@@ -144,7 +144,6 @@
         <pathelement location="build/lib/jsr173_ri.jar"/>
         <pathelement location="build/private/lib/drt.jar"/>
         <pathelement location="build/private/lib/easypo.jar"/>
-        <pathelement location="build/private/lib/numerals.jar"/>
         <pathelement location="build/private/lib/schemas.jar"/>
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
@@ -153,26 +152,29 @@
       <formatter type="plain"/>
       <test name="drtcases.SmokeTests" outfile="build/test/output/drt-product" />
     </junit>
+
     <!-- Disabled, to enable update catalog test/cases/xmlcatalog/cat.xml
     <antcall target="xmlcatalogTest" /-->
+
+    <antcall target="extensionsTest" />
   </target>
 
   <path id="xmlcatalogTest.run.path">
-      <pathelement location="build/lib/xbean.jar"/>
-      <pathelement location="build/lib/jsr173_api.jar"/>
-      <pathelement location="build/lib/resolver.jar"/>
-    </path>
+    <pathelement location="build/lib/xbean.jar"/>
+    <pathelement location="build/lib/jsr173_api.jar"/>
+    <pathelement location="build/lib/resolver.jar"/>
+  </path>
 
   <target name="xmlcatalogTest">
-    <echo message="___ XML Catalog Test ___" />
+    <echo message="___ XML Catalog Test ___"/>
     <java classname="${schema_compiler}" classpathref="xmlcatalogTest.run.path" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
-        <arg line="-catalog test/cases/xmlcatalog/cat.xml -out build/private/lib/xmlcatalogTest.jar test/cases/xmlcatalog/includer1.xsd"/>
+      <jvmarg value="-ea"/>
+      <arg line="-catalog test/cases/xmlcatalog/cat.xml -out build/private/lib/xmlcatalogTest.jar test/cases/xmlcatalog/includer1.xsd"/>
     </java>
-    <echo message="___ XML Catalog Test :    PASSED" />
+    <echo message="___ XML Catalog Test :    PASSED"/>
   </target>
 
-  <target name='drtxpath' depends="xbean_xpath.jar" >
+  <target name='drtxpath' depends="xbean_xpath.jar">
     <echo message="DRT: XPath Jaxen    - JUnit output being sent to build/test/output/drt-xpath.txt"/>
     <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
       <jvmarg value="-ea"/>
@@ -187,11 +189,64 @@
         <pathelement location="build/lib/xbean_xpath.jar"/>
       </classpath>
       <formatter type="plain"/>
-      <test name="drtcases.JaxenXPathTests" outfile="build/test/output/drt-xpath" />
+      <test name="drtcases.JaxenXPathTests" outfile="build/test/output/drt-xpath"/>
     </junit>
   </target>
 
   <target name="builddrt" depends="drt.jar, random.jar, eric"/>
+
+  <!-- extensions test -->
+  <target name="extensionsTest" depends="extensions.compile">
+    <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
+    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement location="external/lib/junit.jar"/>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_ri.jar"/>
+        <pathelement location="build/private/lib/extensions.jar"/>
+        <pathelement location="build/test/extensionsuse"/>
+      </classpath>
+      <formatter type="plain"/>
+      <test name="drtcases.ExtensionsTest" outfile="build/test/output/drt-extensions"/>
+    </junit>
+  </target>
+
+  <target name="extensions.compile">
+    <mkdir dir="build/test/extensions"/>
+    <javac srcdir="test/src/extensions" destdir="build/test/extensions" debug="on">
+      <classpath>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_ri.jar"/>
+      </classpath>
+    </javac>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_ri.jar"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/extensions.jar test/src/extensions"/>
+    </java>
+
+    <mkdir dir="build/test/extensionsuse"/>
+    <javac srcdir="test/src/extensionsuse" destdir="build/test/extensionsuse" debug="on">
+      <classpath>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_ri.jar"/>
+        <pathelement location="external/lib/junit.jar"/>
+        <pathelement location="build/private/lib/extensions.jar"/>
+        <pathelement location="build/test/extensionsuse"/>
+      </classpath>
+    </javac>
+  </target>
+  <!-- extensions test -->
 
   <target name="eric" depends="erictest.jar"/>
 
@@ -262,7 +317,6 @@
     <pathelement location="build/ar/xbean.jar"/>
     <pathelement location="build/lib/jsr173_api.jar"/>
     <pathelement location="build/private/lib/easypo.jar"/>
-    <pathelement location="build/private/lib/numerals.jar"/>
     <pathelement location="build/private/lib/schemas.jar"/>
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
@@ -277,7 +331,7 @@
 
   <!-- builddrt target ============================================== -->
 
-  <target name="drt.classes" depends="dirs, easypo.jar, numerals.jar, schemas.jar, xstypes.jar,
+  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar, xstypes.jar,
         enumtest.jar, test_marshal.classes, jsr173_ri.jar">
     <mkdir dir="build/private/classes/drt"/>
     <javac
@@ -416,22 +470,6 @@
       <arg line="-out build/private/lib/easypo.jar test/src/easypo"/>
     </java>
   </target>
-
-    <!-- numerals (for testing) target ================================== -->
-
-    <target name="numerals.check">
-      <uptodate property="numerals.notRequired" targetfile="build/private/lib/numerals.jar">
-        <srcfiles dir="test/src/numerals" includes="**/*"/>
-        <srcfiles dir="build/ar" includes="xbean.jar"/>
-      </uptodate>
-    </target>
-
-    <target name="numerals.jar" depends="numerals.check, dirs, xbean" unless="numerals.notRequired">
-      <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
-        <arg line="-out build/private/lib/numerals.jar test/src/numerals"/>
-      </java>
-    </target>
 
   <!-- schemas (for testing) target ================================ -->
 
