@@ -82,7 +82,8 @@ final class Locale implements DOMImplementation, SaajCallback
 
     QName makeQualifiedQName ( String uri, String qname )
     {
-        assert qname != null && qname.length() > 0;
+        if (qname == null)
+            qname = "";
 
         int i = qname.indexOf( ':' );
 
