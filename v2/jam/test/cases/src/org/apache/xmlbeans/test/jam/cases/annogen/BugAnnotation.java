@@ -12,20 +12,17 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.test.jam.cases.jsr175;
-
-import java.lang.annotation.*;
+package org.apache.xmlbeans.test.jam.cases.annogen;
 
 /**
+ * This is a 1.4-safe version of the annotation class that is used as test
+ * input for annogen.
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-@Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-public @interface RFEAnnotation {
-    int    id();        // Unique ID number associated with RFE
-    String synopsis();  // Synopsis of RFE
-    String engineer()  default "[unassigned]";
-    String date()      default "[unimplemented]";
+public interface BugAnnotation {
+    int    id();
+    String synopsis();
+    EmployeeAnnotation engineer();
+    String date();
 }
-

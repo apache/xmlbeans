@@ -20,6 +20,8 @@
   <property name='test_build_dir'   value='${jam_build_dir}/test'/> <!--FIXME-->
   <property name='tests_build_dir'  value='${test_build_dir}/tests'/>
   <property name='cases_build_dir'  value='${test_build_dir}/cases'/>
+  <property name='annogen_build_dir' value='${test_build_dir}/annogen'/>
+
   <property name='extjar_build_dir' value='${test_build_dir}/extjar'/>
   <property name='extjar_jar'       value='${test_build_dir}/extjar.jar'/>
 
@@ -35,6 +37,10 @@
   <property name='tests_src_150_dir' value='tests/src_150'/>
   <property name='extjar_src_dir'    value='cases/external_jar_case/src'/>
 
+
+  <taskdef name='annogen'
+           classname='org.apache.xmlbeans.impl.jam.annogen.tools.AnnogenTask'
+           classpathref='classpath'/>
 
 
   <path id='classpath' >
@@ -71,13 +77,23 @@
 
   <target name='compile14'>
     <mkdir dir='${cases_build_dir}'/>
-    <javac srcdir='${cases_src_dir}' destdir='${cases_build_dir}'
-           source='1.4' target='1.4'
-           debug='on'   classpathref='classpath'/>
+    <mkdir dir='${annogen_build_dir}'/>
+    <annogen outputdir='${annogen_build_dir}' srcdir='${cases_src_dir}'
+             includes='org/apache/xmlbeans/test/jam/cases/annogen/*.java'
+             classpathref='classpath'
+             pre15CompatibilityMode='true'/>
+    <javac destdir='${cases_build_dir}' debug='on' classpathref='classpath'
+           source='1.4' target='1.4'>
+      <src path='${cases_src_dir}'/>
+      <src path='${annogen_build_dir}'/>
+    </javac>
+
     <mkdir dir='${tests_build_dir}'/>
-    <javac srcdir='${tests_src_dir}' destdir='${tests_build_dir}'
+    <javac destdir='${tests_build_dir}'
            source='1.4' target='1.4'
-           debug='on'   classpathref='classpath'/>
+           debug='on'   classpathref='classpath'>
+      <src path='${tests_src_dir}'/>
+    </javac>
   </target>
 
   <target name='compile15' if='do15compile'>
@@ -96,24 +112,6 @@
     <javac srcdir='${extjar_src_dir}' destdir='${extjar_build_dir}'
            debug='on' classpathref='classpath'/>
     <jar jarfile='${extjar_jar}'      basedir='${extjar_build_dir}'/>
-  </target>
-
-
-<!--
-skipping this target for now, just checked in the generated code 
-for now because JDK versioning problems when running in ant
--->
-  <target name='annogen'>
-
-    <taskdef name='annogen'
-             classname='org.apache.xmlbeans.impl.jam.annogen.tools.AnnogenTask'
-             classpathref='classpath'/>
-
-    <annogen outputdir='${test_build_dir}' srcdir='dummyclasses'
-             includes='org/apache/xmlbeans/test/jam/dummyclasses/jsr175/RFEAnnotation.java'
-             classpathref='classpath'
-             pre15CompatibilityMode='true'/>
-
   </target>
 
 

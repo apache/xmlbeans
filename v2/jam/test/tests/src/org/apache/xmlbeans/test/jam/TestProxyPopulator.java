@@ -18,7 +18,7 @@ import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
 import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
-import org.apache.xmlbeans.test.jam.cases.jsr175.impl.RFEAnnotationImpl;
+import org.apache.xmlbeans.test.jam.cases.annogen.BugAnnotation;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -32,9 +32,9 @@ public class TestProxyPopulator implements ProxyPopulator {
   public void populateProxy(ElementId id,
                             Class annotationType,
                             AnnotationProxy targetProxy) {
-    if (targetProxy instanceof RFEAnnotationImpl) {
-      RFEAnnotationImpl rfe = (RFEAnnotationImpl)targetProxy;
-      rfe.set_id(rfe.id()+1);
+    if (targetProxy instanceof BugAnnotation) {
+      BugAnnotation rfe = (BugAnnotation)targetProxy;
+      //FIXME rfe.set_id(rfe.id()+1);
     }
   }
 

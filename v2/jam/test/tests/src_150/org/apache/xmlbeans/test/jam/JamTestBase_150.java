@@ -62,7 +62,7 @@ import java.io.IOException;
 import java.io.File;
 import java.util.*;
 
-import org.apache.xmlbeans.test.jam.cases.jsr175.RFEAnnotation;
+import org.apache.xmlbeans.test.jam.cases.jsr175.RFEAnnotation_150;
 import org.apache.xmlbeans.test.jam.cases.jsr175.EmployeeAnnotation;
 import org.apache.xmlbeans.test.jam.cases.jsr175.EmployeeGroupAnnotation;
 
@@ -89,7 +89,7 @@ public abstract class JamTestBase_150 extends JamTestBase {
     DUMMY+".jsr175.EmployeeGroupAnnotation",
     DUMMY+".jsr175.Constants",
 
-    DUMMY+".jsr175.RFEAnnotation",
+    DUMMY+".jsr175.RFEAnnotation_150",
 
     DUMMY+".MyEnum",
     DUMMY+".MyGenericThing",
@@ -142,11 +142,11 @@ public abstract class JamTestBase_150 extends JamTestBase {
 
   public void test175Annotations() throws IOException, XMLStreamException {
     JClass clazz = resolved(mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass"));
-    JAnnotation ann = clazz.getAnnotation(RFEAnnotation.class);
-    assertTrue("no "+RFEAnnotation.class+ " on "+clazz.getQualifiedName(),
+    JAnnotation ann = clazz.getAnnotation(RFEAnnotation_150.class);
+    assertTrue("no "+RFEAnnotation_150.class+ " on "+clazz.getQualifiedName(),
                ann != null);
     if (!is175AnnotationInstanceAvailable()) return; //FIXME test untyped access
-    RFEAnnotation rfe = (RFEAnnotation)ann.getAnnotationInstance();
+    RFEAnnotation_150 rfe = (RFEAnnotation_150)ann.getAnnotationInstance();
     assertTrue("id = "+rfe.id(), rfe.id() == 4561414);
     assertTrue("synopsis = '"+rfe.synopsis()+"'",
                rfe.synopsis().equals("Balance the federal budget"));
@@ -286,7 +286,11 @@ public abstract class JamTestBase_150 extends JamTestBase {
   }
 
   protected File[] getCasesSourcepath() {
-    return new File[] {new File("cases/src"), new File("cases/src_150")};
+    File[] path = super.getCasesSourcepath();
+    File[] out = new File[path.length+1];
+    for(int i=0; i<path.length; i++) out[i] = path[i];
+    out[out.length-1] = new File("cases/src_150");
+    return out;
   }
 
 }
