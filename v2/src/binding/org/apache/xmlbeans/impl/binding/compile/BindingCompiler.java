@@ -126,6 +126,8 @@ public abstract class BindingCompiler extends BindingLogger
   /**
    * Public method for beginning the binding compilation process with
    * an arbitrary TylarWriter.  Delegates to the subclass to do the real work.
+   * Note: the caller of this method is responsible for calling close() on
+   * the TylarWriter!
    */
   public final void bind(TylarWriter writer) {
     mIsCompilationStarted = true;

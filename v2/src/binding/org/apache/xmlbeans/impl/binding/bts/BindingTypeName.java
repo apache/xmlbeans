@@ -76,8 +76,10 @@ public final class BindingTypeName
 
     private BindingTypeName(JavaTypeName jName, XmlTypeName xName)
     {
-        this.jName = jName;
-        this.xName = xName;
+      if (jName == null) throw new IllegalArgumentException("null jName");
+      if (xName == null) throw new IllegalArgumentException("null xName");
+      this.jName = jName;
+      this.xName = xName;
     }
 
     public JavaTypeName getJavaName()
