@@ -32,6 +32,11 @@ package org.apache.xmlbeans.impl.jam;
 public interface JAnnotation extends JElement {
 
   // ========================================================================
+  // Constants
+
+  public static final String SINGLE_VALUE_NAME = "value";
+
+  // ========================================================================
   // Public methods
 
   /**

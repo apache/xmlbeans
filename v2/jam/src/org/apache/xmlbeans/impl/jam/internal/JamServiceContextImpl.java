@@ -68,6 +68,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   private MVisitor mPropertyInitializer = null;
   private List mOtherInitializers = null;
   private List mUnstructuredSourceFiles = null;
+  private List mClassLoaders = null;
 
   private JamClassLoader mLoader = null;
 
@@ -373,6 +374,11 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     mUseSystemClasspath = use;
   }
 
+  public void addClassLoader(ClassLoader cl) {
+    if (mClassLoaders == null) mClassLoaders = new ArrayList();
+    mClassLoaders.add(cl);
+  }
+
   public void setDefaultAnnotationProxyClass(Class proxy) {
     validateProxyClass(proxy);
     mDefaultAnnotationProxyClass = proxy;
@@ -381,8 +387,20 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   // ========================================================================
   // JamServiceContext implementation
 
-  public boolean isUseSystemClasspath() { return mUseSystemClasspath; }
+  //public boolean isUseSystemClasspath() { return mUseSystemClasspath; }
 
+  public ClassLoader[] getReflectionClassLoaders() {
+    if (mClassLoaders == null) {
+      return new ClassLoader[] { ClassLoader.getSystemClassLoader() };
+    } else {
+      ClassLoader[] out = new ClassLoader[mClassLoaders.size()];
+      for(int i=0; i<out.length; i++) {
+        out[i] = (ClassLoader)mClassLoaders.get(i);
+      }
+      out[out.length-1] = ClassLoader.getSystemClassLoader();
+      return out;
+    }
+  }
 
   // ========================================================================
   // ElementContext implementation

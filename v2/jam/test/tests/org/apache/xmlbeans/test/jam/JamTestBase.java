@@ -92,9 +92,9 @@ public abstract class JamTestBase extends TestCase {
   // Constants
 
   private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
-  private static final boolean WRITE_MASTER_ON_FAIL = true;
+  private static final boolean WRITE_RESULT_ON_FAIL = true;
 
-  private static final String WRITE_MASTER_PREFIX = "expected-";
+  private static final String WRITE_RESULT_PREFIX = "result-";
 
   protected static final String
           DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
@@ -419,13 +419,13 @@ public abstract class JamTestBase extends TestCase {
       } else {
         System.out.println("WARNING: Missing master file: "+masterFile);
       }
-      if (WRITE_MASTER_ON_FAIL) {
-        File expected = new File(getMasterDir(),WRITE_MASTER_PREFIX+masterName);
-        FileWriter eout = new FileWriter(expected);
-        eout.write(result);
-        eout.close();
+      if (WRITE_RESULT_ON_FAIL) {
+        File resultFile = new File(getMasterDir(),WRITE_RESULT_PREFIX+masterName);
+        FileWriter rout = new FileWriter(resultFile);
+        rout.write(result);
+        rout.close();
         System.out.println("WARNING: Comparison failed, ignoring, wrote \n"+
-                           expected);
+                           resultFile);
       }
       if (CONTINUE_ON_COMPARE_FAIL) return;
       fail("Result did not match master at "+masterFile+":\n"+

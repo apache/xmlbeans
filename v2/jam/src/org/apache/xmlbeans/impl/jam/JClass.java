@@ -166,6 +166,12 @@ public interface JClass extends JMember {
   public JProperty[] getProperties();
 
   /**
+   * <p>Like getProperties(), but only considers methods explicitly declared
+   * on this class in identifying the properties.</p>
+   */
+  public JProperty[] getDeclaredProperties();
+
+  /**
    * <p>Returns true if this JClass represents an interface.</p>
    */
   public boolean isInterface();

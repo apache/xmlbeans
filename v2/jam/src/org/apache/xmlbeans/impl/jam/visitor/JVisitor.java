@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.jam.JField;
 import org.apache.xmlbeans.impl.jam.JMethod;
 import org.apache.xmlbeans.impl.jam.JPackage;
 import org.apache.xmlbeans.impl.jam.JParameter;
+import org.apache.xmlbeans.impl.jam.JProperty;
 
 /**
  * <p>To be extended by classes which wish to traverse an MElement tree.</p>
@@ -45,4 +46,5 @@ public abstract class JVisitor {
   public void visit(JAnnotation ann) {}
 
   public void visit(JComment comment) {}
+ 
 }

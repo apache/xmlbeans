@@ -16,9 +16,9 @@ package org.apache.xmlbeans.impl.jam.visitor;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
+import org.apache.xmlbeans.impl.jam.JMethod;
 import org.apache.xmlbeans.impl.jam.internal.elements.PropertyImpl;
 import org.apache.xmlbeans.impl.jam.mutable.MClass;
-import org.apache.xmlbeans.impl.jam.mutable.MMethod;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,13 +28,21 @@ import java.util.Map;
  */
 public class PropertyInitializer extends MVisitor {
 
+  //FIXME we may want to move to a model in which property initialization
+  //is done even more lazily, i.e. only when getProperties is called.
+
   // ========================================================================
   // Element visitor implementation
 
   public void visit(MClass clazz) {
-    Map name2prop = new HashMap();
-    MMethod[] methods = clazz.getMutableMethods();
+    addProperties(clazz,true);
+    addProperties(clazz,false);
+  }
 
+  private void addProperties(MClass clazz, boolean declared) {
+    JMethod[] methods = declared ? clazz.getDeclaredMethods() :
+      clazz.getMethods();
+    Map name2prop = new HashMap();
     for(int i=0; i<methods.length; i++) {
       String name = methods[i].getSimpleName();
       //
@@ -52,7 +60,8 @@ public class PropertyInitializer extends MVisitor {
         }
         JProperty prop = (JProperty)name2prop.get(name);
         if (prop == null) {
-          prop = clazz.addNewProperty(name,methods[i],null);
+          prop = declared ? clazz.addNewDeclaredProperty(name,methods[i],null) :
+            clazz.addNewProperty(name,methods[i],null);
           name2prop.put(name,prop);
         } else {
           if (typ.equals(prop.getType())) {
@@ -70,7 +79,8 @@ public class PropertyInitializer extends MVisitor {
         name = name.substring(3);
         JProperty prop = (JProperty)name2prop.get(name);
         if (prop == null) {
-          prop = clazz.addNewProperty(name,methods[i],null);
+          prop = declared ? clazz.addNewDeclaredProperty(name,methods[i],null) :
+            clazz.addNewProperty(name,methods[i],null);
           name2prop.put(name,prop);
         } else {
           if (type.equals(prop.getType())) {

@@ -64,6 +64,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   private ArrayList mMethods = null;
   private ArrayList mConstructors = null;
   private ArrayList mProperties = null;
+  private ArrayList mDeclaredProperties = null;
 
   private String[] mImports = null;
 
@@ -135,6 +136,13 @@ public class ClassImpl extends MemberImpl implements MClass,
     if (mProperties == null) return new JProperty[0];
     JProperty[] out = new JProperty[mProperties.size()];
     mProperties.toArray(out);
+    return out;
+  }
+
+  public JProperty[] getDeclaredProperties() {
+    if (mDeclaredProperties == null) return new JProperty[0];
+    JProperty[] out = new JProperty[mDeclaredProperties.size()];
+    mDeclaredProperties.toArray(out);
     return out;
   }
 
@@ -328,7 +336,7 @@ public class ClassImpl extends MemberImpl implements MClass,
     return out;
   }
 
-  public JProperty addNewProperty(String name, MMethod getter, MMethod setter) {
+  public JProperty addNewProperty(String name, JMethod getter, JMethod setter) {
     if (mProperties == null) mProperties = new ArrayList();
     JProperty out = new PropertyImpl(name,getter,setter,
                                      getter.getReturnType().getFieldDescriptor());
@@ -338,6 +346,18 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public void removeProperty(JProperty p) {
     if (mProperties != null) mProperties.remove(p);
+  }
+
+  public JProperty addNewDeclaredProperty(String name, JMethod getter, JMethod setter) {
+    if (mDeclaredProperties == null) mDeclaredProperties = new ArrayList();
+    JProperty out = new PropertyImpl(name,getter,setter,
+                                     getter.getReturnType().getFieldDescriptor());
+    mDeclaredProperties.add(out);
+    return out;
+  }
+
+  public void removeDeclaredProperty(JProperty p) {
+    if (mDeclaredProperties != null) mDeclaredProperties.remove(p);
   }
 
   public void setIsInterface(boolean b) { mIsInterface = b; }

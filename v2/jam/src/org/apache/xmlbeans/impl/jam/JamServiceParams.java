@@ -330,6 +330,11 @@ public interface JamServiceParams {
   public void setUseSystemClasspath(boolean use);
 
   /**
+   * DOCME
+   */
+  public void addClassLoader(ClassLoader cl);
+
+  /**
    * <p>Sets an implementation-specific property.</p>
    */
   public void setProperty(String name, String value);

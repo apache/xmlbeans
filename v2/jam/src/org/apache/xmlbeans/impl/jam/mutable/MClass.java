@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
+import org.apache.xmlbeans.impl.jam.JMethod;
 
 /**
  * <p>Mutable version of JClass.</p>
@@ -156,9 +157,13 @@ public interface MClass extends MMember, JClass {
   public MMethod[] getMutableMethods();
 
 
-  public JProperty addNewProperty(String name, MMethod getter, MMethod setter);
+  public JProperty addNewProperty(String name, JMethod getter, JMethod setter);
 
   public void removeProperty(JProperty prop);
+
+  public JProperty addNewDeclaredProperty(String name, JMethod getter, JMethod setter);
+
+  public void removeDeclaredProperty(JProperty prop);
 
 
 

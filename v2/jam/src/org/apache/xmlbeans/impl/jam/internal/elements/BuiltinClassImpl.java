@@ -99,6 +99,7 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public boolean isStatic() { return false; }
   public JClass[] getClasses() { return NO_CLASS; }
   public JProperty[] getProperties() { return NO_PROPERTY; }
+  public JProperty[] getDeclaredProperties() { return NO_PROPERTY; }
   public JPackage[] getImportedPackages() { return NO_PACKAGE; }
   public JClass[] getImportedClasses() { return NO_CLASS; }
 
@@ -129,11 +130,18 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public MMethod addNewMethod() { nocando(); return null; }
   public void removeMethod(MMethod method) { nocando(); }
   public void setModifiers(int modifiers) { nocando(); }
-  public JProperty addNewProperty(String name, MMethod m, MMethod x) {
+
+  public JProperty addNewProperty(String name, JMethod m, JMethod x) {
     nocando();
     return null;
   }
   public void removeProperty(JProperty prop) { nocando(); }
+
+  public JProperty addNewDeclaredProperty(String name, JMethod m, JMethod x) {
+    nocando();
+    return null;
+  }
+  public void removeDeclaredProperty(JProperty prop) { nocando(); }
 
   // ========================================================================
   // Object implementation

@@ -83,6 +83,31 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
       getSpecifiedClasses((JamServiceContextImpl)jsps));
   }
 
+  public JamClassLoader createSystemJamClassLoader() {
+    JamServiceParams params = createServiceParams();
+    params.setUseSystemClasspath(true);
+    try {
+      JamService service = createService(params);
+      return service.getClassLoader();
+    } catch(IOException reallyUnexpected) {
+      reallyUnexpected.printStackTrace();
+      throw new IllegalStateException(reallyUnexpected.getMessage());
+    }
+  }
+
+  public JamClassLoader createJamClassLoader(ClassLoader cl) {
+    JamServiceParams params = createServiceParams();
+    params.setUseSystemClasspath(true); //?
+    try {
+      JamService service = createService(params);
+      return service.getClassLoader();
+    } catch(IOException reallyUnexpected) {
+      reallyUnexpected.printStackTrace();
+      throw new IllegalStateException(reallyUnexpected.getMessage());
+    }
+  }
+
+
   // ========================================================================
   // Protected methods - override these at your own risk
 
@@ -126,8 +151,9 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     if (b != null) builders.add(b);   // prefer first source
     b = createClassfileBuilder(ctx);  // then custom classpath
     if (b != null) builders.add(b);
-    if (ctx.isUseSystemClasspath()) { // then system classpath
-      builders.add(ReflectClassBuilder.getSystemClassBuilder(ctx));
+    ClassLoader[] cls = ctx.getReflectionClassLoaders();
+    for(int i=0; i<cls.length; i++) {
+      builders.add(new ReflectClassBuilder(cls[i],ctx));
     }
     JamClassBuilder[] barray = new JamClassBuilder[builders.size()];
     builders.toArray(barray);
