@@ -67,6 +67,7 @@ public class FactorImports
         flags.add("help");
         flags.add("usage");
         flags.add("license");
+        flags.add("version");
 
         CommandLine cl = new CommandLine(args, flags, Arrays.asList(new String[] {"import", "out"}));
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
@@ -89,6 +90,13 @@ public class FactorImports
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
             System.exit(0);
             return;
         }

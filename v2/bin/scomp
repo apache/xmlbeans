@@ -12,4 +12,4 @@ case "`uname`" in
         ;;
 esac
 
-java -classpath $cp org.apache.xmlbeans.impl.tool.SchemaCompiler $*
+java -Xmx256m -classpath $cp org.apache.xmlbeans.impl.tool.SchemaCompiler $*

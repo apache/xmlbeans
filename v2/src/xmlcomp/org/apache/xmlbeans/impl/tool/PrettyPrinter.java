@@ -46,6 +46,7 @@ public class PrettyPrinter
         flags.add("help");
         flags.add("usage");
         flags.add("license");
+        flags.add("version");
 
         CommandLine cl = new CommandLine(args, flags, Collections.singleton("indent"));
 
@@ -73,6 +74,13 @@ public class PrettyPrinter
             return;
         }
         
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
+
         if (cl.args().length == 0)
         {
             printUsage();

@@ -50,6 +50,7 @@ public class InstanceValidator
         flags.add("help");
         flags.add("usage");
         flags.add("license");
+        flags.add("version");
         flags.add("dl");
         flags.add("noupa");
         flags.add("nopvr");
@@ -79,6 +80,14 @@ public class InstanceValidator
             System.exit(0);
             return;
         }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
+
         if (cl.args().length == 0)
         {
             return;

@@ -31,6 +31,51 @@ import org.w3c.dom.Node;
  */
 public final class XmlBeans
 {
+    private static String XMLBEANS_TITLE;
+    private static String XMLBEANS_VERSION;
+    private static String XMLBEANS_VENDOR;
+
+    static
+    {
+        Package pkg = XmlBeans.class.getPackage();
+        XMLBEANS_TITLE = pkg.getImplementationTitle();
+        XMLBEANS_VERSION = pkg.getImplementationVersion();
+        XMLBEANS_VENDOR = pkg.getImplementationVendor();
+
+        if (XMLBEANS_TITLE == null || XMLBEANS_VERSION == null || XMLBEANS_VENDOR == null)
+            throw new RuntimeException("missing manifest information");
+    }
+
+    /**
+     * Returns the XmlBeans title, "org.apache.xmlbeans".
+     * The value of
+     * <code>XmlBeans.class.getPackage().getImplementationTitle()</code>.
+     */
+    public static final String getTitle()
+    {
+        return XMLBEANS_TITLE;
+    }
+
+    /**
+     * Returns the XmlBeans vendor, "Apache Software Foundation".
+     * The value of
+     * <code>XmlBeans.class.getPackage().getImplementationVendor()</code>.
+     */
+    public static final String getVendor()
+    {
+        return XMLBEANS_VENDOR;
+    }
+
+    /**
+     * Returns the XmlBeans version, "2.0.0".
+     * The value of
+     * <code>XmlBeans.class.getPackage().getImplementationVersion()</code>.
+     */
+    public static final String getVersion()
+    {
+        return XMLBEANS_VERSION;
+    }
+
     /**
      * Thread local QName cache for general use
      */
