@@ -695,9 +695,9 @@ public class JiraRegressionsTest extends TestCase
     {
         String xpathDoc = "<MatchedRecords>" +
                 "  <MatchedRecord>" +
-                "     <TableName>\n" +
-                "       ABC \n" +
-                "     </TableName>" +
+                "     <TableName>" +
+                "ABC" +
+                "</TableName>" +
                 "  </MatchedRecord>" +
                 "  <MatchedRecord>" +
                 "     <TableName>\n" +
@@ -707,7 +707,7 @@ public class JiraRegressionsTest extends TestCase
                 "</MatchedRecords> ";
         XmlObject xb81 = XmlObject.Factory.parse(xpathDoc);
         XmlObject[] resSet = xb81.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
-        Assert.assertTrue(resSet.length == 2);
+        assertEquals(resSet.length , 1);
         XmlCursor cursor = xb81.newCursor();
         cursor.selectPath("$this//MatchedRecord[TableName=\"ABC\"]/TableName");
     }

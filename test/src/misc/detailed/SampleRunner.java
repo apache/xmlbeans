@@ -29,7 +29,7 @@ import java.util.ArrayList;
  * Date: Feb 8, 2005
  * Time: 11:30:24 AM
  */
-public class SamplesRunner
+public class SampleRunner
     extends TestCase
 {
 
