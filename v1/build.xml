@@ -408,7 +408,7 @@
 
   <target name="dist" depends="xbean, docs">
      <delete dir="build/private/xmlbeans-${product.version}"/>
-     <delete file="build/private/incubated-xmlbeans-${product.version}.zip"/>
+     <delete file="build/private/incubating-xmlbeans-${product.version}.zip"/>
 
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
@@ -429,7 +429,7 @@
      </copy>
 
       <!-- todo for gump?: add yyyyMMdd into filename - rem -->
-      <zip destfile="build/private/incubated-xmlbeans-${product.version}.zip"
+      <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"/>
   </target>
