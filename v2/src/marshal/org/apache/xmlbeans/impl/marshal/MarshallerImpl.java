@@ -85,16 +85,26 @@ final class MarshallerImpl
             throw new XmlException(msg);
         }
 
+        return createMarshalResult(btype, elem_qn, nscontext, obj);
+    }
+
+
+    private MarshalResult createMarshalResult(final BindingType btype,
+                                              QName elem_qn,
+                                              NamespaceContext nscontext,
+                                              Object obj)
+        throws XmlException
+    {
         final RuntimeBindingType runtime_type =
             runtimeTypeFactory.createRuntimeType(btype, typeTable, loader);
 
         RuntimeGlobalProperty prop =
             new RuntimeGlobalProperty(elem_qn, runtime_type);
 
-        //TODO: review null options param
         return new MarshalResult(runtimeTypeFactory, loader, typeTable,
                                  nscontext, prop, obj, null);
     }
+
 
     public XMLStreamReader marshal(Object obj,
                                    XmlOptions options)
@@ -253,14 +263,7 @@ final class MarshallerImpl
             throw new XmlException(msg);
         }
 
-        final RuntimeBindingType runtime_type =
-            runtimeTypeFactory.createRuntimeType(type, typeTable, loader);
-
-        RuntimeGlobalProperty prop =
-            new RuntimeGlobalProperty(elementName, runtime_type);
-
-        return new MarshalResult(runtimeTypeFactory, loader, typeTable,
-                                 namespaceContext, prop, obj, null);
+        return createMarshalResult(type, elementName, namespaceContext, obj);
     }
 
     public void marshalType(XMLStreamWriter writer,

@@ -44,14 +44,15 @@ final class BindingContextImpl implements BindingContext
         runtimeTypeFactory = new RuntimeTypeFactory();
         this.typeTable =
             RuntimeBindingTypeTable.createTable(runtimeTypeFactory);
-        this.schemaTypeLoaderProvider  = provider;
+        this.schemaTypeLoaderProvider = provider;
     }
 
 
     public Unmarshaller createUnmarshaller()
         throws XmlException
     {
-        return new UnmarshallerImpl(bindingLoader, typeTable,
+        return new UnmarshallerImpl(bindingLoader,
+                                    typeTable,
                                     schemaTypeLoaderProvider);
     }
 
@@ -68,7 +69,9 @@ final class BindingContextImpl implements BindingContext
     public Marshaller createMarshaller()
         throws XmlException
     {
-        return new MarshallerImpl(bindingLoader, typeTable, runtimeTypeFactory);
+        return new MarshallerImpl(bindingLoader,
+                                  typeTable,
+                                  runtimeTypeFactory);
     }
 
 
@@ -92,6 +95,5 @@ final class BindingContextImpl implements BindingContext
 
         return FailFastErrorHandler.getInstance();
     }
-
 
 }

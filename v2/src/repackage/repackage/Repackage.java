@@ -342,7 +342,7 @@ public class Repackage
         return w.getBuffer();
     }
     
-    public void copyFile ( File from, File to ) throws IOException
+    public static void copyFile ( File from, File to ) throws IOException
     {
         to.getParentFile().mkdirs();
         
@@ -355,7 +355,7 @@ public class Repackage
         in.close();
     }
     
-    public void copy ( InputStream in, OutputStream out ) throws IOException
+    public static void copy ( InputStream in, OutputStream out ) throws IOException
     {
         byte[] buffer = new byte [ 1024 * 16 ];
 
@@ -370,7 +370,7 @@ public class Repackage
         }
     }
     
-    public void copy ( Reader r, Writer w ) throws IOException
+    public static void copy ( Reader r, Writer w ) throws IOException
     {
         char[] buffer = new char [ 1024 * 16 ];
 
