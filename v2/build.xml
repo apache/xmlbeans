@@ -9,8 +9,10 @@
     <echo message="usage    - this help text"/>
     <echo message="deploy   - builds our implementation jar (xbean.jar)"/>
     <echo message="clean    - cleans out the xbeans directories"/>
+    <!--
     <echo message="builddrt - builds, but does not run, the xbean drt"/>
     <echo message="drt      - runs the xbean drt"/>
+    -->
   </target>
 
   <target name="java_version">
@@ -113,264 +115,11 @@
     <mkdir dir="build/private"/>
     <mkdir dir="build/private/classes"/>
     <mkdir dir="build/private/lib"/>
-  </target>
-
-  <target name="drt" depends="builddrt, rundrt, drtxpath"/>
-
-  <target name="rundrt" >
-    <echo message="Running random tester"/>
-    <java classname="Random" fork="true" failonerror="true">
-       <classpath>
-            <pathelement location="build/ar/xbean.jar"/>
-            <pathelement location="build/lib/jsr173_api.jar"/>
-            <pathelement location="build/private/lib/easypo.jar"/>
-            <pathelement location="build/private/lib/random.jar"/>
-       </classpath>
-       <jvmarg value="-ea"/>
-       <arg line="-seed 0 -i 20 -noquery"/>
-    </java>
-
     <mkdir dir="build/test/output"/>
-    <echo message="Running xbean product drt tests"/>
-    <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
-    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-      <jvmarg value="-ea"/>
-      <sysproperty key="xbean.rootdir" value="${basedir}"/>
-      <sysproperty key="treeasserts" value="true"/>
-      <classpath>
-        <pathelement location="external/lib/junit.jar"/>
-        <pathelement location="build/ar/xbean.jar"/>
-        <pathelement location="build/lib/jsr173_api.jar"/>
-        <pathelement location="build/lib/jsr173_ri.jar"/>
-        <pathelement location="build/private/lib/drt.jar"/>
-        <pathelement location="build/private/lib/easypo.jar"/>
-        <pathelement location="build/private/lib/schemas.jar"/>
-        <pathelement location="build/private/lib/xstypes.jar"/>
-        <pathelement location="build/private/lib/enumtest.jar"/>
-        <pathelement location="build/private/classes/marshal"/>
-      </classpath>
-      <formatter type="plain"/>
-      <test name="drtcases.SmokeTests" outfile="build/test/output/drt-product" />
-    </junit>
-
-    <!-- Disabled, to enable update catalog test/cases/xmlcatalog/cat.xml
-    <antcall target="xmlcatalogTest" /-->
-
-    <antcall target="extensionsTest" />
   </target>
 
-  <path id="xmlcatalogTest.run.path">
-    <pathelement location="build/lib/xbean.jar"/>
-    <pathelement location="build/lib/jsr173_api.jar"/>
-    <pathelement location="build/lib/resolver.jar"/>
-  </path>
-
-  <target name="xmlcatalogTest">
-    <echo message="___ XML Catalog Test ___"/>
-    <java classname="${schema_compiler}" classpathref="xmlcatalogTest.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-catalog test/cases/xmlcatalog/cat.xml -out build/private/lib/xmlcatalogTest.jar test/cases/xmlcatalog/includer1.xsd"/>
-    </java>
-    <echo message="___ XML Catalog Test :    PASSED"/>
-  </target>
-
-  <target name='drtxpath' depends="xbean_xpath.jar">
-    <echo message="DRT: XPath Jaxen    - JUnit output being sent to build/test/output/drt-xpath.txt"/>
-    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-      <jvmarg value="-ea"/>
-      <sysproperty key="xbean.rootdir" value="${basedir}"/>
-      <sysproperty key="treeasserts" value="true"/>
-      <classpath>
-        <pathelement location="external/lib/junit.jar"/>
-        <pathelement location="build/ar/xbean.jar"/>
-        <pathelement location="build/lib/jsr173_api.jar"/>
-        <pathelement location="build/lib/jsr173_ri.jar"/>
-        <pathelement location="build/private/lib/drt.jar"/>
-        <pathelement location="build/lib/xbean_xpath.jar"/>
-      </classpath>
-      <formatter type="plain"/>
-      <test name="drtcases.JaxenXPathTests" outfile="build/test/output/drt-xpath"/>
-    </junit>
-  </target>
-
-  <target name="builddrt" depends="drt.jar, random.jar, eric"/>
-
-  <!-- extensions test -->
-  <fileset id="extension.jars" dir="build/private/lib">
-    <include name="extensions.jar"/>
-    <include name="fixedAttrBean.jar"/>
-    <include name="averageCase.jar"/>
-    <include name="multInterfaces.jar"/>
-    <include name="readOnlyBean.jar"/>
-    <include name="ValueRestriction.jar"/>
-  </fileset>
-
-  <fileset id="xbean.jars" dir="build/lib">
-    <include name="xbean.jar"/>
-    <include name="jsr173_api.jar"/>
-    <include name="jsr173_ri.jar"/>
-  </fileset>
-
-  <path id="cpWithXbeanJars">
-      <fileset refid="xbean.jars" />
-      <!-- JAM needs tools.jar which should be on ${java.class.path} -->
-      <pathelement path="${java.class.path}" />
-  </path>
-
-  <target name="extensionsTest" depends="extensions.compile">
-    <echo message="JUnit output being sent to build/test/output/drt-extensions.txt"/>
-    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <path refid="cpWithXbeanJars"/>
-        <pathelement location="external/lib/junit.jar"/>
-        <pathelement location="build/private/lib/extensions.jar"/>
-        <pathelement location="build/test/extensionsuse"/>
-        <fileset refid="extension.jars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <formatter type="plain"/>
-      <test name="drtcases.ExtensionsTest" outfile="build/test/output/drt-extensions"/>
-    </junit>
-  </target>
-
-  <!--The extensions use the bean types, compile first-->
-  <target name="simpleBeans.check">
-    <uptodate property="simpleBeans.notRequired" targetfile="build/private/lib/fixedAttrBean.jar">
-      <srcfiles dir="test/src/extensions" includes="**/*"/>
-      <srcfiles dir="test/src/extensionsuse" includes="**/*"/>
-      <srcfiles dir="build/ar" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="build.simpleBeans" unless="simpleBeans.notRequired" depends="simpleBeans.check">
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <fileset refid="xbean.jars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean/po.xsd"/>
-    </java>
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <fileset refid="xbean.jars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase/po.xsd"/>
-    </java>
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <fileset refid="xbean.jars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/multInterfaces.jar test/src/extensions/multInterfaces/po.xsd"/>
-    </java>
-    <!-- **Pre/Post Handlers -->
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <fileset refid="xbean.jars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/readOnlyBean.jar test/src/extensions/prePostFeature/readOnlyBean/po.xsd"/>
-    </java>
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <fileset refid="xbean.jars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/ValueRestriction.jar test/src/extensions/prePostFeature/ValueRestriction/company.xsd"/>
-    </java>
-
-  </target>
-
-  <target name="extensions.compile" depends="build.simpleBeans, simpleBeans.check" unless="simpleBeans.notRequired">
-    <mkdir dir="build/test/extensions"/>
-    <javac srcdir="test/src/extensions" destdir="build/test/extensions" debug="on">
-      <classpath>
-        <fileset refid="xbean.jars"/>
-        <fileset refid="extension.jars"/>
-      </classpath>
-    </javac>
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <path refid="cpWithXbeanJars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/extensions.jar test/src/extensions/myPackage"/>
-    </java>
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <path refid="cpWithXbeanJars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean"/>
-    </java>
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <path refid="cpWithXbeanJars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase"/>
-    </java>
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <path refid="cpWithXbeanJars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/multInterfaces.jar -src  build/private/lib/temp test/src/extensions/multInterfaces"/>
-    </java>
-    <!--Pre Post Feature -->
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <path refid="cpWithXbeanJars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/readOnlyBean.jar -src  build/private/lib/temp test/src/extensions/prePostFeature/readOnlyBean"/>
-    </java>
-
-    <java classname="${schema_compiler}" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <classpath>
-        <path refid="cpWithXbeanJars"/>
-        <pathelement location="build/test/extensions"/>
-      </classpath>
-      <arg line="-out build/private/lib/ValueRestriction.jar -src  build/private/lib/temp test/src/extensions/prePostFeature/ValueRestriction"/>
-    </java>
-
-
-    <mkdir dir="build/test/extensionsuse"/>
-    <javac srcdir="test/src/extensionsuse" destdir="build/test/extensionsuse" debug="on">
-      <classpath>
-        <fileset refid="xbean.jars"/>
-        <pathelement location="external/lib/junit.jar"/>
-        <fileset refid="extension.jars"/>
-        <pathelement location="build/test/extensionsuse"/>
-      </classpath>
-    </javac>
-  </target>
-
-  <!-- eric test -->
-  <target name="eric" depends="erictest.jar"/>
-
-  <target name="default" depends="deploy, builddrt"/>
-
+  <!--  <target name="default" depends="deploy, builddrt"/> -->
+  <target name="default" depends="deploy"/>
   <target name="redeploy" depends="clean, deploy"/>
 
   <!-- oldxbean.jar target =========================================== -->
@@ -429,232 +178,6 @@
            debug="on"/>
   </target>
 
-  <!-- test target ================================================== -->
-
-  <path id="test.compile.path">
-    <pathelement location="external/lib/junit.jar"/>
-    <pathelement location="build/ar/xbean.jar"/>
-    <pathelement location="build/lib/jsr173_api.jar"/>
-    <pathelement location="build/private/lib/easypo.jar"/>
-    <pathelement location="build/private/lib/schemas.jar"/>
-    <pathelement location="build/private/lib/enumtest.jar"/>
-    <pathelement location="build/private/lib/xstypes.jar"/>
-    <pathelement location="build/private/classes/marshal"/>
-    <pathelement location="build/classes/xmlinputstream"/>
-  </path>
-
-  <path id="test.run.path">
-    <pathelement location="build/ar/xbean.jar"/>
-    <pathelement location="external/lib/junit.jar"/>
-  </path>
-
-  <!-- builddrt target ============================================== -->
-
-  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar, xstypes.jar,
-        enumtest.jar, test_marshal.classes, jsr173_ri.jar">
-    <mkdir dir="build/private/classes/drt"/>
-    <javac
-       srcdir="test/src/drt"
-       destdir="build/private/classes/drt"
-       classpathref="test.compile.path"
-       source="1.4"
-       debug="on"/>
-  </target>
-
-  <target name="drt.jar" depends="drt.classes">
-    <jar jarfile="build/private/lib/drt.jar" basedir="build/private/classes/drt"/>
-  </target>
-
-  <!-- stsschema (for testing) target ================================ -->
-
-  <path id="scomp.run.path">
-    <pathelement location="build/lib/xbean.jar"/>
-    <pathelement location="build/lib/jsr173_api.jar"/>
-  </path>
-
-  <target name="stsschema.check">
-    <uptodate property="stsschema.notRequired" targetfile="build/private/lib/stsschema.jar">
-      <srcfiles dir="test/src/stsschema" includes="**/*.xsd"/>
-      <srcfiles dir="build/ar" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="stsschema.jar" depends="stsschema.check, dirs, xbean" unless="stsschema.notRequired">
-    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-out build/private/lib/stsschema.jar test/src/stsschema"/>
-    </java>
-  </target>
-
-  <!-- soaptest target ============================================ -->
-
-  <target name="soaptest.classes" depends="dirs, stsschema.jar">
-    <mkdir dir="build/private/classes/soaptest"/>
-    <javac srcdir="test/src/soaptest" destdir="build/private/classes/soaptest" source="1.4" debug="on">
-      <classpath>
-        <pathelement location="external/lib/jdom.jar"/>
-        <pathelement location="external/lib/junit.jar"/>
-        <pathelement location="build/ar/xbean.jar"/>
-        <pathelement location="build/private/lib/stsschema.jar"/>
-      </classpath>
-    </javac>
-
-  </target>
-
-  <target name="soaptest.jar" depends="soaptest.classes">
-    <jar jarfile="build/private/lib/soaptest.jar" basedir="build/private/classes/soaptest"/>
-  </target>
-
-  <!-- erictest target ============================================= -->
-
-  <!--target name="erictest.classes" depends="dirs, xbean, ericschema.jar, jsr173_api.jar"-->
-  <target name="erictest.classes" depends="dirs, xbean, jsr173_api.jar">
-    <mkdir dir="build/private/classes/erictest"/>
-    <javac srcdir="test/src/erictest" destdir="build/private/classes/erictest" source="1.4" debug="on">
-      <classpath>
-        <pathelement location="build/ar/xbean.jar"/>
-        <pathelement location="build/private/lib/ericschema.jar"/>
-        <pathelement location="build/lib/jsr173_api.jar"/>
-      </classpath>
-    </javac>
-  </target>
-
-  <target name="erictest.jar" depends="erictest.classes">
-    <jar jarfile="build/private/lib/erictest.jar" basedir="build/private/classes/erictest"/>
-  </target>
-
-  <!-- random target ============================================= -->
-
-  <target name="random.classes" depends="dirs, xbean, easypo.jar">
-    <mkdir dir="build/private/classes/random"/>
-    <javac
-       srcdir="test/src/random"
-       destdir="build/private/classes/random"
-       classpathref="test.compile.path"
-       source="1.4"
-       debug="on"/>
-  </target>
-
-  <target name="random.jar" depends="random.classes">
-    <jar jarfile="build/private/lib/random.jar" basedir="build/private/classes/random"/>
-  </target>
-
-  <!-- teststore target ============================================= -->
-
-  <target name="teststore.classes" depends="dirs">
-    <mkdir dir="build/private/classes/teststore"/>
-    <javac srcdir="test/src/teststore" destdir="build/private/classes/teststore" source="1.4" debug="on">
-      <classpath>
-        <pathelement location="build/private/classes/simpletypes"/>
-        <pathelement location="build/private/classes/xmlcomp"/>
-        <pathelement location="build/private/classes/typestore"/>
-        <pathelement location="build/private/classes/xmlpublic"/>
-        <pathelement location="build/private/classes/typeimpl"/>
-      </classpath>
-    </javac>
-
-  </target>
-
-  <target name="teststore.jar" depends="teststore.classes">
-    <jar jarfile="build/private/lib/teststore.jar" basedir="build/private/classes/teststore"/>
-  </target>
-
-  <!-- simpletypes (for testing) target ============================= -->
-
-  <target name="simpletypes.check">
-    <uptodate property="simpletypes.notRequired" targetfile="build/private/lib/simpletypes.jar">
-      <srcfiles dir="test/cases/schema/simple" includes="**/*.xsd"/>
-      <srcfiles dir="build/private/lib" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="simpletypes.jar" depends="simpletypes.check, dirs" unless="simpletype.notRequired">
-    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-name schema.test.simple -out build/private/lib/simpletypes.jar test/cases/schema/simple"/>
-    </java>
-  </target>
-
-  <!-- easypo (for testing) target ================================== -->
-
-  <target name="easypo.check">
-    <uptodate property="easypo.notRequired" targetfile="build/private/lib/easypo.jar">
-      <srcfiles dir="test/src/easypo" includes="**/*"/>
-      <srcfiles dir="build/ar" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="easypo.jar" depends="easypo.check, dirs, xbean" unless="easypo.notRequired">
-    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-out build/private/lib/easypo.jar test/src/easypo"/>
-    </java>
-  </target>
-
-  <!-- schemas (for testing) target ================================ -->
-
-  <target name="schemas.check">
-    <uptodate property="schemas.notRequired" targetfile="build/private/lib/schemas.jar">
-      <srcfiles dir="test/src/schemas" includes="**/*.xsd"/>
-      <srcfiles dir="build/ar" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="schemas.jar" depends="schemas.check, dirs, xbean" unless="schemas.notRequired">
-    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-out build/private/lib/schemas.jar test/src/schemas"/>
-    </java>
-  </target>
-
-  <!-- ericschema (for testing) target ================================ -->
-
-  <target name="ericschema.check">
-    <uptodate property="ericschema.notRequired" targetfile="build/private/lib/ericschema.jar">
-      <srcfiles dir="test/src/ericschema" includes="**/*.xsd"/>
-      <srcfiles dir="build/ar" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="ericschema.jar" depends="ericschema.check, dirs, xbean" unless="ericschema.notRequired">
-    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-debug -src build/private/src -out build/private/lib/ericschema.jar test/src/ericschema"/>
-    </java>
-  </target>
-
-  <!-- enumtest (for testing) target ================================= -->
-
-  <target name="enumtest.check">
-    <uptodate property="enumtest.notRequired" targetfile="build/private/lib/enumtest.jar">
-      <srcfiles dir="test/src/enumtest" includes="**/*.xsd"/>
-      <srcfiles dir="build/ar" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="enumtest.jar" depends="enumtest.check, dirs, xbean" unless="enumtest.notRequired">
-    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-out build/private/lib/enumtest.jar test/src/enumtest"/>
-    </java>
-  </target>
-
-  <!-- xstypes (for testing) target ================================= -->
-
-  <target name="xstypes.check">
-    <uptodate property="xstypes.notRequired" targetfile="build/private/lib/xstypes.jar">
-      <srcfiles dir="test/cases/schema/simple" includes="**/*.xsd"/>
-      <srcfiles dir="build/ar" includes="xbean.jar"/>
-    </uptodate>
-  </target>
-
-  <target name="xstypes.jar" depends="xstypes.check, dirs, xbean" unless="xstypes.notRequired">
-    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
-      <arg line="-out build/private/lib/xstypes.jar test/src/xstypes"/>
-    </java>
-  </target>
-
   <!-- javadocs ====================================================== -->
 
   <!-- All docs to build/docs, including guide and javadocs. -->
@@ -679,38 +202,6 @@
     <copy todir="${docs.dir}/images">
       <fileset dir="docs/images"/>
     </copy>
-  </target>
-
-
-  <!-- stream conformance tests ======================================= -->
-
-  <target name="streamtest.classes" depends="dirs">
-    <mkdir dir="build/private/classes/streamtest"/>
-    <javac
-      srcdir="test/src/streamtest"
-      destdir="build/private/classes/streamtest"
-      classpathref="test.compile.path"
-      source="1.4"
-      debug="on"/>
-  </target>
-
-  <target name="streamtest.jar" depends="streamtest.classes">
-    <jar jarfile="build/private/lib/streamtest.jar" basedir="build/private/classes/streamtest"/>
-  </target>
-
-  <path id="run.streamconf.path">
-    <path refid="test.run.path"/>
-    <pathelement location="build/private/classes/streamtest/"/>
-  </path>
-
-  <target name="streamconf" depends="streamtest.jar">
-    <java classname="streamtest.XmlStreamConformance"
-          classpathref="run.streamconf.path"
-          fork="true">
-      <jvmarg value="-ea"/>
-      <!--arg line="test/cases/streamconf/small.xml" /-->
-      <arg line="test/cases/streamconf/dtd.xml" />
-    </java>
   </target>
 
 
@@ -974,11 +465,22 @@
       <fileset dir="build/${jam_root}/classes" />
     </move>
     <delete dir='build/${jam_root}'/>
+
+<!-- build new jam as well -->
+<!-- remove this once jam_old is dead and jam_root is just 'jam' -->
+    <ant dir='jam' target='clean' inheritAll='false' />
+    <ant dir='jam' target='all' inheritAll='false' />
+    <move todir="build/classes/jam">
+      <fileset dir="build/jam/classes" />
+    </move>
+    <delete dir='build/jam'/>
+
+
   </target>
 
   <!-- marshal target =============================================== -->
 
-  <target name="marshal.classes" depends="dirs, binding.classes, typeimpl.classes, newstore2.classes, xmlpublic.classes, jsr173_api.jar">
+  <target name="marshal.classes" depends="dirs, binding.classes, typeimpl.classes, xmlpublic.classes, jsr173_api.jar">
     <mkdir dir="build/classes/marshal"/>
     <javac srcdir="src/marshal" destdir="build/classes/marshal" source="1.4" debug="on">
       <classpath>
@@ -989,7 +491,7 @@
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/binding"/>
         <pathelement location="build/classes/typeimpl"/>
-        <pathelement location="build/classes/newstore2"/>
+	<pathelement location="build/classes/newstore2"/>
       </classpath>
     </javac>
   </target>
@@ -1276,8 +778,687 @@
         <jar jarfile="build/lib/xbean_xpath.jar" basedir="build/classes/xpath"/>
     </target>
 
-  <!-- test xpath target ============================================= -->
 
+  <!-- TEST Targets ===================================================== -->
+  <!-- All targets hook up into testbuild.xml -->
+  <property name="testbuild.file" value="testbuild.xml"/>
+
+  <target name="testbuild">
+    <ant antfile="${testbuild.file}" target="build"/>
+  </target>
+
+  <target name="build.tools">
+    <ant antfile="${testbuild.file}" target="build.test.tools"/>
+  </target>
+
+  <target name="build.schemas">
+    <ant antfile="${testbuild.file}" target="build.schemas"/>
+  </target>
+
+  <target name="build.tests">
+    <ant antfile="${testbuild.file}" target="build.tests"/>
+  </target>
+
+  <target name="testclean">
+    <ant antfile="${testbuild.file}" target="clean"/>
+  </target>
+
+  <target name="clean.schemas">
+    <ant antfile="${testbuild.file}" target="clean.schemas"/>
+  </target>
+
+  <target name="clean.tests">
+    <ant antfile="${testbuild.file}" target="clean.tests"/>
+  </target>
+
+  <target name="clean.cc">
+    <ant antfile="${testbuild.file}" target="clean.cc"/>
+  </target>
+
+  <target name="run.junit">
+    <ant antfile="${testbuild.file}" target="run.junit"/>
+  </target>
+
+  <target name="checkintest">
+    <ant antfile="${testbuild.file}" target="checkin"/>
+  </target>
+
+  <target name="detailed">
+    <ant antfile="${testbuild.file}" target="detailed"/>
+  </target>
+  
+  
+ 
+ <!-- test marshal target ============================================= -->
+      
+   <target name="test_marshal.classes" depends="marshal.classes">
+          <mkdir dir="build/private/classes/marshal"/>
+          <javac
+              srcdir="test/cases/xbean/marshal"
+              destdir="build/private/classes/marshal"
+              source="1.4"
+              debug="on">
+              <classpath>
+                  <pathelement location="build/classes/binding"/>
+                  <pathelement location="build/classes/marshal"/>
+                  <pathelement location="build/classes/common"/>
+                  <pathelement location="build/classes/configschema"/>
+                  <pathelement location="build/classes/typeimpl"/>
+                  <pathelement location="build/classes/xmlinputstream"/>
+                  <pathelement location="build/classes/xmlpublic"/>
+                  <pathelement location="build/lib/jsr173_api.jar"/>
+                  <pathelement location="build/lib/xmlpublic.jar"/>
+              </classpath>
+          </javac>
+   </target>
+   
+   <path id="test.compile.path">
+   	<pathelement location="build/classes/binding"/>
+	<pathelement location="build/classes/marshal"/>
+	<pathelement location="build/classes/common"/>           
+       <pathelement location="external/lib/junit.jar"/>
+       <pathelement location="build/ar/xbean.jar"/>
+       <pathelement location="build/lib/jsr173_api.jar"/>
+       <pathelement location="build/private/classes/marshal"/>
+       <pathelement location="build/classes/xmlinputstream"/>
+     </path>
+   
+     <path id="test.run.path">
+       <pathelement location="build/ar/xbean.jar"/>
+       <pathelement location="external/lib/junit.jar"/>
+  </path>
+
+
+   <target name="marshal-drt" depends="drt.jar, runmarshal-drt"/>
+   
+     <target name="runmarshal-drt" >
+
+   	<junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+        <jvmarg value="-ea"/>
+        <sysproperty key="xbean.rootdir" value="${basedir}"/>
+        <sysproperty key="treeasserts" value="true"/>
+        <classpath>
+          <pathelement location="external/lib/junit.jar"/>
+          <pathelement location="build/ar/xbean.jar"/>
+          <pathelement location="build/lib/jsr173_api.jar"/>
+          <pathelement location="build/lib/jsr173_ri.jar"/>
+          <pathelement location="build/private/lib/drt.jar"/>
+          <pathelement location="build/private/classes/marshal"/>
+        </classpath>
+        <formatter type="plain"/>
+        <test name="drt.drtcases.MarshalTests" outfile="build/test/output/drt-product" />
+    	</junit>
+   </target>
+
+     <target name="binding-drt" depends="drt.jar, runbinding-drt"/>
+
+     <target name="runbinding-drt" >
+
+   	<junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+        <jvmarg value="-ea"/>
+        <sysproperty key="xbean.rootdir" value="${basedir}"/>
+        <sysproperty key="treeasserts" value="true"/>
+        <classpath>
+          <pathelement location="external/lib/junit.jar"/>
+          <pathelement location="build/ar/xbean.jar"/>
+          <pathelement location="build/lib/jsr173_api.jar"/>
+          <pathelement location="build/lib/jsr173_ri.jar"/>
+          <pathelement location="build/private/lib/drt.jar"/>
+        </classpath>
+        <formatter type="plain"/>
+        <test name="drt.drtcases.BindingTests" outfile="build/test/output/drt-product" />
+    	</junit>
+   </target>
+
+
+
+
+   <target name="drt.classes" depends="dirs,test_marshal.classes, jsr173_ri.jar">
+       <mkdir dir="build/private/classes/drt"/>
+       <javac
+          srcdir="test/src/drt"
+          destdir="build/private/classes/drt"
+          classpathref="test.compile.path"
+          source="1.4"
+          debug="on"/>
+     </target>
+   
+     <target name="drt.jar" depends="drt.classes">
+       <jar jarfile="build/private/lib/drt.jar" basedir="build/private/classes/drt"/>
+  </target>
+  
+  
+  
+  <!-- =================================================================== -->
+  <!--
+  <target name="drt" depends="builddrt, rundrt, drtxpath"/>
+
+  <target name="rundrt" >
+    <echo message="Running random tester"/>
+    <java classname="Random" fork="true" failonerror="true">
+       <classpath>
+            <pathelement location="build/ar/xbean.jar"/>
+            <pathelement location="build/lib/jsr173_api.jar"/>
+            <pathelement location="build/private/lib/easypo.jar"/>
+            <pathelement location="build/private/lib/random.jar"/>
+       </classpath>
+       <jvmarg value="-ea"/>
+       <arg line="-seed 0 -i 20 -noquery"/>
+    </java>
+    -->
+
+    <!--
+    <echo message="Running xbean product drt tests"/>
+    <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
+    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+      <jvmarg value="-ea"/>
+      <sysproperty key="xbean.rootdir" value="${basedir}"/>
+      <sysproperty key="treeasserts" value="true"/>
+      <classpath>
+        <pathelement location="external/lib/junit.jar"/>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_ri.jar"/>
+        <pathelement location="build/private/lib/drt.jar"/>
+        <pathelement location="build/private/lib/easypo.jar"/>
+        <pathelement location="build/private/lib/schemas.jar"/>
+        <pathelement location="build/private/lib/xstypes.jar"/>
+        <pathelement location="build/private/lib/enumtest.jar"/>
+        <pathelement location="build/private/classes/marshal"/>
+      </classpath>
+      <formatter type="plain"/>
+      <test name="drtcases.SmokeTests" outfile="build/test/output/drt-product" />
+    </junit>
+
+    <!- - Disabled, to enable update catalog test/cases/xmlcatalog/cat.xml
+    <antcall target="xmlcatalogTest" /- ->
+
+    <antcall target="extensionsTest" />
+  </target>
+  -->
+  <!--
+  <path id="xmlcatalogTest.run.path">
+    <pathelement location="build/lib/xbean.jar"/>
+    <pathelement location="build/lib/jsr173_api.jar"/>
+    <pathelement location="build/lib/resolver.jar"/>
+  </path>
+
+  <target name="xmlcatalogTest">
+    <echo message="___ XML Catalog Test ___"/>
+    <java classname="${schema_compiler}" classpathref="xmlcatalogTest.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-catalog test/cases/xmlcatalog/cat.xml -out build/private/lib/xmlcatalogTest.jar test/cases/xmlcatalog/includer1.xsd"/>
+    </java>
+    <echo message="___ XML Catalog Test :    PASSED"/>
+  </target>
+  -->
+  <!--
+  <target name='drtxpath' depends="xbean_xpath.jar">
+    <echo message="DRT: XPath Jaxen    - JUnit output being sent to build/test/output/drt-xpath.txt"/>
+    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+      <jvmarg value="-ea"/>
+      <sysproperty key="xbean.rootdir" value="${basedir}"/>
+      <sysproperty key="treeasserts" value="true"/>
+      <classpath>
+        <pathelement location="external/lib/junit.jar"/>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_ri.jar"/>
+        <pathelement location="build/private/lib/drt.jar"/>
+        <pathelement location="build/lib/xbean_xpath.jar"/>
+      </classpath>
+      <formatter type="plain"/>
+      <test name="drtcases.JaxenXPathTests" outfile="build/test/output/drt-xpath"/>
+    </junit>
+  </target>
+
+  <target name="builddrt" depends="drt.jar, random.jar, eric"/>
+  -->
+  <!-- extensions test -->
+  <!--
+  <fileset id="extension.jars" dir="build/private/lib">
+    <include name="extensions.jar"/>
+    <include name="fixedAttrBean.jar"/>
+    <include name="averageCase.jar"/>
+    <include name="multInterfaces.jar"/>
+    <include name="readOnlyBean.jar"/>
+    <include name="ValueRestriction.jar"/>
+  </fileset>
+
+  <fileset id="xbean.jars" dir="build/lib">
+    <include name="xbean.jar"/>
+    <include name="jsr173_api.jar"/>
+    <include name="jsr173_ri.jar"/>
+  </fileset>
+
+  <path id="cpWithXbeanJars">
+      <fileset refid="xbean.jars" />
+      <!- - JAM needs tools.jar which should be on ${java.class.path} - ->
+      <pathelement path="${java.class.path}" />
+  </path>
+  -->
+  <!--
+  <target name="extensionsTest" depends="extensions.compile">
+    <echo message="JUnit output being sent to build/test/output/drt-extensions.txt"/>
+    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <path refid="cpWithXbeanJars"/>
+        <pathelement location="external/lib/junit.jar"/>
+        <pathelement location="build/private/lib/extensions.jar"/>
+        <pathelement location="build/test/extensionsuse"/>
+        <fileset refid="extension.jars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <formatter type="plain"/>
+      <test name="drtcases.ExtensionsTest" outfile="build/test/output/drt-extensions"/>
+    </junit>
+  </target>
+  -->
+  <!--The extensions use the bean types, compile first-->
+  <!--
+  <target name="simpleBeans.check">
+    <uptodate property="simpleBeans.notRequired" targetfile="build/private/lib/fixedAttrBean.jar">
+      <srcfiles dir="test/src/extensions" includes="**/*"/>
+      <srcfiles dir="test/src/extensionsuse" includes="**/*"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+  -->
+    <!--
+  <target name="build.simpleBeans" unless="simpleBeans.notRequired" depends="simpleBeans.check">
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <fileset refid="xbean.jars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean/po.xsd"/>
+    </java>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <fileset refid="xbean.jars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase/po.xsd"/>
+    </java>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <fileset refid="xbean.jars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/multInterfaces.jar test/src/extensions/multInterfaces/po.xsd"/>
+    </java>
+
+    <!- - **Pre/Post Handlers - ->
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <fileset refid="xbean.jars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/readOnlyBean.jar test/src/extensions/prePostFeature/readOnlyBean/po.xsd"/>
+    </java>
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <fileset refid="xbean.jars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/ValueRestriction.jar test/src/extensions/prePostFeature/ValueRestriction/company.xsd"/>
+    </java>
+
+  </target>
+
+  <target name="extensions.compile" depends="build.simpleBeans, simpleBeans.check" unless="simpleBeans.notRequired">
+    <mkdir dir="build/test/extensions"/>
+    <javac srcdir="test/src/extensions" destdir="build/test/extensions" debug="on">
+      <classpath>
+        <fileset refid="xbean.jars"/>
+        <fileset refid="extension.jars"/>
+      </classpath>
+    </javac>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <path refid="cpWithXbeanJars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/extensions.jar test/src/extensions/myPackage"/>
+    </java>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <path refid="cpWithXbeanJars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean"/>
+    </java>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <path refid="cpWithXbeanJars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase"/>
+    </java>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <path refid="cpWithXbeanJars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/multInterfaces.jar -src  build/private/lib/temp test/src/extensions/multInterfaces"/>
+    </java>
+
+    <!- -Pre Post Feature - ->
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <path refid="cpWithXbeanJars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/readOnlyBean.jar -src  build/private/lib/temp test/src/extensions/prePostFeature/readOnlyBean"/>
+    </java>
+
+    <java classname="${schema_compiler}" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <classpath>
+        <path refid="cpWithXbeanJars"/>
+        <pathelement location="build/test/extensions"/>
+      </classpath>
+      <arg line="-out build/private/lib/ValueRestriction.jar -src  build/private/lib/temp test/src/extensions/prePostFeature/ValueRestriction"/>
+    </java>
+
+
+    <mkdir dir="build/test/extensionsuse"/>
+    <javac srcdir="test/src/extensionsuse" destdir="build/test/extensionsuse" debug="on">
+      <classpath>
+        <fileset refid="xbean.jars"/>
+        <pathelement location="external/lib/junit.jar"/>
+        <fileset refid="extension.jars"/>
+        <pathelement location="build/test/extensionsuse"/>
+      </classpath>
+    </javac>
+  </target>
+  -->
+  <!-- eric test
+  <target name="eric" depends="erictest.jar"/>
+  -->
+
+  <!-- test target ================================================== -->
+  <!--
+  <path id="test.compile.path">
+    <pathelement location="external/lib/junit.jar"/>
+    <pathelement location="build/ar/xbean.jar"/>
+    <pathelement location="build/lib/jsr173_api.jar"/>
+    <pathelement location="build/private/lib/easypo.jar"/>
+    <pathelement location="build/private/lib/schemas.jar"/>
+    <pathelement location="build/private/lib/enumtest.jar"/>
+    <pathelement location="build/private/lib/xstypes.jar"/>
+    <pathelement location="build/private/classes/marshal"/>
+    <pathelement location="build/classes/xmlinputstream"/>
+  </path>
+
+  <path id="test.run.path">
+    <pathelement location="build/ar/xbean.jar"/>
+    <pathelement location="external/lib/junit.jar"/>
+  </path>
+  -->
+  <!-- builddrt target ============================================== -->
+  <!--
+  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar, xstypes.jar,
+        enumtest.jar, test_marshal.classes, jsr173_ri.jar">
+    <mkdir dir="build/private/classes/drt"/>
+    <javac
+       srcdir="test/src/drt"
+       destdir="build/private/classes/drt"
+       classpathref="test.compile.path"
+       source="1.4"
+       debug="on"/>
+  </target>
+
+  <target name="drt.jar" depends="drt.classes">
+    <jar jarfile="build/private/lib/drt.jar" basedir="build/private/classes/drt"/>
+  </target>
+  -->
+  <!-- stsschema (for testing) target ================================ -->
+
+  <path id="scomp.run.path">
+    <pathelement location="build/lib/xbean.jar"/>
+    <pathelement location="build/lib/jsr173_api.jar"/>
+  </path>
+
+  <target name="stsschema.check">
+    <uptodate property="stsschema.notRequired" targetfile="build/private/lib/stsschema.jar">
+      <srcfiles dir="test/src/stsschema" includes="**/*.xsd"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+
+  <target name="stsschema.jar" depends="stsschema.check, dirs, xbean" unless="stsschema.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-out build/private/lib/stsschema.jar test/src/stsschema"/>
+    </java>
+  </target>
+
+  <!-- soaptest target ============================================ -->
+  <!--
+  <target name="soaptest.classes" depends="dirs, stsschema.jar">
+    <mkdir dir="build/private/classes/soaptest"/>
+    <javac srcdir="test/src/soaptest" destdir="build/private/classes/soaptest" source="1.4" debug="on">
+      <classpath>
+        <pathelement location="external/lib/jdom.jar"/>
+        <pathelement location="external/lib/junit.jar"/>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/private/lib/stsschema.jar"/>
+      </classpath>
+    </javac>
+
+  </target>
+
+  <target name="soaptest.jar" depends="soaptest.classes">
+    <jar jarfile="build/private/lib/soaptest.jar" basedir="build/private/classes/soaptest"/>
+  </target>
+  -->
+  <!-- erictest target ============================================= -->
+
+  <!--target name="erictest.classes" depends="dirs, xbean, ericschema.jar, jsr173_api.jar"-->
+  <!--
+  <target name="erictest.classes" depends="dirs, xbean, jsr173_api.jar">
+    <mkdir dir="build/private/classes/erictest"/>
+    <javac srcdir="test/src/erictest" destdir="build/private/classes/erictest" source="1.4" debug="on">
+      <classpath>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/private/lib/ericschema.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="erictest.jar" depends="erictest.classes">
+    <jar jarfile="build/private/lib/erictest.jar" basedir="build/private/classes/erictest"/>
+  </target>
+  -->
+  <!-- random target ============================================= -->
+  <!--
+  <target name="random.classes" depends="dirs, xbean, easypo.jar">
+    <mkdir dir="build/private/classes/random"/>
+    <javac
+       srcdir="test/src/random"
+       destdir="build/private/classes/random"
+       classpathref="test.compile.path"
+       source="1.4"
+       debug="on"/>
+  </target>
+
+  <target name="random.jar" depends="random.classes">
+    <jar jarfile="build/private/lib/random.jar" basedir="build/private/classes/random"/>
+  </target>
+  -->
+  <!-- teststore target ============================================= -->
+  <!--
+  <target name="teststore.classes" depends="dirs">
+    <mkdir dir="build/private/classes/teststore"/>
+    <javac srcdir="test/src/teststore" destdir="build/private/classes/teststore" source="1.4" debug="on">
+      <classpath>
+        <pathelement location="build/private/classes/simpletypes"/>
+        <pathelement location="build/private/classes/xmlcomp"/>
+        <pathelement location="build/private/classes/typestore"/>
+        <pathelement location="build/private/classes/xmlpublic"/>
+        <pathelement location="build/private/classes/typeimpl"/>
+      </classpath>
+    </javac>
+
+  </target>
+
+  <target name="teststore.jar" depends="teststore.classes">
+    <jar jarfile="build/private/lib/teststore.jar" basedir="build/private/classes/teststore"/>
+  </target>
+  -->
+  <!-- simpletypes (for testing) target ============================= -->
+  <!--
+  <target name="simpletypes.check">
+    <uptodate property="simpletypes.notRequired" targetfile="build/private/lib/simpletypes.jar">
+      <srcfiles dir="test/cases/schema/simple" includes="**/*.xsd"/>
+      <srcfiles dir="build/private/lib" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+
+  <target name="simpletypes.jar" depends="simpletypes.check, dirs" unless="simpletype.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-name schema.test.simple -out build/private/lib/simpletypes.jar test/cases/schema/simple"/>
+    </java>
+  </target>
+  -->
+  <!-- easypo (for testing) target ================================== -->
+  <!--
+  <target name="easypo.check">
+    <uptodate property="easypo.notRequired" targetfile="build/private/lib/easypo.jar">
+      <srcfiles dir="test/src/easypo" includes="**/*"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+
+  <target name="easypo.jar" depends="easypo.check, dirs, xbean" unless="easypo.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-out build/private/lib/easypo.jar test/src/easypo"/>
+    </java>
+  </target>
+  -->
+  <!-- schemas (for testing) target ================================ -->
+  <!--
+  <target name="schemas.check">
+    <uptodate property="schemas.notRequired" targetfile="build/private/lib/schemas.jar">
+      <srcfiles dir="test/src/schemas" includes="**/*.xsd"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+
+  <target name="schemas.jar" depends="schemas.check, dirs, xbean" unless="schemas.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-out build/private/lib/schemas.jar test/src/schemas"/>
+    </java>
+  </target>
+  -->
+  <!-- ericschema (for testing) target ================================ -->
+  <!--
+  <target name="ericschema.check">
+    <uptodate property="ericschema.notRequired" targetfile="build/private/lib/ericschema.jar">
+      <srcfiles dir="test/src/ericschema" includes="**/*.xsd"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+
+  <target name="ericschema.jar" depends="ericschema.check, dirs, xbean" unless="ericschema.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-debug -src build/private/src -out build/private/lib/ericschema.jar test/src/ericschema"/>
+    </java>
+  </target>
+  -->
+  <!-- enumtest (for testing) target ================================= -->
+  <!--
+  <target name="enumtest.check">
+    <uptodate property="enumtest.notRequired" targetfile="build/private/lib/enumtest.jar">
+      <srcfiles dir="test/src/enumtest" includes="**/*.xsd"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+
+  <target name="enumtest.jar" depends="enumtest.check, dirs, xbean" unless="enumtest.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-out build/private/lib/enumtest.jar test/src/enumtest"/>
+    </java>
+  </target>
+  -->
+  <!-- xstypes (for testing) target ================================= -->
+  <!--
+  <target name="xstypes.check">
+    <uptodate property="xstypes.notRequired" targetfile="build/private/lib/xstypes.jar">
+      <srcfiles dir="test/cases/schema/simple" includes="**/*.xsd"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+
+  <target name="xstypes.jar" depends="xstypes.check, dirs, xbean" unless="xstypes.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-out build/private/lib/xstypes.jar test/src/xstypes"/>
+    </java>
+  </target>
+  -->
+
+  <!-- stream conformance tests ======================================= -->
+  <!--
+  <target name="streamtest.classes" depends="dirs">
+    <mkdir dir="build/private/classes/streamtest"/>
+    <javac
+      srcdir="test/src/streamtest"
+      destdir="build/private/classes/streamtest"
+      classpathref="test.compile.path"
+      source="1.4"
+      debug="on"/>
+  </target>
+
+  <target name="streamtest.jar" depends="streamtest.classes">
+    <jar jarfile="build/private/lib/streamtest.jar" basedir="build/private/classes/streamtest"/>
+  </target>
+
+  <path id="run.streamconf.path">
+    <path refid="test.run.path"/>
+    <pathelement location="build/private/classes/streamtest/"/>
+  </path>
+
+  <target name="streamconf" depends="streamtest.jar">
+    <java classname="streamtest.XmlStreamConformance"
+          classpathref="run.streamconf.path"
+          fork="true">
+      <jvmarg value="-ea"/>
+      <!- -arg line="test/cases/streamconf/small.xml" /- ->
+      <arg line="test/cases/streamconf/dtd.xml" />
+    </java>
+  </target>
+  -->
+
+
+  <!-- test xpath target ============================================= -->
+  <!--
   <target name="test_xpath.classes" depends="dirs, xmlpublic.jar, jsr173_api.jar, xbean_xpath.jar">
     <mkdir dir="build/private/classes/testxpath"/>
     <javac
@@ -1294,7 +1475,8 @@
       </classpath>
     </javac>
   </target>
-
+  -->
+  <!--
   <target name="run_test_xpath" depends="test_xpath.classes, xbean_xpath.jar">
     <java classname="org.apache.xmlbeans.impl.xpath.jaxen.XBeansDemo" fork="true" failonerror="true">
       <classpath>
@@ -1307,8 +1489,9 @@
       <arg line='test/cases/xpath/much_ado.xml "PLAY/ACT/SCENE/SPEECH/SPEAKER"'/>
     </java>
   </target>
-
+  -->
     <!-- test marshal target ============================================= -->
+    <!--
     <target name="test_marshal.classes" depends="marshal.classes">
         <mkdir dir="build/private/classes/marshal"/>
         <javac
@@ -1330,7 +1513,7 @@
             </classpath>
         </javac>
     </target>
-
+    -->
     <!-- temporary build utils ... zieg =============
     <target name='binding-test' depends='declare-tasks, jam'>
         <mkdir dir='build/private/classes/marshal'/>
