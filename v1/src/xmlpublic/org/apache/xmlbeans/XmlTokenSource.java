@@ -56,7 +56,7 @@
 
 package org.apache.xmlbeans;
 
-import weblogic.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -54,129 +54,36 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 import java.io.IOException;
-import java.io.PrintStream;
-import java.io.PrintWriter;
-
-import weblogic.utils.NestedThrowable;
-
 /**
- * The base exception for unexpected input during XML handling
+ * Extends the XMLInputStream to allow marking and reseting of the stream.
  *
- * @since Weblogic XML Input Stream 1.0
+ * @since XMLInputStream 1.0
  * @version 1.0
+ * @see org.apache.xmlbeans.xml.stream.CharacterData
+ * @see org.apache.xmlbeans.xml.stream.ProcessingInstruction
+ * @see org.apache.xmlbeans.xml.stream.StartElement
+ * @see org.apache.xmlbeans.xml.stream.EndElement
+ * @see org.apache.xmlbeans.xml.stream.CharacterData
+ * @see org.apache.xmlbeans.xml.stream.XMLName
  */
-
-public class XMLStreamException 
-  extends IOException 
-  implements NestedThrowable 
-{
-  protected Throwable th;
-
-  public XMLStreamException() {}
-
-  public XMLStreamException(String msg) { 
-    super(msg); 
-  }
-
-  public XMLStreamException(Throwable th) {
-    this.th = th;
-    
-  }
-
-  public XMLStreamException(String msg, Throwable th) {
-    super(msg);
-    this.th = th;
-  }
-
+public interface BufferedXMLInputStream extends XMLInputStream {
   /**
-   * Gets the nested exception.
-   *
-   * @return                 Nested exception
+   * Sets the marks a point to return to in the stream,
+   * throws an exception if the stream does not support mark.
+   * This is only supported in BufferedStreams
    */
-  public Throwable getNestedException() {
-    return getNested();
-  }
-
-  //try to do someting useful
-  public String getMessage() {
-    String msg = super.getMessage();
-
-    if (msg == null && th != null) {
-      return th.getMessage();
-    } else {
-      return msg;
-    }
-  }
-
-
-  // =================================================================
-  // NestedThrowable implementation.
-
+  public void mark() throws XMLStreamException;
   /**
-   * Gets the nested Throwable.
-   *
-   * @return                 Nested exception
+   * Resets the stream to the previous mark.
+   * throws an exception if the stream does not support mark;
    */
-  public Throwable getNested() {
-    return th;
-  }
-
-  public String superToString() {
-    return super.toString();
-  }
-
-  public void superPrintStackTrace(PrintStream ps) {
-    super.printStackTrace(ps);
-  }
-
-  public void superPrintStackTrace(PrintWriter pw) {
-    super.printStackTrace(pw);
-  }
-
-  // End NestedThrowable implementation.
-  // =================================================================
-
-  /**
-   * Prints the exception message and its nested exception message.
-   *
-   * @return                 String representation of the exception
-   */
-  public String toString() {
-    return NestedThrowable.Util.toString(this);
-  }
-
-  /**
-   * Prints the stack trace associated with this exception and
-   * its nested exception.
-   *
-   * @param s                 PrintStream
-   */
-  public void printStackTrace(PrintStream s) { 
-    NestedThrowable.Util.printStackTrace(this, s);
-  }
-
-  /**
-   * Prints the stack trace associated with this exception and
-   * its nested exception.
-   *
-   * @param s                 PrintStream
-   */
-  public void printStackTrace(PrintWriter w) { 
-    NestedThrowable.Util.printStackTrace(this, w);
-  }
-
-  /**
-   * Prints the stack trace associated with this exception and
-   * its nested exception to System.err.
-   *
-   * @param s                 PrintStream
-   */
-  public void printStackTrace() {
-    printStackTrace(System.err);
-  }
+  public void reset() throws XMLStreamException;
 }
+
+
+
 
 

@@ -149,22 +149,22 @@ public interface XmlToken extends XmlNormalizedString
         
         /** Parses a {@link XmlToken} fragment from an XMLInputStream.
          * @deprecated Superceded by JSR 173 */
-        public static XmlToken parse(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static XmlToken parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return (XmlToken) XmlBeans.getContextTypeLoader().parse( xis, type, null ); }
         
         /** Parses a {@link XmlToken} fragment from an XMLInputStream.
          * @deprecated Superceded by JSR 173 */
-        public static XmlToken parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static XmlToken parse(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return (XmlToken) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
         
         /** Returns a validating XMLInputStream.
          * @deprecated Superceded by JSR 173 */
-        public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }
         
         /** Returns a validating XMLInputStream.
          * @deprecated Superceded by JSR 173 */
-        public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
+        public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }
         
         private Factory() { } // No instance of this class allowed

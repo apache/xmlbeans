@@ -54,36 +54,18 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * This interface specifies methods for iterating over attributes.
+ * A marker interface for comment data
+ *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.Attribute
+ * @see org.apache.xmlbeans.xml.stream.XMLEvent
 */
 
-public interface AttributeIterator {
+public interface Comment extends CharacterData {
   /**
-   * Get the next Attribute on the stream
-   * @see weblogic.xml.stream.Attribute
+   * No methods are defined in this interface.
    */
-  public Attribute next();
-
-  /**
-   * Check if there are any attributes on the stream
-   */
-  public boolean hasNext();
-
-  /**
-   * Return the next element on the stream without shifting it
-   */
-  public Attribute peek();
-
-
-  /**
-   * Skip the next element on the stream
-   */
-  public void skip();
 }
-

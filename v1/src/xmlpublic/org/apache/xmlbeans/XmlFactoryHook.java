@@ -62,8 +62,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 /**
  * A hook for the XML Bean Factory mechanism.

@@ -54,26 +54,20 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * This event signals that a prefix mapping has begun scope
+ * This event signals that a prefix mapping has gone out of scope
  *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.EndPrefixMapping
- * @see weblogic.xml.stream.ChangePrefixMapping
+ * @see org.apache.xmlbeans.xml.stream.StartPrefixMapping
+ * @see org.apache.xmlbeans.xml.stream.ChangePrefixMapping
  */
 
-public interface StartPrefixMapping extends XMLEvent {
+public interface EndPrefixMapping extends XMLEvent {
   /* 
-   * Returns the uri of the prefix that is in scope for the following 
-   * element
-   * @return String value of the uri
-   */
-  public String getNamespaceUri();
-  /* 
-   * Returns the prefix that is now in scope
+   * Returns the prefix that has gone out of scope
    * @return String value of the prefix
    */
   public String getPrefix();
