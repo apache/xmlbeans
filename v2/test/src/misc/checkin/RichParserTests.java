@@ -45,6 +45,7 @@ import java.util.Date;
 import tools.util.*;
 
 
+
 /**
  * Author: Cezar Andrei (cezar.andrei at bea.com)
  * Date: Nov 19, 2003
@@ -81,8 +82,8 @@ public class RichParserTests extends TestCase
         }
     }
 
-    private static final String[] strings = {"    this is a long string  ... in attribute  ",
-                                             "    this is a long string\n\n... in text  "};
+    private static final String[] strings = {"    this is a long string ... in attribute  ",
+                                             "    this is a long string\n... in text  "};
     private static int stringsIdx = 0;
     private static final int[] ints = {5, -6, 15, 7, 2147483647, -2147483648, 5, -6, 15, 7, 2147483647, -2147483648};
     private static int intsIdx = 0;
