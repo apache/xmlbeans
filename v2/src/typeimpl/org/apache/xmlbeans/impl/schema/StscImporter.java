@@ -842,7 +842,7 @@ public class StscImporter
 
                         InputStream in = null;
                         URL url = new URL(urlLoc);
-                        // Copy the file from filepath to schema/src/<schemaFile>
+                        // Copy the file from filepath to schema[METADATA_PACKAGE]/src/<schemaFile>
                         in = url.openStream();
 
                         FileOutputStream out = new FileOutputStream(targetFile);

@@ -583,7 +583,7 @@
     <delete dir="build/src/xsdschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
-      <arg line="${repackage_arg} -name sXMLSCHEMA -cp ${xsdschema.compile.path} -srconly -d build/classes/xsdschema -noann -src build/src/xsdschema src/xsdschema/schema"/>
+      <arg line="${repackage_arg} -name sXMLSCHEMA  -srconly -d build/classes/xsdschema -noann -src build/src/xsdschema src/xsdschema/schema"/>
     </java>
   </target>
 

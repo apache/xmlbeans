@@ -131,6 +131,21 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     static final int FLAG_ABSTRACT        = 0x40000;
     static final int FLAG_ATTRIBUTE_TYPE  = 0x80000;
 
+//    /**
+//     * This is to support the feature of a separate/private XMLBeans distribution that will not colide with the public org apache xmlbeans one.
+//     * METADATA_PACKAGE will be "" for the original and something like com_mycompany_private_xmlbeans for a private distribution of XMLBeans.
+//     */
+//    public static String METADATA_PACKAGE = (
+//        // next line should use String addition to avoid replacemant be Repackager:  "org." + "apache." + "xmlbeans"
+//        ("org." + "apache." + "xmlbeans").equals(SchemaTypeSystem.class.getPackage().getName())     ?
+//        // This is the original org apache xmlbeans package, to maintain backwards compatibility resource pathes must remain the same
+//        "" :
+//        // This is the private package XMLBeans, all the metadata will end up in a specific/private resource path
+//        // It is by design that
+//        SchemaTypeSystem.class.getPackage().getName().replaceAll("\\.", "_")
+//        );
+    // not yet enabled
+    public static String METADATA_PACKAGE = "";
 
     private static String nameToPathString(String nameForSystem)
     {
@@ -342,17 +357,17 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     void savePointers()
     {
-        savePointersForComponents(globalElements(), "schema/element/");
-        savePointersForComponents(globalAttributes(), "schema/attribute/");
-        savePointersForComponents(modelGroups(), "schema/modelgroup/");
-        savePointersForComponents(attributeGroups(), "schema/attributegroup/");
-        savePointersForComponents(globalTypes(), "schema/type/");
-        savePointersForComponents(identityConstraints(), "schema/identityconstraint/");
-        savePointersForNamespaces(_namespaces, "schema/namespace/");
-        savePointersForClassnames(_typeRefsByClassname.keySet(), "schema/javaname/");
-        savePointersForComponents(redefinedModelGroups(), "schema/redefinedmodelgroup/");
-        savePointersForComponents(redefinedAttributeGroups(), "schema/redefinedattributegroup/");
-        savePointersForComponents(redefinedGlobalTypes(), "schema/redefinedtype/");
+        savePointersForComponents(globalElements(), "schema" + METADATA_PACKAGE + "/element/");
+        savePointersForComponents(globalAttributes(), "schema" + METADATA_PACKAGE + "/attribute/");
+        savePointersForComponents(modelGroups(), "schema" + METADATA_PACKAGE + "/modelgroup/");
+        savePointersForComponents(attributeGroups(), "schema" + METADATA_PACKAGE + "/attributegroup/");
+        savePointersForComponents(globalTypes(), "schema" + METADATA_PACKAGE + "/type/");
+        savePointersForComponents(identityConstraints(), "schema" + METADATA_PACKAGE + "/identityconstraint/");
+        savePointersForNamespaces(_namespaces, "schema" + METADATA_PACKAGE + "/namespace/");
+        savePointersForClassnames(_typeRefsByClassname.keySet(), "schema" + METADATA_PACKAGE + "/javaname/");
+        savePointersForComponents(redefinedModelGroups(), "schema" + METADATA_PACKAGE + "/redefinedmodelgroup/");
+        savePointersForComponents(redefinedAttributeGroups(), "schema" + METADATA_PACKAGE + "/redefinedattributegroup/");
+        savePointersForComponents(redefinedGlobalTypes(), "schema" + METADATA_PACKAGE + "/redefinedtype/");
     }
 
     void savePointersForComponents(SchemaComponent[] components, String dir)
@@ -751,7 +766,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             nameForSystem = "s" + new String(HexBin.encode(bytes));
         }
 
-        _name = "schema.system." + nameForSystem;
+        _name = "schema" + METADATA_PACKAGE + ".system." + nameForSystem;
         _basePackage = nameToPathString(_name);
         _classloader = null;
 
@@ -3410,7 +3425,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (!sourceName.startsWith("/"))
             sourceName = "/" + sourceName;
 
-        return _resourceLoader.getResourceAsStream("schema/src" + sourceName);
+        return _resourceLoader.getResourceAsStream("schema" + METADATA_PACKAGE + "/src" + sourceName);
     }
 
     SchemaContainer[] containers()
