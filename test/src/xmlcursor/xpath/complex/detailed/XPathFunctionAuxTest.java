@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package xmlcursor.xpath.detailed;
+package xmlcursor.xpath.complex.detailed;
 
 import xmlcursor.common.BasicCursorTestCase;
 

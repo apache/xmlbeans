@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package xmlcursor.xpath.jaxen.detailed;
+package xmlcursor.xpath.complex.detailed;
 
 import xmlcursor.xpath.common.XPathFunctionTest;
 import xmlcursor.common.Common;
