@@ -115,14 +115,19 @@ public class JUnitXTask extends org.apache.tools.ant.taskdefs.Java
     {
         validate();
         String[] files = getFilenames();
-        File temp;
-        try
-        {
-            temp = File.createTempFile(Long.toString(System.currentTimeMillis()),
-                                       ".tmp");
-            temp.deleteOnExit();
+        File temp=null;
+        String fName=Long.toString(System.currentTimeMillis());
+                                      
+      
+            //issue w/ JDK 1.4 IOException
+            // temp = File.createTempFile(,null);
+            temp=new File(fName);
+
+        try{
+             temp.deleteOnExit();
+             // System.out.println(temp.toString());
             BufferedWriter out = new BufferedWriter(new FileWriter(temp));
-            //System.out.println(temp.toString());
+            System.out.println(temp.toString());
             for (int i = 0; i < files.length; i++)
                 out.write(javaToClass(files[i]) + "\n");
             out.close();
@@ -192,7 +197,7 @@ public class JUnitXTask extends org.apache.tools.ant.taskdefs.Java
                 } else if (pathname.endsWith(".class"))
                 {
                     // DOn't try to run inner classes
-                    if (! pathname.contains("$"))
+                    if ( pathname.indexOf("$") == -1 )
                         v.addElement(pathname.substring(0, pathname.length() - ".class".length()));
                 }
             }

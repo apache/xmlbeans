@@ -350,7 +350,8 @@ public abstract class NodeTest extends TestCase implements
 
     }
 
-    public static Node getApacheNode(String sXml,boolean namespace,char type)
+    
+     public static Node getApacheNode(String sXml,boolean namespace,char type)
             throws Exception{
         org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
         parser.parse(new InputSource(new StringReader(sXml)));
@@ -373,8 +374,8 @@ public abstract class NodeTest extends TestCase implements
         default: return  doc.createTextNode(name);
 
         }
+   
     }
-
 
 
     public abstract void moveToNode();

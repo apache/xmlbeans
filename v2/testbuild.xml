@@ -149,6 +149,7 @@
 
     <fileset id="tools.ext.lib" dir="${xbeans.test.tools.lib}">
         <include name="**/*.jar"/>
+        <exclude name="**/xerces1.4.4.jar"/>
     </fileset>
 
     <fileset id="schema.files.copy" dir="${xbeans.test.cases.test.files}">
@@ -194,6 +195,10 @@
 
         <path refid="build.classpath"/>
         <fileset refid="test.build.jars"/>
+
+	<!--1.4 JDK compat:JDK Xerces missing DocumentRange-->
+	
+        <pathelement path="${xbeans.test.tools.lib}/xerces1.4.4.jar"/>
     </path>
     <!-- END: Filesets and Paths                                         -->
     <!-- =============================================================== -->
@@ -446,6 +451,7 @@
             destdir="${build.dir.test.src}"
             classpathref="test.run.classpath"
             debug="on"
+            source="1.4"
             optimize="on"
             verbose="false"
             failonerror="true">
