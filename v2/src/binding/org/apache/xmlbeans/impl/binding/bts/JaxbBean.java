@@ -74,7 +74,7 @@ import java.util.LinkedHashMap;
  */ 
 public class JaxbBean extends BindingType
 {
-    Map partProps = new LinkedHashMap(); // XmlName -> prop (particles)
+    Map partProps = new LinkedHashMap(); // XmlTypeName -> prop (particles)
     Map eltProps = new LinkedHashMap(); // QName -> prop (elts)
     Map attProps = new LinkedHashMap(); // QName -> prop (attrs)
     

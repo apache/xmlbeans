@@ -14,7 +14,7 @@ import org.apache.xmlbeans.soap.SOAPArrayType;
 import javax.xml.namespace.QName;
 
 /**
- * An XmlName is a way of uniquely identifying any
+ * An XmlTypeName is a way of uniquely identifying any
  * logical component in a schema.
  * 
  * For a diagram of the kinds of components that can be referenced,
@@ -86,7 +86,7 @@ import javax.xml.namespace.QName;
  * Has the following signature:
  *     y.3|y.2|y.4|t=drg@foobar
  */
-public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
+public class XmlTypeName
 {
     private String namespace;
     private String path;
@@ -115,7 +115,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
      */ 
     public boolean valid()
     {
-        XmlName outerComponent = null;
+        XmlTypeName outerComponent = null;
         int outerType = 0;
         String localName = internalGetStringName();
         
@@ -221,7 +221,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
      * 
      * This signature is described in the javadoc for this class.
      */ 
-    public static XmlName forString(String signature)
+    public static XmlTypeName forString(String signature)
     {
         String path;
         String namespace;
@@ -242,7 +242,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     /**
      * Creates an XMLName for a schema type with the given fully-qualified QName.
      */ 
-    public static XmlName forTypeNamed(QName name)
+    public static XmlTypeName forTypeNamed(QName name)
     {
         return forPathAndNamespace(TYPE + "=" + name.getLocalPart(), name.getNamespaceURI());
     }
@@ -250,7 +250,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     /**
      * Creates an XMLName for a global schema element with the given fully-qualified QName.
      */ 
-    public static XmlName forGlobalName(char kind, QName name)
+    public static XmlTypeName forGlobalName(char kind, QName name)
     {
         return forPathAndNamespace(kind + "=" + name.getLocalPart(), name.getNamespaceURI());
     }
@@ -258,7 +258,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     /**
      * Creates an XMLName for a nested component
      */
-    public static XmlName forNestedName(char kind, String localName, boolean qualified, XmlName outer)
+    public static XmlTypeName forNestedName(char kind, String localName, boolean qualified, XmlTypeName outer)
     {
         return forPathAndNamespace(kind + (qualified ? "=" : "-") + localName + "|" + outer.path, outer.namespace);
     }
@@ -266,7 +266,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     /**
      * Creates an XMLName for a nested component
      */
-    public static XmlName forNestedNumber(char kind, int n, XmlName outer)
+    public static XmlTypeName forNestedNumber(char kind, int n, XmlTypeName outer)
     {
         return forPathAndNamespace(kind + "." + n + "|" + outer.path, outer.namespace);
     }
@@ -274,7 +274,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     /**
      * Creates an XMLName for a nested component
      */
-    public static XmlName forNestedAnonymous(char kind, XmlName outer)
+    public static XmlTypeName forNestedAnonymous(char kind, XmlTypeName outer)
     {
         return forPathAndNamespace(kind + "|" + outer.path, outer.namespace);
     }
@@ -282,7 +282,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     /**
      * Creates an XMLName for a particular schema type
      */
-    public static XmlName forSchemaType(SchemaType sType)
+    public static XmlTypeName forSchemaType(SchemaType sType)
     {
         if (sType.getName() != null)
             return forTypeNamed(sType.getName());
@@ -297,7 +297,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
             return forPathAndNamespace("" + NO_TYPE, "");
         
         SchemaType outerType = sType.getOuterType();
-        XmlName outerName = forSchemaType(outerType);
+        XmlTypeName outerName = forSchemaType(outerType);
         
         if (sType.getContainerField() != null)
         {
@@ -316,7 +316,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     /**
      * Creates one for a SOAPArrayType
      */
-    public static XmlName forSoapArrayType(SOAPArrayType sType)
+    public static XmlTypeName forSoapArrayType(SOAPArrayType sType)
     {
         StringBuffer sb = new StringBuffer();
         sb.append(SOAP_ARRAY + "." + sType.getDimensions().length);
@@ -369,10 +369,10 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
         if (isGlobal())
             return loader.findType(getQName());
 
-        XmlName outerName = getOuterComponent();
+        XmlTypeName outerName = getOuterComponent();
         
         // if the component is contained within a type, get it
-        for (XmlName outerTypeName = outerName; ; outerTypeName = outerTypeName.getOuterComponent())
+        for (XmlTypeName outerTypeName = outerName; ; outerTypeName = outerTypeName.getOuterComponent())
         {
             if (outerTypeName.isSchemaType())
             {
@@ -412,12 +412,12 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
         }
     }
     
-    private static XmlName forPathAndNamespace(String path, String namespace)
+    private static XmlTypeName forPathAndNamespace(String path, String namespace)
     {
-        return new XmlName(path, namespace);
+        return new XmlTypeName(path, namespace);
     }
     
-    private XmlName(String path, String namespace)
+    private XmlTypeName(String path, String namespace)
     {
         if (path == null || namespace == null)
             throw new IllegalArgumentException();
@@ -432,7 +432,7 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
         return index < 0;
     }
     
-    public XmlName getOuterComponent()
+    public XmlTypeName getOuterComponent()
     {
         int index = path.indexOf('|');
         if (index < 0)
@@ -543,9 +543,9 @@ public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof XmlName)) return false;
+        if (!(o instanceof XmlTypeName)) return false;
 
-        final XmlName xmlName = (XmlName) o;
+        final XmlTypeName xmlName = (XmlTypeName) o;
 
         if (!namespace.equals(xmlName.namespace)) return false;
         if (!path.equals(xmlName.path)) return false;

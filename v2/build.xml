@@ -761,10 +761,11 @@
 
   <!-- binding target =============================================== -->
 
-  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, xmlcomp.classes, jam.classes">
+  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, xmlcomp.classes, jam.classes, jsr173.jar">
     <mkdir dir="build/classes/binding"/>
     <javac srcdir="src/binding" destdir="build/classes/binding" source="1.4" debug="on">
       <classpath>
+        <pathelement location="build/lib/jsr173_api.jar"/>
         <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>

@@ -72,7 +72,7 @@ public class ParticleProperty extends BindingProperty
         super(node);
     }
     
-    public XmlName getXmlName()
+    public XmlTypeName getXmlName()
     {
         return getTypeName().getXmlName();
     }

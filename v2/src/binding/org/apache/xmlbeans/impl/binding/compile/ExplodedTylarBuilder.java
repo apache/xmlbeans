@@ -67,6 +67,7 @@ import java.io.FileOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Collection;
 
 /**
  * Simple implementation of TylarBuilder that just dumps everything in a
@@ -74,70 +75,139 @@ import java.util.Iterator;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class ExplodedTylarBuilder implements TylarBuilder {
+public class ExplodedTylarBuilder implements TylarBuilder
+{
 
-  // =========================================================================
-  // Constants
+    // =========================================================================
+    // Constants
 
-  private static final int XML_INDENT = 2;
+    private static final int XML_INDENT = 2;
 
-  // =========================================================================
-  // Variables
+    // =========================================================================
+    // Variables
 
-  private File mDir;
-  private List mSchemas = new ArrayList();
-  private List mBindings = new ArrayList();
+    private File mDir;
+    private List mSchemas = new ArrayList();
+    private List mBindings = new ArrayList();
 
-  // =========================================================================
-  // Constructors
+    // =========================================================================
+    // Constructors
 
-  public ExplodedTylarBuilder(File dir) {
-    if (dir == null) throw new IllegalArgumentException("null dir");
-    mDir = dir;
-  }
-
-  // =========================================================================
-  // TylarBuilder implementation
-
-  public void buildTylar(JavaToSchemaResult result) throws IOException {
-    if (!mDir.exists()) {
-      if (!mDir.mkdirs()) {
-        throw new IllegalArgumentException("failed to create dir "+mDir);
-      }
-    } else {
-      if (!mDir.isDirectory())
-        throw new IllegalArgumentException("not a directory: "+mDir);
-    }
-    // print the schemas
-    String[] tns = result.getSchemaGenerator().getTargetNamespaces();
-    for(int i=0; i<tns.length; i++) {
-      File file = new File(mDir,"schema-"+i+".xsd");//FIXME naming
-      FileOutputStream out = null;
-      try {
-        out = new FileOutputStream(file);
-        result.getSchemaGenerator().printSchema(tns[i],out);
-      } catch(IOException ioe) {
-        throw ioe;
-      } finally {
-        try {
-          out.close();
-        } catch(Exception ohwell) { ohwell.printStackTrace(); }
-      }
-    }
-    // print the binding file
+    public ExplodedTylarBuilder(File dir)
     {
-      File file = new File(mDir,"binding-file.xml"); //FIXME naming
-      FileOutputStream out = null;
-      try {
-        out = new FileOutputStream(file);
-        result.getBindingFileGenerator().printBindingFile(out);
-      } catch(IOException ioe) {
-        throw ioe;
-      } finally {
-        try {
-          out.close();
-        } catch(IOException ohwell) { ohwell.printStackTrace(); }
-      }
+        if (dir == null) throw new IllegalArgumentException("null dir");
+        mDir = dir;
     }
-  }
+
+    // =========================================================================
+    // TylarBuilder implementation
+
+    public void buildTylar(JavaToSchemaResult result) throws IOException
+    {
+        createTargetDir();
+        
+        // write schemas
+        writeXsdFiles(result.getSchemaCodeResult());
+        
+        // print the binding file
+        writeBindingFile(result.getBindingFileResult());
+    }
+    
+    protected void writeBindingFile(BindingFileResult bfg) throws IOException
+    {
+        File file = new File(mDir, "binding-file.xml"); //FIXME naming
+        FileOutputStream out = null;
+        try {
+            out = new FileOutputStream(file);
+            bfg.printBindingFile(out);
+        }
+        catch (IOException ioe) {
+            throw ioe;
+        }
+        finally {
+            try {
+                out.close();
+            }
+            catch (IOException ohwell) {
+                ohwell.printStackTrace();
+            }
+        }
+    }
+    
+    
+    protected void writeXsdFiles(SchemaCodeResult scg) throws IOException
+    {
+        // print the schemas
+        String[] tns = scg.getTargetNamespaces();
+        for (int i = 0; i < tns.length; i++) {
+            File file = new File(mDir, "schema-" + i + ".xsd");//FIXME naming
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(file);
+                scg.printSchema(tns[i], out);
+            }
+            catch (IOException ioe) {
+                throw ioe;
+            }
+            finally {
+                try {
+                    out.close();
+                }
+                catch (Exception ohwell) {
+                    ohwell.printStackTrace();
+                }
+            }
+        }
+    }
+    
+    protected void writeJavaFiles(JavaCodeResult jcg) throws IOException
+    {
+        Collection classnames = jcg.getToplevelClasses();
+        for (Iterator i = classnames.iterator(); i.hasNext(); )
+        {
+            String className = (String)i.next();
+            File javaFile = new File(mDir, className.replace('.','/') + ".java");
+            FileOutputStream out = null;
+            try {
+                out = new FileOutputStream(javaFile);
+                jcg.printSourceCode(className, out);
+            }
+            catch (IOException e) {
+                throw e;
+            }
+            finally
+            {
+                try {
+                    out.close();
+                }
+                catch (Exception ohwell) {
+                    ohwell.printStackTrace();
+                }
+            }
+        }
+    }
+
+    protected void createTargetDir()
+    {
+        if (!mDir.exists()) {
+            if (!mDir.mkdirs()) {
+                throw new IllegalArgumentException("failed to create dir " + mDir);
+            }
+        }
+        else {
+            if (!mDir.isDirectory())
+                throw new IllegalArgumentException("not a directory: " + mDir);
+        }
+    }
+    
+    public void buildTylar(SchemaToJavaResult result) throws IOException
+    {
+        createTargetDir();
+        
+        // print the java files
+        writeJavaFiles(result.getJavaCodeResult());
+        
+        // print the binding file
+        writeBindingFile(result.getBindingFileResult());
+    }
 }

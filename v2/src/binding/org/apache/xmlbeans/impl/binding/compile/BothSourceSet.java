@@ -56,26 +56,9 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import java.util.Collection;
-import java.io.OutputStream;
-import java.io.IOException;
-
-public interface JavaCodeGenerator
+public interface BothSourceSet extends SchemaSourceSet, JavaSourceSet
 {
-    /**
-     * Returns a collection of fully-qualified Java class name strings
-     */
-    Collection getToplevelClasses();
+    // it's just both a SchemaSourceSet and a JavaSourceSet.
     
-    /**
-     * Prints the .java source code for the given class.
-     * 
-     * Note for internationalization: the system default encoding
-     * should be used for the given OutputStream, since it is conventional
-     * for Java programs to be compiled from files using this encoding.
-     * 
-     * To produce a safely portable source file, a printer should be
-     * careful to use uXXXX escape codes for any non-ascii characters.
-     */ 
-    void printSourceCode(String topLevelClassName, OutputStream output) throws IOException;
+    // note that the getTylarLoader() method is shared
 }

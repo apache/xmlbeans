@@ -66,11 +66,11 @@ public interface BindingLoader
 {
     BindingType getBindingType(BindingTypeName btName);
 
-    BindingTypeName lookupPojoFor(XmlName xName);
+    BindingTypeName lookupPojoFor(XmlTypeName xName);
 
-    BindingTypeName lookupXmlObjectFor(XmlName xName);
+    BindingTypeName lookupXmlObjectFor(XmlTypeName xName);
 
-    BindingTypeName lookupTypeFor(JavaName jName);
+    BindingTypeName lookupTypeFor(JavaTypeName jName);
 
-    BindingTypeName lookupElementFor(JavaName jName);
+    BindingTypeName lookupElementFor(JavaTypeName jName);
 }

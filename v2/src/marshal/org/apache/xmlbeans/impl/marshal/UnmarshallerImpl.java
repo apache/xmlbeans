@@ -62,9 +62,9 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
-import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -150,8 +150,8 @@ class UnmarshallerImpl
 
     private BindingType determineBindingType(QName schemaType, String javaType)
     {
-        XmlName xname = XmlName.forTypeNamed(schemaType);
-        JavaName jname = JavaName.forString(javaType);
+        XmlTypeName xname = XmlTypeName.forTypeNamed(schemaType);
+        JavaTypeName jname = JavaTypeName.forString(javaType);
         BindingTypeName btname = BindingTypeName.forPair(jname, xname);
         return bindingLoader.getBindingType(btname);
     }
@@ -218,19 +218,19 @@ class UnmarshallerImpl
         if (xsi_type == null) {
             QName root_elem_qname = new QName(context.getNamespaceURI(),
                                               context.getLocalName());
-            final XmlName type_name = XmlName.forGlobalName(XmlName.ELEMENT, root_elem_qname);
+            final XmlTypeName type_name = XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, root_elem_qname);
             final BindingType doc_binding_type = getPojoBindingType(type_name);
             SimpleDocumentBinding sd = (SimpleDocumentBinding)doc_binding_type;
             return getPojoBindingType(sd.getTypeOfElement());
         } else {
-            final XmlName type_name = XmlName.forTypeNamed(xsi_type);
+            final XmlTypeName type_name = XmlTypeName.forTypeNamed(xsi_type);
             final BindingType pojoBindingType = getPojoBindingType(type_name);
             assert !(pojoBindingType instanceof SimpleDocumentBinding);
             return pojoBindingType;
         }
     }
 
-    private BindingType getPojoBindingType(final XmlName type_name) throws XmlException
+    private BindingType getPojoBindingType(final XmlTypeName type_name) throws XmlException
     {
         final BindingTypeName btName = bindingLoader.lookupPojoFor(type_name);
         if (btName == null) {

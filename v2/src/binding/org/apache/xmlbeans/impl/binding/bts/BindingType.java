@@ -83,8 +83,8 @@ public abstract class BindingType
     protected BindingType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
         this.btName = BindingTypeName.forPair(
-                JavaName.forString(node.getJavatype()),
-                XmlName.forString(node.getXmlcomponent()));
+                JavaTypeName.forString(node.getJavatype()),
+                XmlTypeName.forString(node.getXmlcomponent()));
     }
 
   /**

@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.XmlObject;
+
 /**
  * Represents a Java class name, and provides some utility methods
  * for parsing out bits of the name.
@@ -71,14 +74,14 @@ package org.apache.xmlbeans.impl.binding.bts;
  * 
  * "x=org.apache.xmlbeans.XmlInt"
  */
-public final class JavaName  // WARNING: this class will be renamed to "JavaTypeName"
+public final class JavaTypeName
 {
     private final String className;
     private final String arrayString;
     private final boolean isXmlObject;
 
     /**
-     * Returns a JavaName object for a fully-qualified class name.
+     * Returns a JavaTypeName object for a fully-qualified class name.
      * The class-name should be dot-separated for packages and
      * dollar-separated for inner classes.
      * 
@@ -87,16 +90,16 @@ public final class JavaName  // WARNING: this class will be renamed to "JavaType
      * 
      * This is a static function to permit pooling in the future.
      */
-    public static JavaName forString(String className)
+    public static JavaTypeName forString(String className)
     {
-        return new JavaName(className);
+        return new JavaTypeName(className);
     }
     
     /**
-     * Builds a JavaName for the array containing items with
-     * the given JavaName.
+     * Builds a JavaTypeName for the array containing items with
+     * the given JavaTypeName.
      */ 
-    public static JavaName forArray(JavaName itemType, int depth)
+    public static JavaTypeName forArray(JavaTypeName itemType, int depth)
     {
         // efficiency later
         String arrayBrackets = "";
@@ -105,10 +108,32 @@ public final class JavaName  // WARNING: this class will be renamed to "JavaType
         return forString(itemType.toString() + arrayBrackets);
     }
     
+    private static String XMLOBJECT_CLASSNAME = XmlObject.class.getName();
+    
+    /**
+     * Builds a JavaTypeName for the given JClass
+     */
+    public static JavaTypeName forJClass(JClass jClass)
+    {
+        if (jClass.isArray())
+        {
+            return forArray(forJClass(jClass.getArrayComponentType()), jClass.getArrayDimensions());
+        }
+        
+        JClass[] interfaces = jClass.getInterfaces();
+        for (int i = 0; i < interfaces.length; i++)
+        {
+            if (interfaces[i].getQualifiedName().equals(XMLOBJECT_CLASSNAME))
+                return forString("x=" + jClass.getQualifiedName());
+        }
+        
+        return forString(jClass.getQualifiedName());
+    }
+    
     /**
      * Do not use this constructor; use forClassName instead.
      */ 
-    private JavaName(String className)
+    private JavaTypeName(String className)
     {
         if (className == null)
             throw new IllegalArgumentException();
@@ -163,7 +188,7 @@ public final class JavaName  // WARNING: this class will be renamed to "JavaType
     /**
      * Returns the array item type (peeling off "n" array indexes)
      */
-    public JavaName getArrayItemType(int depth)
+    public JavaTypeName getArrayItemType(int depth)
     {
         if (arrayString.length() < depth * 2)
             return null;
@@ -190,15 +215,15 @@ public final class JavaName  // WARNING: this class will be renamed to "JavaType
     }
     
     /**
-     * Returns the JavaName of the containing class, or null if this
+     * Returns the JavaTypeName of the containing class, or null if this
      * is not an inner class name.
      */ 
-    public JavaName getContainingClass()
+    public JavaTypeName getContainingClass()
     {
         int index = className.lastIndexOf('$');
         if (index < 0)
             return null;
-        return JavaName.forString(className.substring(0, index));
+        return JavaTypeName.forString(className.substring(0, index));
     }
     
     /**
@@ -218,9 +243,9 @@ public final class JavaName  // WARNING: this class will be renamed to "JavaType
     public boolean equals(Object o)
     {
         if (this == o) return true;
-        if (!(o instanceof JavaName)) return false;
+        if (!(o instanceof JavaTypeName)) return false;
 
-        final JavaName javaName = (JavaName) o;
+        final JavaTypeName javaName = (JavaTypeName) o;
         
         if (isXmlObject != javaName.isXmlObject) return false;
         if (!className.equals(javaName.className)) return false;

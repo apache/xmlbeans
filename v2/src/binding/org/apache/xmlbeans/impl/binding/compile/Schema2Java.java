@@ -59,15 +59,15 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.XmlName;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
-import org.apache.xmlbeans.impl.binding.compile.BindingFileGenerator;
-import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
+import org.apache.xmlbeans.impl.binding.compile.BindingFileResult;
+import org.apache.xmlbeans.impl.binding.compile.JavaCodeResult;
 import org.apache.xmlbeans.impl.binding.compile.JavaCodePrinter;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.SchemaType;
@@ -101,7 +101,7 @@ import java.io.IOException;
 /**
  * This is the "JAXRPC-style" Schema-to-bts compiler.
  */ 
-public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerator, SchemaToJavaResult
+public class Schema2Java implements JavaCodeResult, BindingFileResult, SchemaToJavaResult
 {
     private Set usedNames = new HashSet();
     private SchemaTypeSystem sts;
@@ -111,9 +111,9 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
     private BindingLoader path;
     private int structureCount;
     private BindingFile bindingFile = new BindingFile();
-    private SchemaToJavaInput sourceSet;
+    private SchemaSourceSet sourceSet;
 
-    private JAXRPCSchemaBinder(SchemaToJavaInput input)
+    private Schema2Java(SchemaSourceSet input)
     {
         this.sourceSet = input;
         this.sts = input.getSchemaTypeSystem();
@@ -126,9 +126,9 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
      * Defer to any previously defined bindings on the TylarLoader path
      * supplied.
      */
-    public static SchemaToJavaResult bind(SchemaToJavaInput input)
+    public static SchemaToJavaResult bind(SchemaSourceSet input)
     {
-        JAXRPCSchemaBinder binder = new JAXRPCSchemaBinder(input);
+        Schema2Java binder = new Schema2Java(input);
         binder.bind();
         return binder;
     }
@@ -174,7 +174,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
     /**
      * This function goes through all relevant schema types, plus soap
      * array types, and creates a scratch area for each.  Each
-     * scratch area is also marked at this time with an XmlName,
+     * scratch area is also marked at this time with an XmlTypeName,
      * a schema type, and a category.
      */ 
     private void createScratchArea()
@@ -182,7 +182,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         for (Iterator i = allTypeIterator(); i.hasNext(); )
         {
             SchemaType sType = (SchemaType)i.next();
-            XmlName xmlName = XmlName.forSchemaType(sType);
+            XmlTypeName xmlName = XmlTypeName.forSchemaType(sType);
             Scratch scratch;
             
             if (sType.isSimpleType())
@@ -193,11 +193,11 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             }
             else if (sType.isDocumentType())
             {
-                scratch = new Scratch(sType, XmlName.forGlobalName(XmlName.ELEMENT, sType.getDocumentElementName()), Scratch.ELEMENT);
+                scratch = new Scratch(sType, XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, sType.getDocumentElementName()), Scratch.ELEMENT);
             }
             else if (sType.isAttributeType())
             {
-                scratch = new Scratch(sType, XmlName.forGlobalName(XmlName.ATTRIBUTE, sType.getDocumentElementName()), Scratch.ATTRIBUTE);
+                scratch = new Scratch(sType, XmlTypeName.forGlobalName(XmlTypeName.ATTRIBUTE, sType.getDocumentElementName()), Scratch.ATTRIBUTE);
             }
             else if (isSoapArray(sType))
             {
@@ -206,7 +206,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
                 scratch.setAsIf(xmlName);
                 
                 // soap arrays unroll like this
-                while (xmlName.getComponentType() == XmlName.SOAP_ARRAY)
+                while (xmlName.getComponentType() == XmlTypeName.SOAP_ARRAY)
                 {
                     scratch = new Scratch(null, xmlName, Scratch.SOAPARRAY);
                     scratchFromXmlName.put(xmlName, scratch);
@@ -229,7 +229,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
     }
     
     /**
-     * Computes a JavaName for each scratch.  Notice that structures and
+     * Computes a JavaTypeName for each scratch.  Notice that structures and
      * atoms can be computed directly, but arrays, elements, etc, need
      * to defer to other scratch areas, so this is a resolution
      * process that occurs in dependency order.
@@ -251,7 +251,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             case Scratch.STRUCT_TYPE:
                 {
                     structureCount += 1;
-                    JavaName javaName = pickUniqueJavaName(scratch.getSchemaType());
+                    JavaTypeName javaName = pickUniqueJavaName(scratch.getSchemaType());
                     scratch.setJavaName(javaName);
                     scratchFromJavaNameString.put(javaName.toString(), scratch);
                     return;
@@ -262,13 +262,13 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
                     SchemaType itemType = getLiteralArrayItemType(scratch.getSchemaType());
                     Scratch itemScratch = scratchForSchemaType(itemType);
                     resolveJavaName(itemScratch);
-                    scratch.setJavaName(JavaName.forArray(itemScratch.getJavaName(), 1));
+                    scratch.setJavaName(JavaTypeName.forArray(itemScratch.getJavaName(), 1));
                     return;
                 }
                 
             case Scratch.SOAPARRAY_REF:
                 {
-                    XmlName soapArrayName = scratch.getAsIf();
+                    XmlTypeName soapArrayName = scratch.getAsIf();
                     Scratch arrayScratch = scratchForXmlName(soapArrayName);
                     resolveJavaName(arrayScratch);
                     scratch.setJavaName(arrayScratch.getJavaName());
@@ -278,11 +278,11 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
                 
             case Scratch.SOAPARRAY:
                 {
-                    XmlName arrayName = scratch.getXmlName();
-                    XmlName itemName = arrayName.getOuterComponent();
+                    XmlTypeName arrayName = scratch.getXmlName();
+                    XmlTypeName itemName = arrayName.getOuterComponent();
                     Scratch itemScratch = scratchForXmlName(itemName);
                     resolveJavaName(itemScratch);
-                    scratch.setJavaName(JavaName.forArray(itemScratch.getJavaName(), arrayName.getNumber()));
+                    scratch.setJavaName(JavaTypeName.forArray(itemScratch.getJavaName(), arrayName.getNumber()));
                     return;
                 }
                 
@@ -353,14 +353,14 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
      */ 
     private boolean shouldBeFromJavaDefault(BindingTypeName btName)
     {
-        JavaName jName = btName.getJavaName();
-        XmlName xName = btName.getXmlName();
+        JavaTypeName jName = btName.getJavaName();
+        XmlTypeName xName = btName.getXmlName();
         if (xName.isSchemaType())
         {
             return (bindingFile.lookupTypeFor(jName) == null &&
                     path.lookupTypeFor(jName) == null);
         }
-        if (xName.getComponentType() == XmlName.ELEMENT)
+        if (xName.getComponentType() == XmlTypeName.ELEMENT)
         {
             return (bindingFile.lookupElementFor(jName) == null &&
                     path.lookupElementFor(jName) == null);
@@ -437,9 +437,9 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
                 String getter = "get" + propName;
                 String setter = "set" + propName;
                 boolean isMultiple = isMultiple(props[i]);
-                JavaName collection = null;
+                JavaTypeName collection = null;
                 if (isMultiple)
-                    collection = JavaName.forArray(bType.getName().getJavaName(), 1);
+                    collection = JavaTypeName.forArray(bType.getName().getJavaName(), 1);
                 
                 prop = new QNameProperty();
                 prop.setQName(props[i].getName());
@@ -511,7 +511,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         }
         
         // case 2: it's in the path
-        BindingType bType = path.getBindingType(path.lookupPojoFor(XmlName.forSchemaType(sType)));
+        BindingType bType = path.getBindingType(path.lookupPojoFor(XmlTypeName.forSchemaType(sType)));
         if (!(bType instanceof ByNameBean))
         {
             return null;
@@ -534,7 +534,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         // SOAP Array definition must be put on the compiletime classpath
         while (sType != null)
         {
-            String signature = XmlName.forSchemaType(sType).toString();
+            String signature = XmlTypeName.forSchemaType(sType).toString();
             
             // captures both SOAP 1.1 and SOAP 1.2+
             if (signature.equals("t=Array@http://schemas.xmlsoap.org/soap/encoding/") ||
@@ -549,9 +549,9 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
     private static final QName arrayType = new QName("http://schemas.xmlsoap.org/soap/encoding/", "arrayType");
     
     /**
-     * Returns an XmlName describing a SOAP array.
+     * Returns an XmlTypeName describing a SOAP array.
      */ 
-    private static XmlName soapArrayTypeName(SchemaType sType)
+    private static XmlTypeName soapArrayTypeName(SchemaType sType)
     {
         // first, look for wsdl:arrayType default - this will help us with multidimensional arrays
         SOAPArrayType defaultArrayType = null;
@@ -561,7 +561,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         
         // method 1: trust wsdl:arrayType
         if (defaultArrayType != null)
-            return XmlName.forSoapArrayType(defaultArrayType);
+            return XmlTypeName.forSoapArrayType(defaultArrayType);
         
         // method 2: SOAP 1.2 equivalent?
         // todo: track what do WSDLs do in the world of SOAP 1.2.
@@ -572,7 +572,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         if (props.length == 1)
             itemType = props[0].getType();
         
-        return XmlName.forNestedNumber(XmlName.SOAP_ARRAY, 1, XmlName.forSchemaType(itemType));
+        return XmlTypeName.forNestedNumber(XmlTypeName.SOAP_ARRAY, 1, XmlTypeName.forSchemaType(itemType));
     }
     
     /**
@@ -597,7 +597,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
      * Picks a unique fully-qualified Java class name for the given schema
      * type.  Uses and updates the "usedNames" set.
      */ 
-    private JavaName pickUniqueJavaName(SchemaType sType)
+    private JavaTypeName pickUniqueJavaName(SchemaType sType)
     {
         QName qname = null;
         while (qname == null)
@@ -625,12 +625,12 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         
         usedNames.add(pickedName);
         
-        return JavaName.forString(pickedName);
+        return JavaTypeName.forString(pickedName);
     }
 
     /**
      * Resolves an atomic scratch all at once, including its
-     * JavaName and basedOn fields.
+     * JavaTypeName and basedOn fields.
      * 
      * This resolution method sets up a scratch so that is
      * is "based on" another binding type.  It finds the
@@ -660,7 +660,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             }
             
             // or if not within this type system, find the base type on the path
-            XmlName treatAs = XmlName.forSchemaType(baseType);
+            XmlTypeName treatAs = XmlTypeName.forSchemaType(baseType);
             BindingType basedOnBinding = path.getBindingType(path.lookupPojoFor(treatAs));
             if (basedOnBinding != null)
             {
@@ -687,12 +687,12 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         Scratch scratch = scratchForSchemaType(sType);
         if (scratch != null)
             return scratch.getBindingType();
-        return path.getBindingType(path.lookupPojoFor(XmlName.forSchemaType(sType)));
+        return path.getBindingType(path.lookupPojoFor(XmlTypeName.forSchemaType(sType)));
     }
 
     /**
      * Returns the scratch area for a given schema type.  Notice that
-     * SOAP arrays have an XmlName but not a schema type.
+     * SOAP arrays have an XmlTypeName but not a schema type.
      */ 
     private Scratch scratchForSchemaType(SchemaType sType)
     {
@@ -700,15 +700,15 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
     }
     
     /**
-     * Returns the scratch area for a given XmlName.
+     * Returns the scratch area for a given XmlTypeName.
      */ 
-    private Scratch scratchForXmlName(XmlName xmlName)
+    private Scratch scratchForXmlName(XmlTypeName xmlName)
     {
         return (Scratch)scratchFromXmlName.get(xmlName);
     }
 
     /**
-     * Returns the scratch area for a given JavaName.  Notice that only
+     * Returns the scratch area for a given JavaTypeName.  Notice that only
      * structures generate a java class, so not non-strucuture scratch areas
      * cannot be referenced this way.
      */ 
@@ -750,7 +750,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
      */ 
     private static class Scratch
     {
-        Scratch(SchemaType schemaType, XmlName xmlName, int category)
+        Scratch(SchemaType schemaType, XmlTypeName xmlName, int category)
         {
             this.schemaType = schemaType;
             this.xmlName = xmlName;
@@ -759,13 +759,13 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         
         private BindingType bindingType;
         private SchemaType schemaType; // may be null
-        private JavaName javaName;
-        private XmlName xmlName;
+        private JavaTypeName javaName;
+        private XmlTypeName xmlName;
 
         private int category;
 
         // atomic types get a treatAs
-        private XmlName asIf;
+        private XmlTypeName asIf;
         private boolean isStructureResolved;
 
         // categories of Scratch, established at ctor time
@@ -782,12 +782,12 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             return category;
         }
 
-        public JavaName getJavaName()
+        public JavaTypeName getJavaName()
         {
             return javaName;
         }
 
-        public void setJavaName(JavaName javaName)
+        public void setJavaName(JavaTypeName javaName)
         {
             this.javaName = javaName;
         }
@@ -807,22 +807,22 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             return schemaType;
         }
 
-        public XmlName getXmlName()
+        public XmlTypeName getXmlName()
         {
             return xmlName;
         }
 
-        public void setXmlName(XmlName xmlName)
+        public void setXmlName(XmlTypeName xmlName)
         {
             this.xmlName = xmlName;
         }
 
-        public XmlName getAsIf()
+        public XmlTypeName getAsIf()
         {
             return asIf;
         }
 
-        public void setAsIf(XmlName xmlName)
+        public void setAsIf(XmlTypeName xmlName)
         {
             this.asIf = xmlName;
         }
@@ -991,7 +991,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         
         private void print() throws IOException
         {
-            JavaName javaName = scratch.getJavaName();
+            JavaTypeName javaName = scratch.getJavaName();
             
             String packageName = javaName.getPackage();
             String shortClassName = javaName.getShortClassName();
@@ -1025,7 +1025,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             for (Iterator i = props.iterator(); i.hasNext(); )
             {
                 QNameProperty prop = (QNameProperty)i.next();
-                JavaName jType = prop.getTypeName().getJavaName();
+                JavaTypeName jType = prop.getTypeName().getJavaName();
                 if (prop.getCollectionClass() != null)
                     jType = prop.getCollectionClass();
                 
@@ -1036,7 +1036,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             for (Iterator i = props.iterator(); i.hasNext(); )
             {
                 QNameProperty prop = (QNameProperty)i.next();
-                JavaName jType = prop.getTypeName().getJavaName();
+                JavaTypeName jType = prop.getTypeName().getJavaName();
                 if (prop.getCollectionClass() != null)
                     jType = prop.getCollectionClass();
                 String fieldName = (String)fieldNames.get(prop);
@@ -1074,7 +1074,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         }
     }
 
-    public SchemaToJavaInput getSchemaSourceSet()
+    public SchemaSourceSet getSchemaSourceSet()
     {
         return sourceSet;
     }
@@ -1088,17 +1088,17 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
     }
 
     /**
-     * Returns a BindingFileGenerator for this SchemaToJavaResult.
+     * Returns a BindingFileResult for this SchemaToJavaResult.
      */ 
-    public BindingFileGenerator getBindingFileGenerator()
+    public BindingFileResult getBindingFileResult()
     {
         return this;
     }
 
     /**
-     * Returns the JavaCodeGenerator for this SchemaToJavaResult.
+     * Returns the JavaCodeResult for this SchemaToJavaResult.
      */ 
-    public JavaCodeGenerator getJavaCodeGenerator()
+    public JavaCodeResult getJavaCodeResult()
     {
         return this;
     }

@@ -56,8 +56,8 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.binding.compile.BindingFileGenerator;
-import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
+import org.apache.xmlbeans.impl.binding.compile.BindingFileResult;
+import org.apache.xmlbeans.impl.binding.compile.JavaCodeResult;
 
 /**
  * The result of a Schema->Java binding.
@@ -67,7 +67,7 @@ import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
  */
 public interface SchemaToJavaResult
 {
-    BindingFileGenerator getBindingFileGenerator();
-    JavaCodeGenerator getJavaCodeGenerator();
-    SchemaToJavaInput getSchemaSourceSet();
+    BindingFileResult getBindingFileResult();
+    JavaCodeResult getJavaCodeResult();
+    SchemaSourceSet getSchemaSourceSet();
 }

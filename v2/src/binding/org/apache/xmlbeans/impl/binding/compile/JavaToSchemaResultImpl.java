@@ -75,8 +75,8 @@ import java.util.*;
  * present them as a generator.  When asked, we just push the results in here
  * and return ('generate') them on demand.
  */
-/*package*/ class JavaToSchemaResultImpl implements SchemaGenerator,
-        BindingFileGenerator
+/*package*/ class JavaToSchemaResultImpl implements SchemaCodeResult,
+        BindingFileResult
  {
   // =========================================================================
   // Constants
@@ -88,10 +88,10 @@ import java.util.*;
 
   private Map mTNS2Schema = new HashMap();
   private List mBindingFiles = new ArrayList();
-  private JavaToSchemaInput mJavaSourceSet;
+  private JavaSourceSet mJavaSourceSet;
   private List mErrors = null;
 
-  JavaToSchemaResultImpl(JavaToSchemaInput javaSourceSet) {
+  JavaToSchemaResultImpl(JavaSourceSet javaSourceSet) {
     mJavaSourceSet = javaSourceSet;
   }
 
@@ -107,7 +107,7 @@ import java.util.*;
   // REVIEW is there really any reason to allow more than one?
   /*package*/ void addBindingFile(BindingFile bf) { mBindingFiles.add(bf); }
     
-  JavaToSchemaInput getJavaSourceSet() {
+  JavaSourceSet getJavaSourceSet() {
     return mJavaSourceSet;
   }
 
@@ -120,7 +120,7 @@ import java.util.*;
   }
 
   // ========================================================================
-  // SchemaGenerator implementation
+  // SchemaCodeResult implementation
 
   public String[] getTargetNamespaces() {
     String[] out = new String[mTNS2Schema.keySet().size()];
@@ -144,14 +144,14 @@ import java.util.*;
     }
   }
 
-  // REVIEW do we really think that SchemaGenerator clients are never going to
+  // REVIEW do we really think that SchemaCodeResult clients are never going to
   // want a method like this? i.e. is forcing them to dump stream right?
   private SchemaDocument getSchemaFor(String targetNamespace) {
     return (SchemaDocument)mTNS2Schema.get(targetNamespace);
   }
 
   // ========================================================================
-  // BindingFileGenerator implementation
+  // BindingFileResult implementation
 
   public void printBindingFile(OutputStream out) throws IOException {
     if (mBindingFiles.size() > 0) {

@@ -103,13 +103,9 @@ public class ByNameBean extends BindingType
      */ 
     protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
-        if (!(node instanceof org.apache.xml.xmlbeans.bindingConfig.ByNameBean)) {
-            throw new AssertionError("node is " + node.getClass() + " wanted org.apache.xml.xmlbeans.bindingConfig.ByNameBean");
-
-        }
-
         org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
                 (org.apache.xml.xmlbeans.bindingConfig.ByNameBean)super.write(node);
+
         for (Iterator i = props.iterator(); i.hasNext(); )
         {
             QNameProperty qProp = (QNameProperty)i.next();

@@ -70,7 +70,7 @@ public abstract class BindingProperty
     private String getter;
     private String setter;
     private String field;
-    private JavaName collection;
+    private JavaTypeName collection;
     
     /**
      * This kind of constructor is used when making a new one out of the blue.
@@ -89,14 +89,14 @@ public abstract class BindingProperty
     protected BindingProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
     {
         this.btName = BindingTypeName.forPair(
-                        JavaName.forString(node.getJavatype()),
-                        XmlName.forString(node.getXmlcomponent()));
+                        JavaTypeName.forString(node.getJavatype()),
+                        XmlTypeName.forString(node.getXmlcomponent()));
         this.getter = node.getGetter();
         this.setter = node.getSetter();
         this.field = node.getField();
         String collection = node.getCollection();
         if (collection != null)
-            this.collection = JavaName.forString(collection);
+            this.collection = JavaTypeName.forString(collection);
     }
     
     /**
@@ -171,12 +171,12 @@ public abstract class BindingProperty
         this.field = field;
     }
     
-    public JavaName getCollectionClass()
+    public JavaTypeName getCollectionClass()
     {
         return collection;
     }
     
-    public void setCollectionClass(JavaName jName)
+    public void setCollectionClass(JavaTypeName jName)
     {
         collection = jName;
     }

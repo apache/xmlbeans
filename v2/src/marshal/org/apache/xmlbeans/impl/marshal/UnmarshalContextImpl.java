@@ -61,7 +61,7 @@ import org.apache.xmlbeans.UnmarshalContext;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -134,7 +134,7 @@ final class UnmarshalContextImpl
 
     TypeUnmarshaller getTypeUnmarshaller(QName xsi_type)
     {
-        XmlName xname = XmlName.forTypeNamed(xsi_type);
+        XmlTypeName xname = XmlTypeName.forTypeNamed(xsi_type);
         BindingType binding_type =
             bindingLoader.getBindingType(bindingLoader.lookupPojoFor(xname));
         if (binding_type == null) {

@@ -56,28 +56,36 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.impl.jam.JClass;
+
 public final class BindingTypeName
 {
-    private final JavaName jName;
-    private final XmlName xName;
+    private final JavaTypeName jName;
+    private final XmlTypeName xName;
 
-    public static BindingTypeName forPair(JavaName jName, XmlName xName)
+    public static BindingTypeName forPair(JavaTypeName jName, XmlTypeName xName)
     {
         return new BindingTypeName(jName, xName);
     }
+    
+    public static BindingTypeName forTypes(JClass jClass, SchemaType sType)
+    {
+        return forPair(JavaTypeName.forJClass(jClass), XmlTypeName.forSchemaType(sType));
+    }
 
-    private BindingTypeName(JavaName jName, XmlName xName)
+    private BindingTypeName(JavaTypeName jName, XmlTypeName xName)
     {
         this.jName = jName;
         this.xName = xName;
     }
 
-    public JavaName getJavaName()
+    public JavaTypeName getJavaName()
     {
         return jName;
     }
 
-    public XmlName getXmlName()
+    public XmlTypeName getXmlName()
     {
         return xName;
     }
