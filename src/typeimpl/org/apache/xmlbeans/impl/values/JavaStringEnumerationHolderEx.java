@@ -46,18 +46,6 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
     public static void validateLexical(String v, SchemaType sType, ValidationContext context)
     {
         JavaStringHolderEx.validateLexical(v, sType, context);
-
-        if (sType.hasStringEnumValues())
-        {
-            if (sType.enumForString(v) == null)
-            {
-                if (context != null)
-                {
-                    context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
-                        new Object[] { "string", v, QNameHelper.readable(sType) });
-                }
-            }
-        }
     }
     
     protected void set_nil()

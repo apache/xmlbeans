@@ -107,7 +107,7 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
         }
         try
         {
-            for (boolean validate = true; !_validateOnSet(); validate = false)
+            for (boolean validate = true; validate || !_validateOnSet(); validate = false)
             {
             for (int i = 0; i < members.length; i++)
             {
@@ -448,7 +448,7 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
         }
         try
         {
-            for (boolean validate = true; !_validateOnSet(); validate = false)
+            for (boolean validate = true; validate || !_validateOnSet(); validate = false)
             {
             outer: for (int i = 0; i < members.length; i++)
             {
