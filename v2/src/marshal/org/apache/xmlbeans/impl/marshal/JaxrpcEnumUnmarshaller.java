@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 final class JaxrpcEnumUnmarshaller
     implements TypeUnmarshaller
@@ -31,10 +32,15 @@ final class JaxrpcEnumUnmarshaller
     public Object unmarshal(UnmarshalResult result)
         throws XmlException
     {
-
         final TypeUnmarshaller item_um = runtimeType.getItemUnmarshaller();
         final Object itemValue = item_um.unmarshal(result);
-        return runtimeType.fromValue(itemValue);
+        try {
+            return runtimeType.fromValue(itemValue, result);
+        }
+        catch(InvalidLexicalValueException e) {
+            result.addError(e.getMessage(), e.getLocation());
+            throw e;
+        }
     }
 
     public void unmarshal(Object object, UnmarshalResult result)
@@ -49,7 +55,7 @@ final class JaxrpcEnumUnmarshaller
     {
         final TypeUnmarshaller item_um = runtimeType.getItemUnmarshaller();
         final Object itemValue = item_um.unmarshalAttribute(result);
-        return runtimeType.fromValue(itemValue);
+        return runtimeType.fromValue(itemValue, result);
     }
 
     public Object unmarshalAttribute(CharSequence lexical_value,
@@ -58,7 +64,7 @@ final class JaxrpcEnumUnmarshaller
     {
         final TypeUnmarshaller item_um = runtimeType.getItemUnmarshaller();
         final Object itemValue = item_um.unmarshalAttribute(lexical_value, result);
-        return runtimeType.fromValue(itemValue);
+        return runtimeType.fromValue(itemValue, result);
     }
 
     public void unmarshalAttribute(Object object, UnmarshalResult result)

@@ -337,12 +337,11 @@ public final class JavaTypeName
             return new JavaTypeName(class_name, "", false);
         }
 
-        final String compname;
-        int dims = 0;
+        final int first_bracket = class_name.indexOf('[');
+        final int last_bracket = class_name.lastIndexOf('[');
+        final int semi = class_name.indexOf(';', last_bracket);
 
-        int first_bracket = class_name.indexOf('[');
-        int last_bracket = class_name.lastIndexOf('[');
-        int semi = class_name.indexOf(';', last_bracket);
+        final String compname;
 
         if (semi == -1) {
             char array_type = class_name.charAt(1 + last_bracket);
@@ -350,10 +349,9 @@ public final class JavaTypeName
         } else {
             compname = class_name.substring(last_bracket + 2, semi);
         }
-        dims = (1 + last_bracket - first_bracket);
+        final int dims = (1 + last_bracket - first_bracket);
 
         assert compname.length() > 0 ;
-
 
         StringBuffer array_str = new StringBuffer(2 * dims);
         for (int i = 0; i < dims; i++) {
