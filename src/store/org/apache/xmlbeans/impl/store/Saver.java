@@ -534,6 +534,13 @@ abstract class Saver
                 if (mappingPrefix().equals( prefix ))
                     return;
 
+            // Also make sure that the prefix declaration is not redundant
+            // This has the side-effect of making it impossible to set a
+            // redundant prefix declaration, but seems that it's better
+            // to just never issue a duplicate prefix declaration.
+            if (uri.equals(getNamespaceForPrefix(prefix)))
+                return;
+
             addMapping( prefix, uri );
         }
     }

@@ -632,8 +632,8 @@ public class XmlOptions implements java.io.Serializable
      *
      * @param source A Java version number
      *
-     * @see GENERATE_JAVA_14
-     * @see GENERATE_JAVA_15
+     * @see #GENERATE_JAVA_14
+     * @see #GENERATE_JAVA_15
      * @see XmlBeans#compileXmlBeans
      */
     public XmlOptions setGenerateJavaVersion (String source) {
