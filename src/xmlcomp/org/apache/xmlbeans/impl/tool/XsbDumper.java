@@ -172,7 +172,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 16;
+    public static final int MINOR_VERSION = 18;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -685,6 +685,9 @@ public class XsbDumper
                 emit("WsdlArrayType: " + SOAPArrayTypeString(readSOAPArrayType()));
                 if (global)
                 {
+                    if (atLeast(2, 17, 0))
+                        emit("Substitution group head " + readHandle());
+
                     short substGroupCount = readShort();
                     emit("Substitution group members (" + substGroupCount + ")");
                     indent();
@@ -1067,7 +1070,8 @@ public class XsbDumper
         indent();
         emit("Name: " + qnameString(readQName()));
         emit("Type: " + readType());
-        emit("Flags: " + propertyflagsString(readShort()));
+        int propflags = readShort();
+        emit("Flags: " + propertyflagsString(propflags));
         emit("Container type: " + readType());
         emit("Min occurances: " + bigIntegerString(readBigInteger()));
         emit("Max occurances: " + bigIntegerString(readBigInteger()));
@@ -1081,6 +1085,14 @@ public class XsbDumper
         emit("Java setter delimiter: " + qnameSetString(readQNameSet()));
         if (atLeast(2, 16, 0))
             emit("Default value: " + readXmlValueObject());
+        if (((propflags & FLAG_PROP_ISATTR) == 0) && atLeast(2, 17, 0))
+        {
+            short size = readShort();
+            emit("Accepted substitutions (" + size + "):");
+            for (int i = 0 ; i < size ; i++)
+                emit("  Accepted name " + readQName());
+        }
+
         outdent();
     }
 
