@@ -409,4 +409,18 @@ public class XmlError implements java.io.Serializable
 
         return sb.toString();
     }
+
+    public static String severityAsString(int severity)
+    {
+        switch (severity) {
+            case SEVERITY_ERROR:
+                return ("error");
+            case SEVERITY_WARNING:
+                return ("warning");
+            case SEVERITY_INFO:
+                return "info";
+            default:
+                throw new IllegalArgumentException("unknown severity");
+        }
+    }
 }
