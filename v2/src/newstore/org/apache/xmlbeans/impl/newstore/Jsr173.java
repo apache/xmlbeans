@@ -13,38 +13,37 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.Location;
 
-import org.apache.xmlbeans.impl.newstore.xcur.Xcur;
-import org.apache.xmlbeans.impl.newstore.xcur.Master;
+import org.apache.xmlbeans.impl.newstore.CharUtil;
+import org.apache.xmlbeans.impl.newstore.pub.store.Cur;
+import org.apache.xmlbeans.impl.newstore.pub.store.Locale;
 
 public class Jsr173
 {
-    public static XMLStreamReader newXmlStreamReader ( Xcur x, Object src, int off, int cch )
+    public static XMLStreamReader newXmlStreamReader ( Cur c, Object src, int off, int cch )
     {
-        assert src == null || src instanceof String || src instanceof char[];
-
-        XMLStreamReader xs = new XMLStreamReaderForString( x, src, off, cch );
+        XMLStreamReader xs = new XMLStreamReaderForString( c, src, off, cch );
         
-        if (x.master().noSync())
-            return new UnsyncedJsr173( x.master(), xs );
+        if (c.locale().noSync())
+            return new UnsyncedJsr173( c.locale(), xs );
         else
-            return new SyncedJsr173( x.master(), xs );
+            return new SyncedJsr173( c.locale(), xs );
     }
     
-    public static XMLStreamReader newXmlStreamReader ( Xcur x )
+    public static XMLStreamReader newXmlStreamReader ( Cur c )
     {
         XMLStreamReader xs;
 
-        int k = x.kind();
+        int k = c.kind();
         
-        if (k == Xcur.TEXT)
-            xs = new XMLStreamReaderForString( x, x.getChars( -1 ), x._offSrc, x._cchSrc );
+        if (k == Cur.TEXT)
+            xs = new XMLStreamReaderForString( c, c.getChars( -1 ), c._offSrc, c._cchSrc );
         else
-            xs = new XMLStreamReaderForNode( x );
+            xs = new XMLStreamReaderForNode( c );
         
-        if (x.master().noSync())
-            return new UnsyncedJsr173( x.master(), xs );
+        if (c.locale().noSync())
+            return new UnsyncedJsr173( c.locale(), xs );
         else
-            return new SyncedJsr173( x.master(), xs );
+            return new SyncedJsr173( c.locale(), xs );
     }
     
     //
@@ -57,22 +56,22 @@ public class Jsr173
     
     private static final class XMLStreamReaderForNode extends XMLStreamReaderBase
     {
-        public XMLStreamReaderForNode ( Xcur x )
+        public XMLStreamReaderForNode ( Cur c )
         {
-            super( x );
+            super( c );
 
-            assert x.type() != Xcur.TEXT;
+            assert c.type() != Cur.TEXT;
 
-            _xcur = x.weakCur( this );
-            _xlast = x.weakCur( this );
+            _cur = c.weakCur( this );
+            _last = c.weakCur( this );
             
-            if (_xcur.isContainer())
-                _xlast.toEnd();
+            if (_cur.isContainer())
+                _last.toEnd();
         }
 
-        protected Xcur getCur ( )
+        protected Cur getCur ( )
         {
-            return _xcur;
+            return _cur;
         }
 
         //
@@ -83,20 +82,20 @@ public class Jsr173
         {
             checkChanged();
 
-            return !_xcur.isSamePosition( _xlast );
+            return !_cur.isSamePosition( _last );
         }
 
         public int getEventType ( )
         {
-            switch ( _xcur.type() )
+            switch ( _cur.type() )
             {
-                case  Xcur.ROOT : return START_DOCUMENT;
-                case -Xcur.ROOT : return END_DOCUMENT;
-                case  Xcur.ELEM : return START_ELEMENT;
-                case -Xcur.ELEM : return END_ELEMENT;
-                case  Xcur.ATTR : return _xcur.kind() == Xcur.XMLNS ? NAMESPACE : ATTRIBUTE;
-                case  Xcur.TEXT : return CHARACTERS;
-                case  Xcur.LEAF : return _xcur.kind() == Xcur.COMMENT ? COMMENT : PROCESSING_INSTRUCTION;
+                case  Cur.ROOT : return START_DOCUMENT;
+                case -Cur.ROOT : return END_DOCUMENT;
+                case  Cur.ELEM : return START_ELEMENT;
+                case -Cur.ELEM : return END_ELEMENT;
+                case  Cur.ATTR : return _cur.kind() == Cur.XMLNS ? NAMESPACE : ATTRIBUTE;
+                case  Cur.TEXT : return CHARACTERS;
+                case  Cur.LEAF : return _cur.kind() == Cur.COMMENT ? COMMENT : PROCESSING_INSTRUCTION;
                 default         : throw new IllegalStateException();
             }
         }
@@ -108,10 +107,10 @@ public class Jsr173
             if (!hasNext())
                 throw new IllegalStateException();
 
-            if (_xcur.isLeaf())
-                _xcur.toEnd();
+            if (_cur.isLeaf())
+                _cur.toEnd();
 
-            _xcur.next();
+            _cur.next();
 
             _textFetched = false;
             _srcFetched = false;
@@ -123,13 +122,13 @@ public class Jsr173
         {
             checkChanged();
 
-            int k = _xcur.kind();
+            int k = _cur.kind();
 
-            if (k == Xcur.COMMENT)
-                return _xcur.getValueString();
+            if (k == Cur.COMMENT)
+                return _cur.getValueString();
 
-            if (k == Xcur.TEXT)
-                return _xcur.getString( -1 );
+            if (k == Cur.TEXT)
+                return _cur.getString( -1 );
 
             throw new IllegalStateException();
         }
@@ -202,127 +201,127 @@ public class Jsr173
             }
         }
 
-        private static boolean matchAttr ( Xcur x, String uri, String local )
+        private static boolean matchAttr ( Cur c, String uri, String local )
         {
-            assert x.kind() == Xcur.ATTR;
+            assert c.kind() == Cur.ATTR;
 
-            QName name = x.getName();
+            QName name = c.getName();
 
             return
                 name.getLocalPart().equals( local ) &&
                     (uri == null || name.getNamespaceURI().equals( uri ));
         }
 
-        private static Xcur toAttr ( Xcur x, String uri, String local )
+        private static Cur toAttr ( Cur c, String uri, String local )
         {
             if (uri == null || local == null || local.length() == 0)
                 throw new IllegalArgumentException();
 
-            Xcur xa = x.tempCur();
+            Cur ca = c.tempCur();
             boolean match = false;
 
-            if (x.isContainer())
+            if (c.isContainer())
             {
-                if (xa.toFirstAttr())
+                if (ca.toFirstAttr())
                 {
                     do
                     {
-                        if (xa.kind() == Xcur.ATTR && matchAttr( xa, uri, local ))
+                        if (ca.kind() == Cur.ATTR && matchAttr( ca, uri, local ))
                         {
                             match = true;
                             break;
                         }
                     }
-                    while ( xa.toNextSibling() );
+                    while ( ca.toNextSibling() );
                 }
             }
-            else if (x.kind() == Xcur.ATTR)
-                match = matchAttr( x, uri, local );
+            else if (c.kind() == Cur.ATTR)
+                match = matchAttr( c, uri, local );
             else
                 throw new IllegalStateException();
 
             if (!match)
             {
-                xa.release();
-                xa = null;
+                ca.release();
+                ca = null;
             }
 
-            return xa;
+            return ca;
         }
         
         public String getAttributeValue ( String uri, String local )
         {
-            Xcur xa = toAttr( _xcur, uri, local );
+            Cur ca = toAttr( _cur, uri, local );
 
             String value = null;
 
-            if (xa != null)
+            if (ca != null)
             {
-                value = xa.getValueString();
-                xa.release();
+                value = ca.getValueString();
+                ca.release();
             }
 
             return value;
         }
 
-        private static Xcur toAttr ( Xcur x, int i )
+        private static Cur toAttr ( Cur c, int i )
         {
             if (i < 0)
                 throw new IndexOutOfBoundsException( "Attribute index is negative" );
 
-            Xcur xa = x.tempCur();
+            Cur ca = c.tempCur();
             boolean match = false;
 
-            if (x.isContainer())
+            if (c.isContainer())
             {
-                if (xa.toFirstAttr())
+                if (ca.toFirstAttr())
                 {
                     do
                     {
-                        if (xa.kind() == Xcur.ATTR && i-- == 0)
+                        if (ca.kind() == Cur.ATTR && i-- == 0)
                         {
                             match = true;
                             break;
                         }
                     }
-                    while ( xa.toNextSibling() );
+                    while ( ca.toNextSibling() );
                 }
             }
-            else if (x.kind() == Xcur.ATTR)
+            else if (c.kind() == Cur.ATTR)
                 match = i == 0;
             else
                 throw new IllegalStateException();
 
             if (!match)
             {
-                xa.release();
+                ca.release();
                 throw new IndexOutOfBoundsException( "Attribute index is too large" );
             }
 
-            return xa;
+            return ca;
         }
 
         public int getAttributeCount ( )
         {
             int n = 0;
             
-            if (_xcur.isContainer())
+            if (_cur.isContainer())
             {
-                Xcur xa = _xcur.tempCur();
+                Cur ca = _cur.tempCur();
                 
-                if (xa.toFirstAttr())
+                if (ca.toFirstAttr())
                 {
                     do
                     {
-                        if (xa.kind() == Xcur.ATTR)
+                        if (ca.kind() == Cur.ATTR)
                             n++;
                     }
-                    while ( xa.toNextSibling() );
+                    while ( ca.toNextSibling() );
                 }
 
-                xa.release();
+                ca.release();
             }
-            else if (_xcur.kind() == Xcur.ATTR)
+            else if (_cur.kind() == Cur.ATTR)
                 n++;
             else
                 throw new IllegalStateException();
@@ -332,9 +331,9 @@ public class Jsr173
 
         public QName getAttributeName ( int index )
         {
-            Xcur xa = toAttr( _xcur, index );
-            QName name = xa.getName();
-            xa.release();
+            Cur ca = toAttr( _cur, index );
+            QName name = ca.getName();
+            ca.release();
             return name;
         }
 
@@ -355,20 +354,20 @@ public class Jsr173
 
         public String getAttributeType ( int index )
         {
-            toAttr( _xcur, index ).release();
+            toAttr( _cur, index ).release();
             return "CDATA";
         }
 
         public String getAttributeValue ( int index )
         {
-            Xcur xa = toAttr( _xcur, index );
+            Cur ca = toAttr( _cur, index );
 
             String value = null;
 
-            if (xa != null)
+            if (ca != null)
             {
-                value = xa.getValueString();
-                xa.release();
+                value = ca.getValueString();
+                ca.release();
             }
 
             return value;
@@ -383,23 +382,23 @@ public class Jsr173
         {
             int n = 0;
 
-            if (_xcur.isContainer())
+            if (_cur.isContainer())
             {
-                Xcur xa = _xcur.tempCur();
+                Cur ca = _cur.tempCur();
 
-                if (xa.toFirstAttr())
+                if (ca.toFirstAttr())
                 {
                     do
                     {
-                        if (xa.kind() == Xcur.XMLNS)
+                        if (ca.kind() == Cur.XMLNS)
                             n++;
                     }
-                    while ( xa.toNextSibling() );
+                    while ( ca.toNextSibling() );
                 }
 
-                xa.release();
+                ca.release();
             }
-            else if (_xcur.kind() == Xcur.ATTR)
+            else if (_cur.kind() == Cur.ATTR)
                 n++;
             else
                 throw new IllegalStateException();
@@ -407,56 +406,56 @@ public class Jsr173
             return n;
         }
 
-        private static Xcur toXmlns ( Xcur x, int i )
+        private static Cur toXmlns ( Cur c, int i )
         {
             if (i < 0)
                 throw new IndexOutOfBoundsException( "Namespace index is negative" );
 
-            Xcur xa = x.tempCur();
+            Cur ca = c.tempCur();
             boolean match = false;
 
-            if (x.isContainer())
+            if (c.isContainer())
             {
-                if (xa.toFirstAttr())
+                if (ca.toFirstAttr())
                 {
                     do
                     {
-                        if (xa.kind() == Xcur.XMLNS && i-- == 0)
+                        if (ca.kind() == Cur.XMLNS && i-- == 0)
                         {
                             match = true;
                             break;
                         }
                     }
-                    while ( xa.toNextSibling() );
+                    while ( ca.toNextSibling() );
                 }
             }
-            else if (x.kind() == Xcur.XMLNS)
+            else if (c.kind() == Cur.XMLNS)
                 match = i == 0;
             else
                 throw new IllegalStateException();
 
             if (!match)
             {
-                xa.release();
+                ca.release();
                 throw new IndexOutOfBoundsException( "Namespace index is too large" );
             }
 
-            return xa;
+            return ca;
         }
 
         public String getNamespacePrefix ( int index )
         {
-            Xcur xa = toXmlns( _xcur, index );
-            QName name = xa.getName();
-            xa.release();
+            Cur ca = toXmlns( _cur, index );
+            QName name = ca.getName();
+            ca.release();
             return name.getLocalPart();
         }
 
         public String getNamespaceURI ( int index )
         {
-            Xcur xa = toXmlns( _xcur, index );
-            String uri = xa.getValueString();
-            xa.release();
+            Cur ca = toXmlns( _cur, index );
+            String uri = ca.getValueString();
+            ca.release();
             return uri;
         }
 
@@ -464,44 +463,29 @@ public class Jsr173
         {
             if (!_textFetched)
             {
-                int k = _xcur.kind();
+                int k = _cur.kind();
 
-                Xcur xText = null;
+                Cur cText = null;
 
-                if (k == Xcur.COMMENT)
+                if (k == Cur.COMMENT)
                 {
-                    xText = _xcur.tempCur();
-                    xText.next();
+                    cText = _cur.tempCur();
+                    cText.next();
                 }
-                else if (k == Xcur.TEXT)
-                    xText = _xcur;
+                else if (k == Cur.TEXT)
+                    cText = _cur;
                 else
                     throw new IllegalStateException();
 
-                Object src = xText.getChars( -1 );
+                Object src = cText.getChars( -1 );
+                
+                ensureCharBufLen( cText._cchSrc );
 
-                if (src == null)
-                {
-                    ensureCharBufLen( 0 );
-                    _offChars = 0;
-                    _cchChars = 0;
-                }
-                else if (src instanceof char[])
-                {
-                    ensureCharBufLen( _cchChars = xText._cchSrc );
-                    char[] chars = (char[]) src;
-                    System.arraycopy( chars, xText._offSrc, _chars, _offChars = 0, _cchChars );
-                }
-                else
-                {
-                    assert src instanceof String;
-                    ensureCharBufLen( _cchChars = xText._cchSrc );
-                    String s = (String) src;
-                    s.getChars( xText._offSrc, xText._offSrc + _cchChars, _chars, _offChars = 0 );
-                }
+                CharUtil.getChars(
+                    _chars, _offChars = 0, src, cText._offSrc, _cchChars = cText._cchSrc );
 
-                if (xText != _xcur)
-                    xText.release();
+                if (cText != _cur)
+                    cText.release();
 
                 _textFetched = true;
             }
@@ -556,82 +540,52 @@ public class Jsr173
 
             if (!_srcFetched)
             {
-                int k = _xcur.kind();
+                int k = _cur.kind();
 
-                Xcur xText = null;
+                Cur cText = null;
 
-                if (k == Xcur.COMMENT)
+                if (k == Cur.COMMENT)
                 {
-                    xText = _xcur.tempCur();
-                    xText.next();
+                    cText = _cur.tempCur();
+                    cText.next();
                 }
-                else if (k == Xcur.TEXT)
-                    xText = _xcur;
+                else if (k == Cur.TEXT)
+                    cText = _cur;
                 else
                     throw new IllegalStateException();
             
-                _src = xText.getChars( -1 );
-                _offSrc = xText._offSrc;
-                _cchSrc = xText._cchSrc;
+                _src = cText.getChars( -1 );
+                _offSrc = cText._offSrc;
+                _cchSrc = cText._cchSrc;
                          
-                if (xText != _xcur)
-                    xText.release();
+                if (cText != _cur)
+                    cText.release();
                 
                 _srcFetched = true;
             }
 
-            if (_src == null)
-            {
-                if (sourceStart > 0)
-                    throw new IndexOutOfBoundsException();
-                
-                length = 0;
-            }
-            else if (_src instanceof char[])
-            {
-                if (sourceStart > _cchSrc)
-                    throw new IndexOutOfBoundsException();
+            if (sourceStart > _cchSrc)
+                throw new IndexOutOfBoundsException();
 
-                if (length > _cchSrc - sourceStart)
-                    length = _cchSrc - sourceStart;
-                
-                System.arraycopy(
-                    (char[]) _src, _offSrc + sourceStart, target, targetStart, length );
-            }
-            else
-            {
-                assert _src instanceof String;
-                
-                if (sourceStart > _cchSrc)
-                    throw new IndexOutOfBoundsException();
+            if (sourceStart + length > _cchSrc)
+                length = _cchSrc - sourceStart;
 
-                if (length > _cchSrc - sourceStart)
-                    length = _cchSrc;
-
-                String s = (String) _src;
-
-                if (length > _cchSrc - sourceStart)
-                    length = _cchSrc - sourceStart;
-
-                int i = _offSrc + sourceStart;
-                
-                s.getChars( i, i + length, target, targetStart );
-            }
+            CharUtil.getChars( target, targetStart, _src, _offSrc, length );
             
             return length;
         }
 
         public boolean hasText ( )
         {
-            int k = _xcur.kind();
+            int k = _cur.kind();
             
-            return k == Xcur.COMMENT || k == Xcur.TEXT;
+            return k == Cur.COMMENT || k == Cur.TEXT;
         }
 
         public boolean hasName ( )
         {
-            int k = _xcur.kind();
-            return k == Xcur.ELEM || k == -Xcur.ELEM;
+            int k = _cur.kind();
+            return k == Cur.ELEM || k == -Cur.ELEM;
         }
 
         public QName getName ( )
@@ -639,7 +593,7 @@ public class Jsr173
             if (!hasName())
                 throw new IllegalStateException();
 
-            return _xcur.getName();
+            return _cur.getName();
         }
 
         public String getNamespaceURI ( )
@@ -659,20 +613,20 @@ public class Jsr173
 
         public String getPITarget ( )
         {
-            return _xcur.kind() == Xcur.PROCINST ? _xcur.getName().getLocalPart() : null;
+            return _cur.kind() == Cur.PROCINST ? _cur.getName().getLocalPart() : null;
         }
 
         public String getPIData ( )
         {
-            return _xcur.kind() == Xcur.PROCINST ? _xcur.getValueString() : null;
+            return _cur.kind() == Cur.PROCINST ? _cur.getValueString() : null;
         }
 
         //
         //
         //
 
-        private Xcur _xcur;
-        private Xcur _xlast;
+        private Cur _cur;
+        private Cur _last;
 
         private boolean _srcFetched;
         private Object  _src;
@@ -692,15 +646,15 @@ public class Jsr173
     private static abstract class XMLStreamReaderBase
         implements XMLStreamReader, NamespaceContext, Location
     {
-        XMLStreamReaderBase ( Xcur xcur )
+        XMLStreamReaderBase ( Cur c )
         {
-            _master = xcur.master();
-            _version = _master.version();
+            _locale = c.locale();
+            _version = _locale.version();
         }
 
         protected final void checkChanged ( )
         {
-            if (_version != _master.version())
+            if (_version != _locale.version())
                 throw new ConcurrentModificationException( "Document changed while streaming" );
         }
 
@@ -781,6 +735,7 @@ public class Jsr173
 
             // TODO - implement this properly
             return "utf-8";
+            
 //            XmlDocumentProperties props = getCursor().documentProperties();
 //
 //            return props == null ? null : props.getEncoding();
@@ -789,6 +744,7 @@ public class Jsr173
         public String getEncoding ( )
         {
             checkChanged();
+
             // TODO - implement this properly
             return "utf-8";
         }
@@ -796,8 +752,10 @@ public class Jsr173
         public String getVersion ( )
         {
             checkChanged();
+
             // TODO - implement this properly
             return "1.0";
+            
 //            XmlDocumentProperties props = getCursor().documentProperties();
 //
 //            return props == null ? null : props.getVersion();
@@ -852,20 +810,20 @@ public class Jsr173
         {
             checkChanged();
 
-            Xcur x = getCur();
-            Xcur xParent = null;
+            Cur c = getCur();
+            Cur cParent = null;
 
-            if (!x.isContainer())
+            if (!c.isContainer())
             {
-                x = xParent = x.tempCur();
-                boolean b = xParent.toParent();
+                c = cParent = c.tempCur();
+                boolean b = cParent.toParent();
                 assert b;
             }
 
-            String ns = x.namespaceForPrefix( prefix );
+            String ns = c.namespaceForPrefix( prefix );
 
-            if (xParent != null)
-                xParent.release();
+            if (cParent != null)
+                cParent.release();
 
             return ns;
         }
@@ -874,20 +832,20 @@ public class Jsr173
         {
             checkChanged();
 
-            Xcur x = getCur();
-            Xcur xParent = null;
+            Cur c = getCur();
+            Cur cParent = null;
 
-            if (!x.isContainer())
+            if (!c.isContainer())
             {
-                x = xParent = x.tempCur();
-                boolean b = xParent.toParent();
+                c = cParent = c.tempCur();
+                boolean b = cParent.toParent();
                 assert b;
             }
 
-            String prefix = x.prefixForNamespace( namespaceURI );
+            String prefix = c.prefixForNamespace( namespaceURI );
 
-            if (xParent != null)
-                xParent.release();
+            if (cParent != null)
+                cParent.release();
 
             return prefix;
         }
@@ -909,14 +867,14 @@ public class Jsr173
         //
         //
 
-        protected abstract Xcur getCur ( );
+        protected abstract Cur getCur ( );
 
         //
         //
         //
 
-        private Master _master;
-        private long _version;
+        private Locale _locale;
+        private long   _version;
         
         String _uri;
         int _line, _column, _offset;
@@ -928,20 +886,20 @@ public class Jsr173
 
     private static final class XMLStreamReaderForString extends XMLStreamReaderBase
     {
-        XMLStreamReaderForString ( Xcur xcur, Object src, int off, int cch )
+        XMLStreamReaderForString ( Cur c, Object src, int off, int cch )
         {
-            super( xcur );
+            super( c );
 
             _src = src;
             _off = off;
             _cch = cch;
 
-            _xcur = xcur;
+            _cur = c;
         }
 
-        protected Xcur getCur ( )
+        protected Cur getCur ( )
         {
-            return _xcur;
+            return _cur;
         }
 
         //
@@ -951,18 +909,19 @@ public class Jsr173
         public String getText ( )
         {
             checkChanged();
-            
-            return Master.makeString( _src, _off, _cch );
+
+            return CharUtil.getString( _src, _off, _cch );
         }
         
         public char[] getTextCharacters ( )
         {
             checkChanged();
 
-            if (_src == null)
-                return new char[ 0 ];
+            char[] chars = new char [ _cch ];
 
-            return _src instanceof char[] ? (char[]) _src : ((String) _src).toCharArray();
+            CharUtil.getChars( chars, 0, _src, _off, _cch );
+
+            return chars;
         }
         public int getTextStart ( )
         {
@@ -981,16 +940,18 @@ public class Jsr173
         {
             checkChanged();
 
-            int sourceEnd = sourceStart + length;
+            if (length < 0)
+                throw new IndexOutOfBoundsException();
+            
+            if (sourceStart > _cch)
+                throw new IndexOutOfBoundsException();
 
-            if (sourceEnd >= _cch)
-                sourceEnd = _cch;
+            if (sourceStart + length > _cch)
+                length = _cch - sourceStart;
+            
+            CharUtil.getChars( target, targetStart, _src, _off + sourceStart, length );
 
-            int cchCopy = sourceEnd - sourceStart;
-
-            Master.copyChars( _src, _off + sourceStart, cchCopy, target, targetStart );
-
-            return cchCopy;
+            return length;
         }
 
         public int     getEventType      ( ) { checkChanged(); return CHARACTERS; }
@@ -1029,8 +990,7 @@ public class Jsr173
         public String  getPublicId() { throw new IllegalStateException();  }
         public String  getSystemId() { throw new IllegalStateException();  }
 
-        private Xcur   _xcur;
-        
+        private Cur    _cur;
         private Object _src;
         private int    _off;
         private int    _cch;
@@ -1043,109 +1003,109 @@ public class Jsr173
     private static final class SyncedJsr173 implements XMLStreamReader
     {
         public SyncedJsr173 ( XMLStreamReader xs ) { _xs = xs; }
-        public SyncedJsr173 ( Master m, XMLStreamReader xs ) { _m = m; _xs = xs; }
+        public SyncedJsr173 ( Locale l, XMLStreamReader xs ) { _l = l; _xs = xs; }
         
-        public Object getProperty ( java.lang.String name ) { try { synchronized ( _m ) { _m.enter(); return _xs.getProperty( name ); } } finally { _m.exit(); } }
-        public int next ( ) throws XMLStreamException { try { synchronized ( _m ) { _m.enter(); return _xs.next(); } } finally { _m.exit(); } }
-        public void require ( int type, String namespaceURI, String localName ) throws XMLStreamException { try { synchronized ( _m ) { _m.enter(); _xs.require( type, namespaceURI, localName ); } } finally { _m.exit(); } }
-        public String getElementText ( ) throws XMLStreamException { try { synchronized ( _m ) { _m.enter(); return _xs.getElementText(); } } finally { _m.exit(); } }
-        public int nextTag ( ) throws XMLStreamException { try { synchronized ( _m ) { _m.enter(); return _xs.nextTag(); } } finally { _m.exit(); } }
-        public boolean hasNext ( ) throws XMLStreamException { try { synchronized ( _m ) { _m.enter(); return _xs.hasNext(); } } finally { _m.exit(); } }
-        public void close ( ) throws XMLStreamException { try { synchronized ( _m ) { _m.enter(); _xs.close(); } } finally { _m.exit(); } }
-        public String getNamespaceURI ( String prefix ) { try { synchronized ( _m ) { _m.enter(); return _xs.getNamespaceURI ( prefix ); } } finally { _m.exit(); } }
-        public boolean isStartElement ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.isStartElement(); } } finally { _m.exit(); } }
-        public boolean isEndElement ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.isEndElement(); } } finally { _m.exit(); } }
-        public boolean isCharacters ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.isCharacters(); } } finally { _m.exit(); } }
-        public boolean isWhiteSpace ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.isWhiteSpace(); } } finally { _m.exit(); } }
-        public String getAttributeValue ( String namespaceURI, String localName ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributeValue ( namespaceURI, localName ); } } finally { _m.exit(); } }
-        public int getAttributeCount ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributeCount(); } } finally { _m.exit(); } }
-        public QName getAttributeName ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributeName ( index ); } } finally { _m.exit(); } }
-        public String getAttributeNamespace ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributeNamespace ( index ); } } finally { _m.exit(); } }
-        public String getAttributeLocalName ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributeLocalName ( index ); } } finally { _m.exit(); } }
-        public String getAttributePrefix ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributePrefix ( index ); } } finally { _m.exit(); } }
-        public String getAttributeType ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributeType ( index ); } } finally { _m.exit(); } }
-        public String getAttributeValue ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getAttributeValue ( index ); } } finally { _m.exit(); } }
-        public boolean isAttributeSpecified ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.isAttributeSpecified ( index ); } } finally { _m.exit(); } }
-        public int getNamespaceCount ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getNamespaceCount(); } } finally { _m.exit(); } }
-        public String getNamespacePrefix ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getNamespacePrefix ( index ); } } finally { _m.exit(); } }
-        public String getNamespaceURI ( int index ) { try { synchronized ( _m ) { _m.enter(); return _xs.getNamespaceURI ( index ); } } finally { _m.exit(); } }
-        public NamespaceContext getNamespaceContext ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getNamespaceContext(); } } finally { _m.exit(); } }
-        public int getEventType ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getEventType(); } } finally { _m.exit(); } }
-        public String getText ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getText(); } } finally { _m.exit(); } }
-        public char[] getTextCharacters ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getTextCharacters(); } } finally { _m.exit(); } }
-        public int getTextCharacters ( int sourceStart, char[] target, int targetStart, int length ) throws XMLStreamException { try { synchronized ( _m ) { _m.enter(); return _xs.getTextCharacters ( sourceStart, target, targetStart, length ); } } finally { _m.exit(); } }
-        public int getTextStart ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getTextStart(); } } finally { _m.exit(); } }
-        public int getTextLength ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getTextLength(); } } finally { _m.exit(); } }
-        public String getEncoding ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getEncoding(); } } finally { _m.exit(); } }
-        public boolean hasText ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.hasText(); } } finally { _m.exit(); } }
-        public Location getLocation ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getLocation(); } } finally { _m.exit(); } }
-        public QName getName ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getName(); } } finally { _m.exit(); } }
-        public String getLocalName ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getLocalName(); } } finally { _m.exit(); } }
-        public boolean hasName ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.hasName(); } } finally { _m.exit(); } }
-        public String getNamespaceURI ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getNamespaceURI(); } } finally { _m.exit(); } }
-        public String getPrefix ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getPrefix(); } } finally { _m.exit(); } }
-        public String getVersion ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getVersion(); } } finally { _m.exit(); } }
-        public boolean isStandalone ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.isStandalone(); } } finally { _m.exit(); } }
-        public boolean standaloneSet ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.standaloneSet(); } } finally { _m.exit(); } }
-        public String getCharacterEncodingScheme ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getCharacterEncodingScheme(); } } finally { _m.exit(); } }
-        public String getPITarget ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getPITarget(); } } finally { _m.exit(); } }
-        public String getPIData ( ) { try { synchronized ( _m ) { _m.enter(); return _xs.getPIData(); } } finally { _m.exit(); } }
+        public Object getProperty ( java.lang.String name ) { synchronized ( _l ) { _l.enter(); try { return _xs.getProperty( name ); } finally { _l.exit(); } } }
+        public int next ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.next(); } finally { _l.exit(); } } }
+        public void require ( int type, String namespaceURI, String localName ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { _xs.require( type, namespaceURI, localName ); } finally { _l.exit(); } } }
+        public String getElementText ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.getElementText(); } finally { _l.exit(); } } }
+        public int nextTag ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.nextTag(); } finally { _l.exit(); } } }
+        public boolean hasNext ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.hasNext(); } finally { _l.exit(); } } }
+        public void close ( ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { _xs.close(); } finally { _l.exit(); } } }
+        public String getNamespaceURI ( String prefix ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceURI ( prefix ); } finally { _l.exit(); } } }
+        public boolean isStartElement ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.isStartElement(); } finally { _l.exit(); } } }
+        public boolean isEndElement ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.isEndElement(); } finally { _l.exit(); } } }
+        public boolean isCharacters ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.isCharacters(); } finally { _l.exit(); } } }
+        public boolean isWhiteSpace ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.isWhiteSpace(); } finally { _l.exit(); } } }
+        public String getAttributeValue ( String namespaceURI, String localName ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributeValue ( namespaceURI, localName ); } finally { _l.exit(); } } }
+        public int getAttributeCount ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributeCount(); } finally { _l.exit(); } } }
+        public QName getAttributeName ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributeName ( index ); } finally { _l.exit(); } } }
+        public String getAttributeNamespace ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributeNamespace ( index ); } finally { _l.exit(); } } }
+        public String getAttributeLocalName ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributeLocalName ( index ); } finally { _l.exit(); } } }
+        public String getAttributePrefix ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributePrefix ( index ); } finally { _l.exit(); } } }
+        public String getAttributeType ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributeType ( index ); } finally { _l.exit(); } } }
+        public String getAttributeValue ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getAttributeValue ( index ); } finally { _l.exit(); } } }
+        public boolean isAttributeSpecified ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.isAttributeSpecified ( index ); } finally { _l.exit(); } } }
+        public int getNamespaceCount ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceCount(); } finally { _l.exit(); } } }
+        public String getNamespacePrefix ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespacePrefix ( index ); } finally { _l.exit(); } } }
+        public String getNamespaceURI ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceURI ( index ); } finally { _l.exit(); } } }
+        public NamespaceContext getNamespaceContext ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceContext(); } finally { _l.exit(); } } }
+        public int getEventType ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getEventType(); } finally { _l.exit(); } } }
+        public String getText ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getText(); } finally { _l.exit(); } } }
+        public char[] getTextCharacters ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getTextCharacters(); } finally { _l.exit(); } } }
+        public int getTextCharacters ( int sourceStart, char[] target, int targetStart, int length ) throws XMLStreamException { synchronized ( _l ) { _l.enter(); try { return _xs.getTextCharacters ( sourceStart, target, targetStart, length ); } finally { _l.exit(); } } }
+        public int getTextStart ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getTextStart(); } finally { _l.exit(); } } }
+        public int getTextLength ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getTextLength(); } finally { _l.exit(); } } }
+        public String getEncoding ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getEncoding(); } finally { _l.exit(); } } }
+        public boolean hasText ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.hasText(); } finally { _l.exit(); } } }
+        public Location getLocation ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLocation(); } finally { _l.exit(); } } }
+        public QName getName ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getName(); } finally { _l.exit(); } } }
+        public String getLocalName ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getLocalName(); } finally { _l.exit(); } } }
+        public boolean hasName ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.hasName(); } finally { _l.exit(); } } }
+        public String getNamespaceURI ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceURI(); } finally { _l.exit(); } } }
+        public String getPrefix ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getPrefix(); } finally { _l.exit(); } } }
+        public String getVersion ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getVersion(); } finally { _l.exit(); } } }
+        public boolean isStandalone ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.isStandalone(); } finally { _l.exit(); } } }
+        public boolean standaloneSet ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.standaloneSet(); } finally { _l.exit(); } } }
+        public String getCharacterEncodingScheme ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getCharacterEncodingScheme(); } finally { _l.exit(); } } }
+        public String getPITarget ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getPITarget(); } finally { _l.exit(); } } }
+        public String getPIData ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getPIData(); } finally { _l.exit(); } } }
 
-        private Master          _m;
+        private Locale          _l;
         private XMLStreamReader _xs;
     }
 
     private static final class UnsyncedJsr173 implements XMLStreamReader
     {
-        public UnsyncedJsr173 ( Master m, XMLStreamReader xs ) { _m = m; _xs = xs; }
+        public UnsyncedJsr173 ( Locale l, XMLStreamReader xs ) { _l = l; _xs = xs; }
         
-        public Object getProperty ( java.lang.String name ) { try { _m.enter(); return _xs.getProperty( name ); } finally { _m.exit(); } }
-        public int next ( ) throws XMLStreamException { try { _m.enter(); return _xs.next(); } finally { _m.exit(); } }
-        public void require ( int type, String namespaceURI, String localName ) throws XMLStreamException { try { _m.enter(); _xs.require( type, namespaceURI, localName ); } finally { _m.exit(); } }
-        public String getElementText ( ) throws XMLStreamException { try { _m.enter(); return _xs.getElementText(); } finally { _m.exit(); } }
-        public int nextTag ( ) throws XMLStreamException { try { _m.enter(); return _xs.nextTag(); } finally { _m.exit(); } }
-        public boolean hasNext ( ) throws XMLStreamException { try { _m.enter(); return _xs.hasNext(); } finally { _m.exit(); } }
-        public void close ( ) throws XMLStreamException { try { _m.enter(); _xs.close(); } finally { _m.exit(); } }
-        public String getNamespaceURI ( String prefix ) { try { _m.enter(); return _xs.getNamespaceURI ( prefix ); } finally { _m.exit(); } }
-        public boolean isStartElement ( ) { try { _m.enter(); return _xs.isStartElement(); } finally { _m.exit(); } }
-        public boolean isEndElement ( ) { try { _m.enter(); return _xs.isEndElement(); } finally { _m.exit(); } }
-        public boolean isCharacters ( ) { try { _m.enter(); return _xs.isCharacters(); } finally { _m.exit(); } }
-        public boolean isWhiteSpace ( ) { try { _m.enter(); return _xs.isWhiteSpace(); } finally { _m.exit(); } }
-        public String getAttributeValue ( String namespaceURI, String localName ) { try { _m.enter(); return _xs.getAttributeValue ( namespaceURI, localName ); } finally { _m.exit(); } }
-        public int getAttributeCount ( ) { try { _m.enter(); return _xs.getAttributeCount(); } finally { _m.exit(); } }
-        public QName getAttributeName ( int index ) { try { _m.enter(); return _xs.getAttributeName ( index ); } finally { _m.exit(); } }
-        public String getAttributeNamespace ( int index ) { try { _m.enter(); return _xs.getAttributeNamespace ( index ); } finally { _m.exit(); } }
-        public String getAttributeLocalName ( int index ) { try { _m.enter(); return _xs.getAttributeLocalName ( index ); } finally { _m.exit(); } }
-        public String getAttributePrefix ( int index ) { try { _m.enter(); return _xs.getAttributePrefix ( index ); } finally { _m.exit(); } }
-        public String getAttributeType ( int index ) { try { _m.enter(); return _xs.getAttributeType ( index ); } finally { _m.exit(); } }
-        public String getAttributeValue ( int index ) { try { _m.enter(); return _xs.getAttributeValue ( index ); } finally { _m.exit(); } }
-        public boolean isAttributeSpecified ( int index ) { try { _m.enter(); return _xs.isAttributeSpecified ( index ); } finally { _m.exit(); } }
-        public int getNamespaceCount ( ) { try { _m.enter(); return _xs.getNamespaceCount(); } finally { _m.exit(); } }
-        public String getNamespacePrefix ( int index ) { try { _m.enter(); return _xs.getNamespacePrefix ( index ); } finally { _m.exit(); } }
-        public String getNamespaceURI ( int index ) { try { _m.enter(); return _xs.getNamespaceURI ( index ); } finally { _m.exit(); } }
-        public NamespaceContext getNamespaceContext ( ) { try { _m.enter(); return _xs.getNamespaceContext(); } finally { _m.exit(); } }
-        public int getEventType ( ) { try { _m.enter(); return _xs.getEventType(); } finally { _m.exit(); } }
-        public String getText ( ) { try { _m.enter(); return _xs.getText(); } finally { _m.exit(); } }
-        public char[] getTextCharacters ( ) { try { _m.enter(); return _xs.getTextCharacters(); } finally { _m.exit(); } }
-        public int getTextCharacters ( int sourceStart, char[] target, int targetStart, int length ) throws XMLStreamException { try { _m.enter(); return _xs.getTextCharacters ( sourceStart, target, targetStart, length ); } finally { _m.exit(); } }
-        public int getTextStart ( ) { try { _m.enter(); return _xs.getTextStart(); } finally { _m.exit(); } }
-        public int getTextLength ( ) { try { _m.enter(); return _xs.getTextLength(); } finally { _m.exit(); } }
-        public String getEncoding ( ) { try { _m.enter(); return _xs.getEncoding(); } finally { _m.exit(); } }
-        public boolean hasText ( ) { try { _m.enter(); return _xs.hasText(); } finally { _m.exit(); } }
-        public Location getLocation ( ) { try { _m.enter(); return _xs.getLocation(); } finally { _m.exit(); } }
-        public QName getName ( ) { try { _m.enter(); return _xs.getName(); } finally { _m.exit(); } }
-        public String getLocalName ( ) { try { _m.enter(); return _xs.getLocalName(); } finally { _m.exit(); } }
-        public boolean hasName ( ) { try { _m.enter(); return _xs.hasName(); } finally { _m.exit(); } }
-        public String getNamespaceURI ( ) { try { _m.enter(); return _xs.getNamespaceURI(); } finally { _m.exit(); } }
-        public String getPrefix ( ) { try { _m.enter(); return _xs.getPrefix(); } finally { _m.exit(); } }
-        public String getVersion ( ) { try { _m.enter(); return _xs.getVersion(); } finally { _m.exit(); } }
-        public boolean isStandalone ( ) { try { _m.enter(); return _xs.isStandalone(); } finally { _m.exit(); } }
-        public boolean standaloneSet ( ) { try { _m.enter(); return _xs.standaloneSet(); } finally { _m.exit(); } }
-        public String getCharacterEncodingScheme ( ) { try { _m.enter(); return _xs.getCharacterEncodingScheme(); } finally { _m.exit(); } }
-        public String getPITarget ( ) { try { _m.enter(); return _xs.getPITarget(); } finally { _m.exit(); } }
-        public String getPIData ( ) { try { _m.enter(); return _xs.getPIData(); } finally { _m.exit(); } }
+        public Object getProperty ( java.lang.String name ) { try { _l.enter(); return _xs.getProperty( name ); } finally { _l.exit(); } }
+        public int next ( ) throws XMLStreamException { try { _l.enter(); return _xs.next(); } finally { _l.exit(); } }
+        public void require ( int type, String namespaceURI, String localName ) throws XMLStreamException { try { _l.enter(); _xs.require( type, namespaceURI, localName ); } finally { _l.exit(); } }
+        public String getElementText ( ) throws XMLStreamException { try { _l.enter(); return _xs.getElementText(); } finally { _l.exit(); } }
+        public int nextTag ( ) throws XMLStreamException { try { _l.enter(); return _xs.nextTag(); } finally { _l.exit(); } }
+        public boolean hasNext ( ) throws XMLStreamException { try { _l.enter(); return _xs.hasNext(); } finally { _l.exit(); } }
+        public void close ( ) throws XMLStreamException { try { _l.enter(); _xs.close(); } finally { _l.exit(); } }
+        public String getNamespaceURI ( String prefix ) { try { _l.enter(); return _xs.getNamespaceURI ( prefix ); } finally { _l.exit(); } }
+        public boolean isStartElement ( ) { try { _l.enter(); return _xs.isStartElement(); } finally { _l.exit(); } }
+        public boolean isEndElement ( ) { try { _l.enter(); return _xs.isEndElement(); } finally { _l.exit(); } }
+        public boolean isCharacters ( ) { try { _l.enter(); return _xs.isCharacters(); } finally { _l.exit(); } }
+        public boolean isWhiteSpace ( ) { try { _l.enter(); return _xs.isWhiteSpace(); } finally { _l.exit(); } }
+        public String getAttributeValue ( String namespaceURI, String localName ) { try { _l.enter(); return _xs.getAttributeValue ( namespaceURI, localName ); } finally { _l.exit(); } }
+        public int getAttributeCount ( ) { try { _l.enter(); return _xs.getAttributeCount(); } finally { _l.exit(); } }
+        public QName getAttributeName ( int index ) { try { _l.enter(); return _xs.getAttributeName ( index ); } finally { _l.exit(); } }
+        public String getAttributeNamespace ( int index ) { try { _l.enter(); return _xs.getAttributeNamespace ( index ); } finally { _l.exit(); } }
+        public String getAttributeLocalName ( int index ) { try { _l.enter(); return _xs.getAttributeLocalName ( index ); } finally { _l.exit(); } }
+        public String getAttributePrefix ( int index ) { try { _l.enter(); return _xs.getAttributePrefix ( index ); } finally { _l.exit(); } }
+        public String getAttributeType ( int index ) { try { _l.enter(); return _xs.getAttributeType ( index ); } finally { _l.exit(); } }
+        public String getAttributeValue ( int index ) { try { _l.enter(); return _xs.getAttributeValue ( index ); } finally { _l.exit(); } }
+        public boolean isAttributeSpecified ( int index ) { try { _l.enter(); return _xs.isAttributeSpecified ( index ); } finally { _l.exit(); } }
+        public int getNamespaceCount ( ) { try { _l.enter(); return _xs.getNamespaceCount(); } finally { _l.exit(); } }
+        public String getNamespacePrefix ( int index ) { try { _l.enter(); return _xs.getNamespacePrefix ( index ); } finally { _l.exit(); } }
+        public String getNamespaceURI ( int index ) { try { _l.enter(); return _xs.getNamespaceURI ( index ); } finally { _l.exit(); } }
+        public NamespaceContext getNamespaceContext ( ) { try { _l.enter(); return _xs.getNamespaceContext(); } finally { _l.exit(); } }
+        public int getEventType ( ) { try { _l.enter(); return _xs.getEventType(); } finally { _l.exit(); } }
+        public String getText ( ) { try { _l.enter(); return _xs.getText(); } finally { _l.exit(); } }
+        public char[] getTextCharacters ( ) { try { _l.enter(); return _xs.getTextCharacters(); } finally { _l.exit(); } }
+        public int getTextCharacters ( int sourceStart, char[] target, int targetStart, int length ) throws XMLStreamException { try { _l.enter(); return _xs.getTextCharacters ( sourceStart, target, targetStart, length ); } finally { _l.exit(); } }
+        public int getTextStart ( ) { try { _l.enter(); return _xs.getTextStart(); } finally { _l.exit(); } }
+        public int getTextLength ( ) { try { _l.enter(); return _xs.getTextLength(); } finally { _l.exit(); } }
+        public String getEncoding ( ) { try { _l.enter(); return _xs.getEncoding(); } finally { _l.exit(); } }
+        public boolean hasText ( ) { try { _l.enter(); return _xs.hasText(); } finally { _l.exit(); } }
+        public Location getLocation ( ) { try { _l.enter(); return _xs.getLocation(); } finally { _l.exit(); } }
+        public QName getName ( ) { try { _l.enter(); return _xs.getName(); } finally { _l.exit(); } }
+        public String getLocalName ( ) { try { _l.enter(); return _xs.getLocalName(); } finally { _l.exit(); } }
+        public boolean hasName ( ) { try { _l.enter(); return _xs.hasName(); } finally { _l.exit(); } }
+        public String getNamespaceURI ( ) { try { _l.enter(); return _xs.getNamespaceURI(); } finally { _l.exit(); } }
+        public String getPrefix ( ) { try { _l.enter(); return _xs.getPrefix(); } finally { _l.exit(); } }
+        public String getVersion ( ) { try { _l.enter(); return _xs.getVersion(); } finally { _l.exit(); } }
+        public boolean isStandalone ( ) { try { _l.enter(); return _xs.isStandalone(); } finally { _l.exit(); } }
+        public boolean standaloneSet ( ) { try { _l.enter(); return _xs.standaloneSet(); } finally { _l.exit(); } }
+        public String getCharacterEncodingScheme ( ) { try { _l.enter(); return _xs.getCharacterEncodingScheme(); } finally { _l.exit(); } }
+        public String getPITarget ( ) { try { _l.enter(); return _xs.getPITarget(); } finally { _l.exit(); } }
+        public String getPIData ( ) { try { _l.enter(); return _xs.getPIData(); } finally { _l.exit(); } }
 
-        private Master          _m;
+        private Locale          _l;
         private XMLStreamReader _xs;
     }
 }

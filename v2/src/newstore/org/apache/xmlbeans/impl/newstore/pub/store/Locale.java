@@ -1,4 +1,14 @@
-package org.apache.xmlbeans.impl.newstore.xcur;
+package org.apache.xmlbeans.impl.newstore.pub.store;
+
+import java.lang.ref.ReferenceQueue;
+import java.lang.ref.Reference;
+import java.lang.ref.PhantomReference;
+
+import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.DocumentType;
+import org.w3c.dom.Document;
+import org.w3c.dom.Node;
+import org.w3c.dom.Element;
 
 import org.xml.sax.Locator;
 import org.xml.sax.Attributes;
@@ -12,39 +22,40 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.SAXException;
 
-import javax.xml.namespace.QName;
-
-import org.apache.xmlbeans.impl.newstore.DomImpl;
-import org.apache.xmlbeans.impl.newstore.DomImpl.Dom;
-
-import org.apache.xmlbeans.impl.newstore.SaajImpl;
-
-import org.w3c.dom.Node;
-import org.w3c.dom.Element;
+import javax.xml.parsers.SAXParserFactory;
 
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.Reference;
-import java.lang.ref.PhantomReference;
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.DOMImplementation;
-import org.w3c.dom.DocumentType;
-import org.w3c.dom.Document;
 
-import javax.xml.parsers.SAXParserFactory;
+import org.apache.xmlbeans.impl.newstore.SaajImpl;
 
 import org.apache.xmlbeans.impl.newstore.Saaj;
 import org.apache.xmlbeans.impl.newstore.Saaj.SaajCallback;
 
-public abstract class Master implements DOMImplementation, SaajCallback
+import org.apache.xmlbeans.impl.newstore.pub.store.Dom.TextNode;
+import org.apache.xmlbeans.impl.newstore.pub.store.Dom.CdataNode;
+
+import org.apache.xmlbeans.impl.newstore.DomImpl;
+import org.apache.xmlbeans.impl.newstore.DomImpl.SaajTextNode;
+import org.apache.xmlbeans.impl.newstore.DomImpl.SaajCdataNode;
+
+public abstract class Locale implements DOMImplementation, SaajCallback
 {
-    protected abstract Xcur        newCur         ( );
+    public Locale ( )
+    {
+        _noSync = true;
+        _tempFrames = new Cur [ 4 ];
+    }
+
+    protected abstract Cur         newCur         ( );
     protected abstract LoadContext newLoadContext ( );
 
-    protected static abstract class LoadContext
+    public static abstract class LoadContext
     {
         protected abstract void startElement ( QName name                             );
         protected abstract void endElement   (                                        );
@@ -53,36 +64,26 @@ public abstract class Master implements DOMImplementation, SaajCallback
         protected abstract void comment      ( char[] buff, int off, int cch          );
         protected abstract void procInst     ( String target, String value            );
         protected abstract void text         ( char[] buff, int off, int cch          );
-        protected abstract Xcur finish       (                                        );
-    }
-
-    //
-    //
-    //
-    
-    Master ( )
-    {
-        _noSync = true;
-        _tempFrames = new Xcur [ 4 ];
+        protected abstract Cur  finish       (                                        );
     }
 
     public QName makeQName ( String uri, String localPart )
     {
         assert localPart != null && localPart.length() > 0;
         // TODO - make sure name is a well formed name?
-        
+
         return new QName( uri, localPart );
     }
-    
+
     public QName makeQName ( String uri, String local, String prefix )
     {
         return new QName( uri, local, prefix );
     }
-    
+
     public QName makeQualifiedQName ( String uri, String qname )
     {
         assert qname != null && qname.length() > 0;
-        
+
         int i = qname.indexOf( ':' );
 
         return i < 0
@@ -90,104 +91,9 @@ public abstract class Master implements DOMImplementation, SaajCallback
             : new QName( uri, qname.substring( i + 1 ), qname.substring( 0, i ) );
     }
 
-    public static void copyChars ( Object src, int off, int cch, char[] buf, int bufStart )
+    public final boolean noSync ( )
     {
-        assert src == null || src instanceof String || src instanceof char[];
-
-        if (src != null && cch > 0)
-        {
-            if (src instanceof String)
-                ((String) src).getChars( off, off + cch, buf, bufStart );
-            else
-                System.arraycopy( (char[]) src, off, buf, bufStart, cch );
-        }
-    }
-
-    public Object insertChars (
-        int i, Object src, int off, int cch, Object srcInsert, int offInsert, int cchInsert )
-    {
-        assert i >= 0 && i <= cch;
-        
-        // TODO - this is cheap and dirty impl ... make better
-
-        String s = makeString( src, off, cch );
-        String sInsert = makeString( srcInsert, offInsert, cchInsert );
-
-        _offSrc = 0;
-        _cchSrc = cch + cchInsert;
-
-        return s.substring( 0, i ) + sInsert + s.substring( i );
-    }
-    
-    public static String makeString ( Object src, int off, int cch )
-    {
-        assert src == null || src instanceof String || src instanceof char[];
-
-        if (src == null || cch == 0)
-            return "";
-
-        if (src instanceof String)
-        {
-            String s = (String) src;
-
-            if (off == 0 && cch == s.length())
-                return s;
-
-            return s.substring( off, off + cch );
-        }
-
-        return new String( (char[]) src, off, cch );
-    }
-
-    public final long version ( )
-    {
-        return _versionAll;
-    }
-
-    public final Xcur permCur ( )
-    {
-        return getCur( null, Xcur.PERM );
-    }
-    
-    public final Xcur tempCur ( )
-    {
-        return addTempCur( getCur( null, Xcur.TEMP ) );
-    }
-    
-    public final Xcur weakCur ( Object o )
-    {
-        assert o != null && !(o instanceof Ref);
-        return getCur( o, Xcur.WEAK );
-    }
-
-    private final Xcur getCur ( Object obj, int curKind )
-    {
-        if (_pool == null)
-        {
-            Xcur x = newCur();
-            _pool = x.listInsert( _pool, Xcur.POOLED );
-
-            assert _poolCount == 0;
-            _poolCount++;
-        }
-
-        Xcur x = _pool;
-
-        _pool = x.listRemove( _pool );
-
-        _poolCount--;
-        assert _poolCount >= 0;
-
-        _unembedded = x.listInsert( _unembedded, Xcur.UNEMBEDDED );
-
-        assert x._obj == null;
-
-        if (obj != null)
-            x._obj = new Ref( x, obj );
-
-        x._curKind = curKind;
-
-        return x;
+        return _noSync;
     }
 
     public final void enter ( )
@@ -207,7 +113,7 @@ public abstract class Master implements DOMImplementation, SaajCallback
                     if (ref == null)
                         break;
 
-                    ref._xcur.release();
+                    ref._cur.release();
                 }
             }
         }
@@ -218,52 +124,56 @@ public abstract class Master implements DOMImplementation, SaajCallback
         assert _numTempFrames > 0;
 
         _numTempFrames--;
-        
-        Xcur x = _tempFrames[ _numTempFrames ];
+
+        Cur c = _tempFrames[ _numTempFrames ];
         _tempFrames[ _numTempFrames ] = null;
 
-        while ( x != null )
+        while ( c != null )
         {
-            assert x._tempPtrFrame == _numTempFrames;
-            
-            Xcur next = x._nextTemp;
-            
-            x._nextTemp = null;
-            x._tempPtrFrame = -1;
-            
-            x.release();
+            assert c._tempCurFrame == _numTempFrames;
 
-            x = next;
+            Cur next = c._nextTemp;
+
+            c._nextTemp = null;
+            c._tempCurFrame = -1;
+
+            c.release();
+
+            c = next;
         }
     }
 
-    private final Xcur addTempCur ( Xcur x )
+    public final long version ( )
     {
-        int frame = _numTempFrames - 1;
-
-        assert x != null && frame >= 0;
-        assert x._tempPtrFrame == -1 || x._tempPtrFrame == frame;
-        
-        if (x._tempPtrFrame < 0)
-        {
-            if (_numTempFrames >= _tempFrames.length)
-            {
-                Xcur[] newTempFrames = new Xcur [ _tempFrames.length * 2 ];
-                System.arraycopy( _tempFrames, 0, newTempFrames, 0, _tempFrames.length );
-                _tempFrames = newTempFrames;
-            }
-
-            x._nextTemp = _tempFrames[ frame ];
-            x._tempPtrFrame = frame;
-            _tempFrames[ frame ] = x;
-        }
-
-        return x;
+        return _versionAll;
     }
 
-    public final boolean noSync ( )
+    public final Cur permCur ( )
     {
-        return _noSync;
+        return getCur( null, Cur.PERM );
+    }
+
+    public final Cur tempCur ( )
+    {
+        return addTempCur( getCur( null, Cur.TEMP ) );
+    }
+
+    public final Cur weakCur ( Object o )
+    {
+        assert o != null && !(o instanceof Ref);
+        return getCur( o, Cur.WEAK );
+    }
+
+    final static class Ref extends PhantomReference
+    {
+        Ref ( Cur c, Object obj )
+        {
+            super( obj, c._locale().refQueue() );
+
+            _cur = c;
+        }
+
+        final Cur _cur;
     }
 
     final ReferenceQueue refQueue ( )
@@ -274,82 +184,83 @@ public abstract class Master implements DOMImplementation, SaajCallback
         return _refQueue;
     }
 
-    final static class Ref extends PhantomReference
+    private final Cur getCur ( Object obj, int curKind )
     {
-        Ref ( Xcur xcur, Object obj )
+        if (_pool == null)
         {
-            super( obj, xcur._master().refQueue() );
+            Cur c = newCur();
+            _pool = c.listInsert( _pool, Cur.POOLED );
 
-            _xcur = xcur;
+            assert _poolCount == 0;
+            _poolCount++;
         }
 
-        final Xcur _xcur;
+        Cur c = _pool;
+
+        _pool = c.listRemove( _pool );
+
+        _poolCount--;
+        assert _poolCount >= 0;
+
+        _unembedded = c.listInsert( _unembedded, Cur.UNEMBEDDED );
+
+        assert c._obj == null;
+
+        if (obj != null)
+            c._obj = new Ref( c, obj );
+
+        c._curKind = curKind;
+
+        return c;
     }
 
-    //
-    // DOMImplementation methods
-    //
-    
-    public Document createDocument ( String uri, String qname, DocumentType doctype )
+    private final Cur addTempCur ( Cur c )
     {
-        return DomImpl._domImplementation_createDocument( this, uri, qname, doctype );
+        int frame = _numTempFrames - 1;
+
+        assert c != null && frame >= 0;
+        assert c._tempCurFrame == -1 || c._tempCurFrame == frame;
+
+        if (c._tempCurFrame < 0)
+        {
+            if (_numTempFrames >= _tempFrames.length)
+            {
+                Cur[] newTempFrames = new Cur [ _tempFrames.length * 2 ];
+                System.arraycopy( _tempFrames, 0, newTempFrames, 0, _tempFrames.length );
+                _tempFrames = newTempFrames;
+            }
+
+            c._nextTemp = _tempFrames[ frame ];
+            c._tempCurFrame = frame;
+            _tempFrames[ frame ] = c;
+        }
+
+        return c;
     }
 
-    public DocumentType createDocumentType ( String qname, String publicId, String systemId )
+    public TextNode createTextNode ( )
     {
-        return DomImpl._domImplementation_createDocumentType( this, qname, publicId, systemId );
+        return _saaj == null ? new TextNode( this ) : new SaajTextNode( this );
     }
 
-    public boolean hasFeature ( String feature, String version )
+    public CdataNode createCdataNode ( )
     {
-        return DomImpl._domImplementation_hasFeature( this, feature, version );
+        return _saaj == null ? new CdataNode( this ) : new SaajCdataNode( this );
     }
 
-    //
-    // SaajCallback methods
-    //
-    
-    public void setSaajData ( Node n, Object o )
-    {
-        assert n instanceof Dom;
-        
-        SaajImpl.saajCallback_setSaajData( (Dom) n, o );
-    }
-    
-    public Object getSaajData ( Node n )
-    {
-        assert n instanceof Dom;
-        
-        return SaajImpl.saajCallback_getSaajData( (Dom) n );
-    }
-    
-    public Element createSoapElement ( QName name, QName parentName )
-    {
-        assert _ownerDoc != null;
-        
-        return SaajImpl.saajCallback_createSoapElement( _ownerDoc, name, parentName );
-    }
-    
-    public Element importSoapElement ( Document doc, Element elem, boolean deep, QName parentName )
-    {
-        assert doc instanceof Dom;
-        
-        return SaajImpl.saajCallback_importSoapElement( (Dom) doc, elem, deep, parentName );
-    }
-    
     //
     // Loading/parsing
     //
-    
+
     private static class SaxLoader
-        implements ContentHandler, LexicalHandler, ErrorHandler, EntityResolver
+            implements ContentHandler, LexicalHandler, ErrorHandler, EntityResolver
     {
         SaxLoader ( )
         {
             try
             {
                 _xr = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
-                
+
                 _xr.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
                 _xr.setFeature( "http://xml.org/sax/features/namespaces", true );
                 _xr.setFeature( "http://xml.org/sax/features/validation", false );
@@ -366,11 +277,11 @@ public abstract class Master implements DOMImplementation, SaajCallback
             }
         }
 
-        public Xcur load ( Master m, InputSource is )
+        public Cur load ( Locale l, InputSource is )
         {
-            _master = m;
-            _context = m.newLoadContext();
-            
+            _locale = l;
+            _context = l.newLoadContext();
+
             try
             {
                 _xr.parse( is );
@@ -401,7 +312,7 @@ public abstract class Master implements DOMImplementation, SaajCallback
         public void startElement ( String uri, String local, String qName, Attributes atts )
             throws SAXException
         {
-            _context.startElement( _master.makeQualifiedQName( uri, qName ) );
+            _context.startElement( _locale.makeQualifiedQName( uri, qName ) );
 
             for ( int i = 0, len = atts.getLength() ; i < len ; i++ )
             {
@@ -428,7 +339,7 @@ public abstract class Master implements DOMImplementation, SaajCallback
         {
             _context.endElement();
         }
-        
+
         public void characters ( char ch[], int start, int length ) throws SAXException
         {
             _context.text( ch, start, length );
@@ -459,55 +370,55 @@ public abstract class Master implements DOMImplementation, SaajCallback
         public void startPrefixMapping ( String prefix, String uri ) throws SAXException
         {
         }
-        
+
         public void endPrefixMapping ( String prefix ) throws SAXException
         {
         }
-        
+
         public void skippedEntity ( String name ) throws SAXException
         {
 //            throw new RuntimeException( "Not impl: skippedEntity" );
         }
-        
+
         public void startCDATA ( ) throws SAXException
         {
         }
-        
+
         public void endCDATA ( ) throws SAXException
         {
         }
-        
+
         public void startEntity ( String name ) throws SAXException
         {
 //            throw new RuntimeException( "Not impl: startEntity" );
         }
-        
+
         public void endEntity ( String name ) throws SAXException
         {
 //            throw new RuntimeException( "Not impl: endEntity" );
         }
-        
+
         public void fatalError ( SAXParseException e ) throws SAXException
         {
             throw e;
         }
-        
+
         public void error ( SAXParseException e ) throws SAXException
         {
             throw e;
         }
-        
+
         public void warning ( SAXParseException e ) throws SAXException
         {
             throw e;
         }
-        
+
         public InputSource resolveEntity ( String publicId, String systemId )
         {
             return new InputSource( new StringReader( "" ) );
         }
 
-        private Master      _master;
+        private Locale      _locale;
         private XMLReader   _xr;
         private LoadContext _context;
     }
@@ -516,45 +427,93 @@ public abstract class Master implements DOMImplementation, SaajCallback
     {
         return new SaxLoader().load( this, is ).getDom();
     }
-    
+
     public Dom load ( Reader r )
     {
         return load( new InputSource( r ) );
     }
-    
+
     public Dom load ( String s )
     {
         return load( new InputSource( new StringReader( s ) ) );
     }
-    
+
     public Dom load ( InputStream in )
     {
         return load( new InputSource( in ) );
     }
 
     //
-    //
+    // DOMImplementation methods
     //
 
+    public Document createDocument ( String uri, String qname, DocumentType doctype )
+    {
+        return DomImpl._domImplementation_createDocument( this, uri, qname, doctype );
+    }
+
+    public DocumentType createDocumentType ( String qname, String publicId, String systemId )
+    {
+        return DomImpl._domImplementation_createDocumentType( this, qname, publicId, systemId );
+    }
+
+    public boolean hasFeature ( String feature, String version )
+    {
+        return DomImpl._domImplementation_hasFeature( this, feature, version );
+    }
+
+    //
+    // SaajCallback methods
+    //
+
+    public void setSaajData ( Node n, Object o )
+    {
+        assert n instanceof Dom;
+
+        SaajImpl.saajCallback_setSaajData( (Dom) n, o );
+    }
+
+    public Object getSaajData ( Node n )
+    {
+        assert n instanceof Dom;
+
+        return SaajImpl.saajCallback_getSaajData( (Dom) n );
+    }
+
+    public Element createSoapElement ( QName name, QName parentName )
+    {
+        assert _ownerDoc != null;
+
+        return SaajImpl.saajCallback_createSoapElement( _ownerDoc, name, parentName );
+    }
+
+    public Element importSoapElement ( Document doc, Element elem, boolean deep, QName parentName )
+    {
+        assert doc instanceof Dom;
+
+        return SaajImpl.saajCallback_importSoapElement( (Dom) doc, elem, deep, parentName );
+    }
+
+    //
+    //
+    //
+    
     private ReferenceQueue _refQueue;
-    
-    Xcur _pool;
-    int  _poolCount;
 
-    long _versionAll;
-    long _versionSansText;
+    Cur _pool;
+    int _poolCount;
 
-    Xcur _unembedded;
-    
+    public long _versionAll;
+    public long _versionSansText;
+
+    public Cur _unembedded;
+
     private boolean _noSync;
-    
-    private int    _entryCount;
-    private Xcur[] _tempFrames;
-    private int    _numTempFrames;
+
+    private int   _entryCount;
+    private Cur[] _tempFrames;
+    private int   _numTempFrames;
 
     public Dom _ownerDoc;
     public static Saaj _saaj;
-    
-    public int _offSrc;
-    public int _cchSrc;
 }

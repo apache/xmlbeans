@@ -121,9 +121,10 @@ import weblogic.xml.stream.XMLName;
 import com.bea.x2002.x09.xbean.config.ConfigDocument;
 import javax.xml.stream.XMLStreamReader;
 
-import org.apache.xmlbeans.impl.newstore.Public;
-import org.apache.xmlbeans.impl.newstore.xcur.Master;
-import org.apache.xmlbeans.impl.newstore.xcur.Xcur;
+import org.apache.xmlbeans.impl.newstore.pub.Public;
+import org.apache.xmlbeans.impl.newstore.pub.store.Locale;
+import org.apache.xmlbeans.impl.newstore.pub.store.Cur;
+import org.apache.xmlbeans.impl.newstore.pub.store.Backend;
 
 import org.w3c.dom.Node;
 import org.w3c.dom.Attr;
@@ -144,45 +145,96 @@ import javax.xml.stream.XMLStreamReader;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.xmlbeans.impl.newstore.CharUtil;
+import org.apache.xmlbeans.impl.newstore.CharUtil.CharJoin;
+
 public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
+        String s =
+           "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
+           "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" " +
+           "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
+           "xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
+           "<soapenv:Header></soapenv:Header>" +
+           "<soapenv:Body><m:sayHello xmlns:m=\"http://examples/simple\">" +
+           "<message>foo bar</message>" +
+           "</m:sayHello>" +
+           "</soapenv:Body>" +
+           "</soapenv:Envelope>";
+        
+        Document doc = Public.parse( s, Public.memoryBackend() );
+        Element e = doc.getDocumentElement();
+        NamedNodeMap attrs = e.getAttributes();
+        System.out.println( ((Attr)(attrs.item( 0 ))).getName() );
+        System.out.println( attrs.item( 0 ).getNodeName() );
+        
+
+        
+//        charTest();
 //        domTest();
 
-//        domTest( Public.getImplementation( 1 ) );
+//        domTest( Public.getImplementation( Public.memoryBackend() ) );
 //        domTest( Public.getImplementation( 0 ) );
 
 //        domTest2( Public.getImplementation( 1 ) );
 //        domTest2( Public.getImplementation( 0 ) );
 
-        parseTest( 1 );
+//        parseTest( 1 );
 //        parseTest( 0 );
+        
+        cursorTest( Public.memoryBackend() );
+//        cursorTest( 0 );
 
 //        runDrt( Public.getImplementation( 1 ) );
 //        runDrt( Public.getImplementation( 0 ) );
     }
 
-    private static void parseTest ( int type ) throws Exception
+    private static void charTest ( )
+    {
+        Object o = new CharJoin( "abcdef", 2, 2, "123456", 1, 3 );
+        CharUtil.getChars( new char [ 100 ], 0, o, 1, 3 );
+    }
+
+    private static void cursorTest ( Backend be ) throws Exception
+    {
+        Document doc =
+            Public.parse(
+                "<?bonk honk?><a p='q' xmlns:foo='bar'>12&amp;34567<b/><!--moo--></a>", be );
+
+        XmlCursor c = Public.getCursor( doc );
+
+        c.newCursor();
+
+        c.toFirstChild();
+        c.toFirstChild();
+        c.toFirstChild();
+        c.toParent();
+
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( c );
+    }
+    
+    private static void parseTest ( Backend be ) throws Exception
     {
 //        Xcur x = m.load( "<foo a='b'>X<b/>Y<!--hi--></foo>" );
 //        Xcur x = m.load( "<ns:foo xmlns:ns='NAMESPACE'>X<b/>Y</ns:foo>" );
         Document doc =
             Public.parse(
-                "<?bonk honk?><a p='q' xmlns:foo='bar'>12&amp;34567<b/><!--moo--></a>", type );
+                "<?bonk honk?><a p='q' xmlns:foo='bar'>12&amp;34567<b/><!--moo--></a>", be );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
 
         Text t = doc.createTextNode( "Mooo" );
 
         doc.getDocumentElement().insertBefore( t, doc.getDocumentElement().getFirstChild() );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
 
         doc.getDocumentElement().removeChild( t );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( t );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( t );
 
         XMLStreamReader xs = Public.getStream( doc );
 
@@ -289,11 +341,11 @@ public class EricTest
         docElem.appendChild( doc.createTextNode( "xxx" ) );
 //        docElem.appendChild( doc.createElement( "e" ) );
 //
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
 
         docElem.setAttributeNS( "", "name", "value" );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
     }
 
     private static void domTest ( DOMImplementation impl )
@@ -333,23 +385,23 @@ public class EricTest
         Text xyz = doc.createTextNode( "XYZ" );
         e.appendChild( xyz );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
 
         e.insertBefore( doc.createElement( "Moo" ), xyz );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
 
         v.removeChild( k );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( k );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( k );
 
         xyz.setNodeValue( "XXXYYYZZZ" );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
 
         xyz.splitText( 3 );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( doc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
 
         System.out.println( e.getFirstChild().getNodeValue() );
     }
@@ -366,11 +418,11 @@ public class EricTest
 
         Element e = theirDoc.getDocumentElement();
 
-        Document myDoc = Public.getImplementation( 1 ).createDocument( "", "foo", null );
+        Document myDoc = Public.getImplementation( Public.memoryBackend() ).createDocument( "", "foo", null );
         myDoc.removeChild( myDoc.getDocumentElement() );
         myDoc.appendChild( myDoc.importNode( theirDoc.getDocumentElement(), true ) );
 
-        org.apache.xmlbeans.impl.newstore.xcur.Xcur.dump( myDoc );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( myDoc );
     }
 }
 
