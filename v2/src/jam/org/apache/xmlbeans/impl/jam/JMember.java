@@ -243,7 +243,7 @@ package org.apache.xmlbeans.impl.jam;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JMember extends JElement {
+public abstract interface JMember extends JElement {
 
   // ========================================================================
   // Public methods

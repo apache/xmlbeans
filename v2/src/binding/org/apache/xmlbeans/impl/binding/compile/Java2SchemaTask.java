@@ -134,6 +134,7 @@ public class Java2SchemaTask extends BindingCompilerTask {
   }
 
   public void setIncludes(String includes) {
+    if (includes == null) throw new IllegalArgumentException("null includes");
     mIncludes = includes;
   }
 
@@ -147,6 +148,11 @@ public class Java2SchemaTask extends BindingCompilerTask {
   protected BindingCompiler getCompilerToExecute() throws BuildException {
     //FIXME refactor this so the functionality is shared and consistent with
     //Both2BindTask
+    if (mIncludes == null) {
+      //FIXME we need to improve/expand the ways in which the input source set
+      //is passed to us
+      throw new BuildException("The 'includes' attribute must be set.");
+    }
     JFactory jf = JFactory.getInstance();
     String[] list = mSrcDir.list();
     if (list.length == 0) throw new BuildException("srcDir attribute required");

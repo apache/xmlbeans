@@ -18,6 +18,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
+import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -153,8 +154,7 @@ public class MarshalTests extends TestCase
                                         String xsd_type)
         throws Exception
     {
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext();
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         String xmldoc = "<a xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
             " xmlns:xs='http://www.w3.org/2001/XMLSchema' xsi:type='xs:" +
@@ -248,10 +248,9 @@ public class MarshalTests extends TestCase
                                             new MySubSubClass(),
                                             sub});
 
-        final File bcdoc = getBindingConfigDocument();
 
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
@@ -294,10 +293,7 @@ public class MarshalTests extends TestCase
         myelt.setStringArray(new String[]{"one", "two", "three"});
 
 
-        final File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         StringWriter sw = new StringWriter();
         XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
@@ -333,10 +329,7 @@ public class MarshalTests extends TestCase
         myelt.setStringArray(new String[]{"one", "two", "three"});
 
 
-        final File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         StringWriter sw = new StringWriter();
         XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
@@ -374,11 +367,7 @@ public class MarshalTests extends TestCase
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
 
-
-        final File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -435,11 +424,7 @@ public class MarshalTests extends TestCase
 
         //System.out.println("top_obj = " + top_obj);
 
-        final File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
-
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         final String javaType = "com.mytest.MyClass";
         final QName schemaType = new QName("java:com.mytest", "MyClass");
@@ -512,10 +497,7 @@ public class MarshalTests extends TestCase
 
         System.out.println("top_obj = " + top_obj);
 
-        File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
 
         //TODO: remove hard coded values
@@ -575,10 +557,7 @@ public class MarshalTests extends TestCase
     public void testByNameBeanUnmarshal()
         throws Exception
     {
-        File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         File doc = TestEnv.xbeanCase("marshal/doc2.xml");
 
@@ -608,10 +587,7 @@ public class MarshalTests extends TestCase
     public void testByNameBeanUnmarshalFromInputStream()
         throws Exception
     {
-        File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         File doc = TestEnv.xbeanCase("marshal/doc2.xml");
 
@@ -666,10 +642,7 @@ public class MarshalTests extends TestCase
     public void testByNameBeanUnmarshalType()
         throws Exception
     {
-        File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         final File doc = TestEnv.xbeanCase("marshal/doc.xml");
         final String javaType = "com.mytest.MyClass";
@@ -706,10 +679,7 @@ public class MarshalTests extends TestCase
     public void testPerfByNameBeanUnmarshall()
         throws Exception
     {
-        File bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         //File doc = TestEnv.xbeanCase("marshal/doc2.xml");
         File doc = TestEnv.xbeanCase("marshal/bigdoc.xml");
@@ -768,5 +738,12 @@ public class MarshalTests extends TestCase
     public static void main(String args[])
     {
         junit.textui.TestRunner.run(suite());
+    }
+
+    private static BindingContext getBindingContext(File bcdoc)
+            throws XmlException, IOException
+    {
+      return ((BindingContextFactoryImpl)BindingContextFactory.newInstance()).
+          createBindingContextFromConfig(bcdoc);
     }
 }

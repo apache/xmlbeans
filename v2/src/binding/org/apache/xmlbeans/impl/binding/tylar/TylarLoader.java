@@ -57,6 +57,8 @@ package org.apache.xmlbeans.impl.binding.tylar;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.jar.JarInputStream;
+
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -89,5 +91,19 @@ public interface TylarLoader {
    * tylars.
    */
   public Tylar load(URI[] uris) throws IOException, XmlException;
+
+  /**
+   * Loads a single tylar from the given JarInputStream.
+   *
+   * @param jar input stream on the tylar jar.
+   * @return
+   * @throws IOException if an i/o error occurs while processing
+   * @throws XmlException if an error occurs parsing the contents of the
+   * tylars.
+   */
+  public Tylar load(JarInputStream jar) throws IOException, XmlException;
+
+
+
 
 }
