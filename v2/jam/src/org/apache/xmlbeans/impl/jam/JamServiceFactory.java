@@ -92,7 +92,7 @@ public abstract class JamServiceFactory {
     try {
       JamServiceParams sp = getInstance().createServiceParams();
       for(int i=0; i<args.length; i++) {
-        sp.includeSourceFiles(new File[] {new File(".")},args[i]);
+        sp.includeSourcePattern(new File[] {new File(".")},args[i]);
       }
       JamService service = getInstance().createService(sp);
       JamPrinter jp = JamPrinter.newInstance();

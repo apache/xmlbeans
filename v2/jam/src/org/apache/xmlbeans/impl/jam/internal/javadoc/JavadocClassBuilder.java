@@ -34,11 +34,14 @@ public class JavadocClassBuilder extends JamClassBuilder {
   // Constants
 
   public static final String ARGS_PROPERTY = "javadoc.args";
+  public static final String PARSETAGS_PROPERTY = "javadoc.parsetags";
 
   private static boolean VERBOSE = false;
 
   private static final String JAVA15_EXTRACTOR =
     "org.apache.xmlbeans.impl.jam.internal.java15.Javadoc15AnnotationExtractor";
+
+  private static final String PREFIX = "[JavadocClassBuilder] ";
 
   // ========================================================================
   // Variables
@@ -46,6 +49,8 @@ public class JavadocClassBuilder extends JamClassBuilder {
   private RootDoc mRootDoc = null;
   private JamServiceContext mServiceContext;
   private JavadocAnnotationExtractor mExtractor = null;
+
+  private boolean mParseTags = false;//FIXME
 
   // ========================================================================
   // Constructors
@@ -62,15 +67,22 @@ public class JavadocClassBuilder extends JamClassBuilder {
       mServiceContext.verbose(e);
     } catch (InstantiationException e) {
       mServiceContext.verbose(e);
+      //if this fails, we'll assume it's because we're not under 1.5
+      ctx.verbose(e);
+    }
+    String pct = ctx.getProperty(PARSETAGS_PROPERTY);
+    if (pct != null) {
+      mParseTags = Boolean.parseBoolean(pct);
+      ctx.verbose(PREFIX+ "mParseTags="+mParseTags);
     }
   }
 
   // ========================================================================
   // JamClassBuilder implementation
 
-
   public void init(ElementContext ctx) {
     super.init(ctx);
+    if (mServiceContext.isVerbose()) mServiceContext.verbose(PREFIX+ " init()");
     File[] files;
     try {
       files = mServiceContext.getSourceFiles();
@@ -85,10 +97,17 @@ public class JavadocClassBuilder extends JamClassBuilder {
       mServiceContext.getInputSourcepath().toString();
     String classPath = (mServiceContext.getInputClasspath() == null) ? null :
       mServiceContext.getInputClasspath().toString();
+    if (mServiceContext.isVerbose()) {
+      mServiceContext.verbose(PREFIX+ "sourcePath="+sourcePath);
+      mServiceContext.verbose(PREFIX+ "classPath ="+classPath);
+      for(int i=0; i<files.length; i++) {
+        mServiceContext.verbose(PREFIX+ "including '"+files[i]+"'");
+      }
+    }
     JavadocRunner jdr = new JavadocRunner();
     try {
       PrintWriter out = null;
-      if (((JamServiceContextImpl)mServiceContext).isVerbose()) {
+      if (mServiceContext.isVerbose()) {
         out = new PrintWriter(System.out);
       }
       mRootDoc = jdr.run(files,
@@ -97,7 +116,23 @@ public class JavadocClassBuilder extends JamClassBuilder {
                          classPath,
                          getJavadocArgs(mServiceContext));
       if (mRootDoc == null) {
-        ctx.verbose("Javadoc returned a null root");//FIXME error
+        mServiceContext.error("Javadoc returned a null root");//FIXME error
+      } else {
+        if (mServiceContext.isVerbose()) {
+          mServiceContext.verbose(PREFIX+ " received "+mRootDoc.classes().length+
+                                  " ClassDocs from javadoc: ");
+        }
+        ClassDoc[] classes = mRootDoc.classes();
+        // go through and explicitly add all of the class names.  we need to
+        // do this in case they passed any 'unstructured' classes.  to the
+        // params.  this could use a little TLC.
+        for(int i=0; i<classes.length; i++) {
+          if (mServiceContext.isVerbose()) {
+            mServiceContext.verbose(PREFIX+ "..."+classes[i].qualifiedName());
+          }
+          ((JamServiceContextImpl)mServiceContext).
+            includeClass(classes[i].qualifiedName());
+        }
       }
     } catch (FileNotFoundException e) {
       ctx.error(e);
@@ -211,6 +246,8 @@ public class JavadocClassBuilder extends JamClassBuilder {
     if (t == null) throw new IllegalArgumentException("null type");
     String dim = t.dimension();
     if (dim == null || dim.length() == 0) {
+      ClassDoc cd = t.asClassDoc();
+      if (cd != null) return cd.qualifiedName();
       return t.qualifiedTypeName();
     } else {
       StringWriter out = new StringWriter();
@@ -221,7 +258,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
         out.write(primFd);
       } else {
         out.write("L");
-        out.write(t.qualifiedTypeName());
+        out.write(t.asClassDoc().qualifiedName());
         out.write(";");
       }
       return out.toString();
@@ -241,8 +278,15 @@ public class JavadocClassBuilder extends JamClassBuilder {
 
 
   private void addAnnotations(MAnnotatedElement dest, ProgramElementDoc src) {
-    String comments = src.getRawCommentText();
-    if (comments != null) dest.createComment().setText(comments);
+    if (mParseTags) {
+      String comments = src.commentText();
+      if (comments != null) dest.createComment().setText(comments);
+      Tag[] t = src.tags();
+      //FIXME!!!
+    } else {
+      String comments = src.getRawCommentText();
+      if (comments != null) dest.createComment().setText(comments);
+    }
     if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
   }
 }

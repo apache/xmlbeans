@@ -73,15 +73,25 @@ public interface JAnnotation extends JElement {
   //public String getJavadocTagText();
 
   /**
-   * <p>Use of this method is *strongly* discouraged.</p>
-   *
    * <p>If this JAnnotation corresponds to metadata that is stored in
-   * an instance of java.lang.annotation.Annotation, that object is returned.
-   * This is done on a strictly best-effort basis.  Null is returned if
-   * no such annotation exists or if the JAM implementation is unable
-   * to support the request.</p>
+   * a JSR175 annotation (i.e. an instance of java.lang.annotation.Annotation),
+   * returns that annotation object.  Returns null if the annotation does
+   * not exist or is otherwise unavailable.</p>
+   *
+   * <p>Note that this is done only on a best-effort basis - the annotation
+   * object not be availble under pre-1.5 JREs and will generally only be
+   * available if the underlying annotation was read from a class file.  Note
+   * that the retention policy of the annotation type usually must also be
+   * RUNTIME.  Unless you are sure of all of these things, you are better
+   * off using an AnnotationProxy or the untyped value accessors
+   * (e.g. getValues()).</p>
+   *
+   * <p>If this method does return something other than null, it is guaranteed
+   * to be an instance of <code>java.lang.annotation.Annotation</code>.  It
+   * is typed as <code>Object</code> simply to preserve API compatibility
+   * with Java 1.4.</p.
    */
-  //public Object getAnnotationInstance();
+  public Object getAnnotationInstance();
 
 
 }

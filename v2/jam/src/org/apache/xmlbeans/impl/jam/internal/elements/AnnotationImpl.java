@@ -31,6 +31,7 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
   // Variables
 
   private AnnotationProxy mProxy;
+  private Object mAnnotationInstance = null;
 
   // ========================================================================
   // Constructors
@@ -56,6 +57,17 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
 
   public JAnnotationValue getValue(String name) {
     return mProxy.getValue(name);
+  }
+
+  public Object getAnnotationInstance() {
+    return mAnnotationInstance;
+  }
+
+  // ========================================================================
+  // MAnnotation implementation
+
+  public void setAnnotationInstance(Object o) {
+    mAnnotationInstance = o;
   }
 
   // ========================================================================

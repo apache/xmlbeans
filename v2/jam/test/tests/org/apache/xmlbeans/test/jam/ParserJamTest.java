@@ -41,7 +41,7 @@ public class ParserJamTest extends JamTestBase {
     JamServiceFactory jsf = JamServiceFactory.getInstance();
     JamServiceParams params = jsf.createServiceParams();
     params.setProperty(JamServiceFactoryImpl.USE_NEW_PARSER,"true");
-    params.includeSourceFiles(getDummyclassesSourcepath(),"**/*.java");
+    params.includeSourcePattern(getDummyclassesSourcepath(),"**/*.java");
     return jsf.createService(params);
   }
 
