@@ -1203,8 +1203,9 @@ abstract class Xobj implements TypeStore
 
     final void invalidateUser ( )
     {
-        assert isUserNode() && isValid();
-
+        assert isValid();
+        assert _user == null || isUserNode();
+        
         if (_user != null)
             _user.invalidate_value();
     }
