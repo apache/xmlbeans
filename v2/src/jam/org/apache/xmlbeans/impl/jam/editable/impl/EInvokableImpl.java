@@ -148,29 +148,17 @@ public class EInvokableImpl extends EMemberImpl implements EInvokable {
   // ========================================================================
   // Other public methods
 
-  /**
-   * This is only intended for use by the parser.  The list must contain
-   * EParameterImpls.
-   */
-  public void setParameters(List paramList) {
-    System.out.println("\n\n\n\nSET PARAMETER LIST "+paramList.size());
-    if (paramList == null || paramList.size() == 0) {
-      mParameters = null;
-      return;
-    }
-    mParameters = new ArrayList(paramList.size());
-    mParameters.addAll(paramList);
-    for(int i=0; i<mParameters.size(); i++) {
-      ((EParameterImpl)mParameters.get(i)).setContainingMember(this);
-    }
-  }
-
+  //FIXME this is here only so the parser can be lazy - please remove it
   public void setUnqualifiedThrows(List classnames) {
     if (classnames == null || classnames.size() == 0) {
       mExceptionClassRefs= null;
       return;
     }
     mExceptionClassRefs = new ArrayList(classnames.size());
-    mExceptionClassRefs.addAll(classnames); //FIXME
+    for(int i=0; i<classnames.size(); i++) {
+      mExceptionClassRefs.add(UnqualifiedJClassRef.create
+                              ((String)classnames.get(i),
+                               (EClassImpl)getContainingClass()));
+    }
   }
 }

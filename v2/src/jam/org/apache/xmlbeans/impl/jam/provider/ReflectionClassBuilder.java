@@ -48,6 +48,10 @@ public class ReflectionClassBuilder implements EClassBuilder {
     return new JClassLoaderImpl(new ReflectionClassBuilder(cl),null);
   }
 
+  public static EClassBuilder getSystemClassBuilder() {
+    return new ReflectionClassBuilder(ClassLoader.getSystemClassLoader());
+  }
+
   // ========================================================================
   // Constructors
 
@@ -64,7 +68,7 @@ public class ReflectionClassBuilder implements EClassBuilder {
                       JClassLoader loader) {
     try {
       Class rclass = mLoader.loadClass(packageName+"."+className);
-      EClass out = new EClassImpl(packageName, className, loader);
+      EClass out = new EClassImpl(packageName, className, loader, null);
       populate(out,rclass);
       return out;
     } catch(ClassNotFoundException cnfe) {

@@ -329,8 +329,9 @@ public abstract class JamTestBase extends TestCase {
 
   private void verifyAnnotation(JElement j, String ann, String val) {
     JAnnotation a = j.getAnnotation(ann);
-    assertTrue(j.getParent().getQualifiedName()+" '"+j.getQualifiedName()+"' is missing expected annotation '"+ann+"'",
-                a != null);
+    assertTrue(/*j.getParent().getQualifiedName()+" '"+*/
+            j.getQualifiedName()+"' is missing expected annotation '"+ann+"'",
+            a != null);
     assertTrue(j.getQualifiedName()+"  annotation '"+ann+"' does not equal "+
                val,val.equals(a.getStringValue().trim()));
   }

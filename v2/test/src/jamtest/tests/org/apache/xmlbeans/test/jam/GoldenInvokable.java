@@ -132,7 +132,7 @@ public class GoldenInvokable {
 
   public void compare(JMethod method, boolean compareParamNames, Assert a) {
     compare((JInvokable)method,compareParamNames,a);
-    a.assertTrue("return types are different ["+
+    a.assertTrue("return types are different on "+method.getSimpleName()+"["+
                  method.getReturnType().getQualifiedName()+","+
                  mReturnType+"]",
                  method.getReturnType().getQualifiedName().equals(mReturnType));

@@ -54,10 +54,14 @@ public final class ArrayJClass extends BuiltinJClass {
   // ========================================================================
   // Factory methods
 
-  public static JClass createClassFor(String arrayFD, JClassLoader loader) 
+  /**
+   * Creates an array JClass from a field descriptor as described in the JLS.
+   * This is the nasty '[[[Lfoo.bar.Baz;'-style notation.
+   */
+  public static JClass createClassForFD(String arrayFD, JClassLoader loader)
   {
     if (!arrayFD.startsWith("[")) {
-      throw new IllegalArgumentException("must be an array type: "+arrayFD);
+      throw new IllegalArgumentException("must be an array type fd: "+arrayFD);
     }
     // if it's an array type, we have to be careful
     String componentType;
@@ -68,22 +72,22 @@ public final class ArrayJClass extends BuiltinJClass {
       // might be available
       int dims = arrayFD.indexOf("L");
       if (dims != -1 && dims<arrayFD.length()-2) {
-	componentType = arrayFD.substring(dims+1,arrayFD.length()-1);
-	return new ArrayJClass(loader.loadClass(componentType),dims);
+        componentType = arrayFD.substring(dims+1,arrayFD.length()-1);
+        return new ArrayJClass(loader.loadClass(componentType),dims);
       } else {
-	// name is effed
-	throw new IllegalArgumentException("array type field descriptor '"+
-					   arrayFD+"' is malformed");
+        // name is effed
+        throw new IllegalArgumentException("array type field descriptor '"+
+                                           arrayFD+"' is malformed");
       }
     } else {
       int dims = arrayFD.lastIndexOf("[")+1;
       JClass primType = PrimitiveJClass.getPrimitiveClassForName
-	(arrayFD.substring(dims,dims+1));
+              (arrayFD.substring(dims,dims+1));
       if (primType == null) {
-	// if it didn't end with ';', it has to be a valid primitive
-	// type name or it's effed
-	throw new IllegalArgumentException("array type field descriptor '"+
-					   arrayFD+"' is malformed");
+        // if it didn't end with ';', it has to be a valid primitive
+        // type name or it's effed
+        throw new IllegalArgumentException("array type field descriptor '"+
+                                           arrayFD+"' is malformed");
       }
       return new ArrayJClass(primType,dims);
     }
@@ -106,7 +110,7 @@ public final class ArrayJClass extends BuiltinJClass {
     mComponentType = componentType;
     mDimensions = dimensions; 
   }
-  
+
   // ========================================================================
   // JElement implementation
 
@@ -118,9 +122,9 @@ public final class ArrayJClass extends BuiltinJClass {
     String out = getQualifiedName();
     int lastDot = out.lastIndexOf('.');
     return (lastDot == -1) ? out : out.substring(lastDot+1);
-  }    
+  }
 
-  public String getQualifiedName() { 
+  public String getQualifiedName() {
     StringWriter out = new StringWriter();
     out.write(mComponentType.getQualifiedName());
     for(int i=0; i<mDimensions; i++) out.write("[]");
@@ -144,7 +148,7 @@ public final class ArrayJClass extends BuiltinJClass {
 
   public int getModifiers() { return mComponentType.getModifiers(); }
 
-  public boolean isPackagePrivate() { 
+  public boolean isPackagePrivate() {
     return mComponentType.isPackagePrivate(); 
   }
 
@@ -155,7 +159,7 @@ public final class ArrayJClass extends BuiltinJClass {
   public boolean isPrivate() { return mComponentType.isPrivate(); }
 
   public JSourcePosition getSourcePosition() { return null; }
-  
+
   public JClass getContainingClass() { return null; }
 
   // ========================================================================
@@ -174,13 +178,13 @@ public final class ArrayJClass extends BuiltinJClass {
   public JClass getArrayComponentType() { return mComponentType; }
 
   public int getArrayDimensions() { return mDimensions; }
-  
+
   public JClass getSuperclass() { return ObjectJClass.getInstance(); }
 
   public boolean isAssignableFrom(JClass c) {
     return c.isArray() &&
-      (c.getArrayDimensions() == mDimensions) &&
-      (mComponentType.isAssignableFrom(c.getArrayComponentType()));
+            (c.getArrayDimensions() == mDimensions) &&
+            (mComponentType.isAssignableFrom(c.getArrayComponentType()));
   }
 
   public String getFieldDescriptor() {

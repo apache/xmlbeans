@@ -72,7 +72,7 @@ public class JDClassLoader implements JClassLoader
   {
     fd = fd.trim();//REVIEW is this paranoid?
     if (fd.startsWith("[")) {
-      return ArrayJClass.createClassFor(fd,this);
+      return ArrayJClass.createClassForFD(fd,this);
     } else {
       if (fd.equals("java.lang.Object")) return mParentLoader.loadClass(fd);
       JClass out = (JClass)mFd2Class.get(fd);

@@ -12,43 +12,44 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.test.jam;
+package org.apache.xmlbeans.impl.jam.internal.parser;
 
-import org.apache.xmlbeans.impl.jam.JService;
-import org.apache.xmlbeans.impl.jam.JServiceFactory;
-import org.apache.xmlbeans.impl.jam.JServiceParams;
-import org.apache.xmlbeans.impl.jam.provider.NewJServiceFactory;
-
-import java.io.IOException;
+import org.apache.xmlbeans.impl.jam.editable.EInvokable;
+import org.apache.xmlbeans.impl.jam.editable.EParameter;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class ParserJamTest extends JamTestBase {
+/*package*/ class ParamStruct {
+
+  // ========================================================================
+  // Variables
+
+  private String mName;
+  private String mType;
 
   // ========================================================================
   // Constructors
 
-  public ParserJamTest(String name) {
-    super(name);
+  public ParamStruct(String type, String name) {
+    init(type,name);
   }
 
   // ========================================================================
-  // JamTestBase implementation
+  // Public methods
 
-  protected JService getResultToTest() throws IOException {
-    JServiceFactory jsf = new NewJServiceFactory();
-    JServiceParams params = jsf.createServiceParams();
-    params.includeSourceFiles(getDummyclassesSourceRoot(),"**/*.java");
-    return jsf.createService(params);
+  public void init(String type, String name) {
+    mType = type;
+    mName = name;
   }
 
-  protected boolean isAnnotationsAvailable() {
-    return false;//FIXME!!
+  public EParameter createParameter(EInvokable e) {
+    if (e == null) throw new IllegalArgumentException("null invokable");
+    EParameter param = e.addNewParameter();
+    param.setSimpleName(mName);
+    param.setUnqualifiedType(mType);
+    return param;
   }
 
-  protected boolean isParameterNamesKnown() {
-    return true;
-  }
 }

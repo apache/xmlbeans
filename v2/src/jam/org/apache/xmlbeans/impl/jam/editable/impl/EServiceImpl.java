@@ -48,8 +48,10 @@ public class EServiceImpl implements EService, JClassLoader {
   // ========================================================================
   // EService implementation
 
-  public EClass addNewClass(String packageName, String className) {
-    EClassImpl out = new EClassImpl(packageName,className,this);
+  public EClass addNewClass(String packageName,
+                            String className,
+                            String[] importSpecs) {
+    EClassImpl out = new EClassImpl(packageName,className,this,importSpecs);
     System.out.println("---= adding '"+out.getQualifiedName()+"'");
     mClasses.put(out.getQualifiedName(),out);
     return out;

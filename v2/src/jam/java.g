@@ -17,6 +17,7 @@ header {
 package org.apache.xmlbeans.impl.jam.internal.parser.generated;
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.parser.ParamStructPool;
 import org.apache.xmlbeans.impl.jam.editable.*;
 import org.apache.xmlbeans.impl.jam.editable.impl.*;
 import java.util.*;
@@ -175,7 +176,7 @@ options {
   private List mImports = new ArrayList();
   private List mClasses = new ArrayList();
 
-  private List mParamList = new ArrayList();
+  //private ParamStructPool mParamPool = new ParamStructPool();
   private List mExceptionList = new ArrayList();
   private JClassLoader mLoader = null;
 
@@ -236,8 +237,10 @@ options {
 
     private EClass newClass(String simpleName) {
     //FIXME more to do here
-      //EClass clazz = mResult.addNewClass(mPackage,simpleName/*,mImports*/);
-      EClass clazz = new EClassImpl(mPackage,simpleName,mLoader);
+      //EClass clazz = mResult.addNewClass(mPackage,simpleName,mImports);
+      String[] importSpecs = new String[mImports.size()];
+      mImports.toArray(importSpecs);
+      EClass clazz = new EClassImpl(mPackage,simpleName,mLoader,importSpecs);
       mClasses.add(clazz);
       return clazz;
     }
@@ -347,9 +350,9 @@ modifiedMember[EClass clazz, int modifiers]
 
 constructor[EClass clazz, int modifiers, String name]
 {
-  List params = new ArrayList(); //FIXME try reuse this please
+  ParamStructPool pool = new ParamStructPool();
 }
-  : (LPAREN (parameterList[params])? RPAREN (throwsClause[mExceptionList])? statement_block)
+  : (LPAREN (parameterList[pool])? RPAREN (throwsClause[mExceptionList])? statement_block)
 {
   if (!name.equals(clazz.getSimpleName())) {
     throw new IllegalArgumentException("FIXME not a constructor '"+
@@ -357,8 +360,7 @@ constructor[EClass clazz, int modifiers, String name]
   }
   EConstructorImpl constr = (EConstructorImpl)clazz.addNewConstructor();
   constr.setModifiers(modifiers);
-  System.out.println("============== Setting params "+params.size());
-  constr.setParameters(params);
+  pool.setParametersOn(constr);
   constr.setUnqualifiedThrows(mExceptionList);
   applyJavadocs(constr);
 
@@ -383,16 +385,15 @@ fieldOrMethod[EClass clazz, int modifiers, String type]
 	  )
 	  |
 	  (
-	  { List params = new ArrayList();  //FIXME can we reuse this please?
+	  { ParamStructPool pool = new ParamStructPool();  //FIXME can we reuse this please?
 	  }
-      (LPAREN (parameterList[params])? RPAREN tweener (throwsClause[mExceptionList])? (statement_block | SEMI)) {
+      (LPAREN (parameterList[pool])? RPAREN tweener (throwsClause[mExceptionList])? (statement_block | SEMI)) {
         if (VERBOSE) System.out.println("creating method "+name);
         EMethodImpl method = (EMethodImpl)clazz.addNewMethod();
         method.setSimpleName(name);
         method.setUnqualifiedReturnType(type);
         method.setModifiers(modifiers);
-        System.out.println("============== Setting params "+params.size());
-        method.setParameters(mParamList);
+        pool.setParametersOn(method);
         method.setUnqualifiedThrows(mExceptionList);
         applyJavadocs(method);
       }
@@ -425,24 +426,18 @@ throwsClause[List out]
 
 
 // A list of formal parameters
-parameterList[Collection list] {}
-	:	(parameter[list] (COMMA parameter[list])*)
+parameterList[ParamStructPool pool]
+	:	(parameter[pool] (COMMA parameter[pool])*)
 ;
 
 // A formal parameter.
-parameter[Collection list]
+parameter[ParamStructPool pool]
 {
   String type;
   String name;
 }
 : tweener ("final")? t:IDENT tweener n:IDENT tweener {
-
-  EParameterImpl param = new EParameterImpl();
-  param.setUnqualifiedType(t.getText());
-  param.setSimpleName(n.getText());
-  list.add(param);
-  System.out.println("\n\n\nadded to list!! "+list.size()+"\n\n\n");
-
+  pool.add(t.getText(),n.getText());
 }
 ;
 

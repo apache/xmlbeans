@@ -16,6 +16,10 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EMethod;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.internal.VoidJClass;
 
@@ -34,7 +38,7 @@ public class EMethodImpl extends EInvokableImpl implements EMethod {
   // ========================================================================
   // Variables
 
-  private String mReturnTypeName = null;
+  private JClassRef mReturnTypeRef = null;
 
   // ========================================================================
   // Constructors
@@ -47,25 +51,27 @@ public class EMethodImpl extends EInvokableImpl implements EMethod {
   // EMethod implementation
 
   public void setReturnType(String className) {
-    mReturnTypeName = className;
+    mReturnTypeRef = QualifiedJClassRef.create
+            (className,(EClassImpl)getContainingClass());
   }
 
   public void setUnqualifiedReturnType(String unqualifiedTypeName) {
-    mReturnTypeName = unqualifiedTypeName; //FIXME
+    mReturnTypeRef = UnqualifiedJClassRef.create
+            (unqualifiedTypeName,(EClassImpl)getContainingClass());
   }
 
   public void setReturnType(JClass c) {
-    setReturnType(c.getQualifiedName());
+    mReturnTypeRef = DirectJClassRef.create(c);
   }
 
   // ========================================================================
   // JMethod implementation
 
   public JClass getReturnType() {
-    if (mReturnTypeName == null) {
+    if (mReturnTypeRef == null) {
       return VoidJClass.getInstance();
     } else {
-      return getClassLoader().loadClass(mReturnTypeName);
+      return mReturnTypeRef.getRefClass();
     }
   }
 

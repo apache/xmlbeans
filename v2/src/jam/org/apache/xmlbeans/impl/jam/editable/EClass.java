@@ -156,17 +156,6 @@ public interface EClass extends EMember, JClass {
    */
   public EMethod[] getEditableMethods();
 
-  /**
-   * Adds an import specification the the class.  This should be everything
-   * between 'import ' and ';'.  Wildcard '*' imports are valid.
-   */
-  public void addImportSpec(String spec);
-
-  /**
-   * Calls addImportSpec(String) for each String in the given Collection.
-   */
-  public void addImportSpecs(Collection c);
-
 
 
   // not sure that these are something we want to do.  is a property really
