@@ -228,18 +228,18 @@ public class DefaultTylarLoader implements TylarLoader {
    */
   /*
   private static String getEntryContents(JarInputStream in) throws IOException {
-  StringWriter writer = new StringWriter();
+  StringWriter output = new StringWriter();
   byte[] buffer = new byte[2056];
   int count = 0;
   while ((count = in.read(buffer, 0, buffer.length)) != -1) {
-  writer.write(new String(buffer, 0, count));
+  output.write(new String(buffer, 0, count));
   }
   if (VERBOSE) {
   System.out.println("=== ENTRY CONTENTS ===");
-  System.out.println(writer.toString());
+  System.out.println(output.toString());
   System.out.println("=== ENTRY CONTENTS ===");
   }
-  return writer.toString();
+  return output.toString();
   }
   */
 

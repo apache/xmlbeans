@@ -16,6 +16,10 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EField;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.JClass;
 
 import java.lang.reflect.Modifier;
@@ -30,16 +34,17 @@ public class EFieldImpl extends EMemberImpl implements EField {
   // ========================================================================
   // Variables
 
-  private String mTypeClassName;
+  private JClassRef mTypeClassRef;
 
   // ========================================================================
   // Constructors
 
   /*package*/ EFieldImpl(String simpleName,
-                         JClass containingClass,
-                         String typeClassName) {
+                         EClassImpl containingClass,
+                         String qualifiedTypeClassName) {
     super(simpleName,containingClass);
-    mTypeClassName = typeClassName;
+    mTypeClassRef = QualifiedJClassRef.create
+            (qualifiedTypeClassName,containingClass);
   }
 
   // ========================================================================
@@ -54,21 +59,28 @@ public class EFieldImpl extends EMemberImpl implements EField {
   // EField implementation
 
   public void setType(JClass type) {
-    setType(type.getQualifiedName());
+    if (type == null) throw new IllegalArgumentException("null type");
+    mTypeClassRef = DirectJClassRef.create(type);
   }
 
-  public void setType(String typeClassName) {
-    if (typeClassName == null) {
-      throw new IllegalArgumentException("null type class");
-    }
-    mTypeClassName = typeClassName;
+  public void setType(String qcname) {
+    if (qcname == null) throw new IllegalArgumentException("null qcname");
+    mTypeClassRef = QualifiedJClassRef.create
+            (qcname,(EClassImpl)getContainingClass());
+  }
+
+  public void setUnqualifiedType(String ucname) {
+    if (ucname == null) throw new IllegalArgumentException("null ucname");
+    mTypeClassRef = UnqualifiedJClassRef.create
+            (ucname,(EClassImpl)getContainingClass());
   }
 
   // ========================================================================
   // JField implementation
 
   public JClass getType() {
-    return getClassLoader().loadClass(mTypeClassName);
+    if (mTypeClassRef == null) throw new IllegalStateException();
+    return mTypeClassRef.getRefClass();
   }
 
   public boolean isFinal() {

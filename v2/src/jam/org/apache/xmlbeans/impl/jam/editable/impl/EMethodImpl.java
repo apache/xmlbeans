@@ -22,15 +22,14 @@ import org.apache.xmlbeans.impl.jam.internal.VoidJClass;
 import java.lang.reflect.Modifier;
 
 /**
- * Standard implementation of EMethod.  It's probably bad inheritance to
+ * <p>Standard implementation of EMethod.  It's probably bad inheritance to
  * extend EConstructorImpl, but it's convenient and no one should ever care
  * since this is a private class; there is no inheritance between method and
- * constructor in the public API.
+ * constructor in the public API.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class EMethodImpl extends EConstructorImpl implements EMethod {
-
+public class EMethodImpl extends EInvokableImpl implements EMethod {
 
   // ========================================================================
   // Variables
@@ -40,7 +39,7 @@ public class EMethodImpl extends EConstructorImpl implements EMethod {
   // ========================================================================
   // Constructors
 
-  public EMethodImpl(String simpleName, JClass containingClass) {
+  public EMethodImpl(String simpleName, EClassImpl containingClass) {
     super(simpleName,containingClass);
   }
 
@@ -49,6 +48,10 @@ public class EMethodImpl extends EConstructorImpl implements EMethod {
 
   public void setReturnType(String className) {
     mReturnTypeName = className;
+  }
+
+  public void setUnqualifiedReturnType(String unqualifiedTypeName) {
+    mReturnTypeName = unqualifiedTypeName; //FIXME
   }
 
   public void setReturnType(JClass c) {

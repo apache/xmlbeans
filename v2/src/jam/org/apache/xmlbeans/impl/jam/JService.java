@@ -48,6 +48,15 @@ public interface JService {
    */
   public JClassIterator getClasses();
 
+  /**
+   * Returns all of the JClasses returned by getClasses() in a single
+   * array.  Use of this method (as opposed to getClasses()) is not advised
+   * if you expect to be dealing with a very large set of classes, as it makes
+   * it less likely that JClasses will be garbage collected when no longer
+   * needed.
+   */
+  public JClass[] getAllClasses();
+
   //public void invalidate(JClass clazz);
 
   //public void invalidateAll();

@@ -61,7 +61,7 @@ import java.util.Set;
  * A version of Hashtable that supports mostly-concurrent reading, but
  * exclusive writing.  Because reads are not limited to periods
  * without writes, a concurrent reader policy is weaker than a classic
- * reader/writer policy, but is generally faster and allows more
+ * reader/output policy, but is generally faster and allows more
  * concurrency. This class is a good choice especially for tables that
  * are mainly created by one thread during the start-up phase of a
  * program, and from then on, are mainly read (with perhaps occasional

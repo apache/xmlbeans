@@ -36,6 +36,8 @@ public abstract class EElementImpl implements EElement {
   // ========================================================================
   // Constructors
 
+  protected EElementImpl() {}
+
   protected EElementImpl(String simpleName, JClassLoader loader) {
     if (simpleName == null) throw new IllegalArgumentException("null name");
     mSimpleName = simpleName;

@@ -12,50 +12,48 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.internal.parser;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.provider.JStoreParams;
+import org.apache.xmlbeans.impl.jam.provider.JPath;
+import org.apache.xmlbeans.impl.jam.internal.BaseJClassLoader;
+import java.io.*;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
  *
- * @deprecated this is being replaced by JInitializer.
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public class SourceClassLoader extends BaseJClassLoader {
 
   // ========================================================================
   // Variables
 
-  private JClassBuilder[] mServices;
+  private JPath mSourcePath;
 
   // ========================================================================
   // Constructors
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  public SourceClassLoader(JStoreParams params) {
+    super(params.getParentClassLoader());
+    mSourcePath = params.getInputSourcepath();
   }
 
   // ========================================================================
-  // JClassBuilder implementation
+  // BaseJClassLoader implementation
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
+  protected JClass createClass(String qcname) {
+    qcname = qcname.replace('.',File.separatorChar)+".java";
+    InputStream in = mSourcePath.findInPath(qcname);
+    if (in == null) return null;
+    Reader rin = new InputStreamReader(in);
+    try {
+      EClass[] clazz = new JavaSourceParser().parse(rin);
+      return clazz[0]; //FIXME deal properly with multiple classes
+    } catch(Throwable t) {
+      t.printStackTrace();
     }
     return null;
   }
-
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
-  }
-
 }

@@ -109,6 +109,7 @@ public class JamPrinter {
   }
 
   private String getTypeKey(Object o) {
+    if (o == null) return "[?UNKNOWN!]";
     String type = o.getClass().getName();
     int lastDot = type.lastIndexOf(".");
     if (lastDot != -1 && lastDot + 1 < type.length()) {

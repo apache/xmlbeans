@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.binding.joust;
 
 /**
  * An Expression which has the property of assignability.  This interface
- * simply ensures some basic correctness in the code generator.  Several
+ * simply ensures some basic correctness in the code output.  Several
  * methods on JavaOutputStream (e.g. createMemberVariable) return instances of
  * Variable, and several other methods (e.g. writeAssignmentStatement) may
  * require a Variable as a parameter.

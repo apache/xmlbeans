@@ -19,6 +19,8 @@ import org.apache.xmlbeans.impl.jam.editable.EMember;
 import org.apache.xmlbeans.impl.jam.*;
 
 import java.lang.reflect.Modifier;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -30,12 +32,15 @@ public abstract class EMemberImpl extends EElementImpl implements EMember {
   // Variables
 
   private int mModifiers = 0;
-  private JClass mContainingClass = null;
+  private EClassImpl mContainingClass = null;
+  private List mComments = null;
 
   // ========================================================================
   // Constructors
 
-  protected EMemberImpl(String simpleName, JClass containingClass) {
+  protected EMemberImpl() {}
+
+  protected EMemberImpl(String simpleName, EClassImpl containingClass) {
     super(simpleName,containingClass.getClassLoader());
     if (containingClass == null) {
       throw new IllegalArgumentException("null class");
@@ -79,6 +84,18 @@ public abstract class EMemberImpl extends EElementImpl implements EMember {
 
   public void setModifiers(int modifiers) {
     mModifiers = modifiers;
+  }
+
+  public void addComment(String comment) {
+    if (mComments == null) mComments = new ArrayList();
+    mComments.add(comment);
+  }
+
+  // ========================================================================
+  // Package methods
+
+  /*package*/ void setContainingClass(EClassImpl c) {
+    mContainingClass = c;
   }
 
 }

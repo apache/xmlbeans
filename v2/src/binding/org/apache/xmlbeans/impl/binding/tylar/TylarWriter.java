@@ -48,7 +48,7 @@ public interface TylarWriter {
    * Returns the JavaOutputStream which should be used for creating new java
    * code to be stored in this tylar.  Note that the caller should never
    * close this stream directly; it will be closed by TylarWriter.close();
-   * This method may return null, indicating the writer does not support
+   * This method may return null, indicating the output does not support
    * java code generation.
    */
   public JavaOutputStream getJavaOutputStream();

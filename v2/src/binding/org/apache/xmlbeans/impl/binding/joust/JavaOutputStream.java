@@ -20,12 +20,12 @@ import java.io.IOException;
 /**
  * <p>A JavaOutputStream is a service which provides sequential, read-only
  * java code-generation service. This is not a general-purpose java code
- * generator, but rather is tailored to produce java constructs required
+ * output, but rather is tailored to produce java constructs required
  * for XMLbeans.</p>
  *
  * <p>By using this interface, the schema-to-java binding logic is isolated from
  * the details of java code generation.  This in turn allows for pluggability
- * of the generation logic - for example, one code generator might generate
+ * of the generation logic - for example, one code output might generate
  * java source files, while another might directly generate byte codes in
  * memory.</p>
  *

@@ -78,7 +78,7 @@ public class EServiceFactory {
       EClass testClass = service.addNewClass("com.bea.pcal","TestClass");
       EClass fooClass = service.addNewClass("com.bea.pcal","Foo");
       testClass.addNewMethod("getFoo").setReturnType(fooClass);
-      testClass.addNewField("com.bea.pcal.Foo","localFoo");
+      testClass.addNewField("com.bea.pcal.Foo").setUnqualifiedType("TestClass");
       //
 
       JamPrinter.newInstance().print(service.getClasses(),out);

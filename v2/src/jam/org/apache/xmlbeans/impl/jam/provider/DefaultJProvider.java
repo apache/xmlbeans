@@ -16,13 +16,13 @@
 package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.JProvider;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.JServiceParamsImpl;
-import org.apache.xmlbeans.impl.jam.internal.reflect.RClassBuilder;
-import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.reflect.RClassLoader;
+import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassLoaderFactory;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 
@@ -47,45 +47,56 @@ public class DefaultJProvider extends BaseJProvider {
   // ========================================================================
   // BaseJProvider implementation
 
-  public JClassBuilder createJClassBuilder(JInitializerParams params)
-          throws IOException
+  public JClassLoader createClassLoader(JServiceParamsImpl params,
+                                        JClassLoader parent)
+    throws IOException
   {
-    List builderList = new ArrayList();
-    if (params.getInputSourcepath() != null) {
-      builderList.add(createSourceService(params));
+    JClassLoader classfileLoader = createClassfileLoader(params,parent);
+    if (classfileLoader != null) parent = classfileLoader;
+    JClassLoader sourceLoader = createSourceLoader(params,parent);
+    if (sourceLoader != null) {
+      return sourceLoader;
+    } else {
+      return parent;
     }
-    if (params.getInputClasspath() != null) {
-      builderList.add(createClassService(params));
-    }
-    JClassBuilder[] builderArray = new JClassBuilder[builderList.size()];
-    builderList.toArray(builderArray);
-    return new CompositeJClassBuilder(builderArray);
   }
 
   // ========================================================================
   // Public methods
 
-  public JClassBuilder createSourceService(JInitializerParams jp)
+  public JClassLoader createSourceLoader(JServiceParamsImpl params,
+                                              JClassLoader parent)
           throws IOException
   {
     //FIXME someday should make the name of the service class to use here
     //settable via a system property
-    return JDClassBuilder.create((JServiceParamsImpl)jp);
+    File[] files = params.getSourceFiles();
+    String sourcePath = (params.getInputSourcepath() == null) ? null :
+            params.getInputSourcepath().toString();
+    String classPath = (params.getInputClasspath() == null) ? null :
+            params.getInputClasspath().toString();
+    return JDClassLoaderFactory.getInstance().
+            create(files,
+                   parent,
+                   params.getAnnotationLoader(),
+                   params.getOut(),
+                   sourcePath,
+                   classPath,
+                   null);//FIXME get javadoc args from param props
   }
 
-  public JClassBuilder createClassService(JInitializerParams jp)
+  public JClassLoader createClassfileLoader(JStoreParams jp,
+                                            JClassLoader parent)
           throws IOException
   {
     //FIXME someday should make the name of the service class to use here
     //settable via a system property
     JPath cp = jp.getInputClasspath();
     if (cp == null) {
-      return RClassBuilder.getSystemClassBuilder();
+      return null;
     } else {
       URL[] urls = cp.toUrlPath();
-      return RClassBuilder.getClassBuilderFor(new URLClassLoader(urls));
+      return new RClassLoader(new URLClassLoader(urls),parent);
     }
   }
-
-
 }

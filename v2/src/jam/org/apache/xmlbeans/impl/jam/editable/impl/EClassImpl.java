@@ -16,18 +16,23 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRefContext;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.ObjectJClass;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collection;
+import java.util.*;
 import java.lang.reflect.Modifier;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class EClassImpl extends EMemberImpl implements EClass {
+public class EClassImpl extends EMemberImpl
+        implements EClass, JClassRef, JClassRefContext
+ {
 
   // ========================================================================
   // Variables
@@ -35,9 +40,9 @@ public class EClassImpl extends EMemberImpl implements EClass {
   private String mPackageName = null;
 
   // name of the class we extend, or null
-  private String mSuperClassName = null;
+  private JClassRef mSuperClassRef = null;
   // list of names of interfaces we implement, or null
-  private ArrayList mInterfaceNames = null;
+  private ArrayList mInterfaceRefs = null;
 
   private ArrayList mFields = null;
   private ArrayList mMethods = null;
@@ -45,6 +50,13 @@ public class EClassImpl extends EMemberImpl implements EClass {
 
   // are we an interface or a class?
   private boolean mIsInterface = false;
+
+  private List mImports = null;
+
+  // FIXME implement this - we should only create one UnqualifiedJClassRef
+  // for each unqualified name so as to avoid resolving them over and over.
+  private Map mName2Uqref = null;
+
 
   // ========================================================================
   // Constructors
@@ -64,20 +76,20 @@ public class EClassImpl extends EMemberImpl implements EClass {
   }
 
   public JClass getSuperclass() {
-    if (mSuperClassName == null) {
+    if (mSuperClassRef == null) {
       return null;
     } else {
-      return getClassLoader().loadClass(mSuperClassName);
+      return mSuperClassRef.getRefClass();
     }
   }
 
   public JClass[] getInterfaces() {
-    if (mInterfaceNames == null || mInterfaceNames.size() == 0) {
+    if (mInterfaceRefs == null || mInterfaceRefs.size() == 0) {
       return new JClass[0];
     } else {
-      JClass[] out = new JClass[mInterfaceNames.size()];
+      JClass[] out = new JClass[mInterfaceRefs.size()];
       for(int i=0; i<out.length; i++) {
-        out[i] = getClassLoader().loadClass((String)mInterfaceNames.get(i));
+        out[i] = ((JClassRef)mInterfaceRefs.get(i)).getRefClass();
       }
       return out;
     }
@@ -196,13 +208,18 @@ public class EClassImpl extends EMemberImpl implements EClass {
   // ========================================================================
   // EClass implementation
 
-  public void setSuperclass(String className) {
-    mSuperClassName = className;
+  public void setSuperclass(String qualifiedClassName) {
+    mSuperClassRef = QualifiedJClassRef.create(qualifiedClassName, this);
+  }
+
+  public void setSuperclassUnqualified(String unqualifiedClassName) {
+    //FIXME
+    setSuperclass(unqualifiedClassName);
   }
 
   public void setSuperclass(JClass clazz) {
     if (clazz == null) {
-      mSuperClassName = null;
+      mSuperClassRef = null;
     } else {
       setSuperclass(clazz.getQualifiedName());
     }
@@ -213,9 +230,14 @@ public class EClassImpl extends EMemberImpl implements EClass {
     addInterface(interf.getQualifiedName());
   }
 
-  public void addInterface(String className) {
-    if (mInterfaceNames == null) mInterfaceNames = new ArrayList();
-    mInterfaceNames.add(className);
+  public void addInterface(String qcname) {
+    if (mInterfaceRefs == null) mInterfaceRefs = new ArrayList();
+    mInterfaceRefs.add(QualifiedJClassRef.create(qcname,this));
+  }
+
+  public void addInterfaceUnqualified(String ucname) {
+    if (mInterfaceRefs == null) mInterfaceRefs = new ArrayList();
+    mInterfaceRefs.add(UnqualifiedJClassRef.create(ucname,this));
   }
 
   public void removeInterface(JClass interf) {
@@ -223,10 +245,16 @@ public class EClassImpl extends EMemberImpl implements EClass {
     removeInterface(interf.getQualifiedName());
   }
 
-  public void removeInterface(String className) {
-    if (className == null) throw new IllegalArgumentException("null classname");
-    if (mInterfaceNames == null) return;
-    mInterfaceNames.remove(className);
+  public void removeInterface(String qcname) {
+    //REVIEW this is quite inefficient, but maybe it doesnt matter so much
+    if (qcname == null) throw new IllegalArgumentException("null classname");
+    if (mInterfaceRefs == null) return;
+    for(int i=0; i<mInterfaceRefs.size(); i++) {
+      if (qcname.equals
+              (((JClassRef)mInterfaceRefs.get(i)).getQualifiedName())) {
+        mInterfaceRefs.remove(i);
+      }
+    }
   }
 
   public EConstructor addNewConstructor() {
@@ -250,19 +278,12 @@ public class EClassImpl extends EMemberImpl implements EClass {
     return out;
   }
 
-  public EField addNewField(String typeName, String name) {
-    if (typeName == null) throw new IllegalArgumentException("null typeName");
+  public EField addNewField(String name) {
     if (name == null) throw new IllegalArgumentException("null name");
     if (mFields == null) mFields = new ArrayList();
-    EField out = new EFieldImpl(name,this,typeName);
+    EField out = new EFieldImpl(name,this,"java.lang.Object");
     mFields.add(out);
     return out;
-  }
-
-  public EField addNewField(JClass type, String name) {
-    if (type == null) throw new IllegalArgumentException("null type");
-    if (name == null) throw new IllegalArgumentException("null name");
-    return addNewField(type.getQualifiedName(),name);
   }
 
   public void removeField(EField field) {
@@ -301,7 +322,46 @@ public class EClassImpl extends EMemberImpl implements EClass {
     return out;
   }
 
- // ========================================================================
+  public void addImportSpec(String spec) {
+    if (spec == null) throw new IllegalArgumentException("null spec");
+    if (mImports == null) mImports = new ArrayList();
+    mImports.add(spec);
+  }
+
+  public void addImportSpecs(Collection c) {
+    if (c == null) throw new IllegalArgumentException("null collection");
+    for(Iterator i = c.iterator(); i.hasNext(); ) {
+      addImportSpec((String)i.next());
+    }
+  }
+
+  public void setIsInterface(boolean b) {
+    mIsInterface = b;
+  }
+
+  public String getQualifiedName() {
+    return mPackageName+ '.' +getSimpleName();
+  }
+
+
+  // ========================================================================
+  // JClassRef implementation
+
+  public JClass getRefClass() {
+    return this;
+  }
+
+  // ========================================================================
+  // JClassRefContext implementation
+
+  public String[] getImportSpecs() {
+    if (mImports == null) return new String[0];
+    String[] out = new String[mImports.size()];
+    mImports.toArray(out);
+    return out;
+  }
+
+  // ========================================================================
   // Private methods
 
   private boolean isAssignableFromRecursively(JClass arg) {
@@ -349,7 +409,4 @@ public class EClassImpl extends EMemberImpl implements EClass {
     }
   }
 
-  public String getQualifiedName() {
-    return mPackageName+ '.' +getSimpleName();
-  }
 }

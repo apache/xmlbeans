@@ -75,7 +75,7 @@ public class BindingTests extends TestCase
     if (verbose) {
       sourceOut = new PrintWriter(System.out);
     } else {
-      sourceOut = new PrintWriter(new Writer() { //null writer
+      sourceOut = new PrintWriter(new Writer() { //null output
         public void write(char cbuf[], int off, int len) {}
         public void close() {};
         public void flush() {};

@@ -27,8 +27,6 @@ import org.apache.xmlbeans.impl.jam.internal.*;
 /**
  * java.lang.ClassLoader-backed implementation of JClassLoader.
  *
- * @deprecated To be removed when JFactory is ripped out.
- *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public class RClassLoader implements JClassLoader {

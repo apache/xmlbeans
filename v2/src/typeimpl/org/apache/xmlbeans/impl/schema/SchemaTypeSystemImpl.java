@@ -3240,7 +3240,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     }
 
     /**
-     * Used INTERNALLY ONLY by the code generator AFTER the type system has
+     * Used INTERNALLY ONLY by the code output AFTER the type system has
      * been saved and a handle has been established for each type.
      */
     public String handleForType(SchemaType type)
