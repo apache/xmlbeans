@@ -65,8 +65,6 @@ import java.io.Writer;
 import java.io.File;
 import java.io.IOException;
 
-// import javax.xml.stream.XMLStreamReader;
-
 import org.w3c.dom.Node;
 
 import org.xml.sax.ContentHandler;
@@ -129,12 +127,6 @@ public interface XmlTokenSource
      */
     XMLInputStream newXMLInputStream();
     
-//    /**
-//     * Returns a new XMLStreamReader.
-//     *
-//     */
-//    XMLStreamReader newXMLStreamReader();
-
     /**
      * Returns standard XML text.
      *

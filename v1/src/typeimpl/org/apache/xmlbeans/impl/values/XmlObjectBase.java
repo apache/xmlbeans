@@ -59,8 +59,6 @@ package org.apache.xmlbeans.impl.values;
 import javax.xml.namespace.QName;
 import weblogic.xml.stream.XMLInputStream;
 
-import javax.xml.stream.XMLStreamReader;
-
 import java.math.BigInteger;
 import java.math.BigDecimal;
 import java.io.Serializable;
@@ -177,12 +175,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public Node newDomNode(XmlOptions options)
         { XmlCursor cur = newCursorForce(); try { return cur.newDomNode(makeInnerOptions(options)); } finally { cur.dispose(); } }
-
-//    public Node getDomNode()
-//        { XmlCursor cur = newCursorForce(); try { return cur.getDomNode(); } finally { cur.dispose(); } }
-
-//    public XMLStreamReader newXMLStreamReader ( )
-//        { XmlCursor cur = newCursorForce(); try { return cur.newXMLStreamReader(); } finally { cur.dispose(); } }
 
     public void save(ContentHandler ch, LexicalHandler lh, XmlOptions options) throws SAXException
         { XmlCursor cur = newCursorForce(); try { cur.save(ch, lh, makeInnerOptions(options)); } finally { cur.dispose(); } }
