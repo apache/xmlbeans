@@ -68,6 +68,7 @@
   <target name='jsr173'>
     <ant dir='..' target='jsr173.jar' inheritAll='false' />
     <ant dir='..' target='jsr173_ri.jar' inheritAll='false' />
+    <ant dir='..' target='jsr173_api.jar' inheritAll='false' />
   </target>
 
   <target name='test'>
