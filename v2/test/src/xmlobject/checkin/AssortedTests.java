@@ -24,6 +24,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlTime;
 import com.easypo.XmlPurchaseOrderDocumentBean;
+import com.easypo.XmlCustomerBean;
 import com.easypo.XmlLineItemBean;
 
 import java.math.BigInteger;
@@ -118,6 +119,36 @@ public class AssortedTests extends TestCase
         Assert.assertEquals(BigInteger.valueOf(1), xdoc.getPurchaseOrder().getLineItemArray(0).getQuantity());
         Assert.assertEquals(BigInteger.valueOf(200), xdoc.getPurchaseOrder().getLineItemArray(1).getQuantity());
         Assert.assertEquals(BigInteger.valueOf(4), xdoc.getPurchaseOrder().getLineItemArray(2).getQuantity());
+    }
+
+    // bug 45338
+    public static void testComplexGetter() throws Exception
+    {
+        XmlPurchaseOrderDocumentBean xdoc =
+            XmlPurchaseOrderDocumentBean.Factory.parse(
+                "<purchase-order xmlns='http://openuri.org/easypo'" +
+                    " xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
+                    " xsi:type='foo'>" +
+                 "<customer xsi:type='bar'>" +
+                   "<name>David Bau</name>" +
+                   "<address>100 Main Street</address>" +
+                 "</customer>" +
+                 "<date>2003-05-18T11:50:00</date>" +
+                 "<line-item>" +
+                  "<description>Blue Candy</description>" +
+                  "<per-unit-ounces>5.0</per-unit-ounces>" +
+                  "<quantity>1</quantity>" +
+                 "</line-item>" +
+                "</purchase-order>");
+
+        Assert.assertEquals(false, xdoc.validate());
+        Assert.assertEquals(XmlPurchaseOrderDocumentBean.type, xdoc.schemaType());
+
+        // check type of element when xsi:type is bad
+        XmlObject cust = xdoc.getPurchaseOrder().getCustomer();
+        Assert.assertEquals(XmlCustomerBean.type, cust.schemaType());
+
+        Assert.assertEquals("David Bau", ((XmlCustomerBean)cust).getName());
     }
     
     public static void donttestPrettyPrint() throws Exception
