@@ -12,31 +12,21 @@
 *   See the License for the specific language governing permissions and
 *  limitations under the License.
 */
-package org.apache.xmlbeans.test.performance.jaxb;
+package org.apache.xmlbeans.test.performance.v2;
 
 //import java.io.File;
-//import java.io.IOException;
-//import java.io.FileNotFoundException;
 import java.io.CharArrayReader;
-//import java.lang.UnsupportedOperationException;
 
-import org.apache.xmlbeans.test.performance.utils.PerfUtil;
 import org.apache.xmlbeans.test.performance.utils.Constants;
-
-// required by jaxb
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
-//import java.util.List;
-
-// from jaxb-generated schema jar(s)
-import org.openuri.easypo.PurchaseOrder;
-//import org.openuri.easypo.Customer;
-import org.openuri.easypo.LineItem;
+import org.apache.xmlbeans.test.performance.utils.PerfUtil;
+//import org.openuri.easypo.LineItem;
+import org.openuri.easypo.PurchaseOrderDocument;
 //import org.openuri.easypo.Shipper;
 
+import org.apache.xmlbeans.XmlObject;
 
-public class POReadOneJaxb
+
+public class POSelectLineItemsV2
 {
   public static void main(String[] args) throws Exception
   {
@@ -62,20 +52,26 @@ public class POReadOneJaxb
       default: filename = Constants.PO_INSTANCE_1; break;
       }
     }    
-   
-    POReadOneJaxb test = new POReadOneJaxb();
+
+    POSelectLineItemsV2 test = new POSelectLineItemsV2();
     PerfUtil util = new PerfUtil();
     long cputime;
     int hash = 0;
 
     // get the xmlinstance
     char[] chars = util.fileToChars(filename);
+    
+    // unmarshall the xml instance
+    PurchaseOrderDocument poDoc = 
+      PurchaseOrderDocument.Factory.parse(new CharArrayReader(chars));       
+    // retreive the purchase order
+    PurchaseOrderDocument.PurchaseOrder po = poDoc.getPurchaseOrder();
         
     // warm up the vm
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
       CharArrayReader reader = new CharArrayReader(chars);     
-      hash += test.run(reader);
+      hash += test.run(po);
     }
     cputime = System.currentTimeMillis() - cputime;
 
@@ -83,7 +79,7 @@ public class POReadOneJaxb
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
       CharArrayReader reader = new CharArrayReader(chars);     
-      hash += test.run(reader);
+      hash += test.run(po);
     }
     cputime = System.currentTimeMillis() - cputime;
       
@@ -94,21 +90,12 @@ public class POReadOneJaxb
     System.out.print("time "+cputime+"\n");
   }
 
-  private int run(CharArrayReader reader) throws Exception
+  private int run(PurchaseOrderDocument.PurchaseOrder p_po) throws Exception
   {
-    // create the xml source from the reader
-    StreamSource source = new StreamSource(reader);
-    // unmarshall the xml instance
-    JAXBContext context = JAXBContext.newInstance("org.openuri.easypo");
-    Unmarshaller unmarshaller = context.createUnmarshaller();
-    unmarshaller.setValidating(false);
-    PurchaseOrder po = 
-      (PurchaseOrder) unmarshaller.unmarshal(source);
-
-    // retreive the first line item
-    LineItem lineitem = (LineItem) po.getLineItem().get(0);
-  
-    // return the char length of the description
-    return lineitem.getDescription().length();
+  	XmlObject[] results = p_po.selectPath("declare namespace s='"+Constants.PO_NS+"'; "+
+  							".//s:line-item");
+  	
+    return results.length;
   }
+
 }

@@ -14,9 +14,9 @@
 */
 package org.apache.xmlbeans.test.performance.xerces;
 
-//import java.io.File;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+
 
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
@@ -29,47 +29,46 @@ import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
 
 
-public class BisLoadXercesSax
+public class MaxMemUntypedBisLoadXercesSax
 {
+ 
   public static void main(String[] args) throws Exception
   {
-    final int iterations = Constants.CURSOR_ITERATIONS;
-    String flavor;
+  	int interval = Constants.MEM_INTERVAL;
+  	long memory = Runtime.getRuntime().maxMemory();
+  	int size = 0;
+  	int hash = 0;
+    String flavor = null;
 
     if(args.length == 0)
       flavor = "deep-attributes";
     else
       flavor = args[0];
 
-
-    BisLoadXercesSax test = new BisLoadXercesSax();
+    MaxMemUntypedBisLoadXercesSax test = new MaxMemUntypedBisLoadXercesSax();
     PerfUtil util = new PerfUtil();
-    long cputime;
-    int hash = 0;
-
-    // get the buffered input stram
-    byte[] bytes = util.createXmlDataBytes(flavor, Constants.XML_SIZE);
-   
-    // warm up the vm
-    cputime = System.currentTimeMillis();
-    for(int i=0; i<iterations; i++){
-      hash += test.run(new BufferedInputStream(new ByteArrayInputStream(bytes) ));
-    }
-    cputime = System.currentTimeMillis() - cputime;
-
-    // run it again for the real measurement
-    cputime = System.currentTimeMillis();
-    for(int i=0; i<iterations; i++){
-      hash += test.run(new BufferedInputStream(new ByteArrayInputStream(bytes) ));
-    }
-    cputime = System.currentTimeMillis() - cputime;
     
-      
-    // print the results
-    // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
-    System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" flavor="+flavor+" ");
-    System.out.print("hash "+hash+" ");
-    System.out.print("time "+cputime+"\n");
+    try
+    {
+    	System.gc();
+    	// infinite for loop - go until get oom
+    	for(int i=1; true; i++)
+    	{
+    		System.gc();
+    		byte[] bytes = util.createXmlDataBytes(flavor,Constants.MEM_INITIALSIZE+(interval*i));
+    		hash += test.run(new BufferedInputStream(new ByteArrayInputStream(bytes)));
+    		size = bytes.length;
+    	}
+    }
+    catch (OutOfMemoryError oom)
+    {
+    	System.gc();
+        // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
+        System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" flavor="+flavor+" ");
+        System.out.print("hash "+hash+" ");
+        System.out.print("memory "+memory+" ");
+        System.out.println("size="+size);
+    }
   }
 
   private int run(BufferedInputStream bis) throws Exception 
@@ -108,5 +107,4 @@ public class BisLoadXercesSax
 
     }
   }
-
 }

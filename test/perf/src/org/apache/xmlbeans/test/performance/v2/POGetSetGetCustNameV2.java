@@ -12,37 +12,32 @@
 *   See the License for the specific language governing permissions and
 *  limitations under the License.
 */
-package org.apache.xmlbeans.test.performance.jaxb;
+package org.apache.xmlbeans.test.performance.v2;
 
-//import java.io.File;
-//import java.io.IOException;
-//import java.io.FileNotFoundException;
 import java.io.CharArrayReader;
-//import java.lang.UnsupportedOperationException;
 
 import org.apache.xmlbeans.test.performance.utils.PerfUtil;
 import org.apache.xmlbeans.test.performance.utils.Constants;
 
-// required by jaxb
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.transform.stream.StreamSource;
-//import java.util.List;
-
-// from jaxb-generated schema jar(s)
-import org.openuri.easypo.PurchaseOrder;
-//import org.openuri.easypo.Customer;
-import org.openuri.easypo.LineItem;
-//import org.openuri.easypo.Shipper;
+// from v2-generated schema jar(s)
+import org.openuri.easypo.PurchaseOrderDocument;
+import org.openuri.easypo.PurchaseOrderDocument.PurchaseOrder;
+import org.openuri.easypo.Customer;
 
 
-public class POReadOneJaxb
+public class POGetSetGetCustNameV2
 {
   public static void main(String[] args) throws Exception
   {
-    final int iterations = Constants.ITERATIONS;
-    String filename;
 
+    final int iterations = Constants.GET_SET_ITERATIONS;
+    String filename;
+    int stringSize = 0;
+    String stringToSet = "";
+
+    // the xml instance can be specified by either a number
+    // or the name of a file located in the test folder
+    // see Constants.java
     if(args.length == 0){
       filename = Constants.PO_INSTANCE_1;
     }
@@ -62,28 +57,45 @@ public class POReadOneJaxb
       default: filename = Constants.PO_INSTANCE_1; break;
       }
     }    
-   
-    POReadOneJaxb test = new POReadOneJaxb();
+
+    // the size of the string used is the second arg or default if not specified
+    if(args.length < 2)
+    {
+      stringSize = Constants.STRING_SIZE;
+    }
+    else
+    {
+      stringSize = Integer.parseInt(args[1]);
+    }
+
+    POGetSetGetCustNameV2 test = new POGetSetGetCustNameV2();
     PerfUtil util = new PerfUtil();
     long cputime;
     int hash = 0;
 
+    // create the string to be used for the set
+    stringToSet = util.createString(stringSize);
+
     // get the xmlinstance
     char[] chars = util.fileToChars(filename);
         
+    // parse the instance
+    PurchaseOrderDocument podoc = 
+      PurchaseOrderDocument.Factory.parse(new CharArrayReader(chars));
+    PurchaseOrder po = podoc.getPurchaseOrder();
+    Customer customer = po.getCustomer();
+
     // warm up the vm
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
-      CharArrayReader reader = new CharArrayReader(chars);     
-      hash += test.run(reader);
+      hash += test.run(customer, stringToSet);
     }
     cputime = System.currentTimeMillis() - cputime;
 
     // run it again for the real measurement
     cputime = System.currentTimeMillis();
-    for(int i=0; i<iterations; i++){
-      CharArrayReader reader = new CharArrayReader(chars);     
-      hash += test.run(reader);
+    for(int i=0; i<iterations; i++){     
+      hash += test.run(customer, stringToSet);
     }
     cputime = System.currentTimeMillis() - cputime;
       
@@ -94,21 +106,11 @@ public class POReadOneJaxb
     System.out.print("time "+cputime+"\n");
   }
 
-  private int run(CharArrayReader reader) throws Exception
+  private int run(Customer p_customer, String p_setval) throws Exception
   {
-    // create the xml source from the reader
-    StreamSource source = new StreamSource(reader);
-    // unmarshall the xml instance
-    JAXBContext context = JAXBContext.newInstance("org.openuri.easypo");
-    Unmarshaller unmarshaller = context.createUnmarshaller();
-    unmarshaller.setValidating(false);
-    PurchaseOrder po = 
-      (PurchaseOrder) unmarshaller.unmarshal(source);
-
-    // retreive the first line item
-    LineItem lineitem = (LineItem) po.getLineItem().get(0);
-  
-    // return the char length of the description
-    return lineitem.getDescription().length();
+    p_customer.getName();
+    p_customer.setName(p_setval);
+    return p_customer.getName().length() * 17;
   }
+
 }

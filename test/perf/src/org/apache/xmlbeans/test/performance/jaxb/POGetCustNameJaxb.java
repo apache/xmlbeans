@@ -30,17 +30,18 @@ import javax.xml.transform.stream.StreamSource;
 //import java.util.List;
 
 // from jaxb-generated schema jar(s)
+import org.openuri.easypo.Customer;
 import org.openuri.easypo.PurchaseOrder;
 //import org.openuri.easypo.Customer;
 import org.openuri.easypo.LineItem;
 //import org.openuri.easypo.Shipper;
 
 
-public class POReadOneJaxb
+public class POGetCustNameJaxb
 {
   public static void main(String[] args) throws Exception
   {
-    final int iterations = Constants.ITERATIONS;
+    final int iterations = Constants.GET_SET_ITERATIONS;
     String filename;
 
     if(args.length == 0){
@@ -63,19 +64,29 @@ public class POReadOneJaxb
       }
     }    
    
-    POReadOneJaxb test = new POReadOneJaxb();
+    POGetCustNameJaxb test = new POGetCustNameJaxb();
     PerfUtil util = new PerfUtil();
     long cputime;
     int hash = 0;
 
     // get the xmlinstance
     char[] chars = util.fileToChars(filename);
-        
+ 
+    // create the xml source from the reader
+    StreamSource source = new StreamSource(new CharArrayReader(chars));
+    // unmarshall the xml instance
+    JAXBContext context = JAXBContext.newInstance("org.openuri.easypo");
+    Unmarshaller unmarshaller = context.createUnmarshaller();
+    unmarshaller.setValidating(false);
+    PurchaseOrder po = 
+      (PurchaseOrder) unmarshaller.unmarshal(source);
+    Customer customer = po.getCustomer();
+    
     // warm up the vm
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
       CharArrayReader reader = new CharArrayReader(chars);     
-      hash += test.run(reader);
+      hash += test.run(customer);
     }
     cputime = System.currentTimeMillis() - cputime;
 
@@ -83,7 +94,7 @@ public class POReadOneJaxb
     cputime = System.currentTimeMillis();
     for(int i=0; i<iterations; i++){
       CharArrayReader reader = new CharArrayReader(chars);     
-      hash += test.run(reader);
+      hash += test.run(customer);
     }
     cputime = System.currentTimeMillis() - cputime;
       
@@ -94,21 +105,8 @@ public class POReadOneJaxb
     System.out.print("time "+cputime+"\n");
   }
 
-  private int run(CharArrayReader reader) throws Exception
+  private int run(Customer p_customer) throws Exception
   {
-    // create the xml source from the reader
-    StreamSource source = new StreamSource(reader);
-    // unmarshall the xml instance
-    JAXBContext context = JAXBContext.newInstance("org.openuri.easypo");
-    Unmarshaller unmarshaller = context.createUnmarshaller();
-    unmarshaller.setValidating(false);
-    PurchaseOrder po = 
-      (PurchaseOrder) unmarshaller.unmarshal(source);
-
-    // retreive the first line item
-    LineItem lineitem = (LineItem) po.getLineItem().get(0);
-  
-    // return the char length of the description
-    return lineitem.getDescription().length();
+    return p_customer.getName().length() * 17;
   }
 }

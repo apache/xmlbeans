@@ -17,6 +17,7 @@ package org.apache.xmlbeans.test.performance.v2;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.test.performance.utils.Constants;
 import org.apache.xmlbeans.test.performance.utils.PerfUtil;
@@ -56,7 +57,8 @@ public class MaxMemUntypedBisLoadV2
     catch (OutOfMemoryError oom)
     {
     	System.gc();
-        System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" flavor="+flavor+" ");
+        // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
+        System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" flavor="+flavor+" ");
         System.out.print("hash "+hash+" ");
         System.out.print("memory "+memory+" ");
         System.out.println("size="+size);
@@ -67,6 +69,10 @@ public class MaxMemUntypedBisLoadV2
   {
     // load the buffered input stream
     XmlObject xobj = XmlObject.Factory.parse(p_bis);
-    return xobj.hashCode();
+    
+    // calculate and return the hash value
+    XmlCursor cursor = xobj.newCursor();
+    cursor.toFirstContentToken();
+    return cursor.getName().toString().length() * 17;
   }
 }

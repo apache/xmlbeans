@@ -31,7 +31,7 @@ public class Constants
   public static final int XML_SIZE = 10000;
 
   // for getting/setting scenarios
-  public static final int GET_SET_ITERATIONS = 1000000;
+  public static final int GET_SET_ITERATIONS = 5000000;
   public static final int STRING_SIZE = 1000;
 
   // schema instances

@@ -77,7 +77,8 @@ public class POReadAllV2
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" filesize="+chars.length+" ");
+    // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
+    System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" filesize="+chars.length+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

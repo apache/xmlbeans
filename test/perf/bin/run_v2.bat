@@ -12,6 +12,34 @@ call v2.bat POReadOneV2 filename 4
 call v2.bat POReadOneV2 filename 5
 call v2.bat POReadOneV2 filename 6
 call v2.bat POReadOneV2 filename 7
+call v2.bat POGetCustNameV2 filename 1
+call v2.bat POGetCustNameV2 filename 2
+call v2.bat POGetCustNameV2 filename 3
+call v2.bat POGetCustNameV2 filename 4
+call v2.bat POGetCustNameV2 filename 5
+call v2.bat POGetCustNameV2 filename 6
+call v2.bat POGetCustNameV2 filename 7
+call v2.bat POGetSetGetCustNameV2 filename 1
+call v2.bat POGetSetGetCustNameV2 filename 2
+call v2.bat POGetSetGetCustNameV2 filename 3
+call v2.bat POGetSetGetCustNameV2 filename 4
+call v2.bat POGetSetGetCustNameV2 filename 5
+call v2.bat POGetSetGetCustNameV2 filename 6
+call v2.bat POGetSetGetCustNameV2 filename 7
+call v2.bat POSelectLineItemsV2 filename 1
+call v2.bat POSelectLineItemsV2 filename 2
+call v2.bat POSelectLineItemsV2 filename 3
+call v2.bat POSelectLineItemsV2 filename 4
+call v2.bat POSelectLineItemsV2 filename 5
+call v2.bat POSelectLineItemsV2 filename 6
+call v2.bat POSelectLineItemsV2 filename 7
+call v2.bat POQueryLineItemsV2 filename 1
+call v2.bat POQueryLineItemsV2 filename 2
+call v2.bat POQueryLineItemsV2 filename 3
+call v2.bat POQueryLineItemsV2 filename 4
+call v2.bat POQueryLineItemsV2 filename 5
+call v2.bat POQueryLineItemsV2 filename 6
+call v2.bat POQueryLineItemsV2 filename 7
 call v2.bat POTopDownV2
 call v2.bat POTopDownSaveV2
 call v2.bat POValidateXmlObjV2

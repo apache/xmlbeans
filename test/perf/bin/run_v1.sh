@@ -12,6 +12,27 @@ sh ./v1.sh POReadOneV1 4
 sh ./v1.sh POReadOneV1 5 
 sh ./v1.sh POReadOneV1 6 
 sh ./v1.sh POReadOneV1 7 
+sh ./v1.sh POGetCustNameV1 filename 1
+sh ./v1.sh POGetCustNameV1 filename 2
+sh ./v1.sh POGetCustNameV1 filename 3
+sh ./v1.sh POGetCustNameV1 filename 4
+sh ./v1.sh POGetCustNameV1 filename 5
+sh ./v1.sh POGetCustNameV1 filename 6
+sh ./v1.sh POGetCustNameV1 filename 7
+sh ./v1.sh POGetSetGetCustNameV1 filename 1
+sh ./v1.sh POGetSetGetCustNameV1 filename 2
+sh ./v1.sh POGetSetGetCustNameV1 filename 3
+sh ./v1.sh POGetSetGetCustNameV1 filename 4
+sh ./v1.sh POGetSetGetCustNameV1 filename 5
+sh ./v1.sh POGetSetGetCustNameV1 filename 6
+sh ./v1.sh POGetSetGetCustNameV1 filename 7
+sh ./v1.sh POSelectLineItemsV1 filename 1
+sh ./v1.sh POSelectLineItemsV1 filename 2
+sh ./v1.sh POSelectLineItemsV1 filename 3
+sh ./v1.sh POSelectLineItemsV1 filename 4
+sh ./v1.sh POSelectLineItemsV1 filename 5
+sh ./v1.sh POSelectLineItemsV1 filename 6
+sh ./v1.sh POSelectLineItemsV1 filename 7
 sh ./v1.sh POTopDownV1
 sh ./v1.sh POTopDownSaveV1
 sh ./v1.sh POValidateXmlObjV1
