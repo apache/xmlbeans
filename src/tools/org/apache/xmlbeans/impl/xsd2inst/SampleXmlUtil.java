@@ -515,7 +515,7 @@ public class SampleXmlUtil
                 increment = new BigDecimal(sb.toString());
             }
             else
-                increment = new BigDecimal(1);
+                increment = new BigDecimal(1.0);
         }
 
         if (minOk && maxOk)

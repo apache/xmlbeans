@@ -85,7 +85,7 @@ public class SchemaCompiler
         System.out.println("    -verbose - print more informational messages");
         System.out.println("    -version - prints version information");
         System.out.println("    -license - prints license information");
-        System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces");
+        System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces (use ##local for no-namespace)");
         System.out.println("    -catalog [file] -  catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)");
         /* Undocumented feature - pass in one schema compiler extension and related parameters
         System.out.println("    -repackage - repackage specification");
@@ -322,8 +322,8 @@ public class SchemaCompiler
 
         if (xsdFiles.length + wsdlFiles.length + urlFiles.length == 0)
         {
-            System.err.println("Could not find any xsd or wsdl files to process.");
-            System.exit(1);
+            System.out.println("Could not find any xsd or wsdl files to process.");
+            System.exit(0);
         }
         File baseDir = cl.getBaseDir();
         URI baseURI = baseDir == null ? null : baseDir.toURI();

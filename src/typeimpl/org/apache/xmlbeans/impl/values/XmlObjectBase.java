@@ -674,7 +674,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             set_prepare();
 
             // if we're not nillable, throw exception on setNil(true)
-            if ((_flags & FLAG_NILLABLE) == 0)
+            if ((_flags & FLAG_NILLABLE) == 0 &&
+                (_flags & FLAG_VALIDATE_ON_SET) != 0)
                 throw new XmlValueNotNillableException();
 
             // the implementation should zero the value to reflect nil
