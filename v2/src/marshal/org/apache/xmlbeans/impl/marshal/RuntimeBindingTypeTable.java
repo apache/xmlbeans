@@ -62,9 +62,16 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.marshal.builtin.BooleanLexerPrinter;
+import org.apache.xmlbeans.impl.marshal.builtin.ByteLexerPrinter;
+import org.apache.xmlbeans.impl.marshal.builtin.DoubleLexerPrinter;
+import org.apache.xmlbeans.impl.marshal.builtin.FloatLexerPrinter;
+import org.apache.xmlbeans.impl.marshal.builtin.IntLexerPrinter;
+import org.apache.xmlbeans.impl.marshal.builtin.LongLexerPrinter;
+import org.apache.xmlbeans.impl.marshal.builtin.ShortLexerPrinter;
+import org.apache.xmlbeans.impl.marshal.builtin.StringLexerPrinter;
 
 import javax.xml.namespace.QName;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -75,14 +82,41 @@ import java.util.Set;
  */
 class RuntimeBindingTypeTable
 {
-
+    //key is BindingType, value is TTEntry
     private final Map typeMap = new HashMap();
 
-    protected static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
+    private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
 
-    RuntimeBindingTypeTable()
+    private static final Map BUILTIN_TYPE_MAP = createBuiltinTypeMap();
+
+
+    public static RuntimeBindingTypeTable createRuntimeBindingTypeTable()
     {
-        addBuiltins();
+        //this pseudo-clone is to ensure that we only have one instance of
+        //all builtin (un)marshallers per JVM,
+        //without having to make each builtin a singleton.
+
+        final RuntimeBindingTypeTable tbl = new RuntimeBindingTypeTable();
+        final Map tbl_map = tbl.typeMap;
+        final Set entries = BUILTIN_TYPE_MAP.entrySet();
+        for (Iterator itr = entries.iterator(); itr.hasNext();) {
+            Map.Entry entry = (Map.Entry)itr.next();
+            final TTEntry value = (TTEntry)entry.getValue();
+            tbl_map.put(entry.getKey(), value.shallowCopy());
+        }
+        return tbl;
+    }
+
+
+    private static Map createBuiltinTypeMap()
+    {
+        RuntimeBindingTypeTable builtins = new RuntimeBindingTypeTable();
+        builtins.addBuiltins();
+        return builtins.typeMap;
+    }
+
+    private RuntimeBindingTypeTable()
+    {
     }
 
     TypeUnmarshaller getTypeUnmarshaller(BindingType key)
@@ -119,12 +153,6 @@ class RuntimeBindingTypeTable
         e.typeMarshaller = m;
     }
 
-    //debugging only
-    Set getKeys()
-    {
-        return Collections.unmodifiableSet(typeMap.keySet());
-    }
-
     public void initUnmarshallers(BindingLoader loader)
     {
         for (Iterator iterator = typeMap.values().iterator(); iterator.hasNext();) {
@@ -132,26 +160,6 @@ class RuntimeBindingTypeTable
             entry.typeUnmarshaller.initialize(this, loader);
         }
     }
-
-    private void addBuiltins()
-    {
-        addXsdBuiltin("float", float.class.getName(),
-                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
-        addXsdBuiltin("float", Float.class.getName(),
-                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
-
-        addXsdBuiltin("long", long.class.getName(),
-                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
-        addXsdBuiltin("long", Long.class.getName(),
-                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
-
-        addXsdBuiltin("string", String.class.getName(),
-                      new AtomicSimpleTypeConverter(new StringLexerPrinter()));
-
-        addXsdBuiltin("token", String.class.getName(),
-                      new AtomicSimpleTypeConverter(new StringLexerPrinter()));
-    }
-
 
     protected void addXsdBuiltin(String xsdType, String javaType, TypeConverter converter)
     {
@@ -173,10 +181,72 @@ class RuntimeBindingTypeTable
     }
 
 
+    private void addBuiltins()
+    {
+        addXsdBuiltin("float", float.class.getName(),
+                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
+        addXsdBuiltin("float", Float.class.getName(),
+                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
+
+        addXsdBuiltin("double", double.class.getName(),
+                      new AtomicSimpleTypeConverter(new DoubleLexerPrinter()));
+        addXsdBuiltin("double", Double.class.getName(),
+                      new AtomicSimpleTypeConverter(new DoubleLexerPrinter()));
+
+        addXsdBuiltin("long", long.class.getName(),
+                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
+        addXsdBuiltin("long", Long.class.getName(),
+                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
+
+        addXsdBuiltin("int", int.class.getName(),
+                      new AtomicSimpleTypeConverter(new IntLexerPrinter()));
+        addXsdBuiltin("int", Integer.class.getName(),
+                      new AtomicSimpleTypeConverter(new IntLexerPrinter()));
+
+        addXsdBuiltin("short", short.class.getName(),
+                      new AtomicSimpleTypeConverter(new ShortLexerPrinter()));
+        addXsdBuiltin("short", Short.class.getName(),
+                      new AtomicSimpleTypeConverter(new ShortLexerPrinter()));
+
+        addXsdBuiltin("byte", byte.class.getName(),
+                      new AtomicSimpleTypeConverter(new ByteLexerPrinter()));
+        addXsdBuiltin("byte", Byte.class.getName(),
+                      new AtomicSimpleTypeConverter(new ByteLexerPrinter()));
+
+        addXsdBuiltin("boolean", boolean.class.getName(),
+                      new AtomicSimpleTypeConverter(new BooleanLexerPrinter()));
+//        addXsdBuiltin("boolean", Boolean.class.getName(),
+//                      new AtomicSimpleTypeConverter(new BooleanLexerPrinter()));
+
+
+        addXsdBuiltin("string", String.class.getName(),
+                      new AtomicSimpleTypeConverter(new StringLexerPrinter()));
+
+        addXsdBuiltin("token", String.class.getName(),
+                      new AtomicSimpleTypeConverter(new StringLexerPrinter()));
+    }
+
+
     private static class TTEntry
     {
         TypeMarshaller typeMarshaller;
         TypeUnmarshaller typeUnmarshaller;
+
+        TTEntry()
+        {
+        }
+
+        TTEntry(TypeMarshaller typeMarshaller,
+                TypeUnmarshaller typeUnmarshaller)
+        {
+            this.typeMarshaller = typeMarshaller;
+            this.typeUnmarshaller = typeUnmarshaller;
+        }
+
+        TTEntry shallowCopy()
+        {
+            return new TTEntry(typeMarshaller, typeUnmarshaller);
+        }
     }
 
 

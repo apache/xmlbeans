@@ -62,11 +62,30 @@ public class MarshalTests extends TestCase
     public void testManySimpleTypesUnmarshall()
         throws Exception
     {
+        testSimpleTypeUnmarshal(Boolean.TRUE, "boolean");
+        testSimpleTypeUnmarshal(new Byte((byte)125), "byte");
+        testSimpleTypeUnmarshal(new Short((short)5543), "short");
+        testSimpleTypeUnmarshal(new Integer(55434535), "int");
         testSimpleTypeUnmarshal(new Long(554345354445555555L), "long");
         testSimpleTypeUnmarshal(new Float(54.5423f), "float");
+        testSimpleTypeUnmarshal(new Double(23432.43234), "double");
         testSimpleTypeUnmarshal("random string", "string");
     }
 
+
+    public void testManySimpleTypesMarshall()
+        throws Exception
+    {
+//        testSimpleTypeMarshal(Boolean.TRUE, "boolean");
+        testSimpleTypeMarshal(new Byte((byte)125), "byte");
+        testSimpleTypeMarshal(new Short((short)5543), "short");
+        testSimpleTypeMarshal(new Integer(55434535), "int");
+        testSimpleTypeMarshal(new Long(554345354445555555L), "long");
+        testSimpleTypeMarshal(new Float(5555.5555f), "float");
+        testSimpleTypeMarshal(new Double(1231.444), "double");
+        testSimpleTypeMarshal("some text here", "string");
+        testSimpleTypeMarshal("       ", "string");
+    }
 
     //only works for values where .toString() is equivalent to marshalling
     public void testSimpleTypeUnmarshal(Object expected, String xsd_type)
@@ -87,15 +106,6 @@ public class MarshalTests extends TestCase
         Assert.assertEquals(expected, obj);
 
         System.out.println("OK for " + expected);
-    }
-
-
-    public void testManySimpleTypesMarshall()
-        throws Exception
-    {
-        testSimpleTypeMarshal(new Long(554345354445555555L), "long");
-        testSimpleTypeMarshal("some text here", "string");
-        testSimpleTypeMarshal("       ", "string");
     }
 
 

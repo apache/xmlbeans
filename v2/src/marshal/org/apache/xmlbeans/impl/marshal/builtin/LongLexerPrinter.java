@@ -54,19 +54,29 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.builtin;
+
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
 
 import java.util.Collection;
 
-/**
- * An AtomicLexerPrinter knows how to lex and print a xml schema atomic
- * simple type.  No validation is implied, though it is not prohibited.
- */
-public interface AtomicLexerPrinter
-{
-    //we'll special case qnames
-    Object lex(CharSequence value, Collection errors);
 
-    //we'll special case qnames
-    CharSequence print(Object value, Collection errors);
+public final class LongLexerPrinter
+    implements AtomicLexerPrinter
+{
+
+    public Object lex(CharSequence value, Collection errors)
+    {
+        long f = XsTypeConverter.lexLong(value, errors);
+        return new Long(f);
+    }
+
+    public CharSequence print(Object value, Collection errors)
+    {
+        Long fobj = (Long)value;
+        return XsTypeConverter.printLong(fobj.longValue());
+    }
+
+
 }
