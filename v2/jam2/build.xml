@@ -6,7 +6,7 @@
   <property name='src_dir'     value='src'/>
   <property name='docs_dir'    value='docs'/>
   <property name='build_dir'   value='build'/>
-  <property name='docbuild_dir'    value='build/docs'/>
+  <property name='docbuild_dir'    value='build/jamdocs'/>
   <property name='javadocbuild_dir'    value='${docbuild_dir}/javadocs'/>
   <property name='gen_dir'     value='${build_dir}/generatedsrc'/>
   <property name='classes_dir' value='${build_dir}/classes'/>
@@ -18,7 +18,9 @@
     <delete dir='${build_dir}'/>
   </target>
 
-  <target name='all' depends='compile'/>
+  <target name='cleanall' depends='clean,all'/>
+
+  <target name='all' depends='compile,docs'/>
 
   <target name='parser'>
     <delete dir='${gen_dir}'/>
@@ -55,16 +57,15 @@
     <ant dir='${tests_dir}' target='all' inheritAll='false' />
   </target>
 
-  <target name='docs' depends='all'>
+  <target name='docs' depends='compile'>
     <delete dir='${docbuild_dir}' />
     <mkdir dir='${docbuild_dir}' />
-    <javadoc packagenames='*' 
-             classpath='${javadoc.path}' 
-             destdir='${javadocbuild_dir}' 
+    <javadoc packagenames='*'
+             destdir='${javadocbuild_dir}'
              windowtitle='JAM Documentation' 
              source='1.4' 
              stylesheetfile='${docs_dir}/stylesheet.css'>
-      <fileset dir='${src_dir}' includes='**/jam/*.java,**/jam/editable/*.java,' />
+      <fileset dir='${src_dir}' includes='**/jam/**/*.java' excludes='**/internal/**/*.java' />
       <link href='http://e-docs.bea.com/wls/docs81/javadocs/' />
       <link href='http://java.sun.com/j2se/1.4.2/docs/api/' />
       <link href='http://java.sun.com/j2ee/1.4/docs/api/' />

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.*;
 
 /**
@@ -45,11 +46,11 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   // ========================================================================
   // JElement implementation
 
-  public void accept(JElementVisitor visitor) {
+  public void accept(ElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(JElementVisitor visitor) {
+  public void acceptAndWalk(ElementVisitor visitor) {
     accept(visitor);
     visitAnnotations(visitor);
   }
@@ -132,18 +133,6 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public EMethod addNewMethod() { nocando(); return null; }
   public void removeMethod(EMethod method) { nocando(); }
   public void setModifiers(int modifiers) { nocando(); }
-
-  // ========================================================================
-  // EElement implementation
-
-  public void accept(EElementVisitor visitor) {
-    visitor.visit(this);
-  }
-
-  public void acceptAndWalk(EElementVisitor visitor) {
-    accept(visitor);
-    visitAnnotations(visitor);
-  }
 
   // ========================================================================
   // Object implementation

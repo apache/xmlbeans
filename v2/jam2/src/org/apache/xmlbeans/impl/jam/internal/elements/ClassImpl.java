@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.*;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRefContext;
@@ -161,11 +162,11 @@ public class ClassImpl extends MemberImpl implements EClass,
     return new JClass[0];//FIXME
   }
 
-  public void accept(JElementVisitor visitor) {
+  public void accept(ElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(JElementVisitor visitor) {
+  public void acceptAndWalk(ElementVisitor visitor) {
     accept(visitor);
     acceptAndWalkAll(visitor,getEditableFields());
     acceptAndWalkAll(visitor,getEditableConstructors());
@@ -313,18 +314,6 @@ public class ClassImpl extends MemberImpl implements EClass,
 
   public String getQualifiedName() {
     return mPackageName+ '.' +getSimpleName();
-  }
-
-  public void accept(EElementVisitor visitor) {
-    visitor.visit(this);
-  }
-
-  public void acceptAndWalk(EElementVisitor visitor) {
-    accept(visitor);
-    acceptAndWalkAll(visitor,getEditableFields());
-    acceptAndWalkAll(visitor,getEditableConstructors());
-    acceptAndWalkAll(visitor,getEditableMethods());
-    visitAnnotations(visitor);
   }
 
   // ========================================================================

@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.jam;
 
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+
 import java.io.File;
 import java.io.PrintWriter;
 
@@ -291,10 +293,14 @@ public interface JamServiceParams {
 
 
   //DOCME
-  public void setCommentInitializer(JamClassInitializer init);
+  public void setCommentInitializer(ElementVisitor initializer);
 
   //DOCME
-  public void addCustomInitializer(JamClassInitializer init);
+  public void setPropertyInitializer(ElementVisitor initializer);
+
+  //DOCME
+  public void addInitializer(ElementVisitor initializer);
+
 
   /**
    * <p>Sets the subclass of CustomAnnotationProxyBase to be instantiated when no

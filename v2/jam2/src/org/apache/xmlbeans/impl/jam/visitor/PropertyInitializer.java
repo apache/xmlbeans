@@ -12,28 +12,12 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam;
+package org.apache.xmlbeans.impl.jam.visitor;
 
 /**
- *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JElementVisitor {
+public class PropertyInitializer extends ElementVisitor {
 
-  public void visit(JPackage param);
-
-  public void visit(JClass clazz);
-
-  public void visit(JConstructor ctor);
-
-  public void visit(JField field);
-
-  public void visit(JMethod method);
-
-  public void visit(JParameter param);
-
-  public void visit(JAnnotation param);
-
-  public void visit(JComment param);
-
+  
 }

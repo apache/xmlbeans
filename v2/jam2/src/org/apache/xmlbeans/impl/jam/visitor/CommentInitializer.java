@@ -12,10 +12,9 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.visitor;
 
 import org.apache.xmlbeans.impl.jam.JComment;
-import org.apache.xmlbeans.impl.jam.JamClassInitializer;
 import org.apache.xmlbeans.impl.jam.editable.*;
 
 import java.io.*;
@@ -25,17 +24,12 @@ import java.util.*;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class DefaultCommentProcessor
-        implements JamClassInitializer, EElementVisitor {
+public class CommentInitializer extends ElementVisitor {
 
   // ========================================================================
-  // Singleton
+  // Constructors - but maybe it should be a singleton?
 
-  public static JamClassInitializer getInstance() { return INSTANCE; }
-
-  private static JamClassInitializer INSTANCE = new DefaultCommentProcessor();
-
-  private DefaultCommentProcessor() {}
+  public CommentInitializer() {}
 
   // ========================================================================
   // Constants
@@ -47,13 +41,6 @@ public class DefaultCommentProcessor
   // Variables
 
   private Map mTag2Annclass = null; //maps jd tag names to annotation classes
-
-  // ========================================================================
-  // JamClassInitializer implementation
-
-  public void initialize(EClass clazz) {
-    clazz.acceptAndWalk(this);
-  }
 
   // ========================================================================
   // Public methods

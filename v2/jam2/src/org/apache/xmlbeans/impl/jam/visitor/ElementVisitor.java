@@ -12,25 +12,31 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam;
+package org.apache.xmlbeans.impl.jam.visitor;
 
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.editable.*;
 
 /**
+ * <p>To be extended by classes which wish to traverse a set of JClasses.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JamClassInitializer {
+public abstract class ElementVisitor {
 
-  /**
-   * <p>Initializes the given EClass.  Returns true if the implementation
-   * was able to resolve the java type represented by the clazz parameter
-   * and do something to initialize it.</p>
-   *
-   * <p>Note that the type to be initialized will never be an array type,
-   * a primitive, 'void', or 'java.lang.Object'.</p>
-   *
-   */
-  public void initialize(EClass clazz);
+  public void visit(EPackage pkg) {}
+
+  public void visit(EClass clazz) {}
+
+  public void visit(EConstructor ctor) {}
+
+  public void visit(EField field) {}
+
+  public void visit(EMethod method) {}
+
+  public void visit(EParameter param) {}
+
+  public void visit(EAnnotation ann) {}
+
+  public void visit(EComment comment) {}
 
 }

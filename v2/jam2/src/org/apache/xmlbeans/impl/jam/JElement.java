@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.jam;
 
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+
 /**
  * <p>Interface implemented by JAM abstractions which can have
  * associated annotations (i.e. metadata).  This abstraction is
@@ -77,7 +79,7 @@ public abstract interface JElement {
   /**
    * <p>Accepts the given visitor.</p>
    */
-  public void accept(JElementVisitor visitor);
+  public void accept(ElementVisitor visitor);
 
   /**
    * <p>Calls accept() with the given visitor, and then recursively calls
@@ -104,7 +106,7 @@ public abstract interface JElement {
    *
    * </p>
    */
-  public void acceptAndWalk(JElementVisitor visitor);
+  public void acceptAndWalk(ElementVisitor visitor);
 
   /**
    * <p>This is not something you want to mess with.  It's here only for the

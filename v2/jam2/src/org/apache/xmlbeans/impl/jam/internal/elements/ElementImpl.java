@@ -16,8 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.EElement;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
 
 /**
@@ -140,15 +140,7 @@ public abstract class ElementImpl implements EElement {
    * <p>Simple utility method used by subclasses to implement
    * acceptAndWalk.</p>
    */
-  protected static void acceptAndWalkAll(EElementVisitor v, EElement[] sub) {
-    for(int i=0; i<sub.length; i++) sub[i].acceptAndWalk(v);
-  }
-
-  /**
-   * <p>Simple utility method used by subclasses to implement
-   * acceptAndWalk.</p>
-   */
-  protected static void acceptAndWalkAll(JElementVisitor v, JElement[] sub) {
+  protected static void acceptAndWalkAll(ElementVisitor v, JElement[] sub) {
     for(int i=0; i<sub.length; i++) sub[i].acceptAndWalk(v);
   }
 }

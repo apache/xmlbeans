@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
-import org.apache.xmlbeans.impl.jam.JElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.EConstructor;
 import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 
@@ -34,16 +34,9 @@ public final class ConstructorImpl extends InvokableImpl implements EConstructor
   }
 
   // ========================================================================
-  // EElement implementation
-
-  public void accept(EElementVisitor visitor) {
-    visitor.visit(this);
-  }
-
-  // ========================================================================
   // JElement implementation
 
-  public void accept(JElementVisitor visitor) {
+  public void accept(ElementVisitor visitor) {
     visitor.visit(this);
   }
 

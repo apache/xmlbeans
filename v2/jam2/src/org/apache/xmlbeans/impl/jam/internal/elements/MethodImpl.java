@@ -16,8 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.EMethod;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
@@ -98,16 +97,9 @@ public final class MethodImpl extends InvokableImpl implements EMethod {
   }
 
   // ========================================================================
-  // EElement implementation
-
-  public void accept(EElementVisitor visitor) {
-    visitor.visit(this);
-  }
-
-  // ========================================================================
   // JElement implementation
 
-  public void accept(JElementVisitor visitor) {
+  public void accept(ElementVisitor visitor) {
     visitor.visit(this);
   }
 
