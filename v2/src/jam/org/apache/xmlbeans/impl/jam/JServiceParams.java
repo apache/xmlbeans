@@ -30,8 +30,9 @@ public interface JServiceParams {
 
   /**
    * Specifies a set of java source files to be included in the JService.
-   * Note that calling this method implicitly includes the 'root' in
-   * the sourcepath (as in a call to addSourcepath(root)).
+   *
+   * <p>Note that calling this method implicitly includes the 'root' in
+   * the sourcepath (exactly as if addSourcepath(root) had been called).</p>
    *
    * @param root Root directory of the source files.
    * @param pattern A relative file pattern (as described above under
@@ -51,6 +52,7 @@ public interface JServiceParams {
    * @throws IllegalArgumentException if either argument is null.
    */
   public void excludeSourceFiles(File root, String pattern);
+
 
   /**
    * Specifies a set of java class files to be excluded in the JService.
@@ -77,6 +79,59 @@ public interface JServiceParams {
   public void excludeClassFiles(File root, String pattern);
 
   /**
+   * <p>Includes a single source File in the JService.  The root parameter
+   * should identify the source root of the java source file; the sourceFile
+   * parameter must be under the root subtree.</p>
+   *
+   * <p>For example, if a class "foo.bar.MyClass" is stored in a file
+   * "c:/myproject/src/foo/bar/MyClass.java", that class could be included in
+   * the service by calling</p>
+   *
+   * <pre>
+   *  includeSourceFile(new File("c:/myproject/src"),
+   *                    new File("c:/myproject/src/foo/bar/MyClass.java"));
+   * </pre>
+   *
+   * <p>Note that this equivalent to calling</p>
+   *
+   * <pre>
+   *  includeSourceFiles(new File("c:/myproject/src"),"foo/bar/MyClass.java");
+   * </pre>
+   *
+   * <p>If you are calling this method and have more than one root directory,
+   * and do not readily know which is the correct root for a given source
+   * File, you can use the getRootForFile() utility method to determine the
+   * correct root to use.</p>
+   *
+   * <p>Note that calling this method implicitly includes the 'root' in
+   * the sourcepath (exactly as if addSourcepath(root) had been called).</p>
+   *
+   * @param root source root for the java source file
+   * @param sourceFile the java source file
+   * @throws IllegalArgumentException if either argument is null or if
+   * root is not an ancestor of sourceFile in the file system.
+   */
+  public void includeSourceFile(File root, File sourceFile);
+
+  /**
+   * <p>Excludes a single source File in the JService in exactly the same
+   * way theat includeSourceFile() includes a source file.
+   */
+  public void excludeSourceFile(File root, File sourceFile);
+
+  /**
+   * <p>Includes a single class File in the JService in exactly the same
+   * way theat includeSourceFile() includes a source file.
+   */
+  public void includeClassFile(File root, File sourceFile);
+
+  /**
+   * <p>Excludes a single class File in the JService in exactly the same
+   * way theat includeSourceFile() includes a source file.
+   */
+  public void excludeClassFile(File root, File sourceFile);
+
+  /**
    * Names a specific class to be included in the JService.  Note that
    * this will return an 'unresolved' JClass unless a source or class file
    * for the named class is available in the classpath or sourcepath.
@@ -86,6 +141,7 @@ public interface JServiceParams {
    * a valid classname.
    */
   public void includeClass(String qualifiedClassname);
+
 
   /**
    * Names a specific class to be excluded in the JService.  Note that
@@ -176,4 +232,17 @@ public interface JServiceParams {
    */
   public void setProperty(String name, String value);
 
+  /**
+   * <p>Utility method which, given an array of Files representing a series of
+   * java source roots, returns the first one in array order which is an
+   * ancestor of the given sourceFile in the file hierarchy.  Returns null if
+   * the sourceFile is not under any of the given sourceRoots</p>
+   *
+   * @param sourceRoots roots to check
+   * @param sourceFile source file
+   * @return the sourceRoot that contains the sourceFile, or null if none
+   * does.
+   * @throws IllegalArgumentException if either argument is null.
+   */
+  public File getRootForFile(File[] sourceRoots, File sourceFile);
 }
