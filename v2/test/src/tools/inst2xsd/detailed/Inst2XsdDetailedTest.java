@@ -1,3 +1,4 @@
+package tools.inst2xsd.detailed;
 
 import tools.inst2xsd.common.Inst2XsdTestBase;
 

@@ -25,35 +25,35 @@ public class Inst2XsdTestBase extends TestCase {
     public static tools.inst2xsd.common.Inst2XsdCommon common;
     public static boolean _verbose = true;
 
-    public static File fwroot = getRootFile();
-    public static File caseroot = new File(fwroot, "test" + P + "cases" + P + "xbean");
+    public static final String fwroot = System.getProperty("xbean.rootdir");
+    public static String caseroot = fwroot + P + "test" + P + "cases" + P + "xbean";
     //location of files under "cases folder"
-    public static String miscDir = new File(caseroot, "tools").getAbsolutePath();
+    public static String miscDir = caseroot + P + "tools";
     public static String inst2xsdDir = miscDir + P + "inst2xsd" + P;
     public static String OPTION_CASES_DIR = inst2xsdDir + P + "options" + P;
     public static String SCHEMA_CASES_DIR = inst2xsdDir + P + "schema" + P;
     public static String VALIDATION_CASES_DIR = inst2xsdDir + P + "validation" + P;
 
-    public static File outputroot = new File(fwroot, "build" + P + "test" + P + "output" + P + "inst2xsd");
+    private static String base_start = "<a xmlns=\"typeTests\">";
+    private static String base_end = "</a>";
 
-    private String base_start = "<a xmlns=\"typeTests\">";
-    private String base_end = "</a>";
-
-    private String attr_base_start = "<a xmlns=\"attrTests\" a=\"";
-    private String attr_base_end = "\" />";
+    private static String attr_base_start = "<a xmlns=\"attrTests\" a=\"";
+    private static String attr_base_end = "\" />";
 
 
     public Inst2XsdTestBase(String name) {
         super(name);
     }
 
-    public static File getRootFile() throws IllegalStateException {
-        try {
-            return new File(System.getProperty("xbean.rootdir")).getCanonicalFile();
-        } catch (IOException e) {
-            throw new IllegalStateException(e.toString());
-        }
+    public static final String test_getRootFilePath() throws IllegalStateException {
+        String root = System.getProperty("xbean.rootdir");
+        log("xbean.rootdir: "+root);
+        if (root == null)
+            throw new IllegalStateException("xbean.rootdir system property not found");
+
+        return root;
     }
+
 
     public XmlObject getTypeXml(String val) throws Exception {
         return XmlObject.Factory.parse(setTypeVal(val));
@@ -80,6 +80,20 @@ public class Inst2XsdTestBase extends TestCase {
                 "</xs:schema>";
     }
 
+
+
+    public String getAttrTypeXmlVenetian(String primType, String derType) {
+        return "<schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
+                "targetNamespace=\"attrTests\" xmlns=\"http://www.w3.org/2001/XMLSchema\">" +
+                "<element name=\"a\" type=\"att:aType\" xmlns:att=\"attrTests\"/>" +
+                "<complexType name=\"aType\">" +
+                "<simpleContent>" +
+                "<extension base=\"xs:" + primType + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
+                "<attribute type=\"xs:" + derType + "\" name=\"a\"/>" +
+                "</extension>" +
+                "</simpleContent></complexType></schema>";
+    }
+
     public String getAttrTypeXmlVenetian(String type) {
         return "<schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
                 "targetNamespace=\"attrTests\" xmlns=\"http://www.w3.org/2001/XMLSchema\">" +
@@ -92,6 +106,18 @@ public class Inst2XsdTestBase extends TestCase {
                 "</simpleContent></complexType></schema>";
     }
 
+    public String getAttrTypeXmlRDandSS(String primType, String derType ) {
+        return "<schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
+                "targetNamespace=\"attrTests\" xmlns=\"http://www.w3.org/2001/XMLSchema\">" +
+                "<element name=\"a\">" +
+                "<complexType>" +
+                "<simpleContent>" +
+                "<extension base=\"xs:" + primType + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
+                "<attribute type=\"xs:" + derType + "\" name=\"a\"/>" +
+                "</extension>" +
+                "</simpleContent>" +
+                "</complexType></element></schema>";
+    }
     public String getAttrTypeXmlRDandSS(String type) {
         return "<schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
                 "targetNamespace=\"attrTests\" xmlns=\"http://www.w3.org/2001/XMLSchema\">" +
@@ -106,6 +132,7 @@ public class Inst2XsdTestBase extends TestCase {
     }
 
     public void runAttrTypeChecking(XmlObject act, String expType) throws Exception {
+
         log("=== Venetian options ===");
         runAttrTypeChecking(act, expType, common.getVenetianOptions());
         log("=== Russian options ===");
@@ -114,6 +141,34 @@ public class Inst2XsdTestBase extends TestCase {
         runAttrTypeChecking(act, expType, common.getSalamiOptions());
         log("=== Default options ===");
         runAttrTypeChecking(act, expType, common.getDefaultInstOptions());
+    }
+
+    public void runAttrTypeChecking(XmlObject act, String primType, String derType) throws Exception {
+
+        log("=== Venetian options ===");
+        runAttrTypeChecking(act, primType, derType, common.getVenetianOptions());
+        log("=== Russian options ===");
+        runAttrTypeChecking(act, primType, derType, common.getRussianOptions());
+        log("=== Salami options ===");
+        runAttrTypeChecking(act, primType, derType, common.getSalamiOptions());
+        log("=== Default options ===");
+        runAttrTypeChecking(act, primType, derType, common.getDefaultInstOptions());
+    }
+
+    private void runAttrTypeChecking(XmlObject act, String primType, String derType, Inst2XsdOptions opt) throws Exception {
+        SchemaDocument[] venetian = (SchemaDocument[]) runInst2Xsd(act, opt);
+        checkLength(venetian, 1);
+
+        if (opt.getDesign() == Inst2XsdOptions.DESIGN_RUSSIAN_DOLL ||
+                opt.getDesign() == Inst2XsdOptions.DESIGN_SALAMI_SLICE)
+            compare(venetian[0], XmlObject.Factory.parse(getAttrTypeXmlRDandSS(primType,derType)));
+        else if (opt.getDesign() == Inst2XsdOptions.DESIGN_VENETIAN_BLIND)
+            compare(venetian[0], XmlObject.Factory.parse(getAttrTypeXmlVenetian(primType, derType)));
+        else
+            throw new Exception("Design style was not found");
+
+        checkInstance(venetian, new XmlObject[]{act});
+
     }
 
     private void runAttrTypeChecking(XmlObject act, String expType, Inst2XsdOptions opt) throws Exception {
