@@ -70,8 +70,10 @@ public class IncrCompilationTests extends CompileTestBase {
         xm.setSavePrettyPrint();
     }
 
-    public void tearDown() throws IOException {
-        if (errors.size() > 0)
+    public void tearDown() throws Exception
+    {
+            super.tearDown();
+            if (errors.size() > 0)
             errors.clear();
     }
 

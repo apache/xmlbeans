@@ -20,12 +20,9 @@ import junit.framework.TestSuite;
 import junit.framework.TestCase;
 import junit.framework.Assert;
 import org.apache.xmlbeans.*;
-import org.apache.xmlbeans.impl.schema.StscState;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
+import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
 import org.apache.beehive.netui.tools.testrecorder.x2004.session.RecorderSessionDocument;
-import org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
-import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.oasisOpen.docs.wsdm.x2004.x04.muws05.schema.StateInformation;
 import org.oasisOpen.docs.wsdm.x2004.x04.muws05.schema.ResourceStateDocument;
 import org.w3c.dom.Document;
@@ -332,7 +329,7 @@ public class JiraRegressionsTest extends TestCase
                 "    </xb:extension>\n" +
                 "    <xb:qname name=\"ep:purchase-order\" javaname=\"purchaseOrderXXX\"/>\n" +
                 "</xb:config> ";
-        org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument config =
+        ConfigDocument config =
                 ConfigDocument.Factory.parse(xsdConfig);
         xmOpts.setErrorListener(errorList);
         if (config.validate(xmOpts)) {

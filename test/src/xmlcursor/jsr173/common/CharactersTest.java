@@ -238,7 +238,9 @@ public abstract class CharactersTest extends TestCase {
         m_stream = getStream(cur);
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
+        super.tearDown();
         if (m_stream != null)
             m_stream.close();
     }

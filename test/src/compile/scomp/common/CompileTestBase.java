@@ -49,6 +49,43 @@ public class CompileTestBase extends TestCase {
     public List errors;
     public XmlOptions xm;
 
+    //schemas to use
+    public String forXsd = "<xs:schema attributeFormDefault=\"unqualified\" " +
+            "elementFormDefault=\"qualified\" " +
+            "targetNamespace=\"http://baz\" " +
+            "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"> " +
+            "<xs:element name=\"elName\" type=\"bas:aType\" " +
+            "xmlns:bas=\"http://baz\"/> <xs:complexType name=\"aType\"> " +
+            "<xs:simpleContent> " +
+            "<xs:extension base=\"xs:string\" " +
+            "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"> " +
+            "<xs:attribute type=\"xs:string\" name=\"attrName\"/> " +
+            "</xs:extension> " +
+            "</xs:simpleContent> " +
+            "</xs:complexType> " +
+            "</xs:schema>";
+    public String incrXsd = "<xs:schema attributeFormDefault=\"unqualified\" " +
+            "elementFormDefault=\"qualified\" " +
+            "targetNamespace=\"http://bar\" " +
+            "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"> " +
+            "<xs:element name=\"elName\" type=\"bas:aType\" " +
+            "xmlns:bas=\"http://baz\"/> <xs:complexType name=\"aType\"> " +
+            "<xs:simpleContent> " +
+            "<xs:extension base=\"xs:string\" " +
+            "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"> " +
+            "<xs:attribute type=\"xs:string\" name=\"attrName\"/> " +
+            "</xs:extension> " +
+            "</xs:simpleContent> " +
+            "</xs:complexType> " +
+            "</xs:schema>";
+    public String errXsd = "<xs:schema attributeFormDefault=\"unqualified\" " +
+            "elementFormDefault=\"qualified\" " +
+            "targetNamespace=\"http://bar\" " +
+            "xmlns:tnf=\"http://baz\" " +
+            "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"> " +
+            "<xs:element name=\"elErrName\" type=\"tnf:aType\" /> " +
+            "</xs:schema>";
+
     public CompileTestBase(String name) {
         super(name);
         out = CompileCommon.xbeanOutput(outPath);
@@ -59,6 +96,18 @@ public class CompileTestBase extends TestCase {
         xm = new XmlOptions();
         xm.setErrorListener(errors);
         xm.setSavePrettyPrint();
+    }
+
+    public static File[] getClassPath()
+    {
+        String cp = System.getProperty("java.class.path");
+        String[] cpList = cp.split(File.pathSeparator);
+        File[] fList = new File[cpList.length];
+
+        for (int i = 0; i < cpList.length; i++) {
+            fList[i] = new File(cpList[i]);
+        }
+        return fList;
     }
 
     protected SchemaCompiler.Parameters getCompilerParams() {
@@ -229,6 +278,7 @@ public class CompileTestBase extends TestCase {
     }
 
     public void findElementbyQName(SchemaTypeSystem sts, QName[] lookup) throws Exception {
+        
         for (int i = 0; i < lookup.length; i++) {
             if (sts.findElement(lookup[i]) == null)
                 throw new Exception("Element was expected but not found\n" + lookup[i]);
@@ -244,6 +294,52 @@ public class CompileTestBase extends TestCase {
 
     public String getSchemaBottom() {
         return "</xs:schema>";
+    }
+
+    public void printSTS(SchemaTypeSystem sts)
+    {
+        System.out.println("*******************");
+        System.out.println("NAME: " + sts.getName());
+        SchemaGlobalElement[] sge = sts.globalElements();
+        for (int i = 0; i < sge.length; i++) {
+            System.out.println("Global Type: " + sge[i].getType());
+            System.out.println("GE Name: " + sge[i].getName());
+            System.out.println("GE Class: " + sge[i].getType());
+            System.out.println("GE SourceName: " + sge[i].getSourceName());
+        }
+
+        SchemaType[] st = sts.globalTypes();
+        for (int i = 0; i < st.length; i++) {
+            System.out.println("Type Name: " + st[i].getDocumentElementName());
+            System.out.println("GT Name: " + st[i].getName());
+            System.out.println("GT Class: " + st[i].getJavaClass());
+            System.out.println("GT SourceName: " + st[i].getSourceName());
+        }
+
+        System.out.println("*******************");
+    }
+
+    /**
+     *
+     * @param sge
+     * @param q
+     * @return
+     */
+    public boolean findGlobalElement(SchemaGlobalElement[] sge, QName q)
+    {
+        boolean sts1TypePresent = false;
+        for (int i = 0; i < sge.length; i++) {
+            if (sge[i].getName().getLocalPart().compareTo(
+                    q.getLocalPart()) == 0 &&
+                    sge[i].getName().getNamespaceURI().compareTo(
+                            q.getNamespaceURI()) == 0)  {
+                sts1TypePresent = true;
+                break;
+            }
+                System.out.println("QName: " + sge[i].getName());
+        }
+
+        return sts1TypePresent;
     }
 
     public void checkPerf(long initBase, long endBase,

@@ -41,7 +41,9 @@ public class BasicCursorTestCase extends TestCase {
     protected void setUp() throws Exception {
     }
 
-    protected void tearDown() {
+    protected void tearDown() throws Exception
+    {
+        super.tearDown();
         m_xo = null;
         if (m_xc != null) {
             m_xc.dispose();

@@ -45,17 +45,17 @@
     <property name="asserts" value="on"/>
 
     <!-- End of testenv.properties -->
-
-    <target name="write.propertyfile">
+    <!--
+    <target name="write.propertyfile">-->
         <!-- Write out the properties file -->
-        <echoproperties destfile="testenv.properties">
+        <!--<echoproperties destfile="testenv.properties">
             <propertyset>
                 <propertyref prefix="xbeans."/>
                 <propertyref prefix="build."/>
             </propertyset>
         </echoproperties>
     </target>
-
+    -->
     <!-- END: Properties Section                                         -->
     <!-- =============================================================== -->
 
@@ -230,8 +230,10 @@
         ${build.dir.test.schemas}/xbean/xmlcursor,
         ${build.dir.test.schemas}/xbean/xmlcursor/xstypes,
         ${build.dir.test.schemas}/xbean/dom,
+        ${build.dir.test.schemas}/xbean/misc,
+        ${build.dir.test.schemas}/xbean/compile/scomp/detailed,
         ${build.dir.test.schemas}/xbean/xmlobject,
-         ${build.dir.test.schemas}/xbean/xmlobject/store,
+        ${build.dir.test.schemas}/xbean/xmlobject/store,
         ${build.dir.test.schemas}/xbean/xmltokensource,
         ${build.dir.test.schemas}/xbean/ValidatingStream,
         ${build.dir.test.schemas}/xbean/scomp"/>
@@ -509,8 +511,16 @@
             basedir="${build.dir.test.tools}" update="false"
             excludes="**/*.java"/>
     </target>
+    
+    <target name="check.testreport">
+        <condition property="check.testreport.exists">
+            <available file="${build.dir.test.lib}/TestReport.xsd.jar"/>
+        </condition>
+    </target>
 
-    <target name="testreport.xsd.jar">
+    <target name="testreport.xsd.jar" depends="check.testreport"
+        unless="check.testreport.exists">
+
        <java classname="${schema.compiler}"
           classpathref="build.classpath"
           fork="true">
@@ -996,7 +1006,7 @@
     <target name="generate.html.report">
         <loadfile property="css.file"
             srcfile="${xbeans.test.tools.lib}/xsl/junit.css"
-            failonerror="false"/>
+            failonerror="true"/>
         <xslt in="${report.log.file}"
             out="${report.file}"
             style="${xbeans.test.tools.lib}/xsl/TestReport.xsl">
