@@ -95,7 +95,7 @@ public class StscComplexTypeResolver
 
     }
 
-    private static Schema getSchema(XmlObject o)
+    static Schema getSchema(XmlObject o)
     {
         XmlCursor c = o.newCursor();
         

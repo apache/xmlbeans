@@ -668,6 +668,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             {
                 _flags &= ~FLAGS_DATED;
                 get_store().invalidate_nil();
+                get_store().invalidate_text();
             }
             else
             {

@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Iterator;
 
@@ -355,10 +356,6 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printFactory(SchemaType sType) throws IOException
     {
-        // Only need factories for non-abstract types
-        if (sType.isAbstract())
-            return;
-
         // Only need full factories for top-level types
         boolean fullFactory = true;
         if (sType.isAnonymousType() && ! sType.isDocumentType() && !sType.isAttributeType())
@@ -385,10 +382,16 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emit("");
         }
 
+        // Only need newInstance() for non-abstract types
+        if (sType.isAbstract())
+            emit("/** @deprecated No need to be able to create instances of abstract types */");
         emit("public static " + fullName + " newInstance() {");
         emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newInstance( type, null ); }");
         emit("");
 
+        // Only need newInstance() for non-abstract types
+        if (sType.isAbstract())
+            emit("/** @deprecated No need to be able to create instances of abstract types */");
         emit("public static " + fullName + " newInstance(org.apache.xmlbeans.XmlOptions options) {");
         emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newInstance( type, options ); }");
         emit("");
@@ -451,10 +454,14 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( xis, type, options ); }");
             emit("");
 
+            // Don't have XMLInputStream anymore
+            emit("/** @deprecated {@link XMLInputStream} */");
             emit("public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
             emit("  return org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }");
             emit("");
 
+            // Don't have XMLInputStream anymore
+            emit("/** @deprecated {@link XMLInputStream} */");
             emit("public static org.apache.xmlbeans.xml.stream.XMLInputStream newValidatingXMLInputStream(org.apache.xmlbeans.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException {");
             emit("  return org.apache.xmlbeans.XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }");
             emit("");
@@ -2249,13 +2256,22 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         if (name != null && name.equals(sType.getBaseType().getName()))
         {
             SchemaType sType2 = sType.getBaseType();
-            List allProps = new ArrayList(Arrays.asList(sType.getDerivedProperties()));
+            // Walk all the redefined types and record any properties
+            // not present in sType, because the redefined types do not
+            // have a generated class to represent them
+            SchemaProperty[] props = sType.getDerivedProperties();
+            Map propsByName = new LinkedHashMap();
+            for (int i = 0; i < props.length; i++)
+                propsByName.put(props[i].getName(), props[i]);
             while (sType2 != null && name.equals(sType2.getName()))
             {
-                allProps.addAll(Arrays.asList(sType2.getDerivedProperties()));
+                props = sType2.getDerivedProperties();
+                for (int i = 0; i < props.length; i++)
+                    if (!propsByName.containsKey(props[i].getName()))
+                        propsByName.put(props[i].getName(), props[i]);
                 sType2 = sType2.getBaseType();
             }
-            return (SchemaProperty[]) allProps.toArray(new SchemaProperty[allProps.size()]);
+            return (SchemaProperty[]) propsByName.values().toArray(new SchemaProperty[0]);
         }
         else
             return sType.getDerivedProperties();
