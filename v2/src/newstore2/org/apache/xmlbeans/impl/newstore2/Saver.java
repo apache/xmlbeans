@@ -717,6 +717,7 @@ abstract class Saver
         boolean considerCreatingDefault, boolean mustHavePrefix )
     {
         assert uri != null;
+        assert uri.length() > 0 || !mustHavePrefix;
 
         // Can be called for no-namespaced things
 
@@ -847,7 +848,7 @@ abstract class Saver
 
             if (encoding != null)
             {
-                XmlDocumentProperties props = Locale.getDocProps( c );
+                XmlDocumentProperties props = Locale.getDocProps( c, false );
                 
                 String version = props == null ? null : props.getVersion();
 

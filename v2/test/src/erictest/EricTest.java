@@ -110,23 +110,33 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        XmlOptions options = new XmlOptions();
-        options.setValidateOnSet();
-
-        Elem e = Elem.Factory.newInstance();
-
-        System.out.println( e.getField() );
-
-        try
-        {
-            e.setField( null );
-        }
-        catch ( Throwable ee )
-        {
-            ee.printStackTrace( System.out );
-        }
+//        XmlObject x = XmlObject.Factory.parse( "<a x='y'><b/></a>" );
+        XmlCursor c = Public2.getCursor( Public2.parse( "<a x='y'><b><c/></b></a>" ) );
         
-        System.out.println( e.getField() );
+        c.toNextToken();
+        c.toNextToken();
+
+        Public2.dump( c );
+
+        System.out.println( c.toFirstChild() );
+        
+//        XmlOptions options = new XmlOptions();
+//        options.setValidateOnSet();
+//
+//        Elem e = Elem.Factory.newInstance();
+//
+//        System.out.println( e.getField() );
+//
+//        try
+//        {
+//            e.setField( null );
+//        }
+//        catch ( Throwable ee )
+//        {
+//            ee.printStackTrace( System.out );
+//        }
+//        
+//        System.out.println( e.getField() );
     }
 }
 
