@@ -110,7 +110,7 @@ public class EricTest
         innerOptions.setSaveInner();
         
         XmlOptions prettyOptions = new XmlOptions();
-        innerOptions.setPrettyPrint();
+        innerOptions.setSavePrettyPrint();
 
         XmlOptions synthOptions = new XmlOptions();
         synthOptions.setSaveSyntheticDocumentElement( new QName( "synth" ) );
