@@ -148,7 +148,10 @@ public interface Marshaller
 
     /**
      * Get an XMLStreamReader object that represents the given java type.
-     *
+
+     * It is the responsibility of the caller to ensure that
+     * obj is an instanceof javaType
+
      * As of this writing (11/22/2003), the returned reader will NOT contain
      * a START_DOCUMENT or END_DOCUMENT element.
      * The reader's first event is a START_ELEMENT event.
@@ -171,6 +174,9 @@ public interface Marshaller
 
     /**
      * Write an XML representation of the Java object to the provided writer.
+     *
+     * It is the responsibility of the caller to ensure that
+     * obj is an instanceof javaType
      *
      * As of this writing (11/22/2003), this method will NOT write
      * a START_DOCUMENT or END_DOCUMENT element.

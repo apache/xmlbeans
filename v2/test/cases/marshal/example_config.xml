@@ -37,6 +37,18 @@
                 <bin:qname>java:MyClass</bin:qname>
             </bin:qname-property>
             <bin:qname-property>
+                <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>com.mytest.MySubClass</bin:javatype>
+                <bin:getter>
+                   <bin:method-name>getMySubClass</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                   <bin:method-name>setMySubClass</bin:method-name>
+                   <bin:param-type>com.mytest.MySubClass</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:MySubClass</bin:qname>
+            </bin:qname-property>
+            <bin:qname-property>
                 <bin:xmlcomponent>t=float@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
                 <bin:javatype>float</bin:javatype>
                 <bin:getter>

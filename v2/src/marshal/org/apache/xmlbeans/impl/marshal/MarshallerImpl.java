@@ -140,7 +140,12 @@ final class MarshallerImpl
 
     private static JavaTypeName determineJavaType(Object obj)
     {
-        return JavaTypeName.forString(obj.getClass().getName());
+        return determineJavaType(obj.getClass());
+    }
+
+    private static JavaTypeName determineJavaType(Class clazz)
+    {
+        return JavaTypeName.forString(clazz.getName());
     }
 
     public void marshal(XMLStreamWriter writer, Object obj)
@@ -201,7 +206,18 @@ final class MarshallerImpl
                                        NamespaceContext namespaceContext)
         throws XmlException
     {
-        BindingType type = lookupBindingType(obj, schemaType, loader);
+        BindingType type = lookupBindingType(obj.getClass(),
+                                             JavaTypeName.forString(javaType),
+                                             XmlTypeName.forTypeNamed(schemaType),
+                                             loader);
+        if (type == null) {
+            final String msg = "failed to find a suitable binding type for" +
+                " use in marshalling \"" + elementName + "\". " +
+                " instance type: " + obj.getClass().getName() +
+                " expected java type: " + javaType +
+                " schema type: " + schemaType;
+            throw new XmlException(msg);
+        }
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
         return new MarshalResult(prop, obj, this);
     }
@@ -224,25 +240,70 @@ final class MarshallerImpl
         }
     }
 
-    private static BindingType lookupBindingType(Object obj,
-                                                 QName schemaType,
+
+    //TODO: refine this algorithm to deal better
+    //with primitives/interfaces/other oddities
+    //we are basically just walking up the super types
+    //till we hit a class that we can deal with.
+
+    //returns null if we fail
+    private static BindingType lookupBindingType(Class instance_type,
+                                                 JavaTypeName java_type,
+                                                 XmlTypeName xml_type,
                                                  BindingLoader loader)
     {
-        JavaTypeName jname = determineJavaType(obj);
+        //look first for exact match
+        {
+            JavaTypeName jname = determineJavaType(instance_type);
+            BindingType bt = loadBindingType(xml_type, jname, loader);
+            if (bt != null) return bt;  //success!
+        }
 
-        XmlTypeName xname = XmlTypeName.forTypeNamed(schemaType);
+
+        BindingType binding_type = null;
+        Class curr_class = instance_type;
+        Class super_type = null;
+
+        while (true) {
+            JavaTypeName jname = determineJavaType(curr_class);
+
+            BindingTypeName btype_name = loader.lookupTypeFor(jname);
+            if (btype_name != null) {
+                binding_type = loader.getBindingType(btype_name);
+                if (binding_type == null) {
+                    String e = "binding configuration inconsistency: found " +
+                        btype_name + " defined for " + jname + " but failed " +
+                        "to load the type";
+                    throw new XmlRuntimeException(e);
+                } else {
+                    return binding_type; //success!
+                }
+            }
+
+            super_type = curr_class.getSuperclass();
+
+            //note that we check that this super-super type check is to avoid
+            //getting a match on java.lang.Object, which doesn't do us any good
+            if (super_type == null || (super_type.getSuperclass() == null)) {
+                break;
+            }
+
+            curr_class = super_type;
+        }
+
+        //reaching here means that we've failed using the actual instance,
+        //so let's try the expected type
+        assert (binding_type == null);
+        return loadBindingType(xml_type, java_type, loader);
+    }
+
+
+    private static BindingType loadBindingType(XmlTypeName xname,
+                                               JavaTypeName jname,
+                                               BindingLoader loader)
+    {
         BindingTypeName btname = BindingTypeName.forPair(jname, xname);
-        if (btname == null) {
-            final String msg = "failed to find type corresponding to " + btname;
-            throw new XmlRuntimeException(msg);
-        }
-
-        final BindingType binding_type = loader.getBindingType(btname);
-        if (binding_type == null) {
-            final String msg = "failed to load type " + btname;
-            throw new XmlRuntimeException(msg);
-        }
-        return binding_type;
+        return loader.getBindingType(btname);
     }
 
 
@@ -268,25 +329,19 @@ final class MarshallerImpl
 
     RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
     {
-        String expectedJavaClass = type.getName().getJavaName().toString();
+        final BindingTypeName type_name = type.getName();
+        String expectedJavaClass = type_name.getJavaName().toString();
         String actualJavaClass = instance.getClass().getName();
         if (!actualJavaClass.equals(expectedJavaClass)) {
-            //redefine type
-            JavaTypeName tn = JavaTypeName.forString(actualJavaClass);
-            BindingTypeName bindingTypeName = loader.lookupTypeFor(tn);
-            if (bindingTypeName != null) {
-                final BindingType bindingType =
-                    loader.getBindingType(bindingTypeName);
-                if (bindingType != null) {
-                    type = bindingType;
-                } else {
-                    //fallthrough to use the expected type...
-                    //TODO: consider adding a warning to the errors?
-                }
-            } else {
-                //fallthrough to use the expected type...
-                //TODO: consider adding a warning to the errors?
+            final BindingType actual_type = lookupBindingType(instance.getClass(),
+                                                              type_name.getJavaName(),
+                                                              type_name.getXmlName(),
+                                                              loader);
+            if (actual_type != null) {
+                System.out.println("****** USING: " + actual_type + " SUBT for " + type);
+                type = actual_type;          //redefine type param
             }
+            //else go with original type and hope for the best...
         }
         return runtimeTypeFactory.createRuntimeType(type, typeTable, loader);
     }
