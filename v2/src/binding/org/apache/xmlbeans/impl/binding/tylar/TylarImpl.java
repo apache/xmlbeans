@@ -60,7 +60,11 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
+import java.util.ArrayList;
+import java.io.IOException;
+
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
@@ -68,7 +72,7 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class TylarImpl implements Tylar {
+public class TylarImpl implements Tylar, TylarWriter {
 
   // ========================================================================
   // Variables
@@ -80,9 +84,11 @@ public class TylarImpl implements Tylar {
   // ========================================================================
   // Constructors
 
-  /*package*/ TylarImpl(URI sourceUri,
-                        BindingFile bf,
-                        Collection schemas)
+  public TylarImpl() {}
+
+  public TylarImpl(URI sourceUri,
+                   BindingFile bf,
+                   Collection schemas)
   {
     mSourceURI = sourceUri;
     mBindingFile = bf;
@@ -115,4 +121,25 @@ public class TylarImpl implements Tylar {
     }
   }
 
+  // ========================================================================
+  // TylarWriter implementation
+  //
+  //  This is useful in the case where we want to build up an in-memory tylar
+  //  that does not need to be persisted.
+
+  public void writeBindingFile(BindingFile bf) {
+    mBindingFile = bf;
+  }
+
+  public void writeSchema(SchemaDocument xsd, String path) {
+    if (mSchemas == null) mSchemas = new ArrayList();
+    mSchemas.add(xsd);
+  }
+
+  public JavaOutputStream getJavaOutputStream() {
+    throw new UnsupportedOperationException
+            ("In-memory tylar does not support java code generation.");
+  }
+
+  public void close() {}
 }

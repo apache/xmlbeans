@@ -148,9 +148,9 @@ public class SimpleSourceSet implements BothSourceSet
             return javaFiles;
         }
     }
-    
+
     private static SchemaTypeLoader schemaLoader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
-    
+
     private static SchemaDocument parseSchemaFile(File file) throws IOException, XmlException
     {
         XmlOptions options = new XmlOptions();
@@ -158,27 +158,27 @@ public class SimpleSourceSet implements BothSourceSet
         options.setLoadMessageDigest();
         return (SchemaDocument)schemaLoader.parse(file, SchemaDocument.type, options);
     }
-    
+
     private static TylarLoader defaultTylarLoader(TylarLoader supplied)
     {
         if (supplied != null)
             return supplied;
         return SimpleTylarLoader.forBuiltins();
     }
-    
-    public static BothSourceSet forJavaAndXsdFiles(File[] javaFiles, File[] xsdFiles, TylarLoader tylarLoader) throws IOException, XmlException
+
+    public static BothSourceSet forJavaAndXsdFiles(File[] javaFiles, File[] xsdFiles, TylarLoader tylarLoader, String classpath) throws IOException, XmlException
     {
         tylarLoader = defaultTylarLoader(tylarLoader);
         JClass[] classes = null;
         SchemaTypeSystem sts = null;
-        
+
         if (javaFiles != null)
         {
             JFactory factory = JFactory.getInstance();
             classes = factory.loadSources(new SimpleSourceSet.SimpleJFileSet(javaFiles),
-                    tylarLoader.getJClassLoader(), null, null);
+                    tylarLoader.getJClassLoader(), null, null, null, classpath);
         }
-        
+
         if (xsdFiles != null)
         {
             XmlObject[] parsedSchemas = new XmlObject[xsdFiles.length];
@@ -188,29 +188,29 @@ public class SimpleSourceSet implements BothSourceSet
         }
         return new SimpleSourceSet(classes, sts, tylarLoader);
     }
-    
-    public static JavaSourceSet forJavaFiles(File[] javaFiles, TylarLoader tylarLoader) throws IOException 
+
+    public static JavaSourceSet forJavaFiles(File[] javaFiles, TylarLoader tylarLoader) throws IOException
     {
         try
         {
-            return forJavaAndXsdFiles(javaFiles, null, tylarLoader);
+            return forJavaAndXsdFiles(javaFiles, null, tylarLoader,null);
         }
         catch (XmlException e)
         {
             throw new IllegalStateException();
         }
     }
-    
+
     public static SchemaSourceSet forXsdFile(File xsdFilename, TylarLoader tylarLoader) throws IOException, XmlException
     {
-        return forJavaAndXsdFiles(null, new File[] { xsdFilename }, tylarLoader);
+        return forJavaAndXsdFiles(null, new File[] { xsdFilename }, tylarLoader,null);
     }
-    
+
     public static SchemaSourceSet forXsdFiles(File[] xsdFiles, TylarLoader tylarLoader) throws IOException, XmlException
     {
-        return forJavaAndXsdFiles(null, xsdFiles, tylarLoader);
+        return forJavaAndXsdFiles(null, xsdFiles, tylarLoader,null);
     }
-        
+
     public static SchemaSourceSet forSchemaGenerator(SchemaCodeResult generator, TylarLoader tylarLoader)
     {
         try
@@ -238,5 +238,5 @@ public class SimpleSourceSet implements BothSourceSet
             throw (IllegalStateException)new IllegalStateException().initCause(e);
         }
     }
-    
+
 }

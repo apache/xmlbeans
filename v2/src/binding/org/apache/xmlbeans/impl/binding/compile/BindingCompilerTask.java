@@ -100,9 +100,11 @@ public abstract class BindingCompilerTask extends MatchingTask {
   /**
    * Subclasses are only responsible for getting additional attributes
    * from the ant script and creating a BindingCompiler; this is how we get
-   * that compiler.  This will method    * never be called until after the execute() method has begun.
+   * that compiler.  It is guaranteed that this method will not be called
+   * until after the execute() method has begun.
    */
-  protected abstract BindingCompiler createCompiler() throws BuildException;
+  protected abstract BindingCompiler getCompilerToExecute()
+          throws BuildException;
 
   // ========================================================================
   // Task Attributes - these are common to all of the tasks
@@ -135,13 +137,14 @@ public abstract class BindingCompilerTask extends MatchingTask {
    * should not override - they're only responsible for providing a
    * BindingCompiler.
    */
-  public final void execute() throws BuildException {
+//FIXME temporarily non-final to accomodate transition of Both2BindTask
+  public void execute() throws BuildException {
     if (mDestDir == null && mDestJar == null) {
       throw new BuildException("must specify destdir or destjar");
     }
     Tylar tylar = null;
     try {
-      BindingCompiler bc = createCompiler();
+      BindingCompiler bc = getCompilerToExecute();
       bc.setIgnoreSevereErrors(mIgnoreErrors);
       bc.setLogger(createLogger());
       bc.setVerbose(mVerbose);
@@ -161,7 +164,6 @@ public abstract class BindingCompilerTask extends MatchingTask {
                                "see log for details.");
     }
     log("binding task complete, output at "+tylar.getLocation());
-
   }
 
   // ========================================================================
@@ -197,8 +199,6 @@ public abstract class BindingCompilerTask extends MatchingTask {
 
   private  BindingLogger createLogger() {
     //FIXME this should be an AntBindingLogger
-    SimpleBindingLogger logger = new SimpleBindingLogger();
-    if (mVerbose) logger.setThresholdLevel(Level.FINEST);
-    return logger;
+    return new SimpleBindingLogger();
   }
 }

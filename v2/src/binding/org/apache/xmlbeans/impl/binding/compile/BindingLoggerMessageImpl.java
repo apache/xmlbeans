@@ -55,38 +55,113 @@
 */
 package org.apache.xmlbeans.impl.binding.compile;
 
-import java.util.logging.Level;
-import java.io.PrintWriter;
 import org.apache.xmlbeans.impl.jam.JElement;
-import org.w3.x2001.xmlSchema.Element;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaProperty;
+
+import java.util.logging.Level;
+import java.io.StringWriter;
+import java.io.PrintWriter;
 
 /**
- * Implementation of BindingLogger that just spews out to some Writer.
+ *
+ * @author Patrick Calahan <pcal@bea.com>
  */
-public class SimpleBindingLogger implements BindingLogger {
+public class BindingLoggerMessageImpl implements BindingLoggerMessage {
 
   // ========================================================================
   // Variables
 
-  private PrintWriter mOut;
+  private Level mLevel;
+  private String mMessage = null;
+  private Throwable mException = null;
+  private JElement mJavaContext = null;
+  private SchemaType mSchemaTypeContext = null;
+  private SchemaProperty mSchemaPropertyContext = null;
 
   // ========================================================================
   // Constructors
 
-  public SimpleBindingLogger() {
-    this(new PrintWriter(System.out));
-  }
-
-  public SimpleBindingLogger(PrintWriter out) {
-    if (out == null) throw new IllegalArgumentException();
-    mOut = out;
+  public BindingLoggerMessageImpl(Level level,
+                                  String message,
+                                  Throwable exception,
+                                  JElement javaContext,
+                                  SchemaType schemaTypeContext,
+                                  SchemaProperty schemaPropertyContext) {
+    if (level == null) throw new IllegalArgumentException("null level");
+    mLevel = level;
+    mMessage = message;
+    mException = exception;
+    mJavaContext = javaContext;
+    mSchemaTypeContext = schemaTypeContext;
+    mSchemaPropertyContext = schemaPropertyContext;
   }
 
   // ========================================================================
-  // BindingLogger implementation
+  // BindingLoggerMessage implementation
 
-  public void log(BindingLoggerMessage msg) {
-    mOut.print(msg.toString());
-    mOut.flush();
+  public Level getLevel() {
+    return mLevel;
+  }
+
+  public String getMessage() {
+    if (mMessage != null) return mMessage;
+    if (mException != null) return mException.getMessage();
+    return mLevel.getLocalizedName(); //?
+  }
+
+  public Throwable getException() {
+    return mException;
+  }
+
+  public JElement getJavaContext() {
+    return mJavaContext;
+  }
+
+  public SchemaProperty getSchemaPropertyContext() {
+    return mSchemaPropertyContext;
+  }
+
+  public SchemaType getSchemaTypeContext() {
+    return mSchemaTypeContext;
+  }
+
+  // ========================================================================
+  // Object implementation
+
+  public String toString() {
+    StringWriter sw = new StringWriter();
+    print(new PrintWriter(sw));
+    return sw.toString();
+  }
+
+  // ========================================================================
+  // Private methods
+
+  private void print(PrintWriter out) {
+    out.print('[');
+    out.print(mLevel.toString());
+    out.print("] ");
+    if (mMessage != null) {
+      out.println(mMessage);
+    }
+    if (mJavaContext != null) {
+      out.print(" on Java element '");
+      out.print(mJavaContext.getQualifiedName());
+      out.print("'");
+    }
+    if (mSchemaTypeContext != null) {
+      out.print(" on Schema type ");
+      out.print(mSchemaTypeContext.getName());//FIXME?
+      out.print("'");
+    }
+    if (mSchemaPropertyContext != null) {
+      out.print(" on Schema type ");
+      out.print(mSchemaPropertyContext.getName());//FIXME?
+      out.print("'");
+    }
+    if (mException != null) {
+      mException.printStackTrace(out);
+    }
   }
 }

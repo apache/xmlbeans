@@ -63,13 +63,10 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.jam.JElement;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JFactory;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.*;
 import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.w3.x2001.xmlSchema.Element;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -270,7 +267,8 @@ public abstract class BindingCompiler {
    * Sets whether this BindingCompiler should keep any generated java source
    * code it generates.  The default is true.  This will have no effect if
    * doCompile is set to false.  Also note that not all BindingCompilers
-   * generate any source code at all, so setting this may have no effect.
+   * generate any source code at all, so setting this may have no effect in
+   * any event.
    */
   public void setKeepGeneratedJava(boolean b) {
     assertCompilationStarted(false);
@@ -409,70 +407,131 @@ public abstract class BindingCompiler {
     mIsCompilationStarted = true;
   }
 
-
   // ========================================================================
   // Protected logging methods
+  //
+  //   These methods provide subclasses with a tighter interface to the
+  //   logger, as well as 'choke points' so that we can, for example,
+  //   suppress verbose messages.
+  //
+  //   It also allows us to indicate to the subclass whether or not
+  //   processing should proceed after a given message is logged.
+  //   Currently, this is just a yes/no flag that applies to all errors,
+  //   but one could imagine wanting to be more discriminating someday.
 
   /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.  The binding process should attempt
-   * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(JElement context, Throwable error) {
-    mAnyErrorsFound = true;
-    mLogger.log(Level.SEVERE,null,error,context);
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.  The binding process should attempt
-   * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.
-   *
-   * @return true if processing should attempt to continue.
-   *
-   */
-  protected boolean logError(JElement context, String msg) {
-    mAnyErrorsFound = true;
-    mLogger.log(Level.SEVERE,msg,null,context);
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.  The binding process should attempt
-   * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.
+   * Logs a message that some error occurred while performing binding.
    *
    * @return true if processing should attempt to continue.
    */
   protected boolean logError(String msg) {
     mAnyErrorsFound = true;
-    mLogger.log(Level.SEVERE,msg,null);
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,msg,null,null,null,null));
     return mIgnoreErrors;
   }
 
   /**
-   * Logs a message that fatal error that occurred.
+   * Logs a message that an error occurred.
    *
    * @return true if processing should attempt to continue.
    */
   protected boolean logError(Throwable t) {
     mAnyErrorsFound = true;
-    mLogger.log(Level.SEVERE,null,t);
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,null,t,null,null,null));
     return mIgnoreErrors;
   }
 
   /**
-   * Logs an informative message that should be printed only in 'verbose'
-   * mode.
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given java construct.
+   *
+   * @return true if processing should attempt to continue.
    */
-  protected void logVerbose(JElement context, String msg) {
-    if (mVerbose) mLogger.log(Level.FINEST,msg,null,context);
+  protected boolean logError(Throwable error, JElement javaContext) {
+    mAnyErrorsFound = true;
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,null,error,javaContext,null,null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given schema construct.
+   *
+   * @return true if processing should attempt to continue.
+   */
+  protected boolean logError(Throwable error, SchemaType schemaContext) {
+    mAnyErrorsFound = true;
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,null,error,null,schemaContext,null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given java and schema constructs.
+   *
+   * @return true if processing should attempt to continue.
+   */
+  protected boolean logError(Throwable t, JElement jCtx, SchemaType xsdCtx) {
+    mAnyErrorsFound = true;
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,null,t,jCtx,xsdCtx,null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given java construct.
+   *
+   * @return true if processing should attempt to continue.
+   */
+  protected boolean logError(String msg, JElement javaContext) {
+    mAnyErrorsFound = true;
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,msg,null,javaContext,null,null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given schema construct.
+   *
+   * @return true if processing should attempt to continue.
+   */
+  protected boolean logError(String msg, SchemaType xsdCtx) {
+    mAnyErrorsFound = true;
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,msg,null,null,xsdCtx,null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given schema construct.
+   *
+   * @return true if processing should attempt to continue.
+   */
+  protected boolean logError(String msg, JElement javaCtx, SchemaType xsdCtx) {
+    mAnyErrorsFound = true;
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,msg,null,javaCtx,xsdCtx,null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given schema construct.
+   *
+   * @return true if processing should attempt to continue.
+   */
+  protected boolean logError(String msg, JElement jCtx, SchemaProperty xCtx) {
+    mAnyErrorsFound = true;
+    mLogger.log(new BindingLoggerMessageImpl
+            (Level.SEVERE,msg,null,jCtx,null,xCtx));
+    return mIgnoreErrors;
   }
 
   /**
@@ -480,7 +539,43 @@ public abstract class BindingCompiler {
    * mode.
    */
   protected void logVerbose(String msg) {
-    if (mVerbose) mLogger.log(Level.FINEST,msg,null);
+    if (mVerbose) {
+      mLogger.log(new BindingLoggerMessageImpl
+              (Level.FINEST,msg,null,null,null,null));
+    }
+  }
+
+  /**
+   * Logs an informative message that should be printed only in 'verbose'
+   * mode.
+   */
+  protected void logVerbose(String msg, JElement javaContext) {
+    if (mVerbose) {
+      mLogger.log(new BindingLoggerMessageImpl
+              (Level.FINEST,msg,null,javaContext,null,null));
+    }
+  }
+
+  /**
+   * Logs an informative message that should be printed only in 'verbose'
+   * mode.
+   */
+  protected void logVerbose(String msg, SchemaType xsdType) {
+    if (mVerbose) {
+      mLogger.log(new BindingLoggerMessageImpl
+              (Level.FINEST,msg,null,null,xsdType,null));
+    }
+  }
+
+  /**
+   * Logs an informative message that should be printed only in 'verbose'
+   * mode.
+   */
+  protected void logVerbose(String msg, JElement javaCtx, SchemaType xsdCtx) {
+    if (mVerbose) {
+      mLogger.log(new BindingLoggerMessageImpl
+              (Level.FINEST,msg,null,javaCtx,xsdCtx,null));
+    }
   }
 
   // ========================================================================

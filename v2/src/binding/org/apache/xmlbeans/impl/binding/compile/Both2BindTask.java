@@ -64,274 +64,252 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.FileOutputStream;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Both2BindTask extends MatchingTask
-{
+public class Both2BindTask extends BindingCompilerTask {
 
-    // =========================================================================
-    // Variables
+  // =========================================================================
+  // Variables
 
-    private File mDestDir = null;
-    private File mDestFile = null;
-    private Path mSrc = null;
-    private Path mClasspath = null;
-    private List mXsdFiles = null;
-    private List mJavaFiles = null;
-    private String mTypeMatcherClass = null;
-    private List mSchemaFilesets = new ArrayList();
-    private File mSchema = null;
+  private File mDestFile = null;
+  private Both2Bind mCompiler;
+  private Path mSrc = null;
+  private Path mClasspath = null;
+  private List mXsdFiles = null;
+  private List mJavaFiles = null;
+  private List mSchemaFilesets = new ArrayList();
+  private File mSchema = null;
 
-    // =========================================================================
-    // Task attributes
+  // ========================================================================
+  // Constructors
 
-    public void setDestDir(File dir)
-    {
-        mDestDir = dir;
-    }
-    
-    public void setDestFile(File file)
-    {
-        mDestFile = file;
-    }
+  public Both2BindTask() {
+    // create the BindingCompiler object that we're going to populate and
+    // return in createCompiler()
+    mCompiler = new Both2Bind();
+  }
 
-    /**
-     * Set the source directories to find the source Java files.
-     */
-    public void setSrcdir(Path srcDir)
-    {
-        if (mSrc == null) {
-            mSrc = srcDir;
-        }
-        else {
-            mSrc.append(srcDir);
-        }
+  // =========================================================================
+  // BindingCompilerTask implementation
+
+  protected BindingCompiler getCompilerToExecute() throws BuildException {
+    // validate some parameters
+    if (mSrc == null || mSrc.size() == 0) {
+      throw new BuildException("srcdir attribute must be set!",
+              getLocation());
     }
-    
-    /**
-     * Sets a single schema.
-     */ 
-    public void setSchema(File file)
-    {
-        mSchema = file;
+    // scan source directories and dest directory to build up
+    startScan();
+    String[] list = mSrc.list();
+    for (int i = 0; i < list.length; i++) {
+      File srcDir = getProject().resolveFile(list[i]);
+      if (!srcDir.exists()) {
+        throw new BuildException("srcdir \""
+                + srcDir.getPath()
+                + "\" does not exist!", getLocation());
+      }
+      DirectoryScanner ds = this.getDirectoryScanner(srcDir);
+      String[] files = ds.getIncludedFiles();
+      scanJavaDir(srcDir, files);
     }
-    
-    /**
-     * Adds a fileset for source XSD files
-     */
-    public void addSchema(FileSet fileSet)
-    {
-        mSchemaFilesets.add(fileSet);
-    }
-    
-    /**
-     * Sets the typematcher class name.  Must be a fully-qualified
-     * class name for a class that implements the TypeMatcher interface.
-     */
-    public void setTypeMatcher(String typeMatcher)
-    {
-        mTypeMatcherClass = typeMatcher;
+    // now scan XSD files
+    // single file
+    if (mSchema != null) {
+      if (!mSchema.exists())
+        throw new BuildException("schema " + mSchema + " does not exist!", getLocation());
+      mXsdFiles.add(mSchema);
     }
 
-    /**
-     * Adds a path for source compilation.
-     *
-     * @return a nested src element.
-     */
-    public Path createSrc() {
-        if (mSrc == null) {
-            mSrc = new Path(getProject());
-        }
-        return mSrc.createPath();
+    for (int i = 0; i < mSchemaFilesets.size(); i++) {
+      scanSchemaFileset((FileSet) mSchemaFilesets.get(i));
     }
+    File[] xsdFiles = (File[]) mXsdFiles.toArray(new File[mXsdFiles.size()]);
+    File[] javaFiles = (File[]) mJavaFiles.toArray(new File[mJavaFiles.size()]);
 
+    TylarLoader tylarLoader = null;
 
-    public void setClasspath(Path path)
-    {
-        if (mClasspath == null) {
-            mClasspath = path;
-        }
-        else {
-            mClasspath.append(path);
-        }
+    /*if (mClasspath != null) {
+      File[] classpath = namesToFiles(mClasspath.list());
+      tylarLoader = SimpleTylarLoader.forClassPath(classpath);
+    } */
+
+    // bind
+    BothSourceSet input = null;
+    try {
+      String cp = (mClasspath == null) ? null : mClasspath.toString();
+      input = SimpleSourceSet.forJavaAndXsdFiles(javaFiles, xsdFiles, tylarLoader,cp);
+      mCompiler.setBothSourceSet(input);
+    } catch (IOException e) {
+      log(e.getMessage());
+      throw new BuildException(e);
+    } catch (XmlException e) {
+      log(e.getMessage());
+      throw new BuildException(e);
     }
+    return mCompiler;
+  }
 
-    public void setClasspathRef(Reference r)
-    {
-        createClasspath().setRefid(r);
-    }
+  // ========================================================================
+  // Temporary destFile hack - remove these methods when we no longer need to
+  // support 'destFile' attribute
 
-    public Path createClasspath()
-    {
-        if (mClasspath == null) {
-            mClasspath = new Path(getProject());
-        }
-        return mClasspath.createPath();
-    }
-
-    // =========================================================================
-    // Task implementation
-
-    /**
-     * Execute the task.
-     */
-    public void execute() throws BuildException
-    {
-        checkParameters();
-        
-        // scan source directories and dest directory to build up
-        startScan();
-        String[] list = mSrc.list();
-        for (int i = 0; i < list.length; i++) {
-            File srcDir = getProject().resolveFile(list[i]);
-            if (!srcDir.exists()) {
-                throw new BuildException("srcdir \""
-                                         + srcDir.getPath()
-                                         + "\" does not exist!", getLocation());
-            }
-
-            DirectoryScanner ds = this.getDirectoryScanner(srcDir);
-            String[] files = ds.getIncludedFiles();
-
-            scanJavaDir(srcDir, files);
-        }
-        
-        // now scan XSD files
-        // single file
-        if (mSchema != null)
-        {
-            if (!mSchema.exists())
-                throw new BuildException("schema " + mSchema + " does not exist!", getLocation());
-            mXsdFiles.add(mSchema);
-        }
-        
-        for (int i = 0; i < mSchemaFilesets.size(); i++)
-        {
-            scanSchemaFileset((FileSet)mSchemaFilesets.get(i));
-        }
-
-        compile();
-    }
-    
-    protected void startScan()
-    {
-        mXsdFiles = new ArrayList();
-        mJavaFiles = new ArrayList();
-    }
-    
-    protected void scanJavaDir(File srcDir, String[] files) {
-        for (int i = 0; i < files.length; i++)
-        {
-            if (files[i].endsWith(".java"))
-                mJavaFiles.add(new File(srcDir, files[i]));
-        }
-    }
-    
-    protected void scanSchemaFileset(FileSet fs)
-    {
-        File fromDir = fs.getDir(getProject());
-        DirectoryScanner ds = fs.getDirectoryScanner(getProject());
-        String[] srcFiles = ds.getIncludedFiles();
-        for (int i = 0; i < srcFiles.length; i++)
-        {
-            if (srcFiles[i].endsWith(".xsd"))
-                mXsdFiles.add(new File(fromDir, srcFiles[i]));
-        }
-        
-    }
-    
-    protected File[] namesToFiles(String[] names)
-    {
-        File[] result = new File[names.length];
-        for (int i = 0; i < names.length; i++)
-            result[i] = new File(names[i]);
-        return result;
-    }
-
-    protected void compile() throws BuildException
-    {
-        File[] xsdFiles = (File[])mXsdFiles.toArray(new File[mXsdFiles.size()]);
-        File[] javaFiles = (File[])mJavaFiles.toArray(new File[mJavaFiles.size()]);
-        
-        TylarLoader tylarLoader = null;
-        
-        if (mClasspath != null)
-        {
-            File[] classpath = namesToFiles(mClasspath.list());
-            tylarLoader = SimpleTylarLoader.forClassPath(classpath);
-        }
-        
-        // bind
-        BothSourceSet input = null;
+  public void execute() throws BuildException {
+    super.execute();
+    if (mDestFile != null) {
+      BindingFile bf = mCompiler.getBindingFile();
+      FileOutputStream out = null;
+      try {
+        out = new FileOutputStream(mDestFile);
+        BindingConfigDocument doc = bf.write();
+        doc.save(out,
+                new XmlOptions().setSavePrettyPrint().
+                setSavePrettyPrintIndent(2));
+      } catch (IOException ioe) {
+        throw new BuildException(ioe);
+      } finally {
         try {
-            input = SimpleSourceSet.forJavaAndXsdFiles(javaFiles, xsdFiles, tylarLoader);
+          if (out != null)
+            out.close();
+        } catch (IOException ohwell) {
+          ohwell.printStackTrace();
         }
-        catch (IOException e) {
-            log(e.getMessage());
-            throw new BuildException(e);
-        }
-        catch (XmlException e) {
-            log(e.getMessage());
-            throw new BuildException(e);
-        }
-        
-        File destDir = mDestDir;
-        if (destDir == null)
-            destDir = mDestFile.getParentFile();
-        
-        TylarBuilder tb = new ExplodedTylarBuilder(destDir, mDestFile);
-        XmlOptions opts = null;
-        if (mTypeMatcherClass != null)
-        {
-            opts = new XmlOptions();
-            opts.put(Both2Bind.TYPE_MATCHER, mTypeMatcherClass);
-            log("both2Bind using matcher class " + mTypeMatcherClass);
-        }
-        BindingFileResult result = Both2Bind.bind(input, opts);
+      }
+    }
+  }
 
-        try {
-            tb.buildTylar(result);
+  public void setDestFile(File file) {
+    log("WARNING!!! the 'destFile' attribute is deprecated and will soon\n" +
+            "be removed.  You should instead use destJar, which generates\n" +
+            "a full tylar jar (which contains, among other things, the\n" +
+            "binding file).  You should not be directly using the binding " +
+            "file directly anymore");
+    mDestFile = file;
+    super.setDestDir(file.getParentFile());
+  }
+
+  // =========================================================================
+  // Task attributes
+
+  /**
+   * Set the source directories to find the source Java files.
+   */
+  public void setSrcdir(Path srcDir) {
+    if (mSrc == null) {
+      mSrc = srcDir;
+    } else {
+      mSrc.append(srcDir);
+    }
+  }
+
+  /**
+   * Sets a single schema.
+   */
+  public void setSchema(File file) {
+    mSchema = file;
+  }
+
+  /**
+   * Adds a fileset for source XSD files
+   */
+  public void addSchema(FileSet fileSet) {
+    mSchemaFilesets.add(fileSet);
+  }
+
+  /**
+   * Sets the typematcher to use.  Must be a fully-qualified
+   * class name for a class that implements the TypeMatcher interface.
+   */
+  public void setTypeMatcher(String typeMatcherClassName) {
+    if (typeMatcherClassName != null) {
+      try {
+        Class mclass = Class.forName(typeMatcherClassName);
+        Object matcher = mclass.newInstance();
+        if (!(matcher instanceof TypeMatcher)) {
+          throw new BuildException(typeMatcherClassName+" does not implement "+
+                  TypeMatcher.class.getName());
         }
-        catch (IOException ioe) {
-            ioe.printStackTrace();
-            throw new BuildException(ioe);
-        }
-        log("Both2Bind complete, output in " + mDestDir);
+        mCompiler.setTypeMatcher((TypeMatcher)matcher);
+        log("both2Bind using matcher class " + typeMatcherClassName);
+      } catch(ClassNotFoundException cnfe){
+        throw new BuildException(cnfe);
+      } catch(InstantiationException ie) {
+        throw new BuildException(ie);
+      } catch(IllegalAccessException iae) {
+        throw new BuildException(iae);
+      }
+    }
+  }
+
+  /**
+   * Adds a path for source compilation.
+   *
+   * @return a nested src element.
+   */
+  public Path createSrc() {
+    if (mSrc == null) {
+      mSrc = new Path(getProject());
+    }
+    return mSrc.createPath();
+  }
+
+  public void setClasspath(Path path) {
+    if (mClasspath == null) {
+      mClasspath = path;
+    } else {
+      mClasspath.append(path);
+    }
+  }
+
+  public void setClasspathRef(Reference r) {
+    createClasspath().setRefid(r);
+  }
+
+  public Path createClasspath() {
+    if (mClasspath == null) {
+      mClasspath = new Path(getProject());
+    }
+    return mClasspath.createPath();
+  }
+
+  // =========================================================================
+  // Task implementation
+
+  protected void startScan() {
+    mXsdFiles = new ArrayList();
+    mJavaFiles = new ArrayList();
+  }
+
+  protected void scanJavaDir(File srcDir, String[] files) {
+    for (int i = 0; i < files.length; i++) {
+      if (files[i].endsWith(".java"))
+        mJavaFiles.add(new File(srcDir, files[i]));
+    }
+  }
+
+  protected void scanSchemaFileset(FileSet fs) {
+    File fromDir = fs.getDir(getProject());
+    DirectoryScanner ds = fs.getDirectoryScanner(getProject());
+    String[] srcFiles = ds.getIncludedFiles();
+    for (int i = 0; i < srcFiles.length; i++) {
+      if (srcFiles[i].endsWith(".xsd"))
+        mXsdFiles.add(new File(fromDir, srcFiles[i]));
     }
 
-    // =========================================================================
-    // Private methods
+  }
 
-    protected void checkParameters() throws BuildException {
-        if (mSrc == null) {
-            throw new BuildException("srcdir attribute must be set!",
-                                     getLocation());
-        }
-        if (mSrc.size() == 0) {
-            throw new BuildException("srcdir attribute must be set!",
-                                     getLocation());
-        }
-        
-        if (mDestDir == null && mDestFile == null)
-        {
-            throw new BuildException("destDir or destFile attribute must be set!");
-        }
-        
-        if (mDestDir != null && mDestFile != null)
-        {
-            throw new BuildException("Cannot set both destDir and destFile!", getLocation());
-        }
+  protected File[] namesToFiles(String[] names) {
+    File[] result = new File[names.length];
+    for (int i = 0; i < names.length; i++)
+      result[i] = new File(names[i]);
+    return result;
+  }
 
-        if (mDestDir != null && !mDestDir.isDirectory()) {
-            throw new BuildException("destination directory \""
-                                     + mDestDir
-                                     + "\" does not exist "
-                                     + "or is not a directory", getLocation());
-        }
-    }
 
 }
