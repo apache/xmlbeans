@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package scomp.namespace;
+package scomp.namespace.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.namespace.attributeFormDefault.AttributeFormDefaultEltDocument;

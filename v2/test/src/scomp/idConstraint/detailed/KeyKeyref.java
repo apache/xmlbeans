@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package scomp.idConstraint;
+package scomp.idConstraint.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.idConstraint.constraint.*;

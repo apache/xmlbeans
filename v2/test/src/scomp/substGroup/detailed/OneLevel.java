@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package scomp.substGroup;
+package scomp.substGroup.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.substGroup.oneLevel.*;
