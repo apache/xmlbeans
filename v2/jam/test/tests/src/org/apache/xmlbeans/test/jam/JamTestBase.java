@@ -109,7 +109,13 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".ejb.TraderEJB",
     DUMMY+".ejb.TradeResult",
 
-    DUMMY+".jsr175.impl.RFEAnnotationImpl",
+//    DUMMY+".jsr175.impl.RFEAnnotationImpl",
+
+
+    "org.apache.xmlbeans.test.jam.cases.annogen.BugAnnotation",
+    "org.apache.xmlbeans.test.jam.cases.annogen.EmployeeAnnotation",
+    "org.apache.xmlbeans.test.jam.cases.annogen.impl.BugAnnotationImpl",
+    "org.apache.xmlbeans.test.jam.cases.annogen.impl.EmployeeAnnotationImpl",
 
     DUMMY+".Base",
     DUMMY+".Baz",
@@ -226,7 +232,9 @@ public abstract class JamTestBase extends TestCase {
    * Returns the directory in which the sources for the cases live.
    */
   protected File[] getCasesSourcepath() {
-    return new File[] {new File("cases/src")};
+    return new File[] {new File("../../build/jam/test/annogen"),
+                       new File("cases/src")
+                       };
   }
 
   /**

@@ -1,7 +1,7 @@
 package org.apache.xmlbeans.test.jam.cases.jsr175;
 
 
-@RFEAnnotation(
+@RFEAnnotation_150(
     id       = 4561414,
     synopsis = "Balance the federal budget"
 )
