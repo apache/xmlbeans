@@ -75,7 +75,7 @@ public class XBeansDemo
 
             Iterator resultIter = results.iterator();
 
-            System.out.println("Document :: " + doc );
+            //System.out.println("Document :: " + doc );
             System.out.println("   XPath :: " + xpath );
             System.out.println("");
             System.out.println("Results" );

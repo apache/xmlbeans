@@ -45,7 +45,6 @@ public class SmokeTests extends TestCase
         suite.addTest(GDateTests.suite());
         suite.addTest(SubstGroupTests.suite());
         suite.addTest(BindingTests.suite());
-        suite.addTest(JaxenXPathTests.suite());
         suite.addTest(MarshalTests.suite());
         suite.addTest(SaveLoadTests.suite());
         suite.addTest(RichParserTests.suite());

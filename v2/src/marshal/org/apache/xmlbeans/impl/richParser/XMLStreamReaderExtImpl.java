@@ -753,6 +753,8 @@ public class XMLStreamReaderExtImpl
             {
                 _nonWSStart = 0;
                 _nonWSEnd = _length;
+
+                // takes defaultValue only if there wasn't any text
                 if (!_hasText && _xmlSteam._defaultValue!=null)
                 {
                     _length = 0;
@@ -768,7 +770,8 @@ public class XMLStreamReaderExtImpl
                     if (!XMLChar.isSpace(_buf[_nonWSEnd-1]))
                         break;
 
-                if (!_hasText && _xmlSteam._defaultValue!=null)
+                // takes defaultValue if length after triming is 0
+                if (length()==0 && _xmlSteam._defaultValue!=null)
                 {
                     _length = 0;
                     fillBufferFromString(_xmlSteam._defaultValue);

@@ -557,7 +557,7 @@ public final class XsTypeConverter
 
     private static String trimInitialPlus(String xml)
     {
-        if (xml.charAt(0) == '+') {
+        if (xml.length()>0 && xml.charAt(0) == '+') {
             return xml.substring(1);
         } else {
             return xml;

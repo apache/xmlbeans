@@ -15,7 +15,7 @@
 
         <n1:MyClassArray xsi:type="n1:MySubClass">
             <n1:Myatt>NextValueShouldBeDefaulted</n1:Myatt>
-            <n1:BigInt></n1:BigInt>    <!-- test default elements -->
+            <n1:BigInt> </n1:BigInt>    <!-- test default elements -->
         </n1:MyClassArray>
 
         <n1:MyClassArray n3:type="n1:MySubClass" xmlns:n3="http://www.w3.org/2001/XMLSchema-instance">
