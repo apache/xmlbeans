@@ -23,6 +23,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -130,6 +131,15 @@ final class UnmarshalResult
     private void addError(String msg)
     {
         addError(msg, baseReader.getLocation());
+    }
+
+    private void addWarning(String msg)
+    {
+        Location location = baseReader.getLocation();
+        assert location != null;
+        MarshalStreamUtils.addError(errors, msg,
+                                    XmlError.SEVERITY_WARNING,
+                                    location);
     }
 
 
@@ -991,17 +1001,18 @@ final class UnmarshalResult
             if (binding_type != null) {
                 final RuntimeBindingType actual_rtt =
                     typeTable.createRuntimeType(binding_type, bindingLoader);
-                if (isLegalTypeSubstitution(expected, actual_rtt)) {
+                if (isCompatibleTypeSubstitution(expected, actual_rtt)) {
                     return actual_rtt;
                 } else {
                     String e = "invalid type substitution: " +
-                        actual_rtt.getSchemaTypeName() + " for " +
-                        expected.getSchemaTypeName();
-                    addError(e);
+                        xsi_type + " for " + expected.getSchemaTypeName() +
+                        " due to incompatible java types (" +
+                        actual_rtt.getJavaType().getName() +
+                        " for " + expected.getJavaType().getName() +
+                        ") -- using declared type";
+                    addWarning(e);
                 }
             }
-            //reaching here means some problem with extracting the
-            //BindingType for the xsi type, so just use the expected one
         }
 
         return expected;
@@ -1009,8 +1020,8 @@ final class UnmarshalResult
 
 
     //is xsi:type substitution ok.  only checks java compat for now.
-    private static boolean isLegalTypeSubstitution(RuntimeBindingType expected,
-                                                   RuntimeBindingType actual)
+    private static boolean isCompatibleTypeSubstitution(RuntimeBindingType expected,
+                                                        RuntimeBindingType actual)
     {
         if (expected == actual) return true;
 
