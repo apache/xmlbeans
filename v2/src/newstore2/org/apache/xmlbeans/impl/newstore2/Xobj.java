@@ -1003,11 +1003,11 @@ abstract class Xobj implements TypeStore
         Object src = getChars( p, cch );
 
         if (wsr == Locale.WS_PRESERVE)
-            return CharUtil.getString( src, offSrc(), cchSrc() );
+            return CharUtil.getString( src, _locale._offSrc, _locale._cchSrc );
         
         Locale.ScrubBuffer scrub = Locale.getScrubBuffer( wsr );
 
-        scrub.scrub( src, offSrc(), cchSrc() );
+        scrub.scrub( src, _locale._offSrc, _locale._cchSrc );
         
         return scrub.getResultAsString();
     }
@@ -1020,7 +1020,7 @@ abstract class Xobj implements TypeStore
 
             if (wsr == Locale.WS_PRESERVE)
             {
-                String s = CharUtil.getString( src, offSrc(), cchSrc() );
+                String s = CharUtil.getString( src, _locale._offSrc, _locale._cchSrc );
 
                 // Cache string to be able to use it later again
 
@@ -1049,7 +1049,7 @@ abstract class Xobj implements TypeStore
 
             Locale.ScrubBuffer scrub = Locale.getScrubBuffer( wsr );
 
-            scrub.scrub( src, offSrc(), cchSrc() );
+            scrub.scrub( src, _locale._offSrc, _locale._cchSrc );
 
             return scrub.getResultAsString();
         }
@@ -1137,10 +1137,8 @@ abstract class Xobj implements TypeStore
 
         if (lastAttr == null || lastAttr._cchAfter <= 0)
         {
-            CharUtil cu = _locale.getCharUtil();
-            
-            cu._offSrc = 0;
-            cu._cchSrc = 0;
+            _locale._offSrc = 0;
+            _locale._cchSrc = 0;
             
             return null;
         }
@@ -1152,17 +1150,14 @@ abstract class Xobj implements TypeStore
     {
         Object src = getChars( pos, cch );
         
-        c._offSrc = offSrc();
-        c._cchSrc = cchSrc();
+        c._offSrc = _locale._offSrc;
+        c._cchSrc = _locale._cchSrc;
 
         return src;
     }
 
     // These return the remainder of the char triple that getChars starts
     
-    final int offSrc ( ) { return _locale.getCharUtil()._offSrc; }
-    final int cchSrc ( ) { return _locale.getCharUtil()._cchSrc; }
-
     Object getChars ( int pos, int cch )
     {
         assert isNormal( pos );
@@ -1174,10 +1169,8 @@ abstract class Xobj implements TypeStore
 
         if (cch == 0)
         {
-            CharUtil cu = _locale.getCharUtil();
-            
-            cu._offSrc = 0;
-            cu._cchSrc = 0;
+            _locale._offSrc = 0;
+            _locale._cchSrc = 0;
 
             return null;
         }
@@ -1198,15 +1191,15 @@ abstract class Xobj implements TypeStore
         if (pos >= pa)
         {
             src = _srcAfter;
-            _locale.getCharUtil()._offSrc = _offAfter + pos - pa;
+            _locale._offSrc = _offAfter + pos - pa;
         }
         else
         {
             src = _srcValue;
-            _locale.getCharUtil()._offSrc = _offValue + pos - 1;
+            _locale._offSrc = _offValue + pos - 1;
         }
 
-        _locale.getCharUtil()._cchSrc = cch;
+        _locale._cchSrc = cch;
 
         return src;
     }

@@ -1457,26 +1457,6 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return sb.toString();
     }
     
-//    static String getTextValue ( Cur c, int wsr )
-//    {
-//        assert c.isNode();
-//
-//        if (!c.hasChildren())
-//            return c.getValueAsString( wsr );
-//
-//        ScrubBuffer sb = getScrubBuffer( wsr );
-//
-//        c.push();
-//
-//        for ( c.next() ; !c.isAtEndOfLastPush() ; c.next() )
-//            if (c.isText())
-//                sb.scrub( c.getChars( -1 ), c._offSrc, c._cchSrc );
-//
-//        c.pop();
-//                
-//        return sb.getResultAsString();
-//    }
-
     static int getTextValue ( Cur c, int wsr, char[] chars, int off, int maxCch )
     {
         // TODO - hack impl for now ... improve
@@ -3109,6 +3089,9 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     Locations _locations;
     
     private CharUtil _charUtil;
+    
+    int _offSrc;
+    int _cchSrc;
     
     Saaj _saaj;
     
