@@ -467,6 +467,7 @@
       <fileset dir="build/classes/jax-qname"/>
       <fileset dir="build/classes/jaxb"/>
       <fileset dir="build/classes/repackage"/>
+      <fileset dir="src/license"/>
     </jar>
   </target>
 
