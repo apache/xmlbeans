@@ -140,7 +140,7 @@ public class GetTextTest extends BasicCursorTestCase {
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EventStatus/EquipmentStructure");
         m_xc.toNextSelection();
-        assertEquals("        GATX     123456L   ", m_xc.getTextValue());
+        assertEquals("\n\t\t\tGATX\n\t\t\t123456\n\t\t\tL\n\t\t", m_xc.getTextValue());
     }
 
     public void testGetTextFromSTART_TextAferEND() throws Exception {

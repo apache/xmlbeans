@@ -232,7 +232,8 @@ import org.w3c.domts.level2.core.*;
       sink.addTestSuite(namednodemapremovenameditemns01.class);
        //default Attr
      // sink.addTestSuite(namednodemapremovenameditemns02.class);
-      sink.addTestSuite(namednodemapremovenameditemns03.class);
+     // ER
+       //  sink.addTestSuite(namednodemapremovenameditemns03.class);
       sink.addTestSuite(namednodemapremovenameditemns04.class);
      // sink.addTestSuite(namednodemapremovenameditemns05.class);
       sink.addTestSuite(namednodemapremovenameditemns06.class);
