@@ -62,6 +62,8 @@ import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
 import org.openuri.enumtest.StatusreportDocument;
+import org.openuri.enumtest.SalesreportDocument;
+import org.openuri.enumtest.SalesreportDocument.Salesreport.Unit;
 import org.openuri.enumtest.Quantity;
 import org.openuri.enumtest.Data;
 
@@ -95,4 +97,79 @@ public class EnumTests extends TestCase
             Assert.assertEquals(contents[t++], data[i].getTarget());
         }
     }
+
+    public static void testReport2() throws Exception
+    {
+        StatusreportDocument doc = StatusreportDocument.Factory.newInstance();
+        StatusreportDocument.Statusreport report = doc.addNewStatusreport();
+
+        Data d = report.addNewStatus();
+        d.set(Quantity.ALL);
+        d.setTarget(Quantity.ALL);
+
+        d = report.addNewStatus();
+        d.set(Quantity.FEW);
+        d.setTarget(Quantity.ALL);
+
+        d = report.addNewStatus();
+        d.set(Quantity.MOST);
+        d.setTarget(Quantity.NONE);
+
+        d = report.addNewStatus();
+        d.set(Quantity.NONE);
+        d.setTarget(Quantity.NONE);
+
+        Quantity.Enum[] contents = new Quantity.Enum[]
+        {
+            Quantity.ALL,
+            Quantity.ALL,
+            Quantity.FEW,
+            Quantity.ALL,
+            Quantity.MOST,
+            Quantity.NONE,
+            Quantity.NONE,
+            Quantity.NONE,
+        };
+        Data[] data = doc.getStatusreport().getStatusArray();
+        int t = 0;
+        for (int i = 0; i < data.length; i++)
+        {
+            Assert.assertEquals(contents[t++], data[i].enumValue());
+            // System.out.println("Target: " + data[i].getTarget() + ", value: " + data[i].enumValue());
+            Assert.assertEquals(contents[t++], data[i].getTarget());
+        }
+    }
+
+    public static void testReport3() throws Exception
+    {
+        SalesreportDocument doc = SalesreportDocument.Factory.newInstance();
+        SalesreportDocument.Salesreport report = doc.addNewSalesreport();
+
+        report.addUnit(Unit.ONE);
+        report.addUnit(Unit.TWO);
+        report.addUnit(Unit.NINETY_NINE);
+        report.addUnit(Unit.ONE_HUNDRED);
+
+        Unit.Enum[] contents = new Unit.Enum[]
+        {
+            Unit.ONE,
+            Unit.TWO,
+            Unit.NINETY_NINE,
+            Unit.ONE_HUNDRED,
+        };
+
+        Unit[] xunits = report.xgetUnitArray();
+        for (int i = 0; i < xunits.length; i++)
+        {
+            Assert.assertEquals(contents[i], xunits[i].enumValue());
+        }
+
+        Unit.Enum[] units = report.getUnitArray();
+        for (int i = 0; i < units.length; i++)
+        {
+            Assert.assertEquals(contents[i], units[i]);
+        }
+    }
+
+
 }
