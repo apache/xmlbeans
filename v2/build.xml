@@ -989,7 +989,7 @@
 
   <!-- marshal target =============================================== -->
 
-  <target name="marshal.classes" depends="dirs, binding.classes, typeimpl.classes, xmlpublic.classes, jsr173_api.jar">
+  <target name="marshal.classes" depends="dirs, binding.classes, typeimpl.classes, newstore2.classes, xmlpublic.classes, jsr173_api.jar">
     <mkdir dir="build/classes/marshal"/>
     <javac srcdir="src/marshal" destdir="build/classes/marshal" source="1.4" debug="on">
       <classpath>
@@ -1000,6 +1000,7 @@
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/binding"/>
         <pathelement location="build/classes/typeimpl"/>
+        <pathelement location="build/classes/newstore2"/>
       </classpath>
     </javac>
   </target>
