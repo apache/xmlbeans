@@ -65,19 +65,6 @@
     <move file="build/lib/jsr173_1.0_ri.jar" tofile="build/lib/jsr173_ri.jar"/>
   </target>
 
-  <target name="check.jaxen.jar">
-    <condition property="jaxen.jar.exists">
-        <available file="build/lib/jaxen.jar"/>
-    </condition>
-  </target>
-
-  <target name="jaxen.jar" depends="check.jaxen.jar, dirs" unless="jaxen.jar.exists">
-    <!--get dest="build/lib/jaxen.jar"
-         src="http://www.ibiblio.org/maven/jaxen/jars/jaxen-1.1-beta-2.jar"
-         verbose="true" usetimestamp="true" ignoreerrors="true"/-->
-    <copy file="external/lib/jaxen-1.1-beta-2.jar" tofile="build/lib/jaxen.jar" />
-  </target>
-
     <!-- get resolver.jar -->
     <target name="check.xcresolver.zip">
       <condition property="xcresolver.zip.exists">
@@ -124,7 +111,7 @@
     <mkdir dir="build/private/lib"/>
   </target>
 
-  <target name="drt" depends="builddrt, rundrt, jamdrt"/>
+  <target name="drt" depends="builddrt, rundrt, drtjam, drtxpath"/>
 
   <target name="rundrt" >
       <echo message="Running random tester"/>
@@ -141,7 +128,7 @@
 
     <mkdir dir="build/test/output"/>
     <echo message="Running xbean product drt tests"/>
-    <echo message="JUnit output being sent to xbean/build/test/output/drt-product.txt"/>
+    <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
     <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
       <jvmarg value="-ea"/>
       <sysproperty key="xbean.rootdir" value="${basedir}"/>
@@ -157,7 +144,6 @@
         <pathelement location="build/private/lib/schemas.jar"/>
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
-        <pathelement location="build/lib/jaxen.jar"/>
         <pathelement location="build/private/classes/marshal"/>
       </classpath>
       <formatter type="plain"/>
@@ -167,7 +153,7 @@
     <antcall target="xmlcatalogTest" /-->
   </target>
 
-    <path id="xmlcatalogTest.run.path">
+  <path id="xmlcatalogTest.run.path">
       <pathelement location="build/lib/xbean.jar"/>
       <pathelement location="build/lib/jsr173_api.jar"/>
       <pathelement location="build/lib/resolver.jar"/>
@@ -182,7 +168,26 @@
     <echo message="___ XML Catalog Test :    PASSED" />
   </target>
 
-  <target name='jamdrt'>
+  <target name='drtxpath' depends="xbean_xpath.jar" >
+    <echo message="DRT: XPath Jaxen    - JUnit output being sent to build/test/output/drt-xpath.txt"/>
+    <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+      <jvmarg value="-ea"/>
+      <sysproperty key="xbean.rootdir" value="${basedir}"/>
+      <sysproperty key="treeasserts" value="true"/>
+      <classpath>
+        <pathelement location="external/lib/junit.jar"/>
+        <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/lib/jsr173_ri.jar"/>
+        <pathelement location="build/private/lib/drt.jar"/>
+        <pathelement location="build/lib/xbean_xpath.jar"/>
+      </classpath>
+      <formatter type="plain"/>
+      <test name="drtcases.JaxenXPathTests" outfile="build/test/output/drt-xpath" />
+    </junit>
+  </target>
+
+  <target name="drtjam">
     <ant dir='test/src/jamtest' target='all' inheritAll='false' />
   </target>
 
@@ -262,7 +267,6 @@
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
     <pathelement location="build/private/classes/marshal"/>
-    <pathelement location="build/lib/jaxen.jar"/>
     <pathelement location="build/classes/xmlinputstream"/>
   </path>
 
@@ -635,7 +639,6 @@
       <fileset dir="build/classes/marshal"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="build/classes/jam"/>
-      <fileset dir="build/classes/xpath"/>
       <fileset dir="src/license"/>
     </jar>
   </target>
@@ -1099,7 +1102,7 @@
 
   <!-- xpath target ============================================= -->
 
-  <target name="xpath.classes" depends="dirs, xmlpublic.jar, jaxen.jar, xmlstore.classes">
+  <target name="xpath.classes" depends="dirs, xmlpublic.jar, xmlstore.classes">
     <mkdir dir="build/classes/xpath"/>
     <javac
        srcdir="src/xpath"
@@ -1110,14 +1113,19 @@
       <classpath id="xpath.compile.path">
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/xmlstore"/>
-        <pathelement location="build/lib/jaxen.jar"/>
+        <pathelement location="external/lib/jaxen-1.1-beta-2.jar"/>
       </classpath>
     </javac>
   </target>
 
+    <target name="xbean_xpath.jar" depends="dirs, xpath.classes">
+        <unjar src="external/lib/jaxen-1.1-beta-2.jar" dest="build/classes/xpath" />
+        <jar jarfile="build/lib/xbean_xpath.jar" basedir="build/classes/xpath"/>
+    </target>
+
   <!-- test xpath target ============================================= -->
 
-  <target name="test_xpath.classes" depends="dirs, xmlpublic.jar, jsr173_api.jar, jaxen.jar">
+  <target name="test_xpath.classes" depends="dirs, xmlpublic.jar, jsr173_api.jar, xbean_xpath.jar">
     <mkdir dir="build/private/classes/testxpath"/>
     <javac
        srcdir="test/src/xpath"
@@ -1128,18 +1136,18 @@
       <classpath id="testxpath.compile.path">
           <pathelement location="build/lib/xmlpublic.jar"/>
           <pathelement location="build/lib/jsr173_api.jar"/>
-          <pathelement location="build/lib/jaxen.jar"/>
+          <pathelement location="build/lib/xbean_xpath.jar"/>
           <pathelement location="build/classes/xmlinputstream"/>
       </classpath>
     </javac>
   </target>
 
-  <target name="run_test_xpath" depends="test_xpath.classes, xbean">
+  <target name="run_test_xpath" depends="test_xpath.classes, xbean_xpath.jar">
     <java classname="org.apache.xmlbeans.impl.xpath.jaxen.XBeansDemo" fork="true" failonerror="true">
       <classpath>
           <pathelement location="build/lib/xbean.jar"/>
           <pathelement location="build/lib/jsr173_api.jar"/>
-          <pathelement location="build/lib/jaxen.jar"/>
+          <pathelement location="build/lib/xbean_xpath.jar"/>
           <pathelement location="build/private/classes/testxpath"/>
       </classpath>
       <jvmarg value="-da"/>
