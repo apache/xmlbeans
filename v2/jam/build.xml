@@ -117,9 +117,9 @@
 
 
   <!-- recompiles java15_jar.  THIS ONLY WILL RUN WITH JDK1.5!! -->
-  <target name='java15jar'>
+  <target name='java15jar' depends='clean,all'>
     <mkdir dir='${java15_builddir}'/>
-    <javac srcdir='${src_dir}' destdir='${java15_builddir}'
+    <javac srcdir='${src_dir}' destdir='${java15_builddir}' sourcepath='${src_dir}'
            source='1.5' target='1.5' debug='on' includes='${java15_src}/**/*.java'>
       <classpath>
         <pathelement path='${classes_dir}'/>
