@@ -490,8 +490,10 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public JProperty addNewProperty(String name, JMethod getter, JMethod setter) {
     if (mProperties == null) mProperties = new ArrayList();
-    JProperty out = new PropertyImpl(name,getter,setter,
-                                     getter.getReturnType().getFieldDescriptor());
+    String typeName = (getter != null) ?
+      getter.getReturnType().getFieldDescriptor() :
+      setter.getParameters()[0].getType().getFieldDescriptor();
+    JProperty out = new PropertyImpl(name,getter,setter,typeName);
     mProperties.add(out);
     return out;
   }
@@ -502,8 +504,10 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public JProperty addNewDeclaredProperty(String name, JMethod getter, JMethod setter) {
     if (mDeclaredProperties == null) mDeclaredProperties = new ArrayList();
-    JProperty out = new PropertyImpl(name,getter,setter,
-                                     getter.getReturnType().getFieldDescriptor());
+    String typeName = (getter != null) ?
+      getter.getReturnType().getFieldDescriptor() :
+      setter.getParameters()[0].getType().getFieldDescriptor();
+    JProperty out = new PropertyImpl(name,getter,setter,typeName);
     mDeclaredProperties.add(out);
     return out;
   }

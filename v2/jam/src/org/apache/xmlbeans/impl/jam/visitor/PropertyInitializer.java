@@ -81,8 +81,8 @@ public class PropertyInitializer extends MVisitor {
         name = name.substring(3);
         JProperty prop = (JProperty)name2prop.get(name);
         if (prop == null) {
-          prop = declared ? clazz.addNewDeclaredProperty(name,methods[i],null) :
-            clazz.addNewProperty(name,methods[i],null);
+          prop = declared ? clazz.addNewDeclaredProperty(name,null,methods[i]) :
+            clazz.addNewProperty(name,null,methods[i]);
           name2prop.put(name,prop);
         } else {
           if (type.equals(prop.getType())) {

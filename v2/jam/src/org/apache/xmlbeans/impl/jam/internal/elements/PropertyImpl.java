@@ -46,6 +46,7 @@ public class PropertyImpl extends AnnotatedElementImpl implements JProperty {
    * is exposed just in case the default rules in the factory method
    * for identifying properties are insufficient for some use
    * case.</p>
+   *
    */
   public PropertyImpl(String name,
                       JMethod getter,
@@ -58,8 +59,9 @@ public class PropertyImpl extends AnnotatedElementImpl implements JProperty {
     mName = name;
     mGetter = getter;
     mSetter = setter;
-    mTypeRef = QualifiedJClassRef.create
-      (qualifiedTypeName,((ClassImpl)getter.getContainingClass()));
+    ClassImpl cont = (ClassImpl)((getter != null) ?
+      getter.getContainingClass() : setter.getContainingClass());
+    mTypeRef = QualifiedJClassRef.create(qualifiedTypeName,cont);
     initAnnotations();
   }
 
