@@ -88,6 +88,7 @@ public class Java2Schema {
   private static final String TAG_AT               = "xsdgen:attribute";
   private static final String TAG_AT_NAME          = TAG_AT+".name";
 
+
   // =========================================================================
   // Variables
 
@@ -142,8 +143,15 @@ public class Java2Schema {
     QName qname = new QName(tns,xsdName);
     xsdType.setName(xsdName);
     // create a binding type
-    ByNameBean bindType = new ByNameBean(BindingTypeName.forPair(getJavaName(clazz), XmlName.forTypeNamed(qname)));
+    BindingTypeName btname = BindingTypeName.forPair(getJavaName(clazz),
+                                                     XmlName.forTypeNamed(qname));
+    ByNameBean bindType = new ByNameBean(btname);
     mBindingFile.addBindingType(bindType,true,true);
+    String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
+    if (rootName != null) {
+      SimpleDocumentBinding sdb = new SimpleDocumentBinding(btname,rootName);
+      mBindingFile.addBindingType(sdb,true,true);
+    }
     // run through the class' properties to populate the binding and xsdtypes
     //FIXME this is going to have to change to take inheritance into account
     JProperty props[] = clazz.getProperties();
