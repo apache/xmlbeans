@@ -792,14 +792,11 @@
     <delete dir='build/classes/jam'/>
   </target>
 
-    <target name="jam.parser.check">
-<!--
-      <uptodate property="jam.parser.notRequired" targetfile="${jam_gendir}">
-        <srcfiles dir="${jam_gendir}" includes="**/*"/>
-        <srcfiles dir="src/jam" includes="java.g"/>
-      </uptodate>
--->
-    </target>
+  <target name="jam.parser.check">
+    <uptodate property="jam.parser.notRequired" targetfile="${jam_gendir}/JavaParser.java">
+      <srcfiles dir="src/jam" includes="java.g"/>
+    </uptodate>
+  </target>
 
   <target name='jam.parser' depends="jam.parser.check" unless="jam.parser.notRequired">
     <delete dir='${jam_gendir}'/>
@@ -813,21 +810,20 @@
          <pathelement path='build/classes'/>
        </classpath>
     </antlr>
-
   </target>
 
   <target name="jam.compile.check">
-<!--
-     <uptodate property="jam.compile.notRequired" targetfile="build/classes/jam">
+     <uptodate property="jam.compile.notRequired" targetfile="build/classes/jam/.flagfile">
         <srcfiles dir="${jam_gendir}" includes="**/*"/>
         <srcfiles dir="src/jam" includes="**/*"/>
      </uptodate>
--->
   </target>
 
+  <target name='jam.compile' depends='dirs, jam.parser, jam.compile.check'
+  	  unless="jam.compile.notRequired" >
 
-  <target name='jam.compile' depends='dirs,jam.compile.check' unless='jam.compile.notRequired'  >
     <mkdir dir='build/classes/jam'/>
+
     <javac srcdir='src/jam' destdir='build/classes/jam' source='1.4' debug='on'>
       <src path='src/jam'/>
       <src path='${jam_gendir}'/>
@@ -837,6 +833,8 @@
         <pathelement path='build/classes'/>
       </classpath>
     </javac>
+
+    <touch file="build/classes/jam/.flagfile" />
   </target>
 
   <!-- binding target =============================================== -->
