@@ -97,7 +97,7 @@ public class JFactory {
    */
   public static JFactory getInstance() { return INSTANCE; }
 
-  private static final JFactory INSTANCE = new JFactory();
+  private static JFactory INSTANCE = new JFactory();
 
   private JFactory() {}
 
@@ -328,4 +328,14 @@ public class JFactory {
     System.out.flush();
   }
   */
+
+  /**
+   * @deprecated Don't do this.
+   */
+  public static void setInstance(JFactory f) {
+    if (f == null) throw new IllegalArgumentException("null factory");
+    INSTANCE = f;
+  }
+
+
 }

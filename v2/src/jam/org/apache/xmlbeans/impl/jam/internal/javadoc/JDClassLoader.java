@@ -153,7 +153,7 @@ public class JDClassLoader implements JClassLoader
   // ========================================================================
   // Static utilities
 
-  /*package*/ static JClass getClassFor(Type t, JClassLoader loader) {
+  public static JClass getClassFor(Type t, JClassLoader loader) {
     return loader.loadClass(getFieldDescriptorFor(t));
   }
 
@@ -163,7 +163,7 @@ public class JDClassLoader implements JClassLoader
    * be used with Class.forName(), JRootContext.getClass(), or
    * JClass.forName().
    */
-  /*package*/ static String getFieldDescriptorFor(Type t) {
+  public static String getFieldDescriptorFor(Type t) {
     String dim = t.dimension();
     if (dim == null || dim.length() == 0) { 
       return t.qualifiedTypeName();
@@ -184,3 +184,7 @@ public class JDClassLoader implements JClassLoader
   }
 
 }
+
+
+
+
