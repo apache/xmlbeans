@@ -140,6 +140,22 @@ public class JServiceParamsImpl implements JServiceParams, JInitializerParams
     getClassScanner(srcRoot).exclude(pattern);
   }
 
+  public void includeSourceFile(File root, File sourceFile) {
+    includeSourceFiles(root,source2pattern(root,sourceFile));
+  }
+
+  public void excludeSourceFile(File root, File sourceFile) {
+    excludeSourceFiles(root,source2pattern(root,sourceFile));
+  }
+
+  public void includeClassFile(File root, File classFile) {
+    includeClassFiles(root,source2pattern(root,classFile));
+  }
+
+  public void excludeClassFile(File root, File classFile) {
+    excludeClassFiles(root,source2pattern(root,classFile));
+  }
+
   public void includeClass(String qualifiedClassname) {
     if (mIncludeClasses == null) mIncludeClasses = new ArrayList();
     mIncludeClasses.add(qualifiedClassname);
@@ -213,8 +229,32 @@ public class JServiceParamsImpl implements JServiceParams, JInitializerParams
     return null;
   }
 
+  public File getRootForFile(File[] sourceRoots, File sourceFile) {
+    if (sourceRoots == null) throw new IllegalArgumentException("null roots");
+    if (sourceFile == null) throw new IllegalArgumentException("null file");
+    String f = sourceFile.getAbsolutePath();
+    for(int i=0; i<sourceRoots.length; i++) {
+      if (f.startsWith(sourceRoots[i].getAbsolutePath())) {//cheesy?
+        return sourceRoots[i];
+      }
+    }
+    return null;
+  }
+
+
   // ========================================================================
   // Private methods
+
+  /**
+   * Converts the sourceFile to a pattern expression relative to the
+   * given root.
+   */
+  private String source2pattern(File root, File sourceFile) {
+    //REVIEW this is a bit cheesy
+    String r = root.getAbsolutePath();
+    String s = sourceFile.getAbsolutePath();
+    return s.substring(r.length());
+  }
 
   /**
    * Converts the given java source or class filename into a qualified
