@@ -14,12 +14,12 @@
 */
 package org.apache.xmlbeans.test.performance.v2;
 
-import java.io.CharArrayReader;
-
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.test.performance.utils.Constants;
 import org.apache.xmlbeans.test.performance.utils.PerfUtil;
+
+import java.io.CharArrayReader;
 
 public class CursorWalkV2
 {
@@ -67,13 +67,14 @@ public class CursorWalkV2
     // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
     System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" flavor="+flavor+" ");
     System.out.print("hash "+hash+" ");
-    System.out.print("time "+cputime+"\n");
+    System.out.print("time " + cputime+" ");
+    System.out.print("time/it " + ((double)cputime)/((double)iterations) + "\n");
   }
 
   private int run(XmlCursor cursor) throws Exception
   {
     int iHash = 0;
-    
+
     while(cursor.hasNextToken()){
     
       // walk the doc with the cursor, computing the hash
