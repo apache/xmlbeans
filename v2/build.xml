@@ -838,7 +838,7 @@
     <delete dir="build/src/xsdschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
-      <arg line="${repackage_arg} -name sXMLSCHEMA -cp ${xsdschema.compile.path} -srconly -d build/classes/xsdschema -src build/src/xsdschema src/xsdschema/schema"/>
+      <arg line="${repackage_arg} -name sXMLSCHEMA -cp ${xsdschema.compile.path} -srconly -d build/classes/xsdschema -noann -src build/src/xsdschema src/xsdschema/schema"/>
     </java>
   </target>
 
@@ -860,7 +860,7 @@
     <delete dir="build/src/xmlschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
-      <arg line="${repackage_arg} -name sXMLLANG -d build/classes/xmlschema -src build/src/xmlschema -srconly src/xmlschema/schema"/>
+      <arg line="${repackage_arg} -name sXMLLANG -noann -d build/classes/xmlschema -src build/src/xmlschema -srconly src/xmlschema/schema"/>
     </java>
   </target>
 
@@ -894,7 +894,7 @@
     <delete dir="build/classes/configschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
-      <arg line="${repackage_arg} -name sXMLCONFIG -srconly -src build/src/configschema -d build/classes/configschema src/configschema/schema"/>
+      <arg line="${repackage_arg} -name sXMLCONFIG -srconly -noann -src build/src/configschema -d build/classes/configschema src/configschema/schema"/>
     </java>
   </target>
 
@@ -916,7 +916,7 @@
     <mkdir dir="build/src/toolschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
-      <arg line="${repackage_arg} -name sXMLTOOLS -srconly -src build/src/toolschema -d build/classes/toolschema src/toolschema"/>
+      <arg line="${repackage_arg} -name sXMLTOOLS -srconly -noann -src build/src/toolschema -d build/classes/toolschema src/toolschema"/>
     </java>
   </target>
 

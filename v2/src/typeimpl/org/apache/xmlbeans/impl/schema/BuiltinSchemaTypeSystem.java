@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.schema;
 
+import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaGlobalElement;
@@ -96,6 +97,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
     private static final SchemaGlobalAttribute[] EMPTY_SCHEMAATTRIBUTE_ARRAY = new SchemaGlobalAttribute[0];
     private static final SchemaModelGroup[] EMPTY_SCHEMAMODELGROUP_ARRAY = new SchemaModelGroup[0];
     private static final SchemaAttributeGroup[] EMPTY_SCHEMAATTRIBUTEGROUP_ARRAY = new SchemaAttributeGroup[0];
+    private static final SchemaAnnotation[] EMPTY_SCHEMAANNOTATION_ARRAY = new SchemaAnnotation[0];
 
     private static BuiltinSchemaTypeSystem _global = new BuiltinSchemaTypeSystem();
 
@@ -481,6 +483,14 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
     public SchemaAttributeGroup[] attributeGroups()
     {
         return EMPTY_SCHEMAATTRIBUTEGROUP_ARRAY;
+    }
+
+    /*
+     * Returns the top-level annotations.
+     */
+    public SchemaAnnotation[] annotations()
+    {
+        return EMPTY_SCHEMAANNOTATION_ARRAY;
     }
 
     /**

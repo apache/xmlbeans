@@ -181,7 +181,11 @@ public class StscTranslator
             if (redef != null)
                 state.addAttributeGroup(translateAttributeGroup(redef, targetNamespace, chameleon, true), false);
         }
-        
+
+        AnnotationDocument.Annotation[] annotations = schema.getAnnotationArray();
+        for (int i = 0; i < annotations.length; i++)
+            state.addAnnotation(SchemaAnnotationImpl.getAnnotation(state.sts(), schema, annotations[i]));
+
         redefinitions.complainAboutMissingDefinitions();
     }
     
@@ -377,6 +381,7 @@ public class StscTranslator
         sType.setParseContext(xsdType, targetNamespace, chameleon, redefinition);
         sType.setFilename(findFilename(xsdType));
         sType.setName(QNameHelper.forLNS(localname, targetNamespace));
+        sType.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.sts(), xsdType));
         return sType;
     }
 
@@ -411,6 +416,7 @@ public class StscTranslator
         sType.setParseContext(xsdType, targetNamespace, chameleon, redefinition);
         sType.setFilename(findFilename(xsdType));
         sType.setName(name);
+        sType.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.sts(), xsdType));
         return sType;
     }
 
@@ -443,6 +449,7 @@ public class StscTranslator
         target.setAbstract(referenced.isAbstract());
         target.setTransitionRules(((SchemaParticle)referenced).acceptedStartNames(),
             ((SchemaParticle)referenced).isSkippable());
+        target.setAnnotation(referenced.getAnnotation());
     }
 
     public static void copyGlobalAttributeToLocalAttribute(SchemaGlobalAttributeImpl referenced, SchemaLocalAttributeImpl target )
@@ -452,7 +459,8 @@ public class StscTranslator
             referenced.getDefaultText(),
                 referenced.getParseObject(), referenced._defaultValue,
             referenced.isFixed(),
-            referenced.getWSDLArrayType() );
+            referenced.getWSDLArrayType(),
+            referenced.getAnnotation());
     }
 
     /**
@@ -600,6 +608,8 @@ public class StscTranslator
             gelt.setParseContext(xsdElt, targetNamespace, chameleon);
         }
 
+        SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), xsdElt);
+        impl.setAnnotation(ann);
         if (xsdElt.getType() != null)
         {
             sType = state.findGlobalType(xsdElt.getType(), chameleon ? targetNamespace : null );
@@ -608,7 +618,7 @@ public class StscTranslator
         }
 
         boolean simpleTypedef = false;
-        XmlObject typedef = xsdElt.getComplexType();
+        Annotated typedef = xsdElt.getComplexType();
         if (typedef == null)
         {
             typedef = xsdElt.getSimpleType();
@@ -631,6 +641,7 @@ public class StscTranslator
             anonymousTypes.add(sType);
             sTypeImpl.setSimpleType(simpleTypedef);
             sTypeImpl.setParseContext(typedef, targetNamespace, chameleon, false);
+            sTypeImpl.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.sts(), typedef));
         }
 
         if (sType == null)
@@ -810,6 +821,8 @@ public class StscTranslator
         ic.setName(QNameHelper.forLNS(parseIC.getName(), targetNamespace));
         ic.setSelector(parseIC.getSelector().getXpath());
         ic.setParseContext(parseIC, targetNamespace, chameleon);
+        SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), parseIC);
+        ic.setAnnotation(ann);
 
         // Set the ns map
         XmlCursor c = parseIC.newCursor();
@@ -849,8 +862,10 @@ public class StscTranslator
             StscState.get().error("Model groups must be named", XmlErrorContext.MODEL_GROUP_MISSING_NAME, namedGroup);
             return null;
         }
-        SchemaModelGroupImpl result = new SchemaModelGroupImpl(StscState.get().sts());
-        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, namedGroup);
+        SchemaTypeSystemImpl sts = StscState.get().sts();
+        SchemaModelGroupImpl result = new SchemaModelGroupImpl(sts);
+        SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sts, namedGroup);
+        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, namedGroup, ann);
         return result;
     }
 
@@ -862,8 +877,10 @@ public class StscTranslator
             StscState.get().error("Attribute groups must be named", XmlErrorContext.ATTRIBUTE_GROUP_MISSING_NAME, attrGroup);
             return null;
         }
-        SchemaAttributeGroupImpl result = new SchemaAttributeGroupImpl(StscState.get().sts());
-        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, attrGroup);
+        SchemaTypeSystemImpl ts = StscState.get().sts();
+        SchemaAttributeGroupImpl result = new SchemaAttributeGroupImpl(ts);
+        SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(ts, attrGroup);
+        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, attrGroup, ann);
         return result;
     }
 
@@ -986,7 +1003,7 @@ public class StscTranslator
                 state.error("Illegal name for attribute declaration.", XmlErrorContext.INVALID_NAME, xsdAttr.xgetName());
             }
             
-            XmlObject typedef = xsdAttr.getSimpleType();
+            LocalSimpleType typedef = xsdAttr.getSimpleType();
 
             if ((sType != null) && typedef != null)
             {
@@ -1004,6 +1021,7 @@ public class StscTranslator
                 anonymousTypes.add(sType);
                 sTypeImpl.setSimpleType(true);
                 sTypeImpl.setParseContext(typedef, targetNamespace, chameleon, false);
+                sTypeImpl.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.sts(), typedef));
             }
             
             if (sType == null && baseModel != null && baseModel.getAttribute(qname) != null)
@@ -1059,12 +1077,14 @@ public class StscTranslator
             wat = new SOAPArrayType(arrayType, new NamespaceContext(xsdAttr));
         }
 
+        SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(),
+            xsdAttr);
         sAttr.init(
             qname,
             sType.getRef(),
             use,
             deftext, xsdAttr, null, isFixed,
-            wat);
+            wat, ann);
 
         return sAttr;
     }

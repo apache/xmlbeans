@@ -118,8 +118,10 @@ public class StscState
     private Set _processingGroups   = new HashSet();
     private Map _idConstraints      = new LinkedHashMap();
     private Set _namespaces         = new HashSet();
+    private List _annotations       = new ArrayList();
     private boolean _noUpa;
     private boolean _noPvr;
+    private boolean _noAnn;
     private Set _mdefNamespaces     = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
 
@@ -307,6 +309,8 @@ public class StscState
                 !"true".equals(System.getProperty("xmlbean.uniqueparticleattribution", "true"));
         _noPvr = options.hasOption(XmlOptions.COMPILE_NO_PVR_RULE) ? true :
                 !"true".equals(System.getProperty("xmlbean.particlerestriction", "true"));
+        _noAnn = options.hasOption(XmlOptions.COMPILE_NO_ANNOTATIONS) ? true :
+            !"true".equals(System.getProperty("xmlbean.schemaannotations", "true"));
         _doingDownloads = options.hasOption(XmlOptions.COMPILE_DOWNLOAD_URLS) ? true :
                 "true".equals(System.getProperty("xmlbean.downloadurls", "false"));
         _entityResolver = (EntityResolver)options.get(XmlOptions.ENTITY_RESOLVER);
@@ -340,7 +344,14 @@ public class StscState
     {
         return _noPvr;
     }
-    
+
+    /**
+     * True if annotations should be skipped
+     */
+    public boolean noAnn()
+    {
+        return _noAnn;
+    }
 
     /**
      * Intercepts XML names and translates them
@@ -749,6 +760,17 @@ public class StscState
 
     SchemaIdentityConstraintImpl[] idConstraints()
         { return (SchemaIdentityConstraintImpl[])_idConstraints.values().toArray(new SchemaIdentityConstraintImpl[_idConstraints.size()]); }
+
+    /* ANNOTATIONS ===========================================*/
+
+    void addAnnotation(SchemaAnnotationImpl ann)
+    {
+        if (ann != null)
+            _annotations.add(ann);
+    }
+
+    List annotations()
+    { return _annotations; }
 
     /* RECURSION AVOIDANCE ============================================*/
     boolean isProcessing(Object obj)

@@ -90,6 +90,8 @@ public interface SchemaComponent
     static final int MODEL_GROUP = 6;
     /** A notation definition.  See {@link #getComponentType} */
     static final int NOTATION = 7;
+    /** An annotation. See {@link #getComponentType} */
+    static final int ANNOTATION = 8;
 
     /**
      * Returns the type code for the schema object, either {@link #TYPE},

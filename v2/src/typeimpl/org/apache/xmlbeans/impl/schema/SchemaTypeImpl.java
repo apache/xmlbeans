@@ -61,6 +61,7 @@ import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaGlobalElement;
+import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaType;
@@ -87,6 +88,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 {
     // global types have names
     private QName _name;
+
+    // annotation on the type
+    private SchemaAnnotation _annotation;
 
     // compilation support
     private int _resolvePhase;
@@ -414,6 +418,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
         return null;
     }
+
+    public void setAnnotation(SchemaAnnotation ann)
+        { assertUnresolved(); _annotation = ann; }
+
+    public SchemaAnnotation getAnnotation()
+        { return _annotation; }
 
     public void setDocumentType(boolean isDocument)
         { assertUnresolved(); _isDocumentType = isDocument; }

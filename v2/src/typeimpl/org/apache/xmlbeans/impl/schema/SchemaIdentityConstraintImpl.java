@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.XPath;
@@ -74,6 +75,7 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     private QName _name;
     private int _type;
     private XmlObject _parse;
+    private SchemaAnnotation _annotation;
     private Map _nsMap = Collections.EMPTY_MAP;
     private String _parseTNS;
     private boolean _chameleon;
@@ -103,6 +105,16 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
             }
         }
         return p;
+    }
+
+    public void setAnnotation(SchemaAnnotation ann)
+    {
+        _annotation = ann;
+    }
+
+    public SchemaAnnotation getAnnotation()
+    {
+        return _annotation;
     }
 
     public void setNSMap(Map nsMap) {

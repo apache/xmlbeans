@@ -338,8 +338,7 @@ public class MarshalTests extends TestCase
 
         Assert.assertNotNull(unmarshaller);
 
-        //TODO: remove hard coded path
-        File doc = new File("test/cases/marshal/doc2.xml");
+        File doc = TestEnv.xbeanCase("marshal/doc2.xml");
 
         final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLStreamReader xrdr =
@@ -363,8 +362,7 @@ public class MarshalTests extends TestCase
 
         Assert.assertNotNull(unmarshaller);
 
-        //TODO: remove hard coded values
-        final File doc = new File("test/cases/marshal/doc.xml");
+        final File doc = TestEnv.xbeanCase("marshal/doc.xml");
         final String javaType = "com.mytest.MyClass";
         final QName schemaType = new QName("java:com.mytest", "MyClass");
 
@@ -444,8 +442,7 @@ public class MarshalTests extends TestCase
     private BindingConfigDocument getBindingConfigDocument()
         throws IOException, XmlException
     {
-        //TODO: remove hard coded path
-        File loc = new File("test/cases/marshal/example_config.xml");
+        File loc = TestEnv.xbeanCase("marshal/example_config.xml");
         BindingConfigDocument bcdoc = BindingConfigDocument.Factory.parse(loc);
         return bcdoc;
     }

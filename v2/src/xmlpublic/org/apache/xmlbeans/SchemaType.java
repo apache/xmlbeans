@@ -167,7 +167,7 @@ import javax.xml.namespace.QName;
  * @see XmlObject#schemaType
  * @see SimpleValue#instanceType
  */ 
-public interface SchemaType extends SchemaComponent
+public interface SchemaType extends SchemaComponent, SchemaAnnotated
 {
     /**
      * The name used to describe the type in the schema.

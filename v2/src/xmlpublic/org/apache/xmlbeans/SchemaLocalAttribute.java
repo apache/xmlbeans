@@ -59,7 +59,7 @@ package org.apache.xmlbeans;
 /**
  * Represents a local or global attribute definition.
  */ 
-public interface SchemaLocalAttribute extends SchemaField
+public interface SchemaLocalAttribute extends SchemaField, SchemaAnnotated
 {
     /**
      * Returns {@link #PROHIBITED}, {@link #OPTIONAL}, or {@link #REQUIRED}.

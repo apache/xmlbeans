@@ -59,7 +59,7 @@ package org.apache.xmlbeans;
 /**
  * Represents a local or global element definition.
  */ 
-public interface SchemaLocalElement extends SchemaField
+public interface SchemaLocalElement extends SchemaField, SchemaAnnotated
 {
     /**
      * True if extension is blocked.

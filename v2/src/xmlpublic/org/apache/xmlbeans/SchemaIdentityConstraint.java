@@ -62,7 +62,7 @@ import java.util.Map;
 /**
  * Represents an identity constraint definition.
  */ 
-public interface SchemaIdentityConstraint extends SchemaComponent
+public interface SchemaIdentityConstraint extends SchemaComponent, SchemaAnnotated
 {
     /**
      * Return the selector xpath as a string.

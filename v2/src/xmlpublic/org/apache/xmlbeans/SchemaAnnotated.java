@@ -54,79 +54,15 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.schema;
+package org.apache.xmlbeans;
 
-import javax.xml.namespace.QName;
-import org.apache.xmlbeans.SchemaAnnotation;
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaTypeSystem;
-
-public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
+/**
+ * Marker interface denoting that an annotation can be present
+ */
+public interface SchemaAnnotated
 {
-    private SchemaTypeSystem _typeSystem;
-    private QName _name;
-    private XmlObject _parseObject;
-    private String _parseTNS;
-    private boolean _chameleon;
-    private boolean _redefinition;
-    private SchemaAnnotation _annotation;
-
-    public SchemaAttributeGroupImpl(SchemaTypeSystem typeSystem)
-    {
-        _typeSystem = typeSystem;
-    }
-
-    public SchemaAttributeGroupImpl(SchemaTypeSystem typeSystem, QName name)
-    {
-        this(typeSystem);
-        _name = name;
-    }
-
-    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x, SchemaAnnotation a)
-    {
-        assert _name == null || name.equals( _name );
-
-        _name = name;
-        _parseTNS = targetNamespace;
-        _chameleon = chameleon;
-        _redefinition = redefinition;
-        _parseObject = x;
-        _annotation = a;
-    }
-
-    public SchemaTypeSystem getTypeSystem()
-    {
-        return _typeSystem;
-    }
-
-    public int getComponentType()
-        { return SchemaComponent.ATTRIBUTE_GROUP; }
-
-    public QName getName()
-        { return _name; }
-
-    public XmlObject getParseObject()
-        { return _parseObject; }
-
-    public String getTargetNamespace()
-        { return _parseTNS; }
-
-    public String getChameleonNamespace()
-        { return _chameleon ? _parseTNS : null; }
-
-    public SchemaAnnotation getAnnotation()
-        { return _annotation; }
-
-    private SchemaAttributeGroup.Ref _selfref = new SchemaAttributeGroup.Ref(this);
-    
-    public SchemaAttributeGroup.Ref getRef()
-        { return _selfref; }
-
-    public SchemaComponent.Ref getComponentRef()
-        { return getRef(); }
-
-    public boolean isRedefinition()
-        { return _redefinition; }
+    /**
+     * Returns the Schema annotation object or null if none present
+     */
+    SchemaAnnotation getAnnotation();
 }

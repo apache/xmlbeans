@@ -83,6 +83,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaGlobalElement;
+import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaParticle;
@@ -109,13 +110,15 @@ import com.bea.x2002.x09.xbean.config.ConfigDocument;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3.x2001.xmlSchema.GroupDocument;
 import org.w3.x2001.xmlSchema.AttributeGroupDocument;
+import org.w3.x2001.xmlSchema.AppinfoDocument;
+import org.w3.x2001.xmlSchema.DocumentationDocument;
 import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 
 public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements SchemaTypeSystem
 {
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;  // must match == to be compatible
-    public static final int MINOR_VERSION = 18; // must be <= to be compatible
+    public static final int MINOR_VERSION = 19; // must be <= to be compatible
     public static final int RELEASE_NUMBER = 0; // should be compatible even if < or >
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
@@ -349,6 +352,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 _redefinedGlobalTypes = reader.readQNameRefMap();
                 _redefinedModelGroups = reader.readQNameRefMap();
                 _redefinedAttributeGroups = reader.readQNameRefMap();
+            }
+            if (reader.atLeast(2, 19, 0))
+            {
+                _annotations = reader.readAnnotations();
             }
         }
         finally
@@ -605,6 +612,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _attributeTypes = buildAttributeTypeMap(state.attributeTypes());
         _typeRefsByClassname = buildTypeRefsByClassname(state.typesByClassname());
         _identityConstraints = buildComponentRefMap(state.idConstraints());
+        _annotations = state.annotations();
         _namespaces = new HashSet(Arrays.asList(state.getNamespaces()));
     }
 
@@ -888,6 +896,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private HandlePool _localHandles;
     private File _baseSaveDir;
 
+    // top-level annotations
+    private List _annotations;
+
     // actual type system data, map QNames -> SchemaComponent.Ref
     private Map _redefinedModelGroups;
     private Map _redefinedAttributeGroups;
@@ -910,6 +921,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     static private final SchemaModelGroup[] EMPTY_MG_ARRAY = new SchemaModelGroup[0];
     static private final SchemaAttributeGroup[] EMPTY_AG_ARRAY = new SchemaAttributeGroup[0];
     static private final SchemaIdentityConstraint[] EMPTY_IC_ARRAY = new SchemaIdentityConstraint[0];
+    static private final SchemaAnnotation[] EMPTY_ANN_ARRAY = new SchemaAnnotation[0];
 
     public void saveToDirectory(File classDir)
     {
@@ -1303,6 +1315,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeQNameMap(redefinedGlobalTypes());
             writeQNameMap(redefinedModelGroups());
             writeQNameMap(redefinedAttributeGroups());
+            writeAnnotations(annotations());
         }
 
         void writeHandlePool(HandlePool pool)
@@ -1465,6 +1478,118 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 writeQName(arrayType.getQName());
                 writeString(arrayType.soap11DimensionString());
             }
+        }
+
+        void writeAnnotation(SchemaAnnotation a)
+        {
+            // Write attributes
+            if (a == null)
+            {
+                writeInt(-1);
+                return;
+            }
+            SchemaAnnotation.Attribute[] attributes = a.getAttributes();
+            writeInt(attributes.length);
+            for (int i = 0; i < attributes.length; i++)
+            {
+                QName name = attributes[i].getName();
+                String value = attributes[i].getValue();
+                writeQName(name);
+                writeString(value);
+            }
+
+            // Write documentation items
+            XmlObject[] documentationItems = a.getUserInformation();
+            writeInt(documentationItems.length);
+            XmlOptions opt = new XmlOptions().setSaveOuter().
+                setSaveAggresiveNamespaces();
+            for (int i = 0; i < documentationItems.length; i++)
+            {
+                XmlObject doc = documentationItems[i];
+                writeString(doc.xmlText(opt));
+            }
+
+            // Write application info items
+            XmlObject[] appInfoItems = a.getApplicationInformation();
+            writeInt(appInfoItems.length);
+            for (int i = 0; i < appInfoItems.length; i++)
+            {
+                XmlObject doc = appInfoItems[i];
+                writeString(doc.xmlText(opt));
+            }
+        }
+
+        SchemaAnnotation readAnnotation()
+        {
+            if (!atLeast(2, 19, 0))
+                return null; // no annotations for this version of the file
+            // Read attributes
+            int n = readInt();
+            if (n == -1)
+                return null;
+            SchemaAnnotation.Attribute[] attributes =
+                new SchemaAnnotation.Attribute[n];
+            for (int i = 0; i < n; i++)
+            {
+                QName name = readQName();
+                String value = readString();
+                attributes[i] = new SchemaAnnotationImpl.AttributeImpl(name, value);
+            }
+
+            // Read documentation items
+            n = readInt();
+            DocumentationDocument.Documentation[] documentationItems =
+                new DocumentationDocument.Documentation[n];
+            for (int i = 0; i <  n; i++)
+            {
+                String doc = readString();
+                try 
+                {
+                    documentationItems[i] = DocumentationDocument.Factory.
+                        parse(doc).getDocumentation();
+                }
+                catch (XmlException e)
+                {
+                    throw new RuntimeException( e.getMessage(), e );
+                }
+            }
+
+            // Read application info items
+            n = readInt();
+            AppinfoDocument.Appinfo[] appInfoItems =
+                new AppinfoDocument.Appinfo[n];
+            for (int i = 0; i < n; i++)
+            {
+                String appInfo = readString();
+                try
+                {
+                    appInfoItems[i] = AppinfoDocument.Factory.
+                        parse(appInfo).getAppinfo();
+                }
+                catch(XmlException e)
+                {
+                    throw new RuntimeException( e.getMessage(), e );
+                }
+            }
+
+            return new SchemaAnnotationImpl(getTypeSystem(), appInfoItems,
+                documentationItems, attributes);
+        }
+
+        void writeAnnotations(SchemaAnnotation[] anns)
+        {
+            writeInt(anns.length);
+            for (int i = 0; i < anns.length; i++)
+                writeAnnotation(anns[i]);
+        }
+
+        List readAnnotations()
+        {
+            int n = readInt();
+            List result = new ArrayList(n);
+            for (int i = 0; i < n; i++)
+                result.add(readAnnotation());
+            return result;
         }
 
         SchemaComponent.Ref readHandle()
@@ -1787,6 +1912,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 impl.setName(readQName());
                 impl.setConstraintCategory(readShort());
                 impl.setSelector(readString());
+                impl.setAnnotation(readAnnotation());
 
                 String[] fields = new String[readShort()];
                 for (int i = 0 ; i < fields.length ; i++)
@@ -1855,6 +1981,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 impl.setBaseDepth(readShort());
                 impl.setBaseTypeRef(readTypeRef());
                 impl.setDerivationType(readShort());
+                impl.setAnnotation(readAnnotation());
 
                 switch (readShort())
                 {
@@ -2062,6 +2189,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeShort(((SchemaTypeImpl)type).getBaseDepth());
             writeType(type.getBaseType());
             writeShort(type.getDerivationType());
+            writeAnnotation(type.getAnnotation());
             if (type.getContainerField() == null)
             {
                 writeShort(FIELD_NONE);
@@ -2266,7 +2394,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             try
             {
-                result.init(readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, GroupDocument.Factory.parse( readString() ).getGroup());
+                result.init(readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, GroupDocument.Factory.parse( readString() ).getGroup(), readAnnotation());
             }
             catch ( XmlException e )
             {
@@ -2278,7 +2406,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             try
             {
-                result.init( readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, AttributeGroupDocument.Factory.parse( readString() ).getAttributeGroup());
+                result.init( readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, AttributeGroupDocument.Factory.parse( readString() ).getAttributeGroup(), readAnnotation());
             }
             catch ( XmlException e )
             {
@@ -2288,8 +2416,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         void loadAttribute(SchemaLocalAttributeImpl result)
         {
-            // name, type, use, deftext, defval, fixed, soaparraytype
-            result.init(readQName(), readTypeRef(), readShort(), readString(), null, atLeast(2, 16, 0) ? readXmlValueObject() : null, readShort() == 1, readSOAPArrayType());
+            // name, type, use, deftext, defval, fixed, soaparraytype, annotation
+            result.init(readQName(), readTypeRef(), readShort(), readString(), null, atLeast(2, 16, 0) ? readXmlValueObject() : null, readShort() == 1, readSOAPArrayType(), readAnnotation());
         }
 
         void writeAttributeData(SchemaLocalAttribute attr)
@@ -2301,6 +2429,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeXmlValueObject(attr.getDefaultValue());
             writeShort(attr.isFixed() ? 1 : 0);
             writeSOAPArrayType(((SchemaWSDLArrayType)attr).getWSDLArrayType());
+            writeAnnotation(attr.getAnnotation());
         }
 
         void writeIdConstraintData(SchemaIdentityConstraint idc)
@@ -2308,6 +2437,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeQName(idc.getName());
             writeShort(idc.getConstraintCategory());
             writeString(idc.getSelector());
+            writeAnnotation(idc.getAnnotation());
 
             String[] fields = idc.getFields();
             writeShort(fields.length);
@@ -2388,6 +2518,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                                      (particleFlags & FLAG_PART_BLOCKSUBST) != 0);
                     lresult.setWsdlArrayType(readSOAPArrayType());
                     lresult.setAbstract((particleFlags & FLAG_PART_ABSTRACT) != 0);
+                    lresult.setAnnotation(readAnnotation());
                     if (global)
                     {
                         SchemaGlobalElementImpl gresult = (SchemaGlobalElementImpl)lresult;
@@ -2475,6 +2606,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     writeString(lpart.getDefaultText());
                     writeXmlValueObject(lpart.getDefaultValue());
                     writeSOAPArrayType(((SchemaWSDLArrayType)lpart).getWSDLArrayType());
+                    writeAnnotation(lpart.getAnnotation());
                     if (lpart instanceof SchemaGlobalElement)
                     {
                         SchemaGlobalElement gpart = (SchemaGlobalElement)lpart;
@@ -2582,6 +2714,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeShort(impl.getChameleonNamespace() != null ? 1 : 0);
             writeShort(impl.isRedefinition() ? 1 : 0); // new for version 2.15
             writeString(impl.getParseObject().xmlText(new XmlOptions().setSaveOuter()));
+            writeAnnotation(impl.getAnnotation());
         }
 
         void writeAttributeGroupData(SchemaAttributeGroup grp)
@@ -2592,6 +2725,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeShort(impl.getChameleonNamespace() != null ? 1 : 0);
             writeShort(impl.isRedefinition() ? 1 : 0); // new for version 2.15
             writeString(impl.getParseObject().xmlText(new XmlOptions().setSaveOuter()));
+            writeAnnotation(impl.getAnnotation());
         }
 
         XmlValueRef readXmlValueObject()
@@ -3116,6 +3250,16 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         int j = 0;
         for (Iterator i = _redefinedAttributeGroups.values().iterator(); i.hasNext(); j++)
             result[j] = ((SchemaAttributeGroup.Ref)i.next()).get();
+        return result;
+    }
+
+    public SchemaAnnotation[] annotations()
+    {
+        if (_annotations.isEmpty())
+            return EMPTY_ANN_ARRAY;
+
+        SchemaAnnotation[] result = new SchemaAnnotation[_annotations.size()];
+        result = (SchemaAnnotation[]) _annotations.toArray(result);
         return result;
     }
 

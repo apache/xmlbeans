@@ -172,7 +172,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 16;
+    public static final int MINOR_VERSION = 19;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -429,6 +429,10 @@ public class XsbDumper
             dumpQNameMap("Redfined attribute groups");
         }
 
+        // version 19 annotations
+        if (atLeast(2, 19, 0))
+            dumpAnnotations();
+
         readEnd();
     }
 
@@ -656,6 +660,69 @@ public class XsbDumper
         }
     }
 
+    void dumpAnnotation()
+    {
+        if (!atLeast(2, 19, 0))
+            return; // no annotations in this version of the file
+
+        int n = readInt();
+        if (n == -1)
+            return; // no annotation present
+        emit("Annotation");
+        boolean empty = true;
+        indent();
+        if (n > 0)
+        {
+            emit("Attributes (" + n + "):");
+            indent();
+            for (int i = 0; i < n; i++)
+            {
+                emit("Name: " + qnameString(readQName()) +
+                    ", Value: " + readString());
+            }
+            outdent();
+            empty = false;
+        }
+
+        n = readInt();
+        if (n > 0)
+        {
+            emit("Documentation elements (" + n + "):");
+            indent();
+            for (int i = 0; i < n; i++)
+                emit(readString());
+            outdent();
+            empty = false;
+        }
+
+        n = readInt();
+        if (n > 0)
+        {
+            emit("Appinfo elements (" + n + "):");
+            indent();
+            for (int i = 0; i < n; i++)
+                emit(readString());
+            outdent();
+            empty = false;
+        }
+        if (empty)
+            emit("<empty>");
+        outdent();
+    }
+
+    void dumpAnnotations()
+    {
+        int n = readInt();
+        if (n > 0)
+        {             
+            emit("Top-level annotations (" + n + "):");
+            indent();
+            for (int i = 0; i < n; i++)
+                dumpAnnotation();
+            outdent();
+        }
+    }
+
     void dumpParticleData(boolean global)
     {
         short particleType = readShort();
@@ -683,8 +750,11 @@ public class XsbDumper
                 if (atLeast(2, 16, 0))
                     emit("Default value: " + readXmlValueObject());
                 emit("WsdlArrayType: " + SOAPArrayTypeString(readSOAPArrayType()));
+                dumpAnnotation();
                 if (global)
                 {
+                    if (atLeast(2, 17, 0))
+                        emit("Substitution group ref: " + readHandle());
                     short substGroupCount = readShort();
                     emit("Substitution group members (" + substGroupCount + ")");
                     indent();
@@ -803,7 +873,8 @@ public class XsbDumper
         emit("Depth: " + readShort());
         emit("Base type: " + readType());
         emit("Derivation type: " + derivationTypeString(readShort()));
-        
+        dumpAnnotation();
+
         emit("Container field:");
         indent();
         int containerfieldtype = readShort();
@@ -974,6 +1045,7 @@ public class XsbDumper
             emit("Default value: " + readXmlValueObject());
         emit("Fixed: " + readShort());
         emit("WsdlArrayType: " + SOAPArrayTypeString(readSOAPArrayType()));
+        dumpAnnotation();
         if (global)
             emit("Filename: " + readString());
     }
@@ -1004,6 +1076,7 @@ public class XsbDumper
             emit("Redefine: " + readShort());
         emit("Model Group Xml: ");
         dumpXml();
+        dumpAnnotation();
     }
 
     void dumpAttributeGroupData()
@@ -1015,6 +1088,7 @@ public class XsbDumper
             emit("Redefine: " + readShort());
         emit("Attribute Group Xml: ");
         dumpXml();
+        dumpAnnotation();
     }
 
     static String alwaysString(int code)
@@ -1067,7 +1141,8 @@ public class XsbDumper
         indent();
         emit("Name: " + qnameString(readQName()));
         emit("Type: " + readType());
-        emit("Flags: " + propertyflagsString(readShort()));
+        short propflags = readShort();
+        emit("Flags: " + propertyflagsString(propflags));
         emit("Container type: " + readType());
         emit("Min occurances: " + bigIntegerString(readBigInteger()));
         emit("Max occurances: " + bigIntegerString(readBigInteger()));
@@ -1081,6 +1156,15 @@ public class XsbDumper
         emit("Java setter delimiter: " + qnameSetString(readQNameSet()));
         if (atLeast(2, 16, 0))
             emit("Default value: " + readXmlValueObject());
+        if ((propflags & FLAG_PROP_ISATTR) == 0 && atLeast(2, 17, 0))
+        {
+            short size = readShort();
+            emit("Accepted names (" + size + ")");
+            indent();
+            for (int i = 0; i < size; i++)
+                emit(qnameString(readQName()));
+            outdent();
+        }
         outdent();
     }
 

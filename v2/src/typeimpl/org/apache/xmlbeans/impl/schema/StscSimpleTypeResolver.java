@@ -218,6 +218,8 @@ public class StscSimpleTypeResolver
             itemImpl.setSimpleType(true);
             itemImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
             itemImpl.setOuterSchemaTypeRef(sImpl.getRef());
+            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), parseInner);
+            itemImpl.setAnnotation(ann);
             anonTypes.add(itemImpl);
         }
         else
@@ -329,6 +331,8 @@ public class StscSimpleTypeResolver
             memberImplList.add(mImpl);
             mImpl.setOuterSchemaTypeRef(sImpl.getRef());
             mImpl.setAnonymousUnionMemberOrdinal(i + 1);
+            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), simpleTypes[i]);
+            mImpl.setAnnotation(ann);
             anonTypes.add(mImpl);
         }
 
@@ -442,6 +446,8 @@ public class StscSimpleTypeResolver
             baseImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
             // baseImpl.setSkippedAnonymousType(true);
             baseImpl.setOuterSchemaTypeRef(sImpl.getRef());
+            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), parseInner);
+            baseImpl.setAnnotation(ann);
             anonTypes.add(baseImpl);
         }
         else
