@@ -11,6 +11,7 @@ import java.io.Reader;
 import java.io.IOException;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 class Saver
 {
@@ -20,8 +21,12 @@ class Saver
         _version = _locale.version();
 
         _cur = c.weakCur( this );
+        _preProcess = true;
 
         _namespaceStack = new ArrayList();
+        _uriMap = new HashMap();
+        _prefixMap = new HashMap();
+        _firstPush = true;
         
         // TODO - establish _synthName
     }
@@ -53,19 +58,21 @@ class Saver
 
             _done = false;
 
-            _last = _cur.weakCur( this );
-            _last.toEnd();
+            _end = _cur.weakCur( this );
+            _end.toEnd();
 
             _top = _cur.weakCur( this );
         }
 
+        // TODO _postPop here 
+
         if (_postProcess)
         {
-            if (_cur.isSamePosition( _last ))
+            if (_cur.isSamePosition( _end ))
                 _done = true;
             else
             {
-                
+//                Cur 
             }
         }
         
@@ -74,16 +81,18 @@ class Saver
             _cur.release();
             _cur = null;
 
-            if (_last != null) { _last.release(); _last = null; }
-            if (_top  != null) { _top.release();  _top = null;  }
+            if (_end != null) { _end.release(); _end = null; }
+            if (_top != null) { _top.release(); _top = null; }
             
             return false;
         }
 
         checkVersion();
 
-        int k = _cur.kind();
+        _skipContainerFinish = false;
 
+        int k = _cur.kind();
+        
         assert
             k == Cur.ROOT || k == Cur.ELEM
                 || k == Cur.COMMENT || k == Cur.PROCINST ||
@@ -149,6 +158,61 @@ class Saver
         throw new RuntimeException( "Not implemented" );
     }
 
+    //
+    // Layout of namespace stack:
+    //
+    //    URI Undo
+    //    URI Rename
+    //    Prefix Undo
+    //    Mapping
+    //
+
+    boolean hasMappings ( )
+    {
+        int i = _namespaceStack.size();
+
+        return i > 0 && _namespaceStack.get( i - 1 ) != null;
+    }
+
+    void iterateMappings ( )
+    {
+        _currentMapping = _namespaceStack.size();
+
+        while ( _currentMapping > 0 &&
+                  _namespaceStack.get( _currentMapping - 1 ) != null )
+        {
+            _currentMapping -= 8;
+        }
+    }
+
+    boolean hasMapping ( )
+    {
+        return _currentMapping < _namespaceStack.size();
+    }
+
+    void nextMapping ( )
+    {
+        _currentMapping += 8;
+    }
+
+    String mappingPrefix ( )
+    {
+        assert hasMapping();
+        return (String) _namespaceStack.get( _currentMapping + 6 );
+    }
+
+    String mappingUri ( )
+    {
+        assert hasMapping();
+        return (String) _namespaceStack.get( _currentMapping + 7 );
+    }
+
+    String mappingPrevPrefixUri ( )
+    {
+        assert hasMapping();
+        return (String) _namespaceStack.get( _currentMapping + 5 );
+    }
+
     private final void pushMappings ( Cur container, boolean ensureDefaultEmpty )
     {
         assert container.isContainer();
@@ -157,61 +221,126 @@ class Saver
 
         Cur c = container.tempCur();
         
-        for ( boolean cont = true ; cont ; cont = c.toParentRaw() )
+        for ( boolean C = true ; C ; C = c.toParentRaw() )
         {
+            Cur a = c.tempCur();
+
+            namespaces:
+            for ( boolean A = a.toFirstAttr() ; A ; A = a.toNextAttr() )
+            {
+                if (a.isXmlns())
+                {
+                    String prefix = a.getXmlnsPrefix();
+                    String uri = a.getValueString();
+                    
+                    if (ensureDefaultEmpty && prefix.length() == 0 && uri.length() > 0)
+                        continue;
+                    
+                    // Make sure the prefix is not already mapped in this frame
+
+                    for ( iterateMappings() ; hasMapping() ; nextMapping() )
+                        if (mappingPrefix().equals( prefix ))
+                            continue namespaces;
+
+                    addMapping( prefix, uri );
+                }
+            }
+
+            a.release();
+
+            // Push all ancestors the first time
+            
+            if (!_firstPush)
+                break;
         }
 
         c.release();
 
+        if (ensureDefaultEmpty)
+        {
+            String defaultUri = (String) _prefixMap.get( "" );
 
+            // I map the default to "" at the very beginning
+            assert defaultUri != null;
+
+            if (defaultUri.length() > 0)
+                addMapping( "", "" );
+        }
+
+        _firstPush = false;
+    }
+    
+    private final void addMapping ( String prefix, String uri )
+    {
+        assert uri != null;
+        assert prefix != null;
+
+        // If the prefix being mapped here is already mapped to a uri,
+        // that uri will either go out of scope or be mapped to another
+        // prefix.
+
+        String renameUri = (String) _prefixMap.get( prefix );
+        String renamePrefix = null;
+
+        if (renameUri != null)
+        {
+            // See if this prefix is already mapped to this uri.  If
+            // so, then add to the stack, but there is nothing to rename
         
+            if (renameUri.equals( uri ))
+                renameUri = null;
+            else
+            {
+                int i = _namespaceStack.size();
 
-//        for ( ; c != null ; c = c.getContainer() )
-//        {
-//            namespaces:
-//            for ( Splay s = c.nextSplay() ; s.isAttr() ; s = s.nextSplay() )
-//            {
-//                if (s.isXmlns())
-//                {
-//                    Xmlns x = (Xmlns) s;
-//                    String prefix = x.getLocal();
-//                    String uri = x.getUri();
-//
-//                    if (ensureDefaultEmpty &&
-//                            prefix.length() == 0 && uri.length() > 0)
-//                    {
-//                        continue;
-//                    }
-//
-//                    // Make sure the prefix is not already mapped in
-//                    // this frame
-//
-//                    for ( iterateMappings() ; hasMapping() ; nextMapping() )
-//                        if (mappingPrefix().equals( prefix ))
-//                            continue namespaces;
-//
-//                    addMapping( prefix, uri );
-//                }
-//            }
-//
-//            // Push all ancestors the first time
-//            
-//            if (!_firstPush)
-//                break;
-//        }
-//
-//        if (ensureDefaultEmpty)
-//        {
-//            String defaultUri = (String) _prefixMap.get( "" );
-//
-//            // I map the default to "" at the very beginning
-//            assert defaultUri != null;
-//
-//            if (defaultUri.length() > 0)
-//                addMapping( "", "" );
-//        }
-//
-//        _firstPush = false;
+                while ( i > 0 )
+                {
+                    if (_namespaceStack.get( i - 1 ) == null)
+                    {
+                        i--;
+                        continue;
+                    }
+
+                    if (_namespaceStack.get( i - 7 ).equals( renameUri ))
+                    {
+                        renamePrefix = (String) _namespaceStack.get( i - 8 );
+
+                        if (renamePrefix == null || !renamePrefix.equals( prefix ))
+                            break;
+                    }
+
+                    i -= 8;
+                }
+
+                assert i > 0;
+            }
+        }
+
+        _namespaceStack.add( _uriMap.get( uri ) );
+        _namespaceStack.add( uri );
+
+        if (renameUri != null)
+        {
+            _namespaceStack.add( _uriMap.get( renameUri ) );
+            _namespaceStack.add( renameUri );
+        }
+        else
+        {
+            _namespaceStack.add( null );
+            _namespaceStack.add( null );
+        }
+
+        _namespaceStack.add( prefix );
+        _namespaceStack.add( _prefixMap.get( prefix ) );
+
+        _namespaceStack.add( prefix );
+        _namespaceStack.add( uri );
+
+        _uriMap.put( uri, prefix );
+        _prefixMap.put( prefix, uri );
+
+        if (renameUri != null)
+            _uriMap.put( renameUri, renamePrefix );
     }
     
     //
@@ -464,14 +593,19 @@ class Saver
     private final long   _version;
     
     private Cur _cur;
-    private Cur _last;
+    private Cur _end;
+    private Cur _top;
 
     private boolean _preProcess;
     private boolean _postProcess;
     private boolean _done;
+    private boolean _skipContainerFinish;
 
     private QName _synthElem;
-    private Cur   _top;
 
     private ArrayList _namespaceStack;
+    private int       _currentMapping;
+    private boolean   _firstPush;
+    private HashMap   _uriMap;
+    private HashMap   _prefixMap;
 }

@@ -113,14 +113,11 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        String xml = "<foo moo:x='y' xmlns:moo='MOO'/>";
-        Document doc = Public2.parse( xml );
+        Document doc = Public2.parse( "<foo xmlns:ns='xxx' ns:x='y'>asas<ns:bar/>asas</foo>" );
 
         Public2.dump( doc );
 
-        Node node = doc.getDocumentElement().getAttributes().item( 0 );
-
-        node.cloneNode( true );
+        doc.insertBefore( doc.createElement( "moo" ), doc.getDocumentElement() );
 
         System.out.println( Public2.save( doc ) );
 

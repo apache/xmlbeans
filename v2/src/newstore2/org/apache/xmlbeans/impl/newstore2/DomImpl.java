@@ -1049,7 +1049,7 @@ final class DomImpl
         // into a DOM fragment.
         //
 
-        if (c != null && c.kind() == Cur.ROOT)
+        if (c != null && c.isNonDomRoot())
         {
             throw new RuntimeException( "Not impl" );
         }
@@ -1058,6 +1058,7 @@ final class DomImpl
             return null;
         
         Dom d = c.getDom();
+        
         c.release();
         
         return d;

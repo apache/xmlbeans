@@ -84,6 +84,21 @@ final class Cur
     boolean isAttr      ( ) { return kind() == ATTR; }
     boolean isContainer ( ) { return kindIsContainer( kind() ); }
 
+    boolean isDomDocRoot ( )
+    {
+        return isRoot() && (_xobj instanceof SoapPartDocXobj || _xobj instanceof DocumentXobj);
+    }
+
+    boolean isDomFragRoot ( )
+    {
+        return isRoot() && _xobj instanceof DocumentFragXobj;
+    }
+
+    boolean isNonDomRoot ( )
+    {
+        return isRoot() && _xobj instanceof RootXobj;
+    }
+
     private int cchRight ( )
     {
         assert _xobj != null &&  isNormal();
@@ -198,6 +213,28 @@ final class Cur
     {
         assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
         return _xobj._name;
+    }
+    
+    String getLocal ( )
+    {
+        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
+        assert _xobj._name != null;
+        return _xobj._name.getLocalPart();
+    }
+
+    String getUri ( )
+    {
+        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
+        assert _xobj._name != null;
+        return _xobj._name.getNamespaceURI();
+    }
+
+    String getXmlnsPrefix ( )
+    {
+        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
+        assert isXmlns();
+
+        return _xobj._name.getPrefix().equals( "xmlns" ) ? _xobj._name.getLocalPart() : "";
     }
 
     void setName ( QName name )
@@ -342,6 +379,18 @@ final class Cur
             return false;
 
         set( _xobj._firstChild, 0 );
+
+        return true;
+    }
+    
+    boolean toNextAttr ( )
+    {
+        assert _xobj != null && isNormal() && _pos == 0 && isAttr();
+
+        if (_xobj._nextSibling == null || !_xobj._nextSibling.isAttr())
+            return false;
+        
+        set( _xobj._nextSibling, 0 );
 
         return true;
     }
@@ -848,7 +897,8 @@ final class Cur
         Xobj copy = null;
         Xobj xo = _xobj;
             
-        walk: for ( ; ; )
+        walk:
+        for ( ; ; )
         {
             Xobj newXo = xo.newNode();
 
@@ -1498,6 +1548,8 @@ final class Cur
             int pe = posEnd();
 
             // TODO - save this string back into the xobj for use later
+            // TODO - save this string back into the xobj for use later
+            
             if (pos > pe)
                 return CharUtil.getString( _srcAfter, _offAfter + pos - pe - 1, cch );
             else
@@ -1616,7 +1668,6 @@ final class Cur
         public Node replaceChild ( Node newChild, Node oldChild ) { return DomImpl._node_replaceChild( this, newChild, oldChild ); }
         public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
         public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
-        
     }
 
     private final static class DocumentXobj extends NodeXobj implements Document
@@ -2164,6 +2215,10 @@ final class Cur
 
         dumpCurs( o, xo );
 
+        o.print( " (" );
+        o.print( xo.getClass().getName() );
+        o.print( ")" );
+        
         o.println();
 
         for ( xo = xo._firstChild ; xo != null ; xo = xo._nextSibling )
