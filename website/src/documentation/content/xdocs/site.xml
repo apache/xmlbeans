@@ -127,8 +127,8 @@ See http://xml.apache.org/forrest/linking.html for more info
         <mailunsubdev label="XmlBeans Dev List UnSubscribe" href="mailto:dev-unsubscribe@xmlbeans.apache.org"/>
         <mailsubcvs label="XmlBeans CVS List Subscribe" href="mailto:commits-subscribe@xmlbeans.apache.org"/>
         <mailunsubcvs label="XmlBeans CVS List UnSubscribe" href="mailto:commits-unsubscribe@xmlbeans.apache.org"/>
-        <userlistarchive label="XmlBeams User List Archive" href="http://issues.apache.org/eyebrowse/SummarizeList?listId=277"/>
-        <devlistarchive label="XmlBeans Dev List Archive" href="http://issues.apache.org/eyebrowse/SummarizeList?listId=278"/>
-        <cvslistarchive label="XmlBeans CVS List Archive" href="http://issues.apache.org/eyebrowse/SummarizeList?listId=276"/>
+        <userlistarchive label="XmlBeams User List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=277"/>
+        <devlistarchive label="XmlBeans Dev List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=278"/>
+        <cvslistarchive label="XmlBeans CVS List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=276"/>
     </external-refs>
 </site>
