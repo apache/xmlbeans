@@ -19,6 +19,7 @@ import scomp.common.BaseCase;
 import xbean.scomp.namespace.attributeFormDefault.AttributeFormDefaultEltDocument;
 import xbean.scomp.namespace.attributeFormDefault.ElementT;
 import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -62,7 +63,9 @@ public class AttrFormDefault extends BaseCase {
                         " localAttr=\"foobar\"/>");
            assertTrue( ! doc.validate(validateOptions));
           showErrors();
-         String[] errExpected = new String[]{"cvc-attribute"};
+         String[] errExpected = new String[]{
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD             
+         };
               assertTrue(compareErrorCodes(errExpected));
 
     }

@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -43,7 +44,7 @@ public class ElementWC extends BaseCase {
      * Is it possible to have an illegal LAX/Any--think not
      *
      * @throws Throwable
-     */
+
     public void testAnyLaxIllegal() throws Throwable {
         AnyLaxDocument doc = AnyLaxDocument.Factory
                 .parse("<AnyLax " +
@@ -54,6 +55,7 @@ public class ElementWC extends BaseCase {
         assertTrue(compareErrorCodes(errExpected));
 
     }
+      */
 
     public void testAnySkipLegal() throws Throwable {
         AnySkipDocument doc = AnySkipDocument.Factory
@@ -98,7 +100,9 @@ public class ElementWC extends BaseCase {
                 "<foobar:child/></AnyStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -147,11 +151,11 @@ public class ElementWC extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
     }
-
+    //"http://xbean/scomp/element/GlobalEltDefault"
     public void testOtherStrictLegal() throws Throwable {
         OtherStrictDocument doc = OtherStrictDocument.Factory
                 .parse("<foo:OtherStrict xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
-                "  xmlns:elt=\"http://xbean/scomp/attribute/GlobalEltDefault\">" +
+                "  xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
                 "<elt:GlobalEltDefaultStr/></foo:OtherStrict>");
         if (!doc.validate(validateOptions))
             showErrors();
@@ -227,6 +231,7 @@ public class ElementWC extends BaseCase {
 
     }
 
+   //element will not be found
     public void testListStrictIllegal() throws Throwable {
         ListStrictDocument doc = ListStrictDocument.Factory
                 .parse("<foo:ListStrict " +
@@ -235,7 +240,10 @@ public class ElementWC extends BaseCase {
                 " <at:child/></foo:ListStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -243,9 +251,9 @@ public class ElementWC extends BaseCase {
     //replacement elements MAY be in the current target NS, not *must*
     public void testTargetLaxLegal() throws Throwable {
         TargetLaxDocument doc = TargetLaxDocument.Factory
-                .parse("<foo:TargetLax " +
+                .parse("<foo:TargetLax" +
                 " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <child/></foo:TargetLax>");
+                "<child/></foo:TargetLax>");
         if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
@@ -253,6 +261,7 @@ public class ElementWC extends BaseCase {
         assertEquals(arr[0].schemaType(),XmlObject.type);
     }
 
+    //no such element in the NS
     public void testTargetLaxIllegal() throws Throwable {
         TargetLaxDocument doc = TargetLaxDocument.Factory
                 .parse("<foo:TargetLax " +
@@ -261,7 +270,10 @@ public class ElementWC extends BaseCase {
                 " <at:child/></foo:TargetLax>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -284,7 +296,10 @@ public class ElementWC extends BaseCase {
                 " <child/></foo:TargetSkip>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -293,7 +308,7 @@ public class ElementWC extends BaseCase {
         TargetStrictDocument doc = TargetStrictDocument.Factory
                 .parse("<foo:TargetStrict " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <foo:LocalElt/></foo:TargetStrict>");
+                "<foo:LocalElt>2</foo:LocalElt></foo:TargetStrict>");
         try{
         assertTrue(doc.validate(validateOptions));
         }catch(Throwable t){
@@ -309,7 +324,9 @@ public class ElementWC extends BaseCase {
                 " <foo:child/></foo:TargetStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -322,6 +339,7 @@ public class ElementWC extends BaseCase {
         assertTrue(doc.validate(validateOptions));
     }
 
+    //no such child in current NS
     public void testLocalLaxIllegal() throws Throwable {
         LocalLaxDocument doc = LocalLaxDocument.Factory
                 .parse("<foo:LocalLax " +
@@ -329,7 +347,10 @@ public class ElementWC extends BaseCase {
                 " <foo:child/></foo:LocalLax>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -344,7 +365,7 @@ public class ElementWC extends BaseCase {
 
     /**
      * can a test ever be illegal here?
-     */
+
     public void testLocalSkipIllegal() throws Throwable {
         LocalSkipDocument doc = LocalSkipDocument.Factory
                 .parse("<foo:LocalSkip " +
@@ -356,7 +377,7 @@ public class ElementWC extends BaseCase {
         assertTrue(compareErrorCodes(errExpected));
 
     }
-
+      */
     public void testLocalStrictIllegal() throws Throwable {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +
@@ -364,7 +385,9 @@ public class ElementWC extends BaseCase {
                 " <child/></foo:LocalStrict>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ASSESS_ELEM_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -373,7 +396,7 @@ public class ElementWC extends BaseCase {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <foo:LocalElt/></foo:LocalStrict>");
+                "<LocalElt>2</LocalElt></foo:LocalStrict>");
         if (!doc.validate(validateOptions)) {
             showErrors();
             fail("test failed");

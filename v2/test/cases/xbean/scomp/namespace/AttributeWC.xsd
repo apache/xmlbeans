@@ -38,7 +38,7 @@
         </xsd:complexType>
 
     <xsd:complexType name="UriListStrictT">
-           <xsd:anyAttribute namespace="http://apache.org http://w3c.org" processContents="strict" />
+           <xsd:anyAttribute namespace="http://apache.org http://xbean/scomp/attribute/GlobalAttrDefault" processContents="strict" />
         </xsd:complexType>
 
     <xsd:complexType name="targetNSLaxT">

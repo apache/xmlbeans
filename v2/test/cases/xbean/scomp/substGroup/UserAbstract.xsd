@@ -1,7 +1,7 @@
 <xsd:schema
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns="http://xbean/scomp/derivation/UserAbstract"
-    targetNamespace="http://xbean/scomp/derivation/UserAbstract"
+    xmlns="http://xbean/scomp/substGroup/UserAbstract"
+    targetNamespace="http://xbean/scomp/substGroup/UserAbstract"
     >
 
     <xsd:complexType name="AbstractFoo" abstract="true"/>

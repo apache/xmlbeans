@@ -21,9 +21,10 @@ import xbean.scomp.substGroup.deep.BusinessShirtType;
 import xbean.scomp.substGroup.deep.ItemType;
 import xbean.scomp.substGroup.deep.ProductType;
 import xbean.scomp.substGroup.xabstract.BeachUmbrellaT;
-import xbean.scomp.derivation.userAbstract.RootDocument;
-import xbean.scomp.derivation.userAbstract.Bar;
-import xbean.scomp.derivation.userAbstract.AbstractFoo;
+import xbean.scomp.substGroup.userAbstract.RootDocument;
+import xbean.scomp.substGroup.userAbstract.Bar;
+import xbean.scomp.substGroup.userAbstract.AbstractFoo;
+
 
 import java.math.BigInteger;
 
