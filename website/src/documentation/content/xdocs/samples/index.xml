@@ -76,11 +76,26 @@
                         Access XML values that are defined in schema as enumerations.
                     </td>
                     <td>
-                      <link href="MixedContent.zip">zip</link>
-                      <link href="MixedContent.tgz">tgz</link>
+                      <link href="SchemaEnum.zip">zip</link>
+                      <link href="SchemaEnum.tgz">tgz</link>
                     </td>
                     <td>2004-09-15</td>
                     <td>schema: enumerations</td>
+                </tr>
+                <tr>
+                    <td>
+                        <link href="SubstitutionGroup.html">
+                            <strong>SubstitutionGroup</strong>
+                        </link>
+                        <br/>
+                        This sample illustrates substitution group elements in an XML document.
+                    </td>
+                    <td>
+                      <link href="SubstitutionGroup.zip">zip</link>
+                      <link href="SubstitutionGroup.tgz">tgz</link>
+                    </td>
+                    <td>2004-10-15</td>
+                    <td>schema: substitution groups</td>
                 </tr>
                 <tr>
                     <td>
