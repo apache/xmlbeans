@@ -88,10 +88,10 @@
 
     <target name="saxon8.jar" depends="check.saxon8.jar, dirs"
         unless="saxon8.jar.exists">
-        <get dest="external/lib/saxonb8-2.zip"
-            src="http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1-1.zip"
+        <get dest="external/lib/saxonb8-1.zip"
+            src="http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
-        <unzip src="external/lib/saxonb8-2.zip" dest="external/lib/">
+        <unzip src="external/lib/saxonb8-1.zip" dest="external/lib/">
             <patternset>
                 <include name="saxon8.jar"/>
             </patternset>
@@ -407,7 +407,7 @@
     <!-- previously in xbean.xml -->
 
     <target name="xbean.jar"
-        depends="dirs, version, xmlpublic.classes,
+        depends="dirs, xmlpublic.classes,
                  typeholder.template, typestore.classes, common.classes,
                  typeimpl.classes, xmlcomp.classes,
                  store.classes, saaj_api.classes,
@@ -477,7 +477,7 @@
         </copy>
     </target>
 
-    <target name="xmlpublic.jar" depends="dirs, version, xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
+    <target name="xmlpublic.jar" depends="dirs,xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
         <jar jarfile="build/lib/xmlpublic.jar" index="true">
             <fileset dir="build/classes/xmlpublic"/>
             <fileset dir="build/classes/xmlschema"/>
