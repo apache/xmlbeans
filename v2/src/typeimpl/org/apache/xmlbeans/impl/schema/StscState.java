@@ -25,6 +25,7 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaGlobalAttribute;
+import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaModelGroup;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -62,6 +63,9 @@ public class StscState
     private boolean _noDigest = false;
 
     private SchemaTypeLoader _importingLoader;
+
+    private Map _containers = new LinkedHashMap();
+    private SchemaDependencies _dependencies;
 
     private Map _redefinedGlobalTypes        = new LinkedHashMap();
     private Map _redefinedModelGroups        = new LinkedHashMap();
@@ -108,6 +112,169 @@ public class StscState
     private StscState()
     {
     }
+
+    /**
+     * Initializer for incremental compilation
+     */
+    public void initFromTypeSystem(SchemaTypeSystemImpl system, Set newNamespaces)
+    {
+//         setGivenTypeSystemName(system.getName().substring(14));
+
+        SchemaContainer[] containers = system.containers();
+        for (int i = 0; i < containers.length; i++)
+        {
+            if (!newNamespaces.contains(containers[i].getNamespace()))
+            {
+                // Copy data from the given container
+                addContainer(containers[i]);
+            }
+        }
+    }
+
+
+    /* CONTAINERS ================================================================*/
+
+    void addNewContainer(String namespace)
+    {
+        if (_containers.containsKey(namespace))
+            return;
+
+        SchemaContainer container = new SchemaContainer(namespace);
+        container.setTypeSystem(sts());
+        addNamespace(namespace);
+        _containers.put(namespace, container);
+    }
+
+    private void addContainer(SchemaContainer container)
+    {
+        _containers.put(container.getNamespace(), container);
+        List redefModelGroups = container.redefinedModelGroups();
+        for (int i = 0; i < redefModelGroups.size(); i++)
+        {
+            QName name = ((SchemaModelGroup) redefModelGroups.get(i)).getName();
+            _redefinedModelGroups.put(name, redefModelGroups.get(i));
+        }
+
+        List redefAttrGroups = container.redefinedAttributeGroups();
+        for (int i = 0; i < redefAttrGroups.size(); i++)
+        {
+            QName name = ((SchemaAttributeGroup) redefAttrGroups.get(i)).getName();
+            _redefinedAttributeGroups.put(name, redefAttrGroups.get(i));
+        }
+
+        List redefTypes = container.redefinedGlobalTypes();
+        for (int i = 0; i < redefTypes.size(); i++)
+        {
+            QName name = ((SchemaType) redefTypes.get(i)).getName();
+            _redefinedGlobalTypes.put(name, redefTypes.get(i));
+        }
+
+        List globalElems = container.globalElements();
+        for (int i = 0; i < globalElems.size(); i++)
+        {
+            QName name = ((SchemaGlobalElement) globalElems.get(i)).getName();
+            _globalElements.put(name, globalElems.get(i));
+        }
+
+        List globalAtts = container.globalAttributes();
+        for (int i = 0; i < globalAtts.size(); i++)
+        {
+            QName name = ((SchemaGlobalAttribute) globalAtts.get(i)).getName();
+            _globalAttributes.put(name, globalAtts.get(i));
+        }
+
+        List modelGroups = container.modelGroups();
+        for (int i = 0; i < modelGroups.size(); i++)
+        {
+            QName name = ((SchemaModelGroup) modelGroups.get(i)).getName();
+            _modelGroups.put(name, modelGroups.get(i));
+        }
+
+        List attrGroups = container.attributeGroups();
+        for (int i = 0; i < attrGroups.size(); i++)
+        {
+            QName name = ((SchemaAttributeGroup) attrGroups.get(i)).getName();
+            _attributeGroups.put(name, attrGroups.get(i));
+        }
+
+        List globalTypes = container.globalTypes();
+        for (int i = 0; i < globalTypes.size(); i++)
+        {
+            SchemaType t = (SchemaType) globalTypes.get(i);
+            QName name = t.getName();
+            _globalTypes.put(name, t);
+            if (t.getFullJavaName() != null)
+                addClassname(t.getFullJavaName(), t);
+        }
+
+        List documentTypes = container.documentTypes();
+        for (int i = 0; i < documentTypes.size(); i++)
+        {
+            SchemaType t = (SchemaType) documentTypes.get(i);
+            QName name = t.getProperties()[0].getName();
+            _documentTypes.put(name, t);
+            if (t.getFullJavaName() != null)
+                addClassname(t.getFullJavaName(), t);
+        }
+
+        List attributeTypes = container.attributeTypes();
+        for (int i = 0; i < attributeTypes.size(); i++)
+        {
+            SchemaType t = (SchemaType) attributeTypes.get(i);
+            QName name = t.getProperties()[0].getName();
+            _attributeTypes.put(name, t);
+            if (t.getFullJavaName() != null)
+                addClassname(t.getFullJavaName(), t);
+        }
+
+        List identityConstraints = container.identityConstraints();
+        for (int i = 0; i < identityConstraints.size(); i++)
+        {
+            QName name = ((SchemaIdentityConstraint) identityConstraints.get(i)).getName();
+            _idConstraints.put(name, identityConstraints.get(i));
+        }
+
+        _annotations.addAll(container.annotations());
+        _namespaces.add(container.getNamespace());
+    }
+
+    SchemaContainer getContainer(String namespace)
+    {
+        return (SchemaContainer) _containers.get(namespace);
+    }
+
+    Map getContainerMap()
+    {
+        return Collections.unmodifiableMap(_containers);
+    }
+
+    /* DEPENDENCIES ================================================================*/
+
+    void registerDependency(String sourceNs, String targetNs)
+    {
+        _dependencies.registerDependency(sourceNs, targetNs);
+    }
+
+    void registerContribution(String ns, String fileUrl)
+    {
+        _dependencies.registerContribution(ns, fileUrl);
+    }
+
+    SchemaDependencies getDependencies()
+    {
+        return _dependencies;
+    }
+
+    void setDependencies(SchemaDependencies deps)
+    {
+        _dependencies = deps;
+    }
+
+    boolean isFileProcessed(String url)
+    {
+        return _dependencies.isFileRepresented(url);
+    }
+            
 
     /**
      * Initializer for schematypepath
@@ -434,12 +601,18 @@ public class StscState
 
     /* TYPES ==========================================================*/
 
-    SchemaTypeImpl findGlobalType(QName name, String chameleonNamespace)
+    SchemaTypeImpl findGlobalType(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
         SchemaTypeImpl result = (SchemaTypeImpl)_globalTypes.get(name);
+        boolean foundOnLoader = false;
         if (result == null)
+        {
             result = (SchemaTypeImpl)_importingLoader.findType(name);
+            foundOnLoader = result != null;
+        }
+        if (!foundOnLoader && sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
     
@@ -455,6 +628,7 @@ public class StscState
         SchemaTypeImpl result = (SchemaTypeImpl)_globalTypes.get(name);
         if (result == null)
             result = (SchemaTypeImpl)_importingLoader.findType(name);
+        // no dependency is needed here, necause it's intra-namespace
         return result;
     }
 
@@ -463,7 +637,9 @@ public class StscState
         if (type != null)
         {
             QName name = type.getName();
-            
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == type.getContainer();
+
             if (redefined != null)
             {
                 if (_redefinedGlobalTypes.containsKey(redefined))
@@ -472,7 +648,10 @@ public class StscState
                         error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
+                {
                     _redefinedGlobalTypes.put(redefined, type);
+                    container.addRedefinedType(type.getRef());
+                }
             }
             else
             {
@@ -484,6 +663,7 @@ public class StscState
                 else
                 {
                     _globalTypes.put(name, type);
+                    container.addGlobalType(type.getRef());
                     addSpelling(name, type);
                 }
             }
@@ -503,12 +683,18 @@ public class StscState
     
     /* DOCUMENT TYPES =================================================*/
 
-    SchemaTypeImpl findDocumentType(QName name, String chameleonNamespace)
+    SchemaTypeImpl findDocumentType(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
         SchemaTypeImpl result = (SchemaTypeImpl)_documentTypes.get(name);
+        boolean foundOnLoader = false;
         if (result == null)
+        {
             result = (SchemaTypeImpl)_importingLoader.findDocumentType(name);
+            foundOnLoader = result != null;
+        }
+        if (!foundOnLoader && sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
 
@@ -520,7 +706,12 @@ public class StscState
                 error("Duplicate global element: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_ELEMENT, null);
         }
         else
+        {
             _documentTypes.put(name, type);
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == type.getContainer();
+            container.addDocumentType(type.getRef());
+        }
     }
 
     SchemaType[] documentTypes()
@@ -528,12 +719,18 @@ public class StscState
 
     /* ATTRIBUTE TYPES =================================================*/
 
-    SchemaTypeImpl findAttributeType(QName name, String chameleonNamespace)
+    SchemaTypeImpl findAttributeType(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
         SchemaTypeImpl result = (SchemaTypeImpl)_attributeTypes.get(name);
+        boolean foundOnLoader = false;
         if (result == null)
+        {
             result = (SchemaTypeImpl)_importingLoader.findAttributeType(name);
+            foundOnLoader = result != null;
+        }
+        if (!foundOnLoader && sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
 
@@ -545,7 +742,12 @@ public class StscState
                 error("Duplicate global attribute: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_ATTRIBUTE, null);
         }
         else
+        {
             _attributeTypes.put(name, type);
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == type.getContainer();
+            container.addAttributeType(type.getRef());
+        }
     }
 
     SchemaType[] attributeTypes()
@@ -553,12 +755,18 @@ public class StscState
 
     /* ATTRIBUTES =====================================================*/
 
-    SchemaGlobalAttributeImpl findGlobalAttribute(QName name, String chameleonNamespace)
+    SchemaGlobalAttributeImpl findGlobalAttribute(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
         SchemaGlobalAttributeImpl result = (SchemaGlobalAttributeImpl)_globalAttributes.get(name);
+        boolean foundOnLoader = false;
         if (result == null)
+        {
             result = (SchemaGlobalAttributeImpl)_importingLoader.findAttribute(name);
+            foundOnLoader = result != null;
+        }
+        if (!foundOnLoader && sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
 
@@ -569,6 +777,9 @@ public class StscState
             QName name = attribute.getName();
             _globalAttributes.put(name, attribute);
             addSpelling(name, attribute);
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == attribute.getContainer();
+            container.addGlobalAttribute(attribute.getRef());
         }
     }
 
@@ -577,12 +788,18 @@ public class StscState
 
     /* ELEMENTS =======================================================*/
 
-    SchemaGlobalElementImpl findGlobalElement(QName name, String chameleonNamespace)
+    SchemaGlobalElementImpl findGlobalElement(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
         SchemaGlobalElementImpl result = (SchemaGlobalElementImpl)_globalElements.get(name);
+        boolean foundOnLoader = false;
         if (result == null)
+        {
             result = (SchemaGlobalElementImpl)_importingLoader.findElement(name);
+            foundOnLoader = result != null;
+        }
+        if (!foundOnLoader && sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
 
@@ -592,6 +809,9 @@ public class StscState
         {
             QName name = element.getName();
             _globalElements.put(name, element);
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == element.getContainer();
+            container.addGlobalElement(element.getRef());
             addSpelling(name, element);
         }
     }
@@ -601,12 +821,18 @@ public class StscState
 
     /* ATTRIBUTE GROUPS ===============================================*/
 
-    SchemaAttributeGroupImpl findAttributeGroup(QName name, String chameleonNamespace)
+    SchemaAttributeGroupImpl findAttributeGroup(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
         SchemaAttributeGroupImpl result = (SchemaAttributeGroupImpl)_attributeGroups.get(name);
+        boolean foundOnLoader = false;
         if (result == null)
+        {
             result = (SchemaAttributeGroupImpl)_importingLoader.findAttributeGroup(name);
+            foundOnLoader = result != null;
+        }
+        if (!foundOnLoader && sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
 
@@ -630,6 +856,8 @@ public class StscState
         if (attributeGroup != null)
         {
             QName name = attributeGroup.getName();
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == attributeGroup.getContainer();
             if (redefined != null)
             {
                 if (_redefinedAttributeGroups.containsKey(redefined))
@@ -638,8 +866,10 @@ public class StscState
                         error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
+                {
                     _redefinedAttributeGroups.put(redefined, attributeGroup);
-                
+                    container.addRedefinedAttributeGroup(attributeGroup.getRef());
+                }        
             }
             else
             {
@@ -652,6 +882,7 @@ public class StscState
                 {
                     _attributeGroups.put(attributeGroup.getName(), attributeGroup);
                     addSpelling(attributeGroup.getName(), attributeGroup);
+                    container.addAttributeGroup(attributeGroup.getRef());
                 }
             }
         }
@@ -665,12 +896,18 @@ public class StscState
 
     /* MODEL GROUPS ===================================================*/
 
-    SchemaModelGroupImpl findModelGroup(QName name, String chameleonNamespace)
+    SchemaModelGroupImpl findModelGroup(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
         SchemaModelGroupImpl result = (SchemaModelGroupImpl)_modelGroups.get(name);
+        boolean foundOnLoader = false;
         if (result == null)
+        {
             result = (SchemaModelGroupImpl)_importingLoader.findModelGroup(name);
+            foundOnLoader = result != null;
+        }
+        if (!foundOnLoader && sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
 
@@ -694,6 +931,8 @@ public class StscState
         if (modelGroup != null)
         {
             QName name = modelGroup.getName();
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == modelGroup.getContainer();
             if (redefined != null)
             {
                 if (_redefinedModelGroups.containsKey(redefined))
@@ -702,7 +941,10 @@ public class StscState
                         error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
+                {
                     _redefinedModelGroups.put(redefined, modelGroup);
+                    container.addRedefinedModelGroup(modelGroup.getRef());
+                }
             }
             else
             {
@@ -715,6 +957,7 @@ public class StscState
                 {
                     _modelGroups.put(modelGroup.getName(), modelGroup);
                     addSpelling(modelGroup.getName(), modelGroup);
+                    container.addModelGroup(modelGroup.getRef());
                 }
             }
         }
@@ -728,9 +971,11 @@ public class StscState
 
     /* IDENTITY CONSTRAINTS ===========================================*/
 
-    SchemaIdentityConstraintImpl findIdConstraint(QName name, String chameleonNamespace)
+    SchemaIdentityConstraintImpl findIdConstraint(QName name, String chameleonNamespace, String sourceNamespace)
     {
         name = compatName(name, chameleonNamespace);
+        if (sourceNamespace != null)
+            registerDependency(sourceNamespace, name.getNamespaceURI());
         return (SchemaIdentityConstraintImpl)_idConstraints.get(name);
     }
 
@@ -739,6 +984,8 @@ public class StscState
         if (idc != null)
         {
             QName name = idc.getName();
+            SchemaContainer container = getContainer(name.getNamespaceURI());
+            assert container != null && container == idc.getContainer();
             if (_idConstraints.containsKey(name))
             {
                 if (!ignoreMdef(name))
@@ -748,6 +995,7 @@ public class StscState
             {
                 _idConstraints.put(name, idc);
                 addSpelling(idc.getName(), idc);
+                container.addIdentityConstraint(idc.getRef());
             }
         }
     }
@@ -757,10 +1005,15 @@ public class StscState
 
     /* ANNOTATIONS ===========================================*/
 
-    void addAnnotation(SchemaAnnotationImpl ann)
+    void addAnnotation(SchemaAnnotationImpl ann, String targetNamespace)
     {
         if (ann != null)
+        {
+            SchemaContainer container = getContainer(targetNamespace);
+            assert container != null && container == ann.getContainer();
             _annotations.add(ann);
+            container.addAnnotation(ann);
+        }
     }
 
     List annotations()

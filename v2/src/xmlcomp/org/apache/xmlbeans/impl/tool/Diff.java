@@ -222,6 +222,7 @@ public class Diff
             dir2 = temp2;
         }
 
+        boolean diffIndex = isDiffIndex();
         XsbFilenameFilter xsbName = new XsbFilenameFilter();
         File[] files1 = dir1.listFiles(xsbName);
         File[] files2 = dir2.listFiles(xsbName);
@@ -237,7 +238,8 @@ public class Diff
             int dif = name1.compareTo(name2);
             if (dif == 0)
             {
-                filesAsXsb(files1[i1], files2[i2], diffs); // Compare the files
+                if (diffIndex || !files1[i1].getName().equals("index.xsb"))
+                    filesAsXsb(files1[i1], files2[i2], diffs); // Compare the files
                 i1++; i2++; // Move to next pair
             }
             else if (dif < 0)
@@ -267,6 +269,16 @@ public class Diff
                 files2[i2].getName() + "\"");
             i2++;
         }
+    }
+
+    private static boolean isDiffIndex()
+    {
+        String prop = System.getProperty("xmlbeans.diff.diffIndex");
+        if (prop == null)
+            return true;
+        if ("0".equals(prop) || "false".equalsIgnoreCase(prop))
+            return false;
+        return true;
     }
 
     /**

@@ -24,7 +24,7 @@ import javax.xml.namespace.QName;
 
 public class SchemaModelGroupImpl implements SchemaModelGroup
 {
-    private SchemaTypeSystem _typeSystem;
+    private SchemaContainer _container;
     private QName _name;
     private XmlObject _parseObject;
     private Object _userData;
@@ -33,14 +33,14 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
     private boolean _redefinition;
     private SchemaAnnotation _annotation;
 
-    public SchemaModelGroupImpl(SchemaTypeSystem typeSystem)
+    public SchemaModelGroupImpl(SchemaContainer container)
     {
-        _typeSystem = typeSystem;
+        _container = container;
     }
 
-    public SchemaModelGroupImpl(SchemaTypeSystem typeSystem, QName name)
+    public SchemaModelGroupImpl(SchemaContainer container, QName name)
     {
-        this(typeSystem);
+        _container = container;
         _name = name;
     }
 
@@ -59,7 +59,12 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
 
     public SchemaTypeSystem getTypeSystem()
     {
-        return _typeSystem;
+        return _container.getTypeSystem();
+    }
+
+    SchemaContainer getContainer()
+    {
+        return _container;
     }
 
     public int getComponentType()

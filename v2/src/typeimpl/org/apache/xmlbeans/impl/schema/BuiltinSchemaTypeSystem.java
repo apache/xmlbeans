@@ -228,6 +228,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
     private Map _handlesToObjects = new HashMap();
     private Map _objectsToHandles = new HashMap();
     private Map _typesByClassname = new HashMap();
+    private SchemaContainer _container = new SchemaContainer("http://www.w3.org/2001/XMLSchema");
 
     private SchemaTypeImpl getBuiltinType(int btc)
     {
@@ -236,6 +237,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
 
     private BuiltinSchemaTypeSystem()
     {
+        _container.setTypeSystem(this);
         // UR types
         setupBuiltin(SchemaType.BTC_ANY_TYPE, "anyType", "org.apache.xmlbeans.XmlObject");
         setupBuiltin(SchemaType.BTC_ANY_SIMPLE, "anySimpleType", "org.apache.xmlbeans.XmlAnySimpleType");
@@ -293,6 +295,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
 
         // the no-type
         setupBuiltin(SchemaType.BTC_NOT_BUILTIN, null, null);
+        _container.setImmutable();
     }
 
 
@@ -546,7 +549,8 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
 
     private void setupBuiltin(int btc, String localname, String classname)
     {
-        SchemaTypeImpl result = new SchemaTypeImpl(this, true);
+        SchemaTypeImpl result = new SchemaTypeImpl(_container, true);
+        _container.addGlobalType(result.getRef());
         QName name = localname == null ? null : QNameHelper.forLNS(localname, "http://www.w3.org/2001/XMLSchema");
         String handle = "_BI_" + (localname == null ? "NO_TYPE" : localname);
         result.setName(name);

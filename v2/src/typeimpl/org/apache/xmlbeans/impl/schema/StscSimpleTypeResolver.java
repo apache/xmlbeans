@@ -161,7 +161,7 @@ public class StscSimpleTypeResolver
 
         if (itemName != null)
         {
-            itemImpl = state.findGlobalType(itemName, sImpl.getChameleonNamespace());
+            itemImpl = state.findGlobalType(itemName, sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
             errorLoc = parseList.xgetItemType();
             if (itemImpl == null)
             {
@@ -172,12 +172,12 @@ public class StscSimpleTypeResolver
         }
         else if (parseInner != null)
         {
-            itemImpl = new SchemaTypeImpl(state.sts());
+            itemImpl = new SchemaTypeImpl(sImpl.getContainer());
             errorLoc = parseInner;
             itemImpl.setSimpleType(true);
             itemImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
             itemImpl.setOuterSchemaTypeRef(sImpl.getRef());
-            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), parseInner);
+            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), parseInner);
             itemImpl.setAnnotation(ann);
             anonTypes.add(itemImpl);
         }
@@ -272,7 +272,7 @@ public class StscSimpleTypeResolver
             for (Iterator mNames = memberTypes.iterator(); mNames.hasNext(); )
             {
                 QName mName = (QName)mNames.next();
-                SchemaTypeImpl memberImpl = state.findGlobalType(mName, sImpl.getChameleonNamespace());
+                SchemaTypeImpl memberImpl = state.findGlobalType(mName, sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
                 if (memberImpl == null)
                     // recovery: skip member
                     state.notFoundError(mName, XmlErrorContext.TYPE_NOT_FOUND, parseUnion.xgetMemberTypes());
@@ -284,13 +284,13 @@ public class StscSimpleTypeResolver
         for (int i = 0; i < simpleTypes.length; i++)
         {
             // BUGBUG: see if non<simpleType> children can leak through
-            SchemaTypeImpl mImpl = new SchemaTypeImpl(state.sts());
+            SchemaTypeImpl mImpl = new SchemaTypeImpl(sImpl.getContainer());
             mImpl.setSimpleType(true);
             mImpl.setParseContext(simpleTypes[i], sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
             memberImplList.add(mImpl);
             mImpl.setOuterSchemaTypeRef(sImpl.getRef());
             mImpl.setAnonymousUnionMemberOrdinal(i + 1);
-            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), simpleTypes[i]);
+            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), simpleTypes[i]);
             mImpl.setAnnotation(ann);
             anonTypes.add(mImpl);
         }
@@ -383,7 +383,7 @@ public class StscSimpleTypeResolver
             }
             else
             {
-                baseImpl = state.findGlobalType(baseName, sImpl.getChameleonNamespace());
+                baseImpl = state.findGlobalType(baseName, sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
             }
             if (baseImpl == null)
             {
@@ -400,12 +400,12 @@ public class StscSimpleTypeResolver
                 // recovery: oh well.
             }
             
-            baseImpl = new SchemaTypeImpl(state.sts());
+            baseImpl = new SchemaTypeImpl(sImpl.getContainer());
             baseImpl.setSimpleType(true);
             baseImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
             // baseImpl.setSkippedAnonymousType(true);
             baseImpl.setOuterSchemaTypeRef(sImpl.getRef());
-            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(state.sts(), parseInner);
+            SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), parseInner);
             baseImpl.setAnnotation(ann);
             anonTypes.add(baseImpl);
         }

@@ -115,7 +115,7 @@ public class StscResolver
         if (elt.isSetSubstitutionGroup())
         {
             substitutionGroup = StscState.get().findDocumentType(elt.getSubstitutionGroup(), 
-                sImpl.getChameleonNamespace());
+                sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
 
             if (substitutionGroup == null)
                 StscState.get().notFoundError(elt.getSubstitutionGroup(), XmlErrorContext.ELEMENT_REF_NOT_FOUND, elt.xgetSubstitutionGroup());
@@ -137,7 +137,7 @@ public class StscResolver
                 break;
 
             substitutionGroup = StscState.get().findDocumentType(
-                substitutionGroup.getSubstitutionGroup(), substitutionGroup.getChameleonNamespace());
+                substitutionGroup.getSubstitutionGroup(), substitutionGroup.getChameleonNamespace(), null/*no dependency added*/);
 
             assert substitutionGroup != null : "Could not find document type for: " + substitutionGroup.getSubstitutionGroup();
 
@@ -193,7 +193,7 @@ public class StscResolver
         SchemaTypeImpl baseType = sImpl.getSubstitutionGroup() == null ?
             BuiltinSchemaTypeSystem.ST_ANY_TYPE :
             StscState.get().findDocumentType(sImpl.getSubstitutionGroup(), 
-                 sImpl.isChameleon() ? sImpl.getTargetNamespace() : null)
+                sImpl.isChameleon() ? sImpl.getTargetNamespace() : null, null/*already added*/)
             ;
 
         sImpl.setBaseTypeRef( baseType.getRef() );
@@ -279,7 +279,7 @@ public class StscResolver
                 QName keyName = xsdkr.getRefer();
                 SchemaIdentityConstraintImpl key = null;
 
-                key = state.findIdConstraint(keyName, idcs[i].getChameleonNamespace());
+                key = state.findIdConstraint(keyName, idcs[i].getChameleonNamespace(), idcs[i].getTargetNamespace());
                 if (key == null)
                 {
                     state.notFoundError(keyName, XmlErrorContext.IDC_NOT_FOUND, xsdkr);
