@@ -32,6 +32,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlFactoryHook;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -60,6 +61,9 @@ import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 {
+    // User-Agent: XMLBeans/2.0.0 (org.apache.xmlbeans)
+    private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
+
     private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Path", "getCompiledPath", new Class[] { String.class, XmlOptions.class } );
     private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Query", "getCompiledQuery", new Class[] { String.class, XmlOptions.class } );
 
@@ -267,7 +271,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 
             do {
                 conn = url.openConnection();
-                conn.addRequestProperty("User-Agent", "BEA XML Beans/1.0");
+                conn.addRequestProperty("User-Agent", USER_AGENT);
                 conn.addRequestProperty("Accept", "application/xml, text/xml, */*");
                 if (conn instanceof HttpURLConnection)
                 {
