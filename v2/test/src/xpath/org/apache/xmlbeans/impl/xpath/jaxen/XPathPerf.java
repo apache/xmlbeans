@@ -73,7 +73,7 @@ import java.io.IOException;
  * Author: Cezar Andrei (cezar.andrei at bea.com)
  * Date: Oct 10, 2003
  */
-public class XBeansDemo
+public class XPathPerf
 {
     public static void main(String[] args)
     {
@@ -93,9 +93,11 @@ public class XBeansDemo
                 xpathStr = args[1];
             }
 
-            test1(xpathStr, file);
+            //test1(xpathStr, file);
+            test2(xpathStr, file);
 
             test3(xpathStr, file);
+            test4(file);
         }
         catch (Exception e)
         {
@@ -105,7 +107,7 @@ public class XBeansDemo
 
     private static void test1(String xpathStr, File file)
     {
-        System.out.println("\n ----- test1:   XBeansXPath.selectNodes(xpathStr) Navigator: XmlBookmarks + 1 XmlCursor embeded in the bookmark -----");
+        System.out.println("\n ----- test1:   XBeansXPath.selectNodes(xpathStr) Navigator: XmlBookmarks + 1 XmlCursor embeded in Navigator -----");
 
         try
         {
@@ -116,7 +118,7 @@ public class XBeansDemo
 
             Iterator resultIter = results.iterator();
 
-            System.out.println("Document :: " + doc );
+//            System.out.println("Document :: " + doc );
             System.out.println("   XPath :: " + xpath );
             System.out.println("");
             System.out.println("Results" );
@@ -144,6 +146,47 @@ public class XBeansDemo
         }
     }
 
+    private static void test2(String xpathStr, File file)
+    {
+        System.out.println("\n ----- test2:   XBeansXPath.selectNodes(xpathStr) Navigator: XmlBookmarks + 1 XmlCursor embeded in Navigator -----");
+
+        try
+        {
+            XmlObject doc = XmlObject.Factory.parse(file);
+            XPath xpath = new XBeansXPath(xpathStr);
+            XmlCursor docXC = doc.newCursor();
+
+            long start = System.currentTimeMillis();
+            int count = 0;
+
+            for (int j = 0; j < 10; j++)
+            {
+                long start2 = System.currentTimeMillis();
+                for (int i = 0; i < 100; i++)
+                {
+                    XmlCursor speaker = (XmlCursor)xpath.selectSingleNode(docXC);
+                    count += (speaker == null ? 0 : 1);
+                }
+                //System.out.println((j*100) + "                \t" + (System.currentTimeMillis()-start2));
+            }
+
+            long end = System.currentTimeMillis();
+            System.out.println(">>> " + count + " selections in " + (end - start) + " ms");
+        }
+        catch (XmlException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+        catch (JaxenException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
 	private static void test3(String xpathStr, File file)
     {
         System.out.println("\n ----- test3:   XmlCursor.selectPath(cpath)  -----");
@@ -154,17 +197,25 @@ public class XBeansDemo
             XmlObject doc = XmlObject.Factory.parse(file);
             XmlCursor speaker = doc.newCursor();
 
-            int count = 0;
-			speaker.toStartDoc();
-			speaker.selectPath(cpath);
-			speaker.getSelectionCount();
-			while ( speaker.toNextSelection() )
-			{
-				System.out.println(speaker);
-				count += (speaker == null ? 0 : 1);
-			}
+            long start = System.currentTimeMillis();
 
-            System.out.println(">>> " + count + " selections");
+            int count = 0;
+            for (int j = 0; j < 10; j++) {
+                long start2 = System.currentTimeMillis();
+                for (int i = 0; i < 100; i++)
+                {
+                    speaker.toStartDoc();
+                    speaker.selectPath(cpath);
+                    //speaker.getSelectionCount();
+                    while ( speaker.toNextSelection() ) ;
+
+                    count += (speaker == null ? 0 : 1);
+                }
+                //System.out.println((j*100) + "                \t" + (System.currentTimeMillis()-start2));
+            }
+
+            long end = System.currentTimeMillis();
+            System.out.println(">>> " + count + " selections in " + (end - start) + " ms");
         }
         catch (XmlException e)
         {
@@ -174,5 +225,59 @@ public class XBeansDemo
         {
             e.printStackTrace();
         }
+    }
+
+    private static void test4(File file)
+    {
+        System.out.println("\n ----- test4:   1 XmlCursor handCoded  -----");
+
+        try
+        {
+            XmlObject doc = XmlObject.Factory.parse(file);
+            XmlCursor xc = doc.newCursor();
+
+            long start = System.currentTimeMillis();
+
+            int count = 0;
+            for (int j = 0; j < 10; j++) {
+                long start2 = System.currentTimeMillis();
+                for (int i = 0; i < 100; i++)
+                {
+                    xc.toStartDoc();
+
+                    rec(new String[] {"PLAY","ACT","SCENE","SPEECH","SPEAKER"}, 0, xc);
+
+                    count += (xc == null ? 0 : 1);
+                }
+                //System.out.println((j*100) + "                \t" + (System.currentTimeMillis()-start2));
+            }
+
+            long end = System.currentTimeMillis();
+            System.out.println(">>> " + count + " selections in " + (end - start) + " ms");
+        }
+        catch (XmlException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void rec(String[] xp, int i, XmlCursor xc )
+    {
+        if (i>=xp.length)
+        {
+            //System.out.println(xc);
+            return;
+        }
+
+        if (xc.toChild(xp[i])) do
+        {
+            rec(xp, i+1, xc);
+        }
+        while(xc.toNextSibling(xp[i]));
+        xc.toParent();
     }
 }
