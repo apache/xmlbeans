@@ -65,6 +65,8 @@ final class RuntimeBindingTypeTable
 
     static RuntimeBindingTypeTable createTable(RuntimeTypeFactory factory)
     {
+        assert factory != null;
+
         final RuntimeBindingTypeTable tbl =
             new RuntimeBindingTypeTable((Map)BUILTIN_UNMARSHALLER_MAP.clone(),
                                         (Map)BUILTIN_MARSHALLER_MAP.clone(),

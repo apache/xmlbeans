@@ -101,7 +101,7 @@ final class MarshallerImpl
         RuntimeGlobalProperty prop =
             new RuntimeGlobalProperty(elem_qn, runtime_type);
 
-        return new MarshalResult(runtimeTypeFactory, loader, typeTable,
+        return new MarshalResult(loader, typeTable,
                                  nscontext, prop, obj, null);
     }
 

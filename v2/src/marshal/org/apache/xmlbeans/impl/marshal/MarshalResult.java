@@ -24,17 +24,14 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.binding.bts.ListArrayType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
-import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
-import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
-import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
-import org.apache.xmlbeans.impl.marshal.util.collections.ReflectiveArrayIterator;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -42,7 +39,6 @@ import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Stack;
 
 
@@ -50,7 +46,6 @@ final class MarshalResult implements XMLStreamReader
 {
 
     //per binding context constants
-    private final RuntimeTypeFactory runtimeTypeFactory;
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
 
@@ -73,8 +68,7 @@ final class MarshalResult implements XMLStreamReader
 
 
     //TODO: REVIEW: consider ways to reduce the number of parameters here
-    MarshalResult(RuntimeTypeFactory runtimeTypeFactory,
-                  BindingLoader loader,
+    MarshalResult(BindingLoader loader,
                   RuntimeBindingTypeTable tbl,
                   NamespaceContext root_nsctx,
                   RuntimeBindingProperty property,
@@ -82,7 +76,6 @@ final class MarshalResult implements XMLStreamReader
                   XmlOptions options)
         throws XmlException
     {
-        this.runtimeTypeFactory = runtimeTypeFactory;
         bindingLoader = loader;
         typeTable = tbl;
         namespaceContext = new ScopedNamespaceContext(root_nsctx);
@@ -131,6 +124,20 @@ final class MarshalResult implements XMLStreamReader
         }
     }
 
+    QName fillPrefix(final QName pname)
+    {
+        final String uri = pname.getNamespaceURI();
+
+        assert uri != null;  //QName's should use "" for no namespace
+
+        if (uri.length() == 0) {
+            return createQName(pname.getLocalPart());
+        } else {
+            String prefix = ensurePrefix(uri);
+            return createQName(uri, pname.getLocalPart(), prefix);
+        }
+    }
+
 
     String ensurePrefix(String uri)
     {
@@ -151,8 +158,7 @@ final class MarshalResult implements XMLStreamReader
         do {
             prefix = NSPREFIX + (++prefixCnt);
             testuri = namespaceContext.getNamespaceURI(prefix);
-        }
-        while (testuri != null);
+        } while (testuri != null);
         assert prefix != null;
         namespaceContext.bindNamespace(prefix, uri);
         return prefix;
@@ -176,14 +182,15 @@ final class MarshalResult implements XMLStreamReader
             }
             //else go with original type and hope for the best...
         }
-        return runtimeTypeFactory.createRuntimeType(type, typeTable, bindingLoader);
+        return getRuntimeTypeFactory().createRuntimeType(type, typeTable, bindingLoader);
     }
 
 
     RuntimeBindingType createRuntimeBindingType(BindingType type)
         throws XmlException
     {
-        return runtimeTypeFactory.createRuntimeType(type, typeTable, bindingLoader);
+        return getRuntimeTypeFactory().createRuntimeType(type, typeTable,
+                                                         bindingLoader);
     }
 
 
@@ -614,6 +621,19 @@ final class MarshalResult implements XMLStreamReader
     {
         XmlError e = XmlError.forMessage(msg, XmlError.SEVERITY_WARNING);
         getErrorCollection().add(e);
+    }
+
+    private RuntimeTypeFactory getRuntimeTypeFactory()
+    {
+        return typeTable.getRuntimeTypeFactory();
+    }
+
+    QName createQName(String uri, String localpart, String prefix) {
+        return new QName(uri, localpart, prefix);
+    }
+
+    QName createQName(String localpart) {
+        return new QName(localpart);
     }
 
     private static final class BindingTypeVisitor
