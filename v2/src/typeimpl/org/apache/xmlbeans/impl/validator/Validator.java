@@ -62,11 +62,13 @@ import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.XmlString;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.xml.namespace.QName;
 
 public final class Validator
@@ -884,28 +886,35 @@ public final class Validator
 
     private void findDetailedErrorBegin(Event event, State state, QName qName)
     {
-        boolean found = false;
+        ArrayList expectedNames = new ArrayList();
+
         SchemaProperty[] eltProperties = state._type.getElementProperties();
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
             SchemaProperty sProp = eltProperties[ii];
 
-            // test if the element is valid
-            if (state.test(sProp.getName()))
-            {
-                found = true;
-                ArrayList expectedNames = new ArrayList();
+            // test if the element is valid and has min occurs > 0
+            if (state.test(sProp.getName()) && 1 == sProp.getMinOccurs().compareTo(BigInteger.ZERO))
                 expectedNames.add(sProp.getName());
-
-                emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-                    new Object[] { QNameHelper.pretty(sProp.getName()), QNameHelper.pretty(qName) },
-                    qName, sProp.getType(), expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
-
-                break;
-            }
         }
-        if (!found)
+
+        if (expectedNames.size() > 0)
+        {
+            StringBuffer buf = new StringBuffer();
+            for (Iterator iter = expectedNames.iterator(); iter.hasNext();)
+            {
+                QName qname = (QName) iter.next();
+                buf.append(QNameHelper.pretty(qname));
+                if (iter.hasNext())
+                    buf.append(" ");
+            }
+
+            emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+                new Object[] { new Integer(expectedNames.size()), buf.toString(), QNameHelper.pretty(qName) },
+                qName, null, expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
+        }
+        else
         {
             emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
                 new Object[] { QNameHelper.pretty(qName) },
@@ -916,30 +925,35 @@ public final class Validator
     private void findDetailedErrorEnd(Event event, State state)
     {
         SchemaProperty[] eltProperties  = state._type.getElementProperties();
-        boolean found = false;
+
+        ArrayList expectedNames = new ArrayList();
 
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
             SchemaProperty sProp = eltProperties[ii];
 
-            // test if the element is valid
-            if (state.test(sProp.getName()))
-            {
-                found = true;
-
-                ArrayList expectedNames = new ArrayList();
+            // test if the element is valid and has min occurs > 0
+            if (state.test(sProp.getName()) && 1 == sProp.getMinOccurs().compareTo(BigInteger.ZERO))
                 expectedNames.add(sProp.getName());
-
-                emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT,
-                    new Object[] { QNameHelper.pretty(sProp.getName()) },
-                    null, sProp.getType(), expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
-
-                break;
-            }
         }
 
-        if (!found)
+        if (expectedNames.size() > 0)
+        {
+            StringBuffer buf = new StringBuffer();
+            for (Iterator iter = expectedNames.iterator(); iter.hasNext();)
+            {
+                QName qname = (QName) iter.next();
+                buf.append(QNameHelper.pretty(qname));
+                if (iter.hasNext())
+                    buf.append(" ");
+            }
+
+            emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT,
+                new Object[] { new Integer(expectedNames.size()), buf.toString() },
+                null, null, expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
+        }
+        else
         {
             emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT,
                 null, null, null, null, XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
