@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.store;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.store.Cursor.PathEngine;
 import org.apache.xmlbeans.impl.store.Cursor.Selections;
