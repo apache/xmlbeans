@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * A "builtin" binding type is one that doesn't explicitly specify
@@ -32,4 +33,10 @@ public class BuiltinBindingType extends BindingType {
   public BuiltinBindingType(BindingTypeName btName) {
     super(btName);
   }
+
+    public void accept(BindingTypeVisitor visitor)
+        throws XmlException
+    {
+        visitor.visit(this);
+    }
 }

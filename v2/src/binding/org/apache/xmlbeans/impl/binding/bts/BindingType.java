@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * Represents a Java+XML component and a rule for getting between
@@ -75,6 +76,9 @@ public abstract class BindingType {
   public final BindingTypeName getName() {
     return btName;
   }
+
+  public abstract void accept(BindingTypeVisitor visitor)
+    throws XmlException;
 
   // ========================================================================
   // Static initialization

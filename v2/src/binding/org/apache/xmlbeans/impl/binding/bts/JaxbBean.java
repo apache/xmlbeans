@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
 import java.util.List;
@@ -132,4 +133,9 @@ public class JaxbBean extends BindingType {
     }
     return jbNode;
   }
+
+    public void accept(BindingTypeVisitor visitor) throws XmlException
+    {
+        throw new AssertionError("not used");
+    }
 }

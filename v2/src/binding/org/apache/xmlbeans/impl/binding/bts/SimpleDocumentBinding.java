@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
+import org.apache.xmlbeans.XmlException;
+
 /**
  * BindingType for root elements.
  */
@@ -66,4 +68,9 @@ public class SimpleDocumentBinding extends BindingType {
     sdbNode.setTypeOfElement(typeOfElement.toString());
     return sdbNode;
   }
+
+    public void accept(BindingTypeVisitor visitor) throws XmlException
+    {
+        visitor.visit(this);
+    }
 }
