@@ -2952,6 +2952,31 @@ final class Cur
             _lastXobj.setBookmark( _lastPos, bm.getKey(), bm );
         }
         
+        protected void bookmarkLastNonAttr ( XmlBookmark bm )
+        {
+            if (_lastPos > 0 || !_lastXobj.isAttr())
+                _lastXobj.setBookmark( _lastPos, bm.getKey(), bm );
+            else
+            {
+                assert _lastXobj._parent != null;
+                
+                _lastXobj._parent.setBookmark( 0, bm.getKey(), bm );
+            }
+        }
+        
+        protected void bookmarkLastAttr ( QName attrName, XmlBookmark bm )
+        {
+            if (_lastPos == 0 && _lastXobj.isAttr())
+            {
+                assert _lastXobj._parent != null;
+                
+                Xobj a = _lastXobj._parent.getAttr( attrName );
+
+                if (a != null)
+                    a.setBookmark( 0, bm.getKey(), bm );
+            }
+        }
+
         protected void lineNumber ( int line, int column, int offset )
         {
             _lastXobj.setBookmark(
