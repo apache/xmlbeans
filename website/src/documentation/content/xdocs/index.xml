@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "document-v12.dtd">
 <document>
 	<header>
@@ -56,7 +56,8 @@
 		</section>
 		<section>
 			<title>History</title>
-			<p>XMLBeans was submitted to Apache by BEA Systems in September 2003 and is currently in the Apache incubation process.  
+			<p>XMLBeans was submitted to the Apache Incubator and Apache XML projects by BEA Systems in September 2003.  Thanks to the support and guidance of Steven Noels (project sponsor) 
+			and Ted Leung (project mentor), XMLBeans successfully graduated from incubation in June 2004 to become a top level project and part of the Apache XML federation.     
 			XMLBeans was originally created because of the need seen by developers, in particular David Bau 
 			(<link href="http://nagoya.apache.org/eyebrowse/ReadMsg?listName=xmlbeans-dev@xml.apache.org&amp;msgNo=93">David's about me post</link>),  
 			need for a more XML centric Java binding model that nothing on the market offered.   XMLBeans 1.0 has been successfully used as an underlying technology for several
