@@ -77,7 +77,6 @@ public final class StringList
 
     public void append(Object o)
     {
-        assert (o instanceof String);
         add((String)o);
     }
 

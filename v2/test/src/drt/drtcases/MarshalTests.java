@@ -306,6 +306,7 @@ public class MarshalTests extends TestCase
         myelt.setMyFloat(5555.4444f);
 //        myelt.setMyClass(new com.mytest.MyClass());
 
+        myelt.setWrappedArrayOne(new String[]{"a", null, "b"});
 
         MySubClass sub = new MySubClass();
         sub.setBigInt(new BigInteger("23522352235223522352"));
@@ -500,7 +501,7 @@ public class MarshalTests extends TestCase
             myelt.setAttrib(rnd.nextFloat());
             myelt.setMyFloat(rnd.nextFloat());
             myelt.setBooleanArray(bools);
-            myelt.setWrappedArrayOne(new String[]{"W1"+rnd.nextInt(), "W2" + rnd.nextInt()});
+            myelt.setWrappedArrayOne(new String[]{"W1"+rnd.nextInt(), null, "W2" + rnd.nextInt()});
             myelt.setWrappedArrayTwo(null);
             final com.mytest.MyClass my_c = new com.mytest.MyClass();
             myelt.setMyClass(my_c);

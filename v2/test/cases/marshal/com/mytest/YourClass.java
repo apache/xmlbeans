@@ -294,6 +294,7 @@ public class YourClass
             ", longArray=" + ArrayUtils.arrayToString(longArray) +
             ", booleanArray=" + ArrayUtils.arrayToString(booleanArray) +
             ", stringArray=" + ArrayUtils.arrayToString(stringArray) +
+            ", wrappedArrayOne=" + ArrayUtils.arrayToString(wrappedArrayOne) +
             ", myClassArray=" + ArrayUtils.arrayToString(myClassArray) +
             "}";
     }

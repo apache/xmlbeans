@@ -26,9 +26,9 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
-import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -885,6 +885,25 @@ final class UnmarshalResult
             return qn.getNamespaceURI().equals(uri == null ? "" : uri);
         }
         return false;
+    }
+
+    TypeUnmarshaller determineTypeUnmarshaller(TypeUnmarshaller base)
+        throws XmlException
+    {
+        final QName xsi_type = getXsiType();
+
+        if (xsi_type != null) {
+            TypeUnmarshaller typed_um = getTypeUnmarshaller(xsi_type);
+            if (typed_um != null)
+                return typed_um;
+            //reaching here means some problem with extracting the
+            //marshaller for the xsi type, so just use the expected one
+        }
+
+        if (hasXsiNil())
+            return NullUnmarshaller.getInstance();
+
+        return base;
     }
 
 }
