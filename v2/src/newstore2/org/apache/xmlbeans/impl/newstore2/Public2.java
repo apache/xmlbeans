@@ -18,6 +18,8 @@ package org.apache.xmlbeans.impl.newstore2;
 import javax.xml.stream.XMLStreamReader;
 
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
 
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Node;
@@ -142,6 +144,15 @@ public final class Public2
     public static String save ( Node n )
     {
         return save( n, null );
+    }
+    
+    public static void save ( Node n, OutputStream os, XmlOptions options ) throws IOException
+    {
+        XmlCursor c = getCursor( n );
+
+        c.save( os, options );
+
+        c.dispose();
     }
     
     public static String save ( Node n, XmlOptions options )
