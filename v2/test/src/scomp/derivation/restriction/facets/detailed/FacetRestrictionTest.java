@@ -61,6 +61,7 @@ public class FacetRestrictionTest extends BaseCase {
                XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID};
            assertTrue(!doc.validate(validateOptions));
            assertTrue(compareErrorCodes(errExpected));
+      
 
 
        }
