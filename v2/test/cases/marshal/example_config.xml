@@ -18,6 +18,7 @@
         <bin:getter>getMyClass</bin:getter>
         <bin:setter>setMyClass</bin:setter>
         <bin:qname>java:MyClass</bin:qname>
+        <bin:nillable>true</bin:nillable>
       </bin:qname-property>
       <bin:qname-property>
         <bin:xmlcomponent>t=float@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
@@ -43,6 +44,7 @@
         <bin:getter>getMyatt</bin:getter>
         <bin:setter>setMyatt</bin:setter>
         <bin:qname>java:Myatt</bin:qname>
+        <bin:nillable>true</bin:nillable>
       </bin:qname-property>
     </bin:binding-type>
   </bin:bindings>

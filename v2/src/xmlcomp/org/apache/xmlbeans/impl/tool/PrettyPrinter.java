@@ -58,13 +58,17 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlException;
 
 import java.util.Collections;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 
 public class PrettyPrinter
 {
+    private static final int DEFAULT_INDENT = 2;
+
     public static void main(String[] args)
     {
         CommandLine cl = new CommandLine(args, Collections.singleton("indent"));
@@ -88,7 +92,7 @@ public class PrettyPrinter
         String indentStr = cl.getOpt("indent");
         int indent;
         if (indentStr == null)
-            indent = 2;
+            indent = DEFAULT_INDENT;
         else
             indent = Integer.parseInt(indentStr);
         
@@ -116,5 +120,15 @@ public class PrettyPrinter
                 System.err.println("Unable to pretty print " + files[i] + ": " + e.getMessage());
             }
         }
+    }
+
+    public static String indent(String xmldoc)
+        throws IOException, XmlException
+    {
+        StringWriter sw = new StringWriter();
+        XmlObject doc = XmlObject.Factory.parse(xmldoc, (new XmlOptions()).setLoadLineNumbers());
+        doc.save(sw, new XmlOptions().setSavePrettyPrint().setSavePrettyPrintIndent(DEFAULT_INDENT));
+        sw.close();
+        return sw.getBuffer().toString();
     }
 }

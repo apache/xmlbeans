@@ -7,12 +7,14 @@ import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
+import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.marshal.BindingContext;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactory;
 import org.apache.xmlbeans.impl.marshal.MarshalContext;
 import org.apache.xmlbeans.impl.marshal.Marshaller;
 import org.apache.xmlbeans.impl.marshal.UnmarshalContext;
 import org.apache.xmlbeans.impl.marshal.Unmarshaller;
+import org.apache.xmlbeans.impl.tool.PrettyPrinter;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import javax.xml.namespace.NamespaceContext;
@@ -34,6 +36,7 @@ import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Random;
 
 
 public class MarshalTests extends TestCase
@@ -50,9 +53,10 @@ public class MarshalTests extends TestCase
 
     //does not test any xmlbeans code, but rather a quick sanity check
     //of the current jsr 173 impl
-    public void testAStream() throws XMLStreamException
+    public void testAStream()
+        throws Exception
     {
-        String doc = "<a>foo</a>";
+        String doc = "<a x='y'>food</a>";
         StringReader sr = new StringReader(doc);
         final XMLStreamReader reader =
             XMLInputFactory.newInstance().createXMLStreamReader(sr);
@@ -137,9 +141,10 @@ public class MarshalTests extends TestCase
         com.mytest.MyClass mc = new com.mytest.MyClass();
         mc.setMyatt("attval");
         com.mytest.YourClass myelt = new com.mytest.YourClass();
-        myelt.setAttrib(432.3432f);
+        myelt.setAttrib(999.777f);
         myelt.setMyFloat(5555.4444f);
-        myelt.setMyClass(new com.mytest.MyClass());
+//        myelt.setMyClass(new com.mytest.MyClass());
+        myelt.setMyClass(null);
         mc.setMyelt(myelt);
 
 
@@ -163,21 +168,139 @@ public class MarshalTests extends TestCase
 
         System.out.println("=======IN-OBJ: " + mc);
 
-//        dumpReader(reader);
+        dumpReader(reader);
+    }
+
+
+    public void DISABLED_testByNameMarshalPerf()
+        throws Exception
+    {
+        final int trials = 10;
+
+        Random rnd = new Random();
+
+        com.mytest.MyClass top_obj = new com.mytest.MyClass();
+
+        final int depth = 4;
+        com.mytest.MyClass curr = top_obj;
+
+        for (int i = 0; i < depth; i++) {
+            com.mytest.YourClass myelt = new com.mytest.YourClass();
+            myelt.setAttrib(rnd.nextFloat());
+            myelt.setMyFloat(rnd.nextFloat());
+            final com.mytest.MyClass my_c = new com.mytest.MyClass();
+            myelt.setMyClass(my_c);
+            curr.setMyelt(myelt);
+            curr.setMyatt("STR" + rnd.nextInt());
+            curr = my_c;
+        }
+
+        System.out.println("top_obj = " + top_obj);
+
+        BindingConfigDocument bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.createBindingContext(bcdoc);
+
+        Marshaller m = bindingContext.createMarshaller();
+
+        EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
+        final ArrayList errors = new ArrayList();
+
+
+        final String javaType = "com.mytest.MyClass";
+        final QName schemaType = new QName("java:com.mytest", "MyClass");
+        final QName elem_name = new QName("java:com.mytest", "load");
+        final String class_name = top_obj.getClass().getName();
 
         Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
+
+        Object out_obj = null;
+        final long before_millis = System.currentTimeMillis();
+        for (int i = 0; i < trials; i++) {
+            errors.clear();
+
+            MarshalContext ctx =
+                bindingContext.createMarshallContext(namespaceContext, errors);
+
+            final XMLStreamReader reader =
+                m.marshallType(top_obj, elem_name,
+                               schemaType,
+                               class_name,
+                               ctx);
+
+            //TODO: remove hard coded values
+
+            UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader, errors);
+            out_obj = unmarshaller.unmarshallType(schemaType, javaType, umctx);
+        }
+        final long after_millis = System.currentTimeMillis();
+        final long diff = (after_millis - before_millis);
+        System.out.println(" out_obj = " + top_obj);
+        Assert.assertEquals(top_obj, out_obj);
+        System.out.println("milliseconds: " + diff + " trials: " + trials);
+        System.out.println("milliseconds PER trial: " + (diff / (double)trials));
+    }
+
+
+    public void testJavaToSchemaToJava()
+        throws Exception
+    {
+        Random rnd = new Random();
+
+        com.mytest.MyClass top_obj = new com.mytest.MyClass();
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(rnd.nextFloat());
+        myelt.setMyFloat(rnd.nextFloat());
+        final com.mytest.MyClass my_c = new com.mytest.MyClass();
+//        myelt.setMyClass(my_c);
+        myelt.setMyClass(null);
+        top_obj.setMyelt(myelt);
+//        curr.setMyatt("STR" + rnd.nextInt());
+        top_obj.setMyatt(null);
+
+
+        System.out.println("top_obj = " + top_obj);
+
+        BindingConfigDocument bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.createBindingContext(bcdoc);
+
+        Marshaller m = bindingContext.createMarshaller();
+
+        EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
+        final ArrayList errors = new ArrayList();
+
+
         //TODO: remove hard coded values
         final String javaType = "com.mytest.MyClass";
         final QName schemaType = new QName("java:com.mytest", "MyClass");
+        final QName elem_name = new QName("java:com.mytest", "load");
+        final String class_name = top_obj.getClass().getName();
+
+        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
+
+        Object out_obj = null;
+        errors.clear();
+
+        MarshalContext ctx =
+            bindingContext.createMarshallContext(namespaceContext, errors);
+
+        final XMLStreamReader reader =
+            m.marshallType(top_obj, elem_name,
+                           schemaType,
+                           class_name,
+                           ctx);
+
         UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader, errors);
-        Object out = unmarshaller.unmarshallType(schemaType, javaType, umctx);
-        System.out.println("======OUT-OBJ: " + out);
-
-
+        out_obj = unmarshaller.unmarshallType(schemaType, javaType, umctx);
+        System.out.println(" out_obj = " + top_obj);
+        Assert.assertEquals(top_obj, out_obj);
     }
 
     private static void dumpReader(final XMLStreamReader reader)
-        throws XMLStreamException
+        throws XMLStreamException, XmlException, IOException
     {
         final boolean write_doc = true;
         if (write_doc) {
@@ -186,15 +309,13 @@ public class MarshalTests extends TestCase
                 XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
 
             //NOTE: next two lines depend on the 173_ri to even compile
-            com.bea.xml.stream.ReaderToWriter rtow =
-                new com.bea.xml.stream.ReaderToWriter(xsw);
-            rtow.writeAll(reader);
-            rtow.write(reader); //make up for bug in ReaderToWriter for now
+            XmlReaderToWriter.writeAll(reader, xsw);
 
             xsw.close();
 
-            System.out.println("doc = " + sw.getBuffer());
-
+            final String xmldoc = sw.getBuffer().toString();
+            System.out.println("DOC:");
+            System.out.println(PrettyPrinter.indent(xmldoc));
         } else {
             int i = 0;
             System.out.println((i++) + "\tSTATE: " + XmlStreamUtils.printEvent(reader));

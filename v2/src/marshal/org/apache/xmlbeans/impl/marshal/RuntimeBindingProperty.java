@@ -67,6 +67,8 @@ interface RuntimeBindingProperty
     
     QName getName();
 
+    boolean isAttribute();
+
     TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context);
 
     void fill(Object inter, Object prop_obj);
@@ -75,5 +77,7 @@ interface RuntimeBindingProperty
     CharSequence getLexical(Object parent, MarshalContext context);
 
     Object getValue(Object parentObject, MarshalContext context);
+    
+    boolean isSet(Object parentObject, MarshalContext context);
 
 }

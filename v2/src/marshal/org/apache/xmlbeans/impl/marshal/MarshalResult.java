@@ -71,10 +71,15 @@ import java.util.Stack;
 
 final class MarshalResult implements XMLStreamReader
 {
+    private final MarshalContext context;
+
+    //state fields
     private XmlTypeVisitor currVisitor;
     private final Stack visitorStack = new Stack();
-    private final MarshalContext context;
     private int currentEventType = XMLStreamReader.START_ELEMENT;
+    private boolean initedAttributes = false;
+
+    private static final String ATTRIBUTE_XML_TYPE = "CDATA";
 
     MarshalResult(RuntimeBindingProperty property, Object obj,
                   MarshalContext context)
@@ -147,6 +152,7 @@ final class MarshalResult implements XMLStreamReader
     {
         visitorStack.push(v);
         context.getNamespaceContext().openScope();
+        initedAttributes = false;
     }
 
     private XmlTypeVisitor popVisitor()
@@ -174,9 +180,6 @@ final class MarshalResult implements XMLStreamReader
 
     public boolean hasNext() throws XMLStreamException
     {
-
-//        return !visitorStack.isEmpty();
-
         if (visitorStack.isEmpty()) {
             return (currVisitor.getState() != XmlTypeVisitor.END);
         } else {
@@ -216,62 +219,75 @@ final class MarshalResult implements XMLStreamReader
 
     public String getAttributeValue(String s, String s1)
     {
+        initAttributes();
         throw new UnsupportedOperationException("UNIMPLEMENTED");
     }
 
     public int getAttributeCount()
     {
+        initAttributes();
         return currVisitor.getAttributeCount();
     }
 
     public QName getAttributeName(int i)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        initAttributes();
+        return currVisitor.getAttributeName(i);
     }
 
     public String getAttributeNamespace(int i)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        initAttributes();
+        return getAttributeName(i).getNamespaceURI();
     }
 
     public String getAttributeLocalName(int i)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        initAttributes();
+        return getAttributeName(i).getLocalPart();
     }
 
     public String getAttributePrefix(int i)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        initAttributes();
+        return getAttributeName(i).getPrefix();
     }
 
     public String getAttributeType(int i)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        attributeRangeCheck(i);
+        return ATTRIBUTE_XML_TYPE;
     }
 
     public String getAttributeValue(int i)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        initAttributes();
+        return currVisitor.getAttributeValue(i);
     }
 
     public boolean isAttributeSpecified(int i)
     {
+        initAttributes();
+
         throw new UnsupportedOperationException("UNIMPLEMENTED");
     }
 
     public int getNamespaceCount()
     {
+        initAttributes();
         return context.getNamespaceContext().getCurrentScopeNamespaceCount();
     }
 
 
     public String getNamespacePrefix(int i)
     {
+        initAttributes();
         return context.getNamespaceContext().getCurrentScopeNamespacePrefix(i);
     }
 
     public String getNamespaceURI(int i)
     {
+        initAttributes();
         return context.getNamespaceContext().getCurrentScopeNamespaceURI(i);
     }
 
@@ -382,6 +398,27 @@ final class MarshalResult implements XMLStreamReader
     {
         throw new IllegalStateException();
     }
+
+    private void initAttributes()
+    {
+        if (!initedAttributes) {
+            currVisitor.initAttributes();
+            initedAttributes = true;
+        }
+    }
+
+    private void attributeRangeCheck(int i)
+    {
+        final int att_cnt = getAttributeCount();
+        if (i >= att_cnt) {
+            String msg = "index" + i + " invalid. " +
+                " attribute count is " + att_cnt;
+            throw new IndexOutOfBoundsException(msg);
+        }
+    }
+
+
+
 
     public String toString()
     {

@@ -93,6 +93,10 @@ abstract class XmlTypeVisitor
 
     protected abstract QName getName();
 
+    //guaranteed to be called before any getAttribute* or getNamespace* method
+    protected void initAttributes() {
+    }
+
     protected abstract int getAttributeCount();
 
     protected abstract String getAttributeValue(int idx);
@@ -106,6 +110,20 @@ abstract class XmlTypeVisitor
         return this.getClass().getName() +
             " prop=" + bindingProperty.getName() +
             " type=" + bindingProperty.getType().getName();
+    }
+
+    protected QName fillPrefix(final QName pname)
+    {
+        final String uri = pname.getNamespaceURI();
+
+        assert uri != null;  //QName's should use "" for no namespace
+
+        if (uri.length() == 0) {
+            return new QName(pname.getLocalPart());
+        } else {
+            String prefix = marshalContext.ensurePrefix(uri);
+            return new QName(uri, pname.getLocalPart(), prefix);
+        }
     }
 
 

@@ -83,6 +83,11 @@ class RuntimeGlobalProperty
         return rootElement;
     }
 
+    public boolean isAttribute()
+    {
+        return false;
+    }
+
     public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context)
     {
         throw new UnsupportedOperationException();
@@ -112,5 +117,10 @@ class RuntimeGlobalProperty
     public Object getValue(Object parent_obj, MarshalContext context)
     {
         throw new AssertionError("UNIMP: " + this);
+    }
+
+    public boolean isSet(Object parentObject, MarshalContext context)
+    {
+        return true;
     }
 }

@@ -70,6 +70,9 @@ final class MarshalStreamUtils
     static final String XSI_TYPE_ATTR = "type";
     static final String XSI_NIL_ATTR = "nil";
 
+    static final QName XSI_NIL_QNAME = new QName(XSI_NS, XSI_NIL_ATTR);
+
+
     //more efficient (hopefully) version of XmlStreamReader.getElementText()
     //TODO: plenty of room for optimizations here...
     static CharSequence getContent(XMLStreamReader reader, Collection errors)
