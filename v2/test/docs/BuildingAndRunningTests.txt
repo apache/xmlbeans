@@ -3,17 +3,18 @@ README:
 Requirements:
 * The Apache XmlBeans source from CVS.
 * Ant version 1.6 or higher
-* JAVA_HOME
-  ANT_HOME (Requires Ant 1.6 or higher) are set
+* Ensure  JAVA_HOME and ANT_HOME (Requires Ant 1.6 or higher) are set up in your environment
 
 BUILDING TESTS:
 * Change to xml-xmlbeans\v2 in the CVS download location.
-
-* Edit xbeanenv.cmd|sh and set the following variables
-  
-
 * To build tests run
   ant testbuild
+
+BUILING AND RUNNING CHECKIN TESTS:
+(NOTE: does not perform a checkin, just runs tests)
+* Change to xml-xmlbeans\v2 in the CVS download location.
+* build xml-beans
+* run "ant checkintest"
 
 
 Additional build sub-targets
@@ -45,6 +46,9 @@ The following targets are to be executed from the same directory as the build ta
         best to have the leading **/ in the expression.
         To run a single test try "**/test/package/TestClass"
 
+ Example: Run all dom tests
+      ant run.junit -Dtests.spec="**/dom/**" -Dshowoutput=true
+
   showoutput controls if the output from the tests is displayed on the console.
   This is dependent on the Result formatter used by the JUnitX runner. The Xml
   Formatter thats comes with the JUnitX runner captures output and records it in
@@ -68,6 +72,9 @@ Incremental Build:
   ant clean.tests                       // Removes any built test files.
   ant testbuild -Dbuild.area=<area>     // Build only that area.
   ant run.junit [-Dtests.spec="..."]    // Run the tests
+
+  Example: Build all dom tests
+      ant testbuild -Dbuild.area=dom
 
   All the targets can be chained together in one command
   ant clean.tests testbuild -Dbuild.area=... run.junit [-Dtests.spec=...]

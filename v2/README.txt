@@ -12,3 +12,5 @@ Minor bugfixes and small features should be made in the v1 directory; as
 the v2 project ramps up, we all will need to make sure that fixes that
 are applicable to both v1 and v2 are merged into both trees.
 
+The test folder under v2 has a bunch of tests checked in whose aim is to test the xbean product. The test folder has a readme.txt on how to run the tests and what tests needs to be run before checkining in code.
+
