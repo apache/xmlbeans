@@ -73,6 +73,11 @@ final class ScopedNamespaceContext
     private final Stack scopeStack;
     private LLNamespaceContext current = null;
 
+    private static final String XML_NS = "http://www.w3.org/XML/1998/namespace";
+    private static final String XMLNS_URI = "http://www.w3.org/2000/xmlns/";
+    private static final String XML_PREFIX = "xml";
+    private static final String XMLNS_PREFIX = "xmlns";
+
     public ScopedNamespaceContext()
     {
         this(null, new Stack());
@@ -86,7 +91,7 @@ final class ScopedNamespaceContext
 
     public ScopedNamespaceContext(NamespaceContext root_nsctx)
     {
-        //TODO: copy initial context!
+        //TODO: copy or use initial context!
         this(null, new Stack());
     }
 
@@ -98,6 +103,13 @@ final class ScopedNamespaceContext
 
     public String getNamespaceURI(String prefix)
     {
+        //two special cases from JSR 173
+        if (XML_PREFIX.equals(prefix))
+            return XML_NS;
+
+        if (XMLNS_PREFIX.equals(prefix))
+            return XMLNS_URI;
+
         if (current == null) return null;
 
         return current.getNamespaceURI(prefix);
@@ -105,6 +117,15 @@ final class ScopedNamespaceContext
 
     public String getPrefix(String namespaceURI)
     {
+        //two special cases from JSR 173
+
+        if (XML_NS.equals(namespaceURI))
+            return XML_PREFIX;
+
+        if (XMLNS_URI.equals(namespaceURI))
+            return XMLNS_PREFIX;
+
+
         if (current == null)
             return null;
         else

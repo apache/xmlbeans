@@ -83,6 +83,7 @@ public abstract class ObjectAccumulator
         returnCollectionForArray = return_collection;
 
         store = createNewStore(initial_capacity);
+        assert store != null;
     }
 
     public ObjectAccumulator(Class component_type,
