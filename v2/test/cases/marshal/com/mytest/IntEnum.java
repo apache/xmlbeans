@@ -54,66 +54,107 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package com.mytest;
 
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
-final class SimpleContentBeanMarshaller implements TypeMarshaller
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
+
+
+public class IntEnum
+    implements java.io.Serializable
 {
-    private final SimpleContentRuntimeBindingType simpleContentType;
-    private final TypeMarshaller contentMarshaller;
 
-    public SimpleContentBeanMarshaller(SimpleContentRuntimeBindingType rtt,
-                                       RuntimeBindingTypeTable table,
-                                       BindingLoader loader)
-        throws XmlException
+    private int __value;
+
+    protected IntEnum(int value)
     {
-        simpleContentType = rtt;
-        final BindingType content_binding_type =
-            rtt.getSimpleContentProperty().getRuntimeBindingType().getBindingType();
-        final TypeMarshaller marshaller =
-            table.lookupMarshaller(content_binding_type, loader);
-        if (marshaller == null) {
-            String e = "failed to find marshaller for " + content_binding_type;
-            throw new AssertionError(e);
-        }
-        contentMarshaller = marshaller;
+        __value = value;
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalResult result)
-        throws XmlException
+    public static final int _value1 = 55;
+    public static final com.mytest.IntEnum value1 = new com.mytest.IntEnum(_value1);
+
+    public static final int _value2 = 33;
+    public static final com.mytest.IntEnum value2 = new com.mytest.IntEnum(_value2);
+
+    public static final int _value3 = 44;
+    public static final com.mytest.IntEnum value3 = new com.mytest.IntEnum(_value3);
+
+
+    // Gets the value for a enumerated value
+    public int getValue()
     {
-        final RuntimeBindingProperty simple_content_prop =
-            simpleContentType.getSimpleContentProperty();
-
-        final Object simple_content_val =
-            simple_content_prop.getValue(value, result);
-
-        final RuntimeBindingType prop_rtt =
-            simple_content_prop.getRuntimeBindingType();
-
-        final RuntimeBindingType actualRuntimeType =
-            MarshalResult.findActualRuntimeType(simple_content_val,
-                                                prop_rtt, result);
-
-        TypeMarshaller content_marshaller;
-        if (actualRuntimeType == prop_rtt) {
-            content_marshaller = contentMarshaller;
-        } else {
-            RuntimeBindingTypeTable table = result.getTypeTable();
-            BindingLoader loader = result.getBindingLoader();
-            content_marshaller =
-                table.lookupMarshaller(prop_rtt.getBindingType(), loader);
-            if (content_marshaller == null) {
-                String msg = "unable to find marshaller for " +
-                    prop_rtt.getBindingType() + ".  Using default marshaller";
-                result.addWarning(msg);
-                content_marshaller = contentMarshaller;
-            }
-        }
-        return content_marshaller.print(simple_content_val, result);
+        return __value;
     }
+
+
+    // Gets enumeration with a specific value
+    // throws java.lang.IllegalArgumentException if
+    // any invalid value is specified
+    public static com.mytest.IntEnum fromValue(int value)
+    {
+        switch (value) {
+            case _value1:
+                return value1;
+            case _value2:
+                return value2;
+            case _value3:
+                return value3;
+            default:
+                throw new java.lang.IllegalArgumentException(invalidValueMsg("" + value));
+        }
+
+    }
+
+    private static java.lang.String invalidValueMsg(java.lang.String value)
+    {
+        java.lang.String msg = "invalid enumeration value: " + value;
+        return msg;
+    }
+
+
+    // Gets enumeration from a String
+    // throws java.lang.IllegalArgumentException if
+    // any invalid value is specified
+    public static com.mytest.IntEnum fromString(java.lang.String value)
+    {
+        int __tmp = XsTypeConverter.lexInt(value);
+        return fromValue(__tmp);
+    }
+
+
+    // Returns String representation of the enumerated value
+    public java.lang.String toString()
+    {
+        return java.lang.String.valueOf(__value);
+    }
+
+    public boolean equals(java.lang.Object obj)
+    {
+        if (obj instanceof com.mytest.IntEnum) {
+            int tmp_val = ((com.mytest.IntEnum)obj).getValue();
+            return (tmp_val == __value);
+
+        }
+        return false;
+    }
+
+
+    public int hashCode()
+    {
+        int __hash__result__ = 17;
+        __hash__result__ = 37 * __hash__result__ + __value;
+
+        return __hash__result__;
+    }
+
+    private java.lang.Object readResolve()
+        throws java.io.ObjectStreamException
+    {
+        return fromValue(__value);
+    }
+
+
 }
+
+

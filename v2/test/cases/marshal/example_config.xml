@@ -213,6 +213,49 @@
             </bin:qname-property>
 
 
+            <bin:qname-property>
+                <bin:xmlcomponent>t=ModeEnum@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>com.mytest.ModeEnum</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getModeEnum</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setModeEnum</bin:method-name>
+                    <bin:param-type>com.mytest.ModeEnum</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:modeEnum</bin:qname>
+<!--                <bin:attribute>true</bin:attribute>-->
+            </bin:qname-property>
+
+
+            <bin:qname-property>
+                <bin:xmlcomponent>t=IntEnum@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>com.mytest.IntEnum</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getIntEnum</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setIntEnum</bin:method-name>
+                    <bin:param-type>com.mytest.IntEnum</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:intEnum</bin:qname>
+            </bin:qname-property>
+
+
+            <bin:qname-property>
+                <bin:xmlcomponent>t=IntegerEnum@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>com.mytest.IntegerEnum</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getIntegerEnum</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setIntegerEnum</bin:method-name>
+                    <bin:param-type>com.mytest.IntegerEnum</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:integerEnum</bin:qname>
+            </bin:qname-property>
+
+
 
         </bin:binding-type>
 
@@ -246,6 +289,60 @@
                 <bin:qname>someAtt</bin:qname>
                 <bin:attribute>true</bin:attribute>
             </bin:attribute-property>
+        </bin:binding-type>
+
+        <bin:binding-type xsi:type="bin:jaxrpc-enum-type">
+            <bin:xmlcomponent>t=IntEnum@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>com.mytest.IntEnum</bin:javatype>
+            <bin:base-xmlcomponent>t=int@http://www.w3.org/2001/XMLSchema</bin:base-xmlcomponent>
+            <bin:base-javatype>int</bin:base-javatype>
+            <bin:getValue-method>
+                <bin:method-name>getValue</bin:method-name>
+            </bin:getValue-method>
+            <bin:fromValue-method>
+                <bin:method-name>fromValue</bin:method-name>
+                <bin:param-type>int</bin:param-type>
+            </bin:fromValue-method>
+            <bin:fromString-method>
+                <bin:method-name>fromString</bin:method-name>
+            </bin:fromString-method>
+        </bin:binding-type>
+
+        <bin:binding-type xsi:type="bin:jaxrpc-enum-type">
+            <bin:xmlcomponent>t=IntegerEnum@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>com.mytest.IntegerEnum</bin:javatype>
+            <bin:base-xmlcomponent>t=integer@http://www.w3.org/2001/XMLSchema</bin:base-xmlcomponent>
+            <bin:base-javatype>java.math.BigInteger</bin:base-javatype>
+            <bin:getValue-method>
+                <bin:method-name>getValue</bin:method-name>
+            </bin:getValue-method>
+            <bin:fromValue-method>
+                <bin:method-name>fromValue</bin:method-name>
+                <bin:param-type>java.math.BigInteger</bin:param-type>
+            </bin:fromValue-method>
+            <bin:fromString-method>
+                <bin:method-name>fromString</bin:method-name>
+            </bin:fromString-method>
+        </bin:binding-type>
+
+        <bin:binding-type xsi:type="bin:jaxrpc-enum-type">
+            <bin:xmlcomponent>t=ModeEnum@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>com.mytest.ModeEnum</bin:javatype>
+            <bin:base-xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:base-xmlcomponent>
+            <bin:base-javatype>java.lang.String</bin:base-javatype>
+            <bin:getValue-method>
+                <bin:method-name>getValue</bin:method-name>
+            </bin:getValue-method>
+            <bin:fromValue-method>
+                <bin:method-name>fromValue</bin:method-name>
+                <bin:param-type>java.lang.String</bin:param-type>
+            </bin:fromValue-method>
+            <bin:fromString-method>
+                <bin:method-name>fromString</bin:method-name>
+            </bin:fromString-method>
+            <bin:toXML-method>
+                <bin:method-name>toXml</bin:method-name>
+            </bin:toXML-method>
         </bin:binding-type>
 
 

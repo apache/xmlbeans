@@ -89,7 +89,7 @@ public class ByNameBean extends BindingType {
    */
   public void addProperty(QNameProperty newProp) {
     if (newProp.isAttribute() ? attProps.containsKey(newProp.getQName()) : eltProps.containsKey(newProp.getQName()))
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("duplicate property: " + newProp.getQName() + " in type " + this);
 
     props.add(newProp);
     if (newProp.isAttribute())

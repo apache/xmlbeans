@@ -19,6 +19,9 @@ import com.mytest.MyClass;
 import com.mytest.MySubClass;
 import com.mytest.MySubSubClass;
 import com.mytest.SimpleContentExample;
+import com.mytest.ModeEnum;
+import com.mytest.IntegerEnum;
+import com.mytest.IntEnum;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -343,6 +346,8 @@ public class MarshalTests extends TestCase
         se.setSimpleContent("someSimpleContentOkay");
         myelt.setSimpleContentExample(se);
 
+        myelt.setModeEnum(ModeEnum.On);
+
         mc.setMyelt(myelt);
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
@@ -511,7 +516,7 @@ public class MarshalTests extends TestCase
         //the test still has some value aside from perf
         //in that it can test large stack depths.
         final int trials = 1;
-        final int depth = 5;
+        final int depth = 3;
         final int boolean_array_size = 5;
 
         Random rnd = new Random();
@@ -533,6 +538,9 @@ public class MarshalTests extends TestCase
             myelt.setBooleanArray(bools);
             myelt.setWrappedArrayOne(new String[]{"W1" + rnd.nextInt(), null, "W2" + rnd.nextInt()});
             myelt.setWrappedArrayTwo(null);
+            myelt.setModeEnum(ModeEnum.Off);
+            myelt.setIntegerEnum(IntegerEnum.value2);
+            myelt.setIntEnum(IntEnum.value3);
             final com.mytest.MyClass my_c = new com.mytest.MyClass();
             myelt.setMyClass(my_c);
             curr.setMyelt(myelt);

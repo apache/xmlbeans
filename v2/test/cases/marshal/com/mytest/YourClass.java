@@ -50,6 +50,12 @@ public class YourClass
 
     private SimpleContentExample simpleContentExample;
 
+
+    private ModeEnum modeEnum;
+    private IntEnum intEnum;
+    private IntegerEnum integerEnum;
+
+
     //hack alert
     static final Random RND = new Random();
 
@@ -250,6 +256,36 @@ public class YourClass
         this.simpleContentExample = simpleContentExample;
     }
 
+    public ModeEnum getModeEnum()
+    {
+        return modeEnum;
+    }
+
+    public void setModeEnum(ModeEnum modeEnum)
+    {
+        this.modeEnum = modeEnum;
+    }
+
+    public IntEnum getIntEnum()
+    {
+        return intEnum;
+    }
+
+    public void setIntEnum(IntEnum intEnum)
+    {
+        this.intEnum = intEnum;
+    }
+
+    public IntegerEnum getIntegerEnum()
+    {
+        return integerEnum;
+    }
+
+    public void setIntegerEnum(IntegerEnum integerEnum)
+    {
+        this.integerEnum = integerEnum;
+    }
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -277,6 +313,10 @@ public class YourClass
         if (simpleContentExample != null ?
             !simpleContentExample.equals(yourClass.simpleContentExample) : yourClass.simpleContentExample != null)
             return false;
+
+        if (modeEnum != null ? !modeEnum.equals(yourClass.modeEnum) : yourClass.modeEnum != null) return false;
+        if (intEnum != null ? !intEnum.equals(yourClass.intEnum) : yourClass.intEnum != null) return false;
+        if (integerEnum != null ? !integerEnum.equals(yourClass.integerEnum) : yourClass.integerEnum != null) return false;
 
 
         return true;
@@ -306,6 +346,9 @@ public class YourClass
             ", someBool=" + someBool +
             ", qn=" + qn +
             ", qn2=" + qn2 +
+            ", modeEnum=" + modeEnum +
+            ", intEnum=" + intEnum +
+            ", integerEnum=" + integerEnum +
             ", simpleContentExample=" + simpleContentExample +
 //            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
 //            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +

@@ -28,6 +28,7 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
+import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
@@ -684,6 +685,14 @@ final class MarshalResult implements XMLStreamReader
         }
 
         public void visit(SimpleBindingType simpleBindingType)
+            throws XmlException
+        {
+            xmlTypeVisitor = new SimpleTypeVisitor(runtimeBindingProperty,
+                                                   parentObject,
+                                                   marshalResult);
+        }
+
+        public void visit(JaxrpcEnumType jaxrpcEnumType)
             throws XmlException
         {
             xmlTypeVisitor = new SimpleTypeVisitor(runtimeBindingProperty,

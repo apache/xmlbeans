@@ -31,6 +31,9 @@ public interface BindingTypeVisitor
     void visit(SimpleBindingType simpleBindingType)
         throws XmlException;
 
+    void visit(JaxrpcEnumType jaxrpcEnumType)
+        throws XmlException;
+
     void visit(SimpleDocumentBinding simpleDocumentBinding)
         throws XmlException;
 

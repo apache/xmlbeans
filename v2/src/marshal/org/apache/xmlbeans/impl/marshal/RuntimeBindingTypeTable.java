@@ -29,6 +29,7 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
@@ -406,6 +407,11 @@ final class RuntimeBindingTypeTable
                 throw new XmlException("no asif for " + stype);
 
             m = lookupMarshaller(asif_name, loader);
+        } else if (binding_type instanceof JaxrpcEnumType) {
+            JaxrpcEnumType enum_type = (JaxrpcEnumType)binding_type;
+            final JaxrpcEnumRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(enum_type, this, loader);
+            m = new JaxrpcEnumMarsahller(rtt);
         }
 
         if (m != null)
@@ -469,6 +475,17 @@ final class RuntimeBindingTypeTable
             typeUnmarshaller =
                 createSimpleTypeUnmarshaller(simpleBindingType, loader,
                                              runtimeBindingTypeTable);
+        }
+
+        public void visit(JaxrpcEnumType jaxrpcEnumType)
+            throws XmlException
+        {
+            JaxrpcEnumRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(jaxrpcEnumType,
+                                                     runtimeBindingTypeTable,
+                                                     loader);
+
+            typeUnmarshaller = new JaxrpcEnumUnmarshaller(rtt);
         }
 
         public void visit(SimpleDocumentBinding simpleDocumentBinding)

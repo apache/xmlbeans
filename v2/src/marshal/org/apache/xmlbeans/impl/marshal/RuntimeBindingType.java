@@ -323,7 +323,7 @@ abstract class RuntimeBindingType
                 "null value for " + getName() + " class=" + beanClass;
 
             assert marshaller != null :
-                "null marshaller for prop=" + getName() + " class=" +
+                "null marshaller for prop=" + getName() + " java-type=" +
                 beanClass + " propType=" + runtimeBindingType;
 
             return marshaller.print(value, result);

@@ -31,6 +31,7 @@
         </n1:MyClassArray>
 
         <n1:simpleContentExample someAtt="1.23">testing</n1:simpleContentExample>
+        <n1:modeEnum>Off</n1:modeEnum>
 
     </My:Myelt>
 
