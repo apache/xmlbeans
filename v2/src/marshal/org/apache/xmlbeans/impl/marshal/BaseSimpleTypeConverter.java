@@ -83,7 +83,7 @@ abstract class BaseSimpleTypeConverter
         }
         finally {
             assert context.isEndElement();
-            context.next();
+            if (context.hasNext()) context.next();
         }
     }
 
