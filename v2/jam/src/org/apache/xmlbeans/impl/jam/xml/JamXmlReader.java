@@ -16,6 +16,7 @@ package org.apache.xmlbeans.impl.jam.xml;
 
 import org.apache.xmlbeans.impl.jam.internal.CachedClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
+import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
 import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.mutable.MField;
 import org.apache.xmlbeans.impl.jam.mutable.MInvokable;
@@ -117,6 +118,7 @@ import java.net.URISyntaxException;
     while(METHOD.equals(getElementName())) readMethod(clazz);
     readAnnotatedElement(clazz);
     assertEnd(CLASS);
+    ((ClassImpl)clazz).setState(ClassImpl.LOADED);
     nextElement();
   }
 

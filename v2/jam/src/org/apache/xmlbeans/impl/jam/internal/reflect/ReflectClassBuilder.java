@@ -125,8 +125,15 @@ public class ReflectClassBuilder extends JamClassBuilder {
     Class[] ints = src.getInterfaces();
     for(int i=0; i<ints.length; i++) dest.addInterface(ints[i].getName());
     // add the fields
-    Field[] fields = src.getFields();
-    for(int i=0; i<fields.length; i++) populate(dest.addNewField(),fields[i]);
+    Field[] fields = null;
+    try {
+      fields = src.getFields();
+    } catch(Exception ignore) {
+      //FIXME there seems to be some JDK bugs here, workaround for now 180996
+    }
+    if (fields != null) {
+      for(int i=0; i<fields.length; i++) populate(dest.addNewField(),fields[i]);
+    }
     // add the methods
     Method[] methods = src.getDeclaredMethods();
     for(int i=0; i<methods.length; i++) populate(dest.addNewMethod(),methods[i]);

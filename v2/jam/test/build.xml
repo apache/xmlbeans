@@ -1,3 +1,9 @@
+<!-- NOTE: if you get errors about not being able to load the junit
+     task, try copying ../external/lib/junit.jar into your ant/lib 
+     directory.  This seems to be an ant or JDK 1.5 bug, not sure which.
+-->
+
+
 <project name='jam.tests' basedir='.' default='clean_all_test'>
 
 <!-- Build file to build and run JAM tests -->
@@ -13,6 +19,7 @@
   <property name='jsr173ri_jar' value='../../build/lib/jsr173_ri.jar'/>
   <property name='tidy_jar' value='../external/lib/tidy.jar'/>
 
+
   <path id='classpath' >
 
  <!-- use build/classes instead of xbean.jar for develpment convenience -->
@@ -27,6 +34,7 @@
     <pathelement location='${jsr173ri_jar}' />
 
   </path>
+
 
   <property name='classpath-value' refid='classpath'/>
 
