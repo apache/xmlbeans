@@ -45,11 +45,14 @@ public class Repackage
                 failure = true;
         }
         
-        if (failure || sourceDir == null || targetDir == null || repackageSpec == null)
-            throw new RuntimeException("Usage: repackage -repackage [spec] -f [sourcedir] -t [targetdir]");
+        if (failure || repackageSpec == null || (sourceDir == null ^ targetDir == null))
+            throw new RuntimeException("Usage: repackage -repackage [spec] [ -f [sourcedir] -t [targetdir] ]");
         
         _repackager = new Repackager(repackageSpec);
-        
+
+        if (sourceDir==null || targetDir==null)
+            return;
+
         _sourceBase = new File(sourceDir);
         _targetBase = new File(targetDir);
     }
@@ -57,6 +60,12 @@ public class Repackage
     
     public void repackage () throws Exception
     {
+        if (_sourceBase==null || _targetBase==null)
+        {   // read from system.in, write on system.out
+            System.out.println( _repackager.repackage(readInputStream(System.in)).toString() );
+            return;
+        }
+
         _fromPackages = _repackager.getFromPackages();
         _toPackages = _repackager.getToPackages();
         
@@ -341,7 +350,21 @@ public class Repackage
 
         return w.getBuffer();
     }
-    
+
+    StringBuffer readInputStream ( InputStream is )
+        throws IOException
+    {
+        Reader r = new InputStreamReader( is );
+        StringWriter w = new StringWriter();
+
+        copy( r, w );
+
+        w.close();
+        r.close();
+
+        return w.getBuffer();
+    }
+
     public static void copyFile ( File from, File to ) throws IOException
     {
         to.getParentFile().mkdirs();
