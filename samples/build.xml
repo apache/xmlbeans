@@ -21,6 +21,7 @@ limitations under the License.
         clean-SampleTemplate,
         clean-MixedContent,
         clean-OrderMatters,
+        clean-vxsdb,
         clean-SchemaEnum,
         clean-SubstitutionGroup,
         clean-DateTime">
@@ -37,6 +38,10 @@ limitations under the License.
 
     <target name="clean-OrderMatters">
         <ant dir="cursor/OrderMatters" target="clean"/>
+    </target>
+
+    <target name="clean-vxsdb">
+        <ant dir="db/vxsdb" target="clean"/>
     </target>
 
     <target name="clean-SchemaEnum">
@@ -57,6 +62,7 @@ limitations under the License.
         build-SampleTemplate,
         build-MixedContent,
         build-OrderMatters,
+        build-vxsdb,
         build-SchemaEnum,
         build-SubstitutionGroup,
         build-DateTime">
@@ -72,6 +78,10 @@ limitations under the License.
 
     <target name="build-OrderMatters">
         <ant dir="cursor/OrderMatters" target="build"/>
+    </target>
+
+    <target name="build-vxsdb">
+        <ant dir="db/vxsdb" target="build"/>
     </target>
 
     <target name="build-SchemaEnum">
@@ -93,6 +103,7 @@ limitations under the License.
         test-SampleTemplate,
         test-MixedContent,
         test-OrderMatters,
+        test-vxsdb,
         test-SchemaEnum,
         test-SubstitutionGroup,
         test-DateTime">
@@ -108,6 +119,10 @@ limitations under the License.
 
     <target name="test-OrderMatters">
         <ant dir="cursor/OrderMatters" target="test"/>
+    </target>
+
+    <target name="test-vxsdb">
+        <ant dir="db/vxsdb" target="test"/>
     </target>
 
     <target name="test-SchemaEnum">
@@ -128,6 +143,7 @@ limitations under the License.
         dist-SampleTemplate,
         dist-MixedContent,
         dist-OrderMatters,
+        dist-vxsdb,
         dist-SchemaEnum,
         dist-SubstitutionGroup,
         dist-DateTime">
@@ -186,6 +202,21 @@ limitations under the License.
             basedir="cursor"
             includes="OrderMatters/**"
             excludes="OrderMatters/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-vxsdb">
+        <mkdir dir="build"/>
+        <zip destfile="build/vxsdb.zip"
+            basedir="db"
+            includes="vxsdb/**"
+            excludes="vxsdb/build/**"
+            />
+        <tar destfile="build/vxsdb.tgz"
+            basedir="db"
+            includes="vxsdb/**"
+            excludes="vxsdb/build/**"
             compression="gzip"
             />
     </target>
