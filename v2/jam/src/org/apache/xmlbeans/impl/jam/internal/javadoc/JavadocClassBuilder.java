@@ -122,9 +122,7 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     if (src == null) throw new IllegalStateException("null artifact");
     dest.setModifiers(src.modifierSpecifier());
     dest.setIsInterface(src.isInterface());
-    if (mDelegate != null) {
-      dest.setIsEnumType(mDelegate.isEnum(src));
-    }
+    if (mDelegate != null) dest.setIsEnumType(mDelegate.isEnum(src));
     // set the superclass
     ClassDoc s = src.superclass();
     if (s != null) dest.setSuperclass(getFdFor(s));

@@ -52,6 +52,7 @@ public class BaseAnnotationService implements AnnotationService {
     } else {
       mPopulator = new CompositeProxyPopulator(pps);
     }
+    mPopulator.init(asp);
     mMapping = asp.getProxyMapping();
   }
 

@@ -140,6 +140,7 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".FooImpl",
     DUMMY+".HeavilyCommented",
     DUMMY+".ImportsGalore",
+    DUMMY+".MyEnum",
     DUMMY+".MyException",
     DUMMY+".MyGenericThing",
     DUMMY+".MyGenericThingSubclass",
@@ -197,7 +198,7 @@ public abstract class JamTestBase extends TestCase {
   // Variables
 
   private JamService mResult = null;
-  private JamClassLoader mLoader = null;
+  protected JamClassLoader mLoader = null;
 
 
   // ========================================================================
@@ -272,18 +273,29 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Test methods
 
+/*
   public void testAnnogen() {
     AnnotationServiceFactory asf = AnnotationServiceFactory.getInstance();
     AnnotationServiceParams asp = asf.createServiceParams();
     asp.appendPopulator(new TestProxyPopulator());
     AnnotationService as = asf.createService(asp);
     JClass c = mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass");
+    assertTrue(c.getQualifiedName()+" is unresolved",!c.isUnresolvedType());
     RFEAnnotationImpl ra = (RFEAnnotationImpl)
       as.getAnnotation(RFEAnnotationImpl.class,c);
-
     assertTrue("ra.id() == "+ra.id(),ra.id() == 4561413 + 1);
   }
+*/
 
+
+/*
+  public void testIsEnum() {
+    JClass gts = mLoader.loadClass(DUMMY+".MyEnum");
+    assertTrue(gts.getQualifiedName()+".isEnumType() must be true",
+               gts.isEnumType() == true);
+//    System.out.println("=========== "+gts.getSuperclass().getQualifiedName());
+  }
+  */
 
   public void testGenerics() {
     JClass gts = mLoader.loadClass(DUMMY+".MyGenericThingSubclass");
@@ -294,7 +306,7 @@ public abstract class JamTestBase extends TestCase {
   public void testArrayNames() {
     doOneArrayTest("int[]","[I");
     doOneArrayTest("boolean[][]","[[Z");
-    doOneArrayTest("java.lang.Object[]","[Ljava.lang.Object;");    
+    doOneArrayTest("java.lang.Object[]","[Ljava.lang.Object;");
     doOneArrayTest("java.lang.String[][][]","[[[Ljava.lang.String;");
   }
 

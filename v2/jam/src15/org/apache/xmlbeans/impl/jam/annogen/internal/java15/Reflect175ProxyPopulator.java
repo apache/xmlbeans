@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.annogen.internal.reflect175;
+package org.apache.xmlbeans.impl.jam.annogen.internal.java15;
 
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
@@ -51,6 +51,7 @@ public class Reflect175ProxyPopulator implements ProxyPopulator {
                             Class annoType,
                             AnnotationProxy targetInstance)
   {
+    System.out.println("populating proxy !! "+id+"  "+annoType.getName());
     if (!(id instanceof ReflectElementId)) {
       throw new IllegalArgumentException("This case is NYI");
     }
