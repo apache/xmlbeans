@@ -147,5 +147,12 @@ public abstract interface JElement {
    */
   public JComment[] getComments();
 
-
+  /**
+   * <p>This is not something you want to mess with.  It's here only for the
+   * benefit of some JAM implementations which need a handle back to the
+   * actual implementation-specific object which is being proxied by this
+   * JElement.</p>
+   * @return
+   */
+  public Object getArtifact();
 }

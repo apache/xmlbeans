@@ -35,6 +35,7 @@ public abstract class EElementImpl implements EElement {
   private JClassLoader mClassLoader;
   private List mAnnotations = null;
   private EComment mComment = null;
+  private Object mArtifact = null;
 
   // ========================================================================
   // Constructors
@@ -117,6 +118,10 @@ public abstract class EElementImpl implements EElement {
     if (mAnnotations != null) mAnnotations.remove(ann);
   }
 
+  public void setArtifact(Object o) {
+    mArtifact = o;
+  }
+
   public EAnnotation[] getEditableAnnotations() {
     if (mAnnotations == null) return new EAnnotation[0];
     EAnnotation[] out = new EAnnotation[mAnnotations.size()];
@@ -133,6 +138,8 @@ public abstract class EElementImpl implements EElement {
     }
     return null;
   }
+
+
 
   // ========================================================================
   // Public methods & JClass impl
@@ -178,5 +185,9 @@ public abstract class EElementImpl implements EElement {
   public JComment[] getComments() {
     JComment c = getComment();
     return (c == null) ? new JComment[0] : new JComment[] {c};
+  }
+
+  public Object getArtifact() {
+    return mArtifact;
   }
 }
