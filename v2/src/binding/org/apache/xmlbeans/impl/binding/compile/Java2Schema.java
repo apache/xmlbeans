@@ -140,6 +140,11 @@ public class Java2Schema {
                                   BuiltinBindingLoader.getInstance()});
     mSchemaDocument = SchemaDocument.Factory.newInstance();
     mSchema = mSchemaDocument.addNewSchema();
+    if (classes.length > 0) {
+      //FIXME how should we determine the targetnamespace for the schema?
+      //here we just derive it from the first class in the list
+      mSchema.setTargetNamespace(getTargetNamespace(classes[0]));
+    }
     for(int i=0; i<classes.length; i++) getBindingTypeFor(classes[i]);
     tb.addSchema(mSchemaDocument);
   }
