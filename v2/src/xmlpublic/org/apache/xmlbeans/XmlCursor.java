@@ -268,15 +268,17 @@ public interface XmlCursor extends XmlTokenSource
 
     /**
      * Executes the specified XPath expression against the XML that this 
-     * cursor is in.  The cursors position does not change.  To navigate to the
-     * selections, use hasNextSelection and toNextSelection (similar to
-     * java.util.Iterator).<br/><br/>
+     * cursor is in.  The cursor's position does not change.  To navigate to the
+     * selections, use {@link #hasNextSelection} and {@link #toNextSelection} (similar to
+     * {@link java.util.Iterator}).<br/><br/>
      * 
      * The root referred to by the expression should be given as 
      * a dot. The following is an example path expression:
      * <pre>
-     * cursor.selectPath("./purchase-order/line-item[price <= 20.00]");
+     * cursor.selectPath("./purchase-order/line-item");
      * </pre>
+     *
+     * Note that this method does not support top-level XPath functions.
      * 
      * @param  path  The path expression to execute.
      * @throws  XmlRuntimeException  If the query expression is invalid.
@@ -292,8 +294,10 @@ public interface XmlCursor extends XmlTokenSource
      * The root referred to by the expression should be given as 
      * a dot. The following is an example path expression:
      * <pre>
-     * cursor.selectPath("./purchase-order/line-item[price <= 20.00]");
+     * cursor.selectPath("./purchase-order/line-item");
      * </pre>
+     *
+     * Note that this method does not support top-level XPath functions.
      * 
      * @param  path  The path expression to execute.
      * @param  options  Options for the query. For example, you can call 
@@ -314,7 +318,7 @@ public interface XmlCursor extends XmlTokenSource
     
     /**
      * Moves this cursor to the next location in the selection, 
-     * if any. See the selectPath() and addToSelection() methods.
+     * if any. See the {@link #selectPath} and {@link #addToSelection} methods.
      * 
      * @return  true if the cursor moved; otherwise, false.
      */
@@ -1002,18 +1006,19 @@ public interface XmlCursor extends XmlTokenSource
      * text of all the element children, recursing in first-to-last
      * depthfirst order.<br/><br/>
      *
-     * For attributes, this returns the attribute value.<br/><br/>
+     * For attributes, including namespaces, this returns the attribute value.<br/><br/>
      *
-     * For comments and processing instructions, this returns the text contents 
+     * For comments and processing instructions, this returns the text content 
      * of the comment or PI, not including the delimiting sequences &lt;!-- --&gt;, &lt;? ?&gt;.
+     * For a PI, the name of the PI is also not included.
      *<br/><br/>
-     * If the current token is not a START, STARTDOC, TEXT, ATTR, COMMENT, or
-     * PROCINST, this returns null. The value of an empty tag is the
-     * empty string.
+     * The value of an empty tag is the empty string.<br/><br/>
+     *
+     * If the current token is END or ENDDOC, this throws an {@link java.lang.IllegalStateException}.<br/><br/>     
      * 
-     * @return  The text value of the current token, if the token's type is
-     * START, STARTDOC, TEXT, ATTR, COMMENT, or PROCINST; null if the type is
-     * END, ENDDOC, NONE, or NAMESPACE.
+     * @return  The text value of the current token if the token's type is
+     * START, STARTDOC, TEXT, ATTR, COMMENT, PROCINST, or NAMESPACE; null 
+     * if the type is NONE.
      */
 
     String getTextValue ( );
@@ -1031,20 +1036,21 @@ public interface XmlCursor extends XmlTokenSource
      * text of all the element children, recursing in first-to-last
      * depthfirst order.<br/><br/>
      *
-     * For attributes, this returns the attribute value.<br/><br/>
+     * For attributes, including namespaces, this returns the attribute value.<br/><br/>
      *
      * For comments and processing instructions, this returns the text contents 
-     * of the comment or PI, not including the delimiting sequences &lt;!-- --&gt;, &lt;? ?&gt;.
-     * <br/><br/>
+     * of the comment or PI, not including the delimiting sequences &lt;!-- --&gt;, &lt;? ?&gt;. For
+     * a PI, the text will not include the name of the PI.<br/><br/>
      * 
-     * If the current token is END, ENDDOC, or NAMESPACE, this returns 0. 
-     * The value of an empty tag is the empty string.
+     * If the current token is END or ENDDOC, this throws an {@link java.lang.IllegalStateException}.<br/><br/>
+     *
+     * The value of an empty tag is the empty string.<br/><br/>
      * 
      * @param  returnedChars  A character array to hold the returned characters.
      * @param  offset  The position within returnedChars to which the first of the 
      * returned characters should be copied.
      * @param  maxCharacterCount  The maximum number of characters after this cursor's 
-     * location to copy.
+     * location to copy. A negative value specifies that all characters should be copied.
      * @return  The actual number of characters copied; 0 if no characters 
      * were copied.
      */
