@@ -72,9 +72,10 @@
   </target>
 
   <target name="jaxen.jar" depends="check.jaxen.jar, dirs" unless="jaxen.jar.exists">
-    <get dest="build/lib/jaxen.jar"
+    <!--get dest="build/lib/jaxen.jar"
          src="http://www.ibiblio.org/maven/jaxen/jars/jaxen-1.1-beta-2.jar"
-         verbose="true" usetimestamp="true" ignoreerrors="true"/>
+         verbose="true" usetimestamp="true" ignoreerrors="true"/-->
+    <copy file="external/lib/jaxen-1.1-beta-2.jar" tofile="build/lib/jaxen.jar" />
   </target>
 
     <!-- get resolver.jar -->
@@ -156,7 +157,6 @@
         <pathelement location="build/private/lib/schemas.jar"/>
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
-        <pathelement location="build/private/lib/xbean_xpath.jar"/>
         <pathelement location="build/lib/jaxen.jar"/>
         <pathelement location="build/private/classes/marshal"/>
       </classpath>
@@ -263,7 +263,6 @@
     <pathelement location="build/private/lib/schemas.jar"/>
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
-    <pathelement location="build/private/lib/xbean_xpath.jar"/>
     <pathelement location="build/private/classes/marshal"/>
     <pathelement location="build/lib/jaxen.jar"/>
     <pathelement location="build/classes/xmlinputstream"/>
@@ -277,7 +276,7 @@
   <!-- builddrt target ============================================== -->
 
   <target name="drt.classes" depends="dirs, easypo.jar, numerals.jar, schemas.jar, xstypes.jar,
-        enumtest.jar, xbean_xpath.jar, test_marshal.classes, jsr173_ri.jar">
+        enumtest.jar, test_marshal.classes, jsr173_ri.jar">
     <mkdir dir="build/private/classes/drt"/>
     <javac
        srcdir="test/src/drt"
@@ -615,7 +614,8 @@
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
-                 xmlstore.classes, newstore.classes, newstore2.classes, saaj_api.classes, binding.classes, marshal.classes,
+                 xmlstore.classes, newstore.classes, newstore2.classes,
+                 saaj_api.classes, binding.classes, marshal.classes, xpath.classes,
                  oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes, resolver.jar">
     <jar jarfile="build/lib/xbean.jar" index="true">
@@ -637,6 +637,7 @@
       <fileset dir="build/classes/marshal"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="build/classes/jam"/>
+      <fileset dir="build/classes/xpath"/>
       <fileset dir="src/license"/>
     </jar>
   </target>
@@ -1092,28 +1093,25 @@
 
   <!-- xpath target ============================================= -->
 
-  <target name="xpath.classes" depends="dirs, xmlpublic.jar, jaxen.jar">
-    <mkdir dir="build/private/classes/xpath"/>
+  <target name="xpath.classes" depends="dirs, xmlpublic.jar, jaxen.jar, xmlstore.classes">
+    <mkdir dir="build/classes/xpath"/>
     <javac
        srcdir="src/xpath"
-       destdir="build/private/classes/xpath"
+       destdir="build/classes/xpath"
        classpathref="xpath.compile.path"
        source="1.4"
        debug="on">
       <classpath id="xpath.compile.path">
-          <pathelement location="build/lib/xbean.jar"/>
-          <pathelement location="build/lib/jaxen.jar"/>
+        <pathelement location="build/classes/xmlpublic"/>
+        <pathelement location="build/classes/xmlstore"/>
+        <pathelement location="build/lib/jaxen.jar"/>
       </classpath>
     </javac>
   </target>
 
-  <target name="xbean_xpath.jar" depends="xpath.classes">
-    <jar jarfile="build/private/lib/xbean_xpath.jar" basedir="build/private/classes/xpath"/>
-  </target>
-
   <!-- test xpath target ============================================= -->
 
-  <target name="test_xpath.classes" depends="dirs, xmlpublic.jar, jsr173_api.jar, jaxen.jar, xbean_xpath.jar">
+  <target name="test_xpath.classes" depends="dirs, xmlpublic.jar, jsr173_api.jar, jaxen.jar">
     <mkdir dir="build/private/classes/testxpath"/>
     <javac
        srcdir="test/src/xpath"
@@ -1125,7 +1123,6 @@
           <pathelement location="build/lib/xmlpublic.jar"/>
           <pathelement location="build/lib/jsr173_api.jar"/>
           <pathelement location="build/lib/jaxen.jar"/>
-          <pathelement location="build/private/lib/xbean_xpath.jar"/>
           <pathelement location="build/classes/xmlinputstream"/>
       </classpath>
     </javac>
@@ -1137,7 +1134,6 @@
           <pathelement location="build/lib/xbean.jar"/>
           <pathelement location="build/lib/jsr173_api.jar"/>
           <pathelement location="build/lib/jaxen.jar"/>
-          <pathelement location="build/private/lib/xbean_xpath.jar"/>
           <pathelement location="build/private/classes/testxpath"/>
       </classpath>
       <jvmarg value="-da"/>

@@ -211,4 +211,14 @@ public interface XMLStreamReaderExt
 
     /** Returns the value as a {@link javax.xml.namespace.QName}. */
     public QName getAttributeQNameValue(String uri, String local) throws XMLStreamException;
+
+    /** Sets the default value for the next getXXXValue() call.
+     *  For example:
+     *     setDefaultValue("7");
+     *     //the xml looks like: <int>  </int>
+     *     int i = getIntValue(); // returns 7
+     *     // from now on the default value will not apply anymore
+     * Note: Works for getAttributeXXXValue(...) too.
+     */
+    public void setDefaultValue(String defaultValue) throws XMLStreamException;
 }
