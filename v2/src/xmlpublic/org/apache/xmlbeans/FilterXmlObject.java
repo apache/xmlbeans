@@ -192,6 +192,11 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue
         return underlyingXmlObject().newDomNode();
     }
 
+    public Node getDomNode()
+    {
+        return underlyingXmlObject().getDomNode();
+    }
+
     public void save(ContentHandler ch, LexicalHandler lh) throws SAXException
     {
         underlyingXmlObject().save(ch, lh);
