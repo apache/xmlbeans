@@ -150,7 +150,7 @@ public class Java2SchemaTask extends Task {
   // =========================================================================
   // Task implementation
 
-   /**
+  /**
    * Execute the task.
    */
   public void execute() throws BuildException {
@@ -159,13 +159,14 @@ public class Java2SchemaTask extends Task {
     if (list.length != 1) throw new IllegalStateException("NYI");
     JFileSet fs = jf.createFileSet(new File(list[0]));
     fs.include(mIncludes);
+    String classpathString = null;
     if (mClasspath != null) {
       //this will be removed after jam factory is refactored
-      fs.setClasspath(mClasspath.toString());
+      fs.setClasspath(classpathString = mClasspath.toString());
     }
     final JClass[] classes;
     try {
-      classes = jf.loadSources(fs,null,null,null,null,mClasspath.toString());
+      classes = jf.loadSources(fs,null,null,null,null,classpathString);
     } catch(IOException ioe) {
       ioe.printStackTrace();
       throw new BuildException(ioe);
