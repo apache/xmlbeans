@@ -1615,70 +1615,45 @@ final class DomImpl
             case ATTR :
                 break;
         }
-        
-        Cur end = n.tempCur();
-        end.toEnd();
 
         Cur c = n.tempCur();
 
-        ;
+        c.push();
+
+        for ( c.nextWithAttrs() ; ! c.isAtEndOfLastPush() ; c.nextWithAttrs() )
+        {
+            CharNode cn = c.getCharNodes();
+
+            if (cn != null)
+            {
+                if (!c.isText())
+                {
+                    while ( cn != null )
+                    {
+                        cn._src = null;
+                        cn._off = 0;
+                        cn._cch = 0;
+
+                        cn = CharNode.remove( cn, cn );
+                    }
+                }
+                else if (cn._next != null)
+                {
+                    while ( cn._next != null )
+                    {
+                        cn._src = null;
+                        cn._off = 0;
+                        cn._cch = 0;
+
+                        cn = CharNode.remove( cn, cn._next );
+                    }
+                }
+
+                c.setCharNodes( cn );
+            }
+        }
         
-        for ( boolean justSawText = false ; !c.isSamePos( end ) ; justSawText = c.isText() )
-        {
-            if (c.isContainer() && c.toFirstAttr())
-            {
-                do
-                {
-                    c.next();
-                    normalizeTextNodes( c );
-                    c.toParent();
-                }
-                while ( c.toNextAttr() );
-
-                c.toParent();
-            }
-            
-            c.next();
-
-            if (!justSawText)
-                normalizeTextNodes( c );
-        }
-
         c.release();
-        end.release();
-    }
-
-    private static void normalizeTextNodes ( Cur c )
-    {
-        CharNode cn = c.getCharNodes();
-
-        if (cn != null)
-        {
-            if (!c.isText())
-            {
-                while ( cn != null )
-                {
-                    cn._src = null;
-                    cn._off = 0;
-                    cn._cch = 0;
-                    
-                    cn = CharNode.remove( cn, cn );
-                }
-            }
-            else if (cn._next != null)
-            {
-                while ( cn._next != null )
-                {
-                    cn._src = null;
-                    cn._off = 0;
-                    cn._cch = 0;
-                    
-                    cn = CharNode.remove( cn, cn._next );
-                }
-            }
-            
-            c.setCharNodes( cn );
-        }
     }
 
     //////////////////////////////////////////////////////////////////////////////////////

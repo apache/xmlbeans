@@ -24,7 +24,6 @@ import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.store.Splay.Finish;
 import org.apache.xmlbeans.impl.values.NamespaceManager;
 import org.apache.xmlbeans.impl.values.XmlStore;
-import org.apache.xmlbeans.impl.values.TypeStoreFactory;
 import org.apache.xmlbeans.QNameCache;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
@@ -115,8 +114,6 @@ public final class Root extends Finish implements XmlStore
             sType = XmlObject.type;
 
         _validateOnSet = options.hasOption( XmlOptions.VALIDATE_ON_SET );
-
-        _factory = (TypeStoreFactory) options.get( TypeStoreFactory.KEY );
 
         _doc.setType( this, sType );
     }
@@ -3626,5 +3623,4 @@ public final class Root extends Finish implements XmlStore
 
     nthCache _nthCache_A = new nthCache();
     nthCache _nthCache_B = new nthCache();
-    TypeStoreFactory _factory;
 }

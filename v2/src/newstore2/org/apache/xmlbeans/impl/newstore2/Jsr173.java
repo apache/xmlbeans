@@ -829,13 +829,6 @@ public class Jsr173
         }
 
 
-        public NamespaceContext getNamespaceContext ( )
-        {
-            checkChanged();
-
-            return this;
-        }
-
         public Object getProperty ( String name )
         {
             checkChanged();
@@ -919,6 +912,11 @@ public class Jsr173
         
         public String getPublicId() { return null; }
         public String getSystemId() { return null; }
+
+        public NamespaceContext getNamespaceContext ( )
+        {
+            throw new RuntimeException( "This version of getNamespaceContext should not be called");
+        }
 
         public String getNamespaceURI ( String prefix )
         {
@@ -1145,7 +1143,7 @@ public class Jsr173
         public int getNamespaceCount ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceCount(); } finally { _l.exit(); } } }
         public String getNamespacePrefix ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespacePrefix ( index ); } finally { _l.exit(); } } }
         public String getNamespaceURI ( int index ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceURI ( index ); } finally { _l.exit(); } } }
-        public NamespaceContext getNamespaceContext ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getNamespaceContext(); } finally { _l.exit(); } } }
+        public NamespaceContext getNamespaceContext ( ) { return this; }
         public int getEventType ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getEventType(); } finally { _l.exit(); } } }
         public String getText ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getText(); } finally { _l.exit(); } } }
         public char[] getTextCharacters ( ) { synchronized ( _l ) { _l.enter(); try { return _xs.getTextCharacters(); } finally { _l.exit(); } } }
@@ -1207,7 +1205,7 @@ public class Jsr173
         public int getNamespaceCount ( ) { try { _l.enter(); return _xs.getNamespaceCount(); } finally { _l.exit(); } }
         public String getNamespacePrefix ( int index ) { try { _l.enter(); return _xs.getNamespacePrefix ( index ); } finally { _l.exit(); } }
         public String getNamespaceURI ( int index ) { try { _l.enter(); return _xs.getNamespaceURI ( index ); } finally { _l.exit(); } }
-        public NamespaceContext getNamespaceContext ( ) { try { _l.enter(); return _xs.getNamespaceContext(); } finally { _l.exit(); } }
+        public NamespaceContext getNamespaceContext ( ) { return this; }
         public int getEventType ( ) { try { _l.enter(); return _xs.getEventType(); } finally { _l.exit(); } }
         public String getText ( ) { try { _l.enter(); return _xs.getText(); } finally { _l.exit(); } }
         public char[] getTextCharacters ( ) { try { _l.enter(); return _xs.getTextCharacters(); } finally { _l.exit(); } }

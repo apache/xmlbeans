@@ -100,27 +100,12 @@ public final class Type extends Goober implements TypeStore
     
     TypeStoreUser create_element_user ( QName eltName, QName xsiType )
     {
-        TypeStoreUser ret = null;
-        if (getRoot()._factory != null)
-            ret = getRoot()._factory.createElementUser(get_schema_type(), eltName, xsiType);
-
-        if (ret == null)
-            ret = _user.create_element_user( eltName, xsiType );
-
-        return ret;
+        return _user.create_element_user( eltName, xsiType );
     }
             
     TypeStoreUser create_attribute_user( QName attrName )
     {
-        TypeStoreUser ret = null;
-
-        if (getRoot()._factory != null)
-            ret = getRoot()._factory.createAttributeUser(get_schema_type(),  attrName);
-
-        if (ret == null)
-            ret = _user.create_attribute_user( attrName );
-
-        return ret;
+        return _user.create_attribute_user( attrName );
     }
 
     XmlObject getXmlObject ( )

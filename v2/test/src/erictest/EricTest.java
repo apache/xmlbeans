@@ -29,6 +29,7 @@ import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
@@ -103,37 +104,24 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.xmlbeans.impl.newstore2.Public2;
 
-import noNamespace.*;
-import noNamespace.ElemDocument.Elem;
+import org.nfis.nfi.*;
+import org.nfis.nfi.TopElementDocument.*;
 
 public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<a x='y'/>" );
+        Public2.parse( "<xml-fragment><b><c/></b><d/></xml-fragment>" ).cloneNode( true );
 
-        Element e = doc.getDocumentElement();
-
-        Public2.dump( e.cloneNode( false ) );
         
-        
-//        XmlOptions options = new XmlOptions();
-//        options.setValidateOnSet();
+//        XmlCursor c = Public2.newStore();
 //
-//        Elem e = Elem.Factory.newInstance();
+//        c.toNextToken();
 //
-//        System.out.println( e.getField() );
+//        c.beginElement( "foo" );
+//        c.toStartDoc();
 //
-//        try
-//        {
-//            e.setField( null );
-//        }
-//        catch ( Throwable ee )
-//        {
-//            ee.printStackTrace( System.out );
-//        }
-//        
-//        System.out.println( e.getField() );
+//        Public2.test( c.getDomNode() );
     }
 }
 
