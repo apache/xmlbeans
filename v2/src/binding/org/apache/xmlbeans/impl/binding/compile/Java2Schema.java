@@ -61,7 +61,6 @@ import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.tools.ant.BuildException;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -102,8 +101,10 @@ public class Java2Schema {
   private static final String TAG_AT               = "xsdgen:attribute";
   private static final String TAG_AT_NAME          = TAG_AT+".name";
 
-  //for debugging only
-  private static final boolean IGNORE_SEVERE_ERRORS = true;
+  // If true, the 'bind' methods will always try to return something,
+  // even if severe errors were encountered.  Turn this on only for
+  // debugging.
+  private static final boolean IGNORE_SEVERE_ERRORS = false;
 
   // =========================================================================
   // Variables
@@ -137,10 +138,17 @@ public class Java2Schema {
    * Performs the binding and returns an exploded tylar in the specified
    * directory.  Returns null if any severe errors were encountered.
    */
-  public ExplodedTylar bindAsExplodedTylar(File tylarDestDir) {
+  public ExplodedTylar bindAsExplodedTylar(File tylarDestDir)
+  {
     Java2SchemaResult result = bind();
     if (result == null) return null;
-    ExplodedTylarImpl tylar = new ExplodedTylarImpl(tylarDestDir);
+    ExplodedTylarImpl tylar = null;
+    try {
+      tylar = ExplodedTylarImpl.create(tylarDestDir);
+    } catch(IOException ioe) {
+      logError(ioe);
+      return null;
+    }
     if (!tylarDestDir.exists()) {
       if (!tylarDestDir.mkdirs()) {
         logError("failed to create "+tylarDestDir);
@@ -156,7 +164,16 @@ public class Java2Schema {
    * Returns null if any severe errors were encountered.
    */
   public Tylar bindAsJarredTylar(File tylarJar) {
-    throw new RuntimeException("NYI");
+    File tempDir = null;
+    try {
+      tempDir = createTempDir();
+      tempDir.deleteOnExit();//REVIEW maybe we should delete it ourselves?
+      ExplodedTylar et = bindAsExplodedTylar(tempDir);
+      return et.toJar(tylarJar);
+    } catch(IOException ioe) {
+      logError(ioe);
+      return null;
+    }
   }
 
   /**
@@ -195,6 +212,19 @@ public class Java2Schema {
 
   // ========================================================================
   // Private methods
+
+  private static File createTempDir() throws IOException
+  {
+    //FIXME this is not great
+    String prefix = "java2schema-"+System.currentTimeMillis();
+    File directory = null;
+    File f = File.createTempFile(prefix, null);
+    directory = f.getParentFile();
+    f.delete();
+    File out = new File(directory, prefix);
+    if (!out.mkdirs()) throw new IOException("Uknown problem creating temp file");
+    return out;
+  }
 
   /**
    * Feeds a tylar builder with the given compilation results.
@@ -378,13 +408,16 @@ public class Java2Schema {
   }
 
   /**
-   * Returns a QName for the builtin type bound to the given JClass.
+   * Returns a QName for the type bound to the given JClass.
    */
-  private QName getBuiltinTypeNameFor(JClass clazz) {
-    BindingType bt = mLoader.getBindingType
-            (mLoader.lookupTypeFor(JavaTypeName.forString(clazz.getQualifiedName())));
+  private QName getQnameFor(JClass clazz) {
+    getBindingTypeFor(clazz);  //ensure that we've bound it
+    JavaTypeName jtn = JavaTypeName.forString(clazz.getQualifiedName());
+    BindingTypeName btn = mLoader.lookupTypeFor(jtn);
+    logVerbose(clazz,"BindingTypeName is "+btn);
+    BindingType bt = mLoader.getBindingType(btn);
     if (bt != null) return bt.getName().getXmlName().getQName();
-    logError(clazz,"no builtin type found");
+    logError(clazz,"could not get qname");
     return new QName("ERROR",clazz.getQualifiedName());
   }
 
@@ -587,7 +620,7 @@ public class Java2Schema {
     public void setSetter(String s) { mBtsProp.setSetterName(s); }
 
     /**
-     * Sets whether the type of the property.  Currently handles arrays
+     * Sets the type of the property.  Currently handles arrays
      * correctly but not collections.
      */
     public void setType(JClass propType) {
@@ -598,13 +631,13 @@ public class Java2Schema {
           }
           JClass componentType = propType.getArrayComponentType();
           mXsElement.setMaxOccurs("unbounded");
-          mXsElement.setType(getBuiltinTypeNameFor(componentType));
+          mXsElement.setType(getQnameFor(componentType));
           mBtsProp.setMultiple(true);
           mBtsProp.setCollectionClass //FIXME
                   (JavaTypeName.forString(componentType.getQualifiedName()+"[]"));
           mBtsProp.setBindingType(getBindingTypeFor(componentType));
         } else {
-          mXsElement.setType(getBuiltinTypeNameFor(propType));
+          mXsElement.setType(getQnameFor(propType));
           mBtsProp.setBindingType(getBindingTypeFor(propType));
         }
       } else if (mXsAttribute != null) {
@@ -612,7 +645,7 @@ public class Java2Schema {
           logError(mSrcContext,
                    "Array properties cannot be mapped to xml attributes");
         } else {
-          mXsAttribute.setType(getBuiltinTypeNameFor(propType));
+          mXsAttribute.setType(getQnameFor(propType));
           mBtsProp.setBindingType(getBindingTypeFor(propType));
         }
       } else {

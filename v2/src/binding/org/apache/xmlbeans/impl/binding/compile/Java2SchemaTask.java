@@ -70,6 +70,7 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Level;
 
 /**
  * Ant task definition for binding in the start-with-java case.
@@ -88,6 +89,7 @@ public class Java2SchemaTask extends Task {
   private Path mClasspath = null;
   private String mIncludes = null;
   private Path mSrcDir = null;
+  private boolean mVerbose = false;
 
   // =========================================================================
   // Task attributes
@@ -159,6 +161,8 @@ public class Java2SchemaTask extends Task {
     mIncludes = includes;
   }
 
+  public void setVerbose(boolean v) { mVerbose = v; }
+
   public void setCompileSources(boolean ignoredRightNow) {}
 
   public void setCopySources(boolean ignoredRightNow) {}
@@ -193,8 +197,7 @@ public class Java2SchemaTask extends Task {
       public TylarLoader getTylarLoader() { return null; }
       public void compileJavaToBinaries(File classesDir) {}
     };
-    BindingLogger logger = new SimpleBindingLogger();
-    Java2Schema j2b = new Java2Schema(input,logger);
+    Java2Schema j2b = new Java2Schema(input,createLogger());
     Tylar tylar = null;
     if (mDestDir != null) {
       tylar = j2b.bindAsExplodedTylar(mDestDir);
@@ -206,6 +209,12 @@ public class Java2SchemaTask extends Task {
                                "see log for details.");
     }
     log("Java2SchemaTask complete, output at "+tylar.getLocation());
+  }
+
+  private BindingLogger createLogger() {
+    SimpleBindingLogger logger = new SimpleBindingLogger();
+    if (mVerbose) logger.setThresholdLevel(Level.FINEST);
+    return logger;
   }
 
   // =========================================================================

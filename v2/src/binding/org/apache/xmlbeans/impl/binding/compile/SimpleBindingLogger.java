@@ -14,6 +14,7 @@ public class SimpleBindingLogger implements BindingLogger {
   // Variables
 
   private PrintWriter mOut;
+  private Level mThreshold = Level.SEVERE;
 
   // ========================================================================
   // Constructors
@@ -30,7 +31,18 @@ public class SimpleBindingLogger implements BindingLogger {
   // ========================================================================
   // BindingLogger implementation
 
+  /**
+   * Sets the minimum level at which messages will actually be printed out.
+   * Anything of a lower level is discarded.  The default is Level.SEVERE.
+   *
+   * @param thresh the new threshold value.
+   */
+  public void setThresholdLevel(Level thresh) {
+    mThreshold = thresh;
+  }
+
   public void log(Level level, String message, Throwable error) {
+    if (level.intValue() < mThreshold.intValue()) return;
     mOut.print(level.toString());
     if (message != null) {
       mOut.print(' ');
