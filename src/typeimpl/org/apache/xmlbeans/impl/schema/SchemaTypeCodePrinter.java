@@ -974,8 +974,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 return "java.util.Calendar";
 
             case SchemaProperty.JAVA_ENUM:
-                SchemaType sType = sProp.javaBasedOnType().getBaseEnumType();
-                return findJavaType(sType).replace('$', '.') + ".Enum";
+                SchemaType sType = sProp.javaBasedOnType();
+                if (sType.getSimpleVariety() == SchemaType.UNION)
+                    sType = sType.getUnionCommonBaseType();
+                assert sType.getBaseEnumType() != null;
+                return findJavaType(sType.getBaseEnumType()).replace('$', '.') + ".Enum";
 
             case SchemaProperty.JAVA_OBJECT:
                 return "java.lang.Object";

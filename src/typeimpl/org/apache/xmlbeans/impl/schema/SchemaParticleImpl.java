@@ -123,6 +123,13 @@ public class SchemaParticleImpl implements SchemaParticle
 
     public SchemaParticle[] getParticleChildren()
     {
+        if (_particleChildren == null)
+        {
+            assert _particleType != SchemaParticle.ALL &&
+                _particleType != SchemaParticle.SEQUENCE &&
+                _particleType != SchemaParticle.CHOICE;
+            return null;
+        }
         SchemaParticle[] result = new SchemaParticle[_particleChildren.length];
         System.arraycopy(_particleChildren, 0, result, 0, _particleChildren.length);
         return result;
