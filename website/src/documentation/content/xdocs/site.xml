@@ -60,9 +60,9 @@ See http://xml.apache.org/forrest/linking.html for more info
     </project-tab>
     <resources-tab label="Resources" href="resources/" tab="resources" >
     	<index href="index.html" />
-    	<tools label="Tools" href="index.html#tools" description="Tools for working with XMLBeans."/>
-        <articles label="Articles" href="index.html#articles" description="Articles about or related to XMLBeans." />
-        <books label="Books" href="index.html#books" description="Books about XMLBeans" />
+    	<tools label="Tools" href="index.html#XMLBeans+Tools" description="Tools for working with XMLBeans."/>
+        <articles label="Articles" href="index.html#XMLBeans+Articles" description="Articles about or related to XMLBeans." />
+        <books label="Books" href="index.html#XMLBeans+Books" description="Books about XMLBeans" />
     </resources-tab>
     <home label="Home" href="" tab="home">
         <index href="index.html"/>
