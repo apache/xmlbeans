@@ -61,7 +61,7 @@ public class NestSequenceChoiceTest extends BaseCase {
             throw t;
         }
 
-
+        //can't have both set
         elt.setOptchildInt(2);
         elt.setOptchildStr("boo");
         assertTrue(!doc.validate(validateOptions));

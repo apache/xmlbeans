@@ -21,6 +21,7 @@ import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 import xbean.scomp.contentType.complexTypeTest.EltTypeDocument;
 import xbean.scomp.contentType.complexTypeTest.ElementT;
@@ -89,7 +90,8 @@ public class ElementOnlyContentTest extends BaseCase {
         System.out.println(testElt.xmlText());
         assertTrue(!testElt.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
             assertTrue(compareErrorCodes(errExpected));
 
     }

@@ -229,8 +229,10 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         xc1.toCursor(m_xc);
         xc1.toNextChar(1);
-        xc1.setBookmark(_theBookmark);  // set an Bookmark at the '1'
-        xc1.toNextChar(2);  // move xc1 to the '3'
+        // set a Bookmark at the '1'
+        xc1.setBookmark(_theBookmark);
+         // move xc1 to the '3'
+        xc1.toNextChar(2);
         try {
             assertEquals("34", xc1.getTextValue());
             assertEquals(2, m_xc.copyChars(2, xc1));

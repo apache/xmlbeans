@@ -20,6 +20,8 @@ import xbean.scomp.derivation.facets.list.*;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+
 /**
  * @owner: ykadiysk
  * Date: Aug 4, 2004
@@ -35,7 +37,8 @@ public class ListRestriction extends BaseCase {
         //this should be too short
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
         assertTrue(compareErrorCodes(errExpected));
 
         vals.add("lstsmall");
@@ -100,7 +103,8 @@ public class ListRestriction extends BaseCase {
         MaxLengthEltDocument doc = MaxLengthEltDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
         assertTrue(compareErrorCodes(errExpected));
 
         MaxLengthFacet elt = MaxLengthFacet.Factory.newInstance();

@@ -20,6 +20,7 @@ import xbean.scomp.derivation.block.*;
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -31,7 +32,9 @@ public class BlockTest extends BaseCase {
     String restrContentInvalid = "<name>Bobby</name><age>40</age>";
     String extContent = "<name>Bobby</name><age>40</age><gender>f</gender>";
 
-    public String getInstance(String elt, String type, boolean ext,
+    public String getInstance(String elt,
+                              String type,
+                              boolean ext,
                               boolean valid) {
         StringBuffer sb = new StringBuffer();
         sb.append("<ns:" + elt +
@@ -81,7 +84,8 @@ public class BlockTest extends BaseCase {
 
         doc1 = EltAllBaseDocument.Factory.parse(getInstance("EltAllBase", "restAllT", false, true));
         assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_EXTENSION};
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -117,12 +121,18 @@ public class BlockTest extends BaseCase {
         validate(doc);
         //subst rest type:  should not be possible
         EltRBaseDocument doc1 = EltRBaseDocument.Factory.parse(getInstance("EltRBase", "restRT", false, false));
-        assertTrue(!doc1.validate());
+        assertTrue(!doc1.validate(validateOptions));
+        String[] errExpected = new String[]{
+            XmlErrorCodes
+                .ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_RESTRICTION};
+               assertTrue(compareErrorCodes(errExpected));
 
-        doc1 = EltRBaseDocument.Factory.parse(getInstance("EltRBase", "restRT", false, true));
+        doc1 = EltRBaseDocument.Factory
+                .parse(getInstance("EltRBase", "restRT", false, true));
 
-        assertTrue(!doc1.validate());
-        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(!doc1.validate(validateOptions));
+        errExpected = new String[]{
+            XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_RESTRICTION};
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -136,15 +146,20 @@ public class BlockTest extends BaseCase {
         EltREBaseDocument doc1 =
                 EltREBaseDocument.Factory.parse(getInstance("EltREBase", "extRET", true, true));
         assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_EXTENSION};
         assertTrue(compareErrorCodes(errExpected));
 
 
         //subst rest type:  should not be possible
         //ER
-        EltERBaseDocument doc2 = EltERBaseDocument.Factory.parse(getInstance("EltERBase", "restERT", false, false));
+        EltERBaseDocument doc2 = EltERBaseDocument.Factory
+                .parse(getInstance("EltERBase",
+                        "restERT", false, false));
         assertTrue(!doc.validate(validateOptions));
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes
+                .ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_RESTRICTION};
         assertTrue(compareErrorCodes(errExpected));
 
         doc2 = EltERBaseDocument.Factory.parse(getInstance("EltERBase", "restERT", false, true));
@@ -158,7 +173,8 @@ public class BlockTest extends BaseCase {
         errExpected = new String[]{"cvc-attribute"};
         assertTrue(compareErrorCodes(errExpected));
 
-        doc3 = EltREBaseDocument.Factory.parse(getInstance("EltREBase", "restRET", false, true));
+        doc3 = EltREBaseDocument.Factory
+                .parse(getInstance("EltREBase", "restRET", false, true));
         assertTrue(!doc.validate(validateOptions));
         errExpected = new String[]{"cvc-attribute"};
         assertTrue(compareErrorCodes(errExpected));
@@ -171,14 +187,22 @@ public class BlockTest extends BaseCase {
      * @throws Throwable
      */
     public void testBlockDefault() throws Throwable {
-        EltDefaultBlockDocument doc = EltDefaultBlockDocument.Factory.parse(getInstanceDefault("EltDefaultBlock", "extNoneT", true, true));
+        EltDefaultBlockDocument doc =
+                EltDefaultBlockDocument.Factory
+                .parse(getInstanceDefault("EltDefaultBlock", "extNoneT", true, true));
         assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes
+                .ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_EXTENSION};
         assertTrue(compareErrorCodes(errExpected));
 
-        doc = EltDefaultBlockDocument.Factory.parse(getInstanceDefault("EltDefaultBlock", "restNoneT", false, false));
+        doc = EltDefaultBlockDocument.Factory
+                .parse(getInstanceDefault("EltDefaultBlock", "restNoneT", false, false));
         assertTrue(!doc.validate(validateOptions));
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes
+                .ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_RESTRICTION
+        };
         assertTrue(compareErrorCodes(errExpected));
 
         doc = EltDefaultBlockDocument.Factory.parse(getInstanceDefault("EltDefaultBlock", "restNoneT", false, true));

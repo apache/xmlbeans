@@ -31,7 +31,7 @@ public class GroupRestrictionTest extends BaseCase {
                 .newInstance();
         RestrictedSequenceT elt = doc.addNewRestrictedSequenceElt();
         elt.setChild1(BigInteger.ONE);
-        elt.addChild2("foobar");
+
         elt.addChild3(new BigInteger("10"));
         elt.addChild3(new BigInteger("10"));
         try {
@@ -40,10 +40,11 @@ public class GroupRestrictionTest extends BaseCase {
             showErrors();
             throw t;
         }
-        elt.addChild3(BigInteger.ONE);
-        assertTrue(!doc.validate());
+        elt.addChild2("foobar");
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            "cvc-attribute"};
         assertTrue(compareErrorCodes(errExpected));
 
 

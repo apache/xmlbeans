@@ -55,7 +55,7 @@
 
     <xsd:complexType name="UriListStrictT">
         <xsd:sequence>
-           <xsd:any namespace="http://apache.org http://w3c.org" processContents="strict" />
+           <xsd:any namespace="http://xbean/scomp/element/GlobalEltDefault http://w3c.org" processContents="strict" />
         </xsd:sequence>
         </xsd:complexType>
 
@@ -114,7 +114,7 @@
     <xsd:element name="LocalSkip" type="LocalSkipT"/>
     <xsd:element name="LocalStrict" type="LocalStrictT"/>
 
-    <xsd:attribute name="LocalAttr" type="xsd:int"/>
+    <xsd:attribute name="LocalElt" type="xsd:int"/>
 
 
 </xsd:schema>
