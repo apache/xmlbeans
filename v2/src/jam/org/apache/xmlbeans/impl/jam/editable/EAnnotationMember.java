@@ -53,48 +53,54 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable;
 
+import org.apache.xmlbeans.impl.jam.JAnnotationMember;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.JAnnotation;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public interface EAnnotationMember extends JAnnotationMember, EMember {
 
-  // ========================================================================
-  // Variables
+  public void setValue(String value);
 
-  private JClassBuilder[] mServices;
+  public void setValue(JAnnotation value);
 
-  // ========================================================================
-  // Constructors
+  public void setValue(boolean value);
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
-  }
+  public void setValue(int value);
 
-  // ========================================================================
-  // JClassBuilder implementation
+  public void setValue(short value);
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
-  }
+  public void setValue(long value);
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
-  }
+  public void setValue(float value);
 
+  public void setValue(double value);
+
+  public void setValue(JClass clazz);
+
+  public void setValue(String[] value);
+
+  public void setValue(JAnnotation[] value);
+
+  public void setValue(boolean[] value);
+
+  public void setValue(int[] value);
+
+  public void setValue(short[] value);
+
+  public void setValue(long[] value);
+
+  public void setValue(float[] value);
+
+  public void setValue(double[] value);
+
+  public void setValue(JClass[] clazz);
+
+//  public void setValue(Object o);
+  //FIXME enums?
 }

@@ -141,7 +141,7 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
     return null;
   }
 
-  public JAnnotationDeclaration getDeclaration() {
+  public JAnnotationDefinition getDefinition() {
     return null;
   }
 

@@ -65,6 +65,7 @@ import org.apache.xmlbeans.impl.jam.JClassLoader;
  * all you really have to do is implement this interface.
  *
  * @author Patrick Calahan <pcal@bea.com>
+ * @deprecated
  */
 public interface JClassBuilder {
 

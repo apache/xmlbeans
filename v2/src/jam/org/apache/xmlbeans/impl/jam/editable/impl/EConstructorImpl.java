@@ -53,48 +53,114 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable.impl;
 
+import org.apache.xmlbeans.impl.jam.editable.EConstructor;
+import org.apache.xmlbeans.impl.jam.editable.EParameter;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.JParameter;
+
+import java.util.List;
+import java.util.ArrayList;
+import java.io.StringWriter;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public class EConstructorImpl extends EMemberImpl implements EConstructor {
 
   // ========================================================================
   // Variables
 
-  private JClassBuilder[] mServices;
+  private List mExceptionClassNames = null;
+  private List mParameters = null;
 
   // ========================================================================
   // Constructors
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
+  /*package*/ EConstructorImpl(JClass containingClass) {
+    super(containingClass.getSimpleName(),containingClass);
+  }
+
+  protected EConstructorImpl(String methodName, JClass containingClass) {
+    super(methodName,containingClass);
   }
 
   // ========================================================================
-  // JClassBuilder implementation
+  // EConstructor implementation
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
+  public void addException(JClass exceptionClass) {
+    addException(exceptionClass.getQualifiedName());
+  }
+
+  public void addException(String exceptionClassName) {
+    if (mExceptionClassNames == null) mExceptionClassNames = new ArrayList();
+    mExceptionClassNames.add(exceptionClassName);
+  }
+
+  public void removeException(String exceptionClassName) {
+    if (exceptionClassName == null) {
+      throw new IllegalArgumentException("null classname");
     }
-    return null;
+    if (mExceptionClassNames != null) {
+      mExceptionClassNames.remove(exceptionClassName);
+    }
   }
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
+  public void removeException(JClass exceptionClass) {
+    removeException(exceptionClass.getQualifiedName());
   }
 
+  public EParameter addNewParameter(String typeName, String paramName) {
+    EParameter param = new EParameterImpl(paramName,this,typeName);
+    mParameters.add(param);
+    return param;
+  }
+
+  public EParameter addNewParameter(JClass type, String name) {
+    return addNewParameter(type.getQualifiedName(),name);
+  }
+
+  public void removeParameter(EParameter parameter) {
+    if (mParameters != null) mParameters.remove(parameter);
+  }
+
+  public EParameter[] getEditableParameters() {
+    return new EParameter[0];
+  }
+
+  // ========================================================================
+  // JConstructor implementation
+
+  public JParameter[] getParameters() {
+    return getEditableParameters();
+  }
+
+  public JClass[] getExceptionTypes() {
+    if (mExceptionClassNames == null || mExceptionClassNames.size() == 0) {
+      return new JClass[0];
+    }
+    JClass[] out = new JClass[mExceptionClassNames.size()];
+    for(int i=0; i<out.length; i++) {
+      out[i] = getClassLoader().loadClass((String)mExceptionClassNames.get(i));
+    }
+    return out;
+  }
+
+  public String getQualifiedName() {
+    //REVIEW this probably needs more thought
+    StringWriter out = new StringWriter();
+    out.write(getContainingClass().getQualifiedName());
+    out.write('.');
+    out.write(getSimpleName());
+    out.write('(');
+    JParameter[] params = getParameters();
+    for(int i=0; i<params.length; i++) {
+      out.write(params[i].getType().getQualifiedName());
+      if (i<params.length-1) out.write(", ");
+    }
+    out.write(')');
+    return out.toString();
+  }
 }

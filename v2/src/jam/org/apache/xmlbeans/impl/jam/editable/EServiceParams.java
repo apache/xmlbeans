@@ -53,48 +53,54 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+
+import java.io.File;
+import java.io.PrintWriter;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
+ * Structure which encapsulates a set of parameters used to create a new
+ * EService.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public interface EServiceParams {
 
-  // ========================================================================
-  // Variables
+  /**
+   * Sets a loader for external annotations to be used in the service.
+   *
+   * @param ann an implementation of JAnnotationLoader
+   * @throws IllegalArgumentException if the argument is null
+   */
+  public void setAnnotationLoader(JAnnotationLoader ann);
 
-  private JClassBuilder[] mServices;
+  /**
+   * Sets a PrintWriter to which the EService implementation should log
+   * errors and debugging information.  If this is never set, all such output
+   * will be suppressed.
+   *
+   * @param out a PrintWriter to write to
+   * @throws IllegalArgumentException if the argument is null
+   */
+  public void setLogger(PrintWriter out);
 
-  // ========================================================================
-  // Constructors
+  /**
+   * Sets whether the EService should send verbose output to the logger.
+   * Has no effect if setLogger() is never called.
+   *
+   * @param v whether or not boolean output is enabled.
+   */
+  public void setVerbose(boolean v);
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
-  }
-
-  // ========================================================================
-  // JClassBuilder implementation
-
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
-  }
-
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
-  }
+  /**
+   * Sets the parent JClassLoader of the service's JClassLoader.
+   *
+   * @param loader the parent loaer
+   * @throws IllegalArgumentException if the argument is null
+   */
+  public void setParentClassLoader(JClassLoader loader);
 
 }

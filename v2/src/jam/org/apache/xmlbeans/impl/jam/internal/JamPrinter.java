@@ -88,6 +88,17 @@ public class JamPrinter {
     print(root, 0, out);
   }
 
+  public void print(JClassIterator iter, PrintWriter out) {
+    while(iter.hasNext()) {
+      JClass clazz = iter.nextClass();
+      out.println("------------------------------");
+      out.println(clazz.getQualifiedName());
+      out.println("------------------------------");
+      print(clazz,out);
+      out.println();
+    }
+  }
+
   // ========================================================================
   // Private methods
 

@@ -53,48 +53,32 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable;
 
+import org.apache.xmlbeans.impl.jam.JConstructor;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
+ * Editable representation of a java constructor.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public interface EConstructor extends JConstructor, EMember {
 
-  // ========================================================================
-  // Variables
+  public void addException(String exceptionClassName);
 
-  private JClassBuilder[] mServices;
+  public void addException(JClass exceptionClass);
 
-  // ========================================================================
-  // Constructors
+  public void removeException(String exceptionClassName);
 
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
-  }
+  public void removeException(JClass exceptionClass);
 
-  // ========================================================================
-  // JClassBuilder implementation
+  public EParameter addNewParameter(String typeName, String paramName);
 
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
-  }
+  public EParameter addNewParameter(JClass type, String paramName);
 
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
-  }
+  public void removeParameter(EParameter parameter);
+
+  public EParameter[] getEditableParameters();
 
 }

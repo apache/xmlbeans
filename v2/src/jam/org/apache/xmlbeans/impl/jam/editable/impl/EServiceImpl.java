@@ -53,27 +53,84 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam;
+package org.apache.xmlbeans.impl.jam.editable.impl;
+
+import org.apache.xmlbeans.impl.jam.editable.EService;
+import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JAnnotationDeclaration extends JClass {
+public class EServiceImpl implements EService, JClassLoader {
 
-/**
- *
- * REVIEW is JAnnotationTypeDeclaration a better name?  That's what they
- * call it in the spec, but seems kinda wordy here.  Advantage of current
- * naming is that suggests the analagous relationship between
- * Annotation/AnnotationDeclaration and
- * AnnotationMember/AnnotationMemberDeclaration more clearly.  We can't
- * call it AnnotationMemberTypeDeclaration because that is inaccurate -
- * MemberType is just the type of the member, which is a subset of what
- * AnnotationMemberDeclaration expresses.
- */
+  // ========================================================================
+  // Variables
 
-//NOTE the delcarations are also returned as JMethods
+  private Map mClasses = new HashMap();
+  private JClassLoader mBaseClassLoader;
+  private JAnnotationLoader mAnnotationLoader = null;
 
-  public JAnnotationMemberDeclaration[] getMemberDeclarations();
+  // ========================================================================
+  // Constructors
+
+  public EServiceImpl(EServiceParamsImpl params) {
+    mBaseClassLoader = params.getParentClassLoader();
+    mAnnotationLoader = params.getAnnotationLoader();
+  }
+
+  // ========================================================================
+  // EService implementation
+
+  public EClass addNewClass(String packageName, String className) {
+    EClassImpl out = new EClassImpl(packageName,className,this);
+    mClasses.put(out.getQualifiedName(),out);
+    return out;
+  }
+
+  public EClass addNewClass(JClass copyme) {
+    throw new IllegalStateException("NYI");
+  }
+
+  public JClassLoader getClassLoader() {
+    return this;
+  }
+
+  // ========================================================================
+  // JService implementation
+
+  public String[] getClassNames() {
+    String[] out = new String[mClasses.values().size()];
+    mClasses.keySet().toArray(out);
+    return out;
+  }
+
+  public JClassIterator getClasses() {
+    return new JClassIterator(this,getClassNames());
+  }
+
+  // ========================================================================
+  // JClassLoader implementation
+
+  public JClass loadClass(String classname) {
+    JClass out = (JClass)mClasses.get(classname);
+    if (out != null) return out;
+    return mBaseClassLoader.loadClass(classname);
+  }
+
+  public JPackage getPackage(String qualifiedPackageName) {
+    return mBaseClassLoader.getPackage(qualifiedPackageName);
+  }
+
+  public JAnnotationLoader getAnnotationLoader() {
+    return mAnnotationLoader;
+  }
+
+  public JClassLoader getParent() {
+    return mBaseClassLoader;
+  }
 }

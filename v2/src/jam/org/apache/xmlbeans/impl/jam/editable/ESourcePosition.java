@@ -53,48 +53,34 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.provider;
+package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.JSourcePosition;
+
+import java.net.URI;
 
 /**
- * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
- * to build a new JClass, it will try each builder on the list until
- * one of them is able to build the class.
+ * An editable description of a location in a source file.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeJClassBuilder implements JClassBuilder {
+public interface ESourcePosition extends JSourcePosition {
 
-  // ========================================================================
-  // Variables
+  /**
+   * Sets the text column number for this source position.  Set to -1 if
+   * it is not known.
+   */
+  public void setColumn(int col);
 
-  private JClassBuilder[] mServices;
+  /**
+   * Sets the text line number for this source position.  Set to -1 if
+   * it is not known.
+   */
+  public void setLine(int line);
 
-  // ========================================================================
-  // Constructors
-
-  public CompositeJClassBuilder(JClassBuilder[] services) {
-    if (services == null) throw new IllegalArgumentException("null services");
-    mServices = services;
-  }
-
-  // ========================================================================
-  // JClassBuilder implementation
-
-  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
-    JClass out = null;
-    for(int i=0; i<mServices.length; i++) {
-      out = mServices[i].buildJClass(qualifiedName,loader);
-      if (out != null) return out;
-    }
-    return null;
-  }
-
-  public boolean populateClass(EClass clazz) {
-    throw new IllegalStateException();
-  }
+  /**
+   * Sets the URI of the source file.  Set to null if it is not known.
+   */
+  public void setSourceURI(URI uri);
 
 }
