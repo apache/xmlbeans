@@ -43,10 +43,4 @@ public interface MAnnotatedElement extends MElement, JAnnotatedElement {
   //DOCME
   public void removeComment();
 
-
-
-  /**
-   * @deprecated
-   */
-  public MAnnotation addAnnotationForTag(String tagName, String value);
 }

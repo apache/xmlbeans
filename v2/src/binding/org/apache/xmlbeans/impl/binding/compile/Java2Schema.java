@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
 import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
+import org.apache.xmlbeans.impl.binding.compile.internal.Java2SchemaAnnotationHelper;
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -31,6 +32,8 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -48,10 +51,7 @@ public class Java2Schema extends BindingCompiler {
   // =========================================================================
   // Constants
 
-  private static final String JAVA_URI_SCHEME      = "java:";
-  private static final String JAVA_NAMESPACE_URI   = "language_builtins";
-  private static final String JAVA_PACKAGE_PREFIX  = "java.";
-
+  //FIXME these should be hidden away down in Java2SchemaAnnotationHelper
   public static final String TAG_CT               = "xsdgen:complexType";
   public static final String TAG_CT_EXCLUDE       = TAG_CT+".exclude";
   public static final String TAG_CT_TYPENAME      = TAG_CT+".typeName";
@@ -90,6 +90,12 @@ public class Java2Schema extends BindingCompiler {
   // the input classes
   private JClass[] mClasses;
 
+  private Java2SchemaAnnotationHelper mAnnHelper =
+    Java2SchemaAnnotationHelper.getInstance();
+
+  // Set of JClasses for which element annotations have already been processed.
+  private Set mCheckForElements = new HashSet();
+
   // =========================================================================
   // Constructors
 
@@ -111,10 +117,16 @@ public class Java2Schema extends BindingCompiler {
     mBindingFile = new BindingFile();
     mLoader = CompositeBindingLoader.forPath
             (new BindingLoader[] {mBindingFile, super.getBaseBindingLoader()});
-    //This does the binding
-    for(int i=0; i<mClasses.length; i++) {
-      if (!getAnnotation(mClasses[i],TAG_CT_EXCLUDE,false)) {
-        getBindingTypeFor(mClasses[i]);
+    { // generate/bind types
+      for(int i=0; i<mClasses.length; i++) {
+        if (!mAnnHelper.isExclude(mClasses[i])) {
+          getBindingTypeFor(mClasses[i]);
+        }
+      }
+    }
+    { // generate/bind elements
+      for(Iterator i = mCheckForElements.iterator(); i.hasNext(); ) {
+        ensureElementsExistFor((JClass)i.next());
       }
     }
     //
@@ -171,7 +183,6 @@ public class Java2Schema extends BindingCompiler {
     return out;
   }
 
-
   /**
    * Returns a bts BindingType for the given JClass.  If such a type
    * has not yet been registered with the loader, it will be created.
@@ -179,12 +190,55 @@ public class Java2Schema extends BindingCompiler {
    * @param clazz Java type for which to return a binding.
    */
   private BindingType getBindingTypeFor(JClass clazz) {
+    if (clazz == null) throw new IllegalArgumentException("null clazz");
+    mCheckForElements.add(clazz);
     BindingTypeName btn = mLoader.lookupTypeFor(getJavaName(clazz));
     if (btn != null) {
       BindingType out = mLoader.getBindingType(btn);
       if (out != null) return out;
     }
     return createBindingTypeFor(clazz);
+  }
+
+  private void ensureElementsExistFor(JClass clazz) {
+    if (clazz == null) throw new IllegalArgumentException("null clazz");
+    BindingTypeName btn = mLoader.lookupTypeFor(JavaTypeName.forJClass(clazz));
+    if (btn == null) {
+      logWarning("No bindings produced for "+clazz.getQualifiedName()+", " +
+                 "skipping element generation");
+      return;
+    }
+    QName typeQName = btn.getXmlName().getQName();
+    QName[] tes = mAnnHelper.getTargetElements(clazz);
+    if (tes != null) {
+      for(int i=0; i<tes.length; i++ ) {
+        logVerbose("creating target element "+tes[i]);
+        // create an appropriate schema element, if appropriate
+        SchemaDocument.Schema destSchema =
+          findOrCreateSchema(tes[i].getNamespaceURI());
+        if (!containsElementNamed(destSchema, tes[i].getLocalPart())) {
+          TopLevelElement elem = destSchema.addNewElement();
+          elem.setName(tes[i].getLocalPart());
+          elem.setType(typeQName);
+        }
+        // create a binding entry
+        BindingTypeName docBtName = BindingTypeName.forPair
+          (getJavaName(clazz),
+           XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, tes[i]));
+        SimpleDocumentBinding sdb = new SimpleDocumentBinding(docBtName);
+        sdb.setTypeOfElement(XmlTypeName.forTypeNamed(typeQName));
+        mBindingFile.addBindingType(sdb,false,true);
+      }
+    }
+  }
+
+  private boolean containsElementNamed(SchemaDocument.Schema xsd, String elementName) {
+    // this is fairly gross, ma
+    TopLevelElement[] es = xsd.getElementArray();
+    for(int i=0; i<es.length; i++) {
+      if (elementName.equals(es[i].getName())) return true;
+    }
+    return false;
   }
 
   /**
@@ -195,13 +249,12 @@ public class Java2Schema extends BindingCompiler {
    * @param clazz Java type for which to generate a binding.
    */
   private BindingType createBindingTypeFor(JClass clazz) {
+    logVerbose("** creating binding type for "+clazz.getQualifiedName()+" "+clazz.isPrimitiveType());
     // create the schema type
-    SchemaDocument.Schema schema = findOrCreateSchema(getTargetNamespace(clazz));
+    QName targetQname = mAnnHelper.getTargetTypeName(clazz);
+    SchemaDocument.Schema schema = findOrCreateSchema(targetQname.getNamespaceURI());
     TopLevelComplexType xsType = schema.addNewComplexType();
-    String tns = getTargetNamespace(clazz);
-    String xsdName = getAnnotation(clazz,TAG_CT_TYPENAME,clazz.getSimpleName());
-    QName qname = new QName(tns,xsdName);
-    xsType.setName(xsdName);
+    xsType.setName(targetQname.getLocalPart());
     // deal with inheritance - see if it extends anything
     JClass superclass = clazz.getSuperclass();
     // we have to remember whether we created an ExtensionType because that
@@ -212,7 +265,7 @@ public class Java2Schema extends BindingCompiler {
     ExtensionType extType = null;
     BindingType superBindingType = null;
     if (superclass != null && !superclass.isObjectType() &&
-      !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
+      !mAnnHelper.isIgnoreSuper(clazz)) {
       // FIXME we're ignoring interfaces at the moment
       superBindingType = getBindingTypeFor(superclass);
       ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
@@ -221,7 +274,7 @@ public class Java2Schema extends BindingCompiler {
     }
     // create a binding type
     BindingTypeName btname = BindingTypeName.forPair(getJavaName(clazz),
-                                                     XmlTypeName.forTypeNamed(qname));
+                                                     XmlTypeName.forTypeNamed(targetQname));
     ByNameBean bindType = new ByNameBean(btname);
     mBindingFile.addBindingType(bindType,true,true);
     if (clazz.isPrimitiveType()) {
@@ -229,7 +282,6 @@ public class Java2Schema extends BindingCompiler {
       logError("Unexpected simple type",clazz);
       return bindType;
     }
-
     //add super's props first
     if (superBindingType != null) {
       //REVIEW: will it ever be possible to have another type as the super type?
@@ -243,32 +295,14 @@ public class Java2Schema extends BindingCompiler {
       bindType.setAnyAttributeProperty(super_type.getAnyAttributeProperty());
       bindType.setAnyElementProperty(super_type.getAnyElementProperty());
     }
-
-    String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
-    if (rootName != null) {
-      QName rootQName = new QName(tns, rootName);
-      BindingTypeName docBtName =
-              BindingTypeName.forPair(getJavaName(clazz),
-                                      XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, rootQName));
-      SimpleDocumentBinding sdb = new SimpleDocumentBinding(docBtName);
-      sdb.setTypeOfElement(btname.getXmlName());
-      mBindingFile.addBindingType(sdb,true,true);
-    }
-    // run through the class' properties to populate the binding and xsdtypes
-    SchemaPropertyFacade facade = new SchemaPropertyFacade(xsType,extType,bindType,tns);
-    Map props2issetters = new HashMap();
-    getIsSetters(clazz,props2issetters);
-    bindProperties(clazz.getDeclaredProperties(),props2issetters,facade);
-    facade.finish();
-    // check to see if they want to create a root elements from this type
-    JAnnotation[] anns = getNamedTags(clazz.getAllJavadocTags(),TAG_CT_ROOT);
-    for(int i=0; i<anns.length; i++) {
-      TopLevelElement root = schema.addNewElement();
-      root.setName(makeNcNameSafe(anns[i].getValue
-                                  (JAnnotation.SINGLE_VALUE_NAME).asString()));
-      root.setType(qname);
-      // FIXME still not entirely clear to me what we should do about
-      // the binding file here
+    {
+      // run through the class' properties to populate the binding and xsdtypes
+      SchemaPropertyFacade facade = new SchemaPropertyFacade
+        (xsType,extType,bindType,targetQname.getNamespaceURI());
+      Map props2issetters = new HashMap();
+      getIsSetters(clazz,props2issetters);
+      bindProperties(clazz.getDeclaredProperties(),props2issetters,facade);
+      facade.finish();
     }
     return bindType;
   }
@@ -315,7 +349,7 @@ public class Java2Schema extends BindingCompiler {
                               Map props2issetters,
                               SchemaPropertyFacade facade) {
     for(int i=0; i<props.length; i++) {
-      if (getAnnotation(props[i],TAG_EL_EXCLUDE,false)) {
+      if (mAnnHelper.getAnnotation(props[i],TAG_EL_EXCLUDE,false)) {
         logVerbose("Marked excluded, skipping",props[i]);
         continue;
       }
@@ -325,20 +359,19 @@ public class Java2Schema extends BindingCompiler {
       }
       String propName;
       { // determine the property name to use and set it
-        propName = getAnnotation(props[i], TAG_AT_NAME, null);
+        propName = mAnnHelper.getAnnotation(props[i], TAG_AT_NAME, null);
         if (propName != null) {
           facade.newAttributeProperty(props[i]);
         } else {
           facade.newElementProperty(props[i]);
-          propName = getAnnotation(props[i], TAG_EL_NAME,
-                                   props[i].getSimpleName());
+          propName = mAnnHelper.getAnnotation(props[i], TAG_EL_NAME,
+                                              props[i].getSimpleName());
         }
-        assert propName != null;
         facade.setSchemaName(propName);
       }
       { // determine the property type to use and set it
         JClass propType = null;
-        String annotatedType = getAnnotation(props[i],TAG_EL_ASTYPE,null);
+        String annotatedType = mAnnHelper.getAnnotation(props[i],TAG_EL_ASTYPE,null);
         if (annotatedType == null) {
           facade.setType(propType = props[i].getType());
         } else {
@@ -389,65 +422,6 @@ public class Java2Schema extends BindingCompiler {
   }
 
   /**
-   * Returns the string value of a named annotation, or the provided default
-   * if the annotation is not present.
-   * REVIEW seems like having this functionality in jam_old would be nice
-   */
-  private String getAnnotation(JAnnotatedElement elem,
-                               String annName,
-                               String dflt) {
-    //System.out.print("checking for "+annName+" on "+elem.getQualifiedName());
-    JAnnotation ann = getAnnotation(elem,annName);
-    if (ann == null) {
-      //System.out.println("...no annotation");
-      return dflt;
-    }
-    JAnnotationValue val = ann.getValue(JAnnotation.SINGLE_VALUE_NAME);
-    if (val == null) {
-      //System.out.println("...no value!!!");
-      return dflt;
-    }
-    //System.out.println("\n\n\n...value of "+annName+" is "+val.asString()+"!!!!!!!!!");
-    return val.asString();
-  }
-
-  /**
-   * Returns the boolean value of a named annotation, or the provided default
-   * if the annotation is not present.
-   * REVIEW seems like having this functionality in jam_old would be nice
-   */
-  private boolean getAnnotation(JAnnotatedElement elem,
-                                String annName,
-                                boolean dflt) {
-    //System.out.print("checking for "+annName+" on "+elem.getQualifiedName());
-    JAnnotation ann = getAnnotation(elem,annName);
-    if (ann == null) {
-      //System.out.println("...no annotation");
-      return dflt;
-    }
-    JAnnotationValue val = ann.getValue(JAnnotation.SINGLE_VALUE_NAME);
-    if (val == null || val.asString().length() == 0) {
-      //System.out.println("\n\n\n...no value, returning true!!!");
-      //this is a little bit gross.  the logic here is that if the tag is
-      //present but empty, it actually is a true value.  E.g., an empty
-      //@exclude tag means "yes, do exclude."
-      return true;
-    }
-    //System.out.println("\n\n\n...value of "+annName+" is "+val.asBoolean()+"!!!!!!!!!");
-    return val.asBoolean();
-  }
-
-  //FIXME this is temporary until we get the tags/175 sorted out
-  private JAnnotation getAnnotation(JAnnotatedElement e,
-                                    String named) {
-    JAnnotation[] tags = e.getAllJavadocTags();
-    for(int i=0; i<tags.length; i++) {
-      if (tags[i].getSimpleName().equals(named)) return tags[i];
-    }
-    return null;
-  }
-
-  /**
    * Returns a QName for the type bound to the given JClass.
    */
   private QName getQnameFor(JClass clazz) {
@@ -459,29 +433,6 @@ public class Java2Schema extends BindingCompiler {
     if (bt != null) return bt.getName().getXmlName().getQName();
     logError("could not get qname",clazz);
     return new QName("ERROR",clazz.getQualifiedName());
-  }
-
-  /**
-   * Returns a target namespace that should be used for the given class.
-   * This takes annotations into consideration.
-   */
-  private String getTargetNamespace(JClass clazz) {
-    String val = getAnnotation(clazz,TAG_CT_TARGETNS,null);
-    if (val != null) return val;
-    // Ok, they didn't specify it in the markup, so we have to
-    // synthesize it from the classname.
-    String pkg_name;
-    if (clazz.isPrimitiveType()) {
-      pkg_name = JAVA_NAMESPACE_URI;
-    } else {
-      JPackage pkg = clazz.getContainingPackage();
-      pkg_name = (pkg == null) ? "" : pkg.getQualifiedName();
-      if (pkg_name.startsWith(JAVA_PACKAGE_PREFIX)) {
-        pkg_name = JAVA_NAMESPACE_URI+'.'+
-                pkg_name.substring(JAVA_PACKAGE_PREFIX.length());
-      }
-    }
-    return JAVA_URI_SCHEME + pkg_name;
   }
 
 
@@ -632,6 +583,7 @@ public class Java2Schema extends BindingCompiler {
      * generated schema.
      */
     public void setSchemaName(String name) {
+      if (name == null) throw new IllegalArgumentException("null name");
       name = makeNcNameSafe(name);
       if (mXsElement != null) {
         mXsElement.setName(name);

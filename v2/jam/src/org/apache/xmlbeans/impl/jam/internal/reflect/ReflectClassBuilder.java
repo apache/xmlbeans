@@ -34,7 +34,7 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
   // ========================================================================
   // Constants
 
-  private static final String JAVA15_EXTRACTOR =
+  private static final String JAVA15_DELEGATE =
     "org.apache.xmlbeans.impl.jam.internal.java15.Reflect15DelegateImpl";
 
   // ========================================================================
@@ -74,20 +74,20 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
     // ok, if we could load that, let's new up the extractor delegate
     try {
       mDelegate = (Reflect15Delegate)
-        Class.forName(JAVA15_EXTRACTOR).newInstance();
+        Class.forName(JAVA15_DELEGATE).newInstance();
       mDelegate.init((ElementContext)ctx);
       // if this fails for any reason, things are in a bad state
     } catch (ClassNotFoundException e) {
       mLogger.error("Internal error, failed to instantiate "+
-                    JAVA15_EXTRACTOR);
+                    JAVA15_DELEGATE);
       mLogger.error(e);
     } catch (IllegalAccessException e) {
       mLogger.error("Internal error, failed to instantiate "+
-                    JAVA15_EXTRACTOR);
+                    JAVA15_DELEGATE);
       mLogger.error(e);
     } catch (InstantiationException e) {
       mLogger.error("Internal error, failed to instantiate "+
-                    JAVA15_EXTRACTOR);
+                    JAVA15_DELEGATE);
       mLogger.error(e);
     }
   }
@@ -221,37 +221,4 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
     p.setType(paramType.getName());
     return p;
   }
-
-
-
-
-//salvaged from RClassLoader, may be useful for parser
-  /*
-  private void validateClassName(String className)
-          throws IllegalArgumentException
-  {
-    if (!Character.isJavaIdentifierStart(className.charAt(0))) {
-      throw new IllegalArgumentException
-              ("Invalid first character in class name: "+className);
-    }
-    for(int i=1; i<className.length(); i++) {
-      char c = className.charAt(i);
-      if (c == '.') {
-        if (className.charAt(i-1) == '.') {
-          throw new IllegalArgumentException
-                  ("'..' not allowed in class name: "+className);
-        }
-        if (i == className.length()-1) {
-          throw new IllegalArgumentException
-                  ("'.' not allowed at end of class name: "+className);
-        }
-      } else {
-        if (!Character.isJavaIdentifierPart(c)) {
-          throw new IllegalArgumentException
-                  ("Illegal character '"+c+"' in class name: "+className);
-        }
-      }
-    }
-  }
-  */
 }
