@@ -1,6 +1,7 @@
-<project name="Xbean" default="default" basedir=".">  
+<project name="Xbean" default="default" basedir=".">
 
   <property name="build.compiler" value="javac1.4"/>
+  <property name="product.version" value="1.0.0"/>
 
   <target name="usage">
     <echo message="The following ant targets are defined:"/>
@@ -405,45 +406,32 @@
   </target>
 
 
-  <target name="xkit" depends="xbean, docs">
-     <delete dir="build/private/xkit"/>
-     <delete file="build/private/xkit.zip"/>
+  <target name="dist" depends="xbean, docs">
+     <delete dir="build/private/xmlbeans-${product.version}"/>
+     <delete file="build/private/incubated-xmlbeans-${product.version}.zip"/>
 
-     <mkdir dir="build/private/xkit"/>
-     <copy todir="build/private/xkit">
+     <mkdir dir="build/private/xmlbeans-${product.version}"/>
+     <copy todir="build/private/xmlbeans-${product.version}">
         <fileset dir="xkit"/>
      </copy>
 
-     <mkdir dir="build/private/xkit/lib"/>
-     <copy todir="build/private/xkit/lib" file="build/ar/xbean.jar"/>
+     <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
+     <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/ar/xbean.jar"/>
 
-     <mkdir dir="build/private/xkit/src"/>
-     <copy todir="build/private/xkit/src">
-        <fileset dir="src/xmlpublic"/>
-        <fileset dir="src/common"/>
-        <fileset dir="src/configschema"/>
-        <fileset dir="src/typeimpl"/>
-        <fileset dir="src/typestore"/>
-        <fileset dir="src/xmlcomp"/>
-        <fileset dir="src/xmlconfig"/>
-        <fileset dir="src/xmlstore"/>
-        <fileset dir="src/xmlschema"/>
-        <fileset dir="src/xsdschema"/>
-     </copy>
-
-     <mkdir dir="build/private/xkit/src/schema"/>
-     <copy todir="build/private/xkit/src/schema">
+     <mkdir dir="build/private/xmlbeans-${product.version}/src/schema"/>
+     <copy todir="build/private/xmlbeans-${product.version}/src/schema">
         <fileset dir="src/toolschema"/>
      </copy>
 
-     <mkdir dir="build/private/xkit/javadoc"/>
-     <copy todir="build/private/xkit/javadoc">
+     <mkdir dir="build/private/xmlbeans-${product.version}/docs"/>
+     <copy todir="build/private/xmlbeans-${product.version}/docs">
         <fileset dir="build/docs"/>
      </copy>
 
-     <zip destfile="build/private/xkit.zip"
+      <!-- todo for gump?: add yyyyMMdd into filename - rem -->
+      <zip destfile="build/private/incubated-xmlbeans-${product.version}.zip"
           basedir="build/private"
-          includes="xkit/**"/>
+          includes="xmlbeans-${product.version}/**"/>
   </target>
 
   <!-- previously in xbean.xml -->
