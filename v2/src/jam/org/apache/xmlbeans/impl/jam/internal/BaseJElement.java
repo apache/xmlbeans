@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.jam.internal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import org.apache.xmlbeans.impl.jam.*;
 
 /**
@@ -71,17 +72,17 @@ public abstract class BaseJElement implements JElement {
   // Constants
 
   // help reduce object waste
-  public static final JElement[]     NO_NODE        = new JElement[0];
-  public static final JClass[]       NO_CLASS       = new JClass[0];
-  public static final JField[]       NO_FIELD       = new JField[0];
+  public static final JElement[] NO_NODE = new JElement[0];
+  public static final JClass[] NO_CLASS = new JClass[0];
+  public static final JField[] NO_FIELD = new JField[0];
   public static final JConstructor[] NO_CONSTRUCTOR = new JConstructor[0];
-  public static final JMethod[]      NO_METHOD      = new JMethod[0];
-  public static final JParameter[]   NO_PARAMETER   = new JParameter[0];
-  public static final JPackage[]     NO_PACKAGE     = new JPackage[0];
-  public static final JAnnotation[]  NO_ANNOTATION  = new JAnnotation[0];
+  public static final JMethod[] NO_METHOD = new JMethod[0];
+  public static final JParameter[] NO_PARAMETER = new JParameter[0];
+  public static final JPackage[] NO_PACKAGE = new JPackage[0];
+  public static final JAnnotation[] NO_ANNOTATION = new JAnnotation[0];
 
-  public static final JComment[]     NO_COMMENT     = new JComment[0];
-  public static final JProperty[]    NO_PROPERTY    = new JProperty[0];
+  public static final JComment[] NO_COMMENT = new JComment[0];
+  public static final JProperty[] NO_PROPERTY = new JProperty[0];
 
   private static final String ANNOTATION_SEPARATOR = "@";
 
@@ -95,7 +96,8 @@ public abstract class BaseJElement implements JElement {
   // ========================================================================
   // Constructors
 
-  protected BaseJElement() {}
+  protected BaseJElement() {
+  }
 
   private List getTempList() {
     return new ArrayList();
@@ -117,10 +119,10 @@ public abstract class BaseJElement implements JElement {
       List list = getTempList();
       getLocalAnnotations(list);
       if (list.size() == 0) {
-	mAnns = NO_ANNOTATION;
+        mAnns = NO_ANNOTATION;
       } else {
-	mAnns = new JAnnotation[list.size()];
-	list.toArray(mAnns);
+        mAnns = new JAnnotation[list.size()];
+        list.toArray(mAnns);
       }
     }
     return mAnns; // FIXME do we need to return a copy?
@@ -128,7 +130,7 @@ public abstract class BaseJElement implements JElement {
 
   public final JAnnotation[] getAnnotations(String named) {
     List list = getTempList();
-    gatherAnnotations(named,list);
+    gatherAnnotations(named, list);
     JAnnotation[] out = new JAnnotation[list.size()];
     list.toArray(out);
     return out;
@@ -139,13 +141,13 @@ public abstract class BaseJElement implements JElement {
       List list = getTempList();
       getLocalComments(list);
       /*      if (mContext.getExtraMarkupStore() != null) {
-	mContext.getExtraMarkupStore().getComments(this,list);
-	}*/
+      mContext.getExtraMarkupStore().getComments(this,list);
+      }*/
       if (list.size() == 0) {
-	mComments = NO_COMMENT;
+        mComments = NO_COMMENT;
       } else {
-	mComments = new JComment[list.size()];
-	list.toArray(mComments);
+        mComments = new JComment[list.size()];
+        list.toArray(mComments);
       }
     }
     return mComments; // FIXME do we need to return a copy?
@@ -159,7 +161,9 @@ public abstract class BaseJElement implements JElement {
   // ========================================================================
   // Object implementation
 
-  public String toString() { return getQualifiedName(); }
+  public String toString() {
+    return getQualifiedName();
+  }
 
   // ========================================================================
   // Methods to be implemented by subclasses
@@ -186,19 +190,19 @@ public abstract class BaseJElement implements JElement {
     JAnnotation[] anns = getAnnotations();
     if (anns == NO_ANNOTATION) return;
     int dot = fullName.indexOf(ANNOTATION_SEPARATOR);
-    String subname = (dot == -1) ? fullName : fullName.substring(0,dot);
-    String postfix = (dot == -1 || dot == fullName.length()-1) ?
-      null : fullName.substring(dot+1);
+    String subname = (dot == -1) ? fullName : fullName.substring(0, dot);
+    String postfix = (dot == -1 || dot == fullName.length() - 1) ?
+            null : fullName.substring(dot + 1);
     // System.out.println("===== "+subname+"  "+postfix);
-    for(int i=0; i<anns.length; i++) {
+    for (int i = 0; i < anns.length; i++) {
       if (anns[i].getName().equals(subname)) {
-	if (postfix == null) {
-	  out.add(anns[i]);
-	} else {
-	  // REVIEW nasty cast.  Alternative is to expose this method
-	  // via a private interface, but that seems like overkill.
-	  ((BaseJElement)anns[i]).gatherAnnotations(postfix,out);
-	}
+        if (postfix == null) {
+          out.add(anns[i]);
+        } else {
+          // REVIEW nasty cast.  Alternative is to expose this method
+          // via a private interface, but that seems like overkill.
+          ((BaseJElement) anns[i]).gatherAnnotations(postfix, out);
+        }
       }
     }
   }
@@ -211,9 +215,11 @@ public abstract class BaseJElement implements JElement {
 
   public boolean equals(Object o) {
     return (o instanceof JElement) &&
-      getQualifiedName().equals(((JElement)o).getQualifiedName());
+            getQualifiedName().equals(((JElement) o).getQualifiedName());
   }
 
-  public int hashCode() { return getQualifiedName().hashCode(); }
+  public int hashCode() {
+    return getQualifiedName().hashCode();
+  }
 
 }

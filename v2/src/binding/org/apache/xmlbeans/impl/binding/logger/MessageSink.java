@@ -53,7 +53,9 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.binding.compile;
+package org.apache.xmlbeans.impl.binding.logger;
+
+
 
 /**
  * Implemented by helper objects which can receive log messages from a
@@ -64,7 +66,7 @@ package org.apache.xmlbeans.impl.binding.compile;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface BindingLogger {
+public interface MessageSink {
 
   /**
    * Logs a message that was produced while performing binding
@@ -72,5 +74,5 @@ public interface BindingLogger {
    *
    * @param msg  message to be logged
    */
-  public void log(BindingLoggerMessage msg);
+  public void log(Message msg);
 }

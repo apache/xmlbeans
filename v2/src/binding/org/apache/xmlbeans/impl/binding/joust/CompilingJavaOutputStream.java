@@ -74,6 +74,11 @@ public class CompilingJavaOutputStream extends SourceJavaOutputStream
         implements WriterFactory
  {
   // ========================================================================
+  // Constants
+
+  private static final String PREFIX = "[CompilingJavaOutputStream] ";
+
+  // ========================================================================
   // Variables
 
   private FileWriterFactory mWriterFactoryDelegate;
@@ -83,6 +88,7 @@ public class CompilingJavaOutputStream extends SourceJavaOutputStream
   private File[] mJavacClasspath = null;
   private boolean mKeepGenerated;
   private String mJavacPath = null;
+  private boolean mDoCompile = true;
 
   // ========================================================================
   // Constructors
@@ -155,6 +161,14 @@ public class CompilingJavaOutputStream extends SourceJavaOutputStream
     mKeepGenerated = b;
   }
 
+  /**
+   * Sets whether javac should be run on the generated sources.  Default
+   * is true.
+   */
+  public void setDoCompile(boolean b) {
+    mDoCompile = b;
+  }
+
   // ========================================================================
   // WriterFactory implementation
 
@@ -178,22 +192,26 @@ public class CompilingJavaOutputStream extends SourceJavaOutputStream
 
   public void close() throws IOException {
     super.close();
-    if (mCompileDir != null) {
-      if (mVerbose) {
-        System.out.println("compileDir = "+mCompileDir);
-        Iterator i = mSourceFiles.iterator();
-        while(i.hasNext()) {
-          System.out.println(i.next().toString());
-        }
+    mLogger.logVerbose(PREFIX+" closing");
+    if (mDoCompile && mCompileDir != null) {
+      mLogger.logVerbose(PREFIX+"compileDir = "+mCompileDir);
+      Iterator i = mSourceFiles.iterator();
+      while(i.hasNext()) {
+        mLogger.logVerbose(PREFIX+i.next().toString());
       }
+      boolean verbose = mLogger.isVerbose();
       boolean result = CodeGenUtil.externalCompile
               (mSourceFiles,mCompileDir,mJavacClasspath,
-               mVerbose,mJavacPath,null,null,!mVerbose,mVerbose);
+               verbose,mJavacPath,null,null,!verbose,verbose);
+      mLogger.logVerbose(PREFIX+" compilation result: "+result);
       if (!result) {
         throw new IOException("Compilation of sources failed, " +
                               "check log for details.");
       }
-      if (!mKeepGenerated) mSourceDir.delete();
+      if (!mKeepGenerated) {
+        mLogger.logVerbose(PREFIX+" deleting "+mSourceDir);
+        mSourceDir.delete();
+      }
     }
   }
 }

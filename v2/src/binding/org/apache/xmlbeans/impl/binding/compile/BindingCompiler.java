@@ -56,20 +56,18 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.tylar.*;
-import org.apache.xmlbeans.impl.binding.joust.CompilingJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
-import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
+import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JFactory;
 import org.apache.xmlbeans.*;
 import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3.x2001.xmlSchema.Element;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -90,39 +88,22 @@ import java.util.Collection;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public abstract class BindingCompiler {
-
-  // ========================================================================
-  // Constants
-
-  private static final BindingLogger DEFAULT_LOG = new SimpleBindingLogger();
+public abstract class BindingCompiler extends BindingLogger
+        implements TypeMatcherContext {
 
   // ========================================================================
   // Variables
 
-  private BindingLogger mLogger = DEFAULT_LOG;
-  private boolean mAnyErrorsFound = false;
-  private boolean mIgnoreErrors = false;
-  private boolean mVerbose = false;
-  private boolean mDoCompile = true;
   private Tylar[] mBaseLibraries = null;
   private BindingLoader mBaseBindingLoader = null;
   private SchemaTypeLoader mBaseSchemaTypeLoader = null;
   private JClassLoader mBaseJClassLoader = null;
   private boolean mIsCompilationStarted = false;
 
-  // this is the joust we use to build up the tylar that is passed to
-  // the subclass' bind() methods in all cases.  However, BindingCompiler
-  // makes no assumption that the subclass will actually make use of any
-  // of the codegen facilities - they're just there if you want them.
-  private CompilingJavaOutputStream mJoust;
-
   // ========================================================================
   // Constructors
 
-  public BindingCompiler() {
-    mJoust = new CompilingJavaOutputStream();
-  }
+  public BindingCompiler() {}
 
   // ========================================================================
   // Abstract/Overrideable methods
@@ -135,6 +116,12 @@ public abstract class BindingCompiler {
    */
   public abstract void bind(TylarWriter writer);
 
+  /**
+   * Should be overridden by subclasses which want a java output stream
+   * attached to TylarWriters.
+   */
+  protected JavaOutputStream getJoust(File tylarDestDir) { return null; }
+
   // ========================================================================
   // Public methods
 
@@ -142,16 +129,10 @@ public abstract class BindingCompiler {
    * Performs the binding and returns an exploded tylar in the specified
    * directory.  Returns null if any severe errors were encountered.
    */
-  public ExplodedTylar bindAsExplodedTylar(File tylarDestDir)
-  {
-    mJoust.setSourceDir(new File(tylarDestDir,TylarConstants.SRC_ROOT));
-    if (mDoCompile) {
-      // signal the compile outputstream to compile classes
-      mJoust.setCompilationDir(tylarDestDir);
-    }
+  public ExplodedTylar bindAsExplodedTylar(File tylarDestDir)  {
     ExplodedTylarImpl tylar;
     try {
-      tylar = ExplodedTylarImpl.create(tylarDestDir,mJoust);
+      tylar = ExplodedTylarImpl.create(tylarDestDir,getJoust(tylarDestDir));
     } catch(IOException ioe) {
       logError(ioe);
       return null;
@@ -162,16 +143,17 @@ public abstract class BindingCompiler {
         return null;
       }
     }
-    bind((TylarWriter)tylar);
+    bind(tylar); //ExplodedTylarImpl is also a TylarWriter
     try {
       // close it up.  this may cause the generated code to be compiled.
-      if (mDoCompile) logVerbose("Compiling java sources...");
       tylar.close();
     } catch(IOException ioe) {
       logError(ioe);
     }
-    return !mAnyErrorsFound || mIgnoreErrors ? tylar : null;
+    return !super.isAnyErrorsFound() || super.isIgnoreErrors() ? tylar : null;
   }
+
+
 
   /**
    * Performs the binding and returns a tylar in the specified jar file.
@@ -209,15 +191,9 @@ public abstract class BindingCompiler {
     mBaseLibraries = list;
   }
 
-  /**
-   * Sets the BindingLogger which will receive log messages from work
-   * done by this BindingCompiler.
-   */
-  public void setLogger(BindingLogger logger) {
-    if (logger == null) throw new IllegalArgumentException("null logger");
-    assertCompilationStarted(false);
-    mLogger = logger;
-  }
+
+  // ========================================================================
+  // BindingLogger overrides
 
   /**
    * Sets whether this compiler should return a result and keep artificats
@@ -227,62 +203,21 @@ public abstract class BindingCompiler {
    */
   public void setIgnoreSevereErrors(boolean really) {
     assertCompilationStarted(false);
-    mIgnoreErrors = true;
+    super.setIgnoreErrors(really);
   }
 
   /**
-   * Sets whether this BindingCompiler should keep any generated java source
-   * code it generates.  The default is true.  Note that not all
-   * BindingCompilers generate any source code at all, so setting this may
-   * have no effect.
-   */
-  public void setCompileJava(boolean b) {
-    assertCompilationStarted(false);
-    mDoCompile = b;
-  }
-
-  /**
-   * Sets the location of javac to be invoked.  Default compiler is used
-   * if this is not set.  Ignored if doCompile is set to false.  Also note
-   * that not all BindingCompilers generate any source code at all, so
-   * setting this may have no effect.
-   */
-  public void setJavac(String javacPath) {
-    assertCompilationStarted(false);
-    mJoust.setJavac(javacPath);
-  }
-
-  /**
-   * Sets the classpath to use for compilation of generated sources.
-   * The System classpath is used by default.  This is ignored if doCompile is
-   * false.  Also note that not all BindingCompilers generate any source
-   * code at all, so setting this may have no effect.
-   */
-  public void setJavacClasspath(File[] classpath) {
-    assertCompilationStarted(false);
-    mJoust.setJavacClasspath(classpath);
-  }
-
-  /**
-   * Sets whether this BindingCompiler should keep any generated java source
-   * code it generates.  The default is true.  This will have no effect if
-   * doCompile is set to false.  Also note that not all BindingCompilers
-   * generate any source code at all, so setting this may have no effect in
-   * any event.
-   */
-  public void setKeepGeneratedJava(boolean b) {
-    assertCompilationStarted(false);
-    mJoust.setKeepGenerated(b);
-  }
-
-  /**
-   * Enables verbose output to our BindingLogger.
+   * Enables verbose output to our MessageSink.
    */
   public void setVerbose(boolean b) {
     assertCompilationStarted(false);
-    mJoust.setVerbose(b);
-    mVerbose = b;
+    super.setVerbose(b);
   }
+
+  // ========================================================================
+  // TypeMatcherContext impl
+
+  public BindingLogger getLogger() { return this; }
 
   // ========================================================================
   // Protected methods
@@ -407,176 +342,6 @@ public abstract class BindingCompiler {
     mIsCompilationStarted = true;
   }
 
-  // ========================================================================
-  // Protected logging methods
-  //
-  //   These methods provide subclasses with a tighter interface to the
-  //   logger, as well as 'choke points' so that we can, for example,
-  //   suppress verbose messages.
-  //
-  //   It also allows us to indicate to the subclass whether or not
-  //   processing should proceed after a given message is logged.
-  //   Currently, this is just a yes/no flag that applies to all errors,
-  //   but one could imagine wanting to be more discriminating someday.
-
-  /**
-   * Logs a message that some error occurred while performing binding.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(String msg) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,msg,null,null,null,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that an error occurred.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(Throwable t) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,null,t,null,null,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(Throwable error, JElement javaContext) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,null,error,javaContext,null,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given schema construct.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(Throwable error, SchemaType schemaContext) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,null,error,null,schemaContext,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java and schema constructs.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(Throwable t, JElement jCtx, SchemaType xsdCtx) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,null,t,jCtx,xsdCtx,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given java construct.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(String msg, JElement javaContext) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,msg,null,javaContext,null,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given schema construct.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(String msg, SchemaType xsdCtx) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,msg,null,null,xsdCtx,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given schema construct.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(String msg, JElement javaCtx, SchemaType xsdCtx) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,msg,null,javaCtx,xsdCtx,null));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs a message that fatal error that occurred while performing binding
-   * on the given schema construct.
-   *
-   * @return true if processing should attempt to continue.
-   */
-  protected boolean logError(String msg, JElement jCtx, SchemaProperty xCtx) {
-    mAnyErrorsFound = true;
-    mLogger.log(new BindingLoggerMessageImpl
-            (Level.SEVERE,msg,null,jCtx,null,xCtx));
-    return mIgnoreErrors;
-  }
-
-  /**
-   * Logs an informative message that should be printed only in 'verbose'
-   * mode.
-   */
-  protected void logVerbose(String msg) {
-    if (mVerbose) {
-      mLogger.log(new BindingLoggerMessageImpl
-              (Level.FINEST,msg,null,null,null,null));
-    }
-  }
-
-  /**
-   * Logs an informative message that should be printed only in 'verbose'
-   * mode.
-   */
-  protected void logVerbose(String msg, JElement javaContext) {
-    if (mVerbose) {
-      mLogger.log(new BindingLoggerMessageImpl
-              (Level.FINEST,msg,null,javaContext,null,null));
-    }
-  }
-
-  /**
-   * Logs an informative message that should be printed only in 'verbose'
-   * mode.
-   */
-  protected void logVerbose(String msg, SchemaType xsdType) {
-    if (mVerbose) {
-      mLogger.log(new BindingLoggerMessageImpl
-              (Level.FINEST,msg,null,null,xsdType,null));
-    }
-  }
-
-  /**
-   * Logs an informative message that should be printed only in 'verbose'
-   * mode.
-   */
-  protected void logVerbose(String msg, JElement javaCtx, SchemaType xsdCtx) {
-    if (mVerbose) {
-      mLogger.log(new BindingLoggerMessageImpl
-              (Level.FINEST,msg,null,javaCtx,xsdCtx,null));
-    }
-  }
 
   // ========================================================================
   // Private methods
@@ -584,7 +349,7 @@ public abstract class BindingCompiler {
   private static File createTempDir() throws IOException
   {
     //FIXME this is not great
-    String prefix = "java2schema-"+System.currentTimeMillis();
+    String prefix = "BindingCompiler-"+System.currentTimeMillis();
     File directory = null;
     File f = File.createTempFile(prefix, null);
     directory = f.getParentFile();
