@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.impl.values.*;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.config.ExtensionHolder;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaComponent;
@@ -75,6 +76,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private String _fullJavaName;
     private String _shortJavaImplName;
     private String _fullJavaImplName;
+    private ExtensionHolder _extensionHolder;
 
     // runtime java type support: volatile because they're cached
     private volatile Class _javaClass;
@@ -533,6 +535,17 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         int index = Math.max(_fullJavaImplName.lastIndexOf('$'),
                              _fullJavaImplName.lastIndexOf('.')) + 1;
         _shortJavaImplName = _fullJavaImplName.substring(index);
+    }
+
+    public void setExtensionHolder(ExtensionHolder extHolder)
+    {
+        assertResolved();
+        _extensionHolder = extHolder;
+    }
+
+    public ExtensionHolder getExtensionHolder()
+    {
+        return _extensionHolder;
     }
 
     public String getFullJavaImplName() { return _fullJavaImplName;}

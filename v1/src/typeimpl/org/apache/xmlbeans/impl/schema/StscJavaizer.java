@@ -15,20 +15,29 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.impl.common.NameUtil;
+import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.QNameSetBuilder;
 import org.apache.xmlbeans.SchemaField;
-import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaProperty;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
-
-import java.util.*;
-import java.math.BigInteger;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.impl.common.NameUtil;
+import org.apache.xmlbeans.impl.config.InterfaceExtension;
+import org.apache.xmlbeans.impl.config.ExtensionHolder;
 
 import javax.xml.namespace.QName;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class StscJavaizer
 {
@@ -79,7 +88,25 @@ public class StscJavaizer
             {
                 sImpl.setFullJavaName(pickFullJavaClassName(usedNames, findTopName(sImpl), pickedName, sImpl.isDocumentType(), sImpl.isAttributeType()));
                 sImpl.setFullJavaImplName(pickFullJavaImplName(usedNames, sImpl.getFullJavaName()));
+                setExtensions(sImpl, state);
             }
+        }
+
+        verifyInterfaceNameCollisions(usedNames, state);
+    }
+
+    private static void verifyInterfaceNameCollisions(Set usedNames, StscState state)
+    {
+        state.getExtensionHolder().verifyInterfaceNameCollisions(usedNames);
+    }
+
+    private static void setExtensions(SchemaTypeImpl sImpl, StscState state)
+    {
+        String javaName = sImpl.getFullJavaName();
+
+        if (javaName!=null)
+        {
+            sImpl.setExtensionHolder(state.getExtensionHolder(javaName));
         }
     }
 
@@ -121,11 +148,11 @@ public class StscJavaizer
     {
         if (sImpl.isJavaized())
             return;
-        
+
         SchemaTypeImpl baseType = (SchemaTypeImpl)sImpl.getBaseType();
         if (baseType != null)
             skipJavaizingType(baseType);
-        
+
         sImpl.startJavaizing();
         secondPassProcessType(sImpl);
         sImpl.finishJavaizing();
@@ -193,6 +220,9 @@ public class StscJavaizer
             // Handing out java names - this permits us to avoid collisions.
             Set usedPropNames = new HashSet();
 
+            // count in the methods from extension interfaces
+            avoidExtensionMethods(usedPropNames, sImpl);
+
             // Assign names in two passes: first inherited names, then others.
             for (boolean doInherited = true; ; doInherited = false)
             {
@@ -221,6 +251,33 @@ public class StscJavaizer
         assignJavaAnonymousTypeNames(sImpl);
 
         sImpl.finishJavaizing();
+    }
+
+    private static final String[] PREFIXES = new String[]
+    {"get", "xget", "isNil", "isSet", "sizeOf", "set", "xset", "addNew", "setNil", "unset", "insert", "add", "insertNew", "addNew", "remove"};
+
+    private static void avoidExtensionMethods(Set usedPropNames, SchemaTypeImpl sImpl)
+    {
+        ExtensionHolder extHolder = sImpl.getExtensionHolder();
+        if (extHolder!=null)
+        {
+            List exts = extHolder.getInterfaceExtensionsFor(sImpl.getFullJavaName());
+            for (int i = 0; i < exts.size(); i++)
+            {
+                InterfaceExtension ext = (InterfaceExtension) exts.get(i);
+                int methodCount = ext.getInterfaceMethodCount();
+                for (int j=0; j<methodCount; j++)
+                {
+                    String methodName = ext.getInterfaceMethodName(j);
+                    for (int k = 0; k < PREFIXES.length; k++)
+                    {
+                        String prefix = PREFIXES[k];
+                        if (methodName.startsWith(prefix))
+                            usedPropNames.add(methodName.substring(prefix.length()));
+                    }
+                }
+            }
+        }
     }
 
     static void assignJavaAnonymousTypeNames(SchemaTypeImpl outerType)
@@ -289,6 +346,7 @@ public class StscJavaizer
                     pickInnerJavaClassName(usedTypeNames, localname, javaname));
             sImpl.setShortJavaImplName(
                     pickInnerJavaImplName(usedTypeNames, localname, javaname == null ? null : javaname + "Impl"));
+            setExtensions(sImpl, state);
         }
     }
 
@@ -870,5 +928,4 @@ public class StscJavaizer
         assert(sType.getOuterType() == null);
         return sElt.getName();
     }
-
 }
