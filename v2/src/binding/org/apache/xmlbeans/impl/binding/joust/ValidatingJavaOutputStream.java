@@ -105,21 +105,22 @@ public class ValidatingJavaOutputStream implements JavaOutputStream {
   // ========================================================================
   // JavaOutputStream implementation
 
+  public void startFile(String packageName,
+                        String interfaceOrClassName)
+          throws IOException {
+    mDest.startFile(packageName,interfaceOrClassName);
+  }
+
   public void startClass(int modifiers,
-                         String packageName,
-                         String simpleName,
                          String extendsClassName,
                          String[] implementsInterfaceNames)
           throws IOException {
-    mDest.startClass(modifiers, packageName, simpleName,
-                     extendsClassName, implementsInterfaceNames);
+    mDest.startClass(modifiers, extendsClassName, implementsInterfaceNames);
   }
 
-  public void startInterface(String packageName,
-                             String simpleName,
-                             String[] extendsInterfaceNames)
+  public void startInterface(String[] extendsInterfaceNames)
           throws IOException {
-    mDest.startInterface(packageName, simpleName, extendsInterfaceNames);
+    mDest.startInterface(extendsInterfaceNames);
   }
 
   public Variable writeField(int modifiers,
@@ -168,6 +169,10 @@ public class ValidatingJavaOutputStream implements JavaOutputStream {
 
   public void endClassOrInterface() throws IOException {
     mDest.endClassOrInterface();
+  }
+
+  public void endFile() throws IOException {
+    mDest.endFile();
   }
 
   public ExpressionFactory getExpressionFactory() {

@@ -86,13 +86,27 @@ import java.io.IOException;
 public interface JavaOutputStream {
 
   /**
+   * Instructs the stream to begin writing a new interface.
+   *
+   * @param packageName Fully-qualified name of the package which should
+   *        contain the new interface.
+   * @param interfaceOrClassName Unqualified name of the new class or
+   *        interface that will be written in this file.
+   *
+   * @throws IllegalStateException if startFile has already been called
+   *         without a call to endFile.
+   * @throws IllegalArgumentException if classname is null or if any classname
+   *         parameters is malformed.
+   */
+  public void startFile(String packageName,
+                        String interfaceOrClassName)
+          throws IOException;
+
+  /**
    * Instructs the stream to begin writing a class with the given attributes.
    *
    * @param modifiers A java.lang.reflect.Modifier value describing the
    *        modifiers which apply to the new class.
-   * @param packageName Fully-qualified name of the package which should
-   *        contain the new class.
-   * @param simpleName Unqualified name of the new class.
    * @param extendsClassName Name the class which the new class extends, or
    *        null if it should not extend anything.  The class name must be
    *        fully-qualified.
@@ -108,8 +122,6 @@ public interface JavaOutputStream {
    *         any class name parameter is malformed.
    */
   public void startClass(int modifiers,
-                         String packageName,
-                         String simpleName,
                          String extendsClassName,
                          String[] implementsInterfaceNames)
           throws IOException;
@@ -117,9 +129,6 @@ public interface JavaOutputStream {
   /**
    * Instructs the stream to begin writing a new interface.
    *
-   * @param packageName Fully-qualified name of the package which should
-   *        contain the new interface.
-   * @param simpleName Unqualified name of the new interface.
    * @param extendsInterfaceNames Array of interface names, one
    *        for each interface extendded by the new interface, or null if
    *        the interface does not extend anything.  Each class name must be
@@ -130,9 +139,7 @@ public interface JavaOutputStream {
    * @throws IllegalArgumentException if classname is null or if any classname
    *         parameters is malformed.
    */
-  public void startInterface(String packageName,
-                             String simpleName,
-                             String[] extendsInterfaceNames)
+  public void startInterface(String[] extendsInterfaceNames)
           throws IOException;
 
   /**
@@ -296,6 +303,24 @@ public interface JavaOutputStream {
   public void endClassOrInterface() throws IOException;
 
   /**
+   * Instructs the stream to finish writing the current file.
+   * Every call to startFile must be balanced by a call to endFile().
+   *
+   * @throws IllegalStateException if no file has been started.
+   */
+  public void endFile() throws IOException;
+
+
+
+  /**
+   * Closes the JavaOutputStream.  This should be called exactly once and
+   * only when you are completely finished with the stream.  Note that in
+   * the case where java sources are being generated, calling this method may
+   * cause the sources to be javac'ed.
+   */
+  public void close() throws IOException;
+
+  /**
    * Returns the ExpressionFactory that should be to create instances of
    * Expression to be used in conjunction with this JavaOutputStream.
    *
@@ -303,9 +328,5 @@ public interface JavaOutputStream {
    */
   public ExpressionFactory getExpressionFactory();
 
-  /**
-   * Closes the JavaOutputStream.  This should be called exactly once and
-   * only when you are completely finished with the stream.
-   */
-  public void close() throws IOException;
+
 }

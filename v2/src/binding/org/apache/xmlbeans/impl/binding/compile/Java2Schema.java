@@ -101,11 +101,6 @@ public class Java2Schema extends BindingCompiler {
   private static final String TAG_AT               = "xsdgen:attribute";
   private static final String TAG_AT_NAME          = TAG_AT+".name";
 
-  // If true, the 'bind' methods will always try to return something,
-  // even if severe errors were encountered.  Turn this on only for
-  // debugging.
-  private static final boolean IGNORE_SEVERE_ERRORS = false;
-
   // =========================================================================
   // Variables
 

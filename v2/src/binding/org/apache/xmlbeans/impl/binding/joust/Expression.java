@@ -69,6 +69,9 @@ public interface Expression {
    * represents.
    */
   public Object getMemento();
+  //REVIEW maybe we don't need to expose memento at all - just let them
+  //implement it however they want and cast down to get the info.  Often
+  //as not, they may just want to implement toString().
 
   /**
    * Provides a textual representation of the expression.  This should

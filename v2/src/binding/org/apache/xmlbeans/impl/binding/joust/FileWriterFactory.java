@@ -91,6 +91,19 @@ public class FileWriterFactory implements WriterFactory {
 
   public Writer createWriter(String packageName, String className)
           throws IOException {
+    return new FileWriter(createFile(packageName,className));
+  }
+
+  // ========================================================================
+  // Public methods
+
+  /**
+   * Returns the raw file instead, in case the caller is clever and knows we
+   * are a FileWriterFactory.
+   */
+  public File createFile(String packageName, String className)
+          throws IOException
+  {
     File dir = new File(mSourceRoot, packageName.replace
                                      (PACKAGE_SEPARATOR, File.separatorChar));
     if (!dir.exists()) {
@@ -98,7 +111,6 @@ public class FileWriterFactory implements WriterFactory {
         throw new IOException("Failed to create directory " + dir);
       }
     }
-    File outFile = new File(dir, className + EXTENSION);
-    return new FileWriter(outFile);
+    return new File(dir, className + EXTENSION);
   }
 }

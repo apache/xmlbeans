@@ -58,8 +58,10 @@ package org.apache.xmlbeans.impl.binding.joust;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.io.File;
 import java.lang.reflect.Modifier;
 import java.util.StringTokenizer;
+import java.util.Collection;
 
 /**
  * <p>Implementation of JavaOutputStream which outputs Java source code.</p>
@@ -126,39 +128,68 @@ public class SourceJavaOutputStream
 
   private PrintWriter mOut = null;
   private int mIndentLevel = 0;
-  private String mConstructorName;
+  private String mPackageName = null;
+  private String mClassOrInterfaceName = null;
   private WriterFactory mWriterFactory;
+  protected boolean mVerbose = false;
+
 
   // ========================================================================
   // Constructors
 
   public SourceJavaOutputStream(WriterFactory factory) {
+    setWriterFactory(factory);
+  }
+
+  protected SourceJavaOutputStream() {}
+
+  protected void setWriterFactory(WriterFactory factory) {
     if (factory == null) throw new IllegalArgumentException();
     mWriterFactory = factory;
   }
 
   // ========================================================================
+  // Public methods
+
+  public void setVerbose(boolean b) { mVerbose = b; }
+
+  // ========================================================================
   // JavaOutputStream implementation
 
+  public void startFile(String packageName,
+                           String classOrInterfaceName) throws IOException {
+    if (packageName == null) {
+      throw new IllegalArgumentException("null package");
+    }
+    if (classOrInterfaceName == null) {
+      throw new IllegalArgumentException("null classname");
+    }
+    if (mOut != null) {
+      throw new IllegalStateException("Start new file without calling "+
+                                      "endFile on existing file");
+    }
+    if (mIndentLevel != 0) throw new IllegalStateException(); //sanity check
+    mOut = new PrintWriter(mWriterFactory.createWriter(packageName,
+                                                       classOrInterfaceName));
+    mPackageName = makeI18nSafe(packageName);
+    mClassOrInterfaceName = makeI18nSafe(classOrInterfaceName);
+  }
+
   public void startClass(int modifiers,
-                         String packageName,
-                         String simpleName,
                          String extendsClassName,
                          String[] interfaceNames)
           throws IOException {
-    simpleName = makeI18nSafe(simpleName);
-    packageName = makeI18nSafe(packageName);
+    checkStateForWrite();
+    if (mVerbose) verbose("startClass "+mPackageName+"."+mClassOrInterfaceName);
     extendsClassName = makeI18nSafe(extendsClassName);
-    mConstructorName = simpleName;
-    mOut = startNewFile(packageName, simpleName);
-    mOut.println("package " + packageName + ";");
+    mOut.println("package " + mPackageName + ";");
     mOut.println();
     // We need to write up the actual class declaration and save it until
     // after the imports have been written
     //FIXME we should format this code more nicely
     mOut.print(Modifier.toString(modifiers));
     mOut.print(" class ");
-    mOut.print(simpleName);
+    mOut.print(mClassOrInterfaceName);
     if (extendsClassName != null) {
       mOut.print(" extends ");
       mOut.print(extendsClassName);
@@ -175,26 +206,24 @@ public class SourceJavaOutputStream
     increaseIndent();
   }
 
-
-  public void startInterface(String packageName,
-                             String simpleName,
-                             String[] interfaceNames)
+  public void startInterface(String[] extendsInterfaceNames)
           throws IOException {
-    simpleName = makeI18nSafe(simpleName);
-    packageName = makeI18nSafe(packageName);
-    mConstructorName = null;
-    mOut = startNewFile(packageName, simpleName);
-    mOut.println("package " + packageName + ";");
+    if (mVerbose) verbose("startInterface "+mPackageName+"."+mClassOrInterfaceName);
+    checkStateForWrite();
+    mClassOrInterfaceName = makeI18nSafe(mClassOrInterfaceName);
+    mPackageName = makeI18nSafe(mPackageName);
+    this.mClassOrInterfaceName = null;
+    mOut.println("package " + mPackageName + ";");
     // We need to write up the actual class declaration and save it until
     // after the imports have been written
     //FIXME we should format this code more nicely
     mOut.print("public interface ");
-    mOut.print(simpleName);
-    if (interfaceNames != null && interfaceNames.length > 0) {
+    mOut.print(mClassOrInterfaceName);
+    if (extendsInterfaceNames != null && extendsInterfaceNames.length > 0) {
       mOut.print(" extends ");
-      for (int i = 0; i < interfaceNames.length; i++) {
-        mOut.print(makeI18nSafe(interfaceNames[i]));
-        if (i < interfaceNames.length - 1) mOut.print(", ");
+      for (int i = 0; i < extendsInterfaceNames.length; i++) {
+        mOut.print(makeI18nSafe(extendsInterfaceNames[i]));
+        if (i < extendsInterfaceNames.length - 1) mOut.print(", ");
       }
     }
     mOut.println("{");
@@ -206,6 +235,8 @@ public class SourceJavaOutputStream
                              String typeName,
                              String fieldName,
                              Expression defaultValue) throws IOException {
+    if (mVerbose) verbose("writeField "+typeName+" "+fieldName);
+    checkStateForWrite();
     printIndents();
     typeName = makeI18nSafe(typeName);
     fieldName = makeI18nSafe(fieldName);
@@ -228,17 +259,19 @@ public class SourceJavaOutputStream
                                      String[] paramNames,
                                      String[] exceptionClassNames)
           throws IOException {
-    return startMethod(modifiers, mConstructorName, null,
+    return startMethod(modifiers, mClassOrInterfaceName, null,
                        paramTypeNames, paramNames, exceptionClassNames);
   }
 
   public Variable[] startMethod(int modifiers,
-                                String methodName,
                                 String returnTypeName,
+                                String methodName,
                                 String[] paramTypeNames,
                                 String[] paramNames,
                                 String[] exceptionClassNames)
           throws IOException {
+    if (mVerbose) verbose("startMethod "+methodName);
+    checkStateForWrite();
     methodName = makeI18nSafe(methodName);
     returnTypeName = makeI18nSafe(returnTypeName);
     printIndents();
@@ -252,7 +285,7 @@ public class SourceJavaOutputStream
     // print the parameter list
     Variable[] ret;
     if (paramTypeNames == null || paramTypeNames.length == 0) {
-      mOut.print("(}");
+      mOut.print("()");
       ret = new Variable[0];
     } else {
       ret = new Variable[paramTypeNames.length];
@@ -272,12 +305,14 @@ public class SourceJavaOutputStream
         mOut.print(makeI18nSafe(exceptionClassNames[i]));
       }
     }
-    mOut.println();
+    mOut.println(" {");
     increaseIndent();
     return ret;
   }
 
   public void writeComment(String comment) throws IOException {
+    if (mVerbose) verbose("comment");
+    checkStateForWrite();
     printIndents();
     mOut.println("/**");
     StringTokenizer st = new StringTokenizer(makeI18nSafe(comment),
@@ -292,6 +327,8 @@ public class SourceJavaOutputStream
   }
 
   public void writeReturnStatement(Expression expression) throws IOException {
+    if (mVerbose) verbose("return");
+    checkStateForWrite();
     printIndents();
     mOut.print("return ");
     mOut.print(((String) expression.getMemento()));
@@ -300,6 +337,8 @@ public class SourceJavaOutputStream
 
   public void writeAssignmentStatement(Variable left, Expression right)
           throws IOException {
+    if (mVerbose) verbose("assignment");
+    checkStateForWrite();
     printIndents();
     mOut.print(((String) left.getMemento()));
     mOut.print(" = ");
@@ -308,6 +347,8 @@ public class SourceJavaOutputStream
   }
 
   public void endMethodOrConstructor() throws IOException {
+    if (mVerbose) verbose("endMethodOrConstructor");
+    checkStateForWrite();
     reduceIndent();
     printIndents();
     mOut.println('}');
@@ -315,9 +356,17 @@ public class SourceJavaOutputStream
   }
 
   public void endClassOrInterface() throws IOException {
+    if (mVerbose) verbose("endClassOrInterface");
+    checkStateForWrite();
     reduceIndent();
     printIndents();
     mOut.println('}');
+  }
+
+  public void endFile() throws IOException {
+    checkStateForWrite();
+    if (mVerbose) verbose("endFile");
+    closeOut();
   }
 
   public ExpressionFactory getExpressionFactory() {
@@ -325,7 +374,8 @@ public class SourceJavaOutputStream
   }
 
   public void close() throws IOException {
-    closeOut();
+    if (mVerbose) verbose("close");
+    closeOut();//just to be safe
   }
 
   // ========================================================================
@@ -354,12 +404,14 @@ public class SourceJavaOutputStream
   // ========================================================================
   // Private methods
 
-  private PrintWriter startNewFile(String packageName,
-                                   String simpleName) throws IOException {
-    closeOut();
-    if (mIndentLevel != 0) throw new IllegalStateException(); //sanity check
-    return new PrintWriter(mWriterFactory.createWriter(packageName, simpleName));
+  private void checkStateForWrite() {
+    if (mOut == null) {
+      throw new IllegalStateException("Attempt to generate code when no "+
+                                      "file open.  This is due to broken" +
+                                      "logic in the calling class");
+    }
   }
+
 
   private void printIndents() {
     for (int i = 0; i < mIndentLevel; i++) mOut.print(INDENT_STRING);
@@ -371,11 +423,16 @@ public class SourceJavaOutputStream
 
   private void reduceIndent() {
     mIndentLevel--;
-    if (mIndentLevel < 0) throw new IllegalStateException(); //sanity check
+    if (mIndentLevel < 0) {
+      throw new IllegalStateException("Indent level reduced below zero. "+
+                                      "This is a result of an error in the "+
+                                      "calling code.");
+    }
   }
 
   private void closeOut() {
     if (mOut != null) {
+      mOut.flush();
       mOut.close();
       mOut = null;
     }
@@ -400,6 +457,7 @@ public class SourceJavaOutputStream
   }
 
   private static String makeI18nSafe(String s) {
+    if (s == null) return null;
     for (int i = 0; i < s.length(); i++) {
       if (s.charAt(i) > 127)
         return buildI18nSafe(s);
@@ -434,22 +492,26 @@ public class SourceJavaOutputStream
     }
   }
 
+  private void verbose(String msg) {
+    if (mVerbose) System.out.println(msg);
+  }
+
   // ========================================================================
   // main() - quick test
 
   public static void main(String[] args) throws IOException {
     SourceJavaOutputStream sjos = new SourceJavaOutputStream
-            (new WriterFactory() {
-              private PrintWriter OUT = new PrintWriter(System.out);
+             (new WriterFactory() {
+               private PrintWriter OUT = new PrintWriter(System.out);
 
-              public Writer createWriter(String x, String y) {
-                return OUT;
-              }
-            });
-    JavaOutputStream joust = new ValidatingJavaOutputStream(sjos);
+               public Writer createWriter(String x, String y) {
+                 return OUT;
+               }
+             });
+     JavaOutputStream joust = new ValidatingJavaOutputStream(sjos);
     ExpressionFactory exp = joust.getExpressionFactory();
-    joust.startClass(Modifier.PUBLIC | Modifier.FINAL,
-                     "foo.bar.baz", "MyClass", "MyBaseClass", null);
+    joust.startFile("foo.bar.baz","MyClass");
+    joust.startClass(Modifier.PUBLIC | Modifier.FINAL,"MyBaseClass", null);
     String[] paramNames = {"count", "fooList"};
     String[] paramTypes = {"int", "List"};
     String[] exceptions = {"IOException"};
@@ -461,6 +523,8 @@ public class SourceJavaOutputStream
     joust.writeAssignmentStatement(counter, params[0]);
     joust.endMethodOrConstructor();
     joust.endClassOrInterface();
+    joust.endFile();
     joust.close();
   }
+
 }
