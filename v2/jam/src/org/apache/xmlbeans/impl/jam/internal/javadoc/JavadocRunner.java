@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
 import com.sun.javadoc.Doclet;
 import com.sun.javadoc.RootDoc;
-import com.sun.javadoc.LanguageVersion;
 
 import java.io.*;
 import java.util.ArrayList;
