@@ -1,0 +1,62 @@
+* new store implementation (ericvas)
+  a) native DOM implementation
+* Piccolo is now the default parser.XmlOptions.setLoadUseXMLReader (XMLReader xmlReader) can be used when a diffrent parser is required. (cezar)
+* JAM is downloaded from codehaus (radup)
+* Sample xml generation from an schema file (radup)
+* EntityResolver is setable in SchemaCompiler (David Jencks)
+* XPath 2.0 and Xquery support through Saxon (Yana Kadiyska)
+* java 1.5 generics added to generated source (Kkrouse)
+   - to use, pass '-javasource 1.5' to scomp
+   - generates a 'List<Item> getItemList()' method
+   - runtime is still all jdk 1.4, only 1.5 in gen'd source
+* Simplified working with substitution groups by adding XmlObject.substitute() (radup) 
+* "-noVDoc" command-line option for scomp to skip validation of <xs:documentation> contents(radup) 
+* uniform access to the getSourceName() method in Schema Object Model
+* Added a XmlBeans.compileXmlBeans() method which does three things: (kkrouse)
+    - compile the SchemaTypeSystem
+    - save the SchemaTypeSystem .xsb files
+    - generate the java source files
+* Added error codes and improved validation error messages (kkrouse)
+* Changed .xsb format to improve performance (radup)
+* Ability to pass URLs instead of Files for Wsdl/Schemas(Jacob Danner, Sal Campana)
+* Added option to pass in "##local" to -allowmdef (radup)
+* Inst2xsd: support for xsi:nil and qname fix.(cezar)
+* adding getCurrentElementSchemaType in Validator for finding schema types of elements with xsi:type attribute(cezar)
+* adding ValidatingInfoXMLStreamReader for PSVI access on XMLStreamReaders(cezar)
+* added Location to streaming validation errors(kkrouse)
+* Instance 2 schema tool (cezar)
+* New "schema bookmark" mechanism allowing one to tag user data on Schema Object Model entities(radup)
+* Add ability for XmlSaxHandler to insert bookmarks while loading (ericvas)
+* Added new 'noSrcRegen' flag to the <scomp> ant task.(radup)
+* Added a diff utility that compares two jars (or directories) containing compiled Schema types.(radup)
+* Interface and pre-post extensions (cezar)
+* Enabled ValidatingXMLStreamReader to start validating from both current and next event in the XMLStreamReader(cezar)
+* SchemaTypeSystem saver that does not depend on Java being generated.(radup)
+* Functionality to retrieve xml validation errors programatically (patch from Dutta Satadip)
+* Added saver options to not save xml decl (ericvas)
+* Added a SOAP11 encoding built-in Schema Type system (radup)
+* selectChildren and selectAttributes for dynamic getters and some wildcard scenarious(cezar)
+* Location in ValidatingXmlStreamReader(cezar)
+* Added a wrapper over jsr173's XMLStreamReader (cezar)
+* Added support for default value in XMLStreamReaderExt interface and implementation.(cezar)
+* Adding typed value for QName case in the Validator (cezar)
+* Adding an utility for validation of simple schema types (cezar)
+* Improved the Validator to ofer PSVI info (cezar)
+* Exposed some of the XMLSchema validator functionality in the public interfaces(davidbau,Dutta Satadip)
+* Added support for XML Catalog, based on Apache Commons CatalogResolver(cezar)
+	How it works:
+	
+	1) there is a global read only resolver that can be set through "xmlbean.entityResolver" system property
+	2) option 1 is overwritten if:
+ 		 2a) - the switch "-catalog [file]" is used on the command line for scomp
+ 		 2b) - or a resolver is set in XmlOptions (XmlOptions.setEntityResolver() )
+
+* Added XMLStreamReaderExt an extention of XMLStreamReader which alowes getting strongly typed java values from a stream(cezar)
+* Adds support for annotations in XMLSchema (davidbau)
+* Added JSR 173 support (ericvas)
+
+
+* performance tests (Jamie Zyskowski)
+* various feature tests (Yana Kadiyska, Jacob Danner)
+* samples and documentation (Steve Traut)
+* packaging,liscencing changes (Cliff Schmidt)
