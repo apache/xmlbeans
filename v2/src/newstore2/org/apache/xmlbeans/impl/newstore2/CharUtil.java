@@ -406,7 +406,7 @@ public final class CharUtil
                     src, off + posRemove + cchRemove, cch - posRemove - cchRemove );
 
                 newSrc = chars;
-                newOff = 0;
+                newOff = _offSrc;
             }
             else
             {
@@ -414,9 +414,9 @@ public final class CharUtil
                     new CharJoin(
                         src, off, posRemove,
                         src, off + posRemove + cchRemove, cch - posRemove - cchRemove );
+                
+                newOff = 0;
             }
-            
-            newOff = 0;
         }
         else
         {
