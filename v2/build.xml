@@ -759,81 +759,11 @@
             <arg line="${new_repackage_arg} -f ${rp_source_dir} -t ${rp_target_dir}"/>
         </java>
 
-        <antcall target="edit_build_script">
-            <param name="token"       value="repackage_arg"/>
-            <param name="replacement" value="${new_repackage_arg}"/>
-        </antcall>
 
-
-        <!-- apply the repachage_spec on old manifest.name and get the result in new_manifest.name property -->
-        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
-            inputstring="${manifest.name}" outputproperty="new_manifest.name">
-            <arg line="${new_repackage_arg}"/>
-        </java>
-        <!-- modify the new build script with the new property -->
-        <antcall target="edit_build_script">
-            <param name="token"       value="manifest.name"/>
-            <param name="replacement" value="${new_manifest.name}"/>
-        </antcall>
-
-
-        <!-- apply the repachage_spec on old manifest.title and get the result in new_manifest.title property -->
-        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
-            inputstring="${manifest.title}" outputproperty="new_manifest.title">
-            <arg line="${new_repackage_arg}"/>
-        </java>
-        <!-- modify the new build script with the new property -->
-        <antcall target="edit_build_script">
-            <param name="token"       value="manifest.title"/>
-            <param name="replacement" value="${new_manifest.title}"/>
-        </antcall>
-
-
-        <!-- apply the repachage_spec on old typeholder.name and get the result in new_typeholder.name property -->
-        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
-            inputstring="${typeholder.name}" outputproperty="new_typeholder.name">
-            <arg line="${new_repackage_arg}"/>
-        </java>
-        <!-- modify the new build script with the new property -->
-        <antcall target="edit_build_script">
-            <param name="token"       value="typeholder.name"/>
-            <param name="replacement" value="${new_typeholder.name}"/>
-        </antcall>
-
-
-        <!-- apply the repachage_spec on old schema_compiler and get the result in new_schema_compiler property -->
-        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
-            inputstring="${schema_compiler}" outputproperty="new_schema_compiler">
-            <arg line="${new_repackage_arg}"/>
-        </java>
-        <!-- modify the new build script with the new property -->
-        <antcall target="edit_build_script">
-            <param name="token"       value="schema_compiler"/>
-            <param name="replacement" value="${new_schema_compiler}"/>
-        </antcall>
-
-
-        <!-- apply the repachage_spec on old piccolo_package_name and get the result in new_piccolo_package_name property -->
-        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
-            inputstring="${piccolo_package_name}" outputproperty="new_piccolo_package_name">
-            <arg line="${new_repackage_arg}"/>
-        </java>
-        <!-- modify the new build script with the new property -->
-        <antcall target="edit_build_script">
-            <param name="token"       value="piccolo_package_name"/>
-            <param name="replacement" value="${new_piccolo_package_name}"/>
-        </antcall>
-
-
-
-        <ant dir="${rp_target_dir}" target="xbean" inheritAll="false"/>
-
-
-
-        <antcall target="edit_build_script">
-            <param name="token"       value="bootstrap_schema_compiler"/>
-            <param name="replacement" value="${new_schema_compiler}"/>
-        </antcall>
+        <ant dir="${rp_target_dir}" target="xbean" inheritAll="false">
+            <property name="repackage_arg" value="${new_repackage_arg}"/>
+            <property name="bootstrap_schema_compiler" value="${bootstrap_schema_compiler}"/>
+        </ant>
 
         <ant dir="${rp_target_dir}" target="quickbootstrap" inheritAll="false"/>
 

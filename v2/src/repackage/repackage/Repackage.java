@@ -116,13 +116,8 @@ public class Repackage
         if (name.endsWith( ".java" ))
             repackageJavaFile( name );
         else if (name.endsWith( ".xsdconfig" ) ||
-                (name.endsWith(".xml") &&
-                //REVIEW skip repackaging the main build file because it
-                //does some complicated things already and we don't want
-                //to mess with it right now.  This feels a little gross,
-                //though.  pcal 2/18/04
-                !name.equals("build.xml")) ||
-                name.endsWith(".g") )
+                name.endsWith( ".xml" ) ||
+                name.endsWith( ".g" ) )
             repackageNonJavaFile( name );
         else if (name.startsWith( "bin" + File.separatorChar ))
             repackageNonJavaFile( name );
