@@ -5,7 +5,7 @@
 # Validates an instance against a schema.
 
 CP=
-CP=$CP:$XMLBEANS_HOME/build/ar/xbean.jar
+CP=$CP:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar
 
 case "`uname`" in
     CYGWIN*)
@@ -13,4 +13,4 @@ case "`uname`" in
         ;;
 esac
 
-java -classpath $CP org.apache.xmlbeans.impl.tool.InstanceValidator $*
+exec java -classpath $CP org.apache.xmlbeans.impl.tool.InstanceValidator $*
