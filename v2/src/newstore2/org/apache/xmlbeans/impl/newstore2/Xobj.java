@@ -510,7 +510,7 @@ abstract class Xobj implements TypeStore
         else if (p == x.posAfter() - 1)
             p = END_POS;
 
-        _locale._posTemp = p = p;
+        _locale._posTemp = p;
 
         return x;
     }
