@@ -158,17 +158,17 @@ final class MarshalStreamUtils
         //TODO: seem to be rechecking assertion, why not skip one ahead...
 
         try {
+            int event = reader.getEventType();
 
-            for (int state = reader.getEventType(); reader.hasNext();
-                 state = reader.next()) {
-                switch (state) {
+            while (true) {
+                switch (event) {
                     case XMLStreamReader.START_ELEMENT:
                         cnt++;
                         break;
                     case XMLStreamReader.END_ELEMENT:
                         if (cnt == 0) {
-                            assert reader.hasNext();
-                            reader.next();
+                            if (reader.hasNext())
+                                reader.next(); // move past end element
                             return;
                         } else {
                             cnt--;
@@ -180,14 +180,17 @@ final class MarshalStreamUtils
                     default:
                         break;
                 }
+
+                if (reader.hasNext()) {
+                    event = reader.next();
+                } else {
+                    throw new XmlException("unexpected end of xml stream");
+                }
             }
         }
         catch (XMLStreamException xse) {
             throw new XmlException(xse);
         }
-
-        //should not happen for well-formed xml
-        throw new XmlException("unexpected end of xml stream");
     }
 
 

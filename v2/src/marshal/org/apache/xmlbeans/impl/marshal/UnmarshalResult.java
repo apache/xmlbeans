@@ -179,17 +179,22 @@ final class UnmarshalResult
     private Object unmarshalBindingType(BindingType bindingType)
         throws XmlException
     {
-        TypeUnmarshaller um =
-            typeTable.getOrCreateTypeUnmarshaller(bindingType, bindingLoader);
-
         this.updateAttributeState();
 
-        ObjectFactory of = extractObjectFactory();
+        final TypeUnmarshaller um;
+        final ObjectFactory of = extractObjectFactory();
         if (of == null) {
+            if (hasXsiNil())
+                um = NullUnmarshaller.getInstance();
+            else
+                um = typeTable.getOrCreateTypeUnmarshaller(bindingType,
+                                                           bindingLoader);
             return um.unmarshal(this);
         } else {
             final RuntimeBindingType rtt = getRuntimeType(bindingType);
             final Object initial_obj = of.createObject(rtt.getJavaType());
+            um = typeTable.getOrCreateTypeUnmarshaller(bindingType,
+                                                       bindingLoader);
             um.unmarshal(initial_obj, this);
             return initial_obj;
         }
@@ -938,6 +943,9 @@ final class UnmarshalResult
     TypeUnmarshaller determineTypeUnmarshaller(TypeUnmarshaller base)
         throws XmlException
     {
+        if (hasXsiNil())
+            return NullUnmarshaller.getInstance();
+
         final QName xsi_type = getXsiType();
 
         if (xsi_type != null) {
@@ -952,9 +960,6 @@ final class UnmarshalResult
             //reaching here means some problem with extracting the
             //unmarshaller for the xsi type, so just use the expected one
         }
-
-        if (hasXsiNil())
-            return NullUnmarshaller.getInstance();
 
         return base;
     }
