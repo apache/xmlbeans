@@ -15,11 +15,11 @@
 
 package xmlobject.xmlloader.detailed;
 
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import xmlcursor.common.BasicCursorTestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 import javax.xml.namespace.QName;
 import java.util.Vector;

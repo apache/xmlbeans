@@ -18,6 +18,7 @@ package xmlcursor.detailed;
 import junit.framework.*;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
@@ -158,6 +159,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
     public void testZeroCharCount() {
         char[] buffer = new char[100];
         String sExpected = m_xc.xmlText();
+        assertEquals(XmlCursor.TokenType.STARTDOC,m_xc.currentTokenType());
         toNextTokenOfType(m_xc, TokenType.START);
 
         m_xc.setTextValue(buffer, 0, 0);

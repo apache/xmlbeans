@@ -131,7 +131,8 @@ public abstract class NamespaceTest extends TestCase{
 
           assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
      //   assertEquals("", m_stream.getNamespaceContext().getNamespaceURI(""))  ;
-        assertEquals("", m_stream.getNamespaceContext().getPrefix("foo.bar"))  ;
+        //assertEquals("", m_stream.getNamespaceContext().getPrefix("foo.bar"))  ;
+        assertEquals(null, m_stream.getNamespaceContext().getPrefix("foo.bar"))  ;
         java.util.Iterator it= m_stream.getNamespaceContext().getPrefixes("foo.bar")  ;
     }
 

@@ -15,15 +15,13 @@
 
 package xmlobject.xmlloader.detailed;
 
-import org.apache.xmlbeans.XmlObject;
-import tools.util.JarUtil;
-import tools.util.ResourceUtil;
-import tools.util.Util;
-import xmlcursor.common.BasicCursorTestCase;
-import xmlcursor.common.Common;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.tranxml.tranXML.version40.*;
+import org.apache.xmlbeans.XmlObject;
+import org.tranxml.tranXML.version40.CarLocationMessageDocument;
+import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 
 
