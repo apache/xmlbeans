@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.visitor;
+package org.apache.xmlbeans.impl.jam.xml;
 
 import org.apache.xmlbeans.impl.jam.JPackage;
 import org.apache.xmlbeans.impl.jam.JClass;
