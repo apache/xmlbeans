@@ -985,16 +985,41 @@ final class UnmarshalResult
     {
         final QName xsi_type = getXsiType();
 
-        if (xsi_type != null) {
+
+        if (xsi_type != null && !xsi_type.equals(expected.getSchemaTypeName())) {
             final BindingType binding_type = lookupBindingType(xsi_type);
             if (binding_type != null) {
-                return typeTable.createRuntimeType(binding_type, bindingLoader);
+                final RuntimeBindingType actual_rtt =
+                    typeTable.createRuntimeType(binding_type, bindingLoader);
+                if (isLegalTypeSubstitution(expected, actual_rtt)) {
+                    return actual_rtt;
+                } else {
+                    String e = "invalid type substitution: " +
+                        actual_rtt.getSchemaTypeName() + " for " +
+                        expected.getSchemaTypeName();
+                    addError(e);
+                }
             }
             //reaching here means some problem with extracting the
             //BindingType for the xsi type, so just use the expected one
         }
 
         return expected;
+    }
+
+
+    //is xsi:type substitution ok.  only checks java compat for now.
+    private static boolean isLegalTypeSubstitution(RuntimeBindingType expected,
+                                                   RuntimeBindingType actual)
+    {
+        if (expected == actual) return true;
+
+        final Class expected_type = expected.getJavaType();
+        final Class actual_type = actual.getJavaType();
+        if (expected_type == actual_type) return true;
+        if (expected_type.equals(actual_type)) return true;
+
+        return expected_type.isAssignableFrom(actual_type);
     }
 
 
