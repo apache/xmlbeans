@@ -229,7 +229,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
       MAnnotation ann =
         dest.addAnnotationForType(callGetAnnotationType(descs[i]).qualifiedTypeName());
       ann.setArtifact(descs[i]);
-      AnnotationProxy proxy = ann.getEditableProxy();
+      AnnotationProxy proxy = ann.getMutableProxy();
       Object[] mvps = callGetMemberValues(descs[i]);
       for(int j=0; j<mvps.length; j++) {
         String name = callGetMvpName(mvps[i]);

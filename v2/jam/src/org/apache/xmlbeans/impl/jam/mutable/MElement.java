@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 
 /**
  * <p>Mutable version of JElement.</p>
@@ -34,7 +35,10 @@ public interface MElement extends JElement {
   public void removeSourcePosition();
 
   //DOCME
-  public MSourcePosition getEditableSourcePosition();
+  public MSourcePosition getMutableSourcePosition();
+
+  //DOCME
+  public void accept(MVisitor visitor);
 
   //DOCME
   public void setArtifact(Object o);

@@ -15,7 +15,8 @@
 
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 
 /**
  * <p>Interface implemented by JAM abstractions which can have
@@ -79,34 +80,8 @@ public abstract interface JElement {
   /**
    * <p>Accepts the given visitor.</p>
    */
-  public void accept(MElementVisitor visitor);
+  public void accept(JVisitor visitor);
 
-  /**
-   * <p>Calls accept() with the given visitor, and then recursively calls
-   * acceptAndWalk for each of our component elements2, if any.  Calling this
-   * on
-   * an MClass will cause the MClass to accept the visitor, and then
-   * all of it's declared fields constructors, and methods.  The parameter
-   * for each constructor and method will also in turn be accepted.
-   * Any annotations for each of these elements types will also be visited
-   * after their other children have been visited.  Note that inherited
-   * members are never visited, nor are referenced classes (e.g. referenced
-   * via inheritance or member types).  </p>
-   *
-   * <table border='1'>
-   * <tr><td><b>Element</b></td><td><b>Sub-elements traversal</b></td></tr>
-   * <tr><td>Package       </td><td>Classes, Annotations, Comments</td></tr>
-   * <tr><td>Class         </td><td>Fields, Constructors, Methods, Annotations, Comments</td></tr>
-   * <tr><td>Field         </td><td>Annotations, Comments</td></tr>
-   * <tr><td>Constructor   </td><td>Parameters, Annotations, Comments</td></tr>
-   * <tr><td>Method        </td><td>Parameters, Annotations, Comments</td></tr>
-   * <tr><td>Parameter     </td><td>[none]</td></tr>
-   * <tr><td>Comment       </td><td>[none]</td></tr>
-   * </table>
-   *
-   * </p>
-   */
-  public void acceptAndWalk(MElementVisitor visitor);
 
   /**
    * <p>This is not something you want to mess with.  It's here only for the

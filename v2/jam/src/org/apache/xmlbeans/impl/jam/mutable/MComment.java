@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.jam.JComment;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface MComment extends JComment {
+public interface MComment extends MElement, JComment {
 
   /**
    * Sets the text of this comment.

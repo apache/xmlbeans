@@ -16,7 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRefContext;
@@ -118,7 +119,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JField[] getDeclaredFields() {
-    return getEditableFields();
+    return getMutableFields();
   }
 
   public JMethod[] getMethods() {
@@ -136,9 +137,9 @@ public class ClassImpl extends MemberImpl implements MClass,
     return out;
   }
 
-  public JMethod[] getDeclaredMethods() { return getEditableMethods(); }
+  public JMethod[] getDeclaredMethods() { return getMutableMethods(); }
 
-  public JConstructor[] getConstructors() { return getEditableConstructors(); }
+  public JConstructor[] getConstructors() { return getMutableConstructors(); }
 
   public boolean isInterface() { return mIsInterface; }
 
@@ -177,17 +178,9 @@ public class ClassImpl extends MemberImpl implements MClass,
     return new JClass[0];//FIXME
   }
 
-  public void accept(MElementVisitor visitor) {
-    visitor.visit(this);
-  }
+  public void accept(MVisitor visitor) { visitor.visit(this); }
 
-  public void acceptAndWalk(MElementVisitor visitor) {
-    accept(visitor);
-    acceptAndWalkAll(visitor,getEditableFields());
-    acceptAndWalkAll(visitor,getEditableConstructors());
-    acceptAndWalkAll(visitor,getEditableMethods());
-    visitAnnotations(visitor);
-  }
+  public void accept(JVisitor visitor) { visitor.visit(this); }
 
   public void setSimpleName(String name) {
     throw new UnsupportedOperationException("Class names cannot be changed");
@@ -269,7 +262,7 @@ public class ClassImpl extends MemberImpl implements MClass,
     mConstructors.remove(constr);
   }
 
-  public MConstructor[] getEditableConstructors() {
+  public MConstructor[] getMutableConstructors() {
     if (mConstructors == null || mConstructors.size() == 0) {
       return new MConstructor[0];
     }
@@ -291,7 +284,7 @@ public class ClassImpl extends MemberImpl implements MClass,
     mFields.remove(field);
   }
 
-  public MField[] getEditableFields() {
+  public MField[] getMutableFields() {
     if (mFields == null || mFields.size() == 0) {
       return new MField[0];
     }
@@ -312,7 +305,7 @@ public class ClassImpl extends MemberImpl implements MClass,
     mMethods.remove(method);
   }
 
-  public MMethod[] getEditableMethods() {
+  public MMethod[] getMutableMethods() {
     if (mMethods == null || mMethods.size() == 0) {
       return new MMethod[0];
     }

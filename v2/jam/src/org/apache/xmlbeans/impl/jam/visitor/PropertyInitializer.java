@@ -26,14 +26,14 @@ import java.util.Map;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class PropertyInitializer extends MElementVisitor {
+public class PropertyInitializer extends MVisitor {
 
   // ========================================================================
   // Element visitor implementation
 
   public void visit(MClass clazz) {
     Map name2prop = new HashMap();
-    MMethod[] methods = clazz.getEditableMethods();
+    MMethod[] methods = clazz.getMutableMethods();
 
     for(int i=0; i<methods.length; i++) {
       String name = methods[i].getSimpleName();

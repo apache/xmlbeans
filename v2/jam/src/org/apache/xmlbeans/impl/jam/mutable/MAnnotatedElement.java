@@ -40,15 +40,17 @@ public interface MAnnotatedElement extends MElement, JAnnotatedElement {
   public MAnnotation addAnnotationForProxy(AnnotationProxy proxy);
 
 
-  //DOCME
-  public MAnnotation getEditableAnnotation(Class proxyClass);
+  public MAnnotation[] getMutableAnnotations();
 
   //DOCME
-  public MAnnotation getEditableAnnotation(String tagnameOr175typename);
+  public MAnnotation getMutableAnnotation(Class proxyClass);
+
+  //DOCME
+  public MAnnotation getMutableAnnotation(String tagnameOr175typename);
 
 
   //DOCME
-  public MComment getEditableComment();
+  public MComment getMutableComment();
 
   //DOCME
   public MComment createComment();

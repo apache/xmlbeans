@@ -116,5 +116,5 @@ public interface MInvokable extends JInvokable, MMember {
    * are none.  This is simply a more strongly-typed version of
    * getParameters().
    */
-  public MParameter[] getEditableParameters();
+  public MParameter[] getMutableParameters();
 }

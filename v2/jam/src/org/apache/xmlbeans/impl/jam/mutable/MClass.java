@@ -116,7 +116,7 @@ public interface MClass extends MMember, JClass {
    * constructors from any base class or interface.  This is simply a more
    * strongly-typed version of getDeclaredConstructors().
    */
-  public MConstructor[] getEditableConstructors();
+  public MConstructor[] getMutableConstructors();
 
   /**
    * Creates a new field, adds it to this class, and returns it.
@@ -135,7 +135,7 @@ public interface MClass extends MMember, JClass {
    * fields from any base class or interface.  This is simply a more
    * strongly-typed version of getDeclaredFields().
    */
-  public MField[] getEditableFields();
+  public MField[] getMutableFields();
 
   /**
    * Creates a new method, adds it to this class, and returns it.
@@ -153,7 +153,7 @@ public interface MClass extends MMember, JClass {
    * include methods inherited from any base class or interface.  This is
    * simply a more strongly-typed version of getDeclaredMethods().
    */
-  public MMethod[] getEditableMethods();
+  public MMethod[] getMutableMethods();
 
 
   public JProperty addNewProperty(String name, MMethod getter, MMethod setter);

@@ -28,7 +28,7 @@ import org.apache.xmlbeans.impl.jam.JParameter;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public abstract class JElementVisitor {
+public abstract class JVisitor {
 
   public void visit(JPackage pkg) {}
 

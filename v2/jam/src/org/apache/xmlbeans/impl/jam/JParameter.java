@@ -21,7 +21,7 @@ package org.apache.xmlbeans.impl.jam;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface JParameter extends JElement {
+public interface JParameter extends JAnnotatedElement {
 
   /**
    * Returns the type of this parameter.

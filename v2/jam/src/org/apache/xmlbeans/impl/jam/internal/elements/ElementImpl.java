@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MElement;
 import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
 
@@ -101,7 +101,7 @@ public abstract class ElementImpl implements MElement {
     mPosition = null;
   }
 
-  public MSourcePosition getEditableSourcePosition() {
+  public MSourcePosition getMutableSourcePosition() {
     return mPosition;
   }
 
@@ -140,15 +140,4 @@ public abstract class ElementImpl implements MElement {
   // Other public methods
 
   public ElementContext getContext() { return mContext; }
-
-  // ========================================================================
-  // Protected methods
-
-  /**
-   * <p>Simple utility method used by subclasses to implement
-   * acceptAndWalk.</p>
-   */
-  protected static void acceptAndWalkAll(MElementVisitor v, JElement[] sub) {
-    for(int i=0; i<sub.length; i++) sub[i].acceptAndWalk(v);
-  }
 }

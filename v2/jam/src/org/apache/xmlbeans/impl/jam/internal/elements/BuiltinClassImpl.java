@@ -17,7 +17,8 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.*;
 
 /**
@@ -46,14 +47,9 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   // ========================================================================
   // JElement implementation
 
-  public void accept(MElementVisitor visitor) {
-    visitor.visit(this);
-  }
+  public void accept(MVisitor visitor) { visitor.visit(this); }
 
-  public void acceptAndWalk(MElementVisitor visitor) {
-    accept(visitor);
-    visitAnnotations(visitor);
-  }
+  public void accept(JVisitor visitor) { visitor.visit(this); }
 
   public String getQualifiedName() { return mSimpleName; }
 
@@ -109,9 +105,9 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   // ========================================================================
   // MClass implementation
 
-  public MField[] getEditableFields() { return NO_FIELD; }
-  public MConstructor[] getEditableConstructors() { return NO_CONSTRUCTOR; }
-  public MMethod[] getEditableMethods() { return NO_METHOD; }
+  public MField[] getMutableFields() { return NO_FIELD; }
+  public MConstructor[] getMutableConstructors() { return NO_CONSTRUCTOR; }
+  public MMethod[] getMutableMethods() { return NO_METHOD; }
 
   public void setSimpleName(String s) { nocando(); }
 

@@ -44,7 +44,7 @@ import java.util.Map;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class CommentInitializer extends MElementVisitor {
+public class CommentInitializer extends MVisitor {
 
   // ========================================================================
   // Constructors - but maybe it should be a singleton?
@@ -74,7 +74,7 @@ public class CommentInitializer extends MElementVisitor {
   }
 
   // ========================================================================
-  // MElementVisitor implementation - nothing to see here
+  // MVisitor implementation - nothing to see here
 
   public void visit(MClass clazz)       { visit((MAnnotatedElement)clazz); }
   public void visit(MConstructor ctor)  { visit((MAnnotatedElement)ctor); }
@@ -89,7 +89,7 @@ public class CommentInitializer extends MElementVisitor {
   // Protected methods
 
   protected void visit(MAnnotatedElement element) {
-    MComment comment = element.getEditableComment();
+    MComment comment = element.getMutableComment();
     if (comment != null) {
       String[] commentsAndTags = getCommentsAndTags(comment);
       if (commentsAndTags == null || commentsAndTags.length == 0) return;
@@ -135,7 +135,7 @@ public class CommentInitializer extends MElementVisitor {
 
   protected void processComment(MAnnotatedElement commentedElement,
                                 String trimmedComment) {
-    commentedElement.getEditableComment().setText(trimmedComment);
+    commentedElement.getMutableComment().setText(trimmedComment);
   }
 
 

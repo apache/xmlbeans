@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -293,13 +293,13 @@ public interface JamServiceParams {
 
 
   //DOCME
-  public void setCommentInitializer(MElementVisitor initializer);
+  public void setCommentInitializer(MVisitor initializer);
 
   //DOCME
-  public void setPropertyInitializer(MElementVisitor initializer);
+  public void setPropertyInitializer(MVisitor initializer);
 
   //DOCME
-  public void addInitializer(MElementVisitor initializer);
+  public void addInitializer(MVisitor initializer);
 
 
   /**

@@ -18,7 +18,8 @@ import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JPackage;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.mutable.MClass;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.TraversingMVisitor;
 import org.apache.xmlbeans.impl.jam.internal.elements.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 
@@ -36,7 +37,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   private Map mName2Package = new HashMap();
   private Map mFd2ClassCache = null;
   private JamClassBuilder mBuilder;
-  private MElementVisitor mInitializer = null;
+  private MVisitor mInitializer = null;
   private ElementContext mContext;
   private Stack mInitializeStack = new Stack(); //fixme - decide how to store them
   private boolean mAlreadyInitializing = false;
@@ -46,11 +47,12 @@ public class JamClassLoaderImpl implements JamClassLoader {
 
   public JamClassLoaderImpl(ElementContext context,
                             JamClassBuilder builder,
-                            MElementVisitor initializerOrNull) {
+                            MVisitor initializerOrNull) {
     if (builder == null) throw new IllegalArgumentException("null builder");
     if (context == null) throw new IllegalArgumentException("null builder");
     mBuilder = builder;
-    mInitializer = initializerOrNull; //ok to be null
+    mInitializer = (initializerOrNull == null) ? null : // null is ok, else
+      new TraversingMVisitor(initializerOrNull); // wrap it in a walker
     mContext = context;
     initCache();
   }
@@ -95,11 +97,11 @@ public class JamClassLoaderImpl implements JamClassLoader {
         // we already are running initializers, so we have to do it later
         mInitializeStack.push(out);
       } else {
-        out.acceptAndWalk(mInitializer);
+        out.accept(mInitializer);
         ((ClassImpl)out).setState(ClassImpl.LOADED);
         while(!mInitializeStack.isEmpty()) {
-          JClass initme = (JClass)mInitializeStack.pop();
-          initme.acceptAndWalk(mInitializer);
+          ClassImpl initme = (ClassImpl)mInitializeStack.pop();
+          initme.accept(mInitializer);
           ((ClassImpl)out).setState(ClassImpl.LOADED);
         }
         mAlreadyInitializing = false;
