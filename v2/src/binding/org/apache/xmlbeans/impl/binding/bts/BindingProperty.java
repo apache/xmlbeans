@@ -36,6 +36,7 @@ public abstract class BindingProperty {
   private MethodName issetter;
   private String field;
   private JavaTypeName collection;
+  private JavaTypeName boxed;
 
   // ========================================================================
   // Constructors
@@ -153,6 +154,14 @@ public abstract class BindingProperty {
 
   public void setCollectionClass(JavaTypeName jName) {
     collection = jName;
+  }
+
+  public JavaTypeName getBoxedClass() {
+    return boxed;
+  }
+
+  public void setBoxedClass(JavaTypeName jName) {
+    boxed = jName;
   }
 
   // ========================================================================

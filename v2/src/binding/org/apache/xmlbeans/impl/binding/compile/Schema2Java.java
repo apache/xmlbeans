@@ -305,9 +305,39 @@ public class Schema2Java extends BindingCompiler {
       case Scratch.LITERALARRAY_TYPE:
         {
           SchemaType itemType = getLiteralArrayItemType(scratch.getSchemaType());
+          boolean nillable = scratch.getSchemaType().
+              getProperties()[0].hasNillable() != SchemaProperty.NEVER;
           Scratch itemScratch = scratchForSchemaType(itemType);
-          resolveJavaName(itemScratch);
-          scratch.setJavaName(JavaTypeName.forArray(itemScratch.getJavaName(), 1));
+          JavaTypeName itemName = null;
+          if (itemScratch == null)
+          {
+              BindingType bType = mLoader.getBindingType(mLoader.
+                  lookupPojoFor(XmlTypeName.forSchemaType(itemType)));
+              if (bType != null)
+                  itemName = bType.getName().getJavaName();
+              else if (itemType.isBuiltinType())
+                  logError("Bultin type " + itemType.getName() + " is not supported",
+                      null, itemType);
+              else
+                  throw new IllegalStateException(itemType.getName().toString()+
+                      " type is not on mLoader");
+          }
+          else
+          {
+              resolveJavaName(itemScratch);
+              itemName = itemScratch.getJavaName();
+          }
+          if (itemName != null)
+              if (nillable)
+              {
+                  JavaTypeName boxedName = JavaTypeName.forBoxed(itemName);
+                  if (boxedName != null)
+                      scratch.setJavaName(JavaTypeName.forArray(boxedName, 1));
+                  else
+                      scratch.setJavaName(JavaTypeName.forArray(itemName, 1));
+              }
+              else
+                  scratch.setJavaName(JavaTypeName.forArray(itemName, 1));
           return;
         }
 
@@ -336,23 +366,47 @@ public class Schema2Java extends BindingCompiler {
         {
           logVerbose("processing element "+scratch.getXmlName());
           SchemaType contentType = scratch.getSchemaType().getProperties()[0].getType();
+          boolean nillable = scratch.getSchemaType().
+              getProperties()[0].hasNillable() != SchemaProperty.NEVER;
           logVerbose("content type is "+contentType.getName());
-          if (contentType.isSimpleType()) {
-            //REVIEW this is a quick bug fix for the case where an element
-            //is of a primitive type.  I'm not completely sure it is the right
-            //thing to do.  pcal
-            XmlTypeName xtn = XmlTypeName.forSchemaType(contentType);
-            scratch.setJavaName(mLoader.lookupPojoFor(xtn).getJavaName());
-            scratch.setAsIf(xtn);
-            return;
-          } else {
-            Scratch contentScratch = scratchForSchemaType(contentType);
-            logVerbose("content scratch is "+contentScratch);
-            resolveJavaName(contentScratch);
-            scratch.setJavaName(contentScratch.getJavaName());
-            scratch.setAsIf(contentScratch.getXmlName());
-            return;
+          JavaTypeName contentName = null;
+          Scratch contentScratch = scratchForSchemaType(contentType);
+          logVerbose("content scratch is "+contentScratch);
+          if (contentScratch == null)
+          {
+              XmlTypeName treatAs = XmlTypeName.forSchemaType(contentType);
+              BindingType bType = mLoader.getBindingType(mLoader.
+                  lookupPojoFor(treatAs));
+              if (bType != null)
+              {
+                  contentName = bType.getName().getJavaName();
+                  scratch.setAsIf(treatAs);
+              }
+              else if (contentType.isBuiltinType())
+                  logError("Builtin type " + contentType.getName() + " is not supported",
+                      null, contentType);
+              else
+                  throw new IllegalStateException(contentType.getName().toString()+
+                      " type is not on mLoader");
           }
+          else
+          {
+              resolveJavaName(contentScratch);
+              contentName = contentScratch.getJavaName();
+              scratch.setAsIf(contentScratch.getXmlName());
+          }
+          if (contentName != null)
+              if (nillable)
+              {
+                  JavaTypeName boxedName = JavaTypeName.forBoxed(contentName);
+                  if (boxedName != null)
+                      scratch.setJavaName(boxedName);
+                  else
+                      scratch.setJavaName(contentName);
+              }
+              else
+                  scratch.setJavaName(contentName);
+          return;
         }
 
       default:
@@ -424,8 +478,6 @@ public class Schema2Java extends BindingCompiler {
   /**
    * Now we resolve the structural aspects (property names) for each
    * scratch.
-   *
-   * todo: understand how we want inheritance to work
    */
   private void resolveJavaStructure(Scratch scratch) {
     if (scratch.getCategory() != Scratch.STRUCT_TYPE)
@@ -436,7 +488,14 @@ public class Schema2Java extends BindingCompiler {
 
     scratch.setStructureResolved(true);
 
-    SchemaType baseType = scratch.getSchemaType().getBaseType();
+    SchemaType schemaType = scratch.getSchemaType();
+    SchemaType baseType = schemaType.getBaseType();
+    int derivationType  = schemaType.getDerivationType();
+    if (derivationType == SchemaType.DT_RESTRICTION)
+    {
+        // Derivation type is restriction, so no new properties may be added
+        return;
+    }
     Collection baseProperties = null;
     if (baseType != null)
       baseProperties = extractProperties(baseType);
@@ -463,27 +522,52 @@ public class Schema2Java extends BindingCompiler {
         seenMethodNames.add(prop.getSetterName());
     }
 
+    if (schemaType.getContentType() == SchemaType.SIMPLE_CONTENT &&
+        baseType.isSimpleType())
+    {
+        // we have to add a '_value' property to hold the value corresponding to the
+        // content of the XML elem
+        BindingType bType = extractBindingType(baseType);
+        if (bType == null)
+            throw new IllegalStateException("Type " + baseType.getName() +
+                "not found in type loader");
+        String propName = "_value";
+        QNameProperty prop = new QNameProperty();
+        prop.setQName(null);
+        prop.setAttribute(false);
+        prop.setSetterName(MethodName.create("set" + propName,
+                bType.getName().getJavaName()));
+        prop.setGetterName(MethodName.create("get" + propName));
+        prop.setBindingType(bType);
+        prop.setNillable(false);
+        prop.setOptional(false);
+        prop.setMultiple(false);
+        scratch.addQNameProperty(prop);
+    }
+
     // now deal with remaining props
-    SchemaProperty[] props = scratch.getSchemaType().getProperties();
+    SchemaProperty[] props = schemaType.getProperties();
     for (int i = 0; i < props.length; i++) {
       QNameProperty prop = (QNameProperty) (props[i].isAttribute() ? seenAttrProps : seenEltProps).get(props[i].getName());
       if (prop != null) {
         // already seen property: verify multiplicity looks cool
         if (prop.isMultiple() != isMultiple(props[i])) {
-          // todo: signal nicer error
-          throw new IllegalStateException("Can't change multiplicity");
+            logError("Could not bind element \"" + props[i].getName() +
+                "\" because the corresponding element in the base type has a " +
+                "different 'maxOccurs' value", null, props[i]);
         }
 
         // todo: think about optionality and nillability too
       } else {
         SchemaType sType = props[i].getType();
         BindingType bType = bindingTypeForSchemaType(sType);
+        if (bType == null)
+            throw new IllegalStateException("Type " + sType.getName() +
+                "not found in type loader");
 
         String propName = pickUniquePropertyName(props[i].getName(), seenMethodNames);
         boolean isMultiple = isMultiple(props[i]);
         JavaTypeName collection = null;
-        if (isMultiple)
-          collection = JavaTypeName.forArray(bType.getName().getJavaName(), 1);
 
         prop = new QNameProperty();
         prop.setQName(props[i].getName());
@@ -491,11 +575,20 @@ public class Schema2Java extends BindingCompiler {
         prop.setSetterName(MethodName.create("set" + propName,
                                              bType.getName().getJavaName()));
         prop.setGetterName(MethodName.create("get" + propName));
-        prop.setCollectionClass(collection);
         prop.setBindingType(bType);
         prop.setNillable(props[i].hasNillable() != SchemaProperty.NEVER);
         prop.setOptional(isOptional(props[i]));
         prop.setMultiple(isMultiple);
+        if (prop.isNillable() || prop.isOptional())
+            prop.setBoxedClass(JavaTypeName.forBoxed(bType.getName().getJavaName()));
+        if (prop.isMultiple())
+        {
+            if (prop.getBoxedClass() != null)
+                collection = JavaTypeName.forArray(prop.getBoxedClass(), 1);
+            else
+                collection = JavaTypeName.forArray(bType.getName().getJavaName(), 1);
+        }
+        prop.setCollectionClass(collection);
       }
       scratch.addQNameProperty(prop);
     }
@@ -530,10 +623,10 @@ public class Schema2Java extends BindingCompiler {
   }
 
   /**
-   * True if the given SchemaProperty has minOccurs < 1
+   * True if the given SchemaProperty has minOccurs < 1 and maxOccurs <= 1
    */
   private static boolean isOptional(SchemaProperty prop) {
-    return (prop.getMinOccurs().signum() == 0);
+      return (prop.getMinOccurs().signum() == 0 && !isMultiple(prop));
   }
 
   /**
@@ -560,6 +653,22 @@ public class Schema2Java extends BindingCompiler {
     }
 
     return result;
+  }
+
+  /**
+   * Returns the simple type which the base of a complex Type with simpleContent
+   */
+  private BindingType extractBindingType(SchemaType sType) {
+    // case 1: it's in the current area
+    Scratch scratch = scratchForSchemaType(sType);
+    if (scratch != null)
+      return scratch.getBindingType();
+
+    // case 2: it's in the mLoader
+    BindingType bType = mLoader.getBindingType(mLoader.lookupPojoFor(XmlTypeName.
+            forSchemaType(sType)));
+
+    return bType;
   }
 
   /**
@@ -648,10 +757,10 @@ public class Schema2Java extends BindingCompiler {
     String baseName = NameUtil.getClassNameFromQName(qname);
     String pickedName = baseName;
 
-    for (int i = 1; usedNames.contains(pickedName); i += 1)
+    for (int i = 1; usedNames.contains(pickedName.toLowerCase()); i += 1)
       pickedName = baseName + i;
 
-    usedNames.add(pickedName);
+    usedNames.add(pickedName.toLowerCase());
 
     return JavaTypeName.forString(pickedName);
   }
@@ -993,7 +1102,10 @@ public class Schema2Java extends BindingCompiler {
 
     String packageName = javaName.getPackage();
     String shortClassName = javaName.getShortClassName();
-    BindingType baseType = bindingTypeForSchemaType(scratch.getSchemaType().getBaseType());
+    BindingType baseType = null;
+    SchemaType bSchemaType = scratch.getSchemaType().getBaseType();
+    if (!bSchemaType.isSimpleType())
+      baseType = bindingTypeForSchemaType(bSchemaType);
     String baseJavaname = null;
     if (baseType != null) {
       baseJavaname = baseType.getName().getJavaName().toString();
@@ -1019,6 +1131,9 @@ public class Schema2Java extends BindingCompiler {
     for (Iterator i = props.iterator(); i.hasNext();) {
       QNameProperty prop = (QNameProperty) i.next();
       JavaTypeName jType = prop.getTypeName().getJavaName();
+      if (prop.getBoxedClass() != null) {
+        jType = prop.getBoxedClass();
+      }
       if (prop.getCollectionClass() != null) {
         jType = prop.getCollectionClass();
       }

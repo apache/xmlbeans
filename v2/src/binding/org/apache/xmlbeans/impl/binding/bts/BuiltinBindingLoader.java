@@ -92,24 +92,33 @@ public class BuiltinBindingLoader extends BaseBindingLoader {
     addPojoXml("Name", "java.lang.String");
     addPojoXml("NCName", "java.lang.String");
     addPojoXml("NMTOKEN", "java.lang.String");
+    addPojoXml("NMTOKENS", "java.lang.String[]");
     addPojoXml("ID", "java.lang.String");
     addPojoXml("IDREF", "java.lang.String");
+    addPojoXml("IDREFS", "java.lang.String[]");
     addPojoXml("ENTITY", "java.lang.String");
+    addPojoXml("ENTITIES", "java.lang.String[]");
 
-    addPojoTwoWay("duration", "org.apache.xmlbeans.GDuration");
+    addPojoXml("duration", "java.lang.String");
+    addPojoJava("duration", "org.apache.xmlbeans.GDuration");
 
     addPojoTwoWay("dateTime", "java.util.Calendar");
     addPojoJava("dateTime", "java.util.Date");
     addPojoXml("time", "java.util.Calendar");
     addPojoXml("date", "java.util.Calendar");
     addPojo("date", "java.util.Date");
-    addPojoXml("gYearMonth", "java.util.Calendar");
-    addPojoXml("gYear", "java.util.Calendar");
+    addPojoXml("gYearMonth", "java.lang.String");
+    addPojo("gYearMonth", "java.util.Calendar");
+    addPojoXml("gYear", "java.lang.String");
+    addPojo("gYear", "java.util.Calendar");
     addPojo("gYear", "int");
-    addPojoXml("gMonthDay", "java.util.Calendar");
-    addPojoXml("gMonth", "java.util.Calendar");
+    addPojoXml("gMonthDay", "java.lang.String");
+    addPojo("gMonthDay", "java.util.Calendar");
+    addPojoXml("gMonth", "java.lang.String");
+    addPojo("gMonth", "java.util.Calendar");
     addPojo("gMonth", "int");
-    addPojoXml("gDay", "java.util.Calendar");
+    addPojoXml("gDay", "java.lang.String");
+    addPojo("gDay", "java.util.Calendar");
     addPojo("gDay", "int");
 
     addPojoTwoWay("boolean", "boolean");
@@ -133,8 +142,8 @@ public class BuiltinBindingLoader extends BaseBindingLoader {
     addPojoXml("unsignedInt", "long");
     addPojoXml("unsignedShort", "int");
     addPojoXml("unsignedByte", "short");
-    addPojoXml("anyURI", "java.lang.String");
-    addPojoJava("anyURI", "java.net.URI");
+    addPojoTwoWay("anyURI", "java.lang.String");
+    addPojo("anyURI", "java.net.URI");
     addPojoTwoWay("QName", "javax.xml.namespace.QName");
     addPojoXml("NOTATION", "java.lang.String");
 
