@@ -106,7 +106,32 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
 
   private static final String STS_PREFIX = "schema"+SEPCHAR+"system"+SEPCHAR;
 
+  /**
+   * Loads the tylar from the given uri.
+   *
+   * @param uri uri of where the tylar is stored.
+   * @return
+   * @throws IOException if an i/o error occurs while processing
+   * @throws XmlException if an error occurs parsing the contents of the tylar.
+   */
+  /*
+  public Tylar load(URI uri) throws IOException, XmlException
+  {
+    return load(new URL[]{new URL(uri.toString())});
+  }
 
+  public Tylar load(URI[] uris) throws IOException, XmlException {
+    URL[] urls = new URL[uris.length];
+    for(int i=0; i<uris.length; i++) {
+      urls[i] = new URL(uris[i].toString());
+    }
+    return load(urls);
+  }
+
+  public Tylar load(JarInputStream jar) throws IOException, XmlException {
+    if (jar == null) throw new IllegalArgumentException("null stream");
+    return loadFromJar(jar,null);
+  } */
   /**
    * Loads the tylar from the given uri.
    *
@@ -221,7 +246,8 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
         }
       }
     }
-    return new TylarImpl(new URL[]{source.toURL()},bf,schemas,sts);
+    return new TylarImpl((source == null) ? null : new URL[]{source.toURL()},
+                         bf,schemas,sts);
   }
   // ========================================================================
   // Private methods

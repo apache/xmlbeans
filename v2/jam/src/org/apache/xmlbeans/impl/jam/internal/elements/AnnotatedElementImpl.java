@@ -134,23 +134,23 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     AnnotationProxy proxy = getContext().
       createAnnotationProxy(annotationName);
     ann = new AnnotationImpl(getContext(),proxy,annotationName);
-    addAnnotation(ann);
+    if (mName2Annotation == null) {
+      mName2Annotation = new HashMap();
+    }
+    mName2Annotation.put(ann.getSimpleName(),ann);
     return ann;
   }
 
   public MAnnotation addLiteralAnnotation(String annName) {
     if (annName == null) throw new IllegalArgumentException("null tagname");
     annName = annName.trim();
-    // if one doesn't exist yet, then create the first one
-    if (getMutableAnnotation(annName) == null) {
-      return findOrCreateAnnotation(annName);
-    }
     // otherwise, we have to create an 'extra' one.  note this will only
     // happen when processing javadoc tags where more than one tag of a given
     // name appears in a given scope
     AnnotationProxy proxy = getContext().createAnnotationProxy(annName);
     MAnnotation ann = new AnnotationImpl(getContext(),proxy,annName);
-    addAnnotation(ann);
+    if (mAllAnnotations == null) mAllAnnotations = new ArrayList();
+    mAllAnnotations.add(ann);
     return ann;
   }
 
@@ -170,7 +170,6 @@ public abstract class AnnotatedElementImpl extends ElementImpl
       mName2Annotation = new HashMap();
       mName2Annotation.put(ann.getSimpleName(),ann);
     } else {
-      // first one in wins
       if (mName2Annotation.get(ann.getSimpleName()) == null) {
         mName2Annotation.put(ann.getSimpleName(),ann);
       }
@@ -194,6 +193,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     MAnnotation ann = findOrCreateAnnotation(tagName);
     JClass type = getClassLoader().loadClass("java.lang.String");
     ann.setSimpleValue(JAnnotation.SINGLE_VALUE_NAME,value,type);
+    MAnnotation litann = addLiteralAnnotation(tagName);
+    litann.setSimpleValue(JAnnotation.SINGLE_VALUE_NAME,value,type);
     return ann;
   }
 
