@@ -8,7 +8,7 @@
   <xsd:attribute name="attDefault" type="xsd:integer" default="1"/>
 
   <xsd:complexType name="LocalAttrFixedDefaultT">
-      <xsd:attribute ref="attFixed" fixed="NEWXBeanAttrStr" />
+      <xsd:attribute ref="attFixed"/>
       <xsd:attribute ref="attDefault" default="2"/>
   </xsd:complexType>
 

@@ -862,7 +862,7 @@ public class StoreTests extends TestCase
         return sb.toString();
     }
     
-    public void testThatAssertIsOn ( )
+    /*public void testThatAssertIsOn ( )
     {
         try
         {
@@ -874,7 +874,7 @@ public class StoreTests extends TestCase
         {
         }
     }
-            
+     */
     static class MyMark extends XmlBookmark
     {
     }

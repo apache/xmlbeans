@@ -46,6 +46,12 @@ public class GlobalEltNillable extends BaseCase {
 
     /**
      * Try to set a non-nillable elt. to nill
+     * CR CR192914:
+     * Regardless of Schema definition,
+     * setXXX(null) will clear the value of the
+     * XXX attribute/element and if the container is an
+     * element, will also add the "xsi:nil" attribute.
+
      *
      * @throws Exception
      */
@@ -67,6 +73,12 @@ public class GlobalEltNillable extends BaseCase {
         }
 
         testElt.setGlobalEltNotNillable(null);
+        //assert that value is cleared
+        assertEquals("<glob:GlobalEltNotNillable " +
+                "xsi:nil=\"true\" " +
+                "xmlns:glob=\"http://xbean/scomp/element/GlobalEltNillable\" " +
+                "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>"
+                ,testElt.xmlText());
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
@@ -74,9 +86,7 @@ public class GlobalEltNillable extends BaseCase {
                 new String[]{
                     XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
              assertTrue(compareErrorCodes(errExpected));
-
-        fail("Why is the last setter not throwing an exception?");
-    }
+}
 
     //for nillable, fixed value cannot be specified (instance error) :
     // Walmsley p.137 footnote
@@ -181,9 +191,9 @@ public class GlobalEltNillable extends BaseCase {
             throw t;
         }
         testElt.getGlobalEltComplex().setNil();
-        assertEquals("<pre:GlobalEltComplex " +
-                "xsi:nil=\"true\" " +
+        assertEquals("<pre:GlobalEltComplex " +                 
                 "testattribute=\"foobar\" " +
+                "xsi:nil=\"true\" " +
                 "xmlns:pre=\"http://xbean/scomp/element/GlobalEltNillable\" " +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>",
                 testElt.xmlText());

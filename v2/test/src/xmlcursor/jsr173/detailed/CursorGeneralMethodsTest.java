@@ -21,6 +21,8 @@ import xmlcursor.jsr173.common.GeneralMethodsTest;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlDocumentProperties;
 /**
  *
  *
@@ -31,6 +33,6 @@ public  class CursorGeneralMethodsTest
 
     public  XMLStreamReader getStream(XmlCursor c)
     throws Exception{
-        return c.newXMLStreamReader();
+            return c.newXMLStreamReader();
     }
 }

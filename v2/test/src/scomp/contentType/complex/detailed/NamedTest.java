@@ -26,7 +26,6 @@ import xbean.scomp.contentType.named.ElementT;
 import xbean.scomp.contentType.named.NamedMixedEltDocument;
 import xbean.scomp.contentType.named.MixedT;
 
-import tools.xml.XmlComparator;
 import scomp.common.BaseCase;
 
 /**

@@ -281,7 +281,10 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         //move xc1 to outer space
         xc1.toBookmark(_theBookmark);
         assertTrue(!m_xc.isInSameDocument(xc1));
-//        assertTrue(!m_xc.isLeftOf(xc1));
+        try{
+        assertTrue(!m_xc.isLeftOf(xc1));
+            fail("Expected Illegal Arg exception--diff docs");
+        }catch (IllegalArgumentException e){}
     }
 
     public void testToBookmarkPostRemove() throws Exception {

@@ -87,7 +87,8 @@ public class MoveImportNodeTest extends TestCase{
     }
 
     public void testMoveDiffImplementations() throws Exception{
-	org.apache.xerces.parsers.DOMParser parser = new org.apache.xerces.parsers.DOMParser();
+	org.apache.xerces.parsers.DOMParser parser =
+            new org.apache.xerces.parsers.DOMParser();
 
 
 	parser.parse(new InputSource(new StringReader(sXmlNS)));
@@ -116,6 +117,7 @@ public class MoveImportNodeTest extends TestCase{
     }
 
 
+   // public void 
     public void testImportSameDoc(){
 	//inspired by nist documentimportnode10?
 
