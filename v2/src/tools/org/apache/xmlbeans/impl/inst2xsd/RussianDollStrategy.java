@@ -90,7 +90,7 @@ public class RussianDollStrategy
         Element element = new Element();
         element.setName(xc.getName());
         element.setGlobal(false);
-
+        
         Type elemType = Type.createUnnamedType(Type.SIMPLE_TYPE_SIMPLE_CONTENT); //assume simple, set later
         element.setType(elemType);
 
@@ -106,10 +106,12 @@ public class RussianDollStrategy
             {
                 case XmlCursor.TokenType.INT_ATTR:
                     // todo check for xsi:type
-                    // ignore xsi:type and xsi:nil atributes
+                    // ignore xsi:... attributes other than xsi:nil
                     QName attName = xc.getName();
-                    if (!_xsiNil.equals(attName) && !_xsiType.equals(attName))
+                    if (!_xsiNil.getNamespaceURI().equals(attName.getNamespaceURI()))
                         attributes.add(processAttribute(xc, options, element.getName().getNamespaceURI(), typeSystemHolder));
+                    else if (_xsiNil.equals(attName))
+                        element.setNillable(true);
 
                     break;
 
@@ -139,10 +141,10 @@ public class RussianDollStrategy
                     break;
 
                 case XmlCursor.TokenType.INT_ENDDOC:
-                    throw new IllegalStateException();
+                    break loop;
 
                 case XmlCursor.TokenType.INT_NONE:
-                    throw new IllegalStateException();
+                    break loop;
 
                 case XmlCursor.TokenType.INT_STARTDOC:
                     throw new IllegalStateException();
@@ -263,6 +265,12 @@ public class RussianDollStrategy
             referencedElem.setGlobal(true);
             referencedElem.setName(child.getName());
             referencedElem.setType(child.getType());
+
+            if (child.isNillable())
+            {
+                referencedElem.setNillable(true);
+                child.setNillable(false);
+            }
 
             referencedElem = addGlobalElement(referencedElem, typeSystemHolder, options);
 
@@ -457,12 +465,13 @@ public class RussianDollStrategy
         }
 
         // check for QName
-        if (lexicalValue.indexOf(':')>=0 && lexicalValue.indexOf(':')==lexicalValue.lastIndexOf(':'))
+        int idx = lexicalValue.indexOf(':');
+        if (idx>=0 && idx==lexicalValue.lastIndexOf(':') && idx+1<lexicalValue.length())
         {
             PrefixResolver prefixResolver = new PrefixResolver()
             {
                 public String getNamespaceForPrefix(String prefix)
-                {  return xc.prefixForNamespace(prefix); }
+                {  return xc.namespaceForPrefix(prefix); }
             };
 
             XmlQNameImpl.validateLexical(lexicalValue, _validationContext, prefixResolver);

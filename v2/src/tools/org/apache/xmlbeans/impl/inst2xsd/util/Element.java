@@ -27,6 +27,7 @@ public class Element
     private int _minOccurs = 1;
     private int _maxOccurs = 1;
     public static final int UNBOUNDED = -1;
+    private boolean _isNillable = false;
     private Type _type = null;
     private String _comment = null;
 
@@ -89,6 +90,16 @@ public class Element
         _maxOccurs = maxOccurs;
     }
 
+    public boolean isNillable()
+    {
+        return _isNillable;
+    }
+
+    public void setNillable(boolean isNillable)
+    {
+        _isNillable = isNillable;
+    }
+
     public Type getType()
     {
         return isRef() ? getRef().getType() : _type;
@@ -118,6 +129,7 @@ public class Element
             ", _isGlobal = " + _isGlobal +
             ", _minOccurs = " + _minOccurs +
             ", _maxOccurs = " + _maxOccurs +
+            ", _isNillable = " + _isNillable +
             ", _comment = " + _comment +
             ",\n    _type = " + ( _type==null ? "null" :
                 (_type.isGlobal() ? _type.getName().toString() : _type.toString())) +

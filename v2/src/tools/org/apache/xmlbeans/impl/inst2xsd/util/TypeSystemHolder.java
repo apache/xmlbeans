@@ -163,6 +163,9 @@ public class TypeSystemHolder
         org.w3.x2001.xmlSchema.TopLevelElement topLevelElem = sch.addNewElement();
         topLevelElem.setName(globalElement.getName().getLocalPart());
 
+        if (globalElement.isNillable())
+            topLevelElem.setNillable(globalElement.isNillable());
+
         fillUpElementDocumentation(topLevelElem, globalElement.getComment());
 
         Type elemType = globalElement.getType();
@@ -181,6 +184,7 @@ public class TypeSystemHolder
         else
         {
             localSElement.setRef(element.getName());
+            assert !element.isNillable();
         }
 
         if (element.getMaxOccurs()==Element.UNBOUNDED)
@@ -191,6 +195,9 @@ public class TypeSystemHolder
         {
             localSElement.setMinOccurs(new BigInteger("" + element.getMinOccurs()));
         }
+
+        if (element.isNillable())
+            localSElement.setNillable(element.isNillable());
     }
 
     private void fillUpTypeOnElement(Type elemType, org.w3.x2001.xmlSchema.Element parentSElement, String tns)
