@@ -410,7 +410,6 @@
      <mkdir dir="build/private/xkit"/>
      <copy todir="build/private/xkit">
         <fileset dir="xkit"/>
-        <fileset dir="src/license"/>
      </copy>
 
      <mkdir dir="build/private/xkit/lib"/>
@@ -428,10 +427,6 @@
         <fileset dir="src/xmlstore"/>
         <fileset dir="src/xmlschema"/>
         <fileset dir="src/xsdschema"/>
-     </copy>
-     <mkdir dir="build/private/xkit/src/license"/>
-     <copy todir="build/private/xkit/src/license">
-        <fileset dir="src/license"/>
      </copy>
 
      <mkdir dir="build/private/xkit/src/schema"/>
