@@ -312,13 +312,30 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
      * and will return if a particular state is valid or invalid
      */
 
-    public boolean visit(QName eltName ,boolean testValidity)
+    public boolean visit(QName eltName, boolean testValidity)
     {
         if (!prepare())
             return notValid();
 
+        // init with some values out of processedChildCount and stackSize range
+        int lastAtProcessedChildCount = -2;
+        int lastAtStackSize = -2;
+
         traversing: for (;;)
         {
+            //  optimization for cases where state doesn't change between _top._curMin and _top._curMax
+            //  check for state change        see JIRA bug XMLBEANS-37
+            if (_top._curCount>_top._curMin &&
+                lastAtProcessedChildCount==_top._processedChildCount &&
+                lastAtStackSize==_stackSize)
+            {
+                _top._curCount = _top._curMax;
+            }
+
+            // save state
+            lastAtProcessedChildCount = _top._processedChildCount;
+            lastAtStackSize = _stackSize;
+
             while (_top._curCount >= _top._curMax)
             {
                 if (!pop())
@@ -369,7 +386,9 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
                     }
                     _top._curCount++;
                     _top._processedChildCount = 0;
+
                     continue traversing;
+
 
                 case SchemaParticle.CHOICE:
                     for (int i = 0; i < _top._childCount; i++)
