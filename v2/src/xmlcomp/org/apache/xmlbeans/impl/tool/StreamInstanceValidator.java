@@ -152,6 +152,7 @@ public class StreamInstanceValidator
         for (int i = 0; i < instanceFiles.length; i++) {
             final File file = instanceFiles[i];
             final String path = file.getPath();
+            long time = 0;
 
             errors.clear();
 
@@ -165,11 +166,14 @@ public class StreamInstanceValidator
                     rdr.next();
                 }
 
+                time = System.currentTimeMillis();
                 vsr.init(rdr, true, null, sLoader, options, errors);
                 
                 while (vsr.hasNext()) {
                     vsr.next();
                 }
+
+                time = (System.currentTimeMillis() - time);
                 vsr.close();
                 fis.close();
             }
@@ -189,9 +193,9 @@ public class StreamInstanceValidator
 
 
             if (errors.isEmpty()) {
-                System.out.println(file + " valid.");
+                System.out.println(file + " valid. (" + time + " ms)");
             } else {
-                System.out.println(file + " NOT valid:");
+                System.out.println(file + " NOT valid (" + time + " ms):");
                 for (Iterator it = errors.iterator(); it.hasNext();) {
                     XmlError err = (XmlError)it.next();
                     System.out.println(stringFromError(err, path));

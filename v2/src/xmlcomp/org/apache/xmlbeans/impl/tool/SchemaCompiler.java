@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.schema.PathResourceLoader;
 import org.apache.xmlbeans.impl.schema.ResourceLoader;
 import org.apache.xmlbeans.impl.schema.StscState;
 import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.XmlErrorCodes;
@@ -47,6 +48,7 @@ import java.net.URISyntaxException;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.xml.sax.EntityResolver;
+import repackage.Repackager;
 
 public class SchemaCompiler
 {
@@ -951,7 +953,21 @@ public class SchemaCompiler
         boolean noAnn = params.isNoAnn();
         boolean incrSrcGen = params.isIncrementalSrcGen();
         Collection outerErrorListener = params.getErrorListener();
+
         String repackage = params.getRepackage();
+
+        if (repackage!=null)
+        {
+            SchemaTypeLoaderImpl.LOAD_METADATA_PACKAGE = SchemaTypeSystemImpl.METADATA_PACKAGE;
+
+            // not yet enabled
+            //String stsPackage = SchemaTypeSystem.class.getPackage().getName();
+            //Repackager repackager = new Repackager( repackage );
+
+            //SchemaTypeSystemImpl.METADATA_PACKAGE = repackager.repackage(new StringBuffer(stsPackage)).toString().replace('.','_');
+            SchemaTypeSystemImpl.METADATA_PACKAGE = "";
+        }
+
         SchemaCodePrinter codePrinter = params.getSchemaCodePrinter();
         List extensions = params.getExtensions();
         Set mdefNamespaces = params.getMdefNamespaces();
@@ -976,7 +992,7 @@ public class SchemaCompiler
 
         boolean result = true;
 
-        File schemasDir = IOUtil.createDir(classesDir, "schema/src");
+        File schemasDir = IOUtil.createDir(classesDir, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE + "/src");
 
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
