@@ -40,19 +40,6 @@ public interface TylarLoader {
   public Tylar load(ClassLoader cl) throws IOException, XmlException;
 
   /**
-   * Returns a composition of the set of tylars at the given URIs.  Tylars
-   * will be consulted in the order in which they appear in this array when
-   * resolving bindings and types; first one wins.
-   *
-   * @param urls pointing to where the tylars are stored.
-   * @return
-   * @throws IOException if an i/o error occurs while processing
-   * @throws XmlException if an error occurs parsing the contents of the
-   * tylars.
-   */
-  public Tylar load(URL[] urls) throws IOException, XmlException;
-
-  /**
    * @deprecated
    */
   public Tylar load(URI uri) throws IOException, XmlException;
