@@ -62,12 +62,25 @@ import java.util.Collection;
 final class CharacterVisitor
     extends XmlTypeVisitor
 {
+    private final CharSequence chars;
+
     CharacterVisitor(RuntimeBindingProperty property,
                      Object parentObject,
                      MarshallerImpl context)
     {
         super(parentObject, property, context);
         assert (!(parentObject instanceof Collection));
+
+        //we are getting the lexical value here because in certain cases
+        //this action could end up modifying the namespace context.
+        //(qname, type substitution).
+        if (parentObject == null) {
+            //REVIEW: should this be a special subclass for nil types?
+            //Any use of this value should cause an npe later on.
+            chars = null;
+        } else {
+            chars = grabChars();
+        }
     }
 
 
@@ -107,6 +120,11 @@ final class CharacterVisitor
     }
 
     protected CharSequence getCharData()
+    {
+        return chars;
+    }
+
+    private CharSequence grabChars()
     {
         final Object parent = getParentObject();
         assert parent != null : "bad visitor: this=" + this;

@@ -300,7 +300,7 @@ final class MarshalResult implements XMLStreamReader
 
     public NamespaceContext getNamespaceContext()
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        return context.getNamespaceContext();
     }
 
     public int getEventType()

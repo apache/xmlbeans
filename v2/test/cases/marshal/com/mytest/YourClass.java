@@ -58,6 +58,7 @@ package com.mytest;
 
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 
+import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -72,9 +73,13 @@ public class YourClass
 //    private List bools;// = newBoolList();
 //    private List strs;// = newStringList();
     private long[] longArray;// = {RND.nextLong(), RND.nextLong()};
+
     private boolean[] booleanArray;// = {true, false, true};
-    private String[] stringArray;//{"ONE:"+RND.nextInt(), "TWO:"+RND.nextInt()};
+    private String[] stringArray = {"ONE:"+RND.nextInt(), "TWO:"+RND.nextInt()};
     private MyClass[] myClassArray;//{new MyClass(), new MyClass()};
+
+    private QName qn = new QName("URI" + RND.nextInt(), "LNAME"+RND.nextInt());
+    private QName qn2 = new QName("URI" + RND.nextInt(), "LNAME"+RND.nextInt());
 
     //hack alert
     static final Random RND = new Random();
@@ -205,6 +210,28 @@ public class YourClass
         this.booleanArray = booleanArray;
     }
 
+
+    public QName getQn()
+    {
+        return qn;
+    }
+
+    public void setQn(QName qn)
+    {
+        this.qn = qn;
+    }
+
+    public QName getQn2()
+    {
+        return qn2;
+    }
+
+    public void setQn2(QName qn2)
+    {
+        this.qn2 = qn2;
+    }
+
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -222,6 +249,10 @@ public class YourClass
         if (!Arrays.equals(myClassArray, yourClass.myClassArray)) return false;
         if (!Arrays.equals(stringArray, yourClass.stringArray)) return false;
 //        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
+
+        if (qn != null ? !qn.equals(yourClass.qn) : yourClass.qn != null) return false;
+        if (qn2 != null ? !qn2.equals(yourClass.qn2) : yourClass.qn2 != null) return false;
+
 
         return true;
     }
@@ -248,6 +279,8 @@ public class YourClass
             ", myFloat=" + myFloat +
             ", attrib=" + attrib +
             ", someBool=" + someBool +
+            ", qn=" + qn +
+            ", qn2=" + qn2 +
 //            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
 //            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
             ", longArray=" + ArrayUtils.arrayToString(longArray) +

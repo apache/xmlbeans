@@ -79,6 +79,10 @@ final class QNameTypeConverter
     public CharSequence print(Object value, MarshallerImpl context)
     {
         QName val = (QName)value;
+        final String uri = val.getNamespaceURI();
+        if (uri.length() > 0) {
+            context.ensurePrefix(uri);
+        }
         return XsTypeConverter.printQName(val,
                                           context.getNamespaceContext(),
                                           context.getErrorCollection());
