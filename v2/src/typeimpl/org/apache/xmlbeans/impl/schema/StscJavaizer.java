@@ -272,7 +272,7 @@ public class StscJavaizer
     private static void avoidExtensionMethods(Set usedPropNames, SchemaTypeImpl sImpl)
     {
         InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
-        for (int i = 0; i < exts.length; i++)
+        if (exts != null) for (int i = 0; i < exts.length; i++)
         {
             InterfaceExtension ext = exts[i];
             InterfaceExtension.MethodSignature[] methods = ext.getMethods();
