@@ -66,6 +66,8 @@ import java.util.Arrays;
 
 public class YourClass
 {
+    private YourClass myBoss = null;
+
     private MyClass myClass;
     private MySubClass mySubClass = new MySubClass();
 
@@ -115,6 +117,16 @@ public class YourClass
     public void setMyFloat(float myFloat)
     {
         this.myFloat = myFloat;
+    }
+
+    public YourClass getMyBoss()
+    {
+        return myBoss;
+    }
+
+    public void setMyBoss(YourClass myBoss)
+    {
+        this.myBoss = myBoss;
     }
 
     public MyClass getMyClass()

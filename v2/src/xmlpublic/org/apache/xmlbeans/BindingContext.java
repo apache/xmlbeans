@@ -67,7 +67,6 @@ package org.apache.xmlbeans;
 public interface BindingContext
 {
     /**
-     * @deprecated options are ignored and must be passed to Unmarshaller methods
      *
      * @return Unmarshaller object
      * @throws XmlException
@@ -76,6 +75,8 @@ public interface BindingContext
         throws XmlException;
 
     /**
+     * @deprecated options are ignored and must be passed to Unmarshaller methods
+
      * Create an Unmarshaller object capable of unmarshalling types
      * known by this context
      *

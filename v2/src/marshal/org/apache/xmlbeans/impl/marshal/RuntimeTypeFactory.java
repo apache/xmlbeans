@@ -59,6 +59,7 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -69,18 +70,35 @@ import java.util.Map;
 
 final class RuntimeTypeFactory
 {
-    private final Map typeMap = new HashMap();
+    //concurrent hashMap allows us to do hash lookups outside of any sync blocks,
+    //and successful lookups  involve no locking, which should be
+    //99% of the cases in any sort of long running process
+    private final Map initedTypeMap = new ConcurrentReaderHashMap();
 
-    //TODO: use a hash map that is sync only on write!!
-    public synchronized RuntimeBindingType createRuntimeType(BindingType type,
-                                                             RuntimeBindingTypeTable type_table,
-                                                             BindingLoader binding_loader)
+
+    private final Map tempTypeMap = new HashMap();
+
+    RuntimeTypeFactory()
     {
-        RuntimeBindingType rtype = (RuntimeBindingType)typeMap.get(type);
-        if (rtype == null) {
-            rtype = allocateType(type);
-            typeMap.put(type, rtype);
-            rtype.initialize(type_table, binding_loader);
+    }
+
+    public RuntimeBindingType createRuntimeType(BindingType type,
+                                                RuntimeBindingTypeTable type_table,
+                                                BindingLoader binding_loader)
+    {
+        RuntimeBindingType rtype = (RuntimeBindingType)initedTypeMap.get(type);
+        if (rtype != null) return rtype;
+
+        //safe but slow creation of new type.
+        synchronized (this) {
+            rtype = (RuntimeBindingType)tempTypeMap.get(type);
+            if (rtype == null) {
+                rtype = allocateType(type);
+                tempTypeMap.put(type, rtype);
+                rtype.initialize(type_table, binding_loader);
+                initedTypeMap.put(type, rtype);
+                tempTypeMap.remove(type); // save some memory.
+            }
         }
         assert rtype != null;
         return rtype;

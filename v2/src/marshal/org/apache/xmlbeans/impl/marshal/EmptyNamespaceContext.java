@@ -56,10 +56,12 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
+
 import javax.xml.namespace.NamespaceContext;
 import java.util.Iterator;
 
-public final class EmptyNamespaceContext
+final class EmptyNamespaceContext
     implements NamespaceContext
 {
     private static final NamespaceContext INSTANCE =
@@ -86,7 +88,7 @@ public final class EmptyNamespaceContext
 
     public Iterator getPrefixes(String s)
     {
-        return null;
+        return EmptyIterator.getInstance();
     }
 
 }

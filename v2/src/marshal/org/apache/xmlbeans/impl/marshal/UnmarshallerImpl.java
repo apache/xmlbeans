@@ -67,7 +67,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 
-public class UnmarshallerImpl implements Unmarshaller
+class UnmarshallerImpl implements Unmarshaller
 {
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;

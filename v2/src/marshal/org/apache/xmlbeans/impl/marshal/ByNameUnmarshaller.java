@@ -57,16 +57,15 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 final class ByNameUnmarshaller implements TypeUnmarshaller
 {
     private final ByNameRuntimeBindingType type;
 
-    public ByNameUnmarshaller(ByNameBean type)
+    public ByNameUnmarshaller(ByNameRuntimeBindingType type)
     {
-        this.type = new ByNameRuntimeBindingType(type);
+        this.type = type;
     }
 
     public Object unmarshal(UnmarshalResult context)
@@ -184,7 +183,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     public void initialize(RuntimeBindingTypeTable typeTable,
                            BindingLoader bindingLoader)
     {
-        type.initialize(typeTable, bindingLoader);
+        //type.initialize(typeTable, bindingLoader);
     }
 
 

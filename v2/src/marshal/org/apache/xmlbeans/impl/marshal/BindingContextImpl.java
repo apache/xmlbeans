@@ -69,17 +69,20 @@ import java.util.Collection;
  * Main entry point into marshalling framework.
  * Use the BindingContextFactory to create one
  */
-public final class BindingContextImpl implements BindingContext
+final class BindingContextImpl implements BindingContext
 {
     private final BindingLoader bindingLoader;
+    private final RuntimeTypeFactory runtimeTypeFactory;
     private final RuntimeBindingTypeTable typeTable;
 
+
     /* package protected -- use the factory */
-    BindingContextImpl(BindingLoader bindingLoader,
-                       RuntimeBindingTypeTable typeTable)
+    BindingContextImpl(BindingLoader bindingLoader)
     {
         this.bindingLoader = bindingLoader;
-        this.typeTable = typeTable;
+        runtimeTypeFactory = new RuntimeTypeFactory();
+        this.typeTable =
+            RuntimeBindingTypeTable.createTable(runtimeTypeFactory);
     }
 
 
@@ -102,7 +105,7 @@ public final class BindingContextImpl implements BindingContext
     public Marshaller createMarshaller()
         throws XmlException
     {
-        return new MarshallerImpl(bindingLoader, typeTable);
+        return new MarshallerImpl(bindingLoader, typeTable, runtimeTypeFactory);
     }
 
 
@@ -114,15 +117,6 @@ public final class BindingContextImpl implements BindingContext
         }
 
         return createMarshaller();
-    }
-
-
-    /**
-     * @deprecated do not use this
-     */
-    public BindingLoader getBindingLoader()
-    {
-        return bindingLoader;
     }
 
     static Collection extractErrorHandler(XmlOptions options)

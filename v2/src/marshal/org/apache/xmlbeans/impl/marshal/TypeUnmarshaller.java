@@ -61,6 +61,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 /**
  * A TypeUnmarshaller knows how to unmarshal an xml
  * instance of a given BindingType
+ *
+ * All TypeUnmarshaller objects should be immutable.
  */
 interface TypeUnmarshaller
 {
