@@ -314,12 +314,16 @@ public final class CharUtil
         // or just create a new string ... this goes for remove chars
         // as well.
 
-        _offSrc = 0;
         _cchSrc = cch + cchInsert;
 
         if (cch == 0)
+        {
+            _offSrc = off;
             return src;
+        }
 
+        _offSrc = 0;
+        
         if (posInsert == 0)
             return new CharJoin( src, off, cch, srcInsert, offInsert, cchInsert );
 
