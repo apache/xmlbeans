@@ -69,7 +69,7 @@ public final class XmlBeans
     }
 
     /**
-     * Returns the XmlBeans version, "2.0.0",
+     * Returns the XmlBeans version,
      * the value of
      * {@link Package#getImplementationVersion() XmlBeans.class.getPackage().getImplementationVersion()}.
      */

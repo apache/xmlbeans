@@ -45,7 +45,6 @@ import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 public abstract class BaseSchemaResourceManager extends SchemaImportResolver
 {
-    // User-Agent: XMLBeans/2.0.0 (org.apache.xmlbeans)
     private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
 
     private String _defaultCopyDirectory;
