@@ -15,14 +15,19 @@
 
 package org.apache.xmlbeans.impl.newstore2;
 
+import java.util.ConcurrentModificationException;
+import java.util.HashMap;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.xmlbeans.XmlRuntimeException;
+
 import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.common.XPath.XPathCompileException;
 import org.apache.xmlbeans.impl.common.XPath.ExecutionContext;
 
 import org.apache.xmlbeans.XmlOptions;
-
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
 
 // TODO - This class handled query *and* path ... rename it?
 
@@ -34,16 +39,44 @@ public abstract class Path
     }
 
     public static String _useXqrlForXpath = "use xqrl for xpath";
-
     public static String _useXbeanForXpath = "use xbean for xpath";
 
-    static interface PathEngine
+    interface PathEngine
     {
         void release ( );
         boolean next ( Cur c );
     }
 
     abstract PathEngine execute ( Cur c );
+
+    //
+    //
+    //
+
+    static String getCurrentNodeVar ( XmlOptions options )
+    {
+        String currentNodeVar = "this";
+
+        options = XmlOptions.maskNull( options );
+        
+        if (options.hasOption( XmlOptions.XQUERY_CURRENT_NODE_VAR ))
+        {
+            currentNodeVar = (String) options.get( XmlOptions.XQUERY_CURRENT_NODE_VAR );
+
+            if (currentNodeVar.startsWith( "$" ))
+            {
+                throw
+                    new IllegalArgumentException(
+                        "Omit the '$' prefix for the current node variable" );
+            }
+        }
+
+        return currentNodeVar;
+    }
+
+    private static final int FORCE_XQRL    = 0;
+    private static final int FORCE_XBEAN   = 1;
+    private static final int FORCE_NEITHER = 2;
 
     static Path getCompiledPath ( String pathExpr, XmlOptions options )
     {
@@ -59,40 +92,67 @@ public abstract class Path
         return getCompiledPath( pathExpr, force, getCurrentNodeVar( options ) );
     }
 
-    private static final int FORCE_XQRL    = 0;
-    private static final int FORCE_XBEAN   = 1;
-    private static final int FORCE_NEITHER = 2;
-
-
-    // TODO - This is a global lock ... make it not be a global lock?
     static synchronized Path getCompiledPath ( String pathExpr, int force, String currentVar )
     {
-        Path path = null;
-
-        // TODO - remove this when integrate xqrl
         if (force == FORCE_XQRL)
-            throw new RuntimeException( "Not XQRL support yet" );
+        {
+            Path path = (Path) _xqrlPathCache.get( pathExpr );
 
-        // TODO - when integrate xqrl, add this back
-//        if (force != FORCE_XQRL)
-            path = (Path) _xbeanPathCache.get( pathExpr );
+            if (path == null)
+            {
+                path = createXqrlCompiledPath( pathExpr, currentVar );
 
-        // Check for other engine caches here .. make sure to check  force
+                if (path == null)
+                    throw new RuntimeException( "Can't force XQRL: Can't find xqrl" );
 
-        // Could not find the path in the caches, try to compile it
+                _xqrlPathCache.put( path._pathKey, path );
+            }
+
+            return path;
+        }
+
+        if (force == FORCE_XBEAN)
+        {
+            Path path = (Path) _xbeanPathCache.get( pathExpr );
             
-        if (path == null && force != FORCE_XQRL)
+            if (path == null)
+            {
+                path = XbeanPath.create( pathExpr, currentVar );
+
+                if (path == null)
+                    throw new XmlRuntimeException( "Path too complex for XBean path engine" );
+
+                _xbeanPathCache.put( path._pathKey, path );
+            }
+
+            return path;
+        }
+
+        assert force == FORCE_NEITHER;
+
+        Path path = (Path) _xbeanPathCache.get( pathExpr );
+
+        if (path == null)
+            path = (Path) _xqrlPathCache.get( pathExpr );
+
+        if (path == null)
         {
             path = XbeanPath.create( pathExpr, currentVar );
 
             if (path != null)
-                _xbeanPathCache.put( pathExpr, path );
+                _xbeanPathCache.put( path._pathKey, path );
+            else
+            {
+                path = createXqrlCompiledPath( pathExpr, currentVar );
+
+                if (path == null)
+                    throw new RuntimeException( "Path too complex for xmlbeans" );
+
+                _xqrlPathCache.put( path._pathKey, path );
+            }
         }
 
-        // TODO - for xqrl integ, check for null and try to compile
-        
-        if (path == null)
-            throw new RuntimeException( "XQRL no integrated yet, path too complex or invalid" );
+        assert path != null;
 
         return path;
    }
@@ -145,6 +205,44 @@ public abstract class Path
 
         private final String _currentVar;
         private final XPath  _compiledPath;
+    }
+
+    private static Path createXqrlCompiledPath ( String pathExpr, String currentVar )
+    {
+        if (_xqrlCompilePath == null)
+        {
+            try
+            {
+                Class xqrlImpl = Class.forName( "org.apache.xmlbeans.impl.newstore2.XqrlImpl" );
+
+                _xqrlCompilePath =
+                    xqrlImpl.getDeclaredMethod(
+                        "compilePath", new Class[] { String.class, String.class, Boolean.class } );
+            }
+            catch ( ClassNotFoundException e )
+            {
+                return null;
+            }
+            catch ( Exception e )
+            {
+                throw new RuntimeException( e.getMessage(), e );
+            }
+        }
+
+        Object[] args = new Object[] { pathExpr, currentVar, new Boolean( true ) };
+
+        try
+        {
+            return (Path) _xqrlCompilePath.invoke( null, args );
+        }
+        catch ( InvocationTargetException e )
+        {
+            throw new RuntimeException( e.getMessage(), e );
+        }
+        catch ( IllegalAccessException e )
+        {
+            throw new RuntimeException( e.getMessage(), e );
+        }
     }
 
     private static final class XbeanPathEngine extends ExecutionContext implements PathEngine
@@ -255,33 +353,11 @@ public abstract class Path
     //
     //
     //
-
-    private static String getCurrentNodeVar ( XmlOptions options )
-    {
-        String currentNodeVar = "this";
-
-        options = XmlOptions.maskNull( options );
-        
-        if (options.hasOption( XmlOptions.XQUERY_CURRENT_NODE_VAR ))
-        {
-            currentNodeVar = (String) options.get( XmlOptions.XQUERY_CURRENT_NODE_VAR );
-
-            if (currentNodeVar.startsWith( "$" ))
-            {
-                throw
-                    new IllegalArgumentException(
-                        "Omit the '$' prefix for the current node variable" );
-            }
-        }
-
-        return currentNodeVar;
-    }
-
-    //
-    //
-    //
     
     protected final String _pathKey;
     
     private static HashMap _xbeanPathCache = new HashMap();
+    private static HashMap _xqrlPathCache  = new HashMap();
+    
+    private static Method _xqrlCompilePath;
 } 

@@ -221,7 +221,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     //
     //
     
-    private static void associateSourceName ( Cur c, XmlOptions options )
+    static void associateSourceName ( Cur c, XmlOptions options )
     {
         String sourceName = (String) XmlOptions.safeGet( options, XmlOptions.DOCUMENT_SOURCE_NAME );
 
@@ -233,7 +233,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     //
     //
     
-    private void autoTypeDocument ( Cur c, SchemaType requestedType, XmlOptions options )
+    void autoTypeDocument ( Cur c, SchemaType requestedType, XmlOptions options )
         throws XmlException
     {
         assert c.isRoot();

@@ -2250,7 +2250,22 @@ abstract class Xobj implements TypeStore
 
     public XmlObject[] exec_query ( String queryExpr, XmlOptions options ) throws XmlException
     {
-        throw new RuntimeException( "Not implemeneted" );
+        _locale.enter();
+
+        try
+        {
+            Cur c = tempCur();
+            
+            XmlObject[] result = Query.execQuery( c, queryExpr, options );
+            
+            c.release();
+
+            return result;
+        }
+        finally
+        {
+            _locale.exit();
+        }
     }
 
     public String find_prefix_for_nsuri ( String nsuri, String suggested_prefix )

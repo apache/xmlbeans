@@ -680,6 +680,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     public void _selectPath ( String pathExpr, XmlOptions options )
     {
         _cur.clearSelection();
+        
         _pathEngine = Path.getCompiledPath( pathExpr, options ).execute( _cur );
     }
     

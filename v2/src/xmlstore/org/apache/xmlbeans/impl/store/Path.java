@@ -219,7 +219,7 @@ public abstract class Path
                 query = XqrlDelegate.compileQuery( queryExpr, currentNodeVar );
 
                 if (query != null)
-                    _xqrlQueryCache.put( query.getQueryExpr(), query );
+                    _xqrlQueryCache.put( query.getQueryExpr(), query);
             }
         }
 
