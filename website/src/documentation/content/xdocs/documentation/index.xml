@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
 <document>
 	<header>
@@ -7,7 +7,7 @@
 	<body>
 		<section>
 			<title>XMLBeans FAQ</title>
-			<p>Coming soon ... Until then you can find documentation in the CVS download</p>
+			<p><link href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq">XMLBeans Version 1 FAQ</link></p>
 		</section>
 		<section>
 			<title>XMLBeans Version 1 User Documentation</title>

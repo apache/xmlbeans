@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
 <document>
 	<header>
@@ -9,7 +9,11 @@
 			<title>XMLBeans Version 1 Binary and Development Kit</title>
 			<note>Incubated Build.  XMLBeans is in the incubation process at Apache and the build provided here is not sanctioned as 
 			an official Apache Release.</note>
-			<p>Link to the Incubated XMLBeans binary and development kit will go here as soon as we figure out how to get it on the mirrors</p>
+			<p><link href="http://www.apache.org/dyn/closer.cgi/xml/xmlbeans">Download XMLBeans from one of the Apache mirrors.</link></p>
+			<p><link href="http://www.apache.org/dist/xml/xmlbeans/">You can also download from main Apache Distribution Site</link></p>
+			<p><link href="http://xml.apache.org/mirrors.cgi">Here is the main Apache XML Project Downloads page (Including XMLBeans)</link></p>
+			<p>You should verify the integrity of the files that you download.  <link href="http://xml.apache.org/mirrors.cgi#verify">Here are some
+			instructions for verifying the integrity of a downloaded file</link></p>
 		</section>
 		<section>
 			<title>XMLBeans Source</title>

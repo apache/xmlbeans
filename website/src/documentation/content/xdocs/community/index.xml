@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
 <document>
 	<header>
@@ -46,59 +46,59 @@
 				</tr>
 				<tr>
 					<td>Cezar Andrei</td>
-					<td>cezar.andrei@nospam.bea.com</td>
+					<td>cezar.andrei@no#spam.bea.com</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>David Bau</td>
-					<td>david.bau@nospam.bea.com</td>
+					<td>david.bau@no#spam.google.com</td>
 					<td>
 						<link href="http://nagoya.apache.org/eyebrowse/ReadMsg?listName=xmlbeans-dev@xml.apache.org&amp;msgNo=93">about me</link>
 					</td>
 				</tr>
 				<tr>
 					<td>Patrick Calahan</td>
-					<td>pcal@nospam.bea.com</td>
+					<td>pcal@no#spam.bea.com</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Ken Kress</td>
-					<td>ken@nospam.kress.org</td>
+					<td>ken@nos#pam.kress.org</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Laurence Moroney</td>
-					<td>laurence.moroney@nospam.reuters.com</td>
+					<td>laurence.moroney@nospa#m.reuters.com</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>David Remy</td>
-					<td>david.remy@nospam.bea.com</td>
+					<td>david.remy@n#ospam.bea.com</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Cliff Schmidt</td>
-					<td>cliff.schmidt@nospam.bea.com</td>
+					<td>cliff.schmidt@n#ospam.bea.com</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Eric Vasilik</td>
-					<td>eric.vasilik@nospam.bea.com</td>
-					<td>&nbsp;</td>
-				</tr>
-				<tr>
-					<td>Robert Wyrick</td>
-					<td>rob@nospam.wyrick.org</td>
+					<td>eric.vasilik@nos#pam.bea.com</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Scott Ziegler</td>
-					<td>scott.ziegler@nospam.bea.com</td>
+					<td>scott.ziegler@n#ospam.bea.com</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
 					<td>Patrick Calahan</td>
-					<td>pcal@nospam.bea.com</td>
+					<td>pcal@nosp#am.bea.com</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>Dutta Satadip</td>
+					<td>s-dutta@no#spam.sbcglobal.net</td>
 					<td>&nbsp;</td>
 				</tr>
 			</table>
