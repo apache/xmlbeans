@@ -406,9 +406,13 @@
   </target>
 
 
-  <target name="dist" depends="xbean, docs">
+  <target name="dist" depends="dist-src, dist-bin">
+  </target>
+
+  <target name="dist-bin" depends="xbean, docs">
      <delete dir="build/private/xmlbeans-${product.version}"/>
      <delete file="build/private/incubating-xmlbeans-${product.version}.zip"/>
+     <delete file="build/private/incubating-xmlbeans-${product.version}.tgz"/>
 
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
@@ -428,10 +432,34 @@
         <fileset dir="build/docs"/>
      </copy>
 
-      <!-- todo for gump?: add yyyyMMdd into filename - rem -->
-      <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
+     <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"/>
+     <tar destfile="build/private/incubating-xmlbeans-${product.version}.tgz"
+          basedir="build/private"
+          includes="xmlbeans-${product.version}/**"
+          compression="gzip"/>
+  </target>
+
+  <target name="dist-src" depends="clean, dirs">
+     <delete file="build/private/incubating-xmlbeans-${product.version}-src.zip"/>
+	 <delete file="build/private/incubating-xmlbeans-${product.version}-src.tgz"/>
+
+	 <zip destfile="build/private/incubating-xmlbeans-${product.version}-src.zip">
+     	<zipfileset
+     		dir="."
+       		includes="**"
+       		excludes="build/**"
+       		prefix="xmlbeans-${product.version}"/>
+     </zip>
+	 <tar destfile="build/private/incubating-xmlbeans-${product.version}-src.tgz"
+	 	  compression="gzip">
+     	<tarfileset
+     		dir="."
+       		includes="**"
+       		excludes="build/**"
+       		prefix="xmlbeans-${product.version}"/>
+     </tar>
   </target>
 
   <!-- previously in xbean.xml -->
