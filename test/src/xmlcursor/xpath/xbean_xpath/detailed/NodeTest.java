@@ -76,7 +76,7 @@ public class NodeTest extends TestCase {
     }
 
     public void testNameTestQName_1() throws XmlException {
-        String sQuery1 = "declare namespace pre=\"http://uri.com\" $this//pre:*";
+        String sQuery1 = "declare namespace pre=\"http://uri.com\"; $this//pre:*";
         XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
         String sExpected =
                 "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\" xmlns:pre=\"http://uri.com\"/>";
@@ -91,7 +91,7 @@ public class NodeTest extends TestCase {
 
     //test a QName that DNE
     public void testNameTestQName_2() throws XmlException {
-        String sQuery1 = "declare namespace pre=\"http://uri\" $this//pre:baz";
+        String sQuery1 = "declare namespace pre=\"http://uri\"; $this//pre:baz";
         XmlCursor c = XmlObject.Factory.parse(sXmlChild).newCursor();
         assertEquals(XmlCursor.TokenType.START, c.toNextToken());
         c.selectPath(sQuery1);

@@ -29,11 +29,11 @@ public class XPathFunctionTestImpl extends XPathFunctionTest {
     public XPathFunctionTestImpl (String name) {
         super(name);
         testMap.put("testFunctionCount",new String[]{
-            "//cd[position()=count(//cd)]",
+            "count(//cd)",
              "//cd[position()=2]"
         }) ;
          testMap.put("testFunctionLocalName",new String[]{
-        "//bar"
+        "//*[local-name(.)='bar']"
          });
          testMap.put("testFunctionConcat",new String[]{
         "//bar/*[name(.)=concat(\"pr\",\"ice\")]"
@@ -65,6 +65,14 @@ public class XPathFunctionTestImpl extends XPathFunctionTest {
          testMap.put("testFunctionTranslate",new String[]{
         "//bar/*[translate(name(.)," +
                 "'ice','pr')=\"prpr\"]"});
+
+         testMap.put("testFunctionLang",new String[]{
+        "//price[lang(\"en\")=true()]",
+        "//foo[lang(\"en\")=true()]"}
+        );
+
+        testMap.put("testFunctionTrue",new String[]{
+        "//*[boolean(@at)=true()]"  });
     }
 
 

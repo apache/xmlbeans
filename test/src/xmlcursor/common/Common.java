@@ -56,7 +56,7 @@ public class Common {
     public final static String TRANXML_EXAMPLEDOCS_DIR = TRANXML_DIR + "ExampleDocs/";
     public final static String CLM_NS = "http://www.tranxml.org/TranXML/Version4.0";
     public final static String CLM_XSI_NS = "xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\"";
-    public final static String CLM_NS_XQUERY_DEFAULT = "default element namespace=\"" + CLM_NS + "\"";
+    public final static String CLM_NS_XQUERY_DEFAULT = "declare default element namespace \"" + CLM_NS + "\"; ";
 
     public final static String TRANXML_FILE_CLM = TRANXML_EXAMPLEDOCS_DIR + "CarLocationMessage.xml";
     public final static String TRANXML_FILE_RBL = TRANXML_EXAMPLEDOCS_DIR + "RailBillOfLading.xml";

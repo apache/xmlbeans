@@ -41,7 +41,7 @@ public class ClearSelectionTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
         String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         m_xc.selectPath(ns+" $this//po:city");
         m_xc.toNextSelection();

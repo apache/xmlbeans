@@ -15,25 +15,25 @@
 
 package org.apache.xmlbeans.impl.newstore2;
 
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
+import java.util.*;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
-
-import org.apache.xmlbeans.XmlRuntimeException;
+import java.math.BigDecimal;
 
 import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.common.XPath.XPathCompileException;
 import org.apache.xmlbeans.impl.common.XPath.ExecutionContext;
 
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.*;
+import org.w3c.dom.Node;
+
 
 // TODO - This class handled query *and* path ... rename it?
 
 public abstract class Path
 {
-    Path ( String key )
+    Path(String key)
     {
         _pathKey = key;
     }
@@ -43,86 +43,80 @@ public abstract class Path
 
     interface PathEngine
     {
-        void release ( );
-        boolean next ( Cur c );
+        void release();
+
+        boolean next(Cur c);
     }
 
-    abstract PathEngine execute ( Cur c );
+    abstract PathEngine execute(Cur c);
 
     //
     //
     //
 
-    static String getCurrentNodeVar ( XmlOptions options )
+    static String getCurrentNodeVar(XmlOptions options)
     {
         String currentNodeVar = "this";
 
-        options = XmlOptions.maskNull( options );
-        
-        if (options.hasOption( XmlOptions.XQUERY_CURRENT_NODE_VAR ))
-        {
-            currentNodeVar = (String) options.get( XmlOptions.XQUERY_CURRENT_NODE_VAR );
+        options = XmlOptions.maskNull(options);
 
-            if (currentNodeVar.startsWith( "$" ))
-            {
+        if (options.hasOption(XmlOptions.XQUERY_CURRENT_NODE_VAR)) {
+            currentNodeVar = (String) options.get(XmlOptions.XQUERY_CURRENT_NODE_VAR);
+
+            if (currentNodeVar.startsWith("$")) {
                 throw
-                    new IllegalArgumentException(
-                        "Omit the '$' prefix for the current node variable" );
+                        new IllegalArgumentException("Omit the '$' prefix for the current node variable");
             }
         }
 
         return currentNodeVar;
     }
 
-    private static final int FORCE_XQRL    = 0;
-    private static final int FORCE_XBEAN   = 1;
+    private static final int FORCE_XQRL = 0;
+    private static final int FORCE_XBEAN = 1;
     private static final int FORCE_NEITHER = 2;
 
-    public static Path getCompiledPath ( String pathExpr, XmlOptions options )
+    public static Path getCompiledPath(String pathExpr, XmlOptions options)
     {
-        options = XmlOptions.maskNull( options );
+        options = XmlOptions.maskNull(options);
 
-        int force = 
-            options.hasOption( _useXqrlForXpath )
+        int force =
+                options.hasOption(_useXqrlForXpath)
                 ? FORCE_XQRL
-                : options.hasOption( _useXbeanForXpath )
-                   ? FORCE_XBEAN
-                   : FORCE_NEITHER;
+                : options.hasOption(_useXbeanForXpath)
+                ? FORCE_XBEAN
+                : FORCE_NEITHER;
 
-        return getCompiledPath( pathExpr, force, getCurrentNodeVar( options ) );
+        return getCompiledPath(pathExpr, force, getCurrentNodeVar(options));
     }
 
-    static synchronized Path getCompiledPath ( String pathExpr, int force, String currentVar )
+    static synchronized Path getCompiledPath(String pathExpr, int force, String currentVar)
     {
-        if (force == FORCE_XQRL)
-        {
-            Path path = (Path) _xqrlPathCache.get( pathExpr );
+        if (force == FORCE_XQRL) {
+            Path path = (Path) _xqrlPathCache.get(pathExpr);
 
-            if (path == null)
-            {
-                path = createXqrlCompiledPath( pathExpr, currentVar );
+            if (path == null) {
+                path = createXqrlCompiledPath(pathExpr, currentVar);
 
                 if (path == null)
-                    throw new RuntimeException( "Can't force XQRL: Can't find xqrl" );
+                    throw new RuntimeException("Can't force XQRL: Can't find xqrl");
 
-                _xqrlPathCache.put( path._pathKey, path );
+                _xqrlPathCache.put(path._pathKey, path);
             }
 
             return path;
         }
+        Map namespaces = new HashMap();
+        if (force == FORCE_XBEAN) {
+            Path path = (Path) _xbeanPathCache.get(pathExpr);
 
-        if (force == FORCE_XBEAN)
-        {
-            Path path = (Path) _xbeanPathCache.get( pathExpr );
-            
-            if (path == null)
-            {
-                path = XbeanPath.create( pathExpr, currentVar );
+            if (path == null) {
+                path = XbeanPath.create(pathExpr, currentVar, namespaces);
 
                 if (path == null)
-                    throw new XmlRuntimeException( "Path too complex for XBean path engine" );
+                    throw new XmlRuntimeException("Path too complex for XBean path engine");
 
-                _xbeanPathCache.put( path._pathKey, path );
+                _xbeanPathCache.put(path._pathKey, path);
             }
 
             return path;
@@ -130,36 +124,43 @@ public abstract class Path
 
         assert force == FORCE_NEITHER;
 
-        Path path = (Path) _xbeanPathCache.get( pathExpr );
+        Path path = (Path) _xbeanPathCache.get(pathExpr);
 
         if (path == null)
-            path = (Path) _xqrlPathCache.get( pathExpr );
+            path = (Path) _xqrlPathCache.get(pathExpr);
 
-        if (path == null)
-        {
-            path = XbeanPath.create( pathExpr, currentVar );
+        if (path == null) {
+            path = XbeanPath.create(pathExpr, currentVar, namespaces);
 
             if (path != null)
-                _xbeanPathCache.put( path._pathKey, path );
-            else
-            {
-                path = createXqrlCompiledPath( pathExpr, currentVar );
-
-                if (path == null)
-                    throw new RuntimeException( "Path too complex for xmlbeans" );
-
-                _xqrlPathCache.put( path._pathKey, path );
+                _xbeanPathCache.put(path._pathKey, path);
+            else {
+                path = createXqrlCompiledPath(pathExpr, currentVar);
+                if (path != null)
+                    _xqrlPathCache.put(path._pathKey, path);
+            }
+            //XQRL is not on the path either; this has to be XQRL
+            if (path == null) {
+                int offset =
+                        namespaces.get(XPath._NS_BOUNDARY) == null ?
+                        0 :
+                        ((Integer) namespaces.get(XPath._NS_BOUNDARY)).intValue();
+                namespaces.remove(XPath._NS_BOUNDARY);
+                path = SaxonPathImpl.create(pathExpr.substring(offset),
+                        currentVar,
+                        namespaces);
+                if (path != null)
+                    _xbeanPathCache.put(path._pathKey, path);
             }
         }
-
-        assert path != null;
-
+        if (path == null)
+            throw new RuntimeException("Path too complex for xmlbeans");
         return path;
-   }
-    
-    public static synchronized String compilePath ( String pathExpr, XmlOptions options )
+    }
+
+    public static synchronized String compilePath(String pathExpr, XmlOptions options)
     {
-        return getCompiledPath( pathExpr, options )._pathKey;
+        return getCompiledPath(pathExpr, options)._pathKey;
     }
 
     //
@@ -168,29 +169,27 @@ public abstract class Path
 
     private static final class XbeanPath extends Path
     {
-        static Path create ( String pathExpr, String currentVar )
+        static Path create(String pathExpr, String currentVar, Map namespaces)
         {
-            try
-            {
+            try {
                 return
-                    new XbeanPath(
-                        pathExpr, currentVar, XPath.compileXPath( pathExpr, currentVar ) );
+                        new XbeanPath(pathExpr, currentVar,
+                                XPath.compileXPath(pathExpr, currentVar, namespaces));
             }
-            catch ( XPathCompileException e )
-            {
+            catch (XPathCompileException e) {
                 return null;
             }
         }
-        
-        private XbeanPath ( String pathExpr, String currentVar, XPath xpath )
+
+        private XbeanPath(String pathExpr, String currentVar, XPath xpath)
         {
-            super( pathExpr );
+            super(pathExpr);
 
             _currentVar = currentVar;
             _compiledPath = xpath;
         }
-        
-        PathEngine execute ( Cur c )
+
+        PathEngine execute(Cur c)
         {
             // The builtin XPath engine works only on containers.  Delegate to
             // xqrl otherwise.  Also, if the path had a //. at the end, the
@@ -198,102 +197,93 @@ public abstract class Path
             // attrs and elements.
 
             if (!c.isContainer() || _compiledPath.sawDeepDot())
-                return getCompiledPath( _pathKey, FORCE_XQRL, _currentVar ).execute( c );
+                return getCompiledPath(_pathKey, FORCE_XQRL, _currentVar).execute(c);
 
-            return new XbeanPathEngine( _compiledPath, c );
+            return new XbeanPathEngine(_compiledPath, c);
         }
 
         private final String _currentVar;
-        private final XPath  _compiledPath;
+        private final XPath _compiledPath;
+        //return a map of namespaces for Saxon, if it's ever invoked
+        public Map namespaces;
     }
 
-    private static Path createXqrlCompiledPath ( String pathExpr, String currentVar )
+    private static Path createXqrlCompiledPath(String pathExpr, String currentVar)
     {
-        if (_xqrlCompilePath == null)
-        {
-            try
-            {
-                Class xqrlImpl = Class.forName( "org.apache.xmlbeans.impl.newstore2.XqrlImpl" );
+        if (_xqrlCompilePath == null) {
+            try {
+                Class xqrlImpl = Class.forName("org.apache.xmlbeans.impl.newstore2.XqrlImpl");
 
                 _xqrlCompilePath =
-                    xqrlImpl.getDeclaredMethod(
-                        "compilePath", new Class[] { String.class, String.class, Boolean.class } );
+                        xqrlImpl.getDeclaredMethod("compilePath",
+                                new Class[]{String.class, String.class, Boolean.class});
             }
-            catch ( ClassNotFoundException e )
-            {
+            catch (ClassNotFoundException e) {
                 return null;
             }
-            catch ( Exception e )
-            {
-                throw new RuntimeException( e.getMessage(), e );
+            catch (Exception e) {
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
 
-        Object[] args = new Object[] { pathExpr, currentVar, new Boolean( true ) };
+        Object[] args = new Object[]{pathExpr, currentVar, new Boolean(true)};
 
-        try
-        {
-            return (Path) _xqrlCompilePath.invoke( null, args );
+        try {
+            return (Path) _xqrlCompilePath.invoke(null, args);
         }
-        catch ( InvocationTargetException e )
-        {
-            throw new RuntimeException( e.getMessage(), e );
+        catch (InvocationTargetException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
-        catch ( IllegalAccessException e )
-        {
-            throw new RuntimeException( e.getMessage(), e );
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
 
     private static final class XbeanPathEngine extends ExecutionContext implements PathEngine
     {
-        XbeanPathEngine ( XPath xpath, Cur c )
+        XbeanPathEngine(XPath xpath, Cur c)
         {
             assert c.isContainer();
-            
+
             _version = c._locale.version();
-            _cur = c.weakCur( this );
+            _cur = c.weakCur(this);
 
             _cur.push();
-            
-            init( xpath );
+
+            init(xpath);
 
             int ret = start();
 
             if ((ret & HIT) != 0)
                 c.addToSelection();
 
-            doAttrs( ret, c );
+            doAttrs(ret, c);
 
-            if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement( _cur ))
+            if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement(_cur))
                 release();
         }
 
-        private void advance ( Cur c )
+        private void advance(Cur c)
         {
             assert _cur != null;
 
-            if (_cur.isFinish())
-            {
+            if (_cur.isFinish()) {
                 if (_cur.isAtEndOfLastPush())
                     release();
-                else
-                {
+                else {
                     end();
                     _cur.next();
                 }
             }
-            else if (_cur.isElem())
-            {
-                int ret = element( _cur.getName() );
-                
+            else if (_cur.isElem()) {
+                int ret = element(_cur.getName());
+
                 if ((ret & HIT) != 0)
-                    c.addToSelection( _cur );
+                    c.addToSelection(_cur);
 
-                doAttrs( ret, c );
+                doAttrs(ret, c);
 
-                if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement( _cur ))
-                {
+                if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement(_cur)) {
                     end();
                     _cur.skip();
                 }
@@ -301,37 +291,33 @@ public abstract class Path
             else
                 _cur.next();
         }
-        
-        private void doAttrs ( int ret, Cur c )
+
+        private void doAttrs(int ret, Cur c)
         {
             assert _cur.isContainer();
-            
-            if ((ret & ATTRS) != 0)
-            {
-                if (_cur.toFirstAttr())
-                {
-                    do
-                    {
-                        if (attr( _cur.getName() ))
-                            c.addToSelection( _cur );
+
+            if ((ret & ATTRS) != 0) {
+                if (_cur.toFirstAttr()) {
+                    do {
+                        if (attr(_cur.getName()))
+                            c.addToSelection(_cur);
                     }
-                    while ( _cur.toNextAttr() );
+                    while (_cur.toNextAttr());
 
                     _cur.toParent();
                 }
             }
         }
 
-        public boolean next ( Cur c )
+        public boolean next(Cur c)
         {
             if (_cur != null && _version != _cur._locale.version())
-                throw new ConcurrentModificationException( "Document changed during select" );
-            
+                throw new ConcurrentModificationException("Document changed during select");
+
             int startCount = c.selectionCount();
 
-            while ( _cur != null )
-            {
-                advance( c );
+            while (_cur != null) {
+                advance(c);
 
                 if (startCount != c.selectionCount())
                     return true;
@@ -340,27 +326,164 @@ public abstract class Path
             return false;
         }
 
-        public void release( )
+        public void release()
         {
-            if (_cur != null)
-            {
+            if (_cur != null) {
                 _cur.release();
                 _cur = null;
             }
         }
-        
+
         private final long _version;
-        private       Cur  _cur;
+        private Cur _cur;
     }
 
-    //
-    //
-    //
-    
+    private static final class SaxonPathImpl extends Path
+    {
+
+        private SaxonXBeansDelegate.SelectPathInterface _xpathImpl;
+
+
+        static Path create(String pathExpr, String currentNodeVar, Map namespaceMap)
+        {
+            assert !currentNodeVar.startsWith("$"); // cezar review with ericvas
+
+            SaxonXBeansDelegate.SelectPathInterface impl =
+                    SaxonXBeansDelegate.createInstance(pathExpr, namespaceMap);
+            if (impl == null)
+                return null;
+
+            return new SaxonPathImpl(impl, pathExpr);
+        }
+
+
+        private SaxonPathImpl(SaxonXBeansDelegate.SelectPathInterface xpathImpl,
+                              String pathExpr)
+        {
+            super(pathExpr);
+            _xpathImpl = xpathImpl;
+        }
+
+        protected PathEngine execute(Cur c)
+        {
+            return new SaxonPathEngine(_xpathImpl, c);
+        }
+
+        private static class SaxonPathEngine
+                extends XPath.ExecutionContext
+                implements PathEngine
+        {
+
+            SaxonPathEngine(SaxonXBeansDelegate.SelectPathInterface xpathImpl,
+                            Cur c)
+            {
+                _saxonXpathImpl = xpathImpl;
+                _version = c._locale.version();
+                _cur = c.weakCur(this);
+            }
+
+            public boolean next(Cur c)
+            {
+                if (!_firstCall)
+                    return false;
+
+                _firstCall = false;
+
+                if (_cur != null && _version != _cur._locale.version())
+                    throw new ConcurrentModificationException("Document changed during select");
+
+                List resultsList;
+                Object context_node;
+
+                context_node = _cur.getDom();
+                resultsList = _saxonXpathImpl.selectPath(context_node);
+
+                int i;
+                for (i = 0; i < resultsList.size(); i++) {
+                    //simple type function results
+                    Object node = resultsList.get(i);
+                    Cur pos = null;
+                    if (!(node instanceof Node)) {
+                        String value;
+
+                        value = resultsList.get(i).toString();
+
+                        //we cannot leave the cursor's locale, as
+                        //everything is done in the selections of this cursor
+
+                        Locale l = c._locale;
+                        try {
+                            pos = l.load("<xml-fragment>" +
+                                    value +
+                                    "</xml-fragment>").tempCur();
+                            SchemaType type = getType(node);
+                            Locale.autoTypeDocument(pos, type, null);
+                            //move the cur to the actual text
+                            pos.next();
+                        }
+                        catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                    else {
+                        assert (node instanceof DomImpl.Dom):
+                                "New object created in XPATH!";
+                        pos = ((DomImpl.Dom) node).tempCur();
+
+                    }
+                    c.addToSelection(pos);
+                    pos.release();
+                }
+                release();
+                _saxonXpathImpl = null;
+                return true;
+            }
+
+            private SchemaType getType(Object node)
+            {
+                SchemaType type;
+                if (node instanceof Integer)
+                    type = XmlInteger.type;
+                else if (node instanceof Double)
+                    type = XmlDouble.type;
+                else if (node instanceof Long)
+                    type = XmlLong.type;
+                else if (node instanceof Float)
+                    type = XmlFloat.type;
+                else if (node instanceof BigDecimal)
+                    type = XmlDecimal.type;
+                else if (node instanceof Boolean)
+                    type = XmlBoolean.type;
+                else if (node instanceof String)
+                    type = XmlString.type;
+                else if (node instanceof Date)
+                    type = XmlDate.type;
+                else
+                    type = XmlAnySimpleType.type;
+                return type;
+            }
+
+            public void release()
+            {
+                if (_cur != null) {
+                    _cur.release();
+                    _cur = null;
+                }
+            }
+
+            private Cur _cur;
+            private SaxonXBeansDelegate.SelectPathInterface _saxonXpathImpl;
+            private boolean _firstCall = true;
+            private long _version;
+        }
+
+    }
+
+
     protected final String _pathKey;
-    
+
     private static HashMap _xbeanPathCache = new HashMap();
-    private static HashMap _xqrlPathCache  = new HashMap();
-    
+    private static HashMap _xqrlPathCache = new HashMap();
+
     private static Method _xqrlCompilePath;
-} 
+}

@@ -80,7 +80,7 @@ public class SelectPathTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
         m_xc.selectPath(ns+" $this//po:ciTy");
         assertEquals(0, m_xc.getSelectionCount());
         m_xc.selectPath(ns+" $this//po:city");
@@ -91,7 +91,7 @@ public class SelectPathTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
         m_xc.selectPath(ns+" $this//po:item");
         assertEquals(2, m_xc.getSelectionCount());
     }
@@ -118,6 +118,7 @@ public class SelectPathTest extends BasicCursorTestCase {
         // see bugs 18009 and/or 18718
         try {
             m_xc.selectPath("&GARBAGE");
+            assertEquals(0,m_xc.getSelectionCount());
             fail("Expected RuntimeException");
         } catch (RuntimeException re) {
         }

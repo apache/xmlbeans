@@ -2297,7 +2297,7 @@ abstract class Xobj implements TypeStore
         {
             Cur c = tempCur();
             
-            XmlObject[] result = Query.execQuery( c, queryExpr, options );
+            XmlObject[] result = Query.objectExecQuery( c, queryExpr, options );
             
             c.release();
 

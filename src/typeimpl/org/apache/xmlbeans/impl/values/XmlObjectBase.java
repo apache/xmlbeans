@@ -436,6 +436,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 {
                     if ((selections[ i ] = c.getObject()) == null)
                     {
+                        if ( !c.toParent() || (selections[ i ] = c.getObject()) == null )
                         throw
                             new XmlRuntimeException(
                                 "Path must select only elements " +

@@ -25,6 +25,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.common.XMLChar;
 
+
 public class XPath
 {
     public static class XPathCompileException extends XmlException
@@ -482,12 +483,12 @@ public class XPath
             return true;
         }
 
-        private boolean tokenize ( String s1, String s2, String s3 )
+        private boolean tokenize ( String s1, String s2, String s3)
         {
             assert s1.length() > 0;
             assert s2.length() > 0;
             assert s3.length() > 0;
-            
+
             int offset = 0;
 
             while ( isWhitespace( offset ) )
@@ -513,11 +514,60 @@ public class XPath
                 return false;
             
             offset += s3.length();
-                
+
+             while ( isWhitespace( offset ) )
+                offset++;
+
+
             advance( offset );
 
             return true;
         }
+        private boolean tokenize ( String s1, String s2, String s3,String s4) {
+            assert s1.length() > 0;
+            assert s2.length() > 0;
+            assert s3.length() > 0;
+            assert s4.length() > 0;
+
+            int offset = 0;
+
+            while ( isWhitespace( offset ) )
+                offset++;
+
+            if (!startsWith( s1, offset ))
+                return false;
+
+            offset += s1.length();
+
+            while ( isWhitespace( offset ) )
+                offset++;
+
+            if (!startsWith( s2, offset ))
+                return false;
+
+            offset += s2.length();
+
+            while ( isWhitespace( offset ) )
+                offset++;
+
+            if (!startsWith( s3, offset ))
+                return false;
+
+            offset += s3.length();
+
+             while ( isWhitespace( offset ) )
+                offset++;
+
+            if (!startsWith( s4, offset ))
+                return false;
+
+            offset += s4.length();
+
+            advance( offset );
+
+            return true;
+        }
+
 
         private String tokenizeNCName ( ) throws XPathCompileException
         {
@@ -864,14 +914,26 @@ public class XPath
 
                     _namespaces.put( prefix, uri );
 
+                    //return these to saxon:? Is it an error to pass external NS
+                    //that conflicts? or should we just override it?
+                    if (_externalNamespaces.containsKey( prefix ))
+                    {
+                        throw newError(
+                            "Redefinition of namespace prefix: " + prefix );
+                    }
+                    _externalNamespaces.put( prefix, uri );
+
+                    if (! tokenize( ";" ))
+                       throw newError(
+                            "Namespace declaration must end with ;" ); 
+                    _externalNamespaces.put(_NS_BOUNDARY,new Integer(_offset));
+
                     continue;
                 }
                 
-                if (tokenize( "default", "element", "namespace" ))
+                if (tokenize( "declare","default", "element", "namespace" ))
                 {
-                    if (!tokenize( "=" ))
-                        throw newError( "Expected '='" );
-                    
+
                     String uri = tokenizeQuotedUri();
                     
                     if (_namespaces.containsKey( "" ))
@@ -881,6 +943,22 @@ public class XPath
                     }
 
                     _namespaces.put( "", uri );
+
+                    //return these to saxon:? Is it an error to pass external NS
+                     //that conflicts? or should we just override it?
+                      if (_externalNamespaces.containsKey( XPath._DEFAULT_ELT_NS ))
+                                     {
+                                         throw newError(
+                                             "Redefinition of default element namespace : ");
+                                     }
+                                     _externalNamespaces.put( XPath._DEFAULT_ELT_NS, uri );
+
+                                     if (! tokenize( ";" ))
+                                        throw newError(
+                                             "Default Namespace declaration must end with ;" );
+                                     //the boundary is the last ; in the prolog...
+                                     _externalNamespaces.put(_NS_BOUNDARY,new Integer(_offset));
+
 
                     continue;
                 }
@@ -906,6 +984,12 @@ public class XPath
             return new XPath( selector, _sawDeepDot );
         }
 
+        //split of prolog decls that are not standard XPath syntax
+        //but work in v1
+        private void processNonXpathDecls(){
+
+        }
+
         private String _expr;
 
         private boolean _sawDeepDot;  // Saw one overall
@@ -913,7 +997,8 @@ public class XPath
 
         private String _currentNodeVar;
         
-        private Map _namespaces;
+       // private Map _namespaces;
+        protected Map _namespaces;
         private Map _externalNamespaces;
         
         private int _offset;
@@ -1001,6 +1086,8 @@ public class XPath
         return _sawDeepDot;
     }
 
+    public static final String _NS_BOUNDARY = "$xmlbeans!ns_boundary";
+     public static final String _DEFAULT_ELT_NS = "$xmlbeans!default_uri";
     private final Selector _selector;
     private final boolean  _sawDeepDot;
 }

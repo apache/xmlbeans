@@ -101,7 +101,7 @@ public class RemoveTest extends BasicCursorTestCase {
                 "xbean/xmlcursor/po.xml"));
         m_xc = m_xo.newCursor();
         String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\""+
+                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
                  "$this//po:shipTo";
         m_xc.selectPath( sQuery );
         m_xc.toNextSelection();
@@ -124,7 +124,7 @@ public class RemoveTest extends BasicCursorTestCase {
               "xbean/xmlcursor/po.xml"));
         m_xc = m_xo.newCursor();
          String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\""+
+                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
                  "$this//po:shipTo";
         m_xc.selectPath( sQuery );
         m_xc.toNextSelection();

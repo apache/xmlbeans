@@ -69,7 +69,7 @@ public class ValidateTest extends BasicCursorTestCase {
     public void testValidateFalseFixedAttr() throws Exception {
          m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
                     String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
         m_xc = m_xo.newCursor();

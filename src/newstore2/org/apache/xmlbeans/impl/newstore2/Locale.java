@@ -1178,7 +1178,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             loadNode( c, context );
     }
 
-    private void loadNode ( Node n, LoadContext context )
+     void loadNode ( Node n, LoadContext context )
     {
         switch ( n.getNodeType() )
         {

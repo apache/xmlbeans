@@ -32,11 +32,6 @@ public class XPathExpressionTestImpl extends XPathExpressionTest {
         super(name);
     }
 
-
-/**
-* the only difference from Jaxen queries is that we need a context to start from:
-* preped "$this" to queries
-*/
     public String getQuery(String testName, int testCase)
             throws IllegalArgumentException {
         Object queries;

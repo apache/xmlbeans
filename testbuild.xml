@@ -99,6 +99,7 @@
         <delete dir="${build.dir.test.schemas.lib}" verbose="false" failonerror="false" includeEmptyDirs="true"/>
         <delete dir="${build.dir.test.schemas}" verbose="false" failonerror="false" includeEmptyDirs="true"/>
         <delete file="${build.dir.test.lib}/xmlcases.jar" verbose="false" failonerror="false" includeEmptyDirs="true"/>
+        <delete file="${build.dir.test.lib}/xqcases.jar" verbose="false" failonerror="false" includeEmptyDirs="true"/>
     </target>
 
     <target name="clean.reports" description="Deletes generated report files">
@@ -167,6 +168,8 @@
         <include name="**/*.xsd"/>
         <!--needed for scomp and redefine-->
         <include name="**/*.xs"/>
+         <!--needed for xquery-->
+        <include name="**/*.xq"/>
         <include name="**/*.xsddonotcompile"/>
         <include name="**/*.txt"/>
         <include name="**/*.xml"/>
@@ -261,6 +264,13 @@
             basedir="${build.dir.test.schemas}" update="false"
             includes="**/*.*"
             excludes="**/*.xsd, xstc/**"
+            />
+    </target>
+
+    <target name="build.xqcases" description="Builds xqcases.jar">
+        <jar destfile="${build.dir.test.lib}/xqcases.jar"
+            basedir="${build.dir.test.schemas}" update="false"
+            includes="xbean/xmlcursor/xquery/*.xq"
             />
     </target>
 
@@ -727,6 +737,7 @@
         <property name="testcasejar.update" value="true"/>
         <echo message="SCHEMAS: ${this.schema.dirs}"/>
         <antcall target="unit.build"/>
+         <antcall target="build.xqcases"/>
     </target>
 
     <target name="build.area.dom">

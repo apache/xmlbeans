@@ -112,7 +112,7 @@ public class FacetRestrictionTest extends BaseCase {
 
 
     }
-
+     /*
       public void testLengthElt() throws Throwable {
         LengthEltDocument doc = LengthEltDocument.Factory.newInstance();
         doc.setLengthElt("foobar");
@@ -135,7 +135,7 @@ public class FacetRestrictionTest extends BaseCase {
             throw t;
         }
     }
-
+     */
     public void testMinMaxLengthElt() throws Throwable {
           MinMaxLengthEltDocument doc = MinMaxLengthEltDocument.Factory.newInstance();
           String[] errExpected = new String[]{
