@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.PrefixResolver;
@@ -93,23 +94,28 @@ public abstract class JavaQNameHolderEx extends JavaQNameHolder
             if (!sType.matchPatternFacet(v))
             {
                 // TODO - describe string and pattern here in error
-                context.invalid("QName '" + v + "' does not match pattern for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                    new Object[] { "QName", v, QNameHelper.readable(sType) });
             }
         }
 
         XmlObject x;
+        int i;
 
         if ((x = sType.getFacet(SchemaType.FACET_LENGTH)) != null)
-            if ((((XmlObjectBase)x).bigIntegerValue().intValue()) != v.length())
-                context.invalid("QName '" + v + "' does not match length facet for " + QNameHelper.readable(sType));
+            if ((i = ((XmlObjectBase)x).bigIntegerValue().intValue()) != v.length())
+                context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING,
+                    new Object[] { "QName", v, new Integer(i), QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MIN_LENGTH)) != null)
-            if ((((XmlObjectBase)x).bigIntegerValue().intValue()) > v.length())
-                context.invalid("QName '" + v + "' does not match min length facet for " + QNameHelper.readable(sType));
+            if ((i = ((XmlObjectBase)x).bigIntegerValue().intValue()) > v.length())
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING,
+                    new Object[] { "QName", v, new Integer(i), QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MAX_LENGTH)) != null)
-            if ((((XmlObjectBase)x).bigIntegerValue().intValue()) < v.length())
-                context.invalid("QName '" + v + "' does not match max length facet for " + QNameHelper.readable(sType));
+            if ((i = ((XmlObjectBase)x).bigIntegerValue().intValue()) < v.length())
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
+                    new Object[] { "QName", v, new Integer(i), QNameHelper.readable(sType) });
 
         return name;
     }
@@ -122,7 +128,8 @@ public abstract class JavaQNameHolderEx extends JavaQNameHolder
             for (int i = 0; i < vals.length; i++)
                 if (v.equals(((XmlObjectBase)vals[i]).qNameValue()))
                     return;
-            context.invalid("QName '" + v + "' is not a valid enuemrated value for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "QName", v, QNameHelper.readable(sType) });
         }
     }
 

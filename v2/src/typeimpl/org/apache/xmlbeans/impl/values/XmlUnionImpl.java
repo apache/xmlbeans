@@ -26,6 +26,7 @@ import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.GDateSpecification;
 import org.apache.xmlbeans.GDurationSpecification;
@@ -630,12 +631,12 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
         }
         catch (Exception e)
         {
-            ctx.invalid("Union value " + lexical + " does not match any of the member types for " + QNameHelper.readable(schemaType()));
+            ctx.invalid(XmlErrorCodes.UNION, new Object[] { "'" + lexical + "' does not match any of the member types for " + QNameHelper.readable(schemaType()) });
             return;
         }
         if (_value == null)
         {
-            ctx.invalid("Union value " + lexical + " does not match any of the member types for " + QNameHelper.readable(schemaType()));
+            ctx.invalid(XmlErrorCodes.UNION, new Object[] { "'" + lexical + "' does not match any of the member types for " + QNameHelper.readable(schemaType()) });
             return;
         }
         

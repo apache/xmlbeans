@@ -21,6 +21,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 public abstract class JavaGDurationHolderEx extends XmlObjectBase
 {
@@ -82,7 +83,7 @@ public abstract class JavaGDurationHolderEx extends XmlObjectBase
         }
         catch (Exception e)
         {
-            context.invalid("Duration value is malformed: "+v);
+            context.invalid(XmlErrorCodes.DURATION, new Object[] { v });
         }
 
         return duration;
@@ -94,7 +95,8 @@ public abstract class JavaGDurationHolderEx extends XmlObjectBase
 
         if (duration != null && sType.hasPatternFacet())
             if (!sType.matchPatternFacet(v))
-                context.invalid("Duration (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                    new Object[] { "duration", v, QNameHelper.readable(sType) });
         
         return duration;
     }
@@ -106,19 +108,23 @@ public abstract class JavaGDurationHolderEx extends XmlObjectBase
         
         if ((x = sType.getFacet(SchemaType.FACET_MIN_EXCLUSIVE)) != null)
             if (v.compareToGDuration(g = ((XmlObjectBase)x).gDurationValue()) <= 0)
-                context.invalid("Duration (" + v + ") is less than or equal to min exclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
+                    new Object[] { "duration", v, g, QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MIN_INCLUSIVE)) != null)
             if (v.compareToGDuration(g = ((XmlObjectBase)x).gDurationValue()) < 0)
-                context.invalid("Duration (" + v + ") is less than min inclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
+                    new Object[] { "duration", v, g, QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MAX_EXCLUSIVE)) != null)
             if (v.compareToGDuration(g = ((XmlObjectBase)x).gDurationValue()) >= 0)
-                context.invalid("Duration (" + v + ") is greater than or equal to max exclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
+                    new Object[] { "duration", v, g, QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MAX_INCLUSIVE)) != null)
             if (v.compareToGDuration(g = ((XmlObjectBase)x).gDurationValue()) > 0)
-                context.invalid("Duration (" + v + ") is greater than max inclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
+                    new Object[] { "duration", v, g, QNameHelper.readable(sType) });
         
         XmlObject[] vals = sType.getEnumerationValues();
         if (vals != null)
@@ -126,7 +132,8 @@ public abstract class JavaGDurationHolderEx extends XmlObjectBase
             for (int i = 0; i < vals.length; i++)
                 if (v.compareToGDuration(((XmlObjectBase)vals[i]).gDurationValue()) == 0)
                     return;
-            context.invalid("Duration (" + v + ") is not a valid enumeration value for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "duration", v, QNameHelper.readable(sType) });
         }
     }
     

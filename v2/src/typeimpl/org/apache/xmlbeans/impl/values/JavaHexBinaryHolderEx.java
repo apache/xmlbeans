@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 
 
@@ -71,9 +73,8 @@ public abstract class JavaHexBinaryHolderEx extends JavaHexBinaryHolder
         {
             if ((i = ((XmlObjectBase)o).bigIntegerValue().intValue()) != v.length)
             {
-                context.invalid(
-                    "Hex encoded data does not have " + i +
-                        " bytes per length facet" );
+                context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$BINARY,
+                    new Object[] { "hexBinary", new Integer(v.length), new Integer(i), QNameHelper.readable(sType) } );
             }
         }
 
@@ -81,9 +82,8 @@ public abstract class JavaHexBinaryHolderEx extends JavaHexBinaryHolder
         {
             if ((i = ((XmlObjectBase)o).bigIntegerValue().intValue()) > v.length)
             {
-                context.invalid(
-                    "Hex encoded data has only " + v.length +
-                        " bytes, fewer than min length facet" );
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$BINARY,
+                    new Object[] { "hexBinary", new Integer(v.length), new Integer(i), QNameHelper.readable(sType) } );
             }
         }
 
@@ -91,9 +91,8 @@ public abstract class JavaHexBinaryHolderEx extends JavaHexBinaryHolder
         {
             if ((i = ((XmlObjectBase)o).bigIntegerValue().intValue()) < v.length)
             {
-                context.invalid(
-                    "Hex encoded data has " + v.length +
-                        " bytes, more than max length facet" );
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$BINARY,
+                    new Object[] { "hexBinary", new Integer(v.length), new Integer(i), QNameHelper.readable(sType) } );
             }
         }
         
@@ -116,7 +115,8 @@ public abstract class JavaHexBinaryHolderEx extends JavaHexBinaryHolder
             }
             
             if (i >= vals.length)
-                context.invalid("Hex encoded data does not match any of the enumeration values");
+                context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID$NO_VALUE,
+                    new Object[] { "hexBinary", QNameHelper.readable(sType) });
         }
     }
 

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
@@ -61,7 +62,7 @@ public abstract class JavaFloatHolder extends XmlObjectBase
         }
         catch(NumberFormatException e)
         {
-            context.invalid("Invalid float value");
+            context.invalid(XmlErrorCodes.FLOAT, new Object[]{v});
 
             return Float.NaN;
         }

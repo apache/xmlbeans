@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.values;
 
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -37,10 +38,10 @@ public abstract class JavaBooleanHolderEx extends JavaBooleanHolder
     
     public static void validatePattern(String v, SchemaType sType, ValidationContext context)
     {
-        // KHK: cvc-pattern-valid
         // the only new facet that can apply to booleans is pattern!
         if (!sType.matchPatternFacet(v))
-            context.invalid("Boolean (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                new Object[] { "boolean", v, QNameHelper.readable(sType) });
     }
     
     public JavaBooleanHolderEx(SchemaType type, boolean complex)

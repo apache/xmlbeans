@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -44,7 +45,8 @@ public abstract class JavaDoubleHolderEx extends JavaDoubleHolder
         double d = JavaDoubleHolder.validateLexical(v, context);
 
         if (!sType.matchPatternFacet(v))
-            context.invalid("Double (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                new Object[] { "double", v, QNameHelper.readable(sType) });
         
         return d;
     }
@@ -58,9 +60,8 @@ public abstract class JavaDoubleHolderEx extends JavaDoubleHolder
         {
             if (compare(v, d = ((XmlObjectBase)x).doubleValue()) <= 0)
             {
-                context.invalid(
-                    "Double (" + v + ") is less than or equal to " +
-                        "min exclusive facet (" + d + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
+                    new Object[] { "double", new Double(v), new Double(d), QNameHelper.readable(sType) });
             }
         }
 
@@ -68,9 +69,8 @@ public abstract class JavaDoubleHolderEx extends JavaDoubleHolder
         {
             if (compare(v, d = ((XmlObjectBase)x).doubleValue()) < 0)
             {
-                context.invalid(
-                    "Double (" + v + ") is less than " +
-                        "min inclusive facet (" + d + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
+                    new Object[] { "double", new Double(v), new Double(d), QNameHelper.readable(sType) });
             }
         }
         
@@ -78,9 +78,8 @@ public abstract class JavaDoubleHolderEx extends JavaDoubleHolder
         {
             if (compare(v, d = ((XmlObjectBase)x).doubleValue()) > 0)
             {
-                context.invalid(
-                    "Double (" + v + ") is greater than " +
-                        "max inclusive facet (" + d + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
+                    new Object[] { "double", new Double(v), new Double(d), QNameHelper.readable(sType) });
             }
         }
         
@@ -88,9 +87,8 @@ public abstract class JavaDoubleHolderEx extends JavaDoubleHolder
         {
             if (compare(v, d = ((XmlObjectBase)x).doubleValue()) >= 0)
             {
-                context.invalid(
-                    "Double (" + v + ") is greater than or equal to " +
-                        "max exclusive facet (" + d + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
+                    new Object[] { "double", new Double(v), new Double(d), QNameHelper.readable(sType) });
             }
         }
         
@@ -100,7 +98,8 @@ public abstract class JavaDoubleHolderEx extends JavaDoubleHolder
             for (int i = 0; i < vals.length; i++)
                 if (compare(v, ((XmlObjectBase)vals[i]).doubleValue()) == 0)
                     return;
-            context.invalid("Double (" + v + ") is not a valid enumerated value for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "double", new Double(v), QNameHelper.readable(sType) });
         }
     }
 

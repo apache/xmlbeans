@@ -19,6 +19,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlSimpleList;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -92,10 +93,10 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
 
     protected void set_text(String s)
     {
-        // KHK: cvc-datatype-valid.1.1 ?
         // first check against any patterns...
         if (_validateOnSet() && !_schemaType.matchPatternFacet(s))
-            throw new XmlValueOutOfRangeException();
+            throw new XmlValueOutOfRangeException(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                    new Object[] { "list", s, QNameHelper.readable(_schemaType) });
 
         SchemaType itemType = _schemaType.getListItemType();
 
@@ -154,8 +155,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
                 }
                 catch (XmlValueOutOfRangeException e)
                 {
-                    // KHK: ?
-                    ctx.invalid("List item '" + parts[i] + "' is not a valid value of " + QNameHelper.readable(itemType));
+                    ctx.invalid(XmlErrorCodes.LIST, new Object[] { "item '" + parts[i] + "' is not a valid value of " + QNameHelper.readable(itemType) });
                 }
             }
         }
@@ -268,8 +268,8 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
                 if (equal_xmlLists(items, ((XmlObjectBase)enumvals[i]).xlistValue()))
                     break checkEnum;
             }
-            // KHK: cvc-enumeration-valid
-            context.invalid("List (" + items + ") is not a valid enumerated value for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "list", items, QNameHelper.readable(sType) });
         }
 
         XmlObject o;
@@ -279,10 +279,8 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
         {
             if ((i = ((SimpleValue)o).getIntValue()) != items.size())
             {
-                // KHK: cvc-length-valid.2
-                context.invalid(
-                    "List (" + items + ") does not have " + i +
-                        " items per length facet for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH,
+                    new Object[] { items, new Integer(items.size()), new Integer(i), QNameHelper.readable(sType) });
             }
         }
 
@@ -290,10 +288,8 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
         {
             if ((i = ((SimpleValue)o).getIntValue()) > items.size())
             {
-                // KHK: cvc-minLength-valid.2
-                context.invalid(
-                    "List (" + items + ") has only " + items.size() +
-                        " items, fewer than min length facet (" + i + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$LIST_LENGTH,
+                    new Object[] { items, new Integer(items.size()), new Integer(i), QNameHelper.readable(sType) });
             }
         }
 
@@ -301,10 +297,8 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
         {
             if ((i = ((SimpleValue)o).getIntValue()) < items.size())
             {
-                // KHK: cvc-maxLength-valid.2
-                context.invalid(
-                    "List (" + items + ") has " + items.size() +
-                        " items, more than max length facet (" + i + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$LIST_LENGTH,
+                    new Object[] { items, new Integer(items.size()), new Integer(i), QNameHelper.readable(sType) });
             }
         }
     }

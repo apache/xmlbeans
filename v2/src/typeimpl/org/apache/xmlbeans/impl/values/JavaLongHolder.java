@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SimpleValue;
 
 import java.math.BigInteger;
@@ -39,7 +40,7 @@ public abstract class JavaLongHolder extends XmlObjectBase
     protected void set_text(String s)
     {
         try { set_long(XsTypeConverter.lexLong(s)); }
-        catch (Exception e) { throw new XmlValueOutOfRangeException(); }
+        catch (Exception e) { throw new XmlValueOutOfRangeException(XmlErrorCodes.LONG, new Object[] { s }); }
     }
     protected void set_nil()
     {

@@ -126,9 +126,14 @@ public class StscChecker
                         {
                             // move to 'fixed' or 'default' attribute on the attribute definition
                             String constraintName = (sAttrs[i].isFixed() ? "fixed" : "default");
-                            XmlObject constraintLocation =
-                                (attrLocation == null ? location : attrLocation.selectAttribute("", constraintName));
-                                
+                            XmlObject constraintLocation = location;
+                            if (attrLocation != null)
+                            {
+                                constraintLocation = attrLocation.selectAttribute("", constraintName);
+                                if (constraintLocation == null)
+                                    constraintLocation = attrLocation;
+                            }
+
                             StscState.get().error(XmlErrorCodes.ATTR_PROPERTIES$CONSTRAINT_VALID,
                                 new Object[] { QNameHelper.pretty(sAttrs[i].getName()), 
                                                constraintName,
@@ -188,7 +193,7 @@ public class StscChecker
                                                constraintName,
                                                valueConstraint,
                                                QNameHelper.readable(model.getType()) },
-                                constraintLocation);
+                                (constraintLocation==null ? location : constraintLocation));
                         }
                     }
                     else if (model.getType().getContentType() == SchemaType.ELEMENT_CONTENT)
@@ -198,7 +203,7 @@ public class StscChecker
                             new Object[] { QNameHelper.pretty(model.getName()),
                                            valueConstraint,
                                            "element" },
-                            constraintLocation);
+                            (constraintLocation==null ? location : constraintLocation));
                     }
                     else if (model.getType().getContentType() == SchemaType.EMPTY_CONTENT)
                     {
@@ -207,7 +212,7 @@ public class StscChecker
                             new Object[] { QNameHelper.pretty(model.getName()),
                                            valueConstraint,
                                            "empty" },
-                            constraintLocation);
+                            (constraintLocation==null ? location : constraintLocation));
                     }
                 }
                 break;

@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -59,7 +60,7 @@ public abstract class JavaDoubleHolder extends XmlObjectBase
         }
         catch(NumberFormatException e)
         {
-            context.invalid("Invalid double value");
+            context.invalid(XmlErrorCodes.DOUBLE, new Object[]{v});
 
             return Double.NaN;
         }

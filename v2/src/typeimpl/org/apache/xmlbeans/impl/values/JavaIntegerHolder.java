@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 
@@ -46,7 +47,7 @@ public abstract class JavaIntegerHolder extends XmlObjectBase
             s = s.substring(1);
 
         try { return new BigInteger(s); }
-        catch (Exception e) { vc.invalid("Not a valid integer: " + s); return null; }
+        catch (Exception e) { vc.invalid(XmlErrorCodes.INTEGER, new Object[] { s }); return null; }
     }
     protected void set_nil()
     {

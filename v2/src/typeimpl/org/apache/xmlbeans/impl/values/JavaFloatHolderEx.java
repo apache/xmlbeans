@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -43,9 +44,9 @@ public abstract class JavaFloatHolderEx extends JavaFloatHolder
     {
         float f = JavaFloatHolder.validateLexical(v, context);
 
-        // KHK: cvc-pattern-valid
         if (!sType.matchPatternFacet(v))
-            context.invalid("Float (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                new Object[] { "float", v, QNameHelper.readable(sType) });
         
         return f;
     }
@@ -59,9 +60,8 @@ public abstract class JavaFloatHolderEx extends JavaFloatHolder
         {
             if (compare(v, f = ((XmlObjectBase)x).floatValue()) <= 0)
             {
-                context.invalid(
-                    "Float (" + v + ") is less than or equal to " +
-                        "min exclusive facet (" + f + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
+                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
             }
         }
 
@@ -69,9 +69,8 @@ public abstract class JavaFloatHolderEx extends JavaFloatHolder
         {
             if (compare(v, f = ((XmlObjectBase)x).floatValue()) < 0)
             {
-                context.invalid(
-                    "Float (" + v + ") is less than " +
-                        "min inclusive facet (" + f + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
+                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
             }
         }
         
@@ -79,9 +78,8 @@ public abstract class JavaFloatHolderEx extends JavaFloatHolder
         {
             if (compare(v, f = ((XmlObjectBase)x).floatValue()) > 0)
             {
-                context.invalid(
-                    "Float (" + v + ") is greater than " +
-                        "max inclusive facet (" + f + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
+                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
             }
         }
         
@@ -89,9 +87,8 @@ public abstract class JavaFloatHolderEx extends JavaFloatHolder
         {
             if (compare(v, f = ((XmlObjectBase)x).floatValue()) >= 0)
             {
-                context.invalid(
-                    "Float (" + v + ") is greater than or equal to " +
-                        "max exclusive facet (" + f + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
+                    new Object[] { "float", new Float(v), new Float(f), QNameHelper.readable(sType) });
             }
         }
         
@@ -101,7 +98,8 @@ public abstract class JavaFloatHolderEx extends JavaFloatHolder
             for (int i = 0; i < vals.length; i++)
                 if (compare(v, ((XmlObjectBase)vals[i]).floatValue()) == 0)
                     return;
-            context.invalid("Float (" + v + ") is not a valid enumerated value for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "float", new Float(v), QNameHelper.readable(sType) });
         }
     }
     
