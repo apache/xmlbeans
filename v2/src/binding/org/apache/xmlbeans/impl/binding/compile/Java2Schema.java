@@ -65,8 +65,10 @@ import java.util.List;
 import java.util.Collection;
 
 /**
- * Transforms a set of JClasses into a BTS and a schema.  This is really just
- * a sketch at this point.
+ * Takes a set of Java source inputs and generates a set of XML schemas to
+ * which those input should be bound, as well as a binding configuration file
+ * which describes to the runtime subsystem how the un/marshalling should
+ * be performed.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
@@ -97,10 +99,10 @@ public class Java2Schema {
   // =========================================================================
   // Variables
 
-  private BindingFile mBindingFile;      //KILLME
-  private BindingLoader mLoader;         //KILLME
-  private SchemaDocument mSchemaDocument;//KILLME
-  private SchemaDocument.Schema mSchema; //KILLME
+  private BindingFile mBindingFile;
+  private BindingLoader mLoader;
+  private SchemaDocument mSchemaDocument;
+  private SchemaDocument.Schema mSchema;
   //
   private JavaToSchemaInput mInput;
   private Collection mErrors = null;
@@ -108,6 +110,10 @@ public class Java2Schema {
   // =========================================================================
   // Constructors
 
+  /**
+   * Initializes a Java2Schema instance to perform binding on the given
+   * inputs, but does not actually do the binding work.
+   */
   public Java2Schema(JavaToSchemaInput jtsi) {
     if (jtsi == null) {
       throw new IllegalArgumentException("null JavaToSchemaInput");
@@ -119,7 +125,8 @@ public class Java2Schema {
   // Public methods
 
   /**
-   * Does the binding work and returns the result.
+   * Does the binding work on the inputs passed to the constructor and returns
+   * the result.
    */
   public JavaToSchemaResult bind() {
     final JavaToSchemaResultImpl out = new JavaToSchemaResultImpl(mInput);
@@ -143,7 +150,8 @@ public class Java2Schema {
   // Private methods
 
   /**
-   *
+   * Runs through all of the given classes and creates both schema types
+   * and bts bindings for them in the given result object.
    */
   private void bind(JClass[] classes, JavaToSchemaResultImpl jtsr) {
     jtsr.addBindingFile(mBindingFile = new BindingFile());
@@ -161,38 +169,39 @@ public class Java2Schema {
     jtsr.addSchema(mSchemaDocument);
   }
 
-  // =========================================================================
-  // Private methods
-
-  private static JavaName getJavaName(JClass jc) {
-    return JavaName.forString(jc.getQualifiedName());
-  }
-
+  /**
+   * Returns a bts BindingType for the given JClass.  If such a type
+   * has not yet been registered with the loader, it will be created.
+   *
+   * @param clazz Java type for which to return a binding.
+   */
   private BindingType getBindingTypeFor(JClass clazz) {
-    BindingType out = mLoader.getBindingType(mLoader.lookupTypeFor(getJavaName(clazz)));
-    if (out == null) {
-      out = createBindingTypeFor(clazz);
-    }
+    BindingType out =
+            mLoader.getBindingType(mLoader.lookupTypeFor(getJavaName(clazz)));
+    if (out == null) out = createBindingTypeFor(clazz);
     return out;
   }
 
+  /**
+   * Creates a bts BindingType for the given JClass and registers t with the
+   * loader.  Note that this method assumes that a BindingType does not
+   * already exist for the given JClass.
+   *
+   * @param clazz Java type for which to generate a binding.
+   */
   private BindingType createBindingTypeFor(JClass clazz) {
-    if (clazz.isPrimitive()) {
-      throw new IllegalStateException("unexpected simple type "+
-                                      clazz.getSimpleName());
-    }
     // create the schema type
-    TopLevelComplexType xsdType = mSchema.addNewComplexType();
+    TopLevelComplexType xsType = mSchema.addNewComplexType();
     String tns = getTargetNamespace(clazz);
     String xsdName = getAnnotation(clazz,TAG_CT_TYPENAME,clazz.getSimpleName());
     QName qname = new QName(tns,xsdName);
-    xsdType.setName(xsdName);
-    // see if it extends anything
-    // REVIEW we're ignoring interfaces, is that ok?
+    xsType.setName(xsdName);
+    // deal with inheritance - see if it extends anything
     JClass superclass = clazz.getSuperclass();
     if (superclass != null && !superclass.isObject()) {
+      // FIXME we're ignoring interfaces at the moment
       BindingType superBindingType = getBindingTypeFor(superclass);
-      ComplexContentDocument.ComplexContent ccd = xsdType.addNewComplexContent();
+      ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
       ExtensionType et = ccd.addNewExtension();
       et.setBase(superBindingType.getName().getXmlName().getQName());
     }
@@ -201,6 +210,11 @@ public class Java2Schema {
                                                      XmlName.forTypeNamed(qname));
     ByNameBean bindType = new ByNameBean(btname);
     mBindingFile.addBindingType(bindType,true,true);
+    if (clazz.isPrimitive()) {
+      // it's good to have registerd the dummy type, but don't go further
+      logError(clazz,"Unexpected simple type");
+      return bindType;
+    }
     String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
     if (rootName != null) {
       QName rootQName = new QName(tns, rootName);
@@ -212,84 +226,9 @@ public class Java2Schema {
       mBindingFile.addBindingType(sdb,true,true);
     }
     // run through the class' properties to populate the binding and xsdtypes
-    //FIXME this is going to have to change to take inheritance into account
-    JProperty props[] = clazz.getProperties();
-    Group xsdSequence = null;
-    List attributes = null;
-    for(int i=0; i<props.length; i++) {
-      if (getAnnotation(props[i],TAG_EL_EXCLUDE,false)) continue;
-      if (props[i].getGetter() == null || props[i].getSetter() == null) {
-        continue; // we can only deal with read-write props
-      }
-      boolean isAttribute = false;
-      String propName = getAnnotation(props[i],TAG_AT_NAME,null);
-      if (propName != null) {
-        isAttribute = true;
-      } else {
-        propName = getAnnotation(props[i],TAG_EL_NAME,props[i].getSimpleName());
-      }
-      QNameProperty qprop = new QNameProperty();
-      qprop.setQName(new QName(tns,propName));
-      qprop.setGetterName(props[i].getGetter().getSimpleName());
-      qprop.setSetterName(props[i].getSetter().getSimpleName());
-      JClass propType;
-      if (props[i].getType().isArray()) {
-        if (props[i].getType().getArrayDimensions() != 1) {
-          throw new RuntimeException //FIXME
-                  ("Sorry, mulidimensional arrays not yet supported: "+
-                   props[i].getQualifiedName());
-        }
-        propType = props[i].getType().getArrayComponentType();
-        qprop.setBindingType(getBindingTypeFor(propType));
-        qprop.setMultiple(true);
-        qprop.setCollectionClass //FIXME this is lame
-                (JavaName.forString(propType.getQualifiedName()+"[]"));
-      } else {
-        qprop.setBindingType(getBindingTypeFor
-                             (propType = getPropertyType(props[i])));
-      }
-      {
-        //nillable tag
-        JAnnotation a = props[i].getAnnotation(TAG_EL_NILLABLE);
-        if (a != null) {
-          // if the tag is there but empty, set it to true.  is that weird?
-          if (a.getStringValue().trim().length() == 0) {
-            qprop.setNillable(true);
-          } else {
-            qprop.setNillable(a.getBooleanValue());
-          }
-        }
-      }
-      bindType.addProperty(qprop);
-      // also populate the schema type
-      if (!isAttribute) {
-        if (xsdSequence == null) xsdSequence = xsdType.addNewSequence();
-        LocalElement xsdElement = xsdSequence.addNewElement();
-        xsdElement.setName(propName);
-        xsdElement.setType(getBuiltinTypeNameFor(propType));
-        if (props[i].getType().isArray()) xsdElement.setMaxOccurs("unbounded");
-      } else {
-        if (props[i].getType().isArray()) {
-          logError(new RuntimeException
-                  ("Array properties cannot be mapped to xml attribtes"));
-        }
-        Attribute xsdAtt = Attribute.Factory.newInstance();
-        qprop.setAttribute(true);
-        xsdAtt.setName(propName);
-        xsdAtt.setType(getBuiltinTypeNameFor(props[i].getType()));
-        if (attributes == null) attributes = new ArrayList();
-        attributes.add(xsdAtt);
-      }
-    }
-    // No add the attributes that we saved in the list to the xsdType.
-    // This is a hack around an xbeans bug in which the sequences and
-    // attributes are output in the order in which they were added (the
-    // schema for schemas says the attributes always have to go last).
-    if (attributes != null) {
-      Attribute[] atts = new Attribute[attributes.size()];
-      attributes.toArray(atts);
-      xsdType.setAttributeArray(atts);
-    }
+    SchemaPropertyFacade facade = new SchemaPropertyFacade(xsType,bindType,tns);
+    bindProperties(clazz.getProperties(),facade);
+    facade.finish();
     // check to see if they want to create a root elements from this type
     JAnnotation[] anns = clazz.getAnnotations(TAG_CT_ROOT);
     for(int i=0; i<anns.length; i++) {
@@ -302,47 +241,114 @@ public class Java2Schema {
     return bindType;
   }
 
-
   /**
-   * Returns the type that should be used for binding the given java property.
-   * This is simply the type of the property unless overridden by an 'astype'
-   * annotation.
+   * Runs through a set of JProperties to creates schema and bts elements
+   * to represent those properties.  Note that the details of manipulating the
+   * schema and bts are encapsulated within the supplied SchemaPropertyFacade;
+   * this method is only responsible for inspecting the properties and their
+   * annotations and setting the correct attributes on the facade.
+   *
+   * @param props Array of JProperty objects to potentially be bound.
+   * @param facade Allows us to create and manipulate properties,
+   * hides the dirty work
    */
-  private JClass getPropertyType(JProperty property)
-  {
-    String real = getAnnotation(property,TAG_EL_ASTYPE,null);
-    if (real == null) return property.getType();
-    try {
-      return property.getType().forName(real);
-      //FIXME this needs to change when we put isUnresolved in JClass.
-    } catch(ClassNotFoundException cnfe) {
-      logError(cnfe);             // log it
-      return property.getType();  // and try to stumble along
+  private void bindProperties(JProperty[] props, SchemaPropertyFacade facade) {
+    for(int i=0; i<props.length; i++) {
+      if (getAnnotation(props[i],TAG_EL_EXCLUDE,false)) {
+        logVerbose(props[i],"Marked excluded, skipping");
+        continue;
+      }
+      if (props[i].getGetter() == null || props[i].getSetter() == null) {
+        logVerbose(props[i],"Does not have both getter and setter, skipping");
+        continue; // REVIEW this might have to change someday
+      }
+      { // determine the property name to use and set it
+        String propName = getAnnotation(props[i],TAG_AT_NAME,null);
+        if (propName != null) {
+          facade.newAttributeProperty(props[i]);
+          facade.setSchemaName(propName);
+        } else {
+          facade.newElementProperty(props[i]);
+          facade.setSchemaName(getAnnotation
+                         (props[i],TAG_EL_NAME,props[i].getSimpleName()));
+        }
+      }
+      { // set the getters and setters
+        facade.setGetter(props[i].getGetter().getSimpleName());
+        facade.setSetter(props[i].getSetter().getSimpleName());
+      }
+      { // determine the property type to use and set it
+        String annotatedType = getAnnotation(props[i],TAG_EL_ASTYPE,null);
+        if (annotatedType == null) {
+          facade.setType(props[i].getType());
+        } else {
+          try {
+            facade.setType(props[i].getType().forName(annotatedType));
+            //FIXME this needs to change when we put isUnresolved in JClass.
+          } catch(ClassNotFoundException cnfe) {
+            logError(props[i],cnfe);
+          }
+        }
+      }
+      { // determine if the property is nillable
+        JAnnotation a = props[i].getAnnotation(TAG_EL_NILLABLE);
+        if (a != null) {
+          // if the tag is there but empty, set it to true.  is that weird?
+          if (a.getStringValue().trim().length() == 0) {
+            facade.setNillable(true);
+          } else {
+            facade.setNillable(a.getBooleanValue());
+          }
+        }
+      }
     }
   }
 
-  //REVIEW seems like having this functionality in jam (getters w/defaults)
-  //would be a good thing to add to JAM
-  private static String getAnnotation(JElement elem, String annName, String dflt) {
+  // ========================================================================
+  // Private utility methods
+
+  /**
+   * Returns a JavaName for the given JClass.  Might want to pool these.
+   */
+  private JavaName getJavaName(JClass jc) {
+    return JavaName.forString(jc.getQualifiedName());
+  }
+
+  /**
+   * Returns the string value of a named annotation, or the provided default
+   * if the annotation is not present.
+   * REVIEW seems like having this functionality in jam would be nice
+   */
+  private String getAnnotation(JElement elem, String annName, String dflt) {
     JAnnotation ann = elem.getAnnotation(annName);
     return (ann == null) ? dflt : ann.getStringValue();
   }
 
-  //REVIEW seems like having this functionality in jam (getters w/defaults)
-  //would be a good thing to add to JAM
-  private static boolean getAnnotation(JElement elem, String annName, boolean dflt) {
+  /**
+   * Returns the boolean value of a named annotation, or the provided default
+   * if the annotation is not present.
+   * REVIEW seems like having this functionality in jam would be nice
+   */
+  private boolean getAnnotation(JElement elem, String annName, boolean dflt) {
     JAnnotation ann = elem.getAnnotation(annName);
     return (ann == null) ? dflt : ann.getBooleanValue();
   }
 
+  /**
+   * Returns a QName for the builtin type bound to the given JClass.
+   */
   private QName getBuiltinTypeNameFor(JClass clazz) {
-    BindingType bt =
-            mLoader.getBindingType(mLoader.lookupTypeFor(JavaName.forString(clazz.getQualifiedName())));
+    BindingType bt = mLoader.getBindingType
+            (mLoader.lookupTypeFor(JavaName.forString(clazz.getQualifiedName())));
     if (bt != null) return bt.getName().getXmlName().getQName();
-    System.out.println("no type found for "+clazz.getQualifiedName());
-    return null; //FIXME
+    logError(clazz,"no type found");
+    return new QName("ERROR",clazz.getQualifiedName());
   }
 
+  /**
+   * Returns a target namespace that should be used for the given class.
+   * This takes annotations into consideration.
+   */
   private String getTargetNamespace(JClass clazz) {
     JAnnotation ann = clazz.getAnnotation(TAG_CT_TARGETNS);
     if (ann != null) return ann.getStringValue();
@@ -362,10 +368,35 @@ public class Java2Schema {
     return JAVA_URI_SCHEME + pkg_name;
   }
 
-
-  private void logError(Throwable error) {
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given java construct.  The binding process should attempt
+   * to continue even after such errors are encountered so as to identify
+   * as many errors as possible in a single pass.  FIXME We need a formal
+   * build-time logging interface.
+   */
+  private void logError(JElement context, Throwable error) {
     if (mErrors == null) mErrors = new ArrayList();
     mErrors.add(error);
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given java construct.  The binding process should attempt
+   * to continue even after such errors are encountered so as to identify
+   * as many errors as possible in a single pass.  FIXME We need a formal
+   * build-time logging interface.
+   */
+  private void logError(JElement context, String msg) {
+    logError(context, new RuntimeException(msg)); //FIXME
+  }
+
+  /**
+   * Logs an informative message that should be printed only in 'verbose'
+   * mode.
+   */
+  private void logVerbose(JElement context, String msg) {
+    //FIXME
   }
 
   /*
@@ -380,4 +411,203 @@ public class Java2Schema {
     }
   }
   */
+
+
+
+  /**
+   * Inner class which encapsulates the creation of schema properties and
+   * property bindings and presents them as a unified interface, a kind of
+   * 'virtual property.'  This is used by the bindProperties() method, and
+   * allows that function to concentrate on inspecting the java types and
+   * annotations. This class hides all of the dirty work associated with
+   * constructing and initializing a BTS property and either an XSD element
+   * or attribute.
+   *
+   * Note that in some sense, this class behaves as both a factory and a kind
+   * of cursor.  It is capable of creating a new virtual property
+   * on a given BTS/XSD type pair, and any operations on the facade will
+   * apply to that property until the next property is created
+   * (via newAttributeProperty or newElementProperty).
+   */
+  class SchemaPropertyFacade {
+
+    // =======================================================================
+    // Variables
+
+    private TopLevelComplexType mXsType;
+    private String mXsTargetNamespace;
+    private LocalElement mXsElement = null; // exactly one of these two is
+    private Attribute mXsAttribute = null;  // remains null
+    private Group mXsSequence = null;
+    private List mXsAttributeList = null;
+    private ByNameBean mBtsType;
+    private QNameProperty mBtsProp = null;
+    private JElement mSrcContext = null;
+
+    // =======================================================================
+    // Constructors
+
+    public SchemaPropertyFacade(TopLevelComplexType xsType,
+                                ByNameBean bt,
+                                String tns) {
+      if (xsType == null) throw new IllegalArgumentException("null xsType");
+      if (bt == null) throw new IllegalArgumentException("null bt");
+      if (tns == null) throw new IllegalArgumentException("null tns");
+      mXsType = xsType;
+      mBtsType = bt;
+      mXsTargetNamespace = tns;
+    }
+
+    // =======================================================================
+    // Public methods
+
+    /**
+     * Creates a new element property and sets this facade represent it.
+     * Note that either this method or newAttributeProperty must be called prior
+     * to doing any work with the facade.  Also note that you need to
+     * completely finish working with each property before moving onto
+     * the next via newElementProperty or newAttributeProperty.
+     * *
+     * @param srcContext A JAM element that represents the java source
+     * artifact that is being bound to the property.  This is used
+     * only for error reporting purposes.
+     */
+    public void newElementProperty(JElement srcContext) {
+      newBtsProperty();
+      mSrcContext = srcContext;
+      if (mXsSequence == null) mXsSequence = mXsType.addNewSequence();
+      mXsElement = mXsSequence.addNewElement();
+      mXsAttribute = null;
+    }
+
+    /**
+     * Creates a new attribute property and sets this facade represent it.
+     * Note that either this method or newElementProperty must be called prior
+     * to doing any work with the facade.  Also note that you need to
+     * completely finish working with each property before moving onto
+     * the next via newElementProperty or newAttributeProperty.
+     *
+     * @param srcContext A JAM element that represents the java source
+     * artifact that is being bound to the property.  This is used
+     * only for error reporting purposes.
+     */
+    public void newAttributeProperty(JElement srcContext) {
+      newBtsProperty();
+      mBtsProp.setAttribute(true);
+      mSrcContext = srcContext;
+      mXsElement = null;
+      if (mXsAttributeList == null) mXsAttributeList = new ArrayList();
+      mXsAttributeList.add(mXsAttribute = Attribute.Factory.newInstance());
+    }
+
+    /**
+     * Sets the name of this property (element or attribute) in the
+     * generated schema.
+     */
+    public void setSchemaName(String name) {
+      if (mXsElement != null) {
+        mXsElement.setName(name);
+      } else if (mXsAttribute != null) {
+        mXsAttribute.setName(name);
+      } else {
+        throw new IllegalStateException();
+      }
+      mBtsProp.setQName(new QName(mXsTargetNamespace,name));
+    }
+
+    /**
+     * Sets the name of the java getter for this property.
+     */
+    public void setGetter(String g) { mBtsProp.setGetterName(g); }
+
+    /**
+     * Sets the name of the java setter for this property.
+     */
+    public void setSetter(String s) { mBtsProp.setSetterName(s); }
+
+    /**
+     * Sets whether the type of the property.  Currently handles arrays
+     * correctly but not collections.
+     */
+    public void setType(JClass propType) {
+      if (mXsElement != null) {
+        if (propType.isArray()) {
+          if (propType.getArrayDimensions() != 1) {
+            logError(mSrcContext,"Multidimensional arrays NYI"); //FIXME
+          }
+          JClass componentType = propType.getArrayComponentType();
+          mXsElement.setMaxOccurs("unbounded");
+          mXsElement.setType(getBuiltinTypeNameFor(componentType));
+          mBtsProp.setMultiple(true);
+          mBtsProp.setCollectionClass //FIXME
+                  (JavaName.forString(componentType.getQualifiedName()+"[]"));
+          mBtsProp.setBindingType(getBindingTypeFor(componentType));
+        } else {
+          mXsElement.setType(getBuiltinTypeNameFor(propType));
+          mBtsProp.setBindingType(getBindingTypeFor(propType));
+        }
+      } else if (mXsAttribute != null) {
+        if (propType.isArray()) {
+          logError(mSrcContext,
+                   "Array properties cannot be mapped to xml attributes");
+        } else {
+          mXsAttribute.setType(getBuiltinTypeNameFor(propType));
+          mBtsProp.setBindingType(getBindingTypeFor(propType));
+        }
+      } else {
+        throw new IllegalStateException();
+      }
+    }
+
+    /**
+     * Sets whether the property should be bound as nillable.
+     */
+    public void setNillable(boolean b) {
+      if (mXsElement != null) {
+        mXsElement.setNillable(b);
+        mBtsProp.setNillable(b);
+      } else if (mXsAttribute != null) {
+        logError(mSrcContext,"Attributes cannot be nillable:");
+      } else {
+        throw new IllegalStateException();
+      }
+    }
+
+    /**
+     * This method should always be called when finished building up
+     * a type.  It is a hack around an xbeans bug in which the sequences and
+     * attributes are output in the order in which they were added (the
+     * schema for schemas says the attributes always have to go last).
+     */
+    public void finish() {
+      addBtsProperty();
+      if (mXsAttributeList != null) {
+        Attribute[] array = new Attribute[mXsAttributeList.size()];
+        mXsAttributeList.toArray(array);
+        mXsType.setAttributeArray(array);
+      }
+    }
+
+    // =======================================================================
+    // Private methods
+
+    /**
+     * Adds the current bts property to the bts type.  This has to be called
+     * for every property.  We do this last because ByNameBean won't
+     * let us add more than one prop for same name (name is always blank
+     * initially).
+     */
+    private void addBtsProperty() {
+      if (mBtsProp != null) mBtsType.addProperty(mBtsProp);
+    }
+
+    /**
+     * Initialize a new QName property in the bts type
+     */
+    private void newBtsProperty() {
+      if (mBtsProp != null) addBtsProperty(); //if not 1st one, add old one
+      mBtsProp = new QNameProperty();
+    }
+  }
+
 }
