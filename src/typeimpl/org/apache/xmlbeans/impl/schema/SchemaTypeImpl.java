@@ -858,7 +858,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         if (isSimpleType() || !containsElements() || isNoType())
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
 
-        SchemaType type;
+        SchemaType type = null;
         SchemaProperty prop = (SchemaProperty)_propertyModelByElementName.get(eltName);
         if (prop != null)
         {
@@ -869,7 +869,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             if (wildcardTypeLoader == null)
                 return BuiltinSchemaTypeSystem.ST_NO_TYPE;
 
-            if (_typedWildcardElements.contains(eltName))
+            if (_typedWildcardElements.contains(eltName) ||
+                _validSubstitutions.contains(eltName))
             {
                 SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
                 if (elt == null)
@@ -881,14 +882,22 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             else
             {
                 // Substitution groups
-                SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
-                SchemaGlobalElement head = elt == null ? null : elt.substitutionGroup();
-                if (head == null)
+                // Actually, better not enable this yet
+                /*SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
+                SchemaGlobalElement sghead = elt == null ? null : elt.substitutionGroup();
+                while (sghead != null)
+                {
+                    prop = (SchemaProperty)_propertyModelByElementName.get(sghead.getName());
+                    if (prop != null)
+                    {
+                        type = elt.getType();
+                        break;
+                    }
+                    sghead = sghead.substitutionGroup();
+                }
+                if (type == null)
                     return BuiltinSchemaTypeSystem.ST_NO_TYPE;
-                prop = (SchemaProperty)_propertyModelByElementName.get(head.getName());
-                if (prop == null)
-                    return BuiltinSchemaTypeSystem.ST_NO_TYPE;
-                type = elt.getType();
+                    */
             }
         }
 
@@ -924,13 +933,18 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
         // For symmetry with the element case (as well as with URType), perhaps
         // the above line should be returning ST_ANY_SIMPLE
-        
+
         SchemaGlobalAttribute attr = wildcardTypeLoader.findAttribute(attrName);
         if (attr == null)
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
         return attr.getType();
     }
 
+    /* These two methods, createElementType and getElementType have to stay
+     * synchronized, because they create an XmlObject and return the type
+     * for that object, respectively. But since they do slightly different
+     * things, they can't be refactored to share code, so exercise caution
+     */
     public XmlObject createElementType(QName eltName, QName xsiType, SchemaTypeLoader wildcardTypeLoader)
     {
         SchemaType type = null;
@@ -946,18 +960,43 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             {
                 type = prop.getType();
             }
-            else if (!_typedWildcardElements.contains(eltName) &&
-                     !_validSubstitutions.contains(eltName))
-            {
-                type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
-            }
-            else
+            else if (_typedWildcardElements.contains(eltName) ||
+                     _validSubstitutions.contains(eltName))
             {
                 SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
                 if (elt != null)
+                {
                     type = elt.getType();
+                    SchemaType docType = wildcardTypeLoader.findDocumentType(eltName);
+                    if (docType != null)
+                        prop = docType.getElementProperty(eltName);
+                }
                 else
                     type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
+            }
+            else
+            {
+                // Check if the requested element isn't by any chance part of a
+                // substitution group headed by one of the declared elements
+                // Better not enable this yet
+                /*
+                SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
+                SchemaGlobalElement sghead = elt == null ? null : elt.substitutionGroup();
+                while (sghead != null)
+                {
+                    if (_propertyModelByElementName.containsKey(sghead.getName()))
+                    {
+                        type = elt.getType();
+                        SchemaType docType = wildcardTypeLoader.findDocumentType(elt.getName());
+                        if (docType != null)
+                            prop = docType.getElementProperty(elt.getName());
+                        break;
+                    }
+                    sghead = sghead.substitutionGroup();
+                }
+                if (type == null)
+                    type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
+                    */
             }
 
             if (xsiType != null)
