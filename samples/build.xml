@@ -25,7 +25,9 @@ limitations under the License.
         clean-SchemaEnum,
         clean-AbstractTypes,
         clean-SubstitutionGroup,
-        clean-DateTime">
+        clean-DateTime,
+	clean-XsdConfig
+	">
         <delete dir="build"/>
     </target>
 
@@ -61,6 +63,10 @@ limitations under the License.
         <ant dir="DateTime" target="clean"/>
     </target>
 
+    <target name="clean-XsdConfig">
+        <ant dir="XsdConfig" target="clean"/>
+    </target>
+
     <!-- ========================== build ==== -->
 
     <target name="build" depends="
@@ -71,7 +77,9 @@ limitations under the License.
         build-SchemaEnum,
         build-AbstractTypes,
         build-SubstitutionGroup,
-        build-DateTime">
+        build-DateTime,
+	build-XsdConfig
+	">
     </target>
 
     <target name="build-SampleTemplate">
@@ -105,6 +113,10 @@ limitations under the License.
     <target name="build-DateTime">
         <ant dir="DateTime" target="build"/>
     </target>
+    
+    <target name="build-XsdConfig">
+        <ant dir="XsdConfig" target="build"/>
+    </target>
 
     <!-- ========================== test ==== -->
     <!-- to ensure all samples build and run -->
@@ -117,7 +129,9 @@ limitations under the License.
         test-SchemaEnum,
         test-AbstractTypes,
         test-SubstitutionGroup,
-        test-DateTime">
+        test-DateTime,
+	test-XsdConfig
+	">
     </target>
 
     <target name="test-SampleTemplate">
@@ -152,6 +166,10 @@ limitations under the License.
         <ant dir="DateTime" target="test"/>
     </target>
 
+    <target name="test-XsdConfig">
+        <ant dir="XsdConfig" target="test"/>
+    </target>
+
     <!-- ========================== dist ==== -->
 
     <target name="dist" depends="
@@ -162,7 +180,9 @@ limitations under the License.
         dist-SchemaEnum,
         dist-AbstractTypes,
         dist-SubstitutionGroup,
-        dist-DateTime">
+        dist-DateTime,
+	dist-XsdConfig
+	">
         <zip destfile="build/samples.zip"
             basedir=".."
             includes="samples/**"
@@ -293,6 +313,21 @@ limitations under the License.
             basedir="."
             includes="DateTime/**"
             excludes="DateTime/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-XsdConfig">
+        <mkdir dir="build"/>
+        <zip destfile="build/XsdConfig.zip"
+            basedir="."
+            includes="XsdConfig/**"
+            excludes="XsdConfig/build/**"
+            />
+        <tar destfile="build/XsdConfig.tgz"
+            basedir="."
+            includes="XsdConfig/**"
+            excludes="XsdConfig/build/**"
             compression="gzip"
             />
     </target>
