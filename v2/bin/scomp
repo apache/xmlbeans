@@ -1,9 +1,0 @@
-#!/bin/sh
-
-#Schema compiler
-#Builds XBean types from xsd files.
-
-cp=
-    cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_07_api.jar:$XMLBEANS_HOME/build/lib/resolver.jar
-
-java -classpath $cp org.apache.xmlbeans.impl.tool.SchemaCompiler $*
