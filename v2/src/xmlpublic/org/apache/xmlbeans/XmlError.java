@@ -169,7 +169,7 @@ public class XmlError implements java.io.Serializable
         this(XmlError.formattedMessage(code, args), code, severity, loc);
     }
 
-     /**
+    /**
      * Returns an XmlError for the given message, with no location and {@link #SEVERITY_ERROR}.
      * @param message the error message
      */
@@ -193,7 +193,7 @@ public class XmlError implements java.io.Serializable
      * @param code the error code
      * @param args the arguments to use in formatting the error message
      */
-    public static XmlError forErrorCode(String code, Object[] args)
+    public static XmlError forMessage(String code, Object[] args)
     {
         return forSource(code, args, SEVERITY_ERROR, null);
     }
@@ -204,7 +204,7 @@ public class XmlError implements java.io.Serializable
      * @param args the arguments to use in formatting the error message
      * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
      */
-    public static XmlError forErrorCode(String code, Object[] args, int severity)
+    public static XmlError forMessage(String code, Object[] args, int severity)
     {
         return forSource(code, args, severity, null);
     }
@@ -360,7 +360,7 @@ public class XmlError implements java.io.Serializable
     public static XmlError forObject(String code, Object[] args, int severity, XmlObject xobj)
     {
         if (xobj == null)
-            return forMessage(code, severity);
+            return forMessage(code, args, severity);
 
         XmlCursor cur = xobj.newCursor();
         XmlError result = forCursor(code, args, severity, cur);
