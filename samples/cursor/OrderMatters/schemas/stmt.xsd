@@ -1,0 +1,23 @@
+<xs:schema
+    targetNamespace="http://statement"
+    elementFormDefault="qualified"
+    xmlns:tns="http://statement"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="statement">
+        <xs:complexType>
+            <xs:choice maxOccurs="unbounded">
+                <xs:element name="deposit"    type="tns:transaction"/>
+                <xs:element name="withdrawal" type="tns:transaction"/>
+            </xs:choice>
+        </xs:complexType>
+    </xs:element>
+
+  <xs:complexType name="transaction">
+        <xs:sequence>
+            <xs:element name="description" type="xs:string"/>
+            <xs:element name="amount"      type="xs:float"/>
+        </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

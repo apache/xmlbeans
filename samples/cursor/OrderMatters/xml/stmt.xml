@@ -1,0 +1,18 @@
+<statement xmlns="http://statement">
+    <deposit>
+        <description>Vegas winnings!</description>
+        <amount>3000.00</amount>
+    </deposit>
+    <withdrawal>
+        <description>OSCON Registration</description>
+        <amount>1890.00</amount>
+    </withdrawal>
+    <withdrawal>
+        <description>Four Seasons Hotel</description>
+        <amount>1200.00</amount>
+    </withdrawal>
+    <deposit>
+        <description>Paycheck</description>
+        <amount>1100.00</amount>
+    </deposit>
+</statement>
