@@ -429,7 +429,12 @@ public final class Cursor implements XmlCursor
     
     public Reader _newReader ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _newReader( null );
+    }
+    
+    public Reader _newReader( XmlOptions options )
+    {
+        return new Saver.TextReader( _cur, options );
     }
     
     public Node _newDomNode ( )
@@ -523,11 +528,6 @@ public final class Cursor implements XmlCursor
         {
             r.close();
         }
-    }
-    
-    public Reader _newReader( XmlOptions options )
-    {
-        throw new RuntimeException( "Not implemented" );
     }
     
     public Node _newDomNode ( XmlOptions options )
