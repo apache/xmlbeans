@@ -254,6 +254,12 @@ final class ByNameRuntimeBindingType
                  RuntimeBindingTypeTable typeTable,
                  BindingLoader loader)
         {
+            if (prop.getQName() == null) {
+                final String msg = "property " + property_index + " of " +
+                    beanClass + " has no qname";
+                throw new IllegalArgumentException(msg);
+            }
+
             this.propertyIndex = property_index;
             this.beanClass = beanClass;
             this.beanHasMulti = bean_has_multis;
