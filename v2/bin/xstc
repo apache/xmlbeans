@@ -1,8 +1,0 @@
-#!/bin/sh
-
-# Invokes XSTC
-
-cp=
-cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar
-
-java -classpath $cp org.apache.xmlbeans.impl.tool.XSTCTester $*
