@@ -255,10 +255,7 @@ public class DefaultTylarLoader implements TylarLoader {
 
     StubbornInputStream(InputStream in) { super(in); }
 
-    public void close() {
-      System.out.println("Hey, somebody closed the stream!");
-      Thread.dumpStack();
-    }
+    public void close() {}
 
     public void reallyClose() throws IOException {
       super.close();
