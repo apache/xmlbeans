@@ -12,16 +12,52 @@
 <title>News and events</title>
 
 <section>
+<title>Article: Configuring XMLBeans (30 November 2004)</title>
+
+<p>Read <link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/Configuring_XMLBeans.jsp">Configuring XMLBeans</link>
+by Hetal Shah posted on the <link href="http://dev2dev.bea.com/">dev2dev</link> website.
+
+(More <link href="site:articles">XMLBeans articles</link>.)
+
+</p>
+
+</section>
+
+<section>
+<title>Presentation: Apache XMLBeans 2: Accessing the Full Power of XML in Java (17 November 2004)</title>
+
+<p>I've put my presentation from <link href="http://apachecon.com/2004/US/index.html">ApacheCon 2004</link> online, titled <link href="http://www.apache.org/~kkrouse/apachecon/ac2004_XmlBeans_v2.ppt">Apache XMLBeans 2: Accessing the Full Power of XML in Java</link> (ppt).  Enjoy!
+
+(More <link href="site:articles">XMLBeans articles</link>.)
+
+</p>
+
+</section>
+
+<section>
 <title>ApacheCon 2004 (13-17 November 2004)</title>
 
 <p><link href="http://apachecon.com/2004/US/index.html">
 <img src="http://apache.org/images/ac2004_170x100.gif" alt="ApacheCon 2004 Logo"/>
 </link>
 
-<link href="http://apachecon.com/2004/US/index.html">ApacheCon US 2004 </link> (13-17 November
+<link href="http://apachecon.com/2004/US/index.html">ApacheCon US 2004</link> (13-17 November
 2004).  ApacheCon is the conference for all things Apache. Come along and learn about a range of new
 technologies, meet some Apache folks and share the knowledge.  See more information about Apache
 Conferences.  Cliff Schmidt and Kevin Krouse are scheduled to speak about XMLBeans.</p>
+
+</section>
+
+<section>
+<title>Article: XML-Java Data Binding Using XMLBeans (28 July 2004)</title>
+
+<p>Read <link href="http://www.onjava.com/pub/a/onjava/2004/07/28/XMLBeans.html">XML-Java Data
+    Binding Using XMLBeans</link> by <link href="http://www.onjava.com/pub/au/1355">Hetal C.
+    Shah</link> posted on the <link href="http://www.onjava.com/">O'Reilly</link> website.
+
+(More <link href="site:articles">XMLBeans articles</link>.)
+
+</p>
 
 </section>
 
