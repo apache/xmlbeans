@@ -64,11 +64,7 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
       // don't want to use the extractor
       Class.forName("java.lang.annotation.Annotation");
     } catch (ClassNotFoundException e) {
-      if (mLogger.isVerbose(this)) {
-        mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
-                        "class annotations will not be understood");
-        mLogger.verbose(e);
-      }
+      issue14RuntimeWarning(e);
       return;
     }
     // ok, if we could load that, let's new up the extractor delegate
@@ -78,19 +74,14 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
       mDelegate.init((ElementContext)ctx);
       // if this fails for any reason, things are in a bad state
     } catch (ClassNotFoundException e) {
-      mLogger.error("Internal error, failed to instantiate "+
-                    JAVA15_DELEGATE);
-      mLogger.error(e);
+      issue14BuildWarning(e);
     } catch (IllegalAccessException e) {
-      mLogger.error("Internal error, failed to instantiate "+
-                    JAVA15_DELEGATE);
-      mLogger.error(e);
+      issue14BuildWarning(e);
     } catch (InstantiationException e) {
-      mLogger.error("Internal error, failed to instantiate "+
-                    JAVA15_DELEGATE);
-      mLogger.error(e);
+      issue14BuildWarning(e);
     }
   }
+
   // ========================================================================
   // JamClassBuilder implementation
 

@@ -90,12 +90,6 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     mLoader = loader;
   }
 
-  //may want to expose this in JamServiceParams
-  public void addBaseBuilder(JamClassBuilder builder) {
-    if (mBaseBuilders == null) mBaseBuilders = new ArrayList();
-    mBaseBuilders.add(builder);
-  }
-
   public JamClassBuilder getBaseBuilder() {
     if (mBaseBuilders == null || mBaseBuilders.size() == 0) {
       return null;
@@ -135,6 +129,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
       DirectoryScanner ds = (DirectoryScanner)i.next();
       String[] files = ds.getIncludedFiles();
       for(int j=0; j<files.length; j++) {
+ //System.out.println("including "+files[j]);        
         // exclude inner classes - they will be on disk as .class files with
         // a '$' in the name
         if (files[j].indexOf(INNER_CLASS_SEPARATOR) == -1) {
@@ -247,6 +242,11 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
 
   // ========================================================================
   // JamServiceParams implementation
+
+  public void addClassBuilder(JamClassBuilder builder) {
+    if (mBaseBuilders == null) mBaseBuilders = new ArrayList();
+    mBaseBuilders.add(builder);
+  }
 
   //DOCME
   public void setCommentInitializer(MVisitor initializer) {

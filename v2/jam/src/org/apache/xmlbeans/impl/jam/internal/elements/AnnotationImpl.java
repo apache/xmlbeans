@@ -33,37 +33,37 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
 
   private AnnotationProxy mProxy;
   private Object mAnnotationInstance = null;
+  private String mQualifiedName = null;
+
 
   // ========================================================================
   // Constructors
 
   /*package*/ AnnotationImpl(ElementContext ctx,
                              AnnotationProxy proxy,
-                             String simplename) {
+                             String qualifiedName) {
     super(ctx);
     if (proxy == null) throw new IllegalArgumentException("null proxy");
+    if (qualifiedName == null) throw new IllegalArgumentException("null qn");
     mProxy = proxy;
-    setSimpleName(simplename);
+    // review maybe this should just be the behavior in the default impl
+    // of getSimpleName().
+    setSimpleName(qualifiedName.substring(qualifiedName.lastIndexOf('.')+1));
+    mQualifiedName = qualifiedName;
   }
 
   // ========================================================================
   // JAnnotation implementation
 
-  public Object getProxy() {
-    return mProxy;
-  }
+  public Object getProxy() { return mProxy; }
 
-  public JAnnotationValue[] getValues() {
-    return mProxy.getValues();
-  }
+  public JAnnotationValue[] getValues() { return mProxy.getValues(); }
 
   public JAnnotationValue getValue(String name) {
     return mProxy.getValue(name);
   }
 
-  public Object getAnnotationInstance() {
-    return mAnnotationInstance;
-  }
+  public Object getAnnotationInstance() { return mAnnotationInstance; }
 
   // ========================================================================
   // MAnnotation implementation
@@ -108,9 +108,7 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
   // ========================================================================
   // JElement implementation
 
-  public String getQualifiedName() {
-    return mProxy.getClass().getName(); //FIXME
-  }
+  public String getQualifiedName() { return mQualifiedName; }
 
   public void accept(MVisitor visitor) { visitor.visit(this); }
 

@@ -231,7 +231,7 @@ import java.io.Writer;
 
   private void writeAnnotation(JAnnotation ann) throws XMLStreamException {
     mOut.writeStartElement(ANNOTATION);
-    writeValueElement(NAME,ann.getSimpleName());
+    writeValueElement(NAME,ann.getQualifiedName());
     JAnnotationValue[] values = ann.getValues();
     for(int i=0; i<values.length; i++) {
       writeAnnotationValue(values[i]);
