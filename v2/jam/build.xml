@@ -3,9 +3,11 @@
   <property name='build.compiler' value='javac1.4'/>
   <property name='product.version' value='1.0.0'/>
 
+  <property name='build_dir'   value='../build/jam'/>
+
   <property name='src_dir'     value='src'/>
   <property name="site_dir"    value='website'/>
-  <property name='build_dir'   value='build'/>
+
   <property name='jam_jar'      value='build/jam.jar'/>
   <property name='javadoc_zip'  value='build/jamapi.zip'/>
   <property name="jamsrc_zip"   value='build/jamsrc.zip'/>
@@ -14,6 +16,9 @@
   <property name='gen_dir'     value='${build_dir}/generatedsrc'/>
   <property name='classes_dir' value='${build_dir}/classes'/>
   <property name='antlr_jar'   value='external/lib/antlr.jar'/>
+
+  <!--FIXME need to do get the jar ourselves -->
+  <property name='staxapi_jar'   value='../build/lib/jsr173_api.jar'/>
 
   <property name='tests_dir'   value='test'/>
 
@@ -50,6 +55,7 @@
       <src path='${gen_dir}'/>
       <classpath>
         <pathelement location='${antlr_jar}'/>
+        <pathelement location='${staxapi_jar}'/>
         <pathelement path='${classes_dir}'/>
         <pathelement path='${java.class.path}'/>
       </classpath>
@@ -93,9 +99,11 @@
     <copy  todir='${sitebuild_dir}' >
       <fileset dir='${site_dir}'/>
     </copy>
+<!--
     <copy todir='${sitebuild_dir}' flatten='true'>
       <fileset dir='.'  includes='${jam_jar},${javadoc_zip},${jamsrc_zip}'/>
     </copy>
+-->
   </target>
 
 

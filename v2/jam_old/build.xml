@@ -5,7 +5,7 @@
 
   <property name='src_dir'     value='src'/>
   <property name='docs_dir'    value='docs'/>
-  <property name='build_dir'   value='./../build/jam'/>
+  <property name='build_dir'   value='./../build/jam_old'/>
   <property name='docbuild_dir'    value='${build_dir}/docs'/>
   <property name='javadocbuild_dir'    value='${docbuild_dir}/javadocs'/>
   <property name='gen_dir'     value='${build_dir}/generatedsrc'/>
@@ -66,7 +66,7 @@
              windowtitle='JAM Documentation' 
              source='1.4' 
              stylesheetfile='${docs_dir}/stylesheet.css'>
-      <fileset dir='${src_dir}' includes='**/jam/*.java,**/jam/editable/*.java,' />
+      <fileset dir='${src_dir}' includes='**/jam_old/*.java,**/jam/editable/*.java,' />
       <link href='http://e-docs.bea.com/wls/docs81/javadocs/' />
       <link href='http://java.sun.com/j2se/1.4.2/docs/api/' />
       <link href='http://java.sun.com/j2ee/1.4/docs/api/' />
