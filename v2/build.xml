@@ -769,6 +769,7 @@
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/repackage"/>
         <pathelement location="build/classes/typeimpl"/>
+        <pathelement location="build/classes/typestore"/>
         <pathelement location="build/classes/xmlconfig"/>
         <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/toolschema"/>
