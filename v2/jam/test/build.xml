@@ -25,11 +25,9 @@
   <property name='extjar_build_dir' value='${test_build_dir}/extjar'/>
   <property name='extjar_jar'       value='${test_build_dir}/extjar.jar'/>
 
-  <property name='junit_jar' value='${jamroot}/external/lib/junit.jar' />
-  <property name='jsr173api_jar' value='../../build/lib/jsr173_api.jar'/>
-  <property name='jsr173ri_jar' value='../../build/lib/jsr173_ri.jar'/>
-  <property name='tidy_jar' value='../external/lib/tidy.jar'/>
-  <property name='tools_jar' value=' e:/java/jdk150/jre/../lib/tools.jar'/>
+  <property name='junit_jar'         value='${jamroot}/external/lib/junit.jar' />
+  <property name='stax_api_jar'      value='${jamroot}/external/stax/stax-api.jar'/>
+  <property name='stax_impl_jar'     value='${jamroot}/external/stax/stax-impl.jar'/>
 
   <property name='cases_src_dir'     value='cases/src'/>
   <property name='cases_src_150_dir' value='cases/src_150'/>
@@ -37,15 +35,12 @@
   <property name='tests_src_150_dir' value='tests/src_150'/>
   <property name='extjar_src_dir'    value='cases/external_jar_case/src'/>
 
-
   <taskdef name='annogen'
            classname='org.apache.xmlbeans.impl.jam.annogen.tools.AnnogenTask'
            classpathref='classpath'/>
 
 
   <path id='classpath' >
-
-    <pathelement path='${tools_jar}' />
 
  <!-- use build/classes instead of xbean.jar for develpment convenience -->
     <pathelement path='${jam_build_dir}/classes' />
@@ -55,9 +50,8 @@
     <pathelement location='${junit_jar}'/>
     <pathelement path='${java.class.path}' />
 
-    <pathelement location='${tidy_jar}' />
-    <pathelement location='${jsr173api_jar}' />
-    <pathelement location='${jsr173ri_jar}' />
+    <pathelement location='${stax_api_jar}' />
+    <pathelement location='${stax_impl_jar}' />
 
   </path>
 

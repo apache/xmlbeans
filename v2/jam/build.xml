@@ -21,30 +21,9 @@
   <property name='javac.source' value='1.34xxx'/>
   <property name='javac.target' value='1.34xxx'/>
 
-
-  <!--FIXME need to do get the jar ourselves -->
-  <property name='staxapi_jar'   value='../build/lib/jsr173_api.jar'/>
+  <property name='stax_api_jar'      value='external/stax/stax-api.jar'/>
 
   <property name='tests_dir'   value='test'/>
-
-
-  <target name='findbugs'>
-
-    <property environment="env"/>
-    
-
-    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
-             classpath='${findbugs_jar}'/>
-    <findbugs home="${findbugs_home}"
-              output="xml"
-              outputFile="${build_dir}/jam-findbugs.xml" >
-      <auxClasspath path="${staxapi_jar};${env.ANT_HOME}/lib/ant.jar" />
-      <sourcePath path="${src_dir}" />
-      <class location="${build_dir}" />
-    </findbugs>
-
-
-  </target>
 
   <target name='clean'>
     <delete dir='${build_dir}'/>
@@ -73,7 +52,7 @@
   </target>
 
 
-  <target name='compile' depends='jsr173,parser,compile14,
+  <target name='compile' depends='parser,compile14,
                                   do15compile.check,compile15'/>
 
   <target name='compile14'>
@@ -87,7 +66,7 @@
       -->
       <classpath>
         <pathelement location='${antlr_jar}'/> 
-        <pathelement location='${staxapi_jar}'/>
+        <pathelement location='${stax_api_jar}'/>
         <pathelement path='${classes_dir}'/>
         <pathelement path='${java.class.path}'/>
       </classpath>
@@ -101,20 +80,12 @@
            debug='on'>
       <classpath>
         <pathelement location='${antlr_jar}'/>
-        <pathelement location='${staxapi_jar}'/>
+        <pathelement location='${stax_api_jar}'/>
         <pathelement path='${classes_dir}'/>
         <pathelement path='${java.class.path}'/>
       </classpath>
     </javac>
   </target>
-
-  <target name='jsr173'>
-    <ant dir='..' target='jsr173.jar' inheritAll='false' />
-    <ant dir='..' target='jsr173_ri.jar' inheritAll='false' />
-    <ant dir='..' target='jsr173_api.jar' inheritAll='false' />
-  </target>
-
-
 
   <target name='test'>
     <ant dir='${tests_dir}' target='all' inheritAll='false' />
@@ -210,6 +181,20 @@
     <echo message='JAM under 1.5.'/>
     <echo message='======================================================'/>
 
+  </target>
+
+
+  <target name='findbugs'>
+    <property environment="env"/>
+    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
+             classpath='${findbugs_jar}'/>
+    <findbugs home="${findbugs_home}"
+              output="xml"
+              outputFile="${build_dir}/jam-findbugs.xml" >
+      <auxClasspath path="${staxapi_jar};${env.ANT_HOME}/lib/ant.jar" />
+      <sourcePath path="${src_dir}" />
+      <class location="${build_dir}" />
+    </findbugs>
   </target>
 
 
