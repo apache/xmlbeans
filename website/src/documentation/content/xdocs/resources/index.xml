@@ -29,6 +29,8 @@
 		<section>
 			<title>XMLBeans Articles</title>
 			<p>
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/Configuring_XMLBeans.jsp">Configuring XMLBeans</link>, BEA dev2dev, Nov 30 2004<br />
+				<link href="http://www.apache.org/~kkrouse/apachecon/ac2004_XmlBeans_v2.ppt">Apache XMLBeans 2: Accessing the Full Power of XML in Java</link> (ppt), www.apache.com/~kkrouse, Nov 2004<br />
 				<link href="http://www.onjava.com/pub/a/onjava/2004/07/28/XMLBeans.html">XML-Java Data Binding Using XMLBeans</link>, onJava.com, Jul 2004<br />
 				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/hanson_xmlbeans_ws.jsp">Using XMLBeans in Web Service Clients and User Interfaces</link>, BEA Dev2Dev, May 2004<br />
 				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/XMLBeans_raj.jsp">Leveraging Complex Schema Features in Java the XMLBeans Way</link>, BEA Dev2Dev, May 2004<br />			
