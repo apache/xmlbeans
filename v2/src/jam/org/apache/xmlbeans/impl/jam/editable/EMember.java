@@ -25,12 +25,6 @@ public interface EMember extends EElement, JMember {
 
   public void setModifiers(int modifiers);
 
-  public ESourcePosition createSourcePosition();
-
-  public void removeSourcePosition();
-
-  public ESourcePosition getEditableSourcePosition();
-
   public void addComment(String comment);
 
 

@@ -16,13 +16,39 @@
 package org.apache.xmlbeans.impl.jam.editable;
 
 import org.apache.xmlbeans.impl.jam.JAnnotationMemberDefinition;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface EAnnotationMemberDefinition
-        extends JAnnotationMemberDefinition, EElement {
+        extends JAnnotationMemberDefinition, EMethod {
+
+  /**
+   * <p>Sets the type of this annotation member.  Note that this is synonmous
+   * with setReturnType.  Must not be null.</p>
+   */
+  public void setType(String qualifiedTypeName);
+
+  /**
+   * <p>Sets the type of this annotation member.  Note that this is synonmous
+   * with setReturnType.  Must not be null.</p>
+   */
+  public void setUnqualifiedType(String unqualifiedTypeName);
+
+  /**
+   * <p>Sets the type of this annotation member.  Note that this is synonmous
+   * with setReturnType.  Must not be null</p>
+   */
+  public void setType(JClass c);
+
+  /**
+   * <p>Sets the default value for this member declaration, or null to specify
+   * no default.</p>
+   */
+  public void setDefaultValue(Object o);
+
 
 
 }

@@ -99,22 +99,10 @@ public interface EInvokable extends JInvokable, EMember {
   public void removeException(JClass exceptionClass);
 
   /**
-   * Creates a new parameter on this method with the given type and name.
-   *
-   * @throws java.lang.IllegalArgumentException if either parameter is null, if
-   * the type parameter represents 'void', or if the name parameter is not a
-   * valid java identifier.
+   * Creates a new parameter on this method of type java.lang.Object and
+   * with a default name.
    */
-  public EParameter addNewParameter(JClass type, String name);
-
-  /**
-   * Creates a new parameter on this method with the given type and name.
-   *
-   * @throws java.lang.IllegalArgumentException if either parameter is null, if
-   * type parameter is not a valid class name, or if the name parameter is
-   * not a valid java identifier.
-   */
-  public EParameter addNewParameter(String qualifiedTypeName, String name);
+  public EParameter addNewParameter();
 
   /**
    * Removes the given parameter.  Does nothing if the parameter is not

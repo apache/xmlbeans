@@ -63,5 +63,28 @@
     </junit>
   </target>
 
+
+  <!-- JDK 1.5-specific tests.  These have to be run manually since we
+       don't require 1.5 yet -->
+
+  <target name='tiger' depends='tiger.build,tiger.run'/>
+
+  <target name='tiger.build' >
+    <mkdir dir='${dummy-dir}'/>
+    <javac
+       srcdir='dummy15classes'
+       destdir='${dummy-dir}'
+       classpathref='classpath'
+       includes='**/*.java'
+       fork='true'
+
+      executable='e:/java/jdk150/bin/javac.exe'
+      verbose='true'
+      target='1.5'
+     />
+  </target>
+
+  <target name='tiger.run'/>
+
 </project>
 

@@ -21,7 +21,6 @@ import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRefContext;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.ObjectJClass;
 
 import java.util.*;
 import java.lang.reflect.Modifier;
@@ -55,8 +54,7 @@ public class EClassImpl extends EMemberImpl
 
   // FIXME implement this - we should only create one UnqualifiedJClassRef
   // for each unqualified name so as to avoid resolving them over and over.
-  private Map mName2Uqref = null;
-
+  //private Map mName2Uqref = null;
 
   // ========================================================================
   // Constructors
@@ -278,10 +276,10 @@ public class EClassImpl extends EMemberImpl
     return out;
   }
 
-  public EField addNewField(String name) {
-    if (name == null) throw new IllegalArgumentException("null name");
+  public EField addNewField() {
     if (mFields == null) mFields = new ArrayList();
-    EField out = new EFieldImpl(name,this,"java.lang.Object");
+    EField out = new EFieldImpl(defaultName(mFields.size()),
+                                this,"java.lang.Object");
     mFields.add(out);
     return out;
   }
@@ -300,10 +298,9 @@ public class EClassImpl extends EMemberImpl
     return out;
   }
 
-  public EMethod addNewMethod(String name) {
-    if (name == null) throw new IllegalArgumentException("null name");
+  public EMethod addNewMethod() {
     if (mMethods == null) mMethods = new ArrayList();
-    EMethod out = new EMethodImpl(name,this);
+    EMethod out = new EMethodImpl(defaultName(mMethods.size()),this);
     mMethods.add(out);
     return out;
   }
@@ -359,6 +356,17 @@ public class EClassImpl extends EMemberImpl
     String[] out = new String[mImports.size()];
     mImports.toArray(out);
     return out;
+  }
+
+  // ========================================================================
+  // Protected methods
+
+  /**
+   * Provided for the benefit of EAnnotationDefinitionImpl.
+   */
+  protected void addMethod(JMethod m) {
+    if (mMethods == null) mMethods = new ArrayList();
+    mMethods.add(m);
   }
 
   // ========================================================================

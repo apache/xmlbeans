@@ -88,15 +88,12 @@ public class EInvokableImpl extends EMemberImpl implements EInvokable {
     removeException(exceptionClass.getQualifiedName());
   }
 
-  public EParameter addNewParameter(String typeName, String paramName) {
-    EParameter param = new EParameterImpl(paramName,this,typeName);
+  public EParameter addNewParameter() {
     if (mParameters == null) mParameters = new ArrayList();
+    EParameter param = new EParameterImpl(defaultName(mParameters.size()),
+                                          this,"java.lang.Object");
     mParameters.add(param);
     return param;
-  }
-
-  public EParameter addNewParameter(JClass type, String name) {
-    return addNewParameter(type.getQualifiedName(),name);
   }
 
   public void removeParameter(EParameter parameter) {

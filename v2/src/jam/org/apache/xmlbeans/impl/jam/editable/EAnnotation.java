@@ -21,9 +21,17 @@ import org.apache.xmlbeans.impl.jam.JAnnotation;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EAnnotation extends JAnnotation, EMember {
+public interface EAnnotation extends JAnnotation, EElement {
 
   public EAnnotationMember addNewMember();
+
+  public EAnnotationMember[] getEditableMembers();
+
+  public EAnnotationMember getEditableMember(String named);
+
+  public void setAnnotationObject(Object o);
+
+  public void setJavadocText(String text);
 
 
 }

@@ -16,6 +16,7 @@ package org.apache.xmlbeans.impl.jam.editable.impl.ref;
 
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
 
 /**
  * <p>Reference to a JClass by qualified name which is resolved lazily.  Note
@@ -32,7 +33,7 @@ public class QualifiedJClassRef implements JClassRef {
   // Variables
 
   private String mQualifiedClassname;
-  private JClassRefContext mContext;
+  private JClassLoader mClassLoader;
 
   // ========================================================================
   // Factory
@@ -44,14 +45,23 @@ public class QualifiedJClassRef implements JClassRef {
                                  JClassRefContext ctx) {
     if (qcname == null) throw new IllegalArgumentException("null qcname");
     if (ctx == null) throw new IllegalArgumentException("null ctx");
-    return new QualifiedJClassRef(qcname,ctx);
+    return create(qcname,ctx.getClassLoader());
+  }
+
+  /**
+   * Creates a new JClassRef for a qualified class or type name.
+   */
+  public static JClassRef create(String qcname, JClassLoader cl) {
+    if (qcname == null) throw new IllegalArgumentException("null qcname");
+    if (cl == null) throw new IllegalArgumentException("null ctx");
+    return new QualifiedJClassRef(qcname,cl);
   }
 
   // ========================================================================
   // Constructors
 
-  private QualifiedJClassRef(String qcname, JClassRefContext ctx) {
-    mContext = ctx;
+  private QualifiedJClassRef(String qcname, JClassLoader cl) {
+    mClassLoader = cl;
     mQualifiedClassname = qcname;
   }
 
@@ -59,7 +69,7 @@ public class QualifiedJClassRef implements JClassRef {
   // JClassRef implementation
 
   public JClass getRefClass() {
-    return mContext.getClassLoader().loadClass(mQualifiedClassname);
+    return mClassLoader.loadClass(mQualifiedClassname);
   }
 
   public String getQualifiedName() {

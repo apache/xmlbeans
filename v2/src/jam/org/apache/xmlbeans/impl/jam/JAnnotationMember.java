@@ -24,6 +24,8 @@ package org.apache.xmlbeans.impl.jam;
  */
 public interface JAnnotationMember {
 
+  public String getName();
+
   /**
    * <p>Returns the value of this annotation as an Object.  If the value
    * is primitive, an instance of one of the java.lang wrappers (e.g. Integer)
