@@ -789,6 +789,18 @@
         </antcall>
 
 
+        <!-- apply the repachage_spec on old typeholder.name and get the result in new_typeholder.name property -->
+        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
+            inputstring="${typeholder.name}" outputproperty="new_typeholder.name">
+            <arg line="${new_repackage_arg}"/>
+        </java>
+        <!-- modify the new build script with the new property -->
+        <antcall target="edit_build_script">
+            <param name="token"       value="typeholder.name"/>
+            <param name="replacement" value="${new_typeholder.name}"/>
+        </antcall>
+
+
         <!-- apply the repachage_spec on old schema_compiler and get the result in new_schema_compiler property -->
         <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
             inputstring="${schema_compiler}" outputproperty="new_schema_compiler">

@@ -120,6 +120,11 @@ public class FilerImpl implements Filer
         return new ArrayList(sourceFiles);
     }
 
+    public Repackager getRepackager()
+    {
+        return repackager;
+    }
+
     static class RepackagingWriter extends StringWriter
     {
         public RepackagingWriter ( File file, Repackager repackager )
