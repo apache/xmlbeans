@@ -12,15 +12,23 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.turnbuckle.logging;
+package org.apache.xmlbeans.impl.jeti.parameter;
+
+import org.apache.tools.ant.taskdefs.Property;
 
 /**
- * To be implemented by providers who want to handle messages/diagnostics
- * from tools.
+ * <p>Provides the tool with access to user-specified parameters.  Note
+ * that many typical parameters, such as 'verbose' or as set of input java
+ * file set, are implicitly handled by the tool context in the services
+ * it provides.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface MessageConsumer {
+public interface ParameterService {
 
-  public void log(Message msg);
+  /**
+   * <p>Returns a properties object containing the flags and options
+   * specified by the user.</p>
+   */
+  public Property getParameters();
 }

@@ -12,12 +12,12 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.turnbuckle;
+package org.apache.xmlbeans.impl.jeti;
 
 import org.apache.xmlbeans.impl.jam.JServiceFactory;
-import org.apache.xmlbeans.impl.turnbuckle.parameter.ParameterService;
-import org.apache.xmlbeans.impl.turnbuckle.output.OutputService;
-import org.apache.xmlbeans.impl.turnbuckle.logging.LoggingService;
+import org.apache.xmlbeans.impl.jeti.parameter.ParameterService;
+import org.apache.xmlbeans.impl.jeti.output.OutputService;
+import org.apache.xmlbeans.impl.jeti.logging.LoggingService;
 
 
 // user->ide/ant/commandline->xbeans

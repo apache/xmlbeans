@@ -12,17 +12,15 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.turnbuckle.logging;
-
-import org.apache.xmlbeans.impl.jam.JElement;
+package org.apache.xmlbeans.impl.jeti.logging;
 
 /**
+ * To be implemented by providers who want to handle messages/diagnostics
+ * from tools.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface LoggingService {
+public interface MessageConsumer {
 
-  public Logger getLogger();
-
-
+  public void log(Message msg);
 }
