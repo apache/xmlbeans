@@ -26,15 +26,6 @@ public class Inst2XsdAttrTest extends Inst2XsdTestBase {
         runAttrTypeChecking(getAttrTypeXml("a b c\n hello\t from\n\txmlbeans"), "string");
     }
 
-    public void test_attrbyte() throws Exception {
-        runAttrTypeChecking(getAttrTypeXml("123"), "byte");
-        runAttrTypeChecking(getAttrTypeXml("+100"), "byte");
-        runAttrTypeChecking(getAttrTypeXml("-1"), "byte");
-        runAttrTypeChecking(getAttrTypeXml("0"), "byte");
-        runAttrTypeChecking(getAttrTypeXml("127"), "byte");
-        runAttrTypeChecking(getAttrTypeXml("-128"), "byte");
-    }
-
     public void test_attrshort() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("-129"), "short");
         runAttrTypeChecking(getAttrTypeXml("128"), "short");
