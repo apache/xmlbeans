@@ -64,6 +64,9 @@ public class YourClass
     private long[] simpleLongArray = {RND.nextLong(),
                                       RND.nextLong()};
 
+    final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
+    private byte[][] simpleHexBinArray = {bytes, bytes};
+
     private Date someDate;
 
     //hack alert
@@ -349,6 +352,16 @@ public class YourClass
         this.someDate = someDate;
     }
 
+    public byte[][] getSimpleHexBinArray()
+    {
+        return simpleHexBinArray;
+    }
+
+    public void setSimpleHexBinArray(byte[][] simpleHexBinArray)
+    {
+        this.simpleHexBinArray = simpleHexBinArray;
+    }
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -419,6 +432,7 @@ public class YourClass
             ", stringArray=" + ArrayUtils.arrayToString(stringArray) +
             ", simpleStringArray=" + ArrayUtils.arrayToString(simpleStringArray) +
             ", simpleLongArray=" + ArrayUtils.arrayToString(simpleLongArray) +
+            ", simpleHexBinArray=" + ArrayUtils.arrayToString(simpleHexBinArray) +
             ", wrappedArrayOne=" + ArrayUtils.arrayToString(wrappedArrayOne) +
             ", myClassArray=" + ArrayUtils.arrayToString(myClassArray) +
             "}";

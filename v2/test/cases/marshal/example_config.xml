@@ -291,6 +291,19 @@
             </bin:qname-property>
 
             <bin:qname-property>
+                <bin:xmlcomponent>t=SimpleHexBinList@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>byte[][]</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getSimpleHexBinArray</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setSimpleHexBinArray</bin:method-name>
+                    <bin:param-type>byte[][]</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:simpleHexBinArray</bin:qname>
+            </bin:qname-property>
+
+            <bin:qname-property>
                 <bin:xmlcomponent>t=dateTime@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
                 <bin:javatype>java.util.Date</bin:javatype>
                 <bin:getter>
@@ -306,6 +319,15 @@
 
         </bin:binding-type>
 
+
+        <bin:binding-type xsi:type="bin:list-array">
+            <bin:xmlcomponent>t=SimpleHexBinList@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>byte[][]</bin:javatype>
+            <bin:item-type>
+                <bin:xmlcomponent>t=hexBinary@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>byte[]</bin:javatype>
+            </bin:item-type>
+        </bin:binding-type>
 
         <bin:binding-type xsi:type="bin:list-array">
             <bin:xmlcomponent>t=SimpleStringList@java:com.mytest</bin:xmlcomponent>

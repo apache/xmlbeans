@@ -24,6 +24,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
+/**
+ * converter for: byte[] <-> base64Binary
+ */
 final class Base64BinaryTypeConverter
     extends BaseSimpleTypeConverter
 {
@@ -56,13 +59,12 @@ final class Base64BinaryTypeConverter
                                      UnmarshalResult result)
         throws XmlException
     {
-        byte[] buf = Base64.decode(lexical_value.toString().getBytes());
-        if (buf != null)
-            return new ByteArrayInputStream(buf);
-        else
-            throw new InvalidLexicalValueException("invalid base64Binary value",
-                                                   result.getLocation());
-
+        try {
+            return XsTypeConverter.lexBase64Binary(lexical_value);
+        }
+        catch (InvalidLexicalValueException e) {
+            throw new InvalidLexicalValueException(e, result.getLocation());
+        }
     }
 
 

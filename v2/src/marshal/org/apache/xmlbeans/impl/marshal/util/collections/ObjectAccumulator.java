@@ -60,6 +60,8 @@ public abstract class ObjectAccumulator
 
     public void append(Object o)
     {
+        assert checkInstance(o);
+
 //        if (o != null && !componentType.isAssignableFrom(o.getClass())) {
 //            String msg = "Invalid type: " + o.getClass().getName() +
 //                " expecting: " + componentType.getName();
@@ -67,6 +69,16 @@ public abstract class ObjectAccumulator
 //        }
 
         store.add(o);
+    }
+
+    private boolean checkInstance(Object o)
+    {
+        if (!componentType.isInstance(o)) {
+            String msg = "Invalid type: " + o.getClass().getName() +
+                " expecting: " + componentType.getName();
+            throw new IllegalArgumentException(msg);
+        }
+        return true;
     }
 
     public final Object getFinalArray()

@@ -89,6 +89,8 @@ final class ListArrayRuntimeBindingType
             unmarshaller =
                 type_table.lookupUnmarshaller(binding_type, loader);
 
+            assert marshaller != null;
+            assert unmarshaller != null;
         }
 
         Class getItemClass()
@@ -118,7 +120,7 @@ final class ListArrayRuntimeBindingType
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
             throws XmlException
         {
-            return context.determineTypeUnmarshaller(unmarshaller);
+            return unmarshaller;
         }
 
         public void fill(Object inter, Object prop_obj)

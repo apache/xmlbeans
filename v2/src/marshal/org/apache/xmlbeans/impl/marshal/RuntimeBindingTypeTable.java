@@ -345,6 +345,7 @@ final class RuntimeBindingTypeTable
                       byte_array_jname,
                       new HexBinaryTypeConverter());
 
+        //TODO: InputStream based hexBinary and base64Binary converters
     }
 
     private static TypeUnmarshaller createSimpleTypeUnmarshaller(SimpleBindingType stype,
