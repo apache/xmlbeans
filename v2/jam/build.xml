@@ -79,6 +79,7 @@
   </target>
   
   <target name='jars' depends='all'>
+    <copy  todir='${classes_dir}' ><fileset dir='license'/></copy>
     <jar jarfile='${jam_jar}'    basedir='${classes_dir}'/>
     <jar jarfile='${jamsrc_zip}' basedir='.' excludes='build/**'/>
   </target>

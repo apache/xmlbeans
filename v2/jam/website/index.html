@@ -42,34 +42,51 @@
   <h2>Links</h2>
 
   <ul>
-    <li>Go to
-     <a href='http://groups.yahoo.com/group/metajam'>metajam,</a> 
+    <li><a href='http://groups.yahoo.com/group/metaJAM'>metaJAM,</a> 
      a Yahoo group for discussion and news about JAM</li>
     <li><a href='mailto:jam-biz04@pcal.net'>Send email to Patrick</a></li>
     <li><a href='http://www.jcp.org/en/jsr/detail?id=175'>JSR175</a></li>
   </ul>
 
-  <h2>About</h2>
+<h2>Status</h2>
+
+  <i>March 10, 2004</i>
+
+  <p>
+    The implementation you can download now is code complete, and
+    is passing regression tests of its basic functionality.  However, 
+    it is still stabilizing from a significant refactoring that I recently
+    completed, so there are bound to be some bad bugs in areas that
+    the tests don't yet cover.  In particular, I don't believe the JSR175
+    annotation support is working properly yet, but I will have that
+    fixed shortly.
+  </p>
+
+<h2>About</h2>
   
   <p>
     JAM has evolved as part my work on 
-    <a href='http://xml.apache.org/xmlbeans'>XML-Beans</a> at Apache.
-    There, I needed to be able model Java types in order to generate
-    XML schemas from them.  I found all of the existing
-    Java object models (javadoc, reflection, xdoclet) to be lacking in 
-    some respect.  They all had features I wanted, but none of them had
-    all of the features I wanted. And none of them provide a smooth
-    upgrade path from javadoc-based annotations to JSR175, which is a big
-    concern for me.
+    <a href='http://xml.apache.org/xmlbeans'>XML-Beans</a> at Apache,
+    which I do on behalf of my employer, 
+    <a href='http://www.bea.com'>BEA Systems</a>.
+    In XML-Beans, I need to be able model Java types in order to generate
+    XML schemas from them.  I found all of the existing Java object models
+    (x/javadoc, reflection, qdox) to be lacking in 
+    some respect.  They each have some features I wanted, but none of them 
+    brought all of those features together.  Perhaps more importantly,
+    though, none of them provide a migration path from javadoc-based
+    metadata to JSR175, which is a big concern for me.  JAM was written
+    to fill this void.
   </p>
 
-  </p>
-    However, it is proving to be a generally useful technology in its
-    own right.  (Most notably, it is already being used in Cedric Beust's 
+  <p>
+    JAM is now proving to be a generally useful technology in its
+    own right.  Most notably, it is already being used in Cedric Beust's 
     <a href='http://www.beust.com/ejbgen'>EJBgen</a> and
-    <a href='http://www.beust.com/sgen'>SGen</a>).  Accordingly, I am now
-    spinning up JAM as a distinct open source project.  Until that is
-    done, my website here is serving to provide an early-access look at JAM.
+    <a href='http://www.beust.com/sgen'>SGen</a>.  Accordingly, I am now
+    spinning it up as a distinct open source project, but it doesn't yet
+    have an official open source community.   Until it does, my website here
+    is serving as a temporary home.
   </p>
 
 
