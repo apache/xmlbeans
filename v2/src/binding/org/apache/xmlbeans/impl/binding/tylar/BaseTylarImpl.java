@@ -50,7 +50,7 @@ public abstract class BaseTylarImpl implements Tylar {
     BindingFile[] bfs = getBindingFiles();
     BindingLoader[] loaders = new BindingLoader[bfs.length+1];
     System.arraycopy(bfs,0,loaders,0,bfs.length);
-    loaders[loaders.length-1] = BuiltinBindingLoader.getInstance();
+    loaders[loaders.length-1] = BuiltinBindingLoader.getBuiltinBindingLoader(false);
     return CompositeBindingLoader.forPath(loaders);
   }
 

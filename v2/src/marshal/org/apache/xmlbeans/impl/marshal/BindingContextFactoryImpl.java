@@ -95,7 +95,9 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
 
     private static BindingLoader buildBindingLoader(BindingFile bf)
     {
-        BindingLoader builtins = BuiltinBindingLoader.getInstance();
+        // todo(radup) save the "jaxRpc" setting in the binding file and
+        // load it from there
+        BindingLoader builtins = BuiltinBindingLoader.getBuiltinBindingLoader(false);
         return CompositeBindingLoader.forPath(new BindingLoader[]{builtins, bf});
     }
 

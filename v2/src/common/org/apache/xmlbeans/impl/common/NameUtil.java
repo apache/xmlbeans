@@ -311,54 +311,19 @@ public class NameUtil
         return true;
     }
 
-    /*
-    public static String getJAXRPCClassName( String name )
-    {
-        name = name.replace('.', '_');
-        name = uppercaseFirstLetter( name );
-
-        if (isValidJavaIdentifer(name))
-        {
-            return name;
-        }
-        else
-        {
-            return "_" + name;
-        }
-    }
-
-    public static String getJAXRPCMethodName(String name)
-    {
-        name = name.replace('.','_');
-        name = lowercaseFirstLetter(name);
-
-        if (isValidJavaIdentifer(name))
-        {
-            return name;
-        }
-        else
-        {
-            return "_" + name;
-        }
-    }
-
-    public static XMLName getXMLNameFromClass(Class clazz)
-    {
-        String uri = NameUtil.getNamespaceFromPackage(clazz);
-        String lname = NameUtil.getRootClassNameFromClass(clazz.getName());
-        XMLName xsd_name = new Name(uri, lname);
-        return xsd_name;
-    }
-    */
-
     public static String getClassNameFromQName(QName qname)
     {
-        String java_type = upperCamelCase(qname.getLocalPart());
+        return getClassNameFromQName(qname, false);
+    }
+
+    public static String getClassNameFromQName(QName qname, boolean useJaxRpcRules)
+    {
+        String java_type = upperCamelCase(qname.getLocalPart(), useJaxRpcRules);
 
         String uri = qname.getNamespaceURI();
         String java_pkg = null;
 
-        java_pkg = getPackageFromNamespace(uri);
+        java_pkg = getPackageFromNamespace(uri, useJaxRpcRules);
 
         if (java_pkg != null)
             return java_pkg + "." + java_type;
@@ -485,6 +450,11 @@ public class NameUtil
 
     public static String getPackageFromNamespace(String uri)
     {
+        return getPackageFromNamespace(uri, false);
+    }
+
+    public static String getPackageFromNamespace(String uri, boolean useJaxRpcRules)
+    {
         // special case: no namespace -> package "noNamespace"
         if (uri == null || uri.length() == 0)
             return "noNamespace";
@@ -523,7 +493,7 @@ public class NameUtil
         StringBuffer buf = new StringBuffer();
         for (Iterator it = result.iterator(); it.hasNext(); )
         {
-            buf.append(nonJavaKeyword(lowerCamelCase((String)it.next())));
+            buf.append(nonJavaKeyword(lowerCamelCase((String)it.next(), useJaxRpcRules)));
             buf.append('.');
         }
         return buf.substring(0, buf.length() - 1); // chop off extra dot
@@ -544,7 +514,7 @@ public class NameUtil
     public static String upperCaseUnderbar(String xml_name)
     {
         StringBuffer buf = new StringBuffer();
-        List words = splitWords(xml_name);
+        List words = splitWords(xml_name, false);
 
         final int sz = words.size() - 1;
         if (sz >= 0 && !Character.isJavaIdentifierStart(((String)words.get(0)).charAt(0)))
@@ -580,8 +550,17 @@ public class NameUtil
      */
     public static String upperCamelCase(String xml_name)
     {
+        return upperCamelCase(xml_name, false);
+    }
+
+    /**
+     * Returns a camel-cased string, but either JAXB or JAX-RPC rules
+     * are used
+     */
+    public static String upperCamelCase(String xml_name, boolean useJaxRpcRules)
+    {
         StringBuffer buf = new StringBuffer();
-        List words = splitWords(xml_name);
+        List words = splitWords(xml_name, useJaxRpcRules);
 
         if (words.size() > 0)
         {
@@ -606,8 +585,16 @@ public class NameUtil
      */
     public static String lowerCamelCase(String xml_name)
     {
+        return lowerCamelCase(xml_name, false);
+    }
+
+    /**
+     * Returns a camel-cased string using the JAXB or JAX-RPC rules
+     */
+    public static String lowerCamelCase(String xml_name, boolean useJaxRpcRules)
+    {
         StringBuffer buf = new StringBuffer();
-        List words = splitWords(xml_name);
+        List words = splitWords(xml_name, useJaxRpcRules);
 
         if (words.size() > 0)
         {
@@ -648,7 +635,7 @@ public class NameUtil
             list.add(upperCaseFirstLetter(str));
     }
 
-    public static List splitWords(String name)
+    public static List splitWords(String name, boolean useJaxRpcRules)
     {
         List list = new ArrayList();
         int len = name.length();
@@ -656,11 +643,11 @@ public class NameUtil
         int prefix = START;
         for (int i = 0; i < len; i++)
         {
-            int current = getCharClass(name.charAt(i));
+            int current = getCharClass(name.charAt(i), useJaxRpcRules);
             if (prefix != PUNCT && current == PUNCT)
             {
                 addCapped(list, name.substring(start, i));
-                while ((current = getCharClass(name.charAt(i))) == PUNCT)
+                while ((current = getCharClass(name.charAt(i), useJaxRpcRules)) == PUNCT)
                     if (++i >= len) return list;
                 start = i;
             }
@@ -691,10 +678,10 @@ public class NameUtil
     private final static int LOWER= 5;
     private final static int NOCASE= 6;
 
-    public static int getCharClass(char c)
+    public static int getCharClass(char c, boolean useJaxRpcRules)
     {
         //ordering is important here.
-        if (isPunctuation(c))
+        if (isPunctuation(c, useJaxRpcRules))
             return PUNCT;
         else if (Character.isDigit(c))
             return DIGIT;
@@ -717,13 +704,13 @@ public class NameUtil
               || state==NOCASE);
     }
 
-    public static boolean isPunctuation(char c)
+    public static boolean isPunctuation(char c, boolean useJaxRpcRules)
     {
         return (c == HYPHEN
               || c == PERIOD
               || c == COLON
               || c == DOT
-              || c == USCORE
+              || (c == USCORE && !useJaxRpcRules)
               || c == TELEIA
               || c == AYAH
               || c == ELHIZB);

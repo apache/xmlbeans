@@ -247,7 +247,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
       return null;
 
     // See if the java class is actually a compatible primitive
-    BindingLoader builtins = BuiltinBindingLoader.getInstance();
+    BindingLoader builtins = BuiltinBindingLoader.getBuiltinBindingLoader(false);         
 
     // find the closest simple base type
     while (!sType.isSimpleType())

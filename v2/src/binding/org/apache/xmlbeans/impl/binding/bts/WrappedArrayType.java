@@ -31,7 +31,7 @@ public class WrappedArrayType extends BindingType
 
     private QName itemName;
     private BindingTypeName itemType;
-    private boolean nillable;
+    private boolean itemNillable;
 
     // ========================================================================
     // Constructors
@@ -57,7 +57,7 @@ public class WrappedArrayType extends BindingType
         final XmlTypeName xName = XmlTypeName.forString(itype.getXmlcomponent());
         this.itemType = BindingTypeName.forPair(jName, xName);
 
-        nillable = node.getNillable();
+        itemNillable = node.getItemNillable();
     }
 
 
@@ -73,7 +73,7 @@ public class WrappedArrayType extends BindingType
         mapping.setJavatype(itemType.getJavaName().toString());
         mapping.setXmlcomponent(itemType.getXmlName().toString());
 
-        wa.setNillable(nillable);
+        wa.setItemNillable(itemNillable);
         
         return wa;
     }
@@ -106,14 +106,14 @@ public class WrappedArrayType extends BindingType
         this.itemType = itemType;
     }
 
-    public boolean isNillable()
+    public boolean isItemNillable()
     {
-        return nillable;
+        return itemNillable;
     }
 
-    public void setNillable(boolean nillable)
+    public void setItemNillable(boolean nillable)
     {
-        this.nillable = nillable;
+        this.itemNillable = nillable;
     }
 
 }

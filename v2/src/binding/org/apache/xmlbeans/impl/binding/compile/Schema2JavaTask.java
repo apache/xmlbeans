@@ -96,6 +96,15 @@ public class Schema2JavaTask extends BindingCompilerTask {
   }
 
   /**
+   * Sets the binding rules to JAX-RPC rules if true. By default, the
+   * binding rules are set to XMLBeans rules, slightly different when
+   * it comes to mapping built-in types and XML Names.
+   */
+  public void setJaxRpcRules(boolean jaxRpc) {
+    mCompiler.setJaxRpcRules(jaxRpc);
+  }
+
+  /**
    * Adds a path for source compilation.
    *
    * @return a nested src element.
