@@ -1,6 +1,10 @@
 <!-- NOTE: if you get errors about not being able to load the junit
-     task, try copying ../external/lib/junit.jar into your ant/lib 
+     task, try copying ../external/lib/junit.jar into your ant/lib
      directory.  This seems to be an ant or JDK 1.5 bug, not sure which.
+
+     ALSO: If you are building under JDK1.5, you now MUST build under
+     1.5 beta49 or later.  This is becuase in b49 Sun renamed some classes
+     and methods in the doclet API.
 -->
 
 

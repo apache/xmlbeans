@@ -30,6 +30,9 @@ import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * <p>Implementation of JClass and MClass.</p>
@@ -233,12 +236,27 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public JPackage[] getImportedPackages() {
     ensureLoaded();
-    return new JPackage[0];//FIXME
+    Set set = new TreeSet();
+    JClass[] importedClasses = getImportedClasses();
+    for(int i=0; i<importedClasses.length; i++) {
+      set.add(importedClasses[i].getContainingPackage());
+    }
+    String[] imports = getImportSpecs();
+    if (imports != null) {
+      for(int i=0; i<imports.length; i++) {
+        if (imports[i].endsWith(".*")) {
+          set.add(getClassLoader().
+                  getPackage(imports[i].substring(0,imports[i].length()-2)));
+        }
+      }
+    }
+    JPackage[] array = new JPackage[set.size()];
+    set.toArray(array);
+    return array;
   }
 
   public JClass[] getImportedClasses() {
     ensureLoaded();
-//    if (true) throw new IllegalStateException();
     String[] imports = getImportSpecs();
     if (imports == null) return new JClass[0];
     List list = new ArrayList();

@@ -26,6 +26,8 @@ import org.apache.xmlbeans.impl.jam.provider.JamClassPopulator;
 
 import java.io.*;
 import java.util.StringTokenizer;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -176,17 +178,31 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
       }
       return null;
     }
-    String[] importSpecs = null;
+    List importSpecs = null;
     {
       ClassDoc[] imported = cd.importedClasses();
       if (imported != null) {
-        importSpecs = new String[imported.length];
+        importSpecs = new ArrayList();
         for(int i=0; i<imported.length; i++) {
-          importSpecs[i] = imported[i].qualifiedName();
+          importSpecs.add(imported[i].qualifiedName());
         }
       }
     }
-    MClass out = createClassToBuild(packageName, className, importSpecs, this);
+    {
+      PackageDoc[] imported = cd.importedPackages();
+      if (imported != null) {
+        if (importSpecs == null) importSpecs = new ArrayList();
+        for(int i=0; i<imported.length; i++) {
+          importSpecs.add(imported[i].name()+".*");
+        }
+      }
+    }
+    String[] importSpecsArray = null;
+    if (importSpecs != null) {
+      importSpecsArray = new String[importSpecs.size()];
+      importSpecs.toArray(importSpecsArray);
+    }
+    MClass out = createClassToBuild(packageName, className, importSpecsArray, this);
     out.setArtifact(cd);
     return out;
   }

@@ -16,8 +16,6 @@ package org.apache.xmlbeans.impl.jam.internal.java15;
 
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
-import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
-import org.apache.xmlbeans.impl.jam.mutable.MElement;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.Javadoc15Delegate;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
@@ -29,8 +27,11 @@ import com.sun.javadoc.Type;
 import com.sun.javadoc.AnnotationValue;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.AnnotationTypeMemberDoc;
 import com.sun.javadoc.SourcePosition;
+// import com.sun.javadoc.AnnotationTypeElementDoc;
+import com.sun.javadoc.AnnotationTypeMemberDoc;
+
+
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -90,10 +91,13 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
                                   AnnotationDesc src, 
                                   SourcePosition sp) {
     if (sp != null) JavadocClassBuilder.addSourcePosition(dest,sp);
+//    AnnotationDesc.ElementValuePair[] mvps = src.elementValues();
     AnnotationDesc.MemberValuePair[] mvps = src.memberValues();
     for(int i=0; i<mvps.length; i++) {
+//      Type jmt = mvps[i].element().returnType();
       Type jmt = mvps[i].member().returnType();
       String typeName = jmt.qualifiedTypeName();
+//      String name = mvps[i].element().name();
       String name = mvps[i].member().name();
       AnnotationValue aval = mvps[i].value();
       Object valueObj;
@@ -141,6 +145,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
       } else if (valueObj instanceof AnnotationValue[]) {
         // this is another big chunk of work, just factored into a new
         // method to keep things cleaner
+//        populateArrayMember(dest,mvps[i].element(),(AnnotationValue[])valueObj,sp);
         populateArrayMember(dest,mvps[i].member(),(AnnotationValue[])valueObj,sp);
       } else {
         mContext.getLogger().error("Value of annotation member "+name+" is " +
@@ -170,7 +175,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
    *
    * <p>It seems quite broken to me that in the array case, it returns an array
    * of AnnotationValues.  It would be a lot easier to deal with the API
-   * if that last line instead read "or an array of any of the above."
+   * if that last line instead read "or an array of any of the above."                                           
    * As it is, it's imposible to get the doclet API to give you a simple
    * array of ints, for example.  It's not at all clear what the extra
    * wrapping buys you.</p>
@@ -179,6 +184,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
    * for the user.</p>
    */
   private void populateArrayMember(MAnnotation dest,
+//                                   AnnotationTypeElementDoc memberDoc,
                                    AnnotationTypeMemberDoc memberDoc,
                                    AnnotationValue[] annValueArray,
                                    SourcePosition sp)

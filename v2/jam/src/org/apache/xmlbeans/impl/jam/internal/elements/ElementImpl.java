@@ -27,7 +27,7 @@ import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public abstract class ElementImpl implements MElement {
+public abstract class ElementImpl implements Comparable, MElement {
 
   // ========================================================================
   // Constants
@@ -155,5 +155,15 @@ public abstract class ElementImpl implements MElement {
 
   protected JamLogger getLogger() {
     return ((JamServiceContextImpl)mContext).getLogger();
+  }
+
+  // ========================================================================
+  // Comparable implementation
+
+  public int compareTo(Object o) {
+    if (!(o instanceof JElement)) {
+      return -1;
+    }
+    return getQualifiedName().compareTo(((JElement)o).getQualifiedName());
   }
 }
