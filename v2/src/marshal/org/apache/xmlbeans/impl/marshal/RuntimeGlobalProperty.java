@@ -84,11 +84,6 @@ final class RuntimeGlobalProperty
         return rootElement;
     }
 
-    public boolean isAttribute()
-    {
-        return false;
-    }
-
     public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
     {
         throw new UnsupportedOperationException();

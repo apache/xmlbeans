@@ -68,8 +68,9 @@ import java.util.List;
 final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 {
     private final ByNameRuntimeBindingType type;
-    private final int maxPropCount;
-    private int propIdx = -1;
+    private final int maxElementPropCount;
+    private final int maxAttributePropCount;
+    private int elemPropIdx = -1;
     private List attributeNames;
     private List attributeValues;
     private Iterator currMultipleIterator;
@@ -84,30 +85,31 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         final BindingType pt = property.getType();
 
         type = (ByNameRuntimeBindingType)result.createRuntimeBindingType(pt, obj);
-        maxPropCount = obj == null ? 0 : type.getPropertyCount();
+        maxElementPropCount = obj == null ? 0 : type.getElementPropertyCount();
+        maxAttributePropCount = obj == null ? 0 : type.getAttributePropertyCount();
     }
 
     protected int getState()
     {
-        assert propIdx <= maxPropCount; //ensure we don't go past the end
+        assert elemPropIdx <= maxElementPropCount; //ensure we don't go past the end
 
-        if (propIdx < 0) return START;
+        if (elemPropIdx < 0) return START;
 
-        if (propIdx >= maxPropCount) return END;
+        if (elemPropIdx >= maxElementPropCount) return END;
 
         return CONTENT;
     }
 
     protected int advance()
     {
-        assert propIdx < maxPropCount; //ensure we don't go past the end
+        assert elemPropIdx < maxElementPropCount; //ensure we don't go past the end
 
         do {
             boolean hit_end = advanceToNextItem();
             if (hit_end) return END;
         } while (!currentPropHasMore());
 
-        assert propIdx >= 0;
+        assert elemPropIdx >= 0;
 
         return getState();
     }
@@ -126,11 +128,11 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     //return true if we hit the end of our properties
     private boolean advanceToNextProperty()
     {
-        propIdx++;
+        elemPropIdx++;
         currMultipleIterator = null;
         haveMultipleItem = false;
 
-        if (propIdx >= maxPropCount) return true;
+        if (elemPropIdx >= maxElementPropCount) return true;
 
         updateCurrIterator();
 
@@ -139,7 +141,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
     private void updateCurrIterator()
     {
-        final RuntimeBindingProperty property = getCurrentProperty();
+        final RuntimeBindingProperty property = getCurrentElementProperty();
         if (property.isMultiple()) {
             Object prop_obj = property.getValue(getParentObject(), marshalResult);
             final Iterator itr = MarshalResult.getCollectionIterator(prop_obj);
@@ -155,18 +157,16 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
     private boolean currentPropHasMore()
     {
-        if (propIdx < 0) return false;
+        if (elemPropIdx < 0) return false;
 
         if (haveMultipleItem) {
             if (currMultipleItem != null) return true;
             //skip null items in a collection if this element is not nillable
-            return (getCurrentProperty().isNillable());
+            return (getCurrentElementProperty().isNillable());
         }
         if (currMultipleIterator != null) return false;  //an empty collection
 
-        final RuntimeBindingProperty property = getCurrentProperty();
-
-        if (property.isAttribute()) return false;
+        final RuntimeBindingProperty property = getCurrentElementProperty();
 
         final boolean set = property.isSet(getParentObject(), marshalResult);
         return set;
@@ -174,7 +174,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
     public XmlTypeVisitor getCurrentChild()
     {
-        final RuntimeBindingProperty property = getCurrentProperty();
+        final RuntimeBindingProperty property = getCurrentElementProperty();
 
         if (haveMultipleItem) {
             return MarshalResult.createVisitor(property, currMultipleItem,
@@ -188,9 +188,9 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         }
     }
 
-    private RuntimeBindingProperty getCurrentProperty()
+    private RuntimeBindingProperty getCurrentElementProperty()
     {
-        final RuntimeBindingProperty property = type.getProperty(propIdx);
+        final RuntimeBindingProperty property = type.getElementProperty(elemPropIdx);
         assert property != null;
         return property;
     }
@@ -230,10 +230,9 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
                 vals.add(aval);
             }
 
-            for (int i = 0, len = maxPropCount; i < len; i++) {
-                final RuntimeBindingProperty prop = type.getProperty(i);
+            for (int i = 0, len = maxAttributePropCount; i < len; i++) {
+                final RuntimeBindingProperty prop = type.getAttributeProperty(i);
 
-                if (!prop.isAttribute()) continue;
                 if (!prop.isSet(getParentObject(), marshalResult)) continue;
 
                 final Object value = prop.getValue(getParentObject(),

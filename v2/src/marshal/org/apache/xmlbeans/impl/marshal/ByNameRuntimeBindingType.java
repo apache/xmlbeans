@@ -73,14 +73,16 @@ import javax.xml.namespace.QName;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Iterator;
+import java.util.Collection;
 
 
 final class ByNameRuntimeBindingType
     implements RuntimeBindingType
 {
     private final ByNameBean byNameBean;
-    private final Property[] properties;
     private final Class javaClass;
+    private final Property[] attributeProperties;
+    private final Property[] elementProperties;
     private final boolean hasMulti;  //has any multi properties
 
     //is this a subtype of something besides the ultimate parent type?
@@ -101,8 +103,22 @@ final class ByNameRuntimeBindingType
             throw new XmlRuntimeException(msg, e);
         }
 
-        properties = new Property[btype.getProperties().size()];
-        hasMulti = hasMulti(btype);
+        int elem_prop_cnt = 0;
+        int att_prop_cnt = 0;
+        boolean has_multi = false;
+        final Collection type_props = btype.getProperties();
+        for (Iterator itr = type_props.iterator(); itr.hasNext();) {
+            QNameProperty p = (QNameProperty)itr.next();
+            if (p.isMultiple()) has_multi = true;
+            if (p.isAttribute())
+                att_prop_cnt++;
+            else
+                elem_prop_cnt++;
+        }
+
+        attributeProperties = new Property[att_prop_cnt];
+        elementProperties = new Property[elem_prop_cnt];
+        hasMulti = has_multi;
 
         isSubType = determineIsSubType(javaClass);
     }
@@ -117,25 +133,24 @@ final class ByNameRuntimeBindingType
         return false;
     }
 
-    private static boolean hasMulti(ByNameBean btype)
-    {
-        for (Iterator itr = btype.getProperties().iterator(); itr.hasNext();) {
-            QNameProperty bprop = (QNameProperty)itr.next();
-            if (bprop.isMultiple())
-                return true;
-        }
-        return false;
-    }
-
     //prepare internal data structures for use
     public void initialize(RuntimeBindingTypeTable typeTable,
                            BindingLoader loader)
     {
-        int idx = 0;
+        int att_idx = 0;
+        int elem_idx = 0;
         for (Iterator itr = byNameBean.getProperties().iterator(); itr.hasNext();) {
             QNameProperty bprop = (QNameProperty)itr.next();
-            Property prop = new Property(idx, javaClass, hasMulti, bprop, typeTable, loader);
-            properties[idx++] = prop;
+            final boolean is_att = bprop.isAttribute();
+
+            final Property prop = new Property(is_att ? att_idx : elem_idx,
+                                               javaClass, hasMulti, bprop,
+                                               typeTable, loader);
+            if (is_att)
+                attributeProperties[att_idx++] = prop;
+            else
+                elementProperties[elem_idx++] = prop;
+
         }
     }
 
@@ -168,18 +183,22 @@ final class ByNameRuntimeBindingType
     }
 
 
-    RuntimeBindingProperty getProperty(int index)
+    RuntimeBindingProperty getElementProperty(int index)
     {
-        return properties[index];
+        return elementProperties[index];
+    }
+
+    RuntimeBindingProperty getAttributeProperty(int index)
+    {
+        return attributeProperties[index];
     }
 
     //TODO: optimize this linear scan
     RuntimeBindingProperty getMatchingElementProperty(String uri,
                                                       String localname)
     {
-        for (int i = 0, len = properties.length; i < len; i++) {
-            final Property prop = properties[i];
-            if (prop.isAttribute()) continue;
+        for (int i = 0, len = elementProperties.length; i < len; i++) {
+            final Property prop = elementProperties[i];
 
             if (doesPropMatch(uri, localname, prop))
                 return prop;
@@ -191,9 +210,8 @@ final class ByNameRuntimeBindingType
     RuntimeBindingProperty getMatchingAttributeProperty(String uri,
                                                         String localname)
     {
-        for (int i = 0, len = properties.length; i < len; i++) {
-            final Property prop = properties[i];
-            if (!prop.isAttribute()) continue;
+        for (int i = 0, len = attributeProperties.length; i < len; i++) {
+            final Property prop = attributeProperties[i];
 
             if (doesPropMatch(uri, localname, prop))
                 return prop;
@@ -205,6 +223,8 @@ final class ByNameRuntimeBindingType
                                          String localname,
                                          Property prop)
     {
+        assert localname != null;
+
         final QName qn = prop.getQName();
 
         if (qn.getLocalPart().equals(localname)) {
@@ -215,9 +235,14 @@ final class ByNameRuntimeBindingType
         return false;
     }
 
-    public int getPropertyCount()
+    public int getElementPropertyCount()
     {
-        return properties.length;
+        return elementProperties.length;
+    }
+
+    public int getAttributePropertyCount()
+    {
+        return attributeProperties.length;
     }
 
     public boolean isSubType()
@@ -555,11 +580,6 @@ final class ByNameRuntimeBindingType
         }
 
 
-        public boolean isAttribute()
-        {
-            return bindingProperty.isAttribute();
-        }
-
         QName getQName()
         {
             return bindingProperty.getQName();
@@ -584,7 +604,7 @@ final class ByNameRuntimeBindingType
         Object getFinalValue()
         {
             if (accumulators != null) {
-                final Property[] props = runtimeBindingType.properties;
+                final Property[] props = runtimeBindingType.elementProperties;
                 for (int i = 0, len = accumulators.length; i < len; i++) {
                     final Accumulator accum = accumulators[i];
                     if (accum != null) {
@@ -596,22 +616,22 @@ final class ByNameRuntimeBindingType
             return value;
         }
 
-        void addItem(int property_index, Object value)
+        void addItem(int elem_idx, Object value)
         {
-            initAccumulator(property_index);
-            accumulators[property_index].append(value);
+            initAccumulator(elem_idx);
+            accumulators[elem_idx].append(value);
         }
 
-        private void initAccumulator(int property_index)
+        private void initAccumulator(int elem_idx)
         {
             Accumulator[] accs = accumulators;
             if (accs == null) {
-                accs = new Accumulator[runtimeBindingType.getPropertyCount()];
+                accs = new Accumulator[runtimeBindingType.getElementPropertyCount()];
                 accumulators = accs;
             }
-            if (accs[property_index] == null) {
-                final Property p = runtimeBindingType.properties[property_index];
-                accs[property_index] =
+            if (accs[elem_idx] == null) {
+                final Property p = runtimeBindingType.elementProperties[elem_idx];
+                accs[elem_idx] =
                     AccumulatorFactory.createAccumulator(p.propertyClass,
                                                          p.collectionElementClass);
             }
