@@ -66,14 +66,11 @@ public abstract class JavadocTagParser {
     if (current == null) {
       current = target.findOrCreateAnnotation(tagName);
       setPosition(current,tag);
-      //setSingleValueText(current,tag);
-      return new MAnnotation[] {current};
-    } else {
-      MAnnotation literal = target.addLiteralAnnotation(tagName);
-      setPosition(literal,tag);
-//    setSingleValueText(literal,tag);
-      return new MAnnotation[] {literal,current};
     }
+    MAnnotation literal = target.addLiteralAnnotation(tagName);
+    setPosition(literal,tag);
+//    setSingleValueText(literal,tag);
+    return new MAnnotation[] {literal,current};
   }
 
 
@@ -82,6 +79,8 @@ public abstract class JavadocTagParser {
   protected void setValue(MAnnotation[] anns,
                           String memberName,
                           String value) {
+    value = value.trim();
+    memberName = memberName.trim();
     for(int i=0; i<anns.length; i++) {
       if (anns[i].getValue(memberName) == null) {
         // first one wins
