@@ -14,7 +14,7 @@
 <project name="Xbean" default="default" basedir=".">
 
   <property name="build.compiler" value="javac1.4"/>
-  <property name="product.version" value="1.0.1"/>
+  <property name="product.version" value="1.0.2"/>
 
   <target name="usage">
     <echo message="The following ant targets are defined:"/>
@@ -457,7 +457,16 @@
 
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
-        <fileset dir="xkit" />
+        <fileset dir="xkit"/>
+        <fileset dir="." includes="bin/**"/>
+     </copy>
+     <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
+        <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd"/>
+        <fileset dir="src/xmlschema/schema" includes="XML.xsd"/>
+     </copy>
+     <copy todir="build/private/xmlbeans-${product.version}/schemas">
+        <fileset dir="test/src" includes="easypo/*.xsd,easypo/*.xsdconfig"/>
+        <fileset dir="test/cases/schema" includes="cyclone/**/*.xsd,j2ee/*.xsd"/>
      </copy>
 
      <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
@@ -544,45 +553,6 @@
       <fileset dir="src/license"/>
     </jar>
   </target>
-
-  <!-- jaxb target =================================================== -->
-
-  <path id="jaxb.compile.path">
-    <pathelement location="external/lib/jaxb-1.0/jaxb-api.jar"/>
-    <pathelement location="build/classes/xmlpublic"/>
-    <pathelement location="build/classes/typeimpl"/>
-    <pathelement location="build/classes/common"/>
-    <pathelement location="build/classes/typestore"/>
-    <pathelement location="build/classes/xmlinputstream"/>
-    <pathelement location="build/classes/jaxbschema"/>
-  </path>
-
-    <target name="jaxbschema.check">
-        <condition property="jaxbschema.notRequired">
-            <uptodate property="jaxbschema.notRequired" targetfile="build/classes/jaxbschema/schema/system/JAXBCONFIG/index.xsb">
-                <srcfiles dir="src/jaxb/schema" includes="**/*.xsd;**/*.xsdconfig"/>
-            </uptodate>
-        </condition>
-    </target>
-
-    <target name="jaxbschema.classes" depends="jaxbschema.check, xmlpublic.classes, typeimpl.classes, common.classes, typestore.classes, xmlinputstream.classes" unless="jaxbschema.notRequired">
-        <delete dir="build/classes/jaxbschema"/>
-        <delete dir="build/src/jaxbschema"/>
-        <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
-            <jvmarg value="-ea"/>
-            <arg line="${repackage_arg} -name JAXBCONFIG -cp ${bootstrap.compile.path} -srconly -d build/classes/jaxbschema -src build/src/jaxbschema src/jaxb/schema"/>
-        </java>
-    </target>
-
-    <target name="jaxb.classes" depends="dirs, jaxbschema.classes, xmlpublic.classes, typeimpl.classes, common.classes, typestore.classes, xmlinputstream.classes">
-        <mkdir dir="build/src/jaxb"/>
-        <mkdir dir="build/classes/jaxb"/>
-
-        <javac destdir="build/classes/jaxb" classpathref="jaxb.compile.path" source="1.4" debug="on">
-            <src path="src/jaxb"/>
-            <src path="build/src/jaxbschema"/>
-        </javac>
-    </target>
 
   <!-- build XMLInputStream interface ============================================= -->
 

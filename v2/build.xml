@@ -567,6 +567,15 @@
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
         <fileset dir="xkit"/>
+        <fileset dir="." includes="bin/**"/>
+     </copy>
+     <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
+        <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd"/>
+        <fileset dir="src/xmlschema/schema" includes="XML.xsd"/>
+     </copy>
+     <copy todir="build/private/xmlbeans-${product.version}/schemas">
+        <fileset dir="test/src" includes="easypo/*.xsd,easypo/*.xsdconfig"/>
+        <fileset dir="test/cases/schema" includes="cyclone/**/*.xsd,j2ee/*.xsd"/>
      </copy>
 
      <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>

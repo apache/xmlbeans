@@ -264,8 +264,8 @@ public class ValidationTests extends TestCase
         //
         
         File file = TestEnv.getRootFile();
-        File schemeFile = new File( file, "test/cases/schema/s4s/XMLSchema.xsd" );
-        File xmlFile = new File( file, "test/cases/schema/s4s/XML.xsd" );
+        File schemeFile = new File( file, "src/xsdschema/schema/XMLSchema.xsd" );
+        File xmlFile = new File( file, "src/xmlschema/schema/XML.xsd" );
 
         File[] schemasF = { schemeFile, xmlFile };
 

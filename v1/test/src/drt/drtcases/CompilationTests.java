@@ -62,23 +62,6 @@ public class CompilationTests extends TestCase
     }
 
 
-    public void __testBuild()
-    {
-        TestEnv.deltree(TestEnv.xbeanOutput("schema/s4s"));
-        File inputfile1 = TestEnv.xbeanCase("schema/s4s/XML.xsd");
-        File inputfile2 = TestEnv.xbeanCase("schema/s4s/XMLSchema.xsd");
-        File srcdir = TestEnv.xbeanOutput("schema/s4s/s4stypes/src");
-        File classesdir = TestEnv.xbeanOutput("schema/s4s/s4stypes/classes");
-        File outputjar = TestEnv.xbeanOutput("schema/s4s/s4stypes.jar");
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setXsdFiles(new File[] { inputfile1, inputfile2 });
-        params.setSrcDir(srcdir);
-        params.setClassesDir(classesdir);
-        params.setOutputJar(outputjar);
-        Assert.assertTrue("Build failed", SchemaCompiler.compile(params));
-        Assert.assertTrue("Cannout find " + outputjar, outputjar.exists());
-    }
-
     /* test not needed because bootstrap build tests this better
     public void testNewBuild()
     {
