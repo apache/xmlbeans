@@ -244,6 +244,8 @@
         <delete dir="${docs.dir}"/>
         <mkdir dir="${docs.dir}"/>
         <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="${javac.source}" stylesheetfile="docs/stylesheet.css">
+            <link href="http://xmlbeans.apache.org/${version.base}/docs/reference/index.html"/>
+            <link href="http://java.sun.com/j2se/1.4.2/docs/api/"/>
             <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
             <link href="http://xml.apache.org/xerces-j/apiDocs/"/>
             <classpath>
@@ -296,7 +298,11 @@
         
         <mkdir dir="build/private/xmlbeans-${product.version}/samples"/>
         <copy todir="build/private/xmlbeans-${product.version}/samples">
-            <fileset dir="samples/cursor"/>
+            <fileset dir="samples">
+                <include name="MixedContent/**/*"/>
+                <include name="OrderMatters/**/*"/>
+                <exclude name="**/build/**"/>
+            </fileset>
         </copy>
 
         <zip destfile="build/private/xmlbeans-${product.version}.zip"
