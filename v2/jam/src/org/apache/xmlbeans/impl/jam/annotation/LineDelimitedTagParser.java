@@ -16,7 +16,6 @@ package org.apache.xmlbeans.impl.jam.annotation;
 
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
-import org.apache.xmlbeans.impl.jam.JAnnotation;
 import java.util.StringTokenizer;
 import java.io.StringWriter;
 
@@ -48,7 +47,7 @@ public class LineDelimitedTagParser extends JavadocTagParser {
     while (st.hasMoreTokens()) {
       String pair = st.nextToken();
       int eq = pair.indexOf('=');
-      if (eq <= 0) continue; // if abstent or is first character
+      if (eq <= 0) continue; // if absent or is first character
       String name = pair.substring(0, eq).trim();
       if (eq < pair.length() - 1) {
         String value = pair.substring(eq + 1).trim();

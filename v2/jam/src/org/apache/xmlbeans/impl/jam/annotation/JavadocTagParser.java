@@ -36,9 +36,25 @@ public abstract class JavadocTagParser {
   // Variables
 
   private JamServiceContext mContext = null;
+  private boolean mAddSingleValueMembers = false;
 
   // ========================================================================
   // Public methods
+
+  /**
+   * <p>If true, all annotations will be given a single-member value whose
+   * value is the full raw contents of the javadoc tag.  The name of this
+   * member is JAnnotation.SINGLE_MEMBER_VALUE, or 'value'.  Note that this
+   * member will be overrdden in the event that the tag contains an
+   * explicit value named 'value'.</p>
+   *
+   * <p>The default for this setting is false.</p>
+   *
+   * @param b
+   */
+  public void setAddSingleValueMembers(boolean b) {
+    mAddSingleValueMembers = b;
+  }
 
   /**
    * <p>Called by JAM to initialize the proxy.  Do not try to call this
@@ -69,8 +85,9 @@ public abstract class JavadocTagParser {
     }
     MAnnotation literal = target.addLiteralAnnotation(tagName);
     setPosition(literal,tag);
-//    setSingleValueText(literal,tag);
-    return new MAnnotation[] {literal,current};
+    MAnnotation[] out = new MAnnotation[] {literal,current};
+    if (mAddSingleValueMembers) setSingleValueText(out,tag);
+    return out;
   }
 
 
@@ -100,7 +117,7 @@ public abstract class JavadocTagParser {
   //course will be overridden if the tag contains a member value named
   //'value' - oh well
   protected void setSingleValueText(MAnnotation[] targets, Tag tag) {
-    String tagText = tag.text().trim();
+    String tagText = tag.text();
     for(int i=0; i<targets.length; i++) {
     targets[i].setSimpleValue
       (JAnnotation.SINGLE_VALUE_NAME,tagText,getStringType());
