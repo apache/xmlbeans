@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="XMLBeans Maven Plugin">
+	<title>XMLBeans Maven Plugin</title>
+	<body>
+		<links>
+			<item href="http://maven.apache.org/" name="Maven">
+      </item>
+			<item href="http://xml.apache.org/xmlbeans/" name="XMLBeans">
+      </item>
+		</links>
+		<menu name="Overview">
+			<item href="/goals.html" name="Goals">
+      </item>
+			<item href="/properties.html" name="Properties">
+      </item>
+		</menu>
+	</body>
+</project>
