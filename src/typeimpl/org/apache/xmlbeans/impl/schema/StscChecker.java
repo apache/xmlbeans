@@ -1593,32 +1593,35 @@ public class StscChecker
 
                 if (! headType.isAssignableFrom(tailType))
                 {
-                    state.error("Element " + QNameHelper.pretty(elt.getName()) +
-                        " must have a type that is derived from the type of its substitution group.",
-                        XmlErrorCodes.INCONSISTENT_TYPE, parseTree);
-                    
+                    state.error(XmlErrorCodes.ELEM_PROPERTIES$SUBSTITUTION_VALID,
+                        new Object[] {QNameHelper.pretty(elt.getName()),
+                                      QNameHelper.pretty(head.getName())},
+                        parseTree);
                 }
                 else if (head.finalExtension() && head.finalRestriction())
                 {
-                    state.error("Element " + QNameHelper.pretty(elt.getName()) + 
-                        " cannot be substituted for element with final='#all'",
-                        XmlErrorCodes.CANNOT_DERIVE_FINAL, parseTree);
+                    state.error(XmlErrorCodes.ELEM_PROPERTIES$SUBSTITUTION_FINAL,
+                        new Object[] {QNameHelper.pretty(elt.getName()),
+                                      QNameHelper.pretty(head.getName()),
+                                      "#all"}, parseTree);
                 }
                 else if (! headType.equals(tailType))
                 {
                     if (head.finalExtension() && 
                              tailType.getDerivationType() == SchemaType.DT_EXTENSION)
                     {
-                        state.error("Element " + QNameHelper.pretty(elt.getName()) + 
-                            " cannot be substituted for element with final='extension'",
-                            XmlErrorCodes.CANNOT_DERIVE_FINAL, parseTree);
+                        state.error(XmlErrorCodes.ELEM_PROPERTIES$SUBSTITUTION_FINAL,
+                            new Object[] {QNameHelper.pretty(elt.getName()),
+                                          QNameHelper.pretty(head.getName()),
+                                          "extension"}, parseTree);
                     }
                     else if (head.finalRestriction() &&
                              tailType.getDerivationType() == SchemaType.DT_RESTRICTION)
                     {
-                        state.error("Element " + QNameHelper.pretty(elt.getName()) + 
-                            " cannot be substituted for element with final='restriction'",
-                            XmlErrorCodes.CANNOT_DERIVE_FINAL, parseTree);
+                        state.error(XmlErrorCodes.ELEM_PROPERTIES$SUBSTITUTION_FINAL,
+                            new Object[] {QNameHelper.pretty(elt.getName()),
+                                          QNameHelper.pretty(head.getName()),
+                                          "restriction"}, parseTree);
                     }
                 }
             }

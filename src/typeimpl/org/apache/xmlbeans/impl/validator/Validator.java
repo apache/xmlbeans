@@ -595,6 +595,13 @@ public final class Validator
             _eatContent = 1;
             return;
         }
+        
+        if (isNil && elementField != null && elementField.isFixed())
+        {
+            emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_FIXED, null,
+                elementField == null ? null : elementField.getName(), elementType, null,
+                XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
+        }
 
         newState( elementType, elementField, isNil );
 
@@ -620,7 +627,6 @@ public final class Validator
 
         if (state._attrs.contains( attrName ))
         {
-            // todo (dutta) need additional logic to determine the expectedSchemaType
             emitFieldError( event, XmlErrorCodes.XML_DUPLICATE_ATTRIBUTE,
                 new Object[] { QNameHelper.pretty( attrName ) },
                 attrName, null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type );
@@ -632,10 +638,8 @@ public final class Validator
 
         if (!state._canHaveAttrs)
         {
-            // BUGBUG: dead code? _canHaveAttrs is never set false
-            // KHK: cvc-complex-type.3 (.3.2.1?)
-            // todo (dutta) need additional logic to determine the expectedSchemaType
-            emitFieldError( event, "Can't have attributes", attrName, null, null,
+            emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD,
+                new Object[] {QNameHelper.pretty( attrName )}, attrName, null, null,
                 XmlValidationError.INCORRECT_ATTRIBUTE, state._type);
             return;
         }
@@ -651,7 +655,6 @@ public final class Validator
 
             if (attrSchema.getUse() == SchemaLocalAttribute.PROHIBITED)
             {
-                // todo (dutta) need additional logic to determine the expectedSchemaType
                 emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$PROHIBITED_ATTRIBUTE,
                     new Object[] { QNameHelper.pretty( attrName ) } ,
                     attrName, null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type );
