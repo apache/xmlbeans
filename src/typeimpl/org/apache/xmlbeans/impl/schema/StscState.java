@@ -84,7 +84,7 @@ public class StscState
     private Map _attributeTypes     = new LinkedHashMap();
     private Map _typesByClassname   = new LinkedHashMap();
     private Map _misspelledNames    = new HashMap();
-    private Set _processingGroups   = new HashSet();
+    private Set _processingGroups   = new LinkedHashSet();
     private Map _idConstraints      = new LinkedHashMap();
     private Set _namespaces         = new HashSet();
     private List _annotations       = new ArrayList();
@@ -1137,6 +1137,11 @@ public class StscState
     {
         assert(_processingGroups.contains(obj));
         _processingGroups.remove(obj);
+    }
+
+    Object[] getCurrentProcessing()
+    {
+        return _processingGroups.toArray();
     }
 
     /* JAVAIZATION ====================================================*/

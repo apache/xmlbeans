@@ -773,10 +773,21 @@ public class StscTranslator
 
         if (typedef != null)
         {
+            Object[] grps = state.getCurrentProcessing();
+            QName[] context = new QName[grps.length];
+            for (int i = 0; i < context.length; i++)
+                if (grps[i] instanceof SchemaModelGroupImpl)
+                    context[i] = ((SchemaModelGroupImpl ) grps[i]).getName();
+            SchemaType repeat = checkRecursiveGroupReference(context, qname, (SchemaTypeImpl)outerType);
+            if (repeat != null)
+                sType = repeat;
+            else
+            {
             SchemaTypeImpl sTypeImpl = new SchemaTypeImpl(state.getContainer(targetNamespace));
             sType = sTypeImpl;
             sTypeImpl.setContainerField(impl);
             sTypeImpl.setOuterSchemaTypeRef(outerType == null ? null : outerType.getRef());
+            sTypeImpl.setGroupReferenceContext(context);
             // leave the anonymous type unresolved: it will be resolved later.
             anonymousTypes.add(sType);
             sTypeImpl.setSimpleType(simpleTypedef);
@@ -784,6 +795,7 @@ public class StscTranslator
                  elemFormDefault, attFormDefault, false);
             sTypeImpl.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), typedef));
             sTypeImpl.setUserData(getUserData(typedef));
+            }
         }
 
         if (sType == null)
@@ -901,6 +913,62 @@ public class StscTranslator
         }
 
         return impl;
+    }
+
+    /**
+     * We need to do this because of the following kind of Schemas:
+     * <xs:group name="e">
+     *     <xs:sequence>
+     *         <xs:element name="error">
+     *             <xs:complexType>
+     *                 <xs:group ref="e"/>
+     *             </xs:complexType>
+     *         </xs:element>
+     *     </xs:sequence>
+     * </xs:group>
+     * (see JIRA bug XMLBEANS-35)
+     * Even though this should not be allowed because it produces an infinite
+     * number of anonymous types and local elements nested within each other,
+     * the de facto consensus among Schema processors is that this should be
+     * valid, therefore we have to detect this situation and "patch up" the
+     * Schema object model so that instead of creating a new anonymous type,
+     * we refer to the one that was already created earlier.
+     * In order to accomplish that, we store inside every anonymous type the
+     * list of groups that were dereferenced at the moment the type was created
+     * and if the same pattern is about to repeat, it means that we are in a
+     * case similar to the above.
+     */
+    private static SchemaType checkRecursiveGroupReference(QName[] context, QName containingElement, SchemaTypeImpl outerType)
+    {
+        if (context.length < 1)
+            return null;
+        SchemaTypeImpl type = outerType;
+
+        while (type != null)
+        {
+            if (type.getName() != null || type.isDocumentType())
+                return null; // not anonymous
+            if (containingElement.equals(type.getContainerField().getName()))
+            {
+                QName[] outerContext = type.getGroupReferenceContext();
+                if (outerContext != null && outerContext.length == context.length)
+                {
+                    // Smells like trouble
+                    boolean equal = true;
+                    for (int i = 0; i < context.length; i++)
+                        if (!(context[i] == null && outerContext[i] == null ||
+                              context[i] != null && context[i].equals(outerContext[i])))
+                        {
+                            equal = false;
+                            break;
+                        }
+                    if (equal)
+                        return type;
+                }
+            }
+            type = (SchemaTypeImpl) type.getOuterType();
+        }
+        return null;
     }
 
     private static String removeWhitespace(String xpath)
