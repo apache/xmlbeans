@@ -29,6 +29,9 @@
   </xs:complexType>
   
   <xs:complexType name="file-desc">
+    <xs:sequence>
+        <xs:element name="code" type="tns:code" minOccurs="0" maxOccurs="1"/>
+    </xs:sequence>
     <xs:attribute name="tsDir" type="xs:token"/>
     <xs:attribute name="folder" type="xs:token"/>
     <xs:attribute name="fileName" type="xs:token"/>
@@ -42,6 +45,10 @@
       </xs:simpleType>
     </xs:attribute>
     <xs:attribute name="validity" type="xs:boolean"/>
+  </xs:complexType>
+
+  <xs:complexType name="code">
+      <xs:attribute name="ID" type="xs:token"/>
   </xs:complexType>
 
 </xs:schema>
