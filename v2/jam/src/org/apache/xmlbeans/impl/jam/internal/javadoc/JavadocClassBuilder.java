@@ -21,7 +21,6 @@ import org.apache.xmlbeans.impl.jam.internal.elements.PrimitiveClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
-import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.provider.JamClassPopulator;
 import org.apache.xmlbeans.impl.jam.annotation.JavadocTagParser;
 
@@ -48,119 +47,29 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
   // Variables
 
   private RootDoc mRootDoc = null;
-  private JamServiceContext mServiceContext;
-  private JamLogger mLogger;
   private Javadoc15Delegate mDelegate = null;
   private JavadocTagParser mTagParser = null;
-
   private boolean mParseTags = true;//FIXME
-
-
 
   // ========================================================================
   // Constructors
 
-  public JavadocClassBuilder(JamServiceContext ctx) {
-    if (ctx == null) throw new IllegalArgumentException("null context");
-    mServiceContext = ctx;
-    mLogger = ctx.getLogger();
-    mTagParser = ctx.getTagParser();
-    String pct = ctx.getProperty(PARSETAGS_PROPERTY);
-    if (pct != null) {
-      mParseTags = Boolean.valueOf(pct).booleanValue();
-      mLogger.verbose("mParseTags="+mParseTags,this);
-    }
-    try {
-      // See if we can load a 1.5-specific class.  If we can't, don't use
-      // the Javadoc15Delegate.
-      Class.forName("com.sun.javadoc.AnnotationDesc");
-    } catch (ClassNotFoundException e) {
-      issue14RuntimeWarning(e,mLogger);
-      return;
-    }
-    // ok, if we could load that, let's new up the extractor delegate
-    try {
-      mDelegate = (Javadoc15Delegate)
-        Class.forName(JAVA15_EXTRACTOR).newInstance();
-      // if this fails for any reason, things are in a bad state
-    } catch (ClassNotFoundException e) {
-      issue14BuildWarning(e,mLogger);
-    } catch (IllegalAccessException e) {
-      issue14BuildWarning(e,mLogger);
-    } catch (InstantiationException e) {
-      issue14BuildWarning(e,mLogger);
-    }
-  }
+  public JavadocClassBuilder() {}
 
   // ========================================================================
   // JamClassBuilder implementation
 
   public void init(ElementContext ctx) {
+    if (ctx == null) throw new IllegalArgumentException("null context");
     super.init(ctx);
-    if (mDelegate != null) mDelegate.init(ctx);
-    mServiceContext.getLogger().verbose("init()",this);
-    File[] files;
-    try {
-      files = mServiceContext.getSourceFiles();
-    } catch(IOException ioe) {
-      mLogger.error(ioe);
-      return;
-      
-    }
-    if (files == null || files.length == 0) {
-      throw new IllegalArgumentException("No source files in context.");
-    }
-    String sourcePath = (mServiceContext.getInputSourcepath() == null) ? null :
-      mServiceContext.getInputSourcepath().toString();
-    String classPath = (mServiceContext.getInputClasspath() == null) ? null :
-      mServiceContext.getInputClasspath().toString();
-    if (mLogger.isVerbose(this)) {
-      mLogger.verbose("sourcePath ="+sourcePath);
-      mLogger.verbose("classPath ="+classPath);
-      for(int i=0; i<files.length; i++) {
-        mLogger.verbose("including '"+files[i]+"'");
-      }
-    }
-    JavadocRunner jdr = new JavadocRunner();
-    try {
-      PrintWriter out = null;
-      if (mLogger.isVerbose(this)) {
-        out = new PrintWriter(System.out);
-      }
-      mRootDoc = jdr.run(files,
-                         out,
-                         sourcePath,
-                         classPath,
-                         getJavadocArgs(mServiceContext),
-                         mLogger);
-      if (mRootDoc == null) {
-        mLogger.error("Javadoc returned a null root");//FIXME error
-      } else {
-        if (mLogger.isVerbose(this)) {
-          mLogger.verbose(" received "+mRootDoc.classes().length+
-                          " ClassDocs from javadoc: ");
-        }
-        ClassDoc[] classes = mRootDoc.classes();
-        // go through and explicitly add all of the class names.  we need to
-        // do this in case they passed any 'unstructured' classes.  to the
-        // params.  this could use a little TLC.
-        for(int i=0; i<classes.length; i++) {
-          if (classes[i].containingClass() != null) continue; // skip inners
-          if (mLogger.isVerbose(this)) {
-            mLogger.verbose("..."+classes[i].qualifiedName());
-          }
-          ((JamServiceContextImpl)mServiceContext).
-            includeClass(getFdFor(classes[i]));
-        }
-      }
-    } catch (FileNotFoundException e) {
-      mLogger.error(e);
-    } catch (IOException e) {
-      mLogger.error(e);
-    }
+    getLogger().verbose("init()",this);
+    initDelegate(ctx);
+    initJavadoc((JamServiceContext)ctx); //dirty cast because we're 'built in'
   }
 
+
   public MClass build(String packageName, String className) {
+    assertInitialized();
     if (getLogger().isVerbose(this)) {
       getLogger().verbose("trying to build '"+packageName+"' '"+className+"'");
     }
@@ -208,6 +117,7 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
 
   public void populate(MClass dest) {
     if (dest == null) throw new IllegalArgumentException("null dest");
+    assertInitialized();
     ClassDoc src = (ClassDoc)dest.getArtifact();
     if (src == null) throw new IllegalStateException("null artifact");
     dest.setModifiers(src.modifierSpecifier());
@@ -244,6 +154,102 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
         inner.setArtifact(inners[i]);
         populate(inner);
       }
+    }
+  }
+
+  // ========================================================================
+  // Private methods
+
+  private void initDelegate(ElementContext ctx) {
+    try {
+      // See if we can load a 1.5-specific class.  If we can't, don't use
+      // the Javadoc15Delegate.
+      Class.forName("com.sun.javadoc.AnnotationDesc");
+    } catch (ClassNotFoundException e) {
+      issue14RuntimeWarning(e);
+      return;
+    }
+    // ok, if we could load that, let's new up the extractor delegate
+    try {
+      mDelegate = (Javadoc15Delegate)
+        Class.forName(JAVA15_EXTRACTOR).newInstance();
+      mDelegate.init(ctx);
+      // if this fails for any reason, things are in a bad state
+    } catch (ClassNotFoundException e) {
+      issue14BuildWarning(e);
+    } catch (IllegalAccessException e) {
+      issue14BuildWarning(e);
+    } catch (InstantiationException e) {
+      issue14BuildWarning(e);
+    }
+  }
+
+  private void initJavadoc(JamServiceContext serviceContext) {
+    // grab some useful stuff
+    mTagParser = serviceContext.getTagParser();
+    String pct = serviceContext.getProperty(PARSETAGS_PROPERTY);
+    if (pct != null) {
+      mParseTags = Boolean.valueOf(pct).booleanValue();
+      getLogger().verbose("mParseTags="+mParseTags,this);
+    }
+    // now go run javadoc on the appropriate files
+    File[] files;
+    try {
+      files = serviceContext.getSourceFiles();
+    } catch(IOException ioe) {
+      getLogger().error(ioe);
+      return;
+    }
+    if (files == null || files.length == 0) {
+      throw new IllegalArgumentException("No source files in context.");
+    }
+    String sourcePath = (serviceContext.getInputSourcepath() == null) ? null :
+      serviceContext.getInputSourcepath().toString();
+    String classPath = (serviceContext.getInputClasspath() == null) ? null :
+      serviceContext.getInputClasspath().toString();
+    if (getLogger().isVerbose(this)) {
+      getLogger().verbose("sourcePath ="+sourcePath);
+      getLogger().verbose("classPath ="+classPath);
+      for(int i=0; i<files.length; i++) {
+        getLogger().verbose("including '"+files[i]+"'");
+      }
+    }
+    JavadocRunner jdr = new JavadocRunner();
+    try {
+      PrintWriter out = null;
+      if (getLogger().isVerbose(this)) {
+        out = new PrintWriter(System.out);
+      }
+      mRootDoc = jdr.run(files,
+                         out,
+                         sourcePath,
+                         classPath,
+                         getJavadocArgs(serviceContext),
+                         getLogger());
+      if (mRootDoc == null) {
+        getLogger().error("Javadoc returned a null root");//FIXME error
+      } else {
+        if (getLogger().isVerbose(this)) {
+          getLogger().verbose(" received "+mRootDoc.classes().length+
+                              " ClassDocs from javadoc: ");
+        }
+        ClassDoc[] classes = mRootDoc.classes();
+        // go through and explicitly add all of the class names.  we need to
+        // do this in case they passed any 'unstructured' classes.  to the
+        // params.  this could use a little TLC.
+        for(int i=0; i<classes.length; i++) {
+          if (classes[i].containingClass() != null) continue; // skip inners
+          if (getLogger().isVerbose(this)) {
+            getLogger().verbose("..."+classes[i].qualifiedName());
+          }
+          ((JamServiceContextImpl)serviceContext).
+            includeClass(getFdFor(classes[i]));
+        }
+      }
+    } catch (FileNotFoundException e) {
+      getLogger().error(e);
+    } catch (IOException e) {
+      getLogger().error(e);
     }
   }
 
@@ -303,8 +309,8 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     //  mLogger.verbose("processing "+tags.length+" javadoc tags on "+dest);
     //}
     for(int i=0; i<tags.length; i++) {
-      if (mLogger.isVerbose(this)) {
-        mLogger.verbose("...'"+tags[i].name()+"' ' "+tags[i].text());
+      if (getLogger().isVerbose(this)) {
+        getLogger().verbose("...'"+tags[i].name()+"' ' "+tags[i].text());
       }
       //note name() returns the '@', so we strip it here
       mTagParser.parse(dest,tags[i]);

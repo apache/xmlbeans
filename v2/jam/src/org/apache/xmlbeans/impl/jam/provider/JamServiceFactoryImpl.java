@@ -169,7 +169,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
       if (log.isVerbose(this)) {
         log.verbose("added classbuilder for classloader "+cls[i].getClass());
       }
-      builders.add(new ReflectClassBuilder(cls[i],ctx));
+      builders.add(new ReflectClassBuilder(cls[i]));
     }
     JamClassBuilder[] barray = new JamClassBuilder[builders.size()];
     builders.toArray(barray);
@@ -177,7 +177,6 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     out.init((ElementContext)ctx);
     if (log.isVerbose(this)) {
       log.verbose("returning a composite of "+barray.length+" class builders.");
-
       JClass c = out.build("java.lang","Object");
       c = out.build("javax.ejb","SessionBean");
     }
@@ -202,7 +201,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
       return null;
     }
     if(ctx.getProperty(USE_NEW_PARSER) == null) {
-      return new JavadocClassBuilder(ctx);
+      return new JavadocClassBuilder();
     } else {
       return new ParserClassBuilder(ctx);
     }
@@ -225,7 +224,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     } else {
       URL[] urls = cp.toUrlPath();
       ClassLoader cl = new URLClassLoader(urls);
-      return new ReflectClassBuilder(cl,jp);
+      return new ReflectClassBuilder(cl);
     }
   }
 
