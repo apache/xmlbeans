@@ -1201,7 +1201,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     public void setPatternFacet(boolean hasPatterns)
         { assertResolving(); _hasPatterns = hasPatterns; }
 
-    public synchronized boolean matchPatternFacet(String s)
+    public boolean matchPatternFacet(String s)
     {
         if (!_hasPatterns)
             return true;
