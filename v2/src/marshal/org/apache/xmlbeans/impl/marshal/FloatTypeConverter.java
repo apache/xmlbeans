@@ -56,79 +56,29 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-final class TransientCharSequence
-    implements CharSequence
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
+
+final class FloatTypeConverter
+    extends BaseSimpleTypeConverter
 {
-    private char[] chars;
-    private int count;
-    private static final int DEFAULT_BUFFER_SIZE = 1024;
-
-    //max buffer size we will reuse.
-    private static final int MAX_BUFFER_SIZE = 256 * 1024;
-
-    TransientCharSequence()
+    public Object unmarshal(UnmarshalContextImpl context)
     {
-        chars = new char[DEFAULT_BUFFER_SIZE];
+        float val = context.getFloatValue();
+        assert context.isEndElement();
+        context.next();
+        return new Float(val);
     }
 
-    public int length()
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
     {
-        return count;
+        float val = context.getAttributeFloatValue();
+        return new Float(val);
     }
 
-    public char charAt(int index)
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContextImpl context)
     {
-        assert index < count;
-        assert chars != null;
-        return chars[index];
+        Float val = (Float)value;
+        return XsTypeConverter.printFloat(val.floatValue());
     }
-
-    public CharSequence subSequence(int start, int end)
-    {
-        assert end < count;
-        assert chars != null;
-        //we can optimize this later if this method is actually used.
-        return new String(chars, 0, count);
-    }
-
-    public String toString()
-    {
-        assert chars != null;
-        return new String(chars, 0, count);
-    }
-
-    public void append(char[] src, int src_offset, int src_length)
-    {
-        assert chars != null;
-        final int new_len = count + src_length;
-        ensureCapacity(new_len);
-        System.arraycopy(src, src_offset, chars, count, src_length);
-        count = new_len;
-    }
-
-    public void clear()
-    {
-        count = 0;
-        if (chars.length > MAX_BUFFER_SIZE) {
-            chars = new char[DEFAULT_BUFFER_SIZE];
-        }
-    }
-
-
-    private void ensureCapacity(int requested)
-    {
-        assert requested >= 0;
-        
-        if (requested < chars.length) return;
-
-        int new_capacity = ((chars.length * 3) + 1) / 2;
-        if (requested > new_capacity) {
-            new_capacity = requested;
-        }
-
-        char new_chars[] = new char[new_capacity];
-        System.arraycopy(chars, 0, new_chars, 0, count);
-        chars = new_chars;
-    }
-
 }

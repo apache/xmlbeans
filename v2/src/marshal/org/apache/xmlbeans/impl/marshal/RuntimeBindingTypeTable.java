@@ -62,14 +62,6 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
-import org.apache.xmlbeans.impl.marshal.builtin.BooleanLexerPrinter;
-import org.apache.xmlbeans.impl.marshal.builtin.ByteLexerPrinter;
-import org.apache.xmlbeans.impl.marshal.builtin.DoubleLexerPrinter;
-import org.apache.xmlbeans.impl.marshal.builtin.FloatLexerPrinter;
-import org.apache.xmlbeans.impl.marshal.builtin.IntLexerPrinter;
-import org.apache.xmlbeans.impl.marshal.builtin.LongLexerPrinter;
-import org.apache.xmlbeans.impl.marshal.builtin.ShortLexerPrinter;
-import org.apache.xmlbeans.impl.marshal.builtin.StringLexerPrinter;
 
 import javax.xml.namespace.QName;
 import java.util.HashMap;
@@ -80,7 +72,7 @@ import java.util.Set;
 /**
  * Table of TypeMarshaller and TypeUnmarshaller objects keyed by BindingType
  */
-class RuntimeBindingTypeTable
+final class RuntimeBindingTypeTable
 {
     //key is BindingType, value is TTEntry
     private final Map typeMap = new HashMap();
@@ -184,46 +176,45 @@ class RuntimeBindingTypeTable
     private void addBuiltins()
     {
         addXsdBuiltin("float", float.class.getName(),
-                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
+                      new FloatTypeConverter());
         addXsdBuiltin("float", Float.class.getName(),
-                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
+                      new FloatTypeConverter());
 
         addXsdBuiltin("double", double.class.getName(),
-                      new AtomicSimpleTypeConverter(new DoubleLexerPrinter()));
+                      new DoubleTypeConverter());
         addXsdBuiltin("double", Double.class.getName(),
-                      new AtomicSimpleTypeConverter(new DoubleLexerPrinter()));
+                      new DoubleTypeConverter());
 
         addXsdBuiltin("long", long.class.getName(),
-                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
+                      new LongTypeConverter());
         addXsdBuiltin("long", Long.class.getName(),
-                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
+                      new LongTypeConverter());
 
         addXsdBuiltin("int", int.class.getName(),
-                      new AtomicSimpleTypeConverter(new IntLexerPrinter()));
+                      new IntTypeConverter());
         addXsdBuiltin("int", Integer.class.getName(),
-                      new AtomicSimpleTypeConverter(new IntLexerPrinter()));
+                      new IntTypeConverter());
 
         addXsdBuiltin("short", short.class.getName(),
-                      new AtomicSimpleTypeConverter(new ShortLexerPrinter()));
+                      new ShortTypeConverter());
         addXsdBuiltin("short", Short.class.getName(),
-                      new AtomicSimpleTypeConverter(new ShortLexerPrinter()));
+                      new ShortTypeConverter());
 
         addXsdBuiltin("byte", byte.class.getName(),
-                      new AtomicSimpleTypeConverter(new ByteLexerPrinter()));
+                      new ByteTypeConverter());
         addXsdBuiltin("byte", Byte.class.getName(),
-                      new AtomicSimpleTypeConverter(new ByteLexerPrinter()));
+                      new ByteTypeConverter());
 
         addXsdBuiltin("boolean", boolean.class.getName(),
-                      new AtomicSimpleTypeConverter(new BooleanLexerPrinter()));
-//        addXsdBuiltin("boolean", Boolean.class.getName(),
-//                      new AtomicSimpleTypeConverter(new BooleanLexerPrinter()));
-
+                      new BooleanTypeConverter());
+        addXsdBuiltin("boolean", Boolean.class.getName(),
+                      new BooleanTypeConverter());
 
         addXsdBuiltin("string", String.class.getName(),
-                      new AtomicSimpleTypeConverter(new StringLexerPrinter()));
+                      new StringTypeConverter());
 
         addXsdBuiltin("token", String.class.getName(),
-                      new AtomicSimpleTypeConverter(new StringLexerPrinter()));
+                      new StringTypeConverter());
     }
 
 

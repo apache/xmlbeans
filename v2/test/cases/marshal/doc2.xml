@@ -14,13 +14,16 @@
 <!--            <n1:Myelt></n1:Myelt>-->
             <n1:Myatt>TheVeryImportant<!--            <n1:Myelt></n1:Myelt>-->Value</n1:Myatt>
         </n1:MyClass>
-        <n1:MyFloat>5555.4443</n1:MyFloat>
+
+<!--        test default ns-->
+        <MyFloat xmlns="java:com.mytest">888888.4443</MyFloat>
 
         <n1:SomeBool>fal<!-- ok -->se</n1:SomeBool>
         <n1:SomeBool>false</n1:SomeBool>
         <n1:SomeBool>true</n1:SomeBool>
         <n1:SomeBool>0</n1:SomeBool>
         <n1:SomeBool>1</n1:SomeBool>
+        <SomeBool xmlns="java:com.mytest">1</SomeBool>
 
     </n1:Myelt>
 

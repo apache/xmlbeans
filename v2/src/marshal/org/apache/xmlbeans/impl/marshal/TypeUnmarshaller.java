@@ -80,7 +80,6 @@ interface TypeUnmarshaller
      * unmarshal the lexical value of an instance of xsd:anySimpleType.
      * This could be called on an attribute value or on element content.
      *
-     * @param lexicalValue
      * @param context
      * @return Object representing java value of lexical
      *
@@ -88,8 +87,7 @@ interface TypeUnmarshaller
      *            <tt>unmarshalSimpleType</tt> operation is not supported
      *            by this TypeUnmarshaller.
      */
-    Object unmarshalSimpleType(CharSequence lexicalValue,
-                               UnmarshalContextImpl context);
+    Object unmarshalAttribute(UnmarshalContextImpl context);
 
 
     /**
