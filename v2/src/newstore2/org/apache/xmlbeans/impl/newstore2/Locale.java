@@ -111,9 +111,11 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     static final String _xml1998Uri  = "http://www.w3.org/XML/1998/namespace";
     static final String _xmlnsUri    = "http://www.w3.org/2000/xmlns/";
     
-    static final QName _xsiNil          = new QName( _xsi, "nil" );
-    static final QName _xsiType         = new QName( _xsi, "type" );
-    static final QName _openuriFragment = new QName( _openFragUri, "fragment" );
+    static final QName _xsiNil          = new QName( _xsi, "nil", "xsi" );
+    static final QName _xsiType         = new QName( _xsi, "type", "xsi" );
+    static final QName _xsiLoc          = new QName( _xsi, "schemaLocation", "xsi" );
+    static final QName _xsiNoLoc        = new QName( _xsi, "noNamespaceSchemaLocation", "xsi" );
+    static final QName _openuriFragment = new QName( _openFragUri, "fragment", "frag" );
     static final QName _xmlFragment     = new QName( "xml-fragment" );
 
     private Locale ( SchemaTypeLoader stl, XmlOptions options )
@@ -125,10 +127,20 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         //
 
         // TODO - add option for no=sync, or make it all thread safe
+        //
+        // Also - have a thread local setting for thread safety?  .. Perhaps something
+        // in the type loader which defines whether ot not sync is on????
         
         _noSync = true;
         
         _tempFrames = new Cur [ _numTempFramesLeft = 8 ];
+
+        // BUGBUG - this cannot be thread locale ....
+        // BUGBUG - this cannot be thread locale ....
+        // BUGBUG - this cannot be thread locale ....
+        // 
+        // Lazy create this (loading up a locale should use the thread locale one)
+        // same goes for the qname factory .. use thread local for hte most part when loading
         
         _charUtil = CharUtil.getThreadLocalCharUtil();
         
@@ -200,28 +212,6 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return l;
     }
 
-    void setType ( Cur c, SchemaType type )
-    {
-        assert type != null;
-
-        TypeStoreUser user = c.peekUser();
-
-        if (user != null && user.get_schema_type() == type)
-            return;
-
-        if (c.isRoot())
-        {
-            c.setStableUser( ((TypeStoreUserFactory) type).createTypeStoreUser() );
-            return;
-        }
-        
-        throw new RuntimeException( "Not impl" );
-
-        // more to do here
-        // more to do here
-        // more to do here
-    }
-
     //
     //
     //
@@ -239,7 +229,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         if (optionType != null)
         {
-            setType( c, optionType );
+            c.setType( optionType );
             return;
         }
 
@@ -259,13 +249,18 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
                 type = xsiSchemaType;
         }
 
+        // Look for a document element to establish type
+        
         if (type == null && (requestedType == null || requestedType.isDocumentType()))
         {
+            assert c.isRoot();
+            
             c.push();
 
             QName docElemName =
-                Locale.toFirstChildElement( c ) && !Locale.toNextSiblingElement( c )
-                    ? c.getName() : null;
+                !c.hasAttrs() && Locale.toFirstChildElement( c ) &&
+                    !Locale.toNextSiblingElement( c )
+                        ? c.getName() : null;
 
             c.pop();
 
@@ -307,7 +302,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         if (type == null)
             type = XmlBeans.NO_TYPE;
 
-        setType( c, type );
+        c.setType( type );
 
         if (requestedType != null)
         {
@@ -501,7 +496,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         if (sType == null)
             sType = type == null ? XmlObject.type : type;
 
-        setType( c, sType );
+        c.setType( sType );
 
         XmlObject x = (XmlObject) c.getUser();
 
@@ -978,7 +973,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             {
             case    ROOT : case     ELEM : return true;
             case  - ROOT : case   - ELEM : c.pop(); return false;
-            case COMMENT : case PROCINST : c.toEnd(); c.next(); break;
+            case COMMENT : case PROCINST : c.skip(); break;
             default                      : c.nextWithAttrs();   break;
             }
         }
@@ -1052,10 +1047,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         if (k == ATTR)
             c.toParent();
         else if (k == ELEM)
-        {
-            c.toEnd();
-            c.next();
-        }
+            c.skip();
 
         while ( (k = c.kind()) > 0 )
         {
@@ -1305,6 +1297,14 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return c;
     }
 
+    void unregisterCurs ( )
+    {
+        while ( _registered != null )
+            _registered.embed();
+        
+        assert _registered == null;
+    }
+
     private Cur getCur ( int curKind )
     {
         assert curKind == Cur.TEMP || curKind == Cur.PERM || curKind == Cur.WEAK;
@@ -1350,6 +1350,14 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return _tempFrames.length - _numTempFramesLeft > 0;
     }
 
+    public void enter ( Locale otherLocale )
+    {
+        enter();
+
+        if (otherLocale != this)
+            otherLocale.enter();
+    }
+    
     public void enter ( )
     {
         assert _numTempFramesLeft >= 0;
@@ -1378,6 +1386,14 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
                 }
             }
         }
+    }
+    
+    public void exit ( Locale otherLocale )
+    {
+        exit();
+
+        if (otherLocale != this)
+            otherLocale.exit();
     }
     
     public void exit ( )

@@ -19,7 +19,6 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.impl.common.Chars;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -152,39 +151,27 @@ public class ValidatingXMLStreamReader
         }
 
         // fill up chars with the xsi:type attribute value if there is one othervise return false
-        public boolean getXsiType(Chars chars) // BEGIN xsi:type
+        public String getXsiType() // BEGIN xsi:type
         {
-            chars.string = _xmlStream.getAttributeValue(URI_XSI, "type");
-            if (chars.string != null)
-                return true;
-            return false;
+            return _xmlStream.getAttributeValue(URI_XSI, "type");
         }
 
         // fill up chars with xsi:nill attribute value if any
-        public boolean getXsiNil(Chars chars) // BEGIN xsi:nil
+        public String getXsiNil() // BEGIN xsi:nil
         {
-            chars.string = _xmlStream.getAttributeValue(URI_XSI, "nil");
-            if (chars.string != null)
-                return true;
-            return false;
+            return _xmlStream.getAttributeValue(URI_XSI, "nil");
         }
 
         // not used curently
-        public boolean getXsiLoc(Chars chars) // BEGIN xsi:schemaLocation
+        public String getXsiLoc() // BEGIN xsi:schemaLocation
         {
-            chars.string = _xmlStream.getAttributeValue(URI_XSI, "schemaLocation");
-            if (chars.string != null)
-                return true;
-            return false;
+            return _xmlStream.getAttributeValue(URI_XSI, "schemaLocation");
         }
 
         // not used curently
-        public boolean getXsiNoLoc(Chars chars) // BEGIN xsi:noNamespaceSchemaLocation
+        public String getXsiNoLoc() // BEGIN xsi:noNamespaceSchemaLocation
         {
-            chars.string = _xmlStream.getAttributeValue(URI_XSI, "noNamespaceSchemaLocation");
-            if (chars.string != null)
-                return true;
-            return false;
+            return _xmlStream.getAttributeValue(URI_XSI, "noNamespaceSchemaLocation");
         }
 
         // On START and ATTR
@@ -196,19 +183,16 @@ public class ValidatingXMLStreamReader
         }
 
         // On TEXT and ATTR
-        public void getText(Chars chars)
+        public String getText()
         {
-            chars.string = null;
-            chars.buffer = _buf;
-            chars.offset = 0;
             _length = 0;
             addTextToBuffer();
+            return new String( _buf, 0, _length );
         }
 
-        public void getText(Chars chars, int wsr)
+        public String getText(int wsr)
         {
-            chars.string = XmlWhitespace.collapse(
-                    _xmlStream.getText(), wsr );
+            return XmlWhitespace.collapse( _xmlStream.getText(), wsr );
         }
 
         public boolean textIsWhitespace()
@@ -259,6 +243,7 @@ public class ValidatingXMLStreamReader
         implements ValidatorListener.Event
     {
         private int _attIndex;
+        private int _length;
         private XMLStreamReader _xmlStream;
 
         private void setXMLStreamReader(XMLStreamReader xsr)
@@ -278,25 +263,25 @@ public class ValidatingXMLStreamReader
         }
 
         // fill up chars with the xsi:type attribute value if there is one othervise return false
-        public boolean getXsiType(Chars chars) // BEGIN xsi:type
+        public String getXsiType() // BEGIN xsi:type
         {
             throw new IllegalStateException();
         }
 
         // fill up chars with xsi:nill attribute value if any
-        public boolean getXsiNil(Chars chars) // BEGIN xsi:nil
+        public String getXsiNil() // BEGIN xsi:nil
         {
             throw new IllegalStateException();
         }
 
         // not used curently
-        public boolean getXsiLoc(final Chars chars) // BEGIN xsi:schemaLocation
+        public String getXsiLoc() // BEGIN xsi:schemaLocation
         {
             throw new IllegalStateException();
         }
 
         // not used curently
-        public boolean getXsiNoLoc(final Chars chars) // BEGIN xsi:noNamespaceSchemaLocation
+        public String getXsiNoLoc() // BEGIN xsi:noNamespaceSchemaLocation
         {
             throw new IllegalStateException();
         }
@@ -312,20 +297,16 @@ public class ValidatingXMLStreamReader
         }
 
         // On TEXT and ATTR
-        public void getText(Chars chars)
+        public String getText()
         {
             assert _xmlStream.isStartElement() : "Not on Start Element.";
-            chars.string = _xmlStream.getAttributeValue(_attIndex);
-            chars.offset = 0;
-            //System.out.println("    Att Text   : " + chars.asString() );
+            return _xmlStream.getAttributeValue(_attIndex);
         }
 
-        public void getText(Chars chars, int wsr)
+        public String getText(int wsr)
         {
             assert _xmlStream.isStartElement() : "Not on Start Element.";
-            chars.string = XmlWhitespace.collapse(
-                    _xmlStream.getAttributeValue(_attIndex), wsr );
-            //System.out.println("    Att Text WS: " + chars.string );
+            return XmlWhitespace.collapse( _xmlStream.getAttributeValue(_attIndex), wsr );
         }
 
         public boolean textIsWhitespace()
@@ -353,6 +334,7 @@ public class ValidatingXMLStreamReader
         implements ValidatorListener.Event
     {
         private String _text;
+        private int _length;
         private QName  _qname;
         private XMLStreamReader _xmlStream;
 
@@ -371,35 +353,34 @@ public class ValidatingXMLStreamReader
         }
 
         // fill up chars with the xsi:type attribute value if there is one othervise return false
-        public boolean getXsiType(Chars chars) // BEGIN xsi:type
-        { return false; }
+        public String getXsiType() // BEGIN xsi:type
+        { return null; }
 
         // fill up chars with xsi:nill attribute value if any
-        public boolean getXsiNil(Chars chars) // BEGIN xsi:nil
-        { return false; }
+        public String getXsiNil() // BEGIN xsi:nil
+        { return null; }
 
         // not used curently
-        public boolean getXsiLoc(final Chars chars) // BEGIN xsi:schemaLocation
-        { return false; }
+        public String getXsiLoc() // BEGIN xsi:schemaLocation
+        { return null; }
 
         // not used curently
-        public boolean getXsiNoLoc(final Chars chars) // BEGIN xsi:noNamespaceSchemaLocation
-        { return false; }
+        public String getXsiNoLoc() // BEGIN xsi:noNamespaceSchemaLocation
+        { return null; }
 
         // On START and ATTR
         public QName getName()
         { return _qname; }
 
         // On TEXT and ATTR
-        public void getText(Chars chars)
+        public String getText()
         {
-            chars.string = _text;
-            chars.offset = 0;
+            return _text;
         }
 
-        public void getText(Chars chars, int wsr)
+        public String getText(int wsr)
         {
-            chars.string = XmlWhitespace.collapse( _text, wsr );
+            return XmlWhitespace.collapse( _text, wsr );
         }
 
         public boolean textIsWhitespace()

@@ -2850,8 +2850,7 @@ public abstract class Splay extends Goobers
                 {
                     for ( s = c.nextSplay() ; s.isAttr() ; s = s.nextSplay() )
                     {
-                        if (s.isXmlns() &&
-                                s.getLocal().equals( suggestion ))
+                        if (s.isXmlns() && s.getLocal().equals( suggestion ))
                         {
                             suggestion = null;
                             break;
@@ -2876,8 +2875,7 @@ public abstract class Splay extends Goobers
                 {
                     for ( s = c.nextSplay() ; s.isAttr() ; s = s.nextSplay() )
                     {
-                        if (s.isXmlns() &&
-                              s.getLocal().equals( suggestion ))
+                        if (s.isXmlns() && s.getLocal().equals( suggestion ))
                         {
                             suggestion = null;
                             break loop;

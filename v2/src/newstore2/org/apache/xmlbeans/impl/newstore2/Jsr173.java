@@ -145,10 +145,7 @@ public class Jsr173
                         }
                     }
                     else
-                    {
-                        _end.toEnd();
-                        _end.next();
-                    }
+                        _end.skip();
                 }
             }
 
@@ -230,10 +227,7 @@ public class Jsr173
                     }
                 }
                 else if (kind == Cur.COMMENT || kind == Cur.PROCINST)
-                {
-                    _cur.toEnd();
-                    _cur.next();
-                }
+                    _cur.skip();
                 else if (kind == Cur.ROOT)
                 {
                     if (!_cur.toFirstAttr())
@@ -945,19 +939,15 @@ public class Jsr173
             checkChanged();
 
             Cur c = getCur();
-            Cur cParent = null;
+
+            c.push();
 
             if (!c.isContainer())
-            {
-                c = cParent = c.tempCur();
-                boolean b = cParent.toParent();
-                assert b;
-            }
-
+                c.toParent();
+            
             String ns = c.namespaceForPrefix( prefix, true );
 
-            if (cParent != null)
-                cParent.release();
+            c.pop();
 
             return ns;
         }
@@ -967,19 +957,15 @@ public class Jsr173
             checkChanged();
 
             Cur c = getCur();
-            Cur cParent = null;
+
+            c.push();
 
             if (!c.isContainer())
-            {
-                c = cParent = c.tempCur();
-                boolean b = cParent.toParent();
-                assert b;
-            }
-
-            String prefix = c.prefixForNamespace( namespaceURI );
-
-            if (cParent != null)
-                cParent.release();
+                c.toParent();
+            
+            String prefix = c.prefixForNamespace( namespaceURI, null, false );
+            
+            c.pop();
 
             return prefix;
         }
@@ -1136,7 +1122,7 @@ public class Jsr173
     //
     //
 
-    private static class Jsr173GateWay
+    private static abstract class Jsr173GateWay
     {
         public Jsr173GateWay ( Locale l, XMLStreamReaderBase xs ) { _l = l; _xs = xs; }
         

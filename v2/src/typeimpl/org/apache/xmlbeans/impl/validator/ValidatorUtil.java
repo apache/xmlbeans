@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.validator;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.impl.common.Chars;
 import org.apache.xmlbeans.impl.common.PrefixResolver;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
@@ -31,16 +30,15 @@ import java.util.Collection;
  */
 public class ValidatorUtil
 {
-    private static class EventImpl
-        implements ValidatorListener.Event
+    private static class EventImpl implements ValidatorListener.Event
     {
         PrefixResolver _prefixResolver;
-        Chars _text;
+        String _text;
 
-        EventImpl(PrefixResolver prefixResolver, Chars chars)
+        EventImpl(PrefixResolver prefixResolver, String text)
         {
             _prefixResolver = prefixResolver;
-            _text = chars;
+            _text = text;
         }
 
         // can return null, used only to locate errors
@@ -55,25 +53,25 @@ public class ValidatorUtil
         }
 
         // fill up chars with the xsi:type attribute value if there is one othervise return false
-        public boolean getXsiType(Chars chars) // BEGIN xsi:type
+        public String getXsiType() // BEGIN xsi:type
         {
-            return false;
+            return null;
         }
 
         // fill up chars with xsi:nill attribute value if any
-        public boolean getXsiNil(Chars chars) // BEGIN xsi:nil
+        public String getXsiNil() // BEGIN xsi:nil
         {
-            return false;
+            return null;
         }
 
-        public boolean getXsiLoc(Chars chars) // BEGIN xsi:schemaLocation
+        public String getXsiLoc() // BEGIN xsi:schemaLocation
         {
-            return false;
+            return null;
         }
 
-        public boolean getXsiNoLoc(Chars chars) // BEGIN xsi:noNamespaceSchemaLocation
+        public String getXsiNoLoc() // BEGIN xsi:noNamespaceSchemaLocation
         {
-            return false;
+            return null;
         }
 
         // On START and ATTR
@@ -83,15 +81,14 @@ public class ValidatorUtil
         }
 
         // On TEXT and ATTR
-        public void getText(Chars chars)
+        public String getText()
         {
-            chars.string = _text.asString();
+            return _text;
         }
 
-        public void getText(Chars chars, int wsr)
+        public String getText(int wsr)
         {
-            chars.string = XmlWhitespace.collapse(
-                    _text.asString(), wsr );
+            return XmlWhitespace.collapse( _text, wsr );
         }
 
         public boolean textIsWhitespace()
@@ -105,11 +102,10 @@ public class ValidatorUtil
         }
     }
 
-    public static boolean validateSimpleType ( SchemaType type, String value,
-        Collection errors, PrefixResolver prefixResolver)
+    public static boolean validateSimpleType (
+        SchemaType type, String value, Collection errors, PrefixResolver prefixResolver )
     {
-        if (!type.isSimpleType() &&
-                type.getContentType() != SchemaType.SIMPLE_CONTENT)
+        if (!type.isSimpleType() && type.getContentType() != SchemaType.SIMPLE_CONTENT)
         {
             assert false;
             throw new RuntimeException( "Not a simple type" );
@@ -120,12 +116,10 @@ public class ValidatorUtil
                         type, null, type.getTypeSystem(), null, errors);
 
         //make only one event at the beginning and than reuse it
-        Chars text = new Chars();
-        EventImpl ev = new EventImpl(prefixResolver, text);
+        EventImpl ev = new EventImpl(prefixResolver, value);
 
         validator.nextEvent(ValidatorListener.BEGIN, ev);
 
-        text.string = value;
         validator.nextEvent(ValidatorListener.TEXT, ev);
 
         validator.nextEvent(ValidatorListener.END, ev);

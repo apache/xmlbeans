@@ -108,21 +108,31 @@ import org.apache.xmlbeans.impl.newstore2.Public2;
 
 //import noNamespace.RootDocument;
 //import noNamespace.ElemType;
+//import noNamespace.ElemTypeDerived;
 
 public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<a/>" );
-        XmlCursor c = Public2.getCursor( doc );
+        Public2.save( Public2.parse( "<a/>" ), System.out, null );
+//        XmlObject x = XmlObject.Factory.parse( "<a/>" );
+//        XmlObject y = XmlObject.Factory.parse( "<a/>" );
+//
+//        XmlCursor xc = x.newCursor();
+//        XmlCursor yc = y.newCursor();
+//
+//        xc.toFirstChild();
+//        yc.toFirstChild();
+//
+//        yc.toCursor( xc );
+//        xc.moveXml( yc );
         
-        Public2.test( doc );
-        c.newInputStream();
-
-//        XmlObject.Factory.parse(
-//            "<!-- -->  <frag:fragment " +
-//                "xmlns:frag='http://www.openuri.org/fragment' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance' xsi:type='elemType'>" +
-//                    "moo <elem> 123 </elem></frag:fragment>   <!-- -->    " );
+//        RootDocument rootDoc1 = RootDocument.Factory.parse( "<root><elem>123</elem></root>" );
+//        RootDocument rootDoc2 = RootDocument.Factory.parse( "<root><elem>678</elem></root>" );
+//
+//        rootDoc1.set( rootDoc2 );
+//        
+//        rootDoc1.save( System.out );
     }
 }
 

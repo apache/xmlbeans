@@ -34,7 +34,7 @@ public interface ValidatorListener
 
     void nextEvent ( int kind, Event event );
 
-    public static interface Event extends PrefixResolver
+    public interface Event extends PrefixResolver
     {
         public static final int PRESERVE = 1;
         public static final int REPLACE  = 2;
@@ -43,18 +43,18 @@ public interface ValidatorListener
         XmlCursor getLocationAsCursor ( );
         Location getLocation();
 
-        boolean getXsiType  ( Chars chars ); // BEGIN xsi:type
-        boolean getXsiNil   ( Chars chars ); // BEGIN xsi:nil
-        boolean getXsiLoc   ( Chars chars ); // BEGIN xsi:schemaLocation
-        boolean getXsiNoLoc ( Chars chars ); // BEGIN xsi:noNamespaceSchemaLocation
+        String getXsiType  ( ); // BEGIN xsi:type
+        String getXsiNil   ( ); // BEGIN xsi:nil
+        String getXsiLoc   ( ); // BEGIN xsi:schemaLocation
+        String getXsiNoLoc ( ); // BEGIN xsi:noNamespaceSchemaLocation
                 
         // On START and ATTR
         QName getName ( );
         
         // On TEXT and ATTR
-        void getText ( Chars chars );
-        void getText ( Chars chars, int wsr );
-        
+        String getText ( );
+        String getText (int wsr );
+
         boolean textIsWhitespace ( );
     }
 }
