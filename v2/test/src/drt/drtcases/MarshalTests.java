@@ -196,6 +196,8 @@ public class MarshalTests extends TestCase
         testStringTypeUnmarshal("IDREF");
         testStringTypeUnmarshal("ENTITY");
         testStringTypeUnmarshal("anyURI");
+        testStringTypeUnmarshal("NOTATION");
+
 
         Calendar c = Calendar.getInstance();
 
