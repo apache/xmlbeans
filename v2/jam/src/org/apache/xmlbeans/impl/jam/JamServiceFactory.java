@@ -96,14 +96,6 @@ public abstract class JamServiceFactory {
    */
   public abstract JamClassLoader createJamClassLoader(ClassLoader cl);
 
-
-
-//temporary
-  public static boolean ANNOTATION_DEFAULTS_ENABLED = false;
-  public static final void setAnnotationDefaultsEnabled(boolean b) {
-    ANNOTATION_DEFAULTS_ENABLED = b;
-  }
-
   // ========================================================================
   // main() method
 

@@ -29,6 +29,10 @@ import com.sun.javadoc.ExecutableMemberDoc;
  */
 public interface Javadoc15Delegate {
 
+//temporary
+public static final String ANNOTATION_DEFAULTS_ENABLED_PROPERTY =
+  "Javadoc15DelegateImpl.ANNOTATION_DEFAULTS_ENABLED_PROPERTY";
+
   public void init(ElementContext ctx);
 
   public void extractAnnotations(MAnnotatedElement dest,
