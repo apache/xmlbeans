@@ -111,12 +111,12 @@ final class UnmarshalContextImpl
                          RuntimeBindingTypeTable typeTable,
                          Collection errors)
     {
-        this.baseReader = createExtendedReader(reader);
         this.bindingLoader = bindingLoader;
         this.errors = errors;
         this.typeTable = typeTable;
 
         if (reader != null) {
+            this.baseReader = createExtendedReader(reader);
             updateAttributeState();
         }
     }
