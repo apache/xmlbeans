@@ -523,6 +523,31 @@
     </copy>
   </target>
 
+  <target name="jamdocs" depends="xbean">
+    <property name="docs.dir" value="build/docs" /> 
+    <delete dir="${docs.dir}" /> 
+    <mkdir dir="${docs.dir}" /> 
+    <javadoc packagenames="*" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="1.4" stylesheetfile="docs/stylesheet.css">
+      <fileset dir="src" includes="**/jam/*.java,**/jeti/**/*.java" casesensitive="yes">
+        <exclude name="**/*Test*" /> 
+      </fileset>
+      <link href="http://e-docs.bea.com/wls/docs81/javadocs/" /> 
+      <link href="http://java.sun.com/j2se/1.4.2/docs/api/" /> 
+      <link href="http://java.sun.com/j2ee/1.4/docs/api/" /> 
+      <link href="http://xml.apache.org/xerces-j/apiDocs/" /> 
+      <classpath>
+        <pathelement location="build/ar/xbean.jar" /> 
+      </classpath>
+    </javadoc>
+    <copy file="docs/xmlbeans.css" tofile="${docs.dir}/xmlbeans.css" /> 
+    <copy todir="${docs.dir}/guide">
+      <fileset dir="docs/guide" /> 
+    </copy>
+    <copy todir="${docs.dir}/images">
+      <fileset dir="docs/images" /> 
+    </copy>
+  </target>
+
   <!-- stream conformance tests ======================================= -->
 
   <target name="streamtest.classes" depends="dirs">
