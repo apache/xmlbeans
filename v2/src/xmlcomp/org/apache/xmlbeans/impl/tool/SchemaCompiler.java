@@ -164,7 +164,6 @@ public class SchemaCompiler
         boolean noAnn = (cl.getOpt("noann") != null);
         boolean nojavac = (cl.getOpt("srconly") != null);
         boolean debug = (cl.getOpt("debug") != null);
-        boolean jaxb = (cl.getOpt("jaxb") != null);
 
         String allowmdef = cl.getOpt("allowmdef");
         Set mdefNamespaces = (allowmdef == null ? Collections.EMPTY_SET :
@@ -309,7 +308,6 @@ public class SchemaCompiler
         params.setErrorListener(err);
         params.setRepackage(repackage);
         params.setExtensions(extensions);
-        params.setJaxb(jaxb);
         params.setMdefNamespaces(mdefNamespaces);
         params.setCatalogFile(catString);
 
@@ -351,7 +349,6 @@ public class SchemaCompiler
         private boolean debug;
         private String repackage;
         private List extensions = Collections.EMPTY_LIST;
-        private boolean jaxb;
         private Set mdefNamespaces = Collections.EMPTY_SET;
         private String catalogFile;
 
@@ -573,17 +570,6 @@ public class SchemaCompiler
         public void setJar(String jar)
         {
             this.jar = jar;
-        }
-
-
-        public void setJaxb(boolean jaxb)
-        {
-            this.jaxb = jaxb;
-        }
-
-        public boolean getJaxb()
-        {
-            return this.jaxb;
         }
 
         public Collection getErrorListener()
@@ -838,7 +824,6 @@ public class SchemaCompiler
         Collection outerErrorListener = params.getErrorListener();
         String repackage = params.getRepackage();
         List extensions = params.getExtensions();
-        boolean jaxb = params.getJaxb();
         Set mdefNamespaces = params.getMdefNamespaces();
 
         EntityResolver cmdLineEntRes = ResolverUtil.resolverForCatalog(params.getCatalogFile());
@@ -882,7 +867,7 @@ public class SchemaCompiler
             // generate source and .xsb
             List sourcefiles = new ArrayList();
             result &= SchemaCodeGenerator.compileTypeSystem(system, srcDir, javaFiles, sourcesToCopyMap,
-                classpath, classesDir, outputJar, nojavac, jaxb, errorListener, repackage, verbose,
+                classpath, classesDir, outputJar, nojavac, errorListener, repackage, verbose,
                 sourcefiles, schemasDir);
             result &= !errorListener.hasError();
 

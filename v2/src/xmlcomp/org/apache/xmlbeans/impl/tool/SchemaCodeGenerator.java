@@ -67,8 +67,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -83,7 +81,7 @@ public class SchemaCodeGenerator
     // todo: output jar
     public static boolean compileTypeSystem(SchemaTypeSystem saver, File sourcedir, File[] javasrc,
          Map sourcesToCopyMap, File[] classpath, File classesdir, File outputJar, boolean nojavac,
-         boolean jaxb, XmlErrorWatcher errors, String repackage, boolean verbose, List sourcefiles,
+         XmlErrorWatcher errors, String repackage, boolean verbose, List sourcefiles,
          File schemasDir)
     {
 
@@ -153,10 +151,7 @@ public class SchemaCodeGenerator
             failure = true;
         }
 
-        if (! jaxb)
-            failure &= genTypes(saver, sourcefiles, sourcedir, repackager, verbose);
-        else
-            failure &= jaxbCodeGenerator(saver, sourcefiles, sourcedir, classesdir, errors);
+        failure &= genTypes(saver, sourcefiles, sourcedir, repackager, verbose);
 
         if (failure)
             return false;
@@ -255,46 +250,6 @@ public class SchemaCodeGenerator
         }
 
         return failure;
-    }
-
-    private static class JaxbCodeGeneratorHolder
-    {
-        private static final Method _jaxbCodeGeneratorMethod = buildJaxbCodeGeneratorMethod();
-    
-        private static Method buildJaxbCodeGeneratorMethod()
-        {
-            try
-            {
-                return Class.forName("org.apache.xmlbeans.impl.jaxb.compiler.JaxbCodeGenerator", false, SchemaCodeGenerator.class.getClassLoader())
-                    .getMethod("compile", new Class[] {SchemaTypeSystem.class, List.class, File.class, File.class, XmlErrorWatcher.class });
-            }
-            catch (Exception e)
-            {
-                IllegalStateException e2 =  new IllegalStateException("Cannot load JaxbCodeGenerator: verify that xbean.jar is on the classpath");
-                e2.initCause(e);
-                throw e2;
-            }
-        }
-    }
-
-    private static boolean jaxbCodeGenerator(SchemaTypeSystem saver, List sourcefiles, File sourcedir, File classesdir, XmlErrorWatcher errors)
-    {
-        try
-        {
-            return ((Boolean)JaxbCodeGeneratorHolder._jaxbCodeGeneratorMethod.invoke(null, new Object[] { saver, sourcefiles, sourcedir, classesdir, errors })).booleanValue();
-        }
-        catch (InvocationTargetException e)
-        {
-            IllegalStateException e2 = new IllegalStateException(e.getMessage());
-            e2.initCause(e);
-            throw e2;
-        }
-        catch (IllegalAccessException e)
-        {
-            IllegalStateException e2 = new IllegalStateException(e.getMessage());
-            e2.initCause(e);
-            throw e2;
-        }
     }
 
     protected static File createTempDir() throws IOException
