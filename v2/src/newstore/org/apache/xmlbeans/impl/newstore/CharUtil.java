@@ -316,25 +316,32 @@ public final class CharUtil
 
         _cchSrc = cch + cchInsert;
 
-        if (cch == 0)
+        if (cchInsert == 0)
         {
+            _cchSrc = cch;
             _offSrc = off;
             return src;
         }
 
+        _cchSrc = cch + cchInsert;
         _offSrc = 0;
+
+        Object newSrc;
         
         if (posInsert == 0)
-            return new CharJoin( src, off, cch, srcInsert, offInsert, cchInsert );
+            newSrc = new CharJoin( src, off, cch, srcInsert, offInsert, cchInsert );
 
         if (posInsert == cch)
-            return new CharJoin( srcInsert, offInsert, cchInsert, src, off, cch );
+            newSrc = new CharJoin( srcInsert, offInsert, cchInsert, src, off, cch );
+        else
+        {
 
-        Object newSrc =
-            new CharJoin( 
-                new CharJoin( src, off, posInsert, srcInsert, offInsert, cchInsert ),
-                0, posInsert + cchInsert,
-                src, off + posInsert, cch - posInsert );
+            newSrc =
+                new CharJoin( 
+                    new CharJoin( src, off, posInsert, srcInsert, offInsert, cchInsert ),
+                    0, posInsert + cchInsert,
+                    src, off + posInsert, cch - posInsert );
+        }
 
         assert isValid( newSrc, _offSrc, _cchSrc );
 
