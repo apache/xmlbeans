@@ -461,8 +461,8 @@
         <fileset dir="." includes="bin/**"/>
      </copy>
      <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
-        <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd"/>
-        <fileset dir="src/xmlschema/schema" includes="XML.xsd"/>
+        <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd,w3c-schema-license.html"/>
+        <fileset dir="src/xmlschema/schema" includes="XML.xsd,w3c-xml-license.html"/>
      </copy>
      <copy todir="build/private/xmlbeans-${product.version}/schemas">
         <fileset dir="test/src" includes="easypo/*.xsd,easypo/*.xsdconfig"/>
