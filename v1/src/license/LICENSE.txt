@@ -200,3 +200,14 @@
    See the License for the specific language governing permissions and
    limitations under the License.
 
+
+===========================================================================
+
+ADDITIONAL LICENSES COVERING PARTS OF THIS DISTRIBUTION:
+
+This distribution includes W3C XML Schema documents Copyright (c) 2001-2003
+World Wide Web Consortium.  These schemas are licensed under the W3C
+Software License, which is included in the same directory as the schemas.
+The license can also be found at:
+http://www.w3.org/Consortium/Legal/2002/copyright-software-20021231.
+
