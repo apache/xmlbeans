@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://forrest.apache.org/dtd/document-v12.dtd">
+<document>
+    <header>
+        <title>XMLBeans Samples</title>
+    </header>
+    <body>
+        <section>
+            <title/>
+            <p>Click the name of a sample listed below to go to a page that describes the sample in
+                more detail. From there, you can view the files that make up the sample. This sample
+                repository is just getting started, so be sure to check back for new additions.</p>
+            <p>Note that you can also get all of the XMLBeans sample code listed here by enlisting
+                in the XMLBeans CVS project. For more information, see <link
+                    href="../sourceAndBinaries/index.html#XMLBeans+Source">XMLBeans Source</link>. </p>
+        </section>
+        <section>
+            <title>Samples List</title>
+            <table>
+                <tr>
+                    <th>Title</th>
+                    <th>Date Available</th>
+                    <th>XMLBeans Technologies</th>
+                </tr>
+                <tr>
+                    <td>
+                        <link href="MixedContent.html">
+                            <strong>MixedContent</strong>
+                        </link>
+                        <br/>Work with mixed content XML by combining strong types generated from
+                        schema with an <code>XmlCursor</code> instance.</td>
+                    <td>2004-09-15</td>
+                    <td>cursor</td>
+                </tr>
+                <tr>
+                    <td>
+                        <link href="SchemaEnum.html">
+                            <strong>SchemaEnum</strong>
+                        </link>
+                        <br/>Access XML values that are defined in schema as enumerations.</td>
+                    <td>2004-09-15</td>
+                    <td>schema: enumerations</td>
+                </tr>
+            </table>
+        </section>
+    </body>
+</document>
