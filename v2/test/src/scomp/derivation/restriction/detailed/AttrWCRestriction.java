@@ -47,7 +47,9 @@ public class AttrWCRestriction extends BaseCase {
                  Any2ConcreteDocument.Factory.parse(input);
         assertTrue ( !doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
     }

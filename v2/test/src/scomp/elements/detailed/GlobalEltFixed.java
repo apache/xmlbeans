@@ -38,7 +38,8 @@ public class GlobalEltFixed extends BaseCase {
         assertTrue(testEltStr.validate());
     }
 
-    //document should be valid even if the values are missing
+    //document should be valid even if the values
+    // are missing
     public void testValidMissing() throws Exception {
         GlobalEltFixedIntDocument testEltInt = GlobalEltFixedIntDocument
                 .Factory.parse("<GlobalEltFixedInt " +
@@ -53,7 +54,9 @@ public class GlobalEltFixed extends BaseCase {
                 "xmlns=\"http://xbean/scomp/element/GlobalEltFixed\"" +
                 "> foobar </GlobalEltFixedInt>");
         assertTrue(!testEltInt.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DECIMAL
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }

@@ -113,7 +113,9 @@ public class GlobalAttrFixed extends BaseCase {
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DECIMAL
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
