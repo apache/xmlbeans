@@ -15,29 +15,22 @@
 
 package org.apache.xmlbeans.impl.config;
 
-import javax.xml.namespace.QName;
-
-import java.util.Map;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Iterator;
-import java.io.File;
-import java.io.IOException;
-
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Nsconfig;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Qnameconfig;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.impl.schema.StscState;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.JamService;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
-import org.apache.xmlbeans.impl.jam.JamService;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JMethod;
-import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.schema.StscState;
+
+import javax.xml.namespace.QName;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
 
 public class SchemaConfig
 {
