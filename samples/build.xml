@@ -20,7 +20,8 @@ limitations under the License.
     <target name="clean" depends="
         clean-SampleTemplate,
         clean-MixedContent,
-        clean-SchemaEnum">
+        clean-SchemaEnum,
+        clean-SubstitutionGroup">
         <delete dir="build"/>
     </target>
 
@@ -36,12 +37,17 @@ limitations under the License.
         <ant dir="enumeration/SchemaEnum" target="clean"/>
     </target>
 
+    <target name="clean-SubstitutionGroup">
+        <ant dir="substitutiongroup/SubstitutionGroup" target="clean"/>
+    </target>
+
     <!-- ========================== build ==== -->
 
     <target name="build" depends="
         build-SampleTemplate,
         build-MixedContent,
-        build-SchemaEnum">
+        build-SchemaEnum,
+        build-SubstitutionGroup">
     </target>
 
     <target name="build-SampleTemplate">
@@ -56,13 +62,18 @@ limitations under the License.
         <ant dir="enumeration/SchemaEnum" target="build"/>
     </target>
 
+    <target name="build-SubstitutionGroup">
+        <ant dir="substitutiongroup/SubstitutionGroup" target="build"/>
+    </target>
+
     <!-- ========================== test ==== -->
     <!-- to ensure all samples build and run -->
 
     <target name="test" depends="
         test-SampleTemplate,
         test-MixedContent,
-        test-SchemaEnum">
+        test-SchemaEnum,
+        test-SubstitutionGroup">
     </target>
 
     <target name="test-SampleTemplate">
@@ -77,12 +88,17 @@ limitations under the License.
         <ant dir="enumeration/SchemaEnum" target="test"/>
     </target>
 
+    <target name="test-SubstitutionGroup">
+        <ant dir="substitutiongroup/SubstitutionGroup" target="test"/>
+    </target>
+
     <!-- ========================== dist ==== -->
 
     <target name="dist" depends="
         dist-SampleTemplate,
         dist-MixedContent,
-        dist-SchemaEnum">
+        dist-SchemaEnum,
+        dist-SubstitutionGroup">
         <zip destfile="build/samples.zip"
             basedir=".."
             includes="samples/**"
@@ -138,6 +154,21 @@ limitations under the License.
             basedir="enumeration"
             includes="SchemaEnum/**"
             excludes="SchemaEnum/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-SubstitutionGroup">
+        <mkdir dir="build"/>
+        <zip destfile="build/SubstitutionGroup.zip"
+            basedir="substitutiongroup"
+            includes="SubstitutionGroup/**"
+            excludes="SubstitutionGroup/build/**"
+            />
+        <tar destfile="build/SubstitutionGroup.tgz"
+            basedir="substitutiongroup"
+            includes="SubstitutionGroup/**"
+            excludes="SubstitutionGroup/build/**"
             compression="gzip"
             />
     </target>
