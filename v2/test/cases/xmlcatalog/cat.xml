@@ -1,6 +1,0 @@
-<catalog xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
-
-<system systemId="file:/C:/dev/xml-xmlbeans/v2/test/cases/xmlcatalog/included.xsd"
-        uri="file:/C:/dev/xml-xmlbeans/v2/test/cases/xmlcatalog/MOVEDincluded.xsd"/>
-
-</catalog>
