@@ -32,7 +32,6 @@ public abstract class JamClassBuilder {
   // Variables
 
   private ElementContext mContext = null;
-  private JamLogger mLogger = null;
   private static boolean mWarningAlreadyIssued = false;
 
   // ========================================================================
@@ -44,7 +43,6 @@ public abstract class JamClassBuilder {
     }
     if (ctx == null) throw new IllegalArgumentException("null ctx");
     mContext = ctx;
-    mLogger = ctx.getLogger();
   }
 
   // ========================================================================
@@ -131,21 +129,21 @@ public abstract class JamClassBuilder {
   // ========================================================================
   // Protected methods
 
-  protected void issue14BuildWarning(Throwable t) {
-    if (!mWarningAlreadyIssued) {
-      getLogger().warning("This build of JAM was produced under JDK 1.4." +
+  protected void issue14BuildWarning(Throwable t, JamLogger logger) {
+    if (!mWarningAlreadyIssued && logger != null) {
+      logger.warning("This build of JAM was produced under JDK 1.4." +
                       "Even though you are running under JDK 1.5, "+
                       "JSR175-style annotations will not be available");
-      getLogger().verbose(t);
+      logger.verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
 
-  protected void issue14RuntimeWarning(Throwable t) {
-    if (!mWarningAlreadyIssued) {
-      getLogger().warning("You are running under a pre-1.5 JDK.  JSR175-style "+
+  protected void issue14RuntimeWarning(Throwable t, JamLogger logger) {
+    if (!mWarningAlreadyIssued && logger != null) {
+      logger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
                       "source annotations will not be available");
-      getLogger().verbose(t);
+      logger.verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
