@@ -14,7 +14,6 @@
 */
 package compile.scomp.common;
 
-import junit.framework.TestCase;
 import junit.framework.Assert;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.tool.Diff;
@@ -30,12 +29,11 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- *
+ * TODO: modify for deprecation warnings
  */
-public class CompileTestBase extends TestCase {
+public class CompileTestBase extends CompileCommon {
 
-    public static final String P = File.separator;
-    public static String outputDir = "compile" + P + "scomp" + P + "incr";
+    public static String outputDir = OUTPUTROOT+P+"compile" + P + "scomp" + P + "incr";
     public static String outPath = P + outputDir + P + "out";
 
     public static String sanityPath = P + outputDir + P + "sanity";
@@ -87,9 +85,9 @@ public class CompileTestBase extends TestCase {
 
     public CompileTestBase(String name) {
         super(name);
-        out = CompileCommon.xbeanOutput(outPath);
-        sanity = CompileCommon.xbeanOutput(sanityPath);
-        outincr = CompileCommon.xbeanOutput(incrPath);
+        out =  xbeanOutput(outPath);
+        sanity =  xbeanOutput(sanityPath);
+        outincr =  xbeanOutput(incrPath);
 
         errors = new ArrayList();
         xm = new XmlOptions();
@@ -127,9 +125,9 @@ public class CompileTestBase extends TestCase {
                                   String classesDir, String outputDir,
                                   SchemaCompiler.Parameters params) {
 
-        File srcdir = CompileCommon.xbeanOutput(srcDir);
-        File classesdir = CompileCommon.xbeanOutput(classesDir);
-        File outputjar = CompileCommon.xbeanOutput(outputDir);
+        File srcdir = xbeanOutput(srcDir);
+        File classesdir = xbeanOutput(classesDir);
+        File outputjar =  xbeanOutput(outputDir);
         params.setXsdFiles(schemas);
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
@@ -150,8 +148,8 @@ public class CompileTestBase extends TestCase {
     /**
      * compares type systems and populates error list based on differences in files
      *
-     * @param out
-     * @param outincr
+     * @param outDir
+     * @param outIncrDir
      * @param errors
      */
     public void compareandPopErrors(File outDir, File outIncrDir, List errors) {
@@ -168,8 +166,6 @@ public class CompileTestBase extends TestCase {
      * compares type systems and populates error list based on
      * default out and outincr directories
      *
-     * @param out
-     * @param outincr
      * @param errors
      */
     public void compareandPopErrors(List errors) {
@@ -277,7 +273,7 @@ public class CompileTestBase extends TestCase {
     }
 
     public void findElementbyQName(SchemaTypeSystem sts, QName[] lookup) throws Exception {
-        
+
         for (int i = 0; i < lookup.length; i++) {
             if (sts.findElement(lookup[i]) == null)
                 throw new Exception("Element was expected but not found\n" + lookup[i]);

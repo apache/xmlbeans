@@ -14,77 +14,20 @@
 */
 package compile.scomp.common;
 
-import org.apache.xmlbeans.XmlError;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
 import java.util.Vector;
+
+import common.Common;
 
 /**
  *
- * 
+ *
  */
-public class CompileCommon {
+public class CompileCommon extends Common{
 
-    public static final String P = File.separator;
+    public static String fileLocation = XBEAN_CASE_ROOT +P + "compile" + P + "scomp" + P;
 
-    public static String fwroot = getRootFile();
-    public static String caseroot = fwroot +P+"test" + P + "cases";
-    //location of files under "cases folder"
-    public static String fileLocation = caseroot+P + "xbean" + P + "compile" + P + "scomp" + P;
-    public static File outputroot = new File(fwroot, "build" + P + "test" + P + "output");
-
-
-    /**
-     * If System.property for 'xbean.rootdir' == null
-     * use '.' as basePath
-     * '.' should be where the build.xml file lives
-     * @return
-     * @throws IllegalStateException
-     */
-    public static String getRootFile() throws IllegalStateException {
-            String baseDir = System.getProperty("xbean.rootdir");
-            if(baseDir == null)
-                return new File(".").getAbsolutePath();
-            else
-                return new File(baseDir).getAbsolutePath();
-    }
-
-    public static File xbeanCase(String str) {
-        return (new File(caseroot + fileLocation, str));
-    }
-
-    public static File xbeanOutput(String str) {
-        File result = (new File(outputroot, str));
-        File parentdir = result.getParentFile();
-        parentdir.mkdirs();
-        return result;
-    }
-
-    public static void deltree(File dir) {
-        if (dir.exists()) {
-            if (dir.isDirectory()) {
-                String[] list = dir.list();
-                for (int i = 0; i < list.length; i++)
-                    deltree(new File(dir, list[i]));
-            }
-            if (!dir.delete())
-                System.out.println("Could not delete " + dir);
-            //throw new IllegalStateException("Could not delete " + dir);
-        }
-    }
-
-    public static void listErrors(List errors) {
-        for (int i = 0; i < errors.size(); i++) {
-            XmlError error = (XmlError) errors.get(i);
-            if (error.getSeverity() == XmlError.SEVERITY_ERROR)
-                System.out.println(error.toString());
-        }
-    }
-
-    public static boolean isJDK14() {
-        return System.getProperty("java.version").startsWith("1.4");
+    public CompileCommon(String name){
+        super(name);
     }
 
     /** compare contents of two vectors */

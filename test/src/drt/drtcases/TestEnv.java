@@ -18,13 +18,19 @@ package drt.drtcases;
 import java.io.File;
 import java.io.IOException;
 
-public class TestEnv
+public class TestEnv extends common.Common
 {
-    private static File fwroot = getRootFile();
-    private static File caseroot = new File(fwroot, "test/cases/xbean");
-    private static File outputroot = new File(fwroot, "build/test/output");
+    private static File fwroot = new File(FWROOT);
+    private static File caseroot = new File(XBEAN_CASE_ROOT);
+    private static File outputroot = new File(OUTPUTROOT);
 
-    public static File getRootFile() throws IllegalStateException
+    public TestEnv(){
+        super("Test Env");
+    }
+    public TestEnv(String name){
+        super(name);
+    }
+    /*public static File getRootFile() throws IllegalStateException
     {
         try
         {
@@ -62,5 +68,5 @@ public class TestEnv
             if (!dir.delete())
                 throw new IllegalStateException("Could not delete " + dir);
         }
-    }
+    } */
 }

@@ -16,11 +16,6 @@ package tools.inst2xsd.common;
 
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
-import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
-
-import java.util.Collection;
-import java.util.ArrayList;
-import java.util.Iterator;
 
 public class Inst2XsdCommon {
 

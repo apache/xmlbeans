@@ -19,24 +19,20 @@ import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import junit.framework.TestCase;
 import tools.xml.XmlComparator;
+import common.Common;
 
-public class Inst2XsdTestBase extends TestCase {
+public class Inst2XsdTestBase extends Common {
 
-    public static final String P = File.separator;
     public static tools.inst2xsd.common.Inst2XsdCommon common;
     public static boolean _verbose = true;
 
-    public static final String fwroot = System.getProperty("cases.location");
-    public static String caseroot = fwroot+P+"xbean";// + P + "test" + P + "cases" + P + "xbean";
+    public static final String fwroot = FWROOT;
+    public static String caseroot = XBEAN_CASE_ROOT;
     //location of files under "cases folder"
     public static String miscDir = caseroot + P + "tools";
     public static String inst2xsdDir = miscDir + P + "inst2xsd" + P;
@@ -138,25 +134,25 @@ public class Inst2XsdTestBase extends TestCase {
     public void runAttrTypeChecking(XmlObject act, String expType) throws Exception {
 
         log("=== Venetian options ===");
-        runAttrTypeChecking(act, expType, common.getVenetianOptions());
+        runAttrTypeChecking(act, expType, Inst2XsdCommon.getVenetianOptions());
         log("=== Russian options ===");
-        runAttrTypeChecking(act, expType, common.getRussianOptions());
+        runAttrTypeChecking(act, expType, Inst2XsdCommon.getRussianOptions());
         log("=== Salami options ===");
-        runAttrTypeChecking(act, expType, common.getSalamiOptions());
+        runAttrTypeChecking(act, expType, Inst2XsdCommon.getSalamiOptions());
         log("=== Default options ===");
-        runAttrTypeChecking(act, expType, common.getDefaultInstOptions());
+        runAttrTypeChecking(act, expType, Inst2XsdCommon.getDefaultInstOptions());
     }
 
     public void runAttrTypeChecking(XmlObject act, String primType, String derType) throws Exception {
 
         log("=== Venetian options ===");
-        runAttrTypeChecking(act, primType, derType, common.getVenetianOptions());
+        runAttrTypeChecking(act, primType, derType, Inst2XsdCommon.getVenetianOptions());
         log("=== Russian options ===");
-        runAttrTypeChecking(act, primType, derType, common.getRussianOptions());
+        runAttrTypeChecking(act, primType, derType, Inst2XsdCommon.getRussianOptions());
         log("=== Salami options ===");
-        runAttrTypeChecking(act, primType, derType, common.getSalamiOptions());
+        runAttrTypeChecking(act, primType, derType, Inst2XsdCommon.getSalamiOptions());
         log("=== Default options ===");
-        runAttrTypeChecking(act, primType, derType, common.getDefaultInstOptions());
+        runAttrTypeChecking(act, primType, derType, Inst2XsdCommon.getDefaultInstOptions());
     }
 
     private void runAttrTypeChecking(XmlObject act, String primType, String derType, Inst2XsdOptions opt) throws Exception {
@@ -194,13 +190,13 @@ public class Inst2XsdTestBase extends TestCase {
     //element value test methods
     public void runTypeChecking(XmlObject act, String expType) throws Exception {
         log("=== Venetian options ===");
-        runTypeChecking(act, expType, common.getVenetianOptions());
+        runTypeChecking(act, expType, Inst2XsdCommon.getVenetianOptions());
         log("=== Russian options ===");
-        runTypeChecking(act, expType, common.getRussianOptions());
+        runTypeChecking(act, expType, Inst2XsdCommon.getRussianOptions());
         log("=== Salami options ===");
-        runTypeChecking(act, expType, common.getSalamiOptions());
+        runTypeChecking(act, expType, Inst2XsdCommon.getSalamiOptions());
         log("=== Default options ===");
-        runTypeChecking(act, expType, common.getDefaultInstOptions());
+        runTypeChecking(act, expType, Inst2XsdCommon.getDefaultInstOptions());
     }
 
 
@@ -225,13 +221,13 @@ public class Inst2XsdTestBase extends TestCase {
     //type coercion/LCD test methods
     public void runLCDTypeCheckTest(String val1, String val2, String expType) throws Exception {
         log("=== Venetian options ===");
-        runLCDTypeChecking(val1, val2, expType, common.getVenetianOptions());
+        runLCDTypeChecking(val1, val2, expType, Inst2XsdCommon.getVenetianOptions());
         log("=== Russian options ===");
-        runLCDTypeChecking(val1, val2, expType, common.getRussianOptions());
+        runLCDTypeChecking(val1, val2, expType, Inst2XsdCommon.getRussianOptions());
         log("=== Salami options ===");
-        runLCDTypeChecking(val1, val2, expType, common.getSalamiOptions());
+        runLCDTypeChecking(val1, val2, expType, Inst2XsdCommon.getSalamiOptions());
         log("=== Default options ===");
-        runLCDTypeChecking(val1, val2, expType, common.getDefaultInstOptions());
+        runLCDTypeChecking(val1, val2, expType, Inst2XsdCommon.getDefaultInstOptions());
     }
 
     private void runLCDTypeChecking(String val1, String val2, String expType, Inst2XsdOptions opt) throws Exception {
@@ -242,11 +238,11 @@ public class Inst2XsdTestBase extends TestCase {
         log("expType: " + expType);
         checkInstance(venetian, new XmlObject[]{act});
 
-        if (opt.getDesign() == opt.DESIGN_VENETIAN_BLIND)
+        if (opt.getDesign() == Inst2XsdOptions.DESIGN_VENETIAN_BLIND)
             compare(venetian[0], getExpLCDXml_vb(expType));
-        else if (opt.getDesign() == opt.DESIGN_SALAMI_SLICE)
+        else if (opt.getDesign() == Inst2XsdOptions.DESIGN_SALAMI_SLICE)
             compare(venetian[0], getExpLCDXml_ss(expType));
-        else if (opt.getDesign() == opt.DESIGN_RUSSIAN_DOLL)
+        else if (opt.getDesign() == Inst2XsdOptions.DESIGN_RUSSIAN_DOLL)
             compare(venetian[0], getExpLCDXml_rd(expType));
         else
             compare(venetian[0], getExpLCDXml_vb(expType));
@@ -325,16 +321,16 @@ public class Inst2XsdTestBase extends TestCase {
 
 
     public static XmlObject[] runInst2Xsd(String inst) throws XmlException {
-        return runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(inst, common.getXmlOptions())},
-                common.getDefaultInstOptions());
+        return runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(inst, Inst2XsdCommon.getXmlOptions())},
+                Inst2XsdCommon.getDefaultInstOptions());
     }
 
     public static XmlObject[] runInst2Xsd(XmlObject inst) {
-        return Inst2Xsd.inst2xsd(new XmlObject[]{inst}, common.getDefaultInstOptions());
+        return Inst2Xsd.inst2xsd(new XmlObject[]{inst}, Inst2XsdCommon.getDefaultInstOptions());
     }
 
     public static XmlObject[] runInst2Xsd(XmlObject[] inst) {
-        return Inst2Xsd.inst2xsd(inst, common.getDefaultInstOptions());
+        return Inst2Xsd.inst2xsd(inst, Inst2XsdCommon.getDefaultInstOptions());
     }
 
     public static XmlObject[] runInst2Xsd(XmlObject inst, Inst2XsdOptions options) {
@@ -414,11 +410,11 @@ public class Inst2XsdTestBase extends TestCase {
 
     public static void compare(XmlObject act, XmlObject exp)
             throws XmlException, Exception {
-        XmlComparator.Diagnostic diag = XmlComparator.lenientlyCompareTwoXmlStrings(act.xmlText(common.getXmlOptions()),
-                exp.xmlText(common.getXmlOptions()));
+        XmlComparator.Diagnostic diag = XmlComparator.lenientlyCompareTwoXmlStrings(act.xmlText(Inst2XsdCommon.getXmlOptions()),
+                exp.xmlText(Inst2XsdCommon.getXmlOptions()));
         if (diag.hasMessage()) {
-            log("Expected: \n" + exp.xmlText(common.getXmlOptions()));
-            log("Actual: \n" + act.xmlText(common.getXmlOptions()));
+            log("Expected: \n" + exp.xmlText(Inst2XsdCommon.getXmlOptions()));
+            log("Actual: \n" + act.xmlText(Inst2XsdCommon.getXmlOptions()));
             throw new Exception("Xml Comparison Failed:\n" + diag.toString());
         }
     }
@@ -426,7 +422,7 @@ public class Inst2XsdTestBase extends TestCase {
     public static void log(XmlObject[] doc) {
         if (_verbose) {
             for (int i = 0; i < doc.length; i++) {
-                log("Schema[" + i + "] - " + doc[i].xmlText(common.getXmlOptions()));
+                log("Schema[" + i + "] - " + doc[i].xmlText(Inst2XsdCommon.getXmlOptions()));
             }
         }
     }
@@ -438,7 +434,7 @@ public class Inst2XsdTestBase extends TestCase {
 
     public static void log(XmlObject obj) {
         if (_verbose)
-            System.out.println(obj.xmlText(common.getXmlOptions()));
+            System.out.println(obj.xmlText(Inst2XsdCommon.getXmlOptions()));
     }
 
 

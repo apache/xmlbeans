@@ -49,9 +49,8 @@ import java.util.List;
  */
 public class SomTestBase extends CompileTestBase
 {
-    public static String P = File.separator;
-    public static String casesRootDir = CompileCommon.caseroot + P + "xbean" + P + "compile" + P + "som" + P;
-    public static String somOutputRootDir = CompileCommon.outputroot + P + "som" + P;
+    public static String casesRootDir = XBEAN_CASE_ROOT+ P + "compile" + P + "som" + P;
+    public static String somOutputRootDir = OUTPUTROOT+ P + "som" + P;
     public static long runid;
     public static PrintWriter outlog = null;
 
@@ -244,7 +243,7 @@ public class SomTestBase extends CompileTestBase
                     out.println("\t+++-> Each derived prop name : " + schemaProperty.getName());
                 }
 
-                // TODO anonymus types 
+                // TODO anonymus types
                 //schema.getAnonymousTypes();
 
             }

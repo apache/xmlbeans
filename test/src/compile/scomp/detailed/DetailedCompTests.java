@@ -16,25 +16,14 @@
 package compile.scomp.detailed;
 
 import junit.framework.TestCase;
-import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
-import org.apache.xmlbeans.impl.tool.SchemaCompiler;
-import org.apache.xmlbeans.impl.tool.CodeGenUtil;
-import org.apache.xmlbeans.impl.tool.Diff;
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3.x2001.xmlSchema.TopLevelComplexType;
+import junit.framework.Assert;
 import org.apache.xmlbeans.*;
 
 import java.io.File;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
 import java.util.*;
 
-import tools.util.TestRunUtil;
 import compile.scomp.common.CompileCommon;
 
 import javax.xml.namespace.QName;
@@ -70,6 +59,7 @@ public class DetailedCompTests extends TestCase
         try{
             SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null,
                 schemas, null, XmlBeans.getBuiltinTypeSystem(), null, xm_opt);
+            Assert.assertTrue("STS was null", sts != null);
         }catch(XmlException xmlEx){
             valDocEx = true;
             System.err.println("Expected Error: "+xmlEx.getMessage());
