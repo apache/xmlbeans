@@ -234,6 +234,7 @@ class ParserForXMLSchema extends RegexParser {
                 if (type == T_CHAR) {
                     if (c == '[')  throw this.ex("parser.cc.6", this.offset-2);
                     if (c == ']')  throw this.ex("parser.cc.7", this.offset-2);
+                    if (c == '-')  throw this.ex("parser.cc.8", this.offset-2);
                 }
                 if (this.read() != T_CHAR || this.chardata != '-') { // Here is no '-'.
                     tok.addRange(c, c);
@@ -242,23 +243,21 @@ class ParserForXMLSchema extends RegexParser {
                     this.next(); // Skips '-'
                     if ((type = this.read()) == T_EOF)  throw this.ex("parser.cc.2", this.offset);
                                                 // c '-' ']' -> '-' is a single-range.
-                    if (type == T_CHAR && this.chardata == ']') {
-                        tok.addRange(c, c);
-                        tok.addRange('-', '-');
-                    }
-                                                // c '-' '-[' -> '-' is a single-range.
-                    else if (type == T_XMLSCHEMA_CC_SUBTRACTION) {
-                        tok.addRange(c, c);
-                        tok.addRange('-', '-');
+                    if ((type == T_CHAR && this.chardata == ']')
+                        || type == T_XMLSCHEMA_CC_SUBTRACTION) {
+                        throw this.ex("parser.cc.8", this.offset-1);
                     } else {
                         int rangeend = this.chardata;
                         if (type == T_CHAR) {
                             if (rangeend == '[')  throw this.ex("parser.cc.6", this.offset-1);
                             if (rangeend == ']')  throw this.ex("parser.cc.7", this.offset-1);
+                            if (rangeend == '-')  throw this.ex("parser.cc.8", this.offset-2);
                         }
-                        if (type == T_BACKSOLIDUS)
+                        else if (type == T_BACKSOLIDUS)
                             rangeend = this.decodeEscaped();
                         this.next();
+
+                        if (c > rangeend)  throw this.ex("parser.ope.3", this.offset-1);
                         tok.addRange(c, rangeend);
                     }
                 }
@@ -313,18 +312,23 @@ class ParserForXMLSchema extends RegexParser {
           case 'n':  c = '\n';  break; // LINE FEED U+000A
           case 'r':  c = '\r';  break; // CRRIAGE RETURN U+000D
           case 't':  c = '\t';  break; // HORIZONTAL TABULATION U+0009
-
-          case 'e':
-          case 'f':
-          case 'x':
-          case 'u':
-          case 'v':
-            throw ex("parser.process.1", this.offset-2);
-          case 'A':
-          case 'Z':
-          case 'z':
-            throw ex("parser.descape.5", this.offset-2);
+          case '\\':
+          case '|':
+          case '.':
+          case '^':
+          case '-':
+          case '?':
+          case '*':
+          case '+':
+          case '{':
+          case '}':
+          case '(':
+          case ')':
+          case '[':
+          case ']':
+            break; // return actucal char
           default:
+            throw ex("parser.process.1", this.offset-2);
         }
         return c;
     }

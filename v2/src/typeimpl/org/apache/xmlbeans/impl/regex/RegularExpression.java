@@ -475,7 +475,7 @@ import java.text.CharacterIterator;
  * <hr width="50%">
  *
  * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
- * @version $Id: RegularExpression.java,v 1.2 2004/02/12 20:06:20 ericvas Exp $
+ * @version $Id: RegularExpression.java,v 1.3 2004/09/25 05:51:17 radup Exp $
  */
 public class RegularExpression implements java.io.Serializable {
     static final boolean DEBUG = false;
@@ -716,7 +716,7 @@ public class RegularExpression implements java.io.Serializable {
         }
         con.match = match;
 
-        if (this.isSet(this.options, XMLSCHEMA_MODE)) {
+        if (RegularExpression.isSet(this.options, XMLSCHEMA_MODE)) {
             int matchEnd = this. matchCharArray (con, this.operations, con.start, 1, this.options);
             //System.err.println("DEBUG: matchEnd="+matchEnd);
             if (matchEnd == con.limit) {
@@ -799,7 +799,7 @@ public class RegularExpression implements java.io.Serializable {
         else if (this.firstChar != null) {
             //System.err.println("DEBUG: with firstchar-matching: "+this.firstChar);
             RangeToken range = this.firstChar;
-            if (this.isSet(this.options, IGNORE_CASE)) {
+            if (RegularExpression.isSet(this.options, IGNORE_CASE)) {
                 range = this.firstChar.getCaseInsensitiveToken();
                 for (matchStart = con.start;  matchStart <= limit;  matchStart ++) {
                     int ch =  target [  matchStart ] ;
@@ -1425,7 +1425,7 @@ public class RegularExpression implements java.io.Serializable {
         }
         con.match = match;
 
-        if (this.isSet(this.options, XMLSCHEMA_MODE)) {
+        if (RegularExpression.isSet(this.options, XMLSCHEMA_MODE)) {
             if (DEBUG) {
                 System.err.println("target string="+target);
             }
@@ -1514,7 +1514,7 @@ public class RegularExpression implements java.io.Serializable {
         else if (this.firstChar != null) {
             //System.err.println("DEBUG: with firstchar-matching: "+this.firstChar);
             RangeToken range = this.firstChar;
-            if (this.isSet(this.options, IGNORE_CASE)) {
+            if (RegularExpression.isSet(this.options, IGNORE_CASE)) {
                 range = this.firstChar.getCaseInsensitiveToken();
                 for (matchStart = con.start;  matchStart <= limit;  matchStart ++) {
                     int ch =  target .charAt(  matchStart ) ;
@@ -2078,7 +2078,7 @@ public class RegularExpression implements java.io.Serializable {
         }
         con.match = match;
 
-        if (this.isSet(this.options, XMLSCHEMA_MODE)) {
+        if (RegularExpression.isSet(this.options, XMLSCHEMA_MODE)) {
             int matchEnd = this. matchCharacterIterator (con, this.operations, con.start, 1, this.options);
             //System.err.println("DEBUG: matchEnd="+matchEnd);
             if (matchEnd == con.limit) {
@@ -2161,7 +2161,7 @@ public class RegularExpression implements java.io.Serializable {
         else if (this.firstChar != null) {
             //System.err.println("DEBUG: with firstchar-matching: "+this.firstChar);
             RangeToken range = this.firstChar;
-            if (this.isSet(this.options, IGNORE_CASE)) {
+            if (RegularExpression.isSet(this.options, IGNORE_CASE)) {
                 range = this.firstChar.getCaseInsensitiveToken();
                 for (matchStart = con.start;  matchStart <= limit;  matchStart ++) {
                     int ch =  target .setIndex(  matchStart ) ;
@@ -2993,7 +2993,7 @@ public class RegularExpression implements java.io.Serializable {
     private void setPattern(String newPattern, int options) throws ParseException {
         this.regex = newPattern;
         this.options = options;
-        RegexParser rp = this.isSet(this.options, RegularExpression.XMLSCHEMA_MODE)
+        RegexParser rp = RegularExpression.isSet(this.options, RegularExpression.XMLSCHEMA_MODE)
                          ? new ParserForXMLSchema() : new RegexParser();
         this.tokentree = rp.parse(this.regex, this.options);
         this.nofparen = rp.parennumber;
