@@ -42,10 +42,21 @@
         <zip destfile="build/ar/xbeansrc.zip" basedir="." excludes="build/**"/>
     </target>
 
-    <target name="check.saxon8.2.jar">
-        <condition property="saxon8.2.jar.exists">
-            <available file="build/lib/saxon8.jar"/>
-        </condition>
+    <property environment="env"/>
+    <target name="saxon.find1">
+      <property name="saxon_jar" value="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
+    </target>
+    <target name="saxon.find2">
+      <property name="saxon_jar" value="build/lib/saxon8.jar"/>
+    </target>
+
+    <target name="check.saxon8.2.jar" depends="saxon.find1,saxon.find2">
+     <condition property="saxon8.2.jar.exists">
+      <or>
+        <available file="build/lib/saxon8.jar"/>
+	<available file="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
+	</or>
+      </condition>
     </target>
 
     <target name="saxon8.2.jar" depends="check.saxon8.2.jar, dirs"
@@ -805,7 +816,7 @@
             <classpath id="xpath.compile.path">
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/newstore2"/>
-                <pathelement location="build/lib/saxon8.jar"/>
+                <pathelement location="${saxon_jar}"/>
             </classpath>
         </javac>
     </target>
