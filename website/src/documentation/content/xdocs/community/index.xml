@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
 <document>
 	<header>
@@ -34,8 +34,6 @@
 		<section>
 			<title>Who we are</title>
 			<p>
-				<strong>XMLBeans Shepherd:</strong>&nbsp;Ted Leung</p>
-			<p>
 				<strong>XMLBeans Committers</strong>
 			</p>
 			<table>
@@ -53,7 +51,7 @@
 					<td>David Bau</td>
 					<td>david.bau@no#spam.google.com</td>
 					<td>
-						<link href="http://nagoya.apache.org/eyebrowse/ReadMsg?listName=xmlbeans-dev@xml.apache.org&amp;msgNo=93">about me</link>
+					<link href="http://nagoya.apache.org/eyebrowse/ReadMsg?listName=xmlbeans-dev@xml.apache.org&amp;msgNo=93">about me</link>
 					</td>
 				</tr>
 				<tr>
@@ -78,7 +76,12 @@
 				</tr>
 				<tr>
 					<td>Cliff Schmidt</td>
-					<td>cliff.schmidt@n#ospam.bea.com</td>
+					<td>cliffs.schmidt@n#ospam.bea.com</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
+					<td>Dutta Satadip</td>
+					<td>s-dutta@no#spam.sbcglobal.net</td>
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
@@ -87,18 +90,13 @@
 					<td>&nbsp;</td>
 				</tr>
 				<tr>
+					<td>David Waite</td>
+					<td>&nbsp;</td>
+					<td>&nbsp;</td>
+				</tr>
+				<tr>
 					<td>Scott Ziegler</td>
 					<td>scott.ziegler@n#ospam.bea.com</td>
-					<td>&nbsp;</td>
-				</tr>
-				<tr>
-					<td>Patrick Calahan</td>
-					<td>pcal@nosp#am.bea.com</td>
-					<td>&nbsp;</td>
-				</tr>
-				<tr>
-					<td>Dutta Satadip</td>
-					<td>s-dutta@no#spam.sbcglobal.net</td>
 					<td>&nbsp;</td>
 				</tr>
 			</table>

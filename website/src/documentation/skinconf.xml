@@ -69,12 +69,12 @@ be used to configure the chosen XMLBeans skin.
 	<disable-xml-link>true</disable-xml-link>
 	<!-- Do we want to disable w3c compliance links? -->
 	<disable-compliance-links>false</disable-compliance-links>
-	<searchsite-domain>xml.apache.org</searchsite-domain>
-	<searchsite-name>Apache XML</searchsite-name>
+	<searchsite-domain>xmlbeans.apache.org</searchsite-domain>
+	<searchsite-name>Apache XMLBeans</searchsite-name>
 	<!-- mandatory project logo
        skin: XMLBeans-site renders it at the top -->
 	<project-name>XMLBeans</project-name>
-	<project-url>http://xml.apache.org/xmlbeans/</project-url>
+	<project-url>http://xmlbeans.apache.org/</project-url>
 	<project-logo>images/project-logo.gif</project-logo>
 	<!-- optional group logo
        skin: XMLBeans-site renders it at the top-left corner -->
@@ -86,15 +86,16 @@ be used to configure the chosen XMLBeans skin.
 	<host-url/>
 	<host-logo/>
 	<!-- The following are used to construct a copyright statement -->
-	<year>2003</year>
+	<year>2004</year>
 	<vendor>The Apache Software Foundation.</vendor>
 	<!-- Some skins use this to form a 'breadcrumb trail' of links. If you don't
   want these, set the attributes to blank. The DTD purposefully requires them.
   -->
 	<trail>
 		<link1 name="apache" href="http://www.apache.org/"/>
-		<link2 name="xml.apache" href="http://xml.apache.org/"/>
-		<link3 name="xmlbeans" href="http://xml.apache.org/xmlbeans"/>
+		<link2 name="xmlbeans.apache.org" href="http://xmlbeans.apache.org/"/>
+		<link3 name="" href=""/>
+
 	</trail>
 	<!-- Configure how many "section" levels need to be included in the
   generated Table of Contents (TOC). By default, if no toc element is provided

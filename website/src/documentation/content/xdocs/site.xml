@@ -42,16 +42,10 @@ See http://xml.apache.org/forrest/linking.html for more info
     </community-tab>
     <project-tab label="Project" href="projectManagement/" tab="project">
         <index href="index.html"/>
-        <!--
-        <incubation label="Incubation Exit Criteria" href="index.html#Incubation+Exit+Criteria" description="Exiting from incubation"/>
-        -->
         <version1 label="About Version 1" href="index.html#XMLBeans+Version+1+Project+Management" description="Read a note on the progress of XMLBeans Version 1"/>
         <version2 label="About Version 2 Plans"
             href="index.html#XMLBeans+Version+2+Project+Management" description="Read information on the progress of XMLBeans Version 2"/>
         <bugs label="Bug Tracking" href="index.html#XMLBeans+Bug+Lists" description="Find or log XMLBeans bugs"/>
-        <!--
-        <todo label="To Do" href="http://nagoya.apache.org/wiki/apachewiki.cgi?XMLBeansToDo" description="Read action items, mostly regarding incubation exit criteria"/>
-        -->
         <!--
         <proposal label="Initial Proposal"
             href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansProposal" description="Read the original XMLBeans project proposal"/>
