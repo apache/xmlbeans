@@ -66,7 +66,12 @@ abstract class PushSoapMarshalResult
             fillAndAddAttribute(getIdQName(),
                                 getIdValue(val.getId()));
             updateState(obj, prop);
-            super.writeContents(actual_rtt);
+            if (obj == null) {
+                addXsiNilAttribute();
+            } else if (val.needsXsiType) {
+                addXsiTypeAttribute(actual_rtt);
+            }
+            actual_rtt.accept(this);
             writeEndElement();
         }
         catch (XMLStreamException e) {

@@ -16,7 +16,6 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 import javax.xml.namespace.QName;
 
@@ -35,11 +34,6 @@ final class RuntimeGlobalProperty
         super(null);
         this.rootElement = rootElement;
         this.runtimeBindingType = runtimeBindingType;
-    }
-
-    private BindingType getType()
-    {
-        return runtimeBindingType.getBindingType();
     }
 
     public RuntimeBindingType getRuntimeBindingType()

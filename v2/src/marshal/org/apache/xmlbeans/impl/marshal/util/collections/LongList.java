@@ -83,6 +83,11 @@ public final class LongList
         set(index, ((Number)value).longValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
 
     public void set(int index, long value)
     {

@@ -18,6 +18,8 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
+import javax.xml.namespace.QName;
+
 public final class ObjectAnyTypeConverter
     implements TypeConverter
 {
@@ -29,7 +31,10 @@ public final class ObjectAnyTypeConverter
         throws XmlException
     {
         //TODO: return SOAPElement!!
-        throw new AssertionError("GENERIC XML UNIMPLEMENTED");
+        final QName xsi_type = result.getXsiType();
+        assert xsi_type == null : " xsi-type is " + xsi_type;
+        String lname = result.getLocalName();
+        throw new AssertionError("GENERIC XML UNIMPLEMENTED: " + lname);
     }
 
     public void unmarshalIntoIntermediary(Object intermediary,

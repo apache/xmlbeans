@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -30,8 +31,8 @@ import java.util.Collection;
 abstract class MarshalResult
 {
     //per binding context constants
-    protected final BindingLoader bindingLoader;
-    protected final RuntimeBindingTypeTable typeTable;
+    private final BindingLoader bindingLoader;
+    private final RuntimeBindingTypeTable typeTable;
 
     //state fields
     private final Collection errors;
@@ -51,14 +52,14 @@ abstract class MarshalResult
         errors = BindingContextImpl.extractErrorHandler(options);
     }
 
-    protected void resetPrefixCount()
+    protected final void resetPrefixCount()
     {
         prefixCnt = 0;
     }
 
     public abstract NamespaceContext getNamespaceContext();
 
-    protected String ensurePrefix(String uri)
+    protected final String ensurePrefix(String uri)
         throws XmlException
     {
         assert uri != null;  //QName's should use "" for no namespace
@@ -98,7 +99,7 @@ abstract class MarshalResult
         throws XmlException;
 
 
-    void addXsiNilAttribute()
+    final void addXsiNilAttribute()
         throws XmlException
     {
         addAttribute(MarshalStreamUtils.XSI_NS,
@@ -129,8 +130,8 @@ abstract class MarshalResult
     }
 
 
-    void fillAndAddAttribute(QName qname_without_prefix,
-                             String value)
+    final void fillAndAddAttribute(QName qname_without_prefix,
+                                   String value)
         throws XmlException
     {
         final String uri = qname_without_prefix.getNamespaceURI();
@@ -154,8 +155,8 @@ abstract class MarshalResult
         throws XmlException;
 
 
-    RuntimeBindingType determineRuntimeBindingType(RuntimeBindingType expected,
-                                                   Object instance)
+    final RuntimeBindingType determineRuntimeBindingType(RuntimeBindingType expected,
+                                                         Object instance)
         throws XmlException
     {
         if (instance == null || !expected.canHaveSubtype()) {
@@ -186,9 +187,15 @@ abstract class MarshalResult
     }
 
 
-    Collection getErrorCollection()
+    final Collection getErrorCollection()
     {
         return errors;
+    }
+
+    void addError(final String msg)
+    {
+        final XmlError err = XmlError.forMessage(msg);
+        getErrorCollection().add(err);
     }
 
 }

@@ -24,6 +24,7 @@ final class RefObjectTable
 
     Object getObjectForRef(String ref)
     {
+        assert ref != null;
         RefEntry e = getEntryForRef(ref);
         if (e == null) return null;
         return e.final_obj;
@@ -31,6 +32,8 @@ final class RefObjectTable
 
     Object getInterForRef(String ref)
     {
+        assert ref != null;
+
         RefEntry e = getEntryForRef(ref);
         if (e == null) return null;
         return e.inter;
@@ -38,16 +41,19 @@ final class RefObjectTable
 
     RefEntry getEntryForRef(String ref)
     {
+        assert ref != null;
         return (RefEntry)refTable.get(ref);
     }
 
     void putForRef(String ref, Object inter, Object actual_obj)
     {
+        assert ref != null;
         refTable.put(ref, new RefEntry(inter, actual_obj));
     }
 
     void putObjectForRef(String ref, Object val)
     {
+        assert ref != null;
         RefEntry e = (RefEntry)refTable.get(ref);
         assert e != null;
         assert e.inter != null;
@@ -56,6 +62,7 @@ final class RefObjectTable
 
     void putIntermediateForRef(String ref, Object inter)
     {
+        assert ref != null;
         refTable.put(ref, new RefEntry(inter));
     }
 

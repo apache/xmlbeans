@@ -86,6 +86,11 @@ public final class BooleanList
         set(index, ((Boolean)value).booleanValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
     public void set(int index, boolean value)
     {
         ensureCapacity(index + 1);

@@ -230,6 +230,19 @@
             </bin:qname-property>
 
             <bin:qname-property>
+                <bin:xmlcomponent>t=ObjectArrayType@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>java.lang.Object[]</bin:javatype>
+                <bin:field>objectArray</bin:field>
+                <bin:qname>java:objectArray</bin:qname>
+            </bin:qname-property>
+            <bin:qname-property>
+                <bin:xmlcomponent>t=ObjectArrayType@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>java.lang.Object[]</bin:javatype>
+                <bin:field>objectArrayTwo</bin:field>
+                <bin:qname>java:objectArrayTwo</bin:qname>
+            </bin:qname-property>
+
+            <bin:qname-property>
                 <bin:xmlcomponent>t=ArrayOfArrayOfString@java:com.mytest</bin:xmlcomponent>
                 <bin:javatype>java.lang.String[][]</bin:javatype>
                 <bin:getter>
@@ -485,6 +498,17 @@
 
 
         <bin:binding-type xsi:type="bin:wrapped-array">
+            <bin:xmlcomponent>t=ObjectArrayType@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>java.lang.Object[]</bin:javatype>
+            <bin:item-name>item</bin:item-name>
+            <bin:item-type>
+                <bin:xmlcomponent>t=anyType@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>java.lang.Object</bin:javatype>
+            </bin:item-type>
+            <bin:item-nillable>true</bin:item-nillable>
+        </bin:binding-type>
+
+        <bin:binding-type xsi:type="bin:wrapped-array">
             <bin:xmlcomponent>t=ArrayOfString@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>java.lang.String[]</bin:javatype>
             <bin:item-name>item</bin:item-name>
@@ -630,8 +654,15 @@
             <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.MySubClass</bin:javatype>
         </bin:mapping>
+
+        <bin:mapping>
+            <bin:xmlcomponent>t=ObjectArrayType@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>java.lang.Object[]</bin:javatype>
+        </bin:mapping>
+
     </bin:xml-to-pojo>
     <bin:xml-to-xmlobj/>
+
     <bin:java-to-xml>
         <bin:mapping>
             <bin:xmlcomponent>t=YourClass@java:com.mytest</bin:xmlcomponent>
@@ -641,11 +672,19 @@
             <bin:xmlcomponent>t=MyClass@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.MyClass</bin:javatype>
         </bin:mapping>
+
         <bin:mapping>
             <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.MySubClass</bin:javatype>
         </bin:mapping>
+
+        <bin:mapping>
+            <bin:xmlcomponent>t=ObjectArrayType@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>java.lang.Object[]</bin:javatype>
+        </bin:mapping>
+
     </bin:java-to-xml>
+
     <bin:java-to-element>
         <bin:mapping>
             <bin:xmlcomponent>e=load@java:com.mytest</bin:xmlcomponent>

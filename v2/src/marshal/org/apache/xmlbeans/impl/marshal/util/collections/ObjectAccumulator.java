@@ -66,6 +66,11 @@ public abstract class ObjectAccumulator
         append(null);
     }
 
+    public int size()
+    {
+        return store.size();
+    }
+
     private boolean checkInstance(Object o)
     {
         if (o == null) return true;

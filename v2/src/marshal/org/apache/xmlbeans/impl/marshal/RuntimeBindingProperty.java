@@ -81,9 +81,13 @@ abstract class RuntimeBindingProperty
 
     abstract RuntimeBindingType getRuntimeBindingType();
 
+
+    //TODO: consider inlining this method since every impl is the same
+    //or moving it to the type?
     abstract RuntimeBindingType getActualRuntimeType(Object property_value,
                                                      MarshalResult result)
         throws XmlException;
+
 
     abstract QName getName();
 
@@ -167,6 +171,25 @@ abstract class RuntimeBindingProperty
 
     protected abstract void fill(Object inter, Object prop_obj)
         throws XmlException;
+
+
+    protected void fillPlaceholder(Object inter)
+    {
+        throw new UnsupportedOperationException("not used.  this=" + this);
+    }
+
+    //non index properties can return unsupported...
+    protected int getSize(Object inter)
+    {
+        throw new UnsupportedOperationException("this=" + this);
+    }
+
+    //non index properties can return unsupported...
+    protected void fill(Object final_obj, int index, Object prop_val)
+    {
+        throw new UnsupportedOperationException("this=" + this);
+    }
+
 
     protected final boolean hasFactory()
     {

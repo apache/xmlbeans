@@ -84,6 +84,11 @@ public final class IntList
         set(index, ((Number)value).intValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
     public void set(int index, int value)
     {
         ensureCapacity(index + 1);

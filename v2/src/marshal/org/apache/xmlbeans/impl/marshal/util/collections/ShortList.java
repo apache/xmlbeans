@@ -82,6 +82,11 @@ public final class ShortList
         set(index, ((Number)value).shortValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
 
     public void set(int index, short value)
     {

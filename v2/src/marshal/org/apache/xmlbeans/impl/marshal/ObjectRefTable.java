@@ -33,65 +33,13 @@ final class ObjectRefTable
 
     public Iterator getMultipleRefTableEntries()
     {
-        return new MultiRefIterator();
-    }
-
-    private final class MultiRefIterator
-        implements Iterator
-    {
-        private final Iterator base_itr = table.entrySet().iterator();
-        private Value nextValue = null;
-
-        MultiRefIterator()
-        {
-            updateNext();
-        }
-
-        public boolean hasNext()
-        {
-            return (nextValue != null);
-        }
-
-        public Object next()
-        {
-            final Value retval = this.nextValue;
-
-
-            assert retval.getCnt() > 1;
-
-
-            updateNext();
-
-            assert (nextValue == null || nextValue.getCnt() > 1);
-
-            return retval;
-        }
-
-        private void updateNext()
-        {
-            while (base_itr.hasNext()) {
-                final Map.Entry map_entry = (Map.Entry)base_itr.next();
-                final ObjectRefTable.Value val =
-                    (ObjectRefTable.Value)map_entry.getValue();
-                if (val.cnt > 1) {
-                    nextValue = val;
-                    return;
-                }
-            }
-            nextValue = null;
-        }
-
-
-        public void remove()
-        {
-            throw new UnsupportedOperationException();
-        }
-
+        return new MultiRefIterator(table);
     }
 
     //returns new count
     public int incrementRefCount(final Object keyobj,
-                                 RuntimeBindingProperty property)
+                                 RuntimeBindingProperty property,
+                                 boolean needs_xsi_type)
     {
         if (keyobj == null) return 0;
 
@@ -102,10 +50,13 @@ final class ObjectRefTable
         } else {
             assert val.cnt > 0;
             haveMultiplyRefdObj = true;
-            //System.out.println("MULTI: " + System.identityHashCode(keyobj) + ": " + keyobj.getClass().getName());
         }
 
         assert table.get(keyobj) == val;
+
+        if (needs_xsi_type) {
+            val.needsXsiType = true;
+        }
 
         return (++val.cnt);
     }
@@ -148,6 +99,7 @@ final class ObjectRefTable
         final int id;
         final RuntimeBindingProperty prop;
         int cnt;
+        boolean needsXsiType;
 
         public int getId()
         {
@@ -172,4 +124,57 @@ final class ObjectRefTable
         }
 
     }
+
+
+    private static final class MultiRefIterator
+        implements Iterator
+    {
+        private final Iterator baseItr;
+        private Value nextValue = null;
+
+        MultiRefIterator(IdentityHashMap table)
+        {
+            baseItr = table.entrySet().iterator();
+            updateNext();
+        }
+
+        public boolean hasNext()
+        {
+            return (nextValue != null);
+        }
+
+        public Object next()
+        {
+            final Value retval = this.nextValue;
+
+            assert retval.getCnt() > 1;
+
+            updateNext();
+
+            assert (nextValue == null || nextValue.getCnt() > 1);
+
+            return retval;
+        }
+
+        private void updateNext()
+        {
+            while (baseItr.hasNext()) {
+                final Map.Entry map_entry = (Map.Entry)baseItr.next();
+                final ObjectRefTable.Value val =
+                    (ObjectRefTable.Value)map_entry.getValue();
+                if (val.cnt > 1) {
+                    nextValue = val;
+                    return;
+                }
+            }
+            nextValue = null;
+        }
+
+
+        public void remove()
+        {
+            throw new UnsupportedOperationException();
+        }
+    }
+
 }

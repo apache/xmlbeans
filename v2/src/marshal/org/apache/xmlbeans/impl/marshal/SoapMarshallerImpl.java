@@ -276,6 +276,33 @@ final class SoapMarshallerImpl
             //no element children so we are finished.
         }
 
+        public void visit(AnyTypeRuntimeBindingType builtinRuntimeBindingType)
+            throws XmlException
+        {
+            if (currObject == null)
+                return;
+
+            final RuntimeBindingType actual_rtt =
+                currProp.getActualRuntimeType(currObject, marshalResult);
+
+            if (actual_rtt == currProp.getRuntimeBindingType()) {
+                //we didn't find anything better than the any type
+                final String msg = "unknown type: " + currObject.getClass() +
+                    " for property " + currProp;
+                marshalResult.addError(msg);
+                return;
+            }
+
+            if (initialVisit(currObject, currProp, actual_rtt)) {
+                return;
+            }
+
+            if (currObject != null && actual_rtt.hasElementChildren()) {
+                //TODO: write a test that triggers this then fix it
+                throw new AssertionError("NYI - polymorphic visit");
+            }
+        }
+
         public void visit(ByNameRuntimeBindingType byNameRuntimeBindingType)
             throws XmlException
         {
@@ -388,8 +415,25 @@ final class SoapMarshallerImpl
         //return true if we should stop processing!
         private boolean initialVisit(Object obj,
                                      RuntimeBindingProperty property)
+            throws XmlException
         {
-            return objectRefTable.incrementRefCount(obj, property) > 1;
+            final RuntimeBindingType actual_rtt =
+                property.getActualRuntimeType(obj, marshalResult);
+
+            return initialVisit(obj, property, actual_rtt);
+        }
+
+        private boolean initialVisit(Object obj,
+                                     RuntimeBindingProperty property,
+                                     final RuntimeBindingType actual_rtt)
+        {
+            final boolean needs_xsi_type =
+                (actual_rtt != property.getRuntimeBindingType());
+
+            //TODO: consider adding actual_rtt to ref table so we don't have
+            //to calc it again
+
+            return objectRefTable.incrementRefCount(obj, property, needs_xsi_type) > 1;
         }
     }
 

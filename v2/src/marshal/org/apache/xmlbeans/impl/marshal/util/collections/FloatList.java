@@ -88,6 +88,11 @@ public final class FloatList
         set(index, ((Number)value).floatValue());
     }
 
+    public int size()
+    {
+        return size;
+    }
+
 
     public void set(int index, float value)
     {

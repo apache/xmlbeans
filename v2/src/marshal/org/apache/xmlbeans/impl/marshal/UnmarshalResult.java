@@ -83,7 +83,7 @@ abstract class UnmarshalResult
         this.errors = BindingContextImpl.extractErrorHandler(options);
     }
 
-    private RuntimeBindingType getRuntimeType(BindingType type)
+    protected RuntimeBindingType getRuntimeType(BindingType type)
         throws XmlException
     {
         return typeTable.createRuntimeType(type, bindingLoader);
@@ -164,7 +164,7 @@ abstract class UnmarshalResult
     }
 
 
-    private Object unmarshalBindingType(BindingType bindingType)
+    protected Object unmarshalBindingType(BindingType bindingType)
         throws XmlException
     {
         updateAttributeState();
@@ -195,7 +195,7 @@ abstract class UnmarshalResult
         }
     }
 
-    private ObjectFactory extractObjectFactory()
+    protected ObjectFactory extractObjectFactory()
     {
         if (options == null) return null;
 
@@ -759,7 +759,7 @@ abstract class UnmarshalResult
      * return the QName value found for xsi:type
      * or null if neither one was found
      */
-    private QName getXsiType()
+    protected QName getXsiType()
         throws XmlException
     {
         if (!gotXsiAttributes) {
@@ -769,7 +769,7 @@ abstract class UnmarshalResult
         return xsiAttributeHolder.xsiType;
     }
 
-    private boolean hasXsiNil() throws XmlException
+    protected final boolean hasXsiNil() throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -1012,7 +1012,12 @@ abstract class UnmarshalResult
         if (expected_type == actual_type) return true;
         if (expected_type.equals(actual_type)) return true;
 
-        return expected_type.isAssignableFrom(actual_type);
+        if (expected_type.isAssignableFrom(actual_type)) return true;
+
+        //TODO: FIXME!  deal with cases where reflection gives us autboxing.
+        if (actual_type.isPrimitive()) return true;
+
+        return false;
     }
 
     abstract void extractAndFillElementProp(RuntimeBindingProperty prop,
