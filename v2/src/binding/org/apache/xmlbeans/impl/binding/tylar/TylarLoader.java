@@ -53,86 +53,27 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.binding.tylar;
 
-package org.apache.xmlbeans;
-
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
+import java.io.IOException;
+import org.apache.xmlbeans.XmlException;
 
 /**
- * BindingContextFactory is used to create BindingContext objects
- * from a binding configuration file.
+ * Abstraction which can load a tylar from some location specified in a
+ * URI.
+ *
+ * @author Patrick Calaham <pcal@bea.com>
  */
-public abstract class BindingContextFactory
-{
-    /**
-     * Creates a BindingContext from a set of tylars located at the given URI.
-     * The order in which tylars appear in the array determines their precedence
-     * for loading types.
-     *
-     * @param tylarUris An array of URIs which identify the tylars to be used
-     * in the BindingContext.
-     * @return The BindingContext
-     * @throws IOException if a problem occurs while opening or parsing the
-     * contents of the tylars.
-     */
-    public abstract BindingContext createBindingContext(URI[] tylarUris)
-        throws IOException, XmlException;
+public interface TylarLoader {
 
-
-    /**
-     * Create a BindingContext that only knows about builtin types
-     *
-     * @return a BindingContext object for builtin types
-     */
-    public abstract BindingContext createBindingContext();
-
-    /**
-     * Create a BindingContext from a binding config xml file
-     *
-     * @param bindingConfig
-     * @return
-     * @throws IOException
-     * @throws XmlException
-     */
-    public abstract BindingContext createBindingContext(InputStream bindingConfig)
-        throws IOException, XmlException;
-
-    /**
-     * Create a BindingContext from a binding config xml file
-     *
-     * @param bindingConfig
-     * @return
-     * @throws IOException
-     * @throws XmlException
-     */
-    public abstract BindingContext createBindingContext(File bindingConfig)
-        throws IOException, XmlException;
-
-
-    protected final static String DEFAULT_IMPL =
-        "org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl";
-
-    public static BindingContextFactory newInstance()
-    {
-        try {
-            Class default_impl = Class.forName(DEFAULT_IMPL);
-            final BindingContextFactory factory =
-                (BindingContextFactory)default_impl.newInstance();
-            return factory;
-        }
-        catch (ClassNotFoundException e) {
-            throw new XmlRuntimeException(e);
-        }
-        catch (InstantiationException e) {
-            throw new XmlRuntimeException(e);
-        }
-        catch (IllegalAccessException e) {
-            throw new XmlRuntimeException(e);
-        }
-    }
-
+  /**
+   * Loads the tylar from the given URI.
+   *
+   * @param uri pointing to where the tylar is stored.
+   * @return
+   * @throws IOException if an i/o error occurs while processing
+   * @throws XmlException if an error occurs parsing the contents of the tylar.
+   */
+  public Tylar load(URI uri) throws IOException, XmlException;
 }

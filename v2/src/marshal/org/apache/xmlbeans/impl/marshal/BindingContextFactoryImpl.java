@@ -69,7 +69,8 @@ import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
-import org.apache.xmlbeans.impl.binding.tylar.TylarFactory;
+import org.apache.xmlbeans.impl.binding.tylar.DefaultTylarLoader;
+import org.apache.xmlbeans.impl.binding.tylar.TylarLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,17 +85,20 @@ public final class BindingContextFactoryImpl
     extends BindingContextFactory
 {
 
-    public BindingContext createBindingContext(URI[] tylarUris)
-        throws IOException, XmlException
-    {
-        Tylar[] tylars = new Tylar[tylarUris.length];
-        for (int i = 0; i < tylars.length; i++) {
-            tylars[i] = TylarFactory.getInstance().load(tylarUris[i]);
-        }
-        return createBindingContext(tylars);
+  public BindingContext createBindingContext(URI[] tylarUris)
+          throws IOException, XmlException {
+    if (tylarUris == null) throw new IllegalArgumentException("null uris");
+    //FIXME loader needs to be pluggable
+    TylarLoader loader = DefaultTylarLoader.getInstance();
+    if (loader == null) throw new IllegalArgumentException("null loader");
+    Tylar[] tylars = new Tylar[tylarUris.length];
+    for (int i = 0; i < tylars.length; i++) {
+      tylars[i] = loader.load(tylarUris[i]);
     }
+    return createBindingContext(tylars);
+  }
 
-    // REVIEW It's unfortunate that we can't expose this method to the public
+  // REVIEW It's unfortunate that we can't expose this method to the public
     // at the moment.  It's easy to imagine cases where one has already built
     // up the tylar and doesn't want to pay the cost of re-parsing it.
     // Of course, exposing it means we expose Tylar to the public as well,
