@@ -191,6 +191,10 @@ public abstract interface JElement {
    * <p>Returns the set of annotations associated with this
    * abstraction which have the given name.  Returns an empty array if
    * there are no such annotations.</p>
+   *
+   * @deprecated I don't think we should encourage people to support
+   * multiple annotations with the same name as that does not work once
+   * we get to 175-land.
    */
   public JAnnotation[] getAnnotations(String named);
 

@@ -55,42 +55,15 @@
 */
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.JService;
-import org.apache.xmlbeans.impl.jam.JServiceParams;
-
-import java.io.IOException;
-
 /**
- * Interface through which custom JAM implementations may be exposed.
- * Typical users should not be concerned with this interface - use
- * JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JProvider {
+public interface JAnnotationMemberDeclaration extends JMethod {
 
-  // ========================================================================
-  // Public methods
+  public JClass getType();
 
-  /**
-   * Creates a new JAM service based on the given parameters.
-   *
-   * @param params Parameters for the new service.
-   * @return a new service
-   * @throws IOException if an IO error occurrs while creating the service.
-   * @throws IllegalArgumentException is params is null or not an instance
-   * returned by JServiceFactory.createServiceParams().
-   */
-  public JService createService(JServiceParams params) throws IOException;
+  public Object getDefaultValue();
 
-  /**
-   * Returns a brief description of this JAM provider.
-   */
-  public String getDescription();
-
-  //may want to add something like this to let them interrogate the
-  //provider about it's capabilities
-  //
-  //public JProviderFeatures getFeatures();
-
+  public JAnnotationDeclaration getContainingAnnotationDeclaration();
 }
