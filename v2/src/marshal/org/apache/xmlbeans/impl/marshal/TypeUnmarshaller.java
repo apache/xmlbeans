@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 /**
@@ -76,7 +77,8 @@ interface TypeUnmarshaller
      * @param result  contains that state of the document unmarshal process
      * @return  Object representing the converted xml
      */
-    Object unmarshal(UnmarshalResult result);
+    Object unmarshal(UnmarshalResult result)
+        throws XmlException;
 
     /**
      * unmarshal the lexical value of an instance of xsd:anySimpleType.
@@ -89,7 +91,8 @@ interface TypeUnmarshaller
      *            <tt>unmarshalSimpleType</tt> operation is not supported
      *            by this TypeUnmarshaller.
      */
-    Object unmarshalAttribute(UnmarshalResult result);
+    Object unmarshalAttribute(UnmarshalResult result)
+        throws XmlException;
 
 
     /**

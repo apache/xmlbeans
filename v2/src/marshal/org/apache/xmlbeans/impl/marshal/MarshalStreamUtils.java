@@ -156,37 +156,34 @@ final class MarshalStreamUtils
      * @return
      */
     static boolean advanceToNextStartElement(XMLStreamReader reader)
+        throws XMLStreamException
     {
-        try {
-            for (int state = reader.getEventType();
-                 reader.hasNext();
-                 state = reader.next()) {
-                switch (state) {
-                    case XMLStreamReader.START_ELEMENT:
-                        return true;
-                    case XMLStreamReader.END_ELEMENT:
-                        return false;
-                    case XMLStreamReader.END_DOCUMENT:
-                        throw new XmlRuntimeException("unexpected end of XML");
+        for (int state = reader.getEventType();
+             reader.hasNext();
+             state = reader.next()) {
+            switch (state) {
+                case XMLStreamReader.START_ELEMENT:
+                    return true;
+                case XMLStreamReader.END_ELEMENT:
+                    return false;
+                case XMLStreamReader.END_DOCUMENT:
+                    throw new XmlRuntimeException("unexpected end of XML");
 
-                    case XMLStreamReader.PROCESSING_INSTRUCTION:
-                    case XMLStreamReader.CHARACTERS:
-                        //TODO: what about mixed content models
-                    case XMLStreamReader.COMMENT:
-                    case XMLStreamReader.SPACE:
-                    case XMLStreamReader.ENTITY_REFERENCE:
-                    case XMLStreamReader.DTD:
-                    case XMLStreamReader.NOTATION_DECLARATION:
-                    case XMLStreamReader.ENTITY_DECLARATION:
-                        break;
-                    default:
-                        throw new AssertionError("unexpected xml state " + state);
-                }
+                case XMLStreamReader.PROCESSING_INSTRUCTION:
+                case XMLStreamReader.CHARACTERS:
+                    //TODO: what about mixed content models
+                case XMLStreamReader.COMMENT:
+                case XMLStreamReader.SPACE:
+                case XMLStreamReader.ENTITY_REFERENCE:
+                case XMLStreamReader.DTD:
+                case XMLStreamReader.NOTATION_DECLARATION:
+                case XMLStreamReader.ENTITY_DECLARATION:
+                    break;
+                default:
+                    throw new AssertionError("unexpected xml state " + state);
             }
         }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
+
 
         //end of the steam
         return false;
@@ -202,6 +199,7 @@ final class MarshalStreamUtils
      * @param reader
      */
     static void skipElement(XMLStreamReader reader)
+        throws XMLStreamException
     {
         assert reader.isStartElement();
 
@@ -209,33 +207,30 @@ final class MarshalStreamUtils
 
         //TODO: seem to be rechecking assertion, why not skip one ahead...
 
-        try {
-            for (int state = reader.getEventType(); reader.hasNext();
-                 state = reader.next()) {
-                switch (state) {
-                    case XMLStreamReader.START_ELEMENT:
-                        cnt++;
-                        break;
-                    case XMLStreamReader.END_ELEMENT:
-                        if (cnt == 0) {
-                            assert reader.hasNext();
-                            reader.next();
-                            return;
-                        } else {
-                            cnt--;
-                        }
-                        break;
-                    case XMLStreamReader.END_DOCUMENT:
-                        //should not happen for well-formed xml
-                        throw new XmlRuntimeException("unexpected end of xml document");
-                    default:
-                        break;
-                }
+
+        for (int state = reader.getEventType(); reader.hasNext();
+             state = reader.next()) {
+            switch (state) {
+                case XMLStreamReader.START_ELEMENT:
+                    cnt++;
+                    break;
+                case XMLStreamReader.END_ELEMENT:
+                    if (cnt == 0) {
+                        assert reader.hasNext();
+                        reader.next();
+                        return;
+                    } else {
+                        cnt--;
+                    }
+                    break;
+                case XMLStreamReader.END_DOCUMENT:
+                    //should not happen for well-formed xml
+                    throw new XmlRuntimeException("unexpected end of xml document");
+                default:
+                    break;
             }
         }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
+
 
         //should not happen for well-formed xml
         throw new XmlRuntimeException("unexpected end of xml stream");
@@ -268,50 +263,46 @@ final class MarshalStreamUtils
     }
 
     static void advanceToFirstItemOfInterest(XMLStreamReader rdr)
+        throws XMLStreamException
     {
-        try {
-            for (int state = rdr.getEventType(); rdr.hasNext(); state = rdr.next()) {
-                switch (state) {
-                    case XMLStreamReader.START_ELEMENT:
-                        return;
-                    case XMLStreamReader.END_ELEMENT:
-                        throw new XmlRuntimeException("unexpected end of XML");
+        for (int state = rdr.getEventType(); rdr.hasNext(); state = rdr.next()) {
+            switch (state) {
+                case XMLStreamReader.START_ELEMENT:
+                    return;
+                case XMLStreamReader.END_ELEMENT:
+                    throw new XmlRuntimeException("unexpected end of XML");
 
-                    case XMLStreamReader.PROCESSING_INSTRUCTION:
-                        break;
-                    case XMLStreamReader.CHARACTERS:
-                        if (rdr.isWhiteSpace()) break;
-                        throw new AssertionError("NAKED CHARDATA UNIMPLEMENTED");
-                    case XMLStreamReader.COMMENT:
-                    case XMLStreamReader.SPACE:
-                    case XMLStreamReader.START_DOCUMENT:
-                        break;
-                    case XMLStreamReader.END_DOCUMENT:
-                        throw new XmlRuntimeException("unexpected end of XML");
+                case XMLStreamReader.PROCESSING_INSTRUCTION:
+                    break;
+                case XMLStreamReader.CHARACTERS:
+                    if (rdr.isWhiteSpace()) break;
+                    throw new AssertionError("NAKED CHARDATA UNIMPLEMENTED");
+                case XMLStreamReader.COMMENT:
+                case XMLStreamReader.SPACE:
+                case XMLStreamReader.START_DOCUMENT:
+                    break;
+                case XMLStreamReader.END_DOCUMENT:
+                    throw new XmlRuntimeException("unexpected end of XML");
 
-                    case XMLStreamReader.ENTITY_REFERENCE:
-                        break;
+                case XMLStreamReader.ENTITY_REFERENCE:
+                    break;
 
-                    case XMLStreamReader.ATTRIBUTE:
-                        throw new AssertionError("NAKED ATTRIBUTE UNIMPLEMENTED");
+                case XMLStreamReader.ATTRIBUTE:
+                    throw new AssertionError("NAKED ATTRIBUTE UNIMPLEMENTED");
 
-                    case XMLStreamReader.DTD:
-                    case XMLStreamReader.CDATA:
-                    case XMLStreamReader.NAMESPACE:
-                    case XMLStreamReader.NOTATION_DECLARATION:
-                    case XMLStreamReader.ENTITY_DECLARATION:
-                        break;
+                case XMLStreamReader.DTD:
+                case XMLStreamReader.CDATA:
+                case XMLStreamReader.NAMESPACE:
+                case XMLStreamReader.NOTATION_DECLARATION:
+                case XMLStreamReader.ENTITY_DECLARATION:
+                    break;
 
-                    default:
-                        throw new XmlRuntimeException("unexpected xml state:" + state +
-                                                      "in" + rdr);
-                }
+                default:
+                    throw new XmlRuntimeException("unexpected xml state:" + state +
+                                                  "in" + rdr);
             }
-            throw new XmlRuntimeException("unexpected end of xml stream");
         }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
+        throw new XmlRuntimeException("unexpected end of xml stream");
     }
 
     static void addError(Collection errors,
@@ -333,18 +324,16 @@ final class MarshalStreamUtils
     }
 
     static Object inputStreamToBytes(final InputStream val)
+        throws IOException
     {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
         int b;
-        try {
-            while ((b = val.read()) != -1) {
-                baos.write(b);
-            }
+
+        while ((b = val.read()) != -1) {
+            baos.write(b);
         }
-        catch (IOException e) {
-            throw new XmlRuntimeException(e);
-        }
+
         return baos.toByteArray();
     }
 

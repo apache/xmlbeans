@@ -56,7 +56,9 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -109,6 +111,7 @@ final class MarshalResult implements XMLStreamReader
                   RuntimeBindingProperty property,
                   Object obj,
                   XmlOptions options)
+        throws XmlException
     {
         this.runtimeTypeFactory = runtimeTypeFactory;
         bindingLoader = loader;
@@ -126,6 +129,7 @@ final class MarshalResult implements XMLStreamReader
     protected static XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
                                                   Object obj,
                                                   MarshalResult result)
+        throws XmlException
     {
         BindingType btype = property.getType();
 
@@ -160,7 +164,12 @@ final class MarshalResult implements XMLStreamReader
                 throw new AssertionError("invalid: " + currVisitor.getState());
         }
 
-        return (currentEventType = advanceToNext());
+        try {
+            return (currentEventType = advanceToNext());
+        }
+        catch (XmlException e) {
+            throw new XMLStreamException(e);
+        }
     }
 
 
@@ -192,6 +201,7 @@ final class MarshalResult implements XMLStreamReader
 
 
     RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
+        throws XmlException
     {
         final BindingTypeName type_name = type.getName();
         String expectedJavaClass = type_name.getJavaName().toString();
@@ -212,6 +222,7 @@ final class MarshalResult implements XMLStreamReader
 
 
     private int advanceToNext()
+        throws XmlException
     {
         final int next_state = currVisitor.advance();
         switch (next_state) {
@@ -323,7 +334,13 @@ final class MarshalResult implements XMLStreamReader
     public int getAttributeCount()
     {
         initAttributes();
-        return currVisitor.getAttributeCount();
+        try {
+            return currVisitor.getAttributeCount();
+        }
+        catch (XmlException e) {
+            //interface forces us into this...
+            throw new XmlRuntimeException(e);
+        }
     }
 
     public QName getAttributeName(int i)
@@ -564,7 +581,14 @@ final class MarshalResult implements XMLStreamReader
     private void initAttributes()
     {
         if (!initedAttributes) {
-            currVisitor.initAttributes();
+            try {
+                currVisitor.initAttributes();
+            }
+            catch (XmlException e) {
+                //public attribute interfaces of XMLStreamReader
+                //force us into this behavior
+                throw new XmlRuntimeException(e);
+            }
             initedAttributes = true;
         }
     }

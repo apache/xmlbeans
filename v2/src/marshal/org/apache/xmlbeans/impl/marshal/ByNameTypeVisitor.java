@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
@@ -80,6 +81,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
     ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
                       MarshalResult result)
+        throws XmlException
     {
         super(obj, property, result);
         final BindingType pt = property.getType();
@@ -101,13 +103,15 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     }
 
     protected int advance()
+        throws XmlException
     {
         assert elemPropIdx < maxElementPropCount; //ensure we don't go past the end
 
         do {
             boolean hit_end = advanceToNextItem();
             if (hit_end) return END;
-        } while (!currentPropHasMore());
+        }
+        while (!currentPropHasMore());
 
         assert elemPropIdx >= 0;
 
@@ -115,6 +119,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     }
 
     private boolean advanceToNextItem()
+        throws XmlException
     {
         if (haveMultipleItem && currMultipleIterator.hasNext()) {
             currMultipleItem = currMultipleIterator.next();
@@ -127,6 +132,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
     //return true if we hit the end of our properties
     private boolean advanceToNextProperty()
+        throws XmlException
     {
         elemPropIdx++;
         currMultipleIterator = null;
@@ -140,6 +146,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     }
 
     private void updateCurrIterator()
+        throws XmlException
     {
         final RuntimeBindingProperty property = getCurrentElementProperty();
         if (property.isMultiple()) {
@@ -156,6 +163,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     }
 
     private boolean currentPropHasMore()
+        throws XmlException
     {
         if (elemPropIdx < 0) return false;
 
@@ -172,7 +180,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         return set;
     }
 
-    public XmlTypeVisitor getCurrentChild()
+    public XmlTypeVisitor getCurrentChild() throws XmlException
     {
         final RuntimeBindingProperty property = getCurrentElementProperty();
 
@@ -196,6 +204,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     }
 
     protected int getAttributeCount()
+        throws XmlException
     {
         if (attributeValues == null) initAttributes();
 
@@ -205,6 +214,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     }
 
     protected void initAttributes()
+        throws XmlException
     {
         assert attributeNames == null;
         assert attributeValues == null;

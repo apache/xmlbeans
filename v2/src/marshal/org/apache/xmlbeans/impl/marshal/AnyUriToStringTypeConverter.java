@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 
@@ -64,11 +65,13 @@ final class AnyUriToStringTypeConverter
 {
 
     protected Object getObject(UnmarshalResult context)
+        throws XmlException
     {
         return context.getAnyUriValue();
     }
 
     public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
     {
         return context.getAttributeAnyUriValue();
     }

@@ -56,18 +56,19 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 final class LongTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalResult context)
+    protected Object getObject(UnmarshalResult context) throws XmlException
     {
         long val = context.getLongValue();
         return new Long(val);
     }
 
-    public Object unmarshalAttribute(UnmarshalResult context)
+    public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
         long val = context.getAttributeLongValue();
         return new Long(val);

@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
 
@@ -73,7 +74,7 @@ final class PreserveStringTypeConverter
     {
     }
 
-    protected Object getObject(UnmarshalResult context)
+    protected Object getObject(UnmarshalResult context) throws XmlException
     {
         return context.getStringValue(XmlWhitespace.WS_PRESERVE);
     }

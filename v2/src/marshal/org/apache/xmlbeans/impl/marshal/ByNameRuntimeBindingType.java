@@ -57,7 +57,6 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
@@ -98,6 +97,7 @@ final class ByNameRuntimeBindingType
 
     //DO NOT CALL THIS CONSTRUCTOR, use the RuntimeTypeFactory
     ByNameRuntimeBindingType(ByNameBean btype)
+        throws XmlException
     {
         byNameBean = btype;
         try {
@@ -105,12 +105,12 @@ final class ByNameRuntimeBindingType
             if (javaClass.isPrimitive() || javaClass.isArray()) {
                 final String msg = "invalid ByNameBean java type: " + javaClass +
                     " found in " + btype;
-                throw new XmlRuntimeException(msg);
+                throw new XmlException(msg);
             }
         }
         catch (ClassNotFoundException e) {
             final String msg = "failed to load " + btype.getName().getJavaName();
-            throw new XmlRuntimeException(msg, e);
+            throw new XmlException(msg, e);
         }
 
         int elem_prop_cnt = 0;
@@ -152,6 +152,7 @@ final class ByNameRuntimeBindingType
     //prepare internal data structures for use
     public void initialize(RuntimeBindingTypeTable typeTable,
                            BindingLoader loader)
+        throws XmlException
     {
         int att_idx = 0;
         int elem_idx = 0;
@@ -181,6 +182,7 @@ final class ByNameRuntimeBindingType
 
     Object getFinalObjectFromIntermediary(Object retval,
                                           UnmarshalResult context)
+        throws XmlException
     {
         if (hasMulti) {
             UResultHolder rh = (UResultHolder)retval;
@@ -282,6 +284,7 @@ final class ByNameRuntimeBindingType
     }
 
     public void fillDefaultAttributes(Object inter, UnmarshalResult context)
+        throws XmlException
     {
         if (!hasDefaultAttributes) return;
 
@@ -320,6 +323,7 @@ final class ByNameRuntimeBindingType
                  QNameProperty prop,
                  RuntimeBindingTypeTable typeTable,
                  BindingLoader loader)
+            throws XmlException
         {
             if (prop.getQName() == null) {
                 final String msg = "property " + property_index + " of " +
@@ -359,6 +363,7 @@ final class ByNameRuntimeBindingType
                                                    BindingType bindingType,
                                                    RuntimeBindingTypeTable typeTable,
                                                    BindingLoader loader)
+            throws XmlException
         {
             final String xmldoc = "<a>" + value + "</a>";
             try {
@@ -374,11 +379,8 @@ final class ByNameRuntimeBindingType
                 sr.close();
                 return obj;
             }
-            catch (XmlException e) {
-                throw new XmlRuntimeException(e);
-            }
             catch (XMLStreamException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
         }
 
@@ -443,14 +445,14 @@ final class ByNameRuntimeBindingType
         private TypeUnmarshaller lookupUnmarshaller(BindingProperty prop,
                                                     RuntimeBindingTypeTable table,
                                                     BindingLoader loader)
+            throws XmlException
         {
             assert prop != null;
             final BindingTypeName type_name = prop.getTypeName();
             assert type_name != null;
             final BindingType binding_type = loader.getBindingType(type_name);
             if (binding_type == null) {
-                throw new XmlRuntimeException("failed to load type: " +
-                                              type_name);
+                throw new XmlException("failed to load type: " + type_name);
             }
 
             TypeUnmarshaller um =
@@ -498,6 +500,7 @@ final class ByNameRuntimeBindingType
 
 
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
+            throws XmlException
         {
             //don't need any xsi stuff for attributes.
             if (bindingProperty.isAttribute()) return unmarshaller;
@@ -518,7 +521,7 @@ final class ByNameRuntimeBindingType
             return unmarshaller;
         }
 
-        public void fill(final Object inter, final Object prop_obj)
+        public void fill(final Object inter, final Object prop_obj) throws XmlException
         {
             //means xsi:nil was true but we're a primtive.
             //schema should have nillable="false" so this
@@ -540,18 +543,19 @@ final class ByNameRuntimeBindingType
                 }
             }
             catch (SecurityException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (IllegalAccessException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (InvocationTargetException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
         }
 
 
         public void fillDefaultValue(Object inter)
+            throws XmlException
         {
             assert (defaultValue != null);
 
@@ -559,23 +563,25 @@ final class ByNameRuntimeBindingType
         }
 
         public void fillCollection(final Object inter, final Object prop_obj)
+            throws XmlException
         {
             assert isMultiple();
             try {
                 setMethod.invoke(inter, new Object[]{prop_obj});
             }
             catch (SecurityException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (IllegalAccessException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (InvocationTargetException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
         }
 
         public CharSequence getLexical(Object value, MarshalResult result)
+            throws XmlException
         {
             assert value != null :
                 "null value for " + bindingProperty + " class=" + beanClass;
@@ -591,6 +597,7 @@ final class ByNameRuntimeBindingType
         }
 
         public Object getValue(Object parentObject, MarshalResult result)
+            throws XmlException
         {
             assert parentObject != null;
             assert beanClass.isAssignableFrom(parentObject.getClass()) :
@@ -599,18 +606,19 @@ final class ByNameRuntimeBindingType
                 return getMethod.invoke(parentObject, EMPTY_OBJECT_ARRAY);
             }
             catch (SecurityException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (IllegalAccessException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (InvocationTargetException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
         }
 
         //TODO: check isSet methods
         public boolean isSet(Object parentObject, MarshalResult result)
+            throws XmlException
         {
             if (bindingProperty.isNillable())
                 return true;
@@ -631,6 +639,7 @@ final class ByNameRuntimeBindingType
 
         private static Method getSetterMethod(QNameProperty binding_prop,
                                               Class beanClass)
+            throws XmlException
         {
             MethodName setterName = binding_prop.getSetterName();
             try {
@@ -638,19 +647,20 @@ final class ByNameRuntimeBindingType
                 return set_method;
             }
             catch (NoSuchMethodException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (SecurityException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (ClassNotFoundException cnfe) {
-                throw new XmlRuntimeException(cnfe);
+                throw new XmlException(cnfe);
             }
         }
 
 
         private static Method getGetterMethod(QNameProperty binding_prop,
                                               Class beanClass)
+            throws XmlException
         {
             MethodName getterName = binding_prop.getGetterName();
             try {
@@ -659,13 +669,13 @@ final class ByNameRuntimeBindingType
                 return get_method;
             }
             catch (NoSuchMethodException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (SecurityException e) {
-                throw new XmlRuntimeException(e);
+                throw new XmlException(e);
             }
             catch (ClassNotFoundException cnfe) {
-                throw new XmlRuntimeException(cnfe);//should never happen
+                throw new XmlException(cnfe);//should never happen
             }
         }
 
@@ -692,7 +702,7 @@ final class ByNameRuntimeBindingType
         }
 
 
-        Object getFinalValue()
+        Object getFinalValue() throws XmlException
         {
             if (accumulators != null) {
                 final Property[] props = runtimeBindingType.elementProperties;

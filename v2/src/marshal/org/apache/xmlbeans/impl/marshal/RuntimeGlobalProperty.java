@@ -56,7 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 import javax.xml.namespace.QName;
@@ -90,12 +90,14 @@ final class RuntimeGlobalProperty
     }
 
     public void fill(Object inter, Object prop_obj)
+        throws XmlException
     {
         throw new UnsupportedOperationException();
     }
 
     //non simple type props can throw some runtime exception.
     public CharSequence getLexical(Object parent, MarshalResult result)
+        throws XmlException
     {
         //TODO: polymorphism checks
 
@@ -103,7 +105,7 @@ final class RuntimeGlobalProperty
             result.getTypeTable().getTypeMarshaller(type);
 
         if (tm == null) {
-            throw new XmlRuntimeException("lookup failed for " + type);
+            throw new XmlException("lookup failed for " + type);
         }
 
         final CharSequence retval = tm.print(parent, result);
@@ -111,11 +113,13 @@ final class RuntimeGlobalProperty
     }
 
     public Object getValue(Object parent_obj, MarshalResult result)
+        throws XmlException
     {
         throw new AssertionError("UNIMP: " + this);
     }
 
     public boolean isSet(Object parentObject, MarshalResult result)
+        throws XmlException
     {
         return true;
     }

@@ -56,7 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -126,6 +126,7 @@ final class RuntimeBindingTypeTable
 
     private TypeUnmarshaller createTypeUnmarshaller(BindingType type,
                                                     BindingLoader loader)
+        throws XmlException
     {
         TypeUnmarshaller type_um;
         //TODO: cleanup this nasty instanceof stuff (Visitor?)
@@ -153,6 +154,7 @@ final class RuntimeBindingTypeTable
 
     TypeUnmarshaller getOrCreateTypeUnmarshaller(BindingType type,
                                                  BindingLoader loader)
+        throws XmlException
     {
         TypeUnmarshaller um = (TypeUnmarshaller)unmarshallerMap.get(type);
         if (um == null) {
@@ -288,6 +290,7 @@ final class RuntimeBindingTypeTable
     private static TypeUnmarshaller createSimpleTypeUnmarshaller(SimpleBindingType stype,
                                                                  BindingLoader loader,
                                                                  RuntimeBindingTypeTable table)
+        throws XmlException
     {
         TypeUnmarshaller um = table.getTypeUnmarshaller(stype);
         if (um != null) return um;
@@ -314,11 +317,11 @@ final class RuntimeBindingTypeTable
                 } else {
                     String msg = "invalid as-xml type: " + asif_name +
                         " on type: " + curr.getName();
-                    throw new XmlRuntimeException(msg);
+                    throw new XmlException(msg);
                 }
             } else {
-                throw new XmlRuntimeException("missing as-xml type on " +
-                                              curr.getName());
+                throw new XmlException("missing as-xml type on " +
+                                       curr.getName());
             }
         }
         assert resolved != null;

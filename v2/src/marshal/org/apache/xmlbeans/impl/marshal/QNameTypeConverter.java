@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
@@ -64,13 +65,13 @@ final class QNameTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    protected Object getObject(UnmarshalResult context)
+    protected Object getObject(UnmarshalResult context) throws XmlException
     {
         QName val = context.getQNameValue();
         return val;
     }
 
-    public Object unmarshalAttribute(UnmarshalResult context)
+    public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
         return context.getAttributeQNameValue();
     }

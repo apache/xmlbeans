@@ -56,6 +56,8 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
+
 import javax.xml.namespace.QName;
 import java.util.Collection;
 
@@ -67,6 +69,7 @@ final class CharacterVisitor
     CharacterVisitor(RuntimeBindingProperty property,
                      Object parentObject,
                      MarshalResult result)
+        throws XmlException
     {
         super(parentObject, property, result);
         assert (!(parentObject instanceof Collection));
@@ -90,11 +93,13 @@ final class CharacterVisitor
     }
 
     protected int advance()
+        throws XmlException
     {
         return CHARS;
     }
 
     public XmlTypeVisitor getCurrentChild()
+        throws XmlException
     {
         throw new AssertionError("no children");
     }
@@ -105,6 +110,7 @@ final class CharacterVisitor
     }
 
     protected int getAttributeCount()
+        throws XmlException
     {
         return 0;
     }
@@ -125,6 +131,7 @@ final class CharacterVisitor
     }
 
     private CharSequence grabChars()
+        throws XmlException
     {
         final Object parent = getParentObject();
         assert parent != null : "bad visitor: this=" + this;

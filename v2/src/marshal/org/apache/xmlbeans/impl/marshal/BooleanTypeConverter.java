@@ -56,18 +56,21 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 final class BooleanTypeConverter
     extends BaseSimpleTypeConverter
 {
     protected Object getObject(UnmarshalResult context)
+        throws XmlException
     {
         boolean b = context.getBooleanValue();
         return Boolean.valueOf(b);
     }
 
     public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
     {
         boolean b = context.getAttributeBooleanValue();
         return Boolean.valueOf(b);
