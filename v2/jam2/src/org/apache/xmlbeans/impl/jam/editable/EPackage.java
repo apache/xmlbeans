@@ -12,29 +12,12 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.JPackage;
 
 /**
- *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EElement extends JElement {
-
-  //DOCME
-  public void setSimpleName(String name);
-
-  //DOCME
-  public ESourcePosition createSourcePosition();
-
-  //DOCME
-  public void removeSourcePosition();
-
-  //DOCME
-  public ESourcePosition getEditableSourcePosition();
-
-  //DOCME
-  public void setArtifact(Object o);
+public interface EPackage extends  JPackage, EAnnotatedElement {
 }

@@ -16,9 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.JParameter;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.EInvokable;
 import org.apache.xmlbeans.impl.jam.editable.EParameter;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
@@ -110,16 +109,6 @@ public abstract class InvokableImpl extends MemberImpl implements EInvokable {
   }
 
   // ========================================================================
-  // EElement implementation
-
-  public void acceptAndWalk(EElementVisitor visitor) {
-    accept(visitor);
-    acceptAndWalkAll(visitor,getEditableParameters());
-    visitAnnotations(visitor);
-  }
-
-
-  // ========================================================================
   // JInvokable implementation
 
   public JParameter[] getParameters() {
@@ -156,7 +145,7 @@ public abstract class InvokableImpl extends MemberImpl implements EInvokable {
   // ========================================================================
   // JElement implementation
 
-  public void acceptAndWalk(JElementVisitor visitor) {
+  public void acceptAndWalk(ElementVisitor visitor) {
     accept(visitor);
     acceptAndWalkAll(visitor,getEditableParameters());
     visitAnnotations(visitor);

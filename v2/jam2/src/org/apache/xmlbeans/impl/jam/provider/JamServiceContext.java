@@ -55,8 +55,8 @@
 */
 package org.apache.xmlbeans.impl.jam.provider;
 
-import org.apache.xmlbeans.impl.jam.JamClassInitializer;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 
 import java.io.File;
 import java.io.IOException;
@@ -107,10 +107,9 @@ public interface JamServiceContext extends JamLogger {
 
   public JamClassLoader getParentClassLoader();
 
-  public JamClassInitializer getInitializer();
+  public ElementVisitor getInitializer();
 
   public boolean isUseSystemClasspath();
-
 
   public File[] getSourceFiles() throws IOException;
 

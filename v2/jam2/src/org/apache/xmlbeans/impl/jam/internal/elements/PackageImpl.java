@@ -16,9 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JElementVisitor;
-import org.apache.xmlbeans.impl.jam.JPackage;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.editable.EPackage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ import java.util.List;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class PackageImpl extends AnnotatedElementImpl implements JPackage {
+public class PackageImpl extends AnnotatedElementImpl implements EPackage {
 
   // ========================================================================
   // Variables
@@ -54,11 +53,11 @@ public class PackageImpl extends AnnotatedElementImpl implements JPackage {
 
   public String getQualifiedName() { return mName; }
 
-  public void accept(JElementVisitor visitor) {
+  public void accept(ElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(JElementVisitor visitor) {
+  public void acceptAndWalk(ElementVisitor visitor) {
     accept(visitor);
     acceptAndWalkAll(visitor,getClasses());
   }
@@ -70,12 +69,6 @@ public class PackageImpl extends AnnotatedElementImpl implements JPackage {
     JClass[] out = new JClass[mRootClasses.size()];
     mRootClasses.toArray(out);
     return out;
-  }
-
-  public void accept(EElementVisitor visitor) {
-  }
-
-  public void acceptAndWalk(EElementVisitor visitor) {
   }
 
 }

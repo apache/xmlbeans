@@ -14,11 +14,10 @@
  */
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
-import org.apache.xmlbeans.impl.jam.JElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 
 /**
  * <p>Standard implementation of AnnotationImpl.</p>
@@ -61,24 +60,16 @@ public final class AnnotationImpl extends ElementImpl implements EAnnotation {
     return mProxy.getClass().getName(); //FIXME
   }
 
-  public void accept(JElementVisitor visitor) {
+  public void accept(ElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(JElementVisitor visitor) {
+  public void acceptAndWalk(ElementVisitor visitor) {
     visitor.visit(this);
   }
 
   // ========================================================================
   // EElement implementation
-
-  public void accept(EElementVisitor visitor) {
-    visitor.visit(this);
-  }
-
-  public void acceptAndWalk(EElementVisitor visitor) {
-    accept(visitor);
-  }
 
   public AnnotationProxy getEditableProxy() {
     return mProxy;

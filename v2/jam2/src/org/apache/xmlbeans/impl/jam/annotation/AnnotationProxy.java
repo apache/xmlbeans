@@ -17,10 +17,8 @@ package org.apache.xmlbeans.impl.jam.annotation;
 /**
  * <p>Provides a proxied view of some annotation artifact.  JAM calls the
  * public methods on this class to initialize the proxy with annotation
- * values; those methods should not be called by user-code.</p>
+ * values; those methods should not be called by user code.</p>
  *
- *
-
  * @author Patrick Calahan <pcal@bea.com>
  */
 public abstract class AnnotationProxy {

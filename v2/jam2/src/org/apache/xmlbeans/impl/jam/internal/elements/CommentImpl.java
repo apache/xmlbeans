@@ -14,9 +14,8 @@
  */
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
-import org.apache.xmlbeans.impl.jam.JElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.EComment;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 
 /**
  * <p>Implementation
@@ -43,18 +42,11 @@ public final class CommentImpl extends ElementImpl implements EComment {
   public String getText() { return (mText == null) ? "" : mText; }
 
   // ========================================================================
-  // EElement implementation
-
-  public void accept(EElementVisitor visitor) { visitor.visit(this); }
-
-  public void acceptAndWalk(EElementVisitor visitor) { accept(visitor); }
-
-  // ========================================================================
   // JElement implementation
 
-  public void accept(JElementVisitor visitor) { visitor.visit(this); }
+  public void accept(ElementVisitor visitor) { visitor.visit(this); }
 
-  public void acceptAndWalk(JElementVisitor visitor) { accept(visitor); }
+  public void acceptAndWalk(ElementVisitor visitor) { accept(visitor); }
 
   public String getQualifiedName() {
     return getParent().getQualifiedName()+".{comment}"; //REVIEW

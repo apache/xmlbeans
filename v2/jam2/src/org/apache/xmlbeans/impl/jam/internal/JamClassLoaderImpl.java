@@ -16,10 +16,10 @@ package org.apache.xmlbeans.impl.jam.internal;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JPackage;
-import org.apache.xmlbeans.impl.jam.JamClassInitializer;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.internal.elements.*;
-import org.apache.xmlbeans.impl.jam.internal.javadoc.JDFactory;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 
 import java.util.Collection;
@@ -40,7 +40,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   private Map mName2Package = new HashMap();
   private Map mFd2ClassCache = null;
   private JamClassBuilder mBuilder;
-  private JamClassInitializer mInitializer = null;
+  private ElementVisitor mInitializer = null;
   private ElementContext mContext;
 
   // ========================================================================
@@ -48,13 +48,13 @@ public class JamClassLoaderImpl implements JamClassLoader {
 
   public JamClassLoaderImpl(ElementContext context,
                             JamClassBuilder builder,
-                            JamClassInitializer initializer) {
+                            ElementVisitor initializerOrNull) {
     if (builder == null) throw new IllegalArgumentException("null builder");
     if (context == null) throw new IllegalArgumentException("null builder");
     mBuilder = builder;
-    mInitializer = initializer; //ok to be null
+    mInitializer = initializerOrNull; //ok to be null
     mContext = context;
-    primeCache();
+    initCache();
   }
 
   // ========================================================================
@@ -63,7 +63,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   public final JClass loadClass(String fd)
   {
     fd = fd.trim();//REVIEW is this paranoid?
-    JClass out = (JClass)mFd2ClassCache.get(fd);
+    EClass out = (EClass)mFd2ClassCache.get(fd);
     if (out != null) return out;
     if (fd.startsWith("[")) {
       return ArrayClassImpl.createClassForFD(fd,this);
@@ -86,18 +86,15 @@ public class JamClassLoaderImpl implements JamClassLoader {
       mContext.debug("[JamClassLoaderImpl] unresolved class '"+
         pkg+" "+name+"'!!");
     }
-    if (mInitializer != null && out instanceof ClassImpl) {
-      mInitializer.initialize((ClassImpl)out);
-    }
+    if (mInitializer != null) out.acceptAndWalk(mInitializer);
     mFd2ClassCache.put(fd,out);
     return out;
   }
 
-  //FIXME
   public JPackage getPackage(String named) {
     JPackage out = (JPackage)mName2Package.get(named);
     if (out == null) {
-      out = JDFactory.getInstance().createPackage(named);
+      out = new PackageImpl(mContext,named);
       mName2Package.put(named,out);
     }
     return out;
@@ -109,7 +106,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   /**
    * <p>Stuff the primitives and void into the cache.</p>
    */
-  private void primeCache() {
+  private void initCache() {
     mFd2ClassCache = new HashMap();
     PrimitiveClassImpl.mapNameToPrimitive(mContext,mFd2ClassCache);
     mFd2ClassCache.put("void",new VoidClassImpl(mContext));

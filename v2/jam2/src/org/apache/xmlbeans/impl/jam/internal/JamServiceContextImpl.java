@@ -15,15 +15,14 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.JamClassInitializer;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annotation.DefaultAnnotationProxy;
 import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
-import org.apache.xmlbeans.impl.jam.provider.CompositeJamClassInitializer;
-import org.apache.xmlbeans.impl.jam.provider.DefaultCommentProcessor;
+import org.apache.xmlbeans.impl.jam.visitor.CommentInitializer;
+import org.apache.xmlbeans.impl.jam.visitor.*;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.ResourcePath;
 
@@ -64,7 +63,8 @@ public class JamServiceContextImpl implements JamServiceContext,
   private PrintWriter mOut = null;
   private boolean mUseSystemClasspath = true;
   private boolean mVerbose = false;
-  private JamClassInitializer mCommentInitializer = null;
+  private ElementVisitor mCommentInitializer = null;
+  private ElementVisitor mPropertyInitializer = null;
   private List mOtherInitializers = null;
 
   private JamClassLoader mLoader = null;
@@ -204,22 +204,41 @@ public class JamServiceContextImpl implements JamServiceContext,
     mTagname2proxyclass.put(tagname,proxy);
   }
 
-  public JamClassInitializer getInitializer() {
+
+  public ElementVisitor getInitializer() {
     List initers = new ArrayList();
-    if (mCommentInitializer != null) {
-      initers.add(mCommentInitializer);
-    } else {
-      initers.add(DefaultCommentProcessor.getInstance());
-    }
+    initers.add((mCommentInitializer != null) ? mCommentInitializer :
+                new CommentInitializer());
+    initers.add((mPropertyInitializer != null) ? mPropertyInitializer :
+                new PropertyInitializer());
     if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
     // now go
-    JamClassInitializer[] inits = new JamClassInitializer[initers.size()];
+    ElementVisitor[] inits = new ElementVisitor[initers.size()];
     initers.toArray(inits);
-    return new CompositeJamClassInitializer(inits);
+    return new CompositeElementVisitor(inits);
   }
 
   // ========================================================================
   // JamServiceParams implementation
+
+
+
+  //DOCME
+  public void setCommentInitializer(ElementVisitor initializer) {
+    mCommentInitializer = initializer;
+  }
+
+  //DOCME
+  public void setPropertyInitializer(ElementVisitor initializer) {
+    mPropertyInitializer = initializer;
+  }
+
+  //DOCME
+  public void addInitializer(ElementVisitor initializer) {
+    if (mOtherInitializers == null) mOtherInitializers = new ArrayList();
+    mOtherInitializers.add(initializer);
+  }
+
 
   public void includeSourceFiles(File srcRoot, String pattern) {
     addSourcepath(srcRoot);
@@ -301,15 +320,6 @@ public class JamServiceContextImpl implements JamServiceContext,
     mUseSystemClasspath = use;
   }
 
-  public void setCommentInitializer(JamClassInitializer init) {
-    mCommentInitializer = init;
-  }
-
-  public void addCustomInitializer(JamClassInitializer init) {
-    if (mOtherInitializers == null) mOtherInitializers = new ArrayList();
-    mOtherInitializers.add(init);
-  }
-
   public void setDefaultAnnotationProxyClass(Class proxy) {
     validateProxyClass(proxy);
     mDefaultAnnotationProxyClass = proxy;
@@ -380,7 +390,6 @@ public class JamServiceContextImpl implements JamServiceContext,
         " does not have a default constructor");
     }
   }
-
 
 
   // ========================================================================

@@ -2,13 +2,12 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JComment;
-import org.apache.xmlbeans.impl.jam.JElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
 import org.apache.xmlbeans.impl.jam.editable.EComment;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 
 import java.util.Map;
 
@@ -173,13 +172,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   // ========================================================================
   // Protect methods
 
-  protected void visitAnnotations(JElementVisitor visitor) {
-    JAnnotation[] anns = getAnnotations();
-    for(int i=0; i<anns.length; i++) visitor.visit(anns[i]);
-    if (mComment != null) visitor.visit(mComment);
-  }
-
-  protected void visitAnnotations(EElementVisitor visitor) {
+  protected void visitAnnotations(ElementVisitor visitor) {
     EAnnotation[] anns = getEditableAnnotations();
     for(int i=0; i<anns.length; i++) visitor.visit(anns[i]);
     if (mComment != null) visitor.visit(mComment);

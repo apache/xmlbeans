@@ -18,7 +18,6 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
 
-
 import java.util.HashMap;
 import java.util.Map;
 
