@@ -2,7 +2,7 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Welcome to XMLBeans</title>
+<title>XMLBeans News</title>
 <link type="text/css" href="skin/page.css" rel="stylesheet">
 </head>
 <body text="#000000" bgcolor="#FFFFFF">
@@ -159,11 +159,11 @@
 <ul>
             
 <li>
-<span class="sel"><font color="#ffcc00">Overview</font></span>
+<a href="index.html" title="Welcome to XMLBeans">Overview</a>
 </li>
             
 <li>
-<a href="news.html" title="News about XMLBeans">News</a>
+<span class="sel"><font color="#ffcc00">News</font></span>
 </li>
             
 <li>
@@ -278,120 +278,70 @@
 <table class="title" summary="">
 <tr>
 <td valign="middle">
-<h1>Welcome to XMLBeans</h1>
-</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="index.pdf"><img alt="PDF" src="skin/images/pdfdoc.gif" class="skin"><br>
+<h1>XMLBeans News</h1>
+</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="news.pdf"><img alt="PDF" src="skin/images/pdfdoc.gif" class="skin"><br>
           PDF</a></td>
 </tr>
 </table>
-		
-<a name="N1000C"></a><a name="Introduction+to+XMLBeans"></a>
-<h3>Introduction to XMLBeans</h3>
+
+
+<a name="N1000C"></a><a name="News+and+events"></a>
+<h3>News and events</h3>
 <div style="margin-left: 0 ; border: 2px">
-<p>XMLBeans is a tool that allows you to access the <em>full</em> power of XML in a Java friendly way.  It is an XML-Java binding tool.  The idea is that you can 
-			take advantage the richness and features of XML and XML Schema and have these features mapped as naturally as possible to the equivalent Java language and typing 
-			constructs.  XMLBeans uses XML Schema to <em>compile</em> Java interfaces and classes that you can then use to access and modify XML instance data.  
-			Using XMLBeans is similar to using any other Java interface/class, you will see things like <span class="codefrag">getFoo</span> or <span class="codefrag">setFoo</span> just as 
-			you would
-			expect when working with Java.  While a major use of XMLBeans is to access your XML instance data with strongly typed Java classes there are also
-			API's that allow you access to the full XML infoset (XMLBeans keeps full XML Infoset fidelity) as well as to allow you to <em>reflect</em> into the XML schema
-			itself through an XML Schema Object model.</p>
-<p>For more details on XMLBeans see the <a href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansExplanation">XMLBeans Explanation</a> Wiki page. 
-			As well as the XMLBeans documentation (see the Documentation tab on this website as well as the docs directory in the XMLBeans Source).</p>
-<a name="N1002B"></a><a name="What+makes+XMLBeans+Different"></a>
-<h4>What makes XMLBeans Different</h4>
+<a name="N10012"></a><a name="ApacheCon+2004+%2813-17+November+2004%29"></a>
+<h4>ApacheCon 2004 (13-17 November 2004)</h4>
 <div style="margin-left: 0 ; border: 2px">
-<p>There are at least two major things that make XMLBeans unique from other XML-Java binding options.</p>
-<ol>
-					
-<li>
-						
-<strong>Full XML Schema support.</strong> XMLBeans fully supports XML Schema and the corresponding java classes provide constructs
-      					for all of the major functionality of XML Schema.  This is critical since often times you do not have control over the features of XML Schema
-      					that you need to work with in Java.  Also, XML Schema oriented applications can take full advantage of the power of XML Schema and not
-      					have to restrict themselvs to a subset.</li>
-					
-<li>
-						
-<strong>Full XML Infoset fidelity.</strong>When unmarshalling an XML instance the full XML infoset is kept and is available to the developer.  This is
-      					critical because because of the subset of XML that is not easily represented in java.   For example, order of the elements or comments might
-      					be needed in a particular application.</li>
-				
-</ol>
-<p>A major objective of XMLBeans has been to be applicable in <em>all</em> non-streaming (in memory) XML programming situations.  You should be
-      				able to compile your XML Schema into a set of java classes and know that 1) you will be able to use XMLBeans for all of the schemas you encounter
-      				(even the warped ones) and 2) that you will be able to get to the XML at whatever level is necessary - and not have to resort to multple
-      				tools to do this.</p>
-<p>To accomplish this XMLBeans provides three major APIs:</p>
-<ul>
-					
-<li>
-						
-<strong>XmlObject</strong>  The java classes that are generated from an XML Schema are all derived from XmlObject.  These provide strongly
-      					typed getters and setters for each of the elements within the defined XML.  Complex types are in turn XmlObjects.  For example getCustomer
-      					might return a CustomerType (which is an XmlObject).  Simple types turn into simple getters and setters with the correct java type.  For
-      					example getName might return a String.</li>
-					
-<li>
-						
-<strong>XmlCursor</strong> From any XmlObject you can get an XmlCursor.  This provides efficient, low level access to the XML Infoset.  A cursor 
-      					represents a position in the XML instance.  You can move the cursor around the XML instance at any level of granularity you need
-      					from individual characters to Tokens.</li>
-					
-<li>
-						
-<strong>SchemaType</strong>  XMLBeans provides a full XML Schema object model that you can use to reflect on the underlying schema meta information.
-      					For example, you might want to generate a sample XML instance for an XML schema or perhaps find the enumerations for an element
-      					so that you can display them.</li>
-				
-</ul>
-<p>All of this was built with performance in mind.   Informal benchmarks and user feedback indicate that XMLBeans is extremely fast.</p>
+<p>
+<a href="http://apachecon.com/2004/US/index.html">
+<img alt="ApacheCon 2004 Logo" src="http://apache.org/images/ac2004_170x100.gif">
+</a>
+
+<a href="http://apachecon.com/2004/US/index.html">ApacheCon US 2004 </a> (13-17 November
+2004).  ApacheCon is the conference for all things Apache. Come along and learn about a range of new
+technologies, meet some Apache folks and share the knowledge.  See more information about Apache
+Conferences.  Cliff Schmidt and Kevin Krouse are scheduled to speak about XMLBeans.</p>
+</div>
+<a name="N10027"></a><a name="XMLBeans+1.0.3+Released+%2828+June+2004%29"></a>
+<h4>XMLBeans 1.0.3 Released (28 June 2004)</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>
+<a href="http://xmlbeans.apache.org/">Apache XMLBeans Team</a> has released XMLBeans Version
+1.0.3.  Download version 1.0.3 from the <a href="http://xmlbeans.apache.org/sourceAndBinaries/index.html">Source and Binaries section</a>.
+</p>
+<p>Version 1.0.3 is <a href="http://xmlbeans.apache.org/">Apache XMLBeans</a> first release after
+becomming a Top Level Project in the <a href="http://www.apache.org/">Apache Software
+Foundation</a>.</p>
+</div>
+<a name="N10043"></a><a name="XMLBeans+becomes+a+Top+Level+Apache+project+%2825+June+2004%29"></a>
+<h4>XMLBeans becomes a Top Level Apache project (25 June 2004)</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>Apache XMLBeans Project has graduated out the <a href="http://incubator.apache.org/">Apache
+Incubator Project</a> to become Top Level Project in the <a href="http://www.apache.org/">Apache Software Foundation</a>.  Apache XMLBeans provides a
+simplified model for interacting with XML documents. The project originated with a contribution from
+<a href="http://www.bea.com">BEA Inc.</a>, however, after its time within the Apache
+Incubator, it is now a full-fledged Apache community and codebase under Apache License 2.0. Cliff
+Schmidt is the Chair of the new Apache XMLBeans PMC (Project Management Committee).  </p>
+</div>
+<a name="N10059"></a><a name="XMLBeans+%28incubated%29+1.0.2+Released+%2823+April+2004%29"></a>
+<h4>XMLBeans (incubated) 1.0.2 Released (23 April 2004)</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>
+<a href="http://xmlbeans.apache.org/">Apache XMLBeans Team</a> has released XMLBeans Version
+1.0.2.  Download version 1.0.2 from the
+<a href="http://xmlbeans.apache.org/sourceAndBinaries/index.html">Source and Binaries
+section</a>.</p>
+<p>
+<a href="http://xmlbeans.apache.org/">Apache XMLBeans</a> is an effort undergoing <a href="http://incubator.apache.org/">incubation</a> at the <a href="http://www.apache.org/">Apache
+Software Foundation (ASF)</a>, sponsored by the <a href="http://xml.apache.org/">XML project</a>.</p>
+<p>Incubation is required of all newly accepted projects until a further review indicates that the
+infrastructure, communications, and decision making process have stabilized in a manner consistent
+with other successful ASF projects. While incubation status is not necessarily a reflection of the
+completeness or stability of the code, it does indicate that the project has yet to be fully
+endorsed by <a href="http://www.apache.org/">the ASF</a>.</p>
 </div>
 </div>
-		
-<a name="N10066"></a><a name="History"></a>
-<h3>History</h3>
-<div style="margin-left: 0 ; border: 2px">
-<p>XMLBeans was submitted to the Apache Incubator and Apache XML projects by BEA Systems in September 2003.  Thanks to the support and guidance of Steven Noels (project sponsor) 
-			and Ted Leung (project mentor), XMLBeans successfully graduated from incubation in June 2004 to become a top level project and part of the Apache XML federation.     
-			XMLBeans was originally created because of the need seen by developers, in particular David Bau 
-			(<a href="http://nagoya.apache.org/eyebrowse/ReadMsg?listName=xmlbeans-dev@xml.apache.org&msgNo=93">David's about me post</a>),  
-			need for a more XML centric Java binding model that nothing on the market offered.   XMLBeans 1.0 has been successfully used as an underlying technology for several
-			products as well as by a growing number of large users including some of the largest companies in the world.</p>
-</div>
-		
-<a name="N10074"></a><a name="Future"></a>
-<h3>Future</h3>
-<div style="margin-left: 0 ; border: 2px">
-<p>The future of XMLBeans is exciting and you are invited to contribute.  XMLBeans Version 1 is a great, stable technology that will continue to 
-			improve going forward.  Its emphasis on full support for XML Schema and the XML Infoset along with it's performance
-			charactaristics make it a great choice for in-memory XML-Java programming. </p>
-<p>Work has begun on planning XMLBeans 2.0.  At this point it appears that the major emphasis for XMLBeans 2.0 are new use cases that expand
-			the breadth of XMLBeans.  The observation is that XML-Java binding occurs in situations that XMLBeans could be optimized for, areas
-			such as Web Services (XMLBeans works well now in many Web Services situations) and Java to XML Schema scenarios .  
-			See the <a href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansRoadMap">XMLBeans Roadmap</a> and the 
-			<a href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansFeaturePlan">XMLBeans Feature Plan</a> wiki page for
-			more information.  XMLBeans is actively looking for contributors and committers so, if you are interested, please join in.</p>
-</div>
-		<!-- 
-		<section>
-			<title>News and events</title>
-			<ul>
-				<li>
-					<link href="http://apachecon.com/2003/US/index.html">
-						<img src="http://jakarta.apache.org/images/logos/ac2003-150.gif" alt="apachecon 2003 logo" width="150" height="86"/>
-					</link>
-					<link href="http://apachecon.com/2003/US/index.html">ApacheCon US 2003</link>
-			          (16-19 November 2003) is now open for registration. ApacheCon is
-			          the conference for all things Apache. Come along and learn about
-			          a range of new technologies, meet some Apache folks and share
-			          the knowledge. David Bau is scheduled to speak about XMLBeans 
-			          on Monday, Nov 17 from 2:30 to 3:30 
-			          (<link href="http://apachecon.com/2003/US/html/sessions.html">ApacheCon Schedule</link>).
-			        </li>
-			</ul>
-		</section>
-		-->
-	
+
+
 <div class="attribution"></div>
 </div>
 </td><td width="10"><img width="10" height="1" alt="" src="skin/images/spacer.gif" class="spacer"></td>
@@ -414,11 +364,7 @@
             //  --></script></font></td>
 </tr>
 <tr>
-<td colspan="2" align="left" bgcolor="#CFDCED" class="logos">
-<div>
-<a href="http://validator.w3.org/check/referer"><img width="88" height="31" alt="Valid HTML 4.01!" src="skin/images/valid-html401.png" class="logoImage"></a><a href="http://jigsaw.w3.org/css-validator/"><img width="88" height="31" alt="Valid CSS!" src="skin/images/vcss.png" class="logoImage"></a><img alt="" height="1" width="10" src="skin/images/spacer.gif"><a href="http://xml.apache.org/forrest/"><img border="0" alt="Built with Forrest logo" src="images/built-with-forrest-button.png" width="88" height="31"><img height="1" width="5" alt="" src="skin/images/spacer.gif" class="spacer"></a>
-</div>
-</td>
+<td colspan="2" align="left" bgcolor="#CFDCED" class="logos"></td>
 </tr>
 </table>
 <!--================= end Footer ==================-->
