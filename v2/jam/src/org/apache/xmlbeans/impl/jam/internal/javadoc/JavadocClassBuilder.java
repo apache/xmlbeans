@@ -72,7 +72,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     }
     String pct = ctx.getProperty(PARSETAGS_PROPERTY);
     if (pct != null) {
-      mParseTags = Boolean.parseBoolean(pct);
+      mParseTags = Boolean.valueOf(pct).booleanValue();
       ctx.verbose(PREFIX+ "mParseTags="+mParseTags);
     }
   }
