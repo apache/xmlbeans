@@ -84,7 +84,7 @@ final class ByNameRuntimeBindingType
             javaClass = getJavaClass(btype, getClass().getClassLoader());
         }
         catch (ClassNotFoundException e) {
-            final String msg = "failed to load " + btype.getJavaName();
+            final String msg = "failed to load " + btype.getName().getJavaName();
             throw (RuntimeException)(new RuntimeException(msg).initCause(e));
         }
 
@@ -111,7 +111,7 @@ final class ByNameRuntimeBindingType
     private static Class getJavaClass(BindingType btype, ClassLoader backup)
         throws ClassNotFoundException
     {
-        final JavaName javaName = btype.getJavaName();
+        final JavaName javaName = btype.getName().getJavaName();
         String jclass = javaName.toString();
         return ClassLoadingUtils.loadClass(jclass, backup);
     }
@@ -172,12 +172,12 @@ final class ByNameRuntimeBindingType
         {
             this.bindingProperty = prop;
             this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
-            final BindingType bindingType = prop.getBindingType(loader);
+            final BindingType bindingType = loader.getBindingType(prop.getTypeName());
             try {
                 this.propertyClass = getJavaClass(bindingType, getClass().getClassLoader());
             }
             catch (ClassNotFoundException e) {
-                final String msg = "error loading " + bindingType.getJavaName();
+                final String msg = "error loading " + bindingType.getName().getJavaName();
                 throw (RuntimeException)(new RuntimeException(msg).initCause(e));
             }
 
@@ -191,7 +191,7 @@ final class ByNameRuntimeBindingType
                                                     BindingLoader bindingLoader)
         {
             final BindingType bindingType =
-                prop.getBindingType(bindingLoader);
+                bindingLoader.getBindingType(prop.getTypeName());
             TypeUnmarshaller um = typeTable.getTypeUnmarshaller(bindingType);
             if (um == null) {
                 throw new AssertionError("failed to get unmarshaller for " + prop);

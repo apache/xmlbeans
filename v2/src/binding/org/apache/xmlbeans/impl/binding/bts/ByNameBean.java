@@ -78,9 +78,9 @@ public class ByNameBean extends BindingType
     Map eltProps = new HashMap(); // QName -> prop (elts)
     Map attProps = new HashMap(); // QName -> prop (attrs)
     
-    public ByNameBean(JavaName jName, XmlName xName, boolean isXmlObj)
+    public ByNameBean(BindingTypeName btName)
     {
-        super(jName, xName, isXmlObj);
+        super(btName);
     }
 
     public ByNameBean(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)

@@ -57,15 +57,10 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.XmlOptions;
 
-import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
-import java.util.Collection;
-import java.util.Collections;
 import java.io.IOException;
-
-import com.sun.tools.javac.v8.util.Pair;
 
 
 /**
@@ -74,7 +69,6 @@ import com.sun.tools.javac.v8.util.Pair;
  */
 public class BindingFile extends BaseBindingLoader
 {
-
     /**
      * This constructor is used when making a new one out of the blue.
      */
@@ -106,7 +100,7 @@ public class BindingFile extends BaseBindingLoader
                 doc.getBindingConfig().getBindings().getBindingTypeArray();
         for (int i = 0; i < btNodes.length; i++)
         {
-            BindingType next = BindingType.loadFromBindingTypeNode(this, btNodes[i]);
+            BindingType next = BindingType.loadFromBindingTypeNode(btNodes[i]);
             addBindingType(next, false, false);
         }
         org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping[] mNodes =
@@ -115,7 +109,15 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = JavaName.forString(mNodes[i].getJavatype());
             XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
-            xmlFromJava.put(jName, pair(jName, xName));
+            addTypeFor(jName, BindingTypeName.forPair(jName, xName));
+        }
+
+        mNodes = doc.getBindingConfig().getJavaToElement().getMappingArray();
+        for (int i = 0; i < mNodes.length; i++)
+        {
+            JavaName jName = JavaName.forString(mNodes[i].getJavatype());
+            XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
+            addElementFor(jName, BindingTypeName.forPair(jName, xName));
         }
 
         mNodes = doc.getBindingConfig().getXmlToPojo().getMappingArray();
@@ -123,7 +125,7 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = JavaName.forString(mNodes[i].getJavatype());
             XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
-            javaFromXmlPojo.put(xName, pair(jName, xName));
+            addPojoFor(xName, BindingTypeName.forPair(jName, xName));
         }
 
         mNodes = doc.getBindingConfig().getXmlToXmlobj().getMappingArray();
@@ -131,7 +133,7 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = JavaName.forString(mNodes[i].getJavatype());
             XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
-            javaFromXmlObj.put(xName, pair(jName, xName));
+            addXmlObjectFor(xName, BindingTypeName.forPair(jName, xName));
         }
     }
 
@@ -157,12 +159,13 @@ public class BindingFile extends BaseBindingLoader
 
         // make tables
         org.apache.xmlbeans.x2003.x09.bindingConfig.BindingTable btabNode = bcNode.addNewBindings();
-        org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable jtabNode = bcNode.addNewJavaToXml();
+        org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable typetabNode = bcNode.addNewJavaToXml();
+        org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable elementtabNode = bcNode.addNewJavaToElement();
         org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable pojotabNode = bcNode.addNewXmlToPojo();
         org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable xotabNode = bcNode.addNewXmlToXmlobj();
 
         // fill em in: binding types (delegate to BindingType.write)
-        for (Iterator i = bindingTypes.values().iterator(); i.hasNext(); )
+        for (Iterator i = bindingTypes().iterator(); i.hasNext(); )
         {
             BindingType bType = (BindingType)i.next();
             org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType btNode = btabNode.addNewBindingType();
@@ -170,75 +173,62 @@ public class BindingFile extends BaseBindingLoader
         }
 
         // from-java mappings
-        for (Iterator i = xmlFromJava.entrySet().iterator(); i.hasNext(); )
+        for (Iterator i = typeMappedJavaTypes().iterator(); i.hasNext(); )
         {
-            Map.Entry entry = (Map.Entry)i.next();
-            JavaName jName = (JavaName)entry.getKey();
-            NamePair pair = (NamePair)entry.getValue();
-            XmlName xName = pair.getXmlName();
-            org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = jtabNode.addNewMapping();
+            JavaName jName = (JavaName)i.next();
+            BindingTypeName pair = lookupTypeFor(jName);
+            org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = typetabNode.addNewMapping();
             mNode.setJavatype(jName.toString());
-            mNode.setXmlcomponent(xName.toString());
+            mNode.setXmlcomponent(pair.getXmlName().toString());
+        }
+
+        // from-java mappings
+        for (Iterator i = elementMappedJavaTypes().iterator(); i.hasNext(); )
+        {
+            JavaName jName = (JavaName)i.next();
+            BindingTypeName pair = lookupElementFor(jName);
+            org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = elementtabNode.addNewMapping();
+            mNode.setJavatype(jName.toString());
+            mNode.setXmlcomponent(pair.getXmlName().toString());
         }
 
         // to-pojo
-        for (Iterator i = javaFromXmlPojo.entrySet().iterator(); i.hasNext(); )
+        for (Iterator i = pojoMappedXmlTypes().iterator(); i.hasNext(); )
         {
-            Map.Entry entry = (Map.Entry)i.next();
-            JavaName jName = (JavaName)entry.getValue();
-            XmlName xName = (XmlName)entry.getKey();
+            XmlName xName = (XmlName)i.next();
+            BindingTypeName pair = lookupPojoFor(xName);
             org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = pojotabNode.addNewMapping();
-            mNode.setJavatype(jName.toString());
+            mNode.setJavatype(pair.getJavaName().toString());
             mNode.setXmlcomponent(xName.toString());
         }
 
         // to-xmlobj
-        for (Iterator i = javaFromXmlObj.entrySet().iterator(); i.hasNext(); )
+        for (Iterator i = xmlObjectMappedXmlTypes().iterator(); i.hasNext(); )
         {
-            Map.Entry entry = (Map.Entry)i.next();
-            JavaName jName = (JavaName)entry.getValue();
-            XmlName xName = (XmlName)entry.getKey();
+            XmlName xName = (XmlName)i.next();
+            BindingTypeName pair = lookupXmlObjectFor(xName);
             org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = xotabNode.addNewMapping();
-            mNode.setJavatype(jName.toString());
+            mNode.setJavatype(pair.getJavaName().toString());
             mNode.setXmlcomponent(xName.toString());
         }
     }
 
     public void addBindingType(BindingType bType, boolean fromJavaDefault, boolean fromXmlDefault)
     {
-        bindingTypes.put(BaseBindingLoader.pair(bType.getJavaName(), bType.getXmlName()), bType);
-        if (fromJavaDefault)
-        {
-            if (bType.isXmlObject())
-                javaFromXmlObj.put(bType.getXmlName(), bType.getJavaName());
-            else
-                javaFromXmlPojo.put(bType.getXmlName(), bType.getJavaName());
-        }
+        addBindingType(bType);
         if (fromXmlDefault)
         {
-            xmlFromJava.put(bType.getJavaName(),
-                            pair(bType.getJavaName(),bType.getXmlName()));
+            if (bType.getName().getJavaName().isXmlObject())
+                addXmlObjectFor(bType.getName().getXmlName(), bType.getName());
+            else
+                addPojoFor(bType.getName().getXmlName(), bType.getName());
+        }
+        if (fromJavaDefault)
+        {
+            if (bType.getName().getXmlName().getComponentType() == XmlName.ELEMENT)
+                addElementFor(bType.getName().getJavaName(), bType.getName());
+            else
+                addTypeFor(bType.getName().getJavaName(), bType.getName());
         }
     }
-
-    public Collection getMappedJavaNames()
-    {
-        return Collections.unmodifiableCollection(this.xmlFromJava.keySet());
-    }
-
-    public Collection getPojoMappedXmlNames()
-    {
-        return Collections.unmodifiableCollection(this.javaFromXmlPojo.keySet());
-    }
-
-    public Collection getXmlObjectMappedXmlNames()
-    {
-        return Collections.unmodifiableCollection(this.javaFromXmlObj.keySet());
-    }
-    
-    public Collection getBindingTypes()
-    {
-        return Collections.unmodifiableCollection(bindingTypes.values());
-    }
-
 }

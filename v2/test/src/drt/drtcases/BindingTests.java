@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.compile.JAXRPCSchemaBinder;
 import org.apache.xmlbeans.impl.binding.compile.SchemaToJavaResult;
 import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
@@ -61,13 +62,13 @@ public class BindingTests extends TestCase
         BindingLoader builtins = BuiltinBindingLoader.getInstance();
 
         // some complex types
-        ByNameBean bnb = new ByNameBean(JavaName.forString("com.mytest.MyClass"), XmlName.forString("t=my-type@http://www.mytest.com/"), false);
+        ByNameBean bnb = new ByNameBean(BindingTypeName.forPair(JavaName.forString("com.mytest.MyClass"), XmlName.forString("t=my-type@http://www.mytest.com/")));
         bf.addBindingType(bnb, true, true);
-        ByNameBean bnb2 = new ByNameBean(JavaName.forString("com.mytest.YourClass"), XmlName.forString("t=your-type@http://www.mytest.com/"), false);
+        ByNameBean bnb2 = new ByNameBean(BindingTypeName.forPair(JavaName.forString("com.mytest.YourClass"), XmlName.forString("t=your-type@http://www.mytest.com/")));
         bf.addBindingType(bnb2, true, true);
 
         // a custom simple type
-        SimpleBindingType sbt = new SimpleBindingType(JavaName.forString("java.lang.String"), XmlName.forString("t=custom-string@http://www.mytest.com/"), false);
+        SimpleBindingType sbt = new SimpleBindingType(BindingTypeName.forPair(JavaName.forString("java.lang.String"), XmlName.forString("t=custom-string@http://www.mytest.com/")));
         bf.addBindingType(sbt, false, true); // note not from-java-default for String
 
 
@@ -120,9 +121,9 @@ public class BindingTests extends TestCase
         // now load
         BindingFile bfc = BindingFile.forDoc(doc);
         BindingLoader lc = PathBindingLoader.forPath(new BindingLoader[] {builtins, bfc});
-        ByNameBean bnbc = (ByNameBean)bfc.getBindingType(JavaName.forString("com.mytest.MyClass"), XmlName.forString("t=my-type@http://www.mytest.com/"));
-        ByNameBean bnb2c = (ByNameBean)bfc.getBindingType(JavaName.forString("com.mytest.YourClass"), XmlName.forString("t=your-type@http://www.mytest.com/"));
-        SimpleBindingType sbtc = (SimpleBindingType)bfc.getBindingType(JavaName.forString("java.lang.String"), XmlName.forString("t=custom-string@http://www.mytest.com/"));
+        ByNameBean bnbc = (ByNameBean)bfc.getBindingType(BindingTypeName.forPair(JavaName.forString("com.mytest.MyClass"), XmlName.forString("t=my-type@http://www.mytest.com/")));
+        ByNameBean bnb2c = (ByNameBean)bfc.getBindingType(BindingTypeName.forPair(JavaName.forString("com.mytest.YourClass"), XmlName.forString("t=your-type@http://www.mytest.com/")));
+        SimpleBindingType sbtc = (SimpleBindingType)bfc.getBindingType(BindingTypeName.forPair(JavaName.forString("java.lang.String"), XmlName.forString("t=custom-string@http://www.mytest.com/")));
 
         // check loading xsd:float
         {
@@ -131,7 +132,7 @@ public class BindingTests extends TestCase
             XmlName xns = XmlName.forString("t=float@http://www.w3.org/2001/XMLSchema");
             Assert.assertEquals(xn, xns);
             Assert.assertEquals(xn.hashCode(), xns.hashCode());
-            BindingType btype = lc.getBindingTypeForXmlPojo(xn);
+            BindingType btype = lc.getBindingType(lc.lookupPojoFor(xn));
             Assert.assertNotNull(btype);
         }
 
@@ -142,7 +143,7 @@ public class BindingTests extends TestCase
             XmlName xns = XmlName.forString("t=string@http://www.w3.org/2001/XMLSchema");
             Assert.assertEquals(xn, xns);
             Assert.assertEquals(xn.hashCode(), xns.hashCode());
-            BindingType btype = lc.getBindingTypeForXmlPojo(xn);
+            BindingType btype = lc.getBindingType(lc.lookupPojoFor(xn));
             Assert.assertNotNull(btype);
         }
 
@@ -150,28 +151,28 @@ public class BindingTests extends TestCase
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myelt"));
         Assert.assertEquals("setMyelt", prop.getSetterName());
         Assert.assertEquals("getMyelt", prop.getGetterName());
-        Assert.assertEquals(bnb2c, prop.getBindingType(lc));
+        Assert.assertEquals(bnb2c, lc.getBindingType(prop.getTypeName()));
 
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myelt2"));
         Assert.assertEquals("setMyelt2", prop.getSetterName());
         Assert.assertEquals("getMyelt2", prop.getGetterName());
-        Assert.assertEquals(bnbc, prop.getBindingType(lc));
+        Assert.assertEquals(bnbc, lc.getBindingType(prop.getTypeName()));
 
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myatt"));
         Assert.assertEquals("setMyatt", prop.getSetterName());
         Assert.assertEquals("getMyatt", prop.getGetterName());
-        Assert.assertEquals(sbtc, prop.getBindingType(lc));
+        Assert.assertEquals(sbtc, lc.getBindingType(prop.getTypeName()));
 
         // check bnb2
         prop = bnb2c.getPropertyForElement(new QName("http://www.mytest.com/", "yourelt"));
         Assert.assertEquals("setYourelt", prop.getSetterName());
         Assert.assertEquals("getYourelt", prop.getGetterName());
-        Assert.assertEquals(bnb2c, prop.getBindingType(lc));
+        Assert.assertEquals(bnb2c, lc.getBindingType(prop.getTypeName()));
 
         prop = bnb2c.getPropertyForElement(new QName("http://www.mytest.com/", "yourelt2"));
         Assert.assertEquals("setYourelt2", prop.getSetterName());
         Assert.assertEquals("getYourelt2", prop.getGetterName());
-        Assert.assertEquals(bnbc, prop.getBindingType(lc));
+        Assert.assertEquals(bnbc, lc.getBindingType(prop.getTypeName()));
 
         // check sbtc
         Assert.assertEquals(XmlName.forString("t=string@http://www.w3.org/2001/XMLSchema"), sbtc.getAsIfXmlType());

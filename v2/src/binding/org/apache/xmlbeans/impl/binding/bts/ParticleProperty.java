@@ -74,6 +74,6 @@ public class ParticleProperty extends BindingProperty
     
     public XmlName getXmlName()
     {
-        return this.tXml;
+        return getTypeName().getXmlName();
     }
 }

@@ -56,7 +56,6 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 /**
  * Represents a Java+XML component and a rule for getting between
@@ -64,20 +63,16 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
  */
 public abstract class BindingType
 {
-    private JavaName jName;
-    private XmlName xName;
-    private boolean isXmlObj;
+    private final BindingTypeName btName;
 
     /**
      * This kind of constructor is used when making a new one out of the blue.
      *
      * Subclasses should call super(..) when defining constructors that init new BindingTypes.
      */
-    protected BindingType(JavaName jName, XmlName xName, boolean isXmlObj)
+    protected BindingType(BindingTypeName btName)
     {
-        this.jName = jName;
-        this.xName = xName;
-        this.isXmlObj = isXmlObj;
+        this.btName = btName;
     }
 
     /**
@@ -87,9 +82,9 @@ public abstract class BindingType
      */
     protected BindingType(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
     {
-        this.jName = JavaName.forString(node.getJavatype());
-        this.xName = XmlName.forString(node.getXmlcomponent());
-        this.isXmlObj = node.getXmlobj();
+        this.btName = BindingTypeName.forPair(
+                JavaName.forString(node.getJavatype()),
+                XmlName.forString(node.getXmlcomponent()));
     }
 
     /**
@@ -100,32 +95,21 @@ public abstract class BindingType
     protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
     {
         node = (org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType)node.changeType(kinds.typeForClass(this.getClass()));
-        node.setJavatype(jName.toString());
-        node.setXmlcomponent(xName.toString());
-        node.setXmlobj(isXmlObj);
+        node.setJavatype(btName.getJavaName().toString());
+        node.setXmlcomponent(btName.getXmlName().toString());
         return node;
     }
 
-    public final JavaName getJavaName()
+    public final BindingTypeName getName()
     {
-        return jName;
-    }
-
-    public final XmlName getXmlName()
-    {
-        return xName;
-    }
-
-    public final boolean isXmlObject()
-    {
-        return isXmlObj;
+        return btName;
     }
 
     /* REGISTRY OF SUBCLASSES */
 
     private static final Class[] ctorArgs = new Class[] {org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType.class};
 
-    public static BindingType loadFromBindingTypeNode(BindingLoader bLoader, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    public static BindingType loadFromBindingTypeNode(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
     {
         try
         {

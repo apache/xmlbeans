@@ -63,11 +63,17 @@
  * "int[]"
  * "java.lang.String"
  * "com.myco.MyClass$MyInnerClass$InnerInnerClass[][]"
+ * 
+ * The classname is preceded by an "x=" if it is an XmlObject
+ * subclass, i.e., if it's an XmlBeans-style class, for example:
+ * 
+ * "x=org.apache.xmlbeans.XmlInt"
  */
 public final class JavaName
 {
     private final String className;
     private final String arrayString;
+    private final boolean isXmlObject;
 
     /**
      * Returns a JavaName object for a fully-qualified class name.
@@ -92,7 +98,7 @@ public final class JavaName
     {
         // efficiency later
         String arrayBrackets = "";
-        while (depth > 0)
+        while (depth-- > 0)
             arrayBrackets += "[]";
         return forString(itemType.toString() + arrayBrackets);
     }
@@ -104,6 +110,16 @@ public final class JavaName
     {
         if (className == null)
             throw new IllegalArgumentException();
+        
+        if (className.startsWith("x="))
+        {
+            this.isXmlObject = true;
+            className = className.substring(2);
+        }
+        else
+        {
+            this.isXmlObject = false;
+        }
         
         int arrayDepth = 0;
         for (int i = className.length() - 2; i >= 0; i -= 2)
@@ -121,7 +137,17 @@ public final class JavaName
      */ 
     public String toString()
     {
+        if (isXmlObject)
+            return "x=" + className + arrayString;
         return className + arrayString;
+    }
+    
+    /**
+     * True for classnames that are XmlObjects.
+     */ 
+    public boolean isXmlObject()
+    {
+        return isXmlObject;
     }
     
     /**
@@ -193,7 +219,8 @@ public final class JavaName
         if (!(o instanceof JavaName)) return false;
 
         final JavaName javaName = (JavaName) o;
-
+        
+        if (isXmlObject != javaName.isXmlObject) return false;
         if (!className.equals(javaName.className)) return false;
         if (!arrayString.equals(javaName.arrayString)) return false;
 
@@ -202,6 +229,6 @@ public final class JavaName
 
     public int hashCode()
     {
-        return className.hashCode() + arrayString.length();
+        return className.hashCode() + arrayString.length() + (isXmlObject ? 1 : 0);
     }
 }

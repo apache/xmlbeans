@@ -56,21 +56,50 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-
-/**
- * Represents a resource capable of providing BindingTypes, based on
- * XML and Java component names.  Implementations of this interface
- * may load from files, classpaths, etc. 
- */
-public interface BindingLoader
+public final class BindingTypeName
 {
-    BindingType getBindingType(BindingTypeName btName);
+    private final JavaName jName;
+    private final XmlName xName;
+    
+    public static BindingTypeName forPair(JavaName jName, XmlName xName)
+    {
+        return new BindingTypeName(jName, xName);
+    }
 
-    BindingTypeName lookupPojoFor(XmlName xName);
+    private BindingTypeName(JavaName jName, XmlName xName)
+    {
+        this.jName = jName;
+        this.xName = xName;
+    }
 
-    BindingTypeName lookupXmlObjectFor(XmlName xName);
+    public JavaName getJavaName()
+    {
+        return jName;
+    }
 
-    BindingTypeName lookupTypeFor(JavaName jName);
+    public XmlName getXmlName()
+    {
+        return xName;
+    }
+    
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof BindingTypeName)) return false;
 
-    BindingTypeName lookupElementFor(JavaName jName);
+        final BindingTypeName bindingTypeName = (BindingTypeName) o;
+
+        if (!jName.equals(bindingTypeName.jName)) return false;
+        if (!xName.equals(bindingTypeName.xName)) return false;
+
+        return true;
+    }
+
+    public int hashCode()
+    {
+        int result;
+        result = jName.hashCode();
+        result = 29 * result + xName.hashCode();
+        return result;
+    }
 }

@@ -57,7 +57,6 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
 
 import javax.xml.namespace.QName;
 import java.util.List;
@@ -79,9 +78,9 @@ public class JaxbBean extends BindingType
     Map eltProps = new LinkedHashMap(); // QName -> prop (elts)
     Map attProps = new LinkedHashMap(); // QName -> prop (attrs)
     
-    public JaxbBean(JavaName jName, XmlName xName)
+    public JaxbBean(BindingTypeName btName)
     {
-        super(jName, xName, false);
+        super(btName);
     }
 
     public JaxbBean(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
