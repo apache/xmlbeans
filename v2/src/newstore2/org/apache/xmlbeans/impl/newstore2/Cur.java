@@ -40,6 +40,8 @@ import java.io.PrintStream;
 
 import java.util.Iterator;
 
+import org.apache.xmlbeans.impl.newstore2.Locale.LoadContext;
+
 import org.apache.xmlbeans.impl.newstore2.DomImpl.Dom;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.CharNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.TextNode;
@@ -112,17 +114,20 @@ final class Cur
     
     void createDomDocumentRoot ( )
     {
-        Xobj xo;
-
-        if (_locale._saaj == null)
-            xo = new DocumentXobj( _locale );
-        else
-            xo = new SoapPartDocXobj( _locale );
+        Xobj xo = createDomDocumentRootXobj( _locale );
 
         if (_locale._ownerDoc == null)
             _locale._ownerDoc = xo.getDom();
 
         set( xo, 0 );
+    }
+    
+    static Xobj createDomDocumentRootXobj ( Locale l )
+    {
+        if (l._saaj == null)
+            return new DocumentXobj( l );
+        else
+            return new SoapPartDocXobj( l );
     }
 
     void createElement ( QName name )
@@ -132,32 +137,33 @@ final class Cur
     
     void createElement ( QName name, QName parentName )
     {
-        Xobj xo = null;
-        
-        if (_locale._saaj != null)
-        {
-            Class c = _locale._saaj.identifyElement( name, parentName );
+        createHelper( createElementXobj( _locale, name, parentName ) );
+    }
 
-            if (c == SOAPElement.class)       xo = new SoapElementXobj       ( _locale, name );
-            if (c == SOAPBody.class)          xo = new SoapBodyXobj          ( _locale, name );
-            if (c == SOAPBodyElement.class)   xo = new SoapBodyElementXobj   ( _locale, name );
-            if (c == SOAPEnvelope.class)      xo = new SoapEnvelopeXobj      ( _locale, name );
-            if (c == SOAPHeader.class)        xo = new SoapHeaderXobj        ( _locale, name );
-            if (c == SOAPHeaderElement.class) xo = new SoapHeaderElementXobj ( _locale, name );
-            if (c == SOAPFaultElement.class)  xo = new SoapFaultElementXobj  ( _locale, name );
-            if (c == Detail.class)            xo = new DetailXobj            ( _locale, name );
-            if (c == DetailEntry.class)       xo = new DetailEntryXobj       ( _locale, name );
-            if (c == SOAPFault.class)         xo = new SoapFaultXobj         ( _locale, name );
+    static Xobj createElementXobj ( Locale l, QName name, QName parentName )
+    {
+        if (l._saaj != null)
+        {
+            Class c = l._saaj.identifyElement( name, parentName );
+
+            if (c == SOAPElement.class)       return new SoapElementXobj       ( l, name );
+            if (c == SOAPBody.class)          return new SoapBodyXobj          ( l, name );
+            if (c == SOAPBodyElement.class)   return new SoapBodyElementXobj   ( l, name );
+            if (c == SOAPEnvelope.class)      return new SoapEnvelopeXobj      ( l, name );
+            if (c == SOAPHeader.class)        return new SoapHeaderXobj        ( l, name );
+            if (c == SOAPHeaderElement.class) return new SoapHeaderElementXobj ( l, name );
+            if (c == SOAPFaultElement.class)  return new SoapFaultElementXobj  ( l, name );
+            if (c == Detail.class)            return new DetailXobj            ( l, name );
+            if (c == DetailEntry.class)       return new DetailEntryXobj       ( l, name );
+            if (c == SOAPFault.class)         return new SoapFaultXobj         ( l, name );
 
             if (c != null)
                 throw new IllegalStateException();
         }
-        else
-            xo = new ElementXobj( _locale, name );
         
-        createHelper( xo );
+        return new ElementXobj( l, name );
     }
-
+            
     void createAttr ( QName name )
     {
         createHelper( new AttrXobj( _locale, name ) );
@@ -165,10 +171,27 @@ final class Cur
     
     void createComment ( )
     {
-        createHelper(
-            _locale._saaj == null
-                ? new CommentXobj( _locale )
-                : new SaajCommentXobj( _locale ) );
+        createHelper( createCommentXobj( _locale) );
+    }
+    
+    static Xobj createCommentXobj ( Locale l )
+    {
+        return l._saaj == null ? new CommentXobj( l ) : new SaajCommentXobj( l );
+    }
+
+    boolean isXmlns ( )
+    {
+        assert isNormal() && _xobj != null && _pos == 0;
+
+        if (_xobj.kind( 0 ) != ATTR)
+            return false;
+
+        String prefix = _xobj._name.getPrefix();
+        
+        if (prefix.equals( "xmlns" ))
+            return true;
+
+        return prefix.length() == 0 && _xobj._name.getLocalPart().equals( "xmlns" );
     }
 
     QName getName ( )
@@ -190,6 +213,13 @@ final class Cur
     boolean isPositioned ( )
     {
         return _xobj != null;
+    }
+
+    boolean isSamePosition ( Cur that )
+    {
+        assert isNormal() && that.isNormal();
+
+        return _xobj == that._xobj && _pos == that._pos;
     }
 
     void moveToCur ( Cur to )
@@ -514,6 +544,16 @@ final class Cur
         return nodes;
     }
 
+    final String namespaceForPrefix ( String prefix )
+    {
+        throw new RuntimeException( "Not implemented" );
+    }
+
+    final String prefixForNamespace ( String ns )
+    {
+        throw new RuntimeException( "Not implemented" );
+    }
+
     boolean ancestorOf ( Cur that )
     {
         assert _xobj != null && that._xobj != null;
@@ -732,6 +772,46 @@ final class Cur
         }
     }
 
+    protected final void setBookmark ( Class c, Object o )
+    {
+        assert isNormal();
+        assert c != null;
+        assert o == null || o.getClass() == c;
+
+        for ( Cur x = _xobj._embedded ; x != null ; x = x._next )
+        {
+            if (x._pos == _pos && x._obj != null && x._obj.getClass() == c)
+            {
+                if (o == null)
+                    x.release();
+                else
+                    x._obj = o;
+
+                return;
+            }
+        }
+
+        Cur cur = _locale.permCur();
+
+        cur.moveToCur( this );
+
+        assert cur._obj == null;
+
+        cur._obj = o;
+    }
+    
+    final Object getBookmark ( Class c )
+    {
+        assert isNormal();
+        assert c != null;
+
+        for ( Cur x = _xobj._embedded ; x != null ; x = x._next )
+            if (x._pos == _pos && x._obj != null && x._obj.getClass() == c)
+                return x._obj;
+        
+        return null;
+    }
+    
     String getString ( int cch )
     {
         assert isNormal() && _xobj != null;
@@ -825,6 +905,20 @@ final class Cur
             from.moveNode( cTo );
             from.release();
         }
+    }
+
+    Cur weakCur ( Object o )
+    {
+        Cur c = _locale.weakCur( o );
+        c.moveToCur( this );
+        return c;
+    }
+
+    Cur tempCur ( )
+    {
+        Cur c = _locale.tempCur();
+        c.moveToCur( this );
+        return c;
     }
 
     private Cur tempCur ( Xobj x, int p )
@@ -1047,6 +1141,160 @@ final class Cur
 
         return _xobj.isNormal( _pos );
     }
+
+    static final class CurLoadContext extends LoadContext
+    {
+        CurLoadContext ( Locale l )
+        {
+            _locale = l;
+            _frontier = createDomDocumentRootXobj( l );
+            _after = false;
+            
+            _locale._versionAll++;
+            _locale._versionSansText++;
+        }
+
+        protected void start ( Xobj xo )
+        {
+            assert _frontier != null;
+            assert !_after || _frontier._parent != null;
+
+            if (_after)
+            {
+                _frontier = _frontier._parent;
+                _after = false;
+            }
+
+            _frontier.appendXobj( xo );
+            _frontier = xo;
+        }
+        
+        protected void end ( )
+        {
+            assert _frontier != null;
+            assert !_after || _frontier._parent != null;
+
+            if (_after)
+                _frontier = _frontier._parent;
+            else
+                _after = true;
+        }
+        
+        protected void startElement ( QName name )
+        {
+            start(
+                createElementXobj( _locale, name, (_after ? _frontier._parent :_frontier)._name ) );
+        }
+        
+        protected void endElement ( )
+        {
+            assert (_after ? _frontier._parent : _frontier).isElem();
+            end();
+        }
+        
+        protected void xmlns ( String prefix, String uri )
+        {
+            assert prefix == null || prefix.length() > 0;
+            assert (_after ? _frontier._parent : _frontier).isContainer();
+            
+            QName name =
+                prefix == null
+                    ? _locale.makeQName( null, "xmlns", null )
+                    : _locale.makeQName( null, prefix, "xmlns" );
+                         
+            start( new AttrXobj( _locale, name ) );
+            
+            text( uri );
+            
+            end();
+        }
+        
+        protected void attr ( String local, String uri, String prefix, String value )
+        {
+            assert (_after ? _frontier._parent : _frontier).isContainer();
+            start( new AttrXobj( _locale, _locale.makeQName( uri, local, prefix ) ) );
+            text( value );
+            end();
+        }
+        
+        protected void procInst ( String target, String value )
+        {
+            start( new ProcInstXobj( _locale, target ) );
+            text( value );
+            end();
+        }
+        
+        protected void comment ( char[] buf, int off, int cch )
+        {
+            start( createCommentXobj( _locale ) );
+            text( buf, off, cch );
+            end();
+        }
+        
+        protected void text ( String s )
+        {
+            text( s, 0, s.length() );
+        }
+        
+        protected void text ( Object src, int off, int cch )
+        {
+            if (cch <= 0)
+                return;
+
+            if (_after)
+            {
+                _frontier._srcAfter =
+                    _locale._charUtil.saveChars(
+                        src, off, cch,
+                        _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
+
+                _frontier._offAfter = _locale._charUtil._offSrc;
+                _frontier._cchAfter = _locale._charUtil._cchSrc;
+            }
+            else
+            {
+                _frontier._srcValue =
+                    _locale._charUtil.saveChars(
+                        src, off, cch,
+                        _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
+
+                _frontier._offValue = _locale._charUtil._offSrc;
+                _frontier._cchValue = _locale._charUtil._cchSrc;
+            }
+        }
+        
+        protected void text ( char[] src, int off, int cch )
+        {
+            text( (Object) src, off, cch );
+        }
+        
+        protected Cur finish ( )
+        {
+            if (_after)
+                _frontier = _frontier._parent;
+
+            assert _frontier != null && _frontier._parent == null;
+
+            Cur c = _locale.tempCur();
+
+            c.set( _frontier, 0 );
+
+            return c;
+        }
+
+        public void dump ( )
+        {
+            _frontier.dump();
+        }
+        
+        private Locale  _locale;
+        private Xobj    _frontier;
+        private boolean _after;
+    }
+
+    //
+    //
+    //
 
     private abstract static class Xobj
     {
@@ -1508,6 +1756,21 @@ final class Cur
         public String substringData ( int offset, int count ) { return DomImpl._characterData_substringData( this, offset, count ); }
     }
 
+    private static class ProcInstXobj extends NodeXobj implements ProcessingInstruction
+    {
+        ProcInstXobj ( Locale l, String target )
+        {
+            super( l, PROCINST, DomImpl.PROCINST );
+            _name = _locale.makeQName( null, target );
+        }
+        
+        Xobj newNode ( ) { return new ProcInstXobj( _locale, _name.getLocalPart() ); }
+        
+        public String getData ( ) { return DomImpl._processingInstruction_getData( this ); }
+        public String getTarget ( ) { return DomImpl._processingInstruction_getTarget( this ); }
+        public void setData ( String data ) { DomImpl._processingInstruction_setData( this, data ); }
+    }
+    
     //
     // SAAJ objects
     //
@@ -1923,6 +2186,8 @@ final class Cur
     int _tempFrame;
 
     Cur _next, _prev;
+    
+    Object _obj;
     
     private int _posTemp;
     
