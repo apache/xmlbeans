@@ -60,6 +60,11 @@ import org.apache.xmlbeans.impl.jam.JClass;
 
 import java.io.File;
 
+/**
+ * @deprecated Trying to remove this interface - it's better to build
+ * up a BindingCompiler subclass by setting various properties on it
+ * such as classes, tylar loader.
+ */
 public interface JavaSourceSet
 {
     /**
