@@ -554,7 +554,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         {
             URL url = new URL( schemaLocation );
             URLConnection conn = url.openConnection();
-            conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.2");
+            conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.3");
             conn.addRequestProperty("Accept", "application/xml, text/xml, */*");
             DigestInputStream input = digestInputStream(conn.getInputStream());
             IOUtil.copyCompletely(input, buffer);
