@@ -1943,6 +1943,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     return _linker.findAttribute(QNameHelper.forPretty(handle, 4)).getType().getRef();
                 case 'S': // _XS_ - external ref to element's type
                     return _linker.findElement(QNameHelper.forPretty(handle, 4)).getType().getRef();
+                case 'O': // _XO_ - external ref to document type
+                    return _linker.findDocumentTypeRef(QNameHelper.forPretty(handle, 4));
                 default:
                     throw new SchemaTypeLoaderException("Cannot resolve handle " + handle, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
             }
@@ -1989,6 +1991,13 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     if (type.getName() != null)
                     {
                         writeString("_XT_" + QNameHelper.pretty(type.getName()));
+                    }
+                    else if (type.isDocumentType())
+                    {
+                        // Substitution groups will create document types that
+                        // extend from other document types, possibly in
+                        // different jars
+                        writeString("_XO_" + QNameHelper.pretty(type.getDocumentElementName()));
                     }
                     else
                     {
