@@ -114,7 +114,16 @@ public abstract class BaseJElement implements JElement {
   // ========================================================================
   // JAnnotation implementation
 
-  public final JAnnotation[] getAnnotations() {
+  /**
+   * NOTE TO IMPLEMENTORS: you really should not override this method; override
+   * getLocalAnnotations instead!!! This method takes responsibility for
+   * returning the union of the localAnnotations and the annotations provided
+   * by any external JAnnotationLoader; if you override this method yourself,
+   * your impl will not support external annotations.
+   *
+   * @return
+   */
+  public /*final*/ JAnnotation[] getAnnotations() {
     if (mAnns == null) {
       List list = getTempList();
       getLocalAnnotations(list);
