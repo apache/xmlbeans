@@ -54,7 +54,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     private Map _documentCache;
     private Map _classnameCache;
 
-    public static String LOAD_METADATA_PACKAGE = SchemaTypeSystemImpl.METADATA_PACKAGE;
+    public static String METADATA_PACKAGE_LOAD = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
         
     // The following maintains a cache of SchemaTypeLoaders per ClassLoader per Thread.
     // I use soft references to allow the garbage collector to reclain the type loaders
@@ -320,7 +320,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
             if (_searchPath[i].isNamespaceDefined(namespace))
                 return true;
         
-        SchemaTypeSystem sts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/namespace/", new QName(namespace, "xmlns"));
+        SchemaTypeSystem sts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/namespace/", new QName(namespace, "xmlns"));
         return (sts != null);
     }
 
@@ -334,7 +334,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/type/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/type/", name);
                 if (ts != null)
                 {
                     result = ts.findTypeRef(name);
@@ -358,7 +358,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForClassname("schema" + LOAD_METADATA_PACKAGE + "/javaname/", classname);
+                SchemaTypeSystem ts = typeSystemForClassname("schema" + METADATA_PACKAGE_LOAD + "/javaname/", classname);
                 if (ts != null)
                 {
                     result = ts.typeForClassname(classname);
@@ -380,7 +380,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/element/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/element/", name);
                 if (ts != null)
                 {
                     result = ts.findDocumentTypeRef(name);
@@ -402,7 +402,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/attribute/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/attribute/", name);
                 if (ts != null)
                 {
                     result = ts.findAttributeTypeRef(name);
@@ -424,7 +424,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/element/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/element/", name);
                 if (ts != null)
                 {
                     result = ts.findElementRef(name);
@@ -446,7 +446,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/attribute/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/attribute/", name);
                 if (ts != null)
                 {
                     result = ts.findAttributeRef(name);
@@ -468,7 +468,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/modelgroup/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/modelgroup/", name);
                 if (ts != null)
                 {
                     result = ts.findModelGroupRef(name);
@@ -490,7 +490,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/attributegroup/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/attributegroup/", name);
                 if (ts != null)
                 {
                     result = ts.findAttributeGroupRef(name);
@@ -512,7 +512,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     break;
             if (result == null)
             {
-                SchemaTypeSystem ts = typeSystemForComponent("schema" + LOAD_METADATA_PACKAGE + "/identityconstraint/", name);
+                SchemaTypeSystem ts = typeSystemForComponent("schema" + METADATA_PACKAGE_LOAD + "/identityconstraint/", name);
                 if (ts != null)
                 {
                     result = ts.findIdentityConstraintRef(name);
@@ -532,10 +532,10 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
             sourceName = "/" + sourceName;
 
         if (_resourceLoader != null)
-            result = _resourceLoader.getResourceAsStream("schema" + LOAD_METADATA_PACKAGE + "/src" + sourceName);
+            result = _resourceLoader.getResourceAsStream("schema" + METADATA_PACKAGE_LOAD + "/src" + sourceName);
 
         if (result == null && _classLoader != null)
-            return _classLoader.getResourceAsStream("schema" + LOAD_METADATA_PACKAGE + "/src" + sourceName);
+            return _classLoader.getResourceAsStream("schema" + METADATA_PACKAGE_LOAD + "/src" + sourceName);
 
         return result;
     }

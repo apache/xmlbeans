@@ -19,8 +19,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.impl.common.IOUtil;
-import org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument;
-import org.apache.internal.xmlbeans.wsdlsubst.TImport;
+import org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument;
+import org.apache.xmlbeans.impl.xb.substwsdl.TImport;
 
 import java.net.URI;
 import java.net.URL;
@@ -32,9 +32,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.io.File;
 
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3.x2001.xmlSchema.ImportDocument;
-import org.w3.x2001.xmlSchema.IncludeDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument;
 
 public class SchemaCopy
 {

@@ -15,11 +15,11 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.w3.x2001.xmlSchema.RedefineDocument.Redefine;
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3.x2001.xmlSchema.ImportDocument.Import;
-import org.w3.x2001.xmlSchema.IncludeDocument.Include;
+import org.apache.xmlbeans.impl.xb.xsdschema.RedefineDocument.Redefine;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument.Import;
+import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument.Include;
 
 import java.util.Map;
 import java.util.List;
@@ -870,7 +870,7 @@ public class StscImporter
 
                         InputStream in = null;
                         URL url = new URL(urlLoc);
-                        // Copy the file from filepath to schema[METADATA_PACKAGE]/src/<schemaFile>
+                        // Copy the file from filepath to schema[METADATA_PACKAGE_GEN]/src/<schemaFile>
                         in = url.openStream();
 
                         FileOutputStream out = new FileOutputStream(targetFile);

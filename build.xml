@@ -626,7 +626,7 @@
     <target name="xsdschema.check">
         <condition property="xsdschema.notRequired">
             <uptodate property="xsdschema.notRequired" targetfile="build/classes/xsdschema/schema/system/sXMLSCHEMA/index.xsb">
-                <srcfiles dir="src/xsdschema" includes="**/*.xsd"/>
+                <srcfiles dir="src/xsdschema" includes="**/*.xsd*"/>
             </uptodate>
         </condition>
     </target>
@@ -648,7 +648,7 @@
     <target name="xmlschema.check">
         <condition property="xmlschema.notRequired">
             <uptodate property="xmlschema.notRequired" targetfile="build/classes/xmlschema/schema/system/sXMLLANG/index.xsb">
-                <srcfiles dir="src/xmlschema" includes="**/*.xsd"/>
+                <srcfiles dir="src/xmlschema" includes="**/*.xsd*"/>
             </uptodate>
         </condition>
     </target>
@@ -776,6 +776,7 @@
             <arg line="${new_repackage_arg} -f ${rp_source_dir} -t ${rp_target_dir}"/>
         </java>
 
+        <echo message="Build XmlBeans in ${rp_target_dir}"/>
 
         <ant dir="${rp_target_dir}" target="xbean" inheritAll="false">
             <property name="repackage_arg" value="${new_repackage_arg}"/>

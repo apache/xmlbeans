@@ -19,9 +19,9 @@ import java.math.BigInteger;
 import java.util.*;
 import java.util.List;
 
-import org.w3.x2001.xmlSchema.*;
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
-import org.w3.x2001.xmlSchema.AnyDocument.Any;
+import org.apache.xmlbeans.impl.xb.xsdschema.*;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.AnyDocument.Any;
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.QNameHelper;

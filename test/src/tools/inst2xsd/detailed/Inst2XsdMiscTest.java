@@ -13,7 +13,7 @@ import java.io.FileReader;
 import java.io.PrintStream;
 
 import org.apache.xmlbeans.XmlObject;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 /**
  * @author jacobd

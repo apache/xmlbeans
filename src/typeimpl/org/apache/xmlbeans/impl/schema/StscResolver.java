@@ -25,12 +25,12 @@ import java.math.BigInteger;
 
 import java.util.*;
 
-import org.w3.x2001.xmlSchema.TopLevelElement;
-import org.w3.x2001.xmlSchema.TopLevelAttribute;
-import org.w3.x2001.xmlSchema.SimpleType;
-import org.w3.x2001.xmlSchema.Attribute;
-import org.w3.x2001.xmlSchema.Element;
-import org.w3.x2001.xmlSchema.KeyrefDocument.Keyref;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelElement;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelAttribute;
+import org.apache.xmlbeans.impl.xb.xsdschema.SimpleType;
+import org.apache.xmlbeans.impl.xb.xsdschema.Attribute;
+import org.apache.xmlbeans.impl.xb.xsdschema.Element;
+import org.apache.xmlbeans.impl.xb.xsdschema.KeyrefDocument.Keyref;
 import javax.xml.namespace.QName;
 
 public class StscResolver

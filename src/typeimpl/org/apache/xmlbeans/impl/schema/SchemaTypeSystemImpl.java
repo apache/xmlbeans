@@ -15,67 +15,64 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import javax.xml.namespace.QName;
+import org.apache.xmlbeans.Filer;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.SchemaAnnotation;
+import org.apache.xmlbeans.SchemaAttributeGroup;
+import org.apache.xmlbeans.SchemaAttributeModel;
+import org.apache.xmlbeans.SchemaComponent;
+import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.SchemaGlobalAttribute;
+import org.apache.xmlbeans.SchemaGlobalElement;
+import org.apache.xmlbeans.SchemaIdentityConstraint;
+import org.apache.xmlbeans.SchemaLocalAttribute;
+import org.apache.xmlbeans.SchemaLocalElement;
+import org.apache.xmlbeans.SchemaModelGroup;
+import org.apache.xmlbeans.SchemaParticle;
+import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.SchemaStringEnumEntry;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.SchemaTypeLoaderException;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
-import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-
-import java.io.InputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.Writer;
-import java.util.*;
-import java.util.zip.ZipFile;
-import java.util.zip.ZipEntry;
-import java.math.BigInteger;
-
-
-import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.values.XmlObjectBase;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaAnnotation;
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaModelGroup;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.SchemaAttributeModel;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.SchemaProperty;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.SchemaLocalAttribute;
-import org.apache.xmlbeans.SchemaLocalElement;
-import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.SchemaStringEnumEntry;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaIdentityConstraint;
-import org.apache.xmlbeans.SimpleValue;
-import org.apache.xmlbeans.SchemaTypeLoaderException;
-import org.apache.xmlbeans.SchemaField;
-import org.apache.xmlbeans.Filer;
+import org.apache.xmlbeans.impl.xb.xsdschema.AttributeGroupDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.GroupDocument;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3.x2001.xmlSchema.GroupDocument;
-import org.w3.x2001.xmlSchema.AttributeGroupDocument;
-import org.w3.x2001.xmlSchema.AppinfoDocument;
-import org.w3.x2001.xmlSchema.DocumentationDocument;
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
-
 import repackage.Repackager;
+
+import javax.xml.namespace.QName;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements SchemaTypeSystem
 {
@@ -135,21 +132,29 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     static final int FLAG_ABSTRACT        = 0x40000;
     static final int FLAG_ATTRIBUTE_TYPE  = 0x80000;
 
-//    /**
-//     * This is to support the feature of a separate/private XMLBeans distribution that will not colide with the public org apache xmlbeans one.
-//     * METADATA_PACKAGE will be "" for the original and something like com_mycompany_private_xmlbeans for a private distribution of XMLBeans.
-//     */
-//    public static String METADATA_PACKAGE = (
-//        // next line should use String addition to avoid replacemant be Repackager:  "org." + "apache." + "xmlbeans"
-//        ("org." + "apache." + "xmlbeans").equals(SchemaTypeSystem.class.getPackage().getName())     ?
-//        // This is the original org apache xmlbeans package, to maintain backwards compatibility resource pathes must remain the same
-//        "" :
-//        // This is the private package XMLBeans, all the metadata will end up in a specific/private resource path
-//        // It is by design that
-//        SchemaTypeSystem.class.getPackage().getName().replaceAll("\\.", "_")
-//        );
-    // not yet enabled
-    public static String METADATA_PACKAGE = "";
+    /**
+     * This is to support the feature of a separate/private XMLBeans
+     * distribution that will not colide with the public org apache
+     * xmlbeans one.
+     * METADATA_PACKAGE_GEN will be "" for the original and something like
+     * com_mycompany_private_xmlbeans for a private distribution of XMLBeans.
+     *
+     * There are two properties:
+     *   METADATA_PACKAGE_GEN - used for generating metadata
+     *   and METADATA_PACKAGE_LOAD - used for loading the metadata.
+     * Most of the time the have the same value, with one exception, during the
+     * repackage process scomp needs to load from old package and generate into
+     * a new package.
+     */
+    public static String METADATA_PACKAGE_GEN = (
+        // next line should use String addition to avoid replacement by Repackager:  "org." + "apache." + "xmlbeans"
+        ("org." + "apache." + "xmlbeans").equals(SchemaTypeSystem.class.getPackage().getName())     ?
+        // This is the original org apache xmlbeans package, to maintain backwards compatibility resource pathes must remain the same
+        "" :
+        // This is the private package XMLBeans, all the metadata will end up in a specific/private resource path
+        SchemaTypeSystem.class.getPackage().getName().replaceAll("\\.", "_")
+        );
+
 
     private static String nameToPathString(String nameForSystem)
     {
@@ -317,17 +322,17 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     void savePointers()
     {
-        savePointersForComponents(globalElements(), "schema" + METADATA_PACKAGE + "/element/");
-        savePointersForComponents(globalAttributes(), "schema" + METADATA_PACKAGE + "/attribute/");
-        savePointersForComponents(modelGroups(), "schema" + METADATA_PACKAGE + "/modelgroup/");
-        savePointersForComponents(attributeGroups(), "schema" + METADATA_PACKAGE + "/attributegroup/");
-        savePointersForComponents(globalTypes(), "schema" + METADATA_PACKAGE + "/type/");
-        savePointersForComponents(identityConstraints(), "schema" + METADATA_PACKAGE + "/identityconstraint/");
-        savePointersForNamespaces(_namespaces, "schema" + METADATA_PACKAGE + "/namespace/");
-        savePointersForClassnames(_typeRefsByClassname.keySet(), "schema" + METADATA_PACKAGE + "/javaname/");
-        savePointersForComponents(redefinedModelGroups(), "schema" + METADATA_PACKAGE + "/redefinedmodelgroup/");
-        savePointersForComponents(redefinedAttributeGroups(), "schema" + METADATA_PACKAGE + "/redefinedattributegroup/");
-        savePointersForComponents(redefinedGlobalTypes(), "schema" + METADATA_PACKAGE + "/redefinedtype/");
+        savePointersForComponents(globalElements(), "schema" + METADATA_PACKAGE_GEN + "/element/");
+        savePointersForComponents(globalAttributes(), "schema" + METADATA_PACKAGE_GEN + "/attribute/");
+        savePointersForComponents(modelGroups(), "schema" + METADATA_PACKAGE_GEN + "/modelgroup/");
+        savePointersForComponents(attributeGroups(), "schema" + METADATA_PACKAGE_GEN + "/attributegroup/");
+        savePointersForComponents(globalTypes(), "schema" + METADATA_PACKAGE_GEN + "/type/");
+        savePointersForComponents(identityConstraints(), "schema" + METADATA_PACKAGE_GEN + "/identityconstraint/");
+        savePointersForNamespaces(_namespaces, "schema" + METADATA_PACKAGE_GEN + "/namespace/");
+        savePointersForClassnames(_typeRefsByClassname.keySet(), "schema" + METADATA_PACKAGE_GEN + "/javaname/");
+        savePointersForComponents(redefinedModelGroups(), "schema" + METADATA_PACKAGE_GEN + "/redefinedmodelgroup/");
+        savePointersForComponents(redefinedAttributeGroups(), "schema" + METADATA_PACKAGE_GEN + "/redefinedattributegroup/");
+        savePointersForComponents(redefinedGlobalTypes(), "schema" + METADATA_PACKAGE_GEN + "/redefinedtype/");
     }
 
     void savePointersForComponents(SchemaComponent[] components, String dir)
@@ -886,7 +891,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             nameForSystem = "s" + new String(HexBin.encode(bytes));
         }
 
-        _name = "schema" + METADATA_PACKAGE + ".system." + nameForSystem;
+        _name = "schema" + METADATA_PACKAGE_GEN + ".system." + nameForSystem;
         _basePackage = nameToPathString(_name);
         _classloader = null;
 
@@ -1876,7 +1881,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             XmlObject[] documentationItems = a.getUserInformation();
             writeInt(documentationItems.length);
             XmlOptions opt = new XmlOptions().setSaveOuter().
-                setSaveAggresiveNamespaces();
+                setSaveAggressiveNamespaces();
             for (int i = 0; i < documentationItems.length; i++)
             {
                 XmlObject doc = documentationItems[i];
@@ -3584,7 +3589,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         if (!sourceName.startsWith("/"))
             sourceName = "/" + sourceName;
 
-        return _resourceLoader.getResourceAsStream("schema" + METADATA_PACKAGE + "/src" + sourceName);
+        return _resourceLoader.getResourceAsStream("schema" + METADATA_PACKAGE_GEN + "/src" + sourceName);
     }
 
     SchemaContainer[] containers()
@@ -3740,4 +3745,3 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         return null;
     }
 }
-

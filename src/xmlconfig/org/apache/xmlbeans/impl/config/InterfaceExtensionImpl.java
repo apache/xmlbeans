@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.config;
 
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 import org.apache.xmlbeans.InterfaceExtension;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.jam.JMethod;

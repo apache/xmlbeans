@@ -183,7 +183,7 @@
         <fileset refid="xbeans.build.lib"/>
         <fileset refid="tools.ext.lib"/>
         <!-- for building tools: TestlogMergeUtiltiy -->
-        <path location="${xbeans.test.tools.lib}/xsl/TestReport.xsd.jar"/>
+        <path location="${build.dir.test.lib}/TestReport.xsd.jar"/>
         <!-- Axis v1.1 .jar -->
         <pathelement path="${xbeans.test.tools.lib}/axis.jar"/>
         <!-- needed for the DOM w3c suite -->
@@ -492,7 +492,7 @@
         <antcall target="build"/>
     </target>
 
-    <target name="build.test.tools" depends="init"
+    <target name="build.test.tools" depends="init, testreport.xsd.jar"
         description="Build the tools required for tests">
         <javac srcdir="${xbeans.test.tools.src}"
             destdir="${build.dir.test.tools}"
@@ -508,6 +508,14 @@
         <jar destfile="${build.dir.test.lib}/testtools.jar"
             basedir="${build.dir.test.tools}" update="false"
             excludes="**/*.java"/>
+    </target>
+
+    <target name="testreport.xsd.jar">
+       <java classname="${schema.compiler}"
+          classpathref="build.classpath"
+          fork="true">
+          <arg line="-out ${build.dir.test.lib}/TestReport.xsd.jar ${xbeans.test.tools.lib}/xsl/TestReport.xsd "/>
+       </java>
     </target>
 
     <target name="build.xpath">

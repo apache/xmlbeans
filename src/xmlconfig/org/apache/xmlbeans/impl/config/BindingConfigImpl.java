@@ -15,10 +15,10 @@
 
 package org.apache.xmlbeans.impl.config;
 
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Nsconfig;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Qnameconfig;
+import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument.Config;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Nsconfig;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Qnameconfig;
 import org.apache.xmlbeans.BindingConfig;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlError;

@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import com.bea.x2003.x01.xmlbean.xsdownload.DownloadedSchemasDocument;
-import com.bea.x2003.x01.xmlbean.xsdownload.DownloadedSchemaEntry;
-import com.bea.x2003.x01.xmlbean.xsdownload.DownloadedSchemasDocument.DownloadedSchemas;
+import org.apache.xmlbeans.impl.xb.xsdownload.DownloadedSchemasDocument;
+import org.apache.xmlbeans.impl.xb.xsdownload.DownloadedSchemaEntry;
+import org.apache.xmlbeans.impl.xb.xsdownload.DownloadedSchemasDocument.DownloadedSchemas;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.XmlOptions;
@@ -40,8 +40,8 @@ import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 public abstract class BaseSchemaResourceManager extends SchemaImportResolver
 {

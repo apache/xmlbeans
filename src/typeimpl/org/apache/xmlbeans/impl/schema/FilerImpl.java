@@ -16,7 +16,6 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.Filer;
-import org.apache.xmlbeans.impl.common.IOUtil;
 
 import java.io.OutputStream;
 import java.io.IOException;
@@ -28,7 +27,6 @@ import java.io.FileOutputStream;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Collections;
 import java.util.ArrayList;
 
 import repackage.Repackager;

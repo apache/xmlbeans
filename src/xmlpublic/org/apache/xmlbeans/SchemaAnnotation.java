@@ -17,9 +17,6 @@ package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
 
-//import org.w3.x2001.xmlSchema.AppinfoDocument;
-//import org.w3.x2001.xmlSchema.DocumentationDocument;
-
 /**
  * Represents a Schema annotation.
  */

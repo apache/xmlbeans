@@ -49,7 +49,7 @@ import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.w3c.dom.Document;
 
 import javax.xml.namespace.QName;

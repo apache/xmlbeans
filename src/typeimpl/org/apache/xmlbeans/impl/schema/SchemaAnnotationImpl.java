@@ -24,10 +24,10 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
-import org.w3.x2001.xmlSchema.AppinfoDocument;
-import org.w3.x2001.xmlSchema.Annotated;
-import org.w3.x2001.xmlSchema.AnnotationDocument;
-import org.w3.x2001.xmlSchema.DocumentationDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.AppinfoDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.Annotated;
+import org.apache.xmlbeans.impl.xb.xsdschema.AnnotationDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.DocumentationDocument;
 import org.apache.xmlbeans.SchemaComponent;
 
 public class SchemaAnnotationImpl implements SchemaAnnotation

@@ -35,8 +35,8 @@ import org.apache.xmlbeans.XmlShort;
 import org.apache.xmlbeans.XmlUnsignedByte;
 import org.apache.xmlbeans.XmlPositiveInteger;
 import org.apache.xmlbeans.XmlNonNegativeInteger;
-import org.w3.x2001.xmlSchema.*;
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.*;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 
 public class StscSimpleTypeResolver
 {
@@ -165,7 +165,7 @@ public class StscSimpleTypeResolver
         sImpl.setPrimitiveTypeRef(BuiltinSchemaTypeSystem.ST_ANY_SIMPLE.getRef());
     }
 
-    static void resolveListType(SchemaTypeImpl sImpl, org.w3.x2001.xmlSchema.ListDocument.List parseList, List anonTypes)
+    static void resolveListType(SchemaTypeImpl sImpl, org.apache.xmlbeans.impl.xb.xsdschema.ListDocument.List parseList, List anonTypes)
     {
         StscState state = StscState.get();
 

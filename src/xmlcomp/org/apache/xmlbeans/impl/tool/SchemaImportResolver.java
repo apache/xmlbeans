@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
-import org.w3.x2001.xmlSchema.ImportDocument.Import;
-import org.w3.x2001.xmlSchema.IncludeDocument.Include;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.ImportDocument.Import;
+import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument.Include;
 
 import java.util.LinkedList;
 import java.util.Set;
