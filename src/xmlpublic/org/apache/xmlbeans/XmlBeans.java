@@ -642,9 +642,6 @@ public final class XmlBeans
      */
     public static SchemaTypeSystem compileXmlBeans(String name, SchemaTypeSystem system, XmlObject[] schemas, BindingConfig config, SchemaTypeLoader typepath, Filer filer, XmlOptions options) throws XmlException
     {
-        if (typepath == null)
-            throw new IllegalArgumentException("Must supply a SchemaTypeLoader for compiletime linking");
-
         try
         {
             return (SchemaTypeSystem)_compilationMethod.invoke(null, new Object[] { name, system, schemas, config, typepath != null ? typepath : getContextTypeLoader(), filer, options });

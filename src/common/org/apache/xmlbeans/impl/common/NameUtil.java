@@ -403,7 +403,10 @@ public class NameUtil
         StringBuffer buf = new StringBuffer(name);
         for (int i = 0; i < name.length(); i++)
         {
-            if (!Character.isJavaIdentifierPart(buf.charAt(i)))
+            // We need to also make sure that our package names don't contain the
+            // "$" character in them, which, although a valid Java identifier part,
+            // would create confusion when trying to generate fully-qualified names
+            if (!Character.isJavaIdentifierPart(buf.charAt(i)) || '$' == buf.charAt(i))
                 buf.setCharAt(i, '_');
         }
         if (buf.length() == 0 || !Character.isJavaIdentifierStart(buf.charAt(0)))
