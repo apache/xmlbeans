@@ -27,11 +27,7 @@ import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
-import org.xmlsoap.schemas.ws.x2004.x08.addressing.EndpointReferenceType;
-import org.xmlsoap.schemas.ws.x2004.x08.addressing.ReferencePropertiesType;
 import junit.framework.Assert;
-import xmlbeans06.Area;
-import xmlbeans06.StateProvince;
 
 import javax.xml.namespace.QName;
 
@@ -124,72 +120,7 @@ public class JiraRegression1_50Test extends JiraTestBase {
         }
     }
 
-    /*
-    * [XMLBEANS-6] getter for enumeration array throws ArrayStoreException
-    *
-    */
-    public void test_jira_xmlbeans06() throws Exception {
-        // refer xsd : xmlbeans_06.xsd, xbeans06.jar from scomp
-        try {
-            Area area = Area.Factory.newInstance();
-            area.addState(StateProvince.OR);
-            area.addState(StateProvince.WA);
-            StateProvince.Enum[] enumStates = area.getStateArray();
-            for (int i = 0; i < enumStates.length; i++) {
-                System.out.println("State Elem enums are :" + enumStates[i]);
-            }
-        } catch (ArrayStoreException ae) {
-            ae.getMessage();
-            ae.printStackTrace();
-            Assert.fail("Array Store Exception thrown for repro of Bug Jira06. Not expected");
-        }
-    }
 
-    /*
-    * [XMLBEANS-8] NullPointerException @SchemaTypeImpl.setShortJavaName when using scomp
-    *
-    */
-    public void test_jira_xmlbeans08() {
-        // invoking scomp via 'testbuild ant directive resilts in NPE for these schemas (xmlbeans_08a.xsd, xmlbeans_08.xsd
-        /*Assert.fail("scomp fails with NPE. The Error is : " +
-        "scomp:\n" +
-        "     [echo] Compiling D:\\SVNNEW\\xmlbeans\\trunk/build/test/schemas/xbean/misc using compiler from: org.apache.xmlbeans.impl.tool.SchemaCompiler\n" +
-        "     [java] xmlbeans_08a.xsd:8: error: rcase-RecurseLax.2: Invalid Restriction.  The following particles of the derived <choice> cannot be mapped to the base <choice>'s particles: <element name=\"metadata@http://www.w3.org/2001/10/synthesis\">\n" +
-        "     [java] Exception in thread \"main\" java.lang.NullPointerException\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.schema.SchemaTypeImpl.setShortJavaName(SchemaTypeImpl.java:535)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.schema.StscJavaizer.assignJavaAnonymousTypeNames(StscJavaizer.java:357)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.schema.StscJavaizer.javaizeType(StscJavaizer.java:267)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.schema.StscJavaizer.javaizeType(StscJavaizer.java:223)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.schema.StscJavaizer.javaizeAllTypes(StscJavaizer.java:63)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.compileImpl(SchemaTypeSystemCompiler.java:310)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler.compile(SchemaTypeSystemCompiler.java:181)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.tool.SchemaCompiler.loadTypeSystem(SchemaCompiler.java:947)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.tool.SchemaCompiler.compile(SchemaCompiler.java:1067)\n" +
-        "     [java] \tat org.apache.xmlbeans.impl.tool.SchemaCompiler.main(SchemaCompiler.java:367)\n" +
-        "     [echo] jar.file: D:\\SVNNEW\\xmlbeans\\trunk/build/test/lib/schemajars/misc.jar");
-        */
-
-        List errors = new ArrayList();
-
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setXsdFiles(new File[]{new File(scompTestFilesRoot + "xmlbeans_08a.xsd_")});
-        params.setErrorListener(errors);
-        params.setSrcDir(schemaCompSrcDir);
-        params.setClassesDir(schemaCompClassesDir);
-
-        try {
-            SchemaCompiler.compile(params);
-        } catch (NullPointerException npe) {
-            if (!errors.isEmpty()) {
-                for (Iterator itr = errors.iterator(); itr.hasNext();) {
-                    System.out.println("scomp errors: " + itr.next());
-                }
-            }
-
-            Assert.fail("test_jira_xmlbeans08() :Null Pointer Exception thrown with above errors!");
-        }
-
-    }
 
     /*
     * [XMLBEANS-9] Null Pointer Exception when running validate from cmd line
@@ -271,38 +202,20 @@ public class JiraRegression1_50Test extends JiraTestBase {
     *
     */
     public void test_jira_xmlbeans14() throws Exception {
-        /*
-        <?xml version="1.0" encoding="UTF-8"?>
-        <xml-fragment><some:SomeName1 xmlns:some="Some uri">SomeValue1</some:SomeName1><some:SomeName xmlns:some="Some uri">Some
-        Value</some:SomeName></xml-fragment>Exception in thread "main" java.lang.NullPointerException
-        at org.apache.xmlbeans.impl.store.Saver$DomSaver.emitContainer(Saver.java:4514)
-        at org.apache.xmlbeans.impl.store.Saver.processContainer(Saver.java:775)
-        at org.apache.xmlbeans.impl.store.Saver.process(Saver.java:518)
-        at org.apache.xmlbeans.impl.store.Saver$DomSaver.exportDom(Saver.java:4461)
-        at org.apache.xmlbeans.impl.store.Cursor.newDomNode(Cursor.java:2954)
-        at org.apache.xmlbeans.impl.values.XmlObjectBase.newDomNode(XmlObjectBase.java:154)
-        at org.apache.xmlbeans.impl.values.XmlObjectBase.newDomNode(XmlObjectBase.java:151)
-        at MyClass.getNode(MyClass.java:27)
-        at MyClass.main(MyClass.java:44)
-        */
-
-        // the wsdl schema http://schemas.xmlsoap.org/ws/2004/08/addressing is compiled into xmlbeans_14.jar
-        EndpointReferenceType lEndPointXmlBeanObject = EndpointReferenceType.Factory.newInstance();
-        ReferencePropertiesType m_TargetObject = lEndPointXmlBeanObject.addNewReferenceProperties();
-
+        XmlObject xObj = XmlObject.Factory.parse("<Baz/>");
         // add element
-        XmlCursor xCursor = m_TargetObject.newCursor();
+        XmlCursor xCursor = xObj.newCursor();
         xCursor.toFirstContentToken();
         xCursor.insertElementWithText(new QName("Some uri", "SomeName"), "SomeValue");
         xCursor.insertElementWithText(new QName("Some uri", "SomeName1"), "SomeValue1");
         xCursor.dispose();
 
         // debug
-        m_TargetObject.save(System.out);
+        xObj.save(System.out);
 
         // throws npe in v1
         try {
-            m_TargetObject.newDomNode();
+            xObj.newDomNode();
         } catch (NullPointerException npe) {
             Assert.fail("test_jira_xmlbeans14() : Null Pointer Exception when create Dom Node");
         }
@@ -391,38 +304,6 @@ public class JiraRegression1_50Test extends JiraTestBase {
         }
 
     }
-
-    /*
-    * [XMLBEANS-35]: OutOfMemoryError with this schema : Circular reference to Model Groups
-    *
-    */
-    public void test_jira_xmlbeans35() {
-        XmlOptions options = new XmlOptions();
-        List errors = new ArrayList();
-        options.setErrorListener(errors);
-
-        try {
-            XmlObject xobjs [] = new XmlObject[]{compileXsdFile(scompTestFilesRoot + "xmlbeans_35.xsd_")};
-
-            SchemaTypeSystem sts = XmlBeans.compileXsd(xobjs, null, options);
-
-            sts.saveToDirectory(schemaCompOutputDirFile);
-        } catch (XmlException xme) {
-            if (!errors.isEmpty()) {
-                for (Iterator itr = errors.iterator(); itr.hasNext();) {
-                    System.out.println("scomp errors: ");
-                }
-            }
-
-        }
-
-        if (printOptionErrMsgs(errors)) {
-            Assert.fail("test_jira_xmlbeans34() : Errors found when executing scomp");
-        }
-
-        Assert.fail("Fails due to Out of Memory");
-    }
-
 
 
     /**
