@@ -18,10 +18,13 @@ package org.apache.xmlbeans.impl.jam.internal.reflect;
 
 import java.util.HashMap;
 import java.util.Map;
-import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JPackage;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
+import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
+import org.apache.xmlbeans.impl.jam.editable.EAnnotationMember;
+import org.apache.xmlbeans.impl.jam.editable.impl.EAnnotationImpl;
 import org.apache.xmlbeans.impl.jam.internal.*;
 
 /**
@@ -30,6 +33,11 @@ import org.apache.xmlbeans.impl.jam.internal.*;
  * @author Patrick Calahan <pcal@bea.com>
  */
 public class RClassLoader implements JClassLoader {
+
+  // ========================================================================
+  // Constants
+
+  private static final boolean REALLY_VERBOSE = false;
 
   // ========================================================================
   // Variables
@@ -44,7 +52,7 @@ public class RClassLoader implements JClassLoader {
   public RClassLoader(ClassLoader c) {
     this(c,null);
   }
-  
+
   public RClassLoader(ClassLoader c, JClassLoader parent) {
     if (c == null) throw new IllegalArgumentException("null classloader");
     mLoader = c;
@@ -57,12 +65,12 @@ public class RClassLoader implements JClassLoader {
   public JClassLoader getParent() { return mParentLoader; }
 
   /**
-   * 
+   *
    */
   public JAnnotationLoader getAnnotationLoader() { return null; }//FIXME
 
   /**
-   * Returns a reflect representation of the named class.  
+   * Returns a reflect representation of the named class.
    */
   public JClass loadClass(String fd) {
     if (fd == null) throw new IllegalArgumentException("null fd");
@@ -124,6 +132,7 @@ public class RClassLoader implements JClassLoader {
     return loader.loadClass(clazz.getName());
   }
 
+
   // ========================================================================
   // Private methods
 
@@ -151,6 +160,84 @@ public class RClassLoader implements JClassLoader {
                   ("Illegal character '"+c+"' in class name: "+className);
         }
       }
+    }
+  }
+
+  // ========================================================================
+  // New 175 stuff
+
+  //FIXME this needs to support annotation inheritance
+  /**
+   * <p>Utility method for creating representations of 175 annotations
+   * from 1.5 java.lang.reflect constructs.  This method accesses the
+   * annotations via reflection so that the code will still compile
+   * and run under 1.4.</p>
+   */
+  /*package*/ EAnnotation[] get175AnnotationsOn(Object reflectionThing,
+                                                JClassLoader loader) {
+    Method annGetter;
+    try {
+      annGetter = reflectionThing.getClass().getMethod("getDeclaredAnnotations",
+                                             null);
+      Object[] anns = (Object[])annGetter.invoke(reflectionThing,null);
+      EAnnotation[] out = new EAnnotation[anns.length];
+      for(int i=0; i<anns.length; i++) {
+        out[i]  = new EAnnotationImpl(simpleName(anns[i].getClass()),
+                                      loader);
+        populateAnnotation(out[i],anns[i]);
+      }
+      return out;
+    } catch(NoSuchMethodException nsme) {
+      if (REALLY_VERBOSE) nsme.printStackTrace();
+    } catch(IllegalAccessException iae) {
+      iae.printStackTrace(); // this is not expected
+    } catch(InvocationTargetException ite) {
+      ite.printStackTrace();
+    }
+    return new EAnnotation[0];
+  }
+
+  private static String simpleName(Class clazz) {
+    String out = clazz.getName();
+    int dot = out.lastIndexOf('.');
+    if (dot != -1) out = out.substring(dot+1);
+    return out;
+  }
+
+  /**
+   * @param dest Annotation object to be populated
+   * @param src java.lang.annotation.Annotation instance containing the
+   * annotation data we want to wrap in EAnnotation.
+   */
+  private void populateAnnotation(EAnnotation dest, Object src) {
+    dest.setAnnotationObject(src);
+    populateAnnotation(dest,src,src.getClass());
+  }
+
+  /**
+   * Introspects the src object for annotation member methods, invokes them
+   * and creates corresponding EAnnotationMembers in the given dest object.
+   */
+  private void populateAnnotation(EAnnotation dest, Object src, Class srcClass) {
+    Method[] methods = srcClass.getDeclaredMethods();
+    for(int i=0; i<methods.length; i++) {
+      if (methods[i].getParameterTypes().length > 0) continue;
+      EAnnotationMember member = dest.addNewMember();
+      member.setSimpleName(methods[i].getName());
+      try {
+        member.setValue(methods[i].invoke(src,null));
+      } catch(IllegalAccessException iae) {
+        iae.printStackTrace(); // this is not expected
+      } catch(InvocationTargetException ite) {
+        ite.printStackTrace();
+      }
+    }
+    //REVIEW will it be a superclass or an interface?  this might be broken
+    srcClass = srcClass.getSuperclass();
+    if (srcClass != null &&
+            !srcClass.getName().equals("java.lang.annotation.Annotation") &&
+            !srcClass.getName().equals("java.lang.Object")) {
+      populateAnnotation(dest,src,srcClass);
     }
   }
 }

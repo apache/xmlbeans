@@ -26,19 +26,11 @@ public interface EAnnotationDefinition extends
         JAnnotationDefinition, EElement {
 
   /**
-   * Creates a new member in this Annotation definition and returns the
-   * result.
-   *
-   * @param type JClass representing the type of the new member.
-   * @param name A name for the new member.
-   * @param dflt A default value for the new member.  Primitives should be
-   * wrapped in java.lang wrappers, e.g. java.lang.Integer.
+   * Creates a new member in this Annotation definition.
    *
    * @return The newly-added EAnnotation.
    */
-  public EAnnotationMemberDefinition addNewMemberDefinition(JClass type,
-                                                            String name,
-                                                            Object dflt);
+  public EAnnotationMemberDefinition addNewMemberDefinition();
 
   /**
    *

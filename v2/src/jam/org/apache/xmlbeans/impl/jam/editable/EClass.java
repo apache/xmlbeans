@@ -121,7 +121,7 @@ public interface EClass extends EMember, JClass {
    * Creates a new field, adds it to this class, and returns it.
    * The type of the field must be qualified
    */
-  public EField addNewField(String fieldName);
+  public EField addNewField();
 
   /**
    * Removes the given field from this class.  Does nothing if this class
@@ -139,7 +139,7 @@ public interface EClass extends EMember, JClass {
   /**
    * Creates a new method, adds it to this class, and returns it.
    */
-  public EMethod addNewMethod(String name);
+  public EMethod addNewMethod();
 
   /**
    * Removes the given method from this class.  Does nothing if this class

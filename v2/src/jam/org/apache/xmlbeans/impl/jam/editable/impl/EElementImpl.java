@@ -26,7 +26,7 @@ import org.apache.xmlbeans.impl.jam.*;
  */
 public abstract class EElementImpl implements EElement {
 
-    // ========================================================================
+  // ========================================================================
   // Variables
 
   private String mSimpleName;
@@ -125,6 +125,9 @@ public abstract class EElementImpl implements EElement {
     return mClassLoader;
   }
 
+  public static String defaultName(int count) {
+    return "unnamed_"+count;
+  }
 
 
 }

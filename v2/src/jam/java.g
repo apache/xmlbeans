@@ -373,7 +373,8 @@ fieldOrMethod[EClass clazz, int modifiers, String type]
     n:IDENT tweener { name = n.getText(); }
    ((
      ((ASSIGN variable_value)? SEMI) {
-       EField field = clazz.addNewField(name);
+       EField field = clazz.addNewField();
+       field.setSimpleName(name);
        field.setUnqualifiedType(type);
        field.setModifiers(modifiers);
 	     applyJavadocs(field);
@@ -383,7 +384,8 @@ fieldOrMethod[EClass clazz, int modifiers, String type]
 	  (
       (LPAREN (parameterList[mParamList])? RPAREN tweener (throwsClause[mExceptionList])? (statement_block | SEMI)) {
         if (VERBOSE) System.out.println("creating method "+name);
-        EMethodImpl method = (EMethodImpl)clazz.addNewMethod(name);
+        EMethodImpl method = (EMethodImpl)clazz.addNewMethod();
+        method.setSimpleName(name);
         method.setUnqualifiedReturnType(type);
         method.setModifiers(modifiers);
         method.setParameters(mParamList);

@@ -25,6 +25,12 @@ public interface EElement extends JElement {
 
   public void setSimpleName(String name);
 
+  public ESourcePosition createSourcePosition();
+
+  public void removeSourcePosition();
+
+  public ESourcePosition getEditableSourcePosition();
+
   //public EAnnotation createAnnotation();
 
   //public void removeAnnotation(EAnnotation ann);

@@ -23,7 +23,9 @@ import org.apache.xmlbeans.impl.jam.JAnnotation;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EAnnotationMember extends JAnnotationMember, EMember {
+public interface EAnnotationMember extends JAnnotationMember, EElement {
+
+  public void setValue(Object o);
 
   public void setValue(String value);
 

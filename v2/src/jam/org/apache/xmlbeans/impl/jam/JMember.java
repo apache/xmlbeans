@@ -82,10 +82,5 @@ public abstract interface JMember extends JElement {
    */
   public boolean isPublic();
 
-  /**
-   * <p>Returns the source code position of this member, or null if it
-   * is unknown.</p>
-   */
-  public JSourcePosition getSourcePosition();
 
 }
