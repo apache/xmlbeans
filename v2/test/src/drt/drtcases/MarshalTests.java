@@ -30,6 +30,7 @@ import junit.framework.TestSuite;
 import org.apache.xmlbeans.BindingContext;
 import org.apache.xmlbeans.BindingContextFactory;
 import org.apache.xmlbeans.Marshaller;
+import org.apache.xmlbeans.ObjectFactory;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlBeans;
@@ -38,14 +39,13 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.ObjectFactory;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
-import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -68,6 +68,9 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collection;
@@ -75,11 +78,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
-import java.net.URI;
-import java.net.URLClassLoader;
-import java.net.URL;
-
-import repackage.Repackage;
 
 
 public class MarshalTests extends TestCase
@@ -1159,10 +1157,12 @@ public class MarshalTests extends TestCase
         Assert.assertTrue(schema.exists());
         Assert.assertTrue(instance.exists());
 
-        final XmlObject xsd_obj = XmlObject.Factory.parse(schema);
+        final SchemaDocument xsd_obj =
+            (SchemaDocument)XmlObject.Factory.parse(schema);
         final XmlObject[] schemas = new XmlObject[]{xsd_obj};
         SchemaTypeSystem sts = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), new XmlOptions());
         Schema2Java s2j = new Schema2Java(sts);
+        s2j.includeSchema(xsd_obj, schema.getName());
         final File tmpfile = File.createTempFile("marshalTests", "-tylar");
         if (!tmpfile.delete()) {
             throw new AssertionError("delete failed on " + tmpfile);
@@ -1172,21 +1172,16 @@ public class MarshalTests extends TestCase
 
         s2j.bindAsExplodedTylar(tmpfile);
 
-        //workaround bug in schema2java, we need to copy the xsd files by hand
-        File sdir = new File(tmpfile, TylarConstants.SCHEMA_DIR);
-        final boolean k = sdir.mkdirs();
-        Assert.assertTrue("failed to mkdirs: " + sdir, k);
-        Assert.assertTrue("no such directory: " + sdir, sdir.exists());
-        File destfile = new File(sdir, schema.getName());
-        Repackage.copyFile(schema, destfile);
-        Assert.assertTrue("file copy failed to " + destfile, destfile.exists());
 
         final URI tylar_uri = tmpfile.toURI();
+
+        //add tylar to classpath so we can load classes out of it
         final Thread thread = Thread.currentThread();
         final ClassLoader curr_cl = thread.getContextClassLoader();
         final URLClassLoader cl =
             new URLClassLoader(new URL[]{tylar_uri.toURL()}, curr_cl);
         thread.setContextClassLoader(cl);
+
         try {
             final BindingContextFactory bcf = BindingContextFactory.newInstance();
             final BindingContext binding_context =
@@ -1205,7 +1200,6 @@ public class MarshalTests extends TestCase
             reportErrors(errors);
             Assert.assertTrue(errors.isEmpty());
 
-            // -- this is currently broken --
             //now try unmarshalType...
             final FileInputStream fis = new FileInputStream(instance);
             final XMLStreamReader rdr =

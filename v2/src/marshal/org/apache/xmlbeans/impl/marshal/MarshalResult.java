@@ -473,10 +473,11 @@ final class MarshalResult implements XMLStreamReader
     {
         //we'll likely never return some of these but just in case...
         switch (currentEventType) {
-            case COMMENT:
-            case DTD:
-            case ENTITY_REFERENCE:
             case CHARACTERS:
+            case COMMENT:
+            case SPACE:
+            case ENTITY_REFERENCE:
+            case DTD:
                 return true;
             default:
                 return false;
@@ -485,6 +486,7 @@ final class MarshalResult implements XMLStreamReader
 
     public Location getLocation()
     {
+        //TODO: something better than this, like give the object instance
         return EmptyLocation.getInstance();
     }
 
