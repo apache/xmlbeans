@@ -54,39 +54,91 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package drtcases;
+package org.apache.xmlbeans.impl.xpath.jaxen;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
+import org.jaxen.BaseXPath;
+import org.jaxen.JaxenException;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
-public class SmokeTests extends TestCase
+import java.util.List;
+import java.util.AbstractList;
+
+/**
+ * Author: Cezar Andrei (cezar.andrei at bea.com)
+ * Date: Oct 10, 2003
+ */
+public class XBeansXPath extends BaseXPath
 {
-    SmokeTests(String name) { super(name); }
-
-    public static Test suite()
+    /** Construct given an XPath expression string.
+     *
+     *  @param xpathExpr The XPath expression.
+     *
+     *  @throws org.jaxen.JaxenException if there is a syntax error while
+     *          parsing the expression.
+     */
+    public XBeansXPath(String xpathExpr) throws JaxenException
     {
-        TestSuite suite = new TestSuite(SmokeTests.class.getName());
-        suite.addTest(AssortedTests.suite());
-        suite.addTest(IntTests.suite());
-        suite.addTest(RuntimeSchemaLoaderTest.suite());
-        suite.addTest(StoreTests.suite());
-        suite.addTest(QNameTests.suite());
-        suite.addTest(ValidationTests.suite());
-        suite.addTest(CompilationTests.suite());
-        suite.addTest(AnnotationsTests.suite());
-        suite.addTest(EasyPoTests.suite());
-        suite.addTest(NameworldTest.suite());
-        suite.addTest(SchemaTypesTests.suite());
-        suite.addTest(EnumTests.suite());
-        suite.addTest(CreationTests.suite());
-        suite.addTest(ThreadingTest.suite());
-        suite.addTest(SerializationTests.suite());
-        suite.addTest(DomTests.suite());
-        suite.addTest(GDateTests.suite());
-        suite.addTest(SubstGroupTests.suite());
-        suite.addTest(JaxenXPathTests.suite());
-        suite.addTest(NumeralsTests.suite());
-        return suite;
+        super( xpathExpr, XBeansNavigator.getInstance() );
+    }
+
+    /** Select all nodes that are selectable by this XPath
+     *  expression. If multiple nodes match, multiple nodes
+     *  will be returned.
+     *
+     *  <p>
+     *  <b>NOTE:</b> In most cases, nodes will be returned
+     *  in document-order, as defined by the XML Canonicalization
+     *  specification.  The exception occurs when using XPath
+     *  expressions involving the <code>union</code> operator
+     *  (denoted with the pipe '|' character).
+     *  </p>
+     *
+     *  @param node The node, nodeset or Context object for evaluation. This value can be null.
+     *
+     *  @return The <code>node-set</code> of all items selected
+     *          by this XPath expression.
+     *
+     *  @see #selectSingleNode
+     */
+    public List selectNodes(Object node) throws JaxenException
+    {
+        XmlCursor xc;
+        if (node instanceof XmlObject)
+        {
+            xc = ((XmlObject)node).newCursor();
+        }
+        else if (node instanceof XmlCursor)
+        {
+            xc = ((XmlCursor)node).newCursor();
+        }
+        else
+            throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor, found: " + node.getClass());
+
+        ((XBeansNavigator)getNavigator()).setCursor(xc);
+        return new ListImpl(super.selectNodes( XBeansNavigator.getBookmarkInThisPlace(xc) ));
+    }
+
+    private static class ListImpl extends AbstractList
+    {
+        private List _results;
+
+        private ListImpl(List results)
+        {
+            _results = results;
+        }
+
+        public Object get(int index)
+        {
+            if (_results==null)
+                return null;
+
+            return ((XBeansNavigator.JaxenNode)_results.get(index)).createCursor();
+        }
+
+        public int size()
+        {
+            return (_results==null ? 0 : _results.size());
+        }
     }
 }

@@ -56,17 +56,15 @@
 
 package org.apache.xmlbeans.impl.store;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import org.apache.xmlbeans.impl.store.Splay.CursorGoober;
-import org.apache.xmlbeans.impl.store.Cursor.Selections;
-import org.apache.xmlbeans.impl.store.Cursor.PathEngine;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.XPath;
-import org.apache.xmlbeans.impl.values.TypeStore;
+import org.apache.xmlbeans.impl.store.Cursor.PathEngine;
+import org.apache.xmlbeans.impl.store.Cursor.Selections;
+
+import java.util.HashMap;
+import java.util.List;
 
 /**
  * Represents a precompiled path expression
@@ -111,7 +109,9 @@ public abstract class Path
         synchronized ( _xbeanPathCache )
         {
             if (!xqrl)
+            {
                 path = _xbeanPathCache.get( pathExpr );
+            }
 
             if (path == null)
                 path = _xqrlPathCache.get( pathExpr );
@@ -175,6 +175,13 @@ public abstract class Path
                 if (path == null)
                 {
                     path = XbeanPathImpl.create( pathExpr, currentNodeVar );
+
+                    if (path != null)
+                        _xbeanPathCache.put( path.getPathExpr(), path );
+                }
+                if (path == null)
+                {
+                    path = JaxenPathImpl.create( pathExpr, currentNodeVar );
 
                     if (path != null)
                         _xbeanPathCache.put( path.getPathExpr(), path );
@@ -500,6 +507,87 @@ public abstract class Path
         private String _pathExpr;
         private XPath  _xpath;
         private String _currentNodeVar;
+    }
+
+
+    private static final class JaxenPathImpl extends Path
+    {
+        private String _pathExpr;
+        private JaxenXBeansDelegate.SelectPathInterface _xpathImpl;
+
+        private JaxenPathImpl (
+            JaxenXBeansDelegate.SelectPathInterface xpathImpl, String pathExpr )
+        {
+            _xpathImpl = xpathImpl;
+            _pathExpr = pathExpr;
+        }
+
+        static Path create ( String pathExpr, String currentNodeVar )
+        {
+            assert !currentNodeVar.startsWith( "$" ); // cezar review with ericvas
+
+            JaxenXBeansDelegate.SelectPathInterface impl = JaxenXBeansDelegate.createInstance( pathExpr );
+            if (impl == null)
+                return null;
+
+            return new JaxenPathImpl( impl , pathExpr );
+        }
+
+        protected String getPathExpr ( ) { return _pathExpr; }
+
+        protected PathEngine execute ( Root r, Splay s, int p, XmlOptions options )
+        {
+            return new JaxenPathEngine( _xpathImpl, r, s, p);
+        }
+
+        private static class JaxenPathEngine
+            extends XPath.ExecutionContext implements PathEngine
+        {
+            JaxenPathEngine( JaxenXBeansDelegate.SelectPathInterface xpathImpl, Root r, Splay s, int p )
+            {
+                _jaxenXpathImpl = xpathImpl;
+                _root = r;
+                _splay = s;
+                _p = p;
+                _version = r.getVersion();
+            }
+
+            public boolean next ( Selections selections )
+            {
+                if (!_firstCall)
+                    return false;
+
+                _firstCall = false;
+
+                if (_root.getVersion() != _version)
+                    throw new IllegalStateException( "Document changed" );
+
+                List resultsList;
+                Cursor cur = new Cursor(_root, _splay, _p);
+                resultsList = _jaxenXpathImpl.selectPath(cur);
+
+                int i;
+                for (i = 0; i<resultsList.size(); i++)
+                {
+                    XmlCursor.XmlBookmark b = (XmlCursor.XmlBookmark)resultsList.get(i);
+                    Splay.Annotation ann = ((Splay.Annotation)b._currentMark);
+                    selections.add(_root, ann.getSplay(), ann.getPos());
+                }
+                cur.dispose();
+                _root = null;
+                _splay = null;
+                _jaxenXpathImpl = null;
+
+                return false;
+            }
+
+            private JaxenXBeansDelegate.SelectPathInterface _jaxenXpathImpl;
+            private Root  _root;
+            private Splay _splay;
+            private int _p;
+            private long  _version;
+            private boolean _firstCall = true;
+        }
     }
 
     private static HashMap _xqrlPathCache = new HashMap();
