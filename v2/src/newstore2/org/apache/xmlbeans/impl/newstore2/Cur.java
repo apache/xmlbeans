@@ -129,20 +129,22 @@ final class Cur
     
     void createDomDocumentRoot ( )
     {
-        Xobj xo = createDomDocumentRootXobj( _locale );
-
-        if (_locale._ownerDoc == null)
-            _locale._ownerDoc = xo.getDom();
-
-        set( xo, 0 );
+        set( createDomDocumentRootXobj( _locale ), 0 );
     }
     
     static Xobj createDomDocumentRootXobj ( Locale l )
     {
+        Xobj xo;
+
         if (l._saaj == null)
-            return new DocumentXobj( l );
+            xo = new DocumentXobj( l );
         else
-            return new SoapPartDocXobj( l );
+            xo = new SoapPartDocXobj( l );
+        
+        if (l._ownerDoc == null)
+            l._ownerDoc = xo.getDom();
+
+        return xo;
     }
 
     void createElement ( QName name )
@@ -186,7 +188,12 @@ final class Cur
     
     void createComment ( )
     {
-        createHelper( createCommentXobj( _locale) );
+        createHelper( createCommentXobj( _locale ) );
+    }
+    
+    void createProcinst ( String target )
+    {
+        createHelper( new ProcInstXobj( _locale, target ) );
     }
     
     static Xobj createCommentXobj ( Locale l )
@@ -505,6 +512,20 @@ final class Cur
         }
 
         set( getNormal( x, p ), _posTemp );
+
+        return true;
+    }
+
+    boolean nextNonAttr ( )
+    {
+        if (!next())
+            return false;
+
+        while ( isAttr() )
+        {
+            boolean moved = next();
+            assert moved;
+        }
 
         return true;
     }
@@ -1063,8 +1084,8 @@ final class Cur
 
     private void set ( Xobj x, int p )
     {
-        assert isNormal();
-
+        // This cursor may not be normalized upon entry ...
+        
         if (_state == EMBEDDED && x != _xobj)
         {
             assert _curKind != PERM;
@@ -1086,6 +1107,12 @@ final class Cur
         }
 
         assert isNormal();
+    }
+
+    static void release ( Cur c )
+    {
+        if (c != null)
+            c.release();
     }
 
     void release ( )
@@ -2215,8 +2242,22 @@ final class Cur
 
         dumpCurs( o, xo );
 
+        String className = xo.getClass().getName();
+        
+        int i = className.lastIndexOf( '.' );
+        
+        if (i > 0)
+        {
+            className = className.substring( i + 1 );
+            
+            i = className.lastIndexOf( '$' );
+
+            if (i > 0)
+                className = className.substring( i + 1 );
+        }
+
         o.print( " (" );
-        o.print( xo.getClass().getName() );
+        o.print( className );
         o.print( ")" );
         
         o.println();
