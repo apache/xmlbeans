@@ -55,7 +55,8 @@ public class DumbTest extends TestCase {
 
     public void testGetB2()
             throws Exception {
-        RootDocument rootDoc = (RootDocument) XmlObject.Factory.parse(instance);
+        RootDocument rootDoc = (RootDocument) XmlObject.Factory
+                .parse(instance);
         Root root = rootDoc.getRoot();
 
         System.out.println("root.xmlText() = " + root.xmlText());

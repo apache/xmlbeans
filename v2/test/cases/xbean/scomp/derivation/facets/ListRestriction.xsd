@@ -53,7 +53,7 @@
             <xsd:simpleType>
                 <xsd:list itemType="xsd:unsignedInt"/>
             </xsd:simpleType>
-            <xsd:pattern value="((\d+\s)*{3})*"/>
+            <xsd:pattern value="((\d+){3}\s)*)"/>
         </xsd:restriction>
     </xsd:simpleType>
 

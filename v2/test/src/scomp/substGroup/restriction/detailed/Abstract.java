@@ -125,7 +125,8 @@ public class Abstract extends BaseCase {
     //user described problem
     public void testUserAbstract(){
 
-        RootDocument doc=RootDocument.Factory.newInstance();
+        RootDocument doc=RootDocument.Factory
+                .newInstance();
         Bar barElt=doc.addNewRoot();
         barElt.insertNewFoo(0);
 
