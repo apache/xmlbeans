@@ -511,7 +511,7 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public MClass addNewInnerClass(String name) {
     MClass inner = new ClassImpl(mPackageName,
-                                 name,
+                                 getSimpleName()+"$"+name,
                                  getImportSpecs(),
                                  this);
     if (mInnerClasses == null) mInnerClasses = new ArrayList();

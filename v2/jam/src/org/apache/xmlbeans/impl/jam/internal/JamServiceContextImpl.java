@@ -46,6 +46,12 @@ import java.util.*;
 public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceContext,
   JamServiceParams, ElementContext
 {
+
+  // ========================================================================
+  // Constants
+
+  private static final char INNER_CLASS_SEPARATOR = '$';
+
   // ========================================================================
   // Variables
 
@@ -129,7 +135,11 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
       DirectoryScanner ds = (DirectoryScanner)i.next();
       String[] files = ds.getIncludedFiles();
       for(int j=0; j<files.length; j++) {
-        all.add(filename2classname(files[j]));
+        // exclude inner classes - they will be on disk as .class files with
+        // a '$' in the name
+        if (files[j].indexOf(INNER_CLASS_SEPARATOR) == -1) {
+          all.add(filename2classname(files[j]));
+        }
       }
     }
     if (mExcludeClasses != null) all.removeAll(mExcludeClasses);
