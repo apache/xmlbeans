@@ -57,21 +57,22 @@
     <mkdir dir="build/private/lib"/>
   </target>
 
-  <target name="version">
+  <target name="version.task" depends="dirs">
+    <mkdir dir="build/private/classes/svnrev"/>
+    <javac srcdir="src/svnrev" destdir="build/private/classes/svnrev" source="1.3" debug="on">
+    </javac>
+  </target>
+
+  <target name="version" depends="version.task">
     <!-- svn must be on the path -->
     <exec executable="svn" output="build/private/svninfo.properties">
       <arg line="info ${basedir}"/>
     </exec>
-    <replaceregexp file="build/private/svninfo.properties"
-        match="Last Changed Rev: (.*)"
-        replace="svn.last.rev=r\1"
-        byline="true"/>
-    <property file="build/private/svninfo.properties"/>
 
-    <!-- just in case svn info or regexp failed -->
-    <condition property="svn.last.rev" value="unknown">
-      <not><isset property="svn.last.rev"/></not>
-    </condition>
+    <taskdef name="svnrev" classname="xmlbeans.SvnRevisionTask"
+        classpath="build/classes/svnrev"/>
+    <svnrev file="build/private/svninfo.properties"
+        property="svn.last.rev"/>
 
     <property name="version.full" value="${version.base}-${svn.last.rev}"/>
     <property name="manifest.comment" value="Apache XmlBeans version ${version.full}"/>
@@ -615,7 +616,7 @@
   <!-- All docs to build/docs, including guide and javadocs. -->
 
   <target name="docs" depends="xbean">
-    <property name="docs.dir" value="build/docs"/>
+    <property name="docs.dir" value="build/docs/reference"/>
     <delete dir="${docs.dir}"/>
     <mkdir dir="${docs.dir}"/>
     <javadoc packagenames="*" sourcepath="src/xmlpublic"
@@ -734,7 +735,7 @@
      </tar>
   </target>
 
-  <target name="dist-src" depends="version, clean, dirs">
+  <target name="dist-src" depends="clean, dirs, version">
      <delete file="build/private/xmlbeans-${version.base}-src.zip"/>
      <delete file="build/private/xmlbeans-${version.base}-src.tgz"/>
 
@@ -827,7 +828,7 @@
         <section name="${manifest.name}">
           <attribute name="Comment" value="${manifest.comment}"/>
           <attribute name="Implementation-Title" value="${manifest.title}"/>
-          <attribute name="Implementation-Version" value="${version.base}"/>
+          <attribute name="Implementation-Version" value="${version.full}"/>
           <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
           <attribute name="Implementation-URL" value="${manifest.url}"/>
         </section>
