@@ -527,31 +527,31 @@ public class StscTranslator
             
             if (xsdElt.sizeOfKeyArray() > 0 || xsdElt.sizeOfKeyrefArray() > 0 || xsdElt.sizeOfUniqueArray() > 0)
             {
-                state.error("Element reference cannot also contain key, keyref, or unique", XmlErrorContext.GENERIC_ERROR, xsdElt);
+                state.warning("Element reference cannot also contain key, keyref, or unique", XmlErrorContext.GENERIC_ERROR, xsdElt);
                 // recovery: ignore
             }
             
             if (xsdElt.isSetDefault())
             {
-                state.error("Element with reference to '" + ref.getLocalPart() + "' cannot also specify default", XmlErrorContext.GENERIC_ERROR, xsdElt);
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify default", XmlErrorContext.GENERIC_ERROR, xsdElt);
                 // recovery: ignore
             }
             
             if (xsdElt.isSetFixed())
             {
-                state.error("Element with reference to '" + ref.getLocalPart() + "' cannot also specify fixed", XmlErrorContext.GENERIC_ERROR, xsdElt);
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify fixed", XmlErrorContext.GENERIC_ERROR, xsdElt);
                 // recovery: ignore
             }
             
             if (xsdElt.isSetBlock())
             {
-                state.error("Element with reference to '" + ref.getLocalPart() + "' cannot also specify block", XmlErrorContext.GENERIC_ERROR, xsdElt);
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify block", XmlErrorContext.GENERIC_ERROR, xsdElt);
                 // recovery: ignore
             }
             
             if (xsdElt.isSetNillable())
             {
-                state.error("Element with reference to '" + ref.getLocalPart() + "' cannot also specify nillable", XmlErrorContext.GENERIC_ERROR, xsdElt);
+                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify nillable", XmlErrorContext.GENERIC_ERROR, xsdElt);
                 // recovery: ignore
             }
             
