@@ -19,6 +19,11 @@ import xbean.scomp.substGroup.deep.*;
  */
 import java.math.BigInteger;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlCursor;
+
+import javax.xml.namespace.QName;
+
 /**
  * @owner: ykadiysk
  * Date: Jul 30, 2004
@@ -64,29 +69,30 @@ public class Block extends BaseCase {
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+                   };
              assertTrue(compareErrorCodes(errExpected));
 
 
-        System.out.println("***********************");
-        BusinessShirtDocument bs_doc = BusinessShirtDocument.Factory.newInstance();
-        ShirtType bs=bs_doc.addNewBusinessShirt();
+       ShirtType bs=BusinessShirtType.Factory.newInstance();
         bs.setName("Bus Shirt");
         bs.setNumber("SKU35");
         bs.setColor("blue");
         bs.setSize(new BigInteger("10"));
 
-      /**  //Why is this set not working???
-        doc.getItems().setProductArray(0, bs);
-        doc.getItems().removeProduct(3);
-     */
-
-        //why is BS the wrong type here????: the content is set but not the elt itself
-        doc.getItems().setProductArray(new ProductType[]{
-            bs_doc.getProduct()
+         doc.getItems().setProductArray(new ProductType[]{
+            bs
         });
 
-        System.out.println(doc.xmlText());
+         XmlCursor cur=doc.newCursor();
+        cur.toFirstContentToken();
+        cur.toNextToken();
+          cur.toNextToken();
+          cur.toNextToken();
+        assertEquals(XmlCursor.TokenType.START,cur.currentTokenType());
+        cur.setName(new QName("http://xbean/scomp/substGroup/Block","businessShirt","pre"));
+        System.out.println("*************** "+doc.xmlText());
 
         try {
             assertTrue(doc.validate(validateOptions));
@@ -153,11 +159,14 @@ public class Block extends BaseCase {
         ItemType items = doc.addNewItems();
         BeachUmbrellaT bu = BeachUmbrellaT.Factory.newInstance();
         bu.setDiameter(3.4f);
+        bu.setNumber("324");
+        bu.setName("Beach umbrella");
         items.setProductArray(new ProductType[]{bu});
+        System.out.println(doc.xmlText());
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{"cvc-attribute"};
-             assertTrue(compareErrorCodes(errExpected));
+        assertTrue(compareErrorCodes(errExpected));
 
 
         doc = ItemsDocument.Factory.parse("<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Block\"" +

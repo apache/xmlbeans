@@ -20,6 +20,7 @@ import xbean.scomp.substGroup.oneLevel.*;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -97,8 +98,11 @@ public class OneLevel extends BaseCase {
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
 
         assertTrue(!doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
-        assertTrue(compareErrorCodes(errExpected));
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+                  };
+        assertTrue(compareErrorCodes(
+                errExpected));
 
     }
 

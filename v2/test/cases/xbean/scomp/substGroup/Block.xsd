@@ -25,7 +25,5 @@
     <xsd:element name="umbrella" substitutionGroup="base:product" block="substitution"/>
     <xsd:element name="beachumbrella" type="beachUmbrellaT" substitutionGroup="umbrella"/>
 
-   <!-- <xsd:element name="shirt" type="base:shirtType" substitutionGroup="product"/>
-    <xsd:element name="product" type="base:productType"/>
-    <xsd:element name="items" type="base:ItemType"/>  -->
+ 
 </xsd:schema>

@@ -24,6 +24,7 @@ import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -31,6 +32,8 @@ import org.apache.xmlbeans.XmlString;
  * Time: 10:17:48 AM
  */
 public class ComplexContentExtensionTest extends BaseCase {
+
+
     public void testSequenceExtension() throws Throwable {
         SequenceExtensionEltDocument doc = SequenceExtensionEltDocument.Factory
                 .newInstance();
@@ -48,7 +51,9 @@ public class ComplexContentExtensionTest extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
               showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
 
@@ -65,6 +70,11 @@ public class ComplexContentExtensionTest extends BaseCase {
 
     }
 
+    /**
+     *  result type is a sequence of 2 choices
+     * Valid sets: { (child1 xor child2 xor child3 )(extraEltStr xor extraEltStr) }
+     * @throws Throwable
+     */
     public void testChoiceExtension() throws Throwable {
         ChoiceExtensionEltDocument doc = ChoiceExtensionEltDocument.Factory
                 .newInstance();
@@ -74,7 +84,17 @@ public class ComplexContentExtensionTest extends BaseCase {
         elt.setChild3Array(new BigInteger[]{BigInteger.ONE, BigInteger.ZERO});
         elt.addExtraEltInt(3);
         elt.setExtraEltStrArray(new String[]{"extra1", "extra2"});
-        assertTrue(!doc.validate());
+        assertTrue(!doc.validate(validateOptions));
+                    showErrors();
+             //TODO: child 2 and child3 not allowed
+             //extraEltStr not allowed
+              String[] errExpected = new String[]{
+                  XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+                   XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+                  XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+              };
+                           assertTrue(compareErrorCodes(errExpected));
+
         assertEquals(new BigInteger("10"), elt.getChild1());
         assertEquals("foobar", elt.getChild2Array()[0]);
         elt.unsetChild1();
@@ -95,7 +115,15 @@ public class ComplexContentExtensionTest extends BaseCase {
         assertEquals(expected, elt.xgetChild3Array()[1]);
         assertEquals(3, elt.getExtraEltIntArray()[0]);
         assertEquals(3, elt.getExtraEltIntArray(0));
-        assertTrue(!doc.validate());
+        clearErrors();
+        assertTrue(!doc.validate(validateOptions));
+                           showErrors();
+                    errExpected = new String[]{
+                         XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+                          XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+                         XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+                     };
+                                  assertTrue(compareErrorCodes(errExpected));
         elt.removeExtraEltInt(0);
         try {
             assertTrue(doc.validate(validateOptions));

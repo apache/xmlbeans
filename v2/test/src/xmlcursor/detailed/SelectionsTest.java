@@ -105,6 +105,16 @@ public class SelectionsTest extends BasicCursorTestCase {
 
     }
 
+    public void testClearSelections(){
+
+	int nSelectionsCount=7;
+	m_xc.selectPath("$this//b");
+        m_xc.toSelection(0);
+        m_xc.clearSelections();
+        assertEquals("<b>0</b>",m_xc.xmlText());
+
+    }
+
 
     public void setUp()throws Exception{
 	m_xo=XmlObject.Factory.parse(sXml);

@@ -18,6 +18,7 @@ import xbean.scomp.derivation.elementRestriction.ElementDocument;
 import xbean.scomp.derivation.elementRestriction.RestrictedEltT;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlErrorCodes;
 import scomp.common.BaseCase;
 
 
@@ -61,7 +62,10 @@ public class ElementRestriction extends BaseCase {
         elt.setC("foobar:123");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE,
+        };
                      assertTrue(compareErrorCodes(errExpected));
 
 

@@ -22,6 +22,7 @@ import java.math.BigInteger;
 
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -40,7 +41,10 @@ public class AttributeRestriction extends BaseCase {
         elt.setA(new BigInteger("-3"));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-       String[] errExpected = new String[]{"cvc-attribute"};
+       String[] errExpected = new String[]{
+           "cvc-attribute",
+           XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+       };
                     assertTrue(compareErrorCodes(errExpected));
 
         assertEquals("b", elt.getB());
@@ -57,9 +61,13 @@ public class AttributeRestriction extends BaseCase {
         elt.xsetD(expected);
         assertEquals("a", elt.getD());
         assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
-                     assertTrue(compareErrorCodes(errExpected));
+       // showErrors();
+        //D invalid, F missing
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
+              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+        };
+        assertTrue(compareErrorCodes(errExpected));
 
         elt.setD("d");
         elt.setE("e");
@@ -82,7 +90,11 @@ public class AttributeRestriction extends BaseCase {
         elt.setG("foobar");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-      String[] errExpected = new String[]{"cvc-attribute"};
+      //g prohibited, f missing
+      String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+      };
                    assertTrue(compareErrorCodes(errExpected));
 
         elt.setX("myval");

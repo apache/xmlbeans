@@ -24,6 +24,7 @@ import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -72,7 +73,9 @@ public class GlobalAttrFixed extends BaseCase {
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
                 "pre:testattributeStr=\" XBeanAttrStr \"/>").getGlobalAttrFixedDoc();
-        String[] errExpected = new String[]{"cvc-attr"};
+        String[] errExpected = new String[]{
+             XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
+        };
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
@@ -87,7 +90,9 @@ public class GlobalAttrFixed extends BaseCase {
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
                 "pre:testattributeStr=\" foobar \" />").getGlobalAttrFixedDoc();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
+        };
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
@@ -122,7 +127,9 @@ public class GlobalAttrFixed extends BaseCase {
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -152,7 +159,8 @@ public class GlobalAttrFixed extends BaseCase {
         assertTrue(!testDoc.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED};
         assertTrue(compareErrorCodes(errExpected));
 
     }

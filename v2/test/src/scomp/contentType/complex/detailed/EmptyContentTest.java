@@ -6,6 +6,7 @@ import xbean.scomp.contentType.complexTypeTest.EmptyMixedTypeDocument;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlErrorCodes;
 import scomp.common.BaseCase;
 
 /**
@@ -25,7 +26,9 @@ public class EmptyContentTest extends BaseCase {
         cur.beginElement("foobarElt");
         assertTrue(!elt.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+        };
             assertTrue(compareErrorCodes(errExpected));
 
     }

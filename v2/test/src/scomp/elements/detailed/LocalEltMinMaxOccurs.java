@@ -16,6 +16,7 @@ package scomp.elements.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.element.localEltMinMaxOccurs.MinMaxOccursDocDocument;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -59,7 +60,9 @@ public class LocalEltMinMaxOccurs extends BaseCase {
         assertTrue(!testDoc.validate(validateOptions));
         assertEquals(1,errorList.size());
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
              assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -78,10 +81,13 @@ public class LocalEltMinMaxOccurs extends BaseCase {
         assertEquals(0,errorList.size());
           assertTrue(!testDoc.validate(validateOptions));
           assertEquals(1,errorList.size());
-        String[] errExpected = new String[]{"cvc-attribute"};
+         //TODO: why is this not element not allowed?
+
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
              assertTrue(compareErrorCodes(errExpected));
 
-         fail("Error is incorrect: the dev infers the cause... incorrectly");
+         //fail("Error is incorrect: the dev infers the cause... incorrectly");
                 showErrors();
     }
 

@@ -19,6 +19,8 @@ import xbean.scomp.derivation.groupRestriction.*;
 
 import java.math.BigInteger;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+
 /**
  * @owner: ykadiysk
  * Date: Jul 22, 2004
@@ -58,7 +60,8 @@ public class GroupRestrictionTest extends BaseCase {
         elt.addChild3(BigInteger.ZERO);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT};
         assertTrue(compareErrorCodes(errExpected));
 
         elt.removeChild2(0);
@@ -79,7 +82,9 @@ public class GroupRestrictionTest extends BaseCase {
         //child3 can't be missing
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
         elt.setChild3(new BigInteger("10"));

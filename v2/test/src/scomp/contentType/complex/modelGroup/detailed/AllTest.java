@@ -21,6 +21,8 @@ import xbean.scomp.contentType.modelGroup.AllT;
 
 import java.math.BigInteger;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+
 /**
  * @owner: ykadiysk
  * Date: Jul 16, 2004
@@ -81,7 +83,12 @@ public class AllTest extends BaseCase {
         doc = AllEltDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        //$TODO: QUESTIONABLE ERRORS: if <child3>2</child3> is replaced by <child1>2</child1>
+        //all will be good: why 2 errors?
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT
+        };
                    assertTrue(compareErrorCodes(errExpected));
 
     }

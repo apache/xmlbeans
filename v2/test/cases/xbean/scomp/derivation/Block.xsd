@@ -137,7 +137,7 @@
 
      <xsd:complexType name="restRET">
          <xsd:complexContent>
-             <xsd:restriction base="blockERT">
+             <xsd:restriction base="blockRET">
                  <xsd:sequence>
                      <xsd:element name="name" type="xsd:string"/>
                      <xsd:element name="age" type="restAgeT"/>
@@ -145,6 +145,7 @@
              </xsd:restriction>
          </xsd:complexContent>
      </xsd:complexType>
+
      <xsd:complexType name="extRET">
          <xsd:complexContent>
              <xsd:extension base="blockRET">
@@ -154,6 +155,7 @@
              </xsd:extension>
          </xsd:complexContent>
      </xsd:complexType>
+
      <xsd:complexType name="extERT">
          <xsd:complexContent>
              <xsd:extension base="blockERT">

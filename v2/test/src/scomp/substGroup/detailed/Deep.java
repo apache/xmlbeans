@@ -20,6 +20,7 @@ import java.math.BigInteger;
 
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -29,7 +30,9 @@ import org.apache.xmlbeans.XmlException;
 public class Deep extends BaseCase {
 
     /**
-     * QName for casualBShirt is incorrect: err. message seems bad to me
+     * QName for casualBShirt is incorrect:
+     * err. message seems bad to me
+     * TODO: seems like the first err is enuf
      */
     public void testErrorMessage() throws XmlException {
         String input =
@@ -45,7 +48,10 @@ public class Deep extends BaseCase {
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
              assertTrue(compareErrorCodes(errExpected));
         
     }
@@ -88,7 +94,7 @@ public class Deep extends BaseCase {
      */
     public void testValidSubstParseInvalid() throws Throwable {
         String input =
-                "<items xmlns=\"http://xbean/scomp/substGroup/Deep\">" +
+                "<root:items xmlns:root=\"http://xbean/scomp/substGroup/Deep\">" +
                 "<shirt>" +
                 " <number>SKU25</number>" +
                 " <name>Oxford Shirt</name>" +
@@ -110,7 +116,7 @@ public class Deep extends BaseCase {
                 " <color>blue</color>" +
                 "<pokadotColor>yellow</pokadotColor>" +
                 "</casualBShirt>" +
-                "</items>";
+                "</root:items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
 
             assertTrue(!doc.validate(validateOptions));
