@@ -46,6 +46,8 @@ abstract class Saver
     protected abstract void emitContainer ( Cur c, QName name );
     protected abstract void emitFinish    ( Cur c, QName name );
     protected abstract void emitText      ( Cur c );
+    protected abstract void emitComment   ( Cur c );
+    protected abstract void emitProcinst  ( Cur c );
 
     protected void syntheticNamespace ( String prefix, String uri, boolean considerDefault ) { }
 
@@ -75,10 +77,17 @@ abstract class Saver
         // roundtripping 
         addMapping( "xml", Locale._xml1998Uri );
 
+        if (options.hasOption( XmlOptions.SAVE_IMPLICIT_NAMESPACES ))
+        {
+            Map m = (Map) options.get( XmlOptions.SAVE_IMPLICIT_NAMESPACES );
+            
+            for ( Iterator i = m.keySet().iterator() ; i.hasNext() ; )
+            {
+                String prefix = (String) i.next();
+                addMapping( prefix, (String) m.get( prefix ) );
+            }
+        }
 
-        // TODO - check for implicit namespaces here
-
-        
         // If the default prefix has not been mapped, do so now
         
         if (getNamespaceForPrefix( "" ) == null)
@@ -87,11 +96,35 @@ abstract class Saver
             addMapping( "", _initialDefaultUri );
         }
         
+        if (options.hasOption( XmlOptions.SAVE_AGGRESSIVE_NAMESPACES ) &&
+                !(this instanceof SynthNamespaceSaver))
+        {
+            SynthNamespaceSaver saver = new SynthNamespaceSaver( c, options );
+
+            while ( saver.process() )
+                ;
+
+            if (!saver._synthNamespaces.isEmpty())
+                _preComputedNamespaces = saver._synthNamespaces;
+        }
+        
+        _useDefaultNamespace =
+            options.hasOption( XmlOptions.SAVE_USE_DEFAULT_NAMESPACE );
+
         _saveNamespacesFirst = options.hasOption( XmlOptions.SAVE_NAMESPACES_FIRST );
         
-        // TODO - establish _synthName
-        // TODO - establish _suggestedPrefixes
-        // TODO - establish _useDefaultNamespace
+        if (options.hasOption( XmlOptions.SAVE_SUGGESTED_PREFIXES ))
+            _suggestedPrefixes = (Map) options.get( XmlOptions.SAVE_SUGGESTED_PREFIXES);
+
+        if (options.hasOption( XmlOptions.SAVE_FILTER_PROCINST ))
+        {
+            _filterProcinst =
+                (String) options.get( XmlOptions.SAVE_FILTER_PROCINST );
+        }
+        
+        // TODO - _synthElem
+        // TODO - _fragment
+        // TODO - _inner
     }
 
     protected boolean needsFrag ( )
@@ -127,16 +160,20 @@ abstract class Saver
 
             _preProcess = false;
 
-            _done = true;
+            //
+            // 
+            //
 
-            if (!_cur.isContainer())
-                throw new RuntimeException( "Not implemented" );
-
-            assert _cur.isContainer();
-
-            _done = false;
-
-            _top = _cur.weakCur( this );
+            if (_cur.isFinish())
+            {
+                _done = true;
+                processTextFragment( _cur );
+            }
+            else
+            {
+                assert _cur.isContainer();
+                _top = _cur.weakCur( this );
+            }
         }
 
         if (_postPop)
@@ -211,8 +248,8 @@ abstract class Saver
             case   ROOT : case   ELEM : { processContainer();               break; }
             case - ROOT : case - ELEM : { processFinish(); _postPop = true; break; }
             case TEXT                 : { emitText( _cur );                 break; }
-            case COMMENT              : { throw new RuntimeException( "Not implemented" ); }
-            case PROCINST             : { throw new RuntimeException( "Not implemented" ); }
+            case COMMENT              : { emitComment( _cur );              break; }
+            case PROCINST             : { processProcinst();                break; }
 
             default : throw new RuntimeException( "Unexpected kind" );
         }
@@ -319,7 +356,18 @@ abstract class Saver
         
         _postPop = true;
     }
+    
+    private final void processProcinst ( )
+    {
+        if (_filterProcinst == null || !_cur.getLocal().equals( _filterProcinst ))
+            emitProcinst( _cur );
+    }
 
+    private void processTextFragment( Cur c )
+    {
+        throw new RuntimeException( "Not impl" );
+    }
+    
     //
     // Layout of namespace stack:
     //
@@ -649,6 +697,32 @@ abstract class Saver
     //
     //
     //
+    
+    static final class SynthNamespaceSaver extends Saver
+    {
+        LinkedHashMap _synthNamespaces = new LinkedHashMap();
+        
+        SynthNamespaceSaver ( Cur c, XmlOptions options )
+        {
+            super( c, false, options );
+        }
+        
+        protected void syntheticNamespace (
+            String prefix, String uri, boolean considerCreatingDefault )
+        {
+            _synthNamespaces.put( uri, considerCreatingDefault ? "useDefault" : null );
+        }
+        
+        protected void emitContainer ( Cur c, QName name ) { }
+        protected void emitFinish    ( Cur c, QName name ) { }
+        protected void emitText      ( Cur c ) { }
+        protected void emitComment   ( Cur c ) { }
+        protected void emitProcinst  ( Cur c ) { }
+    }
+
+    //
+    //
+    //
 
     static final class TextSaver extends Saver
     {
@@ -681,22 +755,17 @@ abstract class Saver
 
                 if (!c.hasChildren())
                 {
-                    c.push();
-                    c.next();
-                    
-                    if (c.isText())
+                    if (c.hasText())
                     {
                         emit( '>' );
-                        emit( c );
+                        emitValue( c );
                         entitizeContent();
                         emit( "</" );
                         emitName( name );
                     }
                     else
                         emit( '/' );
-
-                    c.pop();
-
+                    
                     skipContainer();
                 }
                 
@@ -811,11 +880,6 @@ abstract class Saver
                 emit( '>' );
         }
         
-
-        //
-        //
-        //
-        
         protected void emitText ( Cur c )
         {
             assert c.isText();
@@ -824,6 +888,39 @@ abstract class Saver
 
             entitizeContent();
         }
+        
+        protected void emitComment ( Cur c )
+        {
+            assert c.isComment();
+
+            emit( "<!--" );
+            emitValue( c );
+            entitizeComment();
+            emit( "-->" );
+        }
+
+        protected void emitProcinst ( Cur c )
+        {
+            assert c.isProcinst();
+            
+            emit( "<?" );
+            
+            // TODO - encoding issues here?
+            emit( c.getLocal() );
+
+            if (c.hasText())
+            {
+                emit( " " );
+                emitValue( c );
+                entitizeProcinst();
+            }
+            
+            emit( "?>" );
+        }
+
+        //
+        //
+        //
         
         private void emitName ( QName name )
         {
@@ -857,7 +954,7 @@ abstract class Saver
 
             _in = (_in + 1) % _buf.length;
         }
-
+        
         private void emit ( String s )
         {
             int cch = s == null ? 0 : s.length();
@@ -904,6 +1001,18 @@ abstract class Saver
                     _in = (_in + cch) % _buf.length;
                 }
             }
+        }
+        
+        private void emitValue ( Cur c )
+        {
+            assert !c.isText() && c.kind() > 0 && !c.hasChildren();
+
+            c.push();
+            c.next();
+
+            emit( c );
+
+            c.pop();
         }
 
         private boolean preEmit ( int cch )
@@ -1452,6 +1561,7 @@ abstract class Saver
     private HashMap _preComputedNamespaces;
     private boolean _wantFragTest;
     private boolean _saveNamespacesFirst;
+    private String  _filterProcinst;
 
     private ArrayList _namespaceStack;
     private int       _currentMapping;

@@ -96,11 +96,14 @@ final class Cur
     
     int kind ( ) { assert isNormal(); return _xobj == null ? NONE : _xobj.kind( _pos ); }
 
-    boolean isRoot      ( ) { return kind() == ROOT; }
-    boolean isElem      ( ) { return kind() == ELEM; }
-    boolean isEnd       ( ) { return kind() == -ELEM; }
-    boolean isAttr      ( ) { return kind() == ATTR; }
-    boolean isText      ( ) { return kind() == TEXT; }
+    boolean isRoot      ( ) { return kind() == ROOT;     }
+    boolean isElem      ( ) { return kind() == ELEM;     }
+    boolean isEnd       ( ) { return kind() == -ELEM;    }
+    boolean isAttr      ( ) { return kind() == ATTR;     }
+    boolean isText      ( ) { return kind() == TEXT;     }
+    boolean isComment   ( ) { return kind() == COMMENT;  }
+    boolean isProcinst  ( ) { return kind() == PROCINST; }
+    
     boolean isContainer ( ) { return kindIsContainer( kind() ); }
     boolean isFinish    ( ) { return kindIsFinish( kind() ); }
 
@@ -426,6 +429,13 @@ final class Cur
         return true;
     }
 
+    boolean hasText ( )
+    {
+        assert _xobj != null && isNormal() && _pos == 0;
+        
+        return _xobj.cchValue() > 0;
+    }
+    
     boolean hasChildren ( )
     {
         assert _xobj != null && isNormal() && _pos == 0;
