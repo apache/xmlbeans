@@ -19,6 +19,12 @@
                     <xsd:element name="child3" type="xsd:integer"/>
                 </xsd:sequence>
             </xsd:complexType>
+
+
+
+
+
+
     <xsd:complexType name="emptyT">
         <xsd:attribute name="emptyAttr" type="xsd:string"/>
     </xsd:complexType>
@@ -30,4 +36,12 @@
     <xsd:element name="MixedType" type="mixedT"/>
     <xsd:element name="EmptyType" type="emptyT"/>
     <xsd:element name="EmptyMixedType" type="emptyT"/>
+
+      <xsd:element name="MixedFixedElt" fixed="abc">
+            <xsd:complexType mixed="true">
+                <xsd:sequence>
+                    <xsd:element name="a" type="xsd:string"/>
+                </xsd:sequence>
+            </xsd:complexType>
+        </xsd:element>
 </xsd:schema>

@@ -17,11 +17,14 @@ package scomp.contentType.complex.detailed;
 import junit.framework.TestCase;
 import xbean.scomp.contentType.complexTypeTest.MixedTypeDocument;
 import xbean.scomp.contentType.complexTypeTest.MixedT;
+import xbean.scomp.contentType.complexTypeTest.MixedFixedEltDocument;
 
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlException;
 import scomp.common.BaseCase;
 
 /**
@@ -150,6 +153,22 @@ public class MixedContentTest extends BaseCase {
                 "Random mixed content1<child2>5</child2>" +
                 "<child3>1</child3></xml-fragment>",testElt.xmlText() );
        
+
+    }
+
+
+    public void testMixedFixed() throws XmlException{
+        MixedFixedEltDocument doc=
+              MixedFixedEltDocument.Factory
+        .parse("<pre:MixedFixedElt " +
+                " xmlns:pre=\"http://xbean/scomp/contentType/ComplexTypeTest\">" +
+                "<a/>abc</pre:MixedFixedElt>");
+
+        assertTrue (! doc.validate(validateOptions));
+        showErrors();
+        String[] expected=new String[]
+        {XmlErrorCodes.ELEM_LOCALLY_VALID};
+        assertTrue(compareErrorCodes(expected));
 
     }
     public void setUp() {
