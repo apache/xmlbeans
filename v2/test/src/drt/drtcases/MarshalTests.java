@@ -330,7 +330,6 @@ public class MarshalTests extends TestCase
             Object out = um.unmarshalType(reader, schemaType, javaType, options);
             Assert.assertEquals(our_obj, out);
 
-
             if (!errors.isEmpty()) {
                 for (Iterator itr = errors.iterator(); itr.hasNext();) {
                     Object err = itr.next();
@@ -577,8 +576,9 @@ public class MarshalTests extends TestCase
         //crank up these numbers to see real perf testing
         //the test still has some value aside from perf
         //in that it can test large stack depths.
-        final int trials = 1;
-        final int depth = 3;
+        final int trials = 3;
+//        final int trials = 10000;
+        final int depth = 7;
         final int boolean_array_size = 5;
 
         Random rnd = new Random();
@@ -610,7 +610,7 @@ public class MarshalTests extends TestCase
             curr = my_c;
         }
 
-        //inform("top_obj = " + top_obj);
+        inform("top_perf_obj = " + top_obj);
 
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
@@ -625,11 +625,14 @@ public class MarshalTests extends TestCase
         final LinkedList errors = new LinkedList();
         options.setErrorListener(errors);
 
+
+        final Marshaller ctx =
+            bindingContext.createMarshaller();
+        final Unmarshaller umctx = bindingContext.createUnmarshaller();
+
         for (int i = 0; i < trials; i++) {
             errors.clear();
 
-            Marshaller ctx =
-                bindingContext.createMarshaller();
             Assert.assertNotNull(ctx);
 
 
@@ -645,7 +648,6 @@ public class MarshalTests extends TestCase
 //                return;
 //            }
 
-            Unmarshaller umctx = bindingContext.createUnmarshaller();
             out_obj = umctx.unmarshalType(reader, schemaType, javaType, options);
         }
         final long after_millis = System.currentTimeMillis();

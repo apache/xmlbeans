@@ -23,8 +23,6 @@ import javax.xml.namespace.QName;
 final class SimpleTypeVisitor
     extends SimpleContentVisitor
 {
-    private QName attributeName;
-    private String xsiTypeAttVal;
 
     public SimpleTypeVisitor(RuntimeBindingProperty property,
                              Object obj,
@@ -39,39 +37,10 @@ final class SimpleTypeVisitor
         throws XmlException
     {
         if (getParentObject() == null) {
-            attributeName = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
+            marshalResult.addXsiNilAttribute();
         } else if (needsXsiType()) {
-            attributeName = fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
-
-            final QName schema_type_name =
-                getActualRuntimeBindingType().getSchemaTypeName();
-
-            QName tn = fillPrefix(schema_type_name);
-            xsiTypeAttVal = XsTypeConverter.getQNameString(tn.getNamespaceURI(),
-                                                           tn.getLocalPart(),
-                                                           tn.getPrefix());
-        } else {
-            attributeName = null;
+            marshalResult.addXsiTypeAttribute(getActualRuntimeBindingType());
         }
-    }
-
-    protected int getAttributeCount()
-        throws XmlException
-    {
-        return attributeName == null ? 0 : 1;
-    }
-
-    protected String getAttributeValue(int idx)
-    {
-        assert attributeName != null;
-        
-        return xsiTypeAttVal==null ? NIL_ATT_VAL : xsiTypeAttVal;
-    }
-
-    protected QName getAttributeName(int idx)
-    {
-        assert attributeName != null;
-        return attributeName;
     }
 
 }

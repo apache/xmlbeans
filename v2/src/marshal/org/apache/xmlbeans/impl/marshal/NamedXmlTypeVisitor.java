@@ -25,9 +25,11 @@ import javax.xml.namespace.QName;
 abstract class NamedXmlTypeVisitor
     extends XmlTypeVisitor
 {
-    private final QName name;
+    private final String prefix;
+
     private final RuntimeBindingType actualRuntimeBindingType;
-    protected static final String NIL_ATT_VAL =
+
+    protected static final String TRUE_LEX =
         XsTypeConverter.printBoolean(true).intern();
 
     NamedXmlTypeVisitor(Object parentObject,
@@ -41,12 +43,33 @@ abstract class NamedXmlTypeVisitor
             property.getActualRuntimeType(parentObject, result);
 
         //TODO: optimize to avoid object creation
-        name = fillPrefix(getBindingProperty().getName());
+        final String uri = getBindingProperty().getName().getNamespaceURI();
+        if (uri.length() > 0) {
+            prefix = marshalResult.ensurePrefix(uri);
+        } else {
+            prefix = null;
+        }
     }
 
     protected QName getName()
     {
-        return name;
+        final QName name = getBindingProperty().getName();
+        return new QName(name.getNamespaceURI(), name.getLocalPart(), prefix);
+    }
+
+    protected String getLocalPart()
+    {
+        return getBindingProperty().getName().getLocalPart();
+    }
+
+    protected String getNamespaceURI()
+    {
+        return getBindingProperty().getName().getNamespaceURI();
+    }
+
+    protected String getPrefix()
+    {
+        return prefix;
     }
 
     protected final RuntimeBindingType getActualRuntimeBindingType()
