@@ -11,27 +11,33 @@ import java.util.Iterator;
 import java.util.IdentityHashMap;
 import java.util.Collections;
 import java.util.Collection;
+import java.util.Arrays;
 
 public class PathBindingLoader extends BindingLoader
 {
     private final Collection loaderPath;
     public static final PathBindingLoader EMPTY_LOADER = new PathBindingLoader(Collections.EMPTY_LIST);
     
-    public static BindingLoader forPath(BindingLoader[] pathArray)
+    public static BindingLoader forPath(BindingLoader[] path)
+    {
+        return forPath(Arrays.asList(path));
+    }
+    
+    public static BindingLoader forPath(Collection path)
     {
         IdentityHashMap seen = new IdentityHashMap();
         
-        List path = new ArrayList(pathArray.length);
-        for (int i = 0; i < pathArray.length; i++)
-            addToPath(path, seen, pathArray[i]);
+        List flattened = new ArrayList(path.size());
+        for (Iterator i = path.iterator(); i.hasNext(); )
+            addToPath(flattened, seen, (BindingLoader)i.next());
         
-        if (path.size() == 0)
+        if (flattened.size() == 0)
             return EMPTY_LOADER;
         
-        if (path.size() == 1)
-            return (BindingLoader)path.get(0);
+        if (flattened.size() == 1)
+            return (BindingLoader)flattened.get(0);
         
-        return new PathBindingLoader(path);
+        return new PathBindingLoader(flattened);
     }
     
     private static void addToPath(List path, IdentityHashMap seen, BindingLoader loader)
@@ -99,3 +105,4 @@ public class PathBindingLoader extends BindingLoader
         return null;
     }
 }
+

@@ -15,14 +15,14 @@ public class QNameProperty extends BindingProperty
     private boolean isOptional;
     private boolean isNillable;
     
-    public QNameProperty(BindingLoader bFile)
+    public QNameProperty()
     {
-        super(bFile);
+        super();
     }
 
-    public QNameProperty(BindingLoader bFile, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    public QNameProperty(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
     {
-        super(bFile, node);
+        super(node);
         org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty qpNode =
                 (org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty)node;
         theName = qpNode.getQname();

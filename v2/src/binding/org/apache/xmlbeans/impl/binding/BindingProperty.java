@@ -9,10 +9,8 @@ import org.apache.xmlbeans.SchemaType;
 
 public abstract class BindingProperty
 {
-    private BindingLoader bLoader;
-    
     private JavaName tJava;
-    private XmlName tXml;
+    protected XmlName tXml;
     private String getter;
     private String setter;
     private String field;
@@ -23,9 +21,8 @@ public abstract class BindingProperty
      * 
      * Subclasses should call super(..) when defining constructors that init new BindingTypes.
      */ 
-    protected BindingProperty(BindingLoader bFile)
+    protected BindingProperty()
     {
-        this.bLoader = bFile;
     }
     
     /**
@@ -33,9 +30,8 @@ public abstract class BindingProperty
      * 
      * Subclasses should have ctors of the same signature and call super(..) first.
      */ 
-    protected BindingProperty(BindingLoader bLoader, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    protected BindingProperty(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
     {
-        this.bLoader = bLoader;
         this.tJava = JavaName.forString(node.getJavatype());
         this.tXml = XmlName.forString(node.getXmlcomponent());
         this.getter = node.getGetter();
@@ -73,9 +69,9 @@ public abstract class BindingProperty
         return field != null;
     }
     
-    public BindingType getBindingType()
+    public BindingType getBindingType(BindingLoader loader)
     {
-        return bLoader.getBindingType(tJava, tXml);
+        return loader.getBindingType(tJava, tXml);
     }
     
     public void setBindingType(BindingType bType)
@@ -131,14 +127,14 @@ public abstract class BindingProperty
     
     /* REGISTRY OF SUBCLASSES */
     
-    private static final Class[] ctorArgs = new Class[] {BindingLoader.class, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty.class};
+    private static final Class[] ctorArgs = new Class[] {org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty.class};
     
-    public static BindingProperty forNode(BindingLoader bLoader, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    public static BindingProperty forNode(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
     {
         try
         {
             Class clazz = kinds.classForType(node.schemaType());
-            return (BindingProperty)clazz.getConstructor(ctorArgs).newInstance(new Object[] {bLoader, node});
+            return (BindingProperty)clazz.getConstructor(ctorArgs).newInstance(new Object[] {node});
         }
         catch (Exception e)
         {

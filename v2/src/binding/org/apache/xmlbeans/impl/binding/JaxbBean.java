@@ -20,27 +20,27 @@ public class JaxbBean extends BindingType
     Map eltProps = new LinkedHashMap(); // QName -> prop (elts)
     Map attProps = new LinkedHashMap(); // QName -> prop (attrs)
     
-    public JaxbBean(BindingLoader bFile, JavaName jName, XmlName xName)
+    public JaxbBean(JavaName jName, XmlName xName)
     {
-        super(bFile, jName, xName, false);
+        super(jName, xName, false);
     }
 
-    public JaxbBean(BindingLoader bFile, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    public JaxbBean(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
     {
-        super(bFile, node);
+        super(node);
         
         org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean jbNode = (org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean)node;
         
         org.apache.xmlbeans.x2003.x09.bindingConfig.ParticleProperty[] ppropArray = jbNode.getParticlePropertyArray();
         for (int i = 0; i < ppropArray.length; i++)
         {
-            addProperty(BindingProperty.forNode(getBindingLoader(), ppropArray[i]));
+            addProperty(BindingProperty.forNode(ppropArray[i]));
         }
         
         org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty[] qpropArray = jbNode.getQnamePropertyArray();
         for (int i = 0; i < qpropArray.length; i++)
         {
-            addProperty(BindingProperty.forNode(getBindingLoader(), qpropArray[i]));
+            addProperty(BindingProperty.forNode(qpropArray[i]));
         }
     }
     
@@ -106,7 +106,7 @@ public class JaxbBean extends BindingType
     {
         if (newProp instanceof ParticleProperty)
         {
-            partProps.put(newProp.getBindingType().getXmlName(), newProp);
+            partProps.put(((ParticleProperty)newProp).getXmlName(), newProp);
         }
         else if (newProp instanceof QNameProperty)
         {
