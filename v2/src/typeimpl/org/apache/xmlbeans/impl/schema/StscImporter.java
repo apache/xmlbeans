@@ -51,7 +51,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlEncodingSniffer;
 import org.xml.sax.EntityResolver;
@@ -379,7 +379,7 @@ public class StscImporter
             // no match: error if we can't or won't download.
             if (absoluteURL == null)
             {
-                state.error("Could not find resource - no valid location URL.", XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
+                state.error("Could not find resource - no valid location URL.", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
                 return null;
             }
 
@@ -391,7 +391,7 @@ public class StscImporter
 
             if (!state.shouldDownloadURI(absoluteURL))
             {
-                state.error("Could not load resource \"" + absoluteURL + "\" (network downloads disabled).", XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
+                state.error("Could not load resource \"" + absoluteURL + "\" (network downloads disabled).", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
                 addFailedDownload(absoluteURL);
                 return null;
             }
@@ -419,7 +419,7 @@ public class StscImporter
                     voptions.setErrorListener(state.getErrorListener());
                     if (!(xdoc instanceof SchemaDocument) || !xdoc.validate(voptions))
                     {
-                        state.error("Referenced document is not a valid schema", XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
+                        state.error("Referenced document is not a valid schema", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
                         break download;
                     }
 
@@ -434,15 +434,15 @@ public class StscImporter
             }
             catch (MalformedURLException malformed)
             {
-                state.error("URL \"" + absoluteURL + "\" is not well-formed", XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
+                state.error("URL \"" + absoluteURL + "\" is not well-formed", XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
             }
             catch (IOException connectionProblem)
             {
-                state.error(connectionProblem.toString(), XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
+                state.error(connectionProblem.toString(), XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
             }
             catch (XmlException e)
             {
-                state.error("Problem parsing referenced XML resource - " + e.getMessage(), XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
+                state.error("Problem parsing referenced XML resource - " + e.getMessage(), XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
             }
 
             // record failure so that we don't try to download this URL again
@@ -680,7 +680,7 @@ public class StscImporter
     
                             if (!nullableStringsMatch(imported.getTargetNamespace(), imports[i].getNamespace()))
                             {
-                                StscState.get().error("Imported schema has a target namespace \"" + imported.getTargetNamespace() + "\" that does not match the specified \"" + imports[i].getNamespace() + "\"", XmlErrorContext.MISMATCHED_TARGET_NAMESPACE, imports[i]);
+                                StscState.get().error("Imported schema has a target namespace \"" + imported.getTargetNamespace() + "\" that does not match the specified \"" + imports[i].getNamespace() + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, imports[i]);
                             }
                             else
                             {
@@ -711,7 +711,7 @@ public class StscImporter
                             else if (included.getTargetNamespace() != null)
                             {
                                 // illegal include: included schema in wrong namespace.
-                                StscState.get().error("Included schema has a target namespace \"" + included.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorContext.MISMATCHED_TARGET_NAMESPACE, includes[i]);
+                                StscState.get().error("Included schema has a target namespace \"" + included.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, includes[i]);
                             }
                             else
                             {
@@ -743,7 +743,7 @@ public class StscImporter
                             else if (redefined.getTargetNamespace() != null)
                             {
                                 // illegal include: included schema in wrong namespace.
-                                StscState.get().error("Redefined schema has a target namespace \"" + redefined.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorContext.MISMATCHED_TARGET_NAMESPACE, redefines[i]);
+                                StscState.get().error("Redefined schema has a target namespace \"" + redefined.getTargetNamespace() + "\" that does not match the source namespace \"" + sourceNamespace + "\"", XmlErrorCodes.MISMATCHED_TARGET_NAMESPACE, redefines[i]);
                             }
                             else
                             {

@@ -137,7 +137,7 @@ public class XmlValidationError extends XmlError
         XmlCursor cursor, QName offendingQname, SchemaType expectedSchemaType,
         List expectedQNames, int errorType, SchemaType badSchemaType)
     {
-        super(msg, severity, cursor);
+        super(msg, (String)null, severity, cursor);
 
         setOffendingQName(offendingQname);
         setExpectedSchemaType(expectedSchemaType);

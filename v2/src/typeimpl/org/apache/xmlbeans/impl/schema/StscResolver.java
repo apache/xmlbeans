@@ -19,6 +19,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 import java.math.BigInteger;
 
@@ -30,7 +31,6 @@ import org.w3.x2001.xmlSchema.SimpleType;
 import org.w3.x2001.xmlSchema.Attribute;
 import org.w3.x2001.xmlSchema.Element;
 import org.w3.x2001.xmlSchema.KeyrefDocument.Keyref;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
 import javax.xml.namespace.QName;
 
 public class StscResolver
@@ -70,7 +70,7 @@ public class StscResolver
             return true;
         if (sImpl.isResolving())
         {
-            StscState.get().error("Cyclic dependency error", XmlErrorContext.CYCLIC_DEPENDENCY, sImpl.getParseObject());
+            StscState.get().error("Cyclic dependency error", XmlErrorCodes.CYCLIC_DEPENDENCY, sImpl.getParseObject());
             return false; // cyclic dependency error
         }
         // System.out.println("Resolving " + sImpl);
@@ -99,7 +99,7 @@ public class StscResolver
             return true;
         if (sImpl.isSGResolving())
         {
-            StscState.get().error("Cyclic dependency error", XmlErrorContext.CYCLIC_DEPENDENCY, sImpl.getParseObject());
+            StscState.get().error("Cyclic dependency error", XmlErrorCodes.CYCLIC_DEPENDENCY, sImpl.getParseObject());
             return false; // cyclic dependency error
         }
 
@@ -118,7 +118,7 @@ public class StscResolver
                 sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
 
             if (substitutionGroup == null)
-                StscState.get().notFoundError(elt.getSubstitutionGroup(), XmlErrorContext.ELEMENT_REF_NOT_FOUND, elt.xgetSubstitutionGroup());
+                StscState.get().notFoundError(elt.getSubstitutionGroup(), SchemaType.ELEMENT, elt.xgetSubstitutionGroup());
                 // recovery - ignore substitution group
             else if (! resolveSubstitutionGroup(substitutionGroup) )
                 substitutionGroup = null;
@@ -282,17 +282,17 @@ public class StscResolver
                 key = state.findIdConstraint(keyName, idcs[i].getChameleonNamespace(), idcs[i].getTargetNamespace());
                 if (key == null)
                 {
-                    state.notFoundError(keyName, XmlErrorContext.IDC_NOT_FOUND, xsdkr);
+                    state.notFoundError(keyName, SchemaType.IDENTITY_CONSTRAINT, xsdkr);
                 }
                 else 
                 {
                     if (key.getConstraintCategory() == SchemaIdentityConstraintImpl.CC_KEYREF)
-                        state.error("Keyref cannot refer to another keyref.", 
-                            XmlErrorContext.IDC_NOT_FOUND, idcs[i].getParseObject());
+                        state.error("Keyref cannot refer to another keyref.",
+                            XmlErrorCodes.IDC_NOT_FOUND, idcs[i].getParseObject());
 
                     if (key.getFields().length != idcs[i].getFields().length)
-                        state.error("Keyref does not have same number of fields as key",
-                            XmlErrorContext.IDC_NOT_FOUND, idcs[i].getParseObject());
+                        state.error(XmlErrorCodes.IDENTITY_CONSTRAINT_PROPERTIES$KEY_KEYREF_FIELD_COUNT_EQ,
+                            null, idcs[i].getParseObject());
 
                     idcs[i].setReferencedKey(key.getRef());
                 }

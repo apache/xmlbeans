@@ -69,6 +69,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         {
             if (!sType.matchPatternFacet(v))
             {
+                // KHK: cvc-datatype-valid.1
                 // TODO - describe string and pattern here in error
                 context.invalid("Decimal (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
             }
@@ -88,6 +89,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             int scale = ((XmlObjectBase)fd).bigIntegerValue().intValue();
             if (v.scale() > scale)
             {
+                // KHK: cvc-fractionDigits-valid.1
                 context.invalid(
                     "Decimal fractional digits (" + v.scale() + ") does not match " +
                         "fractional digits facet (" + scale + ") for " + QNameHelper.readable(sType));
@@ -106,6 +108,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
                 len -= 1;
             if (len > tdf)
             {
+                // KHK: cvc-totalDigits-valid.1
                 context.invalid(
                     "Decimal total digits (" + temp + ") is greater than " +
                         "total digits facet (" + tdf + ") for " + QNameHelper.readable(sType));
@@ -120,6 +123,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             BigDecimal m = ((XmlObjectBase)mine).bigDecimalValue();
             if (v.compareTo(m) <= 0)
             {
+                // KHK: cvc-minExclusive-valid.1
                 context.invalid(
                     "Decimal (" + v + ") is less than or equal to " +
                         "min exclusive facet (" + m + ") for " + QNameHelper.readable(sType));
@@ -134,6 +138,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             BigDecimal m = ((XmlObjectBase)mini).bigDecimalValue();
             if (v.compareTo(m) < 0)
             {
+                // KHK: cvc-minInclusive-valid.1
                 context.invalid(
                     "Decimal (" + v + ") is less than " +
                         "min inclusive facet (" + m + ") for " + QNameHelper.readable(sType));
@@ -148,6 +153,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             BigDecimal m = ((XmlObjectBase)maxi).bigDecimalValue();
             if (v.compareTo(m) > 0)
             {
+                // KHK: cvc-maxInclusive-valid.1
                 context.invalid(
                     "Decimal (" + v + ") is greater than " +
                         "max inclusive facet (" + m + ") for " + QNameHelper.readable(sType));
@@ -162,6 +168,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             BigDecimal m = ((XmlObjectBase)maxe).bigDecimalValue();
             if (v.compareTo(m) >= 0)
             {
+                // KHK: cvc-maxExclusive-valid.1
                 context.invalid(
                     "Decimal (" + v + ") is greater than or equal to " +
                         "max exclusive facet (" + m + ") for " + QNameHelper.readable(sType));
@@ -176,6 +183,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             for (int i = 0; i < vals.length; i++)
                 if (v.equals(((XmlObjectBase)vals[i]).bigDecimalValue()))
                     return;
+            // KHK: cvc-enumeration-valid
             context.invalid("Decimal (" + v + ") does not match any enumeration values for " + QNameHelper.readable(sType));
         }
     }

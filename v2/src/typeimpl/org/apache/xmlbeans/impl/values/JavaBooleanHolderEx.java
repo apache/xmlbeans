@@ -37,6 +37,7 @@ public abstract class JavaBooleanHolderEx extends JavaBooleanHolder
     
     public static void validatePattern(String v, SchemaType sType, ValidationContext context)
     {
+        // KHK: cvc-pattern-valid
         // the only new facet that can apply to booleans is pattern!
         if (!sType.matchPatternFacet(v))
             context.invalid("Boolean (" + v + ") does not match pattern for " + QNameHelper.readable(sType));

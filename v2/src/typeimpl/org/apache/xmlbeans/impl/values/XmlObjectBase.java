@@ -349,6 +349,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             {
                 if (properties[i].getMinOccurs().signum() > 0)
                 {
+                    // KHK: error code?
                     if (properties[i].isAttribute())
                         watcher.add(XmlError.forObject("Missing required attribute " + QNameHelper.pretty(properties[i].getName()), this));
                     else

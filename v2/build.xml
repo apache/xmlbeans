@@ -340,6 +340,13 @@
       </classpath>
     </javac>
 
+    <!-- Need properties files for XmlError -->
+    <copy
+      todir="build/classes/xmlpublic">
+      <fileset dir="src/xmlpublic">
+        <include name="**/*.properties"/>
+      </fileset>
+    </copy>
   </target>
 
   <target name="xmlpublic.jar" depends="dirs, xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
