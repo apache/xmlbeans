@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
 
 interface SchemaTypeLoaderProvider
 {
@@ -25,5 +26,6 @@ interface SchemaTypeLoaderProvider
      * @return the SchemaTypeLoader
      * @throws IllegalStateException  if schema type system not available
      */
-    SchemaTypeLoader getSchemaTypeLoader();
+    SchemaTypeLoader getSchemaTypeLoader()
+        throws XmlException;
 }

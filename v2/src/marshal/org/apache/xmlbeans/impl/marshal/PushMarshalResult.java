@@ -294,7 +294,17 @@ abstract class PushMarshalResult
     public void visit(SoapArrayRuntimeBindingType soapArrayRuntimeBindingType)
         throws XmlException
     {
-        throw new AssertionError("UNIMP");
+        final RuntimeBindingProperty elem_prop =
+            soapArrayRuntimeBindingType.getElementProperty();
+
+        //REVIEW: consider direct array access
+        final Iterator itr = ArrayUtils.getCollectionIterator(currObject);
+        while (itr.hasNext()) {
+            final Object item = itr.next();
+            final RuntimeBindingType actual_rtt =
+                elem_prop.getActualRuntimeType(item, this);
+            marshalType(item, elem_prop, actual_rtt);
+        }
     }
 
     public void visit(ListArrayRuntimeBindingType listArrayRuntimeBindingType)

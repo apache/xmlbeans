@@ -402,7 +402,27 @@ final class SoapMarshallerImpl
         public void visit(SoapArrayRuntimeBindingType soapArrayRuntimeBindingType)
             throws XmlException
         {
-            throw new AssertionError("UNIMP");
+            final Object curr_obj = currObject;
+            final RuntimeBindingProperty curr_prop = currProp;
+
+            if (initialVisit(curr_obj, curr_prop)) {
+                return;
+            }
+
+            final RuntimeBindingProperty elem_prop =
+                soapArrayRuntimeBindingType.getElementProperty();
+
+            if (elem_prop.getRuntimeBindingType().isJavaPrimitive()) return;
+
+
+            //REVIEW: consider direct array access
+            final Iterator itr = ArrayUtils.getCollectionIterator(curr_obj);
+            while (itr.hasNext()) {
+                final Object item = itr.next();
+                setCurrObject(item, elem_prop);
+                elem_prop.getActualRuntimeType(item, marshalResult).accept(this);
+            }
+            setCurrObject(curr_obj, curr_prop);
         }
 
         public void visit(ListArrayRuntimeBindingType listArrayRuntimeBindingType)

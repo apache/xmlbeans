@@ -46,6 +46,18 @@ public class MySubClass
     }
 
 
+//    public String[][][][] quadStringArray = newQuadStringArray();
+    public String[][][][] quadStringArray = null;
+
+    private String[][][][] newQuadStringArray()
+    {
+        String[][][][] qs = new String[2][3][4][5];
+        qs[1][1][1][1] = "1-1-1-1";
+        qs[1][1][2][3] = "1-1-2-3";
+        return qs;
+    }
+
+
     public boolean equals(Object o)
     {
         if (this == o) return true;

@@ -33,19 +33,17 @@ final class TylarSchemaTypeLoaderProvider
     }
 
     public SchemaTypeLoader getSchemaTypeLoader()
+        throws XmlException
     {
         if (schemaTypeLoader == null) {
             try {
                 schemaTypeLoader = tylar.getSchemaTypeLoader();
-                //TODO: clean up this error handling
-                //REVIEW - Scott: this method throws now, not sure how you
-                //want to handle it.
             }
             catch (IOException ioe) {
-                ioe.printStackTrace();
+                throw new XmlException(ioe);
             }
             catch (XmlException xe) {
-                xe.printStackTrace();
+                throw new XmlException(xe);
             }
         }
         assert schemaTypeLoader != null;
