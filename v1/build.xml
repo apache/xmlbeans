@@ -123,13 +123,12 @@
       <arg line="build/ar/xbean.jar build/private/lib/oldxbean.jar"/>
     </java>
 
-    <!-- when everything succeeds, check out oldxbean.jar from perforce -->
+    <!-- when everything succeeds, copy oldxbean.jar to external/lib -->
     <echo message="==================================="/>
     <echo message="Results match! Bootstrap succeeded."/>
     <echo message="==================================="/>
     <echo message="Attempting to copy oldxbean.jar"/>
     <echo message="If the copy fails, you must check out oldxbean.jar"/>
-    <!-- copy oldxbean.jar whether or not perforce succeeded -->
     <echo message="overwriting old external/lib/oldxbean.jar"/>
     <copy file="build/private/lib/oldxbean.jar" tofile="external/lib/oldxbean.jar"/>
   </target>

@@ -130,7 +130,7 @@ Where to start?
     with the code.  Also, try reading some of our 
     docs that are included in ./docs
 
-(3) Try some of the other utilities; you can also see a few
+(4) Try some of the other utilities; you can also see a few
     examples of XMLBean techniques in their source code.
 
     1. "xpretty instance.xml" pretty-prints an XML instance

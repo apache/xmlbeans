@@ -41,7 +41,7 @@ to test and run.
 
 
 Other targets:
-  ant build: builds public jars that are used for compiling other bits of wlw
+  ant build: builds the public interface jars so other dependencies can compile
   ant deploy: builds xbean.jar too
   ant drt: builds drt tests too
   ant bootstrap: builds xbean.jar, then builds it again using itself.
