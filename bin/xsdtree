@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# Invokes type hierarchy printer
+
+cp=
+cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar:$XMLBEANS_HOME/build/lib/resolver.jar
+
+case "`uname`" in
+    CYGWIN*)
+        cp=`cygpath -w -p $cp`
+        ;;
+esac
+
+java -Xmx256m -classpath $cp org.apache.xmlbeans.impl.tool.TypeHierarchyPrinter $*

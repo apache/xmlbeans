@@ -42,7 +42,7 @@ public class TypeHierarchyPrinter
     public static void printUsage()
     {
         System.out.println("Prints inheritance hierarchy of types defined in a schema.");
-        System.out.println("Usage: xsdtree [-noanon] [-nopvr] [-noupa] [-license] file1.xsd file2.xsd ...");
+        System.out.println("Usage: xsdtree [-noanon] [-nopvr] [-noupa] [-partial] [-license] file1.xsd file2.xsd ...");
     }
 
     public static void main(String[] args) throws Exception
@@ -56,6 +56,7 @@ public class TypeHierarchyPrinter
         flags.add("noanon");
         flags.add("noupr");
         flags.add("noupa");
+        flags.add("partial");
 
         CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
@@ -98,6 +99,7 @@ public class TypeHierarchyPrinter
         boolean noanon = (cl.getOpt("noanon") != null);
         boolean nopvr = (cl.getOpt("nopvr") != null);
         boolean noupa = (cl.getOpt("noupa") != null);
+        boolean partial = (cl.getOpt("partial") != null);
         
         File[] schemaFiles = cl.getFiles();
         
@@ -130,6 +132,8 @@ public class TypeHierarchyPrinter
             schemaOptions.setCompileNoPvrRule();
         if (noupa)
             schemaOptions.setCompileNoUpaRule();
+        if (partial)
+            schemaOptions.put("COMPILE_PARTIAL_TYPESYSTEM");
         
         try
         {
@@ -137,12 +141,20 @@ public class TypeHierarchyPrinter
         }
         catch (XmlException e)
         {
-            System.out.println("Schema invalid");
+            System.out.println("Schema invalid:" + (partial ? " couldn't recover from errors" : ""));
             if (compErrors.isEmpty())
                 System.out.println(e.getMessage());
             else for (Iterator i = compErrors.iterator(); i.hasNext(); )
                 System.out.println(i.next());
             return;
+        }
+        
+        // step 2.5: recovered from errors, print out errors
+        if (partial && !compErrors.isEmpty())
+        {
+            System.out.println("Schema invalid: partial schema type system recovered");
+            for (Iterator i = compErrors.iterator(); i.hasNext(); )
+                System.out.println(i.next());
         }
         
         // step 3: go through all the types, and note their base types and namespaces

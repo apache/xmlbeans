@@ -200,7 +200,7 @@ public class StscSimpleTypeResolver
             errorLoc = parseList.xgetItemType();
             if (itemImpl == null)
             {
-                state.notFoundError(itemName, SchemaType.TYPE, parseList.xgetItemType());
+                state.notFoundError(itemName, SchemaType.TYPE, parseList.xgetItemType(), true);
                 // recovery: treat it as a list of anySimpleType
                 itemImpl = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }
@@ -307,7 +307,7 @@ public class StscSimpleTypeResolver
                 SchemaTypeImpl memberImpl = state.findGlobalType(mName, sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
                 if (memberImpl == null)
                     // recovery: skip member
-                    state.notFoundError(mName, SchemaType.TYPE, parseUnion.xgetMemberTypes());
+                    state.notFoundError(mName, SchemaType.TYPE, parseUnion.xgetMemberTypes(), true);
                 else
                     memberImplList.add(memberImpl);
             }
@@ -443,7 +443,7 @@ public class StscSimpleTypeResolver
             }
             if (baseImpl == null)
             {
-                state.notFoundError(baseName, SchemaType.TYPE, parseRestr.xgetBase());
+                state.notFoundError(baseName, SchemaType.TYPE, parseRestr.xgetBase(), true);
                 // recovery: treat it as an extension of anySimpleType
                 baseImpl = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }

@@ -381,7 +381,7 @@ public class StscComplexTypeResolver
             }
             
             if (baseType == null)
-                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase(), true);
         }
 
         if (baseType == null)
@@ -509,7 +509,7 @@ public class StscComplexTypeResolver
                 baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), targetNamespace);
             }
             if (baseType == null)
-                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase(), true);
         }
 
         // Recursion
@@ -521,7 +521,7 @@ public class StscComplexTypeResolver
 
         if (baseType != null && (baseType.isSimpleType() || baseType.getContentType() == SchemaType.SIMPLE_CONTENT))
         {
-            state.error(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$COMPLEX_CONTENT,
+            state.recover(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$COMPLEX_CONTENT,
                 new Object[] { QNameHelper.pretty(baseType.getName()) },
                 parseTree.xgetBase());
             baseType = null; // recovery: no inheritance.
@@ -655,7 +655,7 @@ public class StscComplexTypeResolver
             }
             if (baseType == null)
             {
-                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase(), true);
                 // recovery: extends ANY_SIMPLE type
                 baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }
@@ -667,7 +667,7 @@ public class StscComplexTypeResolver
         if (baseType.isSimpleType())
         {
             // src-ct.2: complex types with simple content cannot restrict simple types
-            state.error(XmlErrorCodes.COMPLEX_TYPE_PROPERTIES$SIMPLE_TYPE_EXTENSION,
+            state.recover(XmlErrorCodes.COMPLEX_TYPE_PROPERTIES$SIMPLE_TYPE_EXTENSION,
                 new Object[] { QNameHelper.pretty(baseType.getName()) },
                 parseTree);
             // recovery: extends ANY_SIMPLE type
@@ -776,7 +776,7 @@ public class StscComplexTypeResolver
             }
             if (baseType == null)
             {
-                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase());
+                state.notFoundError(parseTree.getBase(), SchemaType.TYPE, parseTree.xgetBase(), true);
                 // recovery: extends ANY_SIMPLE type
                 baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
             }
@@ -1066,7 +1066,7 @@ public class StscComplexTypeResolver
                     }
                     if (group == null)
                     {
-                        state.notFoundError(ref, SchemaType.ATTRIBUTE_GROUP, xsdag.xgetRef());
+                        state.notFoundError(ref, SchemaType.ATTRIBUTE_GROUP, xsdag.xgetRef(), false);
                         continue;
                     }
                     if (state.isProcessing(group))
@@ -1284,7 +1284,7 @@ public class StscComplexTypeResolver
                 }
                 if (group == null)
                 {
-                    state.notFoundError(ref, SchemaType.MODEL_GROUP, ((Group)parseTree).xgetRef());
+                    state.notFoundError(ref, SchemaType.MODEL_GROUP, ((Group)parseTree).xgetRef(), false);
                     return null;
                 }
                 if (state.isProcessing(group))
