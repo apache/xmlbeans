@@ -26,6 +26,7 @@
     <delete dir='${gen_dir}'/>
     <mkdir dir='${gen_dir}'/>
 
+<!-- skipping parser for now
     <antlr outputdirectory='${gen_dir}' target='${src_dir}/java.g'
            debug='false'>
        <classpath>
@@ -34,6 +35,7 @@
          <pathelement path='${classes_dir}'/>
        </classpath>
     </antlr>
+-->
   </target>
 
   <target name='compile' depends='parser'>
