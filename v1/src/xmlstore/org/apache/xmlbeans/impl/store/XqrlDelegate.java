@@ -30,7 +30,7 @@ public final class XqrlDelegate
         {
             throw
                 new UnsupportedOperationException(
-                    "This operation requires xqrl.jar" );
+                    "This query is too complex to be processed." );
         }
     }
 
@@ -69,7 +69,7 @@ public final class XqrlDelegate
         {
             throw
                 new UnsupportedOperationException(
-                    "This operation requires xqrl.jar" );
+                    "This query is too complex to be processed." );
         }
 
         try
