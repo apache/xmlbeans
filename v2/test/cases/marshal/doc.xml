@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <My:load xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:My="java:com.mytest" xsi:type="My:MyClass">
+    xmlns:My="java:com.mytest" >
 
-    <My:Myelt ignore="someval" My:Attrib="4444.123456789">
+    <My:Myelt ignore="someval" My:Attrib="4444.123456789f">
         <My:MyFloat>111111165.34</My:MyFloat>
-        <My:MyClass>
+        <My:MyClass xsi:type="My:MySubClass">
             <My:Myatt xsi:type="xsd:token">inner-str</My:Myatt>
+
+            <My:BigInt>  7474747474747474747474747474747474  </My:BigInt>
+
         </My:MyClass>
     </My:Myelt>
 
     <!--    test as-if for simple types-->
-    <My:Myatt xsi:nil="0" xsi:type="My:custom-string">some string</My:Myatt>
+    <My:Myatt xsi:nil=" false " xsi:type="My:custom-string">some string</My:Myatt>
 
 </My:load>
 

@@ -54,29 +54,31 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans;
+package com.mytest;
 
-import javax.xml.stream.XMLStreamReader;
-import java.util.Collection;
+import java.math.BigInteger;
 
-/**
- * An UnmarshalContext object represents the state of an unmarshal operation
- * of a given document.  The object is not thread safe and should not be shared
- * amonst threads.  It can however be shared across different invocations of
- * Unmarshaller.unmarshalType() for a given document.
- */
-public interface UnmarshalContext
+public class MySubClass
+    extends MyClass
 {
-    /**
-     * Set the XMLStreamReader object to be used when reading the xml document
-     *
-     * @param reader
-     */
-    void setXmlStream(XMLStreamReader reader);
 
-    /**
-     *
-     * @return  read-only collection of error objects
-     */
-    Collection getErrors();
+    private BigInteger bigInt;
+
+    public BigInteger getBigInt()
+    {
+        return bigInt;
+    }
+
+    public void setBigInt(BigInteger bigInt)
+    {
+        this.bigInt = bigInt;
+    }
+
+    //TODO: clean this up
+    public String toString()
+    {
+        String parent = super.toString();
+        return parent + " AND bigInt=" + bigInt;
+    }
+
 }

@@ -121,7 +121,8 @@ public abstract class BaseBindingLoader implements BindingLoader
 
     protected void addElementFor(JavaTypeName jName, BindingTypeName btName)
     {
-        assert(btName.getXmlName().getComponentType() == XmlTypeName.ELEMENT);
+        assert(btName.getXmlName().getComponentType() == XmlTypeName.ELEMENT) :
+            "not an element: " + btName;
         xmlFromJavaElement.put(jName, btName);
     }
     

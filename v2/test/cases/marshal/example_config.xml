@@ -10,6 +10,33 @@
         <bin:as-xml>t=string@http://www.w3.org/2001/XMLSchema</bin:as-xml>
     </bin:binding-type>
 
+      <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+          <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
+          <bin:javatype>com.mytest.MySubClass</bin:javatype>
+          <bin:qname-property>
+              <bin:xmlcomponent>t=YourClass@java:com.mytest</bin:xmlcomponent>
+              <bin:javatype>com.mytest.YourClass</bin:javatype>
+              <bin:getter>getMyelt</bin:getter>
+              <bin:setter>setMyelt</bin:setter>
+              <bin:qname>java:Myelt</bin:qname>
+          </bin:qname-property>
+          <bin:qname-property>
+              <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+              <bin:javatype>java.lang.String</bin:javatype>
+              <bin:getter>getMyatt</bin:getter>
+              <bin:setter>setMyatt</bin:setter>
+              <bin:qname>java:Myatt</bin:qname>
+              <bin:nillable>true</bin:nillable>
+          </bin:qname-property>
+          <bin:qname-property>
+              <bin:xmlcomponent>t=integer@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+              <bin:javatype>java.math.BigInteger</bin:javatype>
+              <bin:getter>getBigInt</bin:getter>
+              <bin:setter>setBigInt</bin:setter>
+              <bin:qname>java:BigInt</bin:qname>
+          </bin:qname-property>
+      </bin:binding-type>
+
     <bin:binding-type xsi:type="bin:by-name-bean" >
       <bin:xmlcomponent>t=YourClass@java:com.mytest</bin:xmlcomponent>
       <bin:javatype>com.mytest.YourClass</bin:javatype>
@@ -117,6 +144,11 @@
       <bin:javatype>java.lang.String</bin:javatype>
     </bin:mapping>
 
+    <bin:mapping>
+        <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
+        <bin:javatype>com.mytest.MySubClass</bin:javatype>
+    </bin:mapping>
+
   </bin:xml-to-pojo>
 
   <bin:xml-to-xmlobj/>
@@ -129,11 +161,18 @@
       <bin:xmlcomponent>t=MyClass@java:com.mytest</bin:xmlcomponent>
       <bin:javatype>com.mytest.MyClass</bin:javatype>
     </bin:mapping>
+
+      <bin:mapping>
+          <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
+          <bin:javatype>com.mytest.MySubClass</bin:javatype>
+      </bin:mapping>
+
   </bin:java-to-xml>
   <bin:java-to-element>
     <bin:mapping>
       <bin:xmlcomponent>e=load@java:com.mytest</bin:xmlcomponent>
       <bin:javatype>com.mytest.MyClass</bin:javatype>
     </bin:mapping>
+
   </bin:java-to-element>
 </bin:binding-config>

@@ -57,6 +57,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 /**
  * Basic XmlStreamReader based impl that can handle converting
@@ -75,6 +76,10 @@ abstract class BaseSimpleTypeConverter
     {
         try {
             return getObject(context);
+        }
+        catch(InvalidLexicalValueException ilve) {
+            context.addError(ilve.getMessage());
+            throw ilve;
         }
         finally {
             assert context.isEndElement();

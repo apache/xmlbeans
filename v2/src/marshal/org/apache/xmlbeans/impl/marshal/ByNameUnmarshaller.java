@@ -128,9 +128,9 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
             prop.fill(inter, prop_val);
         }
         catch (InvalidLexicalValueException ilve) {
-            //TODO: add location information
-            XmlError err = XmlError.forMessage(ilve.getMessage());
-            context.getErrorCollection().add(err);
+            //error messages should have been added to the context by this
+            //point, so we'll just skip calling any setters and keep on going
+            assert !context.getErrors().isEmpty();
         }
     }
 
@@ -147,9 +147,9 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
             prop.fill(inter, prop_val);
         }
         catch (InvalidLexicalValueException ilve) {
-            //TODO: add location information
-            XmlError err = XmlError.forMessage(ilve.getMessage());
-            context.getErrorCollection().add(err);
+            //error messages should have been added to the context by this
+            //point, so we'll just skip calling any setters and keep on going
+            assert !context.getErrors().isEmpty();
         }
     }
 

@@ -11,6 +11,7 @@ import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.UnmarshalContext;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
@@ -34,6 +35,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
+import java.util.Collection;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
@@ -488,9 +490,13 @@ public class MarshalTests extends TestCase
         }
 
         Object obj = unmarshaller.unmarshallType(schemaType, javaType, ctx);
-
-
+        final Collection errors = ctx.getErrors();
+        for (Iterator itr = errors.iterator(); itr.hasNext();) {
+            System.out.println("ERROR: " + itr.next());
+        }
         System.out.println("+++++TYPE obj = " + obj);
+
+        Assert.assertTrue(errors.isEmpty());
     }
 
     public void DISABLED_testPerfByNameBeanUnmarshall()

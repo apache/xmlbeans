@@ -62,6 +62,7 @@ import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.UnmarshalContext;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
@@ -71,11 +72,13 @@ import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.Location;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Collections;
 
 /**
  * An UnmarshalContext holds the mutable state using by an Unmarshaller
@@ -135,6 +138,11 @@ final class UnmarshalContextImpl
         updateAttributeState();
     }
 
+    public Collection getErrors()
+    {
+        return Collections.unmodifiableCollection(errors);
+    }
+
     private static XMLStreamReaderExt createExtendedReader(XMLStreamReader reader)
     {
         if (reader instanceof XMLStreamReaderExt) {
@@ -159,37 +167,33 @@ final class UnmarshalContextImpl
     }
 
 
+    //returns null and updates errors if there was a problem.
     TypeUnmarshaller getTypeUnmarshaller(QName xsi_type)
     {
         XmlTypeName xname = XmlTypeName.forTypeNamed(xsi_type);
         BindingType binding_type =
             bindingLoader.getBindingType(bindingLoader.lookupPojoFor(xname));
         if (binding_type == null) {
-            String msg = "unable to locate binding type for " + xsi_type;
-            throw new XmlRuntimeException(msg);
+            addError("unknown type: " + xsi_type);
+            return null;
         }
         TypeUnmarshaller um =
             typeTable.getTypeUnmarshaller(binding_type);
         if (um == null) {
             String msg = "unable to locate unmarshaller for " +
                 binding_type.getName();
-            throw new XmlRuntimeException(msg);
+            addError(msg);
+            return null;
         }
         return um;
     }
 
-    //package only -- get read/write version of error collection
-
-    /**
-     * package only -- get read/write version of error collection
-     *
-     * @return  read/write version of error collection
-     */
-    Collection getErrorCollection()
+    void addError(String msg)
     {
-        return errors;
+        //TODO: fix this location information!
+        MarshalStreamUtils.addError(errors, msg,
+                                    baseReader.getLocation(), "<unknown>");
     }
-
 
 
     // ======================= xml access methods =======================
@@ -489,8 +493,13 @@ final class UnmarshalContextImpl
 
     private void getXsiAttributes()
     {
-        MarshalStreamUtils.getXsiAttributes(xsiAttributeHolder,
-                                            baseReader, errors);
+        try {
+            MarshalStreamUtils.getXsiAttributes(xsiAttributeHolder,
+                                                baseReader, errors);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
         gotXsiAttributes = true;
     }
 

@@ -57,11 +57,15 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.Location;
 import java.util.Collection;
 
 final class MarshalStreamUtils
@@ -77,8 +81,9 @@ final class MarshalStreamUtils
 
 
     static void getXsiAttributes(XsiAttributeHolder holder,
-                                 XMLStreamReader reader,
+                                 XMLStreamReaderExt reader,
                                  Collection errors)
+        throws XMLStreamException
     {
         assert reader.isStartElement();
 
@@ -89,21 +94,31 @@ final class MarshalStreamUtils
             if (!XSI_NS.equals(reader.getAttributeNamespace(att_idx)))
                 continue;
 
-            final String lname = reader.getAttributeLocalName(att_idx);
-            if (XSI_TYPE_ATTR.equals(lname)) {
-                final String type_str = reader.getAttributeValue(att_idx);
-                holder.xsiType =
-                    XsTypeConverter.lexQName(type_str, errors,
-                                             reader.getNamespaceContext());
-            } else if (XSI_NIL_ATTR.equals(lname)) {
-                final String nil_lex = reader.getAttributeValue(att_idx);
-                holder.hasXsiNil =
-                    XsTypeConverter.lexBoolean(nil_lex, errors);
-            } else if (XSI_SCHEMA_LOCATION_ATTR.equals(lname)) {
-                holder.schemaLocation = reader.getAttributeValue(att_idx);
-            } else if (XSI_NO_NS_SCHEMA_LOCATION_ATTR.equals(lname)) {
-                holder.noNamespaceSchemaLocation =
-                    reader.getAttributeValue(att_idx);
+            try {
+                final String lname = reader.getAttributeLocalName(att_idx);
+                if (XSI_TYPE_ATTR.equals(lname)) {
+                    holder.xsiType = reader.getAttributeQNameValue(att_idx);
+                } else if (XSI_NIL_ATTR.equals(lname)) {
+                    holder.hasXsiNil = reader.getAttributeBooleanValue(att_idx);
+                } else if (XSI_SCHEMA_LOCATION_ATTR.equals(lname)) {
+                    //TODO: apply collapse whitespace facet somehow
+                    holder.schemaLocation =
+                        reader.getAttributeStringValue(att_idx);
+                } else if (XSI_NO_NS_SCHEMA_LOCATION_ATTR.equals(lname)) {
+                    //TODO: apply collapse whitespace facet somehow
+                    holder.noNamespaceSchemaLocation =
+                        reader.getAttributeStringValue(att_idx);
+                }
+            }
+                //nothing should have been assigned, so keep going
+                //TODO: use real location (maybe just pass context to this method).
+            catch (InvalidLexicalValueException ilve) {
+                addError(errors, ilve.getMessage(),
+                         reader.getLocation(), "<unknown>");
+            }
+            catch (IllegalArgumentException iax) {   //thrown by lexBoolean
+                addError(errors, iax.getMessage(),
+                         reader.getLocation(), "<unknown>");
             }
         }
     }
@@ -281,6 +296,19 @@ final class MarshalStreamUtils
         catch (XMLStreamException e) {
             throw new XmlRuntimeException(e);
         }
+    }
+
+    static void addError(Collection errors,
+                         String msg,
+                         Location location,
+                         String sourceName)
+    {
+        final XmlError err = XmlError.forLocation(msg,
+                                                  sourceName,
+                                                  location.getLineNumber(),
+                                                  location.getColumnNumber(),
+                                                  location.getCharacterOffset());
+        errors.add(err);
     }
 
 
