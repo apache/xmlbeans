@@ -22,6 +22,7 @@ import java.math.BigInteger;
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
+import org.apache.xmlbeans.impl.regex.ParseException;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
@@ -684,7 +685,9 @@ public class StscSimpleTypeResolver
             XmlCursor cur = restriction.newCursor();
             for (boolean more = cur.toFirstChild(); more; more = cur.toNextSibling())
             {
-                int code = translateFacetCode(cur.getName());
+                QName facetQName = cur.getName();
+                String facetName = facetQName.getLocalPart();
+                int code = translateFacetCode(facetQName);
                 if (code == -1)
                     continue;
 
@@ -693,7 +696,7 @@ public class StscSimpleTypeResolver
                 if (!facetAppliesToType(code, baseImpl))
                 {
                     state.error(XmlErrorCodes.FACETS_APPLICABLE,
-                        new Object[] { facet.newCursor().getName().getLocalPart(), QNameHelper.pretty(baseImpl.getName()) }, facet);
+                        new Object[] { facetName, QNameHelper.pretty(baseImpl.getName()) }, facet);
                     continue;
                 }
                 if (seenFacet[code] && !isMultipleFacet(code))
@@ -715,13 +718,12 @@ public class StscSimpleTypeResolver
                         XmlInteger len = StscTranslator.buildNnInteger(facet.getValue());
                         if (len == null)
                         {
-                            // KHK: s4s
                             state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                             continue;
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(len))
                         {
-                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, new Object[] { facetName }, facet);
                             continue;
                         }
                         myFacets[code] = len;
@@ -742,7 +744,7 @@ public class StscSimpleTypeResolver
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(mlen))
                         {
-                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, new Object[] { facetName }, facet);
                             continue;
                         }
                         if (myFacets[SchemaType.FACET_MAX_LENGTH] != null)
@@ -773,7 +775,7 @@ public class StscSimpleTypeResolver
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(dig))
                         {
-                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, new Object[] { facetName }, facet);
                             continue;
                         }
                         if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null)
@@ -793,13 +795,18 @@ public class StscSimpleTypeResolver
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(fdig))
                         {
-                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, new Object[] { facetName }, facet);
                             continue;
                         }
                         if (myFacets[SchemaType.FACET_FRACTION_DIGITS] != null)
                         {
                             if (fdig.compareValue(myFacets[SchemaType.FACET_FRACTION_DIGITS]) > 0)
                                 state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_RESTRICTION, null, facet);
+                        }
+                        if (myFacets[SchemaType.FACET_TOTAL_DIGITS] != null)
+                        {
+                            if (fdig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0)
+                                state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_LE_TOTAL_DIGITS, null, facet);
                         }
                         myFacets[code] = fdig;
                         break;
@@ -820,13 +827,13 @@ public class StscSimpleTypeResolver
                         XmlAnySimpleType limit;
                         try
                         {
-                            limit = baseImpl.newValue(facet.getValue());
+                            limit = baseImpl.newValue(facet.getValue(), true);
                         }
                         catch (XmlValueOutOfRangeException e)
                         {
                             // note: this guarantees that the limit is a valid number in the
                             // base data type!!
-                            state.error("Must be valid value in base type", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                            state.error("Must be valid value in base type: " + e.getMessage(), XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
 
                             // BUGBUG: if there are actual schemas that redefine min/maxExclusive,
                             // they will need this rule relaxed for them!!
@@ -834,7 +841,7 @@ public class StscSimpleTypeResolver
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(limit))
                         {
-                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
+                            state.error(XmlErrorCodes.FACET_FIXED, new Object[] { facetName }, facet);
                             continue;
                         }
                         if (myFacets[code] != null)
@@ -872,13 +879,13 @@ public class StscSimpleTypeResolver
                         XmlObject enumval;
                         try
                         {
-                            enumval = baseImpl.newValue(facet.getValue());
+                            enumval = baseImpl.newValue(facet.getValue(), true);
                             // enumval.set(facet.getValue());
                             // ((XmlObjectBase)enumval).setImmutable();
                         }
                         catch (XmlValueOutOfRangeException e)
                         {
-                            state.error(XmlErrorCodes.DATATYPE_ENUM_RESTRICTION, null, facet);
+                            state.error(XmlErrorCodes.DATATYPE_ENUM_RESTRICTION, new Object[] { facet.getValue().getStringValue(), e.getMessage() }, facet);
                             continue;
                         }
                         if (enumeratedValues == null)
@@ -889,7 +896,7 @@ public class StscSimpleTypeResolver
                     case SchemaType.FACET_PATTERN:
                         RegularExpression p;
                         try { p = new RegularExpression(facet.getValue().getStringValue(), "X"); }
-                        catch (org.apache.xmlbeans.impl.regex.ParseException e)
+                        catch (ParseException e)
                         {
                             state.error(XmlErrorCodes.PATTERN_REGEX, new Object[] { facet.getValue().getStringValue(), e.getMessage() }, facet);
                             continue;
