@@ -341,6 +341,14 @@ public class SchemaCodeGenerator
 
     protected static File createTempDir() throws IOException
     {
+
+// Some beta builds of JDK1.5 are having troubles creating temp directories
+// if the java.io.tmpdir doesn't exist.  This seems to help.
+try {
+  File tmpDirFile = new File(System.getProperty("java.io.tmpdir"));
+  tmpDirFile.mkdirs();
+} catch(Exception e) { e.printStackTrace(); }
+
         File tmpFile = File.createTempFile("xbean", null);
         String path = tmpFile.getAbsolutePath();
         if (!path.endsWith(".tmp"))
