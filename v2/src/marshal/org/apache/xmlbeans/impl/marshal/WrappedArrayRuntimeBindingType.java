@@ -102,7 +102,7 @@ final class WrappedArrayRuntimeBindingType
         elementProperty =
             new WAProperty(wrappedArrayType.getItemName(), item_rtt,
                            typeTable, bindingLoader,
-                           wrappedArrayType.isNillable());
+                           wrappedArrayType.isItemNillable());
 
 
     }

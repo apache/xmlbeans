@@ -205,7 +205,7 @@ public abstract class BindingCompiler extends BindingLogger
     assertCompilationStarted(true);
     BindingLoader builtin =
       (mBuiltinBindingLoader != null) ? mBuiltinBindingLoader :
-        BuiltinBindingLoader.getInstance();
+        BuiltinBindingLoader.getBuiltinBindingLoader(false);
     if (mBaseTylar == null) return builtin;
     BindingLoader[] loaders = new BindingLoader[]
     { mBaseTylar.getBindingLoader(), builtin };
@@ -272,8 +272,7 @@ public abstract class BindingCompiler extends BindingLogger
   }
 
   /**
-   * <p>Sets the builtin binding loader to use.  By default, this is
-   * simply BuiltinBindingLoader.getInstance().  This method should
+   * <p>Sets the builtin binding loader to use. This method should
    * remain protected - user code should not be setting this directly,
    * though they may set it indirectly via, for example, a 'binding style'
    * switch.</p>

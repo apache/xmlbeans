@@ -92,7 +92,7 @@
         <xs:sequence>
           <xs:element name="item-name" type="xs:QName"/>
           <xs:element name="item-type" type="tns:mapping"/>
-          <xs:element name="nillable" type="xs:boolean" default="false" minOccurs="0"/>
+          <xs:element name="item-nillable" type="xs:boolean" default="false" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

@@ -49,12 +49,6 @@ public final class JavaTypeName {
   // Constants
 
   private static String XMLOBJECT_CLASSNAME = XmlObject.class.getName();
-  private static String[] PRIMITIVE_TYPES =
-  {"int", "boolean", "float", "long", "double", "short", "char"};
-  private static String[] BOXED_TYPES =
-  {"java.lang.Integer", "java.lang.Boolean", "java.lang.Float",
-   "java.lang.Long", "java.lang.Double", "java.lang.Short",
-   "java.lang.Character"};
 
   // ========================================================================
   // Variables
@@ -113,18 +107,6 @@ public final class JavaTypeName {
     return forString(itemType.toString() + arrayBrackets);
   }
 
-
-  /**
-   * Builds a JavaTypeName for the boxed type corresponding to the
-   * given JavaTypeName.
-   */
-  public static JavaTypeName forBoxed(JavaTypeName type) {
-    // We could use a map here and initialize it on first use
-    for (int i = 0; i < PRIMITIVE_TYPES.length; i++)
-      if (PRIMITIVE_TYPES[i].equals(type.toString()))
-        return forString(BOXED_TYPES[i]);
-    return null;
-  }
 
 
   /**

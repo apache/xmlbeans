@@ -257,7 +257,7 @@
                 <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
                 <bin:javatype>java.lang.String</bin:javatype>
             </bin:item-type>
-            <bin:nillable>true</bin:nillable>
+            <bin:item-nillable>true</bin:item-nillable>
         </bin:binding-type>
 
         <bin:binding-type xsi:type="bin:wrapped-array">

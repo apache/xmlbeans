@@ -159,7 +159,9 @@ final class RuntimeBindingTypeTable
                                JavaTypeName jName,
                                TypeConverter converter)
     {
-        final BindingLoader bindingLoader = BuiltinBindingLoader.getInstance();
+        // todo(radup) save the "jaxRpc" setting in the binding file and
+        // load it from there
+        final BindingLoader bindingLoader = BuiltinBindingLoader.getBuiltinBindingLoader(false);
 
         QName xml_type = new QName(XSD_NS, xsdType);
         XmlTypeName xName = XmlTypeName.forTypeNamed(xml_type);

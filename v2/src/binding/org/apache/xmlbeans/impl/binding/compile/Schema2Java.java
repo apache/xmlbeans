@@ -64,6 +64,17 @@ public class Schema2Java extends BindingCompiler {
   private BindingFile bindingFile = new BindingFile();
   private JavaOutputStream mJoust = null;
   private CompilingJavaOutputStream mDefaultJoust = null;
+  private boolean mJaxRpcRules;
+
+  // ========================================================================
+  // Constants
+
+  private static String[] PRIMITIVE_TYPES =
+  {"int", "boolean", "float", "long", "double", "short", "char"};
+  private static String[] BOXED_TYPES =
+  {"java.lang.Integer", "java.lang.Boolean", "java.lang.Float",
+   "java.lang.Long", "java.lang.Double", "java.lang.Short",
+   "java.lang.Character"};
 
   // ========================================================================
   // Constructors
@@ -135,6 +146,16 @@ public class Schema2Java extends BindingCompiler {
     getDefaultJoust().setKeepGenerated(b);
   }
 
+  /**
+   * Sets whether the compiler should use the JAX-RPC rules for mapping simple
+   * types and XMLNames to Java. By default, the XMLBeans rules are used,
+   * which are in fact almost identical.
+   */
+  public void setJaxRpcRules(boolean b) {
+    assertCompilationStarted(false);
+    mJaxRpcRules = b;
+  }
+
   // ========================================================================
   // BindingCompiler implementation
 
@@ -190,6 +211,7 @@ public class Schema2Java extends BindingCompiler {
     //sanity check
     if (mJoust == null) throw new IllegalStateException("joust not set");
 
+    setBuiltinBindingLoader(BuiltinBindingLoader.getBuiltinBindingLoader(mJaxRpcRules));
     mLoader = super.getBaseBindingLoader();
 
     // Every type or global element or global attribute is dropped into
@@ -219,7 +241,9 @@ public class Schema2Java extends BindingCompiler {
 
     // 4. fill in the java getter/setter structure of any complex types
     for (Iterator i = scratchIterator(); i.hasNext();) {
-      resolveJavaStructure((Scratch) i.next());
+      Scratch scratch = (Scratch) i.next();
+      resolveJavaStructure(scratch);
+      resolveJavaArray(scratch);
     }
   }
 
@@ -330,14 +354,14 @@ public class Schema2Java extends BindingCompiler {
           if (itemName != null)
               if (nillable)
               {
-                  JavaTypeName boxedName = JavaTypeName.forBoxed(itemName);
-                  if (boxedName != null)
-                      scratch.setJavaName(JavaTypeName.forArray(boxedName, 1));
-                  else
-                      scratch.setJavaName(JavaTypeName.forArray(itemName, 1));
+                JavaTypeName boxedName = getBoxedName(itemName);
+                if (boxedName != null)
+                  scratch.setJavaName(JavaTypeName.forArray(boxedName, 1));
+                else
+                  scratch.setJavaName(JavaTypeName.forArray(itemName, 1));
               }
               else
-                  scratch.setJavaName(JavaTypeName.forArray(itemName, 1));
+                scratch.setJavaName(JavaTypeName.forArray(itemName, 1));
           return;
         }
 
@@ -398,14 +422,14 @@ public class Schema2Java extends BindingCompiler {
           if (contentName != null)
               if (nillable)
               {
-                  JavaTypeName boxedName = JavaTypeName.forBoxed(contentName);
-                  if (boxedName != null)
-                      scratch.setJavaName(boxedName);
-                  else
-                      scratch.setJavaName(contentName);
+                JavaTypeName boxedName = getBoxedName(contentName);
+                if (boxedName != null)
+                  scratch.setJavaName(boxedName);
+                else
+                  scratch.setJavaName(contentName);
               }
               else
-                  scratch.setJavaName(contentName);
+                scratch.setJavaName(contentName);
           return;
         }
 
@@ -440,13 +464,20 @@ public class Schema2Java extends BindingCompiler {
         break;
 
       case Scratch.STRUCT_TYPE:
-        ByNameBean byNameResult = new ByNameBean(btName);
-        scratch.setBindingType(byNameResult);
-        bindingFile.addBindingType(byNameResult, true, true);
+        BindingType structResult;
+        if (scratch.getSchemaType().getContentType() == SchemaType.SIMPLE_CONTENT)
+          structResult = new SimpleContentBean(btName);
+        else
+          structResult = new ByNameBean(btName);
+        scratch.setBindingType(structResult);
+        bindingFile.addBindingType(structResult, true, true);
         break;
 
       case Scratch.LITERALARRAY_TYPE:
-        throw new UnsupportedOperationException();
+        WrappedArrayType arrayResult = new WrappedArrayType(btName);
+        scratch.setBindingType(arrayResult);
+        bindingFile.addBindingType(arrayResult, true, true);
+        break;
 
       case Scratch.SOAPARRAY:
         throw new UnsupportedOperationException();
@@ -491,11 +522,6 @@ public class Schema2Java extends BindingCompiler {
     SchemaType schemaType = scratch.getSchemaType();
     SchemaType baseType = schemaType.getBaseType();
     int derivationType  = schemaType.getDerivationType();
-    if (derivationType == SchemaType.DT_RESTRICTION)
-    {
-        // Derivation type is restriction, so no new properties may be added
-        return;
-    }
     Collection baseProperties = null;
     if (baseType != null)
       baseProperties = extractProperties(baseType);
@@ -522,27 +548,31 @@ public class Schema2Java extends BindingCompiler {
         seenMethodNames.add(prop.getSetterName());
     }
 
-    if (schemaType.getContentType() == SchemaType.SIMPLE_CONTENT &&
-        baseType.isSimpleType())
+    if (schemaType.getContentType() == SchemaType.SIMPLE_CONTENT/* &&
+        baseType.isSimpleType()*/) {
+      // Go up the type hierarchy to find the first simple type ancestor of
+      // this complex type
+      while (!baseType.isSimpleType())
+        baseType = baseType.getBaseType();
+      // we have to add a '_value' property to hold the value corresponding to the
+      // content of the XML elem
+      BindingType bType = extractBindingType(baseType);
+      if (bType == null)
+        throw new IllegalStateException("Type " + baseType.getName() +
+          "not found in type loader");
+      String propName = "_value";
+      SimpleContentProperty prop = new SimpleContentProperty();
+      prop.setSetterName(MethodName.create("set" + propName,
+          bType.getName().getJavaName()));
+      prop.setGetterName(MethodName.create("get" + propName));
+      prop.setBindingType(bType);
+      scratch.addSimpleContentProperty(prop);
+    }
+
+    if (derivationType == SchemaType.DT_RESTRICTION)
     {
-        // we have to add a '_value' property to hold the value corresponding to the
-        // content of the XML elem
-        BindingType bType = extractBindingType(baseType);
-        if (bType == null)
-            throw new IllegalStateException("Type " + baseType.getName() +
-                "not found in type loader");
-        String propName = "_value";
-        QNameProperty prop = new QNameProperty();
-        prop.setQName(null);
-        prop.setAttribute(false);
-        prop.setSetterName(MethodName.create("set" + propName,
-                bType.getName().getJavaName()));
-        prop.setGetterName(MethodName.create("get" + propName));
-        prop.setBindingType(bType);
-        prop.setNillable(false);
-        prop.setOptional(false);
-        prop.setMultiple(false);
-        scratch.addQNameProperty(prop);
+        // Derivation type is restriction, so no new properties may be added
+        return;
     }
 
     // now deal with remaining props
@@ -562,8 +592,8 @@ public class Schema2Java extends BindingCompiler {
         SchemaType sType = props[i].getType();
         BindingType bType = bindingTypeForSchemaType(sType);
         if (bType == null)
-            throw new IllegalStateException("Type " + sType.getName() +
-                "not found in type loader");
+          throw new IllegalStateException("Type " + sType.getName() +
+            "not found in type loader");
 
         String propName = pickUniquePropertyName(props[i].getName(), seenMethodNames);
         boolean isMultiple = isMultiple(props[i]);
@@ -575,19 +605,14 @@ public class Schema2Java extends BindingCompiler {
         prop.setSetterName(MethodName.create("set" + propName,
                                              bType.getName().getJavaName()));
         prop.setGetterName(MethodName.create("get" + propName));
-        prop.setBindingType(bType);
         prop.setNillable(props[i].hasNillable() != SchemaProperty.NEVER);
         prop.setOptional(isOptional(props[i]));
         prop.setMultiple(isMultiple);
         if (prop.isNillable() || prop.isOptional())
-            prop.setBoxedClass(JavaTypeName.forBoxed(bType.getName().getJavaName()));
+          bType = findBoxedType(bType);
+        prop.setBindingType(bType);
         if (prop.isMultiple())
-        {
-            if (prop.getBoxedClass() != null)
-                collection = JavaTypeName.forArray(prop.getBoxedClass(), 1);
-            else
                 collection = JavaTypeName.forArray(bType.getName().getJavaName(), 1);
-        }
         prop.setCollectionClass(collection);
       }
       scratch.addQNameProperty(prop);
@@ -595,11 +620,44 @@ public class Schema2Java extends BindingCompiler {
   }
 
   /**
+   * Resolves a Java array
+   */
+  private void resolveJavaArray(Scratch scratch)
+  {
+    if (scratch.getCategory() != Scratch.LITERALARRAY_TYPE)
+      return;
+
+    if (scratch.isStructureResolved())
+      return;
+
+    scratch.setStructureResolved(true);
+
+    if (!(scratch.getBindingType() instanceof WrappedArrayType))
+      throw new IllegalStateException();
+    WrappedArrayType bType = (WrappedArrayType) scratch.getBindingType();
+    JavaTypeName itemName = scratch.getJavaName().getArrayItemType(1);
+    assert(itemName != null);
+    SchemaType sType = getLiteralArrayItemType(scratch.getSchemaType());
+    assert sType != null : "This was already checked and determined to be non-null";
+    SchemaProperty prop = scratch.getSchemaType().getProperties()[0];
+    bType.setItemName(prop.getName());
+    BindingType itemType = bindingTypeForSchemaType(sType);
+    if (itemType == null)
+      throw new IllegalStateException("Type " + sType.getName() +
+        " not found in type loader");
+
+    bType.setItemNillable(prop.hasNillable() != SchemaProperty.NEVER);
+    if (bType.isItemNillable())
+      itemType = findBoxedType(itemType);
+    bType.setItemType(itemType.getName());
+  }
+
+  /**
    * Picks a property name without colliding with names of
    * previously picked getters and setters.
    */
   private String pickUniquePropertyName(QName name, Set seenMethodNames) {
-    String baseName = NameUtil.upperCamelCase(name.getLocalPart());
+    String baseName = NameUtil.upperCamelCase(name.getLocalPart(), mJaxRpcRules);
     String propName = baseName;
     for (int i = 1; ; i += 1) {
       String getter = "get" + propName;
@@ -643,14 +701,22 @@ public class Schema2Java extends BindingCompiler {
 
     // case 2: it's in the mLoader
     BindingType bType = mLoader.getBindingType(mLoader.lookupPojoFor(XmlTypeName.forSchemaType(sType)));
-    if (!(bType instanceof ByNameBean)) {
-      return null;
-    }
+
     Collection result = new ArrayList();
-    ByNameBean bnb = (ByNameBean) bType;
-    for (Iterator i = bnb.getProperties().iterator(); i.hasNext();) {
-      result.add(i.next());
+    if (bType instanceof ByNameBean) {
+      ByNameBean bnb = (ByNameBean) bType;
+      for (Iterator i = bnb.getProperties().iterator(); i.hasNext();) {
+        result.add(i.next());
+      }
     }
+    else if (bType instanceof SimpleContentBean) {
+      SimpleContentBean scb = (SimpleContentBean) bType;
+      for (Iterator i = scb.getAttributeProperties().iterator(); i.hasNext();) {
+        result.add(i.next());
+      }
+    }
+    else
+      return null;
 
     return result;
   }
@@ -669,6 +735,73 @@ public class Schema2Java extends BindingCompiler {
             forSchemaType(sType)));
 
     return bType;
+  }
+
+  private JavaTypeName getBoxedName(JavaTypeName jName)
+  {
+    // We could use a map here and initialize it on first use
+    for (int i = 0; i < PRIMITIVE_TYPES.length; i++)
+      if (PRIMITIVE_TYPES[i].equals(jName.toString()))
+        return JavaTypeName.forString(BOXED_TYPES[i]);
+
+    return null;
+  }
+
+  /**
+   * Returns the boxed version of the given binding type
+   */
+  private BindingType findBoxedType(BindingType type)
+  {
+    BindingTypeName btName = type.getName();
+    JavaTypeName javaName = btName.getJavaName();
+    BindingType result = null;
+    JavaTypeName boxedJavaName = getBoxedName(javaName);
+    if (boxedJavaName != null)
+    {
+      // This is a primitive type
+      BindingTypeName boxedName = BindingTypeName.forPair(boxedJavaName, btName.getXmlName());
+      // If the type is in the current scratch area, create a new boxed type
+      if (scratchForXmlName(btName.getXmlName()) != null)
+      {
+        result = bindingFile.getBindingType(boxedName);
+        if (result == null)
+        {
+          result = changeJavaName((SimpleBindingType) type, boxedName);
+          bindingFile.addBindingType(result, false, false);
+        }
+        return result;
+      }
+      // If this is a type available on the mLoader, try to locate
+      // the boxed type corresponding to it.
+      result = mLoader.getBindingType(boxedName);
+      if (result != null)
+        return result;
+      
+      // Type is not in the current scratch area nor on the mLoader
+      // We create it and add it to the file
+      result = bindingFile.getBindingType(boxedName);
+      if (result == null)
+      {
+        result = changeJavaName((SimpleBindingType) type, boxedName);
+        bindingFile.addBindingType(result, false, false);
+      }
+      return result;
+    }
+
+    return type;
+  }
+
+  /**
+   * Creates a new binding type based on the given binding type and bearing the
+   * new JavaTypeName. This is necessary to created boxed versions of
+   * binding types based on Java primitive types.
+   */
+  private BindingType changeJavaName(SimpleBindingType bType, BindingTypeName btName)
+  {
+    SimpleBindingType result = new SimpleBindingType(btName);
+    result.setAsIfXmlType(bType.getAsIfXmlType());
+    result.setWhitespace(bType.getWhitespace());
+    return result;
   }
 
   /**
@@ -754,7 +887,7 @@ public class Schema2Java extends BindingCompiler {
       sType = sType.getOuterType();
     }
 
-    String baseName = NameUtil.getClassNameFromQName(qname);
+    String baseName = NameUtil.getClassNameFromQName(qname, mJaxRpcRules);
     String pickedName = baseName;
 
     for (int i = 1; usedNames.contains(pickedName.toLowerCase()); i += 1)
@@ -943,15 +1076,35 @@ public class Schema2Java extends BindingCompiler {
     }
 
     public void addQNameProperty(QNameProperty prop) {
-      if (!(bindingType instanceof ByNameBean))
+      if (bindingType instanceof ByNameBean)
+        ((ByNameBean) bindingType).addProperty(prop);
+      else if (bindingType instanceof SimpleContentBean)
+        ((SimpleContentBean) bindingType).addProperty(prop);
+      else
         throw new IllegalStateException();
-      ((ByNameBean) bindingType).addProperty(prop);
     }
 
     public Collection getQNameProperties() {
-      if (!(bindingType instanceof ByNameBean))
+      if (bindingType instanceof ByNameBean)
+        return ((ByNameBean) bindingType).getProperties();
+      else if (bindingType instanceof SimpleContentBean)
+        return ((SimpleContentBean) bindingType).getAttributeProperties();
+      else
         throw new IllegalStateException();
-      return ((ByNameBean) bindingType).getProperties();
+    }
+
+    public void addSimpleContentProperty(SimpleContentProperty prop) {
+      if (bindingType instanceof SimpleContentBean)
+        ((SimpleContentBean) bindingType).setSimpleContentProperty(prop);
+      else
+        throw new IllegalStateException();
+    }
+
+    public SimpleContentProperty getSimpleContentProperty() {
+      if (bindingType instanceof SimpleContentBean)
+        return ((SimpleContentBean) bindingType).getSimpleContentProperty();
+      else
+        return null;
     }
 
     public boolean isStructureResolved() {
@@ -1116,9 +1269,20 @@ public class Schema2Java extends BindingCompiler {
     mJoust.startFile(packageName, shortClassName);
     mJoust.writeComment("Generated from schema type " + scratch.getXmlName());
     mJoust.startClass(Modifier.PUBLIC, baseJavaname, null);
+
+    Set seenFieldNames = new HashSet();
+    // Write out the special "_value" property, if needed
+    SimpleContentProperty scprop = scratch.getSimpleContentProperty();
+    if (scprop != null) {
+      String fieldName = pickUniqueFieldName(scprop.getGetterName().getSimpleName(),
+        seenFieldNames);
+      JavaTypeName jType = scprop.getTypeName().getJavaName();
+      addJavaBeanProperty(fieldName, jType.toString(),
+        scprop.getGetterName().getSimpleName(), scprop.getSetterName().getSimpleName());
+    }
+
     Collection props = scratch.getQNameProperties();
     Map fieldNames = new HashMap();
-    Set seenFieldNames = new HashSet();
 
     // pick field names
     for (Iterator i = props.iterator(); i.hasNext();) {
@@ -1131,35 +1295,13 @@ public class Schema2Java extends BindingCompiler {
     for (Iterator i = props.iterator(); i.hasNext();) {
       QNameProperty prop = (QNameProperty) i.next();
       JavaTypeName jType = prop.getTypeName().getJavaName();
-      if (prop.getBoxedClass() != null) {
-        jType = prop.getBoxedClass();
-      }
+
       if (prop.getCollectionClass() != null) {
         jType = prop.getCollectionClass();
       }
       String fieldName = (String) fieldNames.get(prop);
-      // declare the field
-      Variable propertyField =
-              mJoust.writeField(Modifier.PRIVATE,
-                                jType.toString(),
-                                fieldName,
-                                null);
-      //write getter
-      mJoust.startMethod(Modifier.PUBLIC,
-                         jType.toString(),
-                         prop.getGetterName().getSimpleName(),
-                         null, null, null);
-      mJoust.writeReturnStatement(propertyField);
-      mJoust.endMethodOrConstructor();
-      //write setter
-      Variable[] params = mJoust.startMethod(Modifier.PUBLIC,
-                                             "void",
-                                             prop.getSetterName().getSimpleName(),
-                                             new String[]{jType.toString()},
-                                             new String[]{fieldName},
-                                             null);
-      mJoust.writeAssignmentStatement(propertyField, params[0]);
-      mJoust.endMethodOrConstructor();
+      addJavaBeanProperty(fieldName, jType.toString(),
+        prop.getGetterName().getSimpleName(), prop.getSetterName().getSimpleName());
     }
     mJoust.endClassOrInterface();
     mJoust.endFile();
@@ -1174,11 +1316,39 @@ public class Schema2Java extends BindingCompiler {
       baseName = "field";
 
     String fieldName = baseName;
+    if (!NameUtil.isValidJavaIdentifier(fieldName))
+      fieldName = "_" + fieldName;
     for (int i = 1; seenNames.contains(fieldName); i += 1)
       fieldName = baseName + i;
 
     seenNames.add(fieldName);
     return fieldName;
+  }
+
+  private void addJavaBeanProperty(String name, String type, String getter, String setter)
+    throws IOException {
+    // declare the field
+    Variable propertyField =
+            mJoust.writeField(Modifier.PRIVATE,
+                              type,
+                              name,
+                              null);
+    //write getter
+    mJoust.startMethod(Modifier.PUBLIC,
+                       type,
+                       getter,
+                       null, null, null);
+    mJoust.writeReturnStatement(propertyField);
+    mJoust.endMethodOrConstructor();
+    //write setter
+    Variable[] params = mJoust.startMethod(Modifier.PUBLIC,
+                                           "void",
+                                           setter,
+                                           new String[]{type},
+                                           new String[]{name},
+                                           null);
+    mJoust.writeAssignmentStatement(propertyField, params[0]);
+    mJoust.endMethodOrConstructor();
   }
 
 
@@ -1199,6 +1369,7 @@ public class Schema2Java extends BindingCompiler {
                                   null);
       Schema2Java s2j = new Schema2Java(sts);
       s2j.setVerbose(true);
+      s2j.setJaxRpcRules(true);
       TylarWriter tw = new DebugTylarWriter();
       s2j.bind(tw);
       tw.close();
