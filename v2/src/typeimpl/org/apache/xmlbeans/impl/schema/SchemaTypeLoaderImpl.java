@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.IdentityHashMap;
 
+import java.lang.ref.SoftReference;
+
 public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 {
     private ResourceLoader _resourceLoader;
@@ -52,31 +54,52 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     private Map _documentCache;
     private Map _classnameCache;
 
-    private static SchemaTypeLoaderImpl buildContextTypeLoader()
+    // The following maintains a cache of SchemaTypeLoaders per ClassLoader per Thread.
+    // I use soft references to allow the garbage collector to reclain the type loaders
+    // and/pr class loaders at will.
+
+    private static ThreadLocal _cachedTypeSystems =
+        new ThreadLocal() { protected Object initialValue() { return new ArrayList(); } };
+
+    public static SchemaTypeLoaderImpl getContextTypeLoader ( )
     {
-        return new SchemaTypeLoaderImpl(new SchemaTypeLoader[] { BuiltinSchemaTypeSystem.get() } , null, Thread.currentThread().getContextClassLoader());
-    }
+        ClassLoader cl = Thread.currentThread().getContextClassLoader();
 
-    private static ThreadLocal _threadTypeSystems =
-        new ThreadLocal()
+        ArrayList a = (ArrayList) _cachedTypeSystems.get();
+
+        int candidate = -1;
+        SchemaTypeLoaderImpl result = null;
+
+        for ( int i = 0 ; i < a.size() ; i++ )
         {
-            protected Object initialValue() { return new HashMap(); }
-        };
+            SchemaTypeLoaderImpl tl = (SchemaTypeLoaderImpl) ((SoftReference) a.get( i )).get();
 
-    public static SchemaTypeLoaderImpl getContextTypeLoader()
-    {
-        HashMap candidates = (HashMap) _threadTypeSystems.get();
-        ClassLoader threadContextClassLoader = Thread.currentThread().getContextClassLoader();
-        SchemaTypeLoaderImpl candidate = (SchemaTypeLoaderImpl) candidates.get( threadContextClassLoader );
-
-        if (candidate == null)
-        {
-            candidate = buildContextTypeLoader();
-            candidates.put( threadContextClassLoader, candidate );
+            if (tl == null)
+                a.remove( i-- );
+            else if (tl._classLoader == cl)
+            {
+                candidate = i;
+                result = tl;
+            }
         }
-        return candidate;
+
+        if (candidate == -1)
+        {
+            result =  new SchemaTypeLoaderImpl( new SchemaTypeLoader[] { BuiltinSchemaTypeSystem.get() } , null, cl );
+            a.add( new SoftReference( result ) );
+            candidate = a.size() - 1;
+        }
+
+        if (candidate > 0)
+        {
+            Object t = a.get( 0 );
+            a.set( 0, a.get( candidate ) );
+            a.set( candidate, t );
+        }
+
+        return result;
     }
-    
+
     public static SchemaTypeLoader build(SchemaTypeLoader[] searchPath, ResourceLoader resourceLoader, ClassLoader classLoader)
     {
         if (searchPath == null)
