@@ -99,10 +99,13 @@ public abstract class JamTestBase extends TestCase {
   protected static final String
           DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
 
+  protected static final String DUMMY_EJB = DUMMY+".ejb";
+
   //this array must contain the names of all of the test classes under
   //dummyclasses
   private static final String[] ALL_CLASSES = {
     "DefaultPackageClass",
+    "org.TopLevelPackageClass",
     DUMMY+".ejb.IEnv",
     DUMMY+".ejb.MyEjbException",
     DUMMY+".ejb.TraderEJB",
@@ -247,6 +250,24 @@ public abstract class JamTestBase extends TestCase {
                expected.containsAll(classNames));
   }
 
+  public void testPackageNames()
+  {
+    JClass clazz = resolved(mLoader.loadClass(DUMMY_EJB+".TraderEJB"));
+    JPackage pkg = clazz.getContainingPackage();
+    assertTrue("Expected '"+DUMMY_EJB+"', got '"+pkg.getQualifiedName()+"'",
+               pkg.getQualifiedName().equals(DUMMY_EJB));
+    //
+    clazz = resolved(mLoader.loadClass("DefaultPackageClass"));
+    pkg = clazz.getContainingPackage();
+    assertTrue("Expected '', got '"+pkg.getQualifiedName()+"'",
+               pkg.getQualifiedName().equals(""));
+    //
+    clazz = resolved(mLoader.loadClass("org.TopLevelPackageClass"));
+    pkg = clazz.getContainingPackage();
+    assertTrue("Expected 'org', got '"+pkg.getQualifiedName()+"'",
+               pkg.getQualifiedName().equals("org"));
+  }
+
 
   public void test175Annotations() throws IOException, XMLStreamException {
     JClass clazz = resolved(mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass"));
@@ -360,6 +381,8 @@ public abstract class JamTestBase extends TestCase {
       verifyAnnotationAbsent(ejbBuy,CLASS_ANN);
     }
   }
+
+
 
 
   public void testMultilineTags() {

@@ -396,7 +396,7 @@ public class Java2Schema_new extends BindingCompiler {
       JPackage pkg = clazz.getContainingPackage();
       pkg_name = (pkg == null) ? "" : pkg.getQualifiedName();
       if (pkg_name.startsWith(JAVA_PACKAGE_PREFIX)) {
-        pkg_name = JAVA_NAMESPACE_URI+"."+
+        pkg_name = JAVA_NAMESPACE_URI+'.'+
                 pkg_name.substring(JAVA_PACKAGE_PREFIX.length());
       }
     }
