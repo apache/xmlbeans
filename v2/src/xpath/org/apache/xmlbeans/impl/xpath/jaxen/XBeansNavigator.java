@@ -1,5 +1,60 @@
-package org.apache.xmlbeans.impl.xpath.jaxen;
+/*
+* The Apache Software License, Version 1.1
+*
+*
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
+* reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions
+* are met:
+*
+* 1. Redistributions of source code must retain the above copyright
+*    notice, this list of conditions and the following disclaimer.
+*
+* 2. Redistributions in binary form must reproduce the above copyright
+*    notice, this list of conditions and the following disclaimer in
+*    the documentation and/or other materials provided with the
+*    distribution.
+*
+* 3. The end-user documentation included with the redistribution,
+*    if any, must include the following acknowledgment:
+*       "This product includes software developed by the
+*        Apache Software Foundation (http://www.apache.org/)."
+*    Alternately, this acknowledgment may appear in the software itself,
+*    if and wherever such third-party acknowledgments normally appear.
+*
+* 4. The names "Apache" and "Apache Software Foundation" must
+*    not be used to endorse or promote products derived from this
+*    software without prior written permission. For written
+*    permission, please contact apache@apache.org.
+*
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
+*    written permission of the Apache Software Foundation.
+*
+* THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+* OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+* ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+* USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+* OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+* SUCH DAMAGE.
+* ====================================================================
+*
+* This software consists of voluntary contributions made by many
+* individuals on behalf of the Apache Software Foundation and was
+* originally based on software copyright (c) 2000-2003 BEA Systems
+* Inc., <http://www.bea.com/>. For more information on the Apache Software
+* Foundation, please see <http://www.apache.org/>.
+*/
 
+package org.apache.xmlbeans.impl.xpath.jaxen;
 import org.jaxen.XPath;
 import org.jaxen.Navigator;
 import org.jaxen.DefaultNavigator;
@@ -15,33 +70,45 @@ import org.jaxen.util.SelfAxisIterator;
 import org.jaxen.util.DescendantOrSelfAxisIterator;
 import org.jaxen.util.AncestorOrSelfAxisIterator;
 import org.jaxen.util.SingleObjectIterator;
+import org.jaxen.util.DescendantAxisIterator;
 import org.jaxen.saxpath.SAXPathException;
 
 import org.apache.xmlbeans.XmlCursor;
 
+import javax.xml.namespace.QName;
 import java.util.Iterator;
 
 /**
- * Author: Cezar Andrei (cezar.andrei@bea.com)
+ * Author: Cezar Andrei (cezar.andrei at bea.com)
  * Date: Oct 10, 2003
  */
-public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNavigator
+public class XBeansNavigator
+    extends DefaultNavigator
+//    implements NamedAccessNavigator
 {
-    /** Singleton implementation.
-     */
-    private static class Singleton
-    {
-        /** Singleton instance.
-         */
-        private static XBeansNavigator instance = new XBeansNavigator();
-    }
+    private XmlCursor _xc;
 
-    /** Retrieve the singleton instance of this <code>DocumentNavigator</code>.
+    private XBeansNavigator()
+    {}
+
+    /** Retrieve an instance of this <code>DocumentNavigator</code>.
      */
     public static Navigator getInstance()
     {
-        return XBeansNavigator.Singleton.instance;
+        return new XBeansNavigator();
     }
+
+
+    static class JaxenNode
+        extends XmlCursor.XmlBookmark
+    {
+        public String toString()
+        {
+            XmlCursor xc = this.createCursor();
+            return "{Node:" + xc.currentTokenType().toString() + " " + xc.toString() + "}";
+        }
+    }
+
 
     //
     // DefaultNavigator implementation
@@ -55,12 +122,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getElementNamespaceUri(Object element)
     {
-        if( element instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)element);
-            return xc.getName().getNamespaceURI();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)element).toBookmark(_xc);
+        return _xc.getName().getNamespaceURI();
     }
 
     /** Retrieve the name of the given element node.
@@ -71,12 +134,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getElementName(Object element)
     {
-        if( element instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)element);
-            return xc.getName().getLocalPart();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)element).toBookmark(_xc);
+        return _xc.getName().getLocalPart();
     }
 
     /** Retrieve the QName of the given element node.
@@ -87,14 +146,10 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getElementQName(Object element)
     {
-        if( element instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)element);
-            String uri = xc.getName().getNamespaceURI();
-            String prefix = xc.prefixForNamespace(uri);
-            return ( !"".equals(prefix) ? prefix + ":" : "" ) + xc.getName().getLocalPart();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)element).toBookmark(_xc);
+        String uri = _xc.getName().getNamespaceURI();
+        String prefix = _xc.prefixForNamespace(uri);
+        return ( !"".equals(prefix) ? prefix + ":" : "" ) + _xc.getName().getLocalPart();
     }
 
     /** Retrieve the namespace URI of the given attribute node.
@@ -105,12 +160,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getAttributeNamespaceUri(Object attr)
     {
-        if( attr instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)attr);
-            return xc.getName().getNamespaceURI();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)attr).toBookmark(_xc);
+        return _xc.getName().getNamespaceURI();
     }
 
     /** Retrieve the name of the given attribute node.
@@ -121,12 +172,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getAttributeName(Object attr)
     {
-        if( attr instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)attr);
-            return xc.getName().getLocalPart();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)attr).toBookmark(_xc);
+        return _xc.getName().getLocalPart();
     }
 
     /** Retrieve the QName of the given attribute node.
@@ -137,14 +184,10 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getAttributeQName(Object attr)
     {
-        if( attr instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)attr);
-            String uri = xc.getName().getNamespaceURI();
-            String prefix = xc.prefixForNamespace(uri);
-            return ( !"".equals(prefix) ? prefix + ":" : "" ) + xc.getName().getLocalPart();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)attr).toBookmark(_xc);
+        String uri = _xc.getName().getNamespaceURI();
+        String prefix = _xc.prefixForNamespace(uri);
+        return ( !"".equals(prefix) ? prefix + ":" : "" ) + _xc.getName().getLocalPart();
     }
 
     /** Returns whether the given object is a document node. A document node
@@ -157,12 +200,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public boolean isDocument(Object object)
     {
-        if( object instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)object);
-            return xc.isStartdoc();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)object).toBookmark(_xc);
+        return _xc.isStartdoc();
     }
 
     /** Returns whether the given object is an element node.
@@ -174,12 +213,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public boolean isElement(Object object)
     {
-        if( object instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)object);
-            return xc.isStart();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)object).toBookmark(_xc);
+        return _xc.isStart();
     }
 
     /** Returns whether the given object is an attribute node.
@@ -191,12 +226,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public boolean isAttribute(Object object)
     {
-        if( object instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)object);
-            return xc.isAttr();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)object).toBookmark(_xc);
+        return _xc.isAttr();
     }
 
     /** Returns whether the given object is a namespace node.
@@ -208,12 +239,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public boolean isNamespace(Object object)
     {
-        if( object instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)object);
-            return xc.isNamespace();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)object).toBookmark(_xc);
+        return _xc.isNamespace();
     }
 
     /** Returns whether the given object is a comment node.
@@ -225,12 +252,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public boolean isComment(Object object)
     {
-        if( object instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)object);
-            return xc.isComment();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)object).toBookmark(_xc);
+        return _xc.isComment();
     }
 
     /** Returns whether the given object is a text node.
@@ -242,12 +265,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public boolean isText(Object object)
     {
-        if( object instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)object);
-            return xc.isText();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)object).toBookmark(_xc);
+        return _xc.isText();
     }
 
     /** Returns whether the given object is a processing-instruction node.
@@ -259,12 +278,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public boolean isProcessingInstruction(Object object)
     {
-        if( object instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)object);
-            return xc.isProcinst();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)object).toBookmark(_xc);
+        return _xc.isProcinst();
     }
 
     /** Retrieve the string-value of a comment node.
@@ -275,12 +290,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getCommentStringValue(Object comment)
     {
-        if( comment instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)comment);
-            return xc.getTextValue();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)comment).toBookmark(_xc);
+        return _xc.getTextValue();
     }
 
     /** Retrieve the string-value of an element node.
@@ -291,12 +302,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getElementStringValue(Object element)
     {
-        if( element instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)element);
-            return xc.getTextValue();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)element).toBookmark(_xc);
+        return _xc.getTextValue();
     }
 
     /** Retrieve the string-value of an attribute node.
@@ -307,12 +314,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getAttributeStringValue(Object attr)
     {
-        if( attr instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)attr);
-            return xc.getTextValue();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)attr).toBookmark(_xc);
+        return _xc.getTextValue();
     }
 
     /** Retrieve the string-value of a namespace node.
@@ -323,12 +326,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getNamespaceStringValue(Object ns)
     {
-        if( ns instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)ns);
-            return xc.getName().getNamespaceURI();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)ns).toBookmark(_xc);
+        return _xc.getName().getNamespaceURI();
     }
 
     /** Retrieve the string-value of a text node.
@@ -339,12 +338,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getTextStringValue(Object txt)
     {
-        if( txt instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)txt);
-            return xc.getTextValue();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)txt).toBookmark(_xc);
+        return _xc.getTextValue();
     }
 
     /** Retrieve the namespace prefix of a namespace node.
@@ -355,12 +350,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
      */
     public String getNamespacePrefix(Object ns)
     {
-        if( ns instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)ns);
-            return xc.getName().getLocalPart();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)ns).toBookmark(_xc);
+        return _xc.getName().getLocalPart();
     }
 
     /** Returns a parsed form of the given xpath string, which will be suitable
@@ -387,148 +378,47 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
 
     public static class ChildIterator implements Iterator
     {
+        private JaxenNode _nextNode = null;
         private XmlCursor _xc = null;
 
         ChildIterator(XmlCursor xc)
         {
-            _xc = xc.newCursor();
-            XmlCursor.TokenType tk = _xc.toNextToken(); //including atts and ns-es not sure if they should be included
-            if (tk.isEnd() || tk.isEnddoc() || tk.isNone())
-            {
-                _xc.dispose();
-                _xc = null;
-            }
+            _xc = xc;
+            XmlCursor.TokenType tk = _xc.toFirstContentToken(); //not including atts and ns-es
+            if (tk.isFinish())
+                _nextNode = null;
+            else
+                _nextNode = getBookmarkInThisPlace(_xc);
         }
 
         public boolean hasNext()
         {
-            if (_xc == null)
+            if (_nextNode == null)
                 return false;
-
-            if (_xc.currentTokenType() == XmlCursor.TokenType.END ||
-                _xc.currentTokenType() == XmlCursor.TokenType.ENDDOC ||
-                _xc.currentTokenType() == XmlCursor.TokenType.NONE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return false;
-            }
 
             return true;
         }
 
         public Object next()
         {
-            if (_xc == null)
+            if (_nextNode == null)
                 return null;
 
-            if (_xc.currentTokenType() == XmlCursor.TokenType.END ||
-                _xc.currentTokenType() == XmlCursor.TokenType.ENDDOC ||
-                _xc.currentTokenType() == XmlCursor.TokenType.NONE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return null;
-            }
+            JaxenNode res = _nextNode;
 
-            XmlCursor res = _xc.newCursor();
+            res.toBookmark(_xc);
 
             if (_xc.currentTokenType() == XmlCursor.TokenType.START)
             {
                 _xc.toEndToken();
             }
 
-            switch(_xc.toNextToken().intValue())
-            {
-                case XmlCursor.TokenType.INT_END:
-                case XmlCursor.TokenType.INT_ENDDOC:
-                    _xc.dispose();
-                    _xc = null;
-                default:
-                    return res;
-            }
-        }
+            if (_xc.toNextToken().isFinish())
+                _nextNode = null;
+            else
+                _nextNode = getBookmarkInThisPlace(_xc);
 
-        public void remove() { throw new RuntimeException("optional method not implemented"); }
-    }
-
-    public static class ChildIteratorFast implements Iterator
-    {
-        private XmlCursor _xc = null;
-        private boolean inTheRightPlace = false;
-
-        ChildIteratorFast(XmlCursor xc)
-        {
-            _xc = xc.newCursor();
-            XmlCursor.TokenType tk = _xc.toNextToken(); //including atts and ns-es not sure if they should be included
-            if (tk.isEnd() || tk.isEnddoc() || tk.isNone())
-            {
-                _xc.dispose();
-                _xc = null;
-            }
-            inTheRightPlace = true;
-        }
-
-        public boolean hasNext()
-        {
-            if (!inTheRightPlace)
-                move();
-
-            if (_xc == null)
-                return false;
-
-            if (_xc.currentTokenType() == XmlCursor.TokenType.END ||
-                _xc.currentTokenType() == XmlCursor.TokenType.ENDDOC ||
-                _xc.currentTokenType() == XmlCursor.TokenType.NONE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return false;
-            }
-
-            return true;
-        }
-
-        public Object next()
-        {
-            if (!inTheRightPlace)
-                move();
-
-            if (_xc == null)
-                return null;
-
-            if (_xc.currentTokenType() == XmlCursor.TokenType.END ||
-                _xc.currentTokenType() == XmlCursor.TokenType.ENDDOC ||
-                _xc.currentTokenType() == XmlCursor.TokenType.NONE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return null;
-            }
-            inTheRightPlace = false;
-            return _xc.newCursor();
-        }
-
-        private void move()
-        {
-            if (_xc == null)
-                return;
-
-            if (_xc.currentTokenType() == XmlCursor.TokenType.START)
-            {
-                _xc.toEndToken();
-            }
-
-            switch(_xc.toNextToken().intValue())
-            {
-                case XmlCursor.TokenType.INT_END:
-                case XmlCursor.TokenType.INT_ENDDOC:
-                    _xc.dispose();
-                    _xc = null;
-                default:
-                    inTheRightPlace = true;
-                    return;
-            }
+            return res;
         }
 
         public void remove() { throw new RuntimeException("optional method not implemented"); }
@@ -536,110 +426,26 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
 
     public Iterator getChildAxisIterator(Object contextNode) throws UnsupportedAxisException
     {
-        if( contextNode instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)contextNode);
-            return new ChildIteratorFast(xc);
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
-    }
-
-    public static class DescendantIterator implements Iterator
-    {
-        private XmlCursor _xc = null;
-        private int _depth = 0;
-
-        DescendantIterator(XmlCursor xc)
-        {
-            _xc = xc.newCursor();
-            _depth = 1;
-            XmlCursor.TokenType tk = _xc.toNextToken(); //including atts and ns-es not sure if they should be included
-            if (tk.isEnd() || tk.isEnddoc() || tk.isNone())
-            {
-                _xc.dispose();
-                _xc = null;
-                _depth = 0;
-            }
-        }
-
-        public boolean hasNext()
-        {
-            if (_xc == null)
-                return false;
-
-            if ((_depth == 1 && _xc.currentTokenType() == XmlCursor.TokenType.END) ||
-                _xc.currentTokenType() == XmlCursor.TokenType.ENDDOC ||
-                _xc.currentTokenType() == XmlCursor.TokenType.NONE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return false;
-            }
-
-            return true;
-        }
-
-        public Object next()
-        {
-            if (_xc == null)
-                return null;
-
-            if ((_depth == 1 && _xc.currentTokenType() == XmlCursor.TokenType.END) ||
-                _xc.currentTokenType() == XmlCursor.TokenType.ENDDOC ||
-                _xc.currentTokenType() == XmlCursor.TokenType.NONE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return null;
-            }
-
-            XmlCursor res = _xc.newCursor();
-
-            if (_xc.currentTokenType() == XmlCursor.TokenType.START)
-            {
-                _depth ++;
-            }
-            else if (_xc.currentTokenType() == XmlCursor.TokenType.END)
-            {
-                _depth --;
-            }
-
-            switch(_xc.toNextToken().intValue())
-            {
-                case XmlCursor.TokenType.INT_END:
-                    if (_depth > 1)
-                        return res;
-                case XmlCursor.TokenType.INT_ENDDOC:
-                    _xc.dispose();
-                    _xc = null;
-                default:
-                    return res;
-            }
-        }
-
-        public void remove() { throw new RuntimeException("optional method not implemented"); }
+        ((JaxenNode)contextNode).toBookmark(_xc);
+        return new ChildIterator(_xc);
     }
 
     public Iterator getDescendantAxisIterator(Object contextNode) throws UnsupportedAxisException
     {
-        //return new DescendantAxisIterator( contextNode, this );
-        if( contextNode instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)contextNode);
-            return new DescendantIterator(xc);
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        return new DescendantAxisIterator( contextNode, this );
+        /*
+            ((JaxenNode)contextNode).toBookmark(_xc);
+            return new DescendantIterator(_xc);
+        */
     }
 
     public Iterator getParentAxisIterator(Object contextNode) throws UnsupportedAxisException
     {
-        if( contextNode instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)contextNode).newCursor();
-            xc.toParent();
-            return new SingleObjectIterator(xc);
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)contextNode).toBookmark(_xc);
+        if (_xc.toParent())
+            return new SingleObjectIterator(getBookmarkInThisPlace(_xc));
+        else
+            return null;
     }
 
     public Iterator getAncestorAxisIterator(Object contextNode) throws UnsupportedAxisException
@@ -669,56 +475,41 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
 
     public static class AttributeIterator implements Iterator
     {
+        private JaxenNode _nextNode = null;
         private XmlCursor _xc = null;
 
         AttributeIterator(XmlCursor xc)
         {
-            _xc = xc.newCursor();
+            _xc = xc;
             if (!_xc.toFirstAttribute())
-            {
-                _xc.dispose();
-                _xc = null;
-            }
+                _nextNode = null;
+            else
+                _nextNode = getBookmarkInThisPlace(_xc);
         }
 
         public boolean hasNext()
         {
-            if (_xc == null)
+            if (_nextNode == null)
                 return false;
-
-            if (_xc.currentTokenType() != XmlCursor.TokenType.ATTR )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return false;
-            }
 
             return true;
         }
 
         public Object next()
         {
-            if (_xc == null)
+            if (_nextNode == null)
                 return null;
 
-            if (_xc.currentTokenType() != XmlCursor.TokenType.ATTR )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return null;
-            }
+            JaxenNode res = _nextNode;
 
-            XmlCursor res = _xc.newCursor();
+            res.toBookmark(_xc);
 
-            switch(_xc.toNextToken().intValue())
-            {
-                case XmlCursor.TokenType.INT_ATTR:
-                    return res;
-                default:
-                    _xc.dispose();
-                    _xc = null;
-                    return res;
-            }
+            if (!_xc.toNextAttribute())
+                _nextNode = null;
+            else
+                _nextNode = getBookmarkInThisPlace(_xc);
+
+            return res;
         }
 
         public void remove() { throw new RuntimeException("optional method not implemented"); }
@@ -726,73 +517,56 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
 
     public Iterator getAttributeAxisIterator(Object contextNode) throws UnsupportedAxisException
     {
-        if( contextNode instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)contextNode);
-            return new AttributeIterator(xc);
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)contextNode).toBookmark(_xc);
+        return new AttributeIterator(_xc);
     }
 
     public static class NamespaceIterator implements Iterator
     {
+        private JaxenNode _nextNode = null;
         private XmlCursor _xc = null;
 
         NamespaceIterator(XmlCursor xc)
         {
-            _xc = xc.newCursor();
+            _xc = xc;
             while (true)
             {
                 XmlCursor.TokenType tk = _xc.toNextToken();
                 if (tk == XmlCursor.TokenType.ATTR)
                     continue;
                 if (tk == XmlCursor.TokenType.NAMESPACE)
+                {
+                    _nextNode = getBookmarkInThisPlace(_xc);
                     break;
+                }
 
-                _xc.dispose();
-                _xc = null;
+                _nextNode = null;
                 return;
             }
         }
 
         public boolean hasNext()
         {
-            if (_xc == null)
+            if (_nextNode == null)
                 return false;
-
-            if (_xc.currentTokenType() != XmlCursor.TokenType.NAMESPACE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return false;
-            }
 
             return true;
         }
 
         public Object next()
         {
-            if (_xc == null)
+            if (_nextNode == null)
                 return null;
 
-            if (_xc.currentTokenType() != XmlCursor.TokenType.NAMESPACE )
-            {
-                    _xc.dispose();
-                    _xc = null;
-                    return null;
-            }
+            JaxenNode res = _nextNode;
+            res.toBookmark(_xc);
 
-            XmlCursor res = _xc.newCursor();
+            if (_xc.toNextToken().isNamespace())
+                _nextNode = getBookmarkInThisPlace(_xc);
+            else
+                _nextNode = null;
 
-            switch(_xc.toNextToken().intValue())
-            {
-                case XmlCursor.TokenType.INT_NAMESPACE:
-                    return res;
-                default:
-                    _xc.dispose();
-                    _xc = null;
-                    return res;
-            }
+            return res;
         }
 
         public void remove() { throw new RuntimeException("optional method not implemented"); }
@@ -800,12 +574,8 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
 
     public Iterator getNamespaceAxisIterator(Object contextNode) throws UnsupportedAxisException
     {
-        if( contextNode instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)contextNode);
-            return new NamespaceIterator(xc);
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)contextNode).toBookmark(_xc);
+        return new NamespaceIterator(_xc);
     }
 
     public Iterator getSelfAxisIterator(Object contextNode) throws UnsupportedAxisException
@@ -813,55 +583,91 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
         return new SelfAxisIterator( contextNode );
     }
 
+    public static class DescendantOrSelfAxisItr implements Iterator
+    {
+        private JaxenNode _nextNode = null;
+        private XmlCursor _xc = null;
+
+        DescendantOrSelfAxisItr(XmlCursor xc)
+        {
+            _xc = xc;
+            XmlCursor.TokenType tk = _xc.toFirstContentToken(); //not including atts and ns-es
+            if (tk.isFinish())
+                _nextNode = null;
+            else
+                _nextNode = getBookmarkInThisPlace(_xc);
+        }
+
+        public boolean hasNext()
+        {
+            if (_nextNode == null)
+                return false;
+
+            return true;
+        }
+
+        public Object next()
+        {
+            if (_nextNode == null)
+                return null;
+
+            JaxenNode res = _nextNode;
+
+            res.toBookmark(_xc);
+
+            if (_xc.currentTokenType() == XmlCursor.TokenType.START)
+            {
+                _xc.toEndToken();
+            }
+
+            if (_xc.toNextToken().isFinish())
+                _nextNode = null;
+            else
+                _nextNode = getBookmarkInThisPlace(_xc);
+
+            return res;
+        }
+
+        public void remove() { throw new RuntimeException("optional method not implemented"); }
+    }
+
     public Iterator getDescendantOrSelfAxisIterator(Object contextNode) throws UnsupportedAxisException
     {
         return new DescendantOrSelfAxisIterator( contextNode, this );
+        //((JaxenNode)contextNode).toBookmark(_xc);
+        //return new DescendantOrSelfAxisIterator(_xc);
     }
 
     public Iterator getAncestorOrSelfAxisIterator(Object contextNode) throws UnsupportedAxisException
     {
         return new AncestorOrSelfAxisIterator( contextNode, this );
+        //((JaxenNode)contextNode).toBookmark(_xc);
+        //return new AncestorOrSelfAxisIterator(_xc);
     }
 
     public Object getDocumentNode(Object contextNode)
     {
-        if( contextNode instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)contextNode).newCursor();
-            xc.toStartDoc();
-            return xc;
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+            ((JaxenNode)contextNode).toBookmark(_xc);
+            _xc.toStartDoc();
+            return getBookmarkInThisPlace(_xc);
     }
 
     public String translateNamespacePrefixToUri(String prefix, Object element)
     {
-        if( element instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)element);
-            return xc.namespaceForPrefix(prefix);
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+            ((JaxenNode)element).toBookmark(_xc);
+            return _xc.namespaceForPrefix(prefix);
     }
 
     public String getProcessingInstructionTarget(Object obj)
     {
-        if( obj instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)obj);
-            return xc.getTextValue();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)obj).toBookmark(_xc);
+        return _xc.getTextValue();
     }
 
     public String getProcessingInstructionData(Object obj)
     {
-        if( obj instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)obj);
-            return xc.getTextValue();
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)obj).toBookmark(_xc);
+        return _xc.getTextValue();
     }
 
 
@@ -885,45 +691,38 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
         return null;
     }
 
-
-    public static class NamedChildIteratorFast implements Iterator
+    public static class NamedChildIterator implements Iterator
     {
+        private JaxenNode _nextNode = null;
+        private QName _qname;
         private XmlCursor _xc = null;
-        private String _local, _uri;
-        private boolean inTheRightPlace = false;
 
-        NamedChildIteratorFast(XmlCursor xc, String localName, String namespaceURI)
+        NamedChildIterator(XmlCursor xc, String localName, String namespaceURI)
         {
-            _xc = xc.newCursor();
-            _local = localName;
-            _uri = (namespaceURI==null ? "" : namespaceURI);
+            _xc = xc;
+            _qname = new QName( (namespaceURI==null ? "" : namespaceURI), localName);
 
             if (!_xc.toFirstChild())
             {
-                _xc.dispose();
-                _xc = null;
+                _nextNode = null;
                 return;
             }
             if (!(_xc.currentTokenType()==XmlCursor.TokenType.START &&
-                _xc.getName().getLocalPart().equals(_local) &&
-                    _xc.getName().getNamespaceURI().equals(_uri)
+                  _xc.getName().equals(_qname)
                ))
             {
-                if (!_xc.toNextSibling(_uri, _local))
+                if (!_xc.toNextSibling(_qname))
                 {
-                    _xc.dispose();
-                    _xc = null;
+                    _nextNode = null;
+                    return;
                 }
             }
-            inTheRightPlace = true;
+            _nextNode = getBookmarkInThisPlace(_xc);
         }
 
         public boolean hasNext()
         {
-            if (!inTheRightPlace)
-                move();
-
-            if (_xc == null)
+            if (_nextNode == null)
                 return false;
 
             return true;
@@ -931,28 +730,18 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
 
         public Object next()
         {
-            if (!inTheRightPlace)
-                move();
-
-            if (_xc == null)
+            if (_nextNode == null)
                 return null;
 
-            inTheRightPlace = false;
-            return _xc.newCursor();
-        }
+            JaxenNode res = _nextNode;
+            res.toBookmark(_xc);
 
-        private void move()
-        {
-            if (_xc == null)
-                return;
+            if (!_xc.toNextSibling(_qname))
+                _nextNode = null;
+            else
+                _nextNode = getBookmarkInThisPlace(_xc);
 
-            if (!_xc.toNextSibling(_uri, _local))
-            {
-                _xc.dispose();
-                _xc = null;
-            }
-            inTheRightPlace = true;
-            return;
+            return res;
         }
 
         public void remove() { throw new RuntimeException("optional method not implemented"); }
@@ -963,34 +752,40 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
             String localName, String namespacePrefix, String namespaceURI)
             throws UnsupportedAxisException
     {
-        if( contextNode instanceof XmlCursor )
-        {
-            XmlCursor xc = ((XmlCursor)contextNode);
-            return new NamedChildIteratorFast(xc, localName, namespaceURI);
-        }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+        ((JaxenNode)contextNode).toBookmark(_xc);
+        return new NamedChildIterator(_xc, localName, namespaceURI);
     }
 
     public static class NamedAttributeIterator implements Iterator
     {
-        private XmlCursor _xc = null;
-        private String _local, _uri;
-        private boolean inTheRightPlace = false;
+        private JaxenNode _nextNode = null;
+        private QName _qname;
+        private XmlCursor _xc;
 
         NamedAttributeIterator(XmlCursor xc, String local, String uri)
         {
-            _xc = xc.newCursor();
-            _local = local;
-            _uri = uri;
-            move();
+            _xc = xc;
+            _qname = new QName(( uri==null ? "" : uri), local);
+
+            XmlCursor.TokenType tk = _xc.toNextToken();
+            if (tk!=XmlCursor.TokenType.ATTR)
+            {
+                _nextNode = null;
+                return;
+            }
+
+            if ( _xc.getName().equals(_qname) )
+            {
+                _nextNode = getBookmarkInThisPlace(_xc);
+                return;
+            }
+            _nextNode = move(_xc);
+            return;
         }
 
         public boolean hasNext()
         {
-            if (!inTheRightPlace)
-                move();
-
-            if (_xc == null)
+            if (_nextNode == null)
                 return false;
 
             return true;
@@ -998,37 +793,31 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
 
         public Object next()
         {
-            if (!inTheRightPlace)
-                move();
-
-            if (_xc == null)
+            if (_nextNode == null)
                 return null;
 
-            inTheRightPlace = false;
-            return _xc.newCursor();
+            JaxenNode res = _nextNode;
+            res.toBookmark(_xc);
+
+            _nextNode = move(_xc);
+            return res;
         }
 
-        private void move()
+        private JaxenNode move(XmlCursor xc)
         {
-            if (_xc.currentTokenType() != XmlCursor.TokenType.ATTR )
+            if (xc.currentTokenType() != XmlCursor.TokenType.ATTR )
             {
-                _xc.dispose();
-                _xc = null;
-                return;
+                return null;
             }
 
-            while(_xc.toNextToken()==XmlCursor.TokenType.ATTR)
+            while(xc.toNextToken()==XmlCursor.TokenType.ATTR)
             {
-                if ( _xc.getName().getLocalPart().equals(_local) &&
-                     _xc.getName().getNamespaceURI().equals(_uri))
+                if ( xc.getName().equals(_qname) )
                 {
-                    inTheRightPlace = true;
-                    return;
+                    return getBookmarkInThisPlace(xc);
                 }
             }
-            _xc.dispose();
-            _xc = null;
-            inTheRightPlace = true;
+            return null;
         }
 
         public void remove() { throw new RuntimeException("optional method not implemented"); }
@@ -1039,11 +828,29 @@ public class XBeansNavigator extends DefaultNavigator //implements NamedAccessNa
             String localName, String namespacePrefix, String namespaceURI)
             throws UnsupportedAxisException
     {
-        if( contextNode instanceof XmlCursor )
+        ((JaxenNode)contextNode).toBookmark(_xc);
+        return new NamedAttributeIterator(_xc, localName, namespaceURI);
+    }
+
+    static JaxenNode getBookmarkInThisPlace(XmlCursor xc)
+    {
+        JaxenNode rez = (JaxenNode)xc.getBookmark(JaxenNode.class);
+        if (rez==null)
         {
-            XmlCursor xc = ((XmlCursor)contextNode);
-            return new NamedAttributeIterator(xc, localName, namespaceURI);
+            rez = new JaxenNode();
+            xc.setBookmark(rez);
         }
-        throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor.");
+
+        return rez;
+    }
+
+    XmlCursor getCursor()
+    {
+        return _xc;
+    }
+
+    void setCursor(XmlCursor xc)
+    {
+        this._xc = xc;
     }
 }

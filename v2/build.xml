@@ -119,6 +119,8 @@
         <pathelement location="build/private/lib/schemas.jar"/>
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
+        <pathelement location="build/private/lib/xbean_xpath.jar"/>
+        <pathelement location="build/lib/jaxen.jar"/>
       </classpath>
       <formatter type="plain"/>
       <test name="drtcases.SmokeTests" outfile="build/test/output/drt-product" />
@@ -191,6 +193,8 @@
     <pathelement location="build/private/lib/schemas.jar"/>
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
+    <pathelement location="build/private/lib/xbean_xpath.jar"/>
+    <pathelement location="build/lib/jaxen.jar"/>
     <pathelement location="build/classes/xmlinputstream"/>
   </path>
 
@@ -201,7 +205,7 @@
 
   <!-- builddrt target ============================================== -->
 
-  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar, xstypes.jar, enumtest.jar">
+  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar, xstypes.jar, enumtest.jar, xbean_xpath.jar">
     <mkdir dir="build/private/classes/drt"/>
     <javac
        srcdir="test/src/drt"
@@ -462,9 +466,13 @@
   </target>
 
 
-  <target name="dist" depends="xbean, docs">
+  <target name="dist" depends="dist-src, dist-bin">
+  </target>
+
+  <target name="dist-bin" depends="xbean, docs">
      <delete dir="build/private/xmlbeans-${product.version}"/>
-     <delete file="build/private/incubated-xmlbeans-${product.version}.zip"/>
+     <delete file="build/private/incubating-xmlbeans-${product.version}.zip"/>
+     <delete file="build/private/incubating-xmlbeans-${product.version}.tgz"/>
 
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
@@ -484,10 +492,34 @@
         <fileset dir="build/docs"/>
      </copy>
 
-      <!-- todo for gump?: add yyyyMMdd into filename - rem -->
-      <zip destfile="build/private/incubated-xmlbeans-${product.version}.zip"
+     <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"/>
+     <tar destfile="build/private/incubating-xmlbeans-${product.version}.tgz"
+          basedir="build/private"
+          includes="xmlbeans-${product.version}/**"
+          compression="gzip"/>
+  </target>
+
+  <target name="dist-src" depends="clean, dirs">
+     <delete file="build/private/incubating-xmlbeans-${product.version}-src.zip"/>
+	 <delete file="build/private/incubating-xmlbeans-${product.version}-src.tgz"/>
+
+	 <zip destfile="build/private/incubating-xmlbeans-${product.version}-src.zip">
+     	<zipfileset
+     		dir="."
+       		includes="**"
+       		excludes="build/**"
+       		prefix="xmlbeans-${product.version}"/>
+     </zip>
+	 <tar destfile="build/private/incubating-xmlbeans-${product.version}-src.tgz"
+	 	  compression="gzip">
+     	<tarfileset
+     		dir="."
+       		includes="**"
+       		excludes="build/**"
+       		prefix="xmlbeans-${product.version}"/>
+     </tar>
   </target>
 
   <!-- previously in xbean.xml -->
@@ -1001,7 +1033,7 @@
           <pathelement location="build/private/lib/xbean_xpath.jar"/>
           <pathelement location="build/private/classes/testxpath"/>
       </classpath>
-      <jvmarg value="-ea"/>
+      <jvmarg value="-da"/>
       <arg line='test/cases/xpath/much_ado.xml "PLAY/ACT/SCENE/SPEECH/SPEAKER"'/>
     </java>
   </target>

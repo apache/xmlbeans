@@ -57,45 +57,74 @@
 package org.apache.xmlbeans.impl.xpath.jaxen;
 
 import org.jaxen.XPath;
+import org.jaxen.XPathSyntaxException;
 import org.jaxen.JaxenException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.xpath.jaxen.XBeansXPath;
 
 import java.util.List;
 import java.util.Iterator;
 import java.io.File;
-import java.io.IOException;
 
 /**
  * Author: Cezar Andrei (cezar.andrei at bea.com)
  * Date: Oct 10, 2003
  */
-public class XBeansDemo
+public class TestXPath
 {
     public static void main(String[] args)
     {
         try
         {
-            String xpathStr;
-            File file;
 
-            if (args.length!=2)
+            XmlObject doc;
+
+            if (args.length!=1)
             {
-                System.out.println("Usage: XBeansDemo file.xml xpath");
+                System.out.println("TestXPath test/cases/xpath/testXPath.xml");
                 return;
             }
             else
             {
-                file = new File(args[0]);
-                xpathStr = args[1];
+                doc = XmlObject.Factory.parse(new File(args[0]));
             }
 
-            test1(xpathStr, file);
+            String[] xpath = new String[25];
+            xpath[0] = "/doc/a/@test";
+            xpath[1] = "//.";
+            xpath[2] = "/doc";
+            xpath[3] = "/doc/a";
+            xpath[4] = "//@*";
+            xpath[5] = ".";
+            xpath[6] = "//ancestor-or-self::*";
+            xpath[7] = "./child::*[1]";
+            xpath[8] = "//descendant-or-self::*/@*[1]";
+            xpath[9] = "//@* | * | node()";
+            xpath[10] = "//*";
+            xpath[11] = "/doc/namespace::*";
+            xpath[12] = "//descendant::comment()";
+            xpath[13] = "//*[local-name()='a']";
+            xpath[14] = "//*/@*";         //  "//*[current()]/@*";
+            xpath[15] = "//*[last()]";
+            xpath[16] = "doc/*[last()]";
+            xpath[17] = "/doc/a/*/@*"; // "/doc/a/*[current()]/@*";
+            xpath[18] = "doc/descendant::node()";
+            xpath[19] = "doc/a/@*";
+            xpath[20] = "doc/b/a/ancestor-or-self::*";
+            xpath[21] = "doc/b/a/preceding::*";
+            xpath[22] = "doc/a/following::*";
+            xpath[23] = "/doc/b/preceding-sibling::*";
+            xpath[24] = "/doc/a/following-sibling::*";
 
-            test3(xpathStr, file);
+            test1(doc, xpath);
+        }
+        catch (XPathSyntaxException e)
+        {
+            System.err.println( e.getMultilineMessage() );
+        }
+        catch (JaxenException e)
+        {
+            e.printStackTrace();
         }
         catch (Exception e)
         {
@@ -103,76 +132,34 @@ public class XBeansDemo
         }
     }
 
-    private static void test1(String xpathStr, File file)
+    private static void test1(XmlObject doc, String[] xpathes) throws JaxenException
     {
-        System.out.println("\n ----- test1:   XBeansXPath.selectNodes(xpathStr) Navigator: XmlBookmarks + 1 XmlCursor embeded in the bookmark -----");
-
-        try
+        for (int i=0; i<xpathes.length; i++)
         {
-            XmlObject doc = XmlObject.Factory.parse(file);
-            XPath xpath = new XBeansXPath(xpathStr);
-            XmlCursor xc = doc.newCursor();
-            List results = xpath.selectNodes(xc);
-
-            Iterator resultIter = results.iterator();
-
-            System.out.println("Document :: " + doc );
-            System.out.println("   XPath :: " + xpath );
-            System.out.println("");
-            System.out.println("Results" );
-            System.out.println("----------------------------------");
-
-            while ( resultIter.hasNext() )
-            {
-                xc = (XmlCursor)resultIter.next();
-                System.out.println( xc );
-            }
-            System.out.println("----------------------------------");
-            System.out.println(results.size() );
-        }
-        catch (XmlException e)
-        {
-            e.printStackTrace();
-        }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
-        catch (JaxenException e)
-        {
-            e.printStackTrace();
+            runXpath(doc, xpathes[i], i);
         }
     }
 
-	private static void test3(String xpathStr, File file)
+    private static void runXpath(XmlObject doc, String xpathStr, int i)
+        throws JaxenException
     {
-        System.out.println("\n ----- test3:   XmlCursor.selectPath(cpath)  -----");
+        System.out.println("\n>>>================= " + i + " " + xpathStr + " ========================<<<");
 
-        try
-        {
-            String cpath = XmlBeans.compilePath( xpathStr );
-            XmlObject doc = XmlObject.Factory.parse(file);
-            XmlCursor speaker = doc.newCursor();
+        XPath xpath = new XBeansXPath(xpathStr);
+        XmlCursor xc = doc.newCursor();
+		List results = xpath.selectNodes( xc );
 
-            int count = 0;
-			speaker.toStartDoc();
-			speaker.selectPath(cpath);
-			speaker.getSelectionCount();
-			while ( speaker.toNextSelection() )
-			{
-				System.out.println(speaker);
-				count += (speaker == null ? 0 : 1);
-			}
+        Iterator resultIter = results.iterator();
 
-            System.out.println(">>> " + count + " selections");
-        }
-        catch (XmlException e)
+        //System.out.println("Document :: \n" + doc );
+        int j = 0;
+        while ( resultIter.hasNext() )
         {
-            e.printStackTrace();
+            xc = (XmlCursor)resultIter.next();  //it's the same object as previous xc
+            System.out.println("> " + (j++) + " >--------------------------------------< " + xc.currentTokenType());
+            System.out.println( xc );
         }
-        catch (IOException e)
-        {
-            e.printStackTrace();
-        }
+        System.out.println("\n>>>Results: " + j + "    " + xpathStr + " ==========================<<<");
+		xc.dispose();
     }
 }
