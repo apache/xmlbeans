@@ -780,9 +780,10 @@
   <target name='jam'>
     <ant dir='${jam_root}' target='clean' inheritAll='false' />
     <ant dir='${jam_root}' target='all' inheritAll='false' />
-    <copy todir="build/classes/jam">
-      <fileset dir="${jam_root}/build/classes" />
-    </copy>
+    <move todir="build/classes/jam">
+      <fileset dir="build/jam/classes" />
+    </move>
+    <delete dir='build/jam'/>
   </target>
 
   <!-- marshal target =============================================== -->

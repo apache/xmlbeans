@@ -5,8 +5,8 @@
 
   <property name='src_dir'     value='src'/>
   <property name='docs_dir'    value='docs'/>
-  <property name='build_dir'   value='build'/>
-  <property name='docbuild_dir'    value='build/docs'/>
+  <property name='build_dir'   value='./../build/jam'/>
+  <property name='docbuild_dir'    value='${build_dir}/docs'/>
   <property name='javadocbuild_dir'    value='${docbuild_dir}/javadocs'/>
   <property name='gen_dir'     value='${build_dir}/generatedsrc'/>
   <property name='classes_dir' value='${build_dir}/classes'/>
@@ -16,6 +16,8 @@
 
   <target name='clean'>
     <delete dir='${build_dir}'/>
+    <!-- delete the old location just in case someone still has it around -->
+    <delete dir='build'/>  
   </target>
 
   <target name='all' depends='compile'/>
@@ -79,8 +81,8 @@
   </target>
 
   <target name='jars' depends='all'>
-    <jar jarfile='build/jam.jar'    basedir='${classes_dir}'/>
-    <jar jarfile='build/jamsrc.jar' basedir='.' excludes='build/**'/>
+    <jar jarfile='${build_dir}/jam.jar'    basedir='${classes_dir}'/>
+    <jar jarfile='${build_dir}/jamsrc.jar' basedir='.' excludes='${build_dir}/**'/>
   </target>
 
   <target name='zip' depends='jars,docs'>
@@ -88,7 +90,7 @@
     <delete file='${build_dir}/jam.zip'/>
     <mkdir  dir='${build_dir}/zip'/>
     <copy todir='${build_dir}/zip'>
-      <fileset dir='build' casesensitive='yes'>
+      <fileset dir='${build_dir}' casesensitive='yes'>
         <include name='jam.jar'/>
         <include name='jamsrc.jar'/>
         <include name='docs/**'/>
