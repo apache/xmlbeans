@@ -292,7 +292,7 @@
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes, common.classes,
                  typeimpl.classes, xmlcomp.classes, xmlstore.classes,
-                 newstore2.classes, saaj_api.classes, binding.classes,
+                 newstore2.classes, saaj_api.classes,
                  marshal.classes, xpath.classes, oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes, resolver.jar, xbean_xpath.jar,
                  piccolo.classes, tools.classes">
@@ -310,7 +310,6 @@
       <fileset dir="build/classes/newstore2"/>
       <fileset dir="build/classes/saaj_api"/>
       <fileset dir="build/classes/xmlinputstream"/>
-      <fileset dir="build/classes/binding"/>
       <fileset dir="build/classes/marshal"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="build/classes/jam"/>
@@ -446,30 +445,8 @@
     </javac>
 
   </target>
-  <!-- binding target =============================================== -->
 
-  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, xmlcomp.classes, jam, jsr173.jar">
-    <mkdir dir="build/classes/binding"/>
-    <javac srcdir="src/binding" destdir="build/classes/binding" source="${javac.source}" target="${javac.target}" debug="on">
-      <classpath>
-        <pathelement location="build/lib/jsr173_api.jar"/>
-        <pathelement location="build/classes/configschema"/>
-        <pathelement location="build/classes/xmlinputstream"/>
-        <pathelement location="build/classes/xmlpublic"/>
-        <pathelement location="build/classes/common"/>
-        <pathelement location="build/classes/repackage"/>
-        <pathelement location="build/classes/typeimpl"/>
-        <pathelement location="build/classes/typestore"/>
-        <pathelement location="build/classes/xmlconfig"/>
-        <pathelement location="build/classes/configschema"/>
-        <pathelement location="build/classes/toolschema"/>
-        <pathelement location="build/classes/xsdschema"/>
-        <pathelement location="build/classes/jam"/>
-        <pathelement location="build/classes/xmlcomp"/>
-      </classpath>
-    </javac>
-
-  </target>
+  <!-- jam target =================================================== -->
 
   <target name='jam'>
     <ant dir='${jam_root}' target='all' inheritAll='false'>
@@ -479,7 +456,7 @@
 
   <!-- marshal target =============================================== -->
 
-  <target name="marshal.classes" depends="dirs, binding.classes, typeimpl.classes, xmlpublic.classes, jsr173_api.jar">
+  <target name="marshal.classes" depends="dirs, typeimpl.classes, xmlpublic.classes, jsr173_api.jar">
     <mkdir dir="build/classes/marshal"/>
     <javac srcdir="src/marshal" destdir="build/classes/marshal" source="${javac.source}" target="${javac.target}" debug="on">
       <classpath>
@@ -490,7 +467,7 @@
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/binding"/>
         <pathelement location="build/classes/typeimpl"/>
-	<pathelement location="build/classes/newstore2"/>
+        <pathelement location="build/classes/newstore2"/>
       </classpath>
     </javac>
   </target>
@@ -867,10 +844,6 @@
 
   <target name="checkintest">
     <ant antfile="${testbuild.file}" target="checkin"/>
-<!--
-    <antcall target="marshal-drt"/>
-    <antcall target="binding-drt"/>
--->
   </target>
 
   <target name="detailed">
@@ -879,37 +852,12 @@
 
 
 
- <!-- test marshal target ============================================= -->
-
-   <target name="test_marshal.classes" depends="marshal.classes">
-          <mkdir dir="build/private/classes/marshal"/>
-          <javac
-              srcdir="test/cases/xbean/marshal"
-              destdir="build/private/classes/marshal"
-              source="${javac.source}" target="${javac.target}"
-              debug="on">
-              <classpath>
-                  <pathelement location="build/classes/binding"/>
-                  <pathelement location="build/classes/marshal"/>
-                  <pathelement location="build/classes/common"/>
-                  <pathelement location="build/classes/configschema"/>
-                  <pathelement location="build/classes/typeimpl"/>
-                  <pathelement location="build/classes/xmlinputstream"/>
-                  <pathelement location="build/classes/xmlpublic"/>
-                  <pathelement location="build/lib/jsr173_api.jar"/>
-                  <pathelement location="build/lib/xmlpublic.jar"/>
-              </classpath>
-          </javac>
-   </target>
-
    <path id="test.compile.path">
-   	<pathelement location="build/classes/binding"/>
 	<pathelement location="build/classes/marshal"/>
 	<pathelement location="build/classes/common"/>
        <pathelement location="external/lib/junit.jar"/>
        <pathelement location="build/ar/xbean.jar"/>
        <pathelement location="build/lib/jsr173_api.jar"/>
-       <pathelement location="build/private/classes/marshal"/>
        <pathelement location="build/classes/xmlinputstream"/>
      </path>
 
@@ -919,61 +867,13 @@
   </path>
 
 
-   <target name="marshal-drt" depends="drt.jar, runmarshal-drt"/>
-   <path id="run.marshal.drt">
-      <pathelement location="external/lib/junit.jar"/>
-          <pathelement location="build/ar/xbean.jar"/>
-          <pathelement location="build/lib/jsr173_api.jar"/>
-          <pathelement location="build/lib/jsr173_ri.jar"/>
-          <pathelement location="build/private/lib/drt.jar"/>
-          <pathelement location="build/private/classes/marshal"/>
-   </path>
-
-    <property name="drt.marshal.out" value="build/test/output/drt-marshal-product"/>
-     <target name="runmarshal-drt" >
-
-   	<junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-        <jvmarg value="-ea"/>
-        <sysproperty key="xbean.rootdir" value="${basedir}"/>
-        <sysproperty key="treeasserts" value="true"/>
-        <classpath refid="run.marshal.drt"/>
-        <formatter type="plain"/>
-        <test name="drt.drtcases.MarshalTests" outfile="${drt.marshal.out}" />
-    	</junit>
-   </target>
-
-     <target name="binding-drt" depends="drt.jar, runbinding-drt"/>
-
-     <property name="drt.binding.out" value="build/test/output/drt-bind-product"/>
-     <target name="runbinding-drt" >
-
-   	<junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-        <jvmarg value="-ea"/>
-        <sysproperty key="xbean.rootdir" value="${basedir}"/>
-        <sysproperty key="treeasserts" value="true"/>
-        <classpath>
-          <pathelement location="external/lib/junit.jar"/>
-          <pathelement location="build/ar/xbean.jar"/>
-          <pathelement location="build/lib/jsr173_api.jar"/>
-          <pathelement location="build/lib/jsr173_ri.jar"/>
-          <pathelement location="build/private/lib/drt.jar"/>
-        </classpath>
-        <formatter type="plain"/>
-        <test name="drt.drtcases.BindingTests" outfile="${drt.binding.out}" />
-    	</junit>
-   </target>
-
-
-
-
-   <target name="drt.classes" depends="dirs,test_marshal.classes, jsr173_ri.jar">
+   <target name="drt.classes" depends="dirs,jsr173_ri.jar">
        <mkdir dir="build/private/classes/drt"/>
        <javac
           destdir="build/private/classes/drt"
           classpathref="test.compile.path"
           source="${javac.source}" target="${javac.target}"
           debug="on">
-         <src path="test/cases/xbean/marshal"/>
          <src path="test/src/drt"/>
       </javac>
      </target>
