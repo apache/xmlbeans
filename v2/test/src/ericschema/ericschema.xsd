@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<schema xmlns="http://www.w3.org/2001/XMLSchema" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:nfi="http://nfis.org/nfi" targetNamespace="http://nfis.org/nfi">
-  <element name="top_element">
-    <complexType>
-      <attribute name="top_attr" type="string" fixed="top attribute" use="required"/>
-    </complexType>
-  </element>
-</schema>
