@@ -68,6 +68,7 @@ public class XMLBean extends MatchingTask
                         failonerror = true,
                         fork = true,
                         includeAntRuntime = true,
+                        noSrcRegen,
                         includeJavaRuntime = false;
 
     private String      typesystemname,
@@ -223,6 +224,7 @@ public class XMLBean extends MatchingTask
             params.setExtensions(extensions);
             params.setErrorListener(err);
             params.setCatalogFile(catalog);
+            params.setIncrementalSrcGen(noSrcRegen);
             params.setMdefNamespaces(mdefnamespaces);
             success = SchemaCompiler.compile(params);
 
@@ -645,6 +647,16 @@ public class XMLBean extends MatchingTask
     public void setIncludeJavaRuntime(boolean includeJavaRuntime)
     {
         this.includeJavaRuntime = includeJavaRuntime;
+    }
+
+    public boolean isIncrementalSrcGen()
+    {
+        return noSrcRegen;
+    }
+
+    public void setNoSrcRegen(boolean noSrcRegen)
+    {
+        this.noSrcRegen = noSrcRegen;
     }
 
     /**

@@ -28,6 +28,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,7 +45,7 @@ public class SchemaCodeGenerator
     public static boolean compileTypeSystem(SchemaTypeSystem saver, File sourcedir, File[] javasrc,
          Map sourcesToCopyMap, File[] classpath, File classesdir, File outputJar, boolean nojavac,
          XmlErrorWatcher errors, String repackage, SchemaCodePrinter codePrinter, boolean verbose, List sourcefiles,
-         File schemasDir)
+        File schemasDir, boolean incrSrcGen)
     {
 
         if (sourcedir == null || classesdir == null)
@@ -112,7 +113,7 @@ public class SchemaCodeGenerator
             failure = true;
         }
 
-        failure &= genTypes(saver, sourcefiles, sourcedir, repackager, verbose, opts);
+        failure &= genTypes(saver, sourcefiles, sourcedir, repackager, verbose, opts, incrSrcGen);
 
         if (failure)
             return false;
@@ -171,7 +172,7 @@ public class SchemaCodeGenerator
         }
     }
 
-    private static boolean genTypes(SchemaTypeSystem saver, List sourcefiles, File sourcedir, Repackager repackager, boolean verbose, XmlOptions opts)
+    private static boolean genTypes(SchemaTypeSystem saver, List sourcefiles, File sourcedir, Repackager repackager, boolean verbose, XmlOptions opts, boolean incrSrcGen)
     {
         boolean failure = false;
 
@@ -179,6 +180,15 @@ public class SchemaCodeGenerator
         types.addAll(Arrays.asList(saver.globalTypes()));
         types.addAll(Arrays.asList(saver.documentTypes()));
         types.addAll(Arrays.asList(saver.attributeTypes()));
+
+        Set seenFiles = null;
+        if (incrSrcGen)
+        {
+            seenFiles = new HashSet();
+            if (sourcefiles != null)
+                for (int i = 0; i < sourcefiles.size(); i++)
+                    seenFiles.add(sourcefiles.get(i));
+        }
 
         for (Iterator i = types.iterator(); i.hasNext(); )
         {
@@ -202,6 +212,8 @@ public class SchemaCodeGenerator
             String filename = fjn.replace('.', File.separatorChar) + ".java";
             
             Writer writer = null;
+            Reader reader = null;
+            boolean changed = true;
             
             try
             {
@@ -209,6 +221,41 @@ public class SchemaCodeGenerator
                 sourcefile.getParentFile().mkdirs();
                 if (verbose)
                     System.err.println("created " + sourcefile.getAbsolutePath());
+                if (incrSrcGen)
+                    seenFiles.add(sourcefile);
+                if (incrSrcGen && sourcefile.exists())
+                {
+                    // Generate the file in a buffer and then compare it to the
+                    // file already on disk
+                    // Generation
+                    StringWriter sw = new StringWriter();
+                    SchemaTypeCodePrinter.printType(sw, type, opts);
+                    StringBuffer buffer = sw.getBuffer();
+                    if (repackager != null)
+                        buffer = repackager.repackage(buffer);
+                    // Comparison
+                    List diffs = new ArrayList();
+                    reader = new java.io.FileReader(sourcefile);
+                    String str = buffer.toString();
+                    Diff.readersAsText(new java.io.StringReader(str), "<generated>",
+                            reader, sourcefile.getName(), diffs);
+                    reader.close();
+                    // Check the list of differences
+                    changed = (diffs.size() > 0);
+                    if (changed)
+                    {
+                        // Diffs encountered, replace the file with the text from
+                        // the buffer
+                        writer = new FileWriter( sourcefile );
+                        writer.write(str);
+                        writer.close();
+                        sourcefiles.add(sourcefile);
+                    }
+                    else
+                        ; // No diffs, don't do anything
+                }
+                else
+                {
                 writer =
                     repackager == null
                         ? (Writer) new FileWriter( sourcefile )
@@ -218,8 +265,9 @@ public class SchemaCodeGenerator
                 SchemaTypeCodePrinter.printType(writer, type, opts);
                 
                 writer.close();
-                
+
                 sourcefiles.add(sourcefile);
+                }
             }
             catch (IOException e)
             {
@@ -227,7 +275,10 @@ public class SchemaCodeGenerator
                 failure = true;
             }
             finally {
-                try { if (writer != null) writer.close(); } catch (IOException e) {}
+                try {
+                    if (writer != null) writer.close();
+                    if (reader != null) reader.close();
+                } catch (IOException e) {}
             }
 
             try
@@ -239,7 +290,11 @@ public class SchemaCodeGenerator
                     System.err.println("created " + implFile.getAbsolutePath());
                 implFile.getParentFile().mkdirs();
 
-                
+                if (incrSrcGen)
+                    seenFiles.add(implFile);
+                // If the interface did not change, the implementation shouldn't either
+                if (changed)
+                {
                 writer =
                     repackager == null
                         ? (Writer) new FileWriter( implFile )
@@ -248,8 +303,9 @@ public class SchemaCodeGenerator
                 SchemaTypeCodePrinter.printTypeImpl(writer, type, opts);
                 
                 writer.close();
-                
+
                 sourcefiles.add(implFile);
+                }
             }
             catch (IOException e)
             {
@@ -261,7 +317,26 @@ public class SchemaCodeGenerator
             }
         }
 
+        if (incrSrcGen)
+            deleteObsoleteFiles(sourcedir, seenFiles);
+
         return failure;
+    }
+
+    private static void deleteObsoleteFiles(File srcDir, Set seenFiles)
+    {
+        // Go recursively starting with srcDir and delete all files that are
+        // not in the given Set
+        File[] files = srcDir.listFiles();
+        for (int i = 0; i < files.length; i++)
+        {
+            if (files[i].isDirectory())
+                deleteObsoleteFiles(files[i], seenFiles);
+            else if (seenFiles.contains(files[i]))
+                ;
+            else
+                files[i].delete();
+        }
     }
 
     protected static File createTempDir() throws IOException
