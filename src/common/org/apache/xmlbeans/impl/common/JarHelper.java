@@ -40,6 +40,7 @@ public class JarHelper
   private byte[] mBuffer = new byte[BUFFER_SIZE];
   private int mByteCount = 0;
   private boolean mVerbose = false;
+  private String destJarName = "";
 
   // ========================================================================
   // Constructor
@@ -57,6 +58,14 @@ public class JarHelper
    */
   public void jarDir(File dirOrFile2Jar, File destJar)
           throws IOException {
+
+    if (dirOrFile2Jar == null || destJar == null)
+        throw new IllegalArgumentException();
+
+    destJarName = destJar.getPath().replace(File.separatorChar, SEP);
+    if (destJarName.startsWith("./"))
+      destJarName = destJarName.substring(2);
+
     FileOutputStream fout = new FileOutputStream(destJar);
     JarOutputStream jout = new JarOutputStream(fout);
     //jout.setLevel(0);
@@ -128,7 +137,7 @@ public class JarHelper
     if (mVerbose) System.out.println("checking " + dirOrFile2jar);
     if (dirOrFile2jar.isDirectory()) {
       String[] dirList = dirOrFile2jar.list();
-      String subPath = (path == null)? "" : (path+dirOrFile2jar.getName()+SEP);
+      String subPath = (path == null) ? "" : (path+dirOrFile2jar.getName()+SEP);
       if (path != null) {
         JarEntry je = new JarEntry(subPath);
         je.setTime(dirOrFile2jar.lastModified());
@@ -141,7 +150,19 @@ public class JarHelper
         jarDir(f,jos,subPath);
       }
     } else {
-      if (mVerbose) System.out.println("adding " + dirOrFile2jar);
+      String filePath = dirOrFile2jar.getPath();
+      if (filePath.startsWith("/"))
+          filePath = filePath.substring(1);
+      else if (filePath.startsWith("./"))
+          filePath = filePath.substring(2);
+
+      if (filePath.equals("") || filePath.equals(destJarName))
+      {
+        if (mVerbose) System.out.println("skipping " + filePath);
+        return;
+      }
+
+      if (mVerbose) System.out.println("adding " + filePath);
       FileInputStream fis = new FileInputStream(dirOrFile2jar);
       try {
         JarEntry entry = new JarEntry(path+dirOrFile2jar.getName());
@@ -159,5 +180,24 @@ public class JarHelper
         fis.close();
       }
     }
+  }
+
+  // for debugging
+  public static void main(String[] args)
+      throws IOException
+  {
+      if (args.length < 2)
+      {
+        System.err.println("Usage: JarHelper jarname.jar directory");
+        return;
+      }
+
+      JarHelper jarHelper = new JarHelper();
+      jarHelper.mVerbose = true;
+
+      File destJar = new File(args[0]);
+      File dirOrFile2Jar = new File(args[1]);
+
+      jarHelper.jarDir(dirOrFile2Jar, destJar);
   }
 }
