@@ -19,17 +19,17 @@ import java.io.File;
 import java.io.PrintWriter;
 
 /**
- * Object which specifies parameters for creating a new JService.
+ * Object which specifies parameters for creating a new JResult.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JServiceParams {
+public interface JResultParams {
 
   // ========================================================================
   // Public methods
 
   /**
-   * Specifies a set of java source files to be included in the JService.
+   * Specifies a set of java source files to be included in the JResult.
    *
    * <p>Note that calling this method implicitly includes the 'root' in
    * the sourcepath (exactly as if addSourcepath(root) had been called).</p>
@@ -42,7 +42,7 @@ public interface JServiceParams {
   public void includeSourceFiles(File root, String pattern);
 
   /**
-   * Specifies a set of java source files to be excluded in the JService.
+   * Specifies a set of java source files to be excluded in the JResult.
    * Note that calling this method implicitly includes the 'root' in
    * the sourcepath (as in a call to addSourcepath(root)).
    *
@@ -55,7 +55,7 @@ public interface JServiceParams {
 
 
   /**
-   * Specifies a set of java class files to be excluded in the JService.
+   * Specifies a set of java class files to be excluded in the JResult.
    * Note that calling this method implicitly includes the 'root' in
    * the classpath (as in a call to addClasspath(root)).
    *
@@ -67,7 +67,7 @@ public interface JServiceParams {
   public void includeClassFiles(File root, String pattern);
 
   /**
-   * Specifies a set of java class files to be excluded from the JService.
+   * Specifies a set of java class files to be excluded from the JResult.
    * Note that calling this method implicitly includes the 'root' in
    * the classpath (as in a call to addClasspath(root)).
    *
@@ -79,7 +79,7 @@ public interface JServiceParams {
   public void excludeClassFiles(File root, String pattern);
 
   /**
-   * <p>Includes a single source File in the JService.  The root parameter
+   * <p>Includes a single source File in the JResult.  The root parameter
    * should identify the source root of the java source file; the sourceFile
    * parameter must be under the root subtree.</p>
    *
@@ -114,25 +114,25 @@ public interface JServiceParams {
   public void includeSourceFile(File root, File sourceFile);
 
   /**
-   * <p>Excludes a single source File in the JService in exactly the same
+   * <p>Excludes a single source File in the JResult in exactly the same
    * way theat includeSourceFile() includes a source file.
    */
   public void excludeSourceFile(File root, File sourceFile);
 
   /**
-   * <p>Includes a single class File in the JService in exactly the same
+   * <p>Includes a single class File in the JResult in exactly the same
    * way theat includeSourceFile() includes a source file.
    */
   public void includeClassFile(File root, File sourceFile);
 
   /**
-   * <p>Excludes a single class File in the JService in exactly the same
+   * <p>Excludes a single class File in the JResult in exactly the same
    * way theat includeSourceFile() includes a source file.
    */
   public void excludeClassFile(File root, File sourceFile);
 
   /**
-   * Names a specific class to be included in the JService.  Note that
+   * Names a specific class to be included in the JResult.  Note that
    * this will return an 'unresolved' JClass unless a source or class file
    * for the named class is available in the classpath or sourcepath.
    *
@@ -144,7 +144,7 @@ public interface JServiceParams {
 
 
   /**
-   * Names a specific class to be excluded in the JService.  Note that
+   * Names a specific class to be excluded in the JResult.  Note that
    * this will have no affect if the named class cannot be found in the
    * sourcepath or classpath.
    *
@@ -155,14 +155,14 @@ public interface JServiceParams {
   public void excludeClass(String qualifiedClassname);
 
   /**
-   * Adds an element to the JService sourcepath.  The service's JClassLoader
+   * Adds an element to the JResult sourcepath.  The service's JClassLoader
    * will search this path to find a .java file on which to base a JClass
    * when requested to load a class that was not included in the service.
    */
   public void addSourcepath(File sourcepathElement);
 
   /**
-   * Adds an element to the JService classpath.  The service's JClassLoader
+   * Adds an element to the JResult classpath.  The service's JClassLoader
    * will search this path to find a .class file on which to base a JClass
    * when requested to load a class that was not included in the service
    * and for which no source could be found in the sourcepath.
@@ -183,7 +183,7 @@ public interface JServiceParams {
   public void setAnnotationLoader(JAnnotationLoader ann);
 
   /**
-   * Sets a PrintWriter to which the JService implementation should log
+   * Sets a PrintWriter to which the JResult implementation should log
    * errors and debugging information.  If this is never set, all such output
    * will be suppressed.
    *
@@ -193,7 +193,7 @@ public interface JServiceParams {
   public void setLogger(PrintWriter out);
 
   /**
-   * Sets whether the JService should send verbose output to the logger.
+   * Sets whether the JResult should send verbose output to the logger.
    * Has no effect if setLogger() is never called.
    *
    * @param v whether or not boolean output is enabled.
@@ -212,7 +212,7 @@ public interface JServiceParams {
 
   /**
    * Adds an element to the tool classpath.  This is the classpath that
-   * will be used by the JService implementation to find any libraries
+   * will be used by the JResult implementation to find any libraries
    * on which it depends.  This classpath distinct from the service classpath
    * set by addClasspath().
    *
@@ -228,7 +228,7 @@ public interface JServiceParams {
   public void setUseSystemClasspath(boolean use);
 
   /**
-   * Sets a JService implementation-dependent property.
+   * Sets a JResult implementation-dependent property.
    */
   public void setProperty(String name, String value);
 

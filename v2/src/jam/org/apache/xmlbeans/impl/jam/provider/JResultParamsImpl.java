@@ -13,11 +13,12 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.internal;
+package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JServiceParams;
+import org.apache.xmlbeans.impl.jam.JResultParams;
+import org.apache.xmlbeans.impl.jam.internal.DirectoryScanner;
 import org.apache.xmlbeans.impl.jam.provider.JStoreParams;
 import org.apache.xmlbeans.impl.jam.provider.JPath;
 
@@ -30,7 +31,7 @@ import java.io.IOException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JServiceParamsImpl implements JServiceParams, JStoreParams
+public class JResultParamsImpl implements JResultParams, JStoreParams
 {
   // ========================================================================
   // Variables
@@ -54,7 +55,7 @@ public class JServiceParamsImpl implements JServiceParams, JStoreParams
   // ========================================================================
   // Constructors
 
-  public JServiceParamsImpl() {}
+  public JResultParamsImpl() {}
 
   // ========================================================================
   // Public methods - used by BaseJProvider
@@ -119,7 +120,7 @@ public class JServiceParamsImpl implements JServiceParams, JStoreParams
   }
 
   // ========================================================================
-  // JServiceFactory implementation
+  // JResultFactory implementation
 
   public void includeSourceFiles(File srcRoot, String pattern) {
     addSourcepath(srcRoot);

@@ -43,7 +43,7 @@ import org.apache.xmlbeans.impl.jam.internal.reflect.RClassLoader;
  * }
  * </pre>
  *
- * @deprecated Please us JServiceFactory instead.
+ * @deprecated Please us JResultFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */

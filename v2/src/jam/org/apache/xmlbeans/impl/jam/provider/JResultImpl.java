@@ -13,9 +13,9 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.internal;
+package org.apache.xmlbeans.impl.jam.provider;
 
-import org.apache.xmlbeans.impl.jam.JService;
+import org.apache.xmlbeans.impl.jam.JResult;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JClassIterator;
 import org.apache.xmlbeans.impl.jam.JClass;
@@ -24,7 +24,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JServiceImpl implements JService {
+public class JResultImpl implements JResult {
 
   // ========================================================================
   // Variables
@@ -35,7 +35,7 @@ public class JServiceImpl implements JService {
   // ========================================================================
   // Constructors
 
-  public JServiceImpl(JClassLoader jcl, String[] classes) {
+  public JResultImpl(JClassLoader jcl, String[] classes) {
     if (jcl == null) throw new IllegalArgumentException("null jcl");
     if (classes == null) throw new IllegalArgumentException("null classes");
     mClassLoader = jcl;
@@ -43,7 +43,7 @@ public class JServiceImpl implements JService {
   }
 
   // ========================================================================
-  // JService implementation
+  // JResult implementation
 
   public JClassLoader getClassLoader() {
     return mClassLoader;

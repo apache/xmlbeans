@@ -23,11 +23,11 @@ import java.io.PrintWriter;
 
 /**
  * Structure which encapsulates a set of parameters used to create a new
- * EService.
+ * EResult.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EServiceParams {
+public interface EResultParams {
 
   /**
    * Sets a loader for external annotations to be used in the service.
@@ -38,7 +38,7 @@ public interface EServiceParams {
   public void setAnnotationLoader(JAnnotationLoader ann);
 
   /**
-   * Sets a PrintWriter to which the EService implementation should log
+   * Sets a PrintWriter to which the EResult implementation should log
    * errors and debugging information.  If this is never set, all such output
    * will be suppressed.
    *
@@ -48,7 +48,7 @@ public interface EServiceParams {
   public void setLogger(PrintWriter out);
 
   /**
-   * Sets whether the EService should send verbose output to the logger.
+   * Sets whether the EResult should send verbose output to the logger.
    * Has no effect if setLogger() is never called.
    *
    * @param v whether or not boolean output is enabled.

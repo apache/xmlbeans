@@ -60,10 +60,13 @@ import org.apache.xmlbeans.impl.jam.*;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * <p>Abstract base class for basic jam test cases.  These test cases work
- * against an abstract JService - they don't care how the java types
+ * against an abstract JResult - they don't care how the java types
  * were loaded.  Extending classes are responsible for implementing the
  * getService() method which should create the service from sources, or
  * classes, or whatever is appropriate.</p>
@@ -75,13 +78,38 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
+  //this array must contain the names of all of the test classes under
+  //dummyclasses
+  private static final String[] ALL_CLASSES = {
+   "org.apache.xmlbeans.test.jam.dummyclasses.ejb.IEnv",
+   "org.apache.xmlbeans.test.jam.dummyclasses.ejb.TraderEJB",
+   "org.apache.xmlbeans.test.jam.dummyclasses.ejb.TradeResult",
+   "org.apache.xmlbeans.test.jam.dummyclasses.Base",
+   "org.apache.xmlbeans.test.jam.dummyclasses.Baz",
+   "org.apache.xmlbeans.test.jam.dummyclasses.Foo",
+   "org.apache.xmlbeans.test.jam.dummyclasses.FooImpl"
+  };
+
+
+  // this needs to correspond to the methods on the FooImpl dummyclass
+  private static final String[][] FOOIMPL_METHODS = {
+    {"public",                       "int",      "getId",  null},
+    {"public",                       "void",     "setId",  "int id"},
+    {"private final static",         "void",     "setId2",  "double id"},
+    {"protected synchronized ", "void",  "setId3",  "double id, double id2"},
+    {"protected abstract",           "void",     "setId4",  "double id, double id2, double id3"},
+  };
+
+
   protected static final String
           DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
+
+
 
   // ========================================================================
   // Variables
 
-  private JService mService = null;
+  private JResult mResult = null;
   private JClassLoader mLoader = null;
 
   // ========================================================================
@@ -99,15 +127,19 @@ public abstract class JamTestBase extends TestCase {
   // Abstract methods
 
   /**
-   * Called during setup() to return the parameters which we can use to
-   * create a service that contains all of java types under dummyclasses.
+   * Called during setup() to get the JResult object to test against.
    */
-  protected abstract JServiceParams getBasicServiceParams() throws Exception;
+  protected abstract JResult getResultToTest() throws Exception;
 
   //kind of a quick hack for now, should remove this and make sure that
   //even the classes case make the annotations available using a special
   //JStore
   protected abstract boolean isAnnotationsAvailable();
+
+  //kind of a quick hack for now, should remove this and make sure that
+  //even the classes case make the annotations available using a special
+  //JStore
+  protected abstract boolean isParameterNamesKnown();
 
   // ========================================================================
   // Utility methods
@@ -130,18 +162,38 @@ public abstract class JamTestBase extends TestCase {
   // TestCase implementation
 
   public void setUp() throws Exception {
-    JServiceFactory jsf = JServiceFactory.getInstance();
-    mService = jsf.createService(getBasicServiceParams());
-    if (mService == null) throw new IllegalArgumentException("null service");
-    mLoader = mService.getClassLoader();
-    if (mLoader == null) throw new IllegalArgumentException("null loader");
+    mResult = getResultToTest();
+    mLoader = mResult.getClassLoader();
   }
 
   // ========================================================================
   // Test methods
 
+  public void testAllClassesAvailable() {
+    JClass[] classes = mResult.getAllClasses();
+    List classNames = new ArrayList(classes.length);
+    for(int i=0; i<classes.length; i++) {
+      classNames.add(classes[i].getQualifiedName());
+    }
+    List expected = Arrays.asList(ALL_CLASSES);
+    assertTrue("result does not contain all expected classes",
+               classNames.containsAll(expected));
+
+    assertTrue("result contains more than expected classes",
+               expected.containsAll(classNames));
+  }
+
+  /**
+   * Verify that FooImpl has the correct methods with the correct
+   * number of parameters and correct return types.
+   */
+  public void testFooImplMethods() {
+    JClass fooImpl = mLoader.loadClass(DUMMY+".FooImpl");
+    GoldenMethod[] methods = GoldenMethod.createArray(FOOIMPL_METHODS);
+    GoldenMethod.doComparison(fooImpl.getDeclaredMethods(),methods,isParameterNamesKnown(),this);
+  }
+
   public void testInterfaceIsAssignableFrom()
-    throws ClassNotFoundException 
   {
     JClass fooImpl = mLoader.loadClass(DUMMY+".FooImpl");
     JClass foo = mLoader.loadClass(DUMMY+".Foo");
@@ -152,7 +204,6 @@ public abstract class JamTestBase extends TestCase {
   }
 
   public void testClassIsAssignableFrom() 
-    throws ClassNotFoundException 
   {
     JClass fooImpl = mLoader.loadClass(DUMMY+".FooImpl");
     JClass base = mLoader.loadClass(DUMMY+".Base");
@@ -163,7 +214,6 @@ public abstract class JamTestBase extends TestCase {
   }
 
   public void testClassIsAssignableFromDifferentClassLoaders() 
-    throws ClassNotFoundException 
   {
     JClass baz = mLoader.loadClass(DUMMY+".Baz");
     JClass runnable = mLoader.loadClass("java.lang.Runnable");
@@ -174,7 +224,8 @@ public abstract class JamTestBase extends TestCase {
   }
 
 
-  public void testAnnotationsAndInheritance() {
+  public void testAnnotationsAndInheritance()
+  {
     JClass ejb = mLoader.loadClass(DUMMY+".ejb.TraderEJB");
     JClass ienv = ejb.getInterfaces()[0];
     JMethod ejbBuy = ejb.getMethods()[0];
@@ -197,7 +248,6 @@ public abstract class JamTestBase extends TestCase {
   }
 
 
-
   // ========================================================================
   // Private methods
 
@@ -214,7 +264,4 @@ public abstract class JamTestBase extends TestCase {
     assertTrue("'"+j.getQualifiedName()+"' expected to NOT have annotation '"+ann+"'",
                 a == null);
   }
-
-
-
 }
