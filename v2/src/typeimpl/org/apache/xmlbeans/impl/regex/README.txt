@@ -11,6 +11,7 @@ RegexParser.java,v 1.9 2004/02/24
 RegularExpression.java,v 1.8 2004/02/24
 REUtil.java,v 1.8 2004/02/24
 Token.java,v 1.8 2004/02/24
+message.properties, 1.6 2003/03/25
 
 It contains the following modifications:
 
