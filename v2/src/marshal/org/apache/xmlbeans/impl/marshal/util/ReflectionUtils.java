@@ -104,6 +104,8 @@ public final class ReflectionUtils
                                           Class clazz)
         throws XmlException
     {
+        if (method_name == null) return null;
+        
         try {
             return method_name.getMethodOn(clazz);
         }

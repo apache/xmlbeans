@@ -193,6 +193,18 @@ abstract class RuntimeBindingType
             getMethod = ReflectionUtils.getGetterMethod(prop, beanClass);
             setMethod = ReflectionUtils.getSetterMethod(prop, beanClass);
             issetMethod = ReflectionUtils.getIssetterMethod(prop, beanClass);
+
+            //we may revisit whether this is an error
+            if (getMethod == null) {
+                String e = "no getter found for " + prop + " on " + beanClass;
+                throw new XmlException(e);
+            }
+
+            //we no doubt will revisit whether this is an error, esp for exceptions
+            if (setMethod == null) {
+                String e = "no setter found for " + prop + " on " + beanClass;
+                throw new XmlException(e);
+            }
         }
 
 
