@@ -167,7 +167,7 @@ public class SchemaCompiler
         if (cl.getOpt("extension") != null) {
             try {
                 Extension e = new Extension();
-                e.setClassName(Class.forName(cl.getOpt("extension")));
+                e.setClassName(Class.forName(cl.getOpt("extension"), false, Thread.currentThread().getContextClassLoader()));
                 extensions.add(e);
             } catch (ClassNotFoundException e) {
                 System.err.println("Could not find extension class: " + cl.getOpt("extension") + "  Is it on your classpath?");
