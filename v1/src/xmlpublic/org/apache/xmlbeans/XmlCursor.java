@@ -472,7 +472,9 @@ public interface XmlCursor extends XmlTokenSource
      * context must be at a START or STARTDOC. Namespace prefix mappings
      * are queried for the mappings defined at the current container first,
      * then parents are queried. The prefix can be "" or null to indicate
-     * a search for the default namespace.<br/><br/>.
+     * a search for the default namespace.  To conform with the
+     * XML spec, the default namespace will return the no-namespace ("")
+     * if it is not mapped.<br/><br/>
      * 
      * Note that this queries the current state of the document. When the 
      * document is persisted, the saving mechanism may synthesize namespaces 

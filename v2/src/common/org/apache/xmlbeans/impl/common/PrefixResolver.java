@@ -65,7 +65,8 @@ public interface PrefixResolver
      * string return result.
      * 
      * If the prefix is null or "", then the default namespace is being
-     * requested.
+     * requested.  To conform with the XML spec, the default namespace will
+     * return the no-namespace ("") if it is not mapped.
      */
     String getNamespaceForPrefix(String prefix);
 }

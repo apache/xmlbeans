@@ -711,7 +711,7 @@ public final class Type extends Goober implements TypeStore
         if (s.isAttr())
             s = s.getContainer();
         
-        return s.namespaceForPrefix( prefix );
+        return s.namespaceForPrefix( prefix, true );
     }
 
     public TypeStoreUser insert_element_user ( QName name, int i )
