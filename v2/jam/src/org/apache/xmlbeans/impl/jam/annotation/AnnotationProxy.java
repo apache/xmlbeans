@@ -184,13 +184,16 @@ public abstract class AnnotationProxy {
 
   public void initFromJavadocTag(String tagline) {
     if (tagline == null) throw new IllegalArgumentException("null tagline");
-    setValue(SINGLE_MEMBER_NAME,tagline);
     Properties props = new Properties();
     parseAssignments(props,tagline);
-    Enumeration names = props.propertyNames();
-    while(names.hasMoreElements()) {
-      String name = (String)names.nextElement();
-      setValue(name,props.getProperty(name));
+    if (props.size() == 0) {
+      setValue(SINGLE_MEMBER_NAME,tagline);
+    } else {
+      Enumeration names = props.propertyNames();
+      while(names.hasMoreElements()) {
+        String name = (String)names.nextElement();
+        setValue(name,props.getProperty(name));
+      }
     }
   }
 
