@@ -44,11 +44,17 @@ final class LiteralUnmarshalResult
     }
 
     protected XMLStreamReader getValidatingStream(XMLStreamReader reader)
+        throws XmlException
     {
         if (isValidating()) {
             ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
             final SchemaTypeLoader schemaTypeLoader =
                 schemaTypeLoaderProvider.getSchemaTypeLoader();
+            if (schemaTypeLoader == null) {
+                final String msg = "null schema type loader from " +
+                    "schemaTypeLoaderProvider " + schemaTypeLoaderProvider;
+                throw new XmlException(msg);
+            }
             vr.init(reader, false, null, schemaTypeLoader, options, errors);
             return vr;
         } else {

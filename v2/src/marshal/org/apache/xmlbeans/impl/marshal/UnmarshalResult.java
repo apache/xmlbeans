@@ -239,7 +239,8 @@ abstract class UnmarshalResult
     }
 
 
-    protected abstract XMLStreamReader getValidatingStream(XMLStreamReader reader);
+    protected abstract XMLStreamReader getValidatingStream(XMLStreamReader reader)
+        throws XmlException;
 
     protected abstract XMLStreamReader getValidatingStream(QName schemaType,
                                                            XMLStreamReader reader)

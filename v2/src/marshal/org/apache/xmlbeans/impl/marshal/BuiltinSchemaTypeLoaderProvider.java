@@ -26,6 +26,7 @@ final class BuiltinSchemaTypeLoaderProvider
     private BuiltinSchemaTypeLoaderProvider()
     {
         builtinLoader = XmlBeans.getBuiltinTypeSystem();
+        assert builtinLoader != null;
     }
 
     private static final BuiltinSchemaTypeLoaderProvider INSTANCE =

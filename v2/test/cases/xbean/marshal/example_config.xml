@@ -520,15 +520,15 @@
         </bin:binding-type>
 
         <bin:binding-type xsi:type="bin:soap-array">
-            <bin:xmlcomponent>t=SoapStringArray@java:com.mytest</bin:xmlcomponent>
-            <bin:javatype>java.lang.String[]</bin:javatype>
+            <bin:xmlcomponent>t=SoapQuadStringArray@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>java.lang.String[][][][]</bin:javatype>
             <bin:item-name>item</bin:item-name>
             <bin:item-type>
                 <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
                 <bin:javatype>java.lang.String</bin:javatype>
             </bin:item-type>
             <bin:item-nillable>true</bin:item-nillable>
-            <bin:ranks>4 5 6</bin:ranks>
+            <bin:ranks>2 2</bin:ranks>
         </bin:binding-type>
 
 
@@ -584,6 +584,8 @@
             <bin:javatype>com.mytest.MyClass</bin:javatype>
             <bin:type-of-element>t=MyClass@java:com.mytest</bin:type-of-element>
         </bin:binding-type>
+
+
         <bin:binding-type xsi:type="bin:by-name-bean">
             <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.MySubClass</bin:javatype>
@@ -612,6 +614,8 @@
                 <bin:qname>java:Myatt</bin:qname>
                 <bin:nillable>true</bin:nillable>
             </bin:qname-property>
+
+
             <bin:qname-property>
                 <bin:xmlcomponent>t=integer@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
                 <bin:javatype>java.math.BigInteger</bin:javatype>
@@ -629,7 +633,18 @@
                 <bin:nillable>true</bin:nillable>
                 <bin:default>876587658765876587658765876587658765</bin:default>
             </bin:qname-property>
+
+            <bin:qname-property>
+                <bin:xmlcomponent>t=SoapQuadStringArray@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>java.lang.String[][][][]</bin:javatype>
+                <bin:field>quadStringArray</bin:field>
+                <bin:qname>java:quadStringArray</bin:qname>
+                <bin:nillable>true</bin:nillable>
+            </bin:qname-property>
+
         </bin:binding-type>
+
+
     </bin:bindings>
     <bin:xml-to-pojo>
 
