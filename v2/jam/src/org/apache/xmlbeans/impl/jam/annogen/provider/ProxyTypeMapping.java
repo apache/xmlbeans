@@ -12,33 +12,18 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.annogen;
-
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyTypeMapping;
-
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.Reader;
+package org.apache.xmlbeans.impl.jam.annogen.provider;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface AnnotationServiceParams {
+public interface ProxyTypeMapping {
 
-  // ========================================================================
-  // Public methods
+  //is this method really needed?
+  public String getDeclaredTypeNameForProxyType(Class proxyType);
 
-  public void addXmlOverrides(File file) throws FileNotFoundException;
+  public Class getProxyTypeForDeclaredTypeName(String annotationTypeName)
+    throws ClassNotFoundException;
 
-  public void addXmlOverrides(Reader in);
-
-  public void insertPopulator(ProxyPopulator pop);
-
-  public void appendPopulator(ProxyPopulator pop);
-
-  public void setProxyMapping(ProxyTypeMapping pm);
-
-
-
+  public void init(ProxyContext pc);
 }

@@ -57,7 +57,9 @@ package org.apache.xmlbeans.test.jam;
 
 import junit.framework.TestCase;
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
+import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceFactory;
+import org.apache.xmlbeans.impl.jam.annogen.AnnotationService;
+import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceParams;
 import org.apache.xmlbeans.impl.jam.xml.JamXmlUtils;
 import org.w3c.dom.Document;
 
@@ -82,6 +84,7 @@ import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.RFEAnnotation;
 import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.EmployeeAnnotation;
 import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.EmployeeGroupAnnotation;
 import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.AddressAnnotation;
+import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.impl.RFEAnnotationImpl;
 
 /**
  * <p>Abstract base class for basic jam test cases.  These test cases work
@@ -129,7 +132,7 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".jsr175.Constants",
 
     DUMMY+".jsr175.RFEAnnotation",
-    DUMMY+".jsr175.RFEAnnotationImpl",
+    DUMMY+".jsr175.impl.RFEAnnotationImpl",
 
     DUMMY+".Base",
     DUMMY+".Baz",
@@ -268,6 +271,19 @@ public abstract class JamTestBase extends TestCase {
 
   // ========================================================================
   // Test methods
+
+  public void testAnnogen() {
+    AnnotationServiceFactory asf = AnnotationServiceFactory.getInstance();
+    AnnotationServiceParams asp = asf.createServiceParams();
+    asp.appendPopulator(new TestProxyPopulator());
+    AnnotationService as = asf.createService(asp);
+    JClass c = mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass");
+    RFEAnnotationImpl ra = (RFEAnnotationImpl)
+      as.getAnnotation(RFEAnnotationImpl.class,c);
+
+    assertTrue("ra.id() == "+ra.id(),ra.id() == 4561413 + 1);
+  }
+
 
   public void testGenerics() {
     JClass gts = mLoader.loadClass(DUMMY+".MyGenericThingSubclass");

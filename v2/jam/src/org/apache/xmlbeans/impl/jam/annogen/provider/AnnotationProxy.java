@@ -14,8 +14,6 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.provider;
 
-import java.lang.reflect.InvocationTargetException;
-
 /**
  * <p>Provides a proxied view of some annotation artifact.  JAM calls the
  * public methods on this class to initialize the proxy with annotation
@@ -38,11 +36,19 @@ public interface AnnotationProxy {
   // ========================================================================
   // Public methods
 
+  public void init(ProxyContext pc);
+
+  public void setSimpleValue(String name, Object value, Class declaredType);
+
+  public AnnotationProxy createNestedValue(String name, String declaredTypeName);
+
+  public Object createNestedValueArray(String name,
+                                       String componentTypeName,
+                                       int[] dimensions);
+
   /**
    */
-  public void setValue(String name, Object value)
-    throws NoSuchMethodException, IllegalAccessException,
-           InvocationTargetException;
+  public Object getValue(String name);
 
 
 }

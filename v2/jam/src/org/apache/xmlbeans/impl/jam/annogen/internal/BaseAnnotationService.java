@@ -14,11 +14,11 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal;
 
-import org.apache.xmlbeans.impl.jam.annogen.tools.Annogen;
 import org.apache.xmlbeans.impl.jam.annogen.AnnotationService;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyTypeMapping;
 import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
 
 import java.util.HashMap;
@@ -36,6 +36,7 @@ public class BaseAnnotationService implements AnnotationService {
   // Variables
 
   private ProxyPopulator mPopulator;
+  private ProxyTypeMapping mMapping;
   private Map mCache = new HashMap();
   private ReflectElementIdFactory mReflectIdFactory =
     ReflectElementIdFactory.getInstance();
@@ -43,9 +44,15 @@ public class BaseAnnotationService implements AnnotationService {
   // ========================================================================
   // Constructors
 
-  public BaseAnnotationService(ProxyPopulator pop) {
-    if (pop == null) throw new IllegalArgumentException("null pop");
-    mPopulator = pop;
+  public BaseAnnotationService(AnnotationServiceParamsImpl asp) {
+    if (asp == null) throw new IllegalArgumentException("null asp");
+    ProxyPopulator[] pps = asp.getPopulators();
+    if (pps.length == 1) {
+      mPopulator = pps[0];
+    } else {
+      mPopulator = new CompositeProxyPopulator(pps);
+    }
+    mMapping = asp.getProxyMapping();
   }
 
   // ========================================================================
@@ -86,11 +93,11 @@ public class BaseAnnotationService implements AnnotationService {
   }
 
   public Object getAnnotation(Class annoType, ElementId id) {
-    if (!mPopulator.hasAnnotation(id,annoType)) return null;
     AnnotationProxy out = getCachedProxyFor(id,annoType);
     if (out != null) return out;
+    if (!mPopulator.hasAnnotation(id,annoType)) return null;
     try {
-      out = createProxyFor(annoType);
+      out = createInstanceFor(annoType);
     } catch(Exception e) {
       e.printStackTrace(); //FIXME
       return null;
@@ -100,25 +107,19 @@ public class BaseAnnotationService implements AnnotationService {
     return out;
   }
 
-  // ========================================================================
-  // Protected methods
-
-  // somebody could conceivably want to change this behavior.  we can either
-  // let them extend and override this method, or might be worth exposing
-  // an 'AnnotationInstanceFactory' interface for them to implement.
-
-  protected AnnotationProxy createProxyFor(Class annoType)
-    throws ClassNotFoundException, InstantiationException,
-           IllegalAccessException
-  {
-    String implName = Annogen.getImplClassFor(annoType);
-    Class annoImpl = annoType.getClassLoader().loadClass(implName);
-    return (AnnotationProxy)annoImpl.newInstance();
-  }
-
 
   // ========================================================================
   // Private methods
+
+  private AnnotationProxy createInstanceFor(Class proxyOrImplType)
+    throws ClassNotFoundException, InstantiationException,
+           IllegalAccessException
+  {
+    return (AnnotationProxy)proxyOrImplType.newInstance();
+    //String implName = Annogen.getImplClassFor(proxyOrImplType);
+    //Class annoImpl = proxyOrImplType.getClassLoader().loadClass(implName);
+    //return (AnnotationProxy)annoImpl.newInstance();
+  }
 
   private AnnotationProxy getCachedProxyFor(ElementId id, Class annoType) {
     return (AnnotationProxy)mCache.get(getCacheKey(id,annoType));

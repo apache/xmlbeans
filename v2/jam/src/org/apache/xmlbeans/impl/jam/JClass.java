@@ -260,7 +260,7 @@ public interface JClass extends JMember {
 
   /**
    * <p>Returns the Class representing the component type of an array.
-   * If this class does not represent an array class this method
+   * If this JClass does not represent an array class this method
    * returns null.</p>
    *
    * <p>Note that this method differs substantially from
@@ -352,12 +352,16 @@ public interface JClass extends JMember {
    */
   public String getFieldDescriptor();
 
-  //uncomment me please
-//  public boolean isEnumType();
+  /**
+   * <p>Returns true if this class is an enumerated type.</p>
+   */
+  public boolean isEnumType();
 
-  //uncomment me please
-//  public boolean isGenericType();
-
+  /**
+   *
+   * @return
+   */
+  //public boolean isGenericType();
 
   /**
    * <p>Returns the JamClassLoader which loaded this class.</p>

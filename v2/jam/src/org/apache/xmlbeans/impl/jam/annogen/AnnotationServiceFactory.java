@@ -16,8 +16,9 @@ package org.apache.xmlbeans.impl.jam.annogen;
 
 import org.apache.xmlbeans.impl.jam.annogen.internal.AnnotationServiceParamsImpl;
 import org.apache.xmlbeans.impl.jam.annogen.internal.BaseAnnotationService;
+import org.apache.xmlbeans.impl.jam.annogen.internal.CompositeProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.provider.CompositeProxyPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.internal.CompositeProxyPopulator;
 
 
 /**
@@ -68,9 +69,10 @@ public class AnnotationServiceFactory {
    * <p>Create a new AnnoService using the given parameters.</p>
    */
   public AnnotationService createService(AnnotationServiceParams params) {
-    ProxyPopulator[] pps = ((AnnotationServiceParamsImpl)params).getPopulators();
-    ProxyPopulator cp = new CompositeProxyPopulator((pps));
-    return new BaseAnnotationService(cp);
+    if (!(params instanceof AnnotationServiceParamsImpl)) {
+      throw new IllegalArgumentException("not valid service params");
+    }
+    return new BaseAnnotationService((AnnotationServiceParamsImpl)params);
   }
 
 
@@ -80,7 +82,7 @@ public class AnnotationServiceFactory {
    * annotation APIs in java.lang.reflect).</p>
    */
   public AnnotationService createDefaultService() {
-    return new BaseAnnotationService(getReflectingPopulator());
+    return new BaseAnnotationService(new AnnotationServiceParamsImpl());
   }
 
 
