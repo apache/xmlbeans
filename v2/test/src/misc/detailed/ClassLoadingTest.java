@@ -265,6 +265,7 @@ public class ClassLoadingTest extends TestCase
      */
     public static void testThreadedCompilation() throws Throwable
     {
+        Runtime r = Runtime.getRuntime();
         CompilationThread[] threads = new CompilationThread[THREAD_COUNT];
 
         //moved to ensure init wasn't helping in problem
@@ -273,8 +274,10 @@ public class ClassLoadingTest extends TestCase
         }
 
         for (int i = 0; i < threads.length; i++) {
-            System.out.println("Thread["+i+"]-starting");
-            //    threads[i] = new CompilationThread();
+            System.out.println("FREE MEM: "+r.freeMemory()+" TOTAL MEM: "+r.totalMemory());
+            System.out.print("Thread["+i+"]-starting ");
+            System.out.println("FREE MEM: " + r.freeMemory() + " TOTAL MEM: " + r.totalMemory());
+            //    threads[i] = new XPathThread();
             threads[i].start();
             threads[i].join();
         }
@@ -302,6 +305,7 @@ public class ClassLoadingTest extends TestCase
     public static void main(String[] args) throws Throwable
     {
         testThreadedCompilation();
+        throw new Exception("FOO");
     }
 }
 
