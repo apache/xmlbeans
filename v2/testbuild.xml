@@ -149,6 +149,11 @@
 
     <fileset id="tools.ext.lib" dir="${xbeans.test.tools.lib}">
         <include name="**/*.jar"/>
+    <include name="**/*.jar"/>
+    </fileset>
+
+    <fileset id="tools.ext.lib" dir="${xbeans.test.tools.lib}">
+        <include name="**/*.jar"/>
         <exclude name="**/xerces1.4.4.jar"/>
     </fileset>
 
@@ -357,6 +362,17 @@
         <basename path="${archivefile}" property="dir.name" suffix=".tar.bz2"/>
         <!-- FIXME: it's not sufficient to just check if dir exists -->
         <condition property="uncompress.uptodate">
+              <available file="${build.dir.test.schemas}/${dir.name}" type="dir" /> 
+              </condition>
+    </target>
+    <!-- helper target -->
+    <target name="uncompress.helper" depends="uncompress.uptodate,do.uncompress"/>
+
+    <!-- if archive is name 'foo.tar.bz2', root directory should be 'foo' -->
+    <target name="uncompress.uptodate">
+        <basename path="${archivefile}" property="dir.name" suffix=".tar.bz2"/>
+        <!-- FIXME: it's not sufficient to just check if dir exists -->
+        <condition property="uncompress.uptodate">
             <available file="${build.dir.test.schemas}/${dir.name}" type="dir"/>
         </condition>
         <echo message="uncompress.uptodate for ${archivefile}: ${uncompress.uptodate}"/>
@@ -444,10 +460,12 @@
     <!-- Builds the tests -->
     <!-- NOTE: This target depends on build.schemas, but we do not
                explicitly put it on the depends list. -->
-    <target name="build.tests" depends="init, build.test.tools, build.xpath,extensions.build"
+<!--ADD THIS LATER: ,extensions.build-->
+    <target name="build.tests" depends="init, build.test.tools, build.xpath"
         description="Build the tests">
 
         <javac srcdir="${xbeans.test.src}"
+              excludes="**/extensions/**"
             destdir="${build.dir.test.src}"
             classpathref="test.run.classpath"
             debug="on"
@@ -511,7 +529,7 @@
          <if>
             <isset property="compile.extensions"/>
             <then>
-                 <antcall target="extensions.build"/>
+                 <!--antcall target="extensions.build"/-->
             </then>
         </if>
         <antcall target="build.xmlcases"/>
@@ -527,7 +545,7 @@
             excludes="**/*.java"
             update="${testcasesjar.update}"/>
     </target>
-    <!--Extensions feature: a bit tricky to build -->
+    <!--Extensions feature: a bit tricky to build 
     <target name="extensions.build" depends="init">
         <echo message="Building extensions"/>
         <foreachloop
@@ -538,8 +556,7 @@
                 </dirset>
             </path>
             <loop>
-                <!--echo message="Feature is ${feature}"/-->
-
+              
                 <foreachloop param="case" trim="true">
                     <path>
                         <dirset dir="${feature}">
@@ -549,7 +566,7 @@
                     <loop>
                         <basename property="testcase" path="${case}"/>
                         <basename property="feature.basename" path="${feature}"/>
-                        <!--echo message="CASE is ${testcase}"/-->
+                    
 
                         <java classname="${schema.compiler}"
                             classpathref="build.classpath"
@@ -559,22 +576,14 @@
                              ${xbeans.test.cases}/xbean/extensions/${feature.basename}/${testcase}"
                                 />
                         </java>
-                        <!--<javac
-                            srcdir="${case}"
-                            destdir="${build.dir.test.src}"
-                            includes="${includes.for.compile}"
-                            excludes="${excludes.for.compile}"
-                            classpathref="test.run.classpath"
-                            optimize="on"
-                            verbose="false"
-                            failonerror="true"/>  -->
+                      
                     </loop>
                 </foreachloop>
             </loop>
 
         </foreachloop>
     </target>
-
+-->
     <target name="build.area.xmlobject">
         <property name="this.schema.dirs"
             value="${build.dir.test.schemas}/xbean/xmlobject,
@@ -590,8 +599,7 @@
             value="**/xmlobject/**/*.java"/>
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
-        <antcall target="extensions.build"/>
-
+       
     </target>
 
     <target name="build.area.xmlcursor">
