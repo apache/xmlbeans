@@ -46,6 +46,14 @@ public class TypeHierarchyPrinter
             System.exit(0);
             return;
         }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
+
         if (cl.args().length == 0)
         {
             System.out.println("Prints inheritance hierarchy of types defined in a schema.");

@@ -27,6 +27,51 @@ import java.lang.reflect.Method;
  */
 public final class XmlBeans
 {
+    private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
+    private static String XMLBEANS_VERSION = "1.0.4-jdk1.3";
+    private static String XMLBEANS_VENDOR = "Apache Software Foundation";
+
+    static
+    {
+        Package pkg = XmlBeans.class.getPackage();
+        if (pkg != null)
+        {
+            XMLBEANS_TITLE = pkg.getImplementationTitle();
+            XMLBEANS_VERSION = pkg.getImplementationVersion();
+            XMLBEANS_VENDOR = pkg.getImplementationVendor();
+        }
+    }
+
+    /**
+     * Returns the XmlBeans Package title, "org.apache.xmlbeans",
+     * the value of
+     * {@link Package#getImplementationTitle() XmlBeans.class.getPackage().getImplementationTitle()}.
+     */
+    public static final String getTitle()
+    {
+        return XMLBEANS_TITLE;
+    }
+
+    /**
+     * Returns the XmlBeans vendor, "Apache Software Foundation",
+     * the value of
+     * {@link Package#getImplementationVendor() XmlBeans.class.getPackage().getImplementationVendor()}.
+     */
+    public static final String getVendor()
+    {
+        return XMLBEANS_VENDOR;
+    }
+
+    /**
+     * Returns the XmlBeans version, "1.0.4-jdk1.3",
+     * the value of
+     * {@link Package#getImplementationVersion() XmlBeans.class.getPackage().getImplementationVersion()}.
+     */
+    public static final String getVersion()
+    {
+        return XMLBEANS_VERSION;
+    }
+
     /**
      * Thread local QName cache for general use
      */

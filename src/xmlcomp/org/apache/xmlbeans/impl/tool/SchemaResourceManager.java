@@ -59,6 +59,13 @@ public class SchemaResourceManager extends BaseSchemaResourceManager
             System.exit(0);
             return;
         }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
         
         args = cl.args();
 

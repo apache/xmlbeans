@@ -33,6 +33,13 @@ public class PrettyPrinter
             System.exit(0);
             return;
         }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
         
         if (cl.args().length == 0)
         {

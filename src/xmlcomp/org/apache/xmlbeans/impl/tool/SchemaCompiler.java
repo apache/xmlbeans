@@ -65,6 +65,7 @@ public class SchemaCompiler
             System.out.println("    -debug - compile with debug symbols");
             System.out.println("    -quiet - print fewer informational messages");
             System.out.println("    -verbose - print more informational messages");
+            System.out.println("    -version - prints version information");
             System.out.println("    -license - prints license information");
             System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces");
             /* Undocumented feature - pass in one schema compiler extension and related parameters
@@ -97,6 +98,13 @@ public class SchemaCompiler
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
             System.exit(0);
             return;
         }
