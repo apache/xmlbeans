@@ -128,24 +128,29 @@ public class JDClassLoaderFactory extends Doclet {
     } else {
       spewWriter = out;
     }
-
     ClassLoader originalCCL = Thread.currentThread().getContextClassLoader();
-    JavadocResults.prepare();
-    int result = com.sun.tools.javadoc.Main.execute("JAM",
-                                                    spewWriter,
-                                                    spewWriter,
-                                                    spewWriter,
-                                                    this.getClass().getName(),
-                                                    args);
-    RootDoc root = JavadocResults.getRoot();
-    if (result != 0 || root == null) {
-      spewWriter.flush();
-      throw new RuntimeException("Unknown javadoc problem: result="+result+
-                                 ", root="+root+":\n"+
-                                 ((spew == null) ? "" : spew.toString()));
+    try {
+      JavadocResults.prepare();
+      int result = com.sun.tools.javadoc.Main.execute("JAM",
+                                                      spewWriter,
+                                                      spewWriter,
+                                                      spewWriter,
+                                                      this.getClass().getName(),
+                                                      args);
+      RootDoc root = JavadocResults.getRoot();
+      if (result != 0 || root == null) {
+        spewWriter.flush();
+        throw new RuntimeException("Unknown javadoc problem: result="+result+
+                                   ", root="+root+":\n"+
+                                   ((spew == null) ? "" : spew.toString()));
+      }
+      return JDFactory.getInstance().createClassLoader(root,parentLoader);
+    } catch(RuntimeException e) {
+      throw e;
+    } finally {
+      //make sure we do this no matter what
+      Thread.currentThread().setContextClassLoader(originalCCL);
     }
-    Thread.currentThread().setContextClassLoader(originalCCL);
-    return JDFactory.getInstance().createClassLoader(root,parentLoader);
   }
 
   // ========================================================================
