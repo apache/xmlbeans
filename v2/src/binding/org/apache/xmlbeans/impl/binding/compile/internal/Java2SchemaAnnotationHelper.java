@@ -160,7 +160,7 @@ public class Java2SchemaAnnotationHelper {
   public JAnnotation getAnnotation(JAnnotatedElement e, String named) {
     JAnnotation[] tags = e.getAllJavadocTags();
     for(int i=0; i<tags.length; i++) {
-      if (tags[i].getSimpleName().equals(named)) return tags[i];
+      if (tags[i].getQualifiedName().equals(named)) return tags[i];
     }
     return null;
   }

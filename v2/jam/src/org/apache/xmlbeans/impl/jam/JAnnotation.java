@@ -34,6 +34,9 @@ public interface JAnnotation extends JElement {
   // ========================================================================
   // Constants
 
+  public String getSimpleName();
+  
+
   public static final String SINGLE_VALUE_NAME = "value";
 
   // ========================================================================
