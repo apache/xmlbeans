@@ -110,6 +110,21 @@ public class ClassImpl extends MemberImpl implements MClass,
     setState(UNINITIALIZED);
   }
 
+  private ClassImpl(String packageName,
+                    String simpleName,
+                    String[] importSpecs,
+                    ClassImpl parent)
+  {
+    super(parent);
+    super.setSimpleName(simpleName);
+    mPackageName = packageName.trim();
+    mImports = importSpecs;
+    mPopulator = null;
+    setState(UNINITIALIZED);
+  }
+
+
+
   // ========================================================================
   // JClass implementation
 
@@ -497,8 +512,8 @@ public class ClassImpl extends MemberImpl implements MClass,
   public MClass addNewInnerClass(String name) {
     MClass inner = new ClassImpl(mPackageName,
                                  name,
-                                 getContext(),
-                                 getImportSpecs());
+                                 getImportSpecs(),
+                                 this);
     if (mInnerClasses == null) mInnerClasses = new ArrayList();
     mInnerClasses.add(inner);
     return inner;
