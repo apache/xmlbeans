@@ -48,6 +48,7 @@ public class YourClass
     private String[] wrappedArrayOne = {"W1", "W2"};
     private String[][] wrappedArrayTwo = {wrappedArrayOne, null, wrappedArrayOne};
 
+    private SimpleContentExample simpleContentExample;
 
     //hack alert
     static final Random RND = new Random();
@@ -239,12 +240,24 @@ public class YourClass
         this.wrappedArrayTwo = wrappedArrayTwo;
     }
 
+    public SimpleContentExample getSimpleContentExample()
+    {
+        return simpleContentExample;
+    }
+
+    public void setSimpleContentExample(SimpleContentExample simpleContentExample)
+    {
+        this.simpleContentExample = simpleContentExample;
+    }
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
         if (!(o instanceof YourClass)) return false;
 
         final YourClass yourClass = (YourClass)o;
+
+
 
         if (attrib != yourClass.attrib) return false;
         if (myFloat != yourClass.myFloat) return false;
@@ -260,6 +273,10 @@ public class YourClass
 
         if (qn != null ? !qn.equals(yourClass.qn) : yourClass.qn != null) return false;
         if (qn2 != null ? !qn2.equals(yourClass.qn2) : yourClass.qn2 != null) return false;
+
+        if (simpleContentExample != null ?
+            !simpleContentExample.equals(yourClass.simpleContentExample) : yourClass.simpleContentExample != null)
+            return false;
 
 
         return true;
@@ -289,6 +306,7 @@ public class YourClass
             ", someBool=" + someBool +
             ", qn=" + qn +
             ", qn2=" + qn2 +
+            ", simpleContentExample=" + simpleContentExample +
 //            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
 //            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
             ", longArray=" + ArrayUtils.arrayToString(longArray) +

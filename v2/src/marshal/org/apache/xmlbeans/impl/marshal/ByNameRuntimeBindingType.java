@@ -16,42 +16,29 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
-import org.apache.xmlbeans.impl.binding.bts.MethodName;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
+import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.io.StringReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.Iterator;
 
 
 final class ByNameRuntimeBindingType
-    extends RuntimeBindingType
+    extends AttributeRuntimeBindingType
 {
-    private final ByNameBean byNameBean;
-    private final Property[] attributeProperties;
-    private final Property[] elementProperties;
+    private final ElementQNameProperty[] elementProperties;
     private final boolean hasMulti;  //has any multi properties
-    private final boolean hasDefaultAttributes;  //has any attributes with defaults
 
     //DO NOT CALL THIS CONSTRUCTOR, use the RuntimeTypeFactory
     ByNameRuntimeBindingType(ByNameBean btype)
         throws XmlException
     {
         super(btype);
-        byNameBean = btype;
 
         final Class java_type = getJavaType();
         if (java_type.isPrimitive() || java_type.isArray()) {
@@ -61,53 +48,52 @@ final class ByNameRuntimeBindingType
         }
 
         int elem_prop_cnt = 0;
-        int att_prop_cnt = 0;
         boolean has_multi = false;
-        boolean has_attribute_defaults = false;
-        final Collection type_props = btype.getProperties();
+        final Collection type_props = getQNameProperties();
         for (Iterator itr = type_props.iterator(); itr.hasNext();) {
-            QNameProperty p = (QNameProperty)itr.next();
+            QNameProperty p =
+                (QNameProperty)itr.next();
+            if (p.isAttribute()) continue;
             if (p.isMultiple()) has_multi = true;
-            if (p.isAttribute()) {
-                att_prop_cnt++;
-                if (p.getDefault() != null) {
-                    has_attribute_defaults = true;
-                }
-            } else {
-                elem_prop_cnt++;
-            }
+            elem_prop_cnt++;
         }
 
-        attributeProperties = new Property[att_prop_cnt];
-        elementProperties = new Property[elem_prop_cnt];
+        elementProperties = new ElementQNameProperty[elem_prop_cnt];
         hasMulti = has_multi;
-        hasDefaultAttributes = has_attribute_defaults;
     }
 
-    //prepare internal data structures for use
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader loader,
-                           RuntimeTypeFactory rttFactory)
+
+    public Object getObjectFromIntermediate(Object inter)
+    {
+        if (hasMulti()) {
+            UResultHolder res = (UResultHolder)inter;
+            return res.getValue();
+        } else {
+            return inter;
+        }
+    }
+
+
+    protected Collection getQNameProperties()
+    {
+        ByNameBean narrowed_type = (ByNameBean)getBindingType();
+        return narrowed_type.getProperties();
+    }
+
+
+    protected void initElementProperty(QNameProperty prop,
+                                       int elem_idx,
+                                       RuntimeBindingTypeTable typeTable,
+                                       BindingLoader loader,
+                                       RuntimeTypeFactory rttFactory)
         throws XmlException
     {
-        int att_idx = 0;
-        int elem_idx = 0;
-        for (Iterator itr = byNameBean.getProperties().iterator(); itr.hasNext();) {
-            QNameProperty bprop = (QNameProperty)itr.next();
-            final boolean is_att = bprop.isAttribute();
-
-            final Property prop = new Property(is_att ? att_idx : elem_idx,
-                                               getJavaType(), hasMulti, bprop,
-                                               typeTable, loader, rttFactory);
-            if (is_att)
-                attributeProperties[att_idx++] = prop;
-            else
-                elementProperties[elem_idx++] = prop;
-
-        }
+        elementProperties[elem_idx] =
+            new ElementQNameProperty(elem_idx, getJavaType(), hasMulti(), prop,
+                                     this, typeTable, loader, rttFactory);
     }
 
-    Object createIntermediary(UnmarshalResult context)
+    protected Object createIntermediary(UnmarshalResult context)
     {
         if (hasMulti) {
             return new UResultHolder(this);
@@ -116,8 +102,8 @@ final class ByNameRuntimeBindingType
         }
     }
 
-    Object getFinalObjectFromIntermediary(Object retval,
-                                          UnmarshalResult context)
+    protected Object getFinalObjectFromIntermediary(Object retval,
+                                                    UnmarshalResult context)
         throws XmlException
     {
         if (hasMulti) {
@@ -133,17 +119,12 @@ final class ByNameRuntimeBindingType
         return elementProperties[index];
     }
 
-    RuntimeBindingProperty getAttributeProperty(int index)
-    {
-        return attributeProperties[index];
-    }
-
     //TODO: optimize this linear scan
     RuntimeBindingProperty getMatchingElementProperty(String uri,
                                                       String localname)
     {
         for (int i = 0, len = elementProperties.length; i < len; i++) {
-            final Property prop = elementProperties[i];
+            final ElementQNameProperty prop = elementProperties[i];
 
             if (doesPropMatch(uri, localname, prop))
                 return prop;
@@ -151,27 +132,10 @@ final class ByNameRuntimeBindingType
         return null;
     }
 
-    //TODO: optimize this linear scan
-    RuntimeBindingProperty getMatchingAttributeProperty(String uri,
-                                                        String localname,
-                                                        UnmarshalResult context)
-    {
-        for (int i = 0, len = attributeProperties.length; i < len; i++) {
-            final Property prop = attributeProperties[i];
-
-            if (doesPropMatch(uri, localname, prop)) {
-                if (hasDefaultAttributes && (prop.typedDefaultValue != null)) {
-                    context.attributePresent(i);
-                }
-                return prop;
-            }
-        }
-        return null;
-    }
 
     private static boolean doesPropMatch(String uri,
                                          String localname,
-                                         Property prop)
+                                         QNamePropertyBase prop)
     {
         assert localname != null;
 
@@ -185,204 +149,30 @@ final class ByNameRuntimeBindingType
         return elementProperties.length;
     }
 
-    public int getAttributePropertyCount()
+    protected boolean hasMulti()
     {
-        return attributeProperties.length;
-    }
-
-    public void fillDefaultAttributes(Object inter, UnmarshalResult context)
-        throws XmlException
-    {
-        if (!hasDefaultAttributes) return;
-
-        for (int aidx = 0, alen = attributeProperties.length; aidx < alen; aidx++) {
-            final Property p = attributeProperties[aidx];
-
-            if (p.typedDefaultValue == null) continue;
-            if (context.isAttributePresent(aidx)) continue;
-
-            p.fillDefaultValue(inter);
-        }
+        return hasMulti;
     }
 
 
-    private static final class Property implements RuntimeBindingProperty
+    protected static final class ElementQNameProperty
+        extends QNamePropertyBase
     {
-        private final int propertyIndex;
-        private final Class beanClass;
-        private final boolean beanHasMulti;          //consider a subclass
-        private final QNameProperty bindingProperty;
-        private final RuntimeBindingType runtimeBindingType;
-        private final Class propertyClass;
-        private final Class collectionElementClass; //null for non collections
-        private final TypeUnmarshaller unmarshaller;
-        private final TypeMarshaller marshaller; // used only for simple types
-        private final Method getMethod;
-        private final Method setMethod;
-        private final Method issetMethod;
-        private final String lexicalDefaultValue;
-        private final Object typedDefaultValue;
-
-        private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
-
-        Property(int property_index,
-                 Class beanClass,
-                 boolean bean_has_multis,
-                 QNameProperty prop,
-                 RuntimeBindingTypeTable typeTable,
-                 BindingLoader loader,
-                 RuntimeTypeFactory rttFactory)
+        ElementQNameProperty(int property_index,
+                             Class beanClass,
+                             boolean bean_has_multis,
+                             QNameProperty prop,
+                             IntermediateResolver intermediateResolver,
+                             RuntimeBindingTypeTable typeTable,
+                             BindingLoader loader,
+                             RuntimeTypeFactory rttFactory)
             throws XmlException
         {
-            if (prop.getQName() == null) {
-                final String msg = "property " + property_index + " of " +
-                    beanClass + " has no qname";
-                throw new IllegalArgumentException(msg);
-            }
-
-            this.propertyIndex = property_index;
-            this.beanClass = beanClass;
-            this.beanHasMulti = bean_has_multis;
-            this.bindingProperty = prop;
-            final BindingTypeName type_name = prop.getTypeName();
-            this.unmarshaller = typeTable.lookupUnmarshaller(type_name, loader);
-            this.marshaller = typeTable.lookupMarshaller(type_name, loader);
-
-            final BindingType binding_type = loader.getBindingType(type_name);
-            if (binding_type == null) {
-                throw new XmlException("unable to load " + type_name);
-            }
-            runtimeBindingType =
-                rttFactory.createRuntimeType(binding_type, typeTable, loader);
-            assert runtimeBindingType != null;
-
-            propertyClass = getPropertyClass(prop, binding_type);
-            collectionElementClass = getCollectionElementClass(prop, binding_type);
-            getMethod = getGetterMethod(prop, beanClass);
-            setMethod = getSetterMethod(prop, beanClass);
-            issetMethod = getIssetterMethod(prop, beanClass);
-
-            lexicalDefaultValue = bindingProperty.getDefault();
-            if (lexicalDefaultValue != null) {
-                typedDefaultValue = extractDefaultObject(lexicalDefaultValue,
-                                                         binding_type,
-                                                         typeTable, loader);
-            } else {
-                typedDefaultValue = null;
-            }
+            super(property_index, beanClass, bean_has_multis,
+                  prop, intermediateResolver, typeTable, loader, rttFactory);
+            assert !prop.isAttribute();
         }
 
-
-        //REVIEW: find a shorter path to our goal.
-        private static Object extractDefaultObject(String value,
-                                                   BindingType bindingType,
-                                                   RuntimeBindingTypeTable typeTable,
-                                                   BindingLoader loader)
-            throws XmlException
-        {
-            final String xmldoc = "<a>" + value + "</a>";
-            try {
-                final UnmarshallerImpl um = new UnmarshallerImpl(loader, typeTable);
-                final StringReader sr = new StringReader(xmldoc);
-                final XMLStreamReader reader =
-                    um.getXmlInputFactory().createXMLStreamReader(sr);
-                boolean ok =
-                    MarshalStreamUtils.advanceToNextStartElement(reader);
-                assert ok;
-                final BindingTypeName btname = bindingType.getName();
-                final Object obj =
-                    um.unmarshalType(reader, btname.getXmlName().getQName(),
-                                     btname.getJavaName().toString());
-                reader.close();
-                sr.close();
-                return obj;
-            }
-            catch (XmlRuntimeException re) {
-                //TODO: improve error handling using custom error handler
-                //esp nice to provide error info from config file
-                final String msg = "invalid default value: " + value +
-                    " for type " + bindingType.getName();
-                throw new XmlException(msg, re);
-            }
-            catch (XMLStreamException e) {
-                throw new XmlException(e);
-            }
-        }
-
-        private Class getPropertyClass(QNameProperty prop, BindingType btype)
-            throws XmlException
-        {
-            assert btype != null;
-
-            final Class propertyClass;
-            try {
-                final ClassLoader our_cl = getClass().getClassLoader();
-                final JavaTypeName collectionClass = prop.getCollectionClass();
-
-                if (collectionClass == null) {
-                    propertyClass = getJavaClass(btype, our_cl);
-                } else {
-                    final String col = collectionClass.toString();
-                    propertyClass = ClassLoadingUtils.loadClass(col, our_cl);
-                }
-            }
-            catch (ClassNotFoundException ex) {
-                throw new XmlException(ex);
-            }
-            return propertyClass;
-        }
-
-
-        private Class getCollectionElementClass(QNameProperty prop,
-                                                BindingType btype)
-            throws XmlException
-        {
-            assert btype != null;
-
-            try {
-                final JavaTypeName collectionClass = prop.getCollectionClass();
-
-                if (collectionClass == null) {
-                    return null;
-                } else {
-                    final ClassLoader our_cl = getClass().getClassLoader();
-                    return getJavaClass(btype, our_cl);
-                }
-            }
-            catch (ClassNotFoundException ex) {
-                throw new XmlException(ex);
-            }
-        }
-
-
-        public RuntimeBindingType getRuntimeBindingType()
-        {
-            return runtimeBindingType;
-        }
-
-        public RuntimeBindingType getActualRuntimeType(Object property_value,
-                                                       MarshalResult result)
-            throws XmlException
-        {
-            return MarshalResult.findActualRuntimeType(property_value,
-                                                       runtimeBindingType,
-                                                       result);
-        }
-
-        public QName getName()
-        {
-            return bindingProperty.getQName();
-        }
-
-
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
-            throws XmlException
-        {
-            //don't need any xsi stuff for attributes.
-            if (bindingProperty.isAttribute()) return unmarshaller;
-
-            return context.determineTypeUnmarshaller(unmarshaller);
-        }
 
         public void fill(final Object inter, final Object prop_obj)
             throws XmlException
@@ -399,181 +189,18 @@ final class ByNameRuntimeBindingType
                 if (isMultiple()) {
                     rh.addItem(propertyIndex, prop_obj);
                 } else {
-                    invokeMethod(rh.getValue(), setMethod,
+                    ReflectionUtils.invokeMethod(rh.getValue(), setMethod,
                                  new Object[]{prop_obj});
                 }
             } else {
-                invokeMethod(inter, setMethod, new Object[]{prop_obj});
+                ReflectionUtils.invokeMethod(inter, setMethod, new Object[]{prop_obj});
             }
         }
-
-        public void fillDefaultValue(Object inter)
-            throws XmlException
-        {
-            assert (typedDefaultValue != null);
-
-            this.fill(inter, typedDefaultValue);
-        }
-
-        public void fillCollection(final Object inter, final Object prop_obj)
-            throws XmlException
-        {
-            assert isMultiple();
-            invokeMethod(inter, setMethod, new Object[]{prop_obj});
-        }
-
-        public CharSequence getLexical(Object value, MarshalResult result)
-            throws XmlException
-        {
-            assert value != null :
-                "null value for " + bindingProperty + " class=" + beanClass;
-
-            assert  result != null :
-                "null value for " + bindingProperty + " class=" + beanClass;
-
-            assert marshaller != null :
-                "null marshaller for prop=" + bindingProperty + " class=" +
-                beanClass + " propType=" + bindingProperty.getTypeName();
-
-            return marshaller.print(value, result);
-        }
-
-        public Object getValue(Object parentObject, MarshalResult result)
-            throws XmlException
-        {
-            assert parentObject != null;
-            assert beanClass.isAssignableFrom(parentObject.getClass()) :
-                parentObject.getClass() + " is not a " + beanClass;
-
-            return invokeMethod(parentObject, getMethod, EMPTY_OBJECT_ARRAY);
-        }
-
-        public boolean isSet(Object parentObject, MarshalResult result)
-            throws XmlException
-        {
-            if (issetMethod == null)
-                return isSetFallback(parentObject, result);
-
-            final Boolean isset =
-                (Boolean)invokeMethod(parentObject, issetMethod,
-                                      EMPTY_OBJECT_ARRAY);
-            return isset.booleanValue();
-        }
-
-        private static Object invokeMethod(Object target,
-                                           Method method,
-                                           Object[] params)
-            throws XmlException
-        {
-            try {
-                return method.invoke(target, params);
-            }
-            catch (IllegalAccessException e) {
-                throw new XmlException(e);
-            }
-            catch (IllegalArgumentException e) {
-                throw new XmlException(e);
-            }
-            catch (InvocationTargetException e) {
-                throw new XmlException(e);
-            }
-        }
-
-        private boolean isSetFallback(Object parentObject, MarshalResult result)
-            throws XmlException
-        {
-            //REVIEW: nillable is winning over minOccurs="0".  Is this correct?
-            if (bindingProperty.isNillable())
-                return true;
-
-            Object val = getValue(parentObject, result);
-            return (val != null);
-        }
-
-        public boolean isMultiple()
-        {
-            return bindingProperty.isMultiple();
-        }
-
-        public boolean isNillable()
-        {
-            return bindingProperty.isNillable();
-        }
-
-        public String getLexicalDefault()
-        {
-            return lexicalDefaultValue;
-        }
-
-        private static Method getSetterMethod(QNameProperty binding_prop,
-                                              Class beanClass)
-            throws XmlException
-        {
-            if (!binding_prop.hasSetter()) return null;
-
-            MethodName setterName = binding_prop.getSetterName();
-            return getMethodOnClass(setterName, beanClass);
-        }
-
-        private static Method getIssetterMethod(QNameProperty binding_prop,
-                                                Class clazz)
-            throws XmlException
-        {
-            if (!binding_prop.hasIssetter())
-                return null;
-
-            Method isset_method =
-                getMethodOnClass(binding_prop.getIssetterName(), clazz);
-
-            if (!isset_method.getReturnType().equals(Boolean.TYPE)) {
-                String msg = "invalid isset method: " + isset_method +
-                    " -- return type must be boolean not " +
-                    isset_method.getReturnType().getName();
-                throw new XmlException(msg);
-            }
-
-            return isset_method;
-        }
-
-
-        private static Method getGetterMethod(QNameProperty binding_prop,
-                                              Class beanClass)
-            throws XmlException
-        {
-            MethodName getterName = binding_prop.getGetterName();
-            return getMethodOnClass(getterName, beanClass);
-        }
-
-
-        private static Method getMethodOnClass(MethodName method_name,
-                                               Class clazz)
-            throws XmlException
-        {
-            try {
-                return method_name.getMethodOn(clazz);
-            }
-            catch (NoSuchMethodException e) {
-                throw new XmlException(e);
-            }
-            catch (SecurityException se) {
-                throw new XmlException(se);
-            }
-            catch (ClassNotFoundException cnfe) {
-                throw new XmlException(cnfe);
-            }
-        }
-
-
-        QName getQName()
-        {
-            return bindingProperty.getQName();
-        }
-
 
     }
 
 
-    private static final class UResultHolder
+    protected static final class UResultHolder
     {
         private final ByNameRuntimeBindingType runtimeBindingType;
         private final Object value;
@@ -589,11 +216,11 @@ final class ByNameRuntimeBindingType
         Object getFinalValue() throws XmlException
         {
             if (accumulators != null) {
-                final Property[] props = runtimeBindingType.elementProperties;
+                final QNamePropertyBase[] props = runtimeBindingType.elementProperties;
                 for (int i = 0, len = accumulators.length; i < len; i++) {
                     final Accumulator accum = accumulators[i];
                     if (accum != null) {
-                        final Property prop = props[i];
+                        final QNamePropertyBase prop = props[i];
                         prop.fillCollection(value, accum.getFinalArray());
                     }
                 }
@@ -615,7 +242,7 @@ final class ByNameRuntimeBindingType
                 accumulators = accs;
             }
             if (accs[elem_idx] == null) {
-                final Property p = runtimeBindingType.elementProperties[elem_idx];
+                final QNamePropertyBase p = runtimeBindingType.elementProperties[elem_idx];
                 accs[elem_idx] =
                     AccumulatorFactory.createAccumulator(p.propertyClass,
                                                          p.collectionElementClass);
@@ -626,7 +253,6 @@ final class ByNameRuntimeBindingType
         {
             return value;
         }
-
 
     }
 

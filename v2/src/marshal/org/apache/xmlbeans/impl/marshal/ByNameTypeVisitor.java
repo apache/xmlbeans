@@ -31,8 +31,7 @@ final class ByNameTypeVisitor
     private final int maxElementPropCount;
     private final int maxAttributePropCount;
     private int elemPropIdx = -1;
-    private List attributeNames;
-    private List attributeValues;
+    private List attributes; //name, value, name, value...
     private Iterator currMultipleIterator;
     private Object currMultipleItem;
     private boolean haveMultipleItem;
@@ -164,38 +163,50 @@ final class ByNameTypeVisitor
     protected int getAttributeCount()
         throws XmlException
     {
-        assert attributeNames.size() == attributeValues.size();
-
-        return attributeValues.size();
+        final int sz = ((attributes.size()) / 2);
+        return sz;
     }
 
     protected void initAttributes()
         throws XmlException
     {
-        assert attributeNames == null;
-        assert attributeValues == null;
+        attributes = new ArrayList();
+        initAttributesInternal(this,
+                               attributes,
+                               type,
+                               maxAttributePropCount,
+                               marshalResult);
 
-        final List vals = new ArrayList();
-        final List names = new ArrayList();
+    }
 
-        final Object parent = getParentObject();
+    static void initAttributesInternal(NamedXmlTypeVisitor typeVisitor,
+                                       List atts,
+                                       AttributeRuntimeBindingType rtt,
+                                       int maxAttributePropCount,
+                                       MarshalResult marshalResult)
+        throws XmlException
+    {
+        assert atts != null;
+        atts.clear();
+
+
+        final Object parent = typeVisitor.getParentObject();
         if (parent == null) {
-            QName nil_qn = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
-            names.add(nil_qn);
-            vals.add(XsTypeConverter.printBoolean(true));
+            QName nil_qn = typeVisitor.fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
+            addAttribute(atts, nil_qn, XsTypeConverter.printBoolean(true));
         } else {
-            if (needsXsiType()) {
-                QName aname = fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
-                names.add(aname);
-                QName tn = fillPrefix(type.getSchemaTypeName());
+            if (typeVisitor.needsXsiType()) {
+                QName aname = typeVisitor.fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
+                QName tn = typeVisitor.fillPrefix(rtt.getSchemaTypeName());
                 String aval = XsTypeConverter.getQNameString(tn.getNamespaceURI(),
                                                              tn.getLocalPart(),
                                                              tn.getPrefix());
-                vals.add(aval);
+
+                addAttribute(atts, aname, aval);
             }
 
             for (int i = 0, len = maxAttributePropCount; i < len; i++) {
-                final RuntimeBindingProperty prop = type.getAttributeProperty(i);
+                final RuntimeBindingProperty prop = rtt.getAttributeProperty(i);
 
                 if (!prop.isSet(parent, marshalResult)) continue;
 
@@ -207,26 +218,30 @@ final class ByNameTypeVisitor
 
                 if (val == null) continue;
 
-                vals.add(val);
-                names.add(fillPrefix(prop.getName()));
+                addAttribute(atts, typeVisitor.fillPrefix(prop.getName()), val);
             }
         }
 
-        attributeNames = names;
-        attributeValues = vals;
-
-        assert attributeNames.size() == attributeValues.size();
+        assert (atts.size() % 2) == 0;
     }
+
+    static void addAttribute(List atts, QName name, CharSequence value) {
+        atts.add(name);
+        atts.add(value);
+
+        assert (atts.size() % 2) == 0;
+    }
+
 
     protected String getAttributeValue(int idx)
     {
-        CharSequence val = (CharSequence)attributeValues.get(idx);
+        CharSequence val = (CharSequence)attributes.get(1 + (idx * 2));
         return val.toString();
     }
 
     protected QName getAttributeName(int idx)
     {
-        QName an = (QName)attributeNames.get(idx);
+        QName an = (QName)attributes.get(idx * 2);
 
         //make sure we have a valid prefix
         assert ((an.getPrefix().length() == 0) ==

@@ -30,7 +30,7 @@
             <n1:BigInt>2222222222</n1:BigInt>
         </n1:MyClassArray>
 
-
+        <n1:simpleContentExample someAtt="1.23">testing</n1:simpleContentExample>
 
     </My:Myelt>
 

@@ -74,6 +74,18 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="simple-content-bean">
+    <xs:complexContent>
+      <xs:extension base="tns:binding-type">
+        <xs:sequence>
+          <xs:element name="simple-content-property" type="tns:simple-content-property"/>
+          <xs:element name="attribute-property" type="tns:qname-property"
+            minOccurs="0" maxOccurs="unbounded"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="wrapped-array">
     <xs:complexContent>
       <xs:extension base="tns:binding-type">
@@ -112,6 +124,16 @@
       </xs:choice>
       <xs:element name="collection" type="tns:java-class-name" minOccurs="0"/>
     </xs:sequence>
+  </xs:complexType>
+
+  <!--  type must be a simple or builtin type-->
+  <xs:complexType name="simple-content-property">
+    <xs:complexContent>
+      <xs:extension base="tns:binding-property">
+        <xs:sequence>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
   </xs:complexType>
 
   <xs:complexType name="qname-property">

@@ -21,11 +21,8 @@ import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import javax.xml.namespace.QName;
 
 final class SimpleTypeVisitor
-    extends NamedXmlTypeVisitor
+    extends SimpleContentVisitor
 {
-    private final CharacterVisitor charVisitor;
-
-    private int state = START;
     private QName attributeName;
     private String xsiTypeAttVal;
 
@@ -33,43 +30,9 @@ final class SimpleTypeVisitor
                              MarshalResult result)
         throws XmlException
     {
-        super(obj, property, result);
-        charVisitor = new CharacterVisitor(property, obj, result);
+        super(property, obj, result);
     }
 
-    protected int getState()
-    {
-        return state;
-    }
-
-    protected int advance()
-        throws XmlException
-    {
-        final int newstate;
-        switch (state) {
-            case START:
-                if (getParentObject() == null) {
-                    newstate = END;
-                } else {
-                    newstate = CHARS;
-                }
-                break;
-            case CHARS:
-                newstate = END;
-                break;
-            default:
-                throw new AssertionError("invalid state: " + state);
-        }
-        state = newstate;
-        return newstate;
-    }
-
-    public XmlTypeVisitor getCurrentChild()
-        throws XmlException
-    {
-        assert state == CHARS;
-        return charVisitor;
-    }
 
     protected void initAttributes()
         throws XmlException
@@ -109,11 +72,5 @@ final class SimpleTypeVisitor
         assert attributeName != null;
         return attributeName;
     }
-
-    protected CharSequence getCharData()
-    {
-        throw new AssertionError("not text");
-    }
-
 
 }

@@ -16,11 +16,19 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.StringReader;
+import java.lang.reflect.Method;
 
 /**
  * what we need to know about a binding type at runtime.
@@ -32,6 +40,7 @@ abstract class RuntimeBindingType
     private final BindingType bindingType;
     private final Class javaClass;
     private final boolean javaPrimitive;
+    private final boolean javaFinal;
 
     RuntimeBindingType(BindingType binding_type)
         throws XmlException
@@ -49,6 +58,7 @@ abstract class RuntimeBindingType
         }
 
         javaPrimitive = javaClass.isPrimitive();
+        javaFinal = ReflectionUtils.isClassFinal(javaClass);
     }
 
 
@@ -78,6 +88,11 @@ abstract class RuntimeBindingType
         return javaPrimitive;
     }
 
+    final boolean isJavaFinal()
+    {
+        return javaFinal;
+    }
+
     protected static Class getJavaClass(BindingType btype, ClassLoader backup)
         throws ClassNotFoundException
     {
@@ -90,5 +105,219 @@ abstract class RuntimeBindingType
     {
         return getBindingType().getName().getXmlName().getQName();
     }
+
+    //REVIEW: find a shorter path to our goal.
+    protected static Object extractDefaultObject(String value,
+                                                 BindingType bindingType,
+                                                 RuntimeBindingTypeTable typeTable,
+                                                 BindingLoader loader)
+        throws XmlException
+    {
+        final String xmldoc = "<a>" + value + "</a>";
+        try {
+            final UnmarshallerImpl um = new UnmarshallerImpl(loader, typeTable);
+            final StringReader sr = new StringReader(xmldoc);
+            final XMLStreamReader reader =
+                um.getXmlInputFactory().createXMLStreamReader(sr);
+            boolean ok =
+                MarshalStreamUtils.advanceToNextStartElement(reader);
+            assert ok;
+            final BindingTypeName btname = bindingType.getName();
+            final Object obj =
+                um.unmarshalType(reader, btname.getXmlName().getQName(),
+                                 btname.getJavaName().toString());
+            reader.close();
+            sr.close();
+            return obj;
+        }
+        catch (XmlRuntimeException re) {
+            //TODO: improve error handling using custom error handler
+            //esp nice to provide error info from config file
+            final String msg = "invalid default value: " + value +
+                " for type " + bindingType.getName();
+            throw new XmlException(msg, re);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
+    }
+
+    public String toString()
+    {
+        return this.getClass().getName() +
+            "{" +
+            "bindingType=" + bindingType +
+            "}";
+    }
+
+
+    protected abstract static class RuntimePropertyBase
+        implements RuntimeBindingProperty
+    {
+        protected final Class beanClass;
+        protected final IntermediateResolver intermediateResolver;
+        protected final Method getMethod;
+        protected final Method setMethod;
+        protected final Method issetMethod;
+        protected final RuntimeBindingType runtimeBindingType;
+        protected final Class propertyClass;
+        protected final Class collectionElementClass; //null for non collections
+        protected final TypeUnmarshaller unmarshaller;
+        protected final TypeMarshaller marshaller; // used only for simple types
+
+
+        RuntimePropertyBase(Class beanClass,
+                            BindingProperty prop,
+                            IntermediateResolver intermediateResolver,
+                            RuntimeBindingTypeTable typeTable,
+                            BindingLoader loader,
+                            RuntimeTypeFactory rttFactory)
+            throws XmlException
+        {
+            this.beanClass = beanClass;
+            this.intermediateResolver = intermediateResolver;
+            final BindingTypeName type_name = prop.getTypeName();
+            this.unmarshaller = typeTable.lookupUnmarshaller(type_name, loader);
+            this.marshaller = typeTable.lookupMarshaller(type_name, loader);
+
+            final BindingType binding_type = loader.getBindingType(type_name);
+            if (binding_type == null) {
+                throw new XmlException("unable to load " + type_name);
+            }
+            runtimeBindingType =
+                rttFactory.createRuntimeType(binding_type, typeTable, loader);
+            assert runtimeBindingType != null;
+
+            propertyClass = getPropertyClass(prop, binding_type);
+            collectionElementClass = getCollectionElementClass(prop, binding_type);
+            getMethod = ReflectionUtils.getGetterMethod(prop, beanClass);
+            setMethod = ReflectionUtils.getSetterMethod(prop, beanClass);
+            issetMethod = ReflectionUtils.getIssetterMethod(prop, beanClass);
+        }
+
+
+        public void fill(final Object inter, final Object prop_obj)
+            throws XmlException
+        {
+            Object inst = intermediateResolver.getObjectFromIntermediate(inter);
+            ReflectionUtils.invokeMethod(inst, setMethod, new Object[]{prop_obj});
+        }
+
+        public final Object getValue(Object parentObject, MarshalResult result)
+            throws XmlException
+        {
+            assert parentObject != null;
+            assert beanClass.isAssignableFrom(parentObject.getClass()) :
+                parentObject.getClass() + " is not a " + beanClass;
+
+            return ReflectionUtils.invokeMethod(parentObject, getMethod);
+        }
+
+        protected Class getPropertyClass(BindingProperty prop, BindingType btype)
+            throws XmlException
+        {
+            assert btype != null;
+
+            final Class propertyClass;
+            try {
+                final ClassLoader our_cl = getClass().getClassLoader();
+                final JavaTypeName collectionClass = prop.getCollectionClass();
+
+                if (collectionClass == null) {
+                    propertyClass = getJavaClass(btype, our_cl);
+                } else {
+                    final String col = collectionClass.toString();
+                    propertyClass = ClassLoadingUtils.loadClass(col, our_cl);
+                }
+            }
+            catch (ClassNotFoundException ex) {
+                throw new XmlException(ex);
+            }
+            return propertyClass;
+        }
+
+        protected Class getCollectionElementClass(BindingProperty prop,
+                                                  BindingType btype)
+            throws XmlException
+        {
+            assert btype != null;
+
+            try {
+                final JavaTypeName collectionClass = prop.getCollectionClass();
+
+                if (collectionClass == null) {
+                    return null;
+                } else {
+                    final ClassLoader our_cl = getClass().getClassLoader();
+                    return getJavaClass(btype, our_cl);
+                }
+            }
+            catch (ClassNotFoundException ex) {
+                throw new XmlException(ex);
+            }
+        }
+
+        public final RuntimeBindingType getRuntimeBindingType()
+        {
+            return runtimeBindingType;
+        }
+
+        public final RuntimeBindingType getActualRuntimeType(Object property_value,
+                                                             MarshalResult result)
+            throws XmlException
+        {
+            return MarshalResult.findActualRuntimeType(property_value,
+                                                       runtimeBindingType,
+                                                       result);
+        }
+
+
+        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
+            throws XmlException
+        {
+            return context.determineTypeUnmarshaller(unmarshaller);
+        }
+
+        public final boolean isSet(Object parentObject, MarshalResult result)
+            throws XmlException
+        {
+            if (issetMethod == null)
+                return isSetFallback(parentObject, result);
+
+            final Boolean isset =
+                (Boolean)ReflectionUtils.invokeMethod(parentObject, issetMethod);
+            return isset.booleanValue();
+        }
+
+        private boolean isSetFallback(Object parentObject, MarshalResult result)
+            throws XmlException
+        {
+            //REVIEW: nillable is winning over minOccurs="0".  Is this correct?
+            if (isNillable())
+                return true;
+
+            Object val = getValue(parentObject, result);
+            return (val != null);
+        }
+
+        public final CharSequence getLexical(Object value,
+                                             MarshalResult result)
+            throws XmlException
+        {
+            assert value != null :
+                "null value for " + getName() + " class=" + beanClass;
+
+            assert  result != null :
+                "null value for " + getName() + " class=" + beanClass;
+
+            assert marshaller != null :
+                "null marshaller for prop=" + getName() + " class=" +
+                beanClass + " propType=" + runtimeBindingType;
+
+            return marshaller.print(value, result);
+        }
+
+    }
+
 
 }
