@@ -827,7 +827,8 @@ final class Cur
         _xobj.ensureOccupancy();
         return _xobj.hasText();
     }
-    
+
+
     boolean hasAttrs ( )
     {
         assert isNode();
@@ -2201,8 +2202,14 @@ final class Cur
         String getXmlnsPrefix ( ) { return Locale.xmlnsPrefix( _name ); }
         String getXmlnsUri    ( ) { return getString( 1, _cchValue );   }
 
-        boolean hasText ( ) { return _cchValue > 0; }
-        
+        boolean hasText ( )
+        {
+            return
+                _cchValue > 0 ||
+                    (_lastChild != null && _lastChild.isAttr() && _lastChild._cchAfter > 0);
+        }
+
+
         boolean hasAttrs    ( ) { return _firstChild != null &&  _firstChild.isAttr(); }
         boolean hasChildren ( ) { return _lastChild  != null && !_lastChild .isAttr(); }
 
