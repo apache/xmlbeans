@@ -84,6 +84,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 
 import org.apache.xmlbeans.impl.values.TypeStore;
@@ -2914,6 +2915,17 @@ final class Cur
         //
         //
 
+        protected void startDTD (String name, String publicId, String systemId )
+        {
+            _doctypeName = name;
+            _doctypePublicId = publicId;
+            _doctypeSystemId = systemId;
+        }
+        
+        protected void endDTD ( )
+        {
+        }
+        
         protected void startElement ( QName name )
         {
             start( createElementXobj( _locale, checkName( name, false ), parent()._name ) );
@@ -3176,6 +3188,16 @@ final class Cur
                 Locale.applyNamespaces( c, _additionalNamespaces );
             }
 
+            if (_doctypeName != null && (_doctypePublicId != null || _doctypeSystemId != null))
+            {
+                XmlDocumentProperties props = Locale.getDocProps(c, true);
+                props.setDoctypeName(_doctypeName);
+                if (_doctypePublicId != null)
+                    props.setDoctypePublicId(_doctypePublicId);
+                if (_doctypeSystemId != null)
+                    props.setDoctypeSystemId(_doctypeSystemId);
+            }
+            
             c.moveTo( _frontier );
 
             assert c.isRoot();
@@ -3204,6 +3226,10 @@ final class Cur
         private boolean  _stripProcinsts;
         private Map      _substituteNamespaces;
         private Map      _additionalNamespaces;
+        
+        private String   _doctypeName;
+        private String   _doctypePublicId;
+        private String   _doctypeSystemId;
     }
 
     //
