@@ -90,10 +90,10 @@ public class CopyTest extends BasicCursorTestCase {
         XmlCursor xc0 = xobj0.newCursor();
         XmlCursor xc1 = xobj1.newCursor();
 
-        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//Initial");
+        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " $this//Initial");
         xc0.toNextSelection();
          String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\""+
+                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
                  "$this//po:zip";
         xc1.selectPath( sQuery );
         xc1.toNextSelection();
@@ -139,7 +139,7 @@ public class CopyTest extends BasicCursorTestCase {
         xc0.toNextSelection();
 
          String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\""+
+                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
                  "$this//po:zip";
         xc1.selectPath( sQuery );
         xc1.selectPath( sQuery );
@@ -182,7 +182,7 @@ public class CopyTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
 
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
         m_xc.selectPath(ns+" $this//po:shipTo/po:city");
@@ -202,7 +202,7 @@ public class CopyTest extends BasicCursorTestCase {
 
     public void testCopyElementToMiddleOfTEXT() throws Exception {
 
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
         String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));

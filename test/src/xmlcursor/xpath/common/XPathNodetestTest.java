@@ -110,7 +110,7 @@ public class XPathNodetestTest extends BasicCursorTestCase {
     public void testText()throws Exception{
 	String sInput="<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><br>foo<foo>text</foo></br>";
 	m_xc= XmlObject.Factory.parse(sInput).newCursor();
-	String sXPath="$this//text()";
+	String sXPath="//text()";
 	String sExpected1=Common.XMLFRAG_BEGINTAG+"foo"+Common.XMLFRAG_ENDTAG;
 	String sExpected2=Common.XMLFRAG_BEGINTAG+"text"+Common.XMLFRAG_ENDTAG;
 	m_xc.selectPath(sXPath);
@@ -119,6 +119,18 @@ public class XPathNodetestTest extends BasicCursorTestCase {
 	assertEquals(m_xc.xmlText(),sExpected1);
 	m_xc.toNextSelection();
 	assertEquals(m_xc.xmlText(),sExpected2);
+    }
+
+    public void testTextObject()throws Exception{
+	String sInput="<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><br>foo<foo>text</foo></br>";
+	m_xo= XmlObject.Factory.parse(sInput);
+	String sXPath="//text()";
+	String sExpected1=Common.XMLFRAG_BEGINTAG+"foo"+Common.XMLFRAG_ENDTAG;
+	String sExpected2=Common.XMLFRAG_BEGINTAG+"text"+Common.XMLFRAG_ENDTAG;
+	XmlObject[] res=m_xo.selectPath(sXPath);
+	assertEquals(res.length,2);
+	assertEquals(res[0].xmlText(),sExpected1);
+	assertEquals(res[1].xmlText(),sExpected2);
     }
 }
 

@@ -24,6 +24,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  * Date: Oct 25, 2004
@@ -82,23 +83,24 @@ public class FacetsTest extends BaseCase {
 
     }
 
+    //valid range should be 3-9
     public void testMinMaxExclusiveElt() throws Throwable {
         MinMaxExclusiveEltDocument doc =
                 MinMaxExclusiveEltDocument.Factory.newInstance();
         String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_LENGTH_VALID$LIST_LENGTH};
+            XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID};
 
-        doc.setMinMaxExclusiveElt(3);
+        doc.setMinMaxExclusiveElt(2);
         assertTrue(!doc.validate(validateOptions));
         assertTrue(compareErrorCodes(errExpected));
-        doc.setMinMaxExclusiveElt(1);
+        doc.setMinMaxExclusiveElt(3);
         try {
             assertTrue(doc.validate(validateOptions));
         } catch (Throwable t) {
             showErrors();
             throw t;
         }
-        doc.setMinMaxExclusiveElt(11);
+        doc.setMinMaxExclusiveElt(9);
         try {
             assertTrue(doc.validate(validateOptions));
         } catch (Throwable t) {
@@ -108,16 +110,17 @@ public class FacetsTest extends BaseCase {
 
     }
 
+    //valid range is 12-11 12-24-2003
     public void testMinMaxExclusiveDateElt() throws Throwable {
         MinMaxExclusiveDateEltDocument doc = MinMaxExclusiveDateEltDocument.Factory.newInstance();
-        Calendar c = new GregorianCalendar(2003, 11, 24);
+        Calendar c = new GregorianCalendar(2003, 11, 25);
         doc.setMinMaxExclusiveDateElt(c);
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID};
         assertTrue(!doc.validate(validateOptions));
         assertTrue(compareErrorCodes(errExpected));
 
-        c = new GregorianCalendar(2003, 11, 28);
+        c = new GregorianCalendar(2003, 11, 11);
         doc.setMinMaxExclusiveDateElt(c);
         try {
             assertTrue(doc.validate(validateOptions));
@@ -215,6 +218,7 @@ public class FacetsTest extends BaseCase {
     }
 
     public void testEnumElt() throws Throwable {
+
         EnumEltDocument doc = EnumEltDocument.Factory.newInstance();
         doc.setEnumElt(EnumT.A);
         try {

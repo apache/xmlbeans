@@ -35,12 +35,13 @@
         </xs:restriction>
     </xs:simpleType>
 
-
+<!-- Compile time test: this needs to fail
     <xs:simpleType name="LengthT">
            <xs:restriction base="base:LengthT">
                <xs:length value="1"/>
            </xs:restriction>
        </xs:simpleType>
+-->
 
     <xs:simpleType name="MinMaxLengthT">
            <xs:restriction base="base:MinMaxLengthT">
@@ -78,7 +79,7 @@
      <xs:element name="MinMaxInclusiveDateElt" type="MinMaxInclusiveDateT"/>
     <xs:element name="MinMaxExclusiveElt" type="MinMaxExclusiveT"/>
     <xs:element name="MinMaxExclusiveDateElt" type="MinMaxExclusiveDateT"/>
-    <xs:element name="LengthElt" type="LengthT"/>
+    <xs:element name="LengthElt" type="xs:integer"/>
     <xs:element name="MinMaxLengthElt" type="MinMaxLengthT"/>
     <xs:element name="DigitsElt" type="DigitsT"/>
     <xs:element name="WSElt" type="WST"/>

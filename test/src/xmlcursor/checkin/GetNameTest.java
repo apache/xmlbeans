@@ -87,7 +87,7 @@ public class GetNameTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
 
         m_xc.selectPath(ns+" $this//po:shipTo/po:city");
         m_xc.toNextSelection();
@@ -106,7 +106,7 @@ public class GetNameTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
 
         m_xc.selectPath(ns+" $this//po:shipTo");
         m_xc.toNextSelection();
@@ -134,7 +134,7 @@ public class GetNameTest extends BasicCursorTestCase {
     public void testGetNameAttrWithDefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS_PREFIX);
         m_xc = m_xo.newCursor();
-        String sDefaultElemNS = "default element namespace=\"http://ecommerce.org/schema\"";
+        String sDefaultElemNS = "declare default element namespace \"http://ecommerce.org/schema\";";
         m_xc.selectPath(sDefaultElemNS + "$this//price");
         m_xc.toNextSelection();
         m_xc.toFirstAttribute();

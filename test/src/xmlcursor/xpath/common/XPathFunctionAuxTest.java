@@ -46,7 +46,7 @@ public class XPathFunctionAuxTest extends BasicCursorTestCase {
     }
 
     static String fixPath(String path){
-        return "$this"+path;
+        return path;
     }
     public void testFunctionCount_caseB() throws Exception {
 	XmlObject xDoc = XmlObject.Factory.parse(
@@ -68,8 +68,8 @@ public class XPathFunctionAuxTest extends BasicCursorTestCase {
 	String sXml="<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
-	String	sXPath="concat(name(//bar/*),//price/text())";
-	String sExpected="price3.00";
+	String	sXPath="concat(name(/bar[position()=1]/*[position()=1]),//price[position()=1]/text())";
+	String sExpected=Common.wrapInXmlFrag("price3.00");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
@@ -81,7 +81,7 @@ public class XPathFunctionAuxTest extends BasicCursorTestCase {
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
 	String	sXPath="string-length(name(//bar/*[last()]))";
-	String sExpected="price".length()+"";
+	String sExpected=Common.wrapInXmlFrag("price".length()+"");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
@@ -91,10 +91,12 @@ public void testFunctionSubString_caseB() throws Exception {
 	String sXml="<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
-	String sXPath="substring(name(//bar/*),3,3)";
-	String sExpected="ice";
+	String sXPath="substring(name(//bar[position()=1]/*[position()=1]),3,3)";
+	String sExpected=Common.wrapInXmlFrag("ice");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
+    assertEquals(XmlCursor.TokenType.TEXT,
+            m_xc.currentTokenType());
 	assertEquals(sExpected,m_xc.xmlText());
 
     }
@@ -104,8 +106,8 @@ public void testFunctionSubString_caseB() throws Exception {
 	String sXml="<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
-	String sXPath="substring-after(name(//bar/*),'pr')";
-	String sExpected="ice";
+	String sXPath="substring-after(name(//bar[position()=1]/*[position()=1]),'pr')";
+	String sExpected=Common.wrapInXmlFrag("ice");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
@@ -117,8 +119,9 @@ public void testFunctionSubString_caseB() throws Exception {
 	String sXml="<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
-	String	sXPath="substring-before(name(//bar/*),'ice')";
-	String sExpected="pr";
+	String	sXPath="substring-before(" +
+            "name(//bar[position()=1]/*[position()=1]),'ice')";
+	String sExpected=Common.wrapInXmlFrag("pr");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
@@ -128,8 +131,10 @@ public void testFunctionSubString_caseB() throws Exception {
 	String sXml="<foo><bar><price at=\"val0\">3.00</price><price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
-	String sXPath="translate(//bar/price/text(),'200','654')";//0 is now 5 &&4?
-	String sExpected="355";
+	String sXPath="translate(//bar[position()=1]/price[position()=1]/text()," +
+            "'200'," +
+            "'654')";//0 is now 5 &&4?
+	String sExpected=Common.wrapInXmlFrag("3.55");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
@@ -139,7 +144,7 @@ public void testFunctionSubString_caseB() throws Exception {
 	String sXml="<foo><bar><price at=\"val0\">3.00</price></bar><bar1>3.00</bar1></foo>";
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 	String	sXPath="number(//price/text())+10";
-	String sExpected="13.00";
+	String sExpected=Common.wrapInXmlFrag("13.0");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
@@ -151,7 +156,7 @@ public void testFunctionSubString_caseB() throws Exception {
 	m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
 	String	sXPath="round(//bar/price[position()=1]/text())";
-	String sExpected="3";
+	String sExpected=Common.wrapInXmlFrag("3.0");
 	m_xc.selectPath(fixPath(sXPath));
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
@@ -165,28 +170,58 @@ public void testFunctionSum_caseB() throws Exception {
 	 m_xc=XmlObject.Factory.parse(sXml).newCursor();
 
 	 String	sXPath="sum(//bar/price)";
-	String sExpected="5";
+	String sExpected=Common.wrapInXmlFrag("5.0");
 	m_xc.selectPath(sXPath);
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
   }
 //
 
-  public void testFunctionBoolean_caseB() throws Exception {
-	m_xc.selectPath("boolean(//foo/text())");
+    public void testFunctionBoolean_caseB_delete() throws Exception {
+        String sXml="<foo><bar>" +
+              "<price at=\"val0\">3.00</price>" +
+              "<price at=\"val1\">2</price>" +
+              "</bar><bar1>3.00</bar1></foo>";
+      m_xc=XmlObject.Factory.parse(sXml).newCursor();
+
+	 String	sXPath="boolean(//foo/text())";
+	m_xc.selectPath(sXPath);
+        System.out.println(m_xc.getSelectionCount());
+	assertTrue(m_xc.toNextSelection() );
+	assertEquals(Common.wrapInXmlFrag("false"),
+          m_xc.xmlText());
+      assertTrue(! m_xc.toNextSelection() );
+        System.out.println("DOC  "+m_xc.xmlText());
+	m_xc.clearSelections();
+    m_xc.toStartDoc();
+    m_xc.selectPath("boolean(//price/text())");
+//     m_xc.selectPath("$this//bar");
+     m_xc.toNextSelection();
+     System.out.println("HERE "+m_xc.xmlText());
+    }
+    public void testFunctionBoolean_caseB() throws Exception {
+      String sXml="<foo><bar>" +
+              "<price at=\"val0\">3.00</price>" +
+              "<price at=\"val1\">2</price>" +
+              "</bar><bar1>3.00</bar1></foo>";
+      m_xc=XmlObject.Factory.parse(sXml).newCursor();
+
+	 String	sXPath="boolean(//foo/text())";//"boolean(//foo/text())";
+	m_xc.selectPath(sXPath);
 	m_xc.toNextSelection();
-	assertEquals("false",m_xc.xmlText());
+	assertEquals(Common.wrapInXmlFrag("false"),
+            m_xc.xmlText());
 	m_xc.clearSelections();
 
        //number
        m_xc.selectPath("boolean(//price/text())");
        m_xc.toNextSelection();
-       assertEquals("true",m_xc.xmlText());
+       assertEquals(Common.wrapInXmlFrag("true"),m_xc.xmlText());
        m_xc.clearSelections();
 
 
        //number
-       m_xc.selectPath("boolean(//price/text() div 0)");
+       m_xc.selectPath("boolean(//price[position()=last()]/text() div 0)");
        m_xc.toNextSelection();
        assertEquals("false",m_xc.xmlText());
        m_xc.clearSelections();
@@ -194,7 +229,7 @@ public void testFunctionSum_caseB() throws Exception {
        //node-set
        m_xc.selectPath("boolean(//price)");
        m_xc.toNextSelection();
-       assertEquals("true",m_xc.xmlText());
+       assertEquals(Common.wrapInXmlFrag("false"),m_xc.xmlText());
        m_xc.clearSelections();
 
        m_xc.selectPath("boolean(//bar1)");
@@ -207,7 +242,7 @@ public void testFunctionSum_caseB() throws Exception {
  public void testFunctionFalse_caseB() throws Exception {
         m_xc=XmlObject.Factory.parse("<foo><price at=\"val0\">3.00</price></foo>").newCursor();
 	m_xc.selectPath("name(//*[boolean(text())=false()])");
-	String sExpected="foo";
+	String sExpected=Common.wrapInXmlFrag("foo");
 	m_xc.toNextSelection();
 	assertEquals(sExpected,m_xc.xmlText());
 

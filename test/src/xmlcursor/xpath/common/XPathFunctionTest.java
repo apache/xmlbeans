@@ -78,7 +78,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
            countCheck.toNextSelection();
            System.out.println(" Global count "+countCheck.xmlText());
         */
-        String sExpectedResult = "<cd>2</cd>";
+        String sExpectedResult = "<cd>2</cd>" ;
 
         x01.selectPath(ex0Simple1);
         assertEquals(1, x01.getSelectionCount());
@@ -86,7 +86,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
         assertEquals(sExpectedResult, x01.xmlText());
         x01.dispose();
 
-
+        sExpectedResult = "<xml-fragment>2</xml-fragment>";
         x0.selectPath(ex0Simple);
         XPathCommon.display(x0);
         assertEquals(1, x0.getSelectionCount());
@@ -559,7 +559,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
                 XmlObject.Factory.parse(
                         "<foo><div xml:lang=\"en\"><para/><price at=\"val0\">3.00</price></div></foo>")
                 .newCursor();
-          String sXPath= getQuery("testFunctionLang",1);
+          String sXPath= getQuery("testFunctionLang",0);
         m_xc.selectPath(sXPath);
         String sExpected = "<price at=\"val0\">3.00</price>";
         m_xc.toNextSelection();

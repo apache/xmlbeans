@@ -86,7 +86,7 @@ public abstract class BaseXPathTest extends BasicCursorTestCase {
                   "/foo/bar[number(price)+1=4]"});
 
           testMap.put("testFunctionRound",new String[]{
-        "//bar[round(price)=3]"      });
+        "//bar//*[round(text())=3]"      });
 
          testMap.put("testFunctionSum",new String[]{
         "//bar[position()=sum(price)-4]"  });
