@@ -20,21 +20,7 @@ package org.apache.xmlbeans.impl.jam;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JMethod extends JMember {
-
-  /**
-   * <p>Returns representations of the parameters taken by this
-   * method.  Returns an array of length 0 if the method takes no
-   * parameters.</p>
-   */
-  public JParameter[] getParameters();
-
-  /**
-   * <p>Returns representations of the type of each of the exceptions
-   * which can be thrown by this method.  Returns an array of length 0
-   * if the method throws no exceptions.</p>
-   */
-  public JClass[] getExceptionTypes();
+public interface JMethod extends JInvokable {
 
   /**
    * Returns a JClass object representing the type of this methods

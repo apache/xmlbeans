@@ -23,7 +23,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EMethod extends JMethod, EMember {
+public interface EMethod extends JMethod, EInvokable {
 
   /**
    * <p>Sets the type of this method's return value.  Null can be passed if
@@ -40,71 +40,5 @@ public interface EMethod extends JMethod, EMember {
    * calling setReturnType(jclass.getQualifiedName()).</p>
    */
   public void setReturnType(JClass c);
-
-  /**
-   * <p>Adds a declaration of a checked exception of the given type.</p>
-   *
-   * @throws IllegalArgumentException if the parameter is null or is not
-   * a valid class name.
-   */
-  public void addException(String qualifiedClassName);
-
-  /**
-   * <p>Adds a declaration of a checked exception of the given type.</p>
-   *
-   * @throws IllegalArgumentException if the parameter is null or represents
-   * a class which does not extend throwable.
-   */
-  public void addException(JClass exceptionClass);
-
-  /**
-   * Removes a declaration of a checked exception of the named class.  Does
-   * nothing if no such declaration exists.
-   *
-   * @throws IllegalArgumentException if the parameter is null or is not
-   * a valid class name.
-   */
-  public void removeException(String qualifiedClassName);
-
-  /**
-   * Removes a declaration of a checked exception of the given class.  Does
-   * nothing if no such declaration exists.
-   *
-   * @throws IllegalArgumentException if the parameter is null.
-   */
-  public void removeException(JClass exceptionClass);
-
-  /**
-   * Creates a new parameter on this method with the given type and name.
-   *
-   * @throws IllegalArgumentException if either parameter is null, if
-   * the type parameter represents 'void', or if the name parameter is not a
-   * valid java identifier.
-   */
-  public EParameter addNewParameter(JClass type, String name);
-
-  /**
-   * Creates a new parameter on this method with the given type and name.
-   *
-   * @throws IllegalArgumentException if either parameter is null, if
-   * type parameter is not a valid class name, or if the name parameter is
-   * not a valid java identifier.
-   */
-  public EParameter addNewParameter(String qualifiedTypeName, String name);
-
-  /**
-   * Removes the given parameter.  Does nothing if the parameter is not
-   * present on this method.
-   *
-   * @throws IllegalArgumentException if either parameter is null.
-   */
-  public void removeParameter(EParameter parameter);
-
-  /**
-   * Returns all of the parameters on this method, or an empty array if there
-   * are none.  This is simply a more strongly-typed version of
-   * getParameters().
-   */
-  public EParameter[] getEditableParameters();
 
 }

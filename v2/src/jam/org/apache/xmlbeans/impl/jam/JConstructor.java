@@ -16,23 +16,10 @@
 package org.apache.xmlbeans.impl.jam;
 
 /**
- * Represents a constructor of a java class.
+ * <p>Represents a constructor of a java class.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JConstructor extends JMember {
+public interface JConstructor extends JInvokable {
 
-  /**
-   * <p>Returns representations of the parameters taken by this
-   * constructor.  Returns an array of length 0 if the constructor
-   * takes no parameters.</p>
-   */
-  public JParameter[] getParameters();
-
-  /**
-   * <p>Returns representations of the type of each of the exceptions
-   * which can be thrown by this constructor.  Returns an array of
-   * length 0 if the constructor throws no exceptions.</p>
-   */
-  public JClass[] getExceptionTypes();
 }

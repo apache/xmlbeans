@@ -23,22 +23,6 @@ import org.apache.xmlbeans.impl.jam.JClass;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EConstructor extends JConstructor, EMember {
-
-  public void addException(String exceptionClassName);
-
-  public void addException(JClass exceptionClass);
-
-  public void removeException(String exceptionClassName);
-
-  public void removeException(JClass exceptionClass);
-
-  public EParameter addNewParameter(String typeName, String paramName);
-
-  public EParameter addNewParameter(JClass type, String paramName);
-
-  public void removeParameter(EParameter parameter);
-
-  public EParameter[] getEditableParameters();
+public interface EConstructor extends JConstructor, EInvokable {
 
 }
