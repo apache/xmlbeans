@@ -74,5 +74,5 @@ public interface EElement extends JElement {
    * actual implementation-specific object which is being proxied by this
    * JElement.</p>
      */
-  public void setArtifact(Object o);
+//  public void setArtifact(Object o);
 }

@@ -154,5 +154,5 @@ public abstract interface JElement {
    * JElement.</p>
    * @return
    */
-  public Object getArtifact();
+  //public Object getArtifact();
 }

@@ -347,22 +347,6 @@ li {
 	margin-bottom: 0em;
 }
 
-a:link {
-	color: #3366CC;
-}
-a:hover {
-	x-text-underline: normal;
-	/*begin!kadov{{*/ text-decoration: underline; /*}}end!kadov*/ 
-}
-
-a:active {
-	x-text-underline: normal;
-	/*begin!kadov{{*/ text-decoration: underline; /*}}end!kadov*/ 
-}
-
-a:visited {
-	color: #803380;
-}
 
 a {
 	x-text-underline: off;
@@ -371,7 +355,7 @@ a {
 	/*begin!kadov{{*/ text-decoration: none none none; /*}}end!kadov*/ 
 }
 a:link {
-	color: #3366CC;
+	color: #3366FF;
 }
 
 a:hover {
@@ -385,7 +369,7 @@ a:active {
 }
 
 a:visited {
-	color: #000066;
+	color: #3366FF;
 }
 
 div.footer {
