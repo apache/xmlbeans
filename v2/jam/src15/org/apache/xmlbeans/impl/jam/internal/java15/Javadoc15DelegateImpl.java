@@ -41,7 +41,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
 
 
 //temporary
-private static boolean DEFAULTS_ENABLED = false;
+private static boolean DEFAULTS_ENABLED = true;
 public static final void setDefaultsEnabled(boolean b) { DEFAULTS_ENABLED = b; }
 
   // ========================================================================
