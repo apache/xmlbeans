@@ -965,8 +965,8 @@ abstract class Xobj implements TypeStore
             newX._cchAfter = x._cchAfter;
 
             // TODO - strange to have charNode stuff inside here .....
-            newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX._srcValue );
-            newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX._srcAfter );
+           // newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX._srcValue );
+           // newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX._srcAfter );
 
             if (newParent == null)
                 copy = newX;
