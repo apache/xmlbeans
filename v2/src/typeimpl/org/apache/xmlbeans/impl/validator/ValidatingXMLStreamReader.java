@@ -527,6 +527,7 @@ public class ValidatingXMLStreamReader
                     _errorListener.add(XmlError.forMessage("No content type provided for validation of a content model.",
                         XmlError.SEVERITY_ERROR));
                     _state = STATE_ERROR;
+                    break;
                 }
                 initValidator(_contentType);
                 _validator.nextEvent(Validator.BEGIN, _simpleEvent);

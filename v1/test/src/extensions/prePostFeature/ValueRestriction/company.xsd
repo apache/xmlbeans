@@ -1,0 +1,51 @@
+<!-- Copyright 2004 The Apache Software Foundation
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License. -->
+<!--this is schema company.xsd stripped down and modified to have a value restriction on the employees age-->
+
+<xsd:schema 
+targetNamespace="prePostFeature/xbean/ValueRestriction/company" 
+xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+xmlns:company="prePostFeature/xbean/ValueRestriction/company">
+	<xsd:element name="company" type="company:CompanyType"/>
+	<xsd:complexType name="CompanyType">
+		<xsd:sequence>
+			<xsd:element name="departments" type="company:DepartmentType" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		
+		<xsd:anyAttribute namespace="http://www.omg.org/XMI" processContents="lax"/>
+	</xsd:complexType>
+	<xsd:element name="department" type="company:DepartmentType"/>
+	<xsd:complexType name="DepartmentType">
+		<xsd:sequence>
+			<xsd:element name="consultant" type="company:ConsultantType" maxOccurs="unbounded"/>
+		</xsd:sequence>
+		<xsd:anyAttribute namespace="http://www.omg.org/XMI" processContents="lax"/>
+	</xsd:complexType>
+	<xsd:complexType name="ConsultantType">
+		
+		<xsd:attribute name="name" type="xsd:string"/>
+	      <xsd:attribute name="age" type="company:age"/>
+		<xsd:anyAttribute namespace="http://www.omg.org/XMI" processContents="lax"/>
+	   
+	</xsd:complexType>
+
+	
+               <xsd:simpleType name="age">
+                  <xsd:restriction base="xsd:integer">
+                         <xsd:minInclusive value="0"/>
+                         <xsd:maxInclusive value="100"/>
+                  </xsd:restriction>
+               </xsd:simpleType>
+   
+</xsd:schema>
