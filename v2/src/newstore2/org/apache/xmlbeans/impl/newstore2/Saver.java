@@ -2192,7 +2192,7 @@ abstract class Saver
         final static void spaces ( StringBuffer sb, int offset, int count )
         {
             while ( count-- > 0 )
-                sb.insert( offset, '.' );
+                sb.insert( offset, ' ' );
         }
 
         final static void trim ( StringBuffer sb )
