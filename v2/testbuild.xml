@@ -36,7 +36,6 @@
     <property name="xbeans.test.tools" value="${xbeans.test.root}/tools"/>
     <property name="xbeans.test.tools.lib" value="${xbeans.test.tools}/lib"/>
     <property name="xbeans.test.tools.src" value="${xbeans.test.tools}/src"/>
-    <property name="build.dir.test.marshalling" value="${build.dir.test}/classes/marshal"/>
 
     <property name="asserts" value="on"/>
 
@@ -199,7 +198,6 @@
         <pathelement path="${build.dir.test.lib}/testcases.jar"/>
         <pathelement path="${build.dir.test.lib}/testtools.jar"/>
         <pathelement path="${build.lib}/xbean_xpath.jar"/>
-        <pathelement location="${build.dir.test.marshalling}"/>
 
         <path refid="build.classpath"/>
         <fileset refid="test.build.jars"/>
@@ -219,7 +217,6 @@
     <property name="schema.dirs"
         value="${build.dir.test.schemas}/xbean/simple/dumb,
         ${build.dir.test.schemas}/xbean/simple/dupSchemaElements,
-        ${build.dir.test.schemas}/xbean/misc/marshal,
         ${build.dir.test.schemas}/xbean/xmlcursor,
         ${build.dir.test.schemas}/xbean/xmlcursor/xstypes,
         ${build.dir.test.schemas}/xbean/dom,
