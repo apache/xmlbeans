@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 15, 2004
- * Time: 2:55:35 PM
+ *
+ *
+ *
  */
 public class BaseCase extends TestCase {
     protected boolean bVerbose = true;

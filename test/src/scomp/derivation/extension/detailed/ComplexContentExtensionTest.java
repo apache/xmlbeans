@@ -27,9 +27,9 @@ import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 21, 2004
- * Time: 10:17:48 AM
+ *
+ *
+ *
  */
 public class ComplexContentExtensionTest extends BaseCase {
 

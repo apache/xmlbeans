@@ -18,9 +18,9 @@ import scomp.common.BaseCase;
 import xbean.scomp.derivation.attributeWCExtension.*;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 6, 2004
- * Time: 12:03:16 PM
+ *
+ *
+ *
  */
 public class AttributeWCExtension extends BaseCase {
 

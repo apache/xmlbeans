@@ -17,10 +17,10 @@ package scomp.elements.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.element.globalEltDefault.IDElementDocument;
+
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 4:49:13 PM
+ *
+ *
  */
 public class GlobalEltId extends BaseCase{
     public void testRun()throws Throwable{

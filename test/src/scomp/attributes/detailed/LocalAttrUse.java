@@ -28,9 +28,9 @@ import java.util.Calendar;
 import java.math.BigInteger;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 2:09:08 PM
+ *
+ *
+ *
  */
 public class LocalAttrUse extends BaseCase {
     /**

@@ -31,8 +31,6 @@ import xmlcursor.xpath.common.XPathCommon;
 import xmlcursor.xquery.common.XQTestCase;
 
 /**
- * Date: Jan 17, 2005
- * Time: 11:43:36 AM
  *
  */
 public class NISTTest extends XQTestCase

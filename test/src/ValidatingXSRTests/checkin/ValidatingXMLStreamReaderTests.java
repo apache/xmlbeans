@@ -46,8 +46,7 @@ import org.openuri.testNumerals.DocDocument;
 import tools.util.JarUtil;
 
 /**
- * @author Cezar Andrei (cezar.andrei at bea.com)
- * Date: Feb 24, 2004
+ *
  */
 public class ValidatingXMLStreamReaderTests extends TestCase
 {

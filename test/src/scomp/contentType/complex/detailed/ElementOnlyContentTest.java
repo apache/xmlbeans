@@ -28,9 +28,9 @@ import xbean.scomp.contentType.complexTypeTest.ElementT;
 import scomp.common.BaseCase;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:30:36 PM
+ *
+ *
+ *
  */
 public class ElementOnlyContentTest extends BaseCase {
 

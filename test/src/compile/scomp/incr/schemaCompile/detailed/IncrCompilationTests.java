@@ -44,8 +44,8 @@ import javax.xml.namespace.QName;
 
 
 /**
- * @author jacobd
- * Date: Aug 2, 2004
+ *
+ *
  */
 public class IncrCompilationTests extends CompileTestBase {
 

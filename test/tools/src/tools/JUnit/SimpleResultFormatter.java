@@ -32,7 +32,6 @@ import org.apache.tools.ant.taskdefs.optional.junit.*;
  *
  * @author Stefan Bodewig
  */
-
 public class SimpleResultFormatter implements JUnitResultFormatter {
 
      public static int TEST_SUCCESS = 0;

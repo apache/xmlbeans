@@ -26,8 +26,8 @@ import java.util.Date;
 
 
 /**
- * @author: rbalacha
- *          January 29th, 2005
+ *
+ *
  */
 public class PartialSOMDetailedTest extends SomTestBase
 {

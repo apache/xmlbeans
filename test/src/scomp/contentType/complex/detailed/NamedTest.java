@@ -29,9 +29,9 @@ import xbean.scomp.contentType.named.MixedT;
 import scomp.common.BaseCase;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:28:21 PM
+ *
+ *
+ *
  */
 public class NamedTest extends BaseCase {
 

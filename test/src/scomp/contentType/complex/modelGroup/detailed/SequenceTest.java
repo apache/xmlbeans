@@ -23,9 +23,9 @@ import scomp.common.BaseCase;
 import java.math.BigInteger;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:25:57 PM
+ *
+ *
+ *
  */
 public class SequenceTest extends BaseCase {
 

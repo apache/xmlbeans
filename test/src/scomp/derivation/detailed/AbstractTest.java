@@ -22,9 +22,9 @@ import xbean.scomp.derivation.xabstract.EltConcreteDocument;
 import java.math.BigInteger;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 26, 2004
- * Time: 1:30:54 PM
+ *
+ *
+ *
  */
 public class AbstractTest extends BaseCase{
 

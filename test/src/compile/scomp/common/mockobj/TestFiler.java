@@ -24,8 +24,8 @@ import java.io.Writer;
 import java.util.Vector;
 
 /**
- * User: jacobd
- * Date: Dec 17, 2004
+ *
+ *
  */
 public class TestFiler implements Filer
 {

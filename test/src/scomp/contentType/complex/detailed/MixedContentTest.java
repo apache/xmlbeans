@@ -28,9 +28,9 @@ import org.apache.xmlbeans.XmlException;
 import scomp.common.BaseCase;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:30:49 PM
+ *
+ *
+ *
  */
 public class MixedContentTest extends BaseCase {
 

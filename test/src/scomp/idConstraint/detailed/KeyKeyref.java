@@ -21,9 +21,9 @@ import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 9, 2004
- * Time: 10:26:32 AM
+ *
+ *
+ * 
  */
 public class KeyKeyref extends BaseCase {
 

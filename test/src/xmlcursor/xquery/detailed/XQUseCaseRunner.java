@@ -26,8 +26,7 @@ import xbeans.cases.xmlcursor.xquery.useCases.XmlQueryUseCasesDocument;
 import xmlcursor.xquery.common.AbstractRunner;
 
 /**
- * Date: Jan 21, 2005
- * Time: 1:35:38 PM
+ *
  */
 public class XQUseCaseRunner
     extends AbstractRunner

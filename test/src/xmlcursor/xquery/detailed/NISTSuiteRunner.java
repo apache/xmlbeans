@@ -27,8 +27,7 @@ import noNamespace.TestCase;
 import xmlcursor.xquery.common.AbstractRunner;
 
 /**
- * Date: Jan 17, 2005
- * Time: 11:32:50 AM
+ *
  */
 public class NISTSuiteRunner extends AbstractRunner
 

@@ -23,9 +23,6 @@ import java.util.ArrayList;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 4, 2004
- * Time: 11:08:46 AM
  */
 public class ListRestriction extends BaseCase {
     public void testLengthFacet() throws Throwable {

@@ -17,8 +17,7 @@ package xmlcursor.xquery.common;
 import junit.framework.TestCase;
 
 /**
- * Date: Jan 24, 2005
- * Time: 4:24:48 PM
+ *
  */
 public abstract class XQTestCase extends TestCase
 {

@@ -23,8 +23,7 @@ import java.util.zip.ZipEntry;
 import java.util.HashMap;
 
 /**
- * Date: Jan 24, 2005
- * Time: 11:46:43 AM
+ *
  */
 public class ZipUtil
 {

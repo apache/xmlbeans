@@ -24,9 +24,6 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 5, 2004
- * Time: 12:22:32 PM
  */
 public class ElementFormDefault extends BaseCase {
 

@@ -19,9 +19,7 @@ import xbean.scomp.element.localEltMinMaxOccurs.MinMaxOccursDocDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 4:52:07 PM
+ *
  */
 public class LocalEltMinMaxOccurs extends BaseCase {
 

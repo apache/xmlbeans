@@ -25,9 +25,9 @@ import org.apache.xmlbeans.XmlCursor;
 import scomp.common.BaseCase;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:28:03 PM
+ *
+ *
+ *
  */
 
 /**

@@ -23,9 +23,9 @@ import org.apache.xmlbeans.XmlString;
 import javax.xml.namespace.QName;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 2:08:21 PM
+ *
+ *
+ *
  */
 public class GlobalAttrIdTest extends BaseCase {
     public void testId() throws Throwable {

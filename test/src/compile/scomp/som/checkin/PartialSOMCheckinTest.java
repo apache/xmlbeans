@@ -27,8 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * @author: rbalacha
- *          January 29th, 2005
+ *
+ *
  */
 
 public class PartialSOMCheckinTest extends SomTestBase

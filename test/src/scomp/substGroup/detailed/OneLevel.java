@@ -23,9 +23,6 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 27, 2004
- * Time: 4:19:16 PM
  */
 public class OneLevel extends BaseCase {
 

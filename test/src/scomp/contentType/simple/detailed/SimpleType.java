@@ -19,9 +19,9 @@ import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:30:02 PM
+ *
+ *
+ *
  */
 public class SimpleType extends BaseCase {
     public void testPattern() throws Throwable {

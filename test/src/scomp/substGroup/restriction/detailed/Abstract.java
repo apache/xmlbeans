@@ -33,9 +33,6 @@ import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 30, 2004
- * Time: 10:25:15 AM
  */
 public class Abstract extends BaseCase {
     public void testAbstractInvalid() throws Throwable {

@@ -27,9 +27,9 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:24:08 PM
+ *
+ *
+ *
  */
 
 //TODO: assert that order of elements in a choice group doesn't matter

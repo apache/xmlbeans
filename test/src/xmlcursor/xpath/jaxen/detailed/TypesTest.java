@@ -26,8 +26,7 @@ import org.apache.xmlbeans.XmlDateTime;
 import junit.framework.TestCase;
 
 /**
- * Date: Jan 26, 2005
- * Time: 10:00:35 AM
+ *
  */
 public class TypesTest
     extends TestCase

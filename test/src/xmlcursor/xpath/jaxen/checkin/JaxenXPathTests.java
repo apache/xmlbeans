@@ -28,8 +28,7 @@ import java.io.StringWriter;
 import java.io.PrintWriter;
 
 /**
- * Author: Cezar Andrei (cezar.andrei at bea.com)
- * Date: Oct 10, 2003
+ *
  */
 public class JaxenXPathTests
     extends TestCase

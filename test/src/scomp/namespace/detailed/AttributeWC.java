@@ -20,9 +20,9 @@ import xbean.scomp.namespace.attributeWC.*;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 5, 2004
- * Time: 12:22:50 PM
+ *
+ *
+ * 
  */
 public class AttributeWC extends BaseCase {
     public void testAnyLaxLegal() throws Throwable {

@@ -30,9 +30,9 @@ import java.math.BigInteger;
 import java.util.ArrayList;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 11:56:14 AM
+ *
+ *
+ *
  */
 public class GlobalAttrFixed extends BaseCase {
 

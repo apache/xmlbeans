@@ -20,9 +20,7 @@ import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
 import scomp.common.BaseCase;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 25, 2004
- * Time: 7:53:07 PM
+ *
  */
 public class SubstitutionTest extends BaseCase
  {

@@ -23,9 +23,6 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.*;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 5, 2004
- * Time: 12:22:57 PM
  */
 //TODO: no test on minOccurs maxOccurs here
 public class ElementWC extends BaseCase {

@@ -24,9 +24,6 @@ import scomp.common.BaseCase;
 
 
 /**
- * @owner: ykadiysk
- * Date: Jul 23, 2004
- * Time: 11:52:03 AM
  */
 public class ElementRestriction extends BaseCase {
     /**

@@ -43,8 +43,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * @author: rbalacha
- *          January 29th, 2005
+ *
+ *
  */
 public class SomTestBase extends CompileTestBase
 {

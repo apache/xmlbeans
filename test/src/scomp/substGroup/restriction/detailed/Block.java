@@ -27,9 +27,6 @@ import org.apache.xmlbeans.XmlCursor;
 import javax.xml.namespace.QName;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 30, 2004
- * Time: 10:25:28 AM
  */
 public class Block extends BaseCase {
     /**

@@ -32,10 +32,6 @@ import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-/**
- * @author Cezar Andrei (cezar.andrei at bea.com)
- * Date: Apr 5, 2004
- */
 public class SelectChldAttTests extends TestCase
 {
     public SelectChldAttTests(String name) { super(name); }

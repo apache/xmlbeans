@@ -30,8 +30,8 @@ import javax.xml.namespace.QName;
 import java.io.File;
 
 /**
- * User: jacobd
- * Date: Dec 17, 2004
+ *
+ * 
  */
 public class TestBindingConfig extends BindingConfig
 {

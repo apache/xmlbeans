@@ -21,9 +21,8 @@ import xbean.scomp.element.globalEltFixed.GlobalEltFixedStrDocument;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 4:49:35 PM
+ *
+ *
  */
 public class GlobalEltFixed extends BaseCase {
 

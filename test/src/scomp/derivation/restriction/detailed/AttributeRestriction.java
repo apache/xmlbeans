@@ -25,9 +25,8 @@ import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 23, 2004
- * Time: 11:52:12 AM
+ *
+ *
  */
 public class AttributeRestriction extends BaseCase {
    /**

@@ -21,9 +21,8 @@ import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 4:50:04 PM
+ *
+ *
  */
 public class GlobalEltNillable extends BaseCase {
 

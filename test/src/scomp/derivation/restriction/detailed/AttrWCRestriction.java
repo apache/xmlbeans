@@ -20,9 +20,7 @@ import xbean.scomp.derivation.attributeWCRestriction.*;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 6, 2004
- * Time: 3:39:18 PM
+ *
  */
 public class AttrWCRestriction extends BaseCase {
     String input;

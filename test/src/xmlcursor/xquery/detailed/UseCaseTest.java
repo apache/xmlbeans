@@ -27,8 +27,7 @@ import xmlcursor.xpath.common.XPathCommon;
 import xmlcursor.xquery.common.XQTestCase;
 
 /**
- * Date: Jan 21, 2005
- * Time: 1:43:35 PM
+ *
  */
 public class UseCaseTest
     extends XQTestCase

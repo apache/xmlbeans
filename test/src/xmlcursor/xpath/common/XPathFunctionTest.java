@@ -35,11 +35,6 @@ import java.io.IOException;
 /**
  * Verifies XPath using functions
  * http://www.w3schools.com/xpath/xpath_functions.asp
- *
- * @author jacobd
- *
- *
-
  */
 public abstract class XPathFunctionTest extends BaseXPathTest {
     public XPathFunctionTest(String sName) {

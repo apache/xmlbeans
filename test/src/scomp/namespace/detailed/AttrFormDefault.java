@@ -22,9 +22,7 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 5, 2004
- * Time: 12:22:24 PM
+ * 
  */
 public class AttrFormDefault extends BaseCase {
     public void testValid() throws Throwable {

@@ -21,8 +21,7 @@ import org.apache.xmlbeans.XmlObject;
 import junit.framework.TestCase;
 
 /**
- * Date: Jan 25, 2005
- * Time: 1:06:39 PM
+ *
  */
 public class XPathNodeTest  extends TestCase
 {
