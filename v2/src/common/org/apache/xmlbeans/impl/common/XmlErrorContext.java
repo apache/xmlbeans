@@ -76,5 +76,6 @@ public abstract class XmlErrorContext
     public static final int CANNOT_FIND_RESOURCE              =  56;
     public static final int NONDETERMINISTIC_MODEL            =  57;
     public static final int XPATH_COMPILATION_FAILURE         =  58;
+    public static final int DUPLICATE_IDENTITY_CONSTRAINT     =  59;
     public static final int GENERIC_ERROR                     =  60;
 }

@@ -24,12 +24,14 @@ import org.apache.xmlbeans.impl.tool.CodeGenUtil;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class CompilationTests extends TestCase
 {
@@ -57,14 +59,19 @@ public class CompilationTests extends TestCase
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
+        params.setMdefNamespaces(Collections.singleton("http://java.sun.com/xml/ns/j2ee"));
         List errors = new ArrayList();
         params.setErrorListener(errors);
         boolean result = SchemaCompiler.compile(params);
         if (!result)
         {
-            // Display the first error
-            if (errors.size() > 0)
-                System.out.println("Error: " + errors.get(0).toString());
+            // Display the errors
+            for (int i = 0; i < errors.size(); i++)
+            {
+                XmlError error = (XmlError) errors.get(i);
+                if (error.getSeverity() == XmlError.SEVERITY_ERROR)
+                    System.out.println(error.toString());
+            }
         }
         Assert.assertTrue("Build failed", result);
         Assert.assertTrue("Cannout find " + outputjar, outputjar.exists());
