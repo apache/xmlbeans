@@ -108,7 +108,6 @@ import weblogic.xml.stream.XMLStreamException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
-import javax.xml.stream.XMLStreamReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -1747,108 +1746,6 @@ public final class Root extends Finish implements XmlStore
         private Map        _additionalNamespaces;
         private QNameCache _qnameCache;
         private XmlOptions _options;
-    }
-
-    public XmlObject loadXml (
-        XMLStreamReader xmlStreamReader, SchemaType type, XmlOptions options )
-            throws
-                IOException, XmlException, javax.xml.stream.XMLStreamException
-    {
-        LoadContext context = new LoadContext( this, options );
-
-        assert xmlStreamReader.getEventType() == XMLStreamReader.START_DOCUMENT;
-
-        loop:
-        for ( ; ; )
-        {
-            switch ( xmlStreamReader.next() )
-            {
-            case XMLStreamReader.START_ELEMENT :
-            {
-                context.begin( xmlStreamReader.getName() );
-                break;
-            }
-
-            case XMLStreamReader.END_ELEMENT :
-            {
-                context.end();
-                break;
-            }
-
-            case XMLStreamReader.CHARACTERS :
-            {
-                Text text   = context.getRoot()._text;
-                int cpStart = context.preText();
-                int cp      = cpStart;
-                int total   = 0;
-
-                for ( ; ; )
-                {
-                    if (text._gapLen <= 0)
-                        text.resize( 1 );
-
-                    text.moveGap( cp );
-
-                    int n =
-                        xmlStreamReader.getTextCharacters(
-                            text._buf, cp, text._gapLen );
-
-                    assert n >= 0;
-
-                    total += n;
-
-                    text._gap += n;
-                    text._gapLen -= n;
-
-                    if (text._gapLen > 0)
-                        break;
-
-                    cp += n;
-                }
-
-                context.postText( cpStart, total );
-
-                break;
-            }
-
-            case XMLStreamReader.END_DOCUMENT :
-            {
-                break loop;
-            }
-
-            case XMLStreamReader.PROCESSING_INSTRUCTION :
-            {
-                throw new RuntimeException( "Not implemented" );
-            }
-
-            case XMLStreamReader.COMMENT :
-            {
-                throw new RuntimeException( "Not implemented" );
-            }
-
-            case XMLStreamReader.CDATA :
-            {
-                throw new RuntimeException( "Not implemented" );
-            }
-
-            case XMLStreamReader.SPACE :
-            case XMLStreamReader.ENTITY_REFERENCE :
-            case XMLStreamReader.ATTRIBUTE :
-            case XMLStreamReader.DTD :
-            case XMLStreamReader.NAMESPACE :
-            case XMLStreamReader.START_ENTITY :
-            case XMLStreamReader.END_ENTITY :
-            case XMLStreamReader.NOTATION_DECLARATION :
-            case XMLStreamReader.ENTITY_DECLARATION :
-            case XMLStreamReader.START_DOCUMENT :
-                throw new RuntimeException( "Unexpected event" );
-
-            default :
-                throw new RuntimeException( "Unknown event" );
-            }
-        }
-
-        return autoTypedDocument( type, options );
     }
 
     private void loadNodeChildren ( Node n, LoadContext context )

@@ -92,8 +92,6 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
 import weblogic.xml.stream.XMLInputStream;
 
-import javax.xml.stream.XMLStreamReader;
-
 public final class Cursor implements XmlCursor, ChangeListener
 {
     Cursor ( Root r, Splay s )        { assert s != null; _goober = new CursorGoober( r ); set( s ); }
@@ -3015,16 +3013,6 @@ public final class Cursor implements XmlCursor, ChangeListener
             
             throw new RuntimeException( e.getMessage(), e );
         }
-    }
-    
-//    public Node getDomNode (  )
-//    {
-//        return org.apache.xmlbeans.impl.dom.Dom.getDomNode( (XmlCursor) this );
-//    }
-
-    public XMLStreamReader newXMLStreamReader ( )
-    {
-        return new XMLStreamReaderImpl( newCursor() );
     }
     
     private boolean isFragment()
