@@ -40,15 +40,6 @@ public final class ShortList
         store = new short[initial_capacity];
     }
 
-    /**
-     get array used as backing store.  do not modify this array.
-     effeciency wins here vs. safety.
-     */
-    public short[] getStore()
-    {
-        return store;
-    }
-
     public Object getFinalArray()
     {
         return getMinSizedArray();

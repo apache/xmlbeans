@@ -24,22 +24,9 @@ public final class VectorBasedObjectAccumulator
     extends ObjectAccumulator
 {
     public VectorBasedObjectAccumulator(Class component_type,
-                                        int initial_capacity,
-                                        boolean return_collection)
-    {
-        super(component_type, initial_capacity, return_collection);
-    }
-
-
-    public VectorBasedObjectAccumulator(Class component_type,
                                         int initial_capacity)
     {
-        super(component_type, initial_capacity);
-    }
-
-    public VectorBasedObjectAccumulator(Class component_type)
-    {
-        super(component_type);
+        super(component_type, initial_capacity, true);
     }
 
     protected Collection createNewStore(int capacity)

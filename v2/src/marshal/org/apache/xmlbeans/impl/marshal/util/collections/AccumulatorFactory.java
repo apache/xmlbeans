@@ -35,7 +35,8 @@ public final class AccumulatorFactory
             return new StringList(initial_capacity);
         } else {
             return new ArrayListBasedObjectAccumulator(component_type,
-                                                       initial_capacity);
+                                                       initial_capacity,
+                                                       false);
         }
     }
 
@@ -90,60 +91,48 @@ public final class AccumulatorFactory
                                                            Class component_type,
                                                            int initial_capacity)
     {
-
-        final boolean return_collection = !container_type.isArray();
+        assert !container_type.isArray();
 
 
         if (java.util.Collection.class.equals(container_type) ||
             java.util.ArrayList.class.equals(container_type) ||
             java.util.List.class.equals(container_type)) {
             return new ArrayListBasedObjectAccumulator(component_type,
-                                                       initial_capacity,
-                                                       return_collection);
+                                                       initial_capacity);
         }
 
 
         if (java.util.Set.class.equals(container_type) ||
             java.util.HashSet.class.equals(container_type)) {
             return new HashSetBasedObjectAccumulator(component_type,
-                                                     initial_capacity,
-                                                     return_collection);
+                                                     initial_capacity);
         }
 
 
         if (java.util.SortedSet.class.equals(container_type) ||
             java.util.TreeSet.class.equals(container_type)) {
             return new TreeSetBasedObjectAccumulator(component_type,
-                                                     initial_capacity,
-                                                     return_collection);
+                                                     initial_capacity);
         }
 
 
         if (java.util.Vector.class.equals(container_type)) {
             return new VectorBasedObjectAccumulator(component_type,
-                                                    initial_capacity,
-                                                    return_collection);
+                                                    initial_capacity);
         }
 
         if (java.util.Stack.class.equals(container_type)) {
             return new StackBasedObjectAccumulator(component_type,
-                                                   initial_capacity,
-                                                   return_collection);
+                                                   initial_capacity);
         }
 
         if (java.util.LinkedList.class.equals(container_type)) {
             return new LinkedListBasedObjectAccumulator(component_type,
-                                                        initial_capacity,
-                                                        return_collection);
+                                                        initial_capacity);
         }
 
-
         return new GenericCollectionObjectAccumulator(container_type,
-                                                      component_type,
-                                                      initial_capacity,
-                                                      return_collection);
-
-
+                                                      component_type);
     }
 
 

@@ -36,8 +36,10 @@ public class YourClass
     private float myFloat;
     private float attrib;
     private boolean someBool;
-//    private List bools;// = newBoolList();
-//    private List strs;// = newStringList();
+
+    private List bools = newBoolList();
+    private List strs = newStringList();
+
     private long[] longArray;// = {RND.nextLong(), RND.nextLong()};
 
     private boolean[] booleanArray;// = {true, false, true};
@@ -69,24 +71,31 @@ public class YourClass
 
     private Date someDate;
 
+
     //hack alert
     static final Random RND = new Random();
 
     private List newStringList()
     {
         ArrayList l = new ArrayList();
-        l.add("one:" + RND.nextInt());
-        l.add("two:" + RND.nextInt());
+        l.add("STRONE:" + RND.nextInt());
+        l.add("STRTWO:" + RND.nextInt());
         l.add(null);
-        l.add("three:" + RND.nextInt());
+        l.add("STRTHREE:" + RND.nextInt());
         return l;
     }
 
     private List newBoolList()
     {
         ArrayList l = new ArrayList();
-        l.add(Boolean.TRUE);
-        l.add(Boolean.FALSE);
+        l.add(Boolean.valueOf(RND.nextBoolean()));
+        l.add(Boolean.valueOf(RND.nextBoolean()));
+        l.add(Boolean.valueOf(RND.nextBoolean()));
+        l.add(Boolean.valueOf(RND.nextBoolean()));
+        l.add(Boolean.valueOf(RND.nextBoolean()));
+        l.add(Boolean.valueOf(RND.nextBoolean()));
+        l.add(Boolean.valueOf(RND.nextBoolean()));
+        l.add(Boolean.valueOf(RND.nextBoolean()));
 //        l.add(null);
 //        l.add(Boolean.TRUE);
 //        l.add(Boolean.FALSE);
@@ -151,16 +160,16 @@ public class YourClass
     {
         this.someBool = someBool;
     }
-//
-//    public List getBools()
-//    {
-//        return bools;
-//    }
-//
-//    public void setBools(List bools)
-//    {
-//        this.bools = bools;
-//    }
+
+    public List getBools()
+    {
+        return bools;
+    }
+
+    public void setBools(List bools)
+    {
+        this.bools = bools;
+    }
 
 
     /**
@@ -180,15 +189,15 @@ public class YourClass
         this.attrib = attrib;
     }
 
-//    public List getStrs()
-//    {
-//        return strs;
-//    }
-//
-//    public void setStrs(List strs)
-//    {
-//        this.strs = strs;
-//    }
+    public List getStrs()
+    {
+        return strs;
+    }
+
+    public void setStrs(List strs)
+    {
+        this.strs = strs;
+    }
 
     public long[] getLongArray()
     {
@@ -374,7 +383,10 @@ public class YourClass
         if (myFloat != yourClass.myFloat) return false;
         if (someBool != yourClass.someBool) return false;
         if (!Arrays.equals(booleanArray, yourClass.booleanArray)) return false;
-//        if (bools != null ? !bools.equals(yourClass.bools) : yourClass.bools != null) return false;
+
+        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
+        if (bools != null ? !bools.equals(yourClass.bools) : yourClass.bools != null) return false;
+
         if (!Arrays.equals(longArray, yourClass.longArray)) return false;
         if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
         if (!Arrays.equals(myClassArray, yourClass.myClassArray)) return false;
@@ -382,7 +394,6 @@ public class YourClass
         if (!Arrays.equals(simpleStringArray, yourClass.simpleStringArray)) return false;
         if (!Arrays.equals(simpleLongArray, yourClass.simpleLongArray)) return false;
         if (!Arrays.equals(wrappedArrayOne, yourClass.wrappedArrayOne)) return false;
-//        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
 
         if (qn != null ? !qn.equals(yourClass.qn) : yourClass.qn != null) return false;
         if (qn2 != null ? !qn2.equals(yourClass.qn2) : yourClass.qn2 != null) return false;
@@ -425,8 +436,8 @@ public class YourClass
             ", intEnum=" + intEnum +
             ", integerEnum=" + integerEnum +
             ", simpleContentExample=" + simpleContentExample +
-//            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
-//            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
+            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
+            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
             ", longArray=" + ArrayUtils.arrayToString(longArray) +
             ", booleanArray=" + ArrayUtils.arrayToString(booleanArray) +
             ", stringArray=" + ArrayUtils.arrayToString(stringArray) +

@@ -20,33 +20,37 @@ import java.util.Collection;
 
 
 public final class GenericCollectionObjectAccumulator
-    extends ObjectAccumulator
+    implements Accumulator
 {
-    private final Class containerType;
+    private final Class componentType;
+    private final Collection container;
 
     public GenericCollectionObjectAccumulator(Class container_type,
-                                              Class component_type,
-                                              int initial_capacity,
-                                              boolean return_collection)
+                                              Class component_type)
     {
-        super(component_type, initial_capacity, return_collection);
-        containerType = container_type;
-    }
-
-
-    protected Collection createNewStore(int capacity)
-    {
+        assert Collection.class.isAssignableFrom(container_type);
+        componentType = component_type;
         try {
-            return (Collection)containerType.newInstance();
+            container = (Collection)container_type.newInstance();
         }
         catch (InstantiationException e) {
-            throw new RuntimeException(e);
+            throw (IllegalArgumentException)(new IllegalArgumentException()).initCause(e);
         }
         catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
+            throw (IllegalArgumentException)(new IllegalArgumentException()).initCause(e);
         }
     }
 
+
+    public void append(Object elem)
+    {
+        container.add(elem);
+    }
+
+    public Object getFinalArray()
+    {
+        return container;
+    }
 
 }
 
