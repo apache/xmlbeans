@@ -56,8 +56,12 @@
 
 package com.mytest;
 
+import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
+import java.util.Arrays;
 
 public class YourClass
 {
@@ -65,25 +69,31 @@ public class YourClass
     private float myFloat;
     private float attrib;
     private boolean someBool;
-    private List bools = newBoolList();
-    private List strs = newStringList();
+    private List bools;// = newBoolList();
+    private List strs;// = newStringList();
+    private long[] longArray;// = {RND.nextLong(), RND.nextLong()};
+    private boolean[] booleanArray;// = {true, false, true};
+    private String[] stringArray;//{"ONE:"+RND.nextInt(), "TWO:"+RND.nextInt()};
+    private MyClass[] myClassArray;//{new MyClass(), new MyClass()};
+
+    //hack alert
+    static final Random RND = new Random();
 
     private List newStringList()
     {
         ArrayList l = new ArrayList();
-//        l.add("one");
-//        l.add("two");
-//        l.add(null);
-//        l.add("three");
-//        return l;
-        return null;
+        l.add("one:" + RND.nextInt());
+        l.add("two:" + RND.nextInt());
+        l.add(null);
+        l.add("three:" + RND.nextInt());
+        return l;
     }
 
     private List newBoolList()
     {
         ArrayList l = new ArrayList();
-//        l.add(Boolean.TRUE);
-//        l.add(Boolean.FALSE);
+        l.add(Boolean.TRUE);
+        l.add(Boolean.FALSE);
 //        l.add(null);
 //        l.add(Boolean.TRUE);
 //        l.add(Boolean.FALSE);
@@ -154,6 +164,47 @@ public class YourClass
         this.strs = strs;
     }
 
+    public long[] getLongArray()
+    {
+        return longArray;
+    }
+
+    public void setLongArray(long[] longArray)
+    {
+        this.longArray = longArray;
+    }
+
+
+    public String[] getStringArray()
+    {
+        return stringArray;
+    }
+
+    public void setStringArray(String[] stringArray)
+    {
+        this.stringArray = stringArray;
+    }
+
+    public MyClass[] getMyClassArray()
+    {
+        return myClassArray;
+    }
+
+    public void setMyClassArray(MyClass[] myClassArray)
+    {
+        this.myClassArray = myClassArray;
+    }
+
+    public boolean[] getBooleanArray()
+    {
+        return booleanArray;
+    }
+
+    public void setBooleanArray(boolean[] booleanArray)
+    {
+        this.booleanArray = booleanArray;
+    }
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -164,8 +215,12 @@ public class YourClass
         if (attrib != yourClass.attrib) return false;
         if (myFloat != yourClass.myFloat) return false;
         if (someBool != yourClass.someBool) return false;
+        if (!Arrays.equals(booleanArray, yourClass.booleanArray)) return false;
         if (bools != null ? !bools.equals(yourClass.bools) : yourClass.bools != null) return false;
+        if (!Arrays.equals(longArray, yourClass.longArray)) return false;
         if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
+        if (!Arrays.equals(myClassArray, yourClass.myClassArray)) return false;
+        if (!Arrays.equals(stringArray, yourClass.stringArray)) return false;
         if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
 
         return true;
@@ -183,6 +238,9 @@ public class YourClass
         return result;
     }
 
+
+
+
     public String toString()
     {
         return "com.mytest.YourClass{" +
@@ -192,8 +250,13 @@ public class YourClass
             ", someBool=" + someBool +
             ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
             ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
+            ", longArray=" + ArrayUtils.arrayToString(longArray) +
+            ", booleanArray=" + ArrayUtils.arrayToString(booleanArray) +
+            ", stringArray=" + ArrayUtils.arrayToString(stringArray) +
+            ", myClassArray=" + ArrayUtils.arrayToString(myClassArray) +
             "}";
     }
+
 
 
 }

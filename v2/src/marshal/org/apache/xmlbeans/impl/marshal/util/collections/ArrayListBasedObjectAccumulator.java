@@ -64,7 +64,6 @@ import java.util.Collection;
 public final class ArrayListBasedObjectAccumulator
     extends ObjectAccumulator
 {
-    private static final boolean ASSERT = false;
 
     public ArrayListBasedObjectAccumulator(Class component_type,
                                            int initial_capacity,

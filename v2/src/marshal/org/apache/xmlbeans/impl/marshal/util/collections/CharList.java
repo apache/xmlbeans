@@ -151,7 +151,7 @@ public final class CharList
         int oldCapacity = store.length;
         if (minCapacity > oldCapacity) {
             char oldData[] = store;
-            int newCapacity = (oldCapacity * 3) / 2 + 1;
+            int newCapacity = (oldCapacity * 2) + 1;
             if (newCapacity < minCapacity)
                 newCapacity = minCapacity;
             store = new char[newCapacity];

@@ -14,7 +14,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
-import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -23,6 +22,8 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.CharArrayReader;
+import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
@@ -30,8 +31,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.CharArrayWriter;
-import java.io.CharArrayReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -175,14 +174,15 @@ public class MarshalTests extends TestCase
     }
 
 
-    public void DISABLED_testByNameMarshalPerf()
+    public void testRoundtripPerf()
         throws Exception
     {
         //crank up these numbers to see real perf testing
         //the test still has some value aside from perf
         //in that it can test large stack depths.
-        final int trials = 10;
-        final int depth = 15;
+        final int trials = 1;
+        final int depth = 5;
+        final int boolean_array_size = 5;
 
         Random rnd = new Random();
 
@@ -190,10 +190,13 @@ public class MarshalTests extends TestCase
 
         com.mytest.MyClass curr = top_obj;
 
+        boolean[] bools = createRandomBooleanArray(rnd, boolean_array_size);
+
         for (int i = 0; i < depth; i++) {
             com.mytest.YourClass myelt = new com.mytest.YourClass();
             myelt.setAttrib(rnd.nextFloat());
             myelt.setMyFloat(rnd.nextFloat());
+            myelt.setBooleanArray(bools);
             final com.mytest.MyClass my_c = new com.mytest.MyClass();
             myelt.setMyClass(my_c);
             curr.setMyelt(myelt);
@@ -235,17 +238,31 @@ public class MarshalTests extends TestCase
                                class_name,
                                ctx);
 
-            //TODO: remove hard coded values
+
+//            //DEBUG!!!
+//            if (System.currentTimeMillis() > 1) {
+//                dumpReader(reader);
+//                return;
+//            }
 
             UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader);
             out_obj = unmarshaller.unmarshallType(schemaType, javaType, umctx);
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
-        //System.out.println(" out_obj = " + top_obj);
+//        System.out.println(" perf_out_obj = " + top_obj);
         Assert.assertEquals(top_obj, out_obj);
         System.out.println("milliseconds: " + diff + " trials: " + trials);
         System.out.println("milliseconds PER trial: " + (diff / (double)trials));
+    }
+
+    private boolean[] createRandomBooleanArray(Random rnd, int size)
+    {
+        boolean[] a = new boolean[size];
+        for(int i = 0 ; i < size ; i++) {
+            a[i] = rnd.nextBoolean();
+        }
+        return a;
     }
 
 
@@ -401,8 +418,8 @@ public class MarshalTests extends TestCase
 
         Assert.assertNotNull(unmarshaller);
 
-        //TODO: remove hard coded path
-        File doc = TestEnv.xbeanCase("marshal/doc2.xml");
+        //File doc = TestEnv.xbeanCase("marshal/doc2.xml");
+        File doc = TestEnv.xbeanCase("marshal/bigdoc.xml");
         final FileReader fileReader = new FileReader(doc);
         CharArrayWriter cw = new CharArrayWriter();
 
@@ -410,7 +427,7 @@ public class MarshalTests extends TestCase
         final char[] chars = cw.toCharArray();
         final CharArrayReader cr = new CharArrayReader(chars);
 
-        final int trials = 5000;
+        final int trials = 50000;
 
         final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
 
@@ -422,8 +439,10 @@ public class MarshalTests extends TestCase
 
             Object obj = unmarshaller.unmarshal(xrdr);
 
-            if ((i % 1000) == 0)
-                System.out.println("i=" + i + "\tobj = " + obj);
+            if ((i % 1000) == 0) {
+                String s = obj.toString().substring(0, 70);
+                System.out.println("i=" + i + "\tobj = " + s + "...");
+            }
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
