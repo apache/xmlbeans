@@ -2869,6 +2869,8 @@ abstract class Xobj implements TypeStore
             {
                 _xobj._bookmarks = listRemove( _xobj._bookmarks );
                 x._bookmarks = listInsert( x._bookmarks );
+
+                _xobj = x;
             }
 
             _pos = p;
