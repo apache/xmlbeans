@@ -6,18 +6,12 @@
 	</header>
 	<body>
 		<section>
-			<title>Incubation Exit Criteria</title>
-			<p>A major Apache sub project goal for XMLBeans is exiting from incubation.  Here is a link to the exit criteria post on general@incubator.apache.org
-			(<link href="http://nagoya.apache.org/eyebrowse/ReadMsg?listName=general@incubator.apache.org&amp;msgId=1055888">XMLBeans Exit Criteria</link>).</p>
-			<note>Need to change this link over to a Wiki page so we can show/update the status on each item.</note>
-		</section>
-		<section>
 			<title>XMLBeans Version 1 Project Management</title>
-			<p>XMLBeans Version 1 is the current stable <em>incubated</em> release</p>
+			<p>XMLBeans Version 1 is the current stable release</p>
 		</section>
 		<section>
 			<title>XMLBeans Version 2 Project Management</title>
-			<p>You can find information about XMLBeans 2.0 planning at  <link href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansFeaturePlan">XMLBeans Feature Plan</link> 
+			<p>You can find information about XMLBeans 2.0 planning at  <link href="http://wiki.apache.org/xmlbeans/V2Features">XMLBeans Feature Plan</link> 
 			if you want to provide ideas or feedback on this planning it is best to post it to either xmlbeans-dev@xml.apache.org or
 			xmlbeans-user@xml.apache.org.</p>
 		</section>
