@@ -1,4 +1,4 @@
-<project name="Xbean" default="default" basedir=".">
+<project name="XBean_Test" default="usage" basedir=".">
 
     <target name="java_version">
         <echo message="${java.version}"/>
@@ -409,17 +409,6 @@
         <condition property="uncompress.uptodate">
             <available file="${build.dir.test.schemas}/${dir.name}" type="dir"/>
         </condition>
-    </target>
-    <!-- helper target -->
-    <target name="uncompress.helper" depends="uncompress.uptodate,do.uncompress"/>
-
-    <!-- if archive is name 'foo.tar.bz2', root directory should be 'foo' -->
-    <target name="uncompress.uptodate">
-        <basename path="${archivefile}" property="dir.name" suffix=".tar.bz2"/>
-        <!-- FIXME: it's not sufficient to just check if dir exists -->
-        <condition property="uncompress.uptodate">
-            <available file="${build.dir.test.schemas}/${dir.name}" type="dir"/>
-        </condition>
         <echo message="uncompress.uptodate for ${archivefile}: ${uncompress.uptodate}"/>
     </target>
 
@@ -804,7 +793,14 @@
         <antcall target="run.junit"/>
         <antcall target="-compile.run.exluded"/>
     </target>
-    <!-- This test, for some reason, upon compilation, 
+
+    <!-- convenience target for just running compile tests -->
+    <target name="compile.run">
+        <property name="excludes"
+            value="**/compile/scomp/checkin/**"/>
+        <antcall target="-compile.run.exluded"/>
+    </target>
+    <!-- This test, for some reason, upon compilation,
     affects other tests under Win jdk1.4-->
     <target name="-compile.run.exluded" depends="check.asserts">
         <javac srcdir="${xbeans.test.src}"
@@ -983,10 +979,6 @@
             <param name="navigationTools" expression="toolbar,top"/>
             <param name="showTheFilters" expression="false"/>
         </xslt>
-    </target>
-
-    <target name="clean.reports">
-        <delete dir="${report.dir}" failonerror="false"/>
     </target>
 
     <!-- END:                                                            -->
