@@ -33,6 +33,9 @@ public class Inst2XsdTestBase extends TestCase {
     public static String OPTION_CASES_DIR = inst2xsdDir + P + "options" + P;
     public static String SCHEMA_CASES_DIR = inst2xsdDir + P + "schema" + P;
     public static String VALIDATION_CASES_DIR = inst2xsdDir + P + "validation" + P;
+    public static final String BASEXML = OPTION_CASES_DIR + "base.xml";
+    public static final String EXPBASEXML = OPTION_CASES_DIR + "base0.xsd";
+
 
     private static String base_start = "<a xmlns=\"typeTests\">";
     private static String base_end = "</a>";
