@@ -38,8 +38,9 @@ public class RandomTest  extends TestCase {
     }
     public static void testNoQuery() throws Exception {
         String[] args = new String[]{"-seed", "0", "-i", "20", "-noquery"};
-        CommandLine cl = new CommandLine(args, Arrays.asList(
-                new String[]{"seed", "i", "t", "docs", "?", "help"}));
+        CommandLine cl = new CommandLine(args,
+                Arrays.asList(new String[]{"?", "help", "readonly", "noquery", "nosave"}),
+                Arrays.asList(new String[]{"seed", "i", "t", "docs", "?", "help"}));
          Random.runTest(cl);
     }
 }
