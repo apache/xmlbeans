@@ -80,11 +80,25 @@ public class Type
         this._name = name;
     }
 
+    /**
+     * @return
+     *   SIMPLE_TYPE_SIMPLE_CONTENT   // ie no atts, no elems, just text
+     *   COMPLEX_TYPE_SIMPLE_CONTENT  // ie atts*, no elems, text*   - simple type extension
+     *   COMPLEX_TYPE_COMPLEX_CONTENT // ie atts*, elems, no text
+     *   COMPLEX_TYPE_MIXED_CONTENT   // ie atts*, elems, text
+     */
     public int getContentType()
     {
         return _kind;
     }
 
+    /**
+     * @param kind 4 kinds:
+     *   SIMPLE_TYPE_SIMPLE_CONTENT   // ie no atts, no elems, just text
+     *   COMPLEX_TYPE_SIMPLE_CONTENT  // ie atts*, no elems, text*   - simple type extension
+     *   COMPLEX_TYPE_COMPLEX_CONTENT // ie atts*, elems, no text
+     *   COMPLEX_TYPE_MIXED_CONTENT   // ie atts*, elems, text
+     */
     public void setContentType(int kind)
     {
         this._kind = kind;
@@ -100,6 +114,13 @@ public class Type
     {
         ensureElements();
         _elements.add(element);
+    }
+
+    public void setElements(List elements)
+    {
+        ensureElements();
+        _elements.clear();
+        _elements.addAll(elements);
     }
 
     private void ensureElements()
@@ -150,14 +171,20 @@ public class Type
             _kind==COMPLEX_TYPE_SIMPLE_CONTENT);
     }
 
+    /**
+     * @return PARTICLE_SEQUENCE or PARTICLE_CHOICE_UNBOUNDED
+     */
     public int getTopParticleForComplexOrMixedContent()
     {
         return _topParticleForComplexOrMixedContent;
     }
 
-    public void setTopParticleForComplexOrMixedContent(int _topParticleForComplexOrMixedContent)
+    /**
+     * @param topParticleForComplexOrMixedContent  PARTICLE_SEQUENCE or PARTICLE_CHOICE_UNBOUNDED
+     */
+    public void setTopParticleForComplexOrMixedContent(int topParticleForComplexOrMixedContent)
     {
-        this._topParticleForComplexOrMixedContent = _topParticleForComplexOrMixedContent;
+        this._topParticleForComplexOrMixedContent = topParticleForComplexOrMixedContent;
     }
 
     public boolean isGlobal()

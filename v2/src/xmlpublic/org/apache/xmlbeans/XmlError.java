@@ -154,6 +154,9 @@ public class XmlError implements java.io.Serializable
         {
             line = loc.getLineNumber();
             column = loc.getColumnNumber();
+            source = loc.getPublicId();
+            if (source==null)
+                source = loc.getSystemId();
         }
 
         _message = message;
