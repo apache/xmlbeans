@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.annogen.internal.reflect175;
+package org.apache.xmlbeans.impl.jam.annogen.internal.java15;
 
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;

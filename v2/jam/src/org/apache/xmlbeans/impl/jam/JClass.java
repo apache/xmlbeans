@@ -400,11 +400,11 @@ public interface JClass extends JMember {
   public JPackage[] getImportedPackages();
 
   /**
-   * Returns true if a backing entity for this class could not be
+   * <p>Returns true if a backing entity for this class could not be
    * resolved.  This will be true, for example, of the JClass which
    * you get when requesting a method's return type when no class for
    * that type can be found.  In this case, the JClass will be have
-   * only a name - all other properties will be null/empty.
+   * only a name - all other properties will be null/empty.</p>
    */
   public boolean isUnresolvedType();
 

@@ -63,7 +63,7 @@
       <src path='${gen_dir}'/>
       -->
       <classpath>
-        <pathelement location='${antlr_jar}'/>
+        <pathelement location='${antlr_jar}'/> 
         <pathelement location='${staxapi_jar}'/>
         <pathelement path='${classes_dir}'/>
         <pathelement path='${java.class.path}'/>

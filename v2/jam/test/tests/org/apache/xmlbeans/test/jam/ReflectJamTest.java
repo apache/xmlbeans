@@ -58,11 +58,16 @@ package org.apache.xmlbeans.test.jam;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.JamService;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.java15.Reflect15DelegateImpl;
 
 import java.io.IOException;
 import java.io.File;
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * Runs the JamTestBase cases by loading the types from source.
@@ -80,6 +85,7 @@ public class ReflectJamTest extends JamTestBase {
 
   // ========================================================================
   // JamTestBase implementation
+
 
   protected JamService getResultToTest() throws IOException {
     JamServiceFactory jsf = JamServiceFactory.getInstance();
@@ -109,4 +115,33 @@ public class ReflectJamTest extends JamTestBase {
   }
 
   protected File getMasterDir() { return new File("masters/reflect"); }
+
+  // ========================================================================
+  // Reflection-specific test methods
+
+//FIXME move this to JamTestBase when javadoc's ClassDoc.isEnum() is working
+  public void testIsEnum() {
+    JClass gts = mLoader.loadClass(DUMMY+".MyEnum");
+    assertTrue(gts.getQualifiedName()+".isEnumType() must be true",
+               gts.isEnumType() == true);
+  }
+
+  public void testClassLoaderWrapper() throws MalformedURLException {
+    File aJarNotInTheClasspath = new File("dummy.jar");
+    assertTrue(aJarNotInTheClasspath.getAbsolutePath()+" does not exist",
+               aJarNotInTheClasspath.exists());
+    URL url = aJarNotInTheClasspath.toURL();
+    ClassLoader cl = new URLClassLoader(new URL[] {url},
+                                        ClassLoader.getSystemClassLoader());
+    JamClassLoader jcl = JamServiceFactory.getInstance().createJamClassLoader(cl);
+    String aClassName = "foo.DummyClass";
+    JClass aClass = jcl.loadClass(aClassName);
+    assertTrue(aClass.getQualifiedName(),!aClass.isUnresolvedType());
+    //sanity check it now
+    JamClassLoader sjcl = JamServiceFactory.getInstance().createSystemJamClassLoader();
+    JClass aFailedClass = sjcl.loadClass(aClassName);
+    assertTrue(aFailedClass.getQualifiedName()+" expected to be unresolved",
+               aFailedClass.isUnresolvedType());
+
+  }
 }

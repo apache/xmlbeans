@@ -98,8 +98,9 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
 
   public JamClassLoader createJamClassLoader(ClassLoader cl) {
     JamServiceParams params = createServiceParams();
-    params.setUseSystemClasspath(true); //?
+    params.setUseSystemClasspath(false); //?
     params.setPropertyInitializer(null);
+    params.addClassLoader(cl);
     try {
       JamService service = createService(params);
       return service.getClassLoader();

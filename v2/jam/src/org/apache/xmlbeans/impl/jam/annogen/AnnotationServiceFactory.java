@@ -16,9 +16,7 @@ package org.apache.xmlbeans.impl.jam.annogen;
 
 import org.apache.xmlbeans.impl.jam.annogen.internal.AnnotationServiceParamsImpl;
 import org.apache.xmlbeans.impl.jam.annogen.internal.BaseAnnotationService;
-import org.apache.xmlbeans.impl.jam.annogen.internal.CompositeProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.internal.CompositeProxyPopulator;
 
 
 /**
@@ -41,12 +39,10 @@ public class AnnotationServiceFactory {
 
 
   private static final String REFLECTING_POPULATOR =
-    "org.apache.xmlbeans.impl.jam.annogen.internal.reflect175";
+    "org.apache.xmlbeans.impl.jam.annogen.internal.java15.Reflect175ProxyPopulator";
 
-  // ========================================================================
-  // Variables
-
-  private ProxyPopulator mReflectingPopulator = null;
+  private static final String JAVADOC_POPULATOR =
+    "org.apache.xmlbeans.impl.jam.annogen.internal.java15.Javadoc175ProxyPopulator";
 
   // ========================================================================
   // Constructors
@@ -91,19 +87,19 @@ public class AnnotationServiceFactory {
 
 
   public ProxyPopulator getReflectingPopulator() {
-    if (mReflectingPopulator != null) return mReflectingPopulator;
 
     try {
       // class for name this because it's 1.5-specific.  if it fails, we
       // don't want to use the extractor
       Class.forName("java.lang.annotation.Annotation");
     } catch (ClassNotFoundException e) {
+      e.printStackTrace();
       //issue14RuntimeWarning(e);
       return null;
     }
     // ok, if we could load that, let's new up the extractor delegate
     try {
-      mReflectingPopulator = (ProxyPopulator)
+      return (ProxyPopulator)
         Class.forName(REFLECTING_POPULATOR).newInstance();
       // if this fails for any reason, things are in a bad state
     } catch (ClassNotFoundException e) {
@@ -115,4 +111,30 @@ public class AnnotationServiceFactory {
     }
     return null;
   }
+
+  public ProxyPopulator getJavadocPopulator() {
+    try {
+      // class for name this because it's 1.5-specific.  if it fails, we
+      // don't want to use the extractor
+      Class.forName("java.lang.annotation.Annotation");
+    } catch (ClassNotFoundException e) {
+      //issue14RuntimeWarning(e);
+      e.printStackTrace();
+      return null;
+    }
+    // ok, if we could load that, let's new up the extractor delegate
+    try {
+      return (ProxyPopulator)
+        Class.forName(JAVADOC_POPULATOR).newInstance();
+      // if this fails for any reason, things are in a bad state
+    } catch (ClassNotFoundException e) {
+//      issue14BuildWarning(e);
+    } catch (IllegalAccessException e) {
+//      issue14BuildWarning(e);
+    } catch (InstantiationException e) {
+//      issue14BuildWarning(e);
+    }
+    return null;
+  }
+
 }

@@ -45,9 +45,15 @@ public class AnnotationServiceParamsImpl implements
   // Constructors
 
   public AnnotationServiceParamsImpl() {
+/*
     ProxyPopulator reflectProxy =
       AnnotationServiceFactory.getInstance().getReflectingPopulator();
     if (reflectProxy != null) mPopulators.add(reflectProxy);
+*/
+    ProxyPopulator javadocProxy =
+      AnnotationServiceFactory.getInstance().getJavadocPopulator();
+    if (javadocProxy != null) mPopulators.add(javadocProxy);
+
   }
 
   // ========================================================================
