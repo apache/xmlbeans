@@ -222,11 +222,18 @@ public class MarshalTests extends TestCase
                             new QName("java:com.mytest", "MyClass"),
                             mc.getClass().getName(), null);
 
+//
+//        final XMLStreamReader reader =
+//            ctx.marshalType(sub, new QName("java:com.mytest", "sub-test"),
+//                            new QName("java:com.mytest", "MySubClass"),
+//                            "MyClass", null);
+
         System.out.println("=======IN-OBJ: " + mc);
 
         dumpReader(reader);
         Assert.assertTrue(errors.isEmpty());
     }
+
 
 
     public void testByNameMarshalViaWriter()
