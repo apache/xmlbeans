@@ -87,7 +87,7 @@ will  continue if the XMLBean creation encounters a build error.<br>
         </td>
           <td align="center" valign="top">No, default is true.</td>
         </tr>
-        <tr>
+      <tr>
         <td valign="top">verbose<br>
         </td>
         <td valign="top">Controls the amount of build message output.<br>
@@ -134,7 +134,7 @@ to modify xml bean package or class names.<br>
           <td valign="top">classpath</td>
           <td valign="top">The classpath to use if schemas in the fileset
 import definitions that are supplied by other compiled xml beans JAR files,
-or if .java files are in the schema fileset.</td>
+or if .java files are in the schema fileset.  Also supports a nested classpath.</td>
           <td align="center" valign="top">No</td>
         </tr>
         <tr>
@@ -174,6 +174,91 @@ taken   to be       an exclude pattern</td>
           <td valign="top">Indicates whether default excludes should be used
   or not       ("yes"/"no"). Default excludes are used when omitted.</td>
           <td valign="top" align="center">No</td>
+        </tr>
+        <tr>
+          <td valign="top">debug</td>
+          <td valign="top">Indicates whether source should be compiled with
+          debug information; defaults to <code>off</code>.  If set to
+          <code>off</code>, <code>-g:none</code> will be passed on the
+          command line for compilers that support it (for other compilers, no
+          command line argument will be used).  If set to <code>true</code>,
+          the value of the <code>debuglevel</code> attribute determines the
+          command line argument.</td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">debuglevel</td>
+          <td valign="top">Keyword list to be appended to the <code>-g</code>
+            command-line switch.  This will be ignored by all implementations except
+            <code>modern</code> and <code>classic(ver &gt;= 1.2)</code>.
+            Legal values are <code>none</code> or a comma-separated list of the
+            following keywords:
+            <code>lines</code>, <code>vars</code>, and <code>source</code>.
+            If <code>debuglevel</code> is not specified, by default,
+            nothing will be
+            appended to <code>-g</code>.  If <code>debug</code> is not turned on,
+            this attribute will be ignored.
+          </td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">optimize</td>
+          <td valign="top">Indicates whether source should be compiled with
+            optimization; defaults to <code>off</code>.</td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">includeAntRuntime</td>
+          <td valign="top">Whether to include the Ant run-time libraries in the
+            classpath; defaults to <code>yes</code>.</td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">includeJavaRuntime</td>
+          <td valign="top">Whether to include the default run-time
+            libraries from the executing VM in the classpath;
+            defaults to <code>no</code>.</td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">fork</td>
+          <td valign="top">Whether to execute <code>javac</code> using the
+            JDK compiler externally; defaults to <code>yes</code>.</td>
+          <td align="center" valign="top">No, default is true</td>
+        </tr>
+        <tr>
+          <td valign="top">executable</td>
+          <td valign="top">Complete path to the <code>javac</code>
+            executable to use in case of <code>fork=&quot;yes&quot;</code>.
+            Defaults to the compiler of the Java version that is currently
+            running Ant.  Ignored if <code>fork=&quot;no&quot;</code></td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">memoryInitialSize</td>
+          <td valign="top">The initial size of the memory for the underlying VM,
+            if <code>javac</code> is run externally; ignored otherwise. Defaults
+            to the standard VM memory setting.
+            (Examples: <code>83886080</code>, <code>81920k</code>, or
+            <code>80m</code>)</td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">memoryMaximumSize</td>
+          <td valign="top">The maximum size of the memory for the underlying VM,
+            if <code>javac</code> is run externally; ignored otherwise. Defaults
+            to the standard VM memory setting.
+            (Examples: <code>83886080</code>, <code>81920k</code>, or
+            <code>80m</code>)</td>
+          <td align="center" valign="top">No</td>
+        </tr>
+        <tr>
+          <td valign="top">compiler</td>
+          <td valign="top">The compiler implementation to use.
+            If this attribute is not set, the value of the
+            <code>build.compiler</code> property, if set, will be used.
+            Otherwise, the default compiler for the current VM will be used.
+          <td align="center" valign="top">No</td>
         </tr>
                     
   </tbody>     
