@@ -1,4 +1,4 @@
-<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config"
+<xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config"
            xmlns:an="http://www.annuitynet.com/namespace/profiles">
 
   <xb:namespace uri="http://www.annuitynet.com/namespace/profiles">

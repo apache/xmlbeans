@@ -1,7 +1,7 @@
 <xs:schema
    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-   xmlns:xb="http://www.bea.com/2002/09/xbean/config"
-   targetNamespace="http://www.bea.com/2002/09/xbean/config"
+   xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config"
+   targetNamespace="http://xml.apache.org/xmlbeans/2004/02/xbean/config"
    elementFormDefault="qualified">
   
   <xs:import namespace="http://www.w3.org/2001/XMLSchema"/> 

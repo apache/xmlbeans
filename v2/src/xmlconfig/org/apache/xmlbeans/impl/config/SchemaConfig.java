@@ -65,9 +65,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Iterator;
 
-import com.bea.x2002.x09.xbean.config.ConfigDocument.Config;
-import com.bea.x2002.x09.xbean.config.Nsconfig;
-import com.bea.x2002.x09.xbean.config.Qnameconfig;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Nsconfig;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Qnameconfig;
 
 public class SchemaConfig
 {

@@ -68,8 +68,8 @@ import java.net.URI;
 
 import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 import org.w3.x2001.xmlSchema.SchemaDocument;
-import com.bea.x2002.x09.xbean.config.ConfigDocument.Config;
-import com.bea.x2002.x09.xbean.config.ConfigDocument;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.config.SchemaConfig;
 
