@@ -33,22 +33,26 @@ final class BindingContextImpl implements BindingContext
     private final BindingLoader bindingLoader;
     private final RuntimeTypeFactory runtimeTypeFactory;
     private final RuntimeBindingTypeTable typeTable;
+    private final SchemaTypeLoaderProvider schemaTypeLoaderProvider;
 
 
     /* package protected -- use the factory */
-    BindingContextImpl(BindingLoader bindingLoader)
+    BindingContextImpl(BindingLoader bindingLoader,
+                       SchemaTypeLoaderProvider provider)
     {
         this.bindingLoader = bindingLoader;
         runtimeTypeFactory = new RuntimeTypeFactory();
         this.typeTable =
             RuntimeBindingTypeTable.createTable(runtimeTypeFactory);
+        this.schemaTypeLoaderProvider  = provider;
     }
 
 
     public Unmarshaller createUnmarshaller()
         throws XmlException
     {
-        return new UnmarshallerImpl(bindingLoader, typeTable);
+        return new UnmarshallerImpl(bindingLoader, typeTable,
+                                    schemaTypeLoaderProvider);
     }
 
     public Unmarshaller createUnmarshaller(XmlOptions options)

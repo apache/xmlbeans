@@ -115,7 +115,10 @@ abstract class RuntimeBindingType
     {
         final String xmldoc = "<a>" + value + "</a>";
         try {
-            final UnmarshallerImpl um = new UnmarshallerImpl(loader, typeTable);
+            final SchemaTypeLoaderProvider provider =
+                UnusedSchemaTypeLoaderProvider.getInstance();
+            final UnmarshallerImpl um =
+                new UnmarshallerImpl(loader, typeTable, provider);
             final StringReader sr = new StringReader(xmldoc);
             final XMLStreamReader reader =
                 um.getXmlInputFactory().createXMLStreamReader(sr);

@@ -75,22 +75,27 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
         // the builtin loader
         BindingLoader loader = tylar.getBindingLoader();
         // finally, glue it all together
-        return new BindingContextImpl(loader);
+        TylarSchemaTypeLoaderProvider provider =
+            new TylarSchemaTypeLoaderProvider(tylar);
+        return new BindingContextImpl(loader, provider);
     }
 
     public BindingContext createBindingContext()
     {
         BindingFile empty = new BindingFile();
-        return createBindingContext(empty);
+        SchemaTypeLoaderProvider provider =
+            BuiltinSchemaTypeLoaderProvider.getInstance();
+        return createBindingContext(empty, provider);
     }
 
     // ========================================================================
     // Private methods
 
-    private static BindingContextImpl createBindingContext(BindingFile bf)
+    private static BindingContextImpl createBindingContext(BindingFile bf,
+                                                           SchemaTypeLoaderProvider provider)
     {
         BindingLoader bindingLoader = buildBindingLoader(bf);
-        return new BindingContextImpl(bindingLoader);
+        return new BindingContextImpl(bindingLoader, provider);
     }
 
     private static BindingLoader buildBindingLoader(BindingFile bf)
@@ -111,7 +116,9 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
         BindingConfigDocument doc =
             BindingConfigDocument.Factory.parse(bindingConfig);
         BindingFile bf = BindingFile.forDoc(doc);
-        return createBindingContext(bf);
+        SchemaTypeLoaderProvider provider =
+            UnusedSchemaTypeLoaderProvider.getInstance();
+        return createBindingContext(bf, provider);
     }
 
 

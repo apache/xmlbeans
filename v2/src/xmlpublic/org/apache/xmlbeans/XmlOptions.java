@@ -413,6 +413,15 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * If this option is set, then schema validation will be performed during
+     * unmarshalling.  Errors will be added to error collection supplied
+     * in this options instance
+     */
+    public XmlOptions setUnmarshalValidate () {
+        return set( UNMARSHAL_VALIDATE );
+    }
+
+    /**
      * Sets the name of the variable that represents
      * the current node in a query expression.
      * 
@@ -601,6 +610,9 @@ public class XmlOptions implements java.io.Serializable
     public static final String LOAD_ADDITIONAL_NAMESPACES      =  "LOAD_ADDITIONAL_NAMESPACES";
     /** @exclude */
     public static final String LOAD_MESSAGE_DIGEST             =  "LOAD_MESSAGE_DIGEST";
+
+    /** @exclude */
+    public static final String UNMARSHAL_VALIDATE              =  "UNMARSHAL_VALIDATE";
 
     /** @exclude */
     public static final String XQUERY_CURRENT_NODE_VAR         =  "XQUERY_CURRENT_NODE_VAR";

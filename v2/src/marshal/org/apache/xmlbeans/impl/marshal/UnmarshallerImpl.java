@@ -30,18 +30,21 @@ class UnmarshallerImpl implements Unmarshaller
 {
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
+    private final SchemaTypeLoaderProvider schemaTypeLoaderProvider;
 
     private static final XMLInputFactory XML_INPUT_FACTORY =
         XMLInputFactory.newInstance();
 
     public UnmarshallerImpl(BindingLoader loader,
-                            RuntimeBindingTypeTable typeTable)
+                            RuntimeBindingTypeTable typeTable,
+                            SchemaTypeLoaderProvider provider)
     {
         assert loader != null;
         assert typeTable != null;
 
         this.bindingLoader = loader;
         this.typeTable = typeTable;
+        this.schemaTypeLoaderProvider = provider;
     }
 
     public Object unmarshal(XMLStreamReader reader)
@@ -54,9 +57,10 @@ class UnmarshallerImpl implements Unmarshaller
         throws XmlException
     {
         final UnmarshalResult result =
-            new UnmarshalResult(bindingLoader, typeTable, options);
+            new UnmarshalResult(bindingLoader, typeTable,
+                                schemaTypeLoaderProvider, options);
 
-        return result.unmarshal(reader);
+        return result.unmarshalDocument(reader);
     }
 
     public Object unmarshal(InputStream doc)
@@ -102,7 +106,8 @@ class UnmarshallerImpl implements Unmarshaller
         }
 
         final UnmarshalResult result =
-            new UnmarshalResult(bindingLoader, typeTable, options);
+            new UnmarshalResult(bindingLoader, typeTable,
+                                schemaTypeLoaderProvider, options);
 
         return result.unmarshalType(reader, schemaType, javaType);
     }

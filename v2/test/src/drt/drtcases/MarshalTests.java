@@ -141,7 +141,6 @@ public class MarshalTests extends TestCase
         final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
         testSimpleTypeUnmarshal(bytes, "AQIDBAUG", "base64Binary");
         testSimpleTypeUnmarshal(bytes, "010203040506", "hexBinary");
-
     }
 
     private void testStringTypeUnmarshal(String xsd_type)
@@ -189,9 +188,10 @@ public class MarshalTests extends TestCase
                                         String xsd_type)
         throws Exception
     {
-        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+        BindingContext bindingContext = getBuiltinBindingContext();
 
-        String xmldoc = "<a xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
+         String xmldoc = "<a" +
+            " xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
             " xmlns:xs='http://www.w3.org/2001/XMLSchema' xsi:type='xs:" +
             xsd_type + "' >" + lexval + "</a>";
 
@@ -202,6 +202,7 @@ public class MarshalTests extends TestCase
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
         options.setErrorListener(errors);
+        options.setUnmarshalValidate();
 
         Unmarshaller umctx =
             bindingContext.createUnmarshaller();
@@ -968,6 +969,7 @@ public class MarshalTests extends TestCase
         final XmlOptions xmlOptions = new XmlOptions();
         Collection errors = new LinkedList();
         xmlOptions.setErrorListener(errors);
+
         Unmarshaller ctx = bindingContext.createUnmarshaller();
 
         //this is not very safe but it should work...
@@ -1055,6 +1057,12 @@ public class MarshalTests extends TestCase
     public static void main(String args[])
     {
         junit.textui.TestRunner.run(suite());
+    }
+
+    private static BindingContext getBuiltinBindingContext()
+        throws XmlException, IOException
+    {
+        return BindingContextFactory.newInstance().createBindingContext();
     }
 
     private static BindingContext getBindingContext(File bcdoc)

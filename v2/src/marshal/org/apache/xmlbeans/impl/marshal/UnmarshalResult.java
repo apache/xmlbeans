@@ -20,6 +20,8 @@ import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -29,6 +31,7 @@ import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
+import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
@@ -55,9 +58,11 @@ final class UnmarshalResult
     //per binding context objects
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
+    private final SchemaTypeLoaderProvider schemaTypeLoaderProvider;
 
     //our state
     private XMLStreamReaderExt baseReader;
+    private final XmlOptions options;
     private final Collection errors;
     private final XsiAttributeHolder xsiAttributeHolder =
         new XsiAttributeHolder();
@@ -71,15 +76,18 @@ final class UnmarshalResult
 
     UnmarshalResult(BindingLoader bindingLoader,
                     RuntimeBindingTypeTable typeTable,
+                    SchemaTypeLoaderProvider provider,
                     XmlOptions options)
     {
         this.bindingLoader = bindingLoader;
         this.typeTable = typeTable;
+        this.schemaTypeLoaderProvider = provider;
+        this.options = options;
         this.errors = BindingContextImpl.extractErrorHandler(options);
     }
 
 
-    void setXmlStream(XMLStreamReader reader)
+    private void enrichXmlStream(XMLStreamReader reader)
     {
         assert reader != null;
 
@@ -98,7 +106,7 @@ final class UnmarshalResult
     }
 
     //returns null and updates errors if there was a problem.
-    TypeUnmarshaller getTypeUnmarshaller(QName xsi_type)
+    private TypeUnmarshaller getTypeUnmarshaller(QName xsi_type)
     {
         XmlTypeName xname = XmlTypeName.forTypeNamed(xsi_type);
         BindingType binding_type =
@@ -132,12 +140,32 @@ final class UnmarshalResult
     }
 
 
-    Object unmarshal(XMLStreamReader reader)
+    Object unmarshalDocument(XMLStreamReader reader)
         throws XmlException
     {
-        setXmlStream(reader);
-        advanceToFirstItemOfInterest();
+        //TODO: turn on validation before looking at root type
+        MarshalStreamUtils.advanceToFirstItemOfInterest(reader);
+        enrichXmlStream(reader);
         BindingType bindingType = determineRootType();
+
+        if (isValidating()) {
+            ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
+            final SchemaTypeLoader schemaTypeLoader =
+                schemaTypeLoaderProvider.getSchemaTypeLoader();
+            final XmlTypeName xtype = bindingType.getName().getXmlName();
+            assert xtype.isSchemaType();
+            assert xtype.isGlobal();
+            SchemaType schema_type = schemaTypeLoader.findType(xtype.getQName());
+            if (schema_type == null) {
+                throw new XmlException("unable to locate type " + schema_type +
+                                       " in provided schema type system");
+            }
+            //TODO: pass in null instead of schema_type (currently not working)
+            vr.init(reader, schema_type, schemaTypeLoader, options, errors);
+            reader = vr; //note changing param
+        }
+
+
         return unmarshalBindingType(bindingType);
     }
 
@@ -158,7 +186,21 @@ final class UnmarshalResult
                          String javaType)
         throws XmlException
     {
-        setXmlStream(reader);
+        if (isValidating()) {
+            ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
+            SchemaTypeLoader schemaTypeLoader =
+                schemaTypeLoaderProvider.getSchemaTypeLoader();
+            SchemaType schema_type = schemaTypeLoader.findType(schemaType);
+            if (schema_type == null) {
+                String e = "unable to locate definition of type " +
+                    schemaType + " in supplied schema type system";
+                throw new XmlException(e);
+            }
+            vr.init(reader, schema_type, schemaTypeLoader, options, errors);
+            reader = vr; //note changing param
+        }
+
+        enrichXmlStream(reader);
 
         final QName xsi_type = getXsiType();
 
@@ -178,6 +220,13 @@ final class UnmarshalResult
             throw new XmlException(msg);
         }
         return unmarshalBindingType(btype);
+    }
+
+    private boolean isValidating()
+    {
+        if (options == null) return false;
+
+        return options.hasOption(XmlOptions.UNMARSHAL_VALIDATE);
     }
 
     private BindingType determineBindingType(QName schemaType, String javaType)
@@ -635,7 +684,7 @@ final class UnmarshalResult
      * return the QName value found for xsi:type
      * or null if neither one was found
      */
-    QName getXsiType() throws XmlException
+    private QName getXsiType() throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -644,7 +693,7 @@ final class UnmarshalResult
         return xsiAttributeHolder.xsiType;
     }
 
-    boolean hasXsiNil() throws XmlException
+    private boolean hasXsiNil() throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -679,7 +728,7 @@ final class UnmarshalResult
     }
 
 
-    void advanceToFirstItemOfInterest()
+    private void advanceToFirstItemOfInterest()
         throws XmlException
     {
         assert baseReader != null;
@@ -736,7 +785,7 @@ final class UnmarshalResult
         return baseReader.isEndElement();
     }
 
-    int getAttributeCount()
+    private int getAttributeCount()
     {
         assert baseReader.isStartElement();
 
@@ -816,7 +865,7 @@ final class UnmarshalResult
         return defaultAttributeBits.get(att_idx);
     }
 
-    void setNextElementDefault(String lexical_default)
+    private void setNextElementDefault(String lexical_default)
         throws XmlException
     {
         try {
