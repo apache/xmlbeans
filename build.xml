@@ -1,7 +1,7 @@
 <project name="Xbean" default="default" basedir=".">
 
   <property name="build.compiler" value="javac1.4"/>
-  <property name="product.version" value="1.0.0"/>
+  <property name="product.version" value="1.0.1"/>
 
   <target name="usage">
     <echo message="The following ant targets are defined:"/>
