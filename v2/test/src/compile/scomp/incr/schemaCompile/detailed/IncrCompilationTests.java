@@ -96,7 +96,6 @@ public class IncrCompilationTests extends CompileTestBase {
 
         if (incr.findElement(new QName("http://baz", "elName")) == null)
             throw new Exception("INCR: Baz elName was not found");
-
         for (int i = 0; i < incr.globalElements().length; i++) {
             System.out.println("[" + i + "]-" + incr.globalElements()[i].getName());
         }
@@ -159,7 +158,8 @@ public class IncrCompilationTests extends CompileTestBase {
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
 
-        Assert.assertEquals(base, incr);
+        if(!base.equals(incr))
+            throw new Exception("This type system should not have changed");
 
         compareandPopErrors(out, outincr, errors);
         handleErrors(errors);
@@ -260,10 +260,6 @@ public class IncrCompilationTests extends CompileTestBase {
 
         findElementbyQName(base, baseTypes);
         findElementbyQName(incr, incrTypes);
-
-        System.out.println("Type: " + incr.findElement(incrTypes[0]).getType());
-        System.out.println("Name: " + incr.findElement(incrTypes[0]).getType().getName());
-        System.out.println("Name: " + incr.findElement(incrTypes[0]).getType().getElementProperties()[0].getType());
 
         Assert.assertNotSame(base, incr);
 
