@@ -890,7 +890,7 @@ public class StscComplexTypeResolver
                                 if (sAttr.getUse() != SchemaLocalAttribute.REQUIRED)
                                 {
                                     if (baseAttr.getUse() == SchemaLocalAttribute.REQUIRED)
-                                        state.error("A restriction cannot modify an attribute that is required in the base type to be prohibited or optional.", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetUse());
+                                        state.error("A restriction cannot modify an attribute that is required in the base type to be prohibited or optional.", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr);
                                     
                                     if (sAttr.getUse() == SchemaLocalAttribute.PROHIBITED)
                                         result.removeProhibitedAttribute(sAttr.getName());
