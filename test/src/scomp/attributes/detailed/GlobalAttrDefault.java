@@ -21,9 +21,9 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 10:39:16 AM
+ *
+ *
+ *
  */
 public class GlobalAttrDefault extends BaseCase {
     /**

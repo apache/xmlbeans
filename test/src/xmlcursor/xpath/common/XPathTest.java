@@ -34,8 +34,6 @@ import java.io.IOException;
  * http://www.zvon.org/xxl/XPathTutorial/Output/example1.html
  * includes expanded notations as well
  *
- * @author jacobd
- *         Date: Dec 8, 2003
  */
 public class XPathTest
     extends BasicCursorTestCase

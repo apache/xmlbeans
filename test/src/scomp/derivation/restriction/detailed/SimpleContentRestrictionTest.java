@@ -20,9 +20,7 @@ import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 21, 2004
- * Time: 10:17:02 AM
+ *
  */
 public class SimpleContentRestrictionTest extends BaseCase {
     public void testLegalValues() throws Throwable {

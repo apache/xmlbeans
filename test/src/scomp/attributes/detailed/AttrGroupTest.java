@@ -25,9 +25,9 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 2, 2004
- * Time: 1:09:26 PM
+ *
+ *
+ *
  */
 public class AttrGroupTest extends BaseCase {
     public void testAttributeGroup() throws Throwable {

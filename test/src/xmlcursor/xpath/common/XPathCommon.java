@@ -23,8 +23,6 @@ import junit.framework.Assert;
 import tools.xml.XmlComparator;
 
 /**
- *
- * @author jacobd
  */
 public class XPathCommon {
 

@@ -20,9 +20,9 @@ import xbean.scomp.contentType.modelGroup.NestedChoiceInSequenceT;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:26:50 PM
+ *
+ *
+ *
  */
 public class NestSequenceChoiceTest extends BaseCase {
     /**

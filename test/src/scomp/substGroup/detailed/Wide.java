@@ -26,9 +26,6 @@ import java.math.BigInteger;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 29, 2004
- * Time: 3:31:59 PM
  */
 public class Wide extends BaseCase {
 

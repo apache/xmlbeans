@@ -20,9 +20,7 @@ import xbean.scomp.derivation.elementWCRestriction.*;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 6, 2004
- * Time: 12:18:07 PM
+ *
  */
 
 //TODO compile time tests w/ occurence contstraints

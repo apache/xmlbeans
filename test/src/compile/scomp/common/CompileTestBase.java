@@ -30,8 +30,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * @author jacobd
- * Date: Aug 5, 2004
+ *
  */
 public class CompileTestBase extends TestCase {
 

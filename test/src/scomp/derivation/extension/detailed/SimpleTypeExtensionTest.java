@@ -20,9 +20,9 @@ import xbean.scomp.derivation.simpleExtension.SimpleExtensionT;
 import scomp.common.BaseCase;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 21, 2004
- * Time: 10:14:25 AM
+ *
+ *
+ *
  */
 public class SimpleTypeExtensionTest extends BaseCase {
 

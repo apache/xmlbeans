@@ -4,9 +4,7 @@ package xmlcursor.xpath;
 import java.io.*;
 import org.apache.xmlbeans.*;
 /**
- * @owner: ykadiysk
- * Date: Jun 7, 2004
- * Time: 11:21:47 AM
+ *
  */
 public class CustomerTest {
 

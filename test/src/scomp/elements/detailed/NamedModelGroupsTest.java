@@ -24,9 +24,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 2, 2004
- * Time: 4:26:27 PM
+ *
  */
 public class NamedModelGroupsTest extends BaseCase{
      public void testValid() throws Throwable{

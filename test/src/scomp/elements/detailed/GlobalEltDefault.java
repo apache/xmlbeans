@@ -20,9 +20,8 @@ import xbean.scomp.element.globalEltDefault.GlobalEltDefaultIntDocument;
 import xbean.scomp.element.globalEltDefault.GlobalEltDefaultStrDocument;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 4:49:24 PM
+ *
+ *
  */
 public class GlobalEltDefault extends BaseCase {
     //empty string is OK considered , so default value is ignored

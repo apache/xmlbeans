@@ -22,9 +22,7 @@ import java.math.BigInteger;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 22, 2004
- * Time: 11:53:10 AM
+ *
  */
 public class GroupRestrictionTest extends BaseCase {
 

@@ -25,9 +25,6 @@ import org.apache.xmlbeans.XmlObject;
 import javax.xml.namespace.QName;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 9, 2004
- * Time: 9:16:35 AM
  */
 public class UserReportedTest extends BaseCase{
        String input="<Root xmlns=\"http://xbean/scomp/substGroup/UserReported\">" +

@@ -27,9 +27,9 @@ import java.util.ArrayList;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 3, 2004
- * Time: 2:03:15 PM
+ *
+ *
+ *
  */
 public class UnionType extends BaseCase {
     /**

@@ -22,10 +22,6 @@ import junit.framework.TestSuite;
 /**
  * Verifies XPath with locations
  * http://www.w3schools.com/xpath/xpath_location.asp
- *
- *
- * @status inactive
- * @author jacobd
  */
 public class XPathLocationTest extends BasicCursorTestCase {
 

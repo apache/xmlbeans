@@ -22,9 +22,9 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 2:08:57 PM
+ *
+ *
+ *
  */
 public class LocalAttrForm extends BaseCase{
 

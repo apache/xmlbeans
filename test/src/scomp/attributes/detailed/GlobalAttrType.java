@@ -23,9 +23,9 @@ import java.util.ArrayList;
 import java.math.BigInteger;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 12:43:40 PM
+ *
+ *
+ *
  */
 public class GlobalAttrType extends BaseCase {
     public void testAllValid() throws Throwable {

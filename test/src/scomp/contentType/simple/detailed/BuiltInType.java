@@ -26,9 +26,9 @@ import java.math.BigInteger;
 import java.util.*;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 3, 2004
- * Time: 2:02:49 PM
+ *
+ *
+ *
  */
 public class BuiltInType extends BaseCase {
     /**

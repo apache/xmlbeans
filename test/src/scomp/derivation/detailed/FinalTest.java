@@ -16,9 +16,9 @@
 package scomp.derivation.detailed;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 26, 2004
- * Time: 1:25:36 PM
+ *
+ *
+ *
  */
 
 /**

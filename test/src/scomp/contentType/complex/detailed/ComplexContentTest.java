@@ -18,9 +18,9 @@ package scomp.contentType.complex.detailed;
 import scomp.common.BaseCase;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:29:27 PM
+ *
+ *
+ *
  */
 public class ComplexContentTest extends BaseCase{
     //TODO: this should be a detailed

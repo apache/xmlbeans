@@ -22,12 +22,6 @@ import xbean.scomp.derivation.facets.union.UnionEnumEltDocument;
 import xbean.scomp.derivation.facets.union.SmallEnumUnion;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 4, 2004
- * Time: 11:08:54 AM
- */
-
-/**
  * Only pattern and enumeration restrictions possible
  * Compile time tests for the rest
  */

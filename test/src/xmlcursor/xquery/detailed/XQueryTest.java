@@ -28,10 +28,7 @@ import test.xbean.xmlcursor.xQueryInput.EmpT;
 import xmlcursor.common.Common;
 
 /**
- * Date: Dec 8, 2004
- * Time: 11:32:52 AM
  *
- * @owner ykadiysk
  */
 public class XQueryTest extends TestCase {
 

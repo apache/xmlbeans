@@ -23,9 +23,6 @@ import junit.framework.TestSuite;
 /**
  * Verifies XPath with Expressions
  * http://www.w3schools.com/xpath/xpath_expressions.asp
- * 
- *
- * @author jacobd
  */
 public abstract class XPathExpressionTest extends BaseXPathTest {
 

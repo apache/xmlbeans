@@ -21,9 +21,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 22, 2004
- * Time: 5:22:07 PM
+ *
  */
 public class EmptyContentRestriction extends BaseCase {
 

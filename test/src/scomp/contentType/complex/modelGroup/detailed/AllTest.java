@@ -24,9 +24,9 @@ import java.math.BigInteger;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 16, 2004
- * Time: 3:25:45 PM
+ *
+ *
+ *
  */
 public class AllTest extends BaseCase {
 

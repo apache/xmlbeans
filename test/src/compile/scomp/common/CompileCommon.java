@@ -22,8 +22,8 @@ import java.util.List;
 import java.util.Vector;
 
 /**
- * @author jacobd
- * Date: Aug 4, 2004
+ *
+ * 
  */
 public class CompileCommon {
 

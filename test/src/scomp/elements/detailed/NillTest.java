@@ -21,15 +21,10 @@ import xbean.scomp.element.nillTest.CityNameDocument;
 import xbean.scomp.element.nillTest.GlobalEltNotNillableDocument;
 import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
 
-/**
- * @owner: ykadiysk
- * Date: Jul 28, 2004
- * Time: 9:08:41 AM
- */
 
-/** this test illustrates somewhat inconsistent behavior
+/**
+ * this test illustrates somewhat inconsistent behavior
  * of nillable:
- * 
  */
 public class NillTest extends BaseCase {
     /**

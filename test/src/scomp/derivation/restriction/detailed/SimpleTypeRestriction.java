@@ -27,9 +27,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 29, 2004
- * Time: 2:15:27 PM
+ *
  */
 public class SimpleTypeRestriction extends BaseCase{
 

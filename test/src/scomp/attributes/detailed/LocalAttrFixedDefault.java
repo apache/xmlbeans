@@ -20,9 +20,9 @@ import xbean.scomp.attribute.localAttrFixedDefault.LocalAttrFixedDefaultDocument
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 14, 2004
- * Time: 2:31:26 PM
+ *
+ *
+ *
  */
 public class LocalAttrFixedDefault extends BaseCase {
     /**

@@ -22,9 +22,9 @@ import xbean.scomp.derivation.attributeExtension.ExtendedElementDocument;
 import java.math.BigInteger;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 21, 2004
- * Time: 10:19:10 AM
+ *
+ *
+ *
  */
 public class AttributeExtensionTest extends BaseCase{
     /**

@@ -23,9 +23,9 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 26, 2004
- * Time: 1:30:47 PM
+ *
+ *
+ *
  */
 public class BlockTest extends BaseCase {
     String restrContentValid = "<name>Bobby</name><age>20</age>";

@@ -20,8 +20,7 @@ import tools.util.JarUtil;
 import java.io.FileNotFoundException;
 
 /**
- * Date: Jan 24, 2005
- * Time: 12:34:01 PM
+ *
  */
 public  class AbstractRunner
     extends TestSuite

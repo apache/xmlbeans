@@ -33,10 +33,6 @@ import java.util.ArrayList;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
-/**
- * @author Cezar Andrei (cezar.andrei at bea.com)
- * Date: May 4, 2004
- */
 public class RedefineTest extends TestCase
 {
     public RedefineTest(String name) { super(name); }

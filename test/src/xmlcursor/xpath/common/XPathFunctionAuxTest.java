@@ -32,8 +32,6 @@ import java.io.IOException;
 /**
  * Verifies XPath using functions
  * http://www.w3schools.com/xpath/xpath_functions.asp
- *
- * @status inactive
  */
 
 public class XPathFunctionAuxTest

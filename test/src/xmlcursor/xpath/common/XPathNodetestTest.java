@@ -30,9 +30,6 @@ import xmlcursor.common.*;
 
 /**
  * Verifies XPath nodetest functions
- *
- *
- * @author ykadiysk
  */
 public class XPathNodetestTest extends BasicCursorTestCase {
 

@@ -27,10 +27,6 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlOptions;
 
 /**
- * Date: Oct 25, 2004
- * Time: 1:23:08 PM
- *
- * @owner ykadiysk
  */
 public class FacetsTest extends BaseCase {
 

@@ -27,9 +27,9 @@ import org.apache.xmlbeans.XmlSimpleList;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Aug 3, 2004
- * Time: 2:03:25 PM
+ *
+ *
+ *
  */
 public class ListType extends BaseCase {
     public void testListTypeAnonymous() throws Throwable {

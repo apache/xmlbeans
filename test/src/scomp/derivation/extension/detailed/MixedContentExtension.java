@@ -25,9 +25,9 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
- * @owner: ykadiysk
- * Date: Jul 21, 2004
- * Time: 10:18:40 AM
+ *
+ *
+ *
  */
 public class MixedContentExtension extends BaseCase {
 

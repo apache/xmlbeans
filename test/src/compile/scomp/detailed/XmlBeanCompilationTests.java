@@ -35,8 +35,6 @@ import javax.xml.namespace.QName;
  * Ensure that several compilation mechanisms all generate
  * the same schematypesystem
  *
- * @author jacobd
- *         Date: Aug 2, 2004
  */
 public class XmlBeanCompilationTests extends CompileTestBase
 {
