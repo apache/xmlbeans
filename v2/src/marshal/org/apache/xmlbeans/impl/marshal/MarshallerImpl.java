@@ -100,7 +100,9 @@ final class MarshallerImpl
                                                                 typeTable,
                                                                 loader);
 
-        if (obj != null && !runtime_type.getJavaType().isAssignableFrom(obj.getClass())) {
+        if (obj != null &&
+            !runtime_type.isJavaPrimitive() &&
+            !runtime_type.getJavaType().isInstance(obj)) {
             String m = "instance type: " + obj.getClass() +
                 " not an instance of expected type: " +
                 runtime_type.getJavaType();

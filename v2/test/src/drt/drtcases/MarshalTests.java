@@ -176,6 +176,7 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal(new Byte((byte)125), "byte");
         testSimpleTypeMarshal(new Short((short)5543), "short");
         testSimpleTypeMarshal(new Integer(55434535), "int");
+        testSimpleTypeMarshal(new Integer(75434535), "int", "int");
         testSimpleTypeMarshal(new Long(554345354445555555L), "long");
         testSimpleTypeMarshal(new BigInteger("55434535443332323245555555"), "integer");
         testSimpleTypeMarshal(new BigDecimal("43434343342.233434342"), "decimal");
@@ -257,6 +258,14 @@ public class MarshalTests extends TestCase
     public void testSimpleTypeMarshal(Object orig, String xsd_type)
         throws Exception
     {
+        final String java_type = orig.getClass().getName();
+        testSimpleTypeMarshal(orig, xsd_type, java_type);
+    }
+
+    public void testSimpleTypeMarshal(Object orig, String xsd_type,
+                                      final String java_type)
+        throws Exception
+    {
         BindingContext bindingContext =
             BindingContextFactory.newInstance().createBindingContext();
 
@@ -274,7 +283,7 @@ public class MarshalTests extends TestCase
 //                           new QName("uri", "lname"),
                             new QName("lname"),
                             new QName("http://www.w3.org/2001/XMLSchema", xsd_type),
-                            orig.getClass().getName(), options);
+                            java_type, options);
 
 
         inform("==================OBJ: " + orig);

@@ -135,10 +135,12 @@ final class JaxrpcEnumRuntimeBindingType
             throws XmlException
         {
             final BindingTypeName base_name = jaxrpcEnumType.getBaseTypeName();
-            assert base_name != null;
+            if (base_name == null) {
+                throw new XmlException("null base type for " + jaxrpcEnumType);
+            }
             final BindingType item_type = loader.getBindingType(base_name);
             if (item_type == null) {
-                final String msg = "unable to load type" + item_type +
+                final String msg = "unable to load type " + base_name +
                     " for " + jaxrpcEnumType;
                 throw new XmlException(msg);
             }
