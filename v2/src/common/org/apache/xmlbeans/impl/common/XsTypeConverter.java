@@ -57,6 +57,8 @@
 package org.apache.xmlbeans.impl.common;
 
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.GDate;
+import org.apache.xmlbeans.GDateBuilder;
 
 import javax.xml.namespace.QName;
 import javax.xml.namespace.NamespaceContext;
@@ -75,7 +77,8 @@ public final class XsTypeConverter
     private static final BigDecimal DECIMAL__ZERO = new BigDecimal(0.0);
 
     // ======================== float ========================
-    public static float lexFloat(CharSequence cs, Collection errors)
+    public static float lexFloat(CharSequence cs)
+        throws NumberFormatException
     {
         final String v = cs.toString();
         try {
@@ -89,7 +92,17 @@ public final class XsTypeConverter
             if (v.equals(NEG_INF_LEX)) return Float.NEGATIVE_INFINITY;
             if (v.equals(NAN_LEX)) return Float.NaN;
 
-            String msg = "invalid float: " + v;
+            throw e;
+        }
+    }
+
+    public static float lexFloat(CharSequence cs, Collection errors)
+    {
+        try {
+            return lexFloat(cs);
+        }
+        catch (NumberFormatException e) {
+            String msg = "invalid float: " + cs;
             errors.add(XmlError.forMessage(msg));
 
             return Float.NaN;
@@ -110,7 +123,8 @@ public final class XsTypeConverter
 
 
     // ======================== double ========================
-    public static double lexDouble(CharSequence cs, Collection errors)
+    public static double lexDouble(CharSequence cs)
+        throws NumberFormatException
     {
         final String v = cs.toString();
 
@@ -125,7 +139,17 @@ public final class XsTypeConverter
             if (v.equals(NEG_INF_LEX)) return Double.NEGATIVE_INFINITY;
             if (v.equals(NAN_LEX)) return Double.NaN;
 
-            String msg = "invalid double: " + v;
+            throw e;
+        }
+    }
+
+    public static double lexDouble(CharSequence cs, Collection errors)
+    {
+        try {
+            return lexDouble(cs);
+        }
+        catch (NumberFormatException e) {
+            String msg = "invalid double: " + cs;
             errors.add(XmlError.forMessage(msg));
 
             return Double.NaN;
@@ -146,21 +170,27 @@ public final class XsTypeConverter
 
 
     // ======================== decimal ========================
-    public static BigDecimal lexDecimal(CharSequence cs, Collection errors)
+    public static BigDecimal lexDecimal(CharSequence cs)
+        throws NumberFormatException
     {
         final String v = cs.toString();
 
+        //TODO: review this
+        //NOTE: we trim unneeded zeros from the string because
+        //java.math.BigDecimal considers them significant for its
+        //equals() method, but the xml value
+        //space does not consider them significant.
+        //See http://www.w3.org/2001/05/xmlschema-errata#e2-44
+        return new BigDecimal(trimTrailingZeros(v));
+    }
+
+    public static BigDecimal lexDecimal(CharSequence cs, Collection errors)
+    {
         try {
-            //TODO: review this
-            //NOTE: we trim unneeded zeros from the string because
-            //java.math.BigDecimal considers them significant for its
-            //equals() method, but the xml value
-            //space does not consider them significant.
-            //See http://www.w3.org/2001/05/xmlschema-errata#e2-44
-            return new BigDecimal(trimTrailingZeros(v));
+            return lexDecimal(cs);
         }
         catch (NumberFormatException e) {
-            String msg = "invalid long: " + v;
+            String msg = "invalid long: " + cs;
             errors.add(XmlError.forMessage(msg));
             return DECIMAL__ZERO;
         }
@@ -172,15 +202,23 @@ public final class XsTypeConverter
     }
 
     // ======================== integer ========================
-    public static BigInteger lexInteger(String v, Collection errors)
+    public static BigInteger lexInteger(CharSequence cs)
+        throws NumberFormatException
+    {
+        final String v = cs.toString();
+
+        //TODO: consider special casing zero and one to return static values
+        //from BigInteger to avoid object creation.
+        return new BigInteger(trimInitialPlus(v));
+    }
+
+    public static BigInteger lexInteger(CharSequence cs, Collection errors)
     {
         try {
-            //TODO: consider special casing zero and one to return static values
-            //from BigInteger to avoid object creation.
-            return new BigInteger(trimInitialPlus(v));
+            return lexInteger(cs);
         }
         catch (NumberFormatException e) {
-            String msg = "invalid long: " + v;
+            String msg = "invalid long: " + cs;
             errors.add(XmlError.forMessage(msg));
             return BigInteger.ZERO;
         }
@@ -192,15 +230,20 @@ public final class XsTypeConverter
     }
 
     // ======================== long ========================
-    public static long lexLong(CharSequence cs, Collection errors)
+    public static long lexLong(CharSequence cs)
+        throws NumberFormatException
     {
         final String v = cs.toString();
+        return Long.parseLong(trimInitialPlus(v));
+    }
 
+    public static long lexLong(CharSequence cs, Collection errors)
+    {
         try {
-            return Long.parseLong(trimInitialPlus(v));
+            return lexLong(cs);
         }
         catch (NumberFormatException e) {
-            String msg = "invalid long: " + v;
+            String msg = "invalid long: " + cs;
             errors.add(XmlError.forMessage(msg));
             return 0L;
         }
@@ -213,15 +256,19 @@ public final class XsTypeConverter
 
 
     // ======================== short ========================
+    public static short lexShort(CharSequence cs)
+        throws NumberFormatException
+    {
+        return parseShort(cs);
+    }
+
     public static short lexShort(CharSequence cs, Collection errors)
     {
-        final String v = cs.toString();
-
         try {
-            return Short.parseShort(trimInitialPlus(v));
+            return lexShort(cs);
         }
         catch (NumberFormatException e) {
-            String msg = "invalid short: " + v;
+            String msg = "invalid short: " + cs;
             errors.add(XmlError.forMessage(msg));
             return 0;
         }
@@ -234,15 +281,21 @@ public final class XsTypeConverter
 
 
     // ======================== int ========================
+    public static int lexInt(CharSequence cs)
+        throws NumberFormatException
+    {
+        return parseInt(cs);
+    }
+
     public static int lexInt(CharSequence cs, Collection errors)
     {
-        final String v = cs.toString();
-
-        try {
-            return Integer.parseInt(trimInitialPlus(v));
+        try
+        {
+            return lexInt(cs);
         }
-        catch (NumberFormatException e) {
-            String msg = "invalid int: " + v;
+        catch(NumberFormatException e)
+        {
+            String msg = "invalid int:" + cs;
             errors.add(XmlError.forMessage(msg));
             return 0;
         }
@@ -255,15 +308,21 @@ public final class XsTypeConverter
 
 
     // ======================== byte ========================
+    public static byte lexByte(CharSequence cs)
+        throws NumberFormatException
+    {
+        return parseByte(cs);
+    }
+
     public static byte lexByte(CharSequence cs, Collection errors)
     {
-        final String v = cs.toString();
-
-        try {
-            return Byte.parseByte(trimInitialPlus(v));
+        try
+        {
+            return lexByte(cs);
         }
-        catch (NumberFormatException e) {
-            String msg = "invalid byte: " + v;
+        catch (NumberFormatException e)
+        {
+            String msg = "invalid byte: " + cs;
             errors.add(XmlError.forMessage(msg));
             return 0;
         }
@@ -276,7 +335,7 @@ public final class XsTypeConverter
 
 
     // ======================== boolean ========================
-    public static boolean lexBoolean(CharSequence v, Collection errors)
+    public static boolean lexBoolean(CharSequence v)
     {
         switch (v.length()) {
             case 1:  // "0" or "1"
@@ -305,8 +364,20 @@ public final class XsTypeConverter
 
         //reaching here means an invalid boolean lexical
         String msg = "invalid boolean: " + v;
-        errors.add(XmlError.forMessage(msg));
-        return false;
+        throw new IllegalArgumentException(msg);
+    }
+
+    public static boolean lexBoolean(CharSequence value, Collection errors)
+    {
+        try
+        {
+            return lexBoolean(value);
+        }
+        catch(IllegalArgumentException e)
+        {
+            errors.add(XmlError.forMessage(e.getMessage()));
+            return false;
+        }
     }
 
     public static String printBoolean(boolean value)
@@ -330,23 +401,60 @@ public final class XsTypeConverter
 
 
     // ======================== QName ========================
+    public static QName lexQName(CharSequence charSeq, NamespaceContext nscontext)
+    {
+        String prefix, localname;
+
+        int firstcolon;
+        boolean hasFirstCollon = false;
+        for (firstcolon = 0; firstcolon < charSeq.length(); firstcolon ++)
+            if (charSeq.charAt(firstcolon)==NAMESPACE_SEP)
+            {
+                hasFirstCollon = true;
+                break;
+            }
+
+        if (hasFirstCollon)
+        {
+            prefix = charSeq.subSequence(0, firstcolon).toString();
+            localname = charSeq.subSequence(firstcolon + 1, charSeq.length()).toString();
+            if (firstcolon==0)
+            {
+                throw new InvalidLexicalValueException("invalid xsd:QName '" + charSeq.toString() + "'");
+            }
+        }
+        else
+        {
+            prefix = EMPTY_PREFIX;
+            localname = charSeq.toString();
+        }
+
+        String uri = nscontext.getNamespaceURI(prefix);
+
+        if (uri == null)
+        {
+            if (prefix!=null && prefix.length() > 0)
+                throw new InvalidLexicalValueException("Can't resolve prefix: " + prefix);
+
+            uri = "";
+        }
+
+        return new QName( uri, localname );
+    }
+
     public static QName lexQName(String xsd_qname, Collection errors,
                                  NamespaceContext nscontext)
     {
-
-        final int idx = indexOfNamespaceSeperator(xsd_qname, errors);
-        String prefix;
-        String localpart;
-        if (idx < 0) {
-            prefix = EMPTY_PREFIX;
-            localpart = xsd_qname;
-        } else {
-            prefix = xsd_qname.substring(0, idx);
-            localpart = xsd_qname.substring(1 + idx);
+        try
+        {
+            return lexQName(xsd_qname, nscontext);
         }
-        String namespaceUri = getUriFromContext(prefix, xsd_qname,
-                                                nscontext, errors);
-        return new QName(namespaceUri, localpart, prefix);
+        catch( InvalidLexicalValueException e)
+        {
+            errors.add(XmlError.forMessage(e.getMessage()));
+            final int idx = xsd_qname.indexOf(NAMESPACE_SEP);
+            return new QName(null, xsd_qname.substring(idx));
+        }
     }
 
     public static String printQName(QName qname, NamespaceContext nsContext,
@@ -375,7 +483,31 @@ public final class XsTypeConverter
         }
     }
 
+    // ======================== QName ========================
+    public static GDate lexGDate(CharSequence charSeq)
+    {
+        return new GDate(charSeq);
+    }
 
+    public static GDate lexGDate(String xsd_gdate, Collection errors)
+    {
+        try
+        {
+            return lexGDate(xsd_gdate);
+        }
+        catch( IllegalArgumentException e)
+        {
+            errors.add(XmlError.forMessage(e.getMessage()));
+            return new GDateBuilder().toGDate();
+        }
+    }
+
+    public static String printGDate(GDate gdate, Collection errors)
+    {
+        return gdate.toString();
+    }
+
+    // private utils
     private static String trimInitialPlus(String xml)
     {
         if (xml.charAt(0) == '+') {
@@ -384,32 +516,6 @@ public final class XsTypeConverter
             return xml;
         }
     }
-
-    private static int indexOfNamespaceSeperator(String xml, Collection errors)
-    {
-        final int idx = xml.indexOf(NAMESPACE_SEP);
-
-        if (idx == 0) {
-            String msg = "an empty prefix is not allowed in an xsd:QName value";
-            errors.add(XmlError.forMessage(msg));
-        }
-        return idx;
-    }
-
-    private static String getUriFromContext(String prefix,
-                                            String original_xml,
-                                            NamespaceContext nscontext,
-                                            Collection errors)
-    {
-        String uri = nscontext.getNamespaceURI(prefix);
-        if (uri == null) {
-            String msg = "invalid qname: " + original_xml;
-            errors.add(XmlError.forMessage(msg));
-        }
-
-        return uri;
-    }
-
 
     private static String trimTrailingZeros(String xsd_decimal)
     {
@@ -430,4 +536,69 @@ public final class XsTypeConverter
         return xsd_decimal;
     }
 
+        private static int parseInt(CharSequence cs)
+    {
+        return parseIntXsdNumber(cs, Integer.MIN_VALUE, Integer.MAX_VALUE);
+    }
+
+    private static short parseShort(CharSequence cs)
+    {
+        return (short)parseIntXsdNumber(cs, Short.MIN_VALUE, Short.MAX_VALUE);
+    }
+
+    private static byte parseByte(CharSequence cs)
+    {
+        return (byte)parseIntXsdNumber(cs, Byte.MIN_VALUE, Byte.MAX_VALUE);
+    }
+
+    private static int parseIntXsdNumber(CharSequence ch, int min_value, int max_value)
+    {
+        // int parser on a CharSequence
+        int length = ch.length();
+        if (length<1)
+            throw new NumberFormatException("For input string: \"" + ch.toString() +"\"");
+
+        int sign = 1;
+        int result = 0;
+        int start = 0;
+        int limit;
+        int limit2;
+
+        char c = ch.charAt(0);
+        if (c=='-')
+        {
+            start++;
+            limit  = (min_value/10);
+            limit2 = -(min_value%10);
+        }
+        else if (c=='+')
+        {
+            start++;
+            sign = -1;
+            limit  = -(max_value/10);
+            limit2 = (max_value%10);
+        }
+        else
+        {
+            sign = -1;
+            limit  = -(max_value/10);
+            limit2 = (max_value%10);
+        }
+
+        for (int i = 0; i < length-start; i++)
+        {
+            c = ch.charAt(i + start);
+            int v = Character.digit(c, 10);
+
+            if (v<0)
+                throw new NumberFormatException("For input string: \"" + ch.toString() +"\"");
+
+            if ( result <= limit && v > limit2)
+                throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
+
+            result = result*10 - v;
+        }
+
+        return sign*result;
+    }
 }

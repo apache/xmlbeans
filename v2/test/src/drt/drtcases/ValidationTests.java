@@ -68,6 +68,8 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XMLStreamValidationException;
 import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.openuri.testNumerals.DocDocument;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -1426,7 +1428,7 @@ public class ValidationTests extends TestCase
             "      <item number='124 '>" +
             "          <quantity>1</quantity>" +
             "      </item>" +
-            "      <item number='563'>" +
+            "      <item number=' 563  '>" +
             "          <quantity>1</quantity>" +
             "      </item>" +
             "    </items>" +
@@ -1437,7 +1439,7 @@ public class ValidationTests extends TestCase
             "            <price currency='USD'>29.99</price>" +
             "        </product>" +
             "        <product>" +
-            "            <number>563</number>" +
+            "            <number> 563 </number>" +
             "            <name>Hat</name>" +
             "            <price currency='USD'>69.99</price>" +
             "        </product>" +
@@ -1609,4 +1611,66 @@ public class ValidationTests extends TestCase
 
     }
 
+    // tests numeral validation
+    public void testValidate11 ( )
+        throws Exception
+    {
+        String schema =
+            "<xs:schema\n" +
+            "   xmlns:xs='http://www.w3.org/2001/XMLSchema'\n" +
+            "   targetNamespace='http://openuri.org/testNumerals'\n" +
+            "   elementFormDefault='qualified'>\n" +
+            "\n" +
+            "  <xs:element name='doc'>\n" +
+            "    <xs:complexType>\n" +
+            "      <xs:sequence>\n" +
+            "        <xs:choice minOccurs='0' maxOccurs='unbounded'>\n" +
+            "          <xs:element name='int' type='xs:int' />\n" +
+            "          <xs:element name='short' type='xs:short' />\n" +
+            "          <xs:element name='byte' type='xs:byte' />\n" +
+            "        </xs:choice>\n" +
+            "      </xs:sequence>\n" +
+            "    </xs:complexType>\n" +
+            "  </xs:element>\n" +
+            "" +
+            "</xs:schema>\n";
+
+        String[] valid = {
+            "<doc xmlns='http://openuri.org/testNumerals'>" +
+            "  <int> \n -10" +
+            "  </int>" +
+            "</doc>",
+            "<doc xmlns='http://openuri.org/testNumerals'>" +
+            "  <int> \n -<!--comment-->9" +
+            "  </int>" +
+            "</doc>",
+            "<doc xmlns='http://openuri.org/testNumerals'>" +
+            "  <int> +0008" +
+            "  </int>" +
+            "</doc>",
+            "<doc xmlns='http://openuri.org/testNumerals'>" +
+            "  <int> +07<!--comment-->0" +
+            "  </int>" +
+            "</doc>"
+        };
+
+        String[] invalid = {
+            "<doc xmlns='http://openuri.org/testNumerals'>" +
+            "  <int />" +
+            "<doc>",
+            "<doc xmlns='http://openuri.org/testNumerals'>" +
+            "  <int> </int>" +
+            "<doc>",
+            "<doc xmlns='http://openuri.org/testNumerals'>" +
+            "  <int> + 4 </int>" +
+            "<doc>"
+        };
+
+        String[] schemas = { schema };
+
+        doTest(
+            schemas,
+            new QName( "http://openuri.org/testNumerals", "doc" ),
+            valid, invalid );
+    }
 }

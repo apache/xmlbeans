@@ -60,6 +60,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -97,14 +98,10 @@ public abstract class JavaFloatHolder extends XmlObjectBase
     {
         try
         {
-            return Float.parseFloat(v);
+            return XsTypeConverter.lexFloat(v);
         }
         catch(NumberFormatException e)
         {
-            if (v.equals("INF"))  return Float.POSITIVE_INFINITY;
-            if (v.equals("-INF")) return Float.NEGATIVE_INFINITY;
-            if (v.equals("NaN"))  return Float.NaN;
-            
             context.invalid("Invalid float value");
 
             return Float.NaN;
