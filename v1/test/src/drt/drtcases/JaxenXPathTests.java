@@ -42,7 +42,7 @@ public class JaxenXPathTests extends TestCase
         }
         catch (ClassNotFoundException e)
         {
-            System.out.println("\n\nWARNING!!!\n\nJaxen.jar not on classpath skipping this test.\n\n");
+            System.out.println("\n\nWARNING!!!\n\nJaxen.jar not on classpath skipping JaxenXPathTests.\n\n");
             return new TestSuite();
         }
     }
