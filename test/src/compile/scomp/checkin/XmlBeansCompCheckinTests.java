@@ -292,9 +292,8 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             System.err.println(iaEx.getMessage());
         }
 
-        if (!iArgExThrown)
-            throw new Exception("All null values did not throw Illegal " +
-                    "Argument Exception");
+        // svn revision 160341. SchemaTypeLoader is not expected to non null any more. All params can be null
+        assertFalse(iArgExThrown);
 
         iArgExThrown = false;
         try {
@@ -306,9 +305,8 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             System.err.println(iaEx.getMessage());
         }
 
-        if (!iArgExThrown)
-            throw new Exception("XSD[] and null values did not throw Illegal " +
-                    "Argument Exception");
+        // svn revision 160341. SchemaTypeLoader is not expected to non null any more
+        assertFalse(iArgExThrown);
 
     }
 
