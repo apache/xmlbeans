@@ -67,8 +67,6 @@ interface RuntimeBindingProperty
 
     QName getName();
 
-    boolean isAttribute();
-
     TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context);
 
     void fill(Object inter, Object prop_obj);
