@@ -17,11 +17,11 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
+import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
+import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.common.XMLChar;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Collection;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -76,12 +77,17 @@ public class Java2Schema extends BindingCompiler {
   // =========================================================================
   // Variables
 
-  private BindingFile mBindingFile;  // the file we're creating
-  private BindingLoader mLoader; // the full loader: bindingFile + baseLoader
-  private SchemaDocument mSchemaDocument; // schema doc we're generating
-  //private Map mTns2Schema = new HashMap();
-  private SchemaDocument.Schema mSchema;
-  private JClass[] mClasses; // the input classes
+  // the bindings that we're building up
+  private BindingFile mBindingFile;
+
+  // the full loader: bindingFile + baseLoader
+  private BindingLoader mLoader;
+
+  // maps a targetnamespace (string) to a schemadocument that we are creating
+  private Map mTns2Schemadoc = new HashMap();
+
+  // the input classes
+  private JClass[] mClasses;
 
   // =========================================================================
   // Constructors
@@ -104,13 +110,6 @@ public class Java2Schema extends BindingCompiler {
     mBindingFile = new BindingFile();
     mLoader = CompositeBindingLoader.forPath
             (new BindingLoader[] {mBindingFile, super.getBaseBindingLoader()});
-    mSchemaDocument = SchemaDocument.Factory.newInstance();
-    mSchema = mSchemaDocument.addNewSchema();
-    if (mClasses.length > 0) {
-      //FIXME how should we determine the targetnamespace for the schema?
-      //here we just derive it from the first class in the list
-      mSchema.setTargetNamespace(getTargetNamespace(mClasses[0]));
-    }
     //This does the binding
     for(int i=0; i<mClasses.length; i++) {
       if (!getAnnotation(mClasses[i],TAG_CT_EXCLUDE,false)) {
@@ -118,27 +117,59 @@ public class Java2Schema extends BindingCompiler {
       }
     }
     //
+    SchemaDocument[] xsds = null;
     try {
       writer.writeBindingFile(mBindingFile);
       //REVIEW maybe we should just include the schema and let super class write it out?
-      writer.writeSchema(mSchemaDocument,"schema-0.xsd");
+      xsds = getGeneratedSchemaDocuments();
+      for(int i=0; i<xsds.length; i++) {
+        writer.writeSchema(xsds[i],"schema-"+i+".xsd");
+      }
     } catch(IOException ioe) {
       logError(ioe);
     }
-    try {
-      SchemaTypeSystem sts = XmlBeans.compileXsd
-        (new XmlObject[] {mSchemaDocument},XmlBeans.getBuiltinTypeSystem(),null);
-      writer.writeSchemaTypeSystem(sts);
-    } catch(IOException ioe) {
-      //logError(ioe); ignore for now
-    } catch(XmlException xe) {
-      //logError(xe);  ignore for now
+    SchemaTypeSystem sts = null;
+    {
+      try {
+        sts = Schema2JavaTask.createSchemaTypeSystem(xsds);
+        if (sts == null) {
+          throw new IllegalStateException("createSchemaTypeSystem returned null");
+        }
+      } catch(XmlException xe) {
+        ExplodedTylarImpl.showXsbError(xe,null,"write",TylarConstants.SHOW_XSB_ERRORS || isVerbose());
+      }
+      if (sts != null) {
+        try {
+          writer.writeSchemaTypeSystem(sts);
+        } catch(IOException ioe) {
+          ExplodedTylarImpl.showXsbError(ioe,null,"compile",TylarConstants.SHOW_XSB_ERRORS || isVerbose());
+        }
+      }
     }
-
   }
 
   // ========================================================================
   // Private methods
+
+  private SchemaDocument.Schema findOrCreateSchema(String tns) {
+    if (tns == null) throw new IllegalArgumentException();
+    tns = tns.trim();
+    SchemaDocument doc = (SchemaDocument)mTns2Schemadoc.get(tns);
+    if (doc == null) {
+      doc = SchemaDocument.Factory.newInstance();
+      doc.addNewSchema().setTargetNamespace(tns);
+      mTns2Schemadoc.put(tns,doc);
+    }
+    return doc.getSchema();
+  }
+
+  private SchemaDocument[] getGeneratedSchemaDocuments() {
+    Collection list = mTns2Schemadoc.values();
+    SchemaDocument[] out = new SchemaDocument[list.size()];
+    list.toArray(out);
+    return out;
+  }
+
 
   /**
    * Returns a bts BindingType for the given JClass.  If such a type
@@ -164,7 +195,8 @@ public class Java2Schema extends BindingCompiler {
    */
   private BindingType createBindingTypeFor(JClass clazz) {
     // create the schema type
-    TopLevelComplexType xsType = mSchema.addNewComplexType();
+    SchemaDocument.Schema schema = findOrCreateSchema(getTargetNamespace(clazz));
+    TopLevelComplexType xsType = schema.addNewComplexType();
     String tns = getTargetNamespace(clazz);
     String xsdName = getAnnotation(clazz,TAG_CT_TYPENAME,clazz.getSimpleName());
     QName qname = new QName(tns,xsdName);
@@ -174,11 +206,11 @@ public class Java2Schema extends BindingCompiler {
     // we have to remember whether we created an ExtensionType because that
     // is where the sequence of properties have to go - note that this
     // gets passed into the SchemaPropertyFacade created below.  It's
-    // unforuntante that the SchemaDocument model does not allow us to deal
+    // unfortunate that the SchemaDocument model does not allow us to deal
     // with this kind of thing in a more elegant and polymorphic way.
     ExtensionType extType = null;
     if (superclass != null && !superclass.isObjectType() &&
-            !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
+      !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
       // FIXME we're ignoring interfaces at the moment
       BindingType superBindingType = getBindingTypeFor(superclass);
       ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
@@ -214,7 +246,7 @@ public class Java2Schema extends BindingCompiler {
     // check to see if they want to create a root elements from this type
     JAnnotation[] anns = getNamedTags(clazz.getAllJavadocTags(),TAG_CT_ROOT);
     for(int i=0; i<anns.length; i++) {
-      TopLevelElement root = mSchema.addNewElement();
+      TopLevelElement root = schema.addNewElement();
       root.setName(makeNcNameSafe(anns[i].getValue
                                   (JAnnotation.SINGLE_VALUE_NAME).asString()));
       root.setType(qname);

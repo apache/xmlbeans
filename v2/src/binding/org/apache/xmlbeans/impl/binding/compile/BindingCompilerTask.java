@@ -139,8 +139,8 @@ public abstract class BindingCompilerTask extends MatchingTask {
       (file, SchemaDocument.type, options);
   }
 
-  protected static SchemaTypeSystem createSchemaTypeSystem(SchemaDocument[] xsds)
-    throws IOException, XmlException
+  public static SchemaTypeSystem createSchemaTypeSystem(SchemaDocument[] xsds)
+    throws XmlException
   {
     SchemaTypeLoader soapencLoader = org.apache.xmlbeans.impl.schema.SoapEncSchemaTypeSystem.get();
     SchemaTypeLoader xsdLoader = XmlBeans.getBuiltinTypeSystem();

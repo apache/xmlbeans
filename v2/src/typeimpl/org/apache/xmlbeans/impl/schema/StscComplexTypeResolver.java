@@ -522,7 +522,7 @@ public class StscComplexTypeResolver
         
         // apply rule #2 near http://www.w3.org/TR/xmlschema-1/#c-mve: empty ext model -> mixed taken from base
         if (extensionModel == null && !mixed)
-            mixed = (baseType.getContentType() == SchemaType.MIXED_CONTENT);
+            mixed = (baseType != null && baseType.getContentType() == SchemaType.MIXED_CONTENT);
         
         // apply Derivation Valid (Extension) rule 1.4.2.2
         if (baseType != null && (baseType.getContentType() != SchemaType.EMPTY_CONTENT) &&
