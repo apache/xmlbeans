@@ -259,26 +259,26 @@ public class StscTranslator
             
             for (Iterator i = stRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined simple type " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)stRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined simple type " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)stRedefinitions.get(name));
             }
 
             for (Iterator i = ctRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined complex type " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)ctRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined complex type " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)ctRedefinitions.get(name));
             }
             
             for (Iterator i = agRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined attribute group " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)agRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined attribute group " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)agRedefinitions.get(name));
             }
             
             for (Iterator i = mgRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined model group " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)mgRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined model group " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)mgRedefinitions.get(name));
             }
         }
     }
