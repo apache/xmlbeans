@@ -70,11 +70,6 @@ abstract class Saver
         _attrNames = new ArrayList();
         _attrValues = new ArrayList ();
 
-        _newLine = System.getProperty( "line.separator" );
-
-        if (_newLine == null)
-            _newLine = "\n";
-
         // Stops the synthesis of this namspace and make for better
         // roundtripping 
         addMapping( "xml", Locale._xml1998Uri );
@@ -117,12 +112,6 @@ abstract class Saver
         
         if (options.hasOption( XmlOptions.SAVE_SUGGESTED_PREFIXES ))
             _suggestedPrefixes = (Map) options.get( XmlOptions.SAVE_SUGGESTED_PREFIXES);
-
-        if (options.hasOption( XmlOptions.SAVE_FILTER_PROCINST ))
-        {
-            _filterProcinst =
-                (String) options.get( XmlOptions.SAVE_FILTER_PROCINST );
-        }
     }
 
     private SaveCur createSaveCur ( Cur c, XmlOptions options )
@@ -205,6 +194,7 @@ abstract class Saver
 
             if (k < 0)
             {
+                // Save out ""
                 start.moveToCur( c );
                 end.moveToCur( c );
             }
@@ -229,6 +219,8 @@ abstract class Saver
             }
             else
             {
+                assert k == COMMENT || k == PROCINST;
+                
                 start.moveToCur( c );
                 end.moveToCur( c );
                 end.toEnd();
@@ -237,6 +229,11 @@ abstract class Saver
 
             cur = new FragSaveCur( start, end, fragName );
         }
+
+        String filterPI = (String) options.get( XmlOptions.SAVE_FILTER_PROCINST );
+
+        if (filterPI != null)
+            cur = new FilterPiSaveCur( cur, filterPI );
 
         if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT ))
             cur = new PrettySaveCur( cur, options );
@@ -378,7 +375,7 @@ abstract class Saver
             case - ROOT : case - ELEM : { processFinish(); _postPop = true;    break; }
             case TEXT                 : { emitText( _cur );                    break; }
             case COMMENT              : { emitComment( _cur );                 break; }
-            case PROCINST             : { processProcinst();                   break; }
+            case PROCINST             : { emitProcinst( _cur );                break; }
 
             default : throw new RuntimeException( "Unexpected kind" );
         }
@@ -490,12 +487,6 @@ abstract class Saver
         _postPop = true;
     }
     
-    private final void processProcinst ( )
-    {
-        if (_filterProcinst == null || !_cur.getName().getLocalPart().equals( _filterProcinst ))
-            emitProcinst( _cur );
-    }
-
     //
     // Layout of namespace stack:
     //
@@ -1000,7 +991,14 @@ abstract class Saver
             assert c.isComment();
 
             emit( "<!--" );
-            emitValue( c );
+
+            c.push();
+            c.next();
+
+            emit( c );
+
+            c.pop();
+            
             entitizeComment();
             emit( "-->" );
         }
@@ -1014,12 +1012,18 @@ abstract class Saver
             // TODO - encoding issues here?
             emit( c.getName().getLocalPart() );
 
-            if (c.hasText())
+            c.push();
+
+            c.next();
+
+            if (c.isText())
             {
                 emit( " " );
-                emitValue( c );
+                emit( c );
                 entitizeProcinst();
             }
+
+            c.pop();
             
             emit( "?>" );
         }
@@ -1111,18 +1115,6 @@ abstract class Saver
                 preEmit( 0 );
         }
         
-        private void emitValue ( SaveCur c )
-        {
-            assert !c.isText() && !c.isAttr() && c.kind() > 0 && !c.hasChildren();
-
-            c.push();
-            c.next();
-
-            emit( c );
-
-            c.pop();
-        }
-
         private boolean preEmit ( int cch )
         {
             assert cch >= 0;
@@ -1745,6 +1737,90 @@ abstract class Saver
         private Cur _cur;
     }
 
+    private static abstract class FilterSaveCur extends SaveCur
+    {
+        FilterSaveCur ( SaveCur c )
+        {
+            assert c.isRoot();
+            _cur = c;
+        }
+
+        // Can filter anything by root and attributes and text
+        protected abstract boolean filter ( );
+
+        void release ( )
+        {
+            _cur.release();
+            _cur = null;
+        }
+        
+        int kind ( ) { return _cur.kind(); }
+        
+        QName  getName        ( ) { return _cur.getName();        }
+        String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
+        String getXmlnsUri    ( ) { return _cur.getXmlnsUri();    }
+        
+        boolean isXmlns       ( ) { return _cur.isXmlns();      }
+        
+        boolean hasChildren   ( ) { return _cur.hasChildren();  }
+        boolean hasText       ( ) { return _cur.hasText();      }
+        
+        boolean toFirstAttr   ( ) { return _cur.toFirstAttr();  }
+        boolean toNextAttr    ( ) { return _cur.toNextAttr();   }
+        String  getAttrValue  ( ) { return _cur.getAttrValue(); }
+        
+        void toEnd ( ) { _cur.toEnd(); }
+        
+        boolean next ( )
+        {
+            if (!_cur.next())
+                return false;
+
+            if (!filter())
+                return true;
+            
+            assert !isRoot() && !isText() && !isAttr();
+                
+            toEnd();
+            
+            return next();
+        }
+        
+        void push ( ) { _cur.push(); }
+        void pop  ( ) { _cur.pop(); }
+
+        List getAncestorNamespaces ( ) { return _cur.getAncestorNamespaces(); }
+        
+        Object getChars ( )
+        {
+            Object o = _cur.getChars();
+            
+            _offSrc = _cur._offSrc;
+            _cchSrc = _cur._cchSrc;
+
+            return o;
+        }
+        
+        private SaveCur _cur;
+    }
+
+    private static final class FilterPiSaveCur extends FilterSaveCur
+    {
+        FilterPiSaveCur ( SaveCur c, String target )
+        {
+            super( c );
+            
+            _piTarget = target;
+        }
+
+        protected boolean filter ( )
+        {
+            return kind() == PROCINST && getName().getLocalPart().equals( _piTarget );
+        }
+
+        private String _piTarget;
+    }
+
     private static final class FragSaveCur extends SaveCur
     {
         FragSaveCur ( Cur start, Cur end, QName synthElem )
@@ -1909,7 +1985,7 @@ abstract class Saver
             case ROOT_START :
             {
                 _state = _elem == null ? CUR : ELEM_START;
-                return true;
+                break;
             }
 
             case ELEM_START :
@@ -1930,7 +2006,7 @@ abstract class Saver
                         _state = CUR;
                 }
 
-                return true;
+                break;
             }
 
             case CUR :
@@ -1942,19 +2018,19 @@ abstract class Saver
                 if (_cur.isSamePos( _end ))
                     _state = _elem == null ? ROOT_END : ELEM_END;
 
-                return true;
+                break;
             }
             
             case ELEM_END :
             {
                 _state = ROOT_END;
-                return true;
+                break;
             }
+            case ROOT_END :
+                return false;
             }
 
-            assert _state == ROOT_END;
-            
-            return false;
+            return true;
         }
         
         void toEnd ( )
@@ -2243,7 +2319,6 @@ abstract class Saver
     private boolean _useDefaultNamespace;
     private HashMap _preComputedNamespaces;
     private boolean _saveNamespacesFirst;
-    private String  _filterProcinst;
 
     private ArrayList _attrNames;
     private ArrayList _attrValues;
