@@ -19,7 +19,7 @@ See http://xml.apache.org/forrest/linking.html for more info
     <download-tab label="Download" href="sourceAndBinaries/" tab="download">
         <index href="index.html"/>
         <releases label="Releases"
-            href="index.html#XMLBeans+Version+1.02+Binary+and+Development+Kit"
+            href="index.html#XMLBeans+Binary+and+Development+Kit"
             description="Download an XMLBeans release." tab="download"/>
         <source label="Source Code" href="index.html#XMLBeans+Source"
             description="Get the source code." tab="download"/>
@@ -30,17 +30,18 @@ See http://xml.apache.org/forrest/linking.html for more info
         <!--        <newuser label="New to XMLBeans" href="quickstart.html" description="Use a quick start to get acquainted."/> -->
         <faq label="FAQ" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" description="View Frequently Asked Questions"/>
         <userdoc label="User Guide" href="index.html#XMLBeans+Version+1+User+Documentation" description="Check out the user guide."/>
-        <userdoc label="Javadoc" href="../docs/reference/index.html" description="Look over references."/>
-        <!--        <samples label="Sample Code" href="samples.html" description="Download sample code."/> -->
+        <userdoc label="V1 Javadoc" href="../docs/reference/index.html" description="Look over references."/>
         <userdoc label="V2 Javadoc" href="../docs/v2/reference/index.html" description="Look over references."/>
+        <samples label="Sample Code" href="../samples/index.html" description="Download sample code."/>
         <install label="Installing XMLBeans" href="conInstallGuide.html" description="Install XMLBeans"/>
-        <wiki label="Wiki Pages" href="index.html#Wiki+Pages" description="See a list of Wiki pages"/>
+        <wiki label="Wiki Pages" href="htpp://wiki.apache.org/xmlbeans/" description="XmlBeans Wiki pages"/>
     </documentation-tab>
     <samples-tab label="Samples" tab="samples">
         <index href="samples/index.html"/>
         <samplesList label="Samples List" description="View the list of available samples.">
             <sample label="MixedContent" href="samples/MixedContent.html" tab="samples"/>
             <sample label="SchemaEnum" href="samples/SchemaEnum.html" tab="samples"/>
+            <sample label="SampleTemplate" href="samples/SampleTemplate.html" tab="samples"/>
         </samplesList>  
     </samples-tab>
     <community-tab label="Community" href="community/" tab="community">
@@ -75,15 +76,15 @@ See http://xml.apache.org/forrest/linking.html for more info
             <faq label="FAQ" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" description="View Frequently Asked Questions"/>
             <userdoc label="User Guide"
                 href="documentation/index.html#XMLBeans+Version+1+User+Documentation" description="Check out the user guide."/>
-            <userdoc label="Javadoc" href="docs/reference/index.html" description="Look over references."/>
-            <!--            <samples label="Sample Code" href="documentation/samples.html" description="Download sample code."/> -->
+            <userdoc label="V1 Javadoc" href="docs/reference/index.html" description="Look over references."/>
+            <userdoc label="V2 Javadoc" href="docs/v2/reference/index.html" description="Look over references."/>
             <sample label="Samples" href="samples/index.html" description="See a list of samples for download."/>
             <explanation label="An Explanation"
                 href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansExplanation" description="Read about the rationale for XMLBeans"/>
         </learn>
         <download label="Get XMLBeans">
             <releases label="Releases"
-                href="sourceAndBinaries/index.html#XMLBeans+Version+1.02+Binary+and+Development+Kit" description="Download an XMLBeans release."/>
+                href="sourceAndBinaries/index.html#XMLBeans+Binary+and+Development+Kit" description="Download an XMLBeans release."/>
             <source label="Source Code" href="sourceAndBinaries/index.html#XMLBeans+Source" description="Get the source code."/>
             <install label="Installing XMLBeans" href="documentation/conInstallGuide.html" description="Install XMLBeans"/>
         </download>

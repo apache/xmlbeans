@@ -2,7 +2,7 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>XMLBeans Project Management</title>
+<title>MixedContent Sample</title>
 <link type="text/css" href="../skin/page.css" rel="stylesheet">
 </head>
 <body text="#000000" bgcolor="#FFFFFF">
@@ -81,12 +81,9 @@
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
-<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<table summary="selected tab" style="height: 1.8em" border="0" cellpadding="0" cellspacing="0">
 <tr>
-<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../samples/index.html">Samples</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
-</tr>
-<tr>
-<td colspan="3" height="1"></td>
+<td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-left.gif"></td><td valign="middle" bgcolor="#4C6C8F"><font color="#ffffff" size="2" face="Arial, Helvetica, Sans-serif"><b><a class="base-selected" href="../samples/index.html">Samples</a></b></font></td><td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-right.gif"></td>
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
@@ -99,9 +96,12 @@
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
-<table summary="selected tab" style="height: 1.8em" border="0" cellpadding="0" cellspacing="0">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
 <tr>
-<td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-left.gif"></td><td valign="middle" bgcolor="#4C6C8F"><font color="#ffffff" size="2" face="Arial, Helvetica, Sans-serif"><b><a class="base-selected" href="../projectManagement/index.html">Project</a></b></font></td><td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-right.gif"></td>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../projectManagement/index.html">Project</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
@@ -150,26 +150,28 @@
 <div class="menu">
 <ul>
 <li>
-<font color="#CFDCED">Project</font>
+<font color="#CFDCED">Samples</font>
 <ul>
         
         
 <li>
-<a href="../projectManagement/index.html#XMLBeans+Version+1+Project+Management" title="Read a note on the progress of XMLBeans Version 1">About Version 1</a>
-</li>
-        
+<font color="#CFDCED">Samples List</font>
+<ul>
+            
 <li>
-<a href="../projectManagement/index.html#XMLBeans+Version+2+Project+Management" title="Read information on the progress of XMLBeans Version 2">About Version 2 Plans</a>
+<span class="sel"><font color="#ffcc00">MixedContent</font></span>
 </li>
-        
+            
 <li>
-<a href="../projectManagement/index.html#XMLBeans+Bug+Lists" title="Find or log XMLBeans bugs">Bug Tracking</a>
+<a href="../samples/SchemaEnum.html">SchemaEnum</a>
 </li>
-        
-        
+            
 <li>
-<a href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansRoadMap" title="Read ideas for future evolution">XMLBeans Road Map</a>
+<a href="../samples/SampleTemplate.html">SampleTemplate</a>
 </li>
+        
+</ul>
+</li>  
     
 </ul>
 </li>
@@ -211,34 +213,66 @@
 <table class="title" summary="">
 <tr>
 <td valign="middle">
-<h1>XMLBeans Project Management</h1>
-</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="index.pdf"><img alt="PDF" src="../skin/images/pdfdoc.gif" class="skin"><br>
+<h1>MixedContent Sample</h1>
+</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="MixedContent.pdf"><img alt="PDF" src="../skin/images/pdfdoc.gif" class="skin"><br>
           PDF</a></td>
 </tr>
 </table>
-		
-<a name="N1000C"></a><a name="XMLBeans+Version+1+Project+Management"></a>
-<h3>XMLBeans Version 1 Project Management</h3>
+        
+<a name="N1000C"></a><a name="Description"></a>
+<h3>Description</h3>
 <div style="margin-left: 0 ; border: 2px">
-<p>XMLBeans Version 1 is the current stable release</p>
+<p>Author: Steve Traut</p>
+<p>Available: 2004-09-15</p>
+<p>Versions: xmlbeans-1.0.3, xmlbeans-v2</p>
+<p>This sample illustrates how you can work with mixed content XML by combining strong
+                types generated from schema with an XmlCursor instance. The XmlCursor interface is
+                provided with XMLBeans for just this kind of use. With strong types you can only get
+                or set the full value of an element; by using a cursor you can "dive into" the
+                contents of an element, manipulating child elements that are embedded in the content
+                and surrounded by other text.</p>
 </div>
-		
-<a name="N10016"></a><a name="XMLBeans+Version+2+Project+Management"></a>
-<h3>XMLBeans Version 2 Project Management</h3>
+        
+<a name="N1001F"></a><a name="Files"></a>
+<h3>Files</h3>
 <div style="margin-left: 0 ; border: 2px">
-<p>You can find information about XMLBeans 2.0 planning at  <a href="http://wiki.apache.org/xmlbeans/V2Features">XMLBeans Feature Plan</a> 
-			if you want to provide ideas or feedback on this planning it is best to post it to either dev@xmlbeans.apache.org or
-			user@xmlbeans.apache.org.</p>
-</div>
-		
-<a name="N10024"></a><a name="XMLBeans+Bug+Lists"></a>
-<h3>XMLBeans Bug Lists</h3>
-<div style="margin-left: 0 ; border: 2px">
-<p>Open XMLBeans bugs (from JIRA): <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10436">JIRA XMLBeans</a>
-			
+<p>
+              
+<a href="MixedContent.zip">Zip of all files (MixedContent.zip)</a>
+            
+</p>
+<p>
+              
+<a href="MixedContent.tgz">Tar gzip of all files (MixedContent.tgz)</a>
+            
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/MixedContent/README.txt">Readme file</a>
+            
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/MixedContent/src/org/apache/xmlbeans/samples/cursor/MixedContent.java">MixedContent.java</a>
+            
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/MixedContent/schemas/inventory.xsd">inventory.xsd</a>
+            
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/MixedContent/xml/inventoryitems.xml">inventoryitems.xml</a>
+            
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/MixedContent/build.xml">build.xml</a>
+            
 </p>
 </div>
-	
+    
 <div class="attribution"></div>
 </div>
 </td><td width="10"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
@@ -261,11 +295,7 @@
             //  --></script></font></td>
 </tr>
 <tr>
-<td colspan="2" align="left" bgcolor="#CFDCED" class="logos">
-<div>
-<a href="http://validator.w3.org/check/referer"><img width="88" height="31" alt="Valid HTML 4.01!" src="../skin/images/valid-html401.png" class="logoImage"></a><a href="http://jigsaw.w3.org/css-validator/"><img width="88" height="31" alt="Valid CSS!" src="../skin/images/vcss.png" class="logoImage"></a><img alt="" height="1" width="10" src="../skin/images/spacer.gif"><a href="http://xml.apache.org/forrest/"><img border="0" alt="Built with Forrest logo" src="../images/built-with-forrest-button.png" width="88" height="31"><img height="1" width="5" alt="" src="../skin/images/spacer.gif" class="spacer"></a>
-</div>
-</td>
+<td colspan="2" align="left" bgcolor="#CFDCED" class="logos"></td>
 </tr>
 </table>
 <!--================= end Footer ==================-->

@@ -7,7 +7,9 @@
     <body>
         <section>
             <title>Description</title>
+            <p>Author: Steve Traut</p>
             <p>Available: 2004-09-15</p>
+            <p>Versions: xmlbeans-1.0.3, xmlbeans-v2</p>
             <p>This sample illustrates how you can access XML values that are defined in schema as
                 enumerations. When a schema containing enumerations is compiled, the generated Java
                 types represent the schema enumerations with Java enumerations. You can access these
@@ -15,20 +17,18 @@
         </section>
         <section>
             <title>Files</title>
-            <!--
             <p>
-                <link href="">Zip of all files (SchemaEnum.zip, 16 K)</link>
+                <link href="SchemaEnum.zip">Zip of all files (SchemaEnum.zip)</link>
             </p>
--->
+            <p>
+              <link href="SchemaEnum.tgz">Tar gzip of all files (SchemaEnum.tgz)</link>
+            </p>
             <p>
                 <link
                     href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/enumeration/SchemaEnum/README.txt">Readme file</link>
             </p>
             <p>
                 <link href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/enumeration/SchemaEnum/src/org/apache/xmlbeans/samples/enumeration/SchemaEnum.java">SchemaEnum.java</link>
-            </p>
-            <p>
-                <link href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/enumeration/SchemaEnum/src/org/apache/xmlbeans/samples/enumeration/SchemaEnumTest.java">SchemaEnumTest.java</link>
             </p>
             <p>
                 <link href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/enumeration/SchemaEnum/schemas/EasyPO.xsd">EasyPO.xsd</link>
