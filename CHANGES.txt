@@ -1,4 +1,4 @@
-Changes since v1.0.3:
+Changes in v1.0.3:
 
 - bug fix: XMLBEANS-105: NPE while initializing a type system w/ a type that extends an a complex type from a different type system (Kevin Krouse)
 - bug fix: Fix for http://issues.apache.org/jira/browse/XMLBEANS-35 (Radu Preotiuc)
@@ -20,7 +20,7 @@ Changes since v1.0.3:
 - bug fix: Remove anonymous type from list if it has minOccurs = maxOccurs = 0 (Kevin Krouse)
 
 
-Changes since v1.0.2:
+Changes in v1.0.2:
 
 - interface extension (Cezar Andrei)
 - pre/post extension (Cezar Andrei)
@@ -28,6 +28,5 @@ Changes since v1.0.2:
 - pre/post extension tests (Yana Kadiyska)
 - build xbean_xpath.jar by default (Cezar Andrei)
 - fixed an NPE in the Validator (Cezar Andrei)
-- perf improvement when using List.toArray() by passing in
-    an array of right size (Kevin Krouse)
+- perf improvement when using List.toArray() by passing in an array of right size (Kevin Krouse)
 - fixed memory leak in CursorData (Cid Dennis/Kevin Krouse)
