@@ -65,6 +65,10 @@ public class XMLBean extends MatchingTask
                         optimize,
                         download,
                         srconly,
+                        noupa,
+                        nopvr,
+                        noann,
+                        novdoc,
                         failonerror = true,
                         fork = true,
                         includeAntRuntime = true,
@@ -77,7 +81,8 @@ public class XMLBean extends MatchingTask
                         debugLevel,
                         memoryInitialSize,
                         memoryMaximumSize,
-                        catalog;
+                        catalog,
+                        javasource;
 
     private List        extensions = new ArrayList();
 
@@ -225,6 +230,11 @@ public class XMLBean extends MatchingTask
             params.setCatalogFile(catalog);
             params.setIncrementalSrcGen(noSrcRegen);
             params.setMdefNamespaces(mdefnamespaces);
+            params.setNoUpa(noupa);
+            params.setNoPvr(nopvr);
+            params.setNoAnn(noann);
+            params.setNoVDoc(novdoc);
+            params.setJavaSource(javasource);
             success = SchemaCompiler.compile(params);
 
             if (success && !srconly) {
@@ -687,6 +697,72 @@ public class XMLBean extends MatchingTask
     public void setMemoryMaximumSize(String memoryMaximumSize)
     {
         this.memoryMaximumSize = memoryMaximumSize;
+    }
+
+    /**
+     * Do not enforce the unique particle attribution rule.
+     */
+    public void setNoUpa(boolean noupa)
+    {
+        this.noupa = noupa;
+    }
+
+    public boolean isNoUpa()
+    {
+        return noupa;
+    }
+
+    /**
+     * Do not enforce the particle valid (restriction) rule.
+     */
+    public void setNoPvr(boolean nopvr)
+    {
+        this.nopvr = nopvr;
+    }
+
+    public boolean isNoPvr()
+    {
+        return nopvr;
+    }
+
+    /**
+     * Skip over schema &lt;annotation%gt; elements.
+     */
+    public void setNoAnnotations(boolean noann)
+    {
+        this.noann = noann;
+    }
+
+    public boolean isNoAnnotations()
+    {
+        return noann;
+    }
+
+    /**
+     * Do not validate the contents of schema &lt;documentation&gt; elements.
+     */
+    public void setNoValidateDoc(boolean novdoc)
+    {
+        this.novdoc = novdoc;
+    }
+
+    public boolean isNoValidateDoc()
+    {
+        return novdoc;
+    }
+
+    /**
+     * Generate java source compatible with the given version.  Currently,
+     * only "1.4" or "1.5" are supported and "1.4" is the default.
+     */
+    public void setJavaSource(String javasource)
+    {
+        this.javasource = javasource;
+    }
+
+    public String getJavaSource()
+    {
+        return javasource;
     }
 
   //REVIEW this allows people to deal with the case where they drag in

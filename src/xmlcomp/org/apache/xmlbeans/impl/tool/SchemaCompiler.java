@@ -345,7 +345,7 @@ public class SchemaCompiler
         params.setSrcDir(src);
         params.setClassesDir(classes);
         params.setCompiler(compiler);
-        params.setGenerateJavaVersion(javasource);
+        params.setJavaSource(javasource);
         params.setMemoryInitialSize(memoryInitialSize);
         params.setMemoryMaximumSize(memoryMaximumSize);
         params.setNojavac(nojavac);
@@ -650,12 +650,12 @@ public class SchemaCompiler
             this.compiler = compiler;
         }
         
-        public String getGenerateJavaVersion()
+        public String getJavaSource()
         {
             return javasource;
         }
 
-        public void setGenerateJavaVersion(String javasource)
+        public void setJavaSource(String javasource)
         {
             this.javasource = javasource;
         }
@@ -1006,7 +1006,7 @@ public class SchemaCompiler
         File srcDir = params.getSrcDir();
         File classesDir = params.getClassesDir();
         String compiler = params.getCompiler();
-        String javasource = params.getGenerateJavaVersion();
+        String javasource = params.getJavaSource();
         String memoryInitialSize = params.getMemoryInitialSize();
         String memoryMaximumSize = params.getMemoryMaximumSize();
         boolean nojavac = params.isNojavac();

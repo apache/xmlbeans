@@ -97,25 +97,6 @@
         <td align="center" valign="top">No, default is false.</td>
       </tr>
       <tr>
-        <td valign="top">failonerror</td>
-        <td valign="top"> Determines whether or not the ant target will continue
-          if the XMLBean creation encounters a build error.<br> </td>
-        <td align="center" valign="top">No, default is true.</td>
-      </tr>
-      <tr>
-        <td valign="top">verbose<br> </td>
-        <td valign="top">Controls the amount of build message output.<br> </td>
-        <td valign="top" align="center">No, default is true.</td>
-      </tr>
-      <tr>
-        <td valign="top">typesystemname<br> </td>
-        <td valign="top">The name of the package that the TypeSystemHolder class
-          should be generated in.&nbsp; Normally this should be left unspecified.
-          None of the XMLBeans are generated in this package. Use .xsdconfig files
-          to modify XMLBean package or class names.<br> </td>
-        <td valign="top" align="center">No<br> </td>
-      </tr>
-      <tr>
         <td valign="top">classgendir<br> </td>
         <td valign="top">Set a location to generate CLASS files into.<br> </td>
         <td valign="top" align="center">No<br> </td>
@@ -130,6 +111,12 @@
         <td valign="top">srcgendir<br> </td>
         <td valign="top">Set a location to generate JAVA files into.<br> </td>
         <td valign="top" align="center">No<br> </td>
+      </tr>
+      <tr>
+        <td valign="top">javasource<br> </td>
+        <td valign="top">Generate java source compatible with the given
+          version.  Currently only "1.4" and "1.5" are supported. <br> </td>
+        <td valign="top" align="center">No, Default is "1.4"</td>
       </tr>
       <tr>
         <td valign="top">classpath</td>
@@ -254,6 +241,49 @@
         <td align="center" valign="top">No</td>
       </tr>
       <tr>
+        <td valign="top">failonerror</td>
+        <td valign="top"> Determines whether or not the ant target will continue
+          if the XMLBean creation encounters a build error.<br> </td>
+        <td align="center" valign="top">No, default is true.</td>
+      </tr>
+      <tr>
+        <td valign="top">verbose<br> </td>
+        <td valign="top">Controls the amount of build message output.<br> </td>
+        <td valign="top" align="center">No, default is true.</td>
+      </tr>
+      <tr>
+        <td valign="top">quiet<br> </td>
+        <td valign="top">Controls the amount of build message output.<br> </td>
+        <td valign="top" align="center">No, default is false.</td>
+      </tr>
+      <tr>
+        <td valign="top">typesystemname<br> </td>
+        <td valign="top">The name of the package that the TypeSystemHolder class
+          should be generated in.&nbsp; Normally this should be left unspecified.
+          None of the XMLBeans are generated in this package. Use .xsdconfig files
+          to modify XMLBean package or class names.<br> </td>
+        <td valign="top" align="center">No<br> </td>
+      </tr>
+      <tr>
+        <td valign="top">noupa</td>
+        <td valign="top">Do not enforce the unique particle attribution rule.<br> </td>
+        <td align="center" valign="top">No, default is false.</td>
+      </tr>
+        <td valign="top">nopvr</td>
+        <td valign="top">Do not enforce the particle valid (restriction) rule.<br> </td>
+        <td align="center" valign="top">No, default is false.</td>
+      </tr>
+      <tr>
+        <td valign="top">noann</td>
+        <td valign="top">Skip over schema &lt;annotation&gt; elements<br> </td>
+        <td align="center" valign="top">No, default is false.</td>
+      </tr>
+      <tr>
+        <td valign="top">nopvr</td>
+        <td valign="top">Do not validate the contents of schema &lt;documentation&gt; elements.<br> </td>
+        <td align="center" valign="top">No, default is false.</td>
+      </tr>
+      <tr>
         <td valign="top">ignoreDuplicatesInNamespaces</td>
         <td valign="top">Comma separated list of one or more namespaces
         in which duplicate definitions are to be ignored.
@@ -266,7 +296,7 @@
 </div>
 <div id=topictext> Be sure to define the task in your script, like this:</div>
 <div>
-  <pre>&lt;taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="path/to/xbean.jar"</pre>
+  <pre>&lt;taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="path/to/xbean.jar" /&gt;</pre>
   <p>The following builds all the schemas in the schemas directory and creates
     a jar called &quot;Schemas.jar&quot;.</p>
 </div>
