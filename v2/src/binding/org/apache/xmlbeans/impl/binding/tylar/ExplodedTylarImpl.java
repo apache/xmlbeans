@@ -147,6 +147,9 @@ public class ExplodedTylarImpl extends BaseTylarImpl
 
   public void writeSchema(SchemaDocument xsd, String schemaFileName)
           throws IOException {
+    if (schemaFileName == null) {
+      throw new IllegalArgumentException("null schemaFileName");
+    }
     if (mSchemaDocuments == null) mSchemaDocuments = new ArrayList();
     mSchemaDocuments.add(xsd);
     writeXsd(xsd, new File(mSchemaDir, schemaFileName));
