@@ -357,11 +357,16 @@ final class ByNameRuntimeBindingType
                     assert asif_name != null : "no asif for " + stype;
                     BindingType asif = loader.getBindingType(asif_name);
                     if (asif == null) {
-                        throw new AssertionError("unable to get asif type for " + asif_name);
+                        throw new AssertionError("unable to get asif type" +
+                                                 " for " + asif_name);
                     }
                     m = typeTable.getTypeMarshaller(asif);
 
-                    assert m != null : "asif type marshaller not found for " + stype;
+                    if (m == null) {
+                        final String msg = "asif type marshaller not found" +
+                            " for" + stype + " asif=" + asif;
+                        throw new AssertionError(msg);
+                    }
                 }
             }
 
@@ -439,8 +444,27 @@ final class ByNameRuntimeBindingType
         //non simple type props can throw some runtime exception.
         public CharSequence getLexical(Object value, MarshallerImpl context)
         {
-            assert value != null;
-            assert marshaller != null : "no marhsaller for " + bindingProperty.getTypeName();
+
+            //TODO: after marshalling table is refactored
+            //turn these into assertions   zieg Dec 19 2003.
+
+            if (value == null) {
+                throw new AssertionError("null value for " + bindingProperty +
+                                         " class=" + beanClass);
+            }
+
+            if (context == null) {
+                throw new AssertionError("null value for " + bindingProperty +
+                                         " class=" + beanClass);
+            }
+
+            if (marshaller == null) {
+                String msg = "null marshaller for prop=" + bindingProperty +
+                    " class=" + beanClass + " propType=" +
+                    bindingProperty.getTypeName();
+                throw new AssertionError(msg);
+            }
+
             return marshaller.print(value, context);
         }
 
