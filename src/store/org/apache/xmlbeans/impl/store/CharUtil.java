@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import java.io.PrintStream;
 import java.lang.ref.SoftReference;

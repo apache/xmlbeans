@@ -229,24 +229,24 @@ public final class XmlBeans
 
     private static final Method buildNodeToCursorMethod()
     {
-        return buildNodeMethod( "org.apache.xmlbeans.impl.newstore2.Locale", "nodeToCursor" );
+        return buildNodeMethod( "org.apache.xmlbeans.impl.store.Locale", "nodeToCursor" );
     }
 
     private static final Method buildNodeToXmlObjectMethod()
     {
-        return buildNodeMethod( "org.apache.xmlbeans.impl.newstore2.Locale", "nodeToXmlObject" );
+        return buildNodeMethod( "org.apache.xmlbeans.impl.store.Locale", "nodeToXmlObject" );
     }
 
     private static final Method buildNodeToXmlStreamMethod()
     {
-        return buildNodeMethod( "org.apache.xmlbeans.impl.newstore2.Locale", "nodeToXmlStream" );
+        return buildNodeMethod( "org.apache.xmlbeans.impl.store.Locale", "nodeToXmlStream" );
     }
 
     private static final Method buildStreamToNodeMethod()
     {
         return
             buildMethod(
-                "org.apache.xmlbeans.impl.newstore2.Locale", "streamToNode",
+                "org.apache.xmlbeans.impl.store.Locale", "streamToNode",
                 new Class[] { XMLStreamReader.class } );
     }
     

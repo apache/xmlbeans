@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import java.util.ArrayList;
 
@@ -54,9 +54,9 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
 
-import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
-import org.apache.xmlbeans.impl.newstore2.Locale.ChangeListener;
-import org.apache.xmlbeans.impl.newstore2.Path.PathEngine;
+import org.apache.xmlbeans.impl.store.Saver.TextSaver;
+import org.apache.xmlbeans.impl.store.Locale.ChangeListener;
+import org.apache.xmlbeans.impl.store.Path.PathEngine;
 
 public final class Cursor implements XmlCursor, ChangeListener {
     static final int ROOT = Cur.ROOT;

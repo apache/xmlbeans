@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -63,14 +63,14 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.xmlbeans.impl.newstore2.Locale.LoadContext;
+import org.apache.xmlbeans.impl.store.Locale.LoadContext;
 
-import org.apache.xmlbeans.impl.newstore2.DomImpl.Dom;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.CharNode;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.TextNode;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.CdataNode;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
-import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
+import org.apache.xmlbeans.impl.store.DomImpl.Dom;
+import org.apache.xmlbeans.impl.store.DomImpl.CharNode;
+import org.apache.xmlbeans.impl.store.DomImpl.TextNode;
+import org.apache.xmlbeans.impl.store.DomImpl.CdataNode;
+import org.apache.xmlbeans.impl.store.DomImpl.SaajTextNode;
+import org.apache.xmlbeans.impl.store.DomImpl.SaajCdataNode;
 
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaField;

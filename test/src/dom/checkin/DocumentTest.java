@@ -447,7 +447,7 @@ public class DocumentTest extends NodeWithChildrenTest {
     public void testGetImplementation() {
         assertTrue(
                 m_doc.getImplementation().toString().startsWith(
-                        "org.apache.xmlbeans.impl.newstore"));
+                        "org.apache.xmlbeans.impl.store"));
     }
 
     public void testImportNode() {

@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.xpath.saxon;
 
-import org.apache.xmlbeans.impl.newstore2.SaxonXBeansDelegate;
+import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
 import org.w3c.dom.Node;
 
 import java.util.List;

@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;

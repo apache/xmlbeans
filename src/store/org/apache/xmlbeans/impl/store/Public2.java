@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.newstore2;
+package org.apache.xmlbeans.impl.store;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -33,9 +33,9 @@ import org.apache.xmlbeans.XmlException;
 
 import java.io.PrintStream;
 
-import org.apache.xmlbeans.impl.newstore2.DomImpl.Dom;
+import org.apache.xmlbeans.impl.store.DomImpl.Dom;
 
-import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
+import org.apache.xmlbeans.impl.store.Saver.TextSaver;
 
 import org.apache.xmlbeans.impl.values.TypeStore;
 import org.apache.xmlbeans.impl.values.TypeStoreUser;
@@ -61,7 +61,7 @@ public final class Public2
         if (saaj != null)
         {
             options = new XmlOptions();
-            options.put( org.apache.xmlbeans.impl.newstore2.Saaj.SAAJ_IMPL, saaj );
+            options.put( org.apache.xmlbeans.impl.store.Saaj.SAAJ_IMPL, saaj );
         }
 
         return Locale.getLocale( null, options );

@@ -39,7 +39,7 @@ public class NewLoader extends Loader{
     {
         org.w3c.dom.Document doc = load( sXml );
         
-        org.apache.xmlbeans.impl.newstore2.Public2.setSync( doc,true );
+        org.apache.xmlbeans.impl.store.Public2.setSync( doc,true );
         
         return doc;
     }

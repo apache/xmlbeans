@@ -22,7 +22,7 @@ import net.sf.saxon.query.XQueryExpression;
 import net.sf.saxon.xpath.StaticError;
 import net.sf.saxon.xpath.XPathException;
 import org.apache.xmlbeans.XmlRuntimeException;
-import org.apache.xmlbeans.impl.newstore2.SaxonXBeansDelegate;
+import org.apache.xmlbeans.impl.store.SaxonXBeansDelegate;
 import org.w3c.dom.Node;
 
 import javax.xml.transform.dom.DOMSource;

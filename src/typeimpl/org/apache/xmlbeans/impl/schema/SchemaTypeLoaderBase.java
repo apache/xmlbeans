@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLInputStream;
 
-import org.apache.xmlbeans.impl.newstore2.Locale;
+import org.apache.xmlbeans.impl.store.Locale;
 
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaField;
@@ -63,8 +63,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 {
     private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
 
-    private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Path", "compilePath", new Class[] { String.class, XmlOptions.class } );
-    private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Query", "compileQuery", new Class[] { String.class, XmlOptions.class } );
+    private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.store.Path", "compilePath", new Class[] { String.class, XmlOptions.class } );
+    private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.store.Query", "compileQuery", new Class[] { String.class, XmlOptions.class } );
 
     private static Method getMethod ( String className, String methodName, Class[] args )
     {

@@ -105,7 +105,7 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
     }
   /**
    * yana_kadiyska (3:25:15 PM): Eric, is this going to be impl
-   * on this release? Bug? newstore2.Cursor._newXMLInputStream
+   * on this release? Bug? store.Cursor._newXMLInputStream
    * ericvasilik (3:26:01 PM): This is not a v2 feature. ...
    * but otherwise, we should disable XMLInputStream tests
    * 
