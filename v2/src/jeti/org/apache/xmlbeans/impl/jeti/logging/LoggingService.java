@@ -12,23 +12,17 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.turnbuckle.parameter;
+package org.apache.xmlbeans.impl.jeti.logging;
 
-import org.apache.tools.ant.taskdefs.Property;
+import org.apache.xmlbeans.impl.jam.JElement;
 
 /**
- * <p>Provides the tool with access to user-specified parameters.  Note
- * that many typical parameters, such as 'verbose' or as set of input java
- * file set, are implicitly handled by the tool context in the services
- * it provides.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface ParameterService {
+public interface LoggingService {
 
-  /**
-   * <p>Returns a properties object containing the flags and options
-   * specified by the user.</p>
-   */
-  public Property getParameters();
+  public Logger getLogger();
+
+
 }

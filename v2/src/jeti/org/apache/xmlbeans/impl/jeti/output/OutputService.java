@@ -12,7 +12,7 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.turnbuckle.output;
+package org.apache.xmlbeans.impl.jeti.output;
 
 import javax.xml.stream.XMLStreamWriter;
 import java.io.Writer;
