@@ -83,7 +83,7 @@ public class ClassesJamTest extends JamTestBase {
     JamServiceParams params = jsf.createServiceParams();
 //include
     params.includeClassFiles(getDummyclassesClassDir(),"**/*.class");
-    params.setVerbose(true);
+    //params.setVerbose(true);
     return jsf.createService(params);
   }
 

@@ -16,8 +16,8 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
+import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 
 /**
  * <p>Standard implementation of AnnotationImpl.</p>
@@ -49,8 +49,12 @@ public final class AnnotationImpl extends ElementImpl implements EAnnotation {
     return mProxy;
   }
 
-  public ValueMap getValues() {
-    return mProxy.getValueMap();
+  public JAnnotationValue[] getValues() {
+    return mProxy.getValues();
+  }
+
+  public JAnnotationValue getValue(String name) {
+    return mProxy.getValue(name);
   }
 
   // ========================================================================

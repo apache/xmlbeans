@@ -15,6 +15,8 @@
 package org.apache.xmlbeans.impl.jam.annotation;
 
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
+import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 
 import java.util.StringTokenizer;
 import java.lang.reflect.Method;
@@ -59,7 +61,7 @@ public abstract class AnnotationProxy {
   // ========================================================================
   // Variables
 
-  private JamLogger mLogger;
+  private JamServiceContext mContext;
 
   //FIXME need to expose a knob for setting this
   private String mNvPairDelims = DEFAULT_NVPAIR_DELIMS;
@@ -71,9 +73,9 @@ public abstract class AnnotationProxy {
    * <p>Called by JAM to initialize the proxy.  Do not try to call this
    * yourself.</p>
    */
-  public void init(JamLogger logger) {
-    if (logger == null) throw new IllegalArgumentException("null logger");
-    mLogger = logger;
+  public void init(JamServiceContext ctx) {
+    if (ctx == null) throw new IllegalArgumentException("null logger");
+    mContext = ctx;
   }
 
   // ========================================================================
@@ -83,13 +85,21 @@ public abstract class AnnotationProxy {
    * <p>Called by JAM to initialize a named member on this annotation proxy.
    * </p>
    */
-  public abstract void setMemberValue(String name, Object value);
+  public abstract void setValue(String name, Object value);
 
-  /**
-   * <p>Called to provide the JAM client with ValueMap containing
-   * this value's annotations.</p>
-   */
-  public abstract ValueMap getValueMap();
+  //docme
+  public abstract JAnnotationValue[] getValues();
+
+
+  //docme
+  public JAnnotationValue getValue(String named) {
+    if (named == null) throw new IllegalArgumentException("null name");
+    JAnnotationValue[] values = getValues();
+    for(int i=0; i<values.length; i++) {
+      if (named.equals(values[i].getName())) return values[i];
+    }
+    return null;
+  }
 
   // ========================================================================
   // Public methods
@@ -121,7 +131,7 @@ public abstract class AnnotationProxy {
       if (!Modifier.isPublic(mods)) continue;
       if (methods[i].getParameterTypes().length > 0) continue;
       try {
-        setMemberValue(methods[i].getName(),
+        setValue(methods[i].getName(),
                        methods[i].invoke(jsr175annotationObject,null));
       } catch (IllegalAccessException e) {
         getLogger().warning(e);
@@ -130,6 +140,13 @@ public abstract class AnnotationProxy {
       }
     }
   }
+
+
+  //REVIEW i'm not sure this is sufficient.  they might need access to
+  //the whole tag (including the name) when doing this.  they may
+  //want to tell us what the tag name is.  a bit of a chicken-and-egg
+  //problem.  i guess if the need to do that, they just have to write
+  //their own CommentInitializer.
 
   /**
    * <p>Called by JAM to initialize this proxy's properties using a
@@ -154,7 +171,7 @@ public abstract class AnnotationProxy {
       if (eq <= 0) continue; // if not there or is first character
       String name = pair.substring(0, eq).trim();
       String value = (eq < pair.length() - 1) ? pair.substring(eq + 1) : null;
-      if (value != null) setMemberValue(name,value);
+      if (value != null) setValue(name,value);
     }
   }
 
@@ -165,5 +182,6 @@ public abstract class AnnotationProxy {
    * <p>Returns an instance of JamLogger that this AnnotationProxy should use
    * for logging debug and error messages.</p>
    */
-  protected JamLogger getLogger() { return mLogger; }
+  protected JamLogger getLogger() { return mContext; }
+
 }

@@ -90,10 +90,8 @@ public class CommentInitializer extends ElementVisitor {
    *
    */
   protected String[] getCommentsAndTags(JComment comment) {
-    String text = comment.getText().trim();
-    if (!text.startsWith("/*")) {
-      return new String[] {comment.getText()}; //not sure what to do with this
-    }
+    String text = comment.getText();
+    if (text.startsWith("/*")) text = stripStars(text);
     // looks like we have real work to do.  first set up a reader
     BufferedReader in = new BufferedReader(new StringReader(text));
     // now create a list to store the string we will return
@@ -101,7 +99,7 @@ public class CommentInitializer extends ElementVisitor {
     // get the comment string
     StringWriter commentText = new StringWriter();
     String nextLine = eatDocChunk(in,commentText);
-    commentsAndTags.add(commentText.toString());
+    commentsAndTags.add(commentText.toString().trim());
     // now process the tags, if any
     while(nextLine != null) {
       StringWriter tagText = new StringWriter();
@@ -121,17 +119,30 @@ public class CommentInitializer extends ElementVisitor {
   }
 
 
-  //FIXME this method nned help
   protected void processJavadocTag(EAnnotatedElement element, String tagtext) {
     tagtext = tagtext.trim();
     if (!tagtext.startsWith("@")) {
       throw new IllegalArgumentException("invalid tagtext '"+tagtext+"'");
     }
-    tagtext = tagtext.substring(1).trim();
-    int space = tagtext.indexOf(' ');
-    String tagname = tagtext.substring(0,space);
-    tagtext = tagtext.substring(space).trim();
-    element.addAnnotationForTag(tagname,tagtext);
+    String tagname = null;
+    int offset;
+    for(offset=1; tagname == null && offset<tagtext.length(); offset++) {
+      char c = tagtext.charAt(offset);
+      switch(c) {
+        case ' ':
+        case '\n':
+        case '\t':
+        case '\r':
+          tagname = tagtext.substring(1,offset);
+      }
+    }
+    if (tagname == null) { // empty tag
+      tagname = tagtext.substring(1);
+      element.addAnnotationForTag(tagtext);
+    } else {
+      tagtext = tagtext.substring(offset).trim();
+      element.addAnnotationForTag(tagname,tagtext);
+    }
   }
 
 
@@ -171,6 +182,21 @@ public class CommentInitializer extends ElementVisitor {
       veryUnexpected.printStackTrace();
     }
     return null;
+  }
+
+  private String stripStars(String s) {
+    StringWriter out = new StringWriter();
+    BufferedReader in = new BufferedReader(new StringReader(s));
+    String line;
+    try {
+      while((line = in.readLine()) != null) {
+        out.write(getTrimmedLine(line));
+        out.write('\n');
+      }
+    } catch(IOException ioe){
+      ioe.printStackTrace();
+    }
+    return out.toString();
   }
 
   private String getTrimmedLine(String rawLine) {

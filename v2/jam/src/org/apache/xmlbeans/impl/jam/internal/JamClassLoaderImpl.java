@@ -22,17 +22,13 @@ import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.internal.elements.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class JamClassLoaderImpl implements JamClassLoader {
-
 
   // ========================================================================
   // Variables
@@ -42,6 +38,8 @@ public class JamClassLoaderImpl implements JamClassLoader {
   private JamClassBuilder mBuilder;
   private ElementVisitor mInitializer = null;
   private ElementContext mContext;
+  private Stack mInitializeStack = new Stack(); //fixme - decide how to store them
+  private boolean mAlreadyInitializing = false;
 
   // ========================================================================
   // Constructor
@@ -83,9 +81,30 @@ public class JamClassLoaderImpl implements JamClassLoader {
     if (out == null) {
       out = new UnresolvedClassImpl(pkg,name,mContext);
       mContext.debug("unresolved class '"+pkg+" "+name);
+      mFd2ClassCache.put(fd,out);
+      return out;
     }
-    if (mInitializer != null) out.acceptAndWalk(mInitializer);
-    mFd2ClassCache.put(fd,out);
+    if (mInitializer == null) {
+      ((ClassImpl)out).setState(ClassImpl.LOADED);
+    } else {
+      mFd2ClassCache.put(fd,out);
+      ((ClassImpl)out).setState(ClassImpl.INITIALIZING);
+      // see comments below about this.  we need to document this more openly,
+      // since it affects people writing initializers.
+      if (mAlreadyInitializing) {
+        // we already are running initializers, so we have to do it later
+        mInitializeStack.push(out);
+      } else {
+        out.acceptAndWalk(mInitializer);
+        ((ClassImpl)out).setState(ClassImpl.LOADED);
+        while(!mInitializeStack.isEmpty()) {
+          JClass initme = (JClass)mInitializeStack.pop();
+          initme.acceptAndWalk(mInitializer);
+          ((ClassImpl)out).setState(ClassImpl.LOADED);
+        }
+        mAlreadyInitializing = false;
+      }
+    }
     return out;
   }
 
@@ -125,5 +144,27 @@ public class JamClassLoaderImpl implements JamClassLoader {
     //FIXME hack for editable classes for now
     mFd2ClassCache.put(c.getQualifiedName(),c);
   }
+
+  //ok, the best thinking here is that when you are in an initializer
+  //and you walk to another type, you will get a JClass that has a name
+  //but is otherwise empty - it's not initialized.  It's like unresolved
+  //except that it still has a chance to be resolved.
+  //
+  // Internally, the classloader will maintain a stack of classes to be
+  // initialized.  When a class is first loaded, the initialization stack
+  // is checked.  If it is empty, the class is placed on the stack and
+  // initialization is performed on the item on the top of the stack until
+  // the stack is empty.
+
+  // If loadClass is called again further down in the stack frame,
+  // at least one class will be on the initialization stack.  In this
+  // case, the class is placed on the stack but initialization is not
+  // performed immediately - the caller original caller higher in the stack
+  // frame will do the initialization.
+
+  // This scheme is necessary to prevent problems with cyclical initialization.
+  //
+//  public boolean isInitialized();
+
 
 }

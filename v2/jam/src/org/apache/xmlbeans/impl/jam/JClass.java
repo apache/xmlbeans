@@ -364,4 +364,6 @@ public interface JClass extends JMember {
    */
   public boolean isUnresolvedType();
 
+
+
 }

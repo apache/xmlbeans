@@ -37,10 +37,22 @@ public class ClassImpl extends MemberImpl implements EClass,
   JClassRef, JClassRefContext
 {
   // ========================================================================
+  // Constants
+
+  public static final int NEW = 0;
+  public static final int BUILDING = 1;
+  public static final int INITIALIZING = 2;
+  public static final int LOADED = 3;
+  //public static final int UNRESOLVED = 4;
+
+  // ========================================================================
   // Variables
+
+  private int mState = NEW;
 
   private boolean mIsAnnotationType = false;
   private boolean mIsInterface = false;
+
   private String mPackageName = null;
 
   private JClassRef mSuperClassRef = null; // classrefs to the class we extend
@@ -347,6 +359,15 @@ public class ClassImpl extends MemberImpl implements EClass,
   }
 
   // ========================================================================
+  // Public methods for internal use only
+
+  public void setState(int state) { mState = state; }
+
+
+
+
+
+  // ========================================================================
   // Public static utility methods
 
   /**
@@ -430,5 +451,6 @@ public class ClassImpl extends MemberImpl implements EClass,
       if (clazz != null) addMethodsRecursively(clazz, out);
     }
   }
+
 
 }

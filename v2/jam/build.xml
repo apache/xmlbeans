@@ -25,7 +25,7 @@
   <target name='parser'>
     <delete dir='${gen_dir}'/>
     <mkdir dir='${gen_dir}'/>
-
+    <!-- skipping parser generation for now, just noise at this point
     <antlr outputdirectory='${gen_dir}' target='${src_dir}/java.g'
            debug='false'>
        <classpath>
@@ -34,13 +34,14 @@
          <pathelement path='${classes_dir}'/>
        </classpath>
     </antlr>
+    -->
   </target>
 
   <target name='compile' depends='parser'>
 
     <mkdir dir='${classes_dir}'/>
 
-    <javac srcdir='${src_dir}' destdir='${classes_dir}' 
+    <javac srcdir='${src_dir}' destdir='${classes_dir}'
            source='1.4' debug='on'>
       <src path='${src_dir}'/>
       <src path='${gen_dir}'/>
@@ -62,8 +63,8 @@
     <mkdir dir='${docbuild_dir}' />
     <javadoc packagenames='*'
              destdir='${javadocbuild_dir}'
-             windowtitle='JAM Documentation' 
-             source='1.4' 
+             windowtitle='JAM Documentation'
+             source='1.4'
              stylesheetfile='${docs_dir}/stylesheet.css'>
       <fileset dir='${src_dir}' includes='**/jam/**/*.java' excludes='**/internal/**/*.java' />
       <link href='http://e-docs.bea.com/wls/docs81/javadocs/' />

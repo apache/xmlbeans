@@ -135,7 +135,7 @@ public abstract class JamTestBase extends TestCase {
    * lines.
    */
 
-  private static final boolean VERBOSE = true;
+  private static final boolean VERBOSE = false;
 
   // ========================================================================
   // Variables
@@ -195,9 +195,7 @@ public abstract class JamTestBase extends TestCase {
   // TestCase implementation
 
   public void setUp() throws Exception {
-    System.out.println("getting result to test");
     mResult = getResultToTest();
-    System.out.println("getting class loader");
     mLoader = mResult.getClassLoader();
   }
 
@@ -218,7 +216,7 @@ public abstract class JamTestBase extends TestCase {
                expected.containsAll(classNames));
   }
 
-  public void xtestRecursiveResolve() {
+  public void testRecursiveResolve() {
     resolveCheckRecursively(mResult.getAllClasses(),new HashSet());
   }
 
@@ -244,18 +242,14 @@ public abstract class JamTestBase extends TestCase {
    * number of parameters and correct return types.
    */
   public void testFooImplMethods() {
-    System.out.println("loading..");
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
-    System.out.println("ok..");
     GoldenInvokable[] methods = GoldenInvokable.createArray(FOOIMPL_METHODS);
-        System.out.println("ok..");
     GoldenInvokable.doComparison(fooImpl.getDeclaredMethods(),
                               methods,isParameterNamesKnown(),this);
-        System.out.println("ok..");
   }
 
 
-  public void xtestInterfaceIsAssignableFrom()
+  public void testInterfaceIsAssignableFrom()
   {
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
     JClass foo = resolved(mLoader.loadClass(DUMMY+".Foo"));
@@ -265,7 +259,7 @@ public abstract class JamTestBase extends TestCase {
                !fooImpl.isAssignableFrom(foo));
   }
 
-  public void xtestClassIsAssignableFrom()
+  public void testClassIsAssignableFrom()
   {
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
     JClass base = resolved(mLoader.loadClass(DUMMY+".Base"));
@@ -275,7 +269,7 @@ public abstract class JamTestBase extends TestCase {
                !fooImpl.isAssignableFrom(base));
   }
 
-  public void xtestClassIsAssignableFromDifferentClassLoaders()
+  public void testClassIsAssignableFromDifferentClassLoaders()
   {
     JClass baz = resolved(mLoader.loadClass(DUMMY+".Baz"));
     JClass runnable = resolved(mLoader.loadClass("java.lang.Runnable"));
@@ -285,8 +279,29 @@ public abstract class JamTestBase extends TestCase {
                !baz.isAssignableFrom(runnable));
   }
 
+  public void testAnnotationPresent()
+  {
+    if (!isAnnotationsAvailable()) return;
+    String ANN = "ejbgen:remote-method";
+    JClass ejb = resolved(mLoader.loadClass(DUMMY+".ejb.TraderEJB"));
+    JMethod method = ejb.getMethods()[0];
+    assertTrue(method.getQualifiedName()+" does not have expected "+ANN+
+               " annotation",
+               method.getAnnotation(ANN) != null);
+  }
 
-  public void xtestAnnotationsAndInheritance()
+  public void testAnnotationValue()
+  {
+    if (!isAnnotationsAvailable()) return;
+    JClass ejb = resolved(mLoader.loadClass(DUMMY+".ejb.TraderEJB"));
+    JMethod ejbBuy = ejb.getMethods()[0];
+    String CLASS_ANN = "ejbgen:remote-method@isolation-level";
+    String CLASS_ANN_VALUE = "Serializable";
+    verifyAnnotationValue(ejbBuy,CLASS_ANN,CLASS_ANN_VALUE);
+  }
+
+
+  public void testAnnotationsAndInheritance()
   {
     JClass ejb = resolved(mLoader.loadClass(DUMMY+".ejb.TraderEJB"));
     JClass ienv = resolved(ejb.getInterfaces()[0]);
@@ -301,8 +316,8 @@ public abstract class JamTestBase extends TestCase {
     verifyAnnotationAbsent(ienvBuy,CLASS_ANN);
 
     if (isAnnotationsAvailable()) {
-      verifyAnnotation(ienvBuy,INTER_ANN,INTER_ANN_VALUE);
-      verifyAnnotation(ejbBuy,CLASS_ANN,CLASS_ANN_VALUE);
+      verifyAnnotationValue(ienvBuy,INTER_ANN,INTER_ANN_VALUE);
+      verifyAnnotationValue(ejbBuy,CLASS_ANN,CLASS_ANN_VALUE);
     } else {
       verifyAnnotationAbsent(ienvBuy,INTER_ANN);
       verifyAnnotationAbsent(ejbBuy,CLASS_ANN);
@@ -321,7 +336,7 @@ public abstract class JamTestBase extends TestCase {
 
   private void resolveCheckRecursively(JClass clazz, Set set) {
     if (clazz == null || set.contains(clazz)) return;
-    assertTrue(clazz.getQualifiedName()+" is not resolved",
+    assertTrue("'"+clazz.getQualifiedName()+"' is not resolved",
                !clazz.isUnresolvedType());
     if (VERBOSE) System.out.println("checking "+clazz.getQualifiedName());
     set.add(clazz);
@@ -364,14 +379,13 @@ public abstract class JamTestBase extends TestCase {
     return c;
   }
 
-  private void verifyAnnotation(JAnnotatedElement j, String ann, String val) {
-    JAnnotation a = j.getAnnotation(ann);
+  private void verifyAnnotationValue(JAnnotatedElement j, String valueId, String val) {
+    JAnnotationValue v = j.getAnnotationValue(valueId);
     assertTrue(/*j.getParent().getQualifiedName()+" '"+*/
-            j.getQualifiedName()+"' is missing expected annotation '"+ann+"'",
-            a != null);
-    //FIXME
-    //assertTrue(j.getQualifiedName()+"  annotation '"+ann+"' does not equal "+
-   //            val,val.equals(a.getStringValue().trim()));
+            j.getQualifiedName()+"' is missing expected annotation value '"+valueId+"'",
+            v != null);
+    assertTrue(j.getQualifiedName()+"  annotation '"+valueId+"' does not equal "+
+               val,val.equals(v.asString().trim()));
   }
 
   private void verifyAnnotationAbsent(JAnnotatedElement j, String ann) {

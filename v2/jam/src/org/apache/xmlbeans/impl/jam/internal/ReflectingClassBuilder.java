@@ -61,7 +61,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
       getLogger().debug(cnfe);
       return null;
     }
-    EClass out = createClass(packageName, className, null);
+    EClass out = createClassToBuild(packageName, className, null);
     populate(out,rclass);
     return out;
   }

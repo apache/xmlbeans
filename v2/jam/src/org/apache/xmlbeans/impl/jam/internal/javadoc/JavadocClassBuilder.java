@@ -18,14 +18,13 @@ import com.sun.javadoc.*;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.editable.*;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
+import org.apache.xmlbeans.impl.jam.internal.elements.PrimitiveClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
+import org.apache.xmlbeans.impl.jam.JClass;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
@@ -33,6 +32,11 @@ import java.lang.reflect.InvocationTargetException;
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class JavadocClassBuilder extends JamClassBuilder {
+
+  // ========================================================================
+  // Constants
+
+  private static boolean VERBOSE = false;
 
   // ========================================================================
   // Variables
@@ -90,10 +94,22 @@ public class JavadocClassBuilder extends JamClassBuilder {
     }
   }
 
+
+
   public EClass build(String packageName, String className) {
-    ClassDoc cd = mRootDoc.classNamed(packageName+"."+className);
+    if (VERBOSE) {
+      System.out.println("[JavadocClassBuilder] building '"+
+                         packageName+"' '"+className+"'");
+    }
+    String cn = packageName.trim();
+    if (cn.length() == 0) {
+      cn = className;
+    } else {
+      cn = packageName + "." +className;
+    }
+    ClassDoc cd = mRootDoc.classNamed(cn);
     if (cd == null) return null;
-    EClass out = createClass(packageName, className, null);
+    EClass out = createClassToBuild(packageName, className, null);
     populate(out,cd);
     return out;
   }
@@ -128,7 +144,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
   private void populate(EField dest, FieldDoc src) {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
-    dest.setType(src.type().typeName());
+    dest.setType(getFdFor(src.type()));
     dest.setModifiers(src.modifierSpecifier());
     addAnnotations(dest, src);
     addSourcePosition(dest,src);
@@ -136,7 +152,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
 
   private void populate(EMethod dest, MethodDoc src) {
     populate((EInvokable)dest,(ExecutableMemberDoc)src);
-    dest.setReturnType(src.returnType().typeName());
+    dest.setReturnType(getFdFor(src.returnType()));
   }
 
   private void populate(EInvokable dest, ExecutableMemberDoc src) {
@@ -145,7 +161,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     dest.setModifiers(src.modifierSpecifier());
     ClassDoc[] exceptions = src.thrownExceptions();
     for(int i=0; i<exceptions.length; i++) {
-      dest.addException(exceptions[i].typeName());
+      dest.addException(getFdFor(exceptions[i]));
     }
     Parameter[] params = src.parameters();
     for(int i=0; i<params.length; i++) {
@@ -158,8 +174,35 @@ public class JavadocClassBuilder extends JamClassBuilder {
   private void populate(EParameter dest, Parameter src) {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
-    dest.setType(src.typeName());
+    dest.setType(getFdFor(src.type()));
     if (mIs15) addAnnotations(dest, callGetAnnotations(src));
+  }
+
+  /**
+   * Returns a classfile-style field descriptor for the given type.
+   * This has to be called to get a name for a javadoc type that can
+   * be used with Class.forName(), JRootContext.getClass(), or
+   * JClass.forName().
+   */
+  public static String getFdFor(Type t) {
+    if (t == null) throw new IllegalArgumentException("null type");
+    String dim = t.dimension();
+    if (dim == null || dim.length() == 0) {
+      return t.qualifiedTypeName();
+    } else {
+      StringWriter out = new StringWriter();
+      for(int i=0, iL=dim.length()/2; i<iL; i++) out.write("[");
+      String primFd =
+              PrimitiveClassImpl.getPrimitiveClassForName(t.qualifiedTypeName());
+      if (primFd != null) { //i.e. if primitive
+        out.write(primFd);
+      } else {
+        out.write("L");
+        out.write(t.qualifiedTypeName());
+        out.write(";");
+      }
+      return out.toString();
+    }
   }
 
   private void addSourcePosition(EElement dest, Doc src) {
@@ -184,14 +227,14 @@ public class JavadocClassBuilder extends JamClassBuilder {
     if (!mIs15) return;
     for(int i=0; i<descs.length; i++) {
       EAnnotation ann =
-        dest.addAnnotationForType(callGetAnnotationType(descs[i]).typeName());
+        dest.addAnnotationForType(callGetAnnotationType(descs[i]).qualifiedTypeName());
       ann.setArtifact(descs[i]);
       AnnotationProxy proxy = ann.getEditableProxy();
       Object[] mvps = callGetMemberValues(descs[i]);
       for(int j=0; j<mvps.length; j++) {
         String name = callGetMvpName(mvps[i]);
         Object value = callGetMvpValue(mvps[i]);
-        if (name != null && value != null) proxy.setMemberValue(name,value);
+        if (name != null && value != null) proxy.setValue(name,value);
       }
     }
   }

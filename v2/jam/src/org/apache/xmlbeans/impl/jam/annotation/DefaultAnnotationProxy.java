@@ -14,8 +14,12 @@
  */
 package org.apache.xmlbeans.impl.jam.annotation;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
+import java.util.ArrayList;
+
+import org.apache.xmlbeans.impl.jam.internal.elements.AnnotationValueImpl;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
+import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 
 /**
  * <p>Implementation of AnnotationProxy which is used when no user-defined
@@ -31,24 +35,20 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
   // ========================================================================
   // Variables
 
-  private ValueMap mValueMap = null;
-  private Map mValues;
+  private List mValues = new ArrayList();
 
   // ========================================================================
   // Constructors
 
-  public DefaultAnnotationProxy() {
-    mValues = new HashMap();
-  }
+  public DefaultAnnotationProxy() {}
 
   // ========================================================================
   // Public methods
 
-  public ValueMap getValueMap() {
-    if (mValueMap == null) {
-      mValueMap = new ValueMap(mValues);
-    }
-    return mValueMap;
+  public JAnnotationValue[] getValues() {
+    JAnnotationValue[] out = new JAnnotationValue[mValues.size()];
+    mValues.toArray(out);
+    return out;
   }
 
   // ========================================================================
@@ -59,11 +59,10 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
    * annotation map.  The super class' implementation would try to
    * find a bunch of setters that we don't have.</p>
    */
-  public void setMemberValue(String name, Object value) {
-    mValues.put(name,value);
+  public void setValue(String name, Object value) {
+    mValues.add(new AnnotationValueImpl((ElementContext)getLogger(),//yikes, nasty.  FIXME
+                                        name,value));
   }
-}
-
 
 
   /**
@@ -97,5 +96,5 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
   }
    */
 
-
+}
 
