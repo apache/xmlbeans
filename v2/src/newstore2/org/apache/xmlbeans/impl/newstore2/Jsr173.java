@@ -51,9 +51,13 @@ public class Jsr173
     
     public static Node nodeFromStreamImpl ( Jsr173GateWay gw )
     {
-        Cur c = gw._xs.getCur();
+        Cur c = gw._xs.getStreamCur();
 
-        return c.isNode() ? (Node) c.getDom() : (Node) null;
+        Node n = c.isNode() ? (Node) c.getDom() : (Node) null;
+
+        c.release();
+
+        return n;
     }
 
     public static XMLStreamReader newXmlStreamReader ( Cur c, Object src, int off, int cch )
@@ -172,7 +176,7 @@ public class Jsr173
             assert _wholeDoc || !_cur.isSamePos( _end );
         }
 
-        protected Cur getCur ( )
+        protected Cur getStreamCur ( )
         {
             return _cur;
         }
@@ -813,7 +817,7 @@ public class Jsr173
         {
             checkChanged();
 
-            Cur c = getCur();
+            Cur c = getStreamCur();
 
             XmlLineNumber ln = (XmlLineNumber) c.getBookmark( XmlLineNumber.class );
 
@@ -853,7 +857,7 @@ public class Jsr173
         {
             checkChanged();
 
-            XmlDocumentProperties props = _locale.getDocProps( getCur(), false );
+            XmlDocumentProperties props = _locale.getDocProps( getStreamCur(), false );
 
             return props == null ? null : props.getEncoding();
         }
@@ -868,7 +872,7 @@ public class Jsr173
         {
             checkChanged();
 
-            XmlDocumentProperties props = _locale.getDocProps( getCur(), false );
+            XmlDocumentProperties props = _locale.getDocProps( getStreamCur(), false );
 
             return props == null ? null : props.getVersion();
         }
@@ -877,7 +881,7 @@ public class Jsr173
         {
             checkChanged();
 
-            XmlDocumentProperties props = _locale.getDocProps( getCur(), false );
+            XmlDocumentProperties props = _locale.getDocProps( getStreamCur(), false );
 
             return props == null ? false : props.getStandalone();
         }
@@ -925,7 +929,7 @@ public class Jsr173
         {
             checkChanged();
 
-            Cur c = getCur();
+            Cur c = getStreamCur();
 
             c.push();
 
@@ -943,7 +947,7 @@ public class Jsr173
         {
             checkChanged();
 
-            Cur c = getCur();
+            Cur c = getStreamCur();
 
             c.push();
 
@@ -974,7 +978,7 @@ public class Jsr173
         //
         //
 
-        protected abstract Cur getCur ( );
+        protected abstract Cur getStreamCur ( );
 
         //
         //
@@ -1007,7 +1011,7 @@ public class Jsr173
             _cur = c;
         }
 
-        protected Cur getCur ( )
+        protected Cur getStreamCur ( )
         {
             return _cur;
         }
