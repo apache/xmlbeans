@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.jam.JMember;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EMember extends JMember {
+public interface EMember extends EElement, JMember {
 
   public void setModifiers(int modifiers);
 

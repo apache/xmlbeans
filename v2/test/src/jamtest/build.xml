@@ -1,4 +1,4 @@
-<project name='jam' default='all' >
+<project name='jam' default='all' basedir='.'>
 
 <!-- Build file to build and run JAM tests -->
 

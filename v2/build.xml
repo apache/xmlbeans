@@ -183,9 +183,7 @@
   </target>
 
   <target name='jamdrt'>
-<!-- FIXME - repackaging issues
     <ant dir='test/src/jamtest' target='all' inheritAll='false' />
--->
   </target>
 
   <target name="builddrt" depends="drt.jar, random.jar, eric"/>
@@ -758,28 +756,36 @@
 
   <!-- jam target =============================================== -->
 
-  <target name="jam.classes" depends="dirs">
-    <mkdir dir="build/classes/jam"/>
-    <javac srcdir="src/jam" destdir="build/classes/jam" source="1.4" debug="on">
+  <target name='jam' depends='jam.parser,jam.compile'/>
+
+  <property name='jam_gendir' value='build/generatedsrc'/>
+
+  <target name='jam.parser'>
+    <mkdir dir='${jam_gendir}'/>
+    <antlr outputdirectory='${jam_gendir}'
+           target='src/jam/java.g'>
+       <classpath>
+         <pathelement location='external/lib/antlr.jar'/>
+         <pathelement path='${java.class.path}'/>
+       </classpath>
+    </antlr>
+  </target>
+
+  <target name='jam.compile' depends='dirs'>
+    <mkdir dir='build/classes/jam'/>
+    <javac srcdir='src/jam' destdir='build/classes/jam' source='1.4' debug='on'>
+      <src path='src/jam'/>
+      <src path='${jam_gendir}'/>
       <classpath>
-        <pathelement location="build/classes/configschema"/>
-        <pathelement location="build/classes/xmlinputstream"/>
-        <pathelement location="build/classes/xmlpublic"/>
-        <pathelement location="build/classes/common"/>
-        <pathelement location="build/classes/repackage"/>
-        <pathelement location="build/classes/typeimpl"/>
-        <pathelement location="build/classes/xmlconfig"/>
-        <pathelement location="build/classes/configschema"/>
-        <pathelement location="build/classes/toolschema"/>
-        <pathelement location="build/classes/xsdschema"/>
+        <pathelement location='external/lib/antlr-runtime.jar'/>
+        <pathelement path='${java.class.path}'/>
       </classpath>
     </javac>
-
   </target>
 
   <!-- binding target =============================================== -->
 
-  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, xmlcomp.classes, jam.classes, jsr173.jar">
+  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, xmlcomp.classes, jam, jsr173.jar">
     <mkdir dir="build/classes/binding"/>
     <javac srcdir="src/binding" destdir="build/classes/binding" source="1.4" debug="on">
       <classpath>
@@ -1165,7 +1171,7 @@
     </target>
 
     <!-- temporary build utils ... zieg =============
-    <target name='binding-test' depends='declare-tasks, jam.classes'>
+    <target name='binding-test' depends='declare-tasks, jam'>
         <mkdir dir='build/private/classes/marshal'/>
         <java2schema
             srcdir='test/cases/marshal'
