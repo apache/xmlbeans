@@ -535,27 +535,36 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             String ns = ((QName) entry.getKey()).getNamespaceURI();
             getContainerNonNull(ns).addAttributeType((SchemaType.Ref) entry.getValue());
         }
-        assert _redefinedGlobalTypes.size() == redefTypeNames.size();
-        for (Iterator it = _redefinedGlobalTypes.iterator(), itname = redefTypeNames.iterator(); it.hasNext(); )
+        // Some earlier .xsb versions don't have records for redefinitions
+        if (_redefinedGlobalTypes != null && _redefinedModelGroups != null &&
+            _redefinedAttributeGroups != null)
         {
-            String ns = ((QName) itname.next()).getNamespaceURI();
-            getContainerNonNull(ns).addRedefinedType((SchemaType.Ref) it.next());
+            assert _redefinedGlobalTypes.size() == redefTypeNames.size();
+            for (Iterator it = _redefinedGlobalTypes.iterator(), itname = redefTypeNames.iterator(); it.hasNext(); )
+            {
+                String ns = ((QName) itname.next()).getNamespaceURI();
+                getContainerNonNull(ns).addRedefinedType((SchemaType.Ref) it.next());
+            }
+            for (Iterator it = _redefinedModelGroups.iterator(), itname = redefModelGroupNames.iterator(); it.hasNext(); )
+            {
+                String ns = ((QName) itname.next()).getNamespaceURI();
+                getContainerNonNull(ns).addRedefinedModelGroup((SchemaModelGroup.Ref) it.next());
+            }
+            for (Iterator it = _redefinedAttributeGroups.iterator(), itname = redefAttributeGroupNames.iterator(); it.hasNext(); )
+            {
+                String ns = ((QName) itname.next()).getNamespaceURI();
+                getContainerNonNull(ns).addRedefinedAttributeGroup((SchemaAttributeGroup.Ref) it.next());
+            }
         }
-        for (Iterator it = _redefinedModelGroups.iterator(), itname = redefModelGroupNames.iterator(); it.hasNext(); )
+        // Some earlier .xsb versions don't have records for annotations
+        if (_annotations != null)
         {
-            String ns = ((QName) itname.next()).getNamespaceURI();
-            getContainerNonNull(ns).addRedefinedModelGroup((SchemaModelGroup.Ref) it.next());
-        }
-        for (Iterator it = _redefinedAttributeGroups.iterator(), itname = redefAttributeGroupNames.iterator(); it.hasNext(); )
-        {
-            String ns = ((QName) itname.next()).getNamespaceURI();
-            getContainerNonNull(ns).addRedefinedAttributeGroup((SchemaAttributeGroup.Ref) it.next());
-        }
-        for (Iterator it = _annotations.iterator(); it.hasNext(); )
-        {
-            SchemaAnnotation ann = (SchemaAnnotation) it.next();
-            // BUGBUG(radup)
-            getContainerNonNull("").addAnnotation(ann);
+            for (Iterator it = _annotations.iterator(); it.hasNext(); )
+            {
+                SchemaAnnotation ann = (SchemaAnnotation) it.next();
+                // BUGBUG(radup)
+                getContainerNonNull("").addAnnotation(ann);
+            }
         }
         for (Iterator it = _containers.values().iterator(); it.hasNext(); )
             ((SchemaContainer) it.next()).setImmutable();
@@ -3386,7 +3395,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public SchemaType[] redefinedGlobalTypes()
     {
-        if (_redefinedGlobalTypes.isEmpty())
+        if (_redefinedGlobalTypes == null || _redefinedGlobalTypes.isEmpty())
             return EMPTY_ST_ARRAY;
 
         SchemaType[] result = new SchemaType[_redefinedGlobalTypes.size()];
@@ -3475,7 +3484,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public SchemaModelGroup[] redefinedModelGroups()
     {
-        if (_redefinedModelGroups.isEmpty())
+        if (_redefinedModelGroups == null || _redefinedModelGroups.isEmpty())
             return EMPTY_MG_ARRAY;
 
         SchemaModelGroup[] result = new SchemaModelGroup[_redefinedModelGroups.size()];
@@ -3499,7 +3508,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public SchemaAttributeGroup[] redefinedAttributeGroups()
     {
-        if (_redefinedAttributeGroups.isEmpty())
+        if (_redefinedAttributeGroups == null || _redefinedAttributeGroups.isEmpty())
             return EMPTY_AG_ARRAY;
 
         SchemaAttributeGroup[] result = new SchemaAttributeGroup[_redefinedAttributeGroups.size()];
@@ -3511,7 +3520,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public SchemaAnnotation[] annotations()
     {
-        if (_annotations.isEmpty())
+        if (_annotations == null || _annotations.isEmpty())
             return EMPTY_ANN_ARRAY;
 
         SchemaAnnotation[] result = new SchemaAnnotation[_annotations.size()];
