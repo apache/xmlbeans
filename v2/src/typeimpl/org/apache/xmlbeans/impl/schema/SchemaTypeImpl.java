@@ -706,13 +706,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
             // Remove the derived property from the results if it is
             // A) present in the base type and
-            // B) all the details are the same (cardinality, nillability)
+            // B) all the details are the same (cardinality, nillability, default)
 
             if (baseProp != null)
             {
                 if ( eq(prop.getMinOccurs(), baseProp.getMinOccurs()) &&
                      eq(prop.getMaxOccurs(), baseProp.getMaxOccurs()) &&
-                     prop.hasNillable() == baseProp.hasNillable())
+                     prop.hasNillable() == baseProp.hasNillable() &&
+                     eq(prop.getDefaultText(), baseProp.getDefaultText()))
                 {
                     it.remove();
                 }
@@ -725,6 +726,15 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     }
 
     private static boolean eq(BigInteger a, BigInteger b)
+    {
+        if (a == null && b == null)
+            return true;
+        if (a== null || b == null)
+            return false;
+        return a.equals(b);
+    }
+
+    private static boolean eq(String a, String b)
     {
         if (a == null && b == null)
             return true;

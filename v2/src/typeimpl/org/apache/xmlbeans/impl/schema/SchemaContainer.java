@@ -78,6 +78,11 @@ import org.apache.xmlbeans.SchemaTypeSystem;
         _immutable = true;
     }
 
+    synchronized void unsetImmutable()
+    {
+        _immutable = false;
+    }
+
     private void check_immutable()
     {
         if (_immutable)

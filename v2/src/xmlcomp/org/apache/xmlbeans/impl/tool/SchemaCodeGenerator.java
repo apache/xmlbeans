@@ -318,24 +318,38 @@ public class SchemaCodeGenerator
         }
 
         if (incrSrcGen)
-            deleteObsoleteFiles(sourcedir, seenFiles);
+            deleteObsoleteFiles(sourcedir, sourcedir, seenFiles);
 
         return failure;
     }
 
-    private static void deleteObsoleteFiles(File srcDir, Set seenFiles)
+    private static void deleteObsoleteFiles(File rootDir, File srcDir, Set seenFiles)
     {
+        if (!(rootDir.isDirectory() && srcDir.isDirectory()))
+            throw new IllegalArgumentException();
         // Go recursively starting with srcDir and delete all files that are
         // not in the given Set
         File[] files = srcDir.listFiles();
         for (int i = 0; i < files.length; i++)
         {
             if (files[i].isDirectory())
-                deleteObsoleteFiles(files[i], seenFiles);
+                deleteObsoleteFiles(rootDir, files[i], seenFiles);
             else if (seenFiles.contains(files[i]))
                 ;
             else
+            {
                 files[i].delete();
+                deleteDirRecursively(rootDir, files[i].getParentFile());
+            }
+        }
+    }
+
+    private static void deleteDirRecursively(File root, File dir)
+    {
+        while (dir.list().length == 0 && !dir.equals(root))
+        {
+            dir.delete();
+            dir = dir.getParentFile();
         }
     }
 
