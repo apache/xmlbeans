@@ -54,35 +54,38 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-import javax.xml.stream.XMLStreamReader;
-
-/**
- * An UnmarshallContext holds the mutable state using by an Unmarshaller
- * during unmarshalling.  Example contents are an id -> object table
- * for href processing, and the position in the xml document.
- */
-class UnmarshallContext
+final class NullUnmarshaller
+    implements TypeUnmarshaller
 {
-    private final XMLStreamReader baseReader;
-    private final BindingLoader bindingLoader;
+    private static final TypeUnmarshaller INSTANCE = new NullUnmarshaller();
 
-    public UnmarshallContext(XMLStreamReader baseReader,
-                             BindingLoader bindingLoader)
+    private NullUnmarshaller()
     {
-        this.baseReader = baseReader;
-        this.bindingLoader = bindingLoader;
     }
 
-
-    XMLStreamReader getXmlStream()
+    public Object unmarshal(UnmarshalContext context)
     {
-        return baseReader;
+        context.skipElement();
+        return null;
     }
 
+    public Object unmarshalSimpleType(CharSequence lexicalValue,
+                                      UnmarshalContext context)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public void initialize(RuntimeBindingTypeTable typeTable,
+                           BindingLoader bindingLoader)
+    {
+    }
+
+    public static TypeUnmarshaller getInstance()
+    {
+        return INSTANCE;
+    }
 }
-

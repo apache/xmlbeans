@@ -56,23 +56,15 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
-import org.apache.xmlbeans.impl.binding.bts.XmlName;
 
-import javax.xml.namespace.QName;
 
 /**
  * A special singleton version of RuntimeBindingTypeTable that knows about
  * all the builtin types that we know how to deal with.
  */
-public class BuiltinRuntimeTypeTable
+class BuiltinRuntimeTypeTable
     extends RuntimeBindingTypeTable
 {
-    private BindingLoader bindingLoader = BuiltinBindingLoader.getInstance();
-    private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
 
     private static final BuiltinRuntimeTypeTable INSTANCE =
         new BuiltinRuntimeTypeTable();
@@ -97,24 +89,6 @@ public class BuiltinRuntimeTypeTable
         addXsdBuiltin("string", String.class.getName(),
                       new AtomicSimpleTypeConverter(new StringLexerPrinter()));
 
-        bindingLoader = null; // don't need this anymore
-    }
-
-    private void addXsdBuiltin(String xsdType, String javaType, TypeConverter converter)
-    {
-        QName xml_type = new QName(XSD_NS, xsdType);
-        JavaName jName = JavaName.forString(javaType);
-        XmlName xName = XmlName.forTypeNamed(xml_type);
-        BindingType btype = bindingLoader.getBindingType(jName, xName);
-        if (btype == null) {
-            throw new AssertionError("failed to find builtin for java:" + jName +
-                                     " - xsd:" + xName);
-        }
-        putTypeMarshaller(btype, converter);
-        putTypeUnmarshaller(btype, converter);
-
-        assert getTypeMarshaller(btype) == converter;
-        assert getTypeUnmarshaller(btype) == converter;
     }
 
 

@@ -57,39 +57,100 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 
-/**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
- */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+final class ByNameUnmarshaller implements TypeUnmarshaller
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private final ByNameRuntimeBindingType type;
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+    public ByNameUnmarshaller(ByNameBean type)
     {
-        this.lexerPrinter = lexerPrinter;
+        this.type = new ByNameRuntimeBindingType(type);
     }
 
     public Object unmarshal(UnmarshalContext context)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        final Object inter = type.createIntermediary(context);
+        deserializeAttributes(inter, context);
+        deserializeContents(inter, context);
+        return type.getFinalObjectFromIntermediary(inter, context);
     }
 
     public Object unmarshalSimpleType(CharSequence lexicalValue,
                                       UnmarshalContext context)
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
+        throw new UnsupportedOperationException();
     }
 
+    private void deserializeContents(Object inter, UnmarshalContext context)
+    {
+        while (context.advanceToNextStartElement()) {
+            assert context.getXmlStream().isStartElement();
+
+            RuntimeBindingProperty prop = findMatchingElementProperty(context);
+            if (prop != null) fillElementProp(prop, context, inter);
+        }
+    }
+
+
+    private static void fillElementProp(RuntimeBindingProperty prop,
+                                        UnmarshalContext context,
+                                        Object inter)
+    {
+        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
+        assert um != null;
+
+        final Object prop_val = um.unmarshal(context);
+        prop.fill(inter, prop_val);
+    }
+
+
+    private static void fillAttributeProp(RuntimeBindingProperty prop,
+                                          CharSequence lexical,
+                                          UnmarshalContext context,
+                                          Object inter)
+    {
+        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
+        assert um != null;
+
+        final Object prop_val = um.unmarshalSimpleType(lexical, context);
+        prop.fill(inter, prop_val);
+    }
+
+    private void deserializeAttributes(Object inter, UnmarshalContext context)
+    {
+        final int cnt = context.getAttributeCount();
+        for (int att_idx = 0; att_idx < cnt; att_idx++) {
+            RuntimeBindingProperty prop =
+                findMatchingAttributeProperty(att_idx, context);
+            if (prop != null) {
+                String att_val = context.getAttributeValue(att_idx);
+                fillAttributeProp(prop, att_val, context, inter);
+            }
+        }
+    }
+
+    private RuntimeBindingProperty findMatchingElementProperty(UnmarshalContext context)
+    {
+        String uri = context.getNamespaceURI();
+        String lname = context.getLocalName();
+        return type.getMatchingElementProperty(uri, lname);
+    }
+
+    private RuntimeBindingProperty findMatchingAttributeProperty(int att_idx,
+                                                                 UnmarshalContext context)
+    {
+        String uri = context.getAttributeNamespaceURI(att_idx);
+        String lname = context.getAttributeLocalName(att_idx);
+
+        return type.getMatchingAttributeProperty(uri, lname);
+    }
+
+    //prepare internal data structures for use
     public void initialize(RuntimeBindingTypeTable typeTable,
                            BindingLoader bindingLoader)
     {
+        type.initialize(typeTable, bindingLoader);
     }
 
 
