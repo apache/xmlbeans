@@ -70,7 +70,8 @@ public class QNameProperty extends BindingProperty
     private boolean isMultiple;
     private boolean isOptional;
     private boolean isNillable;
-    
+    private String defaultValue;
+
     public QNameProperty()
     {
         super();
@@ -86,6 +87,7 @@ public class QNameProperty extends BindingProperty
         isMultiple = qpNode.getMultiple();
         isNillable = qpNode.getNillable();
         isOptional = qpNode.getOptional();
+        defaultValue = qpNode.getDefault();
     }
     
     /**
@@ -160,5 +162,15 @@ public class QNameProperty extends BindingProperty
     public void setNillable(boolean nillable)
     {
         isNillable = nillable;
+    }
+
+    public String getDefault()
+    {
+        return defaultValue;
+    }
+
+    public void setDefault(String default_value)
+    {
+        defaultValue = default_value;
     }
 }

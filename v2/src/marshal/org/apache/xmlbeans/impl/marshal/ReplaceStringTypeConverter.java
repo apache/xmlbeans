@@ -56,25 +56,26 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
-class StringTypeConverter
-    extends BaseSimpleTypeConverter
+
+final class ReplaceStringTypeConverter
+    extends StringTypeConverter
 {
+    private static final TypeConverter INSTANCE
+        = new ReplaceStringTypeConverter();
+
+    static TypeConverter getInstance() {
+        return INSTANCE;
+    }
+
+    private ReplaceStringTypeConverter()
+    {
+    }
+
     protected Object getObject(UnmarshallerImpl context)
     {
-        return context.getStringValue();
+        return context.getStringValue(XmlWhitespace.WS_REPLACE);
     }
 
-    public Object unmarshalAttribute(UnmarshallerImpl context)
-    {
-        return context.getAttributeStringValue();
-    }
-
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshallerImpl context)
-    {
-        String val = (String)value;
-        return XsTypeConverter.printString(val);
-    }
 }

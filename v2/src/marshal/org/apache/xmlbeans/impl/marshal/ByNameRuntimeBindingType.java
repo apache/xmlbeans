@@ -349,6 +349,7 @@ final class ByNameRuntimeBindingType
             TypeMarshaller m = typeTable.getTypeMarshaller(bindingType);
 
             if (m == null) {
+                //TODO: FIXME for nested as-if types
                 if (bindingType instanceof SimpleBindingType) {
                     SimpleBindingType stype = (SimpleBindingType)bindingType;
 

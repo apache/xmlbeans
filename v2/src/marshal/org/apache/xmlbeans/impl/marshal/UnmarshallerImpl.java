@@ -315,6 +315,16 @@ final class UnmarshallerImpl
         }
     }
 
+    String getStringValue(int ws)
+    {
+        try {
+            return baseReader.getStringValue(ws);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
     boolean getBooleanValue()
     {
         try {

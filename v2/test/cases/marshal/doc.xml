@@ -30,7 +30,7 @@
     </My:Myelt>
 
     <!--    test as-if for simple types-->
-    <My:Myatt xsi:nil=" false " xsi:type="My:custom-string">some string</My:Myatt>
+    <My:Myatt xsi:nil=" false " xsi:type="My:custom-string"> collapse   me! </My:Myatt>
 
 </My:load>
 
