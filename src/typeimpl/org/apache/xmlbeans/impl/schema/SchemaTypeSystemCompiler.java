@@ -198,14 +198,17 @@ public class SchemaTypeSystemCompiler
         options = XmlOptions.maskNull(options);
         ArrayList schemas = new ArrayList();
 
-        for (int i = 0; i < input.length; i++)
+        if (input != null)
         {
-            if (input[i] instanceof Schema)
-                schemas.add(input[i]);
-            else if (input[i] instanceof SchemaDocument && ((SchemaDocument)input[i]).getSchema() != null)
-                schemas.add(((SchemaDocument)input[i]).getSchema());
-            else
-                throw new XmlException("Thread " + Thread.currentThread().getName() +  ": The " + i + "th supplied input is not a schema or a config document: its type is " + input[i].schemaType());
+            for (int i = 0; i < input.length; i++)
+            {
+                if (input[i] instanceof Schema)
+                    schemas.add(input[i]);
+                else if (input[i] instanceof SchemaDocument && ((SchemaDocument)input[i]).getSchema() != null)
+                    schemas.add(((SchemaDocument)input[i]).getSchema());
+                else
+                    throw new XmlException("Thread " + Thread.currentThread().getName() +  ": The " + i + "th supplied input is not a schema or a config document: its type is " + input[i].schemaType());
+            }
         }
 
         Collection userErrors = (Collection)options.get(XmlOptions.ERROR_LISTENER);
@@ -398,7 +401,7 @@ public class SchemaTypeSystemCompiler
     /**
      * Generate java source files for a SchemaTypeSystem.
      * Please do not invoke this method directly as the signature could change unexpectedly.
-     * Use {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans(String, org.apache.xmlbeans.SchemaTypeSystem, org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.BindingConfig, org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.Filer, org.apache.xmlbeans.XmlOptions)} instead.
+     * Use {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans}
      *
      * @param system the SchemaTypeSystem to generated java source for
      * @param filer to create the java source files
