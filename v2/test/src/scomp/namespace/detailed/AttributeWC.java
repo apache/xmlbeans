@@ -17,6 +17,7 @@ package scomp.namespace.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.namespace.attributeWC.*;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -62,7 +63,9 @@ public class AttributeWC extends BaseCase {
                 "attr1=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -84,12 +87,20 @@ public class AttributeWC extends BaseCase {
                 " foo:attr1=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{
+             XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+        };
+        assertTrue(compareErrorCodes(errExpected));
+
         doc = OtherLaxDocument.Factory
                 .parse("<foo:OtherLax xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\" " +
                 "attr1=\"val1\"/>");
+         clearErrors();
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+             XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -109,7 +120,9 @@ public class AttributeWC extends BaseCase {
                 " foo:attr1=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -130,7 +143,9 @@ public class AttributeWC extends BaseCase {
                 " at:test=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -152,7 +167,9 @@ public class AttributeWC extends BaseCase {
                 " at:test=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -175,16 +192,18 @@ public class AttributeWC extends BaseCase {
                 " at:testattribute=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
 
+   //  " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\"
     public void testListStrictLegal() throws Throwable {
         ListStrictDocument doc = ListStrictDocument.Factory
                 .parse("<foo:ListStrict " +
                 " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                " xsi:schemaLocation=\"java.sun.com/xml/jaxb/users-guide/ examples/users-guide/SampleApp4/po.xsd\"" +
                 " xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
                 "  xmlns:at=\"http://xbean/scomp/attribute/GlobalAttrDefault\"" +
                 " at:testattribute=\"val1\"/>");
@@ -203,7 +222,9 @@ public class AttributeWC extends BaseCase {
                 " at:testattribute=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+             XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -224,7 +245,9 @@ public class AttributeWC extends BaseCase {
                 " at:testattributeInt=\"foo\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+              XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -239,7 +262,7 @@ public class AttributeWC extends BaseCase {
 
     /**
      * can a test ever be illegal here?
-     */
+
     public void testTargetSkipIllegal() throws Throwable {
         TargetSkipDocument doc = TargetSkipDocument.Factory
                 .parse("<foo:TargetSkip " +
@@ -251,6 +274,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(compareErrorCodes(errExpected));
 
     }
+     */
 
     public void testTargetStrictLegal() throws Throwable {
         TargetStrictDocument doc = TargetStrictDocument.Factory
@@ -287,7 +311,9 @@ public class AttributeWC extends BaseCase {
                 " foo:undeclAttr=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -302,7 +328,7 @@ public class AttributeWC extends BaseCase {
 
     /**
      * can a test ever be illegal here?
-     */
+
     public void testLocalSkipIllegal() throws Throwable {
         LocalSkipDocument doc = LocalSkipDocument.Factory
                 .parse("<foo:LocalSkip " +
@@ -314,7 +340,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(compareErrorCodes(errExpected));
 
     }
-
+    */
     public void testLocalStrictIllegal() throws Throwable {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +
@@ -322,7 +348,9 @@ public class AttributeWC extends BaseCase {
                 " undeclAttr=\"val1\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+              XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }

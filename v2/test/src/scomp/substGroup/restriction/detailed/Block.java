@@ -1,8 +1,3 @@
-package scomp.substGroup.restriction.detailed;
-
-import scomp.common.BaseCase;
-import xbean.scomp.substGroup.block.BeachUmbrellaT;
-import xbean.scomp.substGroup.deep.*;
 /*   Copyright 2004 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +12,13 @@ import xbean.scomp.substGroup.deep.*;
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+
+package scomp.substGroup.restriction.detailed;
+
+import scomp.common.BaseCase;
+import xbean.scomp.substGroup.block.BeachUmbrellaT;
+import xbean.scomp.substGroup.deep.*;
+
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlErrorCodes;

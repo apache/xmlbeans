@@ -95,33 +95,35 @@ public class Deep extends BaseCase {
     public void testValidSubstParseInvalid() throws Throwable {
         String input =
                 "<root:items xmlns:root=\"http://xbean/scomp/substGroup/Deep\">" +
-                "<shirt>" +
+                "<root:shirt>" +
                 " <number>SKU25</number>" +
                 " <name>Oxford Shirt</name>" +
                 " <size>12</size>" +
                 " <color>blue</color>" +
-                "</shirt>" +
-                "<product>" +
+                "</root:shirt>" +
+                "<root:product>" +
                 " <number>SKU45</number>" +
                 "   <name>Accessory</name>" +
-                "</product>" +
-                "<umbrella>" +
+                "</root:product>" +
+                "<root:umbrella>" +
                 " <number>SKU15</number>" +
                 "   <name>Umbrella</name>" +
-                "</umbrella>" +
-                "<casualBShirt>" +
+                "</root:umbrella>" +
+                "<root:casualBShirt>" +
                 " <number>SKU25</number>" +
                 " <name>Oxford Shirt</name>" +
                 " <size>12</size>" +
                 " <color>blue</color>" +
                 "<pokadotColor>yellow</pokadotColor>" +
-                "</casualBShirt>" +
+                "</root:casualBShirt>" +
                 "</root:items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
 
             assertTrue(!doc.validate(validateOptions));
             showErrors();
-            String[] expErrors=new String[]{"cvc-elt"};
+            String[] expErrors=new String[]{
+                XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
+            };
             assertTrue(compareErrorCodes(expErrors));
     }
 

@@ -21,6 +21,7 @@ import xbean.scomp.namespace.elementFormDefault.ElementFormDefaultEltDocument;
 import xbean.scomp.namespace.elementFormDefault.ElementT;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -54,7 +55,10 @@ public class ElementFormDefault extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT
+        };
              assertTrue(compareErrorCodes(errExpected));
                 
     }

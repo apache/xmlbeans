@@ -30,12 +30,20 @@ public class GlobalEltDefault extends BaseCase {
     GlobalEltDefaultStrDocument testDoc=GlobalEltDefaultStrDocument
             .Factory.newInstance();
      assertEquals(null,testDoc.getGlobalEltDefaultStr());
-try{
+/*try{
     assertTrue(testDoc.validate(validateOptions));
 }catch(Throwable t){
     showErrors();
     throw t;
-}
+} */
+        testDoc.setGlobalEltDefaultStr("foo");
+        try{
+            assertTrue(testDoc.validate(validateOptions));
+        }catch(Throwable t){
+            showErrors();
+            throw t;
+        }
+
         }
 
     //default value is used
