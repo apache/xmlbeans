@@ -663,6 +663,19 @@
         </foreachloop>
     </target>
 
+    <!--test xmlbeans task-->
+    <target name="xmlbean-test" depends="init">
+        <taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="${build.lib}/xbean.jar"/>
+         <xmlbean
+                   classpathref="test.run.classpath"
+                   srcgendir="${build.dir.test.schemas}/generated"
+                   classgendir="${build.dir.test.schemas}"
+                   destfile="${build.dir.test.schemas.lib}/XMLBeanTask.jar" >
+             <fileset dir="${xbeans.test.src}/xmlobject" includes="**/existing/**"/>
+             <fileset dir="${xbeans.test.cases}/xbean/extensions/interfaceFeature/averageCase" includes="*"/>
+         </xmlbean>
+    </target>
+
     <target name="build.area.xmlobject" depends="extensions.build">
         <property name="this.schema.dirs"
             value="${build.dir.test.schemas}/xbean/xmlobject,
@@ -746,7 +759,7 @@
         <property name="this.schema.dirs"
             value="${build.dir.test.schemas}/xbean/xmlcursor"/>
         <property name="includes.for.compile"
-            value="**/xmlcursor/**/*.java"/>
+            value="**/ValidatingXSRTests/**/*.java"/>
         <property name="this.schema.standalone.dirs"
             value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
         <property name="testcasejar.update" value="true"/>
