@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JComment;
 import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.JInvokable;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 
 import java.io.Writer;
 
