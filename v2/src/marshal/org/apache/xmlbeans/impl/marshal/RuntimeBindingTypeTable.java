@@ -295,7 +295,6 @@ final class RuntimeBindingTypeTable
         TypeUnmarshaller um = table.getTypeUnmarshaller(stype);
         if (um != null) return um;
 
-
         int curr_ws = XmlWhitespace.WS_UNSPECIFIED;
         SimpleBindingType curr = stype;
         BuiltinBindingType resolved;

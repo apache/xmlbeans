@@ -336,7 +336,7 @@ final class ByNameRuntimeBindingType
             this.beanHasMulti = bean_has_multis;
             this.bindingProperty = prop;
             this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
-            this.marshaller = lookupMarshaller(prop, typeTable, loader);
+            this.marshaller = lookupMarshaller(prop.getTypeName(), typeTable, loader);
             this.bindingType = loader.getBindingType(prop.getTypeName());
             propertyClass = getPropertyClass(prop, bindingType);
             collectionElementClass = getCollectionElementClass(prop, bindingType);
@@ -464,38 +464,30 @@ final class ByNameRuntimeBindingType
             return um;
         }
 
-        private TypeMarshaller lookupMarshaller(BindingProperty prop,
+        private TypeMarshaller lookupMarshaller(BindingTypeName type_name,
                                                 RuntimeBindingTypeTable typeTable,
                                                 BindingLoader loader)
+            throws XmlException
         {
-            final BindingType bindingType =
-                loader.getBindingType(prop.getTypeName());
-            TypeMarshaller m = typeTable.getTypeMarshaller(bindingType);
+            final BindingType binding_type = loader.getBindingType(type_name);
+            if (binding_type == null) {
+                final String msg = "unable to load type for " + type_name;
+                throw new XmlException(msg);
+            }
+            TypeMarshaller m = typeTable.getTypeMarshaller(binding_type);
+            if (m != null) return m;
 
-            if (m == null) {
-                //TODO: FIXME for nested as-if types
-                if (bindingType instanceof SimpleBindingType) {
-                    SimpleBindingType stype = (SimpleBindingType)bindingType;
+            if (binding_type instanceof SimpleBindingType) {
+                SimpleBindingType stype = (SimpleBindingType)binding_type;
 
-                    //let's try using the as if type
-                    final BindingTypeName asif_name = stype.getAsIfBindingTypeName();
-                    assert asif_name != null : "no asif for " + stype;
-                    BindingType asif = loader.getBindingType(asif_name);
-                    if (asif == null) {
-                        throw new AssertionError("unable to get asif type" +
-                                                 " for " + asif_name);
-                    }
-                    m = typeTable.getTypeMarshaller(asif);
+                final BindingTypeName asif_name = stype.getAsIfBindingTypeName();
+                if (asif_name == null)
+                    throw new XmlException("no asif for " + stype);
 
-                    if (m == null) {
-                        final String msg = "asif type marshaller not found" +
-                            " for" + stype + " asif=" + asif;
-                        throw new AssertionError(msg);
-                    }
-                }
+                return lookupMarshaller(asif_name, typeTable, loader);
             }
 
-            return m;
+            return null;
         }
 
 

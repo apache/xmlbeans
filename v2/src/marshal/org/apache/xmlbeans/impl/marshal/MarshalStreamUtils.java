@@ -59,6 +59,7 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
@@ -105,24 +106,20 @@ final class MarshalStreamUtils
                 } else if (XSI_NIL_ATTR.equals(lname)) {
                     holder.hasXsiNil = reader.getAttributeBooleanValue(att_idx);
                 } else if (XSI_SCHEMA_LOCATION_ATTR.equals(lname)) {
-                    //TODO: apply collapse whitespace facet somehow
                     holder.schemaLocation =
-                        reader.getAttributeStringValue(att_idx);
+                        reader.getAttributeStringValue(att_idx,
+                                                       XmlWhitespace.WS_COLLAPSE);
                 } else if (XSI_NO_NS_SCHEMA_LOCATION_ATTR.equals(lname)) {
-                    //TODO: apply collapse whitespace facet somehow
                     holder.noNamespaceSchemaLocation =
-                        reader.getAttributeStringValue(att_idx);
+                        reader.getAttributeStringValue(att_idx,
+                                                       XmlWhitespace.WS_COLLAPSE);
                 }
             }
                 //nothing should have been assigned, so keep going
                 //TODO: use real location (maybe just pass context to this method).
             catch (InvalidLexicalValueException ilve) {
                 addError(errors, ilve.getMessage(),
-                         reader.getLocation(), "<unknown>");
-            }
-            catch (IllegalArgumentException iax) {   //thrown by lexBoolean
-                addError(errors, iax.getMessage(),
-                         reader.getLocation(), "<unknown>");
+                         ilve.getLocation(), "<unknown>");
             }
         }
     }
@@ -171,7 +168,6 @@ final class MarshalStreamUtils
 
                 case XMLStreamReader.PROCESSING_INSTRUCTION:
                 case XMLStreamReader.CHARACTERS:
-                    //TODO: what about mixed content models
                 case XMLStreamReader.COMMENT:
                 case XMLStreamReader.SPACE:
                 case XMLStreamReader.ENTITY_REFERENCE:
@@ -236,31 +232,6 @@ final class MarshalStreamUtils
         throw new XmlRuntimeException("unexpected end of xml stream");
     }
 
-
-    private static boolean isXsiNilTrue(XMLStreamReader reader,
-                                        int att_idx,
-                                        Collection errors)
-    {
-        final String lname = reader.getAttributeLocalName(att_idx);
-        if (!XSI_NIL_ATTR.equals(lname))
-            return false;
-
-        if (!XSI_NS.equals(reader.getAttributeNamespace(att_idx)))
-            return false;
-
-        final String att_val = reader.getAttributeValue(att_idx);
-        return XsTypeConverter.lexBoolean(att_val, errors);
-    }
-
-    public static boolean isXsiNilTrue(XMLStreamReader reader,
-                                       Collection errors)
-    {
-        assert reader.isStartElement();
-        for (int i = 0, len = reader.getAttributeCount(); i < len; i++) {
-            if (isXsiNilTrue(reader, i, errors)) return true;
-        }
-        return false;
-    }
 
     static void advanceToFirstItemOfInterest(XMLStreamReader rdr)
         throws XMLStreamException
