@@ -74,14 +74,14 @@ import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Collections;
 
-import weblogic.xml.stream.Attribute;
-import weblogic.xml.stream.AttributeIterator;
-import weblogic.xml.stream.CharacterData;
-import weblogic.xml.stream.StartElement;
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLName;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.Attribute;
+import org.apache.xmlbeans.xml.stream.AttributeIterator;
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.StartElement;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 import javax.xml.namespace.QName;
 
 public final class ValidatingXMLInputStream

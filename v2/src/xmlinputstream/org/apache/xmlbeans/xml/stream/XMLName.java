@@ -54,35 +54,45 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * An interface that contains information about an attribute
+ * Encapsulates information about the Qualified Name of an XML event.
  *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.XMLName
- * @see weblogic.xml.stream.Attribute
+ * @see org.apache.xmlbeans.xml.stream.StartElement
+ * @see org.apache.xmlbeans.xml.stream.XMLEvent
  */
-public interface Attribute {
-  /**
-   * Get the XMLName of the current attribute.
-   * @see weblogic.xml.stream.XMLName
-   */
-  public XMLName getName();
 
-  /**
-   * Get the attribute value of the current attribute.
+public interface XMLName {
+  /*
+   * returns the uri of the prefix of this name
+   * 
+   * @return returns the uri, 
+   * empty string if the default namespace is bound to empty string 
+   * or null if the name does not have a namespace
    */
-  public String getValue();
+  public String getNamespaceUri();
+  /*
+   * returns the localname of the xml name
+   * 
+   * @return the localname, cannot be null
+   */
+  public String getLocalName();
+  /*
+   * returns the prefix of the xml name
+   * 
+   * @return the prefix of the xml name or null
+   */
+  public String getPrefix();
 
-  /**
-   * Get the attribute type of the current attribute
+  /*
+   * returns the prefix of the xml name + ':' + the local name
+   * if the prefix is not null
+   * returns the local name otherwise
+   * 
+   * @return the prefix plus the local name
    */
-  public String getType();
-
-  /**
-   * Get the attribute type of the current attribute
-   */
-  public XMLName getSchemaType();
+  public String getQualifiedName();
 }

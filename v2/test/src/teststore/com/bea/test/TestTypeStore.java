@@ -59,7 +59,7 @@ package com.bea.test;
 import org.apache.xmlbeans.values.TypeStore;
 import org.apache.xmlbeans.values.TypeStoreUser;
 import org.apache.xmlbeans.values.TypeStoreVisitor;
-import weblogic.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLName;
 
 import java.util.Map;
 import java.util.List;

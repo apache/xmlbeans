@@ -54,42 +54,25 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * Returns the document location of the event.  This is not
- * required to be exact and is informational only.
- * 
+ * A marker interface for character data
+ *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- *
- */
-public interface Location {
-  /*
-   * returns the current column number
-   *
-   * @return integer value of the current column number
+ * @see org.apache.xmlbeans.xml.stream.XMLEvent
+*/
+public interface CharacterData extends XMLEvent {
+  /**
+   * Get the content of this element,
+   * returns null if the element has no content
    */
-  public int getColumnNumber(); 
-  /*
-   * returns the current line
-   *
-   * @return integer value of the current line number
+  public String getContent();
+
+  /**
+   * Returns true if this element has content and false otherwise
    */
-  public int getLineNumber();
-  /*
-   * returns the String value of the public ID
-   *
-   * @return public ID or null if not set
-   */
-  public String getPublicId(); 
-  /*
-   * returns the String value of the system ID
-   *
-   * @return system ID or null if not set
-   */
-  public String getSystemId();
+  public boolean hasContent();
+
 }
-
-
-

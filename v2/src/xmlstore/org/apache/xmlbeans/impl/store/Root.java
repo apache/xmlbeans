@@ -93,16 +93,16 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
-import weblogic.xml.stream.Attribute;
-import weblogic.xml.stream.AttributeIterator;
-import weblogic.xml.stream.CharacterData;
-import weblogic.xml.stream.ProcessingInstruction;
-import weblogic.xml.stream.Space;
-import weblogic.xml.stream.StartDocument;
-import weblogic.xml.stream.StartElement;
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.Attribute;
+import org.apache.xmlbeans.xml.stream.AttributeIterator;
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.ProcessingInstruction;
+import org.apache.xmlbeans.xml.stream.Space;
+import org.apache.xmlbeans.xml.stream.StartDocument;
+import org.apache.xmlbeans.xml.stream.StartElement;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLName;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.namespace.QName;
@@ -1746,7 +1746,7 @@ public final class Root extends Finish implements XmlStore
         
         void lineNumberAnnotation ( XMLEvent xe )
         {
-            weblogic.xml.stream.Location loc = xe.getLocation();
+            org.apache.xmlbeans.xml.stream.Location loc = xe.getLocation();
 
             if (loc != null)
                 lineNumberAnnotation( loc.getLineNumber(), loc.getColumnNumber(), -1 );
@@ -1875,7 +1875,7 @@ public final class Root extends Finish implements XmlStore
 
     public XmlObject loadXml (
         XMLInputStream xis, SchemaType type, XmlOptions options )
-            throws XmlException, weblogic.xml.stream.XMLStreamException
+            throws XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException
     {
         loadXmlInputStream( xis, options );
 
@@ -2024,7 +2024,7 @@ public final class Root extends Finish implements XmlStore
     }
     
     public void loadXmlInputStream ( XMLInputStream xis, XmlOptions options )
-        throws weblogic.xml.stream.XMLStreamException, XmlException
+        throws org.apache.xmlbeans.xml.stream.XMLStreamException, XmlException
     {
         options = XmlOptions.maskNull( options );
 
@@ -2145,8 +2145,8 @@ public final class Root extends Finish implements XmlStore
                 break;
 
             case XMLEvent.COMMENT :
-                weblogic.xml.stream.Comment comment =
-                    (weblogic.xml.stream.Comment) xe;
+                org.apache.xmlbeans.xml.stream.Comment comment =
+                    (org.apache.xmlbeans.xml.stream.Comment) xe;
 
                 if (comment.hasContent())
                 {

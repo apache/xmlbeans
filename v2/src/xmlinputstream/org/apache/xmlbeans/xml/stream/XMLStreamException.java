@@ -54,16 +54,129 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
+
+import java.io.IOException;
+import java.io.PrintStream;
+import java.io.PrintWriter;
+
+import org.apache.xmlbeans.xml.stream.utils.NestedThrowable;
 
 /**
+ * The base exception for unexpected input during XML handling
  *
- * This interface defines a filter on elements
+ * @since Weblogic XML Input Stream 1.0
+ * @version 1.0
  */
 
-public interface ElementFilter {
+public class XMLStreamException 
+  extends IOException 
+  implements NestedThrowable 
+{
+  protected Throwable th;
+
+  public XMLStreamException() {}
+
+  public XMLStreamException(String msg) { 
+    super(msg); 
+  }
+
+  public XMLStreamException(Throwable th) {
+    this.th = th;
+    
+  }
+
+  public XMLStreamException(String msg, Throwable th) {
+    super(msg);
+    this.th = th;
+  }
+
   /**
-   * tests whether this event is part of this stream 
+   * Gets the nested exception.
+   *
+   * @return                 Nested exception
    */
-  boolean accept(XMLEvent element);
+  public Throwable getNestedException() {
+    return getNested();
+  }
+
+  //try to do someting useful
+  public String getMessage() {
+    String msg = super.getMessage();
+
+    if (msg == null && th != null) {
+      return th.getMessage();
+    } else {
+      return msg;
+    }
+  }
+
+
+  // =================================================================
+  // NestedThrowable implementation.
+
+  /**
+   * Gets the nested Throwable.
+   *
+   * @return                 Nested exception
+   */
+  public Throwable getNested() {
+    return th;
+  }
+
+  public String superToString() {
+    return super.toString();
+  }
+
+  public void superPrintStackTrace(PrintStream ps) {
+    super.printStackTrace(ps);
+  }
+
+  public void superPrintStackTrace(PrintWriter pw) {
+    super.printStackTrace(pw);
+  }
+
+  // End NestedThrowable implementation.
+  // =================================================================
+
+  /**
+   * Prints the exception message and its nested exception message.
+   *
+   * @return                 String representation of the exception
+   */
+  public String toString() {
+    return NestedThrowable.Util.toString(this);
+  }
+
+  /**
+   * Prints the stack trace associated with this exception and
+   * its nested exception.
+   *
+   * @param s                 PrintStream
+   */
+  public void printStackTrace(PrintStream s) { 
+    NestedThrowable.Util.printStackTrace(this, s);
+  }
+
+  /**
+   * Prints the stack trace associated with this exception and
+   * its nested exception.
+   *
+   * @param s                 PrintStream
+   */
+  public void printStackTrace(PrintWriter w) { 
+    NestedThrowable.Util.printStackTrace(this, w);
+  }
+
+  /**
+   * Prints the stack trace associated with this exception and
+   * its nested exception to System.err.
+   *
+   * @param s                 PrintStream
+   */
+  public void printStackTrace() {
+    printStackTrace(System.err);
+  }
 }
+
+

@@ -90,20 +90,20 @@ import org.xml.sax.InputSource;
 import org.xml.sax.Locator;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
-import weblogic.xml.stream.Attribute;
-import weblogic.xml.stream.AttributeIterator;
-import weblogic.xml.stream.ChangePrefixMapping;
-import weblogic.xml.stream.CharacterData;
-import weblogic.xml.stream.Comment;
-import weblogic.xml.stream.EndDocument;
-import weblogic.xml.stream.EndElement;
-import weblogic.xml.stream.EndPrefixMapping;
-import weblogic.xml.stream.StartDocument;
-import weblogic.xml.stream.StartElement;
-import weblogic.xml.stream.StartPrefixMapping;
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.Attribute;
+import org.apache.xmlbeans.xml.stream.AttributeIterator;
+import org.apache.xmlbeans.xml.stream.ChangePrefixMapping;
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.Comment;
+import org.apache.xmlbeans.xml.stream.EndDocument;
+import org.apache.xmlbeans.xml.stream.EndElement;
+import org.apache.xmlbeans.xml.stream.EndPrefixMapping;
+import org.apache.xmlbeans.xml.stream.StartDocument;
+import org.apache.xmlbeans.xml.stream.StartElement;
+import org.apache.xmlbeans.xml.stream.StartPrefixMapping;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLName;
    
 public class StoreTests extends TestCase
 {

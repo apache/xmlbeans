@@ -57,7 +57,7 @@
 package org.apache.xmlbeans.impl.common;
 
 import javax.xml.namespace.QName;
-import weblogic.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLName;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

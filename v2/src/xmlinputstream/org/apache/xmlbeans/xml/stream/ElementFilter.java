@@ -54,18 +54,16 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * This element returns whitespace characters to allow separate
- * handling by the application
  *
- * @since Weblogic XML Input Stream 1.0
- * @version 1.0
+ * This interface defines a filter on elements
  */
-public interface Space extends CharacterData {
+
+public interface ElementFilter {
   /**
-   * Returns true if this is ignorable whitespace
+   * tests whether this event is part of this stream 
    */
-  public boolean ignorable();
+  boolean accept(XMLEvent element);
 }

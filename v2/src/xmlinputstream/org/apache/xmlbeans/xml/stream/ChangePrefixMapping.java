@@ -54,18 +54,31 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * A marker interface for comment data
+ * This event signals that a prefix mapping has changed from
+ * OldNamespaceName to the NewNamespaceName
  *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.XMLEvent
-*/
-
-public interface Comment extends CharacterData {
-  /**
-   * No methods are defined in this interface.
+ * @see org.apache.xmlbeans.xml.stream.StartPrefixMapping
+ * @see org.apache.xmlbeans.xml.stream.EndPrefixMapping
+ */
+public interface ChangePrefixMapping extends XMLEvent {
+  /*
+   * returns the uri that the prefix was bound to
+   * @return String value of the uri
    */
+  public String getOldNamespaceUri();
+  /*
+   * returns the new uri that the prefix is bound to
+   * @return String value of the uri
+   */
+  public String getNewNamespaceUri();
+  /*
+   * returns the prefix that is bound
+   * @return String value of the prefix
+   */
+  public String getPrefix();
 }
