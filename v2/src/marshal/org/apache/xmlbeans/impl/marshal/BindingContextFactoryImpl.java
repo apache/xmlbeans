@@ -68,7 +68,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.tylar.DefaultTylarLoader;
@@ -145,7 +145,7 @@ public final class BindingContextFactoryImpl extends BindingContextFactory {
 
   private static BindingLoader buildBindingLoader(BindingFile bf) {
     BindingLoader builtins = BuiltinBindingLoader.getInstance();
-    return PathBindingLoader.forPath(new BindingLoader[]{builtins, bf});
+    return CompositeBindingLoader.forPath(new BindingLoader[]{builtins, bf});
   }
 
   private static RuntimeBindingTypeTable buildUnmarshallingTypeTable(BindingFile bf,

@@ -57,7 +57,7 @@ package org.apache.xmlbeans.impl.binding.tylar;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JFactory;
@@ -91,7 +91,7 @@ public abstract class BaseTylarImpl implements Tylar {
     BindingLoader[] loaders = new BindingLoader[bfs.length+1];
     System.arraycopy(bfs,0,loaders,0,bfs.length);
     loaders[loaders.length-1] = BuiltinBindingLoader.getInstance();
-    return PathBindingLoader.forPath(loaders);
+    return CompositeBindingLoader.forPath(loaders);
   }
 
   public SchemaTypeSystem getSchemaTypeSystem()

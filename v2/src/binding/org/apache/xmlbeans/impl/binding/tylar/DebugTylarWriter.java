@@ -96,6 +96,35 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
   }
 
   // ========================================================================
+  // Public methods
+
+  /**
+   * Utility method which writes the contents of the given tylar to our
+   * PrintWriter.  Useful for debugging, provides a quick dump of the contents
+   * of an arbitrary Tylar.
+   *
+   * @param t Tylar to dump
+   * @throws IOException
+   */
+  public void write(Tylar t) throws IOException {
+    mOut.println("==== Dumping Type Library contents... =================");
+    mOut.println("location = "+t.getLocation());
+    mOut.println("description = "+t.getDescription());
+    BindingFile[] bfs = t.getBindingFiles();
+    for(int i=0; i<bfs.length; i++) {
+      mOut.println("---- Binding File -------------------------------------");
+      writeBindingFile(bfs[i]);
+    }
+    SchemaDocument[] xsds = t.getSchemas();
+    for(int i=0; i<xsds.length; i++) {
+      mOut.println("---- Schema -------------------------------------------");
+      writeSchema(xsds[i],null);
+    }
+    mOut.println("==== End Type Library contents ========================");
+    mOut.flush();
+  }
+
+  // ========================================================================
   // TylarWriter implementation
 
   public void writeBindingFile(BindingFile bf) throws IOException {

@@ -124,7 +124,7 @@ public class Java2Schema extends BindingCompiler {
    */
   protected void internalBind(TylarWriter writer) {
     mBindingFile = new BindingFile();
-    mLoader = PathBindingLoader.forPath
+    mLoader = CompositeBindingLoader.forPath
             (new BindingLoader[] {mBindingFile, super.getBaseBindingLoader()});
     mSchemaDocument = SchemaDocument.Factory.newInstance();
     mSchema = mSchemaDocument.addNewSchema();
