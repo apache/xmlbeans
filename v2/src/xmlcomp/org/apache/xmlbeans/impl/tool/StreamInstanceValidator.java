@@ -128,11 +128,12 @@ public class StreamInstanceValidator
                     XML_INPUT_FACTORY.createXMLStreamReader(path, fis);
 
                 //advance to first start element.
-//                while(!rdr.isStartElement()) {
-//                    rdr.next();
-//                }
+                while(!rdr.isStartElement()) {
+                    rdr.next();
+                }
 
-                vsr.init(rdr, null, sLoader, options, errors);
+                vsr.init(rdr, true, null, sLoader, options, errors);
+                
                 while (vsr.hasNext()) {
                     vsr.next();
                 }
