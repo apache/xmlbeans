@@ -1609,4 +1609,35 @@ public class ValidationTests extends TestCase
 
     }
 
+    // Bugzilla bug #26105: validate derived type from base type enumeration
+    public void testValidate11() throws Exception {
+        String schemas[] = {
+            "<xsd:schema xmlns:xsd='http://www.w3.org/2001/XMLSchema'>\n" +
+
+            "<xsd:element name='enumDef' type='enumDefType'/>\n" +
+            "<xsd:complexType name='enumDefType'>\n" +
+            "  <xsd:simpleContent>\n" +
+            "    <xsd:extension base='enumType'/>\n" +
+            "  </xsd:simpleContent>\n" +
+            "</xsd:complexType>\n" +
+
+            "<xsd:simpleType name='enumType'>\n" +
+            "  <xsd:restriction base='xsd:token'>\n" +
+            "    <xsd:enumeration value='enum1'/>\n" +
+            "  </xsd:restriction>\n" +
+            "</xsd:simpleType>\n" +
+            "</xsd:schema>\n",
+        };
+
+        String[] valid = {
+            "<enumDef>enum1</enumDef>",
+        };
+
+        String[] invalid = {
+            "<enumDef>enum2/enumDef>",
+        };
+
+        doTest(schemas, null, valid, invalid);
+    }
+
 }
