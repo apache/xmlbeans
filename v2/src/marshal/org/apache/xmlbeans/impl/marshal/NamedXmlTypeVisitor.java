@@ -53,7 +53,10 @@ abstract class NamedXmlTypeVisitor
     protected QName getName()
     {
         final QName name = getBindingProperty().getName();
-        return new QName(name.getNamespaceURI(), name.getLocalPart(), prefix);
+        if (prefix == null)
+            return name;
+        else
+            return new QName(name.getNamespaceURI(), name.getLocalPart(), prefix);
     }
 
     protected String getLocalPart()
