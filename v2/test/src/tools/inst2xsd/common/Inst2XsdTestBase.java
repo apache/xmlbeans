@@ -25,8 +25,8 @@ public class Inst2XsdTestBase extends TestCase {
     public static tools.inst2xsd.common.Inst2XsdCommon common;
     public static boolean _verbose = true;
 
-    public static final String fwroot = System.getProperty("xbean.rootdir");
-    public static String caseroot = fwroot + P + "test" + P + "cases" + P + "xbean";
+    public static final String fwroot = System.getProperty("cases.location");
+    public static String caseroot = fwroot+P+"xbean";// + P + "test" + P + "cases" + P + "xbean";
     //location of files under "cases folder"
     public static String miscDir = caseroot + P + "tools";
     public static String inst2xsdDir = miscDir + P + "inst2xsd" + P;
