@@ -239,7 +239,8 @@ public class ClassImpl extends MemberImpl implements MClass,
     Set set = new TreeSet();
     JClass[] importedClasses = getImportedClasses();
     for(int i=0; i<importedClasses.length; i++) {
-      set.add(importedClasses[i].getContainingPackage());
+      JPackage c = importedClasses[i].getContainingPackage();
+      if (c != null) set.add(c);
     }
     String[] imports = getImportSpecs();
     if (imports != null) {

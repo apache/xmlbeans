@@ -15,8 +15,11 @@
 package org.apache.xmlbeans.test.jam.dummyclasses;
 
 import org.apache.xmlbeans.impl.jam.JClass;
+
 import javax.xml.stream.XMLStreamException;
+
 import java.util.Properties;
+
 import java.lang.reflect.*;
 
 /**
