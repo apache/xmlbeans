@@ -269,7 +269,8 @@ final class Cur
     
     static Xobj createCommentXobj ( Locale l )
     {
-        return l._saaj == null ? new CommentXobj( l ) : new SaajCommentXobj( l );
+//        return l._saaj == null ? new CommentXobj( l ) : new SaajCommentXobj( l );
+        return new CommentXobj( l );
     }
 
     //
@@ -1844,7 +1845,7 @@ final class Cur
             else
             {
                 x = x.ensureParent();
-                p = END_POS;
+                p = x.posAfter() - 1;
             }
         }
         else if (p == END_POS)
@@ -2379,6 +2380,9 @@ final class Cur
         {
             int cchRight = cchRight( pos );
 
+            if (cchRight == 0)
+                return "";
+
             if (cch < 0 || cch > cchRight)
                 cch = cchRight;
 
@@ -2386,7 +2390,9 @@ final class Cur
 
             // TODO - save this string back into the xobj for use later
             // TODO - save this string back into the xobj for use later
-            
+
+            assert pos > 0;
+
             if (pos >= pa)
                 return CharUtil.getString( _srcAfter, _offAfter + pos - pa, cch );
             else
@@ -3212,35 +3218,35 @@ final class Cur
         DetailEntryXobj ( Locale l, QName name ) { super( l, name ); }
     }
 
-    private static class SaajCommentXobj extends CommentXobj implements javax.xml.soap.Text
-    {
-        SaajCommentXobj ( Locale l ) { super( l ); }
-
-        Xobj newNode ( ) { return new SaajCommentXobj( _locale ); }
-        
-        public Text splitText ( int offset ) { throw new IllegalStateException(); }
-        public String getWholeText ( ) { throw new IllegalStateException(); }
-        public boolean isElementContentWhitespace ( ) { throw new IllegalStateException(); }
-        public Text replaceWholeText ( String content ) { throw new IllegalStateException(); }
-
-        public boolean isComment ( ) { return true; }
-        
-        public void detachNode ( ) { DomImpl._soapNode_detachNode( this ); }
-        public void recycleNode ( ) { DomImpl._soapNode_recycleNode( this ); }
-        public String getValue ( ) { return DomImpl._soapNode_getValue( this ); }
-        public void setValue ( String value ) { DomImpl._soapNode_setValue( this, value ); }
-        public SOAPElement getParentElement ( ) { return DomImpl._soapNode_getParentElement( this ); }
-        public void setParentElement ( SOAPElement p ) { DomImpl._soapNode_setParentElement( this, p ); }
-        
-        public void appendData ( String arg ) { DomImpl._characterData_appendData( this, arg ); }
-        public void deleteData ( int offset, int count ) { DomImpl._characterData_deleteData( this, offset, count ); }
-        public String getData ( ) { return DomImpl._characterData_getData( this ); }
-        public int getLength ( ) { return DomImpl._characterData_getLength( this ); }
-        public void insertData ( int offset, String arg ) { DomImpl._characterData_insertData( this, offset, arg ); }
-        public void replaceData ( int offset, int count, String arg ) { DomImpl._characterData_replaceData( this, offset, count, arg ); }
-        public void setData ( String data ) { DomImpl._characterData_setData( this, data ); }
-        public String substringData ( int offset, int count ) { return DomImpl._characterData_substringData( this, offset, count ); }
-    }
+//    private static class SaajCommentXobj extends CommentXobj implements javax.xml.soap.Text
+//    {
+//        SaajCommentXobj ( Locale l ) { super( l ); }
+//
+//        Xobj newNode ( ) { return new SaajCommentXobj( _locale ); }
+//
+//        public Text splitText ( int offset ) { throw new IllegalStateException(); }
+//        public String getWholeText ( ) { throw new IllegalStateException(); }
+//        public boolean isElementContentWhitespace ( ) { throw new IllegalStateException(); }
+//        public Text replaceWholeText ( String content ) { throw new IllegalStateException(); }
+//
+//        public boolean isComment ( ) { DomImpl._soapText_isComment( this ); }
+//
+//        public void detachNode ( ) { DomImpl._soapNode_detachNode( this ); }
+//        public void recycleNode ( ) { DomImpl._soapNode_recycleNode( this ); }
+//        public String getValue ( ) { return DomImpl._soapNode_getValue( this ); }
+//        public void setValue ( String value ) { DomImpl._soapNode_setValue( this, value ); }
+//        public SOAPElement getParentElement ( ) { return DomImpl._soapNode_getParentElement( this ); }
+//        public void setParentElement ( SOAPElement p ) { DomImpl._soapNode_setParentElement( this, p ); }
+//
+//        public void appendData ( String arg ) { DomImpl._characterData_appendData( this, arg ); }
+//        public void deleteData ( int offset, int count ) { DomImpl._characterData_deleteData( this, offset, count ); }
+//        public String getData ( ) { return DomImpl._characterData_getData( this ); }
+//        public int getLength ( ) { return DomImpl._characterData_getLength( this ); }
+//        public void insertData ( int offset, String arg ) { DomImpl._characterData_insertData( this, offset, arg ); }
+//        public void replaceData ( int offset, int count, String arg ) { DomImpl._characterData_replaceData( this, offset, count, arg ); }
+//        public void setData ( String data ) { DomImpl._characterData_setData( this, data ); }
+//        public String substringData ( int offset, int count ) { return DomImpl._characterData_substringData( this, offset, count ); }
+//    }
 
     //
     //
