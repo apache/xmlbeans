@@ -3,7 +3,7 @@
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:My="java:com.mytest" xsi:type="My:MyClass">
 
-    <My:Myelt ignore="someval" My:Attrib="4444.3333333"  >
+    <My:Myelt ignore="someval" My:Attrib="4444.123456789"  >
         <My:MyFloat>65.34</My:MyFloat>
         <My:MyClass>
             <My:Myatt xsi:type="xsd:token">inner-str</My:Myatt>
@@ -13,7 +13,10 @@
     <!--    not working-->
     <!--    <My:Myatt xsi:nil="0" xsi:type="My:custom-string" >some string</My:Myatt>-->
 
+
     <My:Myatt xsi:type="xsd:token">strval</My:Myatt>
+
+
 
 </My:load>
 

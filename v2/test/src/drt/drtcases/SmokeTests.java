@@ -87,6 +87,7 @@ public class SmokeTests extends TestCase
         suite.addTest(SubstGroupTests.suite());
         suite.addTest(BindingTests.suite());
         suite.addTest(JaxenXPathTests.suite());
+        suite.addTest(MarshalTests.suite());
         return suite;
     }
 }

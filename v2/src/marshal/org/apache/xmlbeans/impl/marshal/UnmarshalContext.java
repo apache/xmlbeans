@@ -191,14 +191,7 @@ public final class UnmarshalContext
      */
     boolean advanceToNextStartElement()
     {
-        try {
-            //move past our current start element
-            baseReader.next();
-        }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
-        return MarshalStreamUtils.advanceToNextStartElement(baseReader);
+       return MarshalStreamUtils.advanceToNextStartElement(baseReader);
     }
 
     int getAttributeCount()

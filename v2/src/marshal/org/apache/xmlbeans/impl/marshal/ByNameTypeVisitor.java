@@ -124,5 +124,4 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
         throw new IllegalStateException("not text");
     }
 
-
 }

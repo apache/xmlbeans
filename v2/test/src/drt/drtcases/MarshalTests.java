@@ -131,12 +131,16 @@ public class MarshalTests extends TestCase
     }
 
 
-/*
     public void testByNameMarshal()
         throws Exception
     {
         com.mytest.MyClass mc = new com.mytest.MyClass();
         mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(432.3432f);
+        myelt.setMyFloat(5555.4444f);
+        myelt.setMyClass(new com.mytest.MyClass());
+        mc.setMyelt(myelt);
 
 
         BindingConfigDocument bcdoc = getBindingConfigDocument();
@@ -152,36 +156,44 @@ public class MarshalTests extends TestCase
             bindingContext.createMarshallContext(namespaceContext, errors);
 
         final XMLStreamReader reader =
-            m.marshallType(mc, new QName("uri", "lname"),
+            m.marshallType(mc, new QName("java:com.mytest", "load"),
                            new QName("java:com.mytest", "MyClass"),
                            mc.getClass().getName(),
                            ctx);
 
-        System.out.println("==================OBJ: " + mc);
+        System.out.println("=======IN-OBJ: " + mc);
 
+//        dumpReader(reader);
 
-        dumpReader(reader);
+        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
+        //TODO: remove hard coded values
+        final String javaType = "com.mytest.MyClass";
+        final QName schemaType = new QName("java:com.mytest", "MyClass");
+        UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader, errors);
+        Object out = unmarshaller.unmarshallType(schemaType, javaType, umctx);
+        System.out.println("======OUT-OBJ: " + out);
+
 
     }
-*/
 
     private static void dumpReader(final XMLStreamReader reader)
         throws XMLStreamException
     {
-        final boolean write_doc = false;
+        final boolean write_doc = true;
         if (write_doc) {
-//            StringWriter sw = new StringWriter();
-//            XMLStreamWriter xsw =
-//                XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
-//
-//            //NOTE: next two lines depend on the 173_ri to even compile
-//            com.bea.xml.stream.ReaderToWriter rtow =
-//                new com.bea.xml.stream.ReaderToWriter(xsw);
-//            rtow.writeAll(reader);
-//
-//            xsw.close();
-//
-//            System.out.println("doc = " + sw.getBuffer());
+            StringWriter sw = new StringWriter();
+            XMLStreamWriter xsw =
+                XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+
+            //NOTE: next two lines depend on the 173_ri to even compile
+            com.bea.xml.stream.ReaderToWriter rtow =
+                new com.bea.xml.stream.ReaderToWriter(xsw);
+            rtow.writeAll(reader);
+            rtow.write(reader); //make up for bug in ReaderToWriter for now
+
+            xsw.close();
+
+            System.out.println("doc = " + sw.getBuffer());
 
         } else {
             int i = 0;
@@ -206,8 +218,7 @@ public class MarshalTests extends TestCase
         Assert.assertNotNull(unmarshaller);
 
         //TODO: remove hard coded path
-        File doc = new File("test/cases/marshal/doc.xml");
-
+        File doc = new File("test/cases/marshal/doc2.xml");
 
         final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLStreamReader xrdr =
@@ -252,50 +263,50 @@ public class MarshalTests extends TestCase
         Object obj = unmarshaller.unmarshallType(schemaType, javaType, ctx);
 
 
-        System.out.println("type obj = " + obj);
+        System.out.println("+++++TYPE obj = " + obj);
     }
 
-    public void testPerfByNameBeanUnmarshall()
-        throws Exception
-    {
-        BindingConfigDocument bcdoc = getBindingConfigDocument();
-
-        BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bcdoc);
-
-        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
-
-        Assert.assertNotNull(unmarshaller);
-
-        //TODO: remove hard coded path
-        File doc = new File("test/cases/marshal/doc.xml");
-        final FileReader fileReader = new FileReader(doc);
-        CharArrayWriter cw = new CharArrayWriter();
-
-        bufferedStreamCopy(fileReader, cw);
-        final char[] chars = cw.toCharArray();
-        final CharArrayReader cr = new CharArrayReader(chars);
-
-        final int trials = 5000;
-
-        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-
-        final long before_millis = System.currentTimeMillis();
-        for (int i = 0; i < trials; i++) {
-            cr.reset();
-            XMLStreamReader xrdr =
-                xmlInputFactory.createXMLStreamReader(cr);
-
-            Object obj = unmarshaller.unmarshal(xrdr);
-
-            if ((i % 1000) == 0)
-                System.out.println("i=" + i + "\tobj = " + obj);
-        }
-        final long after_millis = System.currentTimeMillis();
-        final long diff = (after_millis - before_millis);
-        System.out.println("milliseconds: " + diff + " trials: " + trials);
-        System.out.println("milliseconds PER trial: " + (diff / (double)trials));
-    }
+//    public void testPerfByNameBeanUnmarshall()
+//        throws Exception
+//    {
+//        BindingConfigDocument bcdoc = getBindingConfigDocument();
+//
+//        BindingContext bindingContext =
+//            BindingContextFactory.createBindingContext(bcdoc);
+//
+//        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
+//
+//        Assert.assertNotNull(unmarshaller);
+//
+//        //TODO: remove hard coded path
+//        File doc = new File("test/cases/marshal/doc.xml");
+//        final FileReader fileReader = new FileReader(doc);
+//        CharArrayWriter cw = new CharArrayWriter();
+//
+//        bufferedStreamCopy(fileReader, cw);
+//        final char[] chars = cw.toCharArray();
+//        final CharArrayReader cr = new CharArrayReader(chars);
+//
+//        final int trials = 5000;
+//
+//        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+//
+//        final long before_millis = System.currentTimeMillis();
+//        for (int i = 0; i < trials; i++) {
+//            cr.reset();
+//            XMLStreamReader xrdr =
+//                xmlInputFactory.createXMLStreamReader(cr);
+//
+//            Object obj = unmarshaller.unmarshal(xrdr);
+//
+//            if ((i % 1000) == 0)
+//                System.out.println("i=" + i + "\tobj = " + obj);
+//        }
+//        final long after_millis = System.currentTimeMillis();
+//        final long diff = (after_millis - before_millis);
+//        System.out.println("milliseconds: " + diff + " trials: " + trials);
+//        System.out.println("milliseconds PER trial: " + (diff / (double)trials));
+//    }
 
     protected static void bufferedStreamCopy(Reader in, Writer out)
         throws IOException
