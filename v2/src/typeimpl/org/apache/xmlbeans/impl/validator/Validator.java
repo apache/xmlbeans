@@ -584,10 +584,10 @@ public final class Validator
         }
 
         // note in schema spec 3.3.4, you're not even allowed to say xsi:nil="false" if you're not nillable!
-        if (hasNil && !elementField.isNillable())
+        if (hasNil && (elementField == null || !elementField.isNillable()))
         {
             emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE, null,
-                elementField.getName(), elementField.getType(), null,
+                elementField == null ? null : elementField.getName(), elementType, null,
                 XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
             _eatContent = 1;

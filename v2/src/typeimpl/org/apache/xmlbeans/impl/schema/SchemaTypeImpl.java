@@ -1668,7 +1668,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             if (impl == null) return null;
             try
             {
-                _javaImplConstructor2 = impl.getConstructor(new Class[] { SchemaType.class, boolean.class });
+                _javaImplConstructor2 = impl.getDeclaredConstructor(new Class[] { SchemaType.class, boolean.class });
             }
             catch (NoSuchMethodException e)
             {
@@ -1808,10 +1808,28 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             Constructor ctr = getJavaImplConstructor2();
             if (ctr != null)
             {
+                boolean accessible = ctr.isAccessible();
                 try
                 {
+                    ctr.setAccessible(true);
                     // System.out.println("Succeeded!");
-                    return (XmlObject)ctr.newInstance(new Object[] { sType, sType.isSimpleType() ? Boolean.FALSE : Boolean.TRUE });
+                    try
+                    {
+                        return (XmlObject)ctr.newInstance(new Object[] { sType, sType.isSimpleType() ? Boolean.FALSE : Boolean.TRUE });
+                    }
+                    catch (Exception e)
+                    {
+                        System.out.println("Exception trying to instantiate impl class.");
+                        e.printStackTrace();
+                    }
+                    finally
+                    {
+                        // Make a best-effort try to set the accessibility back to what it was
+                        try
+                        {   ctr.setAccessible(accessible); }
+                        catch (SecurityException se)
+                        { }
+                    }
                 }
                 catch (Exception e)
                 {

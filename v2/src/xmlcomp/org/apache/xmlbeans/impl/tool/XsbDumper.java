@@ -138,7 +138,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 19;
+    public static final int MINOR_VERSION = 20;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -1119,7 +1119,8 @@ public class XsbDumper
         emit("Java prop name: " + readString());
         emit("Java type code: " + jtcString(readShort()));
         emit("Type for java signature: " + readType());
-        emit("Java setter delimiter: " + qnameSetString(readQNameSet()));
+        if (atMost(2, 19, 0))
+            emit("Java setter delimiter: " + qnameSetString(readQNameSet()));
         if (atLeast(2, 16, 0))
             emit("Default value: " + readXmlValueObject());
         if (((propflags & FLAG_PROP_ISATTR) == 0) && atLeast(2, 17, 0))
