@@ -176,6 +176,7 @@ public final class DomImpl
 
     public static Dom insert ( Dom n, Dom b )
     {
+        assert b != null;
         return node_insertBefore( parent( b ), n, b );
     }
 
@@ -250,6 +251,8 @@ public final class DomImpl
 
             // TODO -- traverse the entity tree, making sure that there are
             // only entity refs and text nodes in it.
+
+            break;
         }
             
         case DOCFRAG   :
@@ -671,6 +674,9 @@ public final class DomImpl
     
     public static Dom node_getOwnerDocument ( Dom n )
     {
+        if (n.nodeType() == DOCUMENT)
+            return null;
+        
         Locale l = n.locale();
 
         if (l._ownerDoc == null)
@@ -991,7 +997,10 @@ public final class DomImpl
         Locale l = p.locale();
 
         if (newChild == null)
-            throw new NotFoundErr( "Child to add is null" );
+            throw new IllegalArgumentException( "Child to add is null" );
+
+        if (oldChild == null)
+            throw new NotFoundErr( "Child to replace is null" );
 
         Dom nc;
 
@@ -1001,7 +1010,7 @@ public final class DomImpl
         Dom oc = null;
 
         if (!(oldChild instanceof Dom) || (oc = (Dom) oldChild).locale() != l)
-            throw new WrongDocumentErr( "Chidl to replace is from another document" );
+            throw new WrongDocumentErr( "Child to replace is from another document" );
 
         Dom d;
 
@@ -1029,7 +1038,7 @@ public final class DomImpl
         Locale l = p.locale();
 
         if (newChild == null)
-            throw new NotFoundErr( "Child to add is null" );
+            throw new IllegalArgumentException( "Child to add is null" );
 
         Dom nc;
         
@@ -1071,7 +1080,12 @@ public final class DomImpl
             for ( Dom c = firstChild( nc ) ; c != null ;  )
             {
                 Dom n = nextSibling( c );
-                insert( c, rc );
+
+                if (rc == null)
+                    append( c, p );
+                else
+                    insert( c, rc );
+                
                 c = n;
             }
             
@@ -1252,12 +1266,12 @@ public final class DomImpl
         {
         case DOCUMENT :
         case DOCFRAG :
+        case ATTR :
             break;
             
         case PROCINST :
         case COMMENT :
         case ELEMENT :
-        case ATTR :
         {
             if (!(c = n.tempCur()).toParentRaw())
             {
@@ -1554,7 +1568,14 @@ public final class DomImpl
     {
         // TODO - horribly inefficient impl .. make this O(1)
 
-        Dom c = firstChild( parent( n ) );
+        Dom p = parent( n );
+
+        if (p == null)
+            return null;
+
+        Dom c = firstChild( p );
+
+        assert c != null;
 
         if (c == n)
             return null;
@@ -2311,7 +2332,8 @@ public final class DomImpl
 
     public static String _node_getLocalName ( Dom n )
     {
-        return n.qName().getLocalPart();
+        QName name = n.qName();
+        return name == null ? "" : name.getLocalPart();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2320,8 +2342,9 @@ public final class DomImpl
 
     public static String _node_getNamespaceURI ( Dom n )
     {
+        QName name = n.qName();
         // TODO - should return the correct namespace for xmlns ...
-        return n.qName().getNamespaceURI();
+        return name == null ? "" : name.getNamespaceURI();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2339,7 +2362,8 @@ public final class DomImpl
 
     public static String _node_getPrefix ( Dom n )
     {
-        return n.qName().getPrefix();
+        QName name = n.qName();
+        return name == null ? "" : name.getPrefix();
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2413,6 +2437,9 @@ public final class DomImpl
     
     public static void node_setNodeValue ( Dom n, String nodeValue )
     {
+        if (nodeValue == null)
+            nodeValue = "";
+        
         switch ( n.nodeType() )
         {
             case TEXT :
@@ -2661,7 +2688,7 @@ public final class DomImpl
     {
         String s = _characterData_getData( c );
 
-        if (offset > s.length() || count < 0)
+        if (offset < 0 || offset > s.length() || count < 0)
             throw new IndexSizeError();
 
         if (offset + count > s.length())
@@ -2697,7 +2724,7 @@ public final class DomImpl
     {
         String s = _characterData_getData( c );
         
-        if (offset > s.length())
+        if (offset < 0 || offset > s.length())
             throw new IndexSizeError();
 
         if (arg != null && arg.length() > 0)
@@ -2712,7 +2739,7 @@ public final class DomImpl
     {
         String s = _characterData_getData( c );
 
-        if (offset > s.length() || count < 0)
+        if (offset < 0 || offset > s.length() || count < 0)
             throw new IndexSizeError();
 
         if (offset + count > s.length())
@@ -2745,7 +2772,7 @@ public final class DomImpl
         if (offset > s.length() || count < 0)
             throw new IndexSizeError();
 
-        if (offset + count > s.length())
+        if (offset < 0 || offset + count > s.length())
             count = s.length() - offset;
 
         return s.substring( offset, offset + count );
@@ -2761,7 +2788,7 @@ public final class DomImpl
         
         String s = _characterData_getData( t );
 
-        if (offset > s.length())
+        if (offset < 0 || offset > s.length())
             throw new IndexSizeError();
 
         _characterData_deleteData( t, offset, s.length() - offset );
