@@ -92,7 +92,7 @@ public abstract class BindingContextFactory
   public BindingContext createBindingContext(URI[] tylarUris)
     throws IOException, XmlException {
     URL[] urls = new URL[tylarUris.length];
-    for(int i=0; i<urls.length; i++) urls[i] = new URL(tylarUris.toString());
+    for(int i=0; i<urls.length; i++) urls[i] = new URL(tylarUris[i].toString());
     return createBindingContext(urls);
   }
 
