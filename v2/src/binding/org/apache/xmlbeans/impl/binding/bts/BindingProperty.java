@@ -224,4 +224,9 @@ public abstract class BindingProperty
         registerClassAndType(QNameProperty.class, org.apache.xml.xmlbeans.bindingConfig.QnameProperty.type);
         registerClassAndType(ParticleProperty.class, org.apache.xml.xmlbeans.bindingConfig.ParticleProperty.type);
     }
+
+    public String toString()
+    {
+        return getClass().getName() + " [" + getGetterName().getSimpleName() + "]";
+    }
 }

@@ -350,17 +350,21 @@ public class Both2Bind implements BindingFileResult
                                         "Both " + scratch.getJavaName() + " and " + ((Scratch)scratchFromXmlName.get(scratch.getXmlName())).getJavaName() + " match Schema " + scratch.getXmlName());
             }
             
-            if (!scratchFromJavaName.containsKey(scratch.getJavaName()))
-                scratchFromJavaName.put(scratch.getJavaName(), scratch);
-            else
+            // only non-document types are uniquified
+            if (!scratch.getSchemaType().isDocumentType())
             {
-                skip = true;
-                addError(new Object[] { scratch.getSchemaType(),
-                                        ((Scratch)scratchFromJavaName.get(scratch.getJavaName())).getSchemaType(),
-                                        scratch.getJClass() },
-                                        "Both " + scratch.getXmlName() + " and " + ((Scratch)scratchFromJavaName.get(scratch.getJavaName())).getXmlName() + " match Java " + scratch.getJavaName());
+                if (!scratchFromJavaName.containsKey(scratch.getJavaName()))
+                    scratchFromJavaName.put(scratch.getJavaName(), scratch);
+                else
+                {
+                    skip = true;
+                    addError(new Object[] { scratch.getSchemaType(),
+                                            ((Scratch)scratchFromJavaName.get(scratch.getJavaName())).getSchemaType(),
+                                            scratch.getJClass() },
+                                            "Both " + scratch.getXmlName() + " and " + ((Scratch)scratchFromJavaName.get(scratch.getJavaName())).getXmlName() + " match Java " + scratch.getJavaName());
+                }
             }
-            
+
             if (!skip)
                 queueToResolve(scratch);
         }
