@@ -98,6 +98,10 @@ public class ComplexContentExtensionTest extends BaseCase {
         assertEquals(new BigInteger("10"), elt.getChild1());
         assertEquals("foobar", elt.getChild2Array()[0]);
         elt.unsetChild1();
+
+        XmlInteger expected = XmlInteger.Factory.newInstance();
+        expected.setBigIntegerValue(BigInteger.ONE);
+        assertTrue( expected.valueEquals(elt.xgetChild3Array()[0]) );
         elt.removeExtraEltInt(0);
         elt.removeChild2(0);
         clearErrors();
@@ -111,21 +115,18 @@ public class ComplexContentExtensionTest extends BaseCase {
         }
 
 
-        XmlInteger expected = XmlInteger.Factory.newInstance();
-        expected.setBigIntegerValue(BigInteger.ONE);
-        assertEquals(expected, elt.xgetChild3Array()[0]);
+
+         elt.addExtraEltInt(3);
         expected.setBigIntegerValue(BigInteger.ZERO);
-        assertEquals(expected, elt.xgetChild3Array()[1]);
-        assertEquals(3, elt.getExtraEltIntArray()[0]);
+        assertTrue( expected.valueEquals(elt.xgetChild3Array()[1]) );
+          assertEquals(3, elt.getExtraEltIntArray()[0]);
         assertEquals(3, elt.getExtraEltIntArray(0));
         clearErrors();
         assertTrue(!doc.validate(validateOptions));
                            showErrors();
                     errExpected = new String[]{
-                         XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
-                          XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
                          XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED
-                     };
+                        };
                                   assertTrue(compareErrorCodes(errExpected));
         elt.removeExtraEltInt(0);
         try {
@@ -137,9 +138,9 @@ public class ComplexContentExtensionTest extends BaseCase {
         }
         XmlString expected1 = XmlString.Factory.newInstance();
         expected1.setStringValue("extra1");
-        assertEquals(expected1, elt.xgetExtraEltStrArray(0));
+        assertTrue( expected1.valueEquals(elt.xgetExtraEltStrArray(0)) );
         expected1.setStringValue("extra2");
-        assertEquals(expected1, elt.xgetExtraEltStrArray()[1]);
+        assertTrue( expected1.valueEquals(elt.xgetExtraEltStrArray()[1]) );
 
     }
 

@@ -87,7 +87,7 @@ public class BaseCase extends TestCase {
     public String stringOfCodes(String[] errorCodes, ArrayList actual_errorCodes)
     {
         StringBuffer res=new StringBuffer();
-        res.append("\n Expected codes(from LTGfmt file):\n");
+        res.append("\n Expected codes:\n");
         int i=0;
         for (;i < errorCodes.length; i++ )
             res.append( errorCodes[i]+"\n" );

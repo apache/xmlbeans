@@ -144,15 +144,15 @@ public class KeyKeyref extends BaseCase {
      */
     public void testKeyIllegal() throws Throwable {
         String input =
-                "<KeyProductList xmlns=\"http://xbean/scomp/idConstraint/Constraint\">" +
-                " <product>" +
-                " <id>FooBarChart</id>" +
-                "</product>" +
-                "<product>" +
-                " <department name=\"7345\"/>" +
-                " <id>FooBarChart</id>" +
-                "</product>" +
-                "</KeyProductList>";
+                "<xs:KeyProductList xmlns:xs=\"http://xbean/scomp/idConstraint/Constraint\">" +
+                " <xs:product>" +
+                " <xs:id>FooBarChart</xs:id>" +
+                "</xs:product>" +
+                "<xs:product>" +
+                " <xs:department xs:name=\"7345\"/>" +
+                " <xs:id>FooBarChart</xs:id>" +
+                "</xs:product>" +
+                "</xs:KeyProductList>";
 
         KeyProductListDocument doc = KeyProductListDocument.Factory.parse(input);
 

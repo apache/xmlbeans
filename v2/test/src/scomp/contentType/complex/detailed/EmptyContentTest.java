@@ -48,8 +48,7 @@ public class EmptyContentTest extends BaseCase {
         expected1.setStringValue("foobar");
 
         System.out.println( expected.equals(expected1));
-       //ERIC says this is a    BUG
-        assertEquals( expected , elt.xgetEmptyAttr());
+       assertTrue( expected.valueEquals(elt.xgetEmptyAttr()) );
 
         elt.unsetEmptyAttr();
         assertTrue(!elt.isSetEmptyAttr());

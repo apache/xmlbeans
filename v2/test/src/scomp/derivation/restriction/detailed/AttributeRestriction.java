@@ -50,7 +50,7 @@ public class AttributeRestriction extends BaseCase {
         assertEquals("b", elt.getB());
        XmlString expected=XmlString.Factory.newInstance();
        expected.setStringValue("c2");
-        assertEquals(expected, elt.xgetC());
+        assertTrue ( expected.valueEquals(elt.xgetC()) );
     }
 
     public void testAttributeDEF() throws Throwable {

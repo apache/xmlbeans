@@ -17,6 +17,7 @@ package scomp.attributes.detailed;
 import scomp.common.BaseCase;
 import xbean.scomp.attribute.localAttrFixedDefault.LocalAttrFixedDefaultT;
 import xbean.scomp.attribute.localAttrFixedDefault.LocalAttrFixedDefaultDocument;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -37,16 +38,16 @@ public class LocalAttrFixedDefault extends BaseCase {
                  .addNewLocalAttrFixedDefault();
          assertTrue(testDoc.validate());
         assertEquals(2,testDoc.getAttDefault().intValue());
-        //what does it mean "to add a fixed value"?
-        //in either case, the second case should be valid
+        //second fixed value is ignored
         testDoc.setAttFixed("NEWXBeanAttrStr");
-        try {
-            assertTrue(testDoc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
+        assertTrue(!testDoc.validate(validateOptions));
+        showErrors();
+               String[] errExpected = new String[]{
+                   XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED             
+               };
+                    assertTrue(compareErrorCodes(errExpected));
+
+
         testDoc.setAttFixed("XBeanAttrStr");
           try {
             assertTrue(testDoc.validate(validateOptions));

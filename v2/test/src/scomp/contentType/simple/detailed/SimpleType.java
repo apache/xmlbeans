@@ -16,6 +16,7 @@ package scomp.contentType.simple.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -29,13 +30,18 @@ public class SimpleType extends BaseCase {
         //size> max inclusive
         assertTrue(!size.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
         size.setPantSizeElt(-1);
         showErrors();
+        clearErrors();
         assertTrue(!size.validate(validateOptions));
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 

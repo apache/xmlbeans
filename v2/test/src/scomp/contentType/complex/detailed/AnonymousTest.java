@@ -70,13 +70,20 @@ public class AnonymousTest extends BaseCase {
         assertEquals(null, testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         assertEquals(5, testElt.getChild2().intValue());
-        assertEquals(
-                XmlInteger.Factory.parse("<xml-fragment>5</xml-fragment>"),
-                testElt.xgetChild2());
+        assertTrue(
+                XmlInteger.Factory.parse("<xml-fragment>5</xml-fragment>")
+                    .valueEquals(
+                        testElt.xgetChild2())
+        );
         XmlCursor cur = testElt.newCursor();
+        cur.toFirstContentToken();
         cur.insertChars("Random mixed content");
         testElt.setChild3(new BigInteger("1"));
-        assertEquals("", testElt.xmlText());
+        assertEquals("<xml-fragment>Random mixed content" +
+                "<child2>5</child2>" +
+                "<child3>1</child3>" +
+                "</xml-fragment>",
+                testElt.xmlText());
 
         testElt.xsetChild2(XmlInteger.Factory.parse("3"));
         assertEquals("", testElt.xmlText());
