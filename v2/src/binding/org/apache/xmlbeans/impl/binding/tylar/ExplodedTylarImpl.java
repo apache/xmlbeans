@@ -131,13 +131,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
         if (VERBOSE) System.out.println
           ("[XBEANS] loaded schema type system '"+stsName+"'");
       } catch(Exception e) {
-        System.out.println
-          ("[XBEANS] Notice: an unexpected error occurred while trying to read\n " +
-           "a binary version of your schemas from "+dir+".\n"+
-           "Your bindings were still loaded, but you may have suffered some " +
-           "performance degradation if your schemas are very large or " +
-           "complicated.\n"+e.getMessage());
-        if (SHOW_XSB_ERRORS) e.printStackTrace();
+        showXsbError(e,dir.toURI(),"read",TylarConstants.SHOW_XSB_ERRORS);
       }
     }
 
@@ -192,12 +186,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
                                          mRootDir,
                                          null,null,null);
     } catch(Exception e) {
-      System.out.println
-        ("[XBEANS] Notice: an unexpected error occurred while trying to save\n " +
-         "a binary version of your schemas.  Your bindings are still\n "+
-         "ok, but you may suffer some performance degradation if your schemas\n "+
-         "are very large or complicated.\n"+e.getMessage());
-      if (VERBOSE) e.printStackTrace();
+      showXsbError(e,mRootDir.toURI(),"write",TylarConstants.SHOW_XSB_ERRORS);
     }
   }
 
@@ -207,6 +196,26 @@ public class ExplodedTylarImpl extends BaseTylarImpl
 
   public void close() throws IOException {
     if (mJoust != null) mJoust.close();
+  }
+
+
+  // ========================================================================
+  // Public static methods
+
+  public static void showXsbError(Throwable e,
+                                  URI where,
+                                  String readOrWrite,
+                                  boolean showTrace)
+  {
+    System.out.println
+      ("[XBEANS] Notice: an unexpected error occurred while trying to\n "+
+       readOrWrite+" a binary version of your schemas"+
+       ((where == null) ? "." : " at\n"+where+"\n")+
+       "\nYour bindings are ok, but you may suffer some performance\n" +
+       "degradation if your schemas are very large or complicated.\n"+
+       "(exception is "+e.getClass()+", message is '"+e.getMessage()+"'");
+    if (showTrace) e.printStackTrace();
+    System.out.flush();
   }
 
   // ========================================================================

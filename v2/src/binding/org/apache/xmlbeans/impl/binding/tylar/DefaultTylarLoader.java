@@ -212,13 +212,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
           if (sts == null) throw new IllegalStateException("null returned by SchemaTypeSystemImpl.forName()");
           if (VERBOSE) System.out.println("successfully loaded schema type system");
         } catch(Exception e) {
-          System.out.println
-            ("[XBEANS] Notice: an unexpected error occurred while trying to read\n " +
-             "a binary version of your schemas from "+source+".\n"+
-             "Your bindings were still loaded, but you may have suffered some " +
-             "performance degradation if your schemas are very large or " +
-             "complicated.\n"+e.getMessage());
-          if (SHOW_XSB_ERRORS) e.printStackTrace();
+          ExplodedTylarImpl.showXsbError(e,source,"read",TylarConstants.SHOW_XSB_ERRORS);
         }
       }
     }
