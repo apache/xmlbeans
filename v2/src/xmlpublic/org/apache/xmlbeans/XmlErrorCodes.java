@@ -286,6 +286,12 @@ public abstract class XmlErrorCodes
     public static final String ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_RESTRICTION = "cvc-elt.4.3c";
 
     /**
+     * cvc-elt.5.2.2.1: See clause 5.2.2.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
+     */
+    public static final String ELEM_LOCALLY_VALID$FIXED_WITH_CONTENT = "cvc-elt.5.2.2.1";
+
+    /**
      * cvc-elt.5.2.2.2.1: See clause 5.2.2.2.1 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
      */
@@ -1088,6 +1094,12 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cos-valid-default">XMLSchema Structures 1.0: Element Default Valid (Immediate)</a>
      */
     public static final String ELEM_DEFAULT_VALID$SIMPLE_TYPE_OR_MIXED = "cos-valid-default.2.1";
+
+    /**
+     * cos-valid-default.2.2.2: See clause 2.2.2 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cos-valid-default">XMLSchema Structures 1.0: Element Default Valid (Immediate)</a>
+     */
+    public static final String ELEM_DEFAULT_VALID$MIXED_AND_EMPTIABLE = "cos-valid-default.2.2.2";
 
     /**
      * ct-props-correct: See

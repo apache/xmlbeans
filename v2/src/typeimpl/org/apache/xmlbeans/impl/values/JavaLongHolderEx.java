@@ -86,7 +86,7 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
             if (len > m)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
-                    new Object[] { temp, new Long(m), QNameHelper.readable(sType) });
+                    new Object[] { new Integer(len), temp, new Long(m), QNameHelper.readable(sType) });
                 return;
             }
         }

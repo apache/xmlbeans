@@ -86,7 +86,7 @@ public abstract class JavaIntHolderEx extends JavaIntHolder
             if (len > m)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
-                    new Object[] { temp, new Integer(getIntValue(td)), QNameHelper.readable(sType) });
+                    new Object[] { new Integer(len), temp, new Integer(getIntValue(td)), QNameHelper.readable(sType) });
                 return;
             }
         }

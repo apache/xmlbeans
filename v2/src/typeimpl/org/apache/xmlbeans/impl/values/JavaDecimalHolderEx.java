@@ -91,7 +91,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             if (v.scale() > scale)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID,
-                    new Object[] { new Integer(v.scale()), new Integer(scale), QNameHelper.readable(sType) });
+                    new Object[] { new Integer(v.scale()), v, new Integer(scale), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -108,7 +108,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
             if (len > tdf)
             {
                 context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
-                    new Object[] { temp, new Integer(tdf), QNameHelper.readable(sType) });
+                    new Object[] { new Integer(len), temp, new Integer(tdf), QNameHelper.readable(sType) });
                 return;
             }
         }

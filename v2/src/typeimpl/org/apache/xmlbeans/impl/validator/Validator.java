@@ -59,6 +59,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.XmlString;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -280,6 +281,14 @@ public final class Validator
 
                 _eatContent = 1;
                 return;
+            }
+
+            if (!state._isNil && state._field != null && state._field.isFixed())
+            {
+                emitFieldError(event, XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_WITH_CONTENT,
+                    new Object[] { QNameHelper.pretty(state._field.getName()) },
+                    state._field.getName(), state._type, null,
+                    XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
             }
 
             if (!state.visit( name ))
@@ -820,6 +829,19 @@ public final class Validator
 
                 _constraintEngine.text( event, state._type, value, false );
             }
+            else if (state._canHaveMixedContent)
+            {
+                // handles cvc-elt.5.2.2.2.1, checking mixed content against fixed.
+                // if we see <mixedType>a</b>c</mixedType>, we validate against
+                // the first 'a' text and we check the content of mixedType to
+                // be empty in beginElem().  we don't care about checking against
+                // the 'c' text since there will already be an error for <b/>
+                String value =
+                    validateSimpleType(
+                        XmlString.type, field, event, emptyContent, true );
+
+                _constraintEngine.text( event, XmlString.type, value, false );
+            }
             else if (emptyContent)
             {
                 _constraintEngine.text( event, state._type, null, true );
@@ -849,7 +871,6 @@ public final class Validator
             }
             else
             {
-                // BUGBUG: can this happen?  if not a SchemaLocalElement it should be an attribute, right?
                 // KHK: cvc-complex-type.2.1 or .2.3
                 // todo (dutta) offendingQName = not sure how to get this(event.getName()??);
                 emitError(event, "Can't have mixed content", event.getName(),
@@ -1165,7 +1186,7 @@ public final class Validator
                     String errorCode = null;
 
                     // see rule 5 of cvc-elt: Element Locally Valid (Element)
-                    if (type.getContentType() == SchemaType.MIXED_CONTENT)
+                    if (field.getType().getContentType() == SchemaType.MIXED_CONTENT)
                         errorCode = XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT;
                     else if (type.isSimpleType())
                         errorCode = XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE;
