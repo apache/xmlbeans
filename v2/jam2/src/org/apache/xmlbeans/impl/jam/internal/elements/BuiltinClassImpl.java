@@ -133,6 +133,11 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public EMethod addNewMethod() { nocando(); return null; }
   public void removeMethod(EMethod method) { nocando(); }
   public void setModifiers(int modifiers) { nocando(); }
+  public JProperty addNewProperty(String name, EMethod m, EMethod x) {
+    nocando();
+    return null;
+  }
+  public void removeProperty(JProperty prop) { nocando(); }
 
   // ========================================================================
   // Object implementation

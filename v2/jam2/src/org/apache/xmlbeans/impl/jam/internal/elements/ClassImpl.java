@@ -40,7 +40,6 @@ public class ClassImpl extends MemberImpl implements EClass,
   // Variables
 
   private boolean mIsAnnotationType = false;
-  private boolean mIsUnresolved = false;
   private boolean mIsInterface = false;
   private String mPackageName = null;
 
@@ -50,6 +49,7 @@ public class ClassImpl extends MemberImpl implements EClass,
   private ArrayList mFields = null;
   private ArrayList mMethods = null;
   private ArrayList mConstructors = null;
+  private ArrayList mProperties = null;
 
   private String[] mImports = null;
 
@@ -118,7 +118,10 @@ public class ClassImpl extends MemberImpl implements EClass,
   }
 
   public JProperty[] getProperties() {
-    throw new IllegalStateException("NYI");//FIXME
+    if (mProperties == null) return new JProperty[0];
+    JProperty[] out = new JProperty[mProperties.size()];
+    mProperties.toArray(out);
+    return out;
   }
 
   public JMethod[] getDeclaredMethods() { return getEditableMethods(); }
@@ -178,10 +181,10 @@ public class ClassImpl extends MemberImpl implements EClass,
     throw new UnsupportedOperationException("Class names cannot be changed");
   }
 
-  public Class getPrimitiveClass() { return null; }
-  public boolean isPrimitiveType() { return false; }
-  public boolean isBuiltinType() { return false; }
-  public boolean isVoidType() { return false; }
+  public Class getPrimitiveClass()  { return null; }
+  public boolean isPrimitiveType()  { return false; }
+  public boolean isBuiltinType()    { return false; }
+  public boolean isVoidType()       { return false; }
   public boolean isUnresolvedType() { return false; }
   public boolean isObjectType() {
     return getQualifiedName().equals("java.lang.Object");
@@ -306,11 +309,21 @@ public class ClassImpl extends MemberImpl implements EClass,
     return out;
   }
 
+  public JProperty addNewProperty(String name, EMethod getter, EMethod setter) {
+    if (mProperties == null) mProperties = new ArrayList();
+    JProperty out = new PropertyImpl(name,getter,setter,
+                                     getter.getReturnType().getQualifiedName());
+    mProperties.add(out);
+    return out;
+  }
+
+  public void removeProperty(JProperty p) {
+    if (mProperties != null) mProperties.remove(p);
+  }
+
   public void setIsInterface(boolean b) { mIsInterface = b; }
 
   public void setIsAnnotationType(boolean b) { mIsAnnotationType = b; }
-
-  public void setIsUnresolved(boolean b) { mIsUnresolved = b; }
 
   public String getQualifiedName() {
     return mPackageName+ '.' +getSimpleName();

@@ -81,10 +81,8 @@ public class JamClassLoaderImpl implements JamClassLoader {
     }
     out = mBuilder.build(pkg,name);
     if (out == null) {
-      out = new ClassImpl(pkg,name,mContext,null);
-      ((ClassImpl)out).setIsUnresolved(true);
-      mContext.debug("[JamClassLoaderImpl] unresolved class '"+
-        pkg+" "+name+"'!!");
+      out = new UnresolvedClassImpl(pkg,name,mContext);
+      mContext.debug("unresolved class '"+pkg+" "+name);
     }
     if (mInitializer != null) out.acceptAndWalk(mInitializer);
     mFd2ClassCache.put(fd,out);

@@ -22,17 +22,17 @@ public abstract interface JAnnotatedElement extends JElement {
 
   /**
    * <p>Returns the JAnnotation which is being proxied by the given subclass
-   * of CustomAnnotationProxyBase, or null if no such annotation exists.  If it
+   * of TypedAnnotationProxyBase, or null if no such annotation exists.  If it
    * does exist, the <code>getProxy()</code> method on the returned
    * object is guaranteed to return be an instance of the proxyClass.</p>
    *
    * @throws IllegalArgumentException if the proxyClass parameter is null
-   * or not a subclass of <code>CustomAnnotationProxyBase</code>.
+   * or not a subclass of <code>TypedAnnotationProxyBase</code>.
    */
   public JAnnotation getAnnotation(Class proxyClass);
 
   /**
-   * <p>Returns an instance of CustomAnnotationProxyBase on this elements for which the given
+   * <p>Returns an instance of TypedAnnotationProxyBase on this elements for which the given
    * proxy class has been established.  This method is guaranteed to
    * return either an instance of the given proxyClass or null.</p>
    *

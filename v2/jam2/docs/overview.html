@@ -37,7 +37,7 @@
     process them sans comments when you only have classfiles?  One approach
     would be to write one version of your program's logic that works
     against the Reflection API, and another that works with Javadoc's
-    Doclet API.  That seems rather painful, though- isn't there a better 
+    Doclet API.  But that seems rather painful - isn't there a better 
     way?
   </p>
 
@@ -47,12 +47,13 @@
   <p>
     JAM solves this (and many other problems, as we will see) by creating 
     an insulating layer between your code and the real artifacts which
-    describe the java types code needs to view.  The JAM API was designed
-    from the ground up to allow your code to be completely <i>artifact 
-    agnostic</i>.  That is to say, JAM provides a set of abstractions which
-    isolate your java type-inspecting code from the structures that it
-    is actually looking  at.  This means that you get a single API with 
-    which you can view java sources and classfiles.
+    describe the java types your code needs to view.  The JAM API was
+    designed from the ground up to allow you to write code that is
+    completely <i>artifact agnostic</i> when inspecting java types. 
+    That is to say, JAM provides a set of
+    abstractions which isolate your java type-inspecting code from the
+    files that it is actually looking  at.  This means that you get a
+    single API with which you can view java sources and classfiles.
   </p>
 
   <p>
@@ -86,14 +87,14 @@
 
   <p>
     Even though this is an extremely simple example, consider how much
-    trouble it could save you in a complex application composed of serveral
-    subsystems.  Say that those subsystems need to pass java types around
-    among themselves, and that we need them to use default comments.  If
-    we don't have JAM, we're going to have to write special logic in each 
-    subsystem to generate default comments when appropriate.  However, with 
-    JAM, we only have to write one bit of code that weaves those comments
-    into out proxied view of the Java classes.  Those subsytems that are
-    consuming this view need be none the wiser.
+    trouble it might save you in a complex application composed of serveral
+    subsystems.  Say that those subsystems who ask each other to do things
+    using java types that they pass around, and that we need them to use
+    default comments.  If we don't have JAM, we're going to have to write
+    special logic in each subsystem to generate default comments when
+    appropriate.  However, with JAM, we only have to write one bit of code
+    that weaves those comments into out proxied view of the Java classes.
+    Those subsytems that are consuming this view need be none the wiser.
   </p>
 
 
@@ -130,33 +131,51 @@
     </ul>
   </p>
   <p>
-    These fortunate developers can start with a clean slate with JDK 1.5,
-    support JSR 175 and not worry about anything.  (However, there are
-    still a <a href='typedMetadata.html'>a number of reasons</a> 
-    why even they should consider using JAM).
+    If you are fortunate enough to be one of these developers,
+    you get to start with a clean slate with JDK 1.5, use JSR175,
+    and not worry about anything.  (Well, not quite - there actually are
+    still a <a href='typedMetadata.html'>a number of reasons</a> why
+    even you should consider using JAM for metadata access).
   </p>
 
   <p>
-    For everyone else, though, it's going to be a big problem, and will
+    For everyone else, though, it's going to be a big problem, and it will
     continue to be a problem for the forseeable future.  Developers who
     need to support JSR175 metadata under 1.5 while continuing to support
     older javadoc-style annotations under 1.4 face a daunting task.  
-    They must be able to
-    retrieve very different metadata structures from different APIs.  They
+    They must be able to retrieve very 
+    different metadata structures from different APIs.  They
     must then somehow structure their program code to respond appropriately
-    to either kind.
+    (and consistently) in either case.
   </p>
 
   <p>
-    JAM's extensibility can help in a big way here by giving your code a
-    view of java metadata that looks the same whether it is really 
-    javadoc- or JSR175-based.  JAM includes a specialized extension 
-    mechanism that allows you to customize how tag and JSR175 annotation
-    values are mapped into your annotation proxy.  It will even let you
-    define strongly-typed proxies so that you can have the kind of 
-    bean-like access to your metadata that JSR175 has.  The difference with
-    JAM is that your code will still understand javadoc tags, and it will
-    still run under JRE 1.4.
+    JAM's extensibility can help in a big way here.  Remember how JAM
+    lets you be agnostic about whether you were looking at a source-
+    or class file?  Well, exactly the same principle can be brought to bear
+    on other kinds of artifacts.  As before, we want to have unified
+    view of two kinds of artifacts (javadoc tags and JSR175 annotations) 
+    that really mean the same thing to our code.  JAM can give you a
+    unified view of your java metadata, one that looks the same whether 
+    it is javadoc- or JSR175-based.  
+  </p>
+
+  <p>
+    Unless your metadata is very simple, JAM will probably need a little
+    bit of help from you to do this correctly.  JAM's specialized 
+    extension mechanism for annotations allows you to easily customize how
+    tag and JSR175 annotation values are mapped into the JAM object that
+    will act as a proxy for your metadta.  In this way, the 
+    mapping logic remains encapsulated, away from the parts of your code
+    that are actually trying to do something interesting with the metadata.
+  </p>
+
+  <p>
+    JAM will even let you define strongly-typed proxies so that you can get
+    the same kind of bean-like access to your metadata that JSR175 offers.
+    The big difference is that with JAM, your code will be able to
+    transparently understand javadoc tags and it will still run under 
+    JRE 1.4.
   </p>
 
 <h3>Conclusion</h3>

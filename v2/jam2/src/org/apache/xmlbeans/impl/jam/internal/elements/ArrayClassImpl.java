@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JElement;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.JProperty;
 
 import java.io.StringWriter;
 
@@ -142,5 +143,6 @@ public final class ArrayClassImpl extends BuiltinClassImpl {
     }
     return out.toString();
   }
+
 
 }

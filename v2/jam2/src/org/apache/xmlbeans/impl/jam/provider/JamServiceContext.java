@@ -122,7 +122,7 @@ public interface JamServiceContext extends JamLogger {
   // killme
 
   /**
-   * <p>Returns a subclass of CustomAnnotationProxyBase that should be instantiated
+   * <p>Returns a subclass of TypedAnnotationProxyBase that should be instantiated
    * and used to proxy annotation metadata when no registered proxy is
    * available.  By default, this is DefaultAnnotationProxy.class, though
    * the user can override this if, for example, they need to change the
