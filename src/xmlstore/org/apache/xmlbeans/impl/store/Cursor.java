@@ -2071,7 +2071,7 @@ public final class Cursor implements XmlCursor, ChangeListener
             if (getPos() > 0 || !s.isContainer())
                 throw new IllegalStateException( "Not on a container" );
     
-            return s.namespaceForPrefix( prefix );
+            return s.namespaceForPrefix( prefix, true );
         }
     }
 

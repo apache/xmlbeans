@@ -2587,4 +2587,65 @@ public class StoreTests extends TestCase
 
         Assert.assertTrue( x1.xmlText().equals( x2.xmlText() ) );
     }
+
+    public void testAdditionalNamespaces()
+        throws Exception
+    {
+        String xml = "<a xmlns:a='aNS'><a:b/></a>";
+
+        Map map = new java.util.LinkedHashMap();
+        map.put("b", "bNS");
+        map.put("c", "cNS");
+        map.put("a", "not-aNS");
+
+        XmlOptions options = new XmlOptions();
+        options.setLoadAdditionalNamespaces(map);
+
+        XmlObject x = XmlObject.Factory.parse(xml, options);
+
+        // 'a' prefix namespace is not remapped
+        String expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns:a=\"aNS\"><a:b/></a>";
+        Assert.assertEquals( expect, x.xmlText() );
+
+        xml = "<a xmlns='aNS'><b/></a>";
+
+        map = new java.util.LinkedHashMap();
+        map.put("b", "bNS");
+        map.put("c", "cNS");
+        map.put("", "not-aNS");
+
+        options = new XmlOptions();
+        options.setLoadAdditionalNamespaces(map);
+
+        x = XmlObject.Factory.parse(xml, options);
+
+        // default namespace is not remapped
+        expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns=\"aNS\"><b/></a>";
+        Assert.assertEquals( expect, x.xmlText() );
+
+    }
+
+    public void testCR135193()
+        throws Exception
+    {
+        String xml = "<a xmlns='aNS' xmlns:b='bNS'><b><c/></b></a>";
+
+        XmlObject x = XmlObject.Factory.parse(xml);
+
+        // get an XMLInputStream and move to XMLEvent.START_ELEMENT for 'b'
+        XmlCursor c = x.newCursor();
+        XMLInputStream xis = c.newXMLInputStream();
+        c.dispose();
+        while (xis.hasNext() && xis.next().getType() != XMLEvent.START_ELEMENT) {
+        }
+
+        // reparse from 'b' element using an sub-XMLInputStream
+        XMLInputStream xis1 = xis.getSubStream();
+        XmlObject x1 = XmlObject.Factory.parse(xis1);
+
+        // CR135193: namespaces including default are set on the 'b' child
+        String expect = "<b xmlns=\"aNS\" xmlns:b=\"bNS\"><c/></b>";
+        Assert.assertEquals( expect, x1.xmlText() );
+    }
+
 }

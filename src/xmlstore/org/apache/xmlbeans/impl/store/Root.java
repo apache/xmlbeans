@@ -1379,7 +1379,7 @@ public final class Root extends Finish implements XmlStore
                         String namespace =
                             (String) _additionalNamespaces.get( prefix );
 
-                        if (s.namespaceForPrefix( prefix ) == null)
+                        if (s.namespaceForPrefix( prefix, false ) == null)
                         {
                             _root.insertSingleSplaySansSplayInLeftOnlyTree(
                                 new Xmlns( new QName( namespace, prefix ) ),
@@ -1397,7 +1397,7 @@ public final class Root extends Finish implements XmlStore
             // loading.  When finished loading, bump it.
 
             _root.invalidateVersion();
-
+            
             assert _root.isLeftOnly();
         }
 
