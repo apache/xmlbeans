@@ -252,7 +252,16 @@ public class XMLBean extends MatchingTask
                 javac.setExecutable(forkedExecutable);
                 javac.setFailonerror(failonerror);
                 javac.setFork(fork);
-                if (source != null) javac.setSource(source);
+                if (source != null)
+                {
+                    javac.setSource(source);
+                    javac.setTarget(source);
+                }
+                else
+                {
+                    javac.setSource("1.4");
+                    javac.setTarget("1.4");
+                }
                 javac.setIncludeantruntime(includeAntRuntime);
                 javac.setIncludejavaruntime(includeJavaRuntime);
                 javac.setSrcdir(new Path(project, srcgendir.getAbsolutePath()));
