@@ -87,6 +87,13 @@ public interface JavaOutputStream {
           throws IOException;
 
   /**
+   * Instructs the stream to begin writing a static initialization block.
+   * @throws IllegalStateException if the current position is not valid for
+   *         starting a static initialization block.
+   */
+  public void startStaticInitializer() throws IOException;
+
+  /**
    * Instructs the stream to begin writing a new interface.
    *
    * @param extendsInterfaceNames Array of interface names, one
@@ -243,6 +250,32 @@ public interface JavaOutputStream {
    * @return An ExpressionFactory.  Must never return null.
    */
   public Annotation createAnnotation(String type);
+
+  /**
+   * Writes out an empty line, used for code formatting.
+   */
+  public void writeEmptyLine() throws IOException;
+
+  /**
+   * Writes out a Java statement represented by the given string.
+   *
+   * @param statement The string representation of the given statement
+   *
+   * @throws IllegalArgumentException if the statement string is null.
+   */
+  public void writeStatement(String statement) throws IOException;
+
+  /**
+   * Writes out an import statement of the given class.
+   *
+   * @param className The name of the class to be imported. Can contain '*'
+   *                  for package imports.
+   *
+   * @throws IllegalArgumentException if className is null.
+   * @throws IllegalStateException if the current stream state does not allow
+   *         an import statement, ie the class definition has already started.
+   */
+  public void writeImportStatement(String className) throws IOException;
 
   /**
    * Writes out a return statement for the current method that returns

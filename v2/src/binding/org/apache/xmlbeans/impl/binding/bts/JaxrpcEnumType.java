@@ -34,6 +34,14 @@ public class JaxrpcEnumType extends BindingType
     private MethodName toXMLMethod;
 
     // ========================================================================
+    // Constants
+
+    public final static MethodName DEFAULT_GET_VALUE = MethodName.create("getValue");
+    public final static MethodName DEFAULT_FROM_VALUE = MethodName.create("fromValue");
+    public final static MethodName DEFAULT_FROM_STRING = MethodName.create("fromString");
+    public final static MethodName DEFAULT_TO_XML = MethodName.create("toXML");
+
+    // ========================================================================
     // Constructors
 
     public JaxrpcEnumType(BindingTypeName btName)

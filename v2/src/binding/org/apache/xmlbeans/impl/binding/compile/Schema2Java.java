@@ -243,6 +243,7 @@ public class Schema2Java extends BindingCompiler {
     for (Iterator i = scratchIterator(); i.hasNext();) {
       Scratch scratch = (Scratch) i.next();
       resolveJavaStructure(scratch);
+      resolveJavaEnumeration(scratch);
       resolveJavaArray(scratch);
     }
   }
@@ -265,7 +266,10 @@ public class Schema2Java extends BindingCompiler {
       if (sType.isSimpleType()) {
         // simple types are atomic
         // todo: what about simple content, custom codecs, etc?
-        scratch = new Scratch(sType, xmlName, Scratch.ATOMIC_TYPE);
+        if (isEnumeration(sType))
+          scratch = new Scratch(sType, xmlName, Scratch.ENUM_TYPE);
+        else
+          scratch = new Scratch(sType, xmlName, Scratch.ATOMIC_TYPE);
       } else if (sType.isDocumentType()) {
         scratch = new Scratch(sType, XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, sType.getDocumentElementName()), Scratch.ELEMENT);
       } else if (sType.isAttributeType()) {
@@ -318,6 +322,7 @@ public class Schema2Java extends BindingCompiler {
         }
 
       case Scratch.STRUCT_TYPE:
+      case Scratch.ENUM_TYPE:
         {
           structureCount += 1;
           JavaTypeName javaName = pickUniqueJavaName(scratch.getSchemaType());
@@ -471,6 +476,16 @@ public class Schema2Java extends BindingCompiler {
           structResult = new ByNameBean(btName);
         scratch.setBindingType(structResult);
         bindingFile.addBindingType(structResult, true, true);
+        break;
+
+      case Scratch.ENUM_TYPE:
+        JaxrpcEnumType enumResult = new JaxrpcEnumType(btName);
+        enumResult.setGetValueMethod(JaxrpcEnumType.DEFAULT_GET_VALUE);
+        enumResult.setFromValueMethod(JaxrpcEnumType.DEFAULT_FROM_VALUE);
+        enumResult.setFromStringMethod(JaxrpcEnumType.DEFAULT_FROM_STRING);
+        enumResult.setToXMLMethod(JaxrpcEnumType.DEFAULT_TO_XML);
+        scratch.setBindingType(enumResult);
+        bindingFile.addBindingType(enumResult, true, true);
         break;
 
       case Scratch.LITERALARRAY_TYPE:
@@ -653,6 +668,28 @@ public class Schema2Java extends BindingCompiler {
   }
 
   /**
+   * Resolves a Java enumeration
+   */
+  private void resolveJavaEnumeration(Scratch scratch)
+  {
+    if (scratch.getCategory() != Scratch.ENUM_TYPE)
+      return;
+
+    if (scratch.isStructureResolved())
+      return;
+
+    scratch.setStructureResolved(true);
+
+    SchemaType baseType = scratch.getSchemaType().getBaseType();
+
+    BindingType bType = bindingTypeForSchemaType(baseType);
+    assert bType != null : "Binding type for schema type \"" + baseType +
+      "\" not found on the mLoader";
+
+    ((JaxrpcEnumType) scratch.getBindingType()).setBaseType(bType);
+  }
+
+  /**
    * Picks a property name without colliding with names of
    * previously picked getters and setters.
    */
@@ -776,7 +813,7 @@ public class Schema2Java extends BindingCompiler {
       result = mLoader.getBindingType(boxedName);
       if (result != null)
         return result;
-      
+
       // Type is not in the current scratch area nor on the mLoader
       // We create it and add it to the file
       result = bindingFile.getBindingType(boxedName);
@@ -1005,6 +1042,13 @@ public class Schema2Java extends BindingCompiler {
   }
 
   /**
+   * True if the given schema type is an enumeration type.
+   */
+  private static boolean isEnumeration(SchemaType sType) {
+    return sType.getEnumerationValues() != null;
+  }
+
+  /**
    * Scratch area corresponding to a schema type, used for the binding
    * computation.
    */
@@ -1029,11 +1073,12 @@ public class Schema2Java extends BindingCompiler {
     // categories of Scratch, established at ctor time
     public static final int ATOMIC_TYPE = 1;
     public static final int STRUCT_TYPE = 2;
-    public static final int LITERALARRAY_TYPE = 3;
-    public static final int SOAPARRAY_REF = 4;
-    public static final int SOAPARRAY = 5;
-    public static final int ELEMENT = 6;
-    public static final int ATTRIBUTE = 7;
+    public static final int ENUM_TYPE = 3;
+    public static final int LITERALARRAY_TYPE = 4;
+    public static final int SOAPARRAY_REF = 5;
+    public static final int SOAPARRAY = 6;
+    public static final int ELEMENT = 7;
+    public static final int ATTRIBUTE = 8;
 
     public int getCategory() {
       return category;
@@ -1185,7 +1230,8 @@ public class Schema2Java extends BindingCompiler {
     private Scratch nextStructure() {
       while (si.hasNext()) {
         Scratch scratch = (Scratch) si.next();
-        if (scratch.getCategory() == Scratch.STRUCT_TYPE)
+        if (scratch.getCategory() == Scratch.STRUCT_TYPE ||
+          scratch.getCategory() == Scratch.ENUM_TYPE)
           return scratch;
       }
       return null;
@@ -1250,7 +1296,8 @@ public class Schema2Java extends BindingCompiler {
    *
    */
   private void printClass(Scratch scratch) throws IOException {
-    assert(scratch.getCategory() == Scratch.STRUCT_TYPE);
+    assert(scratch.getCategory() == Scratch.STRUCT_TYPE ||
+      scratch.getCategory() == Scratch.ENUM_TYPE);
     JavaTypeName javaName = scratch.getJavaName();
 
     String packageName = javaName.getPackage();
@@ -1268,8 +1315,17 @@ public class Schema2Java extends BindingCompiler {
     // begin writing class
     mJoust.startFile(packageName, shortClassName);
     mJoust.writeComment("Generated from schema type " + scratch.getXmlName());
-    mJoust.startClass(Modifier.PUBLIC, baseJavaname, null);
 
+    if (scratch.getCategory() == Scratch.STRUCT_TYPE)
+      printJavaStruct(scratch, baseJavaname);
+    else
+      printJavaEnum(scratch, baseJavaname);
+
+    mJoust.endFile();
+  }
+
+  private void printJavaStruct(Scratch scratch, String baseJavaName) throws IOException {
+    mJoust.startClass(Modifier.PUBLIC, baseJavaName, null);
     Set seenFieldNames = new HashSet();
     // Write out the special "_value" property, if needed
     SimpleContentProperty scprop = scratch.getSimpleContentProperty();
@@ -1304,25 +1360,6 @@ public class Schema2Java extends BindingCompiler {
         prop.getGetterName().getSimpleName(), prop.getSetterName().getSimpleName());
     }
     mJoust.endClassOrInterface();
-    mJoust.endFile();
-  }
-
-  private String pickUniqueFieldName(String getter, Set seenNames) {
-    String baseName;
-
-    if (getter.length() > 3 && getter.startsWith("get"))
-      baseName = Character.toLowerCase(getter.charAt(3)) + getter.substring(4);
-    else
-      baseName = "field";
-
-    String fieldName = baseName;
-    if (!NameUtil.isValidJavaIdentifier(fieldName))
-      fieldName = "_" + fieldName;
-    for (int i = 1; seenNames.contains(fieldName); i += 1)
-      fieldName = baseName + i;
-
-    seenNames.add(fieldName);
-    return fieldName;
   }
 
   private void addJavaBeanProperty(String name, String type, String getter, String setter)
@@ -1349,6 +1386,274 @@ public class Schema2Java extends BindingCompiler {
                                            null);
     mJoust.writeAssignmentStatement(propertyField, params[0]);
     mJoust.endMethodOrConstructor();
+  }
+
+  private void printJavaEnum(Scratch scratch, String baseJavaName) throws IOException {
+    Set seenFieldNames = new HashSet();
+    XmlAnySimpleType[] enumValues = scratch.getSchemaType().getEnumerationValues();
+    JaxrpcEnumType enumType = (JaxrpcEnumType) scratch.getBindingType();
+    JavaTypeName baseType = enumType.getBaseTypeName().getJavaName();
+    EnumerationPrintHelper enumHelper =
+            new EnumerationPrintHelper(baseType, mJoust.getExpressionFactory(),
+                    scratch.getSchemaType().getPrimitiveType().getBuiltinTypeCode());
+
+    // figure out what import statements we need
+    boolean useArrays = enumHelper.isArray() || enumHelper.isBinary();
+    if (useArrays) {
+      mJoust.writeImportStatement("java.util.Arrays");
+    }
+    mJoust.writeImportStatement("java.util.HashMap");
+    mJoust.writeImportStatement("java.util.Map");
+    if (enumHelper.isArray()) {
+      mJoust.writeImportStatement("java.util.StringTokenizer");
+    }
+    mJoust.writeImportStatement("org.apache.xmlbeans.impl.util.XsTypeConverter");
+    mJoust.startClass(Modifier.PUBLIC, baseJavaName, null);
+
+    // Assign appropriate names to the fields we use
+    boolean matchOk = true;
+    String[] fieldNames = new String[enumValues.length];
+    String instanceVarName = "value";
+    String instanceMapName = "map";
+    boolean isQName = enumValues.length > 0 && enumValues[0] instanceof XmlQName;
+    for (int i = 0; i < enumValues.length; i++) {
+      String tentativeName = NameUtil.lowerCamelCase(isQName ?
+              ((XmlQName) enumValues[i]).getQNameValue().getLocalPart() :
+              enumValues[i].getStringValue(),
+              true, false);
+      if (!NameUtil.isValidJavaIdentifier(tentativeName)) {
+        matchOk = false;
+        break;
+      }
+      if (seenFieldNames.contains(tentativeName)) {
+        matchOk = false;
+        break;
+      }
+      // If we got here, we found a suitable name for this constant
+      seenFieldNames.add(tentativeName);
+      fieldNames[i] = tentativeName;
+    }
+    if (!matchOk) {
+      // One or more values could not map to a valid Java identifier
+      // As per JAX-RPC, rename all identifiers to 'value1', 'value2', etc
+      for (int i = 0; i < enumValues.length; i++) {
+        String name = "value" + (i + 1);
+        fieldNames[i] = name;
+      }
+    }
+    else {
+      // Check if the instance var name collides with any of the constants
+      while (seenFieldNames.contains(instanceVarName))
+        instanceVarName = "x" + instanceVarName;
+      // Check the map var name
+      while (seenFieldNames.contains(instanceMapName))
+        instanceMapName = "x" + instanceMapName;
+    }
+
+    // We have the names, generate the class!
+    // ======================================
+    // Private fields and constructor
+    Variable instanceVar =
+            mJoust.writeField(Modifier.PRIVATE,
+                    baseType.toString(),
+                    instanceVarName,
+                    null);
+    Variable instanceMap =
+            mJoust.writeField(Modifier.PRIVATE | Modifier.STATIC,
+                    "Map",
+                    instanceMapName,
+                    mJoust.getExpressionFactory().createVerbatim("new HashMap()"));
+    Variable[] params = mJoust.startConstructor(Modifier.PROTECTED,
+            new String[] {baseType.toString()},
+            new String[] {"value"},
+            null);
+    mJoust.writeAssignmentStatement(instanceVar, params[0]);
+    mJoust.endMethodOrConstructor();
+    Variable[] constants = new Variable[enumValues.length];
+
+    // Constants of the enumeration base type
+    for (int i = 0; i < enumValues.length; i++) {
+      XmlAnySimpleType enumValue = enumValues[i];
+      constants[i] =
+              mJoust.writeField(Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL,
+                      baseType.toString(),
+                      "_" + fieldNames[i],
+                      enumHelper.getInitExpr(enumValue));
+    }
+
+    // Constants of enumeration type
+    String shortClassName = scratch.getJavaName().getShortClassName();
+    for (int i = 0; i < enumValues.length; i++) {
+      mJoust.writeField(Modifier.PUBLIC | Modifier.STATIC | Modifier.FINAL,
+              shortClassName,
+              fieldNames[i],
+              mJoust.getExpressionFactory().createVerbatim("new " + shortClassName + "(_" + fieldNames[i] + ")"));
+    }
+
+    // Implementation of the getValue() method
+    mJoust.startMethod(Modifier.PUBLIC,
+            baseType.toString(),
+            enumType.getGetValueMethod().getSimpleName(),
+            null, null, null);
+    mJoust.writeReturnStatement(instanceVar);
+    mJoust.endMethodOrConstructor();
+
+    // Implementation of the fromValue() method
+    mJoust.startMethod(Modifier.PUBLIC | Modifier.STATIC,
+            shortClassName,
+            enumType.getFromValueMethod().getSimpleName(),
+            new String[] {baseType.toString()},
+            new String[] {"value"},
+            null);
+    mJoust.writeStatement("if (" + instanceMapName + ".containsKey(" +
+            (useArrays ? "new " + shortClassName + "(value)" : enumHelper.getObjectVersion("value")) +
+            ")) return (" + shortClassName + ") " +
+            instanceMapName + ".get(" + enumHelper.getObjectVersion("value") + ")");
+    mJoust.writeStatement("else throw new IllegalArgumentException()");
+    mJoust.endMethodOrConstructor();
+
+    // Implementation of the fromString() method
+    params = mJoust.startMethod(Modifier.PUBLIC | Modifier.STATIC,
+            shortClassName,
+            enumType.getFromStringMethod().getSimpleName(),
+            new String[] {"String"},
+            new String[] {"value"},
+            null);
+    if (enumHelper.isArray()) {
+      // Here we have to tokenize the input string, then build up an array
+      // of the enumeration's type and then call fromValue()
+      final String STRING_PARTS = "parts";
+      final String BASETYPE_ARRAY = "array";
+      mJoust.writeStatement("String[] " + STRING_PARTS + "= org.apache.xmlbeans.impl.values.XmlListImpl.split_list(value)");
+      mJoust.writeStatement(baseType.toString() + " " + BASETYPE_ARRAY + " = new " +
+        baseType.getArrayItemType(1).toString() + "[" + STRING_PARTS + ".length" + "]");
+      mJoust.writeStatement("for (int i = 0; i < " + BASETYPE_ARRAY + ".length; i++) " +
+        BASETYPE_ARRAY + "[i] = " +
+        enumHelper.getFromStringExpr(params[0]).getMemento().toString());
+      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(
+            enumType.getFromValueMethod().getSimpleName() + "(" + BASETYPE_ARRAY + ")"));
+    }
+    else
+    {
+      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(
+            enumType.getFromValueMethod().getSimpleName() + "(" +
+            enumHelper.getFromStringExpr(params[0]).getMemento().toString() +
+            ")"));
+    }
+    mJoust.endMethodOrConstructor();
+
+    // Implementation of the toXml() method
+    mJoust.startMethod(Modifier.PUBLIC,
+            "String",
+            enumType.getToXMLMethod().getSimpleName(),
+            null, null, null);
+    if (enumHelper.isArray()) {
+      final String STRING_LIST = "list";
+      mJoust.writeStatement("StringBuffer " + STRING_LIST + " = new StringBuffer()");
+      mJoust.writeStatement("for (int i = 0; i < " + instanceVarName + ".length; i++) " +
+        STRING_LIST + ".append(" + enumHelper.getToXmlString(instanceVar, "i") +
+        ").append(' ')");
+      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(STRING_LIST));
+    }
+    else {
+      mJoust.writeReturnStatement(enumHelper.getToXmlExpr(instanceVar));
+    }
+    mJoust.endMethodOrConstructor();
+
+    // Implementation of the toString() method
+    mJoust.startMethod(Modifier.PUBLIC,
+            "String",
+            "toString",
+            null, null, null);
+    if (enumHelper.isArray()) {
+      final String STRING_LIST = "list";
+      mJoust.writeStatement("StringBuffer " + STRING_LIST + " = new StringBuffer()");
+      mJoust.writeStatement("for (int i = 0; i < " + instanceVarName + ".length; i++) " +
+        STRING_LIST + ".append(String.valueOf(" +
+        instanceVarName + "[i]" +
+        ")).append(' ')");
+      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(STRING_LIST));
+    }
+    else {
+      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(
+            "String.valueOf(" + instanceVarName + ")"));
+    }
+    mJoust.endMethodOrConstructor();
+
+    // Implementation of the equals() method
+    params = mJoust.startMethod(Modifier.PUBLIC,
+            "boolean",
+            "equals",
+            new String[] {"Object"},
+            new String[] {"obj"},
+            null);
+    mJoust.writeStatement("if (this == obj) return true");
+    mJoust.writeStatement("if (!(obj instanceof " + shortClassName + ")) return false");
+    mJoust.writeStatement("final " + shortClassName + " x = (" + shortClassName + ") obj");
+    if (enumHelper.isArray() && enumHelper.isBinary()) {
+      mJoust.writeStatement("if (x." + instanceVarName + ".length != " + instanceVarName +
+        ".length) return false");
+      mJoust.writeStatement("boolean b = true");
+      mJoust.writeStatement("for (int i = 0; i < " + instanceVarName + ".length && b; i++) " +
+        "b &= Arrays.equals(x." + instanceVarName + "[i], " + instanceVarName + "[i])");
+      mJoust.writeStatement("return b");
+    }
+    else if (enumHelper.isArray())
+      mJoust.writeStatement("if (Arrays.equals(x." + instanceVarName + ", " + instanceVarName + ")) return true");
+    else
+      mJoust.writeStatement("if (" + enumHelper.getEquals("x." + instanceVarName, instanceVarName) + ") return true");
+    mJoust.writeReturnStatement(mJoust.getExpressionFactory().createBoolean(false));
+    mJoust.endMethodOrConstructor();
+
+    // Implementation of the hashCode() method
+    mJoust.startMethod(Modifier.PUBLIC,
+            "int",
+            "hashCode",
+            null, null, null);
+    if (enumHelper.isArray()) {
+      mJoust.writeStatement("int val = 0;");
+      mJoust.writeStatement("for (int i = 0; i < " + instanceVarName + ".length; i++) " +
+        "{ val *= 19; val =+ " +
+        enumHelper.getHashCode(instanceVarName).getMemento().toString() +
+        "; }");
+      mJoust.writeStatement("return val");
+    }
+    else
+      mJoust.writeReturnStatement(enumHelper.getHashCode(instanceVarName));
+    mJoust.endMethodOrConstructor();
+
+    // Static class code
+    mJoust.startStaticInitializer();
+    for (int i = 0; i < fieldNames.length; i++) {
+      String fieldName = fieldNames[i];
+      if (useArrays)
+        mJoust.writeStatement(instanceMapName + ".put(" +
+              fieldName + ", " + fieldName + ")");
+      else
+        mJoust.writeStatement(instanceMapName + ".put(" +
+              enumHelper.getObjectVersion("_" + fieldName) + ", " +
+              fieldName + ")");
+    }
+    mJoust.endMethodOrConstructor();
+    mJoust.endClassOrInterface();
+  }
+
+  private String pickUniqueFieldName(String getter, Set seenNames) {
+    String baseName;
+
+    if (getter.length() > 3 && getter.startsWith("get"))
+      baseName = Character.toLowerCase(getter.charAt(3)) + getter.substring(4);
+    else
+      baseName = "field";
+
+    String fieldName = baseName;
+    if (!NameUtil.isValidJavaIdentifier(fieldName))
+      fieldName = "_" + fieldName;
+    for (int i = 1; seenNames.contains(fieldName); i += 1)
+      fieldName = baseName + i;
+
+    seenNames.add(fieldName);
+    return fieldName;
   }
 
 

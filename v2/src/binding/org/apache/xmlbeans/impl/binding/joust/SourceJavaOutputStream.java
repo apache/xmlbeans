@@ -94,7 +94,9 @@ public class SourceJavaOutputStream
   private String mClassOrInterfaceName = null;
   private WriterFactory mWriterFactory;
   private StringWriter mCommentBuffer = null;
+  private StringWriter mImportBuffer = null;
   private PrintWriter mCommentPrinter = null;
+  private PrintWriter mImportPrinter = null;
 
   // ========================================================================
   // Constructors
@@ -144,6 +146,13 @@ public class SourceJavaOutputStream
     mClassOrInterfaceName = makeI18nSafe(classOrInterfaceName);
   }
 
+  public void startStaticInitializer() throws IOException {
+    checkStateForWrite();
+    printIndents();
+    mOut.println("static {");
+    increaseIndent();
+  }
+
   public void startClass(int modifiers,
                          String extendsClassName,
                          String[] interfaceNames)
@@ -157,6 +166,7 @@ public class SourceJavaOutputStream
     // We need to write up the actual class declaration and save it until
     // after the imports have been written
     //FIXME we should format this code more nicely
+    printImportsIfNeeded();
     mOut.print(Modifier.toString(modifiers));
     mOut.print(" class ");
     mOut.print(mClassOrInterfaceName);
@@ -186,6 +196,7 @@ public class SourceJavaOutputStream
     // We need to write up the actual class declaration and save it until
     // after the imports have been written
     //FIXME we should format this code more nicely
+    printImportsIfNeeded();
     mOut.print("public interface ");
     mOut.print(mClassOrInterfaceName);
     if (extendsInterfaceNames != null && extendsInterfaceNames.length > 0) {
@@ -286,6 +297,15 @@ public class SourceJavaOutputStream
     getCommentPrinter().println(comment);
   }
 
+  public void writeImportStatement(String className) throws IOException {
+    getImportPrinter().println("import " + makeI18nSafe(className) + ";");
+  }
+
+  public void writeEmptyLine() throws IOException {
+    checkStateForWrite();
+    mOut.println();
+  }
+
   public void writeAnnotation(Annotation ann) throws IOException {
     //FIXME haven't really thought much about how to write annotations
     //as javadoc - this is more just proof-of-concept at this point.
@@ -302,6 +322,14 @@ public class SourceJavaOutputStream
       out.print(((AnnotationImpl)ann).getValueDeclaration(n));
       out.println();
     }
+  }
+
+  public void writeStatement(String statement) throws IOException {
+    checkStateForWrite();
+    printCommentsIfNeeded();
+    printIndents();
+    mOut.print(statement);
+    mOut.println(";");
   }
 
   public void writeReturnStatement(Expression expression) throws IOException {
@@ -369,7 +397,7 @@ public class SourceJavaOutputStream
   // ExpressionFactory implementation
 
   private static final Expression TRUE = newExp("true");
-  private static final Expression FALSE = newExp("true");
+  private static final Expression FALSE = newExp("false");
   private static final Expression NULL = newExp("null");
 
   public Expression createBoolean(boolean value) {
@@ -386,6 +414,10 @@ public class SourceJavaOutputStream
 
   public Expression createNull() {
     return NULL;
+  }
+
+  public Expression createVerbatim(String value) {
+    return newExp(makeI18nSafe(value));
   }
 
   // ========================================================================
@@ -416,6 +448,23 @@ public class SourceJavaOutputStream
     mOut.println(" */");
     mCommentBuffer = null;
     mCommentPrinter = null;
+  }
+
+  private PrintWriter getImportPrinter() {
+    if (mImportPrinter == null) {
+      mImportBuffer = new StringWriter();
+      mImportPrinter = new PrintWriter(mImportBuffer);
+    }
+    return mImportPrinter;
+  }
+
+  private void printImportsIfNeeded() {
+    if (mImportBuffer == null) return;
+    checkStateForWrite();
+    String imports = mImportBuffer.toString();
+    mOut.println(imports);
+    mImportBuffer = null;
+    mImportPrinter = null;
   }
 
   private void checkStateForWrite() {
