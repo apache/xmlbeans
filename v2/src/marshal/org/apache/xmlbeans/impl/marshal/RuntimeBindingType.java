@@ -230,7 +230,7 @@ abstract class RuntimeBindingType
             throws XmlException
         {
             assert parentObject != null;
-            assert beanClass.isAssignableFrom(parentObject.getClass()) :
+            assert beanClass.isInstance(parentObject) :
                 parentObject.getClass() + " is not a " + beanClass;
 
             return ReflectionUtils.invokeMethod(parentObject, getMethod);

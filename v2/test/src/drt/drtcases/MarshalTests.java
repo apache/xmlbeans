@@ -990,7 +990,9 @@ public class MarshalTests extends TestCase
 
         final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLStreamReader xrdr =
-            xmlInputFactory.createXMLStreamReader(new FileReader(doc));
+            xmlInputFactory.createXMLStreamReader(doc.toURL().toString(),
+                                                  new FileInputStream(doc));
+
 
         final XmlOptions options = new XmlOptions();
         ObjectFactory of = new YourClass();
@@ -1006,7 +1008,9 @@ public class MarshalTests extends TestCase
 
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
             XmlError xmlError = (XmlError)itr.next();
-            inform("doc2-ERROR: " + xmlError);
+
+            inform("doc2-ERROR: source=" + xmlError.getSourceName() +
+                   " " + xmlError);
         }
 
         Assert.assertTrue(errors.isEmpty());

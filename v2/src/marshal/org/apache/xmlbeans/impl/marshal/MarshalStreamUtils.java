@@ -78,7 +78,7 @@ final class MarshalStreamUtils
                 //TODO: use real location (maybe just pass context to this method).
             catch (InvalidLexicalValueException ilve) {
                 addError(errors, ilve.getMessage(),
-                         ilve.getLocation(), "<unknown>");
+                         ilve.getLocation());
             }
         }
     }
@@ -251,19 +251,20 @@ final class MarshalStreamUtils
 
     static void addError(Collection errors,
                          String msg,
-                         Location location,
-                         String sourceName)
+                         Location location)
     {
-        final XmlError err;
-        if (location != null) {
-            err = XmlError.forLocation(msg,
-                                       sourceName,
-                                       location.getLineNumber(),
-                                       location.getColumnNumber(),
-                                       location.getCharacterOffset());
-        } else {
-            err = XmlError.forSource(msg, sourceName);
+        assert location != null;
+
+        String systemId = location.getSystemId();
+        if (systemId == null) {
+            systemId = "<unknown>"; // without this we get no line numbers
         }
+        final XmlError err =
+            XmlError.forLocation(msg,
+                                 systemId,
+                                 location.getLineNumber(),
+                                 location.getColumnNumber(),
+                                 location.getCharacterOffset());
         errors.add(err);
     }
 
