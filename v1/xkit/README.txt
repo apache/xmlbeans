@@ -30,7 +30,7 @@ Kit contents:
 (4) One bit of ant task documentation.
     ./anttask.html
 
-(5) A copy of the plain javadoc tree for com.bea.xml.*
+(5) A copy of the plain javadoc tree for org.apache.xmlbeans.*
     ./docs/reference
 
 (6) A preliminary collection of nicely formatted user-level
@@ -123,7 +123,7 @@ Where to start?
       (Analogous to "obj.getClass()" and "Object.class".)
 
     * A number of utility methods are avaliable on
-      com.bea.xml.XmlBeans, including a function that can be
+      org.apache.xmlbeans.XmlBeans, including a function that can be
       used to determine whether a Java class is an XmlBean and
       functions to manage runtime-loading of schema type
       systems.
