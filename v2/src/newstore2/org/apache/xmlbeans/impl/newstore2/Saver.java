@@ -41,7 +41,6 @@ import java.util.ConcurrentModificationException;
 
 abstract class Saver
 {
-    static final int NONE     = Cur.NONE;
     static final int ROOT     = Cur.ROOT;
     static final int ELEM     = Cur.ELEM;
     static final int ATTR     = Cur.ATTR;

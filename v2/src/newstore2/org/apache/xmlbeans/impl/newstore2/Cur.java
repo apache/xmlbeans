@@ -83,6 +83,7 @@ import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.impl.values.TypeStore;
 import org.apache.xmlbeans.impl.values.TypeStoreUser;
 import org.apache.xmlbeans.impl.values.TypeStoreVisitor;
+import org.apache.xmlbeans.impl.values.TypeStoreUserFactory;
 
 import javax.xml.namespace.QName;
 
@@ -93,61 +94,67 @@ final class Cur
     static final int TEMP = 0;
     static final int PERM = 1;
     static final int WEAK = 2;
-    
-    static final int NONE     = 0;
+
+    static final int TEXT     = 0; // Must be 0
     static final int ROOT     = 1;
     static final int ELEM     = 2;
     static final int ATTR     = 3;
     static final int COMMENT  = 4;
     static final int PROCINST = 5;
-    static final int TEXT     = 6;
 
     static final int POOLED     = 0;
     static final int UNEMBEDDED = 2;
     static final int EMBEDDED   = 3;
     static final int DISPOSED   = 4;
 
-    Cur ( Locale l )
-    {
-        _locale = l;
-        _pos = -1;
-    }
-
-    static boolean kindIsContainer ( int t ) { return t ==  ELEM || t ==  ROOT; }
-    static boolean kindIsFinish    ( int t ) { return t == -ELEM || t == -ROOT; }
-    static boolean kindIsNode      ( int t ) { return t > 0  || t != TEXT; }
+    private static final int END_POS = -1;
+    private static final int NO_POS  = -2;
     
-    int kind ( ) { assert isNormal(); return _xobj == null ? NONE : _xobj.kind( _pos ); }
+    Cur ( Locale l ) { _locale = l; _pos = NO_POS; }
 
-    boolean isRoot      ( ) { return kind() == ROOT;     }
-    boolean isElem      ( ) { return kind() == ELEM;     }
-    boolean isEnd       ( ) { return kind() == -ELEM;    }
-    boolean isAttr      ( ) { return kind() == ATTR;     }
-    boolean isText      ( ) { return kind() == TEXT;     }
-    boolean isComment   ( ) { return kind() == COMMENT;  }
-    boolean isProcinst  ( ) { return kind() == PROCINST; }
+//    boolean isPositioned ( ) { assert isNormal(); return _xobj != null; }
+    boolean isPositioned ( ) { return _xobj != null; }
+
+    static boolean kindIsContainer ( int k ) { return k ==  ELEM || k ==  ROOT; }
+    static boolean kindIsFinish    ( int k ) { return k == -ELEM || k == -ROOT; }
     
-    boolean isContainer ( ) { return kindIsContainer( kind() ); }
-    boolean isFinish    ( ) { return kindIsFinish   ( kind() ); }
-    boolean isNode      ( ) { return kindIsNode     ( kind() ); }
+    int kind ( )
+    {
+        assert isPositioned();
+        return _pos == 0 ? _xobj.kind() : _pos == END_POS ? -_xobj.kind() : TEXT;
+    }
+
+    boolean isRoot      ( ) { return _pos == 0 && _xobj.kind() == ROOT;     }
+    boolean isElem      ( ) { return _pos == 0 && _xobj.kind() == ELEM;     }
+    boolean isAttr      ( ) { return _pos == 0 && _xobj.kind() == ATTR;     }
+    boolean isComment   ( ) { return _pos == 0 && _xobj.kind() == COMMENT;  }
+    boolean isProcinst  ( ) { return _pos == 0 && _xobj.kind() == PROCINST; }
     
-//    boolean isTypeable  ( ) { return _xobj.isTypeable(); }
+    boolean isText      ( ) { assert isPositioned(); return _pos > 0; }
+    boolean isEnd       ( ) { assert isPositioned(); return _pos == END_POS && _xobj.kind() ==ELEM;}
+    
+    boolean isContainer ( ) { return _pos == 0       && kindIsContainer( _xobj.kind() ); }
+    boolean isFinish    ( ) { return _pos == END_POS && kindIsContainer( _xobj.kind() ); }
+    boolean isNode      ( ) { assert isPositioned(); return _pos == 0; }
+    
+    boolean isNormalAttr ( ) { assert isNode(); return _xobj.isNormalAttr(); }
+    boolean isXmlns      ( ) { assert isNode(); return _xobj.isXmlns(); }
 
-    boolean isDomDocRoot ( )
-    {
-        return isRoot() && (_xobj instanceof SoapPartDocXobj || _xobj instanceof DocumentXobj);
-    }
+    QName   getName  ( ) { assert isNode() || isEnd(); return _xobj._name; }
+    String  getLocal ( ) { return getName().getLocalPart(); }
+    String  getUri   ( ) { return getName().getNamespaceURI(); }
 
-    boolean isDomFragRoot ( )
-    {
-        return isRoot() && _xobj instanceof DocumentFragXobj;
-    }
+    String  getXmlnsPrefix ( ) { assert isNode() || isXmlns(); return _xobj.getXmlnsPrefix(); }
+    String  getXmlnsUri    ( ) { assert isNode() || isXmlns(); return _xobj.getXmlnsUri(); }
 
-    private int cchRight ( )
-    {
-        assert _xobj != null &&  isNormal();
-        return _xobj.cchRight( _pos );
-    }
+    boolean isDomDocRoot  ( ) { return isRoot() && _xobj.getDom() instanceof Document; }
+    boolean isDomFragRoot ( ) { return isRoot() && _xobj.getDom() instanceof DocumentFragment; }
+
+    private int cchRight ( ) { assert isPositioned(); return _xobj.cchRight( _pos ); }
+
+    //
+    // Creation methods
+    //
 
     private void createHelper ( Xobj xo )
     {
@@ -158,7 +165,7 @@ final class Cur
             from.release();
         }
 
-        set( xo, 0 );
+        moveTo( xo );
     }
     
     void createRoot ( )
@@ -168,12 +175,12 @@ final class Cur
     
     void createDomDocFragRoot ( )
     {
-        set( new DocumentFragXobj( _locale ), 0 );
+        moveTo( new DocumentFragXobj( _locale ) );
     }
     
     void createDomDocumentRoot ( )
     {
-        set( createDomDocumentRootXobj( _locale ), 0 );
+        moveTo( createDomDocumentRootXobj( _locale ) );
     }
     
     static Xobj createDomDocumentRootXobj ( Locale l )
@@ -245,77 +252,13 @@ final class Cur
         return l._saaj == null ? new CommentXobj( l ) : new SaajCommentXobj( l );
     }
 
-    boolean isNormalAttr ( )
-    {
-        assert isNormal() && _xobj != null && _pos == 0;
-
-        return _xobj.isNormalAttr();
-    }
-    
-    boolean isXmlns ( )
-    {
-        assert isNormal() && _xobj != null && _pos == 0;
-
-        return _xobj.isXmlns();
-    }
-
-    QName getName ( )
-    {
-        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
-        return _xobj._name;
-    }
-    
-    String getLocal ( )
-    {
-        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
-        assert _xobj._name != null;
-        return _xobj._name.getLocalPart();
-    }
-
-    String getUri ( )
-    {
-        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
-        assert _xobj._name != null;
-        return _xobj._name.getNamespaceURI();
-    }
-
-    String getXmlnsPrefix ( )
-    {
-        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
-        assert isXmlns();
-
-        return _xobj.getXmlnsPrefix();
-    }
-
-    String getXmlnsUri ( )
-    {
-        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
-        assert isXmlns();
-
-        return _xobj.getXmlnsUri();
-    }
-
-    void setName ( QName name )
-    {
-        assert isNormal() && _xobj != null && _pos == 0;
-        assert _xobj.isElem() || _xobj.isAttr() || _xobj.isProcinst();
-        
-        assert name != null;
-        _xobj._name = name;
-        
-        _locale._versionAll++;
-        _locale._versionSansText++;
-    }
-    
-    boolean isPositioned ( )
-    {
-        return _xobj != null;
-    }
+    //
+    // General operations
+    //
 
     boolean isSamePos ( Cur that )
     {
         assert isNormal() && that.isNormal();
-
         return _xobj == that._xobj && _pos == that._pos;
     }
     
@@ -324,7 +267,7 @@ final class Cur
         assert isNormal() && that.isNormal();
         assert that._pos == 0;
 
-        return _xobj == that._xobj && _pos == that._xobj.posEnd();
+        return _xobj == that._xobj && _pos == END_POS;
     }
 
     boolean isAtEndOfLastPush ( )
@@ -334,15 +277,56 @@ final class Cur
         return isAtEndOf( (Cur) _stack.get( _stack.size() - 1 ) );
     }
 
+    void setName ( QName name )
+    {
+        assert isNode() && (_xobj.isElem() || _xobj.isAttr() || _xobj.isProcinst());
+        assert name != null;
+        
+        _xobj._name = name;
+        
+        _locale._versionAll++;
+        _locale._versionSansText++;
+    }
+    
+    private void moveTo ( Xobj x )
+    {
+        moveTo( x, 0 );
+    }
+    
+    private void moveTo ( Xobj x, int p )
+    {
+        // This cursor may not be normalized upon entry ...
+        
+        if (_state == EMBEDDED && x != _xobj)
+        {
+            _xobj._embedded = listRemove( _xobj._embedded );
+
+            _locale._unembedded = listInsert( _locale._unembedded );
+            _state = UNEMBEDDED;
+        }
+
+        _xobj = x;
+        _pos = p;
+
+        if (_curKind == PERM && _state == UNEMBEDDED && _xobj != null)
+        {
+            _locale._unembedded = listRemove( _locale._unembedded );
+            _xobj._embedded = listInsert( _xobj._embedded );
+            _state = EMBEDDED;
+        }
+
+        assert isNormal();
+    }
+
     void moveToCur ( Cur to )
     {
         assert isNormal();
         assert to == null || to.isNormal();
         
         if (to == null)
-            set( null, -1 );
+            moveTo( null, NO_POS );
         else
-            set( to._xobj, to._pos );
+            moveTo( to._xobj, to._pos );
     }
 
     void moveToDom ( Dom d )
@@ -350,7 +334,7 @@ final class Cur
         assert d instanceof Xobj || d instanceof SoapPartDom;
         assert d.locale() == _locale;
 
-        set( d instanceof Xobj ? (Xobj) d : ((SoapPartDom) d)._docXobj, 0 );
+        moveTo( d instanceof Xobj ? (Xobj) d : ((SoapPartDom) d)._docXobj );
     }
 
     void addToSelection ( )
@@ -439,26 +423,23 @@ final class Cur
     
     boolean hasParent ( )
     {
-        assert isNormal() && _xobj != null;
+        assert isPositioned();
 
-        if (_pos >= 1 && _pos <= _xobj.posEnd())
+        if (_pos == END_POS || (_pos >= 1 && _pos < _xobj.posAfter()))
             return true;
 
         assert _pos == 0 || _xobj._parent != null;
-
-        if (_xobj._parent != null)
-            return true;
         
-        return false;
+        return _xobj._parent != null;
     }
     
     boolean toParent ( boolean raw )
     {
-        assert isNormal() && _xobj != null;
+        assert isPositioned();
 
-        if (_pos >= 1 && _pos <= _xobj.posEnd())
+        if (_pos == END_POS || (_pos >= 1 && _pos < _xobj.posAfter()))
         {
-            set( _xobj, 0 );
+            moveTo( _xobj );
             return true;
         }
 
@@ -466,7 +447,7 @@ final class Cur
 
         if (_xobj._parent != null)
         {
-            set( _xobj._parent, 0 );
+            moveTo( _xobj._parent );
             return true;
         }
         
@@ -481,45 +462,38 @@ final class Cur
 
         assert _xobj._parent != null;
 
-        set( _xobj._parent, 0 );
+        moveTo( _xobj._parent );
 
         return true;
     }
 
     boolean hasText ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
-        
-        return _xobj.cchValue() > 0;
+        assert isNode();
+        return _xobj.hasText();
     }
     
     boolean hasAttrs ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
-
+        assert isNode();
         return _xobj._firstChild != null && _xobj._firstChild.isAttr();
     }
     
     boolean hasChildren ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
-        
-        for ( Xobj x = _xobj._firstChild ; x != null ; x = x._nextSibling )
-            if (!x.isAttr())
-                return true;
-
-        return false;
+        assert isNode();
+        return _xobj.hasChildren();
     }
     
     boolean toFirstChild ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
+        assert isNode();
 
         for ( Xobj x = _xobj._firstChild ; x != null ; x = x._nextSibling )
         {
             if (!x.isAttr())
             {
-                set( x, 0 );
+                moveTo( x );
                 return true;
             }
         }
@@ -529,31 +503,31 @@ final class Cur
     
     protected boolean toLastChild ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
+        assert isNode();
 
         if (_xobj._lastChild == null || _xobj._lastChild.isAttr())
             return false;
 
-        set( _xobj._lastChild, 0 );
+        moveTo( _xobj._lastChild );
 
         return true;
     }
 
     boolean toNextSibling ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
+        assert isNode();
 
         if (_xobj.isAttr())
         {
             if (_xobj._nextSibling != null && _xobj._nextSibling.isAttr())
             {
-                set( _xobj._nextSibling, 0 );
+                moveTo( _xobj._nextSibling );
                 return true;
             }
         }
         else if (_xobj._nextSibling != null)
         {
-            set( _xobj._nextSibling, 0 );
+            moveTo( _xobj._nextSibling );
             return true;
         }
 
@@ -562,19 +536,19 @@ final class Cur
 
     boolean toFirstAttr ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
+        assert isNode();
 
         if (_xobj._firstChild == null || !_xobj._firstChild.isAttr())
             return false;
 
-        set( _xobj._firstChild, 0 );
+        moveTo( _xobj._firstChild );
 
         return true;
     }
     
     boolean toLastAttr ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
+        assert isNode();
 
         if (!toFirstAttr())
             return false;
@@ -587,33 +561,32 @@ final class Cur
     
     boolean toNextAttr ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0 && isAttr();
+        assert isAttr();
 
         if (_xobj._nextSibling == null || !_xobj._nextSibling.isAttr())
             return false;
         
-        set( _xobj._nextSibling, 0 );
+        moveTo( _xobj._nextSibling );
 
         return true;
     }
     
     boolean toPrevAttr ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0 && isAttr();
+        assert isAttr();
         
         if (_xobj._prevSibling == null || !_xobj._prevSibling.isAttr())
             return false;
         
-        set( _xobj._prevSibling, 0 );
+        moveTo( _xobj._prevSibling );
 
         return true;
     }
     
     void toEnd ( )
     {
-        assert _xobj != null && isNormal() && _pos == 0;
-
-        set( _xobj, _xobj.posEnd() );
+        assert isNode();
+        moveTo( _xobj, END_POS );
     }
     
     void moveToCharNode ( CharNode node )
@@ -631,7 +604,7 @@ final class Cur
         {
             if (node == n)
             {
-                set( getNormal( _xobj, n._off + 1 ), _posTemp );
+                moveTo( getNormal( _xobj, n._off + 1 ), _posTemp );
                 return;
             }
         }
@@ -643,7 +616,7 @@ final class Cur
         {
             if (node == n)
             {
-                set( getNormal( _xobj, n._off + _xobj._cchValue + 2 ), _posTemp );
+                moveTo( getNormal( _xobj, n._off + _xobj._cchValue + 2 ), _posTemp );
                 return;
             }
         }
@@ -653,7 +626,7 @@ final class Cur
     
     boolean prev ( )
     {
-        assert isNormal();
+        assert isPositioned();
 
         if (_xobj.isRoot() && _pos == 0)
             return false;
@@ -661,7 +634,7 @@ final class Cur
         Xobj x = getDenormal();
         int  p = _posTemp;
 
-        assert p != 0;
+        assert p > 0 && p != END_POS;
 
         int pa = x.posAfter();
 
@@ -669,13 +642,22 @@ final class Cur
             p = pa;
         else if (p == pa)
         {
-            if (x.isAttr() && x._cchAfter > 0)
+            //
+            // Text after an attr is allowed only on the last attr,
+            // and that text belongs to the parent container..  
+            //
+            // If we're a thte end of the last attr, then we were just
+            // inside the container, and we need to skip the attrs.
+            //
+            
+            if (x.isAttr() &&
+                (x._cchAfter > 0 || x._nextSibling == null || !x._nextSibling.isAttr()))
             {
                 x = x.ensureParent();
                 p = 0;
             }
             else
-                p = pa - 1;
+                p = END_POS;
         }
         else if (p == pa - 1)
         {
@@ -689,7 +671,7 @@ final class Cur
             p = 0;
         }
         
-        set( getNormal( x, p ), _posTemp );
+        moveTo( getNormal( x, p ), _posTemp );
 
         return true;
     }
@@ -724,16 +706,16 @@ final class Cur
         Xobj x = _xobj;
         int  p = _pos;
 
-        int pe = x.posEnd();
+        int pa = x.posAfter();
 
-        if (p > pe)
+        if (p >= pa)
             p = _xobj.posMax();
-        else if (p == pe)
+        else if (p == END_POS)
         {
             if (x.isRoot() || (x.isAttr() && (x._nextSibling == null || !x._nextSibling.isAttr())))
                 return false;
             
-            p = pe + 1;
+            p = pa;
         }
         else if (p > 0)
         {
@@ -745,7 +727,7 @@ final class Cur
                 p = 0;
             }
             else
-                p = pe;
+                p = END_POS;
         }
         else
         {
@@ -784,13 +766,15 @@ final class Cur
             }
         }
 
-        set( getNormal( x, p ), _posTemp );
+        moveTo( getNormal( x, p ), _posTemp );
 
         return true;
     }
 
     int nextChars ( int cch )
     {
+        assert isPositioned();
+        
         int cchRight = cchRight();
 
         if (cchRight == 0)
@@ -803,19 +787,20 @@ final class Cur
             return cchRight;
         }
 
-        set( _xobj, _pos + cch );
+        moveTo( getNormal( _xobj, _pos + cch ), _posTemp );
         
         return cch;
     }
 
     void setCharNodes ( CharNode nodes )
     {
+        assert isPositioned();
+        assert !_xobj.isRoot() || _pos > 0;
+        
         Xobj x = getDenormal();
         int  p = _posTemp;
 
-        assert p > x.posEnd() || p > 0;
-
-        if (p > x.posEnd())
+        if (p >= x.posAfter())
             x._charNodesAfter = nodes;
         else
             x._charNodesValue = nodes;
@@ -826,16 +811,15 @@ final class Cur
 
     CharNode getCharNodes ( )
     {
-        assert isNormal();
+        assert isPositioned();
+        assert !_xobj.isRoot() || _pos > 0;
         
         Xobj x = getDenormal();
         int  p = _posTemp;
 
-        assert p > x.posEnd() || p > 0;
-
         CharNode nodes;
 
-        if (p > x.posEnd())
+        if (p >= x.posAfter())
         {
             nodes = x._charNodesAfter =
                 updateCharNodes( _locale, x, x._charNodesAfter, x._cchAfter );
@@ -920,12 +904,14 @@ final class Cur
 
     boolean ancestorOf ( Cur that )
     {
-        assert _xobj != null && that._xobj != null;
-        assert isNormal() && that.isNormal() && _pos == 0;
+        assert isNode() && that.isPositioned();
 
-        if (_xobj == that._xobj && that._pos >= 1 && that._pos <= _xobj.posEnd())
-            return true;
-
+        if (_xobj == that._xobj &&
+            (that._pos == END_POS || (that._pos > 0 && that._pos < _xobj.posAfter())))
+        {
+                return true;
+        }
+        
         if (_xobj._firstChild == null)
             return false;
 
@@ -938,20 +924,24 @@ final class Cur
     
     void moveNode ( Cur to )
     {
-        assert _xobj != null && _pos == 0 && !_xobj.isRoot();
-        assert to == null || (to.isNormal() && !ancestorOf( to ));
-        assert to == null || (to._pos != 0 || !to.isRoot());
-
+        assert isNode() && !isRoot();
+        assert to == null || to.isPositioned();
+        assert to == null || !ancestorOf( to );
+        assert to == null || (!to.isNode() || !to.isRoot());
+        
         // TODO - this code may not handle targets near attributes
         // perfectly ... 
 
+        // We're moveing this node, if there is anyu text after it,
+        // move this text to before this node.
+        
         if (_xobj.cchAfter() > 0)
         {
             Cur fromChars = tempCur( _xobj, _xobj.posAfter() );
             fromChars.moveChars( this, _xobj.cchAfter() );
             fromChars.release();
         }
-
+        
         assert _xobj.cchAfter() == 0;
 
         _xobj.removeXobj();
@@ -967,7 +957,7 @@ final class Cur
                 assert cchRight == to._cchSrc;
             }
 
-            assert to._pos == 0 || to._pos == to._xobj.posEnd();
+            assert to._pos == 0 || to._pos == END_POS;
 
             if (to._pos == 0)
                 to._xobj.insertXobj( _xobj );
@@ -992,9 +982,11 @@ final class Cur
     
     Object moveChars ( Cur to, int cchMove )
     {
-        assert _xobj != null && isNormal() && (to == null || to.isNormal());
+        assert isPositioned();
+        assert cchMove == 0 || isText();
+        assert to == null || to.isNormal();
         assert cchMove >= 0 && cchMove <= cchRight();
-
+        
         if (cchMove == 0)
         {
             _cchSrc = 0;
@@ -1004,33 +996,41 @@ final class Cur
 
         if (to == null)
         {
+            // If there is a cursor in the sequence of chars to remove,
+            // then create a new place for these chars to live and move
+            // them there, taking the cursors with them.
+            
             for ( Cur e = _xobj.getEmbedded() ; e != null ; e = e._next )
             {
-                if (e != this && e._pos >= _pos && e._pos < _pos + cchMove)
+                if (e != this && inChars( e, cchMove ))
                 {
                     e = _locale.tempCur();
+                    
                     e.createRoot();
                     e.next();
+                    
                     Object chars = moveChars( e, cchMove );
+                    
                     e.release();
+                    
                     return chars;
                 }
             }
         }
         else
         {
-            int pe = _xobj.posEnd();
+            int pa = _xobj.posAfter();
 
             // Check for no-op, but return the text "moved"
             
-            if (_xobj == to._xobj && to._pos >= _pos && to._pos < _pos + cchMove)
+            if (_xobj == to._xobj && inChars( to, cchMove ))
             {
                 Object src;
 
-                if (_pos > pe)
+                if (_pos >= pa)
                 {
                     src = _xobj._srcAfter;
-                    _offSrc = _xobj._offAfter + _pos - pe - 1;
+                    _offSrc = _xobj._offAfter + _pos - pa;
                 }
                 else
                 {
@@ -1038,25 +1038,25 @@ final class Cur
                     _offSrc = _xobj._offValue + _pos - 1;
                 }
 
-                _pos += cchMove;
-                
+                moveTo( _xobj, _pos + cchMove );
+
                 _cchSrc = cchMove;
                 
                 return src;
             }
 
-            if (_pos <= pe)
+            if (_pos < pa)
                 to.insertChars( _xobj._srcValue, _xobj._offValue + _pos - 1, cchMove );
             else
-                to.insertChars( _xobj._srcAfter, _xobj._offAfter + _pos - pe - 1, cchMove );
+                to.insertChars( _xobj._srcAfter, _xobj._offAfter + _pos - pa, cchMove );
         }
 
         Object srcMoved;
         int    offMoved;
         
-        int pe = _xobj.posEnd();
+        int pa = _xobj.posAfter();
         
-        if (_pos <= pe)
+        if (_pos < pa)
         {
             int i = _pos - 1;
             
@@ -1073,7 +1073,7 @@ final class Cur
         }
         else
         {
-            int i = _pos - pe - 1;
+            int i = _pos - pa;
             
             srcMoved = _xobj._srcAfter;
             offMoved = _xobj._offAfter + i;
@@ -1088,16 +1088,16 @@ final class Cur
         }
         
         for ( Cur e = _xobj.getEmbedded() ; e != null ; e = e._next )
-            if (e != this && e._pos >= _pos && e._pos < _pos + cchMove)
-                e.set( to._xobj, to._pos + e._pos - _pos );
+            if (e != this && inChars( e, cchMove ))
+                e.moveTo( to._xobj, to._pos + e._pos - _pos );
 
         // The case where I delete all value text, _pos will be at end of node,
         // need to normalize to the first child (if any)
         
-        if (_pos == _xobj.posEnd() && _xobj._firstChild != null)
-            set( getNormal( _xobj._firstChild, 0 ), _posTemp );
+        if (_pos == _xobj.posAfter() - 1 && _xobj._firstChild != null)
+            moveTo( getNormal( _xobj._firstChild, 0 ), _posTemp );
         else
-            set( getNormal( _xobj, _pos ), _posTemp );
+            moveTo( getNormal( _xobj, _pos ), _posTemp );
 
         _locale._versionAll++;
 
@@ -1106,15 +1106,18 @@ final class Cur
 
         return srcMoved;
     }
-    
+
     void insertChars ( Object src, int off, int cch )
     {
         assert isNormal() && cch >= 0;
+        assert !isRoot();
 
         if (cch > 0)
         {
             Xobj x = getDenormal();
             int  p = _posTemp;
+
+            assert p > 0;
 
             for ( Cur e = x.getEmbedded() ; e != null ; e = e._next )
                 if (e != this && e._pos >= p)
@@ -1194,7 +1197,7 @@ final class Cur
 
     String getValueString ( )
     {
-        assert isNormal() && _xobj != null && _pos == 0;
+        assert isNode();
         
         // TODO - make sure there are no children (ok for an element to have
         // attrs)
@@ -1204,14 +1207,14 @@ final class Cur
 
     Object getChars ( int cch )
     {
-        assert isNormal() && _xobj != null;
+        assert isPositioned();
 
         return _xobj.getChars( _pos, cch, this );
     }
     
     Object getValueChars ( )
     {
-        assert isNormal() && _xobj != null && _pos == 0;
+        assert isNode();
         
         return _xobj.getChars( 1, -1, this );
     }
@@ -1219,10 +1222,10 @@ final class Cur
     void copyNode ( Cur cTo )
     {
         // TODO - make moveNode, moveChars, etc, deal with targeting different
-        // masters -- may have to copy instead of move .....
+        // locals -- may have to copy instead of move .....
 
         assert cTo != null;
-        assert _xobj != null && _pos == 0;
+        assert isNode();
 
         Xobj newParent = null;
         Xobj copy = null;
@@ -1283,7 +1286,7 @@ final class Cur
         copy._cchAfter = 0;
 
         if (cTo._xobj == null)
-            cTo.set( copy, 0 );
+            cTo.moveTo( copy );
         else
         {
             // TODO - how to operate between mcur and fcur
@@ -1317,31 +1320,33 @@ final class Cur
 
     private Cur tempCur ( Xobj x, int p )
     {
-        assert x != null || p == -1;
+        assert x != null || p == NO_POS;
 
         Cur c = _locale.tempCur();
 
-        if (x != null && p == x.posMax())
-        {
-            if (x._nextSibling != null)
-            {
-                x = x._nextSibling;
-                p = 0;
-            }
-            else
-            {
-                x = x.ensureParent();
-                p = x.posEnd();
-            }
-        }
-
-        c.set( x, p );
-
+        if (x == null)
+            c.moveTo( null );
+        else
+            c.moveTo( getNormal( x, p ), _posTemp );
+        
         return c;
+    }
+
+    // Is s a cursor in the chars defined by cch chars after where this
+    // is positioned.
+    
+    private boolean inChars ( Cur c, int cch )
+    {
+        assert isPositioned() && isText() && cchRight() >= cch;
+        assert c.isPositioned();
+
+        return c._xobj != _xobj || c._pos < 0 ? false : c._pos >= _pos && c._pos < _pos + cch;
     }
 
     private Xobj getNormal ( Xobj x, int p )
     {
+        assert p == END_POS || (p >= 0 && p <= x.posMax());
+        
         if (p == x.posMax())
         {
             if (x._nextSibling != null)
@@ -1352,9 +1357,11 @@ final class Cur
             else
             {
                 x = x.ensureParent();
-                p = x.posEnd();
+                p = END_POS;
             }
         }
+        else if (p == x.posAfter() - 1)
+            p = END_POS;
 
         _posTemp = p;
 
@@ -1363,8 +1370,9 @@ final class Cur
 
     private Xobj getDenormal ( )
     {
-        assert _xobj != null && isNormal();
-        assert !_xobj.isRoot() || _pos > 0;
+        assert isPositioned();
+        assert END_POS == -1;
+        assert !_xobj.isRoot() || _pos >= END_POS;
         
         Xobj x = _xobj;
         int  p = _pos;
@@ -1379,16 +1387,18 @@ final class Cur
             else
             {
                 x = x.ensureParent();
-                p = x.posEnd();
+                p = END_POS;
             }
         }
-        else if (p == x.posEnd())
+        else if (p == END_POS)
         {
             if (x._lastChild != null)
             {
                 x = x._lastChild;
                 p = x.posMax();
             }
+            else
+                p = x.posAfter() - 1;
         }
 
         _posTemp = p;
@@ -1403,11 +1413,11 @@ final class Cur
 //        return _xobj.isInvalid();
 //    }
 
-//    void setType ( SchemaType type )
-//    {
-//        assert isNormal() && isPositioned() && _pos == 0;
-//        _xobj.setType( type );
-//    }
+    void setType ( SchemaType type )
+    {
+        assert isNormal() && isPositioned() && _pos == 0;
+        _xobj.setType( type );
+    }
     
 //    TypeStoreUser getTypeStoreUser ( )
 //    {
@@ -1439,31 +1449,6 @@ final class Cur
         return _xobj.getDom();
     }
 
-    private void set ( Xobj x, int p )
-    {
-        // This cursor may not be normalized upon entry ...
-        
-        if (_state == EMBEDDED && x != _xobj)
-        {
-            _xobj._embedded = listRemove( _xobj._embedded );
-
-            _locale._unembedded = listInsert( _locale._unembedded );
-            _state = UNEMBEDDED;
-        }
-
-        _xobj = x;
-        _pos = p;
-
-        if (_curKind == PERM && _state == UNEMBEDDED && _xobj != null)
-        {
-            _locale._unembedded = listRemove( _locale._unembedded );
-            _xobj._embedded = listInsert( _xobj._embedded );
-            _state = EMBEDDED;
-        }
-
-        assert isNormal();
-    }
-
     static void release ( Cur c )
     {
         if (c != null)
@@ -1482,7 +1467,7 @@ final class Cur
         assert isNormal();
 
         assert _xobj == null;
-        assert _pos  == -1;
+        assert _pos  == NO_POS;
 
         if (_obj instanceof Locale.Ref)
             ((Locale.Ref) _obj).clear();
@@ -1576,10 +1561,10 @@ final class Cur
             return false;
 
         if (_state == DISPOSED)
-            return _xobj == null && _pos == -1;
+            return _xobj == null && _pos == NO_POS;
 
         if (_xobj == null)
-            return _state == UNEMBEDDED && _pos == -1;
+            return _state == UNEMBEDDED && _pos == NO_POS;
 
         return _xobj.isNormal( _pos );
     }
@@ -1719,7 +1704,7 @@ final class Cur
 
             Cur c = _locale.tempCur();
 
-            c.set( _frontier, 0 );
+            c.moveTo( _frontier );
 
             return c;
         }
@@ -1763,16 +1748,9 @@ final class Cur
 
         final int cchValue ( ) { return _cchValue; }
         final int cchAfter ( ) { return _cchAfter; }
-        
-        final int posEnd   ( ) { return 1 + _cchValue; }
+
         final int posAfter ( ) { return 2 + _cchValue; }
         final int posMax   ( ) { return 2 + _cchValue + _cchAfter; }
-
-        final int kind ( int p )
-        {
-            assert isNormal( p );
-            return p == 0 ? kind() : p == posEnd() ? - kind() : TEXT;
-        }
 
         boolean isXmlns ( )
         {
@@ -1789,6 +1767,20 @@ final class Cur
             return getString( 1, _cchValue );
         }
 
+        boolean hasChildren ( )
+        {
+            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
+                if (!x.isAttr())
+                    return true;
+
+            return false;
+        }
+
+        boolean hasText ( )
+        {
+            return _cchValue > 0;
+        }
+
         abstract Dom getDom ( );
         
         abstract Xobj newNode ( );
@@ -1802,54 +1794,64 @@ final class Cur
 //        final void    setValid   ( ) { _bits &= ~0x100; }
 //        final void    setInvalid ( ) { _bits &=  0x100; }
 
-        final boolean isVacant   ( ) { return (_bits & 0x100) != 0; }
-        final boolean isOccupied ( ) { return (_bits & 0x100) == 0; }
+        final boolean isVacant    ( ) { return (_bits & 0x100) != 0; }
+        final boolean isOccupied  ( ) { return (_bits & 0x100) == 0; }
+        final void    setOccupied ( ) { _bits &=  0x100;             }
+        final void    setVacant   ( ) { _bits |= ~0x100;             }
 
-        final void fillVacancy ( )
-        {
-            assert isOccupied();
-
-            throw new RuntimeException( "Not implemented" );
-        }
+//        final void fillVacancy ( )
+//        {
+//            assert isOccupied();
+//
+//            throw new RuntimeException( "Not implemented" );
+//        }
 
         final void vacate ( )
         {
+            assert getTypeStoreUser() != null;
+            
             if (isOccupied())
             {
-                throw new RuntimeException( "Not implemented" );
+                setVacant();
+                
+                throw new RuntimeException( "Not impl" );
+//
+//                if (hasText() || hasChildren())
+//
+//                    ....
             }
         }
 
-//        static void setType ( SchemaType type )
-//        {
-//            TypeStoreUser user = getTypeStoreUser();
-//
-//            if (user == null || user.get_schema_type() == type)
-//            {
-//                if (c.isRoot())
-//                {
-//                    disconnectTree();
-//                    setTypeStoreUser( ((TypeStoreUserFactory) type).createTypeStoreUser() );
-//                }
-//                else
-//                    throw new RuntimeException( "Not impl" );
-//            }
-//        }
-//
-//        private static void disconnectTree ( )
-//        {
-//            // Disconnect all type store uses in this tree.  If there is no
-//            // user at the top, then there can be no children.
-//
-//            // TODO - make not recursive
-//            if (getTypeStoreUser() != null)
-//            {
-//                setTypeStoreUserLocal( null );
-//
-//                for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-//                    disconnectTree( x );
-//            }
-//        }
+        void setType ( SchemaType type )
+        {
+            TypeStoreUser user = getTypeStoreUser();
+
+            if (user == null || user.get_schema_type() == type)
+            {
+                if (isRoot())
+                {
+                    disconnectTree();
+                    setTypeStoreUserLocal( ((TypeStoreUserFactory) type).createTypeStoreUser() );
+                }
+                else
+                    throw new RuntimeException( "Not impl" );
+            }
+        }
+
+        private void disconnectTree ( )
+        {
+            // Disconnect all type store uses in this tree.  If there is no
+            // user at the top, then there can be no children.
+
+            // TODO - make not recursive
+            if (getTypeStoreUser() != null)
+            {
+                setTypeStoreUserLocal( null );
+
+                for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
+                    x.disconnectTree();
+            }
+        }
     
         final TypeStoreUser getTypeStoreUser ( )
         {
@@ -1865,32 +1867,31 @@ final class Cur
 
         // Just set the local user without dealing with disconnecting
         // children...
+        
         void setTypeStoreUserLocal ( TypeStoreUser newUser )
         {
-//            assert isNormal( 0 );
-//            
-//            if (isInvalid())
-//            {
-//                assert _cchValue == 0;
-//
-//                TypeStoreUser oldUser = getTypeStoreUser();
-//
-//                String newValue = oldUser.build_text( this );
-//
-//                setValid();
-//
-//                oldUser.disconnect_store();
-//
-//                Cur c = tempCur();
-//                c.next();
-//                c.insertChars( newValue, 0, newValue.length() );
-//                c.release();
-//            }
-//
-//            setTypeStoreUserHelper( newUser );
-//
-//            if (newUser != null)
-//                newUser.attach_store( this );
+            if (isVacant())
+            {
+                assert _cchValue == 0 && getTypeStoreUser() != null;
+
+                TypeStoreUser oldUser = getTypeStoreUser();
+
+                String newValue = oldUser.build_text( this );
+
+                setOccupied();
+
+                oldUser.disconnect_store();
+
+                Cur c = tempCur();
+                c.next();
+                c.insertChars( newValue, 0, newValue.length() );
+                c.release();
+            }
+
+            _user = newUser;
+            
+            if (newUser != null)
+                newUser.attach_store( this );
         }
         
         //
@@ -1904,7 +1905,7 @@ final class Cur
         public final Cur tempCur ( )
         {
             Cur c = _locale.tempCur();
-            c.set( this, 0 );
+            c.moveTo( this );
             return c;
         }
 
@@ -1952,17 +1953,22 @@ final class Cur
         final int cchRight ( int p )
         {
             assert isNormal( p );
-            return p == 0 ? 0 : p <= posEnd() ? posEnd() - p : posMax() - p;
+            if (p <= 0) return 0;
+            int pa = posAfter();
+            return p < pa ? pa - p : posMax() - p;
         }
 
         final boolean isNormal ( int p )
         {
+            if (p == END_POS)
+                return true;
+
             if (p < 0 || p > posMax())
                 return false;
 
             if (isRoot())
             {
-                if (p > posEnd())
+                if (p >= posAfter())
                     return false;
             }
             else if (!isAttr())
@@ -1970,7 +1976,7 @@ final class Cur
                 if (p >= posMax())
                     return false;
             }
-            else if (p > posEnd())
+            else if (p >= posAfter())
             {
                 if (_cchAfter == 0)
                     return false;
@@ -2063,13 +2069,13 @@ final class Cur
             if (cch < 0 || cch > cchRight)
                 cch = cchRight;
 
-            int pe = posEnd();
+            int pa = posAfter();
 
             // TODO - save this string back into the xobj for use later
             // TODO - save this string back into the xobj for use later
             
-            if (pos > pe)
-                return CharUtil.getString( _srcAfter, _offAfter + pos - pe - 1, cch );
+            if (pos >= pa)
+                return CharUtil.getString( _srcAfter, _offAfter + pos - pa, cch );
             else
                 return CharUtil.getString( _srcValue, _offValue + pos - 1, cch );
         }
@@ -2089,14 +2095,14 @@ final class Cur
                 return null;
             }
 
-            int pe = posEnd();
+            int pa = posAfter();
 
             Object src;
 
-            if (pos > pe)
+            if (pos >= pa)
             {
                 src = _srcAfter;
-                c._offSrc = _offAfter + pos - pe - 1;
+                c._offSrc = _offAfter + pos - pa;
             }
             else
             {

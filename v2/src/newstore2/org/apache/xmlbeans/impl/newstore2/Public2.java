@@ -253,6 +253,11 @@ public final class Public2
 
         c.dump();
 
+        c.next();
+        c.next();
+        c.nextWithAttrs();
+        
+
 //        c.setType( XmlObject.type );
 
 //        TypeStore store = c.getTypeStore();
