@@ -280,17 +280,17 @@ public class Schema2Java extends BindingCompiler {
       } else if (sType.isDocumentType()) {
         scratch = new Scratch(sType, XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, sType.getDocumentElementName()), Scratch.ELEMENT);
       } else if (sType.isAttributeType()) {
-        scratch = new Scratch(sType, XmlTypeName.forGlobalName(XmlTypeName.ATTRIBUTE, sType.getDocumentElementName()), Scratch.ATTRIBUTE);
+        scratch = new Scratch(sType, XmlTypeName.forGlobalName(XmlTypeName.ATTRIBUTE, sType.getAttributeTypeAttributeName()), Scratch.ATTRIBUTE);
       } else if (isSoapArray(sType)) {
         scratch = new Scratch(sType, xmlName, Scratch.SOAPARRAY_REF);
-        xmlName = soapArrayTypeName(sType);
-        scratch.setAsIf(xmlName);
+        XmlTypeName altXmlName = soapArrayTypeName(sType);
+        scratch.setAsIf(altXmlName);
 
         // soap arrays unroll like this
-        while (xmlName.getComponentType() == XmlTypeName.SOAP_ARRAY) {
-          scratch = new Scratch(null, xmlName, Scratch.SOAPARRAY);
-          scratchFromXmlName.put(xmlName, scratch);
-          xmlName = xmlName.getOuterComponent();
+        while (altXmlName.getComponentType() == XmlTypeName.SOAP_ARRAY) {
+          Scratch altScratch = new Scratch(sType, altXmlName, Scratch.SOAPARRAY);
+          scratchFromXmlName.put(altXmlName, altScratch);
+          altXmlName = altXmlName.getOuterComponent();
         }
       } else if (isLiteralArray(sType)) {
         scratch = new Scratch(sType, xmlName, Scratch.LITERALARRAY_TYPE);
@@ -399,8 +399,20 @@ public class Schema2Java extends BindingCompiler {
           XmlTypeName arrayName = scratch.getXmlName();
           XmlTypeName itemName = arrayName.getOuterComponent();
           Scratch itemScratch = scratchForXmlName(itemName);
-          resolveJavaName(itemScratch);
-          scratch.setJavaName(JavaTypeName.forArray(itemScratch.getJavaName(), arrayName.getNumber()));
+          JavaTypeName itemJavaName = null;
+          if (itemScratch == null) {
+              itemJavaName = getTypeNameFromLoader(itemName);
+              if (itemJavaName == null) {
+                logError("Could not find reference to type \"" +
+                  itemName.getQName() + "\"", null, scratch.getSchemaType());
+                itemJavaName = JavaTypeName.forString("unknown");
+              }
+          }
+          else {
+              resolveJavaName(itemScratch);
+              itemJavaName = itemScratch.getJavaName();
+          }
+          scratch.setJavaName(JavaTypeName.forArray(itemJavaName, arrayName.getNumber()));
           return;
         }
 
@@ -515,7 +527,10 @@ public class Schema2Java extends BindingCompiler {
         break;
 
       case Scratch.SOAPARRAY:
-        throw new UnsupportedOperationException();
+        WrappedArrayType soapArray = new WrappedArrayType(btName);
+        scratch.setBindingType(soapArray);
+        bindingFile.addBindingType(soapArray, shouldBeFromJavaDefault(btName), false);
+        break;
 
       default:
         throw new IllegalStateException("Unrecognized category");
@@ -698,7 +713,8 @@ public class Schema2Java extends BindingCompiler {
   private void resolveJavaArray(Scratch scratch)
   {
     if (scratch.getCategory() != Scratch.LITERALARRAY_TYPE &&
-        scratch.getCategory() != Scratch.LIST_TYPE)
+        scratch.getCategory() != Scratch.LIST_TYPE &&
+        scratch.getCategory() != Scratch.SOAPARRAY)
       return;
 
     if (scratch.isStructureResolved())
@@ -709,6 +725,38 @@ public class Schema2Java extends BindingCompiler {
     BindingType scratchBindingType = scratch.getBindingType();
     if (scratchBindingType instanceof WrappedArrayType) {
       WrappedArrayType bType = (WrappedArrayType) scratchBindingType;
+      // todo: fix this
+      if (scratch.getCategory() == Scratch.SOAPARRAY) {
+        XmlTypeName typexName = scratch.getXmlName();
+        XmlTypeName itemxName = typexName.getOuterComponent();
+        Scratch itemxScratch = scratchForXmlName(itemxName);
+        BindingType itemxType;
+        if (itemxScratch == null)
+          itemxType = mLoader.getBindingType(mLoader.lookupPojoFor(itemxName));
+        else
+          itemxType = itemxScratch.getBindingType();
+        // The rule is: if the soap array type looks like a literal array
+        // then the name and nillability are the same as for literal arrays
+        // Otherwise, the name is not significant and nillability is false
+        if (getLiteralArrayItemType(scratch.getSchemaType()) == null) {
+          bType.setItemName(new QName("", "foo"));
+          bType.setItemNillable(false);
+        }
+        else {
+          SchemaProperty prop = scratch.getSchemaType().getProperties()[0];
+          bType.setItemName(prop.getName());
+          bType.setItemNillable(prop.hasNillable() != SchemaProperty.NEVER);
+        }
+
+        if (itemxType != null) {
+          if (bType.isItemNillable())
+            itemxType = findBoxedType(itemxType);
+          bType.setItemType(itemxType.getName());
+        }
+        else
+          bType.setItemType(bType.getName());
+        return;
+      }
       JavaTypeName itemName = scratch.getJavaName().getArrayItemType(1);
       assert(itemName != null);
       SchemaType sType = getLiteralArrayItemType(scratch.getSchemaType());
@@ -1122,16 +1170,15 @@ public class Schema2Java extends BindingCompiler {
    * if it cannot find the type
    */
   private JavaTypeName getTypeNameFromLoader(SchemaType sType) {
+    return getTypeNameFromLoader(XmlTypeName.forSchemaType(sType));
+  }
+
+  private JavaTypeName getTypeNameFromLoader(XmlTypeName typeName) {
     BindingType bType = mLoader.getBindingType(mLoader.
-      lookupPojoFor(XmlTypeName.forSchemaType(sType)));
+      lookupPojoFor(typeName));
     if (bType != null)
       return bType.getName().getJavaName();
-    else if (sType.isBuiltinType())
-      logError("Bultin type " + sType.getName() + " is not supported",
-        null, sType);
-    else
-      throw new IllegalStateException(sType.getName().toString()+
-        " type is not on mLoader");
+
     return null;
   }
 

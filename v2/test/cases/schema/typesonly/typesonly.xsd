@@ -35,6 +35,26 @@
   </xs:complexType>
 
   <xs:element name="record" type="mt:person"/>
-    
+  
+  <xs:simpleType name="State">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AK"/>
+      <xs:enumeration value="AL"/>
+      <xs:enumeration value="AS"/>
+      <xs:enumeration value="AZ"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ListOfStates">
+    <xs:list itemType="mt:State"/>
+  </xs:simpleType>
+  
+  <xs:complexType name="candidate">
+    <xs:sequence>
+      <xs:element name="name" type="xs:string"/>
+      <xs:element name="states" type="mt:ListOfStates"/>
+    </xs:sequence>
+  </xs:complexType>
+  
 </xs:schema>
 
