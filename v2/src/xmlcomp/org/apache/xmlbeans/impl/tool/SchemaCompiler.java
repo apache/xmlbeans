@@ -865,10 +865,12 @@ public class SchemaCompiler
         }
 
         if (!result && !quiet)
+        {
             System.out.println("BUILD FAILED");
+        }
         else {
             // call schema compiler extension if registered
-            runExtensions(extensions, system);
+            runExtensions(extensions, system, classesDir);
         }
 
         if (cpResourceLoader != null)
@@ -876,12 +878,24 @@ public class SchemaCompiler
         return result;
     }
 
-    private static void runExtensions(List extensions, SchemaTypeSystem system)
+    private static void runExtensions(List extensions, SchemaTypeSystem system, File classesDir)
     {
         if (extensions != null && extensions.size() > 0)
         {
             SchemaCompilerExtension sce = null;
             Iterator i = extensions.iterator();
+            Map extensionParms = null;
+            String classesDirName = null;
+            try
+            {
+                classesDirName = classesDir.getCanonicalPath();
+            }
+            catch(java.io.IOException e)
+            {
+                System.out.println("WARNING: Unable to get the path for schema jar file");
+                classesDirName = classesDir.getAbsolutePath();
+            }
+
             while (i.hasNext())
             {
                 Extension extension = (Extension) i.next();
@@ -893,20 +907,24 @@ public class SchemaCompiler
                 {
                     System.out.println("UNABLE to instantiate schema compiler extension:" + extension.getClassName().getName());
                     System.out.println("EXTENSION Class was not run");
+                    break;
                 }
                 catch (IllegalAccessException e)
                 {
                     System.out.println("ILLEGAL ACCESS Exception when attempting to instantiate schema compiler extension: " + extension.getClassName().getName());
                     System.out.println("EXTENSION Class was not run");
+                    break;
                 }
-                System.out.println("Running Schema Compiler Extension: " + sce.getExtensionName());
-                Map extensionParms = new HashMap();
+
+                System.out.println("Running Extension: " + sce.getExtensionName());
+                extensionParms = new HashMap();
                 Iterator parmsi = extension.getParams().iterator();
                 while (parmsi.hasNext())
                 {
                     Extension.Param p = (Extension.Param) parmsi.next();
                     extensionParms.put(p.getName(), p.getValue());
                 }
+                extensionParms.put("classesDir", classesDirName);
                 sce.schemaCompilerExtension(system, extensionParms);
             }
         }
