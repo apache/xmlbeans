@@ -79,7 +79,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.ConcurrentModificationException;
@@ -274,7 +273,8 @@ public abstract class Saver implements NamespaceManager
 
     // Called when a synthetic prefix is created.
     
-    protected void syntheticNamespace ( String prefix, String uri ) { }
+    protected void syntheticNamespace (
+        String prefix, String uri, boolean considerCreatingDefault ) { }
 
     /*
      * It is vital that the saver does not modify the tree in the process of
@@ -641,7 +641,9 @@ public abstract class Saver implements NamespaceManager
         // which has no namespace, then we must make sure that pushing
         // the mappings causes the default namespace to be empty
 
-        pushMappings( c, name != null && nameUri.length() == 0 );
+        boolean ensureDefaultEmpty = name != null && nameUri.length() == 0;
+
+        pushMappings( c, ensureDefaultEmpty );
 
         //
         // There are four things which use mappings:
@@ -655,7 +657,7 @@ public abstract class Saver implements NamespaceManager
         // 1) The element name (not for starts)
 
         if (name != null)
-            ensureMapping( nameUri, null );
+            ensureMapping( nameUri, null, !ensureDefaultEmpty, false );
 
         assert noText();
 
@@ -676,7 +678,7 @@ public abstract class Saver implements NamespaceManager
                 _attrNames.add( s.getName() );
                 
                 // 3) Attribute name
-                ensureMapping( s.getUri(), null );
+                ensureMapping( s.getUri(), null, false, true );
 
                 String invalidValue = null;
                 
@@ -735,13 +737,6 @@ public abstract class Saver implements NamespaceManager
             }
             else
             {
-if (c.isLeaf())
-{
-    System.err.println( "LEAF ALERT!!!!!" );
-    System.err.println( "Top is " + _top.getKind() );
-    new Exception().printStackTrace( System.err );
-}
-                
                 assert !c.isLeaf();
                 
                 Splay s = c.nextSplay();
@@ -788,10 +783,13 @@ if (c.isLeaf())
 
         if (_preComputedNamespaces != null && (name != null || _needsFrag))
         {
-            for ( Iterator i = _preComputedNamespaces.iterator() ;
-                  i.hasNext() ; )
+            for ( Iterator i = _preComputedNamespaces.keySet().iterator() ; i.hasNext() ; )
             {
-                ensureMapping( (String) i.next(), null );
+                String uri = (String) i.next();
+                
+                ensureMapping(
+                    uri, null,
+                    _preComputedNamespaces.get( uri ) != null && !ensureDefaultEmpty, false );
             }
 
             // Set to null so we do this once at the top
@@ -876,7 +874,7 @@ if (c.isLeaf())
         else
         {
             pushFragmentMappings( null );
-            ensureMapping( s.getUri(), s.getLocal() );
+            ensureMapping( s.getUri(), s.getLocal(), false, true );
             emitXmlnsFragment( s );
         }
     }
@@ -904,7 +902,7 @@ if (c.isLeaf())
 
         pushFragmentMappings( s );
 
-        ensureMapping( s.getUri(), null );
+        ensureMapping( s.getUri(), null, false, true );
 
         assert noText();
 
@@ -1106,7 +1104,7 @@ if (c.isLeaf())
         if (renameUri != null)
         {
             // See if this prefix is already mapped to this uri.  If
-            // som then add to the stack, but there is nothing to rename
+            // so, then add to the stack, but there is nothing to rename
         
             if (renameUri.equals( uri ))
                 renameUri = null;
@@ -1182,11 +1180,21 @@ if (c.isLeaf())
                 break;
             }
 
-            _uriMap.put(
-                _namespaceStack.get( i - 7 ), _namespaceStack.get( i - 8 ) );
+            Object oldUri = _namespaceStack.get( i - 7 ); 
+            Object oldPrefix = _namespaceStack.get( i - 8 ); 
 
-            _prefixMap.put(
-                _namespaceStack.get( i - 4 ), _namespaceStack.get( i - 3 ) );
+            if (oldPrefix == null) 
+                _uriMap.remove( oldUri ); 
+            else 
+                _uriMap.put( oldUri, oldPrefix ); 
+
+            oldPrefix = _namespaceStack.get( i - 4 ); 
+            oldUri = _namespaceStack.get( i - 3 ); 
+
+            if (oldUri == null) 
+                _prefixMap.remove( oldPrefix ); 
+            else 
+                _prefixMap.put( oldPrefix, oldUri ); 
 
             String uri = (String) _namespaceStack.get( i - 5 );
 
@@ -1234,7 +1242,9 @@ if (c.isLeaf())
         return true;
     }
 
-    protected final String ensureMapping ( String uri, String candidatePrefix )
+    protected final String ensureMapping (
+        String uri, String candidatePrefix,
+        boolean considerCreatingDefault, boolean mustHavePrefix )
     {
         assert uri != null;
         assert candidatePrefix == null || candidatePrefix.length() > 0;
@@ -1246,7 +1256,7 @@ if (c.isLeaf())
 
         String prefix = (String) _uriMap.get( uri );
 
-        if (prefix != null)
+        if (prefix != null && (prefix.length() > 0 || !mustHavePrefix))
             return prefix;
 
         //
@@ -1266,7 +1276,7 @@ if (c.isLeaf())
             {
                 candidatePrefix = (String) _suggestedPrefixes.get( uri );
             }
-            else if (_useDefaultNamespace && tryPrefix( "" ))
+            else if (considerCreatingDefault && _useDefaultNamespace && tryPrefix( "" ))
                 candidatePrefix = "";
             else
             {
@@ -1285,7 +1295,7 @@ if (c.isLeaf())
 
         assert candidatePrefix != null;
 
-        syntheticNamespace( candidatePrefix, uri );
+        syntheticNamespace( candidatePrefix, uri, considerCreatingDefault );
 
         addMapping( candidatePrefix, uri );
 
@@ -1297,7 +1307,9 @@ if (c.isLeaf())
         assert uri != null;
         assert prefix == null || prefix.length() > 0;
 
-        return ensureMapping( uri, prefix );
+        boolean emptyUri = uri.length() == 0;
+        
+        return ensureMapping( uri, prefix, emptyUri, !emptyUri );
     }
 
     public final String getNamespaceForPrefix ( String prefix )
@@ -1313,7 +1325,7 @@ if (c.isLeaf())
         if (_fragment.getNamespaceURI().length() == 0)
             return "";
         
-        return ensureMapping( _fragment.getNamespaceURI(), "frag" );
+        return ensureMapping( _fragment.getNamespaceURI(), "frag", false, false );
     }
 
     /**
@@ -1322,16 +1334,17 @@ if (c.isLeaf())
     
     static final class SynthNamespaceSaver extends Saver
     {
-        LinkedHashSet _synthNamespaces = new LinkedHashSet();
+        LinkedHashMap _synthNamespaces = new LinkedHashMap();
         
         SynthNamespaceSaver ( Root r, Splay s, int p, XmlOptions options )
         {
             super( r, s, p, options );
         }
         
-        protected void syntheticNamespace ( String prefix, String uri )
+        protected void syntheticNamespace (
+            String prefix, String uri, boolean considerCreatingDefault )
         {
-            _synthNamespaces.add( uri );
+            _synthNamespaces.put( uri, considerCreatingDefault ? "useDefault" : null );
         }
         
         protected void emitXmlnsFragment ( Splay s ) { }
@@ -4755,7 +4768,7 @@ if (c.isLeaf())
     private boolean   _firstPush;
     private String    _initialDefaultUri;
     
-    private HashSet _preComputedNamespaces;
+    private HashMap _preComputedNamespaces;
     private String  _filterProcinst;
     private Map     _suggestedPrefixes;
 

@@ -447,7 +447,7 @@
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
-                 xmlstore.classes,
+                 xmlstore.classes, binding.classes,
                  oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
@@ -462,6 +462,7 @@
       <fileset dir="build/classes/xmlschema"/>
       <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/xmlinputstream"/>
+      <fileset dir="build/classes/binding"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="src/license"/>
     </jar>
@@ -601,6 +602,27 @@
     <mkdir dir="build/classes/xmlcomp"/>
     <javac srcdir="src/xmlcomp" destdir="build/classes/xmlcomp" source="1.4" debug="on">
       <classpath>
+        <pathelement location="build/classes/xmlinputstream"/>
+        <pathelement location="build/classes/xmlpublic"/>
+        <pathelement location="build/classes/common"/>
+        <pathelement location="build/classes/repackage"/>
+        <pathelement location="build/classes/typeimpl"/>
+        <pathelement location="build/classes/xmlconfig"/>
+        <pathelement location="build/classes/configschema"/>
+        <pathelement location="build/classes/toolschema"/>
+        <pathelement location="build/classes/xsdschema"/>
+      </classpath>
+    </javac>
+
+  </target>
+
+  <!-- binding target =============================================== -->
+
+  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes">
+    <mkdir dir="build/classes/binding"/>
+    <javac srcdir="src/binding" destdir="build/classes/binding" source="1.4" debug="on">
+      <classpath>
+        <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/common"/>
