@@ -64,8 +64,7 @@ public abstract class Path
             currentNodeVar = (String) options.get(XmlOptions.XQUERY_CURRENT_NODE_VAR);
 
             if (currentNodeVar.startsWith("$")) {
-                throw
-                        new IllegalArgumentException("Omit the '$' prefix for the current node variable");
+                throw new IllegalArgumentException("Omit the '$' prefix for the current node variable");
             }
         }
 
@@ -171,9 +170,9 @@ public abstract class Path
     {
         static Path create(String pathExpr, String currentVar, Map namespaces)
         {
-            try {
-                return
-                        new XbeanPath(pathExpr, currentVar,
+            try
+            {
+                return new XbeanPath(pathExpr, currentVar,
                                 XPath.compileXPath(pathExpr, currentVar, namespaces));
             }
             catch (XPathCompileException e) {

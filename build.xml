@@ -51,11 +51,11 @@
     </target>
 
     <target name="check.saxon8.2.jar" depends="saxon.find1,saxon.find2">
-     <condition property="saxon8.2.jar.exists">
-      <or>
-        <available file="build/lib/saxon8.jar"/>
-	<available file="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
-	</or>
+      <condition property="saxon8.2.jar.exists">
+        <or>
+          <available file="build/lib/saxon8.jar"/>
+	        <available file="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
+	      </or>
       </condition>
     </target>
 

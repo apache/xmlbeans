@@ -134,7 +134,7 @@ public class InsertElementTest extends BasicCursorTestCase {
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
-                        "$this//FleetID");
+                        ".//FleetID");
         m_xc.toNextSelection();
         m_xc.insertElementWithText("name", "uri", "value");
         m_xc.toPrevSibling();

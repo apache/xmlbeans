@@ -344,7 +344,7 @@ public abstract class Query
     }
 
 
-    private static HashMap _xqrlQueryCache = new HashMap();
+    private static HashMap _xqrlQueryCache = new HashMap(); //todo check for memory leaks
     private static HashMap _saxonQueryCache = new HashMap();
 
     private static Method _xqrlCompileQuery;

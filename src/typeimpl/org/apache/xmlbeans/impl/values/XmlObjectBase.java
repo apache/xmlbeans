@@ -92,7 +92,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     public final Object monitor()
     {
         if (has_store())
-            return get_store().get_root_object();
+            return get_store().get_locale();
         return this;
     }
 
@@ -2375,8 +2375,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         {
             if (!xc.isContainer())
                 return null;
-
-            List result = new ArrayList();
 
             if (xc.toFirstAttribute())
             {

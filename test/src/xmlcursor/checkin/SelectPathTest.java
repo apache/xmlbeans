@@ -68,7 +68,7 @@ public class SelectPathTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
-        String sLocalPath ="$this//FleetID";
+        String sLocalPath =".//FleetID";
         m_xc.selectPath(sLocalPath);
         assertEquals(0, m_xc.getSelectionCount());
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
@@ -81,9 +81,9 @@ public class SelectPathTest extends BasicCursorTestCase {
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
-        m_xc.selectPath(ns+" $this//po:ciTy");
+        m_xc.selectPath(ns+" .//po:ciTy");
         assertEquals(0, m_xc.getSelectionCount());
-        m_xc.selectPath(ns+" $this//po:city");
+        m_xc.selectPath(ns+" .//po:city");
         assertEquals(2, m_xc.getSelectionCount());
     }
 
@@ -92,7 +92,7 @@ public class SelectPathTest extends BasicCursorTestCase {
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
-        m_xc.selectPath(ns+" $this//po:item");
+        m_xc.selectPath(ns+" .//po:item");
         assertEquals(2, m_xc.getSelectionCount());
     }
 
