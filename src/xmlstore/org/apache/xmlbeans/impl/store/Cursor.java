@@ -90,7 +90,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
-import weblogic.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 public final class Cursor implements XmlCursor, ChangeListener
 {

@@ -69,7 +69,7 @@ import javax.xml.namespace.QName;
 
 import java.io.File;
 
-import weblogic.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 public class Unmarshal
 {

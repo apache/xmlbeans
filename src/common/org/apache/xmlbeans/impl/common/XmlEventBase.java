@@ -56,8 +56,8 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.events.ElementTypeNames;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.events.ElementTypeNames;
 
 /**
  * Abstract base class which implements the type part XMLEvent.

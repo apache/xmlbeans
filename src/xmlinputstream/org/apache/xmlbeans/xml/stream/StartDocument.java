@@ -54,44 +54,34 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
-import java.util.Map;
 /**
- * The StartElement interface provides access to information about
- * start elements
+ * An interface for the start document event
  *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.AttributeIterator
- */
-
-public interface StartElement extends XMLEvent {
-  /**
-   * Returns an AttributeIterator of non-namespace declared attributes
+ * @see org.apache.xmlbeans.xml.stream.XMLEvent
+*/
+public interface StartDocument extends XMLEvent {
+  /* 
+   * Returns the system id of the stream
+   * @return the system id, defaults to ""
    */
-  public AttributeIterator getAttributes();
-  /**
-   * Returns an AttributeIterator of namespaces declared in this element
+  public String getSystemId();
+  /* 
+   * Returns the encoding style of this XML stream
+   * @return the character encoding, defaults to "UTF-8"
    */
-  public AttributeIterator getNamespaces();
-  /**
-   * Returns the union of declared attributes and namespaces
+  public String getCharacterEncodingScheme();
+  /* 
+   * Returns if this XML is standalone
+   * @return the version of XML, defaults to "yes"
    */
-  public AttributeIterator getAttributesAndNamespaces();
-  /**
-   * Returns the attribute referred to by this name
+  public boolean isStandalone();
+  /* 
+   * Returns the version of XML of this XML stream
+   * @return the version of XML, defaults to "1.0"
    */
-  public Attribute getAttributeByName(XMLName name);
-  /**
-   * Gets the value that the prefix is bound to in the
-   * context of this element.  Returns null if 
-   * the prefix is not bound in this context
-   */
-  public String getNamespaceUri(String prefix);
-  /**
-   * Gets a java.util.Map from prefixes to URIs in scope for this
-   * element.
-   */
-  public Map getNamespaceMap();
+  public String getVersion();
 }

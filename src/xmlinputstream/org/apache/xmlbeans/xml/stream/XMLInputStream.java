@@ -54,7 +54,7 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
  *
@@ -73,13 +73,13 @@ package weblogic.xml.stream;
  *
  * @since XMLInputStream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.XMLEvent
- * @see weblogic.xml.stream.CharacterData
- * @see weblogic.xml.stream.ProcessingInstruction
- * @see weblogic.xml.stream.StartElement
- * @see weblogic.xml.stream.EndElement
- * @see weblogic.xml.stream.CharacterData
- * @see weblogic.xml.stream.XMLName
+ * @see org.apache.xmlbeans.xml.stream.XMLEvent
+ * @see org.apache.xmlbeans.xml.stream.CharacterData
+ * @see org.apache.xmlbeans.xml.stream.ProcessingInstruction
+ * @see org.apache.xmlbeans.xml.stream.StartElement
+ * @see org.apache.xmlbeans.xml.stream.EndElement
+ * @see org.apache.xmlbeans.xml.stream.CharacterData
+ * @see org.apache.xmlbeans.xml.stream.XMLName
  */
 
 // REVIEW pdapkus@bea.com 2002-Sep-13 -- while I like the convenience
@@ -93,12 +93,12 @@ package weblogic.xml.stream;
 public interface XMLInputStream {
   /**
    * Get the next XMLEvent on the stream
-   * @see weblogic.xml.stream.XMLEvent
+   * @see org.apache.xmlbeans.xml.stream.XMLEvent
    */
   public XMLEvent next() throws XMLStreamException;
   /**
    * Check if there are more events to pull of the stream
-   * @see weblogic.xml.stream.XMLEvent
+   * @see org.apache.xmlbeans.xml.stream.XMLEvent
    */
   public boolean hasNext() throws XMLStreamException;
   /**
@@ -112,7 +112,7 @@ public interface XMLInputStream {
   /**
    * Check the next XMLEvent without reading it from the stream.
    * Returns null if the stream is at EOF or has no more XMLEvents.
-   * @see weblogic.xml.stream.XMLEvent
+   * @see org.apache.xmlbeans.xml.stream.XMLEvent
    */
   public XMLEvent peek() throws XMLStreamException;
   /**
@@ -120,7 +120,7 @@ public interface XMLInputStream {
    * returns true if the stream contains another XMLEvent of this type
    * and false otherwise.
    * @param eventType An integer code that indicates the element type.
-   * @see weblogic.xml.stream.XMLEvent
+   * @see org.apache.xmlbeans.xml.stream.XMLEvent
    */
   public boolean skip(int eventType) throws XMLStreamException;
   /**
@@ -132,7 +132,7 @@ public interface XMLInputStream {
    * If the XMLName.getNameSpaceName() method on the XMLName argument returns
    * null the XMLName will match just the local name.  Prefixes are
    * not checked for equality.
-   * @see weblogic.xml.stream.XMLName
+   * @see org.apache.xmlbeans.xml.stream.XMLName
    */
   public boolean skip(XMLName name) throws XMLStreamException;
   /**
@@ -144,8 +144,8 @@ public interface XMLInputStream {
    * null the XMLName will match just the local name.  Prefixes are
    * not checked for equality.
    * @param eventType An integer code that indicates the element type.
-   * @see weblogic.xml.stream.XMLEvent
-   * @see weblogic.xml.stream.XMLName
+   * @see org.apache.xmlbeans.xml.stream.XMLEvent
+   * @see org.apache.xmlbeans.xml.stream.XMLName
    */
   public boolean skip(XMLName name, int eventType) throws XMLStreamException;
   /**
@@ -164,14 +164,14 @@ public interface XMLInputStream {
   /**
    * Returns the reference resolver that was set for this stream,
    * returns null if no ReferenceResolver has been set.
-   * @see weblogic.xml.stream.ReferenceResolver
+   * @see org.apache.xmlbeans.xml.stream.ReferenceResolver
    */
   public ReferenceResolver getReferenceResolver();
   /**
    * Provides a way to set the ReferenceResolver of the stream,
    * this is mostly needed for handle references to other parts of the
    * document.
-   * @see weblogic.xml.stream.ReferenceResolver
+   * @see org.apache.xmlbeans.xml.stream.ReferenceResolver
    */
   public void setReferenceResolver(ReferenceResolver resolver);
 }

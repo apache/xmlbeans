@@ -54,17 +54,35 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
- * A marker interface for the end of a document
+ * An interface that contains information about an attribute
  *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.XMLEvent
-*/
-public interface EndDocument extends XMLEvent {
+ * @see org.apache.xmlbeans.xml.stream.XMLName
+ * @see org.apache.xmlbeans.xml.stream.Attribute
+ */
+public interface Attribute {
   /**
-   * No methods are defined in this interface.
+   * Get the XMLName of the current attribute.
+   * @see org.apache.xmlbeans.xml.stream.XMLName
    */
+  public XMLName getName();
+
+  /**
+   * Get the attribute value of the current attribute.
+   */
+  public String getValue();
+
+  /**
+   * Get the attribute type of the current attribute
+   */
+  public String getType();
+
+  /**
+   * Get the attribute type of the current attribute
+   */
+  public XMLName getSchemaType();
 }

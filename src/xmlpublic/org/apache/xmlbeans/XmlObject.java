@@ -56,8 +56,8 @@
 
 package org.apache.xmlbeans;
 
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 import org.w3c.dom.Node;
 

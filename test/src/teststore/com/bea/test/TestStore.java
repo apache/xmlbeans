@@ -56,7 +56,7 @@
 
 package com.bea.test;
 
-import weblogic.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLName;
 import org.apache.xmlbeans.values.TypeStoreUserFactory;
 import xml.util.SchemaTypeSystem;
 import xml.util.XmlObject;
