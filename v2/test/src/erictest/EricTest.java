@@ -113,6 +113,8 @@ public class EricTest
 
         Public2.dump( doc );
 
+        doc.getDocumentElement().setAttributeNS("http://www.w3.org/2000/xmlns/", "xmlns", "asasas");
+        
         System.out.println( Public2.save( doc ) );
     }
 }

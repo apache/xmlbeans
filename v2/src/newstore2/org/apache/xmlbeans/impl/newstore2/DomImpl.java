@@ -321,7 +321,7 @@ final class DomImpl
         if (prefix.equals( "xml" ) && !uri.equals( Locale._xml1998Uri ))
             throw new NamespaceErr( "Invalid prefix - begins with 'xml'" );
 
-        if (isAttr)
+        if (isAttr && prefix.length() > 0)
         {
             if (local.equals( "xmlns" ))
                 throw new NamespaceErr( "Invalid namespace - attr is default namespace already" );
