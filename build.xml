@@ -74,7 +74,7 @@
     <svnrev file="build/private/svninfo.properties"
         property="svn.last.rev"/>
 
-    <property name="version.full" value="${version.base}-${svn.last.rev}"/>
+    <property name="version.full" value="${version.base}-r${svn.last.rev}"/>
     <property name="manifest.comment" value="Apache XmlBeans version ${version.full}"/>
 
     <echo message="${manifest.comment}"/>
@@ -790,7 +790,7 @@
         <section name="${manifest.name}">
           <attribute name="Comment" value="${manifest.comment}"/>
           <attribute name="Implementation-Title" value="${manifest.title}"/>
-          <attribute name="Implementation-Version" value="${version.base}"/>
+          <attribute name="Implementation-Version" value="${version.full}"/>
           <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
           <attribute name="Implementation-URL" value="${manifest.url}"/>
         </section>
