@@ -27,6 +27,7 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.XmlID;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -138,7 +139,7 @@ public class StscChecker
                                 new Object[] { QNameHelper.pretty(sAttrs[i].getName()), 
                                                constraintName,
                                                valueConstraint,
-                                               QNameHelper.readable(sAttrs[i].getType()) },
+                                               QNameHelper.pretty(sAttrs[i].getType().getName()) },
                                 constraintLocation);
                         }
                     }
@@ -175,7 +176,7 @@ public class StscChecker
                             XmlAnySimpleType val = model.getDefaultValue();
                             if (!val.validate())
                                 throw new Exception();
-                            
+
                             SchemaPropertyImpl sProp = (SchemaPropertyImpl)parentType.getElementProperty(model.getName());
                             if (sProp != null && sProp.getDefaultText() != null)
                             {
@@ -187,13 +188,37 @@ public class StscChecker
                             // move to 'fixed' or 'default' attribute on the element definition
                             String constraintName = (model.isFixed() ? "fixed" : "default");
                             XmlObject constraintLocation = location.selectAttribute("", constraintName);
-                            
+
                             StscState.get().error(XmlErrorCodes.ELEM_PROPERTIES$CONSTRAINT_VALID,
-                                new Object[] { QNameHelper.pretty(model.getName()), 
+                                new Object[] { QNameHelper.pretty(model.getName()),
                                                constraintName,
                                                valueConstraint,
-                                               QNameHelper.readable(model.getType()) },
+                                               QNameHelper.pretty(model.getType().getName()) },
                                 (constraintLocation==null ? location : constraintLocation));
+                        }
+                    }
+                    else if (model.getType().getContentType() == SchemaType.MIXED_CONTENT)
+                    {
+                        if (!model.getType().getContentModel().isSkippable())
+                        {
+                            String constraintName = (model.isFixed() ? "fixed" : "default");
+                            XmlObject constraintLocation = location.selectAttribute("", constraintName);
+
+                            StscState.get().error(XmlErrorCodes.ELEM_DEFAULT_VALID$MIXED_AND_EMPTIABLE,
+                                new Object[] { QNameHelper.pretty(model.getName()),
+                                               constraintName,
+                                               valueConstraint },
+                                (constraintLocation==null ? location : constraintLocation));
+                        }
+                        else
+                        {
+                            // Element Default Valid (Immediate): cos-valid-default.2.2.2
+                            // no need to validate the value; type is a xs:string
+                            SchemaPropertyImpl sProp = (SchemaPropertyImpl)parentType.getElementProperty(model.getName());
+                            if (sProp != null && sProp.getDefaultText() != null)
+                            {
+                                sProp.setDefaultValue(new XmlValueRef(XmlString.type.newValue(valueConstraint)));
+                            }
                         }
                     }
                     else if (model.getType().getContentType() == SchemaType.ELEMENT_CONTENT)

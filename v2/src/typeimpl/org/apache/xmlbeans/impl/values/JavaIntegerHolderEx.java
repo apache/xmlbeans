@@ -20,7 +20,7 @@ import java.math.BigInteger;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlInt;
+import org.apache.xmlbeans.XmlPositiveInteger;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -74,17 +74,17 @@ public class JavaIntegerHolderEx extends JavaIntegerHolder
     private static void validateValue(BigInteger v, SchemaType sType, ValidationContext context)
     {
         // total digits
-        XmlInt td = (XmlInt)sType.getFacet(SchemaType.FACET_TOTAL_DIGITS);
+        XmlPositiveInteger td = (XmlPositiveInteger)sType.getFacet(SchemaType.FACET_TOTAL_DIGITS);
         if (td != null)
         {
             String temp = v.toString();
             int len = temp.length();
             if (len > 0 && temp.charAt(0) == '-')
                 len -= 1;
-            if (len > td.getIntValue())
+            if (len > td.getBigIntegerValue().intValue())
             {
                 context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
-                    new Object[] { temp, new Integer(td.getIntValue()), QNameHelper.readable(sType) });
+                    new Object[] { new Integer(len), temp, new Integer(td.getBigIntegerValue().intValue()), QNameHelper.readable(sType) });
                 return;
             }
         }

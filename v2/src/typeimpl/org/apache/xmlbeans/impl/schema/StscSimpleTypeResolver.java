@@ -33,6 +33,8 @@ import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlByte;
 import org.apache.xmlbeans.XmlShort;
 import org.apache.xmlbeans.XmlUnsignedByte;
+import org.apache.xmlbeans.XmlPositiveInteger;
+import org.apache.xmlbeans.XmlNonNegativeInteger;
 import org.w3.x2001.xmlSchema.*;
 
 public class StscSimpleTypeResolver
@@ -728,12 +730,10 @@ public class StscSimpleTypeResolver
                         break;
 
                     case SchemaType.FACET_TOTAL_DIGITS:
-                    case SchemaType.FACET_FRACTION_DIGITS:
-                        boolean istotaldig = (code == SchemaType.FACET_TOTAL_DIGITS);
-                        XmlInteger dig = StscTranslator.buildNnInteger(facet.getValue());
+                        XmlPositiveInteger dig = StscTranslator.buildPosInteger(facet.getValue());
                         if (dig == null)
                         {
-                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                            state.error("Must be a positive integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
                             break;
                         }
                         if (fixedFacets[code] && !myFacets[code].valueEquals(dig))
@@ -746,12 +746,27 @@ public class StscSimpleTypeResolver
                             if (dig.compareValue(myFacets[SchemaType.FACET_TOTAL_DIGITS]) > 0)
                                 state.error(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_RESTRICTION, null, facet);
                         }
-                        if (!istotaldig && myFacets[SchemaType.FACET_FRACTION_DIGITS] != null)
+                        myFacets[code] = dig;
+                        break;
+
+                    case SchemaType.FACET_FRACTION_DIGITS:
+                        XmlNonNegativeInteger fdig = StscTranslator.buildNnInteger(facet.getValue());
+                        if (fdig == null)
                         {
-                            if (dig.compareValue(myFacets[SchemaType.FACET_FRACTION_DIGITS]) > 0)
+                            state.error("Must be a nonnegative integer", XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                            break;
+                        }
+                        if (fixedFacets[code] && !myFacets[code].valueEquals(fdig))
+                        {
+                            state.error(XmlErrorCodes.FACET_FIXED, null, facet);
+                            continue;
+                        }
+                        if (myFacets[SchemaType.FACET_FRACTION_DIGITS] != null)
+                        {
+                            if (fdig.compareValue(myFacets[SchemaType.FACET_FRACTION_DIGITS]) > 0)
                                 state.error(XmlErrorCodes.DATATYPE_FRACTION_DIGITS_RESTRICTION, null, facet);
                         }
-                        myFacets[code] = dig;
+                        myFacets[code] = fdig;
                         break;
 
                     case SchemaType.FACET_MIN_EXCLUSIVE:
