@@ -113,7 +113,7 @@ public abstract class Path
                 path = XbeanPath.create(pathExpr, currentVar, namespaces);
 
                 if (path == null)
-                    throw new XmlRuntimeException("Path too complex for XBean path engine");
+                    throw new XmlRuntimeException("Path too complex for XBean path engine: " + pathExpr);
 
                 _xbeanPathCache.put(path._pathKey, path);
             }
@@ -153,7 +153,7 @@ public abstract class Path
             }
         }
         if (path == null)
-            throw new RuntimeException("Path too complex for xmlbeans");
+            throw new RuntimeException("Path too complex for xmlbeans: " + pathExpr);
         return path;
     }
 

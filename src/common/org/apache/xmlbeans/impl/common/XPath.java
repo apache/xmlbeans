@@ -924,8 +924,8 @@ public class XPath
 
                     if (! tokenize( ";" ))
                     {
-			            throw newError(
-                            "Namespace declaration must end with ;" );
+//			            throw newError(
+//                            "Namespace declaration must end with ;" );
 			        }
 
                     _externalNamespaces.put(_NS_BOUNDARY,new Integer(_offset));
