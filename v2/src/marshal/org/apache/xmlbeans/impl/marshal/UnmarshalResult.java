@@ -151,7 +151,7 @@ final class UnmarshalResult
             ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
             final SchemaTypeLoader schemaTypeLoader =
                 schemaTypeLoaderProvider.getSchemaTypeLoader();
-            vr.init(reader, null, schemaTypeLoader, options, errors);
+            vr.init(reader, false, null, schemaTypeLoader, options, errors);
             enrichXmlStream(vr);
         } else {
             enrichXmlStream(reader);
@@ -241,7 +241,7 @@ final class UnmarshalResult
                     schemaType + " in supplied schema type system";
                 throw new XmlException(e);
             }
-            vr.init(reader, schema_type, schemaTypeLoader, options, errors);
+            vr.init(reader, false, schema_type, schemaTypeLoader, options, errors);
             reader = vr; //note changing param
         }
 

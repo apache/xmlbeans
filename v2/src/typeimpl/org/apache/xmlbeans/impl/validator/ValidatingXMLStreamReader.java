@@ -34,7 +34,7 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * This class is a wrapper over a generic XMLInputStream that provides validation.
+ * This class is a wrapper over a generic XMLStreamReader that provides validation.
  * There are 3 cases:
  * <br/> 1) the XMLStreamReader represents a document, it contains only one element document
  *          - in this case the user schema type should be null or it should be a document SchemaType
@@ -43,6 +43,7 @@ import java.util.List;
  * <br/>     b) it doesn't have xsi:type - user must provide a schema type
  *         otherwise will error and will not do validation
  * <br/> 3) the XMLStreamReader represents a global attribute - i.e. user schema type is null and only one attribute
+ * <br/>
  *
  * @author Cezar Andrei (cezar.andrei at bea.com)
  * Date: Feb 13, 2004
@@ -91,13 +92,14 @@ public class ValidatingXMLStreamReader
     /**
      * Used in case of reusing the same ValidatinXMLStreamReader object
      * @param xsr The stream to be validated
+     * @param startWithCurrentEvent Validation will start if true with the current event or if false with the next event in the stream
      * @param contentType The schemaType of the content. This can be null for document and global Att validation
      * @param stl SchemaTypeLoader context of validation
      * @param options Validator options
      * @param errorListener Errors and warnings listener
      */
-    public void init(XMLStreamReader xsr, SchemaType contentType, SchemaTypeLoader stl,
-                     XmlOptions options, Collection errorListener)
+    public void init(XMLStreamReader xsr, boolean startWithCurrentEvent, SchemaType contentType,
+                     SchemaTypeLoader stl, XmlOptions options, Collection errorListener)
     {
         setParent(xsr);
         _contentType = contentType;
@@ -115,6 +117,12 @@ public class ValidatingXMLStreamReader
             _attValuesList.clear();
         }
         _xsiType = null;
+
+        if (startWithCurrentEvent)
+        {
+            int evType = getEventType();
+            validate_event(evType);
+        }
     }
 
     private static class ElementEventImpl
@@ -402,7 +410,8 @@ public class ValidatingXMLStreamReader
             return _xmlStream.getNamespaceURI(prefix);
         }
     }
-    /* public methods */
+
+    /* public methods in XMLStreamReader */
 
     public Object getProperty(String s) throws IllegalArgumentException
     {
@@ -414,8 +423,15 @@ public class ValidatingXMLStreamReader
         int evType = super.next();
         //debugEvent(evType);
 
+        validate_event(evType);
+
+        return evType;
+    }
+
+    private void validate_event(int evType)
+    {
         if (_state==STATE_ERROR)
-            return evType;
+            return;
 
         switch(evType)
         {
@@ -534,8 +550,6 @@ public class ValidatingXMLStreamReader
         default:
             throw new IllegalStateException("Unknown event type.");
         }
-
-        return evType;
     }
 
     private void pushBufferedAttributes()
@@ -645,8 +659,8 @@ public class ValidatingXMLStreamReader
     }
 
     /**
-     * @return Returns the validation state up to this point
-     * NOTE: At least on START ELEMENT should have been consumed for a valid value to be returned.
+     * @return Returns the validation state up to this point.
+     * NOTE: At least one START ELEMENT should have been consumed for a valid value to be returned.
      */
     public boolean isValid()
     {

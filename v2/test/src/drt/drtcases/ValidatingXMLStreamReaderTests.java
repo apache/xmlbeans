@@ -77,7 +77,7 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         XMLStreamReader xsr = XMLInputFactory.newInstance().
             createXMLStreamReader(new FileInputStream(file));
 
-        valXsr.init(xsr, null /* validate an entire document */ ,
+        valXsr.init(xsr, false, null /* validate an entire document */ ,
             XmlBeans.typeLoaderForClassLoader(ValidatingXMLStreamReader.class.getClassLoader()),
             null,
             errors);
@@ -118,17 +118,28 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         Collection errors = new ArrayList();
 
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();
-        valXsr.init(xsr,
-            null,
+        valXsr.init(xsr, false, null,
             XmlBeans.typeLoaderForClassLoader(ValidatingXMLStreamReader.class.getClassLoader()),
-            null,
-            errors);
+            null, errors);
 
         while(valXsr.hasNext())
         {
             valXsr.next();
         }
+
+        if (!valXsr.isValid())
+        {
+            System.out.println("---------------\n");
+            Iterator i = errors.iterator();
+            while (i.hasNext())
+            {
+                XmlError xmlError = (XmlError) i.next();
+                System.out.println(xmlError.getSeverity() + " " + xmlError.getMessage());
+            }
+        }
+
         Assert.assertTrue("Global attribute validation is broken.", valXsr.isValid());
+
     }
 
     public void testValidateGlobalAtt2() throws XMLStreamException
@@ -138,11 +149,9 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         Collection errors = new ArrayList();
 
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();
-        valXsr.init(xsr,
-            null,
+        valXsr.init(xsr, false, null,
             XmlBeans.typeLoaderForClassLoader(ValidatingXMLStreamReader.class.getClassLoader()),
-            null,
-            errors);
+            null, errors);
 
         while(valXsr.hasNext())
         {
@@ -431,11 +440,9 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         Collection errors = new ArrayList();
 
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();
-        valXsr.init(xsr,
-            DocDocument.Doc.type,
+        valXsr.init(xsr, false, DocDocument.Doc.type,
             XmlBeans.typeLoaderForClassLoader(ValidatingXMLStreamReader.class.getClassLoader()),
-            null,
-            errors);
+            null, errors);
 
         while(valXsr.hasNext())
         {
@@ -454,11 +461,9 @@ public class ValidatingXMLStreamReaderTests extends TestCase
         Collection errors = new ArrayList();
 
         ValidatingXMLStreamReader valXsr = new ValidatingXMLStreamReader();
-        valXsr.init(xsr,
-            DocDocument.Doc.type,
+        valXsr.init(xsr, false, DocDocument.Doc.type,
             XmlBeans.typeLoaderForClassLoader(ValidatingXMLStreamReader.class.getClassLoader()),
-            null,
-            errors);
+            null, errors);
 
         int depth = 0;
 
