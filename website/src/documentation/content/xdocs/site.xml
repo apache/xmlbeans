@@ -31,6 +31,7 @@ See http://xml.apache.org/forrest/linking.html for more info
         <userdoc label="User Guide" href="index.html#XMLBeans+Version+1+User+Documentation" description="Check out the user guide."/>
         <userdoc label="Javadoc" href="../docs/reference/index.html" description="Look over references."/>
 <!--        <samples label="Sample Code" href="samples.html" description="Download sample code."/> -->
+        <userdoc label="V2 Javadoc" href="../docs/v2/reference/index.html" description="Look over references."/>
         <install label="Installing XMLBeans" href="conInstallGuide.html" description="Install XMLBeans"/>
         <wiki label="Wiki Pages" href="index.html#Wiki+Pages" description="See a list of Wiki pages"/>
     </documentation-tab>
