@@ -18,6 +18,23 @@ package org.apache.xmlbeans.impl.jam;
 /**
  * <p>Represents a member value of a JAnnotation.</p>
  *
+ * <p><b>A note regarding enums</b></p>
+ *
+ * <p>The presence of metadata of 'enum' types poses a bit of a challenge
+ * in the untyped view of metadata that is presented by JAnnotationValue.
+ * Because JAM cannot assume that the enum definitions have been compiled,
+ * it is not possible for JAM to return an instance of an enumuerated type.
+ * In other words, it is not possible for JAnnotationValue to provide an
+ * asEnum() method.</p>
+ *
+ * <p>If JAM encounters an annotation value of an enumerated type, it will
+ * represent it with a JAnnotationValue such that calling <code>
+ * myAnnotationValue.getType().isEnumType()</code> will return true.
+ * Moreover, calling <code>myAnnotationValue.asString()</code> will return
+ * the name of the enumeration field, exactly as it appears in the
+ * type declaration.
+ * </p>
+ *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface JAnnotationValue {

@@ -16,6 +16,7 @@ package org.apache.xmlbeans.impl.jam.annogen.internal;
 
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceParams;
+import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceFactory;
 
 import java.io.Reader;
 import java.io.File;
@@ -36,7 +37,11 @@ public class AnnotationServiceParamsImpl implements AnnotationServiceParams {
   // ========================================================================
   // Constructors
 
-  public AnnotationServiceParamsImpl() {}
+  public AnnotationServiceParamsImpl() {
+    ProxyPopulator reflectProxy =
+      AnnotationServiceFactory.getInstance().getReflectingPopulator();
+    if (reflectProxy != null) mPopulators.add(reflectProxy);
+  }
 
   // ========================================================================
   // Public methods
@@ -60,9 +65,9 @@ public class AnnotationServiceParamsImpl implements AnnotationServiceParams {
   }
 
   // ========================================================================
-  // Pacakge methods
+  // Internal use only
 
-  /*package*/ ProxyPopulator[] getPopulators() {
+  public ProxyPopulator[] getPopulators() {
     ProxyPopulator[] out = new ProxyPopulator[mPopulators.size()];
     mPopulators.toArray(out);
     return out;
