@@ -28,7 +28,7 @@ public class WrappedArrayTypeVisitor extends NamedXmlTypeVisitor
 
     WrappedArrayTypeVisitor(RuntimeBindingProperty property,
                             Object obj,
-                            MarshalResult result)
+                            PullMarshalResult result)
         throws XmlException
     {
         super(obj, property, result);

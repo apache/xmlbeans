@@ -25,7 +25,6 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
-import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -59,8 +58,16 @@ final class MarshallerImpl
                                    NamespaceContext nscontext)
         throws XmlException
     {
-        JavaTypeName jname = determineJavaType(obj);
-        BindingTypeName root_elem_btype = loader.lookupElementFor(jname);
+        final JavaTypeName jname = determineJavaType(obj);
+        final XmlTypeName elem = lookupRootElementName(jname);
+        final BindingType btype = loadBindingTypeForGlobalElem(elem, jname, obj);
+        return createMarshalResult(btype, elem.getQName(), nscontext, obj);
+    }
+
+    private XmlTypeName lookupRootElementName(final JavaTypeName jname)
+        throws XmlException
+    {
+        final BindingTypeName root_elem_btype = loader.lookupElementFor(jname);
         if (root_elem_btype == null) {
             final String msg = "failed to find root " +
                 "element corresponding to " + jname;
@@ -69,28 +76,14 @@ final class MarshallerImpl
 
         final XmlTypeName elem = root_elem_btype.getXmlName();
         assert elem.getComponentType() == XmlTypeName.ELEMENT;
-        final QName elem_qn = elem.getQName();
-
-        //get type for this element/object pair
-        final BindingTypeName type_name = loader.lookupTypeFor(jname);
-        if (type_name == null) {
-            String msg = "failed to lookup type for " + jname;
-            throw new XmlException(msg);
-        }
-        final BindingType btype = loader.getBindingType(type_name);
-        if (btype == null) {
-            String msg = "failed to load type " + type_name;
-            throw new XmlException(msg);
-        }
-
-        return createMarshalResult(btype, elem_qn, nscontext, obj);
+        return elem;
     }
 
 
-    private MarshalResult createMarshalResult(final BindingType btype,
-                                              QName elem_qn,
-                                              NamespaceContext nscontext,
-                                              Object obj)
+    private PullMarshalResult createMarshalResult(final BindingType btype,
+                                                  QName elem_qn,
+                                                  NamespaceContext nscontext,
+                                                  Object obj)
         throws XmlException
     {
         assert btype != null;
@@ -130,13 +123,7 @@ final class MarshallerImpl
     public void marshal(XMLStreamWriter writer, Object obj)
         throws XmlException
     {
-        XMLStreamReader rdr = marshal(obj, writer.getNamespaceContext());
-        try {
-            XmlReaderToWriter.writeAll(rdr, writer);
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
+        marshal(writer, obj, null);
     }
 
     public void marshal(XMLStreamWriter writer, Object obj, XmlOptions options)
@@ -144,8 +131,37 @@ final class MarshallerImpl
     {
         //TODO: javadoc that pretty is not supported here.
 
+        final JavaTypeName jname = determineJavaType(obj);
+        final XmlTypeName elem = lookupRootElementName(jname);
+        BindingType btype = loadBindingTypeForGlobalElem(elem, jname, obj);
+
         String encoding = getEncoding(options);
-        marshalToOutputStream(obj, encoding, writer);
+        if (encoding != null)
+            try {
+                writer.writeStartDocument(encoding, XML_VERSION);
+            }
+            catch (XMLStreamException e) {
+                throw new XmlException(e);
+            }
+
+        marshalBindingType(writer, btype, obj, elem.getQName());
+    }
+
+    private BindingType loadBindingTypeForGlobalElem(final XmlTypeName elem,
+                                                     final JavaTypeName jname,
+                                                     Object obj)
+        throws XmlException
+    {
+        final XmlTypeName elem_type =
+            determineDocumentType(elem).getTypeOfElement();
+        final BindingType btype = loadBindingType(elem_type, jname, loader);
+        if (btype == null) {
+            final String msg = "failed to find a suitable binding type for" +
+                " use in marshalling object \"" + obj + "\". " +
+                " using schema type: " + elem_type;
+            throw new XmlException(msg);
+        }
+        return btype;
     }
 
     private static String getEncoding(XmlOptions options)
@@ -159,8 +175,7 @@ final class MarshallerImpl
     {
         try {
             XMLStreamWriter writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out);
-            XMLStreamReader rdr = marshal(obj, writer.getNamespaceContext());
-            XmlReaderToWriter.writeAll(rdr, writer);
+            marshal(writer, obj);
         }
         catch (XMLStreamException xse) {
             throw new XmlException(xse);
@@ -271,11 +286,11 @@ final class MarshallerImpl
                                  elementName, obj, loader);
     }
 
-    static BindingType lookupBindingType(XmlTypeName schema_type,
-                                         String javaType,
-                                         QName elementName,
-                                         Object obj,
-                                         BindingLoader loader)
+    private static BindingType lookupBindingType(XmlTypeName schema_type,
+                                                 String javaType,
+                                                 QName elementName,
+                                                 Object obj,
+                                                 BindingLoader loader)
         throws XmlException
     {
         final BindingType type =
@@ -301,15 +316,31 @@ final class MarshallerImpl
                             String javaType)
         throws XmlException
     {
-        XMLStreamReader rdr = marshalType(obj, elementName, schemaType,
-                                          javaType,
-                                          writer.getNamespaceContext());
-        try {
-            XmlReaderToWriter.writeAll(rdr, writer);
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
+        final BindingType btype = lookupBindingType(schemaType, javaType,
+                                                    elementName, obj, loader);
+        assert btype != null;
+
+        marshalBindingType(writer, btype, obj, elementName);
+    }
+
+    private void marshalBindingType(XMLStreamWriter writer,
+                                    final BindingType btype,
+                                    Object obj,
+                                    QName elementName)
+        throws XmlException
+    {
+        final RuntimeBindingType runtime_type =
+            typeTable.createRuntimeType(btype, loader);
+
+        runtime_type.checkInstance(obj);
+
+        RuntimeGlobalProperty prop =
+            new RuntimeGlobalProperty(elementName, runtime_type);
+
+        final PushMarshalResult pmr =
+            new PushMarshalResult(loader, typeTable, writer, null);
+
+        pmr.marshalType(obj, prop);
     }
 
     public void marshalElement(XMLStreamWriter writer,
@@ -322,15 +353,14 @@ final class MarshallerImpl
         if (writer == null)
             throw new IllegalArgumentException("null writer");
 
-        final XMLStreamReader rdr =
-            marshalElement(obj, elementName, javaType, options);
+        final XmlTypeName elem_name =
+            XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, elementName);
 
-        try {
-            XmlReaderToWriter.writeAll(rdr, writer);
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
+        final BindingType btype =
+            loadBindingTypeForGlobalElem(elem_name,
+                                         determineJavaType(obj), obj);
+
+        marshalBindingType(writer, btype, obj, elementName);
     }
 
     public void marshalType(XMLStreamWriter writer,
@@ -396,7 +426,14 @@ final class MarshallerImpl
     {
         final XmlTypeName type_name =
             XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, global_element);
-        BindingType doc_binding_type = getPojoBindingType(type_name);
+        return determineDocumentType(type_name);
+    }
+
+    private SimpleDocumentBinding determineDocumentType(XmlTypeName global_element)
+        throws XmlException
+    {
+        BindingType doc_binding_type = getPojoBindingType(global_element);
+        assert doc_binding_type != null;
         return (SimpleDocumentBinding)doc_binding_type;
     }
 
@@ -418,6 +455,7 @@ final class MarshallerImpl
             throw new XmlException(msg);
         }
 
+        assert bt != null;
         return bt;
     }
 
@@ -488,16 +526,6 @@ final class MarshallerImpl
     {
         BindingTypeName btname = BindingTypeName.forPair(jname, xname);
         return loader.getBindingType(btname);
-    }
-
-    BindingLoader getLoader()
-    {
-        return loader;
-    }
-
-    RuntimeBindingTypeTable getTypeTable()
-    {
-        return typeTable;
     }
 
 }

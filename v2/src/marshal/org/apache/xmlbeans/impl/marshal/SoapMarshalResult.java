@@ -23,7 +23,7 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 
 abstract class SoapMarshalResult
-    extends MarshalResult
+    extends PullMarshalResult
 {
     private final ObjectRefTable objectRefTable;
     private final boolean writingMultiRefdObjs;
@@ -60,6 +60,7 @@ abstract class SoapMarshalResult
     }
 
     private void topLevelIdInit(Object top_lvl_obj)
+        throws XmlException
     {
         initAttributes();
 

@@ -24,7 +24,7 @@ final class SimpleContentTypeVisitor
 
     public SimpleContentTypeVisitor(RuntimeBindingProperty property,
                                     Object obj,
-                                    MarshalResult result)
+                                    PullMarshalResult result)
         throws XmlException
     {
         super(property, obj, result);

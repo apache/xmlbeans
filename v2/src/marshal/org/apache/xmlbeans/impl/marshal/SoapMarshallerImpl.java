@@ -79,7 +79,8 @@ class SoapMarshallerImpl
             objectRefTable = new ObjectRefTable();
         }
 
-        final MarshalResult retval =
+
+        final SoapMarshalResult retval =
             createMarshalResult(nscontext, prop, obj, options, false);
 
         addObjectGraphToRefTable(obj, runtime_type, prop, retval);

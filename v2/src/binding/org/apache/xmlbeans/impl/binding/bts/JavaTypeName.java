@@ -227,6 +227,18 @@ public final class JavaTypeName
     }
 
 
+    /**
+     * Is this JavaTypeName a name for the given class
+     *
+     * @param c
+     * @return
+     */
+    public boolean isNameForClass(Class c) {
+        //TODO: optimize this method, or better yet avoid using it
+        JavaTypeName cname = forClassName(c.getName());
+        return this.equals(cname);
+    }
+
     // ========================================================================
     // Object implementation
 

@@ -45,6 +45,7 @@ final class QNameTypeConverter
 
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
+        throws XmlException
     {
         QName val = (QName)value;
         final String uri = val.getNamespaceURI();

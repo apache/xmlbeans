@@ -33,8 +33,9 @@ final class ByNameTypeVisitor
     private boolean haveMultipleItem;
 
 
-    ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
-                      MarshalResult result)
+    ByNameTypeVisitor(RuntimeBindingProperty property,
+                      Object obj,
+                      PullMarshalResult result)
         throws XmlException
     {
         super(obj, property, result);
@@ -170,7 +171,7 @@ final class ByNameTypeVisitor
     static void initAttributesInternal(NamedXmlTypeVisitor typeVisitor,
                                        AttributeRuntimeBindingType rtt,
                                        int maxAttributePropCount,
-                                       MarshalResult marshalResult)
+                                       PullMarshalResult marshalResult)
         throws XmlException
     {
         final Object parent = typeVisitor.getParentObject();

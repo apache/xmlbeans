@@ -18,7 +18,6 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
-import java.lang.AssertionError;
 
 abstract class RefdObjectVisitor
     extends NamedXmlTypeVisitor
@@ -30,7 +29,7 @@ abstract class RefdObjectVisitor
 
     public RefdObjectVisitor(RuntimeBindingProperty property,
                              Object obj,
-                             MarshalResult result,
+                             PullMarshalResult result,
                              int id)
         throws XmlException
     {
@@ -62,6 +61,7 @@ abstract class RefdObjectVisitor
     }
 
     protected abstract QName getRefQName();
+
     protected abstract String getRefValue();
 
     public XmlTypeVisitor getCurrentChild()

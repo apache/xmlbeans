@@ -27,7 +27,7 @@ final class CharacterVisitor
 
     CharacterVisitor(RuntimeBindingProperty property,
                      Object parentObject,
-                     MarshalResult result)
+                     PullMarshalResult result)
         throws XmlException
     {
         super(parentObject, property, result);

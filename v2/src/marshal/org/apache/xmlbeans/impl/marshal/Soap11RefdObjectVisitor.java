@@ -27,9 +27,9 @@ class Soap11RefdObjectVisitor
     private static final String REF_PREFIX = '#' + SoapMarshalResult.ID_PREFIX;
 
     public Soap11RefdObjectVisitor(RuntimeBindingProperty property,
-                             Object obj,
-                             MarshalResult result,
-                             int id)
+                                   Object obj,
+                                   PullMarshalResult result,
+                                   int id)
         throws XmlException
     {
         super(property, obj, result, id);

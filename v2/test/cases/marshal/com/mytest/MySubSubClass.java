@@ -30,4 +30,35 @@ public class MySubSubClass
         this.subsubname = subsubname;
     }
 
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof MySubSubClass)) return false;
+        if (!super.equals(o)) return false;
+
+        final MySubSubClass mySubSubClass = (MySubSubClass)o;
+
+        if (subsubname != null ? !subsubname.equals(mySubSubClass.subsubname) :
+            mySubSubClass.subsubname != null)
+            return false;
+
+        return true;
+    }
+
+    public int hashCode()
+    {
+        int result = super.hashCode();
+        result = 29 * result + (subsubname != null ? subsubname.hashCode() : 0);
+        return result;
+    }
+
+    public String toString()
+    {
+        return "com.mytest.MySubSubClass{" +
+            "super=" + super.toString() + 
+            "subsubname='" + subsubname + "'" +
+            "}";
+    }
+
+
 }
