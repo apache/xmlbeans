@@ -65,13 +65,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
                                  ExecutableMemberDoc method,
                                  Parameter src)
   {
-//    extractAnnotations(dest,src.annotations(),method.position());
-
-//FIXME uncomment when SUN implements Parameter.annotations()
-//
-//  [java] Exception in thread "main" java.lang.UnsupportedOperationException:
-// Not implemented in this release
-// [java]     at com.sun.tools.javadoc.ParameterImpl.annotations(ParameterImpl.java:83)
+    extractAnnotations(dest,src.annotations(),method.position());
   }
 
   public boolean isEnum(ClassDoc cd) {
