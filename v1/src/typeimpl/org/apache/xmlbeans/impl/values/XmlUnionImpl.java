@@ -30,6 +30,8 @@ import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.GDateSpecification;
 import org.apache.xmlbeans.GDurationSpecification;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlRuntimeException;
 
 import org.apache.xmlbeans.impl.schema.SchemaTypeImpl;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -93,7 +95,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
 
         // iterate through the types, trying to create a type
         SchemaType[] members = _schemaType.getUnionConstituentTypes();
-        assert(members != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(members != null);
 
         boolean pushed = false;
         // boolean wasstrict = set_strict(true); // tell types to complain ferverently about errors
@@ -127,8 +130,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
                 }
                 catch (Exception e)
                 {
-                    throw new RuntimeException("Troublesome union exception caused by unexpected " + e, e);
-                    // assert(false) : "Unexpected " + e;
+                    throw new XmlRuntimeException("Troublesome union exception caused by unexpected " + e, e);
+                    // if (XmlBeans.ASSERTS) XmlBeans.assertTrue(false, "Unexpected " + e);
                     // continue;
                 }
             }
@@ -337,7 +340,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
     private static boolean logical_overlap(SchemaType type, int javacode)
     {
         // non-union types because it's being applied on irreducible union members!
-        assert(type.getSimpleVariety() != SchemaType.UNION);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(type.getSimpleVariety() != SchemaType.UNION);
 
         if (javacode <= SchemaType.BTC_LAST_BUILTIN)
         {
@@ -418,7 +422,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
             }
         }
 
-        assert(false) : "missing case";
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(false, "missing case");
         return false;
     }
 
@@ -429,7 +434,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
     private void set_primitive(int typecode, Object val)
     {
         SchemaType[] members = _schemaType.getUnionConstituentTypes();
-        assert(members != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(members != null);
 
         boolean pushed = false;
         if (has_store())
@@ -458,7 +464,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
                     }
                     catch (Exception e)
                     {
-                        assert(false) : "Unexpected " + e;
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(false, "Unexpected " + e);
                         continue outer;
                     }
 

@@ -61,8 +61,14 @@ import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.SchemaTypeLoaderException;
 import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
+
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
+import org.apache.xmlbeans.impl.common.SequencedHashSet;
+
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 import org.w3.x2001.xmlSchema.SchemaDocument;
@@ -383,7 +389,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private Map buildTypeRefsByClassname()
     {
         List allSeenTypes = new ArrayList();
-        Map result = new LinkedHashMap();
+        Map result = new SequencedHashMap();
         allSeenTypes.addAll(Arrays.asList(documentTypes()));
         allSeenTypes.addAll(Arrays.asList(attributeTypes()));
         allSeenTypes.addAll(Arrays.asList(globalTypes()));
@@ -404,7 +410,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     private Map buildTypeRefsByClassname(Map typesByClassname)
     {
-        Map result = new LinkedHashMap();
+        Map result = new SequencedHashMap();
         for (Iterator i = typesByClassname.keySet().iterator(); i.hasNext(); )
         {
             String className = (String)i.next();
@@ -415,7 +421,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     private static Map buildComponentRefMap(SchemaComponent[] components)
     {
-        Map result = new LinkedHashMap();
+        Map result = new SequencedHashMap();
         for (int i = 0; i < components.length; i++)
             result.put(components[i].getName(), components[i].getComponentRef());
         return result;
@@ -423,7 +429,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     private static Map buildDocumentMap(SchemaType[] types)
     {
-        Map result = new LinkedHashMap();
+        Map result = new SequencedHashMap();
         for (int i = 0; i < types.length; i++)
             result.put(types[i].getDocumentElementName(), types[i].getRef());
         return result;
@@ -431,7 +437,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     private static Map buildAttributeTypeMap(SchemaType[] types)
     {
-        Map result = new LinkedHashMap();
+        Map result = new SequencedHashMap();
         for (int i = 0; i < types.length; i++)
             result.put(types[i].getAttributeTypeAttributeName(), types[i].getRef());
         return result;
@@ -537,7 +543,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                                 SchemaType[] documentTypes,
                                 SchemaType[] attributeTypes)
     {
-        assert(_classloader == null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_classloader == null);
         _localHandles = new HandlePool();
         _globalElements = buildComponentRefMap(globalElements);
         _globalAttributes = buildComponentRefMap(globalAttributes);
@@ -550,7 +557,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public void loadFromStscState(StscState state)
     {
-        assert(_classloader == null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_classloader == null);
         _localHandles = new HandlePool();
         _globalElements = buildComponentRefMap(state.globalElements());
         _globalAttributes = buildComponentRefMap(state.globalAttributes());
@@ -656,8 +664,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     class HandlePool
     {
-        private Map _handlesToRefs = new LinkedHashMap();
-        private Map _componentsToHandles = new LinkedHashMap(); // populated on write
+        private Map _handlesToRefs = new SequencedHashMap();
+        private Map _componentsToHandles = new SequencedHashMap(); // populated on write
         private boolean _started;
 
         /**
@@ -820,7 +828,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         void startWriteMode()
         {
             _started = true;
-            _componentsToHandles = new LinkedHashMap();
+            _componentsToHandles = new SequencedHashMap();
             for (Iterator i = _handlesToRefs.keySet().iterator(); i.hasNext(); )
             {
                 String handle = (String)i.next();
@@ -1505,7 +1513,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     else
                     {
                         SchemaField sf = type.getContainerField();
-                        assert (sf != null);
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(sf != null);
                         if (sf.isAttribute())
                         {
                             writeString("_XR_" + QNameHelper.pretty(sf.getName()));
@@ -1519,7 +1528,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     return;
 
                 default:
-                    assert(false);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(false);
                     throw new SchemaTypeLoaderException("Cannot write handle for component " + comp, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
             }
         }
@@ -1870,7 +1880,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     attrModel.setWildcardProcess(readShort());
 
                     // Attribute Property Table
-                    Map attrProperties = new LinkedHashMap();
+                    Map attrProperties = new SequencedHashMap();
                     short attrPropCount = readShort();
                     for (int i = 0; i < attrPropCount; i++)
                     {
@@ -1898,7 +1908,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
                         // Element Property Table
 
-                        elemProperties = new LinkedHashMap();
+                        elemProperties = new SequencedHashMap();
                         short elemPropCount = readShort();
                         for (int i = 0; i < elemPropCount; i++)
                         {
@@ -2204,7 +2214,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         void readExtensionsList()
         {
             int count = readShort();
-            assert count == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(count == 0);
 
             for (int i = 0; i < count; i++)
             {
@@ -2229,7 +2240,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             }
             catch ( XmlException e )
             {
-                throw new RuntimeException( e.getMessage(), e );
+                throw new XmlRuntimeException( e.getMessage(), e );
             }
         }
 
@@ -2241,7 +2252,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             }
             catch ( XmlException e )
             {
-                throw new RuntimeException( e.getMessage(), e );
+                throw new XmlRuntimeException( e.getMessage(), e );
             }
         }
 
@@ -2493,7 +2504,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             if (!prop.isAttribute() && atLeast(2, 17, 0))
             {
                 short size = readShort();
-                LinkedHashSet qnames = new LinkedHashSet(size);
+                SequencedHashSet qnames = new SequencedHashSet();
                 for (int i = 0 ; i < size ; i++)
                     qnames.add(readQName());
                 prop.setAcceptedNames(qnames);
@@ -2562,7 +2573,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             switch (btc)
             {
                 default:
-                    assert(false);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(false);
                 case 0:
                     return new XmlValueRef(typeref, null);
                 case -1:

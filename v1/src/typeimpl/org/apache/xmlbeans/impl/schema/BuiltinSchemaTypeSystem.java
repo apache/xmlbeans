@@ -24,6 +24,7 @@ import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaAttributeModel;
 import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -592,7 +593,8 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
                 break;
 
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
 
             case SchemaType.BTC_ANY_SIMPLE:
                 base = ST_ANY_TYPE; break;
@@ -702,7 +704,8 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         }
         else
         {
-            assert (btc == SchemaType.BTC_ANY_TYPE || btc == SchemaType.BTC_NOT_BUILTIN);
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue (btc == SchemaType.BTC_ANY_TYPE || btc == SchemaType.BTC_NOT_BUILTIN);
         }
         result.setBaseTypeRef(base == null ? null : base.getRef());
         result.setBaseDepth(base == null ? 0 : ((SchemaTypeImpl)base).getBaseDepth() + 1);
@@ -727,7 +730,8 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         switch (btc)
         {
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(false);
 
             case SchemaType.BTC_ANY_TYPE:
             case SchemaType.BTC_ANY_SIMPLE:
@@ -888,7 +892,8 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         switch (btc)
         {
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
 
             case SchemaType.BTC_ANY_TYPE:
             case SchemaType.BTC_NOT_BUILTIN:
@@ -1002,7 +1007,8 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         {
             org.apache.xmlbeans.impl.regex.RegularExpression p = null;
             try { p = org.apache.xmlbeans.impl.regex.SchemaRegularExpression.forPattern(pattern); }
-            catch (org.apache.xmlbeans.impl.regex.ParseException e) { assert false; }
+            catch (org.apache.xmlbeans.impl.regex.ParseException e)
+                { if (XmlBeans.ASSERTS) XmlBeans.assertTrue(false); }
             result.setPatterns(new org.apache.xmlbeans.impl.regex.RegularExpression[] {p});
         }
         result.setPatternFacet(hasPattern);

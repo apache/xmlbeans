@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.xpath.jaxen;
 import org.jaxen.BaseXPath;
 import org.jaxen.JaxenException;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.store.JaxenXBeansDelegate;
 
 import java.util.List;
@@ -84,7 +85,7 @@ public class XBeansXPathAdv
         }
         catch (JaxenException e)
         {
-            throw new RuntimeException(e);
+            throw new XmlRuntimeException(e);
         }
     }
 }

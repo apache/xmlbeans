@@ -228,11 +228,11 @@ public class XmlCalendar extends GregorianCalendar
     /**
      * Gets the value for a given time field.
      * 
-     * Unlike the GregorianCalendar implementation, the get() does not
+     * Unlike the GregorianCalendar.get(), peek() does not
      * force a complete of all fields.  If you wish to force a completion
      * of all the fields, call getTime() first.
      */
-    public int get(int field)
+    public int peek(int field)
     {
         if (!isSet(field) || isTimeSet)
             return super.get(field); // forces a complete
@@ -250,8 +250,8 @@ public class XmlCalendar extends GregorianCalendar
     }
     
     private static int defaultYear = Integer.MIN_VALUE;
-    private static final int DEFAULT_DEFAULT_YEAR = 0; 
-    
+    private static final int DEFAULT_DEFAULT_YEAR = 0;
+
     /**
      * Returns the default year that is used when no year is specified.
      */ 
@@ -286,12 +286,18 @@ public class XmlCalendar extends GregorianCalendar
     /**
      * Overrides GregorianCalendar.computeTime to apply a different
      * default year.  (It must be a leap year.)
-     */ 
+     */
     protected void computeTime()
     {
         boolean unsetYear = !isSet(YEAR);
+        boolean unsetEra = !isSet(ERA);
         if (unsetYear)
             set(YEAR, getDefaultYear());
+        if (internalGet(YEAR) == 0)
+        {
+            set(ERA, BC);
+            set(YEAR, 1);
+        }
         try
         {
             super.computeTime();
@@ -300,9 +306,29 @@ public class XmlCalendar extends GregorianCalendar
         {
             if (unsetYear)
                 clear(YEAR);
+            if (unsetEra)
+                clear(ERA);
         }
     }
-        
+
+    /**
+     * Overrides GregorianCalendar.computeFields to apply a different
+     * default year.  (It must be a leap year.)
+     */
+    protected void computeFields()
+    {
+        boolean unsetYear = !isSet(YEAR);
+        if (unsetYear)
+            set(YEAR, getDefaultYear());
+        if (internalGet(YEAR) == 0)
+        {
+            set(ERA, BC);
+            set(YEAR, 1);
+        }
+
+        super.computeFields();
+    }
+
     private static Date _beginningOfTime = new Date(Long.MIN_VALUE);
     
     /**

@@ -23,6 +23,8 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 import org.apache.xmlbeans.XmlCursor.XmlMark;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlBeans;
+
 import java.lang.ref.Reference;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -97,55 +99,64 @@ public abstract class Splay extends Goobers
 
     final void toggleIsLeaf ( )
     {
-        assert isBegin();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isBegin());
         _bits ^= 0x8;
     }
 
     final boolean isValid ( )
     {
-        assert ((_bits & 0x10) == 0) || isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(((_bits & 0x10) == 0) || isTypeable());
         return (_bits & 0x10) == 0;
     }
 
     final boolean isInvalid ( )
     {
-        assert ((_bits & 0x10) == 0) || isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(((_bits & 0x10) == 0) || isTypeable());
         return (_bits & 0x10) != 0;
     }
 
     final void toggleIsInvalid ( )
     {
-        assert isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isTypeable());
         _bits ^= 0x10;
     }
 
     final void adjustCch ( int delta )
     {
         _cch += delta;
-        assert _cch >= 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_cch >= 0);
     }
 
     final void adjustCchAfter ( int delta )
     {
         _cchAfter += delta;
-        assert _cchAfter >= 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_cchAfter >= 0);
     }
 
     final void adjustCchLeft ( int delta )
     {
         _cchLeft += delta;
-        assert _cchLeft >= 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_cchLeft >= 0);
     }
 
     final void adjustCdocBeginLeft ( int d )
     {
         _bits += d * 32;
-        assert getCdocBeginLeft() >= 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(getCdocBeginLeft() >= 0);
     }
 
     final Splay getFinishSplay ( )
     {
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
         return isLeaf() ? this : ((Container) this).getFinish();
     }
 
@@ -156,7 +167,8 @@ public abstract class Splay extends Goobers
 
     final int getPosLeafEnd ( )
     {
-        assert isLeaf();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isLeaf());
         return 1 + getCchValue();
     }
 
@@ -175,7 +187,8 @@ public abstract class Splay extends Goobers
 
     final int getPostCch ( int p )
     {
-        assert p >= 0 && p <= getEndPos();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p >= 0 && p <= getEndPos());
 
         return
             isLeaf() && p <= getPosLeafEnd()
@@ -254,7 +267,8 @@ public abstract class Splay extends Goobers
         case END      : return getCchAfter();
 
         default :
-            assert false: "Unexpected splay kind " +getKind();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(false, "Unexpected splay kind " + getKind());
             return 0;
         }
     }
@@ -315,7 +329,8 @@ public abstract class Splay extends Goobers
 
     final void setName ( Root r, QName newName )
     {
-        assert isBegin() || isAttr() || isProcinst();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isBegin() || isAttr() || isProcinst());
 
         // BUGBUG - deal with xsi:nil here too
 
@@ -329,7 +344,8 @@ public abstract class Splay extends Goobers
 
             if (!isProcinst() && !isXmlns())
             {
-                assert isAttr() || isBegin();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(isAttr() || isBegin());
 
                 if (isBegin())
                     disconnectTypes( r );
@@ -353,7 +369,8 @@ public abstract class Splay extends Goobers
 
     final int ensureContentValid ( )
     {
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         if (isValid())
             return 0;
@@ -370,7 +387,8 @@ public abstract class Splay extends Goobers
 
     final void ensureValueValid ( )
     {
-        assert isNormalAttr();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isNormalAttr());
 
         if (isInvalid())
         {
@@ -386,7 +404,8 @@ public abstract class Splay extends Goobers
 
     final TokenType getTokenType ( int p )
     {
-        assert p >= 0 && p <= getMaxPos();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p >= 0 && p <= getMaxPos());
 
         // No need to revalidate text value here because there can be no pos
         // which could exists when this splay is invalid which could be on
@@ -406,7 +425,8 @@ public abstract class Splay extends Goobers
             if (p == 0)
                 return TokenType.START;
 
-            assert isLeaf();
+            if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(isLeaf());
 
             return p == getPosLeafEnd() ? TokenType.END : TokenType.TEXT;
 
@@ -417,7 +437,8 @@ public abstract class Splay extends Goobers
         case END      : return TokenType.END;
 
         default :
-            assert false: "Unexpected splay kind " + getKind();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(false, "Unexpected splay kind " + getKind());
             return null;
         }
     }
@@ -430,19 +451,25 @@ public abstract class Splay extends Goobers
 
     final void foliate ( Root r )
     {
-        assert isBegin();
-        assert !isLeaf();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(isBegin());
+            XmlBeans.assertTrue(!isLeaf());
+        }
 
         Begin b = (Begin) this;
         Splay e = b.getFinish();
 
-        assert b.nextNonAttrSplay() == e;
-        assert b._end == e;
-        assert e.isEnd();
-        assert !b.isLeaf();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(b.nextNonAttrSplay() == e);
+            XmlBeans.assertTrue(b._end == e);
+            XmlBeans.assertTrue(e.isEnd());
+            XmlBeans.assertTrue(!b.isLeaf());
 
-        // Caller must initiate change
-        assert r.validateChangeStarted();
+            // Caller must initiate change
+            XmlBeans.assertTrue(r.validateChangeStarted());
+        }
 
         int cchBefore = getCch();
 
@@ -460,7 +487,8 @@ public abstract class Splay extends Goobers
         {
             nextGoober = e.nextGoober( g );
 
-            assert g.getPos() == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(g.getPos() == 0);
             g.set( this, cchBefore + 1 );
         }
 
@@ -479,13 +507,16 @@ public abstract class Splay extends Goobers
 
     final void defoliate ( Root r )
     {
-        assert isLeaf();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( isLeaf() );
 
-        // Caller must initiate change
-        assert r.validateChangeStarted();
+            // Caller must initiate change
+            XmlBeans.assertTrue( r.validateChangeStarted() );
 
-        // Caller must ensure leaf is valid
-        assert isValid();
+            // Caller must ensure leaf is valid
+            XmlBeans.assertTrue( isValid() );
+        }
 
         Begin b = (Begin) this;
 
@@ -533,7 +564,8 @@ public abstract class Splay extends Goobers
                 g.set( b._end, gp - posLeafEnd );
         }
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( validate() );
     }
 
     /**
@@ -543,12 +575,15 @@ public abstract class Splay extends Goobers
 
     private final void removeTextAfter ( Root r )
     {
-        assert r != null;
-        assert Root.dv > 0 || getRootSlow() == r;
-        assert !isRoot() && !isAttr();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( r != null );
+            XmlBeans.assertTrue( Root.dv > 0 || getRootSlow() == r );
+            XmlBeans.assertTrue( !isRoot() && !isAttr() );
 
-        // Caller must initiate change
-        assert r.validateChangeStarted();
+            // Caller must initiate change
+            XmlBeans.assertTrue( r.validateChangeStarted() );
+        }
 
         int cchTextAfter = getCchAfter();
 
@@ -580,7 +615,8 @@ public abstract class Splay extends Goobers
             }
         }
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
     }
 
     /**
@@ -591,11 +627,14 @@ public abstract class Splay extends Goobers
 
     private final int saveTextAfter ( Root r )
     {
-        assert r != null;
-        assert Root.dv > 0 || getRootSlow() == r;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(r != null);
+            XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == r);
 
-        // Caller must initiate change
-        assert r.validateChangeStarted();
+            // Caller must initiate change
+            XmlBeans.assertTrue(r.validateChangeStarted());
+        }
 
         Splay endText = this;
 
@@ -607,7 +646,8 @@ public abstract class Splay extends Goobers
         if (cchEndText == 0)
             return 0;
 
-        assert !isRoot() && !isDoc() && !isAttr();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!isRoot() && !isDoc() && !isAttr());
 
         Splay getsText = prevNonAttrSplay();
         int getsTextLastPos = getsText.getEndPos();
@@ -621,7 +661,8 @@ public abstract class Splay extends Goobers
         r.updateCch( getsText, cchEndText );
         r.updateCch( endText, - cchEndText );
 
-        assert cpGetsText <= cpEndText;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(cpGetsText <= cpEndText);
 
         if (cpGetsText != cpEndText)
         {
@@ -642,7 +683,8 @@ public abstract class Splay extends Goobers
                 g.set( getsText, getsTextLastPos + gp - posEndText );
         }
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
 
         return cchEndText;
     }
@@ -655,18 +697,21 @@ public abstract class Splay extends Goobers
     final void move (
         Root r, Root rDst, Splay sDst, int pDst, boolean invalidate )
     {
-        assert r != null;
-        assert Root.dv > 0 || getRootSlow() == r;
-        assert !isDoc() && !isFinish();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(r != null);
+            XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == r);
+            XmlBeans.assertTrue(!isDoc() && !isFinish());
 
-        assert rDst == null || (r != rDst || !sDst.between( r, pDst, this ) );
-        assert rDst == null || sDst != null;
-        assert rDst == null || Root.dv > 0 || sDst.getRootSlow() == rDst;
-        assert rDst == null || pDst >= 0 && pDst < sDst.getEndPos();
+            XmlBeans.assertTrue(rDst == null || (r != rDst || !sDst.between( r, pDst, this ) ));
+            XmlBeans.assertTrue(rDst == null || sDst != null);
+            XmlBeans.assertTrue(rDst == null || Root.dv > 0 || sDst.getRootSlow() == rDst);
+            XmlBeans.assertTrue(rDst == null || pDst >= 0 && pDst < sDst.getEndPos());
 
-        assert
-            rDst == null ||
-                (true || checkInsertionValidity( 0, sDst, pDst, false ));
+            XmlBeans.assertTrue(
+                rDst == null ||
+                    (true || checkInsertionValidity( 0, sDst, pDst, false )));
+        }
 
         r.startChange();
 
@@ -720,7 +765,8 @@ public abstract class Splay extends Goobers
             }
         }
 
-        assert sDst != this;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(sDst != this);
 
         // Compute the splay, up to which, I will remove
 
@@ -743,7 +789,8 @@ public abstract class Splay extends Goobers
 
             if (s.isInvalid())
             {
-                assert s.isLeaf() || s.isNormalAttr();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isLeaf() || s.isNormalAttr());
 
                 if (s.isNormalAttr())
                     s.ensureValueValid();
@@ -815,8 +862,11 @@ public abstract class Splay extends Goobers
             }
         }
 
-        assert r.validate();
-        assert rDst == null || rDst.validate();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(r.validate());
+            XmlBeans.assertTrue(rDst == null || rDst.validate());
+        }
     }
 
     /**
@@ -845,10 +895,13 @@ public abstract class Splay extends Goobers
     final boolean checkInsertionValidity (
         int p, Splay sDst, int pDst, boolean endOk )
     {
-        assert p >= 0;
-        assert p < getEndPos();
-        assert pDst >= 0;
-        assert pDst < sDst.getEndPos();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(p >= 0);
+            XmlBeans.assertTrue(p < getEndPos());
+            XmlBeans.assertTrue(pDst >= 0);
+            XmlBeans.assertTrue(pDst < sDst.getEndPos());
+        }
 
         boolean srcChars = false;
 
@@ -930,41 +983,47 @@ public abstract class Splay extends Goobers
     {
 // BUGBUG - what is a new xsitype attr is inserted? -- must disconnect types
 
-        assert p < getEndPos();
-        assert cchTxt >= 0;
-        assert rootInsert != null;
-        assert rootInsert._parentSplay == null;
-        assert rootInsert.getCchLeft() + rootInsert.getCch() == cchTxt;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(p < getEndPos());
+            XmlBeans.assertTrue(cchTxt >= 0);
+            XmlBeans.assertTrue(rootInsert != null);
+            XmlBeans.assertTrue(rootInsert._parentSplay == null);
+            XmlBeans.assertTrue(rootInsert.getCchLeft() + rootInsert.getCch() == cchTxt);
 
-        // We are inserting a tree here.  Get the first splay in the tree
-        // It must either be at the root or just to the left of the root.
-        // This is the "classic" dog leg pattern I use to pass splay trees.
+            // We are inserting a tree here.  Get the first splay in the tree
+            // It must either be at the root or just to the left of the root.
+            // This is the "classic" dog leg pattern I use to pass splay trees.
 
-        assert
-            rootInsert._leftSplay == null ||
-                rootInsert._leftSplay._leftSplay == null;
+            XmlBeans.assertTrue(
+                rootInsert._leftSplay == null ||
+                    rootInsert._leftSplay._leftSplay == null);
+        }
 
         r.startChange();
 
         Splay sInsert =
             rootInsert._leftSplay == null ? rootInsert : rootInsert._leftSplay;
 
-        assert !sInsert.isDoc() && !sInsert.isFinish();
-        assert Root.dv > 0 || getRootSlow() == r;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(!sInsert.isDoc() && !sInsert.isFinish());
+            XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == r);
 
-        // When this member is called, we better be able to do the insert.
+            // When this member is called, we better be able to do the insert.
 
-        assert true || sInsert.checkInsertionValidity( 0, this, p, false );
+            XmlBeans.assertTrue(true || sInsert.checkInsertionValidity( 0, this, p, false ));
 
-        // If there is a fragment, there better be text in it
+            // If there is a fragment, there better be text in it
 
-        assert !sInsert.isFragment() || sInsert.getCch() > 0;
-
+            XmlBeans.assertTrue(!sInsert.isFragment() || sInsert.getCch() > 0);
+        }
         //
 
         Splay s = this;
 
-        assert Root.dv > 0 || sInsert.getRootSlow() == null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(Root.dv > 0 || sInsert.getRootSlow() == null);
 
         Splay sOrig = null;
         int   pOrig = 0;
@@ -980,8 +1039,11 @@ public abstract class Splay extends Goobers
             {
                 if (s.isInvalid())
                 {
-                    assert ple == 1;
-                    assert p == 1;
+                    if (XmlBeans.ASSERTS)
+                    {
+                        XmlBeans.assertTrue(ple == 1);
+                        XmlBeans.assertTrue(p == 1);
+                    }
 
                     int cchValid = s.ensureContentValid();
 
@@ -989,11 +1051,13 @@ public abstract class Splay extends Goobers
                     ple += cchValid;
                 }
 
-                assert s.getFinishSplay() == s;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.getFinishSplay() == s);
 
                 defoliate( r );
 
-                assert s.getFinishSplay() != s;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.getFinishSplay() != s);
 
                 if (p == ple)
                 {
@@ -1010,7 +1074,8 @@ public abstract class Splay extends Goobers
             // after all pre-exisitng attrs.  This these cases, p == 1 on
             // the begin.  In this case, there is no need to move text later.
 
-            assert !sInsert.isAttr() || (p == 1 && s.isContainer());
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!sInsert.isAttr() || (p == 1 && s.isContainer()));
 
             sOrig = s;
             pOrig = p;
@@ -1020,8 +1085,11 @@ public abstract class Splay extends Goobers
             p = 0;
         }
 
-        assert p == 0;
-        assert !s.isDoc();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( p == 0);
+            XmlBeans.assertTrue(!s.isDoc());
+        }
 
         // Get the container receiving all of this
 
@@ -1044,7 +1112,8 @@ public abstract class Splay extends Goobers
 
                 Begin b = (Begin) t;
 
-                assert b._container == null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(b._container == null);
 
                 b._container = c;
 
@@ -1052,7 +1121,8 @@ public abstract class Splay extends Goobers
             }
             else if (t.isFragment())
             {
-                assert insertingFragment == null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(insertingFragment == null);
                 insertingFragment = t;
             }
 
@@ -1106,8 +1176,11 @@ public abstract class Splay extends Goobers
         if (sOrig != null && !sInsert.isAttr())
         {
             int cchMoved = sOrig.moveChars( r, pOrig, -1, r, s, 0, true );
-            assert cchMoved > 0;
-            assert cchMoved == cchBypassed;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(cchMoved > 0);
+                XmlBeans.assertTrue(cchMoved == cchBypassed);
+            }
         }
 
         // build a leaf if possible
@@ -1117,7 +1190,8 @@ public abstract class Splay extends Goobers
 
         r.invalidateVersion();
 
-        assert r.validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(r.validate());
     }
 
     /**
@@ -1131,9 +1205,12 @@ public abstract class Splay extends Goobers
         Root r, Splay sSrc, Root rSrc,
         boolean preserveType, boolean preserveNamespaces )
     {
-        assert !isFinish() && !sSrc.isFinish();
-        assert Root.dv > 0 || getRootSlow() == r;
-        assert Root.dv > 0 || sSrc.getRootSlow() == rSrc;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(!isFinish() && !sSrc.isFinish());
+            XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == r);
+            XmlBeans.assertTrue(Root.dv > 0 || sSrc.getRootSlow() == rSrc);
+        }
 
         // If the src and dst are the same splay, then there is nothing to do
 
@@ -1159,7 +1236,8 @@ public abstract class Splay extends Goobers
         {
             // No need to startChange() here, fcns I call will do it for me
 
-            assert isContainer();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(isContainer());
 
             // Make copy of source
 
@@ -1187,8 +1265,11 @@ public abstract class Splay extends Goobers
 
             removeContent( r, true );
 
-            assert isLeaf() || getFinishSplay() == nextSplay();
-            assert getCchValue() == 0;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(isLeaf() || getFinishSplay() == nextSplay());
+                XmlBeans.assertTrue(getCchValue() == 0);
+            }
 
             Splay copy = copyContext.getTree();
 
@@ -1261,7 +1342,8 @@ public abstract class Splay extends Goobers
 
         void copySplay ( Splay s, boolean copyTextAfter )
         {
-            assert !s.isDoc() && !s.isRoot();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!s.isDoc() && !s.isRoot());
 
             Splay t;
 
@@ -1313,7 +1395,8 @@ public abstract class Splay extends Goobers
                 throw new IllegalStateException();
             }
 
-            assert s.isValid();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(s.isValid());
 
             int cch = s.getCchValue();
 
@@ -1336,7 +1419,8 @@ public abstract class Splay extends Goobers
 
         void copyFragment ( int cch )
         {
-            assert cch > 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(cch > 0);
 
             Splay s = new Fragment();
 
@@ -1348,7 +1432,8 @@ public abstract class Splay extends Goobers
 
         Splay getTree ( )
         {
-            assert _frontier == null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_frontier == null);
 
             if (_last == null)
                 return null;
@@ -1448,7 +1533,8 @@ public abstract class Splay extends Goobers
 
     final CopyContext copySplayContents ( Root r )
     {
-        assert !isFinish() && !isXmlns();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!isFinish() && !isXmlns());
 
         if (isContainer())
             ensureContentValid();
@@ -1514,7 +1600,8 @@ public abstract class Splay extends Goobers
         }
         else
         {
-            assert isNormalAttr() || isComment() || isProcinst();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(isNormalAttr() || isComment() || isProcinst());
 
             int cchValue = getCchValue();
 
@@ -1540,7 +1627,8 @@ public abstract class Splay extends Goobers
 
     final Splay copySplay ( )
     {
-        assert !isDoc() && !isFinish();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!isDoc() && !isFinish());
 
         // Compute splay to stop at (does not get copied).  Also compute
         // a splay, to be copied, which should not have it's text after copied.
@@ -1574,7 +1662,8 @@ public abstract class Splay extends Goobers
 
     final void removeAttributes ( Root r )
     {
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         for ( ; ; )
         {
@@ -1594,7 +1683,8 @@ public abstract class Splay extends Goobers
 
     final void removeContent ( Root r, boolean removeAttrs )
     {
-        assert Root.dv > 0 || getRootSlow() == r;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == r);
 
         r.startChange();
 
@@ -1634,7 +1724,8 @@ public abstract class Splay extends Goobers
         {
             if (isXmlns())
             {
-                assert false: "Unexpected kind for removeContent";
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "Unexpected kind for removeContent");
             }
 
             // Fall through
@@ -1666,16 +1757,19 @@ public abstract class Splay extends Goobers
         }
 
         default :
-            assert false: "Unexpected kind for removeContent";
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(false, "Unexpected kind for removeContent");
         }
 
-        assert isDoc() || (isBegin() && !isLeaf());
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isDoc() || (isBegin() && !isLeaf()));
 
         Splay s = nextNonAttrSplay();
 
         if (s.isRoot())
         {
-            assert isDoc();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(isDoc());
         }
         else
         {
@@ -1687,7 +1781,8 @@ public abstract class Splay extends Goobers
             Splay next;
             for ( s = nextNonAttrSplay() ; !s.isFinish() ; s = next )
             {
-                assert !s.isAttr();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(!s.isAttr());
 
                 if (s.isLeaf())
                     next = s.nextNonAttrSplay();
@@ -1704,7 +1799,8 @@ public abstract class Splay extends Goobers
             // removes could have suuffled text to after this.
             //
 
-            assert !isLeaf();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!isLeaf());
 
             if (getCchAfter() > 0)
                 removeTextAfter( r );
@@ -1742,13 +1838,15 @@ public abstract class Splay extends Goobers
         if (r._leftSplay == r._doc && r._doc._rightSplay == null)
             r._leftOnly = true;
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
     }
 
     final int copyChars (
         Root r, int p, int cch, Root rDst, Splay sDst, int pDst )
     {
-        assert pDst > 0 && pDst <= sDst.getEndPos();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(pDst > 0 && pDst <= sDst.getEndPos());
 
         int postCch = getPostCch( p );
 
@@ -1758,7 +1856,8 @@ public abstract class Splay extends Goobers
         if (cch < 0 || cch > postCch)
             cch = postCch;
 
-        assert cch > 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(cch > 0);
 
 // TODO - uses string to avoid problems with source and dest from same buffer
 //        rewrite to not create string object
@@ -1797,7 +1896,8 @@ public abstract class Splay extends Goobers
         r.startChange();
         rDst.startChange();
 
-        assert cch > 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(cch > 0);
 
         // I don't have to check the invalidity of the source because the
         // only invalid text I would have to deal with is that in a leaf, and
@@ -1833,7 +1933,8 @@ public abstract class Splay extends Goobers
         if (sDst == this && pDst >= p && pDst <= p + cch)
             return cch;
 
-        assert pDst > 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(pDst > 0);
 
         Container cDst = sDst.getContainer( pDst );
         Container c = getContainer( p );
@@ -1859,7 +1960,8 @@ public abstract class Splay extends Goobers
                 g.set( gp + cch );
         }
 
-        assert sDst != this || pDst < p || pDst > p + cch;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(sDst != this || pDst < p || pDst > p + cch);
 
         if (sDst == this)
         {
@@ -1921,7 +2023,8 @@ public abstract class Splay extends Goobers
     {
         int maxPos = getMaxPos();
 
-        assert p > 0 && p <= maxPos;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p > 0 && p <= maxPos);
 
         if (p == 0)
             return 0;
@@ -1963,7 +2066,8 @@ public abstract class Splay extends Goobers
                             g.set( p );
                         else
                         {
-                            assert k == ANNOTATION;
+                            if (XmlBeans.ASSERTS)
+                                XmlBeans.assertTrue(k == ANNOTATION);
                             g.disconnect( r );
                         }
                     }
@@ -1979,11 +2083,13 @@ public abstract class Splay extends Goobers
 
         int posAfter = getPosAfter();
 
-        assert p >= posAfter;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p >= posAfter);
 
         int maxCch = maxPos - p + 1;
 
-        assert maxCch >= 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(maxCch >= 0);
 
         if (cch < 0 || cch > maxCch)
             cch = maxCch;
@@ -2020,7 +2126,8 @@ public abstract class Splay extends Goobers
 
         r.invalidateVersion();
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
 
         return cch;
     }
@@ -2031,7 +2138,8 @@ public abstract class Splay extends Goobers
 
     final void insertChars ( int p, Root r, Object txt, int off, int cch )
     {
-        assert p > 0 && p <= getEndPos();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p > 0 && p <= getEndPos());
 
         if (cch == 0)
             return;
@@ -2062,7 +2170,8 @@ public abstract class Splay extends Goobers
 
         r.invalidateVersion();
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
     }
 
     private static final int START_STATE = 0;
@@ -2072,12 +2181,16 @@ public abstract class Splay extends Goobers
     public final int scrubText(
         Text text, int ws, int cp, int cch, StringBuffer sb, int state )
     {
-        assert text != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(text != null);
 
         if (text._buf == null)
         {
-            assert cch == 0;
-            assert cp == 0;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(cch == 0);
+                XmlBeans.assertTrue(cp == 0);
+            }
             return state;
         }
 
@@ -2094,7 +2207,8 @@ public abstract class Splay extends Goobers
         case TypeStore.WS_REPLACE     :            replace = true; break;
         case TypeStore.WS_COLLAPSE    : collapse = replace = true; break;
 
-		default : assert false: "Unknown white space rule " +ws;
+		default : if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "Unknown white space rule " + ws);
         }
 
         if (!replace && !collapse)
@@ -2293,7 +2407,8 @@ public abstract class Splay extends Goobers
 
     Splay getAttr ( QName name )
     {
-        assert name != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(name != null);
 
         if (!isContainer())
             return null;
@@ -2309,7 +2424,8 @@ public abstract class Splay extends Goobers
 
     void setXsiNil ( Root r, boolean nil )
     {
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         if (getXsiNil( r ) == nil)
             return;
@@ -2319,7 +2435,8 @@ public abstract class Splay extends Goobers
 
     boolean getXsiNil ( Root r )
     {
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         Splay s;
 
@@ -2339,7 +2456,8 @@ public abstract class Splay extends Goobers
 
     QName getXsiTypeName ( Root r )
     {
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         Splay s;
 
@@ -2352,7 +2470,8 @@ public abstract class Splay extends Goobers
         if (!s.isAttr())
             return null;
 
-        assert s.isXsiType();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(s.isXsiType());
 
         String value = s.getText( r, TypeStore.WS_COLLAPSE );
 
@@ -2384,7 +2503,8 @@ public abstract class Splay extends Goobers
 
     void setXsiType ( Root r, QName typeName )
     {
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         if (typeName == null)
         {
@@ -2398,7 +2518,8 @@ public abstract class Splay extends Goobers
 
         String prefix = prefixForNamespace( r, ns, null, true);
 
-        assert prefix != null : "Cannot establish prefix for " + ns;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(prefix != null, "Cannot establish prefix for ".concat(ns));
 
         if (prefix.length() > 0)
             value = prefix + ":" + value;
@@ -2422,9 +2543,12 @@ public abstract class Splay extends Goobers
 
     void setAttr ( Root r, QName attrName, String value )
     {
-        assert isContainer();
-        assert attrName != null;
-        assert value != null;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(isContainer());
+            XmlBeans.assertTrue(attrName != null);
+            XmlBeans.assertTrue(value != null);
+        }
 
         boolean set = false;
 
@@ -2482,7 +2606,8 @@ public abstract class Splay extends Goobers
         case DOC :
         case BEGIN :
         {
-            assert !isBegin() || isLeaf();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!isBegin() || isLeaf());
             insertChars( 1, r, txt, off, cch );
             break;
         }
@@ -2490,7 +2615,8 @@ public abstract class Splay extends Goobers
         {
             if (isXmlns())
             {
-                assert false: "Unexpected kind for setText";
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "Unexpected kind for setText");
             }
 // TODO - if setting text of xsi:type or xsi:nil must do stuff
 // TODO - if setting text of xsi:type or xsi:nil must do stuff
@@ -2504,7 +2630,8 @@ public abstract class Splay extends Goobers
         {
             r.startChange();
 
-            assert getCchValue() == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(getCchValue() == 0);
 
             r._text.insert( r.getCp( this ), txt, off, cch );
             r.updateCch( this, cch );
@@ -2522,10 +2649,12 @@ public abstract class Splay extends Goobers
             break;
         }
         default :
-            assert false: "Unexpected kind for setText";
+            if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "Unexpected kind for setText");
         }
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
     }
 
     final Map lookupAllPrefixMappings ( )
@@ -2608,7 +2737,8 @@ public abstract class Splay extends Goobers
      */
     final String getPrefix ( Root r )
     {
-        assert isBegin() || isAttr();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isBegin() || isAttr());
 
         if (isXmlns())
             return "xmlns";
@@ -2660,7 +2790,8 @@ public abstract class Splay extends Goobers
         if ("xmlns".equals(prefix))
             return _xmlnsUri;
 
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         // find an xmlns decl
         for ( Container c = (Container) this ; c != null ; c = c.getContainer())
@@ -2722,7 +2853,8 @@ public abstract class Splay extends Goobers
         if (_xmlnsUri.equals( ns ))
             return "xmlns";
 
-        assert isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isContainer());
 
         Container c;
         Splay s;
@@ -2796,7 +2928,8 @@ public abstract class Splay extends Goobers
         // the ordinary not-a-no-namespace case
         //
 
-        assert ns != null && ns.length() > 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(ns != null && ns.length() > 0);
 
         //
         // look for an existing prefix for the requested URI
@@ -2924,8 +3057,11 @@ public abstract class Splay extends Goobers
 
     final Container getContainer ( int p )
     {
-        assert p >= 0 && p <= getEndPos();
-        assert p > 0 || !isDoc();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(p >= 0 && p <= getEndPos());
+            XmlBeans.assertTrue(p > 0 || !isDoc());
+        }
 
         if (p == 0)
             return getContainer();
@@ -2956,8 +3092,11 @@ public abstract class Splay extends Goobers
 
     Container findContainer ( )
     {
-        assert !isContainer();
-        assert !isFinish();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(!isContainer());
+            XmlBeans.assertTrue(!isFinish());
+        }
 
         Splay s = nextSplay();
 
@@ -2969,13 +3108,15 @@ public abstract class Splay extends Goobers
 
     final void invalidateText ( )
     {
-        assert isValid();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isValid());
 
         Type t = peekType();
 
         if (t != null)
         {
-            assert isTypeable();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(isTypeable());
 
             t.invalidateText();
         }
@@ -2983,7 +3124,8 @@ public abstract class Splay extends Goobers
 
     final void invalidateNil ( )
     {
-        assert isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isTypeable());
 
         if (!isAttr())
         {
@@ -3001,7 +3143,8 @@ public abstract class Splay extends Goobers
     
     protected final void disconnectTypes ( Root r, boolean disconnectDoc )
     {
-        assert isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isTypeable());
 
         Splay last = isAttr() ? this : getFinishSplay();
 
@@ -3067,8 +3210,11 @@ public abstract class Splay extends Goobers
     
     final void setType ( Root r, SchemaType sType, boolean complain )
     {
-        assert isTypeable();
-        assert sType != null;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(isTypeable());
+            XmlBeans.assertTrue(sType != null);
+        }
 
         //
         // Is the current type already this type?
@@ -3087,11 +3233,13 @@ public abstract class Splay extends Goobers
         {
             disconnectTypes( r, true );
 
-            assert peekType() == null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(peekType() == null);
 
             new Type( r, sType, this );
 
-            assert validate();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(validate());
 
             return;
         }
@@ -3103,7 +3251,8 @@ public abstract class Splay extends Goobers
 
         Type parentType = getContainer().getType( r );
 
-        assert parentType != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(parentType != null);
 
         //
         // You can set the attribute type, as long as it is the natural
@@ -3121,7 +3270,8 @@ public abstract class Splay extends Goobers
             return;
         }
 
-        assert isBegin();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isBegin());
 
         //
         // Now, for interior types, I have to deal with xsi:type and
@@ -3137,7 +3287,8 @@ public abstract class Splay extends Goobers
 
             disconnectTypes( r );
 
-            assert validate();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(validate());
 
             return;
         }
@@ -3173,7 +3324,8 @@ public abstract class Splay extends Goobers
 
         disconnectTypes( r );
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
     }
 
     /**
@@ -3183,7 +3335,8 @@ public abstract class Splay extends Goobers
 
     final Type peekType ( )
     {
-        assert isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isTypeable());
 
         Type type = null;
 
@@ -3194,7 +3347,8 @@ public abstract class Splay extends Goobers
                     return (Type) g;
         }
 
-        assert type != null || isValid();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(type != null || isValid());
 
         return type;
     }
@@ -3206,7 +3360,8 @@ public abstract class Splay extends Goobers
 
     final Type getType ( Root r )
     {
-        assert isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(isTypeable());
 
         Type type = peekType();
 
@@ -3214,7 +3369,8 @@ public abstract class Splay extends Goobers
         {
             Type parentType = getContainer().getType( r );
 
-            assert parentType != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(parentType != null);
 
             // Defensive
             if (parentType == null)
@@ -3230,12 +3386,14 @@ public abstract class Splay extends Goobers
             }
             else
             {
-                assert isNormalAttr();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(isNormalAttr());
 
                 newUser = parentType.create_attribute_user( getName() );
             }
 
-            assert newUser != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(newUser != null);
 
             // Defensive
             if (newUser == null)
@@ -3244,7 +3402,8 @@ public abstract class Splay extends Goobers
             type = new Type( r, newUser, this );
         }
 
-        assert type != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(type != null);
 
         return type;
     }
@@ -3255,8 +3414,11 @@ public abstract class Splay extends Goobers
 
     final boolean between ( Root r, int pThis, Splay sRange )
     {
-        assert Root.dv > 0 || getRootSlow() == r;
-        assert Root.dv > 0 || getRootSlow() == sRange.getRootSlow();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == r);
+            XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == sRange.getRootSlow());
+        }
 
         if (sRange.isDoc())
             return true;
@@ -3267,7 +3429,8 @@ public abstract class Splay extends Goobers
         Splay sEnd;
         int   pEnd;
 
-        assert !sRange.isDoc();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!sRange.isDoc());
 
         if (sRange.isLeaf())
         {
@@ -3296,10 +3459,13 @@ public abstract class Splay extends Goobers
     {
         Splay sThis = this;
 
-        assert Root.dv > 0 || sThis.getRootSlow() == r;
-        assert Root.dv > 0 || sThat.getRootSlow() == r;
-        assert pThis >= 0 && pThis <= sThis.getEndPos();
-        assert pThat >= 0 && pThat <= sThat.getEndPos();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(Root.dv > 0 || sThis.getRootSlow() == r);
+            XmlBeans.assertTrue(Root.dv > 0 || sThat.getRootSlow() == r);
+            XmlBeans.assertTrue(pThis >= 0 && pThis <= sThis.getEndPos());
+            XmlBeans.assertTrue(pThat >= 0 && pThat <= sThat.getEndPos());
+        }
 
         // Normalize positions
 
@@ -3341,8 +3507,11 @@ public abstract class Splay extends Goobers
             }
         }
 
-        assert pThis < sThis.getEndPos();
-        assert pThat < sThat.getEndPos();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(pThis < sThis.getEndPos());
+            XmlBeans.assertTrue(pThat < sThat.getEndPos());
+        }
 
         if (sThis == sThat)
             return pThis < pThat ? -1 : pThis > pThat ? 1 : 0;
@@ -3361,7 +3530,8 @@ public abstract class Splay extends Goobers
         }
         else if (sThat.isAttr())
         {
-            assert !sThis.isAttr();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!sThis.isAttr());
 
             if (sThat.prevNonAttrSplay() != sThis)
                 return compare( r, sThat );
@@ -3418,7 +3588,8 @@ public abstract class Splay extends Goobers
         sThis.splay( r, r );
         sThat.splay( r, sThis );
 
-        assert sThis._leftSplay == sThat || sThis._rightSplay == sThat;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(sThis._leftSplay == sThat || sThis._rightSplay == sThat);
 
         return sThis._leftSplay == sThat ? 1 : -1;
     }
@@ -3481,12 +3652,14 @@ public abstract class Splay extends Goobers
 
     final void rotateRight ( )
     {
-        assert _parentSplay._leftSplay == this;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_parentSplay._leftSplay == this);
 
         Splay p = _parentSplay;
         Splay g = p._parentSplay;
 
-        assert p != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p != null);
 
         p._leftSplay = _rightSplay;
 
@@ -3511,12 +3684,14 @@ public abstract class Splay extends Goobers
 
     final void rotateLeft ( )
     {
-        assert _parentSplay._rightSplay == this;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_parentSplay._rightSplay == this);
 
         Splay p = _parentSplay;
         Splay g = p._parentSplay;
 
-        assert p != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p != null);
 
         p._rightSplay = _leftSplay;
 
@@ -3551,22 +3726,27 @@ public abstract class Splay extends Goobers
 
     final void splay ( Root r, Splay pStop )
     {
-        assert pStop != null;
-        assert this != pStop;
-        assert Root.dv > 0 || r == null || getRootSlow() == r;
-        assert Root.dv > 0 || r == null || pStop.getRootSlow() == r;
-        assert r == null || r.validateSplayTree();
-        assert !isRoot();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(pStop != null);
+            XmlBeans.assertTrue(this != pStop);
+            XmlBeans.assertTrue(Root.dv > 0 || r == null || getRootSlow() == r);
+            XmlBeans.assertTrue(Root.dv > 0 || r == null || pStop.getRootSlow() == r);
+            XmlBeans.assertTrue(r == null || r.validateSplayTree());
+            XmlBeans.assertTrue(!isRoot());
+        }
 
         boolean rotated = false;
 
         for ( ; ; )
         {
-            assert _parentSplay != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_parentSplay != null);
 
             Splay p = _parentSplay;
 
-            assert p != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(p != null);
 
             // If this is a child of the stopper, then we are done
 
@@ -3614,7 +3794,8 @@ public abstract class Splay extends Goobers
         if (rotated && r != null)
             r._leftOnly = false;
 
-        assert r == null || r.validateSplayTree();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(r == null || r.validateSplayTree());
     }
 
     /**
@@ -3626,12 +3807,14 @@ public abstract class Splay extends Goobers
     {
         Root root = r.isRoot() ? (Root) r : null;
 
-        assert r._parentSplay == null;
-        assert root == null || root.validateSplayTree();
-        assert !isRoot();
-        assert !isDoc();
-        assert Root.dv > 0 || getSplayRootSlow() == r;
-
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(r._parentSplay == null);
+            XmlBeans.assertTrue(root == null || root.validateSplayTree());
+            XmlBeans.assertTrue(!isRoot());
+            XmlBeans.assertTrue(!isDoc());
+            XmlBeans.assertTrue(Root.dv > 0 || getSplayRootSlow() == r);
+        }
         // If the splay to be removed has no cch or cbegin, then when the
         // tree is left only children, we need not splay.
 
@@ -3640,8 +3823,11 @@ public abstract class Splay extends Goobers
 
         if (root != null && root._leftOnly && cch == 0 && cbegin == 0)
         {
-            assert _rightSplay == null;
-            assert _parentSplay != null;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(_rightSplay == null);
+                XmlBeans.assertTrue(_parentSplay != null);
+            }
 
             if ((_parentSplay._leftSplay = _leftSplay) != null)
                 _leftSplay._parentSplay = _parentSplay;
@@ -3664,7 +3850,8 @@ public abstract class Splay extends Goobers
 
                 p.splay( root, this );
 
-                assert p._rightSplay == null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(p._rightSplay == null);
 
                 r._leftSplay = p;
                 p._parentSplay = r;
@@ -3681,7 +3868,8 @@ public abstract class Splay extends Goobers
         adjustCchLeft( - getCchLeft() );
         adjustCdocBeginLeft( - getCdocBeginLeft() );
 
-        assert root == null || root.validateSplayTree();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(root == null || root.validateSplayTree());
 
         return this;
     }
@@ -3773,7 +3961,8 @@ public abstract class Splay extends Goobers
         Attr ( QName name, boolean isXmlns )
         {
             super( ATTR, true, name );
-            assert isXmlns;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(isXmlns);
         }
 
         Container getContainer ( )
@@ -3832,17 +4021,20 @@ public abstract class Splay extends Goobers
 
         final void set ( Root r, Splay s, int p )
         {
-            assert s != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(s != null);
             doSet( r, s, p );
         }
 
         private final void doSet ( Root r, Splay s, int p )
         {
-            assert s != null || p == 0;
-            assert Root.dv > 0 || s == null || r == s.getRootSlow();
-            assert Root.dv > 0 || _splay == null || _root == _splay.getRootSlow();
-//            assert Root.dv > 0 || _root == r || _splay.getRootSlow() != s.getRootSlow();
-
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(s != null || p == 0);
+                XmlBeans.assertTrue(Root.dv > 0 || s == null || r == s.getRootSlow());
+                XmlBeans.assertTrue(Root.dv > 0 || _splay == null || _root == _splay.getRootSlow());
+//                XmlBeans.assertTrue(Root.dv > 0 || _root == r || _splay.getRootSlow() != s.getRootSlow());
+            }
             _root = r;
 
             if (_splay != s)
@@ -3854,14 +4046,18 @@ public abstract class Splay extends Goobers
                     append( s );
             }
 
-            assert p >= 0;
-            assert _splay == null || p <= _splay.getMaxPos();
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(p >= 0);
+                XmlBeans.assertTrue(_splay == null || p <= _splay.getMaxPos());
+            }
             _state = p * 8 + (_state & 7);
         }
 
         final void set ( Root r )
         {
-            assert r != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(r != null);
             _root = r;
         }
 
@@ -3884,11 +4080,14 @@ public abstract class Splay extends Goobers
 
         private final void append ( Splay s )
         {
-            assert s != null;
-            assert Root.dv > 0 || s.getRootSlow() == _root;
-            assert _splay == null;
-            assert _parent == null;
-            assert _next == null && _prev == null;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(s != null);
+                XmlBeans.assertTrue(Root.dv > 0 || s.getRootSlow() == _root);
+                XmlBeans.assertTrue(_splay == null);
+                XmlBeans.assertTrue(_parent == null);
+                XmlBeans.assertTrue(_next == null && _prev == null);
+            }
 
             if (s._goobers == null)
             {
@@ -3909,12 +4108,16 @@ public abstract class Splay extends Goobers
 
         private final void remove ( )
         {
-            assert _splay != null;
-            assert _goobers == null;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(_splay != null);
+                XmlBeans.assertTrue(_goobers == null);
+            }
 
             if (_next == this)
             {
-                assert _parent._goobers == this;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_parent._goobers == this);
 
                 _parent._goobers = null;
 
@@ -3923,7 +4126,8 @@ public abstract class Splay extends Goobers
                 if (_parent != _splay)
                 {
                     Goober g = (Goober) _parent;
-                    assert g.getKind() == AGGREGATE;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(g.getKind() == AGGREGATE);
                     g.remove();
                 }
             }
@@ -3983,7 +4187,8 @@ public abstract class Splay extends Goobers
         {
             // Creepy way to discover is assert is enabled.
             HashMap map = null;
-            assert (map = new HashMap()) != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue((map = new HashMap()) != null);
             return map;
         }
 
@@ -4082,15 +4287,19 @@ public abstract class Splay extends Goobers
         if (_goobers == null || _goobers.getKind() != AGGREGATE)
             return _goobers;
 
-        assert _goobers._goobers != null;
-        assert _goobers._goobers.getKind() != AGGREGATE;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(_goobers._goobers != null);
+            XmlBeans.assertTrue(_goobers._goobers.getKind() != AGGREGATE);
+        }
 
         return _goobers._goobers;
     }
 
     final Goober nextGoober ( Goober g )
     {
-        assert g != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(g != null);
 
         if ((g = g._next) != g._parent._goobers)
             return g;
@@ -4102,10 +4311,7 @@ public abstract class Splay extends Goobers
 
     private static boolean getAssertEnabled ( )
     {
-        // Creepy way to discover is assert is enabled.
-        boolean enabled = false;
-        assert (enabled = true) || true;
-        return enabled;
+        return XmlBeans.ASSERTS;
     }
 
     static void assertAssertEnabled ( )
@@ -4179,7 +4385,7 @@ public abstract class Splay extends Goobers
     {
         assertAssertEnabled();
 
-        assert Root.dv > 0 || getRootSlow() == sThat.getRootSlow();
+        XmlBeans.assertTrue(Root.dv > 0 || getRootSlow() == sThat.getRootSlow());
 
         if (this == sThat)
             return 0;
@@ -4192,7 +4398,7 @@ public abstract class Splay extends Goobers
             if (s == sThat)
                 return 1;
 
-        assert false: "Yikes!";
+        XmlBeans.assertTrue(false, "Yikes!");
 
         return 0;
     }

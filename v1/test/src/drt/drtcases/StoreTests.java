@@ -24,6 +24,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.XmlNameImpl;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
@@ -837,8 +838,6 @@ public class StoreTests extends TestCase
     {
         try
         {
-            assert false;
-
             Assert.assertTrue( false );
         }
         catch ( Throwable e )
@@ -2552,7 +2551,7 @@ public class StoreTests extends TestCase
     {
         String xml = "<a xmlns:a='aNS'><a:b/></a>";
 
-        Map map = new java.util.LinkedHashMap();
+        Map map = new SequencedHashMap();
         map.put("b", "bNS");
         map.put("c", "cNS");
         map.put("a", "not-aNS");
@@ -2568,7 +2567,7 @@ public class StoreTests extends TestCase
 
         xml = "<a xmlns='aNS'><b/></a>";
 
-        map = new java.util.LinkedHashMap();
+        map = new SequencedHashMap();
         map.put("b", "bNS");
         map.put("c", "cNS");
         map.put("", "not-aNS");

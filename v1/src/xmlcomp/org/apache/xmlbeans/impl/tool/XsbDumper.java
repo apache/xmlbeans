@@ -33,6 +33,8 @@ import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlRuntimeException;
 import javax.xml.namespace.QName;
 
 public class XsbDumper
@@ -123,7 +125,7 @@ public class XsbDumper
     void flush() { System.out.flush(); }
     void emit(String str) { System.out.println(_indent + str); flush(); }
     void emit() { System.out.println(); flush(); }
-    void error(Exception e) { System.out.println(e.toString()); flush(); IllegalStateException e2 = new IllegalStateException( e.getMessage() ); e2.initCause( e ); throw e2; }
+    void error(Exception e) { System.out.println(e.toString()); flush(); XmlRuntimeException e2 = new XmlRuntimeException( e.getMessage(), e ); throw e2; }
     void error(String str) { System.out.println(str); flush(); IllegalStateException e2 = new IllegalStateException( str ); throw e2; }
     private String _indent;
     void indent() { _indent += "  "; }
@@ -1066,7 +1068,8 @@ public class XsbDumper
         switch (btc)
         {
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
             case 0:
                 value = "nil";
                 break;
@@ -1093,7 +1096,7 @@ public class XsbDumper
                 {
                     value = new String(HexBin.encode(readByteArray()));
                     if (value.length() > 19)
-                        value = value.subSequence(0, 16) + "...";
+                        value = value.substring(0, 16) + "...";
                     break;
                 }
 

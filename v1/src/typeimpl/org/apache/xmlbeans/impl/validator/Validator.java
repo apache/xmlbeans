@@ -52,6 +52,7 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -120,7 +121,8 @@ public final class Validator
 
             if (_errorListener != null)
             {
-                assert event != null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(event != null);
 
                 _errorListener.add(
                     XmlError.forCursor( msg, severity, event.getLocationAsCursor() ) );
@@ -178,9 +180,9 @@ public final class Validator
         }
         else
         {
-            assert
-                kind == BEGIN || kind == ATTR ||
-                    kind == END || kind == TEXT || kind == ENDATTRS;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( kind == BEGIN || kind == ATTR ||
+                    kind == END || kind == TEXT || kind == ENDATTRS);
 
             switch ( kind )
             {
@@ -213,7 +215,8 @@ public final class Validator
 
             QName name = event.getName();
 
-            assert name != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(name != null);
 
             state._isEmpty = false;
 
@@ -285,8 +288,8 @@ public final class Validator
             }
             else
             {
-                assert
-                    currentParticle.getParticleType() == SchemaParticle.ELEMENT;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(currentParticle.getParticleType() == SchemaParticle.ELEMENT);
 
                 // If the current element particle name does not match the name
                 // of the event, then the current element is a substitute for
@@ -305,7 +308,8 @@ public final class Validator
 
                     SchemaGlobalElement newField = _globalTypes.findElement(name);
 
-                    assert newField != null;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(newField != null);
 
                     if (newField != null)
                     {
@@ -322,7 +326,8 @@ public final class Validator
             elementType = elementField.getType();
         }
 
-        assert elementType != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(elementType != null);
 
         //
         // the no-type is always invalid (even if there is an xsi:type)
@@ -621,7 +626,8 @@ public final class Validator
             if (wildcardProcess == SchemaAttributeModel.LAX)
                 return;
 
-            assert wildcardProcess == SchemaAttributeModel.STRICT;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(wildcardProcess == SchemaAttributeModel.STRICT);
 
             emitFieldError(
                 event,
@@ -838,7 +844,8 @@ public final class Validator
 
         SchemaParticle currentParticle ( )
         {
-            assert _visitor != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_visitor != null);
             return _visitor.currentParticle();
         }
 
@@ -970,7 +977,8 @@ public final class Validator
         if (!type.isSimpleType() &&
                 type.getContentType() != SchemaType.SIMPLE_CONTENT)
         {
-            assert false;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(false);
             // throw new RuntimeException( "Not a simple type" );
             return null; // should never happen
         }
@@ -1060,7 +1068,8 @@ public final class Validator
         if (!type.isSimpleType() &&
                 type.getContentType() != SchemaType.SIMPLE_CONTENT)
         {
-            assert false;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(false);
             throw new RuntimeException( "Not a simple type" );
         }
 
@@ -1083,7 +1092,8 @@ public final class Validator
     {
         // Now we should have only an atomic type to validate
 
-        assert type.getSimpleVariety() == SchemaType.ATOMIC;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(type.getSimpleVariety() == SchemaType.ATOMIC);
 
         // Record the current error state to see if any new errors are made
         int errorState = _errorState;

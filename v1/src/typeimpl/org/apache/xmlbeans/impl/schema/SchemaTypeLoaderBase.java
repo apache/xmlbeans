@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.common.NetUtils;
 import org.apache.xmlbeans.impl.values.XmlStore;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLInputStream;
 
@@ -26,11 +28,13 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaModelGroup;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlSaxHandler;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlFactoryHook;
+import org.apache.xmlbeans.XmlRuntimeException;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -86,13 +90,13 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         }
         catch ( InvocationTargetException e )
         {
-            IllegalStateException ise = new IllegalStateException( e.getCause().getMessage() );
+            XmlRuntimeException ise = new XmlRuntimeException( e.getTargetException().getMessage() );
             ise.initCause( e );
             throw ise;
         }
         catch ( Exception e )
         {
-            IllegalStateException ise = new IllegalStateException( e.getMessage() );
+            XmlRuntimeException ise = new XmlRuntimeException( e.getMessage() );
             ise.initCause( e );
             throw ise;
         }
@@ -114,7 +118,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (ref == null)
             return null;
         SchemaType result = ref.get();
-        assert(result != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(result != null);
         return result;
     }
 
@@ -124,7 +129,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (ref == null)
             return null;
         SchemaType result = ref.get();
-        assert(result != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(result != null);
         return result;
     }
 
@@ -134,7 +140,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (ref == null)
             return null;
         SchemaType result = ref.get();
-        assert(result != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(result != null);
         return result;
     }
 
@@ -144,7 +151,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (ref == null)
             return null;
         SchemaModelGroup result = ref.get();
-        assert(result != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(result != null);
         return result;
     }
 
@@ -154,7 +162,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (ref == null)
             return null;
         SchemaAttributeGroup result = ref.get();
-        assert(result != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(result != null);
         return result;
     }
 
@@ -164,7 +173,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (ref == null)
             return null;
         SchemaGlobalElement result = ref.get();
-        assert(result != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(result != null);
         return result;
     }
 
@@ -174,7 +184,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (ref == null)
             return null;
         SchemaGlobalAttribute result = ref.get();
-        assert(result != null);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(result != null);
         return result;
     }
 
@@ -214,13 +225,13 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (options == null)
         {
             options = new XmlOptions();
-            options.put( XmlOptions.DOCUMENT_SOURCE_NAME, file.toURI().normalize().toString() );
+            options.put( XmlOptions.DOCUMENT_SOURCE_NAME, NetUtils.normalize(IOUtil.fileToURL(file).toString()) );
         }
 
         else if (! options.hasOption(XmlOptions.DOCUMENT_SOURCE_NAME))
         {
             options = new XmlOptions( options );
-            options.put( XmlOptions.DOCUMENT_SOURCE_NAME, file.toURI().normalize().toString() );
+            options.put( XmlOptions.DOCUMENT_SOURCE_NAME, NetUtils.normalize(IOUtil.fileToURL(file).toString()) );
         }
 
         InputStream fis = new FileInputStream( file );
@@ -259,8 +270,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 
             do {
                 conn = url.openConnection();
-                conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.3");
-                conn.addRequestProperty("Accept", "application/xml, text/xml, */*");
+                conn.setRequestProperty("User-Agent", "Apache XMLBeans/1.0.3");
+                conn.setRequestProperty("Accept", "application/xml, text/xml, */*");
                 if (conn instanceof HttpURLConnection)
                 {
                     HttpURLConnection httpcon = (HttpURLConnection)conn;

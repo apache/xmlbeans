@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaComponent;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.XPath;
 import javax.xml.namespace.QName;
@@ -57,7 +58,8 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
                 p = _selectorPath;
             }
             catch (XPath.XPathCompileException e) {
-                assert false: "Failed to compile xpath. Should be caught by compiler " + e;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 return null;
             }
         }
@@ -73,12 +75,14 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     }
 
     public void setSelector(String selector) {
-        assert selector != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(selector != null);
         _selector = selector;
     }
 
     public void setFields(String[] fields) {
-        assert fields != null && fields.length > 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(fields != null && fields.length > 0);
         _fields = fields;
     }
 
@@ -96,7 +100,8 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
                 p = _fieldPaths;
             }
             catch (XPath.XPathCompileException e) {
-                assert false: "Failed to compile xpath. Should be caught by compiler " + e;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 return null;
             }
         }
@@ -121,7 +126,8 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     }
 
     public void setConstraintCategory(int type) {
-        assert type >= CC_KEY && type <= CC_UNIQUE;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(type >= CC_KEY && type <= CC_UNIQUE);
         _type = type;
     }
 
@@ -130,7 +136,8 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     }
 
     public void setName(QName name) {
-        assert name != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(name != null);
         _name = name;
     }
 

@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.xmlbeans.XmlBeans;
+
 import java.io.Reader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -55,7 +57,8 @@ public class XmlEncodingSniffer
         {
             SniffedXmlInputStream sniffed = new SniffedXmlInputStream(_stream);
             _xmlencoding = sniffed.getXmlEncoding();
-            assert(_xmlencoding != null);
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_xmlencoding != null);
             _stream = sniffed;
         }
 

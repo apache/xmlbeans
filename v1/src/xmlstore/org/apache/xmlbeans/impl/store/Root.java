@@ -85,7 +85,8 @@ public final class Root extends Finish implements XmlStore
     {
         super( ROOT );
 
-        assert stl != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(stl != null);
 
         _schemaTypeSystem = stl;
 
@@ -133,7 +134,8 @@ public final class Root extends Finish implements XmlStore
 
     public XmlCursor createCursor ( )
     {
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
         return new Cursor( this, _doc );
     }
 
@@ -165,18 +167,22 @@ public final class Root extends Finish implements XmlStore
         if (!isEmpty())
             _doc.removeContent( this, true );
 
-        assert isEmpty();
-        assert validate();
-        assert _leftOnly;
-        assert getCchLeft() == 0;
-        assert _text.length() == 0;
-        assert getCdocBeginLeft() == 1;
-        assert _doc != null && _leftSplay == _doc;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(isEmpty());
+            XmlBeans.assertTrue(validate());
+            XmlBeans.assertTrue(_leftOnly);
+            XmlBeans.assertTrue(getCchLeft() == 0);
+            XmlBeans.assertTrue(_text.length() == 0);
+            XmlBeans.assertTrue(getCdocBeginLeft() == 1);
+            XmlBeans.assertTrue(_doc != null && _leftSplay == _doc);
+        }
     }
 
     void updateCch ( Splay s, int deltaCch )
     {
-        assert !s.isRoot();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!s.isRoot());
 
         if (deltaCch != 0)
         {
@@ -217,8 +223,11 @@ public final class Root extends Finish implements XmlStore
     {
         // only one of (set or name) is not null
         // or both are null for a wildcard
-        assert ( name == null || set == null );
-        assert n >= 0;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( name == null || set == null );
+            XmlBeans.assertTrue( n >= 0 );
+        }
 
         if (parent == null || parent.isLeaf())
             return null;
@@ -626,7 +635,7 @@ public final class Root extends Finish implements XmlStore
             }
             catch ( Exception e )
             {
-                throw new RuntimeException( e.getMessage(), e );
+                throw new XmlRuntimeException( e.getMessage(), e );
             }
         }
         
@@ -639,7 +648,7 @@ public final class Root extends Finish implements XmlStore
             }
             catch ( Exception e )
             {
-                throw new RuntimeException( e.getMessage(), e );
+                throw new XmlRuntimeException( e.getMessage(), e );
             }
         }
         
@@ -668,7 +677,7 @@ public final class Root extends Finish implements XmlStore
             }
             catch ( Throwable e )
             {
-                throw new RuntimeException( e.getMessage(), e );
+                throw new XmlRuntimeException( e.getMessage(), e );
             }
         }
 
@@ -702,7 +711,7 @@ public final class Root extends Finish implements XmlStore
                 }
                 catch ( Throwable e )
                 {
-                    throw new RuntimeException( e.getMessage(), e );
+                    throw new XmlRuntimeException( e.getMessage(), e );
                 }
             }
         }
@@ -730,7 +739,8 @@ public final class Root extends Finish implements XmlStore
             
             try
             {
-                assert r.disableStoreValidation();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( r.disableStoreValidation() );
 
                 _xr.parse( inputSource );
 
@@ -776,7 +786,8 @@ public final class Root extends Finish implements XmlStore
             }
             finally
             {
-                assert r.enableStoreValidation();
+                if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( r.enableStoreValidation() );
             }
         }
 
@@ -1049,7 +1060,8 @@ public final class Root extends Finish implements XmlStore
         }
         catch ( IOException e )
         {
-            assert false: "StringReader should not throw IOException";
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( false, "StringReader should not throw IOException" );
             throw new XmlException( e.getMessage(), e );
         }
         finally
@@ -1080,7 +1092,8 @@ public final class Root extends Finish implements XmlStore
         {
             super( null, null );
             
-            assert isEmpty();
+            if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( isEmpty() );
 
             _options = options;
             _type = type;
@@ -1141,7 +1154,8 @@ public final class Root extends Finish implements XmlStore
     {
         LoadContext ( Root root, XmlOptions options )
         {
-            assert root != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( root != null );
 
             _options = options = XmlOptions.maskNull( options );
 
@@ -1189,14 +1203,18 @@ public final class Root extends Finish implements XmlStore
 
         private int getCp ( Splay s )
         {
-            assert _root.isLeftOnly();
-            assert dv > 0 || s.getCpSlow() == s.getCchLeft();
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue( _root.isLeftOnly());
+                XmlBeans.assertTrue( dv > 0 || s.getCpSlow() == s.getCchLeft());
+            }
             return s.getCchLeft();
         }
 
         private void adjustCch ( Splay s, int delta )
         {
-            assert _root.isLeftOnly();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( _root.isLeftOnly());
 
             s.adjustCch( delta );
 
@@ -1205,15 +1223,17 @@ public final class Root extends Finish implements XmlStore
 
             for ( s = s.nextSplay() ; s != null ; s = s.nextSplay() )
             {
-                assert s.isAttr() || s.isRoot();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( s.isAttr() || s.isRoot());
                 s.adjustCchLeft( delta );
             }
         }
 
         private void insert ( Splay s )
         {
-            assert !_finished;
-            assert s.getCch() == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( !_finished );
+                XmlBeans.assertTrue( s.getCch() == 0 );
 
             _root.insertSplay( s, _root._leftSplay );
 
@@ -1226,8 +1246,11 @@ public final class Root extends Finish implements XmlStore
 
         private void insert ( Splay s, char[] buf, int off, int cch )
         {
-            assert !_finished;
-            assert s.getCch() == 0;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue( !_finished );
+                XmlBeans.assertTrue( s.getCch() == 0 );
+            }
             insert( s );
             _root._text.insert( getCp( s ), buf, off, cch );
             adjustCch( s, cch );
@@ -1235,8 +1258,11 @@ public final class Root extends Finish implements XmlStore
 
         private void insert ( Splay s, String text )
         {
-            assert !_finished;
-            assert s.getCch() == 0;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue( !_finished );
+                XmlBeans.assertTrue( s.getCch() == 0 );
+            }
             insert( s );
             _root._text.insert( getCp( s ), text );
             adjustCch( s, text.length() );
@@ -1288,7 +1314,8 @@ public final class Root extends Finish implements XmlStore
             }
             catch ( XmlException e )
             {
-                assert false;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( false );
             }
         }
 
@@ -1302,7 +1329,8 @@ public final class Root extends Finish implements XmlStore
             if (_frontier != _root._doc)
                 throw new XmlException( "Document not ended" );
 
-            assert _root._leftOnly;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( _root._leftOnly );
 
             _finished = true;
 
@@ -1345,7 +1373,8 @@ public final class Root extends Finish implements XmlStore
                                 s );
 
                             // The above insert should not splay the tree
-                            assert _root.isLeftOnly();
+                            if (XmlBeans.ASSERTS)
+                                XmlBeans.assertTrue( _root.isLeftOnly());
                         }
                     }
                 }
@@ -1357,7 +1386,8 @@ public final class Root extends Finish implements XmlStore
 
             _root.invalidateVersion();
             
-            assert _root.isLeftOnly();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( _root.isLeftOnly() );
         }
 
         private QName checkName ( String local, String uri )
@@ -1486,9 +1516,12 @@ public final class Root extends Finish implements XmlStore
             }
             else
             {
-                assert !_finished;
-                assert _frontier.isBegin();
-                assert !_frontier.isLeaf();
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue( !_finished );
+                    XmlBeans.assertTrue( _frontier.isBegin());
+                    XmlBeans.assertTrue( !_frontier.isLeaf());
+                }
 
                 if (_lastNonAttr == _frontier)
                 {
@@ -1578,7 +1611,8 @@ public final class Root extends Finish implements XmlStore
 
         int preText ( )
         {
-            assert !_finished;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( !_finished);
 
             return getCp( _lastNonAttr ) + _lastNonAttr.getCch();
         }
@@ -1617,7 +1651,8 @@ public final class Root extends Finish implements XmlStore
 
         void text ( char[] buf, int off, int cch )
         {
-            assert !_finished;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( !_finished );
 
             int start = off;
             int end = off + cch;
@@ -1646,7 +1681,8 @@ public final class Root extends Finish implements XmlStore
 
         void text ( String text )
         {
-            assert !_finished;
+            if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( !_finished );
 
             int start = 0;
             int end = text.length();
@@ -1989,8 +2025,11 @@ public final class Root extends Finish implements XmlStore
 
         associateSourceName( options );
 
-        assert validate();
-        assert isLeftOnly();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( validate() );
+            XmlBeans.assertTrue( isLeftOnly() );
+        }
     }
 
     public static void dump ( XmlObject x )
@@ -2503,16 +2542,19 @@ public final class Root extends Finish implements XmlStore
 
     void insertSplay ( Splay s, Splay a )
     {
-        assert s != null;
-        assert !s.isRoot();
-        assert a != null;
-        assert Root.dv > 0 || validateSplayTree();
-        assert !a.isRoot();
-        assert Root.dv > 0 || a.getRootSlow() == this;
-        assert s._parentSplay == null;
-        assert s._rightSplay == null;
-        assert s._leftSplay != null || s.getCchLeft() == 0;
-        assert s._leftSplay != null || s.getCdocBeginLeft() == 0;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( s != null );
+            XmlBeans.assertTrue( !s.isRoot() );
+            XmlBeans.assertTrue( a != null );
+            XmlBeans.assertTrue( Root.dv > 0 || validateSplayTree() );
+            XmlBeans.assertTrue( !a.isRoot() );
+            XmlBeans.assertTrue( Root.dv > 0 || a.getRootSlow() == this );
+            XmlBeans.assertTrue( s._parentSplay == null );
+            XmlBeans.assertTrue( s._rightSplay == null );
+            XmlBeans.assertTrue( s._leftSplay != null || s.getCchLeft() == 0 );
+            XmlBeans.assertTrue( s._leftSplay != null || s.getCdocBeginLeft() == 0 );
+        }
 
         int cch = s.getCch();
         int cbegin = s.getCdocBegin();
@@ -2529,11 +2571,13 @@ public final class Root extends Finish implements XmlStore
             s._leftSplay = _leftSplay;
             s._parentSplay = this;
 
-            assert s.getCchLeft() == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( s.getCchLeft() == 0 );
             s.adjustCchLeft(
                 _leftSplay.getCchLeft() + _leftSplay.getCch() );
 
-            assert s.getCdocBeginLeft() == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( s.getCdocBeginLeft() == 0 );
             s.adjustCdocBeginLeft(
                 _leftSplay.getCdocBeginLeft() + _leftSplay.getCdocBegin() );
 
@@ -2598,7 +2642,8 @@ public final class Root extends Finish implements XmlStore
             s.splay( this, this );
         }
 
-        assert validateSplayTree();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( validateSplayTree() );
     }
 
     /**
@@ -2609,9 +2654,12 @@ public final class Root extends Finish implements XmlStore
     
     void insertSingleSplaySansSplayInLeftOnlyTree ( Splay s, Splay a )
     {
-        assert _leftOnly;
-        assert s._rightSplay == null;
-        assert s._leftSplay == null;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( _leftOnly );
+            XmlBeans.assertTrue( s._rightSplay == null );
+            XmlBeans.assertTrue( s._leftSplay == null );
+        }
 
         s._leftSplay = a;
         s._parentSplay = a._parentSplay;
@@ -2644,14 +2692,17 @@ public final class Root extends Finish implements XmlStore
 
     Splay removeSplays ( Splay first, Splay last )
     {
-        assert validateSplayTree();
-        assert first != last;;
-        assert !first.isRoot();
-        assert !first.isDoc();
-        assert Root.dv > 0 || first.getRootSlow() == this;
-        assert Root.dv > 0 || last.getRootSlow() == this;
-        assert Root.dv > 0 || first.compareSlow( last ) == -1;
-        assert !last.isRoot() || last == this;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( validateSplayTree() );
+            XmlBeans.assertTrue( first != last );
+            XmlBeans.assertTrue( !first.isRoot() );
+            XmlBeans.assertTrue( !first.isDoc() );
+            XmlBeans.assertTrue( Root.dv > 0 || first.getRootSlow() == this );
+            XmlBeans.assertTrue( Root.dv > 0 || last.getRootSlow() == this );
+            XmlBeans.assertTrue( Root.dv > 0 || first.compareSlow( last ) == -1 );
+            XmlBeans.assertTrue( !last.isRoot() || last == this );
+        }
 
         Splay x = last.prevSplay();
 
@@ -2666,11 +2717,14 @@ public final class Root extends Finish implements XmlStore
         x.splay( this, last );
         first.splay( this, x );
 
-        assert this == last || this._leftSplay == last;
-        assert last._leftSplay == x;
-        assert x._leftSplay == first;
-        assert x._rightSplay == null;
-        assert first._leftSplay != null;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( this == last || this._leftSplay == last );
+            XmlBeans.assertTrue( last._leftSplay == x );
+            XmlBeans.assertTrue( x._leftSplay == first );
+            XmlBeans.assertTrue( x._rightSplay == null );
+            XmlBeans.assertTrue( first._leftSplay != null );
+        }
 
         int firstCchLeft = first.getCchLeft();
         int firstCbeginLeft = first.getCdocBeginLeft();
@@ -2693,11 +2747,14 @@ public final class Root extends Finish implements XmlStore
         first.adjustCchLeft( - firstCchLeft );
         first.adjustCdocBeginLeft( - firstCbeginLeft );
 
-        assert first.getCchLeft() == 0;
-        assert first.getCdocBeginLeft() == 0;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( first.getCchLeft() == 0 );
+            XmlBeans.assertTrue( first.getCdocBeginLeft() == 0 );
 
-        assert x.getCchLeft() + deltaCchLeft + x.getCch() == 0;
-        assert x.getCdocBeginLeft() + deltaCbeginLeft + x.getCdocBegin() == 0;
+            XmlBeans.assertTrue( x.getCchLeft() + deltaCchLeft + x.getCch() == 0 );
+            XmlBeans.assertTrue( x.getCdocBeginLeft() + deltaCbeginLeft + x.getCdocBegin() == 0 );
+        }
 
         first._leftSplay._parentSplay = last;
         last._leftSplay = first._leftSplay;
@@ -2706,7 +2763,8 @@ public final class Root extends Finish implements XmlStore
         first._leftSplay = null;
         first._parentSplay = null;
 
-        assert validateSplayTree();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( validateSplayTree() );
 
         return x;
     }
@@ -2795,7 +2853,8 @@ public final class Root extends Finish implements XmlStore
             {
                 s = validateContent( s );
 
-                assert s.isEnd(): "Missing END, splay: " + s.getDebugId();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( s.isEnd(), "Missing END, splay: " + s.getDebugId() );
 
                 s = s.nextSplay();
             }
@@ -2812,7 +2871,8 @@ public final class Root extends Finish implements XmlStore
 
         s = validateContent( s );
 
-        assert s.isRoot(): "Expected root";
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isRoot(), "Expected root" );
 
         return true;
     }
@@ -2828,8 +2888,11 @@ public final class Root extends Finish implements XmlStore
     {
         if (g instanceof Type)
         {
-            assert g.getKind() == TYPE;
-            assert s.isTypeable();
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue( g.getKind() == TYPE );
+                XmlBeans.assertTrue( s.isTypeable() );
+            }
 
             context._numSplayTypes++;
 
@@ -2843,20 +2906,27 @@ public final class Root extends Finish implements XmlStore
         }
         else
         {
-            assert g.getKind() != TYPE;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( g.getKind() != TYPE );
         }
 
-        assert g.getSplay() == s;
-        assert g.getRoot() == this;
-        assert g.getPos() >= 0;
-        assert g.getPos() <= s.getMaxPos();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( g.getSplay() == s );
+            XmlBeans.assertTrue( g.getRoot() == this );
+            XmlBeans.assertTrue( g.getPos() >= 0 );
+            XmlBeans.assertTrue( g.getPos() <= s.getMaxPos() );
+            }
     }
 
     private boolean doValidate ( )
     {
-        assert validateDoc();
-        assert validateSplayTree();
-        assert getCchLeft() == _text.length();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( validateDoc() );
+            XmlBeans.assertTrue( validateSplayTree() );
+            XmlBeans.assertTrue( getCchLeft() == _text.length() );
+        }
 
         validateChangeListenerState();
 
@@ -2876,51 +2946,67 @@ public final class Root extends Finish implements XmlStore
         {
             if (s.isRoot())
             {
-                assert s.getCchAfter() == 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( s.getCchAfter() == 0 );
             }
             else if (s.isBegin())
             {
                 Begin b = (Begin) s;
 
-                assert b.getName() != null;
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue( b.getName() != null );
 
-                assert
-                    b.getFinish() == null ||
-                        b.getFinish().getContainer() == b;
+                    XmlBeans.assertTrue(
+                        b.getFinish() == null ||
+                            b.getFinish().getContainer() == b );
+                }
 
                 if (b.isLeaf())
                 {
-                    assert b.getFinish() == null;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue( b.getFinish() == null );
                 }
                 else
                 {
-                    assert b.getFinish() != null;
-                    assert b.getFinish().getContainer() == b;
-                    assert b.getCchValue() == 0;
+                    if (XmlBeans.ASSERTS)
+                    {
+                        XmlBeans.assertTrue( b.getFinish() != null );
+                        XmlBeans.assertTrue( b.getFinish().getContainer() == b );
+                        XmlBeans.assertTrue( b.getCchValue() == 0 );
+                    }
                 }
             }
             else if (s.isAttr())
             {
-                assert s.getName() != null;
-                assert s.getCchAfter() == 0;
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue( s.getName() != null );
+                    XmlBeans.assertTrue( s.getCchAfter() == 0 );
+                }
             }
 
             if (s.isProcinst())
             {
-                assert s.getName().getNamespaceURI() != null;
-                assert s.getName().getNamespaceURI().length() == 0;
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue( s.getName().getNamespaceURI() != null );
+                    XmlBeans.assertTrue( s.getName().getNamespaceURI().length() == 0 );
+                }
             }
 
             if (s.isContainer())
             {
-                assert s.getContainer() == recentContainer;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( s.getContainer() == recentContainer );
 
                 if (!s.isLeaf())
                     recentContainer = (Container) s;
             }
             else if (s.isFinish())
             {
-                assert s.getContainer() == recentContainer;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( s.getContainer() == recentContainer );
                 recentContainer = recentContainer.getContainer();
             }
 
@@ -2934,36 +3020,50 @@ public final class Root extends Finish implements XmlStore
 
             if (isInvalid())
             {
-                assert s.isTypeable();
-                assert s.peekType() != null;
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue( s.isTypeable() );
+                    XmlBeans.assertTrue( s.peekType() != null );
+                }
 
-                assert context._numSplayTypes == 1;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( context._numSplayTypes == 1 );
 
                 if (s.isDoc())
                 {
-                    assert s.getCchAfter() == 0;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue( s.getCchAfter() == 0 );
                     Splay n = s.nextNonAttrSplay();
 
-                    assert n.isRoot();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue( n.isRoot() );
                 }
                 else if (s.isBegin())
                 {
-                    assert s.isLeaf();
-                    assert s.getCchValue() == 0;
+                    if (XmlBeans.ASSERTS)
+                    {
+                        XmlBeans.assertTrue( s.isLeaf() );
+                        XmlBeans.assertTrue( s.getCchValue() == 0 );
+                    }
                 }
                 else if (s.isAttr())
                 {
-                    assert s.getCchValue() == 0;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue( s.getCchValue() == 0 );
                 }
             }
             else
             {
-                assert context._numSplayTypes <= 1;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( context._numSplayTypes <= 1 );
             }
         }
 
-        assert context._cInvalidatableTypes == _cInvalidatableTypes;
-        assert context._cElemOrderSensitiveTypes ==_cElemOrderSensitiveTypes;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( context._cInvalidatableTypes == _cInvalidatableTypes );
+            XmlBeans.assertTrue( context._cElemOrderSensitiveTypes ==_cElemOrderSensitiveTypes );
+        }
 
         // TODO: Validate indices
 
@@ -3036,9 +3136,12 @@ public final class Root extends Finish implements XmlStore
 
         ValidateStats stats = new ValidateStats();
 
-        assert _parentSplay == null;
-        assert _rightSplay  == null;
-        assert _doc._leftSplay == null;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( _parentSplay == null );
+            XmlBeans.assertTrue( _rightSplay  == null );
+            XmlBeans.assertTrue( _doc._leftSplay == null );
+        }
 
         Splay s = this;
 
@@ -3050,7 +3153,8 @@ public final class Root extends Finish implements XmlStore
                 s = s._leftSplay;
         }
 
-        assert s == _doc;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s == _doc );
 
         loop:
         for ( ; ; )
@@ -3100,8 +3204,11 @@ public final class Root extends Finish implements XmlStore
                     }
                     else
                     {
-                        assert p._leftSplay == s;
-                        assert p._rightSplay != null;
+                        if (XmlBeans.ASSERTS)
+                        {
+                            XmlBeans.assertTrue( p._leftSplay == s );
+                            XmlBeans.assertTrue( p._rightSplay != null );
+                        }
 
                         s = p._rightSplay;
 
@@ -3116,22 +3223,26 @@ public final class Root extends Finish implements XmlStore
 
         for ( s = _doc ; s != null ; s = s.nextSplay() )
         {
-            assert !_leftOnly || s._rightSplay == null: "" + s.getDebugId();
-            assert s._leftSplay  == null || s._leftSplay ._parentSplay == s;
-            assert s._rightSplay == null || s._rightSplay._parentSplay == s;
-
-            if (s._leftSplay == null)
+            if (XmlBeans.ASSERTS)
             {
-                assert s.getCchLeft() == 0;
-                assert s.getCdocBeginLeft() == 0;
+                XmlBeans.assertTrue( !_leftOnly || s._rightSplay == null, Integer.toString(s.getDebugId()) );
+                XmlBeans.assertTrue( s._leftSplay  == null || s._leftSplay ._parentSplay == s );
+                XmlBeans.assertTrue( s._rightSplay == null || s._rightSplay._parentSplay == s );
             }
-            else
-            {
-                assert
-                    s.getCchLeft() == stats.getCch( s._leftSplay ):
-                        "" + s.getDebugId();
 
-                assert s.getCdocBeginLeft() == stats.getCbegin( s._leftSplay );
+            if (XmlBeans.ASSERTS)
+            {
+                if (s._leftSplay == null)
+                {
+                    XmlBeans.assertTrue( s.getCchLeft() == 0 );
+                    XmlBeans.assertTrue( s.getCdocBeginLeft() == 0 );
+                }
+                else
+                {
+                    XmlBeans.assertTrue(s.getCchLeft() == stats.getCch( s._leftSplay ),
+                       Integer.toString(s.getDebugId()) );
+                    XmlBeans.assertTrue( s.getCdocBeginLeft() == stats.getCbegin( s._leftSplay ) );
+                }
             }
         }
 
@@ -3160,36 +3271,43 @@ public final class Root extends Finish implements XmlStore
 
     void invalidateVersion ( )
     {
-        assert _changeClients == null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( _changeClients == null );
 
         __version++;
 
-        assert (_debugChangeVersion = __version) == 0 || true;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( (_debugChangeVersion = __version) == 0 || true );
     }
 
     // Use this *only* if you know what you are doing!
     void restoreVersion ( long oldVersion )
     {
-        assert __version >= oldVersion;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( __version >= oldVersion );
         __version = oldVersion;
-        assert (_debugChangeVersion = __version) == 0 || true;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( (_debugChangeVersion = __version) == 0 || true );
     }
 
     boolean validateChangeStarted ( )
     {
-        assert _changeClients == null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( _changeClients == null );
         return _changeClients == null;
     }
 
     boolean validateChangeListenerState ( )
     {
-        assert _debugChangeVersion == __version;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( _debugChangeVersion == __version );
         return true;
     }
 
     void registerForChange ( ChangeListener listener )
     {
-        assert validateChangeListenerState();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( validateChangeListenerState() );
 
         // See if this listener is the first one on the list.  Easy but not
         // totally complete  optimization
@@ -3206,11 +3324,13 @@ public final class Root extends Finish implements XmlStore
 
     void startChange ( )
     {
-        assert validateChangeListenerState();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( validateChangeListenerState() );
 
         long currentVersion = 0;
 
-        assert (currentVersion = __version) == 0 || true;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( (currentVersion = __version) == 0 || true );
 
         while ( _changeClients != null )
         {
@@ -3218,7 +3338,8 @@ public final class Root extends Finish implements XmlStore
             _changeClients = _changeClients._next;
         }
 
-        assert currentVersion == __version;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( currentVersion == __version );
     }
 
     //
@@ -3277,7 +3398,8 @@ public final class Root extends Finish implements XmlStore
 
         int distance ( Splay parent, QName name, QNameSet set, int n )
         {
-            assert n >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( n >= 0 );
 
             if (_version != Root.this.getVersion())
                 return Integer.MAX_VALUE - 1;
@@ -3290,7 +3412,8 @@ public final class Root extends Finish implements XmlStore
 
         Begin fetch ( Splay parent, QName name, QNameSet set, int n )
         {
-            assert n >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( n >= 0 );
 
             if (_version != Root.this.getVersion() || _parent != parent ||
                   ! cacheSame(name, set) || n == 0)

@@ -18,6 +18,8 @@ package org.apache.xmlbeans.impl.common;
 import org.apache.xmlbeans.impl.common.ValidatorListener.Event;
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.common.SequencedHashSet;
+
 import java.util.*;
 
 /**
@@ -117,7 +119,8 @@ public class IdentityConstraint {
 
         if (_errorListener != null)
         {
-            assert event != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(event != null);
             
             _errorListener.add(
                 XmlError.forCursor( msg, event.getLocationAsCursor() ) );
@@ -154,8 +157,9 @@ public class IdentityConstraint {
      */
     static SchemaType getSimpleType(SchemaType st) 
     {
-        assert st.isSimpleType() || st.getContentType() == SchemaType.SIMPLE_CONTENT : 
-            st + " does not have simple content.";
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(st.isSimpleType() || st.getContentType() == SchemaType.SIMPLE_CONTENT,
+                st + " does not have simple content.");
 
         while (! st.isSimpleType() )
             st = st.getBaseType();
@@ -188,7 +192,7 @@ public class IdentityConstraint {
 
     public class SelectorState extends ConstraintState {
         SchemaIdentityConstraint _constraint;
-        Set _values = new LinkedHashSet();
+        Set _values = new SequencedHashSet();
         XPath.ExecutionContext _context;
 
         SelectorState(SchemaIdentityConstraint constraint, Event e, SchemaType st) {
@@ -423,7 +427,7 @@ public class IdentityConstraint {
 
     public class IdState extends ConstraintState
     {
-        Set _values = new LinkedHashSet();
+        Set _values = new SequencedHashSet();
 
         IdState() { }
 

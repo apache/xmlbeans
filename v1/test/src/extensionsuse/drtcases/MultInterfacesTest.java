@@ -55,7 +55,7 @@ public class MultInterfacesTest extends TestCase
         int pos = sb.length();
         sb.append("</pur:items></pur:purchaseOrder>");
 
-        String sExpected = sb.subSequence(0, pos) + sbContent.toString() + sb.subSequence(pos, sb.length());
+        String sExpected = sb.substring(0, pos) + sbContent.toString() + sb.substring(pos, sb.length());
         assertEquals(sExpected, poDoc.xmlText());
 
 
@@ -70,7 +70,7 @@ public class MultInterfacesTest extends TestCase
                 sbContent.append("<pur:item><pur:USPrice>" + price + "</pur:USPrice></pur:item>");
             else
                 sbContent.append("<pur:item><pur:USPrice>" + i + "</pur:USPrice></pur:item>");
-        sExpected = sb.subSequence(0, pos) + sbContent.toString() + sb.subSequence(pos, sb.length());
+        sExpected = sb.substring(0, pos) + sbContent.toString() + sb.substring(pos, sb.length());
         assertEquals(sExpected, poDoc.xmlText());
 
         assertEquals(price, poDoc.getMinPrice());

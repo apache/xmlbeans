@@ -17,7 +17,9 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.common.NetUtils;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemasDocument;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemasDocument.DownloadedSchemas;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemaEntry;
@@ -31,10 +33,9 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.HashMap;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.net.MalformedURLException;
 import java.security.DigestInputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -72,7 +73,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
             }
             catch (Exception e)
             {
-                throw (IllegalStateException)(new IllegalStateException("Problem reading xsdownload.xml: please fix or delete this file")).initCause(e);
+                throw new XmlRuntimeException("Problem reading xsdownload.xml: please fix or delete this file", e);
             }
         }
         if (_importsDoc == null)
@@ -85,7 +86,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
             }
             catch (Exception e)
             {
-                throw (IllegalStateException)(new IllegalStateException()).initCause(e);
+                throw new XmlRuntimeException(e);
             }
         }
 
@@ -361,7 +362,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         }
         catch (NoSuchAlgorithmException e)
         {
-            throw (IllegalStateException)(new IllegalStateException().initCause(e));
+            throw new XmlRuntimeException(e);
         }
 
         DigestInputStream str = new DigestInputStream(input, sha);
@@ -504,9 +505,9 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         return null;
     }
 
-    private String uniqueFilenameForURI(String schemaLocation) throws IOException, URISyntaxException
+    private String uniqueFilenameForURI(String schemaLocation) throws IOException, MalformedURLException
     {
-        String localFilename = new URI( schemaLocation ).getRawPath();
+        String localFilename = NetUtils.decodePath(new URL(schemaLocation).getPath());
         int i = localFilename.lastIndexOf('/');
         if (i >= 0)
             localFilename = localFilename.substring(i + 1);
@@ -554,8 +555,8 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         {
             URL url = new URL( schemaLocation );
             URLConnection conn = url.openConnection();
-            conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.3");
-            conn.addRequestProperty("Accept", "application/xml, text/xml, */*");
+            conn.setRequestProperty("User-Agent", "Apache XMLBeans/1.0.3");
+            conn.setRequestProperty("Accept", "application/xml, text/xml, */*");
             DigestInputStream input = digestInputStream(conn.getInputStream());
             IOUtil.copyCompletely(input, buffer);
             digest = HexBin.bytesToString(input.getMessageDigest().digest());
@@ -596,7 +597,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         {
             targetFilename = uniqueFilenameForURI(schemaLocation);
         }
-        catch (URISyntaxException e)
+        catch (MalformedURLException e)
         {
             warning("Invalid URI '" + schemaLocation + "':" + e.getMessage());
             return null;

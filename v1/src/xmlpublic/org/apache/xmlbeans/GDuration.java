@@ -63,7 +63,7 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
      * union of the lexical spaces of all the schema
      * date/time types (except for duration).
      */
-    public GDuration(CharSequence str)
+    public GDuration(String str)
     {
         // Form:        -PnYnMnDTnHnMnS
         // (where each n may be preceded by a - for us, and the whole may be -)
@@ -134,7 +134,7 @@ public final class GDuration implements GDurationSpecification, java.io.Serializ
                 int i = start;
                 do i += 1;
                 while (i < len && GDate.isDigit(ch = str.charAt(i)));
-                _fs = new BigDecimal(str.subSequence(start, i).toString());
+                _fs = new BigDecimal(str.substring(start, i));
                 if (i >= len || ch != 'S')
                     throw new IllegalArgumentException("illegal duration");
                 start = i;

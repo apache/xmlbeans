@@ -19,6 +19,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.math.BigInteger;
 
@@ -93,7 +94,8 @@ public class StscResolver
 
     public static boolean resolveSubstitutionGroup(SchemaTypeImpl sImpl)
     {
-        assert sImpl.isDocumentType();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(sImpl.isDocumentType());
 
         if (sImpl.isSGResolved())
             return true;
@@ -139,7 +141,8 @@ public class StscResolver
             substitutionGroup = StscState.get().findDocumentType(
                 substitutionGroup.getSubstitutionGroup(), substitutionGroup.getChameleonNamespace());
 
-            assert substitutionGroup != null : "Could not find document type for: " + substitutionGroup.getSubstitutionGroup();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(substitutionGroup != null, "Could not find document type for: " + substitutionGroup.getSubstitutionGroup());
 
             if (! resolveSubstitutionGroup(substitutionGroup) )
                 substitutionGroup = null; // cyclic dependency - no subst group
@@ -153,10 +156,11 @@ public class StscResolver
 
     public static void resolveDocumentType ( SchemaTypeImpl sImpl )
     {
-        assert sImpl.isResolving();
-        
-        assert sImpl.isDocumentType();
-        
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(sImpl.isResolving());
+            XmlBeans.assertTrue(sImpl.isDocumentType());
+        }
 
         // translate the global element associated with this document type
         // and construct a content model which allows just that element
@@ -216,10 +220,12 @@ public class StscResolver
     
     public static void resolveAttributeType ( SchemaTypeImpl sImpl )
     {
-        assert sImpl.isResolving();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(sImpl.isResolving());
+            XmlBeans.assertTrue(sImpl.isAttributeType());
+        }
 
-        assert sImpl.isAttributeType();
-        
         List anonTypes = new ArrayList();
 
         SchemaGlobalAttributeImpl attribute =

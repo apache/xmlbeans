@@ -21,6 +21,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaLocalElement;
 import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.util.Arrays;
 
@@ -328,7 +329,8 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
             minmax: switch (_top._curPart.getParticleType())
             {
                 default:
-                    assert(false);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(false);
 
                 case SchemaParticle.WILDCARD:
                     if (!_top._curPart.canStartWithElement(eltName))

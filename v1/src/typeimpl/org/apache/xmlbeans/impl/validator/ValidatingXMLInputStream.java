@@ -28,6 +28,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XMLStreamValidationException;
+import org.apache.xmlbeans.XmlBeans;
 import java.util.Map;
 import java.util.AbstractCollection;
 import java.util.Iterator;
@@ -334,7 +335,8 @@ public final class ValidatingXMLInputStream
     {
         public boolean add(Object o)
         {
-            assert ValidatingXMLInputStream.this._exception == null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(ValidatingXMLInputStream.this._exception == null);
             
             ValidatingXMLInputStream.this._exception = 
                 new XMLStreamValidationException( (XmlError)o );
@@ -356,7 +358,8 @@ public final class ValidatingXMLInputStream
     private void nextEvent ( int kind )
         throws XMLStreamException
     {
-        assert _exception == null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_exception == null);
         
         _validator.nextEvent( kind, this );
 

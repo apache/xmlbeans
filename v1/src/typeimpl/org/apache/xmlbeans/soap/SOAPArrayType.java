@@ -25,6 +25,7 @@ import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.PrefixResolver;
+import org.apache.xmlbeans.impl.common.StringUtils;
 
 public final class SOAPArrayType
 {
@@ -154,7 +155,7 @@ public final class SOAPArrayType
             _type = name;
             _ranks = EMPTY_INT_ARRAY;
             dimensions = XmlWhitespace.collapse(dimensions, XmlWhitespace.WS_COLLAPSE);
-            String[] dimStrings = dimensions.split(" ");
+            String[] dimStrings = StringUtils.split(dimensions, ' ');
             for (int i = 0; i < dimStrings.length; i++)
             {
                 String dimString = dimStrings[i];
@@ -346,7 +347,7 @@ public final class SOAPArrayType
     {
         int [] ranks = EMPTY_INT_ARRAY;
         arraySize = XmlWhitespace.collapse(arraySize, XmlWhitespace.WS_COLLAPSE);
-        String[] dimStrings = arraySize.split(" ");
+        String[] dimStrings = StringUtils.split(arraySize, ' ');
         int[] dimensions = new int[dimStrings.length];
         for (int i = 0; i < dimStrings.length; i++)
         {

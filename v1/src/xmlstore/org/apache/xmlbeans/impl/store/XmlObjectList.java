@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.store;
 // BUGBUG: ***TLL*** Why isn't this exposed in org.apache.xmlbeans????
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlRuntimeException;
 import java.util.Iterator;
 
 
@@ -112,7 +113,7 @@ public interface XmlObjectList {
             try {
                 CLASS = Class.forName("com.bea.wli.variables.XmlObjectListImpl");
             } catch (Throwable t) {
-                IllegalStateException ise = new IllegalStateException("Cannot load XmlObjectListImpl.");
+                XmlRuntimeException ise = new XmlRuntimeException("Cannot load XmlObjectListImpl.");
                 ise.initCause(t);
                 throw ise;
             }
@@ -128,9 +129,9 @@ public interface XmlObjectList {
             try {
                 return (XmlObjectList)CLASS.newInstance();
             } catch (InstantiationException ie) {
-                throw new RuntimeException(ie);
+                throw new XmlRuntimeException(ie);
             } catch (IllegalAccessException iae) {
-                throw new RuntimeException(iae);
+                throw new XmlRuntimeException(iae);
             }
         }
 
@@ -147,9 +148,9 @@ public interface XmlObjectList {
                 newList.addAll(list);
                 return newList;
             } catch (InstantiationException ie) {
-                throw new RuntimeException(ie);
+                throw new XmlRuntimeException(ie);
             } catch (IllegalAccessException iae) {
-                throw new RuntimeException(iae);
+                throw new XmlRuntimeException(iae);
             }
         }
 
@@ -165,9 +166,9 @@ public interface XmlObjectList {
                 newList.addAll(xmlObjects);
                 return newList;
             } catch (InstantiationException ie) {
-                throw new RuntimeException(ie);
+                throw new XmlRuntimeException(ie);
             } catch (IllegalAccessException iae) {
-                throw new RuntimeException(iae);
+                throw new XmlRuntimeException(iae);
             }
         }
     }

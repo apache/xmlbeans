@@ -22,11 +22,11 @@ import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Qnameconfig;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.schema.StscState;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -54,10 +54,10 @@ public class SchemaConfig
     
     private SchemaConfig(Config[] configs)
     {
-        _packageMap = new LinkedHashMap();
-        _prefixMap = new LinkedHashMap();
-        _suffixMap = new LinkedHashMap();
-        _qnameMap = new LinkedHashMap();
+        _packageMap = new SequencedHashMap();
+        _prefixMap = new SequencedHashMap();
+        _suffixMap = new SequencedHashMap();
+        _qnameMap = new SequencedHashMap();
         _extensionHolder = new ExtensionHolder();
 
         for (int i = 0; i < configs.length; i++)

@@ -20,6 +20,7 @@ import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDateSpecification;
 import org.apache.xmlbeans.GDateBuilder;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -165,7 +166,8 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
             case SchemaType.BTC_G_YEAR:
                 return _value.getYear();
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 throw new IllegalStateException();
         }
     }

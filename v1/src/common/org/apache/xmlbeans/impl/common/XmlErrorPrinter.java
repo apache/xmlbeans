@@ -20,17 +20,17 @@ import org.apache.xmlbeans.XmlError;
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Collections;
-import java.net.URI;
+import java.net.URL;
 
 public class XmlErrorPrinter extends AbstractCollection
 {
     private boolean _noisy;
-    private URI _baseURI;
+    private URL _baseURL;
 
-    public XmlErrorPrinter(boolean noisy, URI baseURI)
+    public XmlErrorPrinter(boolean noisy, URL baseURL)
     {
         _noisy = noisy;
-        _baseURI = baseURI;
+        _baseURL = baseURL;
     }
 
     public boolean add(Object o)
@@ -40,9 +40,9 @@ public class XmlErrorPrinter extends AbstractCollection
             XmlError err = (XmlError)o;
             if (err.getSeverity() == XmlError.SEVERITY_ERROR ||
                 err.getSeverity() == XmlError.SEVERITY_WARNING)
-                System.err.println(err.toString(_baseURI));
+                System.err.println(err.toString(_baseURL));
             else if (_noisy)
-                System.out.println(err.toString(_baseURI));
+                System.out.println(err.toString(_baseURL));
         }
         return false;
     }

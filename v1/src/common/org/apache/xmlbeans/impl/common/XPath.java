@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.HashMap;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.XMLChar;
 
 public class XPath
@@ -80,7 +81,8 @@ public class XPath
         
         public final int element ( QName name )
         {
-            assert name != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( name != null );
             
             _stack.add( name );
             
@@ -130,7 +132,8 @@ public class XPath
 
             private void backtrack ( )
             {
-                assert _curr != null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue ( _curr != null );
                 
                 if (_curr._hasBacktrack)
                 {
@@ -138,7 +141,8 @@ public class XPath
                     return;
                 }
 
-                assert !_curr._deep;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue ( !_curr._deep );
 
                 _curr = _curr._prev;
 
@@ -158,8 +162,11 @@ public class XPath
             
             int start ( )
             {
-                assert _curr != null;
-                assert _curr._prev == null;
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue ( _curr != null );
+                    XmlBeans.assertTrue ( _curr._prev == null );
+                }
 
                 if (_curr._name != null)
                     return _curr._flags;
@@ -180,7 +187,8 @@ public class XPath
                 if (_curr == null)
                     return 0;
 
-                assert _curr._name != null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue ( _curr._name != null );
 
                 if (!_curr._attr && _curr.match( name ))
                 {
@@ -266,9 +274,10 @@ public class XPath
     {
         CompilationContext ( Map namespaces, String currentNodeVar )
         {
-            assert
-                _currentNodeVar == null ||
-                    _currentNodeVar.startsWith( "$" );
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue (
+                    _currentNodeVar == null ||
+                    _currentNodeVar.startsWith( "$" ) );
 
             if (currentNodeVar == null)
                 _currentNodeVar = "$this";
@@ -331,7 +340,8 @@ public class XPath
 
         void advance ( int count )
         {
-            assert count >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue ( count >= 0 );
             
             while ( count-- > 0 )
                 advance();
@@ -431,7 +441,8 @@ public class XPath
         
         private boolean tokenize ( String s )
         {
-            assert s.length() > 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue ( s.length() > 0 );
             
             int offset = 0;
 
@@ -450,9 +461,12 @@ public class XPath
 
         private boolean tokenize ( String s1, String s2 )
         {
-            assert s1.length() > 0;
-            assert s2.length() > 0;
-            
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue ( s1.length() > 0 );
+                XmlBeans.assertTrue ( s2.length() > 0 );
+            }
+
             int offset = 0;
 
             while ( isWhitespace( offset ) )
@@ -478,10 +492,13 @@ public class XPath
 
         private boolean tokenize ( String s1, String s2, String s3 )
         {
-            assert s1.length() > 0;
-            assert s2.length() > 0;
-            assert s3.length() > 0;
-            
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue ( s1.length() > 0 );
+                XmlBeans.assertTrue ( s2.length() > 0 );
+                XmlBeans.assertTrue ( s3.length() > 0 );
+            }
+
             int offset = 0;
 
             while ( isWhitespace( offset ) )
@@ -780,8 +797,8 @@ public class XPath
                 }
 
                 // The first part of a deep segment always backtracks to itself
-                
-                assert s._deep;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue ( s._deep );
 
                 s._hasBacktrack = true;
                 s._backtrack = s;

@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 
 import java.io.*;
@@ -217,7 +219,7 @@ public class SchemaCodeGenerator
             }
             catch (Exception e)
             {
-                IllegalStateException e2 =  new IllegalStateException("Cannot load JaxbCodeGenerator: verify that xbean.jar is on the classpath");
+                XmlRuntimeException e2 =  new XmlRuntimeException("Cannot load JaxbCodeGenerator: verify that xbean.jar is on the classpath");
                 e2.initCause(e);
                 throw e2;
             }
@@ -232,13 +234,13 @@ public class SchemaCodeGenerator
         }
         catch (InvocationTargetException e)
         {
-            IllegalStateException e2 = new IllegalStateException(e.getMessage());
+            XmlRuntimeException e2 = new XmlRuntimeException(e.getMessage());
             e2.initCause(e);
             throw e2;
         }
         catch (IllegalAccessException e)
         {
-            IllegalStateException e2 = new IllegalStateException(e.getMessage());
+            XmlRuntimeException e2 = new XmlRuntimeException(e.getMessage());
             e2.initCause(e);
             throw e2;
         }
@@ -248,7 +250,8 @@ public class SchemaCodeGenerator
     {
         File newdir = (subdir == null) ? rootdir : new File(rootdir, subdir);
         boolean created = (newdir.exists() && newdir.isDirectory()) || newdir.mkdirs();
-        assert(created) : "Could not create " + newdir.getAbsolutePath();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(created, "Could not create " + newdir.getAbsolutePath());
         return newdir;
     }
 
@@ -270,7 +273,8 @@ public class SchemaCodeGenerator
             if (!tmpSrcDir.exists())
             {
                 boolean created = tmpSrcDir.mkdirs();
-                assert created : "Could not create " + tmpSrcDir.getAbsolutePath();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(created, "Could not create " + tmpSrcDir.getAbsolutePath());
                 break;
             }
         }

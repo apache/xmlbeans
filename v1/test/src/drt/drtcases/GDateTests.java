@@ -271,14 +271,14 @@ public class GDateTests extends TestCase
         Assert.assertEquals(gdd, gcd);
         
         // set up 2/29, and read out Feb 29 in the year 1 BC.
-        Calendar gregcal = new GDate("--02-29").getCalendar();
-        Assert.assertEquals(29, gregcal.get(Calendar.DAY_OF_MONTH));
-        Assert.assertEquals(2 - 1, gregcal.get(Calendar.MONTH));
-        Assert.assertEquals(1, gregcal.get(Calendar.YEAR));
-        Assert.assertEquals(0, gregcal.get(Calendar.ERA));
+        XmlCalendar gregcal = new GDate("--02-29").getCalendar();
+        Assert.assertEquals(29, gregcal.peek(Calendar.DAY_OF_MONTH));
+        Assert.assertEquals(2 - 1, gregcal.peek(Calendar.MONTH));
+        Assert.assertEquals(1, gregcal.peek(Calendar.YEAR));
+        Assert.assertEquals(0, gregcal.peek(Calendar.ERA));
         // repeat some tests to make sure it's stable.
-        Assert.assertEquals(29, gregcal.get(Calendar.DAY_OF_MONTH));
-        Assert.assertEquals(2 - 1, gregcal.get(Calendar.MONTH));
+        Assert.assertEquals(29, gregcal.peek(Calendar.DAY_OF_MONTH));
+        Assert.assertEquals(2 - 1, gregcal.peek(Calendar.MONTH));
 
         // now try some setters
         gregcal = new GDate("--02-29").getCalendar();

@@ -23,6 +23,8 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.common.StringUtils;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -35,7 +37,7 @@ import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 
 import java.io.File;
 import java.util.*;
-import java.net.URI;
+import java.net.URL;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
@@ -201,7 +203,7 @@ public class SchemaCompiler
         String cpString = cl.getOpt("cp");
         if (cpString != null)
         {
-            String[] cpparts = cpString.split(File.pathSeparator);
+            String[] cpparts = StringUtils.split(cpString, File.pathSeparatorChar);
             List cpList = new ArrayList();
             for (int i = 0; i < cpparts.length; i++)
                 cpList.add(new File(cpparts[i]));
@@ -229,9 +231,9 @@ public class SchemaCompiler
             System.exit(1);
         }
         File baseDir = cl.getBaseDir();
-        URI baseURI = baseDir == null ? null : baseDir.toURI();
+        URL baseURL = baseDir == null ? null : IOUtil.fileToURL(baseDir);
 
-        XmlErrorPrinter err = new XmlErrorPrinter(verbose, baseURI);
+        XmlErrorPrinter err = new XmlErrorPrinter(verbose, baseURL);
 
         Parameters params = new Parameters();
         params.setBaseDir(baseDir);
@@ -703,9 +705,9 @@ public class SchemaCompiler
 
         SchemaTypeLoader linkTo = SchemaTypeLoaderImpl.build(null, cpResourceLoader, null);
 
-        URI baseURI = null;
+        URL baseURL = null;
         if (baseDir != null)
-            baseURI = baseDir.toURI();
+            baseURL = IOUtil.fileToURL(baseDir);
 
         XmlOptions opts = new XmlOptions();
         if (download)
@@ -727,7 +729,7 @@ public class SchemaCompiler
         params.setOptions(opts);
         params.setErrorListener(errorListener);
         params.setJavaize(true);
-        params.setBaseURI(baseURI);
+        params.setBaseURI(baseURL == null ? null : baseURL.toString());
         params.setSourcesToCopyMap(sourcesToCopyMap);
         return SchemaTypeSystemCompiler.compile(params);
     }

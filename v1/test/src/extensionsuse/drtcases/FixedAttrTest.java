@@ -52,7 +52,7 @@ public class FixedAttrTest extends TestCase
         int pos = sb.length();
         sb.append("</pur:items></pur:purchaseOrder>");
 
-        String sExpected = sb.subSequence(0, pos) + sbContent.toString() + sb.subSequence(pos, sb.length());
+        String sExpected = sb.substring(0, pos) + sbContent.toString() + sb.substring(pos, sb.length());
 
         assertEquals(sExpected, poDoc.xmlText());
 

@@ -15,6 +15,8 @@
 
 package zipcompare;
 
+import org.apache.xmlbeans.impl.common.SequencedHashSet;
+
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
 import java.util.*;
@@ -41,11 +43,11 @@ public class ZipCompare
 
         System.out.println("Comparing " + args[0] + " with " + args[1] + ":");
 
-        Set set1 = new LinkedHashSet();
+        Set set1 = new SequencedHashSet();
         for (Enumeration e = file1.entries(); e.hasMoreElements(); )
             set1.add(((ZipEntry)e.nextElement()).getName());
 
-        Set set2 = new LinkedHashSet();
+        Set set2 = new SequencedHashSet();
         for (Enumeration e = file2.entries(); e.hasMoreElements(); )
             set2.add(((ZipEntry)e.nextElement()).getName());
 

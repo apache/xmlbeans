@@ -20,6 +20,7 @@ import java.math.BigInteger;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
@@ -42,7 +43,7 @@ public class JavaDecimalHolder extends XmlObjectBase
         try {
             set_BigDecimal(new BigDecimal(s));
         }
-        catch (NumberFormatException e)
+        catch (Exception e) //jdk 1.3 doesn't always check length
         {
             _voorVc.invalid("Invalid Decimal");
         }
@@ -156,7 +157,8 @@ public class JavaDecimalHolder extends XmlObjectBase
      * This differs from BigDecimal.hashCode()
      */
     protected int decimalHashCode() {
-        assert _value.scale() > 0;
+        if (XmlBeans.ASSERTS)
+         XmlBeans.assertTrue(_value.scale() > 0);
 
         // Get decimal value as string, and strip off zeroes on the right
         String strValue = _value.toString();
@@ -164,7 +166,8 @@ public class JavaDecimalHolder extends XmlObjectBase
         for (i = strValue.length() - 1 ; i >= 0 ; i --)
             if (strValue.charAt(i) != '0') break;
 
-        assert strValue.indexOf('.') < i;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(strValue.indexOf('.') < i);
 
         // Return the canonicalized string hashcode
         return strValue.substring(0, i + 1).hashCode();

@@ -119,7 +119,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
      * union of the lexical spaces of all the schema
      * date/time types (except for duration).
      */
-    public GDateBuilder(CharSequence string)
+    public GDateBuilder(String string)
     {
         this(new GDate(string));
     }
@@ -808,7 +808,8 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
             // In new month, day may need to be pegged before proceeding
             if (hasDay())
             {
-                assert(_D >= 1);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_D >= 1);
                 temp = _maxDayInMonthFor(_CY, _M);
                 if (_D > temp)
                     _D = temp;
@@ -933,7 +934,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     {
         // Default timezone
         TimeZone dtz = TimeZone.getDefault();
-        int offset = dtz.getOffset(date.getTime());
+        int offset = getOffset(dtz, date);
         int offsetsign = 1;
         if (offset < 0)
         {
@@ -1017,6 +1018,20 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         return dateForGDate(this);
     }
 
+
+    /* package */ static int getOffset(TimeZone tz, long time)
+    {
+        return getOffset(tz, new Date(time));
+    }
+
+    /* package */ static int getOffset(TimeZone tz, Date date)
+    {
+        if (tz.inDaylightTime(date))
+            return tz.getRawOffset() + (tz.useDaylightTime() ? 3600000 : 0);
+        
+        return tz.getRawOffset();
+    }
+
     /* package */ static int julianDateForGDate(GDateSpecification date)
     {
         if (!date.hasDate())
@@ -1050,7 +1065,7 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         else
         {
             TimeZone def = TimeZone.getDefault();
-            int offset = def.getOffset(to1970Ms);
+            int offset = getOffset(def, to1970Ms);
             to1970Ms -= offset;
         }
 

@@ -20,10 +20,11 @@ import org.apache.xmlbeans.SchemaGlobalAttribute;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.QNameSetBuilder;
 import org.apache.xmlbeans.SchemaLocalAttribute;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
+
 import javax.xml.namespace.QName;
 
 import java.util.Map;
-import java.util.LinkedHashMap;
 
 public class SchemaAttributeModelImpl implements SchemaAttributeModel
 {
@@ -33,14 +34,14 @@ public class SchemaAttributeModelImpl implements SchemaAttributeModel
 
     public SchemaAttributeModelImpl()
     {
-        attrMap = new LinkedHashMap();
+        attrMap = new SequencedHashMap();
         wcSet = null;
         wcProcess = NONE;
     }
 
     public SchemaAttributeModelImpl(SchemaAttributeModel sam)
     {
-        attrMap = new LinkedHashMap();
+        attrMap = new SequencedHashMap();
         if (sam == null)
         {
             wcSet = null;

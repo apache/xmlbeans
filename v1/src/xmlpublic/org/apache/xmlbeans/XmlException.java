@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.io.PrintWriter;
+import java.io.PrintStream;
 
 /**
  * A checked exception that can be thrown while processing,
@@ -31,7 +33,10 @@ import java.util.ArrayList;
 public class XmlException extends Exception
 {
     private static final long serialVersionUID = 1L;
-    
+
+    private Throwable _cause = null;
+    private String _detailMessage = null;
+
     /**
      * Constructs an XmlException from a message.
      */ 
@@ -40,13 +45,13 @@ public class XmlException extends Exception
     /**
      * Constructs an XmlException from a message and a cause.
      */ 
-    public XmlException ( String m, Throwable t ) { super( m, t ); }
-    
+    public XmlException ( String m, Throwable t ) { super( m ); _cause = t; }
+
     /**
      * Constructs an XmlException from a cause.
      */ 
-    public XmlException ( Throwable t           ) { super( t );    }
-    
+    public XmlException ( Throwable t           ) { super( ); _cause = t;   }
+
     /**
      * Constructs an XmlException from an {@link XmlError}.
      */ 
@@ -68,7 +73,7 @@ public class XmlException extends Exception
      */ 
     public XmlException ( String m, Throwable t, Collection errors )
     {
-        super( m, t );
+        this( m, t );
 
         if (errors != null)
             _errors = Collections.unmodifiableList( new ArrayList( errors ) );
@@ -79,7 +84,7 @@ public class XmlException extends Exception
      */ 
     public XmlException ( XmlRuntimeException xmlRuntimeException )
     {
-        super(
+        this(
             xmlRuntimeException.getMessage(), xmlRuntimeException.getCause() );
 
         Collection errors = xmlRuntimeException.getErrors();
@@ -105,6 +110,81 @@ public class XmlException extends Exception
     public Collection getErrors ( )
     {
         return _errors;
+    }
+
+    public Throwable getCause()
+    {
+        return _cause;
+    }
+
+    public Throwable initCause(Throwable t)
+    {
+        if (_cause != this)
+            throw new IllegalStateException("Can't overwrite cause");
+        if (_cause == this)
+            throw new IllegalArgumentException("Self-causation not permitted");
+        _cause = t;
+
+        return this;
+    }
+
+
+    public String toString()
+    {
+        return getClass().getName() + ": " + getMessage();
+    }
+
+
+    public String getMessage()
+    {
+        if (_detailMessage == null)
+            _detailMessage = _cause != null ? _cause.toString() : super.getMessage();
+
+        return _detailMessage;
+    }
+
+
+    public String getLocalizedMessage()
+    {
+        return getMessage();
+    }
+
+
+    public void printStackTrace()
+    {
+        printStackTrace(System.err);
+    }
+
+
+    public void printStackTrace(PrintStream s)
+    {
+        synchronized (s)
+        {
+            super.printStackTrace(s);
+
+            Throwable ourCause = getCause();
+            if (ourCause != null)
+            {
+                s.println("Caused by: ");
+                ourCause.printStackTrace(s);
+            }
+        }
+    }
+
+
+    public void printStackTrace(PrintWriter p)
+    {
+        synchronized (p)
+        {
+            super.printStackTrace(p);
+
+            Throwable ourCause = getCause();
+            if (ourCause != null)
+            {
+                p.println("Caused by: ");
+                ourCause.printStackTrace(p);
+            }
+        }
     }
 
     private List _errors;

@@ -30,8 +30,6 @@ import java.util.HashSet;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Arrays;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.IOException;
@@ -43,6 +41,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.impl.common.StringUtils;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -142,47 +141,10 @@ public class StscImporter
 
         // looks like a URL?
         int colon = path.indexOf(':');
-        if (colon > 1 && path.substring(0, colon).matches("^\\w+$"))
+        if (colon > 1 && StringUtils.matches(path.substring(0, colon), "^\\w+$"))
             return path;
 
         return PROJECT_URL_PREFIX + "/" + path.replace('\\', '/');
-    }
-
-    private static URI parseURI(String s)
-    {
-        if (s == null)
-            return null;
-
-        try
-        {
-            return new URI(s);
-        }
-        catch (URISyntaxException syntax)
-        {
-                return null;
-        }
-    }
-    
-    //workaround for Sun bug # 4723726
-    private static URI resolve(URI base, String child)
-    {
-        URI ruri = base.resolve(child);
-        
-        //fix up normalization bug
-        if ("file".equals(ruri.getScheme()) && ! child.equals(ruri))
-        {
-            if (base.getPath().startsWith("//") && !ruri.getPath().startsWith("//"))
-            {
-                String path = "///".concat(ruri.getPath());
-                try
-                {
-                    ruri = new URI("file", null, path, ruri.getQuery(), ruri.getFragment());
-                }
-                catch(URISyntaxException uris)
-                {}
-            }
-        }
-        return ruri;
     }
 
     public static class DownloadTable
@@ -280,10 +242,26 @@ public class StscImporter
             // no location URL provided?  Then nothing to do.
             if (locationURL == null)
                 return null;
-            
+
             // First resolve relative URLs with respect to base URL for doc
-            URI baseURI = parseURI(baseURLForDoc(referencedBy));
-            String absoluteURL = baseURI == null ? locationURL : resolve(baseURI, locationURL).toString();
+            URL baseURL = null;
+            try
+            {
+                baseURL = new URL(baseURLForDoc(referencedBy));
+            }
+            catch (MalformedURLException mue)
+            {}
+
+            String absoluteURL = locationURL;
+            if (baseURL != null)
+            {
+                try
+                {
+                    absoluteURL = new URL(baseURL, locationURL).toString();
+                }
+                catch (MalformedURLException e)
+                { }
+            }
 
             // probe 1: ns+url - perfect match
             if (absoluteURL != null && targetNamespace != null)

@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.io.File;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
  * Represents a message at a specific XML location.
@@ -238,46 +238,55 @@ public class XmlError implements java.io.Serializable
     /**
      * Tries to produce a nicely formatted filename from the given string.
      */
-    protected static String formattedFileName(String rawString, URI base)
+    protected static String formattedFileName(String rawString, URL base)
     {
         if (rawString == null)
             return null;
 
-        URI uri = null;
+        URL url = null;
 
         try
         {
-            // if it looks like an absolute URI, treat it as such
-            uri = new URI(rawString);
-
-            // otherwise, treat it like a filename
-            if (!uri.isAbsolute())
-                uri = null;
+            // if it looks like a URL, treat it as such
+            url = new URL(rawString);
         }
-        catch (URISyntaxException e)
+        catch (MalformedURLException e)
         {
-            uri = null;
+            url = null;
         }
 
-        // looks like a filename; convert it to uri for relativization
-        if (uri == null)
-            uri = new File(rawString).toURI();
-
-        if (base != null)
-            uri = base.relativize(uri);
-
-        // filenames get their file: stripped off and their /'s turned into \'s (MSDOS)
-        if (uri.isAbsolute() ? uri.getScheme().compareToIgnoreCase("file") == 0 :
-            base != null && base.isAbsolute() && base.getScheme().compareToIgnoreCase("file") == 0)
+        // looks like a filename; convert it to url for relativization
+        if (url == null)
         {
             try
             {
-                return (new File(uri)).toString();
+                url = new File(rawString).toURL();
             }
-            catch (Exception e) {};
+            catch (MalformedURLException e)
+            {
+                url = null;
+            }
         }
 
-        return uri.toString();
+        String urlProtocol = url == null ? null : url.getProtocol();
+        String baseProtocol = base == null ? null : base.getProtocol();
+
+        String filepath = url == null ? rawString : url.getPath();
+
+        if (url != null && base != null
+            && urlProtocol.equals(baseProtocol))
+        {
+            //relativize
+            filepath = relativize(base.getPath(), filepath);
+        }
+
+        if ("file".equals(urlProtocol) || "file".equals(baseProtocol))
+        {
+            // filenames get their file: stripped off and their /'s turned into \'s (MSDOS)
+            filepath = new File(filepath).toString();
+        }
+
+        return filepath;
     }
 
     /**
@@ -365,10 +374,10 @@ public class XmlError implements java.io.Serializable
 
     /**
      * Produces a standard string with the error message.  If a non-null
-     * URI is supplied, source names are relativized against the given
-     * URI.
+     * URL is supplied, source names are relativized against the given
+     * URL.
      */
-    public String toString ( URI base )
+    public String toString ( URL base )
     {
         // modified to carefully match the IDE's
         // workshop.workspace.ant.AntLogger regex
@@ -408,5 +417,61 @@ public class XmlError implements java.io.Serializable
         sb.append( msg == null ? "<Unspecified message>" : msg );
 
         return sb.toString();
+    }
+
+    //copied from NetUtils
+    private static String relativize(String path, String absoluteResource) {
+        if (path == null || "".equals(path)) {
+            return absoluteResource;
+        }
+
+        if (path.charAt(path.length() - 1) != '/') {
+            path += "/";
+        }
+
+        if (absoluteResource.startsWith(path)) {
+            // resource is direct descendant
+            return absoluteResource.substring(path.length());
+        } else {
+            // resource is not direct descendant
+            int index = matchStrings(path, absoluteResource);
+            if (index > 0 && path.charAt(index-1) != '/') {
+                index = path.substring(0, index).lastIndexOf('/');
+                index++;
+            }
+            String pathDiff = path.substring(index);
+            String resource = absoluteResource.substring(index);
+            int levels = count(pathDiff, '/');
+            StringBuffer b = new StringBuffer();
+            for (int i = 0; i < levels; i++) {
+                b.append("../");
+            }
+            b.append(resource);
+            return b.toString();
+        }
+    }
+
+    //copied from StringUtils
+    private static int count(String str, char c) {
+        int index = 0;
+        char[] chars = str.toCharArray();
+        for (int i = 0; i < chars.length; i++) {
+            if (chars[i] == c) index++;
+        }
+        return index;
+    }
+
+    //copied from StringUtils
+    private static int matchStrings(String a, String b) {
+        int i;
+        char[] ca = a.toCharArray();
+        char[] cb = b.toCharArray();
+        int len = ( ca.length < cb.length ) ? ca.length : cb.length;
+
+        for (i = 0; i < len; i++) {
+            if (ca[i] != cb[i]) break;
+        }
+
+        return i;
     }
 }

@@ -42,7 +42,7 @@ public abstract class JavaDecimalHolderEx extends JavaDecimalHolder
         try {
             v = new BigDecimal(s);
         }
-        catch (NumberFormatException e)
+        catch (Exception e) //jdk 1.3 doesn't always check length
         {
             _voorVc.invalid("Invalid Decimal");
         }

@@ -31,6 +31,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 
 /**
@@ -261,8 +262,8 @@ public final class SchemaTypeCodePrinter
         emit("{");
         indent();
         emit("try { return (org.apache.xmlbeans.SchemaTypeSystem)Class.forName(\"org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl\", true, " + shortName + ".class.getClassLoader()).getConstructor(new Class[] { Class.class }).newInstance(new java.lang.Object[] { " + shortName + ".class }); }");
-        emit("catch (ClassNotFoundException e) { throw new RuntimeException(\"Cannot load org.apache.xmlbeans.impl.SchemaTypeSystemImpl: make sure xbean.jar is on the classpath.\", e); }");
-        emit("catch (Exception e) { throw new RuntimeException(\"Could not instantiate SchemaTypeSystemImpl (\" + e.toString() + \"): is the version of xbean.jar correct?\", e); }");
+        emit("catch (ClassNotFoundException e) { throw new org.apache.xmlbeans.XmlRuntimeException(\"Cannot load org.apache.xmlbeans.impl.SchemaTypeSystemImpl: make sure xbean.jar is on the classpath.\", e); }");
+        emit("catch (Exception e) { throw new org.apache.xmlbeans.XmlRuntimeException(\"Could not instantiate SchemaTypeSystemImpl (\" + e.toString() + \"): is the version of xbean.jar correct?\", e); }");
         outdent();
         emit("}");
         outdent();
@@ -473,9 +474,10 @@ public final class SchemaTypeCodePrinter
                 emit(" * An XML attribute type.");
             }
             else
-                assert false;
+                if (XmlBeans.ASSERTS) XmlBeans.assertTrue( false );
 
-            assert( thename != null );
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue( thename != null );
             
             emit(" * Localname: " + thename.getLocalPart());
             emit(" * Namespace: " + thename.getNamespaceURI());
@@ -893,7 +895,8 @@ public final class SchemaTypeCodePrinter
                 return "java.lang.Object";
 
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 throw new IllegalStateException();
         }
     }
@@ -1079,7 +1082,8 @@ public final class SchemaTypeCodePrinter
                 switch (sType.getDecimalSize())
                 {
                     default:
-                        assert(false);
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(false);
                     case SchemaType.SIZE_BIG_DECIMAL:
                         return "org.apache.xmlbeans.impl.values.JavaDecimalHolderEx";
                     case SchemaType.SIZE_BIG_INTEGER:
@@ -1110,7 +1114,8 @@ public final class SchemaTypeCodePrinter
             case SchemaType.BTC_DURATION:
                 return "org.apache.xmlbeans.impl.values.JavaGDurationHolderEx";
             default:
-                assert(false) : "unrecognized primitive type";
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "unrecognized primitive type");
                 return null;
         }
     }
@@ -1135,7 +1140,8 @@ public final class SchemaTypeCodePrinter
 
             case SchemaType.ATOMIC:
                 // We should only get called for restrictions
-                assert(! sType.isBuiltinType());
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(! sType.isBuiltinType());
                 return getAtomicRestrictionType(sType);
 
             case SchemaType.LIST:
@@ -1648,7 +1654,8 @@ public final class SchemaTypeCodePrinter
                        String xtype)
         throws IOException
     {
-        assert setIdentifier != null && identifier != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(setIdentifier != null && identifier != null);
 
         emit(xtype + " target = null;");
 
@@ -1679,7 +1686,8 @@ public final class SchemaTypeCodePrinter
                 break;
 
             default:
-                assert false : "Bad behaviour type: " + nullBehaviour;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "Bad behaviour type: " + nullBehaviour);
         }
 
         endBlock();

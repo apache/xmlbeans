@@ -34,6 +34,7 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlBeans;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.namespace.QName;
@@ -49,10 +50,13 @@ public final class Type extends Goober implements TypeStore
     {
         super( r, Splay.TYPE );
         
-        assert s.peekType() == null;
-        assert user != null;
-        assert s.isTypeable();
-        
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( s.peekType() == null );
+            XmlBeans.assertTrue( user != null );
+            XmlBeans.assertTrue( s.isTypeable() );
+        }
+
         _user = user;
         
         set( s, 0 );
@@ -152,7 +156,8 @@ public final class Type extends Goober implements TypeStore
     
     void invalidateElement ( Container container, Splay s )
     {
-        assert s.getContainer() == container;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.getContainer() == container );
         
         if (_inhibitUserInvalidate > 0)
             return;
@@ -171,7 +176,8 @@ public final class Type extends Goober implements TypeStore
         {
             if (s.isFinish())
             {
-                assert s.getContainer() == container;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( s.getContainer() == container );
                 return;
             }
 
@@ -203,12 +209,16 @@ public final class Type extends Goober implements TypeStore
     {
         Root r = getRoot();
         
-        assert s.isInvalid();
-        assert s.isLeaf() || s.isDoc();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( s.isInvalid() );
+            XmlBeans.assertTrue( s.isLeaf() || s.isDoc() );
+        }
 
         String text = build_text( nsm );
 
-        assert text != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( text != null );
 
         _inhibitUserInvalidate++;
 
@@ -230,12 +240,16 @@ public final class Type extends Goober implements TypeStore
     {
         Root r = getRoot();
         
-        assert s.isInvalid();
-        assert s.isNormalAttr();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( s.isInvalid() );
+            XmlBeans.assertTrue( s.isNormalAttr() );
+        }
 
         String text = build_text( nsm );
 
-        assert text != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( text != null );
 
         // Validating does not logically change the doc
         long oldVersion = r.getVersion();
@@ -289,7 +303,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isContainer() || s.isNormalAttr();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() || s.isNormalAttr() );
 
         if (s.isNormalAttr())
             return null;
@@ -305,7 +320,8 @@ public final class Type extends Goober implements TypeStore
 
         Type t = s.getType( getRoot() );
 
-        assert t != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( t != null );
         
         return t._user;
     }
@@ -314,7 +330,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isTypeable() );
 
         if (s.isInvalid())
             return;
@@ -324,7 +341,8 @@ public final class Type extends Goober implements TypeStore
         s.removeContent( getRoot(), false );
 
         s.toggleIsInvalid();
-        assert s.isInvalid();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isInvalid() );
         
         _inhibitUserInvalidate--;
     }
@@ -333,7 +351,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert !s.isInvalid();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( !s.isInvalid() );
         
         if (s.isInvalid())
             throw new RuntimeException( "Can't fetch text when invalid" );
@@ -352,7 +371,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
         
-        assert s.isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isTypeable() );
 
         if (s.isDoc())
             return 0;
@@ -361,7 +381,8 @@ public final class Type extends Goober implements TypeStore
 
         Type parentType = parentContainer.getType( getRoot() );
 
-        assert parentType != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( parentType != null );
 
         TypeStoreUser parentUser = parentType._user;
 
@@ -378,14 +399,16 @@ public final class Type extends Goober implements TypeStore
         if (visitor == null)
             return 0;
 
-        assert !parentContainer.isLeaf();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( !parentContainer.isLeaf() );
         
         for ( Splay t = parentContainer.nextSplay() ; ; t = t.nextSplay() )
         {
             switch ( t.getKind() )
             {
             case Splay.END :
-                assert false;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( false );
                 break;
 
             case Splay.BEGIN :
@@ -405,7 +428,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
         
-        assert s.isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isTypeable() );
 
         if (s.isDoc())
             return null;
@@ -417,10 +441,12 @@ public final class Type extends Goober implements TypeStore
         if (s.isAttr())
             return parentUser.get_attribute_field( s.getName() );
 
-        assert s.isBegin();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( s.isBegin() );
+            XmlBeans.assertTrue( !parentContainer.isLeaf() );
+        }
 
-        assert !parentContainer.isLeaf();
-        
         TypeStoreVisitor visitor = parentUser.new_visitor();
 
         if (visitor == null)
@@ -431,7 +457,8 @@ public final class Type extends Goober implements TypeStore
             switch ( t.getKind() )
             {
             case Splay.END :
-                assert false;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( false );
                 break;
 
             case Splay.BEGIN :
@@ -461,7 +488,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
         
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -473,7 +501,8 @@ public final class Type extends Goober implements TypeStore
 
         Type t = nthBegin.getType( getRoot() );
 
-        assert t != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( t != null );
         
         return t._user;
     }
@@ -481,20 +510,23 @@ public final class Type extends Goober implements TypeStore
     public TypeStoreUser find_element_user ( QNameSet names, int i )
     {
         Splay s = getSplay();
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
 
         Begin nthBegin = getRoot().findNthBegin(s,  null, names, i);
         if (nthBegin == null) return null;
 
         Type t = nthBegin.getType(getRoot());
-        assert t != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( t != null );
 
         return t._user;
     }
     
     private void findAllElementTypes ( QName name, QNameSet set, List fillMeUp )
     {
-        assert getSplay().isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( getSplay().isContainer() );
 
         Splay s = getSplay();
 
@@ -519,7 +551,8 @@ public final class Type extends Goober implements TypeStore
                     {
                         Type type = s.getType( getRoot() );
 
-                        assert type != null;
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue( type != null );
                     
                         fillMeUp.add( type );
                     }
@@ -529,7 +562,8 @@ public final class Type extends Goober implements TypeStore
                     if (set.contains(s.getName()))
                     {
                         Type type = s.getType(getRoot());
-                        assert type != null;
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue( type != null );
                         fillMeUp.add(type);
                     }
                 }
@@ -562,7 +596,8 @@ public final class Type extends Goober implements TypeStore
 
     public TypeStoreUser find_attribute_user ( QName name )
     {
-        assert getSplay().isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( getSplay().isContainer() );
 
         Splay a = getSplay().getAttr( name );
 
@@ -571,7 +606,8 @@ public final class Type extends Goober implements TypeStore
 
         Type t = a.getType( getRoot() );
 
-        assert t != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( t != null );
 
         return t._user;
     }
@@ -580,7 +616,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
         
-        assert s.isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isTypeable() );
 
         if (s.isDoc())
             return null;
@@ -589,7 +626,8 @@ public final class Type extends Goober implements TypeStore
 
         Type parentType = parentContainer.getType( getRoot() );
 
-        assert parentType != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( parentType != null );
 
         TypeStoreUser parentUser = parentType._user;
 
@@ -606,14 +644,16 @@ public final class Type extends Goober implements TypeStore
         if (visitor == null)
             return null;
 
-        assert !parentContainer.isLeaf();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( !parentContainer.isLeaf() );
         
         for ( Splay t = parentContainer.nextSplay() ; ; t = t.nextSplay() )
         {
             switch ( t.getKind() )
             {
             case Splay.END :
-                assert false;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( false );
                 break;
 
             case Splay.BEGIN :
@@ -633,7 +673,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isTypeable() );
 
         if (!s.isAttr())
             s.setXsiNil( getRoot(), build_nil() );
@@ -643,7 +684,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isTypeable();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isTypeable() );
   
         return s.isAttr() ? false : s.getXsiNil( getRoot() );
     }
@@ -658,7 +700,8 @@ public final class Type extends Goober implements TypeStore
 
         String result = s.prefixForNamespace( getRoot(), nsuri, suggested_prefix, true);
 
-        assert result != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( result != null );
 
         return result;
     }
@@ -677,7 +720,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
         
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -705,7 +749,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
 
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -734,7 +779,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
         
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -774,7 +820,8 @@ public final class Type extends Goober implements TypeStore
                     }
                 }
 
-                assert t.isContainer();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( t.isContainer() );
 
                 if (t.getName().equals( qname ))
                     break;
@@ -801,7 +848,8 @@ public final class Type extends Goober implements TypeStore
         
         Type t = b.getType( r );
 
-        assert t != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( t != null );
         
         return t._user;
     }
@@ -813,7 +861,8 @@ public final class Type extends Goober implements TypeStore
         
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
         
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -836,7 +885,8 @@ public final class Type extends Goober implements TypeStore
 
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
 
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -857,7 +907,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
         
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -872,7 +923,8 @@ public final class Type extends Goober implements TypeStore
         
         Type t = a.getType( getRoot() );
 
-        assert t != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( t != null );
 
         return t._user;
     }
@@ -881,7 +933,8 @@ public final class Type extends Goober implements TypeStore
     {
         Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
         
         if (!s.isContainer())
             throw new IllegalStateException();
@@ -896,7 +949,8 @@ public final class Type extends Goober implements TypeStore
     
     public TypeStoreUser copy_contents_from ( TypeStore source )
     {
-        assert source instanceof Type;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( source instanceof Type );
 
         Type sourceType = (Type) source;
 
@@ -946,7 +1000,8 @@ public final class Type extends Goober implements TypeStore
         for ( ; m > n ; n++ )
             add_element_user( elementName );
 
-        assert m == n;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( m == n );
         
         ArrayList elements = new ArrayList();
         
@@ -954,7 +1009,8 @@ public final class Type extends Goober implements TypeStore
 
         Root r = getRoot();
         
-        assert elements.size() == n;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( elements.size() == n );
 
         for ( int i = 0 ; i < n ; i++ )
         {
@@ -966,10 +1022,12 @@ public final class Type extends Goober implements TypeStore
             {
                 Splay s = type.getSplay();
 
-                assert r == type.getRoot();
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue( r == type.getRoot() );
+                    XmlBeans.assertTrue( s.isContainer() );
+                }
 
-                assert s.isContainer();
-                
                 s.removeContent( r, true );
                 
                 CopyContext copyContext = (CopyContext) copies.get( i );
@@ -993,7 +1051,8 @@ public final class Type extends Goober implements TypeStore
     {
        Splay s = getSplay();
 
-        assert s.isContainer();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( s.isContainer() );
         
         if (!s.isContainer())
             throw new IllegalStateException();

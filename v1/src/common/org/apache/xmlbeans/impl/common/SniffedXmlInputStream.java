@@ -15,13 +15,14 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.xmlbeans.XmlBeans;
+
 import java.io.InputStream;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 
 public class SniffedXmlInputStream extends BufferedInputStream
 {
@@ -135,17 +136,6 @@ public class SniffedXmlInputStream extends BufferedInputStream
         }
     }
 
-    // BUGBUG in JDK: Charset.forName is not threadsafe, so we'll prime it
-    // with the common charsets.
-
-    private static Charset dummy1 = Charset.forName("UTF-8");
-    private static Charset dummy2 = Charset.forName("UTF-16");
-    private static Charset dummy3 = Charset.forName("UTF-16BE");
-    private static Charset dummy4 = Charset.forName("UTF-16LE");
-    private static Charset dummy5 = Charset.forName("ISO-8859-1");
-    private static Charset dummy6 = Charset.forName("US-ASCII");
-    private static Charset dummy7 = Charset.forName("Cp1252");
-
 
     private String sniffForXmlDecl(String encoding) throws IOException
     {
@@ -155,9 +145,7 @@ public class SniffedXmlInputStream extends BufferedInputStream
             byte[] bytebuf = new byte[MAX_SNIFFED_BYTES];
             int bytelimit = readAsMuchAsPossible(bytebuf, 0, MAX_SNIFFED_BYTES);
 
-            // BUGBUG in JDK: Charset.forName is not threadsafe.
-            Charset charset = Charset.forName(encoding);
-            Reader reader = new InputStreamReader(new ByteArrayInputStream(bytebuf, 0, bytelimit), charset);
+            Reader reader = new InputStreamReader(new ByteArrayInputStream(bytebuf, 0, bytelimit), encoding);
             char[] buf = new char[bytelimit];
             int limit = 0;
             while (limit < bytelimit)
@@ -205,7 +193,8 @@ public class SniffedXmlInputStream extends BufferedInputStream
 
     private static int firstIndexOf(String s, char[] buf, int startAt, int limit)
     {
-        assert(s.length() > 0);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(s.length() > 0);
         char[] lookFor = s.toCharArray();
 
         char firstchar = lookFor[0];

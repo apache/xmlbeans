@@ -27,6 +27,7 @@ import java.io.UnsupportedEncodingException;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.XmlBeans;
 
 public class QNameHelper
 {
@@ -155,7 +156,8 @@ public class QNameHelper
                 inputBytes = new byte[0];
             }
             byte[] digest = md.digest(inputBytes);
-            assert(digest.length == 20); // SHA1 160 bits == 20 bytes
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(digest.length == 20); // SHA1 160 bits == 20 bytes
             result = new StringBuffer("URI_SHA_1_");
             for (int j = 0; j < digest.length; j++)
             {

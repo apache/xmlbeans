@@ -26,6 +26,7 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.impl.config.InterfaceExtension;
 import org.apache.xmlbeans.impl.config.ExtensionHolder;
+import org.apache.xmlbeans.XmlBeans;
 
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
@@ -148,11 +149,11 @@ public class StscJavaizer
     {
         if (sImpl.isJavaized())
             return;
-
+        
         SchemaTypeImpl baseType = (SchemaTypeImpl)sImpl.getBaseType();
         if (baseType != null)
             skipJavaizingType(baseType);
-
+        
         sImpl.startJavaizing();
         secondPassProcessType(sImpl);
         sImpl.finishJavaizing();
@@ -338,7 +339,8 @@ public class StscJavaizer
                         javaname = "Item"; break;
                     case SchemaType.ATOMIC:
                     default:
-                        assert(false) : "Weird type " + sImpl.toString();
+                        if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(false, "Weird type " + sImpl.toString());
                         javaname = "Base"; break;
                 }
             }
@@ -501,7 +503,8 @@ public class StscJavaizer
             else
             {
                 theName = baseProp.getJavaPropertyName();
-                assert(!usedNames.contains(theName));
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(!usedNames.contains(theName));
                 usedNames.add(theName);
             }
 
@@ -655,7 +658,8 @@ public class StscJavaizer
                 return SchemaProperty.JAVA_CALENDAR;
 
             default:
-                assert(false) : "unrecognized code " + sType.getPrimitiveType().getBuiltinTypeCode();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "unrecognized code " + sType.getPrimitiveType().getBuiltinTypeCode());
                 throw new IllegalStateException("unrecognized code " + sType.getPrimitiveType().getBuiltinTypeCode() + " of " + sType.getPrimitiveType().getName());
         }
     }
@@ -924,8 +928,12 @@ public class StscJavaizer
         }
 
         SchemaField sElt = sType.getContainerField();
-        assert(sElt != null);
-        assert(sType.getOuterType() == null);
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(sElt != null);
+            XmlBeans.assertTrue(sType.getOuterType() == null);
+        }
         return sElt.getName();
     }
+
 }

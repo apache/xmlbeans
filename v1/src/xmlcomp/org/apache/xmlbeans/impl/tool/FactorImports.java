@@ -33,11 +33,12 @@ import java.util.Map;
 import java.util.HashMap;
 import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.net.URL;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.common.NetUtils;
+import org.apache.xmlbeans.impl.common.IOUtil;
 
 import javax.xml.namespace.QName;
 
@@ -312,21 +313,23 @@ public class FactorImports
     
     private static File outputFileFor(File file, File baseDir, File outdir)
     {
-        URI base = baseDir.getAbsoluteFile().toURI();
-        URI abs = file.getAbsoluteFile().toURI();
-        URI rel = base.relativize(abs);
-        if (rel.isAbsolute())
+        baseDir = baseDir.getAbsoluteFile();
+        file = file.getAbsoluteFile();
+
+        String base = IOUtil.fileToURL(baseDir).getPath();
+        String abs = IOUtil.fileToURL(file).getPath();
+
+        String rel = NetUtils.relativize(base, abs);
+        if (rel.equals(abs))
         {
             System.out.println("Cannot relativize " + file);
             return null;
         }
-        
-        URI outbase = outdir.toURI();
-        URI out = CodeGenUtil.resolve(outbase, rel);
-        return new File(out);
+
+        return new File(outdir, rel);
     }
     
-    private static URI commonAncestor(URI first, URI second)
+    private static String commonAncestor(URL first, URL second)
     {
         String firstStr = first.toString();
         String secondStr = second.toString();
@@ -344,41 +347,37 @@ public class FactorImports
             i = firstStr.lastIndexOf('/', i);
         if (i < 0)
             return null;
-        try
-        {
-            return new URI(firstStr.substring(0, i));
-        }
-        catch (URISyntaxException e)
-        {
-            return null;
-        }
+
+        return firstStr.substring(0, i);
     }
     
     
     private static String relativeURIFor(File source, File target)
     {
-        URI base = source.getAbsoluteFile().toURI();
-        URI abs = target.getAbsoluteFile().toURI();
+        URL base = IOUtil.fileToURL(source.getAbsoluteFile());
+        URL abs = IOUtil.fileToURL(target.getAbsoluteFile());
         // find common substring...
-        URI commonBase = commonAncestor(base, abs);
+        String commonBase = commonAncestor(base, abs);
         if (commonBase == null)
             return abs.toString();
-        
-        URI baserel = commonBase.relativize(base);
-        URI targetrel = commonBase.relativize(abs);
-        if (baserel.isAbsolute() || targetrel.isAbsolute())
+
+        String baserel = NetUtils.relativize(commonBase, base.getPath());
+        String targetrel = NetUtils.relativize(commonBase, abs.getPath());
+
+        if (baserel.charAt(0) == '/' || targetrel.charAt(0) == '/')
             return abs.toString();
-        String prefix = "";
+
+        StringBuffer prefix = new StringBuffer();
         String sourceRel = baserel.toString();
         for (int i = 0; i < sourceRel.length();)
         {
             i = sourceRel.indexOf('/', i);
             if (i < 0)
                 break;
-            prefix += "../";
+            prefix.append("../");
             i += 1;
         }
-        return prefix + targetrel.toString();
+        return prefix.append(targetrel).toString();
     }
     
     private static File commonFileFor(String commonName, String namespace, int i, File outdir)

@@ -47,7 +47,8 @@ public class XmlComplexContentImpl extends XmlObjectBase
 
     protected final void set_String(String v)
     {
-        assert _schemaType.getContentType() != SchemaType.SIMPLE_CONTENT;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_schemaType.getContentType() != SchemaType.SIMPLE_CONTENT);
 
         if (_schemaType.getContentType() != SchemaType.MIXED_CONTENT &&
                 !_schemaType.isNoType())
@@ -61,9 +62,10 @@ public class XmlComplexContentImpl extends XmlObjectBase
     
     public void set_text(String str)
     {
-        assert
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(
             _schemaType.getContentType() == SchemaType.MIXED_CONTENT ||
-                _schemaType.isNoType();
+                _schemaType.isNoType());
     }
 
     protected void update_from_complex_content()

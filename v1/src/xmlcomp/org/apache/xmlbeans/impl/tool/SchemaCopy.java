@@ -21,12 +21,11 @@ import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument;
 import org.apache.internal.xmlbeans.wsdlsubst.TImport;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
 
-import java.net.URI;
 import java.net.URL;
-import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -47,13 +46,12 @@ public class SchemaCopy
             return;
         }
 
-        URI source = null;
-        URI target = null;
+        URL source = null;
+        URL target = null;
 
         try
         {
-            source = new URI(args[0]);
-            source.toURL(); // to trigger exception
+            source = new URL(args[0]);
         }
         catch (Exception e)
         {
@@ -65,10 +63,10 @@ public class SchemaCopy
         {
             try
             {
-                URI dir = new File(".").getCanonicalFile().toURI();
+                URL dir = new File(".").getCanonicalFile().toURL();
                 String lastPart = source.getPath();
                 lastPart = lastPart.substring(lastPart.lastIndexOf('/') + 1);
-                target = CodeGenUtil.resolve(dir, URI.create(lastPart));
+                target = CodeGenUtil.resolve(dir, lastPart);
             }
             catch (Exception e)
             {
@@ -80,10 +78,8 @@ public class SchemaCopy
         {
             try
             {
-                target = new URI(args[1]);
-                if (!target.isAbsolute())
-                    target = null;
-                else if (!target.getScheme().equals("file"))
+                target = new URL(args[1]);
+                if (!target.getProtocol().equals("file"))
                     target = null;
             }
             catch (Exception e)
@@ -95,7 +91,7 @@ public class SchemaCopy
             {
                 try
                 {
-                    target = new File(target).getCanonicalFile().toURI();
+                    target = new File(args[1]).getCanonicalFile().toURL();
                 }
                 catch (Exception e)
                 {
@@ -113,8 +109,8 @@ public class SchemaCopy
     {
         for (Iterator i = uriMap.keySet().iterator(); i.hasNext(); )
         {
-            URI source = (URI)i.next();
-            URI target = (URI)uriMap.get(source);
+            URL source = (URL)i.next();
+            URL target = (URL)uriMap.get(source);
             try
             {
                 IOUtil.copyCompletely(source, target);
@@ -126,25 +122,25 @@ public class SchemaCopy
                 continue;
             }
             if (stdout)
-            System.out.println("Copied " + source + " -> " + target);
+                System.out.println("Copied " + source + " -> " + target);
         }
     }
 
 
     /**
-     * Copies the schema or wsdl at the source URI to the target URI, along
-     * with any relative references.  The target URI should be a file URI.
+     * Copies the schema or wsdl at the source URL to the target URL, along
+     * with any relative references.  The target URL should be a file URL.
      * If doCopy is false, the file copies are not actually done; the map
      * returned just describes the copies that would have been done.
      *
-     * @param source an arbitrary URI describing a source Schema or WSDL
-     * @param target a file URI describing a target filename
-     * @return a map of all the source/target URIs needed to copy
+     * @param source an arbitrary URL describing a source Schema or WSDL
+     * @param target a file URL describing a target filename
+     * @return a map of all the source/target URLs needed to copy
      * the file along with all its relative referents.
      */
-    public static Map findAllRelative(URI source, URI target)
+    public static Map findAllRelative(URL source, URL target)
     {
-        Map result = new LinkedHashMap();
+        Map result = new SequencedHashMap();
         result.put(source, target);
 
         LinkedList process = new LinkedList();
@@ -152,12 +148,12 @@ public class SchemaCopy
 
         while (!process.isEmpty())
         {
-            URI nextSource = (URI)process.removeFirst();
-            URI nextTarget = (URI)result.get(nextSource);
+            URL nextSource = (URL)process.removeFirst();
+            URL nextTarget = (URL)result.get(nextSource);
             Map nextResults = findRelativeInOne(nextSource, nextTarget);
             for (Iterator i = nextResults.keySet().iterator(); i.hasNext(); )
             {
-                URI newSource = (URI)i.next();
+                URL newSource = (URL)i.next();
                 if (result.containsKey(newSource))
                     continue;
                 result.put(newSource, nextResults.get(newSource));
@@ -173,16 +169,15 @@ public class SchemaCopy
                     "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst" 
             ));
 
-    private static Map findRelativeInOne(URI source, URI target)
+    private static Map findRelativeInOne(URL source, URL target)
     {
         try
         {
-            URL sourceURL = source.toURL();
-            XmlObject xobj = XmlObject.Factory.parse(sourceURL, loadOptions);
+            XmlObject xobj = XmlObject.Factory.parse(source, loadOptions);
             XmlCursor xcur = xobj.newCursor();
             xcur.toFirstChild();
 
-            Map result = new LinkedHashMap();
+            Map result = new SequencedHashMap();
 
             if (xobj instanceof SchemaDocument)
                 putMappingsFromSchema(result, source, target, ((SchemaDocument)xobj).getSchema());
@@ -197,26 +192,33 @@ public class SchemaCopy
         return Collections.EMPTY_MAP;
     }
 
-    private static void putNewMapping(Map result, URI origSource, URI origTarget, String literalURI)
+    private static void putNewMapping(Map result, URL origSource, URL origTarget, String literalURL)
     {
+        if (literalURL == null)
+            return;
+
+        URL url = null;
         try
         {
-            if (literalURI == null)
-                return;
-            URI newRelative = new URI(literalURI);
-            if (newRelative.isAbsolute())
-                return;
-            URI newSource = CodeGenUtil.resolve(origSource, newRelative);
-            URI newTarget = CodeGenUtil.resolve(origTarget, newRelative);
-            result.put(newSource, newTarget);
+            url = new URL(literalURL);
         }
-        catch (URISyntaxException e)
+        catch(MalformedURLException mue)
         {
-            // uri syntax problem? do nothing silently.
+            url = null;
         }
+
+        //if the string can be parsed into a URL, it's absolute
+        if (url != null)
+            return;
+
+        URL newSource = CodeGenUtil.resolve(origSource, literalURL);
+        URL newTarget = CodeGenUtil.resolve(origTarget, literalURL);
+
+        if (newSource != null && newTarget != null)
+            result.put(newSource, newTarget);
     }
 
-    private static void putMappingsFromSchema(Map result, URI source, URI target, SchemaDocument.Schema schema)
+    private static void putMappingsFromSchema(Map result, URL source, URL target, SchemaDocument.Schema schema)
     {
         ImportDocument.Import[] imports = schema.getImportArray();
         for (int i = 0; i < imports.length; i++)
@@ -227,7 +229,7 @@ public class SchemaCopy
             putNewMapping(result, source, target, includes[i].getSchemaLocation());
     }
 
-    private static void putMappingsFromWsdl(Map result, URI source, URI target, DefinitionsDocument.Definitions wdoc)
+    private static void putMappingsFromWsdl(Map result, URL source, URL target, DefinitionsDocument.Definitions wdoc)
     {
         XmlObject[] types = wdoc.getTypesArray();
         for (int i = 0; i < types.length; i++)
