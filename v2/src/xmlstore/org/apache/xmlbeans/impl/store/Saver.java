@@ -3773,6 +3773,11 @@ public abstract class Saver implements NamespaceManager
             return new Cursor( getRoot(), _sLoc, _pLoc );
         }
 
+        public javax.xml.stream.Location getLocation()
+        {
+            return null;
+        }
+
         public boolean getXsiType ( Chars chars )
         {
             if (_xsiType == null)

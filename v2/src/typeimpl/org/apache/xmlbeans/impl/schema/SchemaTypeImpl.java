@@ -15,34 +15,42 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.impl.values.*;
-import org.apache.xmlbeans.impl.regex.RegularExpression;
-import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaGlobalElement;
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.QNameSetBuilder;
 import org.apache.xmlbeans.SchemaAnnotation;
+import org.apache.xmlbeans.SchemaAttributeModel;
 import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.SchemaField;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.SchemaAttributeModel;
-import org.apache.xmlbeans.SchemaTypeElementSequencer;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaProperty;
-import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaLocalElement;
-import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.StringEnumAbstractBase;
+import org.apache.xmlbeans.SchemaParticle;
+import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeElementSequencer;
 import org.apache.xmlbeans.SchemaTypeLoader;
-
-import java.lang.reflect.Constructor;
-import java.util.*;
-import java.math.BigInteger;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.StringEnumAbstractBase;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.values.*;
 
 import javax.xml.namespace.QName;
+import java.lang.reflect.Constructor;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 {
@@ -2006,5 +2014,86 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
             return _visitor.testValid(elementName);
         }
+    }
+
+    /**
+     * Returns a QNameSet of elements that may exist in wildcard
+     * buchets and are not explicitly defined in this schema type.
+     * Note: In this example:
+     *  <xs:complexType name="exampleType">
+     *    <xs:sequence>
+     *      <xs:element name="someElement" type='xs:string' />
+     *      <xs:any namespace="##targetNamespace" />
+     *    </xs:sequence>
+     *  </xs:complexType>
+     *  the returned QNameSet will not contain the qname of 'someElement'.
+     * @return the constructed QNameSet
+     */
+    public QNameSet qnameSetForWildcardElements()
+    {
+        SchemaParticle model = this.getContentModel();
+        QNameSetBuilder wildcardSet = new QNameSetBuilder();
+        computeWildcardSet(model, wildcardSet);
+
+        QNameSetBuilder qnsb = new QNameSetBuilder( wildcardSet );
+        SchemaProperty[] props = this.getElementProperties();
+
+        for (int i = 0; i < props.length; i++)
+        {
+            SchemaProperty prop = props[i];
+            qnsb.remove(prop.getName());
+        }
+
+        return qnsb.toQNameSet();
+    }
+
+    private static void computeWildcardSet(SchemaParticle model, QNameSetBuilder result)
+    {
+        for (int i = 0; i < model.countOfParticleChild(); i++)
+        {
+            SchemaParticle child = model.getParticleChild(i);
+            if (child.getParticleType()==SchemaParticle.WILDCARD)
+            {
+                QNameSet cws = child.getWildcardSet();
+                result.addAll(cws);
+            }
+            else
+            {
+                computeWildcardSet(child, result);
+            }
+        }
+    }
+
+    /**
+     * Returns a QNameSet of attributes that may exist in wildcard
+     * buchets and are not explicitly defined in this schema type.
+     * Note: In this example:
+     *  <xs:complexType name="exampleType">
+     *    ...
+     *    <xs:attribute name='someAttribute' type='xs:string' />
+     *    <xs:anyAttribute namespace="##targetNamespace" />
+     *  </xs:complexType>
+     *  the returned QNameSet will not contain the qname of 'someAttribute'.
+     * @return the constructed QNameSet
+     */
+    public QNameSet qnameSetForWildcardAttributes()
+    {
+        SchemaAttributeModel model = this.getAttributeModel();
+        QNameSet wildcardSet = model.getWildcardSet();
+
+        if (wildcardSet==null)
+            return QNameSet.EMPTY;
+
+        QNameSetBuilder qnsb = new QNameSetBuilder( wildcardSet );
+
+        SchemaProperty[] props = this.getAttributeProperties();
+
+        for (int i = 0; i < props.length; i++)
+        {
+            SchemaProperty prop = props[i];
+            qnsb.remove(prop.getName());
+        }
+
+        return qnsb.toQNameSet();
     }
 }
