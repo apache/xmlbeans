@@ -4,6 +4,15 @@
     elementFormDefault="qualified">
 
     <xs:element name="address" type="tns:USAddress"/>
+    
+    <xs:element name="ListOfAddresses">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="address" type="tns:USAddress"
+                    minOccurs="0" maxOccurs="unbounded"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
 
     <xs:complexType name="USAddress">
         <xs:sequence>
