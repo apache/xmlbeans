@@ -97,10 +97,6 @@ public abstract class Saver implements NamespaceManager
         _attrNames = new HashSet();
         _firstPush = true;
         
-        _newLine = System.getProperty( "line.separator" );
-
-        if (_newLine == null)
-            _newLine = "\n";
 
         // Initialize the state of the namespaces
         _namespaceStack = new ArrayList();
@@ -4744,5 +4740,12 @@ public abstract class Saver implements NamespaceManager
     private String  _filterProcinst;
     private Map     _suggestedPrefixes;
 
-    protected String  _newLine;
+    protected static String  _newLine;
+
+    static
+    {
+        _newLine = System.getProperty( "line.separator" );
+        if (_newLine == null)
+            _newLine = "\n";
+    }
 }

@@ -46,7 +46,7 @@ public final class CursorData
     private static ThreadLocal tl_CachedCursorData =
         new ThreadLocal() { protected Object initialValue() { return new ArrayList(); } };
     
-    protected void release ( )
+    protected void release ( boolean cache )
     {
         if (_goober.getSplay() != null)
         {
@@ -55,12 +55,15 @@ public final class CursorData
             if (_stack != null)
                 _stack.dispose();
 
-            _goober.set( null, 0 );
+            _goober.release();
             
-            ArrayList dataCache = (ArrayList) tl_CachedCursorData.get();
+            if (cache)
+            {
+                ArrayList dataCache = (ArrayList) tl_CachedCursorData.get();
 
-            if (dataCache.size() < 128)
-                dataCache.add( this );
+                if (dataCache.size() < 128)
+                    dataCache.add( this );
+            }
         }
     }
     
@@ -72,7 +75,7 @@ public final class CursorData
         {
             synchronized ( _goober.getRoot() )
             {
-                release();
+                release(false);
             }
         }
     }

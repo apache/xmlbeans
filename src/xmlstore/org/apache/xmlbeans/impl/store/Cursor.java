@@ -131,7 +131,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             if (!isDisposed())
             {
-                _data.release();
+                _data.release(true);
                 _data = null;
             }
         }

@@ -831,7 +831,7 @@ public class XPath
             while ( tokenize( "|" ) )
                 tokenizePath( paths );
 
-            return new Selector( (Step[]) paths.toArray( new Step [ 0 ] ) );
+            return new Selector( (Step[]) paths.toArray( new Step [ paths.size() ] ) );
         }
 
         private XPath tokenizeXPath ( ) throws XPathCompileException

@@ -3876,6 +3876,12 @@ public abstract class Splay extends Goobers
             doSet( r, null, 0 );
         }
 
+        void release ( )
+        {
+            set( null, 0);
+            _root = null;
+        }
+
         private final void append ( Splay s )
         {
             assert s != null;
