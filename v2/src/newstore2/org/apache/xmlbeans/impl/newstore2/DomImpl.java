@@ -1928,8 +1928,6 @@ final class DomImpl
     
     public static void node_setPrefix ( Dom n, String prefix )
     {
-        validateNcName( prefix );
-        
         // TODO - make it possible to set the prefix of an xmlns
         // TODO - test to make use prefix: xml maps to the predefined namespace
         // if set???? hmmm ... perhaps I should not allow the setting of any
@@ -1950,6 +1948,8 @@ final class DomImpl
             
             c.release();
         }
+        else
+            validatePrefix( prefix, "", "", false );
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
