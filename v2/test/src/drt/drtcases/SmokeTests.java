@@ -50,6 +50,7 @@ public class SmokeTests extends TestCase
         suite.addTest(RichParserTests.suite());
         suite.addTest(NumeralsTests.suite());
         suite.addTest(ValidatingXMLStreamReaderTests.suite());
+        suite.addTest(SelectChldAttTests.suite());
         return suite;
     }
 }
