@@ -26,12 +26,12 @@ final class RuntimeGlobalProperty
     private final BindingType type;
     private final QName rootElement;
 
-    RuntimeGlobalProperty(BindingType type, QName root_element)
+    public RuntimeGlobalProperty(BindingType type,
+                                 QName rootElement)
     {
         this.type = type;
-        this.rootElement = root_element;
+        this.rootElement = rootElement;
     }
-
 
     public BindingType getType()
     {
@@ -83,6 +83,14 @@ final class RuntimeGlobalProperty
         return true;
     }
 
+    //used during marshalling to determine if we need to write xsi:type info
+    public boolean isTypeSubstituted(Object property_value, MarshalResult result)
+        throws XmlException
+    {
+        //TODO: this needs to be done properly
+        return false;
+    }
+
     public boolean isMultiple()
     {
         return false;
@@ -93,4 +101,5 @@ final class RuntimeGlobalProperty
         //TODO & FIXME: we need the real information from the schema here
         return true;
     }
+
 }

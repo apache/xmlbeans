@@ -180,6 +180,14 @@ final class MarshalResult implements XMLStreamReader
     }
 
 
+
+    RuntimeBindingType createRuntimeBindingType(BindingType type)
+        throws XmlException
+    {
+        return runtimeTypeFactory.createRuntimeType(type, typeTable, bindingLoader);
+    }
+
+
     private int advanceToNext()
         throws XmlException
     {

@@ -258,6 +258,7 @@ public class MarshalTests extends TestCase
 
         MySubClass sub = new MySubClass();
         sub.setBigInt(new BigInteger("23522352235223522352"));
+        myelt.setMySubClass(sub);
 //        sub.setIsSetBigInt(false); //TESTING;
 //        sub.setBigInt(null);
 //        sub.setIsSetBigInt(true); //TESTING;
