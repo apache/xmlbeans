@@ -61,6 +61,8 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
+import java.util.Collection;
+import java.util.Collections;
 import java.io.IOException;
 
 
@@ -214,6 +216,11 @@ public class BindingFile extends BaseBindingLoader
             xmlFromJava.put(bType.getJavaName(), bType.getXmlName());
         }
     }
+
+  public Collection getBindingTypes()
+  {
+    return Collections.unmodifiableCollection(bindingTypes.values());
+  }
 
 
 }

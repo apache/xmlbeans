@@ -67,6 +67,13 @@ import java.util.LinkedHashMap;
 public class BuiltinBindingLoader extends BaseBindingLoader
 {
     private static final String xsns = "http://www.w3.org/2001/XMLSchema";
+
+    public static BindingLoader getInstance()
+    {
+        return INSTANCE;
+    }
+
+    private static final BuiltinBindingLoader INSTANCE = new BuiltinBindingLoader();
     
     private void addMapping(String xmlType, String javaName, boolean pojo, boolean defaultForJava, boolean defaultForXml)
     {
@@ -106,7 +113,7 @@ public class BuiltinBindingLoader extends BaseBindingLoader
         addMapping(xmlType, javaName, true, true, false);
     }
 
-    public BuiltinBindingLoader()
+    private BuiltinBindingLoader()
     {
         // todo: should each builtin binding type know about it's print/parse methods?
         
@@ -138,7 +145,7 @@ public class BuiltinBindingLoader extends BaseBindingLoader
         addPojo("gMonth", "int");
         addPojoXml("gDay", "java.util.Calendar");
         addPojo("gDay", "int");
-        
+
         addPojoTwoWay("boolean", "boolean");
         addPojoTwoWay("base64Binary", "byte[]");
         addPojoJava("base64Binary", "java.io.InputStream");
@@ -164,6 +171,15 @@ public class BuiltinBindingLoader extends BaseBindingLoader
         addPojoJava("anyURI", "java.net.URI");
         addPojoTwoWay("QName", "javax.xml.namespace.QName");
         addPojoXml("NOTATION", "java.lang.String");
+
+        addPojoJava("float", Float.class.getName());
+        addPojoJava("double", Double.class.getName());
+        addPojoJava("long", Long.class.getName());
+        addPojoJava("int", Integer.class.getName());
+        addPojoJava("short", Short.class.getName());
+        addPojoJava("byte", Byte.class.getName());
+        //TODO: deal with char and java.lang.Character
+
     }
 
 }

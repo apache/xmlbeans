@@ -31,65 +31,65 @@ public class BindingTests extends TestCase
     public void testBindingFile() throws Exception
     {
         BindingFile bf = new BindingFile();
-        BuiltinBindingLoader builtins = new BuiltinBindingLoader();
-        
+        BindingLoader builtins = BuiltinBindingLoader.getInstance();
+
         // some complex types
         ByNameBean bnb = new ByNameBean(JavaName.forString("com.mytest.MyClass"), XmlName.forString("t=my-type@http://www.mytest.com/"), false);
         bf.addBindingType(bnb, true, true);
         ByNameBean bnb2 = new ByNameBean(JavaName.forString("com.mytest.YourClass"), XmlName.forString("t=your-type@http://www.mytest.com/"), false);
         bf.addBindingType(bnb2, true, true);
-        
+
         // a custom simple type
         SimpleBindingType sbt = new SimpleBindingType(JavaName.forString("java.lang.String"), XmlName.forString("t=custom-string@http://www.mytest.com/"), false);
         bf.addBindingType(sbt, false, true); // note not from-java-default for String
-        
-        
+
+
         // bnb
-                        
+
         QNameProperty prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "myelt"));
         prop.setSetterName("setMyelt");
         prop.setGetterName("getMyelt");
         prop.setBindingType(bnb2);
         bnb.addProperty(prop);
-        
+
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "myelt2"));
         prop.setSetterName("setMyelt2");
         prop.setGetterName("getMyelt2");
         prop.setBindingType(bnb);
         bnb.addProperty(prop);
-        
+
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "myatt"));
         prop.setSetterName("setMyatt");
         prop.setGetterName("getMyatt");
         prop.setBindingType(sbt);
         bnb.addProperty(prop);
-        
+
         // now bnb2
-        
+
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "yourelt"));
         prop.setSetterName("setYourelt");
         prop.setGetterName("getYourelt");
         prop.setBindingType(bnb2);
         bnb2.addProperty(prop);
-        
+
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "yourelt2"));
         prop.setSetterName("setYourelt2");
         prop.setGetterName("getYourelt2");
         prop.setBindingType(bnb);
         bnb2.addProperty(prop);
-        
+
         // sbt
         sbt.setAsIfXmlType(XmlName.forString("t=string@http://www.w3.org/2001/XMLSchema"));
-        
+
         // now serialize
         BindingConfigDocument doc = bf.write();
         System.out.println(doc.toString());
-        
+
         // now load
         BindingFile bfc = BindingFile.forDoc(doc);
         BindingLoader lc = PathBindingLoader.forPath(new BindingLoader[] {builtins, bfc});
@@ -98,13 +98,26 @@ public class BindingTests extends TestCase
         SimpleBindingType sbtc = (SimpleBindingType)bfc.getBindingType(JavaName.forString("java.lang.String"), XmlName.forString("t=custom-string@http://www.mytest.com/"));
 
         // check loading xsd:float
-        QName qn = new QName("http://www.w3.org/2001/XMLSchema", "float");
-        XmlName xn = XmlName.forTypeNamed(qn);
-        XmlName xns = XmlName.forString("t=float@http://www.w3.org/2001/XMLSchema");
-        Assert.assertEquals(xn, xns);
-        Assert.assertEquals(xn.hashCode(), xns.hashCode());
-        BindingType btype = lc.getBindingTypeForXmlPojo(xn);
-        Assert.assertNotNull(btype);
+        {
+            QName qn = new QName("http://www.w3.org/2001/XMLSchema", "float");
+            XmlName xn = XmlName.forTypeNamed(qn);
+            XmlName xns = XmlName.forString("t=float@http://www.w3.org/2001/XMLSchema");
+            Assert.assertEquals(xn, xns);
+            Assert.assertEquals(xn.hashCode(), xns.hashCode());
+            BindingType btype = lc.getBindingTypeForXmlPojo(xn);
+            Assert.assertNotNull(btype);
+        }
+
+        // check loading xsd:string
+        {
+            QName qn = new QName("http://www.w3.org/2001/XMLSchema", "string");
+            XmlName xn = XmlName.forTypeNamed(qn);
+            XmlName xns = XmlName.forString("t=string@http://www.w3.org/2001/XMLSchema");
+            Assert.assertEquals(xn, xns);
+            Assert.assertEquals(xn.hashCode(), xns.hashCode());
+            BindingType btype = lc.getBindingTypeForXmlPojo(xn);
+            Assert.assertNotNull(btype);
+        }
 
         // check bnb
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myelt"));
@@ -116,12 +129,12 @@ public class BindingTests extends TestCase
         Assert.assertEquals("setMyelt2", prop.getSetterName());
         Assert.assertEquals("getMyelt2", prop.getGetterName());
         Assert.assertEquals(bnbc, prop.getBindingType(lc));
-        
+
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myatt"));
         Assert.assertEquals("setMyatt", prop.getSetterName());
         Assert.assertEquals("getMyatt", prop.getGetterName());
         Assert.assertEquals(sbtc, prop.getBindingType(lc));
-        
+
         // check bnb2
         prop = bnb2c.getPropertyForElement(new QName("http://www.mytest.com/", "yourelt"));
         Assert.assertEquals("setYourelt", prop.getSetterName());
@@ -132,7 +145,7 @@ public class BindingTests extends TestCase
         Assert.assertEquals("setYourelt2", prop.getSetterName());
         Assert.assertEquals("getYourelt2", prop.getGetterName());
         Assert.assertEquals(bnbc, prop.getBindingType(lc));
-        
+
         // check sbtc
         Assert.assertEquals(XmlName.forString("t=string@http://www.w3.org/2001/XMLSchema"), sbtc.getAsIfXmlType());
     }

@@ -49,6 +49,20 @@
     </unjar>
   </target>
 
+  <target name="check.jsr173_07_ri.jar">
+    <condition property="jsr173_07_ri.jar.exists">
+        <available file="build/lib/jsr173_07_ri.jar"/>
+    </condition>
+  </target>
+
+  <target name="jsr173_07_ri.jar" depends="jsr173.jar, check.jsr173_07_ri.jar" unless="jsr173_07_ri.jar.exists">
+    <unjar src="build/lib/jsr173.jar" dest="build/lib">
+      <patternset>
+        <include name="jsr173_07_ri.jar"/>
+    </patternset>
+    </unjar>
+  </target>
+
   <target name="check.jaxen.jar">
     <condition property="jaxen.jar.exists">
         <available file="build/lib/jaxen.jar"/>
@@ -481,7 +495,7 @@
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
-                 xmlstore.classes, binding.classes,
+                 xmlstore.classes, binding.classes, marshal.classes,
                  oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
@@ -497,6 +511,7 @@
       <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/xmlinputstream"/>
       <fileset dir="build/classes/binding"/>
+      <fileset dir="build/classes/marshal"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="src/license"/>
     </jar>
@@ -588,10 +603,11 @@
 
   <!-- common target ============================================= -->
 
-  <target name="common.classes" depends="dirs, xmlpublic.jar, xmlinputstream.classes">
+  <target name="common.classes" depends="dirs, xmlpublic.jar, xmlinputstream.classes, jsr173_07_api.jar">
     <mkdir dir="build/classes/common"/>
     <javac srcdir="src/common" destdir="build/classes/common" source="1.4" debug="on">
       <classpath>
+        <pathelement location="build/lib/jsr173_07_api.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/lib/xmlpublic.jar"/>
       </classpath>
@@ -674,6 +690,24 @@
     </javac>
 
   </target>
+
+  <!-- marshal target =============================================== -->
+
+  <target name="marshal.classes" depends="dirs, binding.classes, typeimpl.classes, xmlpublic.classes, jsr173_07_api.jar">
+    <mkdir dir="build/classes/marshal"/>
+    <javac srcdir="src/marshal" destdir="build/classes/marshal" source="1.4" debug="on">
+      <classpath>
+        <pathelement location="build/lib/jsr173_07_api.jar"/>
+        <pathelement location="build/classes/configschema"/>
+        <pathelement location="build/classes/xmlinputstream"/>
+        <pathelement location="build/classes/xmlpublic"/>
+        <pathelement location="build/classes/common"/>
+        <pathelement location="build/classes/binding"/>
+        <pathelement location="build/classes/typeimpl"/>
+      </classpath>
+    </javac>
+  </target>
+
 
   <!-- xmlstore target ============================================== -->
 
