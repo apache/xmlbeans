@@ -197,8 +197,9 @@ public class StscImporter
     
     //workaround for Sun bug # 4723726
     private static URI resolve(URI base, String child)
+        throws URISyntaxException
     {
-        URI childUri = URI.create(child);
+        URI childUri = new URI(child);
         URI ruri = base.resolve(childUri);
 
         // if the child fragment is relative (which we'll assume is the case
@@ -327,11 +328,20 @@ public class StscImporter
             if (locationURL == null)
                 return null;
             
+            StscState state = StscState.get();
+            
             // First resolve relative URLs with respect to base URL for doc
             URI baseURI = parseURI(baseURLForDoc(referencedBy));
-            String absoluteURL = baseURI == null ? locationURL : resolve(baseURI, locationURL).toString();
-
-            StscState state = StscState.get();
+            String absoluteURL = null;
+            try
+            {
+                absoluteURL = baseURI == null ? locationURL : resolve(baseURI, locationURL).toString();
+            }
+            catch (URISyntaxException e)
+            {
+                state.error("Could not find resource - invalid location URL: " + e.getMessage(), XmlErrorCodes.CANNOT_FIND_RESOURCE, referencedBy);
+                return null;
+            }
 
             // probe 0: this url is already processed, from a previous compile
             if (state.isFileProcessed(absoluteURL))
