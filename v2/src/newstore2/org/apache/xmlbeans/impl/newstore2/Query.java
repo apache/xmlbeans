@@ -25,7 +25,7 @@ import java.lang.reflect.InvocationTargetException;
 public abstract class Query
 {
     abstract XmlObject[] execute ( Cur c, XmlOptions options );
-    
+
     //
     // Xqrl store specific implementation of compiled path/query
     //
@@ -60,7 +60,13 @@ public abstract class Query
 
         return query;
     }
-    
+
+    public static synchronized String compileQuery ( String queryExpr, XmlOptions options )
+    {
+        getCompiledQuery( queryExpr, options );
+        return queryExpr;
+    }
+
     private static Query createXqrlCompiledQuery ( String queryExpr, String currentVar )
     {
         if (_xqrlCompileQuery == null)

@@ -64,8 +64,8 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
     // User-Agent: XMLBeans/2.0.0 (org.apache.xmlbeans)
     private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
 
-    private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Path", "getCompiledPath", new Class[] { String.class, XmlOptions.class } );
-    private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Query", "getCompiledQuery", new Class[] { String.class, XmlOptions.class } );
+    private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Path", "compilePath", new Class[] { String.class, XmlOptions.class } );
+    private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Query", "compileQuery", new Class[] { String.class, XmlOptions.class } );
 
     private static Method getMethod ( String className, String methodName, Class[] args )
     {
