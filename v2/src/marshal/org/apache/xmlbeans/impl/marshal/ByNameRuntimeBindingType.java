@@ -214,14 +214,13 @@ final class ByNameRuntimeBindingType
                 if (isMultiple()) {
                     rh.addItem(propertyIndex, prop_obj);
                 } else {
-                    ReflectionUtils.invokeMethod(rh.getValue(), setMethod,
-                                                 new Object[]{prop_obj});
+                    setValue(rh.getValue(), prop_obj);
                 }
             } else {
-                ReflectionUtils.invokeMethod(inter, setMethod,
-                                             new Object[]{prop_obj});
+                setValue(inter, prop_obj);
             }
         }
+
 
     }
 

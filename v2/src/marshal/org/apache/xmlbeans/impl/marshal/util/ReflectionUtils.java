@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.binding.bts.MethodName;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Field;
 
 public final class ReflectionUtils
 {
@@ -56,6 +57,8 @@ public final class ReflectionUtils
 
     private static boolean checkParams(Method method, Object[] params)
     {
+        assert method != null;
+
         final int expected_len = method.getParameterTypes().length;
         final int actual_len = params == null ? 0 : params.length;
 
@@ -149,5 +152,53 @@ public final class ReflectionUtils
     {
         final int modifiers = javaClass.getModifiers();
         return Modifier.isFinal(modifiers);
+    }
+
+    public static Field getField(BindingProperty prop, Class aClass)
+        throws XmlException
+    {
+        final String field_name = prop.getFieldName();
+        try {
+            final Field field = aClass.getField(field_name);
+            final int mods = field.getModifiers();
+            if (!Modifier.isPublic(mods) || Modifier.isStatic(mods) || Modifier.isFinal(mods)) {
+                final String msg = "only public, non-static, non-final " +
+                    "fields supported: " + field + " in property " + prop;
+                throw new XmlException(msg);
+            }
+            return field;
+        }
+        catch (NoSuchFieldException e) {
+            throw new XmlException(e);
+        }
+        catch (SecurityException e) {
+            throw new XmlException(e);
+        }
+    }
+
+    public static Object getFieldValue(Object target, Field field) throws XmlException
+    {
+        try {
+            return field.get(target);
+        }
+        catch (IllegalArgumentException e) {
+            throw new XmlException(e);
+        }
+        catch (IllegalAccessException e) {
+            throw new XmlException(e);
+        }
+    }
+
+    public static void setFieldValue(Object target, Field field, Object value) throws XmlException
+    {
+        try {
+            field.set(target, value);
+        }
+        catch (IllegalArgumentException e) {
+            throw new XmlException(e);
+        }
+        catch (IllegalAccessException e) {
+            throw new XmlException(e);
+        }
     }
 }

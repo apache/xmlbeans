@@ -352,6 +352,22 @@
             </bin:qname-property>
 
 
+            <bin:qname-property>
+                <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>java.lang.String</bin:javatype>
+                <bin:field>stringField</bin:field>
+                <bin:qname>stringField</bin:qname>
+                <bin:nillable>true</bin:nillable>
+            </bin:qname-property>
+
+            <bin:qname-property>
+                <bin:xmlcomponent>t=int@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>int</bin:javatype>
+                <bin:field>intField</bin:field>
+                <bin:qname>intField</bin:qname>
+            </bin:qname-property>
+
+
         </bin:binding-type>
 
 

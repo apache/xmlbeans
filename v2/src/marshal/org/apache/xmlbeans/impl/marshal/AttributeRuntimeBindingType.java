@@ -260,7 +260,7 @@ abstract class AttributeRuntimeBindingType
             throws XmlException
         {
             assert isMultiple();
-            ReflectionUtils.invokeMethod(inter, setMethod, new Object[]{prop_obj});
+            setValue(inter, prop_obj);
         }
 
         final boolean isMultiple()
