@@ -29,6 +29,9 @@ import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.XmlLong;
 import org.apache.xmlbeans.XmlQName;
 import org.apache.xmlbeans.XmlShort;
+import org.apache.xmlbeans.XmlUnsignedByte;
+import org.apache.xmlbeans.XmlUnsignedInt;
+import org.apache.xmlbeans.XmlUnsignedShort;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.joust.Expression;
 import org.apache.xmlbeans.impl.binding.joust.ExpressionFactory;
@@ -241,7 +244,7 @@ public class EnumerationPrintHelper
                 qName.getPrefix() + "\")");
         break;
       case T_URI:
-        result = mExprFactory.createVerbatim("new java.net.URI(\"" + value.getStringValue() + "\")");
+        result = mExprFactory.createVerbatim("java.net.URI.create(\"" + value.getStringValue() + "\")");
         break;
       case T_FLOAT_CLASS:
         result = mExprFactory.createVerbatim("new Float(" + ((XmlFloat) value).getFloatValue() + ")");
@@ -271,19 +274,48 @@ public class EnumerationPrintHelper
         result = mExprFactory.createVerbatim(String.valueOf(((XmlByte) value).getByteValue()));
         break;
       case T_FLOAT:
-        result = mExprFactory.createVerbatim("(float)" + String.valueOf(((XmlFloat) value).getFloatValue()));
+        {
+          float floatValue = ((XmlFloat) value).getFloatValue();
+          if (floatValue == Float.POSITIVE_INFINITY)
+            result = mExprFactory.createVerbatim("Float.POSITIVE_INFINITY");
+          else if (floatValue == Float.NEGATIVE_INFINITY)
+            result = mExprFactory.createVerbatim("Float.NEGATIVE_INFINITY");
+          else if (Float.isNaN(floatValue))
+            result = mExprFactory.createVerbatim("Float.NaN");
+          else
+            result = mExprFactory.createVerbatim("(float)" + String.valueOf(floatValue));
+        }
         break;
       case T_DOUBLE:
-        result = mExprFactory.createVerbatim(String.valueOf(((XmlDouble) value).getDoubleValue()));
+        {
+          double doubleValue = ((XmlDouble) value).getDoubleValue();
+          if (doubleValue == Double.POSITIVE_INFINITY)
+            result = mExprFactory.createVerbatim("Double.POSITIVE_INFINITY");
+          else if (doubleValue == Double.NEGATIVE_INFINITY)
+            result = mExprFactory.createVerbatim("Double.NEGATIVE_INFINITY");
+          else if (Double.isNaN(doubleValue))
+            result = mExprFactory.createVerbatim("Double.NaN");
+          else
+            result = mExprFactory.createVerbatim(String.valueOf(doubleValue));
+        }
         break;
       case T_LONG:
-        result = mExprFactory.createVerbatim(String.valueOf(((XmlLong) value).getLongValue()));
+        if (value instanceof XmlUnsignedInt)
+          result = mExprFactory.createVerbatim(String.valueOf(((XmlUnsignedInt) value).getLongValue()));
+        else
+          result = mExprFactory.createVerbatim(String.valueOf(((XmlLong) value).getLongValue()));
         break;
       case T_INT:
-        result = mExprFactory.createVerbatim(String.valueOf(((XmlInt) value).getIntValue()));
+        if (value instanceof XmlUnsignedShort)
+          result = mExprFactory.createVerbatim(String.valueOf(((XmlUnsignedShort) value).getIntValue()));
+        else
+          result = mExprFactory.createVerbatim(String.valueOf(((XmlInt) value).getIntValue()));
         break;
       case T_SHORT:
-        result = mExprFactory.createVerbatim(String.valueOf(((XmlShort) value).getShortValue()));
+        if (value instanceof XmlUnsignedByte)
+          result = mExprFactory.createVerbatim(String.valueOf(((XmlUnsignedByte) value).getShortValue()));
+        else
+          result = mExprFactory.createVerbatim(String.valueOf(((XmlShort) value).getShortValue()));
         break;
       case T_BYTE_ARRAY:
         {
@@ -543,7 +575,7 @@ public class EnumerationPrintHelper
       result = mExprFactory.createVerbatim("Float.floatToIntBits(" + var + ")");
       break;
       case T_DOUBLE:
-      result = mExprFactory.createVerbatim("(int) (Double.doubleToLongBits(" + var + ") ^ (Double.doubleYoLongBits(" + var + ") >>> 32))");
+      result = mExprFactory.createVerbatim("(int) (Double.doubleToLongBits(" + var + ") ^ (Double.doubleToLongBits(" + var + ") >>> 32))");
       break;
       case T_LONG:
       result = mExprFactory.createVerbatim("(int) (" + var + " ^ (" + var + " >>> 32))");

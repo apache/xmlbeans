@@ -508,7 +508,8 @@ public class Schema2Java extends BindingCompiler {
       case Scratch.ENUM_TYPE:
         JaxrpcEnumType enumResult = new JaxrpcEnumType(btName);
         enumResult.setGetValueMethod(JaxrpcEnumType.DEFAULT_GET_VALUE);
-        enumResult.setFromValueMethod(JaxrpcEnumType.DEFAULT_FROM_VALUE);
+        enumResult.setFromValueMethod(MethodName.create(JaxrpcEnumType.DEFAULT_FROM_VALUE_NAME,
+                scratch.getJavaName()));
         enumResult.setFromStringMethod(JaxrpcEnumType.DEFAULT_FROM_STRING);
         enumResult.setToXMLMethod(JaxrpcEnumType.DEFAULT_TO_XML);
         scratch.setBindingType(enumResult);
@@ -691,15 +692,15 @@ public class Schema2Java extends BindingCompiler {
         prop = new QNameProperty();
         prop.setQName(props[i].getName());
         prop.setAttribute(props[i].isAttribute());
-        prop.setSetterName(MethodName.create("set" + propName,
-                                             bType.getName().getJavaName()));
-        prop.setGetterName(MethodName.create("get" + propName));
         prop.setNillable(props[i].hasNillable() != SchemaProperty.NEVER);
         prop.setOptional(isOptional(props[i]));
         prop.setMultiple(isMultiple);
         if (prop.isNillable() || prop.isOptional())
           bType = findBoxedType(bType);
         prop.setBindingType(bType);
+        prop.setSetterName(MethodName.create("set" + propName,
+                                             bType.getName().getJavaName()));
+        prop.setGetterName(MethodName.create("get" + propName));
         if (prop.isMultiple())
                 collection = JavaTypeName.forArray(bType.getName().getJavaName(), 1);
         prop.setCollectionClass(collection);
@@ -1799,9 +1800,11 @@ public class Schema2Java extends BindingCompiler {
       // of the enumeration's type and then call fromValue()
       final String STRING_PARTS = "parts";
       final String BASETYPE_ARRAY = "array";
-      mJoust.writeStatement("String[] " + STRING_PARTS + "= org.apache.xmlbeans.impl.values.XmlListImpl.split_list(value)");
+      mJoust.writeStatement("String[] " + STRING_PARTS +
+        "= org.apache.xmlbeans.impl.values.XmlListImpl.split_list(value)");
       mJoust.writeStatement(baseType.toString() + " " + BASETYPE_ARRAY + " = new " +
-        baseType.getArrayItemType(1).toString() + "[" + STRING_PARTS + ".length" + "]");
+        baseType.getArrayItemType(baseType.getArrayDepth()).toString() +
+        "[" + STRING_PARTS + ".length" + "]" + baseType.getArrayString(1));
       mJoust.writeStatement("for (int i = 0; i < " + BASETYPE_ARRAY + ".length; i++) " +
         BASETYPE_ARRAY + "[i] = " +
         enumHelper.getFromStringExpr(mJoust.getExpressionFactory().createVerbatim(

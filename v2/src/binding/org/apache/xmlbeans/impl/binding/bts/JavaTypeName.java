@@ -160,6 +160,15 @@ public final class JavaTypeName {
   }
 
   /**
+   * Returns the array string, peeling off the first depth levels
+   */
+  public String getArrayString(int depth) {
+    if (arrayString.length() < depth * 2)
+      return null;
+    return arrayString.substring(2 * depth, arrayString.length());
+  }
+
+  /**
    * True if this is an inner class name.
    */
   public boolean isInnerClass() {
