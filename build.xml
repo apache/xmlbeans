@@ -683,7 +683,7 @@
      <copy todir="build/private/xmlbeans-${version.base}">
         <fileset dir="xkit"/>
         <fileset dir="." includes="bin/**" />
-        <fileset file="CHANGES.txt" />
+        <fileset dir="." includes="LICENSE.txt, NOTICE.txt, CHANGES.txt" />
      </copy>
      <copy todir="build/private/xmlbeans-${version.base}/schemas/s4s">
         <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd,w3c-schema-license.html"/>
@@ -718,8 +718,6 @@
           excludes="xmlbeans-${version.base}/bin/dumpxsb, 
                     xmlbeans-${version.base}/bin/scomp, 
                     xmlbeans-${version.base}/bin/validate">
-         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
-         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
          <zipfileset dir="build/private/xmlbeans-${version.base}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" filemode="755"/>
      </zip>
      <tar destfile="build/private/xmlbeans-${version.base}.tgz"
@@ -729,8 +727,6 @@
                     xmlbeans-${version.base}/bin/scomp, 
                     xmlbeans-${version.base}/bin/validate"
           compression="gzip">
-         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
-         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
          <tarfileset dir="build/private/xmlbeans-${version.base}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" mode="755"/>
      </tar>
   </target>
@@ -746,8 +742,6 @@
                 excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
                 test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
        		prefix="xmlbeans-${version.base}" />
-         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
-         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
          <zipfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" filemode="755"/>
      </zip>
      <tar destfile="build/private/xmlbeans-${version.base}-src.tgz"
@@ -758,8 +752,6 @@
        		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
                 test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
        		prefix="xmlbeans-${version.base}"/>
-         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
-         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
          <tarfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" mode="755"/>
      </tar>
   </target>
@@ -785,7 +777,8 @@
       <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/xmlinputstream"/>
       <fileset dir="build/classes/repackage"/>
-      <fileset dir="src/license"/>
+      <fileset file="LICENSE.txt"/>
+      <fileset file="NOTICE.txt"/>
       <manifest>
         <section name="${manifest.name}">
           <attribute name="Comment" value="${manifest.comment}"/>
