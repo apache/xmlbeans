@@ -282,7 +282,7 @@ final class MarshallerImpl
                 " use in marshalling \"" + elementName + "\". " +
                 " using java type: " + javaType +
                 " schema type: " + schema_type +
-                " instance type: " + obj.getClass().getName();
+                " instance type: " + ((obj == null) ? "null" : obj.getClass().getName());
             throw new XmlException(msg);
         }
         return type;
