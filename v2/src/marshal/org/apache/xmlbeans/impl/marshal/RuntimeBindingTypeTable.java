@@ -66,7 +66,6 @@ final class RuntimeBindingTypeTable
     {
         final RuntimeBindingTypeTable tbl =
             new RuntimeBindingTypeTable();
-        //tbl.addBuiltins();
         tbl.addBuiltinTypes();
         BUILTIN_TYPE_MAP = (ConcurrentReaderHashMap)tbl.initedTypeMap;
     }
@@ -306,6 +305,7 @@ final class RuntimeBindingTypeTable
         final TypeConverter collapsing_string_conv =
             CollapseStringTypeConverter.getInstance();
 
+        addBuiltinType("NOTATION", str, collapsing_string_conv);
         addBuiltinType("duration", str, collapsing_string_conv);
         addBuiltinType("gDay", str, collapsing_string_conv);
         addBuiltinType("gMonth", str, collapsing_string_conv);
