@@ -24,9 +24,6 @@ import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-
-import com.sun.javadoc.ClassDoc;
 
 /**
  *
@@ -154,8 +151,11 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
     Class[] inners = src.getDeclaredClasses();
     if (inners != null) {
       for(int i=0; i<inners.length; i++) {
-        if (inners[i].getEnclosingConstructor() != null ||  // skip method anons
-            inners[i].getEnclosingMethod() != null) continue;
+        if (mDelegate != null) {
+          // skip anonymous classes
+          if ((mDelegate.getEnclosingConstructor(inners[i]) != null) ||
+            (mDelegate.getEnclosingMethod(inners[i]) != null)) continue;
+        }
         String simpleName = inners[i].getName();
         int lastDollar = simpleName.lastIndexOf('$');
         simpleName = simpleName.substring(lastDollar+1);

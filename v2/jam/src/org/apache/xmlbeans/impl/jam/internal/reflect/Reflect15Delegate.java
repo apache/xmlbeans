@@ -46,4 +46,9 @@ public interface Reflect15Delegate {
 
   public boolean isEnum(Class clazz);
 
+  public Constructor getEnclosingConstructor(Class clazz);
+
+  public Method getEnclosingMethod(Class clazz);
+  
+
 }
