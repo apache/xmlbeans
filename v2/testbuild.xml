@@ -234,6 +234,14 @@
         ${schema.standalone}/SimpleRailCarrierWaybillInterchange_V40_LX.xsd,
         ${schema.standalone}/TerminalOperationsAndIntermodalRampActivity_V40_LX.xsd,"/>
 
+    <!--Schemas for bvts: Please keep this list up-to-date in order to minimize
+         the build time for checkintests-->
+        <property name="checkin.schema.dirs"
+                  value="${schema.dirs}"/>
+        <property name="checkin.schema.standalone.files"
+                  value="${schema.standalone.files}"/>
+
+
     <property name="schema.compiler" value="org.apache.xmlbeans.impl.tool.SchemaCompiler"/>
     <!-- run scomp on all directories in ${schema.dirs} -->
     <target name="build.schemas" depends="init, copy.schemas, uncompress"
@@ -407,7 +415,6 @@
                             <then>
                                 <echo message="MATCH: ${curval} == ${build.area}"/>
                                 <property name="matchfound" value="true"/>
-                                <echo message="*****MATCHED****"/>
                                 <antcall target="build.area.${build.area}"/>
                             </then>
                         </if>
@@ -418,10 +425,30 @@
             </then>
             <else>
                 <echo message="build.area is not set"/>
-                <!--antcall target="xbean_xpath.jar"/-->
-                <!-- <antcall target="jaxen.jar"/> -->
+                <!--compile checkin schemas only for checkin-->
+                <if>
+                    <or>
+                    <not><isset property="tests.spec"/></not>
+                    <equals arg1="${tests.spec}" arg2="**/checkin/**"/>
+                    </or>
+                    <then>
+                         <antcall target="init"/>
+                         <antcall target="copy.schemas"/>
+                          <antcall target="uncompress"/>
+                         <antcall target="build.test.tools"/>
+                        <antcall target="build.xmlcases"/>
+                          <foreach list="${checkin.schema.dirs}"
+                                   target="scomp.dir"
+                                   param="schemasrc" trim="true"/>
+                           <foreach list="${checkin.schema.standalone.files}"
+                    target="scomp.single"
+                    param="schemasrc" trim="true"/>
+                    </then>
+                    <else>
+                        <antcall target="build.schemas"/>
+                    </else>
+                </if>
 
-                <antcall target="build.schemas"/>
                 <antcall target="build.tests"/>
 
             </else>
@@ -664,7 +691,7 @@
         <property name="excludes.from.compile"
             value="**/extensions/**"/>
          <property name="this.schema.dirs"
-            value="${schema.dirs}"/>
+            value="${checkin.schema.dirs}"/>
          <property name="this.schema.standalone.dirs"
             value="${schema.standalone}/CarLocationMessage_40_LX.xsd"/>
         <property name="testcasejar.update" value="true"/>
