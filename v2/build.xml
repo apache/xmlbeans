@@ -781,9 +781,20 @@
     <ant dir='${jam_root}' target='clean' inheritAll='false' />
     <ant dir='${jam_root}' target='all' inheritAll='false' />
     <move todir="build/classes/jam">
+      <fileset dir="build/${jam_root}/classes" />
+    </move>
+    <delete dir='build/${jam_root}'/>
+
+<!-- build new jam as well -->
+<!-- remove this once jam_old is dead and jam_root is just 'jam' -->
+    <ant dir='jam' target='clean' inheritAll='false' />
+    <ant dir='jam' target='all' inheritAll='false' />
+    <move todir="build/classes/jam">
       <fileset dir="build/jam/classes" />
     </move>
     <delete dir='build/jam'/>
+
+
   </target>
 
   <!-- marshal target =============================================== -->
