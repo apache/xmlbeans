@@ -74,7 +74,7 @@ interface TypeUnmarshaller
      * @param context  contains that state of the document unmarshal process
      * @return  Object representing the converted xml
      */
-    Object unmarshal(UnmarshalContext context);
+    Object unmarshal(UnmarshalContextImpl context);
 
     /**
      * unmarshal the lexical value of an instance of xsd:anySimpleType.
@@ -89,7 +89,7 @@ interface TypeUnmarshaller
      *            by this TypeUnmarshaller.
      */
     Object unmarshalSimpleType(CharSequence lexicalValue,
-                               UnmarshalContext context);
+                               UnmarshalContextImpl context);
 
 
     /**

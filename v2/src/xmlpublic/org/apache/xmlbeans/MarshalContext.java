@@ -54,27 +54,14 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
-
-import org.apache.xmlbeans.XmlException;
-
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
+package org.apache.xmlbeans;
 
 /**
- * Entry point for marshalling java objects to xml.
+ * A MarshalContext object represents the state of an marshal operation
+ * of a given document.  The object is not thread safe and should not be shared
+ * amonst threads.  It can however be shared across different invocations of
+ * Marshaller.marshalType() for a given document.
  */
-public interface Marshaller
+public interface MarshalContext
 {
-    //TODO: REVIEW: throws?  errors?
-    XMLStreamReader marshall(Object obj, NamespaceContext nscontext);
-
-
-    XMLStreamReader marshallType(Object obj,
-                                 QName elementName,
-                                 QName schemaType,
-                                 String javaType,
-                                 MarshalContext context)
-        throws XmlException;
 }

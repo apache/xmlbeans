@@ -103,7 +103,7 @@ final class ByNameRuntimeBindingType
         }
     }
 
-    public Object createIntermediary(UnmarshalContext context)
+    public Object createIntermediary(UnmarshalContextImpl context)
     {
         return ClassLoadingUtils.newInstance(javaClass);
     }
@@ -117,7 +117,7 @@ final class ByNameRuntimeBindingType
     }
 
     public Object getFinalObjectFromIntermediary(Object retval,
-                                                 UnmarshalContext context)
+                                                 UnmarshalContextImpl context)
     {
         return retval;
     }
@@ -244,16 +244,17 @@ final class ByNameRuntimeBindingType
         }
 
 
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context)
+        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContextImpl context)
         {
             final QName xsi_type = context.getXsiType();
 
-            if (xsi_type == null)
-                return unmarshaller;
-            else if (xsi_type == UnmarshalContext.XSI_NIL_MARKER)
+            if (xsi_type != null)
+                return context.getTypeUnmarshaller(xsi_type);
+
+            if (context.hasXsiNil())
                 return NullUnmarshaller.getInstance();
 
-            return context.getTypeUnmarshaller(xsi_type);
+            return unmarshaller;
         }
 
         public void fill(Object inter, Object prop_obj)
@@ -279,13 +280,13 @@ final class ByNameRuntimeBindingType
         }
 
         //non simple type props can throw some runtime exception.
-        public CharSequence getLexical(Object value, MarshalContext context)
+        public CharSequence getLexical(Object value, MarshalContextImpl context)
         {
             assert marshaller != null : "no marhsaller for " + bindingProperty;
             return marshaller.print(value, context);
         }
 
-        public Object getValue(Object parentObject, MarshalContext context)
+        public Object getValue(Object parentObject, MarshalContextImpl context)
         {
             assert parentObject != null;
             assert beanClass.isAssignableFrom(parentObject.getClass()) :
@@ -305,7 +306,7 @@ final class ByNameRuntimeBindingType
         }
 
         //TODO: check isSet methods
-        public boolean isSet(Object parentObject, MarshalContext context)
+        public boolean isSet(Object parentObject, MarshalContextImpl context)
         {
             if (bindingProperty.isNillable())
                 return true;

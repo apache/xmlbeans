@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <n1:load xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xsi:type="n1:MyClass"
     xmlns:n1="java:com.mytest">
+
+
+<!--    xsi:type="n1:MyClass"-->
+
 
     <n1:Myelt>
         <n1:Attrib>432.3432</n1:Attrib>

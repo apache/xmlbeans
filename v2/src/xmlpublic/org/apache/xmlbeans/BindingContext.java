@@ -54,77 +54,35 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 import javax.xml.namespace.NamespaceContext;
-import java.util.Collection;
+import javax.xml.stream.XMLStreamReader;
 
-public final class MarshalContext
+/**
+ * A BindingContext contains the runtime information necessary to marshal
+ * or unmarshal a set of types.
+ *
+ * The BindingContext is used to create Marshaller and Unmarshaller objects
+ * that can be used to convert to and from java objects and xml documents.
+ */
+public interface BindingContext
 {
-    private final Collection errors;
-    private final BindingLoader loader;
-    private final RuntimeBindingTypeTable typeTable;
-    private final ScopedNamespaceContext namespaceContext;
-    private int prefixCnt = 0;
+    Unmarshaller createUnmarshaller()
+        throws XmlException;
 
-    private static final String NSPREFIX = "n";
+    UnmarshalContext createUnmarshallContext(XMLStreamReader reader)
+        throws XmlException;
 
-    MarshalContext(NamespaceContext root_nsctx,
-                   BindingLoader loader,
-                   RuntimeBindingTypeTable typeTable,
-                   Collection errors)
-    {
-        this.namespaceContext = new ScopedNamespaceContext(root_nsctx);
-        this.loader = loader;
-        this.typeTable = typeTable;
-        this.errors = errors;
+    UnmarshalContext createUnmarshallContext()
+        throws XmlException;
 
-        namespaceContext.openScope(); //TODO: verify this
-    }
 
-    Collection getErrorCollection()
-    {
-        return errors;
-    }
+    Marshaller createMarshaller()
+        throws XmlException;
 
-    BindingLoader getLoader()
-    {
-        return loader;
-    }
+    MarshalContext createMarshallContext(NamespaceContext namespaceContext)
+        throws XmlException;
 
-    RuntimeBindingTypeTable getTypeTable()
-    {
-        return typeTable;
-    }
-
-    ScopedNamespaceContext getNamespaceContext()
-    {
-        return namespaceContext;
-    }
-
-    String ensurePrefix(String uri)
-    {
-        String prefix = namespaceContext.getPrefix(uri);
-        if (prefix == null) {
-            prefix = bindNextPrefix(uri);
-        }
-        assert prefix != null;
-        return prefix;
-    }
-
-    private String bindNextPrefix(final String uri)
-    {
-        assert uri != null;
-        String testuri;
-        String prefix;
-        do {
-            prefix = NSPREFIX + (++prefixCnt);
-            testuri = namespaceContext.getNamespaceURI(prefix);
-        } while(testuri != null);
-        assert prefix != null;
-        namespaceContext.bindNamespace(prefix,  uri);
-        return prefix;
-    }
 }

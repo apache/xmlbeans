@@ -56,12 +56,93 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.BindingContext;
+import org.apache.xmlbeans.MarshalContext;
+import org.apache.xmlbeans.Marshaller;
+import org.apache.xmlbeans.UnmarshalContext;
+import org.apache.xmlbeans.Unmarshaller;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.stream.XMLStreamReader;
+import java.util.ArrayList;
+import java.util.Collection;
 
 /**
- * A TypeMarshaller knows how to marshall a java object into xml.
+ * Main entry point into marshalling framework.
+ * Use the BindingContextFactory to create one
  */
-interface TypeMarshaller
+class BindingContextImpl
+    implements BindingContext
 {
-    //non simple types can throw a runtime exception
-    CharSequence print(Object value, MarshalContextImpl context);
+
+    private final BindingLoader bindingLoader;
+    private final RuntimeBindingTypeTable typeTable;
+
+    /* package protected -- use the factory */
+    BindingContextImpl(BindingLoader bindingLoader,
+                       RuntimeBindingTypeTable typeTable)
+    {
+        this.bindingLoader = bindingLoader;
+        this.typeTable = typeTable;
+    }
+
+
+    public Unmarshaller createUnmarshaller()
+        throws XmlException
+    {
+        return new UnmarshallerImpl(bindingLoader, typeTable);
+    }
+
+    public UnmarshalContext createUnmarshallContext(XMLStreamReader reader)
+        throws XmlException
+
+    {
+        final ArrayList errors = new ArrayList();
+        final UnmarshalContextImpl uc =
+            new UnmarshalContextImpl(reader, bindingLoader, typeTable, errors);
+        checkErrors(errors, "error creating UnmarshalContext");
+        return uc;
+    }
+
+    public UnmarshalContext createUnmarshallContext()
+        throws XmlException
+
+    {
+        final ArrayList errors = new ArrayList();
+        final UnmarshalContextImpl unmarshalContext =
+            new UnmarshalContextImpl(bindingLoader, typeTable, errors);
+        checkErrors(errors, "error creating UnmarshalContext");
+        return unmarshalContext;
+    }
+
+
+    public Marshaller createMarshaller()
+
+        throws XmlException
+    {
+        return new MarshallerImpl(bindingLoader, typeTable);
+    }
+
+    public MarshalContext createMarshallContext(NamespaceContext namespaceContext)
+        throws XmlException
+
+    {
+        final ArrayList errors = new ArrayList();
+        final MarshalContextImpl mc = new MarshalContextImpl(namespaceContext,
+                                                             bindingLoader,
+                                                             typeTable, errors);
+        checkErrors(errors, "error creating MarshalContext");
+        return mc;
+    }
+
+
+    static void checkErrors(Collection errors, String err_msg)
+        throws XmlException
+    {
+        if (errors.isEmpty()) return;
+        throw new XmlException(err_msg, null, errors);
+    }
+
 }

@@ -57,7 +57,6 @@
 package org.apache.xmlbeans.impl.marshal;
 
 
-
 /**
  * A special singleton version of RuntimeBindingTypeTable that knows about
  * all the builtin types that we know how to deal with.

@@ -56,15 +56,39 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * caching factory for runtime binding types
+ *
+ * currently NOT thread safe (by design)
+ */
+
 class RuntimeTypeFactory
 {
-    public static RuntimeBindingType createRuntimeType(BindingType type)
-    {
-        //TODO: consider syncronized cache of these objects
+    private final Map typeMap = new HashMap();
 
+    public RuntimeBindingType createRuntimeType(BindingType type,
+                                                RuntimeBindingTypeTable type_table,
+                                                BindingLoader binding_loader)
+    {
+        RuntimeBindingType rtype = (RuntimeBindingType)typeMap.get(type);
+        if (rtype == null) {
+            rtype = allocateType(type);
+            typeMap.put(type, rtype);
+            rtype.initialize(type_table, binding_loader);
+        }
+        assert rtype != null;
+        return rtype;
+    }
+
+    private static RuntimeBindingType allocateType(BindingType type)
+    {
         //TODO: fix instanceof nastiness
         if (type instanceof ByNameBean) {
             return new ByNameRuntimeBindingType((ByNameBean)type);

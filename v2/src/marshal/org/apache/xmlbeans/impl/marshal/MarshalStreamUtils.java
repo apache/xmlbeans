@@ -69,6 +69,9 @@ final class MarshalStreamUtils
     static final String XSI_NS = "http://www.w3.org/2001/XMLSchema-instance";
     static final String XSI_TYPE_ATTR = "type";
     static final String XSI_NIL_ATTR = "nil";
+    static final String XSI_SCHEMA_LOCATION_ATTR = "schemaLocation";
+    static final String XSI_NO_NS_SCHEMA_LOCATION_ATTR =
+        "noNamespaceSchemaLocation";
 
     static final QName XSI_NIL_QNAME = new QName(XSI_NS, XSI_NIL_ATTR);
 
@@ -133,20 +136,39 @@ final class MarshalStreamUtils
 
     }
 
+    static void getXsiAttributes(XsiAttributeHolder holder,
+                                 XMLStreamReader reader,
+                                 Collection errors)
+    {
+        assert reader.isStartElement();
 
+        holder.reset();
 
-    /**
-     * special marker qname object used to indicate that we noticed
-     * an xsi:nil="true" value while we were looking for an xsi:type attribute
-     *
-     * note that such a value would never be returned by getXsiType since
-     * it is illegal to declare types in the instance namespace.
-     */
-    static QName XSI_NIL_MARKER = new QName(XSI_NS, "unused");
+        final int att_cnt = reader.getAttributeCount();
+        for (int att_idx = 0; att_idx < att_cnt; att_idx++) {
+            if (!XSI_NS.equals(reader.getAttributeNamespace(att_idx)))
+                continue;
 
-    //TODO: REVIEW: reconsider this approach
-    //and what about the other xsi attributes?
-    static QName getXsiType(final XMLStreamReader reader, Collection errors)
+            final String lname = reader.getAttributeLocalName(att_idx);
+            if (XSI_TYPE_ATTR.equals(lname)) {
+                final String type_str = reader.getAttributeValue(att_idx);
+                holder.xsiType =
+                    XsTypeConverter.lexQName(type_str, errors,
+                                             reader.getNamespaceContext());
+            } else if (XSI_NIL_ATTR.equals(lname)) {
+                final String nil_lex = reader.getAttributeValue(att_idx);
+                holder.hasXsiNil =
+                    XsTypeConverter.lexBoolean(nil_lex, errors);
+            } else if (XSI_SCHEMA_LOCATION_ATTR.equals(lname)) {
+                holder.schemaLocation = reader.getAttributeValue(att_idx);
+            } else if (XSI_NO_NS_SCHEMA_LOCATION_ATTR.equals(lname)) {
+                holder.noNamespaceSchemaLocation =
+                    reader.getAttributeValue(att_idx);
+            }
+        }
+    }
+
+    static QName getXsiType(XMLStreamReader reader, Collection errors)
     {
         assert reader.isStartElement();
 
@@ -156,11 +178,7 @@ final class MarshalStreamUtils
                 continue;
 
             final String lname = reader.getAttributeLocalName(att_idx);
-            if (XSI_NIL_ATTR.equals(lname)) {
-                final String att_val = reader.getAttributeValue(att_idx);
-                boolean is_nil = XsTypeConverter.lexBoolean(att_val, errors);
-                if (is_nil) return XSI_NIL_MARKER;
-            } else if (XSI_TYPE_ATTR.equals(lname)) {
+            if (XSI_TYPE_ATTR.equals(lname)) {
                 final String type_str = reader.getAttributeValue(att_idx);
                 return XsTypeConverter.lexQName(type_str, errors,
                                                 reader.getNamespaceContext());
@@ -264,7 +282,6 @@ final class MarshalStreamUtils
                                        Collection errors)
     {
         final String lname = reader.getAttributeLocalName(att_idx);
-        System.out.println("lname = " + lname);
         if (!XSI_NIL_ATTR.equals(lname))
             return false;
 
@@ -273,6 +290,16 @@ final class MarshalStreamUtils
 
         final String att_val = reader.getAttributeValue(att_idx);
         return XsTypeConverter.lexBoolean(att_val, errors);
+    }
+
+    public static boolean isXsiNilTrue(XMLStreamReader reader,
+                                       Collection errors)
+    {
+        assert reader.isStartElement();
+        for (int i = 0, len = reader.getAttributeCount(); i < len; i++) {
+            if (isXsiNilTrue(reader, i, errors)) return true;
+        }
+        return false;
     }
 
 

@@ -57,21 +57,31 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
 abstract class XmlTypeVisitor
 {
-    protected final Object parentObject;
-    protected final RuntimeBindingProperty bindingProperty;
-    protected final MarshalContext marshalContext;
+    private final Object parentObject;
+    private final RuntimeBindingProperty bindingProperty;
+    protected final MarshalContextImpl marshalContext;
 
     XmlTypeVisitor(Object parentObject,
                    RuntimeBindingProperty property,
-                   MarshalContext context)
+                   MarshalContextImpl context)
     {
         this.parentObject = parentObject;
         this.bindingProperty = property;
         this.marshalContext = context;
+    }
+
+
+    protected Object getParentObject()
+    {
+        return parentObject;
+    }
+
+    protected RuntimeBindingProperty getBindingProperty()
+    {
+        return bindingProperty;
     }
 
 
@@ -94,7 +104,8 @@ abstract class XmlTypeVisitor
     protected abstract QName getName();
 
     //guaranteed to be called before any getAttribute* or getNamespace* method
-    protected void initAttributes() {
+    protected void initAttributes()
+    {
     }
 
     protected abstract int getAttributeCount();

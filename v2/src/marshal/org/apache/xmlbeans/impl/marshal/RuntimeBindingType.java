@@ -75,10 +75,10 @@ interface RuntimeBindingType
     void initialize(RuntimeBindingTypeTable typeTable,
                     BindingLoader bindingLoader);
 
-    Object createIntermediary(UnmarshalContext context);
+    Object createIntermediary(UnmarshalContextImpl context);
 
     Object getFinalObjectFromIntermediary(Object retval,
-                                          UnmarshalContext context);
+                                          UnmarshalContextImpl context);
 
     BindingType getType();
 

@@ -56,13 +56,15 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.MarshalContext;
+import org.apache.xmlbeans.Marshaller;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
-import org.apache.xmlbeans.XmlRuntimeException;
-import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -89,6 +91,7 @@ class MarshallerImpl
 
     public XMLStreamReader marshall(Object obj,
                                     NamespaceContext nscontext)
+        throws XmlException
     {
         final JavaName jname = JavaName.forString(obj.getClass().getName());
         BindingTypeName root_elem_btype = bindingLoader.lookupElementFor(jname);
@@ -109,10 +112,12 @@ class MarshallerImpl
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(btype, elem_qn);
 
         final ArrayList errors = new ArrayList();
-        MarshalContext ctx = new MarshalContext(nscontext, bindingLoader,
-                                                typeTable, errors);
+        MarshalContextImpl ctx = new MarshalContextImpl(nscontext, bindingLoader,
+                                                        typeTable, errors);
 
-        return new MarshalResult(prop, obj, ctx);
+        final MarshalResult marshalResult = new MarshalResult(prop, obj, ctx);
+        BindingContextImpl.checkErrors(errors, "marshalling error");
+        return marshalResult;
     }
 
     public XMLStreamReader marshallType(Object obj,
@@ -122,11 +127,15 @@ class MarshallerImpl
                                         MarshalContext context)
         throws XmlException
     {
-        //TODO: assert that the passed in context has the same loader and typetable as we do.
-        //TODO: REVIEW: should we move this method to the context?
+        MarshalContextImpl our_context = (MarshalContextImpl)context;
+
+        //TODO: REVIEW: this seems odd, should we move this method to the context?
+        assert bindingLoader.equals(our_context.getLoader());
+        assert typeTable.equals(our_context.getTypeTable());
+
         BindingType type = determineBindingType(obj, schemaType, javaType);
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
-        return new MarshalResult(prop, obj, context);
+        return new MarshalResult(prop, obj, our_context);
     }
 
     private BindingType determineBindingType(Object obj,

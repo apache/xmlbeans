@@ -1,5 +1,8 @@
 package com.mytest;
 
+/**
+ *  @xsdgen:complexType.rootElement load
+ */
 public class MyClass {
 
 
@@ -16,6 +19,7 @@ public class MyClass {
     {
         this.myelt = myelt;
     }
+
 
     public String getMyatt()
     {

@@ -63,7 +63,9 @@ final class EmptyLocation
 {
     private static final Location INSTANCE = new EmptyLocation();
 
-    private EmptyLocation() {}
+    private EmptyLocation()
+    {
+    }
 
     public static Location getInstance()
     {

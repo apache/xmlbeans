@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
+import org.apache.xmlbeans.BindingContext;
+import org.apache.xmlbeans.BindingContextFactory;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
@@ -64,7 +67,7 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
-import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
+import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 
 import java.io.File;
 import java.io.IOException;
@@ -74,17 +77,17 @@ import java.util.Iterator;
 /**
  * creates BindingContext objects from various inputs.
  */
-public class BindingContextFactory
+public class BindingContextFactoryImpl
+    extends BindingContextFactory
 {
-
-    public static BindingContext createBindingContext()
+    public BindingContext createBindingContext()
     {
         BindingFile empty = new BindingFile();
         return createBindingContext(empty);
     }
 
 
-    public static BindingContext createBindingContext(InputStream bindingConfig)
+    public BindingContext createBindingContext(InputStream bindingConfig)
         throws IOException, XmlException
     {
         BindingConfigDocument doc =
@@ -92,7 +95,7 @@ public class BindingContextFactory
         return createBindingContext(doc);
     }
 
-    public static BindingContext createBindingContext(File bindingConfig)
+    public BindingContext createBindingContext(File bindingConfig)
         throws IOException, XmlException
     {
         BindingConfigDocument doc =
@@ -100,18 +103,19 @@ public class BindingContextFactory
         return createBindingContext(doc);
     }
 
-    public static BindingContext createBindingContext(BindingConfigDocument doc)
+    public static BindingContextImpl createBindingContext(BindingConfigDocument doc)
     {
         BindingFile bf = BindingFile.forDoc(doc);
         return createBindingContext(bf);
     }
 
-    private static BindingContext createBindingContext(BindingFile bf)
+
+    private static BindingContextImpl createBindingContext(BindingFile bf)
     {
         BindingLoader bindingLoader = buildBindingLoader(bf);
         RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bf, bindingLoader);
 
-        return new BindingContext(bindingLoader, tbl);
+        return new BindingContextImpl(bindingLoader, tbl);
     }
 
     private static BindingLoader buildBindingLoader(BindingFile bf)
@@ -128,6 +132,8 @@ public class BindingContextFactory
 
         for (Iterator itr = bf.bindingTypes().iterator(); itr.hasNext();) {
             BindingType type = (BindingType)itr.next();
+
+            if (type instanceof SimpleDocumentBinding) continue;
 
             TypeUnmarshaller um = createTypeUnmarshaller(type, loader, tbl);
             tbl.putTypeUnmarshaller(type, um);

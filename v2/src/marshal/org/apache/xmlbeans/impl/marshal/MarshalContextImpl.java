@@ -56,12 +56,87 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.MarshalContext;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
-/**
- * A TypeMarshaller knows how to marshall a java object into xml.
- */
-interface TypeMarshaller
+import javax.xml.namespace.NamespaceContext;
+import java.util.Collection;
+
+final class MarshalContextImpl
+    implements MarshalContext
 {
-    //non simple types can throw a runtime exception
-    CharSequence print(Object value, MarshalContextImpl context);
+    private final Collection errors;
+    private final BindingLoader loader;
+    private final RuntimeBindingTypeTable typeTable;
+    private final ScopedNamespaceContext namespaceContext;
+    private final RuntimeTypeFactory runtimeTypeFactory =
+        new RuntimeTypeFactory();
+
+    private int prefixCnt = 0;
+
+    private static final String NSPREFIX = "n";
+
+    MarshalContextImpl(NamespaceContext root_nsctx,
+                       BindingLoader loader,
+                       RuntimeBindingTypeTable typeTable,
+                       Collection errors)
+    {
+        this.namespaceContext = new ScopedNamespaceContext(root_nsctx);
+        this.loader = loader;
+        this.typeTable = typeTable;
+        this.errors = errors;
+
+        namespaceContext.openScope(); //TODO: verify this
+    }
+
+    Collection getErrorCollection()
+    {
+        return errors;
+    }
+
+    BindingLoader getLoader()
+    {
+        return loader;
+    }
+
+    RuntimeBindingTypeTable getTypeTable()
+    {
+        return typeTable;
+    }
+
+    ScopedNamespaceContext getNamespaceContext()
+    {
+        return namespaceContext;
+    }
+
+    RuntimeBindingType createRuntimeBindingType(BindingType type)
+    {
+        return runtimeTypeFactory.createRuntimeType(type, typeTable, loader);
+    }
+
+    String ensurePrefix(String uri)
+    {
+        String prefix = namespaceContext.getPrefix(uri);
+        if (prefix == null) {
+            prefix = bindNextPrefix(uri);
+        }
+        assert prefix != null;
+        return prefix;
+    }
+
+    private String bindNextPrefix(final String uri)
+    {
+        assert uri != null;
+        String testuri;
+        String prefix;
+        do {
+            prefix = NSPREFIX + (++prefixCnt);
+            testuri = namespaceContext.getNamespaceURI(prefix);
+        }
+        while (testuri != null);
+        assert prefix != null;
+        namespaceContext.bindNamespace(prefix, uri);
+        return prefix;
+    }
 }

@@ -64,20 +64,20 @@ import javax.xml.namespace.QName;
 interface RuntimeBindingProperty
 {
     BindingType getType();
-    
+
     QName getName();
 
     boolean isAttribute();
 
-    TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context);
+    TypeUnmarshaller getTypeUnmarshaller(UnmarshalContextImpl context);
 
     void fill(Object inter, Object prop_obj);
 
     //non simple type props can throw some runtime exception.
-    CharSequence getLexical(Object parent, MarshalContext context);
+    CharSequence getLexical(Object parent, MarshalContextImpl context);
 
-    Object getValue(Object parentObject, MarshalContext context);
-    
-    boolean isSet(Object parentObject, MarshalContext context);
+    Object getValue(Object parentObject, MarshalContextImpl context);
+
+    boolean isSet(Object parentObject, MarshalContextImpl context);
 
 }

@@ -56,12 +56,15 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.UnmarshalContext;
+import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.XmlName;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
+import org.apache.xmlbeans.impl.binding.bts.XmlName;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -91,8 +94,8 @@ class UnmarshallerImpl
     public Object unmarshal(XMLStreamReader reader)
         throws XmlException
     {
-        UnmarshalContext context = createUnmarshallContext(reader,
-                                                           new ArrayList());
+        UnmarshalContextImpl context = createUnmarshallContext(reader,
+                                                               new ArrayList());
 
         advanceToFirstItemOfInterest(reader);
 
@@ -112,9 +115,14 @@ class UnmarshallerImpl
             throw new XmlException("failed to lookup unmarshaller for " + bindingType);
         }
 
-        Object type_instance = um.unmarshal(context);
+        final UnmarshalContextImpl our_context = (UnmarshalContextImpl)context;
+        if (!our_context.hasXmlStream()) {
+            throw new XmlException("UnmarshalContext must have a" +
+                                   " non null XMLStreamReader");
+        }
+        Object type_instance = um.unmarshal(our_context);
 
-        final Collection errors = context.getErrorCollection();
+        final Collection errors = our_context.getErrorCollection();
         if (!errors.isEmpty()) {
             //TODO: review this ctor
             System.out.println("errors = " + errors);
@@ -131,8 +139,6 @@ class UnmarshallerImpl
                                  UnmarshalContext context)
         throws XmlException
     {
-        assert context.getXmlStream().isStartElement();
-
         BindingType btype = determineBindingType(schemaType, javaType);
         if (btype == null) {
             final String msg = "unable to find binding type for " +
@@ -204,39 +210,47 @@ class UnmarshallerImpl
         }
     }
 
-    private BindingType determineRootType(UnmarshalContext context)
+    private BindingType determineRootType(UnmarshalContextImpl context)
         throws XmlException
     {
-        //TODO: fix this temporary hack
-        //to get started we're relying on xsi:type being on the root element
-        //to avoid requiring the schema
-
         QName xsi_type = context.getXsiType();
-        if (xsi_type == UnmarshalContext.XSI_NIL_MARKER) {
-            throw new AssertionError("xsi:nil broken on root element for now");
-        }
 
         if (xsi_type == null) {
-            throw new AssertionError("xsi:type is required for now");
+            QName root_elem_qname = new QName(context.getNamespaceURI(),
+                                              context.getLocalName());
+            final XmlName type_name = XmlName.forGlobalName(XmlName.ELEMENT, root_elem_qname);
+            final BindingType doc_binding_type = getPojoBindingType(type_name);
+            SimpleDocumentBinding sd = (SimpleDocumentBinding)doc_binding_type;
+            return getPojoBindingType(sd.getTypeOfElement());
+        } else {
+            final XmlName type_name = XmlName.forTypeNamed(xsi_type);
+            final BindingType pojoBindingType = getPojoBindingType(type_name);
+            assert !(pojoBindingType instanceof SimpleDocumentBinding);
+            return pojoBindingType;
+        }
+    }
+
+    private BindingType getPojoBindingType(final XmlName type_name) throws XmlException
+    {
+        final BindingTypeName btName = bindingLoader.lookupPojoFor(type_name);
+        if (btName == null) {
+            throw new XmlException("failed to load BindingTypeName for " + type_name);
         }
 
-        XmlName type_name = XmlName.forTypeNamed(xsi_type);
-
-        BindingType bt =
-            bindingLoader.getBindingType(bindingLoader.lookupPojoFor(type_name));
+        BindingType bt = bindingLoader.getBindingType(btName);
 
         if (bt == null) {
-            throw new XmlException("failed to load BindingType for XmlName: " +
-                                   type_name);
+            throw new XmlException("failed to load BindingType for " + btName);
         }
 
         return bt;
     }
 
-    private UnmarshalContext createUnmarshallContext(XMLStreamReader reader,
-                                                     Collection errors)
+
+    private UnmarshalContextImpl createUnmarshallContext(XMLStreamReader reader,
+                                                         Collection errors)
     {
-        return new UnmarshalContext(reader, bindingLoader, typeTable, errors);
+        return new UnmarshalContextImpl(reader, bindingLoader, typeTable, errors);
     }
 
 
