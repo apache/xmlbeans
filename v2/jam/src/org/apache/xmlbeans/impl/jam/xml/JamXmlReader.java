@@ -36,6 +36,8 @@ import java.io.Reader;
 import java.io.StringWriter;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
+import java.util.ArrayList;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -206,13 +208,20 @@ import java.net.URISyntaxException;
         nextElement();
         String name = assertCurrentString(NAME);
         String type = assertCurrentString(TYPE);
-        String value = assertCurrentString(VALUE);
         JClass jclass = mContext.getClassLoader().loadClass(type);
         if (jclass.isArrayType()) {
-          //FIXME
-          throw new IllegalStateException("Array types in XML currently NYI");
+          Collection list = new ArrayList();
+          while(VALUE.equals(getElementName())) {
+            String value = assertCurrentString(VALUE);
+            list.add(value);
+          }
+          String[] vals = new String[list.size()];
+          list.toArray(vals);
+          ann.setSimpleValue(name,vals,jclass);
+        } else {
+          String value = assertCurrentString(VALUE);
+          ann.setSimpleValue(name,value, jclass);
         }
-        ann.setSimpleValue(name,value, jclass);//FIXME
         assertEnd(ANNOTATIONVALUE);
         nextElement();
       }

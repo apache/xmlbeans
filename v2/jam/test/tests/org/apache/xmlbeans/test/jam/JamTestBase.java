@@ -97,8 +97,8 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
-  private static final boolean CONTINUE_ON_COMPARE_FAIL = true;
-  private static final boolean WRITE_RESULT_ON_FAIL = true;
+  private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
+  private static final boolean WRITE_RESULT_ON_FAIL = false;
 
   private static final String WRITE_RESULT_PREFIX = "result-";
 

@@ -36,5 +36,13 @@ package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
 
   }
 )
+@EmployeeAnnotation(
+  firstName       = "Joe",
+  lastName        = "Torre",
+  address = @AddressAnnotation(street="567 street", city="Cooperstown",zip=123456),
+  specialDigits={8,6,7,5,3,0,9},
+  active=Constants.Bool.TRUE,
+  aka={"joe t","joe","bleh"}
+)
 public class NestedAnnotatedClass {
 }

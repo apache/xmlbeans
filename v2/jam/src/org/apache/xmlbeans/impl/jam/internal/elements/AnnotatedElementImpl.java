@@ -155,7 +155,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     // if one doesn't exist yet, then create the first one
     if (getMutableAnnotation(annName) == null) {
       if (mName2Annotation == null) mName2Annotation = new HashMap();
-      mName2Annotation.put(ann.getSimpleName(),ann);
+      mName2Annotation.put(annName,ann);
     }
     return ann;
   }
