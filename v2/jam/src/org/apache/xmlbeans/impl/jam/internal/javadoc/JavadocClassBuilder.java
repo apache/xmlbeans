@@ -36,7 +36,8 @@ public class JavadocClassBuilder extends JamClassBuilder {
   public static final String ARGS_PROPERTY = "javadoc.args";
 
   private static boolean VERBOSE = false;
-  private static final String JAVA15_EXTRACTOR = 
+
+  private static final String JAVA15_EXTRACTOR =
     "org.apache.xmlbeans.impl.jam.internal.java15.Javadoc15AnnotationExtractor";
 
   // ========================================================================
