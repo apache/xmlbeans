@@ -126,7 +126,7 @@ public class Java2Schema extends BindingCompiler {
    * onto the input JClass set.
    */
   public void setAnnotationLoader(JAnnotationLoader jal) {
-    if (mAnnotationLoader == null) throw new IllegalArgumentException("null jal");
+    if (jal == null) throw new IllegalArgumentException("null jal");
     mAnnotationLoader = jal;
     //FIXME this is a gross quick hack to get the external annotations
     //working.  long term, we need to extend jam to allow a jam facade to be
