@@ -1,16 +1,16 @@
-XMLBeans v1.0.2
+XMLBeans v1.0.3
 
 Welcome to XmlBeans!
 
-Apache XMLBeans is an effort undergoing incubation at the 
-Apache Software Foundation (ASF), sponsored by the XML project. 
-Incubation is required of all newly accepted projects until a 
-further review indicates that the infrastructure, communications, 
-and decision making process have stabilized in a manner consistent 
-with other successful ASF projects. While incubation status is not 
-necessarily a reflection of the completeness or stability of the 
-code, it does indicate that the project has yet to be fully 
-endorsed by the ASF. 
+Apache XMLBeans is an effort undergoing incubation at the
+Apache Software Foundation (ASF), sponsored by the XML project.
+Incubation is required of all newly accepted projects until a
+further review indicates that the infrastructure, communications,
+and decision making process have stabilized in a manner consistent
+with other successful ASF projects. While incubation status is not
+necessarily a reflection of the completeness or stability of the
+code, it does indicate that the project has yet to be fully
+endorsed by the ASF.
 
 
 If you've come here to learn more about XmlBeans, here are a few
@@ -20,7 +20,7 @@ starting points:
 
 
 (1) Docs
-    
+
 If you "ant docs" then you can get javadocs built for a bunch
 of our stuff. In particular, look at the org.apache.xmlbeans package,
 starting with XmlObject and XmlCursor.
@@ -37,7 +37,7 @@ by sending a blank mail to xmlbeans-user-subscribe@xml.apache.org).
 (2) Build
 
 The default target, aka "ant default", builds everything you need
-to test and run. 
+to test and run.
 
 
 Other targets:
