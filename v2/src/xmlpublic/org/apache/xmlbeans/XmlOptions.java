@@ -295,6 +295,17 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * This option controls whether saving saves out the XML
+     * declaration (<?xml ... ?>
+     * 
+     * @see XmlTokenSource#save(java.io.File, XmlOptions)
+     * @see XmlTokenSource#xmlText(XmlOptions)
+     */
+    public XmlOptions setSaveNoXmlDecl () { 
+        return set( SAVE_NO_XML_DECL ); 
+    }
+
+    /**
      * If this option is set, the document element is replaced with the
      * given QName when parsing.  If null is supplied, the document element
      * is removed.
@@ -621,6 +632,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String SAVE_OUTER                      =  "SAVE_OUTER";
     /** @exclude */
     public static final String SAVE_INNER                      =  "SAVE_INNER";
+    /** @exclude */
+    public static final String SAVE_NO_XML_DECL                =  "SAVE_NO_XML_DECL";
     
     /** @exclude */
     public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   =  "LOAD_REPLACE_DOCUMENT_ELEMENT";

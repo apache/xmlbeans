@@ -850,7 +850,10 @@ abstract class Saver
         {
             super( c, options );
 
-            if (encoding != null)
+            boolean noSaveDecl =
+                options != null && options.hasOption( XmlOptions.SAVE_NO_XML_DECL );
+            
+            if (encoding != null && !noSaveDecl)
             {
                 XmlDocumentProperties props = Locale.getDocProps( c, false );
                 
