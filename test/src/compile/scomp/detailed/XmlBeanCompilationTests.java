@@ -38,7 +38,6 @@ import javax.xml.namespace.QName;
  */
 public class XmlBeanCompilationTests extends CompileTestBase
 {
-    String P = File.separator;
     public List xm_errors;
     public XmlOptions xm_opts;
     Vector expBinType;
@@ -89,9 +88,8 @@ public class XmlBeanCompilationTests extends CompileTestBase
     {
         TestFiler f = new TestFiler();
         //initialize all of the values
-        String extCaseDir = CompileCommon.caseroot + P +
-                "xbean" + P + "extensions" + P;
-        String extSrcDir = CompileCommon.caseroot + P +
+        String extCaseDir = XBEAN_CASE_ROOT + P + "extensions" + P;
+        String extSrcDir = CASEROOT + P +
                 ".." + P + "src" + P + "xmlobject" + P + "extensions" + P;
         File[] cPath = CompileTestBase.getClassPath();
         String dir = extCaseDir + P + "interfaceFeature" + P + "averageCase";
@@ -273,7 +271,7 @@ public class XmlBeanCompilationTests extends CompileTestBase
     }
 
 
-    
+
 
 
 

@@ -98,7 +98,7 @@ public class TestReportMergeUtility
 
         // runid
         String dateFormatStr = "_yy_MMM_dd_HH_mm_ss_SS";
-        String dateStr = new SimpleDateFormat(dateFormatStr).format(new Date());
+        String dateStr = new SimpleDateFormat(dateFormatStr).format(new java.util.Date());
         String defRunId = System.getProperty("user.name").toUpperCase() + dateStr;
         String runId = System.getProperty("RUNID", defRunId);
         log.setRunid(runId);

@@ -22,6 +22,7 @@ import java.io.OutputStream;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.Vector;
+import common.Common;
 
 /**
  *
@@ -38,7 +39,7 @@ public class TestFiler implements Filer
 
     public TestFiler()
     {
-        String base = new File("." + P + "build" + P + "test" + P + "output").getAbsolutePath() +
+        String base = new File(Common.OUTPUTROOT).getAbsolutePath() +
                 P + "filer" + P;
         String sClass = base + "classes";
         String sSrc = base + "src";

@@ -186,6 +186,8 @@
          <!--needed for xquery-->
         <include name="**/*.xq"/>
         <include name="**/*.xsddonotcompile"/>
+        <include name="**/*.xsd_"/>
+        <include name="**/*.jar"/>
         <include name="**/*.txt"/>
         <include name="**/*.xml"/>
         <include name="**/*.xsdconfig"/>
@@ -501,7 +503,7 @@
 
                 <antcall target="build.schemas"/>
                 <antcall target="build.tests"/>
-		
+
             </else>
         </if>
 	<antcall target="build.xqcases"/>
@@ -531,7 +533,7 @@
             basedir="${build.dir.test.tools}" update="false"
             excludes="**/*.java"/>
     </target>
-    
+
     <target name="check.testreport">
         <condition property="check.testreport.exists">
             <available file="${build.dir.test.lib}/TestReport.xsd.jar"/>

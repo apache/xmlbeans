@@ -177,7 +177,7 @@ public class XmlResultFormatter implements JUnitResultFormatter {
             testUnit = fullTestName;
         String testMethod = ((TestCase) test).getName();
         // Get the last token from testUnit for the logical name
-        startindex = testUnit.lastIndexOf(".");        
+        startindex = testUnit.lastIndexOf(".");
         String baseClass = testUnit.substring(startindex+1);
 
         // update the extra fields of TestRecord
@@ -286,7 +286,7 @@ public class XmlResultFormatter implements JUnitResultFormatter {
         // Set the logical test name... 'Class.Methodname'
         tr.setLogicalname(rec.getTestLogicalName());
         // Set the test Start time as a String
-        tr.setExectime(new Date(rec.getStartTime()).toString());
+        tr.setExectime(new java.util.Date(rec.getStartTime()).toString());
         String status = rec.getStatusString();
         // Set the test result
         if (status.equals("SUCCESS"))

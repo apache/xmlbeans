@@ -159,8 +159,7 @@ public class JiraRegression50_100Test extends JiraTestBase
     public void test_jira_XmlBeans57() throws Exception
     {
         String P = File.separator;
-        String outputDir = fwroot + P + "build" +
-                P + "test" + P + "output" + P + "dav";
+        String outputDir = OUTPUTROOT + P + "dav";
 
         File srcDir = new File(outputDir + P + "src");
         srcDir.mkdirs();

@@ -402,7 +402,7 @@ public class XmlResultFormatterImpl implements JUnitXResultFormatter
 
         // runid
         String dateFormatStr = "_yy_MMM_dd_HH_mm_ss_SS";
-        String dateStr = new SimpleDateFormat(dateFormatStr).format(new Date(startTime));
+        String dateStr = new SimpleDateFormat(dateFormatStr).format(new java.util.Date(startTime));
         String defRunId = System.getProperty("user.name").toUpperCase() + dateStr;
         String runId = System.getProperty("RUNID", defRunId);
         log.setRunid(runId);
@@ -449,7 +449,7 @@ public class XmlResultFormatterImpl implements JUnitXResultFormatter
         TestLogDocument.TestLog.HeaderInfo hdrInfo = log.addNewHeaderInfo();
         hdrInfo.setResultcount(Integer.toString(testCount));
         hdrInfo.setChecksum(Integer.toString(testCount));
-        hdrInfo.setExecdate(new Date(startTime).toString());
+        hdrInfo.setExecdate(new java.util.Date(startTime).toString());
         hdrInfo.setExecaccount(System.getProperty("user.name"));
 
         // Add test-results
@@ -489,7 +489,7 @@ public class XmlResultFormatterImpl implements JUnitXResultFormatter
         tr.setLogicalname(rec.getTestLogicalName());
 
         // Set the test Start time as a String
-        tr.setExectime(new Date(rec.getStartTime()).toString());
+        tr.setExectime(new java.util.Date(rec.getStartTime()).toString());
 
         String status = rec.getStatusString();
 
@@ -502,7 +502,7 @@ public class XmlResultFormatterImpl implements JUnitXResultFormatter
             tr.setResult(TestResultType.Result.ABORT);
 
         // Set the test execution time.. in milliseconds
-        String dur = Long.toString(rec.getEndTime() - rec.getStartTime());
+        String dur = java.lang.Long.toString(rec.getEndTime() - rec.getStartTime());
         tr.setDuration(dur);
 
         // Set the completion status..

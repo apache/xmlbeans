@@ -34,8 +34,7 @@ import junit.framework.Assert;
  *
  */
 public class XmlBeansCompCheckinTests extends CompileTestBase
-{       String P = File.separator;
-    public List xm_errors;
+{   public List xm_errors;
     public XmlOptions xm_opts;
     Vector expBinType;
     Vector expSrcType;
@@ -160,7 +159,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
                     System.err.println(i.next());
             throw e;
         }
-        
+
         Assert.assertTrue("Expected partial schema type system", ((SchemaTypeSystemImpl)sts).isIncomplete());
 
 
@@ -171,7 +170,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         File tempDir = null;
         try {
             //setUp outputDirectory
-            tempDir = new File(CompileCommon.outputroot, "psom_save");
+            tempDir = new File(OUTPUTROOT, "psom_save");
             tempDir.mkdirs();
             tempDir.deleteOnExit();
             Assert.assertTrue("Output Directory Init needed to be empty",
@@ -184,7 +183,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             // ok
             System.out.println("sts.saveToDirectory() threw IllegalStateException as expected");
         }
-        
+
         //make sure nothing was written
         Assert.assertTrue("Partial SOM output dir needed to be empty",
             tempDir.listFiles().length == 0);
@@ -204,7 +203,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
             // ok
             System.out.println("sts.save() threw IllegalStateException as expected");
         }
-        
+
         //make sure nothing was written
         Assert.assertTrue("Filer -Bin- Partial SOM " +
             "output dir needed to be empty",
@@ -212,11 +211,11 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
         Assert.assertTrue("Filer -SRC- Partial SOM " +
             "output dir needed to be empty",
             tf.getSrcFileVec().size() == 0);
-        
+
         Assert.assertFalse("Filer Create Source File " +
             "method should not have been invoked",
             tf.isCreateSourceFile());
-        
+
         Assert.assertFalse("Filer Create Binary File " +
             "method should not have been invoked",
             tf.isCreateBinaryFile());
