@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.Parameter;
 import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.ExecutableMemberDoc;
 
 /**
  * Provides an interface to 1.5-specific functionality.  The impl of
@@ -34,6 +35,7 @@ public interface Javadoc15Delegate {
                                  ProgramElementDoc src);
 
   public void extractAnnotations(MAnnotatedElement dest,
+                                 ExecutableMemberDoc method,
                                  Parameter src);
 
   /**

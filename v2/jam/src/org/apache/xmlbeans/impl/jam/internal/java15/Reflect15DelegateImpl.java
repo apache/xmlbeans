@@ -137,7 +137,7 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
   {
     if (anns == null || anns.length == 0) return;
     for(int i=0; i<anns.length; i++) {
-      MAnnotation destAnn = dest.addAnnotationForType
+      MAnnotation destAnn = dest.findOrCreateAnnotation
         (anns[i].annotationType().getName());
       destAnn.setAnnotationInstance(anns[i]);
       populateAnnotation(destAnn,anns[i]);

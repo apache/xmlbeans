@@ -1603,19 +1603,19 @@ public class MarshalTests extends TestCase
         s2j.bindAsExplodedTylar(tmpfile);
 
 
-        final URI tylar_uri = tmpfile.toURI();
+        final URL tylar_url = tmpfile.toURL();
 
         //add tylar to classpath so we can load classes out of it
         final Thread thread = Thread.currentThread();
         final ClassLoader curr_cl = thread.getContextClassLoader();
         final URLClassLoader cl =
-            new URLClassLoader(new URL[]{tylar_uri.toURL()}, curr_cl);
+            new URLClassLoader(new URL[]{tylar_url}, curr_cl);
         thread.setContextClassLoader(cl);
 
         try {
             final BindingContextFactory bcf = BindingContextFactory.newInstance();
             final BindingContext binding_context =
-                bcf.createBindingContext(tylar_uri);
+                bcf.createBindingContext(new URL[]{tylar_url});
             final Unmarshaller um = binding_context.createUnmarshaller();
             InputStream is = new FileInputStream(instance);
             XmlOptions opts_validation_on = new XmlOptions();

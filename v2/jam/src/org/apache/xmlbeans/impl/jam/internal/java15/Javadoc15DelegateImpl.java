@@ -30,6 +30,7 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.SourcePosition;
 // import com.sun.javadoc.AnnotationTypeElementDoc;
 import com.sun.javadoc.AnnotationTypeMemberDoc;
+import com.sun.javadoc.ExecutableMemberDoc;
 
 
 
@@ -61,11 +62,17 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     extractAnnotations(dest,src.annotations(),src.position());
   }
 
-  public void extractAnnotations(MAnnotatedElement dest, Parameter src) {
-    //FIXME javadoc doesn't yet support parameter annotations
-    //pcal 3/15/04
-    //
-    //extractAnnotations(dest,src.annotations());
+  public void extractAnnotations(MAnnotatedElement dest,
+                                 ExecutableMemberDoc method,
+                                 Parameter src)
+  {
+//    extractAnnotations(dest,src.annotations(),method.position());
+
+//FIXME uncomment when SUN implements Parameter.annotations()
+//
+//  [java] Exception in thread "main" java.lang.UnsupportedOperationException:
+// Not implemented in this release
+// [java]     at com.sun.tools.javadoc.ParameterImpl.annotations(ParameterImpl.java:83)
   }
 
   public boolean isEnum(ClassDoc cd) {
@@ -81,7 +88,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
   {
     if (anns == null) return; //?
     for(int i=0; i<anns.length; i++) {
-      MAnnotation destAnn = dest.addAnnotationForType
+      MAnnotation destAnn = dest.findOrCreateAnnotation
         (anns[i].annotationType().asClassDoc().qualifiedName());
       populateAnnotation(destAnn,anns[i],sp);
     }

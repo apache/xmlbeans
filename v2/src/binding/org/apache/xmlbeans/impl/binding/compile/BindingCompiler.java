@@ -238,9 +238,13 @@ public abstract class BindingCompiler extends BindingLogger
       (mBuiltinBindingLoader != null) ? mBuiltinBindingLoader :
         BuiltinBindingLoader.getBuiltinBindingLoader(false);
     if (mBaseTylar == null) return builtin;
-    BindingLoader[] loaders = new BindingLoader[]
-    { mBaseTylar.getBindingLoader(), builtin };
-    return CompositeBindingLoader.forPath(loaders);
+    BindingLoader[] loaders = null;
+    try {
+      loaders = new BindingLoader[]{ mBaseTylar.getBindingLoader(), builtin };
+    } catch(IOException ioe) { logError(ioe);
+    } catch(XmlException xe) { logError(xe);
+    }
+    return (loaders == null) ? builtin : CompositeBindingLoader.forPath(loaders);
   }
 
   /**
@@ -256,11 +260,16 @@ public abstract class BindingCompiler extends BindingLogger
   public SchemaTypeLoader getBaseSchemaTypeLoader()
   {
     assertCompilationStarted(true);
-    if (mBaseTylar == null) {
-      return XmlBeans.getBuiltinTypeSystem();
+    if (mBaseTylar != null) {
     } else {
-      return mBaseTylar.getSchemaTypeLoader();
+      try {
+        return mBaseTylar.getSchemaTypeLoader();
+      } catch(IOException ioe) { logError(ioe);
+      } catch(XmlException xe) { logError(xe);
+      }
     }
+    return XmlBeans.getBuiltinTypeSystem();
+
   }
 
   /**

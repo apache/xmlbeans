@@ -24,9 +24,11 @@ import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.*;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import java.net.URI;
+import java.net.URL;
+import java.io.IOException;
 
 /**
- * <p>Base class for simplifying implementation of the Tylar interface.</p>
+ * @deprecated phasing this out in favor of RuntimeTylar and BuildtimeTylar.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
@@ -36,16 +38,14 @@ public abstract class BaseTylarImpl implements Tylar {
   // Partial default Tylar implementation
 
   public String getDescription() {
-    URI uri = getLocation();
-    if (uri != null) return uri.toString();
     return "["+this.getClass().getName()+"]";
   }
 
-  public URI getLocation() {
+  public URL[] getLocations() {
     return null;
   }
 
-  public BindingLoader getBindingLoader() {
+  public BindingLoader getBindingLoader() throws IOException, XmlException {
     //REVIEW should consider caching this result
     BindingFile[] bfs = getBindingFiles();
     BindingLoader[] loaders = new BindingLoader[bfs.length+1];
@@ -56,10 +56,7 @@ public abstract class BaseTylarImpl implements Tylar {
 
   public JamClassLoader getJamClassLoader()
   {
-    // REVIEW should consider caching this result
-    // create a classloader chain that runs throw all of the base tylars
-    ClassLoader cl = createClassLoader(ClassLoader.getSystemClassLoader());
-    return JamServiceFactory.getInstance().createJamClassLoader(cl);
+    return JamServiceFactory.getInstance().createSystemJamClassLoader();
   }
 
   // ========================================================================
@@ -73,6 +70,7 @@ public abstract class BaseTylarImpl implements Tylar {
    * @return
    */
   protected SchemaTypeSystem getDefaultSchemaTypeSystem()
+    throws IOException, XmlException
   {
     SchemaDocument[] xsds = getSchemas();
     XmlObject[] xxds = new XmlObject[xsds.length];

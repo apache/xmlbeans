@@ -158,7 +158,7 @@ public class CommentInitializer extends MVisitor {
     }
     if (tagname == null) { // empty tag
       tagname = tagtext.substring(1);
-      element.addAnnotationForTag(tagtext);
+      element.addAnnotation(tagtext);
     } else {
       tagtext = tagtext.substring(offset).trim();
       element.addAnnotationForTag(tagname,tagtext);

@@ -18,6 +18,7 @@ package org.apache.xmlbeans;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.jar.JarInputStream;
 
 /**
@@ -38,40 +39,25 @@ public abstract class BindingContextFactory
    * The order in which tylars appear in the array determines their precedence
    * for loading types.
    *
-   * @param tylarUris An array of URIs which identify the tylars to be used
+   * @param tylarUrls An array of URLs which identify the tylars to be used
    * in the BindingContext.
    * @return The BindingContext
    * @throws IOException if a problem occurs while opening or parsing the
    * contents of the tylars.
    */
-  public abstract BindingContext createBindingContext(URI[] tylarUris)
+  public abstract BindingContext createBindingContext(URL[] tylarUrls)
           throws IOException, XmlException;
 
   /**
-   * Creates a BindingContext from a tylar located at the given URI.
-   * The order in which tylars appear in the array determines their precedence
-   * for loading types.
+   * Creates a BindingContext which loads tylar resources out of the
+   * given ClassLoader.
    *
-   * @param tylarUri A URIs to the tylar to be used in the BindingContext.
-   * @return The BindingContext
+   * @param cl the classloader on which the tylar(s) can be loaded.
    * @throws IOException if a problem occurs while opening or parsing the
    * contents of the tylars.
    */
-  public abstract BindingContext createBindingContext(URI tylarUri)
+  public abstract BindingContext createBindingContext(ClassLoader cl)
           throws IOException, XmlException;
-
-  /**
-   * Creates a BindingContext given an input stream on a type library.
-   *
-   * @param jar Input stream on the type library jar.
-   * @return
-   * @throws IOException If an error occurs reading the stream.
-   * @throws XmlException If an error occurs parsing the contents of the
-   * type library.
-   */
-  public abstract BindingContext createBindingContext(JarInputStream jar)
-          throws IOException, XmlException;
-
 
 
   protected final static String DEFAULT_IMPL =
@@ -95,5 +81,37 @@ public abstract class BindingContextFactory
       throw new XmlRuntimeException(e);
     }
   }
+
+
+  // ========================================================================
+  // deprecated methods
+
+  /**
+   * @deprecated
+   */
+  public BindingContext createBindingContext(URI[] tylarUris)
+    throws IOException, XmlException {
+    URL[] urls = new URL[tylarUris.length];
+    for(int i=0; i<urls.length; i++) urls[i] = new URL(tylarUris.toString());
+    return createBindingContext(urls);
+  }
+
+  /**
+   * @deprecated
+   */ 
+  public BindingContext createBindingContext(URI tylarUri)
+    throws IOException, XmlException {
+    return createBindingContext(new URI[]{tylarUri});
+  }
+
+  /**
+   * @deprecated
+   */
+  public BindingContext createBindingContext(JarInputStream jar)
+          throws IOException, XmlException {
+    throw new UnsupportedOperationException
+      ("Creating a BindingContext from a JarInputStream is no longer supported.");
+  }
+
 
 }

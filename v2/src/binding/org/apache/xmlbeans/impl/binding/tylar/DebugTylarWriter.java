@@ -21,12 +21,14 @@ import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlException;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.io.File;
+import java.net.URL;
 
 /**
  * Implementation of TylarWriter which simply dumps everything it gets to some
@@ -69,21 +71,27 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
    * @throws IOException
    */
   public void write(Tylar t) throws IOException {
-    mOut.println("==== Dumping Type Library contents... =================");
-    mOut.println("location = "+t.getLocation());
-    mOut.println("description = "+t.getDescription());
-    BindingFile[] bfs = t.getBindingFiles();
-    for(int i=0; i<bfs.length; i++) {
-      mOut.println("---- Binding File -------------------------------------");
-      writeBindingFile(bfs[i]);
+    try {
+      mOut.println("==== Dumping Type Library contents... =================");
+      mOut.println("location = "+t.getLocations());
+      mOut.println("description = "+t.getDescription());
+      BindingFile[] bfs = t.getBindingFiles();
+      for(int i=0; i<bfs.length; i++) {
+        mOut.println("---- Binding File -------------------------------------");
+        writeBindingFile(bfs[i]);
+      }
+      SchemaDocument[] xsds = t.getSchemas();
+      for(int i=0; i<xsds.length; i++) {
+        mOut.println("---- Schema -------------------------------------------");
+        writeSchema(xsds[i],null);
+      }
+      mOut.println("==== End Type Library contents ========================");
+    } catch(XmlException xe) {
+      xe.printStackTrace();
+      throw new IOException(xe.getMessage());
     }
-    SchemaDocument[] xsds = t.getSchemas();
-    for(int i=0; i<xsds.length; i++) {
-      mOut.println("---- Schema -------------------------------------------");
-      writeSchema(xsds[i],null);
-    }
-    mOut.println("==== End Type Library contents ========================");
     mOut.flush();
+
   }
 
   // ========================================================================
@@ -123,7 +131,7 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
   public static void main(String[] args) {
     try {
       TylarLoader loader = DefaultTylarLoader.getInstance();
-      Tylar tylar = loader.load(new File(args[0]).toURI());
+      Tylar tylar = loader.load(new URL[]{new File(args[0]).toURL()});
       new DebugTylarWriter().write(tylar);
     } catch(Exception e) {
       e.printStackTrace();

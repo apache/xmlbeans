@@ -19,6 +19,8 @@ import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annotation.DefaultAnnotationProxy;
+import org.apache.xmlbeans.impl.jam.annotation.TagParser;
+import org.apache.xmlbeans.impl.jam.annotation.TagParser;
 import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.visitor.*;
@@ -66,6 +68,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   private boolean mUseSystemClasspath = true;
 
 
+  private TagParser mTagParser = null;
   private MVisitor mCommentInitializer = null;
   private MVisitor mPropertyInitializer = new PropertyInitializer();
   private List mOtherInitializers = null;
@@ -261,6 +264,10 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     mOtherInitializers.add(initializer);
   }
 
+  //DOCME
+  public void setTagParser(TagParser tp) {
+    mTagParser = tp;
+  }
 
   public void includeSourceFile(File file) {
     if (file == null) throw new IllegalArgumentException("null file");

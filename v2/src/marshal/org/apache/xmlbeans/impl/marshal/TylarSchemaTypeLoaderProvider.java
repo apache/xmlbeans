@@ -16,7 +16,10 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
+
+import java.io.IOException;
 
 final class TylarSchemaTypeLoaderProvider
     implements SchemaTypeLoaderProvider
@@ -32,7 +35,15 @@ final class TylarSchemaTypeLoaderProvider
     public SchemaTypeLoader getSchemaTypeLoader()
     {
         if (schemaTypeLoader == null) {
-            schemaTypeLoader = tylar.getSchemaTypeLoader();
+            try {
+              schemaTypeLoader = tylar.getSchemaTypeLoader();
+              //REVIEW - Scott: this method throws now, not sure how you
+              //want to handle it.
+            } catch(IOException ioe) {
+              ioe.printStackTrace();
+            } catch(XmlException xe) {
+              xe.printStackTrace();
+            }
         }
         assert schemaTypeLoader != null;
         return schemaTypeLoader;

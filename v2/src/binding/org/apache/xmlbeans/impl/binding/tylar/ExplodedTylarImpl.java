@@ -233,15 +233,11 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     return out;
   }
 
-  public SchemaTypeLoader getSchemaTypeLoader() {
+  public SchemaTypeLoader getSchemaTypeLoader() throws IOException, XmlException {
     if (mSchemaTypeSystem == null) {
       mSchemaTypeSystem = getDefaultSchemaTypeSystem();
     }
     return mSchemaTypeSystem;
-  }
-
-  public URI getLocation() {
-    return mRootDir.toURI();
   }
 
   //not sure we ever need this
@@ -265,7 +261,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     JarHelper j = new JarHelper();
     jarfile.getParentFile().mkdirs(); //make sure the path exists
     j.jarDir(mRootDir,jarfile);
-    return new TylarImpl(jarfile.toURI(),mBindingFile,mSchemaDocuments);
+    return new TylarImpl(new URL[]{jarfile.toURL()},mBindingFile,mSchemaDocuments);
   }
 
   public File getSourceDir() {

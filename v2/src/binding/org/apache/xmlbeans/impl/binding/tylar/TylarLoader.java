@@ -16,8 +16,7 @@
 package org.apache.xmlbeans.impl.binding.tylar;
 
 import java.io.IOException;
-import java.net.URI;
-import java.util.jar.JarInputStream;
+import java.net.URL;
 
 import org.apache.xmlbeans.XmlException;
 
@@ -30,40 +29,26 @@ import org.apache.xmlbeans.XmlException;
 public interface TylarLoader {
 
   /**
-   * Loads a single tylar from the given URI.
+   * Loads a single tylar out of the given ClassLoader.
    *
-   * @param uri pointing to where the tylar is stored.
+   * @param cl ClassLoader from which to load the tylar
    * @return
    * @throws IOException if an i/o error occurs while processing
    * @throws XmlException if an error occurs parsing the contents of the tylar.
    */
-  public Tylar load(URI uri) throws IOException, XmlException;
+  public Tylar load(ClassLoader cl) throws IOException, XmlException;
 
   /**
    * Returns a composition of the set of tylars at the given URIs.  Tylars
    * will be consulted in the order in which they appear in this array when
    * resolving bindings and types; first one wins.
    *
-   * @param uris pointing to where the tylars are stored.
+   * @param urls pointing to where the tylars are stored.
    * @return
    * @throws IOException if an i/o error occurs while processing
    * @throws XmlException if an error occurs parsing the contents of the
    * tylars.
    */
-  public Tylar load(URI[] uris) throws IOException, XmlException;
-
-  /**
-   * Loads a single tylar from the given JarInputStream.
-   *
-   * @param jar input stream on the tylar jar.
-   * @return
-   * @throws IOException if an i/o error occurs while processing
-   * @throws XmlException if an error occurs parsing the contents of the
-   * tylars.
-   */
-  public Tylar load(JarInputStream jar) throws IOException, XmlException;
-
-
-
+  public Tylar load(URL[] urls) throws IOException, XmlException;
 
 }
