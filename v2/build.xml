@@ -795,11 +795,18 @@
     </javac>
   </target>
 
-    <target name="xbean_xpath.jar" depends="dirs, xpath.classes">
-        <unjar src="external/lib/jaxen-1.1-beta-2.jar" dest="build/classes/xpath" />
-        <jar jarfile="build/lib/xbean_xpath.jar" basedir="build/classes/xpath"/>
-    </target>
+  <target name="xbean_xpath.jar" depends="dirs, xpath.classes, expand.jaxen">
+    <jar jarfile="build/lib/xbean_xpath.jar" basedir="build/classes/xpath"/>
+  </target>
 
+  <target name="expand.jaxen" depends="check.expand.jaxen" unless="expand.jaxen.notRequired">
+    <unjar src="external/lib/jaxen-1.1-beta-2.jar" dest="build/classes/xpath" />
+  </target>
+
+  <target name="check.expand.jaxen">
+    <available property="expand.jaxen.notRequired"
+      file="build/classes/xpath/org/jaxen/XPath.class"/>
+  </target>
 
   <!-- TEST Targets ===================================================== -->
   <!-- All targets hook up into testbuild.xml -->
