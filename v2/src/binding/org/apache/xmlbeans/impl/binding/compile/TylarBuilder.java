@@ -61,38 +61,23 @@ import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import java.io.IOException;
 
 /**
- * Isolates binding compilation tasks from details of how their outputs are
- * actually written out to disk.  There will probably be at least two
- * implementations of this interface: one that outputs a jarred 'tylar' and
- * another which outputs a directory.
+ * This interface encapsultes knowledge about how to take the results
+ * of a binding compilation and package them into some kind of deployment unit.
+ * There will probably be at least two implementations of this interface: one
+ * that outputs a jarred 'tylar' and another which outputs a directory.
  *
  * We may want to change the name of this class; I'm still a little uneasy
  * about 'tylar,' but for the moment, at least everyone will understand what
- * this is.
+ * this is.  Also, maybe it would be more clear to call it a 'packager' rather
+ * than a 'builder.'
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface TylarBuilder {
 
-/**
- * Adds the given schema document to the type library.
- */
-  public void addSchema(SchemaDocument sd);
+  public void buildTylar(JavaToSchemaResult result) throws IOException;
 
-  /**
-   * Adds the given binding config to the type library.
-   */
-  public void addBindingFile(BindingFile bf);
-
-  /**
-   * This should be called to inform the builder that work is complete and
-   * that it should write all of its output to disk (or whatever it wants
-   * to do).  This method can be called at most once for a given instance
-   * of TylarBuilder; any subsequent method calls on that instance will result
-   * in an IllegalStateException.
-   *
-   * @throws IOException if an error occurs while performing output. REVIEW
-   */
-  public void complete() throws IOException;
+  //NYI
+  //public void buildTylar(SchemaToJavaResult result) throws IOException;
 
 }

@@ -163,18 +163,22 @@ public class Java2SchemaTask extends Task {
       System.out.println(mClasspath.toString()+"  set classpath");
       fs.setClasspath(mClasspath.toString());
     }
-    JClass[] classes;
+    final JClass[] classes;
     try {
       classes = jf.loadSources(fs);
     } catch(IOException ioe) {
       ioe.printStackTrace();
       throw new BuildException(ioe);
     }
-    Java2Schema j2b = new Java2Schema();
+    JavaToSchemaInput input = new JavaToSchemaInput() {
+      public JClass[] getJClasses() { return classes; }
+      public TylarLoader getTylarLoader() { return null; }
+    };
+    Java2Schema j2b = new Java2Schema(input);
     TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);
-    j2b.bind(classes,tb);
+    JavaToSchemaResult result = j2b.bind();
     try {
-      tb.complete();
+      tb.buildTylar(result);
     } catch(IOException ioe) {
       ioe.printStackTrace();
       throw new BuildException(ioe);

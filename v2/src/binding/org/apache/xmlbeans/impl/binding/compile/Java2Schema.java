@@ -67,6 +67,8 @@ import javax.xml.namespace.QName;
 /**
  * Transforms a set of JClasses into a BTS and a schema.  This is really just
  * a sketch at this point.
+ *
+ * @author Patrick Calahan <pcal@bea.com>
  */
 public class Java2Schema {
 
@@ -92,29 +94,53 @@ public class Java2Schema {
   // =========================================================================
   // Variables
 
-  private BindingFile mBindingFile;
-  private BindingLoader mLoader;
-  private SchemaDocument mSchemaDocument;
-  private SchemaDocument.Schema mSchema;
+  private BindingFile mBindingFile;      //KILLME
+  private BindingLoader mLoader;         //KILLME
+  private SchemaDocument mSchemaDocument;//KILLME
+  private SchemaDocument.Schema mSchema; //KILLME
+  //
+  private JavaToSchemaInput mInput;
 
   // =========================================================================
   // Constructors
 
-  public Java2Schema() {}
+  public Java2Schema(JavaToSchemaInput jtsi) {
+    if (jtsi == null) {
+      throw new IllegalArgumentException("null JavaToSchemaInput");
+    }
+    mInput = jtsi;
+  }
 
   // =========================================================================
   // Public methods
 
-  public void bind(JClass[] classes, TylarBuilder tb) {
+  /**
+   * Does the binding work and returns the result.
+   */
+  public JavaToSchemaResult bind() {
+    final JavaToSchemaResultImpl out = new JavaToSchemaResultImpl();
+    bind(mInput.getJClasses(),out);
+    return new JavaToSchemaResult() {
+      public BindingFileGenerator getBindingFileGenerator() { return out; }
+      public SchemaGenerator getSchemaGenerator() { return out; }
+    };
+  }
+
+  // ========================================================================
+  // Private methods
+
+  /**
+   *
+   */
+  private void bind(JClass[] classes, JavaToSchemaResultImpl tb) {
     tb.addBindingFile(mBindingFile = new BindingFile());
     mLoader = PathBindingLoader.forPath
             (new BindingLoader[] {mBindingFile,
                                   BuiltinBindingLoader.getInstance()});
-    tb.addSchema(mSchemaDocument = SchemaDocument.Factory.newInstance());
+    mSchemaDocument = SchemaDocument.Factory.newInstance();
     mSchema = mSchemaDocument.addNewSchema();
-    for(int i=0; i<classes.length; i++) {
-      getBindingTypeFor(classes[i]);
-    }
+    for(int i=0; i<classes.length; i++) getBindingTypeFor(classes[i]);
+    tb.addSchema(mSchemaDocument);
   }
 
   // =========================================================================
@@ -232,6 +258,8 @@ public class Java2Schema {
     return JAVA_URI_SCHEME + pkg_name;
   }
 
+  /*
+
   private static boolean isXmlObj(JClass clazz) {
     try {
       JClass xmlObj = clazz.forName("org.apache.xmlbeans.XmlObject");
@@ -241,4 +269,5 @@ public class Java2Schema {
       return false;
     }
   }
+  */
 }

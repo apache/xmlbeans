@@ -57,87 +57,87 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.tools.ant.BuildException;
-
+import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
+import java.util.*;
 
 /**
- * Simple implementation of TylarBuilder that just dumps everything in a
- * directory.
- *
- * @author Patrick Calahan <pcal@bea.com>
+ * This class addresses the impedence mismatch between Java2Schema's
+ * desire to push it's results out and the public API's desire to
+ * present them as a generator.  When asked, we just push the results in here
+ * and return ('generate') them on demand.
  */
-public class ExplodedTylarBuilder implements TylarBuilder {
-
+/*package*/ class JavaToSchemaResultImpl implements SchemaGenerator,
+        BindingFileGenerator
+ {
   // =========================================================================
   // Constants
 
   private static final int XML_INDENT = 2;
 
-  // =========================================================================
+  // ========================================================================
   // Variables
 
-  private File mDir;
-  private List mSchemas = new ArrayList();
-  private List mBindings = new ArrayList();
+  private Map mTNS2Schema = new HashMap();
+  private List mBindingFiles = new ArrayList();
 
-  // =========================================================================
-  // Constructors
+  // ========================================================================
+  // Package methods - called by Java2Schema
 
-  public ExplodedTylarBuilder(File dir) {
-    if (dir == null) throw new IllegalArgumentException("null dir");
-    mDir = dir;
+  /*package*/ void addSchema(SchemaDocument sd) {
+    //REVIEW should we throw if they try to add to schemas for same tns?
+    if (sd == null) throw new IllegalArgumentException("null SchemaDocument");
+    mTNS2Schema.put(sd.getSchema().getTargetNamespace(),sd);
   }
 
-  // =========================================================================
-  // TylarBuilder implementation
+  // REVIEW is there really any reason to allow more than one?
+  /*package*/ void addBindingFile(BindingFile bf) { mBindingFiles.add(bf); }
 
-  public void buildTylar(JavaToSchemaResult result) throws IOException {
-    if (!mDir.exists()) {
-      if (!mDir.mkdirs()) {
-        throw new IllegalArgumentException("failed to create dir "+mDir);
-      }
+  // ========================================================================
+  // SchemaGenerator implementation
+
+  public String[] getTargetNamespaces() {
+    String[] out = new String[mTNS2Schema.keySet().size()];
+    int n=0;
+    for(Iterator i = mTNS2Schema.keySet().iterator(); i.hasNext(); n++) {
+      out[n] = (String)i.next();
+    }
+    return out;
+  }
+
+  public void printSchema(String targetNamespace, OutputStream out)
+          throws IOException
+  {
+    SchemaDocument sd = getSchemaFor(targetNamespace);
+    if (sd == null) {
+      //REVIEW what is the right thing to do?
     } else {
-      if (!mDir.isDirectory())
-        throw new IllegalArgumentException("not a directory: "+mDir);
+      sd.save(out,
+              new XmlOptions().setSavePrettyPrint().
+              setSavePrettyPrintIndent(XML_INDENT));
     }
-    // print the schemas
-    String[] tns = result.getSchemaGenerator().getTargetNamespaces();
-    for(int i=0; i<tns.length; i++) {
-      File file = new File(mDir,"schema-"+i+".xsd");//FIXME naming
-      FileOutputStream out = null;
-      try {
-        out = new FileOutputStream(file);
-        result.getSchemaGenerator().printSchema(tns[i],out);
-      } catch(IOException ioe) {
-        throw ioe;
-      } finally {
-        try {
-          out.close();
-        } catch(Exception ohwell) { ohwell.printStackTrace(); }
-      }
-    }
-    // print the binding file
-    {
-      File file = new File(mDir,"binding-file.xml"); //FIXME naming
-      FileOutputStream out = null;
-      try {
-        out = new FileOutputStream(file);
-        result.getBindingFileGenerator().printBindingFile(out);
-      } catch(IOException ioe) {
-        throw ioe;
-      } finally {
-        try {
-          out.close();
-        } catch(IOException ohwell) { ohwell.printStackTrace(); }
-      }
+  }
+
+  // REVIEW do we really think that SchemaGenerator clients are never going to
+  // want a method like this? i.e. is forcing them to dump stream right?
+  private SchemaDocument getSchemaFor(String targetNamespace) {
+    return (SchemaDocument)mTNS2Schema.get(targetNamespace);
+  }
+
+  // ========================================================================
+  // BindingFileGenerator implementation
+
+  public void printBindingFile(OutputStream out) throws IOException {
+    if (mBindingFiles.size() > 0) {
+      BindingFile bf = (BindingFile)mBindingFiles.get(0);
+      BindingConfigDocument doc = bf.write();
+      doc.save(out,
+               new XmlOptions().setSavePrettyPrint().
+               setSavePrettyPrintIndent(XML_INDENT));
     }
   }
 }
