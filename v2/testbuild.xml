@@ -757,7 +757,8 @@
     <target name="build.area.ValidatingXSRTests">
 
         <property name="this.schema.dirs"
-            value="${build.dir.test.schemas}/xbean/xmlcursor"/>
+            value="${build.dir.test.schemas}/xbean/ValidatingStream,
+                   ${build.dir.test.schemas}/xbean/xmlobject"/>
         <property name="includes.for.compile"
             value="**/ValidatingXSRTests/**/*.java"/>
         <property name="this.schema.standalone.dirs"
