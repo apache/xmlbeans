@@ -21,6 +21,7 @@ import java.io.File;
 import java.util.ResourceBundle;
 import java.util.PropertyResourceBundle;
 import java.text.MessageFormat;
+import javax.xml.stream.Location;
 
 /**
  * Represents a message at a specific XML location.
@@ -139,8 +140,36 @@ public class XmlError implements java.io.Serializable
         this(XmlError.formattedMessage(code, args), code, severity, cursor);
     }
     
-
     /**
+     * The static factory methods should be used instead of
+     * this constructor.
+     */
+    protected XmlError(String message, String code, int severity, Location loc)
+    {
+        String source = null;
+        int line = -1;
+        int column = -1;
+
+        if (loc != null)
+        {
+            line = loc.getLineNumber();
+            column = loc.getColumnNumber();
+        }
+
+        _message = message;
+        _code = code;
+        _severity = severity;
+        _source = source;
+        _line = line;
+        _column = column;
+    }
+
+    protected XmlError(String code, Object[] args, int severity, Location loc)
+    {
+        this(XmlError.formattedMessage(code, args), code, severity, loc);
+    }
+    
+     /**
      * Returns an XmlError for the given message, with no location and {@link #SEVERITY_ERROR}.
      * @param message the error message
      */ 
@@ -178,6 +207,18 @@ public class XmlError implements java.io.Serializable
     public static XmlError forSource(String message, int severity, String sourceName)
     {
         return forLocation(message, severity, sourceName, -1, -1, -1);
+    }
+
+    /**
+     * Returns an XmlError for the given message, located at a specific point in the given file and {@link #SEVERITY_ERROR}.
+     * @param message the error message
+     * @param sourceName the URL or other name for the file
+     * @param location the location from an xml stream
+     */ 
+    public static XmlError forLocation(String message, String sourceName, Location location)
+    {
+        return new XmlError(message, (String)null, SEVERITY_ERROR, sourceName,
+            location.getLineNumber(), location.getColumnNumber(), -1, null);
     }
 
     /**
