@@ -318,8 +318,6 @@ public class QNameHelper
                 len = i + 3; // more than four? truncate to 3.
         }
         
-        int n;
-        
         if (len - i == 0)
             return "ns";
         
@@ -372,5 +370,35 @@ public class QNameHelper
             sType = sType.getOuterType();
         }
         return "";
+    }
+
+    /**
+     * Returns the local name of the given node.
+     *
+     * @param qname Input name
+     *
+     * @return Local part of the name if prefixed, or the given name if not
+     */
+    public static String getLocalPart(String qname)
+    {
+
+        int index = qname.indexOf(':');
+
+        return (index < 0) ? qname : qname.substring(index + 1);
+    }
+
+    /**
+     * Returns the local name of the given node.
+     *
+     * @param qname Input name
+     *
+     * @return Prefix of name or empty string if none there
+     */
+    public static String getPrefixPart(String qname)
+    {
+
+        int index = qname.indexOf(':');
+
+        return (index >= 0) ? qname.substring(0, index) : "";
     }
 }

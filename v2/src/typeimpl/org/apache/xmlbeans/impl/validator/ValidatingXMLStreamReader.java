@@ -22,6 +22,7 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.Chars;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -447,8 +448,8 @@ public class ValidatingXMLStreamReader
                     if (qname.equals(XSI_TYPE))
                     {
                         String xsiTypeValue = getAttributeValue(i);
-                        String uri = super.getNamespaceURI(org.apache.xml.utils.QName.getPrefixPart(xsiTypeValue));
-                        QName xsiTypeQname = new QName(uri, org.apache.xml.utils.QName.getLocalPart(xsiTypeValue));
+                        String uri = super.getNamespaceURI(QNameHelper.getPrefixPart(xsiTypeValue));
+                        QName xsiTypeQname = new QName(uri, QNameHelper.getLocalPart(xsiTypeValue));
                         _xsiType = _stl.findType(xsiTypeQname);
                     }
 
