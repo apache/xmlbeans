@@ -48,7 +48,7 @@
     <xs:complexContent>
       <xs:extension base="tns:binding-type">
         <xs:sequence>
-          <xs:element name="as-xml" type="tns:xml-signature"/>
+          <xs:element name="as-xml" type="tns:as-xml-type"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -122,6 +122,7 @@
           <xs:element name="multiple" type="xs:boolean" default="false" minOccurs="0"/>
           <xs:element name="nillable" type="xs:boolean" default="false" minOccurs="0"/>
           <xs:element name="optional" type="xs:boolean" default="false" minOccurs="0"/>
+          <xs:element name="default" type="xs:string" minOccurs="0"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -152,6 +153,22 @@
     <xs:restriction base="xs:token">
     </xs:restriction>
   </xs:simpleType>
+
+  <xs:complexType name="as-xml-type">
+    <xs:simpleContent>
+      <xs:extension base="tns:xml-signature">
+        <xs:attribute name="whitespace">
+          <xs:simpleType>     <!--type defn copied from schema for schemas-->
+            <xs:restriction base="xs:NMTOKEN">
+              <xs:enumeration value="preserve"/>
+              <xs:enumeration value="replace"/>
+              <xs:enumeration value="collapse"/>
+            </xs:restriction>
+          </xs:simpleType>
+        </xs:attribute>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
 
   <xs:simpleType name="java-property-name">
     <xs:restriction base="xs:token">

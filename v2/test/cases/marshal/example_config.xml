@@ -4,7 +4,7 @@
         <bin:binding-type xsi:type="bin:simple-type" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <bin:xmlcomponent>t=custom-string@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>java.lang.String</bin:javatype>
-            <bin:as-xml>t=string@http://www.w3.org/2001/XMLSchema</bin:as-xml>
+            <bin:as-xml whitespace="collapse">t=string@http://www.w3.org/2001/XMLSchema</bin:as-xml>
         </bin:binding-type>
 
         <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
@@ -22,6 +22,7 @@
                 </bin:setter>
                 <bin:qname>java:Attrib</bin:qname>
                 <bin:attribute>true</bin:attribute>
+                <bin:default>9.12321</bin:default>
             </bin:qname-property>
             <bin:qname-property>
                 <bin:xmlcomponent>t=MyClass@java:com.mytest</bin:xmlcomponent>

@@ -60,17 +60,21 @@ import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.BindingContext;
 import org.apache.xmlbeans.BindingContextFactory;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
-import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.binding.tylar.DefaultTylarLoader;
+import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.binding.tylar.TylarLoader;
+import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
 import java.io.File;
 import java.io.IOException;
@@ -84,21 +88,21 @@ import java.util.Iterator;
 public final class BindingContextFactoryImpl
     extends BindingContextFactory
 {
-
-  public BindingContext createBindingContext(URI[] tylarUris)
-          throws IOException, XmlException {
-    if (tylarUris == null) throw new IllegalArgumentException("null uris");
-    //FIXME loader needs to be pluggable
-    TylarLoader loader = DefaultTylarLoader.getInstance();
-    if (loader == null) throw new IllegalArgumentException("null loader");
-    Tylar[] tylars = new Tylar[tylarUris.length];
-    for (int i = 0; i < tylars.length; i++) {
-      tylars[i] = loader.load(tylarUris[i]);
+    public BindingContext createBindingContext(URI[] tylarUris)
+        throws IOException, XmlException
+    {
+        if (tylarUris == null) throw new IllegalArgumentException("null uris");
+        //FIXME loader needs to be pluggable
+        TylarLoader loader = DefaultTylarLoader.getInstance();
+        if (loader == null) throw new IllegalArgumentException("null loader");
+        Tylar[] tylars = new Tylar[tylarUris.length];
+        for (int i = 0; i < tylars.length; i++) {
+            tylars[i] = loader.load(tylarUris[i]);
+        }
+        return createBindingContext(tylars);
     }
-    return createBindingContext(tylars);
-  }
 
-  // REVIEW It's unfortunate that we can't expose this method to the public
+    // REVIEW It's unfortunate that we can't expose this method to the public
     // at the moment.  It's easy to imagine cases where one has already built
     // up the tylar and doesn't want to pay the cost of re-parsing it.
     // Of course, exposing it means we expose Tylar to the public as well,
@@ -222,15 +226,59 @@ public final class BindingContextFactoryImpl
         TypeUnmarshaller um = table.getTypeUnmarshaller(stype);
         if (um != null) return um;
 
-        //let's try using the as if type
-        BindingType asif = loader.getBindingType(stype.getAsIfBindingTypeName());
-        if (asif == null) {
-            throw new AssertionError("unable to get asif type for " + stype);
+
+        int curr_ws = XmlWhitespace.WS_UNSPECIFIED;
+        SimpleBindingType curr = stype;
+        BuiltinBindingType resolved = null;
+
+        while (true) {
+            //we want to keep the first whitespace setting as we walk up
+            if (curr_ws == XmlWhitespace.WS_UNSPECIFIED) {
+                curr_ws = curr.getWhitespace();
+            }
+
+            BindingTypeName asif_name = curr.getAsIfBindingTypeName();
+            if (asif_name != null) {
+                BindingType asif_new = loader.getBindingType(asif_name);
+                if (asif_new instanceof BuiltinBindingType) {
+                    resolved = (BuiltinBindingType)asif_new;
+                    break;
+                } else if (asif_new instanceof SimpleBindingType) {
+                    curr = (SimpleBindingType)asif_new;
+                } else {
+                    String msg = "invalid as-xml type: " + asif_name +
+                        " on type: " + curr.getName();
+                    throw new XmlRuntimeException(msg);
+                }
+            } else {
+                throw new XmlRuntimeException("missing as-xml type on " +
+                                              curr.getName());
+            }
         }
-        um = table.getTypeUnmarshaller(asif);
+        assert resolved != null;
+
+
+        //special processing for whitespace facets.
+        //TODO: assert that our type is derived from xsd:string
+        switch (curr_ws) {
+            case XmlWhitespace.WS_UNSPECIFIED:
+                break;
+            case XmlWhitespace.WS_PRESERVE:
+                return PreserveStringTypeConverter.getInstance();
+            case XmlWhitespace.WS_REPLACE:
+                return ReplaceStringTypeConverter.getInstance();
+            case XmlWhitespace.WS_COLLAPSE:
+                return CollapseStringTypeConverter.getInstance();
+            default:
+                throw new AssertionError("invalid whitespace: " + curr_ws);
+        }
+
+
+        um = table.getTypeUnmarshaller(resolved);
         if (um != null) return um;
 
-        String msg = "unable to get simple type unmarshaller for " + stype + " using asif=" + asif;
+        String msg = "unable to get simple type unmarshaller for " + stype +
+            " resolved to " + resolved;
         throw new AssertionError(msg);
     }
 

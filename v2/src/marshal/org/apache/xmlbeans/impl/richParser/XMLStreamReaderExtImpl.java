@@ -109,6 +109,8 @@ public class XMLStreamReaderExtImpl
         throws XMLStreamException
     {
         _charSeq.reload(CharSeqTrimWS.XMLWHITESPACE_PRESERVE);
+        //REVIEW zieg 2004-01-11 - we should write a collapse method
+        //that takes a CharSequence to void creating this extra String object
         return XmlWhitespace.collapse(_charSeq.toString(), wsStyle);
     }
 
@@ -1050,6 +1052,9 @@ public class XMLStreamReaderExtImpl
 
         private static Location copyLocation(Location loc)
         {
+            //REVIEW zieg 2004-01-11 this extra object is hurting perf.  Can we
+            //somehow defer this until we need it, or just copy the
+            //values without creating a new object?
             return new ExtLocation(loc.getLineNumber(), loc.getColumnNumber(), loc.getCharacterOffset(),
                 loc.getPublicId(), loc.getSystemId());
         }
