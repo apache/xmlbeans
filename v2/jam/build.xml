@@ -62,7 +62,9 @@
            source='1.4' target='1.4'
            debug='on'>
       <src path='${src_dir}'/>
+      <!--
       <src path='${gen_dir}'/>
+      -->
       <classpath>
         <pathelement location='${antlr_jar}'/>
         <pathelement location='${staxapi_jar}'/>
