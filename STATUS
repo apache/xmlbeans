@@ -2,8 +2,7 @@ Active committers:
 
 cezar.andrei@bea.com
 cliff.schmidt@bea.com
-
-david.remy@bea.com
+dwaite@apache.org
 david.bau@bea.com
 eric.vasilik@bea.com
 ken@kress.org
@@ -11,9 +10,9 @@ laurence.moroney@reuters.com
 patrick.calahan@bea.com
 scott.ziegler@bea.com
 twl@apache.org
+radu.preotiuc@bea.com
+kevin.krouse@bea.com
 
-Initial code dropped.  Party on.
 
-Proposals for features at:
-http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansFeaturePlan
-(periodically posted to xmlbeans-dev)
+FAQ:
+http://wiki.apache.org/xmlbeans/XmlBeansV1Faq
