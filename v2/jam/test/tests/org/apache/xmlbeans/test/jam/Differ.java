@@ -18,50 +18,56 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.BufferedReader;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.io.StringWriter;
 
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class JamDiffer {
+public class Differ {
 
   // ========================================================================
   // Singleton
 
-  public static JamDiffer getInstance() { return INSTANCE; }
+  public static Differ getInstance() { return INSTANCE; }
 
-  private static final JamDiffer INSTANCE = new JamDiffer();
+  private static final Differ INSTANCE = new Differ();
 
-  private JamDiffer() {}
+  private Differ() {}
 
   // ========================================================================
   // Public methods
 
-  public boolean diff(Reader a,
-                      Reader b,
+  public boolean diff(Reader result,
+                      Reader expect,
                       Writer out) throws IOException
   {
-    return true; //FIXME
-    /*Object[] aContents = getContents(a);
-    Object[] bContents = getContents(b);
-    Diff diff = new Diff(aContents, bContents);
-    Diff.change script = diff.diff_2(false);
-    if (script != null) {
-      DiffPrint.NormalPrint p = new DiffPrint.NormalPrint(aContents, bContents);
-      p.setOutput(out);
-      p.print_script(script);
-      return false;
-    }
-    return true;*/
+    //our glorious diffing algorithm.  FIXME find one we can use
+    String resultString = getContentsAsString(result);
+    String expectedString = getContentsAsString(expect);
+    if (resultString.trim().equals(expectedString.trim())) return true;
+    out.write("Result does not match expected value.  Result is:\n");
+    out.write(resultString);
+    out.write("\n\n Expected:\n");
+    out.write(expectedString);
+    return false;
   }
 
 
   // ========================================================================
   // Private methods
 
-  private static String[] getContents(Reader in) throws IOException {
+  private static String getContentsAsString(Reader in) throws IOException {
+    StringWriter out = new StringWriter();
+    BufferedReader reader = new BufferedReader(in);
+    char[] buff = new char[1024];
+    int len;
+    while((len = reader.read(buff)) != -1) out.write(buff,0,len);
+    return out.toString();
+  }
+
+  /*
+  private static String[] getContentsAsArray(Reader in) throws IOException {
     BufferedReader reader = new BufferedReader(in);
     List list = new ArrayList();
     String s;
@@ -70,4 +76,5 @@ public class JamDiffer {
     list.toArray(out);
     return out;
   }
+  */
 }

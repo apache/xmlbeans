@@ -80,6 +80,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return out;
   }
 
+  /*
   public JAnnotation[] getAllJavadocTags(String named) {
     //FIXME this impl is quite gross
     if (mAllJavadocTags == null) return NO_ANNOTATION;
@@ -94,6 +95,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     list.toArray(out);
     return out;
   }
+  */
 
   // ========================================================================
   // MAnnotatedElement implementation

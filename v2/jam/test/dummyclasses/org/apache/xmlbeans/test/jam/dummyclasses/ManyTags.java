@@ -17,12 +17,12 @@ package org.apache.xmlbeans.test.jam.dummyclasses;
 /**
  * Tests case for javadoc tags is declared more than once in a document.
  */
-public class MultipleTags {
+public class ManyTags {
 
   /**
    * @foo x=-43 y=124 z=79
    * @foo y=2
-   * @foo z=3 
+   * @foo z=3
    * x=1
    * @foo w = 0
    *
@@ -31,6 +31,5 @@ public class MultipleTags {
    * @baz x=1
    */
   public int getId() { return -1; }
-
 
 }
