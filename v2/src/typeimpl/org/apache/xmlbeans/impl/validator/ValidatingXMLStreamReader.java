@@ -655,16 +655,19 @@ public class ValidatingXMLStreamReader
     private void addError(String msg)
     {
         String source = null;
-        Location location = getLocation();
+        Location location = null;
+//        Location location = getLocation();
 
-        if (location!=null)
+        if (location != null)
         {
             source = location.getPublicId();
             if (source==null)
                 source = location.getSystemId();
+            
+            _errorListener.add(XmlError.forLocation(msg, source, location));
         }
-
-        _errorListener.add(XmlError.forLocation(msg, source, getLocation()));
+        else
+            _errorListener.add(XmlError.forMessage(msg));
     }
 
     /**
