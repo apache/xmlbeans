@@ -204,7 +204,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
     jin.close();
     if (VERBOSE) System.out.println("Done reading jar entries");
     SchemaTypeSystem sts = null;
-    if (stsName != null) {
+    if (stsName != null && source != null) {
       {
         try {
           URLClassLoader ucl = new URLClassLoader(new URL[] {source.toURL()});
