@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.store;
 
 import java.lang.reflect.Method;
+import org.apache.xmlbeans.XmlOptions;
 
 public final class XqrlDelegate 
 {
@@ -33,19 +34,19 @@ public final class XqrlDelegate
         }
     }
 
-    static Path.Query compilePath ( String path, String currentNodeVar )
+    static Path.Query compilePath ( String path, XmlOptions options )
     {
         return
             (Path.Query)
-                invoke( _compilePath, new Object[] { path, currentNodeVar } );
+                invoke( _compilePath, new Object[] { path, options } );
     }
     
-    static Path.Query compileQuery ( String queryExpr, String currentNodeVar )
+    static Path.Query compileQuery ( String queryExpr, XmlOptions options )
     {
         return
             (Path.Query)
                 invoke(
-                    _compileQuery, new Object[] { queryExpr, currentNodeVar, new Boolean(true) } );
+                    _compileQuery, new Object[] { queryExpr, options, new Boolean(true) } );
     }
     
     private static void throwRuntimeException ( Throwable e )
@@ -113,12 +114,12 @@ public final class XqrlDelegate
                 _compilePath =
                     xqrlImpl.getDeclaredMethod(
                         "compilePath",
-                        new Class[] { String.class, String.class } );
+                        new Class[] { String.class, XmlOptions.class } );
 
                 _compileQuery =
                     xqrlImpl.getDeclaredMethod(
                         "compileQuery",
-                        new Class[] { String.class, String.class, Boolean.class } );
+                        new Class[] { String.class, XmlOptions.class, Boolean.class } );
                 
             }
             catch ( Exception e )

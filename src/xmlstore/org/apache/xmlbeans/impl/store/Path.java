@@ -121,6 +121,16 @@ public abstract class Path
         
         options = XmlOptions.maskNull( options );
         
+        // ensure options doesn't contain XQuery variable mapping.
+        // someday we should implement this in all the pathing engines
+        // but for now it only applies to the xqrl.
+        if (options.hasOption( XmlOptions.XQUERY_VARIABLE_MAP ))
+        {
+            throw
+                new XmlRuntimeException(
+                    "XmlOptions.XQUERY_VARIABLE_MAP is not allowed in XPath expressions.");
+        }
+
         String currentNodeVar = getCurrentNodeVar( options );
 
         synchronized ( _xbeanPathCache )
@@ -155,7 +165,7 @@ public abstract class Path
 
                 if (path == null)
                 {
-                    path = XqrlPathImpl.create( pathExpr, currentNodeVar );
+                    path = XqrlPathImpl.create( pathExpr, options );
 
                     if (path != null)
                         _xqrlPathCache.put( path.getPathExpr(), path );
@@ -202,7 +212,6 @@ public abstract class Path
     public static String getCompiledQuery ( String queryExpr, XmlOptions options )
     {
         Query query = null;
-        String currentNodeVar = getCurrentNodeVar( options );
         
         synchronized ( _xqrlQueryCache )
         {
@@ -210,7 +219,7 @@ public abstract class Path
 
             if (query == null)
             {
-                query = XqrlDelegate.compileQuery( queryExpr, currentNodeVar );
+                query = XqrlDelegate.compileQuery( queryExpr, options );
 
                 if (query != null)
                     _xqrlQueryCache.put( query.getQueryExpr(), query );
@@ -250,11 +259,11 @@ public abstract class Path
         private String _pathExpr;
         private Query  _compiledPath;
 
-        static Path create ( String pathExpr, String currentNodeVar )
+        static Path create ( String pathExpr, XmlOptions options )
         {
             return new XqrlPathImpl(
                 pathExpr,
-                XqrlDelegate.compilePath( pathExpr, currentNodeVar ) );
+                XqrlDelegate.compilePath( pathExpr, options ) );
         }
 
         protected PathEngine execute (
