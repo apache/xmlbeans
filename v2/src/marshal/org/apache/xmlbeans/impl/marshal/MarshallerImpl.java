@@ -136,15 +136,16 @@ final class MarshallerImpl
         BindingType btype = loadBindingTypeForGlobalElem(elem, jname, obj);
 
         String encoding = getEncoding(options);
-        if (encoding != null)
-            try {
+        try {
+            if (encoding != null) {
                 writer.writeStartDocument(encoding, XML_VERSION);
             }
-            catch (XMLStreamException e) {
-                throw new XmlException(e);
-            }
-
-        marshalBindingType(writer, btype, obj, elem.getQName());
+            marshalBindingType(writer, btype, obj, elem.getQName());
+            writer.writeEndDocument();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
     }
 
     private BindingType loadBindingTypeForGlobalElem(final XmlTypeName elem,
@@ -173,13 +174,7 @@ final class MarshallerImpl
     public void marshal(OutputStream out, Object obj)
         throws XmlException
     {
-        try {
-            XMLStreamWriter writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out);
-            marshal(writer, obj);
-        }
-        catch (XMLStreamException xse) {
-            throw new XmlException(xse);
-        }
+        marshal(out, obj, (XmlOptions)null);
     }
 
     public void marshal(OutputStream out, Object obj, XmlOptions options)
@@ -192,13 +187,15 @@ final class MarshallerImpl
             final XMLStreamWriter writer;
             try {
                 writer = createXmlStreamWriter(out, encoding);
+                marshal(writer, obj);
+                writer.close();
             }
             catch (XMLStreamException e) {
                 throw new XmlException(e);
             }
-            marshalToOutputStream(obj, encoding, writer);
         }
     }
+
 
     private void marshalPretty(OutputStream out,
                                Object obj,
@@ -216,29 +213,11 @@ final class MarshallerImpl
         }
     }
 
-    private void marshalToOutputStream(Object obj,
-                                       final String encoding,
-                                       XMLStreamWriter writer)
-        throws XmlException
-    {
-        try {
-            if (encoding != null)
-                writer.writeStartDocument(encoding, XML_VERSION);
-
-            marshal(writer, obj);
-            writer.writeEndDocument();
-            writer.close();
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
-    }
-
     private static XMLStreamWriter createXmlStreamWriter(OutputStream out,
                                                          final String encoding)
         throws XMLStreamException
     {
-        XMLStreamWriter writer;
+        final XMLStreamWriter writer;
         if (encoding != null) {
             writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out, encoding);
         } else {

@@ -69,6 +69,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -729,6 +730,9 @@ public class MarshalTests extends TestCase
         Collection errors = new LinkedList();
         options.setErrorListener(errors);
         options.setCharacterEncoding(encoding);
+        options.setSavePrettyPrint();
+        options.setSavePrettyPrintIndent(2);
+        options.setValidateOnSet();
         Marshaller ctx =
             bindingContext.createMarshaller();
         Assert.assertNotNull(ctx);
@@ -749,6 +753,59 @@ public class MarshalTests extends TestCase
         }
         Assert.assertEquals(mc, out_obj);
         Assert.assertTrue(errors.isEmpty());
+    }
+
+
+    public void testByNameDocMarshalViaOutputStreamToFile()
+        throws Exception
+    {
+        com.mytest.MyClass mc = new com.mytest.MyClass();
+        mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(99999.777f);
+        myelt.setMyFloat(5555.4444f);
+//        myelt.setMyClass(new com.mytest.MyClass());
+//        myelt.setMyClass(null);
+//        myelt.setMyClass(new com.mytest.MySubSubClass());
+        myelt.setMyClass(new com.mytest.MySubClass());
+
+        mc.setMyelt(myelt);
+
+        myelt.setStringArray(new String[]{"one", "two", "three"});
+
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+
+
+        final File tmpfile = File.createTempFile("xbeans-marshal-test", ".xml");
+        FileOutputStream fos = new FileOutputStream(tmpfile);
+
+
+        final XmlOptions options = new XmlOptions();
+        Collection errors = new LinkedList();
+        options.setErrorListener(errors);
+        options.setSavePrettyPrint();
+        options.setSavePrettyPrintIndent(2);
+        options.setValidateOnSet();
+        Marshaller ctx =
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
+
+        ctx.marshal(fos, mc);
+//        ctx.marshal(fos, mc, options);
+        fos.close();
+
+        //now unmarshall from file and compare objects...
+        Unmarshaller umctx = bindingContext.createUnmarshaller();
+        final FileInputStream output = new FileInputStream(tmpfile);
+        Object out_obj = umctx.unmarshal(output, options);
+        reportErrors(errors, "marsh-outstream");
+        if (!mc.equals(out_obj)) {
+            inform("\nIN : " + mc, true);
+            inform("OUT: " + out_obj, true);
+        }
+        Assert.assertEquals(mc, out_obj);
+        Assert.assertTrue(errors.isEmpty());
+        output.close();
     }
 
 
