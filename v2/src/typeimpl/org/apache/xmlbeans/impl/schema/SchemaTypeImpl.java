@@ -834,6 +834,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
             if (elt == null)
                 return BuiltinSchemaTypeSystem.ST_NO_TYPE;
+            // According to http://www.w3.org/TR/xmlschema-1/#key-lva,
+            // the line above should return ST_ANY_TYPE.
             type = elt.getType();
         }
 
@@ -865,7 +867,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
         if (!_typedWildcardAttributes.contains(attrName) || wildcardTypeLoader == null)
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
-
+        // For symmetry with the element case (as well as with URType), perhaps
+        // the above line should be returning ST_ANY_SIMPLE
+        
         SchemaGlobalAttribute attr = wildcardTypeLoader.findAttribute(attrName);
         if (attr == null)
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;

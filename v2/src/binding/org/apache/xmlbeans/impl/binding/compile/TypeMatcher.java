@@ -64,6 +64,36 @@ import org.apache.xmlbeans.SchemaProperty;
 
 public interface TypeMatcher
 {
+    /**
+     * Returns a collection of MatchedTypes, advising which
+     * Java classes and which Schema types should be matched
+     * with each other.  Not every class or type needs to be
+     * matched by the matcher.  Any remaining ones will be
+     * dealt with automatically if possible, and warnings
+     * will be produced for any types that are not covered.
+     */ 
+    MatchedType[] matchTypes(BothSourceSet bss);
+    
+    /**
+     * Returns a collection of MatchedProperties, advising which
+     * Java properties and Schema properties (elements or
+     * attributes) should be matched with each other.
+     * Any properties not returned here will not be bound.
+     * It is acceptable to rebind properties that were already
+     * bound in a base class. Conflicts will result in an error.
+     */ 
+    MatchedProperties[] matchProperties(JClass jClass, SchemaType sType);
+
+    /**
+     * Substitutes a class-to-bind for a declared-class seen.
+     * This is used when, for example, an interface is used to
+     * always stand in for a specific implementation class.  In
+     * reality, it is the implementation class which is being
+     * bound, but all the declared properties have types corresponding
+     * to the interface.
+     */
+    JClass substituteClass(JClass declaredClass);
+    
     public static class MatchedType
     {
         private JClass jClass;
@@ -106,25 +136,6 @@ public interface TypeMatcher
             return result;
         }
     }
-    /**
-     * Returns a collection of MatchedTypes, advising which
-     * Java classes and which Schema types should be matched
-     * with each other.  Not every class or type needs to be
-     * matched by the matcher.  Any remaining ones will be
-     * dealt with automatically if possible, and warnings
-     * will be produced for any types that are not covered.
-     */ 
-    MatchedType[] matchTypes(BothSourceSet bss);
-    
-    /**
-     * Returns a collection of MatchedProperties, advising which
-     * Java properties and Schema properties (elements or
-     * attributes) should be matched with each other.
-     * Any properties not returned here will not be bound.
-     * It is acceptable to rebind properties that were already
-     * bound in a base class. Conflicts will result in an error.
-     */ 
-    MatchedProperties[] matchProperties(JClass jClass, SchemaType sType);
     
     public static class MatchedProperties
     {

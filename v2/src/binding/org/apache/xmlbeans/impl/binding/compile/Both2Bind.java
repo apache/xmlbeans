@@ -84,8 +84,6 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
 import java.math.BigInteger;
-import java.io.OutputStream;
-import java.io.IOException;
 
 public class Both2Bind implements BindingFileResult
 {
@@ -658,6 +656,10 @@ public class Both2Bind implements BindingFileResult
                     jPropType = jPropType.getArrayComponentType();
                 }
             }
+            
+            // A matcher can say that a declared type is "really" another type.
+            // The normal matcher just returns the same thing back.
+            jPropType = matcher.substituteClass(jPropType);
             
             // Queues the binding type for this property for processing if needed
             BindingType bType = bindingTypeForMatchedTypes(jPropType, sPropType, matchedProperties[i]);

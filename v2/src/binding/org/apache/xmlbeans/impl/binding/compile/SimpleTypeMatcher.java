@@ -135,7 +135,11 @@ public class SimpleTypeMatcher implements TypeMatcher
         
         return (MatchedProperties[])result.toArray(new MatchedProperties[result.size()]);
     }
-    
+
+    public JClass substituteClass(JClass declaredClass) {
+        return declaredClass;
+    }
+
     public void startMatch()
     {
         mapByShortName.clear();
