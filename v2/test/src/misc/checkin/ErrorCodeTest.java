@@ -57,9 +57,9 @@ public class ErrorCodeTest extends TestCase
         Properties messages = readMessages();
 
         // each message key should have an error code value
-        Enumeration enum = messages.keys();
-        while (enum.hasMoreElements()) {
-            String key = (String) enum.nextElement();
+        Enumeration e = messages.keys();
+        while (e.hasMoreElements()) {
+            String key = (String) e.nextElement();
 
             // these properties are known not to have an error code
             if (key.equals("message.missing.resource") || key.equals("message.pattern.invalid"))
