@@ -90,6 +90,16 @@ final class RuntimeTypeFactory
         return (WrappedArrayRuntimeBindingType)rtt;
     }
 
+    public ListArrayRuntimeBindingType createRuntimeType(ListArrayType type,
+                                                         RuntimeBindingTypeTable type_table,
+                                                         BindingLoader binding_loader)
+        throws XmlException
+    {
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, type_table, binding_loader);
+        return (ListArrayRuntimeBindingType)rtt;
+    }
+
     public BuiltinRuntimeBindingType createRuntimeType(BuiltinBindingType type,
                                                        RuntimeBindingTypeTable type_table,
                                                        BindingLoader binding_loader)
@@ -214,7 +224,7 @@ final class RuntimeTypeFactory
         public void visit(ListArrayType listArrayType)
             throws XmlException
         {
-            // todo: Implement
+            runtimeBindingType = new ListArrayRuntimeBindingType(listArrayType);
         }
 
     }

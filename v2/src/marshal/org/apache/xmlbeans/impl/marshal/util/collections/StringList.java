@@ -61,7 +61,6 @@ public final class StringList
     {
         String[] new_a = new String[size];
         System.arraycopy(store, 0, new_a, 0, size);
-        //if (DEBUG) Debug.say("getMinSizedArray size="+size);
         return new_a;
     }
 

@@ -93,6 +93,15 @@ final class JaxrpcEnumUnmarshaller
         return runtimeType.fromValue(itemValue);
     }
 
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        final TypeUnmarshaller item_um = runtimeType.getItemUnmarshaller();
+        final Object itemValue = item_um.unmarshalAttribute(lexical_value, result);
+        return runtimeType.fromValue(itemValue);
+    }
+
     public void unmarshalAttribute(Object object, UnmarshalResult result)
         throws XmlException
     {

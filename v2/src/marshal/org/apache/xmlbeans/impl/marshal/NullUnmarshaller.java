@@ -46,7 +46,14 @@ final class NullUnmarshaller
 
     public Object unmarshalAttribute(UnmarshalResult context)
     {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not supported: this=" + this);
+    }
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
     public void unmarshalAttribute(Object object, UnmarshalResult result)

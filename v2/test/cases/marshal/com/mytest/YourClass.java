@@ -57,6 +57,12 @@ public class YourClass
     private IntEnum intEnum;
     private IntegerEnum integerEnum;
 
+    private String[] simpleStringArray = {"ONE:" + RND.nextInt(),
+                                          "TWO:" + RND.nextInt()};
+
+    private long[] simpleLongArray = {RND.nextLong(),
+                                      RND.nextLong()};
+
 
     //hack alert
     static final Random RND = new Random();
@@ -307,6 +313,26 @@ public class YourClass
         this.integerEnum = integerEnum;
     }
 
+    public String[] getSimpleStringArray()
+    {
+        return simpleStringArray;
+    }
+
+    public void setSimpleStringArray(String[] simpleStringArray)
+    {
+        this.simpleStringArray = simpleStringArray;
+    }
+
+    public long[] getSimpleLongArray()
+    {
+        return simpleLongArray;
+    }
+
+    public void setSimpleLongArray(long[] simpleLongArray)
+    {
+        this.simpleLongArray = simpleLongArray;
+    }
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
@@ -324,6 +350,8 @@ public class YourClass
         if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
         if (!Arrays.equals(myClassArray, yourClass.myClassArray)) return false;
         if (!Arrays.equals(stringArray, yourClass.stringArray)) return false;
+        if (!Arrays.equals(simpleStringArray, yourClass.simpleStringArray)) return false;
+        if (!Arrays.equals(simpleLongArray, yourClass.simpleLongArray)) return false;
         if (!Arrays.equals(wrappedArrayOne, yourClass.wrappedArrayOne)) return false;
 //        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
 
@@ -373,6 +401,8 @@ public class YourClass
             ", longArray=" + ArrayUtils.arrayToString(longArray) +
             ", booleanArray=" + ArrayUtils.arrayToString(booleanArray) +
             ", stringArray=" + ArrayUtils.arrayToString(stringArray) +
+            ", simpleStringArray=" + ArrayUtils.arrayToString(simpleStringArray) +
+            ", simpleLongArray=" + ArrayUtils.arrayToString(simpleLongArray) +
             ", wrappedArrayOne=" + ArrayUtils.arrayToString(wrappedArrayOne) +
             ", myClassArray=" + ArrayUtils.arrayToString(myClassArray) +
             "}";

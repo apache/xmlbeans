@@ -31,6 +31,13 @@ class StringTypeConverter
         return context.getAttributeStringValue();
     }
 
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        return XsTypeConverter.lexString(lexical_value);
+    }
+
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {

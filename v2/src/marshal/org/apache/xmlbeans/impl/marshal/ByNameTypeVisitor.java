@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -110,7 +111,7 @@ final class ByNameTypeVisitor
             final Object parent = getParentObject();
             final Object prop_obj = property.isSet(parent, marshalResult) ?
                 property.getValue(parent, marshalResult) : null;
-            final Iterator itr = MarshalResult.getCollectionIterator(prop_obj);
+            final Iterator itr = ArrayUtils.getCollectionIterator(prop_obj);
             currMultipleIterator = itr;
             if (itr.hasNext()) {
                 currMultipleItem = itr.next();

@@ -15,7 +15,13 @@
 
 package org.apache.xmlbeans.impl.marshal.util;
 
+import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
+import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
+import org.apache.xmlbeans.impl.marshal.util.collections.ReflectiveArrayIterator;
+
 import java.lang.reflect.Array;
+import java.util.Iterator;
+import java.util.Collection;
 
 public final class ArrayUtils
 {
@@ -89,6 +95,22 @@ public final class ArrayUtils
 
         System.out.println("ok");
 
+    }
+
+    public static Iterator getCollectionIterator(Object value)
+    {
+        //TODO & FIXME: refactor this into seperate classes
+        if (value == null) {
+            return EmptyIterator.getInstance();
+        } else if (value instanceof Collection) {
+            return ((Collection)value).iterator();
+        } else if (value instanceof Object[]) {
+            return new ArrayIterator((Object[])value);
+        } else if (value.getClass().isArray()) {
+            return new ReflectiveArrayIterator(value);
+        } else {
+            throw new AssertionError("bad type: " + value.getClass());
+        }
     }
 
 }

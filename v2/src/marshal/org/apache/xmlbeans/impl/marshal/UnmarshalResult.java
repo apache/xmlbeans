@@ -34,6 +34,7 @@ import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
 
 import javax.xml.namespace.QName;
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -152,6 +153,10 @@ final class UnmarshalResult
                                     "<unknown>");
     }
 
+    Collection getErrors()
+    {
+        return errors;
+    }
 
     Object unmarshalDocument(XMLStreamReader reader)
         throws XmlException
@@ -322,6 +327,12 @@ final class UnmarshalResult
 
 
     // ======================= xml access methods =======================
+
+
+    Location getLocation()
+    {
+        return baseReader.getLocation();
+    }
 
     String getStringValue() throws XmlException
     {
@@ -518,6 +529,18 @@ final class UnmarshalResult
     {
         try {
             return baseReader.getAttributeStringValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
+    }
+
+    String getAttributeStringValue(int whitespace_style)
+        throws XmlException
+    {
+        try {
+            return baseReader.getAttributeStringValue(currentAttributeIndex,
+                                                      whitespace_style);
         }
         catch (XMLStreamException e) {
             throw new XmlException(e);
@@ -934,6 +957,11 @@ final class UnmarshalResult
             return NullUnmarshaller.getInstance();
 
         return base;
+    }
+
+    NamespaceContext getNamespaceContext()
+    {
+        return baseReader.getNamespaceContext();
     }
 
 }

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 final class DoubleTypeConverter
     extends BaseSimpleTypeConverter
@@ -31,6 +32,19 @@ final class DoubleTypeConverter
     {
         double val = context.getAttributeDoubleValue();
         return new Double(val);
+    }
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        try {
+            final double f = XsTypeConverter.lexDouble(lexical_value);
+            return new Double(f);
+        }
+        catch (NumberFormatException ne) {
+            throw new InvalidLexicalValueException(ne, result.getLocation());
+        }
     }
 
     //non simple types can throw a runtime exception

@@ -89,7 +89,7 @@ abstract class RuntimeBindingProperty
     abstract QName getName();
 
     //non simple type props can throw an exception
-    abstract CharSequence getLexical(Object parent, MarshalResult result)
+    abstract CharSequence getLexical(Object value, MarshalResult result)
         throws XmlException;
 
     abstract Object getValue(Object parentObject, MarshalResult result)

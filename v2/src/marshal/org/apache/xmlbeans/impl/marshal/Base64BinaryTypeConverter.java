@@ -16,8 +16,11 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.util.Base64;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -47,6 +50,21 @@ final class Base64BinaryTypeConverter
             throw new XmlException(e);
         }
     }
+
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        byte[] buf = Base64.decode(lexical_value.toString().getBytes());
+        if (buf != null)
+            return new ByteArrayInputStream(buf);
+        else
+            throw new InvalidLexicalValueException("invalid base64Binary value",
+                                                   result.getLocation());
+
+    }
+
 
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)

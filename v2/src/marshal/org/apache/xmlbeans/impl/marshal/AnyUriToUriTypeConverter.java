@@ -19,40 +19,51 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
-final class IntTypeConverter
+import java.net.URI;
+import java.net.URISyntaxException;
+
+
+final class AnyUriToUriTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalResult context) throws XmlException
+
+    protected Object getObject(UnmarshalResult context)
+        throws XmlException
     {
-        int val = context.getIntValue();
-        return new Integer(val);
+        final String uri_val = context.getAnyUriValue();
+        return stringToUri(uri_val, context);
     }
 
-    public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
+    public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
     {
-        int val = context.getAttributeIntValue();
-        return new Integer(val);
+        final String uri_val = context.getAttributeAnyUriValue();
+        return stringToUri(uri_val, context);
     }
-
 
     public Object unmarshalAttribute(CharSequence lexical_value,
                                      UnmarshalResult result)
         throws XmlException
     {
-        try {
-            final int f = XsTypeConverter.lexInt(lexical_value);
-            return new Integer(f);
-        }
-        catch (NumberFormatException ne) {
-            throw new InvalidLexicalValueException(ne, result.getLocation());
-        }
+        return stringToUri(lexical_value.toString(), result);
     }
-
 
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {
-        Integer val = (Integer)value;
-        return XsTypeConverter.printInt(val.intValue());
+        URI val = (URI)value;
+        return XsTypeConverter.printString(val.toString());
     }
+
+    private static Object stringToUri(final String uri_val,
+                                      UnmarshalResult context)
+    {
+        try {
+            return new URI(uri_val);
+        }
+        catch (URISyntaxException e) {
+            throw new InvalidLexicalValueException(e, context.getLocation());
+        }
+    }
+
 }

@@ -85,6 +85,13 @@ public final class ObjectAnyTypeConverter
         throw new AssertionError("unused");
     }
 
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        throw new AssertionError("unused");
+    }
+
     public void unmarshalAttribute(Object object, UnmarshalResult result)
         throws XmlException
     {

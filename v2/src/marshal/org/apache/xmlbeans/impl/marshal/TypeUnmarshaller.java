@@ -69,6 +69,22 @@ interface TypeUnmarshaller
         throws XmlException;
 
     /**
+     * unmarshal the lexical value of an instance of xsd:anySimpleType.
+     * This could be called on an attribute value or on element content.
+     *
+     * @param lexical_value  value to be unmarshalled
+     * @param result
+     * @return Object representing java value of lexical
+     *
+     * @exception UnsupportedOperationException if the
+     *            <tt>unmarshalSimpleType</tt> operation is not supported
+     *            by this TypeUnmarshaller.
+     */
+    Object unmarshalAttribute(CharSequence lexical_value,
+                              UnmarshalResult result)
+        throws XmlException;
+
+    /**
      * unmarshal the lexical value of an instance of xsd:anySimpleType into an
      * existing object.  This could be called on an attribute value
      * or on element content.

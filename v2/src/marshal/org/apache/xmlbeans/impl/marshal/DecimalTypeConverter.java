@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import java.math.BigDecimal;
@@ -33,6 +34,19 @@ final class DecimalTypeConverter
     public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
         return context.getAttributeBigDecimalValue();
+    }
+
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        try {
+            return XsTypeConverter.lexDecimal(lexical_value);
+        }
+        catch (NumberFormatException ne) {
+            throw new InvalidLexicalValueException(ne, result.getLocation());
+        }
     }
 
     //non simple types can throw a runtime exception

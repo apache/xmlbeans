@@ -17,9 +17,12 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.util.HexBin;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ByteArrayInputStream;
 
 final class HexBinaryTypeConverter
     extends BaseSimpleTypeConverter
@@ -44,6 +47,19 @@ final class HexBinaryTypeConverter
         catch (IOException e) {
             throw new XmlException(e);
         }
+    }
+
+    public Object unmarshalAttribute(CharSequence lexical_value,
+                                     UnmarshalResult result)
+        throws XmlException
+    {
+        byte[] buf = HexBin.decode(lexical_value.toString().getBytes());
+        if (buf != null)
+            return new ByteArrayInputStream(buf);
+        else
+            throw new InvalidLexicalValueException("invalid hexBinary value",
+                                                   result.getLocation());
+
     }
 
     //non simple types can throw a runtime exception

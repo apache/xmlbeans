@@ -348,7 +348,7 @@ public final class XsTypeConverter
 
         //reaching here means an invalid boolean lexical
         String msg = "invalid boolean: " + v;
-        throw new IllegalArgumentException(msg);
+        throw new InvalidLexicalValueException(msg);
     }
 
     public static boolean lexBoolean(CharSequence value, Collection errors)
@@ -376,6 +376,12 @@ public final class XsTypeConverter
         final String v = cs.toString();
 
         return v;
+    }
+
+
+    public static String lexString(CharSequence lexical_value)
+    {
+        return lexical_value.toString();
     }
 
     public static String printString(String value)
@@ -661,4 +667,5 @@ public final class XsTypeConverter
 
         return sign*result;
     }
+
 }
