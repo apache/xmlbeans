@@ -58,6 +58,7 @@ package org.apache.xmlbeans.test.jam;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.JamService;
+import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
 
 import java.io.IOException;
 
@@ -82,6 +83,7 @@ public class SourcesJamTest extends JamTestBase {
     JamServiceFactory jsf = JamServiceFactory.getInstance();
     JamServiceParams params = jsf.createServiceParams();
     params.includeSourceFiles(getDummyclassesSourceRoot(),"**/*.java");
+    params.setProperty(JavadocClassBuilder.ARGS_PROPERTY,"-source 1.5");
     return jsf.createService(params);
   }
 

@@ -134,7 +134,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     String typename = getAnnotationTypeFor(jsr175annotationInstance);
     MAnnotation ann = getMutableAnnotation(typename);
     if (ann != null) {
-      //REVIEW this is an extremely weird case where they add another instance
+      ann.getMutableProxy().initFromAnnotationInstance(jsr175annotationInstance);
+      //REVIEW this is a weird case where they add another instance
       // of the same annotation type.  We'll just go with it for now,
       // but we might want to throw an exception here, not sure.
     } else {

@@ -5,18 +5,25 @@
   <property name='src-jamtest' value='.' />
   <property name='jamroot' value='../' />
    
-  <property name='build_dir' value='${jamroot}/build'/>
+  <property name='build_dir' value='${jamroot}/../build/jam'/> <!--FIXME-->
   <property name='test_build_dir' value='${build_dir}/test'/>
   <property name='dummy_dir' value='${test_build_dir}/dummyclasses'/>
   <property name='junit_jar' value='${jamroot}/external/lib/junit.jar' />
+  <property name='jsr173api_jar' value='../../build/lib/jsr173_api.jar'/>
+  <property name='jsr173ri_jar' value='../../build/lib/jsr173_ri.jar'/>
+
 
   <path id='classpath' >
 
  <!-- use build/classes instead of xbean.jar for develpment convenience -->
-    <pathelement path='${jamroot}/build/classes' />
+    <pathelement path='${build_dir}/classes' />
     <pathelement location='${test_build_dir}' />
     <pathelement location='${junit_jar}'/>
     <pathelement path='${java.class.path}' />
+
+    <pathelement location='${jsr173api_jar}' />
+    <pathelement location='${jsr173ri_jar}' />
+
   </path>
 
   <property name='classpath-value' refid='classpath'/>
@@ -33,6 +40,7 @@
      />
     <mkdir dir='${dummy_dir}'/>
     <javac
+       source='1.5' target='1.5'
        srcdir='dummyclasses'
        destdir='${dummy_dir}'
        classpathref='classpath'
@@ -68,33 +76,6 @@
     </junit>
   </target>
 
-
-  <!-- JDK 1.5-specific tests.  These have to be run manually since we
-       don't require 1.5 yet -->
-
-  <target name='tiger' depends='tiger.build,tiger.run'/>
-
-  <target name='tiger.clean' >
-    <delete dir='${dummy_dir}'/>
-  </target>
-
-  <target name='tiger.build' >
-    <mkdir dir='${dummy_dir}'/>
-    <javac
-       source='1.5'
-       srcdir='dummy15classes'
-       destdir='${dummy_dir}'
-       classpathref='classpath'
-       includes='**/*.java'
-       fork='true'
-
-      executable='e:/java/jdk150/bin/javac.exe'
-      verbose='true'
-      target='1.5'
-     />
-  </target>
-
-  <target name='tiger.run'/>
 
 </project>
 

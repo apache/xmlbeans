@@ -57,8 +57,16 @@ package org.apache.xmlbeans.test.jam;
 
 import junit.framework.TestCase;
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.xml.JamXmlWriter;
 
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamReader;
 import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 import java.util.*;
 
 /**
@@ -82,16 +90,21 @@ public abstract class JamTestBase extends TestCase {
   //this array must contain the names of all of the test classes under
   //dummyclasses
   private static final String[] ALL_CLASSES = {
-   DUMMY+".ejb.IEnv",
-   DUMMY+".ejb.MyEjbException",
-   DUMMY+".ejb.TraderEJB",
-   DUMMY+".ejb.TradeResult",
-   DUMMY+".Base",
-   DUMMY+".Baz",
-   DUMMY+".Foo",
-   DUMMY+".FooImpl",
-   DUMMY+".HeavilyCommented",
-   DUMMY+".MyException"
+    DUMMY+".ejb.IEnv",
+    DUMMY+".ejb.MyEjbException",
+    DUMMY+".ejb.TraderEJB",
+    DUMMY+".ejb.TradeResult",
+
+    DUMMY+".jsr175.AnnotatedClass",
+    DUMMY+".jsr175.RFEAnnotation",
+    DUMMY+".jsr175.RFEAnnotationImpl",
+
+    DUMMY+".Base",
+    DUMMY+".Baz",
+    DUMMY+".Foo",
+    DUMMY+".FooImpl",
+    DUMMY+".HeavilyCommented",
+    DUMMY+".MyException"
   };
 
 
@@ -188,7 +201,7 @@ public abstract class JamTestBase extends TestCase {
    * Returns the directory into which the dummyclasses have been compiled.
    */
   protected File getDummyclassesClassDir() {
-    return new File("../build/test/dummyclasses");
+    return new File("../../build/jam/test/dummyclasses");
   }
 
   // ========================================================================
@@ -214,6 +227,26 @@ public abstract class JamTestBase extends TestCase {
                classNames.containsAll(expected));
     assertTrue("result contains more than expected classes",
                expected.containsAll(classNames));
+  }
+
+  private void dump(JClass j) {
+    Writer out = new PrintWriter(System.out,true);
+    JamXmlWriter jxw = null;
+    try {
+      jxw = new JamXmlWriter(out);
+      jxw.write(j);
+      out.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (XMLStreamException e) {
+      e.printStackTrace();
+    }
+  }
+
+
+  public void test175Annotations() throws IOException, XMLStreamException {
+    JClass clazz = resolved(mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass"));
+    dump(clazz);
   }
 
   public void testRecursiveResolve() {

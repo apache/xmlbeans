@@ -15,18 +15,15 @@
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
 import com.sun.javadoc.*;
-import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.internal.elements.PrimitiveClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
-import org.apache.xmlbeans.impl.jam.JClass;
 
 import java.io.*;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
+import java.util.StringTokenizer;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -36,21 +33,37 @@ public class JavadocClassBuilder extends JamClassBuilder {
   // ========================================================================
   // Constants
 
+  public static final String ARGS_PROPERTY = "javadoc.args";
+
   private static boolean VERBOSE = false;
+  private static final String JAVA15_EXTRACTOR = 
+    "org.apache.xmlbeans.impl.jam.internal.java15.Javadoc15AnnotationExtractor";
 
   // ========================================================================
   // Variables
 
   private RootDoc mRootDoc = null;
   private JamServiceContext mServiceContext;
-  private boolean mIs15 = false;
+  private JavadocAnnotationExtractor mExtractor = null;
 
   // ========================================================================
   // Constructors
 
   public JavadocClassBuilder(JamServiceContext ctx) {
+    if (ctx == null) throw new IllegalArgumentException("null context");
     mServiceContext = ctx;
-    init175getters();
+    try {
+      mExtractor = (JavadocAnnotationExtractor)
+        Class.forName(JAVA15_EXTRACTOR).newInstance();
+    } catch (ClassNotFoundException e) {
+      ctx.error(e);
+    } catch (IllegalAccessException e) {
+      //if this fails, we'll assume it's because we're not under 1.5
+      ctx.debug(e);
+    } catch (InstantiationException e) {
+      //if this fails, we'll assume it's because we're not under 1.5
+      ctx.debug(e);
+    }
   }
 
   // ========================================================================
@@ -83,7 +96,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
                          out,
                          sourcePath,
                          classPath,
-                         null);//FIXME get javadoc args from param props
+                         getJavadocArgs(mServiceContext));
       if (mRootDoc == null) {
         ctx.debug("Javadoc returned a null root");//FIXME error
       }
@@ -93,8 +106,6 @@ public class JavadocClassBuilder extends JamClassBuilder {
       ctx.error(e);
     }
   }
-
-
 
   public MClass build(String packageName, String className) {
     if (VERBOSE) {
@@ -175,8 +186,21 @@ public class JavadocClassBuilder extends JamClassBuilder {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
     dest.setType(getFdFor(src.type()));
-    if (mIs15) addAnnotations(dest, callGetAnnotations(src));
+    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
   }
+
+
+  private String[] getJavadocArgs(JamServiceContext ctx) {
+    String prop = ctx.getProperty(ARGS_PROPERTY);
+    if (prop == null) return null;
+
+    StringTokenizer t = new StringTokenizer(prop);
+    String[] out = new String[t.countTokens()];
+    int i = 0;
+    while(t.hasMoreTokens()) out[i++] = t.nextToken();
+    return out;
+  }
+
 
   /**
    * Returns a classfile-style field descriptor for the given type.
@@ -216,115 +240,10 @@ public class JavadocClassBuilder extends JamClassBuilder {
   }
 
 
+
   private void addAnnotations(MAnnotatedElement dest, ProgramElementDoc src) {
     String comments = src.getRawCommentText();
     if (comments != null) dest.createComment().setText(comments);
-    if (mIs15) addAnnotations(dest,callGetAnnotations(src));
+    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
   }
-
-  private void addAnnotations(MAnnotatedElement dest, Object[] descs) {
-    if (descs == null) return;
-    if (!mIs15) return;
-    for(int i=0; i<descs.length; i++) {
-      MAnnotation ann =
-        dest.addAnnotationForType(callGetAnnotationType(descs[i]).qualifiedTypeName());
-      ann.setArtifact(descs[i]);
-      AnnotationProxy proxy = ann.getMutableProxy();
-      Object[] mvps = callGetMemberValues(descs[i]);
-      for(int j=0; j<mvps.length; j++) {
-        String name = callGetMvpName(mvps[i]);
-        Object value = callGetMvpValue(mvps[i]);
-        if (name != null && value != null) proxy.setValue(name,value);
-      }
-    }
-  }
-
-
-  // ========================================================================
-  // Goofy reflection stuff to keep us 1.4-safe
-
-  private Method mAnnotationGetter;
-  private Method mParameterAnnotationGetter;
-  private Method mAnnotationTypeGetter;
-  private Method mMemberValuesGetter;
-  private Method mMvpName;
-  private Method mMvpValue;
-
-  private Object[] callGetAnnotations(ProgramElementDoc pd) {
-    if (mAnnotationGetter == null) return null;
-    return (Object[])invoke(mAnnotationGetter,pd);
-  }
-
-  private Object[] callGetAnnotations(Parameter p) {
-    if (mParameterAnnotationGetter == null) return null;
-    return (Object[])invoke(mParameterAnnotationGetter,p);
-  }
-
-  private ClassDoc callGetAnnotationType(Object desc) {
-    if (mAnnotationTypeGetter == null) return null;
-    return (ClassDoc)invoke(mAnnotationTypeGetter, desc);
-  }
-
-  private Object[] callGetMemberValues(Object desc) {
-    if (mMemberValuesGetter == null) return null;
-    return (Object[])invoke(mMemberValuesGetter, desc);
-  }
-
-  private String callGetMvpName(Object mvp) {
-    if (mMvpName == null) return null;
-    return (String)invoke(mMvpName, mvp);
-  }
-
-  private Object callGetMvpValue(Object mvp) {
-    if (mMvpValue == null) return null;
-    return invoke(mMvpValue, mvp);
-  }
-
-  private void init175getters() {
-    mAnnotationGetter = getGetter(ProgramElementDoc.class,"annotations");
-    mParameterAnnotationGetter = getGetter(Parameter.class,"annotations");
-    try {
-      Class annotationDesc = Class.forName("com.sun.javadoc.AnnotationDesc");
-      mAnnotationTypeGetter = getGetter(annotationDesc, "annotationType");
-      mMemberValuesGetter = getGetter(annotationDesc, "memberValues");
-    } catch (ClassNotFoundException e) {
-      mServiceContext.debug(e);
-    }
-    try {
-      Class annotationDesc = Class.forName("com.sun.javadoc.AnnotationDesc.");
-      mAnnotationTypeGetter = getGetter(annotationDesc, "annotationType");
-      mMemberValuesGetter = getGetter(annotationDesc, "memberValues");
-    } catch (ClassNotFoundException e) {
-      mServiceContext.debug(e);
-    }
-    try {
-      Class mvp = Class.forName("com.sun.javadoc.AnnotationDesc.MemberValuePair");
-      mMvpName = getGetter(mvp, "name");
-      mMvpValue = getGetter(mvp, "value");
-    } catch (ClassNotFoundException e) {
-      mServiceContext.debug(e);
-    }
-    mIs15 = true;
-  }
-
-  private Method getGetter(Class c, String name) {
-    try {
-      return c.getMethod(name, null);
-    } catch (NoSuchMethodException e) {
-      mServiceContext.debug(e);
-    }
-    return null;
-  }
-
-  private Object invoke(Method m, Object target) {
-    try {
-      return m.invoke(target,null);
-    } catch (IllegalAccessException e) {
-      mServiceContext.debug(e);
-    } catch (InvocationTargetException e) {
-      mServiceContext.debug(e);
-    }
-    return null;
-  }
-
 }

@@ -12,13 +12,20 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.xml;
+package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
+
+import java.lang.annotation.*;
 
 /**
+ *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class TunnelledXMLException extends RuntimeException {
-
-  //  private XMLStreamException mRealException;
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface RFEAnnotation {
+    int    id();        // Unique ID number associated with RFE
+    String synopsis();  // Synopsis of RFE
+    String engineer()  default "[unassigned]";
+    String date()      default "[unimplemented]";
 }
+
