@@ -158,6 +158,90 @@ abstract class Xobj implements TypeStore
     final boolean hasAttrs    ( ) { return _firstChild != null &&  _firstChild.isAttr(); }
     final boolean hasChildren ( ) { return _lastChild  != null && !_lastChild .isAttr(); }
 
+    
+    /**
+     * this method is to speed up DomImpl
+     * when underlying obj is an Xobj
+     *
+     * @return 0 or 1 dom children; val 2 indicates that DomImpl needs to
+     *         compute the result itself
+     */
+    final protected int getDomZeroOneChildren()
+    {
+        if (_firstChild == null &&
+            _srcValue == null &&
+            _charNodesValue == null)
+            return 0;
+
+        if (_lastChild != null &&
+            _lastChild.isAttr() &&
+            _lastChild._charNodesAfter == null &&
+            _lastChild._srcAfter == null &&
+            _srcValue == null &&
+            _charNodesValue == null
+        )
+            return 0;
+
+        if (_firstChild == _lastChild &&
+            _firstChild != null &&
+            !_firstChild.isAttr() &&
+            _srcValue == null &&
+            _charNodesValue == null &&
+            _firstChild._srcAfter == null
+        )
+            return 1;
+
+        if (_firstChild == null &&
+            _srcValue != null &&
+            _charNodesValue == null)
+            return 1;
+        return 2;
+    }
+
+    /**
+     * can one use the _firstChild pointer to retrieve
+     * the first DOM child
+     *
+     * @return
+     */
+    final protected boolean isFirstChildPtrDomUsable()
+    {
+        if (_firstChild == null &&
+            _srcValue == null &&
+            _charNodesValue == null)
+            return true;
+
+        if (_firstChild != null &&
+            !_firstChild.isAttr() &&
+            _srcValue == null &&
+            _charNodesValue == null)
+        {
+            assert (_firstChild instanceof Xobj.NodeXobj):
+                "wrong node type";
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * can one use the _nextSibling pointer to retrieve
+     *  the next DOM sibling
+     * @return
+     */
+    final protected boolean isNextSiblingPtrDomUsable()
+    {
+        if (_charNodesAfter == null &&
+            _srcAfter == null)
+        {
+            assert (_nextSibling == null ||
+                _nextSibling instanceof Xobj.NodeXobj):
+                "wrong node type";
+            return true;
+        }
+        return false;
+    }
+
+
     final Xobj lastAttr ( )
     {
         if (_firstChild == null || !_firstChild.isAttr())
