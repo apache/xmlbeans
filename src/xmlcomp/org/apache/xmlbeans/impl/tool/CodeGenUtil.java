@@ -113,6 +113,12 @@ public class CodeGenUtil
         return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, null, DEFAULT_MEM_START, DEFAULT_MEM_MAX, false, false);
     }
 
+    // KHK: temporary to avoid build break
+    static public boolean externalCompile(List srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax,  boolean quiet, boolean verbose)
+    {
+        return externalCompile(srcFiles, outdir, cp, debug, javacPath, null, memStart, memMax, quiet, verbose);
+    }
+    
     /**
      * Invokes javac on the generated source files in order to turn them
      * into binary files in the output directory.  This will return a list of
