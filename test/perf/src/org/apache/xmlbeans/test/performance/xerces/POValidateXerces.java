@@ -137,7 +137,8 @@ public class POValidateXerces
     // use perf util to get file size (XMLInputSource doens't give an easy API).
     PerfUtil util = new PerfUtil();
     char[] chars = util.fileToChars(filename);
-    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" filesize="+chars.length+" ");
+    // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
+    System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" filesize="+chars.length+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

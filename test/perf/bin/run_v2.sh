@@ -12,6 +12,34 @@ sh ./v2.sh POReadOneV2 4
 sh ./v2.sh POReadOneV2 5 
 sh ./v2.sh POReadOneV2 6 
 sh ./v2.sh POReadOneV2 7 
+sh ./v2.sh POGetCustNameV2 filename 1
+sh ./v2.sh POGetCustNameV2 filename 2
+sh ./v2.sh POGetCustNameV2 filename 3
+sh ./v2.sh POGetCustNameV2 filename 4
+sh ./v2.sh POGetCustNameV2 filename 5
+sh ./v2.sh POGetCustNameV2 filename 6
+sh ./v2.sh POGetCustNameV2 filename 7
+sh ./v2.sh POGetSetGetCustNameV2 filename 1
+sh ./v2.sh POGetSetGetCustNameV2 filename 2
+sh ./v2.sh POGetSetGetCustNameV2 filename 3
+sh ./v2.sh POGetSetGetCustNameV2 filename 4
+sh ./v2.sh POGetSetGetCustNameV2 filename 5
+sh ./v2.sh POGetSetGetCustNameV2 filename 6
+sh ./v2.sh POGetSetGetCustNameV2 filename 7
+sh ./v2.sh POSelectLineItemsV2 filename 1
+sh ./v2.sh POSelectLineItemsV2 filename 2
+sh ./v2.sh POSelectLineItemsV2 filename 3
+sh ./v2.sh POSelectLineItemsV2 filename 4
+sh ./v2.sh POSelectLineItemsV2 filename 5
+sh ./v2.sh POSelectLineItemsV2 filename 6
+sh ./v2.sh POSelectLineItemsV2 filename 7
+sh ./v2.sh POQueryLineItemsV2 filename 1
+sh ./v2.sh POQueryLineItemsV2 filename 2
+sh ./v2.sh POQueryLineItemsV2 filename 3
+sh ./v2.sh POQueryLineItemsV2 filename 4
+sh ./v2.sh POQueryLineItemsV2 filename 5
+sh ./v2.sh POQueryLineItemsV2 filename 6
+sh ./v2.sh POQueryLineItemsV2 filename 7
 sh ./v2.sh POTopDownV2
 sh ./v2.sh POTopDownSaveV2
 sh ./v2.sh POValidateXmlObjV2

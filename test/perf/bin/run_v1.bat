@@ -12,6 +12,27 @@ call v1.bat POReadOneV1 filename 4
 call v1.bat POReadOneV1 filename 5
 call v1.bat POReadOneV1 filename 6
 call v1.bat POReadOneV1 filename 7
+call v1.bat POGetCustNameV1 filename 1
+call v1.bat POGetCustNameV1 filename 2
+call v1.bat POGetCustNameV1 filename 3
+call v1.bat POGetCustNameV1 filename 4
+call v1.bat POGetCustNameV1 filename 5
+call v1.bat POGetCustNameV1 filename 6
+call v1.bat POGetCustNameV1 filename 7
+call v1.bat POGetSetGetCustNameV1 filename 1
+call v1.bat POGetSetGetCustNameV1 filename 2
+call v1.bat POGetSetGetCustNameV1 filename 3
+call v1.bat POGetSetGetCustNameV1 filename 4
+call v1.bat POGetSetGetCustNameV1 filename 5
+call v1.bat POGetSetGetCustNameV1 filename 6
+call v1.bat POGetSetGetCustNameV1 filename 7
+call v1.bat POSelectLineItemsV1 filename 1
+call v1.bat POSelectLineItemsV1 filename 2
+call v1.bat POSelectLineItemsV1 filename 3
+call v1.bat POSelectLineItemsV1 filename 4
+call v1.bat POSelectLineItemsV1 filename 5
+call v1.bat POSelectLineItemsV1 filename 6
+call v1.bat POSelectLineItemsV1 filename 7
 call v1.bat POTopDownV1
 call v1.bat POTopDownSaveV1
 call v1.bat POValidateXmlObjV1

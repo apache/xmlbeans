@@ -12,17 +12,21 @@
 *   See the License for the specific language governing permissions and
 *  limitations under the License.
 */
-package org.apache.xmlbeans.test.performance.v1;
+package org.apache.xmlbeans.test.performance.xerces;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
 
-import org.apache.xmlbeans.XmlObject;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.xmlbeans.test.performance.utils.Constants;
 import org.apache.xmlbeans.test.performance.utils.PerfUtil;
+import org.w3c.dom.Document;
+import org.xml.sax.InputSource;
 
 
-public class MaxMemUntypedBisLoadV1
+public class MaxMemUntypedBisLoadXercesDom
 {
  
   public static void main(String[] args) throws Exception
@@ -38,7 +42,7 @@ public class MaxMemUntypedBisLoadV1
     else
       flavor = args[0];
 
-    MaxMemUntypedBisLoadV1 test = new MaxMemUntypedBisLoadV1();
+    MaxMemUntypedBisLoadXercesDom test = new MaxMemUntypedBisLoadXercesDom();
     PerfUtil util = new PerfUtil();
     
     try
@@ -49,7 +53,7 @@ public class MaxMemUntypedBisLoadV1
     	{
     		System.gc();
     		byte[] bytes = util.createXmlDataBytes(flavor,Constants.MEM_INITIALSIZE+(interval*i));
-    		hash += test.run(new BufferedInputStream(new ByteArrayInputStream(bytes) ));
+    		hash += test.run(new BufferedInputStream(new ByteArrayInputStream(bytes)));
     		size = bytes.length;
     	}
     }
@@ -66,8 +70,15 @@ public class MaxMemUntypedBisLoadV1
 
   private int run(BufferedInputStream p_bis) throws Exception
   {
-    // load the buffered input stream
-    XmlObject xobj = XmlObject.Factory.parse(p_bis);
-    return xobj.hashCode();
+    // create the input source from the bis
+    InputSource is = new InputSource(p_bis);
+
+    // load the input source
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    DocumentBuilder builder = factory.newDocumentBuilder();
+    Document doc = builder.parse(is);
+
+    // calculate and return the hash
+    return doc.getDocumentElement().getTagName().length() * 17; 	
   }
 }

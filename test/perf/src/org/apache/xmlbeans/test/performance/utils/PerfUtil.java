@@ -90,9 +90,11 @@ public class PerfUtil
   public byte[] createXmlDataBytes(String flavor, int size)
   {
     char[] chars = createXmlData(flavor,size);
-    //System.gc();
+    System.gc();
     StringBuffer buff = new StringBuffer(chars.length);
     buff.append(chars);
+    chars = null;
+    System.gc();
     return buff.toString().getBytes();
   }
 
