@@ -833,7 +833,25 @@ public class StscSimpleTypeResolver
                         {
                             // note: this guarantees that the limit is a valid number in the
                             // base data type!!
-                            state.error("Must be valid value in base type: " + e.getMessage(), XmlErrorCodes.FACET_VALUE_MALFORMED, facet);
+                            switch (code)
+                            {
+                            case SchemaType.FACET_MIN_EXCLUSIVE:
+                                state.error(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_RESTRICTION,
+                                    new Object[] {e.getMessage()}, facet);
+                                break;
+                            case SchemaType.FACET_MIN_INCLUSIVE:
+                                state.error(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_RESTRICTION,
+                                    new Object[] {e.getMessage()}, facet);
+                                break;
+                            case SchemaType.FACET_MAX_INCLUSIVE:
+                                state.error(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_RESTRICTION,
+                                    new Object[] {e.getMessage()}, facet);
+                                break;
+                            case SchemaType.FACET_MAX_EXCLUSIVE:
+                                state.error(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_RESTRICTION,
+                                    new Object[] {e.getMessage()}, facet);
+                                break;
+                            }
 
                             // BUGBUG: if there are actual schemas that redefine min/maxExclusive,
                             // they will need this rule relaxed for them!!

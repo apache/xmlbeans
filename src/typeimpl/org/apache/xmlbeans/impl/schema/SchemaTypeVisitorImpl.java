@@ -100,7 +100,11 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
             _curMax = orig._curMax;
             _processedChildCount = orig._processedChildCount;
             _childCount = orig._childCount;
-            _seen = orig._seen;
+            if (orig._seen != null)
+            {
+                _seen = new boolean[orig._seen.length];
+                System.arraycopy(orig._seen, 0, _seen, 0, orig._seen.length);
+            }
         }
 
         public void init(SchemaParticle part)

@@ -373,7 +373,8 @@ public class IdentityConstraint {
                 if (fields.unfilled() < 0 && ! hasKeyValue(fields))
                 {
                     // KHK: cvc-identity-constraint.4.3 ?
-                    emitError(e, "Key '" + fields + "' not found (keyRef " + QNameHelper.pretty(_constraint.getName()) + ")");
+                	emitError(e, XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$KEYREF_KEY_NOT_FOUND,
+                	    new Object[] {fields, QNameHelper.pretty(_constraint.getName())});
                     return;
                 }
             }

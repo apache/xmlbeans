@@ -256,6 +256,12 @@ public abstract class XmlErrorCodes
     public static final String ELEM_LOCALLY_VALID$NIL_WITH_CONTENT = "cvc-elt.3.2.1";
 
     /**
+     * cvc-elt.3.2.2: See clause 3.2.2 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
+     */
+    public static final String ELEM_LOCALLY_VALID$NIL_WITH_FIXED = "cvc-elt.3.2.2";
+
+    /**
      * cvc-elt.4.1: See clause 4.1 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
      */
@@ -356,6 +362,12 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-identity-constraint">XMLSchema Structures 1.0: Identity-constraint Satisfied</a>
      */
     public static final String IDENTITY_CONSTRAINT_VALID$DUPLICATE_KEY = "cvc-identity-constraint.4.2.2";
+
+    /**
+     * cvc-identity-constraint.4.3: See clause 4.3
+     * <a href="http://www.w3.org/TR/xmlschema-1/#cvc-identity-constraint">XMLSchema Structures 1.0: Identity-constraint Satisfied</a>
+     */
+    public static final String IDENTITY_CONSTRAINT_VALID$KEYREF_KEY_NOT_FOUND = "cvc-identity-constraint.4.3";
 
     /**
      * cvc-length-valid: See
@@ -1226,6 +1238,18 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-1/#e-props-correct">XMLSchema Structures 1.0: Element Declaration Properties Correct</a>
      */
     public static final String ELEM_PROPERTIES$CONSTRAINT_VALID = "e-props-correct.2";
+
+    /**
+     * e-props-correct.4: See clause 4 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#e-props-correct">XMLSchema Structures 1.0: Element Declaration Properties Correct</a>
+     */
+    public static final String ELEM_PROPERTIES$SUBSTITUTION_VALID = "e-props-correct.4";
+
+    /**
+     * e-props-correct.4a: See clause 4 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#e-props-correct">XMLSchema Structures 1.0: Element Declaration Properties Correct</a>
+     */
+    public static final String ELEM_PROPERTIES$SUBSTITUTION_FINAL = "e-props-correct.4a";
 
     /**
      * enumeration-required-notation: See

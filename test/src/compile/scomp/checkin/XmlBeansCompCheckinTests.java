@@ -140,7 +140,7 @@ public class XmlBeansCompCheckinTests extends CompileTestBase
                     System.out.println(xErr);
 
                     if ((xErr.getErrorCode().compareTo("src-resolve") == 0) &&
-                            (xErr.getMessage().compareTo("type 'aType@http://baz' not found.") ==
+                            (xErr.getMessage().compareTo("type 'bType@http://baz' not found.") ==
                             0))
                         psom_expError = true;
                 }
