@@ -56,12 +56,12 @@ public final class XmlReaderToWriter
                     writer.writeStartElement(localName);
                 }
 
-                for (int i = 0; i < xmlr.getNamespaceCount(); i++) {
+                for (int i = 0, len = xmlr.getNamespaceCount(); i < len; i++) {
                     writer.writeNamespace(xmlr.getNamespacePrefix(i),
                                           xmlr.getNamespaceURI(i));
                 }
 
-                for (int i = 0; i < xmlr.getAttributeCount(); i++) {
+                for (int i = 0, len = xmlr.getAttributeCount(); i < len; i++) {
                     String attUri = xmlr.getAttributeNamespace(i);
                     if (attUri != null)
                         writer.writeAttribute(attUri,

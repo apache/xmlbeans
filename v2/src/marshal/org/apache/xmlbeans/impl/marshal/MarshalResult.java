@@ -124,6 +124,40 @@ final class MarshalResult implements XMLStreamReader
         }
     }
 
+    private int advanceToNext()
+        throws XmlException
+    {
+        final int next_state = currVisitor.advance();
+        switch (next_state) {
+            case XmlTypeVisitor.CONTENT:
+                pushVisitor(currVisitor);
+                currVisitor = currVisitor.getCurrentChild();
+                return START_ELEMENT;
+            case XmlTypeVisitor.CHARS:
+                pushVisitor(currVisitor);
+                currVisitor = currVisitor.getCurrentChild();
+                return CHARACTERS;
+            case XmlTypeVisitor.END:
+                return END_ELEMENT;
+            default:
+                throw new AssertionError("bad state: " + next_state);
+        }
+    }
+
+    private void pushVisitor(XmlTypeVisitor v)
+    {
+        visitorStack.push(v);
+        namespaceContext.openScope();
+        initedAttributes = false;
+    }
+
+    private XmlTypeVisitor popVisitor()
+    {
+        namespaceContext.closeScope();
+        final XmlTypeVisitor tv = (XmlTypeVisitor)visitorStack.pop();
+        return tv;
+    }
+
     QName fillPrefix(final QName pname)
     {
         final String uri = pname.getNamespaceURI();
@@ -191,41 +225,6 @@ final class MarshalResult implements XMLStreamReader
     {
         return getRuntimeTypeFactory().createRuntimeType(type, typeTable,
                                                          bindingLoader);
-    }
-
-
-    private int advanceToNext()
-        throws XmlException
-    {
-        final int next_state = currVisitor.advance();
-        switch (next_state) {
-            case XmlTypeVisitor.CONTENT:
-                pushVisitor(currVisitor);
-                currVisitor = currVisitor.getCurrentChild();
-                return START_ELEMENT;
-            case XmlTypeVisitor.CHARS:
-                pushVisitor(currVisitor);
-                currVisitor = currVisitor.getCurrentChild();
-                return CHARACTERS;
-            case XmlTypeVisitor.END:
-                return END_ELEMENT;
-            default:
-                throw new AssertionError("bad state: " + next_state);
-        }
-    }
-
-    private void pushVisitor(XmlTypeVisitor v)
-    {
-        visitorStack.push(v);
-        namespaceContext.openScope();
-        initedAttributes = false;
-    }
-
-    private XmlTypeVisitor popVisitor()
-    {
-        namespaceContext.closeScope();
-        final XmlTypeVisitor tv = (XmlTypeVisitor)visitorStack.pop();
-        return tv;
     }
 
     public void require(int i, String s, String s1)
