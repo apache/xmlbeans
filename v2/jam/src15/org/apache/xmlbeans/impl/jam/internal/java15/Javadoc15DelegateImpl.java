@@ -101,6 +101,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
         setAnnotationValue(name,jmt,aval,dest,sp);
       }
     }
+if (true) return;
     { // also set values for the type's defaults
       AnnotationTypeDoc atd = src.annotationType();
       AnnotationTypeElementDoc[] elements = atd.elements();
@@ -108,6 +109,8 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
         AnnotationValue value = elements[i].defaultValue();
         if (value != null) {
           String name = elements[i].name();
+          System.out.println("default value named '"+name+"'  = "+
+                             " "+value+"  "+value.getClass()+" "+dest.getValue(name));
           if (dest.getValue(name) == null) {
             setAnnotationValue(name,elements[i].returnType(),
                                value,dest,sp);
