@@ -149,19 +149,23 @@ public interface XmlBoolean extends XmlAnySimpleType
         public static XmlBoolean parse(org.w3c.dom.Node node, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {
           return (XmlBoolean) XmlBeans.getContextTypeLoader().parse( node, type, options ); }
         
-        /** Parses a {@link XmlBoolean} fragment from an XMLInputStream. */
+        /** Parses a {@link XmlBoolean} fragment from an XMLInputStream.
+         * @deprecated Superceded by JSR 173 */
         public static XmlBoolean parse(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return (XmlBoolean) XmlBeans.getContextTypeLoader().parse( xis, type, null ); }
         
-        /** Parses a {@link XmlBoolean} fragment from an XMLInputStream. */
+        /** Parses a {@link XmlBoolean} fragment from an XMLInputStream.
+         * @deprecated Superceded by JSR 173 */
         public static XmlBoolean parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return (XmlBoolean) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
         
-        /** Returns a validating XMLInputStream. */
+        /** Returns a validating XMLInputStream.
+         * @deprecated Superceded by JSR 173 */
         public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, null ); }
         
-        /** Returns a validating XMLInputStream. */
+        /** Returns a validating XMLInputStream.
+         * @deprecated Superceded by JSR 173 */
         public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return XmlBeans.getContextTypeLoader().newValidatingXMLInputStream( xis, type, options ); }
         
