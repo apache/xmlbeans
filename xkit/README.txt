@@ -1,4 +1,4 @@
-XMLBeans v 1.0.4-jdk1.3-rc1 Development Kit
+XMLBeans v 1.0.4-jdk1.3 Development Kit
 
 
 Welcome to XMLBeans!
