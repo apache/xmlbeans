@@ -157,6 +157,7 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal("       ", "string");
 
         testSimpleTypeMarshal(new QName("someuri", "somelname"), "QName");
+        testSimpleTypeMarshal(new QName("nakedlname"), "QName");
     }
 
 

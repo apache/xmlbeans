@@ -445,21 +445,29 @@ public final class XsTypeConverter
                                     Collection errors)
     {
         final String uri = qname.getNamespaceURI();
-        String prefix = nsContext.getPrefix(uri);
-        if (prefix == null) {
-            String msg = "NamespaceContext does not provide" +
-                " prefix for namespaceURI " + uri;
-            errors.add(XmlError.forMessage(msg));
+        assert uri != null; //qname is not allowed to have null uri values
+        final String prefix;
+        if (uri.length() > 0) {
+            prefix = nsContext.getPrefix(uri);
+            if (prefix == null) {
+                String msg = "NamespaceContext does not provide" +
+                    " prefix for namespaceURI " + uri;
+                errors.add(XmlError.forMessage(msg));
+            }
+        } else {
+            prefix = null;
         }
         return getQNameString(uri, qname.getLocalPart(), prefix);
+
     }
 
     public static String getQNameString(String uri,
                                         String localpart,
                                         String prefix)
     {
-        if (uri != null &&
-            prefix != null &&
+        if (prefix != null &&
+            uri != null &&
+            uri.length() > 0 &&
             prefix.length() > 0) {
             return (prefix + NAMESPACE_SEP + localpart);
         } else {
