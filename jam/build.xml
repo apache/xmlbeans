@@ -1,0 +1,169 @@
+<project name='jam' default='all' basedir='.'>
+
+  <!-- Properties -->
+
+  <property name='build_dir'         value='build'/>
+
+  <property name='src_dir'           value='src'/>
+  <property name='src15_dir'         value='src15'/>
+  <property name="site_dir"          value='website'/>
+
+  <property name='jam_jar'           value='${build_dir}/jam.jar'/>
+  <property name='javadoc_zip'       value='${build_dir}/jamapi.zip'/>
+  <property name="jamsrc_zip"        value='${build_dir}/jamsrc.zip'/>
+
+  <property name="sitebuild_dir"     value='${build_dir}/website'/>
+  <property name='javadocbuild_dir'  value='${sitebuild_dir}/javadocs'/>
+  <property name='gen_dir'           value='${build_dir}/generatedsrc'/>
+  <property name='classes_dir'       value='${build_dir}/classes'/>
+  <property name='lib_dir'           value='external/lib'/>
+  <property name='findbugs_home'     value='external/findbugs'/>
+
+  <property name='findbugs_jar'      value='${findbugs_home}/lib/findbugs-ant.jar'/>
+  <property name='antlr_jar'         value='external/lib/antlr.jar'/>
+  <property name='javac.source'      value='1.34xxx'/>
+  <property name='javac.target'      value='1.34xxx'/>
+
+  <property name='stax_api_jar'      value='external/stax/stax-api.jar'/>
+  <property name='junit_jar'         value='external/lib/junit.jar'/>
+
+  <property name="test_dir"         value='test'/>
+  <property name="test_build_file"  value='build-test.xml'/>
+
+  <!-- Targets -->
+
+  <target name='clean'>
+    <delete dir='${build_dir}'/>
+  </target>
+
+  <target name='cleanall' depends='clean,all'/>
+
+  <target name='all' depends='compile'/>
+
+  <target name='parser'>
+    <!-- skipping parser generation for now, just noise at this point
+    <delete dir='${gen_dir}'/>
+    <mkdir dir='${gen_dir}'/>
+    <antlr outputdirectory='${gen_dir}' target='${src_dir}/java.g'
+           debug='false'>
+       <classpath>
+         <pathelement location='${antlr_jar}'/>
+         <pathelement path='${java.class.path}'/>
+         <pathelement path='${classes_dir}'/>
+       </classpath>
+    </antlr>
+    -->
+  </target>
+
+
+  <target name='compile' depends='parser,compile14,
+                                  do15compile.check,compile15'/>
+
+  <target name='compile14'>
+    <mkdir dir='${classes_dir}'/>
+    <javac srcdir='${src_dir}' destdir='${classes_dir}'
+           source='1.4' target='1.4'
+           debug='on'>
+      <src path='${src_dir}'/>
+      <!--
+      <src path='${gen_dir}'/>
+      -->
+      <classpath>
+        <pathelement location='${antlr_jar}'/> 
+        <pathelement location='${stax_api_jar}'/>
+        <pathelement path='${classes_dir}'/>
+        <pathelement path='${java.class.path}'/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name='compile15' if='do15compile'>
+    <mkdir dir='${classes_dir}'/>
+    <javac srcdir='${src15_dir}' destdir='${classes_dir}'
+           source='1.5' target='1.5'
+           debug='on'>
+      <src path='${src15_dir}'/>
+      <classpath>
+        <pathelement location='${antlr_jar}'/>
+        <pathelement location='${stax_api_jar}'/>
+        <pathelement path='${classes_dir}'/>
+        <pathelement path='${java.class.path}'/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name='test'>
+    <ant dir='${test_dir}' antfile='${test_build_file}' target='all' inheritAll='false' />
+  </target>
+
+  <target name='javadocs' depends='compile'>
+    <mkdir dir='${javadocbuild_dir}' />
+    <javadoc packagenames='*'
+             destdir='${javadocbuild_dir}'
+             windowtitle='JAM Documentation'
+             stylesheetfile='${site_dir}/stylesheet.css'>
+      <fileset dir='${src_dir}' includes='**/jam/**/*.java' excludes='**/internal/**/*.java' />
+      <classpath>
+        <pathelement location='${classes_dir}' />
+      </classpath>
+    </javadoc>
+  </target>
+  
+  <target name='jars' depends='all'>
+    <copy  todir='${classes_dir}' ><fileset dir='license'/></copy>
+    <jar jarfile='${jam_jar}'    basedir='${classes_dir}'/>
+    <!--<jar jarfile='${javadoc_zip}' basedir='${javadocbuild_dir}'/>-->
+    <jar jarfile='${jamsrc_zip}' basedir='.'  excludes='${build_dir}/**,test'/>
+  </target>
+
+  <target name='website' depends='all,javadocs,jars'>
+    <mkdir dir='${sitebuild_dir}' />
+    <copy  todir='${sitebuild_dir}' >
+      <fileset dir='${site_dir}'/>
+    </copy>
+<!--
+    <copy todir='${sitebuild_dir}' flatten='true'>
+      <fileset dir='.'  includes='${jam_jar},${javadoc_zip},${jamsrc_zip}'/>
+    </copy>
+-->
+  </target>
+
+  <target name='do15compile.check' 
+    depends='do15compile.look,no15.warn'/>
+
+  <target name='do15compile.look'>
+    <condition property='do15compile'>
+      <contains string='${java.version}' substring='1.5'/>
+    </condition>
+  </target>
+
+  <target name='no15.warn' unless='do15compile'>
+    <echo message='======================================================'/>
+    <echo message='W A R N I N G:  You are building JAM without JDK 1.5.'/>
+    <echo message='The resulting build of JAM will not support'/>
+    <echo message='1.5-specific functionality such as JSR175,'/>
+    <echo message='even if 1.5 is available at runtime.  For this'/>
+    <echo message='reason, it is recommended that you always build'/>
+    <echo message='JAM under 1.5.'/>
+    <echo message='======================================================'/>
+
+  </target>
+
+
+
+  <target name='findbugs'>
+    <property environment="env"/>
+    <property name='junit_jar'         value='external/lib/junit.jar' />
+
+    <taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
+             classpath='${findbugs_jar}'/>
+    <findbugs home="${findbugs_home}"
+              output="html"
+              outputFile="${build_dir}/jam-findbugs.html" >
+      <auxClasspath path="${stax_api_jar};${env.ANT_HOME}/lib/ant.jar;${junit_jar}" />
+      <sourcePath path="${src_dir}" />
+      <class location="${build_dir}" />
+    </findbugs>
+  </target>
+
+</project>
