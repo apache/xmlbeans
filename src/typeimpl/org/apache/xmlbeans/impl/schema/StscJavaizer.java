@@ -24,8 +24,6 @@ import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
-import org.apache.xmlbeans.XmlByte;
-import org.apache.xmlbeans.XmlShort;
 
 import java.util.*;
 import java.math.BigInteger;
@@ -391,7 +389,7 @@ public class StscJavaizer
                     }
                     else if (childContents.contains(target))
                     {
-                        builder.addAll(computeAllContainedElements(contentModel.getParticleChild(i), state));
+                        builder.addAll(computeNondelimitingElements(target, contentModel.getParticleChild(i), state));
                         seenTarget = true;
                     }
                 }
