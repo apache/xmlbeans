@@ -1,0 +1,56 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
+<document>
+	<header>
+		<title>XMLBeans Resources</title>
+	</header>
+	<body>
+		<section>
+			<title>XMLBeans Tools</title>
+			<p>
+				<link href="http://xmlbeans.webappshosting.com/schemaToolsV103">XMLBeans Schema Tools (XMLBeans Version 1.03)</link>
+				&nbsp;This site allows XML Schema validation and compilation tools.  You can submit an XML Schema (via file upload or
+				cut and paste) or a set of XML Schemas (zip file) and you can download the resulting XMLBeans JAR file.
+			</p>
+				<ul>
+					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV103/validate.do" >XMLBeans V1.03 Schema Validation</link></li>
+					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV103/compile.do" >XMLBeans V1.03 Schema Compilation</link></li>
+				</ul>
+			<p>
+				<link href="http://xmlbeans.webappshosting.com/schemaToolsV2">XMLBeans Schema Tools (XMLBeans Version 2.0)</link>
+				&nbsp;Same as above but for XMLBeans V2.0
+			</p>
+				<ul>
+					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV2/validate.do" >XMLBeans V2.0 Schema Validation</link></li>
+					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV2/compile.do" >XMLBeans V2.0 Schema Compilation</link></li>
+				</ul>
+			<p>Do you have or know of a tool that works with XMLBeans?  Let us know and we will list it here.</p>
+		</section>
+		<section>
+			<title>XMLBeans Articles</title>
+			<p>
+				<link href="http://www.onjava.com/pub/a/onjava/2004/07/28/XMLBeans.html">XML-Java Data Binding Using XMLBeans</link>, onJava.com, Jul 2004<br />
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/hanson_xmlbeans_ws.jsp">Using XMLBeans in Web Service Clients and User Interfaces</link>, BEA Dev2Dev, May 2004<br />
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/XMLBeans_raj.jsp">Leveraging Complex Schema Features in Java the XMLBeans Way</link>, BEA Dev2Dev, May 2004<br />			
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/xmlbeans_andrei.jsp">Strongly Typed XML in Java with XMLBeans</link>, May 2004<br />
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/ryan_xml.jsp">XML Processing with Java Object Technology</link>, May 2004<br />
+				<link href="http://dev2dev.bea.com/products/wlworkshop81/articles/xmlbeans_dynamic_config.jsp">Using XMLBeans to Implement Dynamic Configuration Files</link>, BEA Dev2Dev, April 2004<br />
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/conaty_xmlbeans.jsp">XMLBeans as First-Class Data Objects</link>, BEA Dev2Dev, May 2004<br />
+				<link href="http://javaboutique.internet.com/reviews/xml_javabeans/">Converting XML to JavaBeans with XMLBeans</link>, JavaBoutique<br />
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/traut.jsp">Handling Mixed Content in a Strongly-Typed World</link>, BEA Dev2Dev, Nov 2003<br />
+				<link href="http://davidbau.com/archives/2003/11/14/the_design_of_xmlbeans_part_1.html">The Design of XMLBeans (Part 1)</link>, davidbau.com, Nov 2003<br />
+				<link href="http://davidbau.com/archives/2003/11/19/the_design_of_xmlbeans_part_2.html">The Design of XMLBeans (Part 2)</link>, davidbau.com, Nov 2003<br />
+				<link href="http://davidbau.com/archives/2003/12/18/the_design_of_xmlbeans_part_3.html">The Design of XMLBeans (Part 3)</link>, davidbau.com, Dec 2003<br />
+				<link href="http://www.devx.com/xml/Article/17495">XML Made Easy with XMLBeans</link>, DevX.com, Oct 2003<br />
+				<link href="http://www.sys-con.com/xml/article.cfm?id=614">XML Beans: The Best of Both Worlds</link>, XML Journal, June 2003<br />
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/Bau.jsp">XML Beans (by David Bau)</link>, BEA Dev2Dev, Mar 2003<br />
+				<link href="http://dev2dev.bea.com/technologies/xmlbeans/articles/DJ_003.jsp">Dear John (Column #3) - An XMLBeans Example: Address Book</link>, BEA Dev2Dev, Feb 2003 <br /> 
+			</p>
+			<p>Do you know of an XMLBeans article that is not listed here?  Let us know and we will list it here.</p>
+		</section>
+		<section>
+			<title>XMLBeans Books</title>
+			<p>Are you writing a book on XMLBeans?  If so let us know and we will list it here</p>
+		</section>
+	</body>
+</document>
