@@ -187,7 +187,7 @@ public class DefaultTylarLoader implements TylarLoader {
    * @return Handle to the tylar
    * @throws IOException
    */
-  private static Tylar loadFromJar(JarInputStream jin, URI source)
+  protected static Tylar loadFromJar(JarInputStream jin, URI source)
           throws IOException, XmlException
   {
     if (jin == null) throw new IllegalArgumentException("null stream");
@@ -197,7 +197,6 @@ public class DefaultTylarLoader implements TylarLoader {
     BindingFile bf = null;
     Collection schemas = null;
     StubbornInputStream stubborn = new StubbornInputStream(jin);
-    if (VERBOSE) System.out.println("Reading jar entries");
     while ((entry = jin.getNextJarEntry()) != null) {
       if (entry.isDirectory()) continue;
       String name = normalizeEntryName(entry.getName());
