@@ -75,6 +75,7 @@ See http://xml.apache.org/forrest/linking.html for more info
         <index href="index.html"/>
         <learn label="Learn About XMLBeans">
             <index label="Overview" href="index.html" description="Welcome to XMLBeans"/>
+            <index label="News" href="news.html" description="News about XMLBeans"/>
             <faq label="FAQ" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq" description="View Frequently Asked Questions"/>
             <userdoc label="Tutorial: First Steps"
                 href="documentation/tutorial_getstarted.html" description="Write some XMLBeans code."/>
