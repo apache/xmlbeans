@@ -31,7 +31,7 @@ final class WrappedArrayRuntimeBindingType
 {
     private final WrappedArrayType wrappedArrayType;
 
-    private WAProperty elementProperty;
+    private ItemProperty elementProperty;
 
     WrappedArrayRuntimeBindingType(WrappedArrayType binding_type)
         throws XmlException
@@ -64,9 +64,9 @@ final class WrappedArrayRuntimeBindingType
             typeTable.createRuntimeType(item_type, bindingLoader);
 
         elementProperty =
-            new WAProperty(this, wrappedArrayType.getItemName(),
-                           item_rtt,
-                           wrappedArrayType.isItemNillable());
+            new ItemProperty(this, wrappedArrayType.getItemName(),
+                             item_rtt,
+                             wrappedArrayType.isItemNillable());
 
 
     }
@@ -76,7 +76,7 @@ final class WrappedArrayRuntimeBindingType
         return true;
     }
 
-    RuntimeBindingProperty getElementProperty()
+    ItemProperty getElementProperty()
     {
         assert elementProperty != null;
         return elementProperty;
@@ -95,17 +95,17 @@ final class WrappedArrayRuntimeBindingType
         return acc.getFinalArray();
     }
 
-    private static final class WAProperty
+    static final class ItemProperty
         extends RuntimeBindingProperty
     {
         private final QName itemName;
         private final RuntimeBindingType itemType;
         private final boolean nillable;
 
-        WAProperty(RuntimeBindingType containing_type,
-                   QName item_name,
-                   RuntimeBindingType item_type,
-                   boolean nillable)
+        ItemProperty(RuntimeBindingType containing_type,
+                     QName item_name,
+                     RuntimeBindingType item_type,
+                     boolean nillable)
             throws XmlException
         {
             super(containing_type);
@@ -148,10 +148,22 @@ final class WrappedArrayRuntimeBindingType
         Object getValue(Object parentObject, MarshalResult result)
             throws XmlException
         {
-            return Array.get(parentObject, result.getCurrIndex());
+            throw new UnsupportedOperationException("use 3 arg getValue");
+        }
+
+        Object getValue(Object parentObject, MarshalResult result, int item_index)
+            throws XmlException
+        {
+            return Array.get(parentObject, item_index);
         }
 
         boolean isSet(Object parentObject, MarshalResult result)
+            throws XmlException
+        {
+            throw new UnsupportedOperationException("use 3 arg isSet");
+        }
+
+        boolean isSet(Object parentObject, MarshalResult result, int item_index)
             throws XmlException
         {
             if (nillable) return true;
@@ -159,7 +171,7 @@ final class WrappedArrayRuntimeBindingType
 
             //TODO: consider isSet for array elements?
 
-            return getValue(parentObject, result) != null;
+            return getValue(parentObject, result, item_index) != null;
         }
 
         boolean isMultiple()
