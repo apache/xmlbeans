@@ -266,32 +266,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 ((SchemaTypeSystemImpl)system).handleForType(sType) + "\");");
     }
 
+    /** @deprecated */
     public void printLoader(Writer writer, SchemaTypeSystem system)
         throws IOException
     {
-        _writer = writer;
-        String shortName = shortIndexClassForSystem(system);
-        emit("package " + system.getName() + ";");
-        emit("");
-        emit("public final class " + shortName);
-        emit("{");
-        indent();
-        emit("private " + shortName + "() { }");
-        emit("public static final org.apache.xmlbeans.SchemaTypeSystem typeSystem = loadTypeSystem();");
-        // Commenting out this line has the effect of not loading all components in a
-        // typesystem upfront, but just as they are needed, which may improve
-        // performance significantly
-//         emit("static { typeSystem.resolve(); }");
-        emit("private static final org.apache.xmlbeans.SchemaTypeSystem loadTypeSystem()");
-        emit("{");
-        indent();
-        emit("try { return (org.apache.xmlbeans.SchemaTypeSystem)Class.forName(\"org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl\", true, " + shortName + ".class.getClassLoader()).getConstructor(new Class[] { Class.class }).newInstance(new java.lang.Object[] { " + shortName + ".class }); }");
-        emit("catch (ClassNotFoundException e) { throw new RuntimeException(\"Cannot load org.apache.xmlbeans.impl.SchemaTypeSystemImpl: make sure xbean.jar is on the classpath.\", e); }");
-        emit("catch (Exception e) { throw new RuntimeException(\"Could not instantiate SchemaTypeSystemImpl (\" + e.toString() + \"): is the version of xbean.jar correct?\", e); }");
-        outdent();
-        emit("}");
-        outdent();
-        emit("}");
+        // deprecated
     }
 
     void printInnerType(SchemaType sType, SchemaTypeSystem system) throws IOException

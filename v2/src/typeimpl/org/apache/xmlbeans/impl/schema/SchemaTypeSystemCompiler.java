@@ -222,7 +222,7 @@ public class SchemaTypeSystemCompiler
 
         if (stsi != null && filer != null)
         {
-            saveTypeSystem(stsi, filer, options);
+            stsi.save(filer);
             generateTypes(stsi, filer, options);
         }
 
@@ -394,41 +394,6 @@ public class SchemaTypeSystemCompiler
         return (Schema[]) result.toArray(new Schema[result.size()]);
     }
 
-
-    /**
-     * Saves a SchemaTypeSystem as .xsb files using Filer.
-     * Please do not invoke this method directly as the signature could change unexpectedly.
-     * Use {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans(String, org.apache.xmlbeans.SchemaTypeSystem, org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.BindingConfig, org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.Filer, org.apache.xmlbeans.XmlOptions)} instead.
-     *
-     * @param system the SchemaTypeSystem to save
-     * @param filer to create the binary .xsb files
-     * @param options See {@link XmlOptions#setSchemaCodePrinter(org.apache.xmlbeans.SchemaCodePrinter)}
-     */
-    // KHK: generate TypeSystemHolder bytecode directly in SchemaTypeSystemImpl.save()
-    // KHK: then remove this method and remove SchemaCodeGenerator.saveTypeSystem()
-    public static boolean saveTypeSystem(SchemaTypeSystem system, Filer filer, XmlOptions options)
-    {
-        system.save(filer);
-        options = XmlOptions.maskNull(options);
-
-        // Now generate the holder class
-        String index = SchemaTypeCodePrinter.indexClassForSystem(system);
-        try
-        {
-            Writer writer = filer.createSourceFile(index);
-
-            SchemaTypeCodePrinter.printLoader(writer, system, options);
-
-            writer.close();
-        }
-        catch (IOException e)
-        {
-            System.err.println("IO Error " + e);
-            return false;
-        }
-
-        return true;
-    }
 
     /**
      * Generate java source files for a SchemaTypeSystem.
