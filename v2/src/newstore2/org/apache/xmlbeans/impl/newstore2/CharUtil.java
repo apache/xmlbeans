@@ -229,7 +229,7 @@ public final class CharUtil
 
         // TODO - at some point, instead of creating joins, I should
         // normalize all the text into a single buffer to stop large
-        // tree;s from being built when many modifications happen...
+        // tree's from being built when many modifications happen...
 
         // TODO - actually, I should see if the size of the new char
         // sequence is small enough to simply allocate a new contigous
@@ -589,7 +589,7 @@ public final class CharUtil
                     depth = rightDepth;
             }
             
-            _depth = depth;
+            _depth = depth + 1;
 
             assert _depth <= MAX_DEPTH + 1;
         }
@@ -828,7 +828,7 @@ public final class CharUtil
 
     private CharIterator _charIter = new CharIterator();
 
-    // TODO - 64 is kinda arbitrary.  Perhaps It should be configurable.
+    // TODO - 64 is kinda arbitrary.  Perhaps it should be configurable.
     private static final int MAX_COPY = 64;
 
     // Current char buffer we're allcoating new chars to
