@@ -59,63 +59,66 @@ package org.apache.xmlbeans.impl.binding.bts;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.jam.JClass;
 
-public final class BindingTypeName
-{
-    private final JavaTypeName jName;
-    private final XmlTypeName xName;
+public final class BindingTypeName {
 
-    public static BindingTypeName forPair(JavaTypeName jName, XmlTypeName xName)
-    {
-        return new BindingTypeName(jName, xName);
-    }
-    
-    public static BindingTypeName forTypes(JClass jClass, SchemaType sType)
-    {
-        return forPair(JavaTypeName.forJClass(jClass), XmlTypeName.forSchemaType(sType));
-    }
+  // ========================================================================
+  // Variables
 
-    private BindingTypeName(JavaTypeName jName, XmlTypeName xName)
-    {
-      if (jName == null) throw new IllegalArgumentException("null jName");
-      if (xName == null) throw new IllegalArgumentException("null xName");
-      this.jName = jName;
-      this.xName = xName;
-    }
+  private final JavaTypeName jName;
+  private final XmlTypeName xName;
 
-    public JavaTypeName getJavaName()
-    {
-        return jName;
-    }
+  // ========================================================================
+  // Factories
 
-    public XmlTypeName getXmlName()
-    {
-        return xName;
-    }
+  public static BindingTypeName forPair(JavaTypeName jName, XmlTypeName xName) {
+    return new BindingTypeName(jName, xName);
+  }
 
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (!(o instanceof BindingTypeName)) return false;
+  public static BindingTypeName forTypes(JClass jClass, SchemaType sType) {
+    return forPair(JavaTypeName.forJClass(jClass), XmlTypeName.forSchemaType(sType));
+  }
 
-        final BindingTypeName bindingTypeName = (BindingTypeName)o;
+  // ========================================================================
+  // Constructors
 
-        if (!jName.equals(bindingTypeName.jName)) return false;
-        if (!xName.equals(bindingTypeName.xName)) return false;
+  private BindingTypeName(JavaTypeName jName, XmlTypeName xName) {
+    if (jName == null) throw new IllegalArgumentException("null jName");
+    if (xName == null) throw new IllegalArgumentException("null xName");
+    this.jName = jName;
+    this.xName = xName;
+  }
 
-        return true;
-    }
+  // ========================================================================
+  // Public methods
 
-    public int hashCode()
-    {
-        int result;
-        result = jName.hashCode();
-        result = 29 * result + xName.hashCode();
-        return result;
-    }
+  public JavaTypeName getJavaName() {
+    return jName;
+  }
 
-    public String toString()
-    {
-        return "BindingTypeName[" + jName + ";" + xName + "]";
-    }
+  public XmlTypeName getXmlName() {
+    return xName;
+  }
 
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof BindingTypeName)) return false;
+
+    final BindingTypeName bindingTypeName = (BindingTypeName) o;
+
+    if (!jName.equals(bindingTypeName.jName)) return false;
+    if (!xName.equals(bindingTypeName.xName)) return false;
+
+    return true;
+  }
+
+  public int hashCode() {
+    int result;
+    result = jName.hashCode();
+    result = 29 * result + xName.hashCode();
+    return result;
+  }
+
+  public String toString() {
+    return "BindingTypeName[" + jName + ";" + xName + "]";
+  }
 }

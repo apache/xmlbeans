@@ -71,86 +71,91 @@ import java.util.Collection;
  * A by-name binding is one that connects XML and Java based on the
  * QNames of XML elements and attributes, rather than by sequencing
  * or particle trees.
- */ 
-public class ByNameBean extends BindingType
-{
-    List props = new ArrayList(); // of QNameProperties
-    Map eltProps = new HashMap(); // QName -> prop (elts)
-    Map attProps = new HashMap(); // QName -> prop (attrs)
-    
-    public ByNameBean(BindingTypeName btName)
-    {
-        super(btName);
-    }
+ */
+public class ByNameBean extends BindingType {
 
-    public ByNameBean(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        super(node);
-        
-        org.apache.xml.xmlbeans.bindingConfig.QnameProperty[] propArray =
-           ((org.apache.xml.xmlbeans.bindingConfig.ByNameBean)node).getQnamePropertyArray();
-        
-        for (int i = 0; i < propArray.length; i++)
-        {
-            addProperty((QNameProperty)BindingProperty.forNode(propArray[i]));
-        }
-    }
-    
-    /**
-     * This function copies an instance back out to the relevant part of the XML file.
-     * 
-     * Subclasses should override and call super.write first.
-     */ 
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
-                (org.apache.xml.xmlbeans.bindingConfig.ByNameBean)super.write(node);
+  // ========================================================================
+  // Variables
 
-        for (Iterator i = props.iterator(); i.hasNext(); )
-        {
-            QNameProperty qProp = (QNameProperty)i.next();
-            org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode = bnNode.addNewQnameProperty();
-            qProp.write(qpNode);
-        }
-        return bnNode;
-    }
+  private List props = new ArrayList(); // of QNameProperties
+  private Map eltProps = new HashMap(); // QName -> prop (elts)
+  private Map attProps = new HashMap(); // QName -> prop (attrs)
 
-    /**
-     * Returns an unmodifiable collection of QNameProperty objects.
-     */ 
-    public Collection getProperties()
-    {
-        return Collections.unmodifiableCollection(props);
+  // ========================================================================
+  // Constructors
+
+  public ByNameBean(BindingTypeName btName) {
+    super(btName);
+  }
+
+  public ByNameBean(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
+    super(node);
+
+    org.apache.xml.xmlbeans.bindingConfig.QnameProperty[] propArray =
+            ((org.apache.xml.xmlbeans.bindingConfig.ByNameBean) node).getQnamePropertyArray();
+
+    for (int i = 0; i < propArray.length; i++) {
+      addProperty((QNameProperty) BindingProperty.forNode(propArray[i]));
     }
-    
-    /**
-     * Looks up a property by attribute name, null if no match.
-     */ 
-    public QNameProperty getPropertyForAttribute(QName name)
-    {
-        return (QNameProperty)attProps.get(name);
+  }
+
+  // ========================================================================
+  // Public methods
+
+  /**
+   * Returns an unmodifiable collection of QNameProperty objects.
+   */
+  public Collection getProperties() {
+    return Collections.unmodifiableCollection(props);
+  }
+
+  /**
+   * Looks up a property by attribute name, null if no match.
+   */
+  public QNameProperty getPropertyForAttribute(QName name) {
+    return (QNameProperty) attProps.get(name);
+  }
+
+  /**
+   * Looks up a property by element name, null if no match.
+   */
+  public QNameProperty getPropertyForElement(QName name) {
+    return (QNameProperty) eltProps.get(name);
+  }
+
+  /**
+   * Adds a new property
+   */
+  public void addProperty(QNameProperty newProp) {
+    if (newProp.isAttribute() ? attProps.containsKey(newProp.getQName()) : eltProps.containsKey(newProp.getQName()))
+      throw new IllegalArgumentException();
+
+    props.add(newProp);
+    if (newProp.isAttribute())
+      attProps.put(newProp.getQName(), newProp);
+    else
+      eltProps.put(newProp.getQName(), newProp);
+  }
+
+  // ========================================================================
+  // BindingType implementation
+
+  /**
+   * This function copies an instance back out to the relevant part of the XML file.
+   *
+   * Subclasses should override and call super.write first.
+   */
+  protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
+    org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
+            (org.apache.xml.xmlbeans.bindingConfig.ByNameBean) super.write(node);
+
+    for (Iterator i = props.iterator(); i.hasNext();) {
+      QNameProperty qProp = (QNameProperty) i.next();
+      org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode = bnNode.addNewQnameProperty();
+      qProp.write(qpNode);
     }
-    
-    /**
-     * Looks up a property by element name, null if no match.
-     */ 
-    public QNameProperty getPropertyForElement(QName name)
-    {
-        return (QNameProperty)eltProps.get(name);
-    }
-    
-    /**
-     * Adds a new property
-     */
-    public void addProperty(QNameProperty newProp)
-    {
-        if (newProp.isAttribute() ? attProps.containsKey(newProp.getQName()) : eltProps.containsKey(newProp.getQName()))
-            throw new IllegalArgumentException();
-        
-        props.add(newProp);
-        if (newProp.isAttribute())
-            attProps.put(newProp.getQName(), newProp);
-        else
-            eltProps.put(newProp.getQName(), newProp);
-    }
+    return bnNode;
+  }
+
+
 }

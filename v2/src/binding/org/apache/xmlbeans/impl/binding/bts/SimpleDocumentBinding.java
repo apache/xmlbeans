@@ -58,46 +58,52 @@ package org.apache.xmlbeans.impl.binding.bts;
 /**
  * BindingType for root elements.
  */
-public class SimpleDocumentBinding extends BindingType
-{
-    private XmlTypeName typeOfElement;
+public class SimpleDocumentBinding extends BindingType {
 
-    public SimpleDocumentBinding(BindingTypeName btname)
-    {
-        super(btname);
-    }
+  // ========================================================================
+  // Variables
 
-    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding node)
-    {
-        super(node);
-        typeOfElement = XmlTypeName.forString(node.getTypeOfElement());
-    }
+  private XmlTypeName typeOfElement;
 
-    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this((org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding)node);
-    }
+  // ========================================================================
+  // Constructors
 
-    /**
-     * This function copies an instance back out to the relevant part of the XML file.
-     *
-     * Subclasses should override and call super.write first.
-     */
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding sdbNode =
-                (org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) super.write(node);
-        sdbNode.setTypeOfElement(typeOfElement.toString());
-        return sdbNode;
-    }
+  public SimpleDocumentBinding(BindingTypeName btname) {
+    super(btname);
+  }
 
-    public XmlTypeName getTypeOfElement()
-    {
-        return typeOfElement;
-    }
+  public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding node) {
+    super(node);
+    typeOfElement = XmlTypeName.forString(node.getTypeOfElement());
+  }
 
-    public void setTypeOfElement(XmlTypeName typeOfElement)
-    {
-        this.typeOfElement = typeOfElement;
-    }
+  public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
+    this((org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) node);
+  }
+
+  // ========================================================================
+  // Public methods
+
+  public XmlTypeName getTypeOfElement() {
+    return typeOfElement;
+  }
+
+  public void setTypeOfElement(XmlTypeName typeOfElement) {
+    this.typeOfElement = typeOfElement;
+  }
+
+  // ========================================================================
+  // BindingType implementation
+
+  /**
+   * This function copies an instance back out to the relevant part of the XML file.
+   *
+   * Subclasses should override and call super.write first.
+   */
+  protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
+    org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding sdbNode =
+            (org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) super.write(node);
+    sdbNode.setTypeOfElement(typeOfElement.toString());
+    return sdbNode;
+  }
 }

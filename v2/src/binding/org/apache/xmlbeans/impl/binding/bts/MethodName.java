@@ -3,6 +3,7 @@ package org.apache.xmlbeans.impl.binding.bts;
 import org.apache.xmlbeans.impl.jam.JMethod;
 import org.apache.xmlbeans.impl.jam.JParameter;
 import org.apache.xml.xmlbeans.bindingConfig.JavaMethodName;
+
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -16,7 +17,7 @@ import java.util.Arrays;
  * The basic motivation for adding this class is to remove guesswork from the
  * runtime about how to map a 'getterName' string plus some notion of
  * property type to an actual java.lang.Method.  With MethodName, the
- * binding file is able to make make it completely unambiguous.
+ * binding file is able to make it completely unambiguous.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
@@ -40,10 +41,10 @@ public class MethodName {
       return new MethodName(m.getSimpleName());
     } else {
       JavaTypeName[] types = new JavaTypeName[params.length];
-      for(int i=0; i<types.length; i++) {
+      for (int i = 0; i < types.length; i++) {
         types[i] = JavaTypeName.forJClass(params[i].getType());
       }
-      return new MethodName(m.getSimpleName(),types);
+      return new MethodName(m.getSimpleName(), types);
     }
   }
 
@@ -60,7 +61,7 @@ public class MethodName {
    * parameter of the given type (e.g., a setter).
    */
   public static MethodName create(String methodName, JavaTypeName paramType) {
-    return create(methodName,new JavaTypeName[] {paramType});
+    return create(methodName, new JavaTypeName[]{paramType});
   }
 
   /**
@@ -71,14 +72,15 @@ public class MethodName {
     if (paramTypes == null || paramTypes.length == 0) {
       return new MethodName(methodName);
     } else {
-      return new MethodName(methodName,paramTypes);
+      return new MethodName(methodName, paramTypes);
     }
   }
 
   /**
    * Creates a MethodName from the given XmlObject.
    */
-  /*package*/ static MethodName create(JavaMethodName jmn) {
+  /*package*/
+  static MethodName create(JavaMethodName jmn) {
 
     return create(jmn.getMethodName(),
                   namesForStrings(jmn.getParamTypeArray()));
@@ -86,7 +88,7 @@ public class MethodName {
 
   private static JavaTypeName[] namesForStrings(String[] names) {
     JavaTypeName[] out = new JavaTypeName[names.length];
-    for(int i=0; i<out.length; i++) out[i] = JavaTypeName.forString(names[i]);
+    for (int i = 0; i < out.length; i++) out[i] = JavaTypeName.forString(names[i]);
     return out;
   }
 
@@ -107,7 +109,9 @@ public class MethodName {
   // ========================================================================
   // Public methods
 
-  public String getSimpleName() { return mMethodName; }
+  public String getSimpleName() {
+    return mMethodName;
+  }
 
   /**
    * Returns the java.lang.Method which is named by this MethodName
@@ -122,19 +126,18 @@ public class MethodName {
    * @throws IllegalArgumentException if containingClass is null.
    */
   public Method getMethodOn(Class containingClass)
-          throws ClassNotFoundException, NoSuchMethodException
-  {
+          throws ClassNotFoundException, NoSuchMethodException {
     if (containingClass == null) {
       throw new IllegalArgumentException("null class");
     }
     Class[] types = null;
     if (mParamTypes != null && mParamTypes.length > 0) {
       types = new Class[mParamTypes.length];
-      for(int i=0; i<types.length; i++) {
+      for (int i = 0; i < types.length; i++) {
         types[i] = mParamTypes[i].loadClassIn(containingClass.getClassLoader());
       }
     }
-    return containingClass.getMethod(mMethodName,types);
+    return containingClass.getMethod(mMethodName, types);
   }
 
   // ========================================================================
@@ -145,7 +148,8 @@ public class MethodName {
     if (!(o instanceof MethodName)) return false;
     final MethodName methodName = (MethodName) o;
     if (mMethodName != null ? !mMethodName.equals(methodName.mMethodName) :
-            methodName.mMethodName != null) return false;
+            methodName.mMethodName != null)
+      return false;
     if (!Arrays.equals(mParamTypes, methodName.mParamTypes)) return false;
 
     return true;
@@ -162,31 +166,32 @@ public class MethodName {
   /**
    * Populates the given xmlobject with our contents.
    */
-  /*package*/ void write(JavaMethodName name) {
+  /*package*/
+  void write(JavaMethodName name) {
     name.setMethodName(mMethodName);
     if (mParamTypes != null && mParamTypes.length > 0) {
       String[] types = new String[mParamTypes.length];
-      for(int i=0; i<types.length; i++) types[i] = mParamTypes[i].toString();
+      for (int i = 0; i < types.length; i++) types[i] = mParamTypes[i].toString();
       name.setParamTypeArray(types);
     }
   }
 
- /* should make this a test
-  public static void main(String[] args) throws Exception {
-    test("java.lang.String",String.class);
-    test("java.lang.String[]",String[].class);
-    test("int",int.class);
-    test("int[]",int[].class);
-    test("double[][][]",double[][][].class);
-  }
+  /* should make this a test
+   public static void main(String[] args) throws Exception {
+     test("java.lang.String",String.class);
+     test("java.lang.String[]",String[].class);
+     test("int",int.class);
+     test("int[]",int[].class);
+     test("double[][][]",double[][][].class);
+   }
 
-  public static void test(String jtn, Class c) throws Exception {
-    JavaTypeName name = JavaTypeName.forString(jtn);
-    if (!name.loadClassIn(ClassLoader.getSystemClassLoader()).equals(c)) {
-      System.out.println(jtn+" failed "+c.getName());
-    } else {
-      System.out.println(jtn+" passed "+c.getName());
-    }
-  }
-  */
+   public static void test(String jtn, Class c) throws Exception {
+     JavaTypeName name = JavaTypeName.forString(jtn);
+     if (!name.loadClassIn(ClassLoader.getSystemClassLoader()).equals(c)) {
+       System.out.println(jtn+" failed "+c.getName());
+     } else {
+       System.out.println(jtn+" passed "+c.getName());
+     }
+   }
+   */
 }
