@@ -111,14 +111,18 @@ public class Java2Schema extends BindingCompiler {
     }
     for(int i=0; i<classesToBind.length; i++) {
       if (classesToBind[i].isUnresolvedType()) {
-        throw new IllegalArgumentException
+        System.out.println
           (classesToBind[i].getQualifiedName()+
            " is unresolved.  Please check that your include- and sourcepaths "+
            " are correct.");
+//        throw new IllegalArgumentException
+//          (classesToBind[i].getQualifiedName()+
+//           " is unresolved.  Please check that your include- and sourcepaths "+
+//           " are correct.");
       }
     }
     if (classesToBind.length == 0) {
-      System.out.println("WARNING! No input classes found!!");
+      System.out.println("Java2Schema: No input classes found!!");
       //throw new IllegalArgumentException("No input classes found.");
     }
     mClasses = classesToBind;
