@@ -37,8 +37,13 @@ import org.apache.xmlbeans.SimpleValue;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.FileOutputStream;
 import java.util.*;
 import java.net.URI;
+import java.net.URL;
+import java.net.MalformedURLException;
+import java.net.URISyntaxException;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.xml.sax.EntityResolver;
@@ -284,8 +289,9 @@ public class SchemaCompiler
         File[] wsdlFiles = cl.filesEndingWith(".wsdl");
         File[] javaFiles = cl.filesEndingWith(".java");
         File[] configFiles = cl.filesEndingWith(".xsdconfig");
+        URL[] urlFiles = cl.getURLs();
 
-        if (xsdFiles.length + wsdlFiles.length == 0)
+        if (xsdFiles.length + wsdlFiles.length + urlFiles.length == 0)
         {
             System.err.println("Could not find any xsd or wsdl files to process.");
             System.exit(1);
@@ -303,6 +309,7 @@ public class SchemaCompiler
         params.setWsdlFiles(wsdlFiles);
         params.setJavaFiles(javaFiles);
         params.setConfigFiles(configFiles);
+        params.setUrlFiles(urlFiles);
         params.setClasspath(classpath);
         params.setOutputJar(jarfile);
         params.setName(name);
@@ -345,6 +352,7 @@ public class SchemaCompiler
         private File[] wsdlFiles;
         private File[] javaFiles;
         private File[] configFiles;
+        private URL[] urlFiles;
         private File[] classpath;
         private File outputJar;
         private String name;
@@ -418,6 +426,16 @@ public class SchemaCompiler
         public void setConfigFiles(File[] configFiles)
         {
             this.configFiles = configFiles;
+        }
+
+        public URL[] getUrlFiles()
+        {
+            return urlFiles;
+        }
+
+        public void setUrlFiles(URL[] urlFiles)
+        {
+            this.urlFiles = urlFiles;
         }
 
         public File[] getClasspath()
@@ -659,8 +677,7 @@ public class SchemaCompiler
         }
     }
 
-    private static SchemaTypeSystem loadTypeSystem(
-        String name, File[] xsdFiles, File[] wsdlFiles, File[] configFiles,
+    private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
         File[] javaFiles, ResourceLoader cpResourceLoader,
         boolean download, boolean noUpa, boolean noPvr, boolean noAnn,
         Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
@@ -697,10 +714,7 @@ public class SchemaCompiler
                     }
                     else
                     {
-                        StscState.addInfo(errorListener, "Loading schema file " + xsdFiles[i]);
-                        XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
-                        if (schemadoc.validate(opts))
-                            scontentlist.add(((SchemaDocument)schemadoc).getSchema());
+                        addSchema(xsdFiles[i].toString(), (SchemaDocument)schemadoc, errorListener, scontentlist);
                     }
                 }
                 catch (XmlException e)
@@ -711,7 +725,6 @@ public class SchemaCompiler
                 {
                     StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
                         new Object[] { "xsd", xsdFiles[i], e.getMessage() }, xsdFiles[i]);
-e.printStackTrace();
                 }
             }
         }
@@ -737,31 +750,7 @@ e.printStackTrace();
                             new Object[] { wsdlFiles[i], "wsdl" }, wsdldoc);
                     else
                     {
-                        if (wsdlContainsEncoded(wsdldoc))
-                            StscState.addWarning(errorListener, "The WSDL " + wsdlFiles[i] + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
-                        StscState.addInfo(errorListener, "Loading wsdl file " + wsdlFiles[i]);
-                        XmlObject[] types = ((org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)wsdldoc).getDefinitions().getTypesArray();
-                        int count = 0;
-                        for (int j = 0; j < types.length; j++)
-                        {
-                            XmlObject[] schemas = types[j].selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
-                            if (schemas.length == 0)
-                            {
-                                StscState.addWarning(errorListener, "The WSDL " + wsdlFiles[i] + " did not have any schema documents in namespace 'http://www.w3.org/2001/XMLSchema'", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
-                                continue;
-                            }
-
-                            for (int k = 0; k < schemas.length; k++)
-                            {
-                                if (schemas[k] instanceof SchemaDocument.Schema &&
-                                    schemas[k].validate(new XmlOptions().setErrorListener(errorListener)))
-                                {
-                                    count++;
-                                    scontentlist.add(schemas[k]);
-                                }
-                            }
-                        }
-                        StscState.addInfo(errorListener, "Processing " + count + " schema(s) in " + wsdlFiles[i].toString());
+                        addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)wsdldoc, errorListener, scontentlist);
                     }
                 }
                 catch (XmlException e)
@@ -772,7 +761,50 @@ e.printStackTrace();
                 {
                     StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
                         new Object[] { "wsdl", wsdlFiles[i], e.getMessage() }, wsdlFiles[i]);
-e.printStackTrace();
+                }
+            }
+        }
+
+        // step 3, parse all URL files
+        // XMLBEANS-58 - Ability to pass URLs instead of Files for Wsdl/Schemas
+        if (urlFiles != null)
+        {
+            for (int i = 0; i < urlFiles.length; i++)
+            {
+                try
+                {
+                    XmlOptions options = new XmlOptions();
+                    options.setLoadLineNumbers();
+                    options.setLoadSubstituteNamespaces(Collections.singletonMap("http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"));
+                    options.setEntityResolver(entResolver);
+
+                    XmlObject urldoc = loader.parse(urlFiles[i], null, options);
+
+                    boolean isXsd = false;
+                    if ((urldoc instanceof org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument))
+                    {
+                        addWsdlSchemas(urlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)urldoc, errorListener, scontentlist);
+                    }
+                    else if ((urldoc instanceof SchemaDocument))
+                    {
+                        isXsd = true;
+                        addSchema(urlFiles[i].toString(), (SchemaDocument)urldoc, errorListener, scontentlist);
+                    }
+                    else
+                    {
+                        StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
+                            new Object[]{urlFiles[i], "wsdl or schema"}, urldoc);
+                    }
+
+                }
+                catch (XmlException e)
+                {
+                    errorListener.add(e.getError());
+                }
+                catch (Exception e)
+                {
+                    StscState.addError(errorListener, XmlErrorCodes.CANNOT_LOAD_FILE,
+                        new Object[]{"url", urlFiles[i], e.getMessage()}, urlFiles[i]);
                 }
             }
         }
@@ -853,11 +885,51 @@ e.printStackTrace();
         return SchemaTypeSystemCompiler.compile(params);
     }
 
+    private static void addSchema(String name, SchemaDocument schemadoc,
+          XmlErrorWatcher errorListener, List scontentlist)
+    {
+        StscState.addInfo(errorListener, "Loading schema file " + name);
+        XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
+        if (schemadoc.validate(opts))
+            scontentlist.add((schemadoc).getSchema());
+    }
+
+    private static void addWsdlSchemas(String name, org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument wsdldoc,
+                                  XmlErrorWatcher errorListener, List scontentlist)
+    {
+        if (wsdlContainsEncoded(wsdldoc))
+            StscState.addWarning(errorListener, "The WSDL " + name + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
+        StscState.addInfo(errorListener, "Loading wsdl file " + name);
+        XmlObject[] types = wsdldoc.getDefinitions().getTypesArray();
+        int count = 0;
+        for (int j = 0; j < types.length; j++)
+        {
+            XmlObject[] schemas = types[j].selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
+            if (schemas.length == 0)
+            {
+                StscState.addWarning(errorListener, "The WSDL " + name + " did not have any schema documents in namespace 'http://www.w3.org/2001/XMLSchema'", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
+                continue;
+            }
+
+            for (int k = 0; k < schemas.length; k++)
+            {
+                if (schemas[k] instanceof SchemaDocument.Schema &&
+                    schemas[k].validate(new XmlOptions().setErrorListener(errorListener)))
+                {
+                    count++;
+                    scontentlist.add(schemas[k]);
+                }
+            }
+        }
+        StscState.addInfo(errorListener, "Processing " + count + " schema(s) in " + name);
+    }
+
     public static boolean compile(Parameters params)
     {
         File baseDir = params.getBaseDir();
         File[] xsdFiles = params.getXsdFiles();
         File[] wsdlFiles = params.getWsdlFiles();
+        URL[] urlFiles = params.getUrlFiles();
         File[] javaFiles = params.getJavaFiles();
         File[] configFiles = params.getConfigFiles();
         File[] classpath = params.getClasspath();
@@ -908,7 +980,7 @@ e.printStackTrace();
 
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
-        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, configFiles,
+        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
             javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, mdefNamespaces,
             baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
         if (errorListener.hasError())
