@@ -1955,7 +1955,7 @@ final class Cur
             assert isNormal( p );
             if (p <= 0) return 0;
             int pa = posAfter();
-            return p < pa ? pa - p : posMax() - p;
+            return p < pa ? pa - p - 1 : posMax() - p;
         }
 
         final boolean isNormal ( int p )
