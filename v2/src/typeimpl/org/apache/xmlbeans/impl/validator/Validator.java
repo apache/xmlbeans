@@ -829,7 +829,7 @@ public final class Validator
         }
 
         if (!emptyContent && !state._canHaveMixedContent &&
-            !event.textIsWhitespace() & !state._hasSimpleContent)
+            !event.textIsWhitespace() && !state._hasSimpleContent)
         {
             if (field instanceof SchemaLocalElement)
             {
@@ -1112,7 +1112,7 @@ public final class Validator
         {
             if (XmlQName.type.isAssignableFrom(type))
             {
-                // KHK: ?
+                // TODO: will be fixed in XmlSchema 1.1
                 emitError( event, "Default QName values are unsupported for " +
                     QNameHelper.readable(type) + " - ignoring.", null, null,
                     XmlError.SEVERITY_INFO, field.getName(), null, type, null,
@@ -1126,12 +1126,14 @@ public final class Validator
                     field.getDefaultText(), type.getWhiteSpaceRule() );
 
 // BUGBUG - should validate defaultValue at compile time
+            // KHK: cvc-elt.5.1.2 ?
             return
                 validateSimpleType( type, defaultValue, event )
                     ? defaultValue
                     : null;
         }
 
+        // KHK: cvc-elt.5.2.1 ?
         if (!validateSimpleType( type, value, event ))
             return null;
 

@@ -94,7 +94,7 @@ public class JavaQNameHolder extends XmlObjectBase
         }
         catch ( XmlValueOutOfRangeException e )
         {
-            context.invalid(XmlErrorCodes.QNAME, new Object[] { e.getMessage() });
+            context.invalid(e.getMessage());
             name = null;
         }
 
@@ -127,7 +127,7 @@ public class JavaQNameHolder extends XmlObjectBase
 
         for (int i=start+1; i<end; i++)
             if (XMLChar.isSpace(v.charAt(i)))
-                throw new XmlValueOutOfRangeException("XML space found in QName value: '" + v + "'");
+                throw new XmlValueOutOfRangeException(XmlErrorCodes.QNAME, new Object[] { "XML space found in '" + v + "'" });
 
         String uri =
             resolver == null ? null : resolver.getNamespaceForPrefix(prefix);

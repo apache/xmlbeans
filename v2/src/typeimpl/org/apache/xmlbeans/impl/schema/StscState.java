@@ -332,6 +332,12 @@ public class StscState
     public void info(String message)
         { addInfo(_errorListener, message); }
 
+    /**
+     * Passes a warning on to the current XmlErrorCodes.
+     */
+    public void info(String code, Object[] args)
+        { addInfo(_errorListener, code, args); }
+
     // KHK: remove this
     public static void addError(Collection errorListener, String message, int code, XmlObject location)
     {
@@ -390,6 +396,12 @@ public class StscState
     public static void addInfo(Collection errorListener, String message)
     {
         XmlError err = XmlError.forMessage(message, XmlError.SEVERITY_INFO);
+        errorListener.add(err);
+    }
+
+    public static void addInfo(Collection errorListener, String code, Object[] args)
+    {
+        XmlError err = XmlError.forMessage(code, args, XmlError.SEVERITY_INFO);
         errorListener.add(err);
     }
 
