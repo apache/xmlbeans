@@ -61,6 +61,7 @@ import com.sun.javadoc.RootDoc;
 import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JFileSet;
+import org.apache.xmlbeans.impl.jam.internal.JFileSetImpl;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -106,6 +107,14 @@ public final class JDClassLoaderFactory extends Doclet {
           throws IOException, FileNotFoundException {
     List argList = new ArrayList();
     argList.add("-private");
+
+    String cp = ((JFileSetImpl)fileset).getClasspath();
+    if (cp != null) {
+      argList.add("-docletpath");
+      argList.add(cp);
+      argList.add("-classpath");
+      argList.add(cp);
+    }
     File[] files = fileset.getFiles();
     if (files.length == 0) {
       throw new FileNotFoundException("No input files found.");

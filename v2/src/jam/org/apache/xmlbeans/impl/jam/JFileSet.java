@@ -74,6 +74,8 @@ public interface JFileSet {
 
   public void exclude(String pattern);
 
+  public void setClasspath(String cp);
+
   public void setCaseSensitive(boolean b);
 
   public File[] getFiles() throws IOException;
