@@ -32,7 +32,7 @@ public abstract class JamClassBuilder {
   // Variables
 
   private ElementContext mContext = null;
-  public static boolean mWarningAlreadyIssued = false;
+  private boolean m14WarningDone = false;
 
   // ========================================================================
   // Public methods
@@ -150,12 +150,13 @@ public abstract class JamClassBuilder {
    */
   protected void issue14BuildWarning(Throwable t) {
     assertInitialized();
-    if (!mWarningAlreadyIssued && mContext != null) {
+
+    if (do14Warning()) {
       mContext.warning("This build of JAM was not with JDK 1.5." +
                       "Even though you are now running under JDK 1.5, "+
                       "JSR175-style annotations will not be available");
       if (mContext.isVerbose(this)) mContext.verbose(t);
-      mWarningAlreadyIssued = true;
+      m14WarningDone = true;
     }
   }
 
@@ -165,12 +166,21 @@ public abstract class JamClassBuilder {
    */
   protected void issue14RuntimeWarning(Throwable t) {
     assertInitialized();
-    if (!mWarningAlreadyIssued && mContext != null) {
+    if (do14Warning()) {
       mContext.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
                       "source annotations will not be available");
       if (mContext.isVerbose(this)) mContext.verbose(t);
-      mWarningAlreadyIssued = true;
+      m14WarningDone = true;
     }
+  }
+
+  // ========================================================================
+  // Private methods
+
+  private boolean do14Warning() {
+    if (m14WarningDone) return false;
+    return (mContext == null) ? true :
+      ((JamServiceContext)mContext).is14WarningsEnabled();
   }
 
 }
