@@ -62,7 +62,7 @@ import java.io.UnsupportedEncodingException;
  *
  * This class encodes/decodes hexadecimal data
  * @author Jeffrey Rodriguez
- * @version $Id: HexBin.java,v 1.2 2003/09/24 23:31:08 ericvas Exp $
+ * @version $Id$
  */
 public final class  HexBin {
     static private final int  BASELENGTH   = 255;

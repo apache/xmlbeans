@@ -516,7 +516,7 @@ import java.text.CharacterIterator;
  * <hr width="50%">
  *
  * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
- * @version $Id: RegularExpression.java,v 1.3 2003/09/24 23:31:06 ericvas Exp $
+ * @version $Id$
  */
 public class RegularExpression implements java.io.Serializable {
     static final boolean DEBUG = false;

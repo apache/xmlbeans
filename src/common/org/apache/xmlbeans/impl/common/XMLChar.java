@@ -77,7 +77,7 @@ package org.apache.xmlbeans.impl.common;
  * @author Arnaud  Le Hors, IBM
  * @author Rahul Srivastava, Sun Microsystems Inc.
  *
- * @version $Id: XMLChar.java,v 1.2 2003/09/24 23:31:05 ericvas Exp $
+ * @version $Id$
  */
 public class XMLChar {
 

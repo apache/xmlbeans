@@ -8,7 +8,7 @@
 <!--	evidence any actual or intended                                     -->
 <!--	publication of such source code.                                    -->
 <!-- ==================================================================== -->
-<!-- $Id: TPM.xsd,v 1.1 2003/09/15 18:20:48 ericvas Exp $ -->
+<!-- $Id$ -->
 <xs:schema
   targetNamespace="http://www.bea.com/2003/03/wli/tpm"
   xmlns="http://www.bea.com/2003/03/wli/tpm"
