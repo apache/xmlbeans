@@ -100,7 +100,7 @@ be used to configure the chosen XMLBeans skin.
   generated Table of Contents (TOC). By default, if no toc element is provided
   below, then 2 levels are included. Level 0 does not generate any TOC at all.
   -->
-	<toc level="2"/>
+	<toc level="0"/>
 	<!-- Credits are typically rendered as a set of small clickable images in the
   page footer -->
 	<credits>
