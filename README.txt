@@ -17,9 +17,9 @@ starting with XmlObject and XmlCursor.
 Not a lot is doc'ed yet, so you may want to check out the samples
 to learn more - we really need a little tutorial.
 
-In the meantime, if you've got more questions, ask davidbau@bea.com or
-eric.vasilik@bea.com.
-
+In the mean time, if you've got more questions, please post your questions
+to xmlbeans-user@xml.apache.org (you need to subscribe prior to posting,
+by sending a blank mail to xmlbeans-user-subscribe@xml.apache.org).
 
 
 
