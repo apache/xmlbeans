@@ -2104,7 +2104,7 @@ final class DomImpl
             Cur c;
 
             if ((c = node.tempCur()) == null)
-                CharUtil.getString( node._src, node._off, node._cch );
+                s = CharUtil.getString( node._src, node._off, node._cch );
             else
             {
                 s = c.getString( node._cch );
