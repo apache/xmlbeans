@@ -1198,7 +1198,7 @@ public final class Validator
         case SchemaType.BTC_ANY_URI :
         {
             JavaUriHolderEx.validateLexical( value, type, _vc );
-
+            _stringValue = value;
             break;
         }
         case SchemaType.BTC_DATE_TIME :
