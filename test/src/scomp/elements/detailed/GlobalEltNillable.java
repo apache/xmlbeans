@@ -19,6 +19,7 @@ import scomp.common.BaseCase;
 import xbean.scomp.element.globalEltNillable.*;
 import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlOptions;
 
 /**
  *
@@ -55,8 +56,13 @@ public class GlobalEltNillable extends BaseCase {
      * @throws Exception
      */
     public void testNotNillable() throws Exception {
+
+        // XmlValueNotNillableException should be thrown only when validateOnSet property is set
+        XmlOptions options = new XmlOptions();
+        options.setValidateOnSet();
+
         GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument
-                .Factory.newInstance();
+                .Factory.newInstance(options);
         try {
             testElt.setNil();
             fail("Expected XmlValueNotNillableException");
@@ -93,12 +99,13 @@ public class GlobalEltNillable extends BaseCase {
         GlobalEltNillableFixedDocument testElt = GlobalEltNillableFixedDocument
                 .Factory.parse("<GlobalEltNillableFixed" +
                 "   xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
-                "  xsi:nillable=\"true\"" +
+                "   xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                "   xsi:nil=\"true\"" +
                 "/>");
-        assertTrue(!testElt.validate(validateOptions));
+        assertFalse(testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
-               String[] errExpected = new String[]{"cvc-elt3.3.4"};
+               String[] errExpected = new String[]{XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_FIXED};
                     assertTrue(compareErrorCodes(errExpected));
 
 

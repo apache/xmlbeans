@@ -241,7 +241,8 @@ public class KeyKeyref extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
-            XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_KEY
+            XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_KEY,
+            XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$KEYREF_KEY_NOT_FOUND
         };
         assertTrue(compareErrorCodes(errExpected));
 
