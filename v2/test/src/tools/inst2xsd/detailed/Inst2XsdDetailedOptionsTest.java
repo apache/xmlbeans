@@ -17,10 +17,6 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
  */
 public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
 
-    public static final String BASEXML = OPTION_CASES_DIR + "base.xml";
-    public static final String EXPBASEXML = OPTION_CASES_DIR + "base0.xsd";
-
-
     public Inst2XsdDetailedOptionsTest(String name) {
         super(name);
     }
@@ -414,5 +410,14 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
         XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
         compare(sDoc[0], exp);
         compare(cmdLine, exp);
+    }
+
+
+    public void test_no_param() throws Exception {
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{null}, null);
+        checkLength(api, 1);
+        log(api);
+        Inst2Xsd.main(null);
+
     }
 }
