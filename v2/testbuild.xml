@@ -226,7 +226,8 @@
         ${build.dir.test.schemas}/xbean/xmlobject,
          ${build.dir.test.schemas}/xbean/xmlobject/store,
         ${build.dir.test.schemas}/xbean/xmltokensource,
-        ${build.dir.test.schemas}/xbean/ValidatingStream"/>
+        ${build.dir.test.schemas}/xbean/ValidatingStream,
+        ${build.dir.test.schemas}/xbean/scomp"/>
     <!-- comma separated list of directories containing schemas that *must* be separately
          compiled -->
     <property name="schema.standalone"
@@ -546,9 +547,10 @@
     <!-- =============================================================== -->
     <!-- START: Incremental build targets                                -->
 
-    <property name="area.names" value="compile, dom, misc, random, 
+    <property name="area.names" value="compile, dom, misc, random,
                                        ValidatingXSRTests,xmlcursor, xmlobject,
-                                       xmltokensource, checkin"/>
+                                       xmltokensource, checkin,
+                                       scomp"/>
 
     <target name="list.areas" description="List areas for -Dtest.area param">
     <echo message="${area.names}"/>   
@@ -748,7 +750,14 @@
         <antcall target="unit.build"/>
     </target>
 
-  
+    <target name="build.area.scomp" depends="clean.tests">
+        <property name="includes.for.compile"
+            value="**/scomp/**/*.java"/>
+         <property name="this.schema.dirs"
+            value="${build.dir.test.schemas}/xbean/scomp"/>
+        <property name="testcasejar.update" value="true"/>
+        <antcall target="unit.build"/>
+    </target>
     <!-- FREQ Target -->
     <target name="build.area.checkin" depends="clean.tests,extensions.build">
         <property name="includes.for.compile"

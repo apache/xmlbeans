@@ -161,8 +161,10 @@ public class JUnitXTask extends org.apache.tools.ant.taskdefs.Java {
             super.createArg().setValue("-"+outFile);
             super.createArg().setValue(this.reportFile);
         }
-        if (showOutput)
-            super.createArg().setValue("showoutput");
+        if (showOutput){
+            super.createArg().setValue("-showoutput");
+            super.createArg().setValue(new Boolean(this.showOutput).toString());
+        }
         super.execute();
     }
 
