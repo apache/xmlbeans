@@ -17,6 +17,9 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.mutable.MMethod;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
 
@@ -29,7 +32,7 @@ import java.lang.reflect.Method;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class PropertyImpl implements JProperty {
+public class PropertyImpl extends AnnotatedElementImpl implements JProperty {
 
   // ========================================================================
   // Variables
@@ -53,12 +56,15 @@ public class PropertyImpl implements JProperty {
                       JMethod setter,
                       String qualifiedTypeName)
   {
+    super((ElementImpl)
+      ((getter != null) ? getter.getParent() : setter.getParent()));
     //FIXME should do more validation on the arguments
     mName = name;
     mGetter = getter;
     mSetter = setter;
     mTypeRef = QualifiedJClassRef.create
       (qualifiedTypeName,((ClassImpl)getter.getContainingClass()));
+    initAnnotations();
   }
 
   // ========================================================================
@@ -145,15 +151,15 @@ public class PropertyImpl implements JProperty {
     return null;
   }
 
-  public JElement getParent() {
-    return mGetter != null ? mGetter.getParent() : mSetter.getParent();
-  }
-
   public JSourcePosition getSourcePosition() {
     return mGetter != null ?
             mGetter.getSourcePosition() : mSetter.getSourcePosition();
   }
 
+  public void accept(JVisitor visitor) {
+    if (mGetter != null) visitor.visit(mGetter);
+    if (mSetter != null) visitor.visit(mSetter);
+  }
 
   // ========================================================================
   // Object implementation
@@ -162,6 +168,22 @@ public class PropertyImpl implements JProperty {
 
   // ========================================================================
   // Private methods
+
+  private void initAnnotations() {
+    if (mSetter != null) {
+      JAnnotation[] anns = mSetter.getAnnotations();
+      for(int i=0; i<anns.length; i++) super.addAnnotation(anns[i]);
+      anns = mSetter.getAllJavadocTags();
+      for(int i=0; i<anns.length; i++) super.addJavadocAnnotation(anns[i]);
+    }
+    if (mGetter != null) {
+      JAnnotation[] anns = mGetter.getAnnotations();
+      for(int i=0; i<anns.length; i++) super.addAnnotation(anns[i]);
+      anns = mGetter.getAllJavadocTags();
+      for(int i=0; i<anns.length; i++) super.addJavadocAnnotation(anns[i]);
+    }
+  }
+
 
   /**
    * Returns an array that is the union of the two arrays of
@@ -188,4 +210,11 @@ public class PropertyImpl implements JProperty {
     System.arraycopy(b,0,out,a.length,b.length);
     return out;
   }
+
+  public void accept(MVisitor visitor) {
+    //review this is kinda broken
+    if (mGetter != null) visitor.visit((MMethod)mGetter);
+    if (mSetter != null) visitor.visit((MMethod)mSetter);
+  }
+
 }

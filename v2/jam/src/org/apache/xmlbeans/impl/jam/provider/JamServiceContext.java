@@ -107,7 +107,7 @@ public interface JamServiceContext extends JamLogger/*killme*/ {
 
   public MVisitor getInitializer();
 
-  public boolean isUseSystemClasspath();
+  public ClassLoader[] getReflectionClassLoaders();
 
   public File[] getSourceFiles() throws IOException;
 

@@ -32,7 +32,6 @@ package org.apache.xmlbeans.test.jam.dummyclasses;
  *
  *
  *                              "
-
  * @boo a=   "  Here is a tag with multiple
  *   multiline values"
  * b = " here is another"
@@ -49,11 +48,15 @@ package org.apache.xmlbeans.test.jam.dummyclasses;
  *   ejb-ql = "SELECT OBJECT(o)
  *    FROM BandEJB AS o
  *    WHERE o.name = ?1"
- * 
+ *
+ * @ejbgen:cmp-field ordering-number="10" primkey-field="true" column="seth"
+ *
  * @bee question = Can we confuse the parser?   "
  *     " =  "
  *   " ""
  *                                           " = = "
+ *
+ * @oldstyleSingleMemberValueTag I should be called 'value'
  *
  */
 public interface MultilineTags {

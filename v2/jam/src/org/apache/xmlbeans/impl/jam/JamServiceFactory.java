@@ -84,6 +84,20 @@ public abstract class JamServiceFactory {
    */
   public abstract JamService createService(JamServiceParams params) throws IOException;
 
+  /**
+   * <p>Returns a new JamClassLoader which simply wraps the system
+   * classloader.</p>
+   */
+  public abstract JamClassLoader createSystemJamClassLoader();
+
+  /**
+   * <p>Returns a new JamClassLoader which simply wraps the given
+   * classloader.</p>
+   */
+  public abstract JamClassLoader createJamClassLoader(ClassLoader cl);
+
+
+
 
   // ========================================================================
   // main() method

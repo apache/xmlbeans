@@ -3,7 +3,6 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JComment;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
-import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
@@ -130,11 +129,10 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   public MAnnotation addAnnotationForTag(String tagName) {
     {
       // looks like we need to maintain a full list no matter what
-      if (mAllJavadocTags == null) mAllJavadocTags = new ArrayList();
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       MAnnotation ann = new AnnotationImpl(getContext(),proxy,tagName);
       ann.setArtifact("@"+tagName);
-      mAllJavadocTags.add(ann);
+      addJavadocAnnotation(ann);
     }
     MAnnotation out = getMutableAnnotation(tagName);
     if (out != null) {
@@ -142,7 +140,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     } else {
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       out = new AnnotationImpl(getContext(),proxy,tagName);
-      getName2Annotation().put(tagName,out);
+      addAnnotation(out);
     }
     return out;
   }
@@ -150,12 +148,11 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   public MAnnotation addAnnotationForTag(String tagName, String tagContents) {
     {
       // looks like we need to maintain a full list no matter what
-      if (mAllJavadocTags == null) mAllJavadocTags = new ArrayList();
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       proxy.initFromJavadocTag(tagContents);
       MAnnotation ann = new AnnotationImpl(getContext(),proxy,tagName);
       ann.setArtifact("@"+tagName+" "+tagContents);
-      mAllJavadocTags.add(ann);
+      addJavadocAnnotation(ann);
     }
     MAnnotation out = getMutableAnnotation(tagName);
     if (out != null) {
@@ -167,7 +164,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
       proxy.initFromJavadocTag(tagContents);
       out = new AnnotationImpl(getContext(),proxy,tagName);
       out.setArtifact(tagContents);
-      getName2Annotation().put(tagName,out);
+      addAnnotation(out);
     }
     return out;
   }
@@ -191,7 +188,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
       ann = new AnnotationImpl(getContext(),proxy,typename);
       ann.setAnnotationInstance(jsr175annotationInstance);
       setArtifact(jsr175annotationInstance);
-      getName2Annotation().put(typename,ann);
+      addAnnotation(ann);
     }
     return ann;
   }
@@ -203,7 +200,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     AnnotationProxy proxy = getContext().
       createProxyForAnnotationType(jsr175annotationClassname);
     ann = new AnnotationImpl(getContext(),proxy,jsr175annotationClassname);
-    getName2Annotation().put(jsr175annotationClassname,ann);
+    addAnnotation(ann);
     return ann;
   }
 
@@ -213,7 +210,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     MAnnotation ann = getMutableAnnotation(name);
     if (ann != null) return ann; //REVIEW weird case yet again
     ann = new AnnotationImpl(getContext(),proxy,name);
-    getName2Annotation().put(name,ann);
+    addAnnotation(ann);
     return ann;
   }
 
@@ -225,22 +222,22 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   public void removeComment() { mComment = null; }
 
   // ========================================================================
-  // Protect methods
+  // Protected methods
 
-  protected void visitAnnotations(MVisitor visitor) {
-    MAnnotation[] anns = getMutableAnnotations();
-    for(int i=0; i<anns.length; i++) visitor.visit(anns[i]);
-    if (mComment != null) visitor.visit(mComment);
+  // these are exposed primarily for the benefit of PropertyImpl
+
+  protected void addAnnotation(JAnnotation ann) {
+    if (mName2Annotation == null) mName2Annotation = new HashMap();
+    mName2Annotation.put(ann.getSimpleName(),ann);
+  }
+
+  protected void addJavadocAnnotation(JAnnotation ann) {
+    if (mAllJavadocTags == null) mAllJavadocTags = new ArrayList();
+    mAllJavadocTags.add(ann);
   }
 
   // ========================================================================
   // Private methods
-
-
-  private Map getName2Annotation() {
-    if (mName2Annotation == null) mName2Annotation = new HashMap();
-    return mName2Annotation;
-  }
 
   private String getAnnotationTypeFor(/*Annotation*/ Object annotationInstance) {
     //FIXME this may be broken, not sure yet what the class of an annotation

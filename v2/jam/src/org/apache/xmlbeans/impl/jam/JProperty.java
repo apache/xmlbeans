@@ -29,7 +29,7 @@ package org.apache.xmlbeans.impl.jam;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface JProperty { //is it really an AnnotatedElement?
+public interface JProperty extends JAnnotatedElement {
 
   // ========================================================================
   // Public methods

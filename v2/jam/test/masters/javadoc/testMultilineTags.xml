@@ -1,14 +1,44 @@
-<class><name>org.apache.xmlbeans.test.jam.dummyclasses.MultilineTags</name><is-interface>true</is-interface><modifiers>513</modifiers><annotation><name>foo</name><annotation-value><name>x</name><value> this is a tag value which
-spans several
-lines indeed</value></annotation-value></annotation><annotation><name>ejbgen:cmp-field</name><annotation-value><name>column</name><value>LicensorEntityID, CompanyID</value></annotation-value><annotation-value><name>table-name</name><value>LicensorEntity, Company</value></annotation-value></annotation><annotation><name>boo</name><annotation-value><name>a</name><value>  Here is a tag with multiple
-multiline values</value></annotation-value><annotation-value><name>b</name><value>here is another</value></annotation-value><annotation-value><name>c</name><value> and another
-l = but this is still the same one
-whoa that was = tricky</value></annotation-value><annotation-value><name>d</name><value>yup</value></annotation-value></annotation><annotation><name>baz</name><annotation-value><name>z</name><value>
-I guess even something weird like
-this should work
-</value></annotation-value></annotation><annotation><name>ejbgen:finder</name><annotation-value><name>signature</name><value>java.util.Collection findByName(java.lang.String name)</value></annotation-value><annotation-value><name>ejb-ql</name><value>SELECT OBJECT(o)
-FROM BandEJB AS o
-WHERE o.name = ?1</value></annotation-value></annotation><annotation><name>bar</name><annotation-value><name>y</name><value>  This is also a tag which spans
-a few lines but also has its closing
-quote in a weird place</value></annotation-value></annotation><annotation><name>bee</name><annotation-value><name>question</name><value>Can we confuse the parser?   "</value></annotation-value><annotation-value><name>"</name><value>
-</value></annotation-value><annotation-value><name>"</name><value>= "</value></annotation-value></annotation><source-position><line>59</line><column>8</column><source-uri>file:/X:/xml-xmlbeans/v2/jam/test/dummyclasses/org/apache/xmlbeans/test/jam/dummyclasses/MultilineTags.java</source-uri></source-position></class>
+<class><name>org.apache.xmlbeans.test.jam.dummyclasses.MultilineTags</name><is-interface>true</is-interface><modifiers>513</modifiers><annotation><name>foo</name><annotation-value><name>value</name><value>x = " this is a tag value which
+ spans several
+
+ lines indeed"</value></annotation-value><annotation-value><name>x</name><value> this is a tag value which
+ spans several
+
+ lines indeed</value></annotation-value></annotation><annotation><name>ejbgen:cmp-field</name><annotation-value><name>value</name><value>column = "LicensorEntityID, CompanyID"
+ table-name= "LicensorEntity, Company"</value></annotation-value><annotation-value><name>column</name><value>LicensorEntityID, CompanyID</value></annotation-value><annotation-value><name>table-name</name><value>LicensorEntity, Company</value></annotation-value><annotation-value><name>value</name><value>ordering-number="10" primkey-field="true" column="seth"</value></annotation-value><annotation-value><name>column</name><value>seth</value></annotation-value><annotation-value><name>primkey-field</name><value>true</value></annotation-value><annotation-value><name>ordering-number</name><value>10</value></annotation-value></annotation><annotation><name>oldstyleSingleMemberValueTag</name><annotation-value><name>value</name><value>I should be called 'value'</value></annotation-value></annotation><annotation><name>boo</name><annotation-value><name>value</name><value>a=   "  Here is a tag with multiple
+   multiline values"
+ b = " here is another"
+ c = " and another
+ l = but this is still the same one
+ whoa that was = tricky"
+ d = "yup"</value></annotation-value><annotation-value><name>b</name><value> here is another</value></annotation-value><annotation-value><name>a</name><value>  Here is a tag with multiple
+   multiline values</value></annotation-value><annotation-value><name>d</name><value>yup</value></annotation-value><annotation-value><name>c</name><value> and another
+ l = but this is still the same one
+ whoa that was = tricky</value></annotation-value></annotation><annotation><name>baz</name><annotation-value><name>value</name><value>z=                       "
+
+                  I guess even something weird like
+                       this should work
+
+
+                              "</value></annotation-value><annotation-value><name>z</name><value>
+
+                  I guess even something weird like
+                       this should work
+
+
+                              </value></annotation-value></annotation><annotation><name>ejbgen:finder</name><annotation-value><name>value</name><value>signature = "java.util.Collection findByName(java.lang.String name)"
+   ejb-ql = "SELECT OBJECT(o)
+    FROM BandEJB AS o
+    WHERE o.name = ?1"</value></annotation-value><annotation-value><name>signature</name><value>java.util.Collection findByName(java.lang.String name)</value></annotation-value><annotation-value><name>ejb-ql</name><value>SELECT OBJECT(o)
+    FROM BandEJB AS o
+    WHERE o.name = ?1</value></annotation-value></annotation><annotation><name>bar</name><annotation-value><name>value</name><value>y="  This is also a tag which spans
+
+ a few lines but also has its closing
+   quote in a weird place  "  see?</value></annotation-value><annotation-value><name>y</name><value>  This is also a tag which spans
+
+ a few lines but also has its closing
+   quote in a weird place  </value></annotation-value></annotation><annotation><name>bee</name><annotation-value><name>value</name><value>question = Can we confuse the parser?   "
+     " =  "
+   " ""
+                                           " = = "</value></annotation-value><annotation-value><name>""</name><value>=</value></annotation-value><annotation-value><name>question</name><value>Can</value></annotation-value><annotation-value><name>we</name><value>
+   </value></annotation-value></annotation><source-position><line>62</line><column>8</column><source-uri>file:/X:/xml-xmlbeans/v2/jam/test/dummyclasses/org/apache/xmlbeans/test/jam/dummyclasses/MultilineTags.java</source-uri></source-position></class>
