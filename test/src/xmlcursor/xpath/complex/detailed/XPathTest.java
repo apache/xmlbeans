@@ -13,10 +13,11 @@
  *  limitations under the License.
  */
 
-package xmlcursor.xpath.common;
+package xmlcursor.xpath.complex.detailed;
 
 import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
+import xmlcursor.xpath.common.XPathCommon;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.framework.Assert;
@@ -1302,7 +1303,7 @@ public class XPathTest
     }
 
 
-    public static void main(String[] rgs)
+   /* public static void main(String[] rgs)
     {
         try
         {
@@ -1313,6 +1314,7 @@ public class XPathTest
             e.printStackTrace();
         }
     }
+    */
 //    public void testZvonExample() throws Exception {
 //        XmlObject xDoc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
 //                                                                            "xbean/xmlcursor/xpath/zvon.xml"));
