@@ -142,6 +142,7 @@ public class StscImporter
     private static String baseURLForDoc(XmlObject obj)
     {
         String path = obj.documentProperties().getSourceName();
+      System.out.println("path = "+path);
 
         if (path == null)
             return null;
@@ -175,8 +176,21 @@ public class StscImporter
     //workaround for Sun bug # 4723726
     private static URI resolve(URI base, String child)
     {
-        URI ruri = base.resolve(child);
-        
+        URI childUri = URI.create(child);
+        URI ruri = base.resolve(childUri);
+
+        // if the child fragment is relative (which we'll assume is the case
+        // if URI.resolve doesn't do anything useful with it) and the base
+        // URI is pointing at something nested inside a jar, we seem to have
+        // to this ourselves to make sure that the nested jar url gets
+        // resolved correctly   
+        if (childUri.equals(ruri) && base.getScheme().equals("jar")) {
+            String r = base.toString();
+            int lastslash = r.lastIndexOf('/');
+            r = r.substring(0,lastslash) + "/" + childUri;
+            return URI.create(r);
+        }
+
         //fix up normalization bug
         if ("file".equals(ruri.getScheme()) && ! child.equals(ruri))
         {
@@ -293,7 +307,6 @@ public class StscImporter
             // First resolve relative URLs with respect to base URL for doc
             URI baseURI = parseURI(baseURLForDoc(referencedBy));
             String absoluteURL = baseURI == null ? locationURL : resolve(baseURI, locationURL).toString();
-
             // probe 1: ns+url - perfect match
             if (absoluteURL != null && targetNamespace != null)
             {
