@@ -12,14 +12,14 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jeti.logging;
+package org.apache.xmlbeans.impl.jeti.logging.provider;
 
 import org.apache.xmlbeans.impl.jam.JElement;
 
 import java.util.logging.Level;
 
 /**
- * <p>Encapsulates diagnostic information produced while running a tool.
+ * <p>Encapsulates diagnostic or logging information produced while running a tool.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */

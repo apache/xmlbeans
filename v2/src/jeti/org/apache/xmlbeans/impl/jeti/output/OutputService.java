@@ -36,6 +36,16 @@ public abstract class OutputService {
   }
 
   /**
+   * <p>Returns a genric Writer for outputting a file.
+   *
+   * @param resourceName path to the file (relative to the output root) to
+   * generate.
+   */
+  public Writer createWriter(String resourceName) {
+    throw new UnsupportedOperationException();
+  }
+
+  /**
    * <p>Returns an XMLStreamWriter on a resource relative to the
    * output root.</p>
    *
