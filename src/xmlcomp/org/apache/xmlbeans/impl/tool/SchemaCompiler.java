@@ -66,6 +66,7 @@ public class SchemaCompiler
         System.out.println("    -noupa - do not enforce the unique particle attribution rule");
         System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
         System.out.println("    -noann - ignore annotations");
+        System.out.println("    -novdoc - do not validate contents of <documentation>");
         System.out.println("    -compiler - path to external java compiler");
         System.out.println("    -ms - initial memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_START + "')");
         System.out.println("    -mx - maximum memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_MAX + "')");
@@ -107,6 +108,7 @@ public class SchemaCompiler
         flags.add("noupa");
         flags.add("nopvr");
         flags.add("noann");
+        flags.add("novdoc");
         flags.add("srconly");
         flags.add("debug");
 
@@ -195,6 +197,7 @@ public class SchemaCompiler
         boolean noUpa = (cl.getOpt("noupa") != null);
         boolean noPvr = (cl.getOpt("nopvr") != null);
         boolean noAnn = (cl.getOpt("noann") != null);
+        boolean noVDoc= (cl.getOpt("novdoc") != null);
         boolean nojavac = (cl.getOpt("srconly") != null);
         boolean debug = (cl.getOpt("debug") != null);
 
@@ -340,6 +343,7 @@ public class SchemaCompiler
         params.setNoUpa(noUpa);
         params.setNoPvr(noPvr);
         params.setNoAnn(noAnn);
+        params.setNoVDoc(noVDoc);
         params.setDebug(debug);
         params.setErrorListener(err);
         params.setRepackage(repackage);
@@ -383,6 +387,7 @@ public class SchemaCompiler
         private boolean noUpa;
         private boolean noPvr;
         private boolean noAnn;
+        private boolean noVDoc;
         private boolean debug;
         private boolean incrementalSrcGen;
         private String repackage;
@@ -571,6 +576,16 @@ public class SchemaCompiler
             this.noAnn = noAnn;
         }
 
+        public boolean isNoVDoc()
+        {
+            return noVDoc;
+        }
+
+        public void setNoVDoc(boolean newNoVDoc)
+        {
+            this.noVDoc = newNoVDoc;
+        }
+
         public boolean isIncrementalSrcGen()
         {
             return incrementalSrcGen;
@@ -694,7 +709,7 @@ public class SchemaCompiler
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
         File[] javaFiles, ResourceLoader cpResourceLoader,
-        boolean download, boolean noUpa, boolean noPvr, boolean noAnn,
+        boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc,
         Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
         Collection outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath)
     {
@@ -729,7 +744,8 @@ public class SchemaCompiler
                     }
                     else
                     {
-                        addSchema(xsdFiles[i].toString(), (SchemaDocument)schemadoc, errorListener, scontentlist);
+                        addSchema(xsdFiles[i].toString(), (SchemaDocument)schemadoc,
+                            errorListener, noVDoc, scontentlist);
                     }
                 }
                 catch (XmlException e)
@@ -765,7 +781,7 @@ public class SchemaCompiler
                             new Object[] { wsdlFiles[i], "wsdl" }, wsdldoc);
                     else
                     {
-                        addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)wsdldoc, errorListener, scontentlist);
+                        addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)wsdldoc, errorListener, noVDoc, scontentlist);
                     }
                 }
                 catch (XmlException e)
@@ -798,12 +814,13 @@ public class SchemaCompiler
                     boolean isXsd = false;
                     if ((urldoc instanceof org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument))
                     {
-                        addWsdlSchemas(urlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)urldoc, errorListener, scontentlist);
+                        addWsdlSchemas(urlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)urldoc, errorListener, noVDoc, scontentlist);
                     }
                     else if ((urldoc instanceof SchemaDocument))
                     {
                         isXsd = true;
-                        addSchema(urlFiles[i].toString(), (SchemaDocument)urldoc, errorListener, scontentlist);
+                        addSchema(urlFiles[i].toString(), (SchemaDocument)urldoc,
+                            errorListener, noVDoc, scontentlist);
                     }
                     else
                     {
@@ -899,20 +916,24 @@ public class SchemaCompiler
     }
 
     private static void addSchema(String name, SchemaDocument schemadoc,
-          XmlErrorWatcher errorListener, List scontentlist)
+        XmlErrorWatcher errorListener, boolean noVDoc, List scontentlist)
     {
         StscState.addInfo(errorListener, "Loading schema file " + name);
         XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
+        opts.setValidateTreatLaxAsSkip();
         if (schemadoc.validate(opts))
             scontentlist.add((schemadoc).getSchema());
     }
 
-    private static void addWsdlSchemas(String name, org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument wsdldoc,
-                                  XmlErrorWatcher errorListener, List scontentlist)
+    private static void addWsdlSchemas(String name,
+        org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument wsdldoc,
+        XmlErrorWatcher errorListener, boolean noVDoc, List scontentlist)
     {
         if (wsdlContainsEncoded(wsdldoc))
             StscState.addWarning(errorListener, "The WSDL " + name + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
         StscState.addInfo(errorListener, "Loading wsdl file " + name);
+        XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
+        opts.setValidateTreatLaxAsSkip();
         XmlObject[] types = wsdldoc.getDefinitions().getTypesArray();
         int count = 0;
         for (int j = 0; j < types.length; j++)
@@ -927,7 +948,7 @@ public class SchemaCompiler
             for (int k = 0; k < schemas.length; k++)
             {
                 if (schemas[k] instanceof SchemaDocument.Schema &&
-                    schemas[k].validate(new XmlOptions().setErrorListener(errorListener)))
+                    schemas[k].validate(opts))
                 {
                     count++;
                     scontentlist.add(schemas[k]);
@@ -961,6 +982,7 @@ public class SchemaCompiler
         boolean noUpa = params.isNoUpa();
         boolean noPvr = params.isNoPvr();
         boolean noAnn = params.isNoAnn();
+        boolean noVDoc = params.isNoVDoc();
         boolean incrSrcGen = params.isIncrementalSrcGen();
         Collection outerErrorListener = params.getErrorListener();
 
@@ -1007,7 +1029,7 @@ public class SchemaCompiler
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
         SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
-            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, mdefNamespaces,
+            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, mdefNamespaces,
             baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
         if (errorListener.hasError())
             result = false;

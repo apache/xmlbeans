@@ -39,6 +39,7 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     private Map _nsMap = Collections.EMPTY_MAP;
     private String _parseTNS;
     private boolean _chameleon;
+    private String _filename;
 
     // Lazily computed paths
     private volatile XPath _selectorPath;
@@ -47,6 +48,13 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     public SchemaIdentityConstraintImpl(SchemaContainer c) {
         _container = c;
     }
+
+    public void setFilename(String filename)
+        { _filename = filename; }
+
+    public String getSourceName()
+        { return _filename; }
+
 
     public String getSelector() {
         return _selector;

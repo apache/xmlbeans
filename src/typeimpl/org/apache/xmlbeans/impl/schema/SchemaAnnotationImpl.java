@@ -38,6 +38,17 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
     private String[] _documentationAsXml;
     private DocumentationDocument.Documentation[] _documentation;
     private Attribute[] _attributes;
+    private String _filename;
+
+    public void setFilename(String filename)
+    {
+        _filename = filename;
+    }
+
+    public String getSourceName()
+    {
+        return _filename;
+    }
 
     public XmlObject[] getApplicationInformation()
     {

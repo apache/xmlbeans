@@ -80,6 +80,7 @@ public final class Validator
     {
         options = XmlOptions.maskNull(options);
         _errorListener = (Collection) options.get(XmlOptions.ERROR_LISTENER);
+        _treatLaxAsSkip = options.hasOption(XmlOptions.VALIDATE_TREAT_LAX_AS_SKIP);
 
         if (_errorListener == null)
             _errorListener = defaultErrorListener;
@@ -327,7 +328,8 @@ public final class Validator
 
                 int wildcardProcess = currentParticle.getWildcardProcess();
 
-                if (wildcardProcess == SchemaParticle.SKIP)
+                if (wildcardProcess == SchemaParticle.SKIP ||
+                    wildcardProcess == SchemaParticle.LAX && _treatLaxAsSkip)
                 {
                     _eatContent = 1;
                     return;
@@ -667,6 +669,7 @@ public final class Validator
         }
 
         int wildcardProcess = state._attrModel.getWildcardProcess();
+
         _wildcardAttribute = state._attrModel;
 
         if (wildcardProcess == SchemaAttributeModel.NONE)
@@ -691,7 +694,8 @@ public final class Validator
             return;
         }
 
-        if (wildcardProcess == SchemaAttributeModel.SKIP)
+        if (wildcardProcess == SchemaAttributeModel.SKIP ||
+            wildcardProcess == SchemaAttributeModel.LAX && _treatLaxAsSkip)
             return;
 
         attrSchema = _globalTypes.findAttribute( attrName );
@@ -1725,6 +1729,7 @@ public final class Validator
     private State              _stateStack;
     private int                _errorState;
     private Collection         _errorListener;
+    private boolean            _treatLaxAsSkip;
     private ValidatorVC        _vc;
     private int                _suspendErrors;
     private IdentityConstraint _constraintEngine;

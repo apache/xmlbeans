@@ -336,6 +336,25 @@ public interface XmlObject extends XmlTokenSource
      */
     XmlObject changeType(SchemaType newType);
 
+    /**
+     * Changes the schema type associated with this data using substitution
+     * groups and returns an XmlObject instance whose schemaType is the
+     * new type and container name is the new name.
+     * <p>
+     * In order for the operation to succeed, several conditions must hold:
+     * - the container of this type must be an element
+     * - a global element with the name <code>newName</code> must exist
+     * and must be in the substition group of the containing element
+     * - the <code>newType</code> type must be consistent with the declared
+     * type of the new element
+     * <p>
+     * If the type change is allowed, then the new XmlObject should
+     * be used rather than the old one. The old XmlObject instance and
+     * any other XmlObject instances in the subtree are permanently
+     * invalidated and should not be used. (They will return
+     * InvalidStateException if you try to use them.)
+     */
+    XmlObject substitute(QName newName, SchemaType newType);
 
     /**
      * True if the value is nil. Note that in order to be nil,

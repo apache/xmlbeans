@@ -2492,6 +2492,87 @@ final class Cur
         setAttrValueAsQName( Locale._xsiType, typeName );
     }
 
+    void setSubstitution ( QName name, SchemaType type )
+    {
+        setSubstitution( name, type, true );
+    }
+    
+    void setSubstitution ( QName name, SchemaType type, boolean complain )
+    {
+        assert name != null;
+        assert type != null;
+        assert isUserNode();
+
+        TypeStoreUser user = peekUser();
+
+        if (user != null && user.get_schema_type() == type && name.equals(getName()))
+            return;
+
+        if (isRoot())
+        {
+            // If this is the root node, we can't set its name, so the whole
+            // operation is aborted
+            return;
+        }
+
+        // Gotta get the parent user to make sure this type is ok here
+
+        TypeStoreUser parentUser = _xobj.ensureParent().getUser();
+
+        // One may only set the type of an attribute to its 'natural' type because
+        // attributes cannot take advantage of the xsiType attribute.
+
+        if (isAttr())
+        {
+            if (complain)
+            {
+                throw
+                    new IllegalArgumentException(
+                        "Can't use substitution with attributes");
+            }
+
+            return;
+        }
+
+        assert isElem();
+
+        // First check to see if this type can be here sans xsi:type.
+        // If so, make sure there is no xsi:type
+
+        if (parentUser.get_element_type( name, null ) == type)
+        {
+            setName( name );
+            removeAttr( Locale._xsiType );
+            return;
+        }
+
+        // If the desired type has no name, then it cannot be
+        // referenced via xsi:type
+
+        QName typeName = type.getName();
+
+        if (typeName == null)
+        {
+            if (complain)
+                throw new IllegalArgumentException( "Can't set xsi:type on element, type is un-named" );
+            else
+                return;
+        }
+
+        // See if setting xsiType would result in the target type
+        
+        if (parentUser.get_element_type( name, typeName ) != type)
+        {
+            if (complain)
+                throw new IllegalArgumentException( "Can't set xsi:type on element, invalid type" );
+            else
+                return;
+        }
+
+        setName( name );
+        setAttrValueAsQName( Locale._xsiType, typeName );
+    }
+
     TypeStoreUser peekUser ( )
     {
         assert isUserNode();

@@ -53,6 +53,8 @@ public interface TypeStore extends NamespaceManager
      */
     TypeStoreUser change_type ( SchemaType sType );
 
+    TypeStoreUser substitute ( QName name, SchemaType sType );
+
     /**
      * Tells if this store is an attribute or not
      */

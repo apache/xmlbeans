@@ -138,7 +138,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 20;
+    public static final int MINOR_VERSION = 21;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -1043,6 +1043,8 @@ public class XsbDumper
         emit("Model Group Xml: ");
         dumpXml();
         dumpAnnotation();
+        if (atLeast(2, 21, 0))
+            emit("Filename: " + readString());
     }
 
     void dumpAttributeGroupData()
@@ -1055,6 +1057,8 @@ public class XsbDumper
         emit("Attribute Group Xml: ");
         dumpXml();
         dumpAnnotation();
+        if (atLeast(2, 21, 0))
+            emit("Filename: " + readString());
     }
 
     static String alwaysString(int code)

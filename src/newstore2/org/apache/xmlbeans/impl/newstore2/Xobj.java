@@ -1715,6 +1715,24 @@ abstract class Xobj implements TypeStore
         return getUser();
     }
 
+    public TypeStoreUser substitute ( QName name, SchemaType type )
+    {
+        _locale.enter();
+
+        try
+        {
+            Cur c = tempCur();
+            c.setSubstitution( name, type, false );
+            c.release();
+        }
+        finally
+        {
+            _locale.exit();
+        }
+
+        return getUser();
+    }
+
     public QName get_xsi_type ( )
     {
         return getXsiTypeName();

@@ -577,6 +577,16 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * Instructs the validator to skip elements matching an <any>
+     * particle with contentModel="lax". This is useful because,
+     * in certain situations, XmlBeans will find types on the
+     * classpath that the document author did not anticipate.
+     */
+    public XmlOptions setValidateTreatLaxAsSkip() {
+        return set ( VALIDATE_TREAT_LAX_AS_SKIP );
+    }
+
+    /**
      * This option controls whether or not operations on XmlBeans are
      * thread safe.  When not on, all XmlBean operations will be syncronized.
      * This provides for multiple thread the ability to access a single
@@ -699,6 +709,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String COMPILE_MDEF_NAMESPACES         = "COMPILE_MDEF_NAMESPACES";
     /** @exclude */
     public static final String VALIDATE_ON_SET                 = "VALIDATE_ON_SET";
+    /** @exclude */
+    public static final String VALIDATE_TREAT_LAX_AS_SKIP      = "VALIDATE_TREAT_LAX_AS_SKIP";
     /** @exclude */
     public static final String UNSYNCHRONIZED                  = "UNSYNCHRONIZED";
     /** @exclude */

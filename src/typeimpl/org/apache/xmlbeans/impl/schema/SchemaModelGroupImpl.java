@@ -32,6 +32,8 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
     private boolean _chameleon;
     private boolean _redefinition;
     private SchemaAnnotation _annotation;
+    private String _filename;
+
 
     public SchemaModelGroupImpl(SchemaContainer container)
     {
@@ -69,6 +71,12 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
 
     public int getComponentType()
         { return SchemaComponent.MODEL_GROUP; }
+
+    public void setFilename(String filename)
+        { _filename = filename; }
+
+    public String getSourceName()
+        { return _filename; }
 
     public QName getName()
         { return _name; }
