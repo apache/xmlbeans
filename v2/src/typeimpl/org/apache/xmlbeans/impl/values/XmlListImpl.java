@@ -108,6 +108,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
 
         // we made it all the way through; so we're OK.
         _value = newval;
+        _jvalue = null;
     }
     
     private static final String[] EMPTY_STRINGARRAY = new String[0];
@@ -116,7 +117,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
     {
         if (s.length() == 0)
             return EMPTY_STRINGARRAY;
-                
+
         List result = new ArrayList();
         int i = 0;
         int start = 0;
@@ -256,6 +257,7 @@ public class XmlListImpl extends XmlObjectBase implements XmlAnySimpleType
         }
 
         _value = xList;
+        _jvalue = null;
     }
 
     public static void validateValue(XmlSimpleList items, SchemaType sType, ValidationContext context)

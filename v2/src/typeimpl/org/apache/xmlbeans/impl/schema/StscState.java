@@ -236,6 +236,7 @@ public class StscState
 
         _annotations.addAll(container.annotations());
         _namespaces.add(container.getNamespace());
+        container.unsetImmutable();
     }
 
     SchemaContainer getContainer(String namespace)

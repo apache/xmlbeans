@@ -904,7 +904,7 @@ public class StscChecker
                 case SchemaParticle.CHOICE:
                 case SchemaParticle.SEQUENCE:
                     // Check for valid Wildcard/Group derivation
-                    nsRecurseCheckCardinality = nsRecurseCheckCardinality(asIfPart, derivedModel, errors, context);
+                    nsRecurseCheckCardinality = nsRecurseCheckCardinality(asIfPart, particle, errors, context);
                     break;
             }
             // If any particle is invalid then break the loop
@@ -1012,7 +1012,7 @@ public class StscChecker
                     break;
                 case SchemaParticle.ALL:
                 case SchemaParticle.SEQUENCE:
-                    maxRange = getEffectiveMaxRangeAllSeq(derivedModel);
+                    maxRange = getEffectiveMaxRangeAllSeq(particle);
                     if (maxRange != UNBOUNDED) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
@@ -1021,7 +1021,7 @@ public class StscChecker
                     }
                     break;
                 case SchemaParticle.CHOICE:
-                    maxRange = getEffectiveMaxRangeChoice(derivedModel);
+                    maxRange = getEffectiveMaxRangeChoice(particle);
                     if (maxRange != UNBOUNDED) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
@@ -1090,7 +1090,7 @@ public class StscChecker
                     break;
                 case SchemaParticle.ALL:
                 case SchemaParticle.SEQUENCE:
-                    maxRange = getEffectiveMaxRangeAllSeq(derivedModel);
+                    maxRange = getEffectiveMaxRangeAllSeq(particle);
                     if (maxRange != UNBOUNDED) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
@@ -1099,7 +1099,7 @@ public class StscChecker
                     }
                     break;
                 case SchemaParticle.CHOICE:
-                    maxRange = getEffectiveMaxRangeChoice(derivedModel);
+                    maxRange = getEffectiveMaxRangeChoice(particle);
                     if (maxRange != UNBOUNDED) {
                         // keep highest maxoccurs found
                         if (maxRange.compareTo(maxOccursInGroup) > 0) {
@@ -1159,13 +1159,13 @@ public class StscChecker
                     break;
                 case SchemaParticle.ALL:
                 case SchemaParticle.SEQUENCE:
-                    BigInteger mrs = getEffectiveMinRangeAllSeq(derivedModel);
+                    BigInteger mrs = getEffectiveMinRangeAllSeq(particle);
                     if (minRange == null || minRange.compareTo(mrs) > 0) {
                         minRange = mrs;
                     }
                     break;
                 case SchemaParticle.CHOICE:
-                    BigInteger mrc = getEffectiveMinRangeChoice(derivedModel);
+                    BigInteger mrc = getEffectiveMinRangeChoice(particle);
                     if (minRange == null || minRange.compareTo(mrc) > 0) {
                         minRange = mrc;
                     }
@@ -1202,10 +1202,10 @@ public class StscChecker
                     break;
                 case SchemaParticle.ALL:
                 case SchemaParticle.SEQUENCE:
-                    particleTotalMinOccurs = particleTotalMinOccurs.add(getEffectiveMinRangeAllSeq(derivedModel));
+                    particleTotalMinOccurs = particleTotalMinOccurs.add(getEffectiveMinRangeAllSeq(particle));
                     break;
                 case SchemaParticle.CHOICE:
-                    particleTotalMinOccurs = particleTotalMinOccurs.add(getEffectiveMinRangeChoice(derivedModel));
+                    particleTotalMinOccurs = particleTotalMinOccurs.add(getEffectiveMinRangeChoice(particle));
                     break;
             }
         }

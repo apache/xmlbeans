@@ -355,6 +355,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printFactory(SchemaType sType) throws IOException
     {
+        // Only need factories for non-abstract types
+        if (sType.isAbstract())
+            return;
+
         // Only need full factories for top-level types
         boolean fullFactory = true;
         if (sType.isAnonymousType() && ! sType.isDocumentType() && !sType.isAttributeType())

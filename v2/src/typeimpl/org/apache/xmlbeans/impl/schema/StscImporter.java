@@ -458,58 +458,59 @@ public class StscImporter
             EntityResolver resolver = state.getEntityResolver();
             if (resolver != null)
             {
-                InputSource source;
+                InputSource source = null;
                 try
                 {
                     source = resolver.resolveEntity(namespace, absoluteURL);
-                    if (source==null)
-                         throw new XmlException("Unresolvable entity for: " + namespace + " : " + absoluteURL);
-                }   // TODO (cezar)add check source==null
+                }
                 catch (SAXException e)
                 {
                     throw new XmlException(e);
                 }
-                    
-                state.addSourceUri(absoluteURL, null);
 
-                // first preference for InputSource contract: character stream
-                Reader reader = source.getCharacterStream();
-                if (reader != null)
+                if (source != null)
                 {
-                    reader = copySchemaSource(absoluteURL, reader, state);
-                    XmlOptions options = new XmlOptions();
-                    options.setLoadLineNumbers();
-                    options.setDocumentSourceName(absoluteURL);
-                    return loader.parse(reader, null, options);
-                }
+                    state.addSourceUri(absoluteURL, null);
+
+                    // first preference for InputSource contract: character stream
+                    Reader reader = source.getCharacterStream();
+                    if (reader != null)
+                    {
+                        reader = copySchemaSource(absoluteURL, reader, state);
+                        XmlOptions options = new XmlOptions();
+                        options.setLoadLineNumbers();
+                        options.setDocumentSourceName(absoluteURL);
+                        return loader.parse(reader, null, options);
+                    }
                 
-                // second preference for InputSource contract: 
-                InputStream bytes = source.getByteStream();
-                if (bytes != null)
-                {
-                    bytes = copySchemaSource(absoluteURL, bytes, state);
-                    String encoding = source.getEncoding();
+                    // second preference for InputSource contract: 
+                    InputStream bytes = source.getByteStream();
+                    if (bytes != null)
+                    {
+                        bytes = copySchemaSource(absoluteURL, bytes, state);
+                        String encoding = source.getEncoding();
+                        XmlOptions options = new XmlOptions();
+                        options.setLoadLineNumbers();
+                        options.setLoadMessageDigest();
+                        options.setDocumentSourceName(absoluteURL);
+                        if (encoding != null)
+                            options.setCharacterEncoding(encoding);
+                        return loader.parse(bytes, null, options);
+                    }
+                
+                    // third preference: use the (possibly redirected) url
+                    String urlToLoad = source.getSystemId();
+                    if (urlToLoad == null)
+                        throw new IOException("EntityResolver unable to resolve " + absoluteURL + " (for namespace " + namespace + ")");
+
+                    copySchemaSource(absoluteURL, state);
                     XmlOptions options = new XmlOptions();
                     options.setLoadLineNumbers();
                     options.setLoadMessageDigest();
                     options.setDocumentSourceName(absoluteURL);
-                    if (encoding != null)
-                        options.setCharacterEncoding(encoding);
-                    return loader.parse(bytes, null, options);
+                    URL urlDownload = new URL(urlToLoad);
+                    return loader.parse(urlDownload, null, options);
                 }
-                
-                // third preference: use the (possibly redirected) url
-                String urlToLoad = source.getSystemId();
-                if (urlToLoad == null)
-                    throw new IOException("EntityResolver unable to resolve " + absoluteURL + " (for namespace " + namespace + ")");
-
-                copySchemaSource(absoluteURL, state);
-                XmlOptions options = new XmlOptions();
-                options.setLoadLineNumbers();
-                options.setLoadMessageDigest();
-                options.setDocumentSourceName(absoluteURL);
-                URL urlDownload = new URL(urlToLoad);
-                return loader.parse(urlDownload, null, options);
             }
 
             // no resolver - just use the URL directly, no substitution

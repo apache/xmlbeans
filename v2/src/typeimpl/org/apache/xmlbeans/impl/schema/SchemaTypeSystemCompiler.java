@@ -300,6 +300,7 @@ public class SchemaTypeSystemCompiler
     {
         Set modifiedFiles = new HashSet();
         Map haveFile = new HashMap();
+        List result = new ArrayList();
         for (int i = 0; i < modified.length; i++)
         {
             String fileURL = modified[i].documentProperties().getSourceName();
@@ -309,20 +310,18 @@ public class SchemaTypeSystemCompiler
                     " compiled");
             modifiedFiles.add(fileURL);
             haveFile.put(fileURL, modified[i]);
+            result.add(modified[i]);
         }
         SchemaDependencies dep = system.getDependencies();
         List nss = dep.getNamespacesTouched(modifiedFiles);
         namespaces.addAll(dep.computeTransitiveClosure(nss));
         List needRecompilation = dep.getFilesTouched(namespaces);
         StscState.get().setDependencies(new SchemaDependencies(dep, namespaces));
-        List result = new ArrayList();
         for (int i = 0; i < needRecompilation.size(); i++)
         {
             String url = (String) needRecompilation.get(i);
             Schema have = (Schema) haveFile.get(url);
-            if (have != null)
-                result.add(have);
-            else
+            if (have == null)
             {
                 // We have to load the file from the entity resolver
                 try
