@@ -44,7 +44,7 @@ public class DomWalkNLV2
     // get the xml cursor
     char[] chars = util.createXmlData(flavor, Constants.XML_SIZE);
     XmlObject doc = XmlObject.Factory.parse(new CharArrayReader(chars));
-    Node node = doc.newDomNode();
+    Node node = doc.getDomNode();
 
     // warm up the vm
     cputime = System.currentTimeMillis();
