@@ -391,7 +391,7 @@ public class StscJavaizer
                     }
                     else if (childContents.contains(target))
                     {
-                        builder.addAll(computeAllContainedElements(contentModel.getParticleChild(i), state));
+                        builder.addAll(computeNondelimitingElements(target, contentModel.getParticleChild(i), state));
                         seenTarget = true;
                     }
                 }
