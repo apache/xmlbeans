@@ -57,13 +57,11 @@ public class JavadocClassBuilder extends JamClassBuilder {
       mExtractor = (JavadocAnnotationExtractor)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
     } catch (ClassNotFoundException e) {
-      ctx.error(e);
+      mServiceContext.error(e);
     } catch (IllegalAccessException e) {
-      //if this fails, we'll assume it's because we're not under 1.5
-      ctx.debug(e);
+      mServiceContext.verbose(e);
     } catch (InstantiationException e) {
-      //if this fails, we'll assume it's because we're not under 1.5
-      ctx.debug(e);
+      mServiceContext.verbose(e);
     }
   }
 
@@ -99,7 +97,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
                          classPath,
                          getJavadocArgs(mServiceContext));
       if (mRootDoc == null) {
-        ctx.debug("Javadoc returned a null root");//FIXME error
+        ctx.verbose("Javadoc returned a null root");//FIXME error
       }
     } catch (FileNotFoundException e) {
       ctx.error(e);

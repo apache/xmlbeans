@@ -19,20 +19,27 @@ package org.apache.xmlbeans.impl.jam.provider;
  */
 public interface JamLogger {
 
-  /**
-   * <p>Outputs a debug message as appropriate.</p>
-   */
-  public void debug(String msg);
+  public boolean isVerbose();
 
   /**
    * <p>Outputs a debug message as appropriate.</p>
    */
-  public void debug(Throwable t);
+  public void verbose(String msg);
+
+  /**
+   * <p>Outputs a debug message as appropriate.</p>
+   */
+  public void verbose(Throwable t);
 
   /**
    * <p>Outputs a debug message as appropriate.</p>
    */
   public void warning(Throwable t);
+
+  /**
+   * <p>Outputs a debug message as appropriate.</p>
+   */
+  public void warning(String w);
 
   /**
    * <p>Outputs an error as appropriate.</p>

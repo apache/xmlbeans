@@ -82,7 +82,8 @@ public class SourcesJamTest extends JamTestBase {
   protected JamService getResultToTest() throws IOException {
     JamServiceFactory jsf = JamServiceFactory.getInstance();
     JamServiceParams params = jsf.createServiceParams();
-    params.includeSourceFiles(getDummyclassesSourceRoot(),"**/*.java");
+    params.setVerbose(true);
+    params.includeSourceFiles(getDummyclassesSourcepath(),"**/*.java");
     params.setProperty(JavadocClassBuilder.ARGS_PROPERTY,"-source 1.5");
     return jsf.createService(params);
   }

@@ -81,8 +81,13 @@ public class JamClassLoaderImpl implements JamClassLoader {
     }
     out = mBuilder.build(pkg,name);
     if (out == null) {
+      //FIXME currently, the unqualified ref stuff will keep calling this,
+      //newing up new UnresolvedClassImpls for each import until it finds
+      //something.  We need to break out a separate checkClass() method
+      //or something for them which returns null rather than UnresolvedClass.
       out = new UnresolvedClassImpl(pkg,name,mContext);
-      mContext.debug("unresolved class '"+pkg+" "+name);
+      mContext.warning(new ClassNotFoundException("Failed to resolve class "+
+                                                  pkg+"' '"+name+"'"));
       mFd2ClassCache.put(fd,out);
       return out;
     }

@@ -160,18 +160,6 @@ public class JamServiceContextImpl implements JamServiceContext,
     return null;
   }
 
-  public File getRootForFile(File[] sourceRoots, File sourceFile) {
-    if (sourceRoots == null) throw new IllegalArgumentException("null roots");
-    if (sourceFile == null) throw new IllegalArgumentException("null file");
-    String f = sourceFile.getAbsolutePath();
-    for(int i=0; i<sourceRoots.length; i++) {
-      if (f.startsWith(sourceRoots[i].getAbsolutePath())) {//cheesy?
-        return sourceRoots[i];
-      }
-    }
-    return null;
-  }
-
   public void register175AnnotationProxy(Class proxy, String jsr175type) {
     validateProxyClass(proxy);
     ClassImpl.validateClassName(jsr175type);
@@ -243,40 +231,64 @@ public class JamServiceContextImpl implements JamServiceContext,
   }
 
 
-  public void includeSourceFiles(File srcRoot, String pattern) {
-    addSourcepath(srcRoot);
-    getSourceScanner(srcRoot).include(pattern);
+  public void includeSourceFiles(File[] sourcepath, String pattern) {
+    if (sourcepath == null) throw new IllegalArgumentException("null sourcepath");
+    if (sourcepath.length == 0) throw new IllegalArgumentException("empty sourcepath");
+    if (pattern == null) throw new IllegalArgumentException("null pattern");
+    for(int i=0; i<sourcepath.length; i++) {
+      addSourcepath(sourcepath[i]);
+      getSourceScanner(sourcepath[i]).include(pattern);
+    }
   }
 
-  public void includeClassFiles(File srcRoot, String pattern) {
-    addClasspath(srcRoot);
-    getClassScanner(srcRoot).include(pattern);
+  public void includeClassFiles(File classpath[], String pattern) {
+    if (classpath == null) throw new IllegalArgumentException("null classpath");
+    if (classpath.length == 0) throw new IllegalArgumentException("empty classpath");
+    if (pattern == null) throw new IllegalArgumentException("null pattern");
+    for(int i=0; i<classpath.length; i++) {
+      addClasspath(classpath[i]);
+      getClassScanner(classpath[i]).include(pattern);
+    }
   }
 
-  public void excludeSourceFiles(File srcRoot, String pattern) {
-    addSourcepath(srcRoot);
-    getSourceScanner(srcRoot).exclude(pattern);
+  public void excludeSourceFiles(File[] sourcepath, String pattern) {
+    if (sourcepath == null) throw new IllegalArgumentException("null sourcepath");
+    if (sourcepath.length == 0) throw new IllegalArgumentException("empty sourcepath");
+    if (pattern == null) throw new IllegalArgumentException("null pattern");
+    for(int i=0; i<sourcepath.length; i++) {
+      addSourcepath(sourcepath[i]);
+      getSourceScanner(sourcepath[i]).exclude(pattern);
+    }
   }
 
-  public void excludeClassFiles(File srcRoot, String pattern) {
-    addClasspath(srcRoot);
-    getClassScanner(srcRoot).exclude(pattern);
+  public void excludeClassFiles(File[] classpath, String pattern) {
+    if (classpath == null) throw new IllegalArgumentException("null classpath");
+    if (classpath.length == 0) throw new IllegalArgumentException("empty classpath");
+    if (pattern == null) throw new IllegalArgumentException("null pattern");
+    for(int i=0; i<classpath.length; i++) {
+      addClasspath(classpath[i]);
+      getClassScanner(classpath[i]).exclude(pattern);
+    }
   }
 
-  public void includeSourceFile(File root, File sourceFile) {
-    includeSourceFiles(root,source2pattern(root,sourceFile));
+  public void includeSourceFile(File[] sourcepath, File sourceFile) {
+    File root = getPathRootForFile(sourcepath,sourceFile);
+    includeSourceFiles(new File[] {root}, source2pattern(root,sourceFile));
   }
 
-  public void excludeSourceFile(File root, File sourceFile) {
-    excludeSourceFiles(root,source2pattern(root,sourceFile));
+  public void excludeSourceFile(File[] sourcepath, File sourceFile) {
+    File root = getPathRootForFile(sourcepath,sourceFile);
+    excludeSourceFiles(new File[] {root}, source2pattern(root,sourceFile));
   }
 
-  public void includeClassFile(File root, File classFile) {
-    includeClassFiles(root,source2pattern(root,classFile));
+  public void includeClassFile(File[] classpath, File classFile) {
+    File root = getPathRootForFile(classpath,classFile);
+    includeClassFiles(new File[] {root}, source2pattern(root,classFile));
   }
 
-  public void excludeClassFile(File root, File classFile) {
-    excludeClassFiles(root,source2pattern(root,classFile));
+  public void excludeClassFile(File[] classpath, File classFile) {
+    File root = getPathRootForFile(classpath,classFile);
+    excludeClassFiles(new File[] {root}, source2pattern(root,classFile));
   }
 
   public void includeClass(String qualifiedClassname) {
@@ -290,17 +302,29 @@ public class JamServiceContextImpl implements JamServiceContext,
   }
 
   public void addClasspath(File classpathElement) {
-    if (mClasspath == null) mClasspath = new ArrayList();
+    if (mClasspath == null) {
+      mClasspath = new ArrayList();
+    } else {
+      if (mClasspath.contains(classpathElement)) return;
+    }
     mClasspath.add(classpathElement);
   }
 
   public void addSourcepath(File sourcepathElement) {
-    if (mSourcepath == null) mSourcepath = new ArrayList();
+    if (mSourcepath == null) {
+      mSourcepath = new ArrayList();
+    } else {
+      if (mSourcepath.contains(sourcepathElement)) return;
+    }
     mSourcepath.add(sourcepathElement);
   }
 
   public void addToolClasspath(File classpathElement) {
-    if (mToolClasspath == null) mToolClasspath = new ArrayList();
+    if (mToolClasspath == null) {
+      mToolClasspath = new ArrayList();
+    } else {
+      if (mToolClasspath.contains(classpathElement)) return;
+    }
     mToolClasspath.add(classpathElement);
   }
 
@@ -338,11 +362,11 @@ public class JamServiceContextImpl implements JamServiceContext,
   // ========================================================================
   // JamLogger implementation
 
-  public void debug(String msg) {
+  public void verbose(String msg) {
     if (mVerbose) mOut.println(msg);
   }
 
-  public void debug(Throwable t) {
+  public void verbose(Throwable t) {
     if (mVerbose) t.printStackTrace(mOut);
   }
 
@@ -350,8 +374,16 @@ public class JamServiceContextImpl implements JamServiceContext,
     error(t);//FIXME
   }
 
+  public void warning(String w) {
+    error(w);//FIXME
+  }
+
   public void error(Throwable t) {
     t.printStackTrace(mOut);
+  }
+
+  public void error(String msg) {
+    mOut.println(msg);
   }
 
   // ========================================================================
@@ -415,6 +447,20 @@ public class JamServiceContextImpl implements JamServiceContext,
 
   // ========================================================================
   // Private methods
+
+  private File getPathRootForFile(File[] sourcepath, File sourceFile) {
+    if (sourcepath == null) throw new IllegalArgumentException("null sourcepath");
+    if (sourcepath.length == 0) throw new IllegalArgumentException("empty sourcepath");
+    if (sourceFile == null) throw new IllegalArgumentException("null sourceFile");
+    String f = sourceFile.getAbsolutePath();
+    for(int i=0; i<sourcepath.length; i++) {
+      if (f.startsWith(sourcepath[i].getAbsolutePath())) {//cheesy?
+        return sourcepath[i];
+      }
+    }
+    throw new IllegalArgumentException(sourceFile+" is not in the given path.");
+  }
+
 
   private AnnotationProxy createProxy(Class clazz) {
     if (clazz == null) clazz = mDefaultAnnotationProxyClass;
@@ -497,7 +543,7 @@ public class JamServiceContextImpl implements JamServiceContext,
     if (mSourceRoot2Scanner == null) mSourceRoot2Scanner = new HashMap();
     DirectoryScanner out = (DirectoryScanner)mSourceRoot2Scanner.get(srcRoot);
     if (out == null) {
-      mSourceRoot2Scanner.put(srcRoot,out = new DirectoryScanner(srcRoot));
+      mSourceRoot2Scanner.put(srcRoot,out = new DirectoryScanner(srcRoot,this));
     }
     return out;
   }
@@ -510,7 +556,7 @@ public class JamServiceContextImpl implements JamServiceContext,
     if (mClassRoot2Scanner == null) mClassRoot2Scanner = new HashMap();
     DirectoryScanner out = (DirectoryScanner)mClassRoot2Scanner.get(clsRoot);
     if (out == null) {
-      mClassRoot2Scanner.put(clsRoot,out = new DirectoryScanner(clsRoot));
+      mClassRoot2Scanner.put(clsRoot,out = new DirectoryScanner(clsRoot,this));
     }
     return out;
   }

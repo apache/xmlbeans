@@ -37,53 +37,53 @@ public interface JamServiceParams {
    * <p>Note that calling this method implicitly includes the 'root' in
    * the sourcepath (exactly as if addSourcepath(root) had been called).</p>
    *
-   * @param root Root directory of the source files.
+   * @param sourcepath Root directory/ies containing source files.
    * @param pattern A relative file pattern (as described above under
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void includeSourceFiles(File root, String pattern);
+  public void includeSourceFiles(File[] sourcepath, String pattern);
 
   /**
    * Specifies a set of java source files to be excluded in the JamService.
-   * Note that calling this method implicitly includes the 'root' in
-   * the sourcepath (as in a call to addSourcepath(root)).
+   * Note that calling this method implicitly includes the 'sourcepath' in
+   * the sourcepath (as in a call to addSourcepath(sourcepath)).
    *
-   * @param root Root directory of the source files.
+   * @param sourcepath Root directory of the source files.
    * @param pattern A relative file pattern (as described above under
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void excludeSourceFiles(File root, String pattern);
+  public void excludeSourceFiles(File[] sourcepath, String pattern);
 
   /**
    * Specifies a set of java class files to be excluded in the JamService.
-   * Note that calling this method implicitly includes the 'root' in
-   * the classpath (as in a call to addClasspath(root)).
+   * Note that calling this method implicitly includes the 'classpath' in
+   * the classpath (as in a call to addClasspath(classpath)).
    *
-   * @param root Root directory of the source files.
+   * @param classpath Root directory of the source files.
    * @param pattern A relative file pattern (as described above under
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void includeClassFiles(File root, String pattern);
+  public void includeClassFiles(File[] classpath, String pattern);
 
   /**
    * Specifies a set of java class files to be excluded from the JamService.
-   * Note that calling this method implicitly includes the 'root' in
-   * the classpath (as in a call to addClasspath(root)).
+   * Note that calling this method implicitly includes the 'classpath' in
+   * the classpath (as in a call to addClasspath(classpath)).
    *
-   * @param root Root directory of the source files.
+   * @param classpath Root directory of the source files.
    * @param pattern A relative file pattern (as described above under
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void excludeClassFiles(File root, String pattern);
+  public void excludeClassFiles(File[] classpath, String pattern);
 
   /**
-   * <p>Includes a single source File in the JamService.  The root parameter
-   * should identify the source root of the java source file; the sourceFile
-   * parameter must be under the root subtree.</p>
+   * <p>Includes a single source File in the JamService.  The sourcepath parameter
+   * should identify the source sourcepath of the java source file; the sourceFile
+   * parameter must be under the sourcepath subtree.</p>
    *
    * <p>For example, if a class "foo.bar.MyClass" is stored in a file
    * "c:/myproject/src/foo/bar/MyClass.java", that class could be included in
@@ -100,38 +100,38 @@ public interface JamServiceParams {
    *  includeSourceFiles(new File("c:/myproject/src"),"foo/bar/MyClass.java");
    * </pre>
    *
-   * <p>If you are calling this method and have more than one root directory,
-   * and do not readily know which is the correct root for a given source
+   * <p>If you are calling this method and have more than one sourcepath directory,
+   * and do not readily know which is the correct sourcepath for a given source
    * File, you can use the getRootForFile() utility method to determine the
-   * correct root to use.</p>
+   * correct sourcepath to use.</p>
    *
-   * <p>Note that calling this method implicitly includes the 'root' in
-   * the sourcepath (exactly as if addSourcepath(root) had been called).</p>
+   * <p>Note that calling this method implicitly includes the 'sourcepath' in
+   * the sourcepath (exactly as if addSourcepath(sourcepath) had been called).</p>
    *
-   * @param root source root for the java source file
+   * @param sourcepath source sourcepath for the java source file
    * @param sourceFile the java source file
    * @throws IllegalArgumentException if either argument is null or if
-   * root is not an ancestor of sourceFile in the file system.
+   * sourcepath is not an ancestor of sourceFile in the file system.
    */
-  public void includeSourceFile(File root, File sourceFile);
+  public void includeSourceFile(File[] sourcepath, File sourceFile);
 
   /**
    * <p>Excludes a single source File in the JamService in exactly the same
    * way theat includeSourceFile() includes a source file.
    */
-  public void excludeSourceFile(File root, File sourceFile);
+  public void excludeSourceFile(File[] sourcepath, File sourceFile);
 
   /**
    * <p>Includes a single class File in the JamService in exactly the same
    * way theat includeSourceFile() includes a source file.
    */
-  public void includeClassFile(File root, File sourceFile);
+  public void includeClassFile(File[] sourcepath, File sourceFile);
 
   /**
    * <p>Excludes a single class File in the JamService in exactly the same
    * way theat includeSourceFile() includes a source file.
    */
-  public void excludeClassFile(File root, File sourceFile);
+  public void excludeClassFile(File[] sourcepath, File sourceFile);
 
   /**
    * Names a specific class to be included in the JamService.  Note that
@@ -223,7 +223,7 @@ public interface JamServiceParams {
    * does.
    * @throws IllegalArgumentException if either argument is null.
    */
-  public File getRootForFile(File[] sourceRoots, File sourceFile);
+  //public File getRootForFile(File[] sourceRoots, File sourceFile);
 
 
   /**

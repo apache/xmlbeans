@@ -45,7 +45,8 @@ public class UnqualifiedJClassRef implements JClassRef {
    */
   public static JClassRef create(String qualifiedClassname,
                                  JClassRefContext ctx) {
-    return new UnqualifiedJClassRef(qualifiedClassname,ctx);
+    throw new IllegalStateException("Unqualified names currently disabled.");
+    //return new UnqualifiedJClassRef(qualifiedClassname,ctx);
   }
 
   // ========================================================================

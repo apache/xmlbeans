@@ -193,15 +193,15 @@ public abstract class JamTestBase extends TestCase {
   /**
    * Returns the directory in which the sources for the dummyclasses live.
    */
-  protected File getDummyclassesSourceRoot() {
-    return new File("dummyclasses");
+  protected File[] getDummyclassesSourcepath() {
+    return new File[] {new File("dummyclasses")};
   }
 
   /**
    * Returns the directory into which the dummyclasses have been compiled.
    */
-  protected File getDummyclassesClassDir() {
-    return new File("../../build/jam/test/dummyclasses");
+  protected File[] getDummyclassesClassPath() {
+    return new File[] {new File("../../build/jam/test/dummyclasses")};
   }
 
   // ========================================================================
