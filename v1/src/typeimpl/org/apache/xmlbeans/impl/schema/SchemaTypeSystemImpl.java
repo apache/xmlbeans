@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 * are met:
 *
 * 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer. 
+*    notice, this list of conditions and the following disclaimer.
 *
 * 2. Redistributions in binary form must reproduce the above copyright
 *    notice, this list of conditions and the following disclaimer in
@@ -18,19 +18,19 @@
 *    distribution.
 *
 * 3. The end-user documentation included with the redistribution,
-*    if any, must include the following acknowledgment:  
+*    if any, must include the following acknowledgment:
 *       "This product includes software developed by the
 *        Apache Software Foundation (http://www.apache.org/)."
 *    Alternately, this acknowledgment may appear in the software itself,
 *    if and wherever such third-party acknowledgments normally appear.
 *
-* 4. The names "Apache" and "Apache Software Foundation" must 
+* 4. The names "Apache" and "Apache Software Foundation" must
 *    not be used to endorse or promote products derived from this
-*    software without prior written permission. For written 
+*    software without prior written permission. For written
 *    permission, please contact apache@apache.org.
 *
-* 5. Products derived from this software may not be called "Apache 
-*    XMLBeans", nor may "Apache" appear in their name, without prior 
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
 *    written permission of the Apache Software Foundation.
 *
 * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -49,7 +49,7 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems 
+* originally based on software copyright (c) 2000-2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
@@ -101,6 +101,7 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.SchemaTypeLoaderException;
+import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
 import com.bea.x2002.x09.xbean.config.ConfigDocument.Config;
@@ -333,7 +334,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             // qname map of document types, by the qname of the contained element
             _documentTypes = reader.readQNameRefMap();
-            
+
             // qname mape of attribute types, by the qname of the contained attribute
             _attributeTypes = reader.readQNameRefMap();
 
@@ -341,7 +342,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             _typeRefsByClassname = reader.readClassnameRefMap();
 
             _namespaces = reader.readNamespaces();
-            
+
             // support for redefine, at the end of the file
             if (reader.atLeast(2, 15, 0))
             {
@@ -476,10 +477,10 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             result.put(types[i].getAttributeTypeAttributeName(), types[i].getRef());
         return result;
     }
-    
+
     private static Random _random;
     private static byte[] _mask = new byte[128 / 8];
-    
+
     /**
      * Fun, fun.  Produce 128 bits of uniqueness randomly.
      * We used to use SecureRandom, but now we don't because SecureRandom
@@ -516,7 +517,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 DataOutputStream daos = new DataOutputStream(baos);
-                
+
                 // at least 10 bits of unqieueness, right?  Maybe even 50 or 60.
                 daos.writeInt(System.identityHashCode(SchemaTypeSystemImpl.class));
                 String[] props = new String[] { "user.name", "user.dir", "user.timezone", "user.country", "java.class.path", "java.home", "java.vendor", "java.version", "os.version" };
@@ -543,7 +544,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             {
                 XBeanDebug.logException(e);
             }
-            
+
             _random = new Random(System.currentTimeMillis());
         }
         _random.nextBytes(result);
@@ -891,7 +892,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private Map _redefinedModelGroups;
     private Map _redefinedAttributeGroups;
     private Map _redefinedGlobalTypes;
-    
+
     private Map _globalElements;
     private Map _globalAttributes;
     private Map _modelGroups;
@@ -923,7 +924,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         saveModelGroups(modelGroups());
         saveAttributeGroups(attributeGroups());
         saveIdentityConstraints(identityConstraints());
-        
+
         saveTypesRecursively(redefinedGlobalTypes());
         saveModelGroups(redefinedModelGroups());
         saveAttributeGroups(redefinedAttributeGroups());
@@ -1069,7 +1070,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             if (majorver > 2 || majorver == 2 && minorver >= 18)
                 input.readShort(); // release number present in atLeast(2, 18, 0)
-            
+
             int actualfiletype = input.readShort();
             if (actualfiletype != FILETYPE_SCHEMAPOINTER)
                 return null;
@@ -1123,11 +1124,11 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             if (_minorver > MINOR_VERSION)
                 throw new SchemaTypeLoaderException("XML-BEANS compiled schema: Incompatible minor version - expecting up to " + MINOR_VERSION + ", got " + _minorver, _name, handle, SchemaTypeLoaderException.WRONG_MINOR_VERSION);
-            
+
             // Clip to 14 because we're not backward compatible with earlier
             // minor versions.  Remove this when upgrading to a new major
             // version
-            
+
             if (_minorver < 14)
                 throw new SchemaTypeLoaderException("XML-BEANS compiled schema: Incompatible minor version - expecting at least 14, got " + _minorver, _name, handle, SchemaTypeLoaderException.WRONG_MINOR_VERSION);
 
@@ -1297,7 +1298,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             // all the namespaces
             writeNamespaces(_namespaces);
-            
+
             // VERSION 2.15 and newer below
             writeQNameMap(redefinedGlobalTypes());
             writeQNameMap(redefinedModelGroups());
@@ -1477,20 +1478,24 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             switch (handle.charAt(2))
             {
-                case 'I': // _BI_
+                case 'I': // _BI_ - built-in schema type system
                     return ((SchemaType)BuiltinSchemaTypeSystem.get().resolveHandle(handle)).getRef();
-                case 'T': // _XT_
+                case 'T': // _XT_ - external type
                     return _linker.findTypeRef(QNameHelper.forPretty(handle, 4));
-                case 'E': // _XE_
+                case 'E': // _XE_ - external element
                     return _linker.findElementRef(QNameHelper.forPretty(handle, 4));
-                case 'A': // _XA_
+                case 'A': // _XA_ - external attribute
                     return _linker.findAttributeRef(QNameHelper.forPretty(handle, 4));
-                case 'M': // _XM_
+                case 'M': // _XM_ - external model group
                     return _linker.findModelGroupRef(QNameHelper.forPretty(handle, 4));
-                case 'N': // _XN_
+                case 'N': // _XN_ - external attribute group
                     return _linker.findAttributeGroupRef(QNameHelper.forPretty(handle, 4));
-                case 'D': // _XD_
+                case 'D': // _XD_ - external identity constraint
                     return _linker.findIdentityConstraintRef(QNameHelper.forPretty(handle, 4));
+                case 'R': // _XR_ - external ref to attribute's type
+                    return _linker.findAttribute(QNameHelper.forPretty(handle, 4)).getType().getRef();
+                case 'S': // _XS_ - external ref to element's type
+                    return _linker.findElement(QNameHelper.forPretty(handle, 4)).getType().getRef();
                 default:
                     throw new SchemaTypeLoaderException("Cannot resolve handle " + handle, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
             }
@@ -1528,8 +1533,32 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                         writeString("_BI_" + type.getName().getLocalPart());
                         return;
                     }
-                    writeString("_XT_" + QNameHelper.pretty(type.getName()));
+
+                    // fix for CR120759 - added output of types _XR_ & _XS_
+                    // when an attribute (_XR_) or element (_XS_) declaration
+                    // uses ref to refer to an attribute or element in another
+                    // schema and the type of that attribute or element
+                    // is an anonymous (local) type
+                    if (type.getName() != null)
+                    {
+                        writeString("_XT_" + QNameHelper.pretty(type.getName()));
+                    }
+                    else
+                    {
+                        SchemaField sf = type.getContainerField();
+                        assert (sf != null);
+                        if (sf.isAttribute())
+                        {
+                            writeString("_XR_" + QNameHelper.pretty(sf.getName()));
+                        }
+                        else
+                        {
+                            writeString("_XS_" + QNameHelper.pretty(sf.getName()));
+                        }
+                    }
+
                     return;
+
                 default:
                     assert(false);
                     throw new SchemaTypeLoaderException("Cannot write handle for component " + comp, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
@@ -1758,7 +1787,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 impl.setName(readQName());
                 impl.setConstraintCategory(readShort());
                 impl.setSelector(readString());
-                
+
                 String[] fields = new String[readShort()];
                 for (int i = 0 ; i < fields.length ; i++)
                     fields[i] = readString();
@@ -2626,7 +2655,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeType(type);
             if (type == null)
                 return;
-            
+
             SchemaType iType = ((SimpleValue)value).instanceType();
             if (iType == null)
             {
@@ -2911,7 +2940,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             SchemaComponent.Ref ref = (SchemaComponent.Ref)i.next();
             ref.getComponent(); // Forces ref to be resolved
         }
-        
+
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished resolving type system " + _name, -1);
         _allNonGroupHandlesResolved = true;
     }
