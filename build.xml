@@ -70,7 +70,7 @@
     </exec>
 
     <taskdef name="svnrev" classname="xmlbeans.SvnRevisionTask"
-        classpath="build/classes/svnrev"/>
+        classpath="build/private/classes/svnrev"/>
     <svnrev file="build/private/svninfo.properties"
         property="svn.last.rev"/>
 
