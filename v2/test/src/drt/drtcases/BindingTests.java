@@ -21,14 +21,17 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
-import org.apache.xmlbeans.impl.binding.compile.SchemaToJavaResult;
-import org.apache.xmlbeans.impl.binding.compile.JavaCodeResult;
 import org.apache.xmlbeans.impl.binding.compile.SchemaSourceSet;
 import org.apache.xmlbeans.impl.binding.compile.SimpleSourceSet;
+import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
+import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
+import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
+import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
-import java.io.File;
+import java.io.*;
 import java.util.Iterator;
 
 public class BindingTests extends TestCase
@@ -43,21 +46,20 @@ public class BindingTests extends TestCase
         // bind
         File typesonlyfile = TestEnv.xbeanCase("schema/typesonly/typesonly.xsd");
         SchemaSourceSet input = SimpleSourceSet.forXsdFile(typesonlyfile, null);
-        SchemaToJavaResult result = Schema2Java.bind(input);
-        if (verbose)
-        {
-            result.getBindingFile().write().save(System.out);
-            JavaCodeResult javacode = result.getJavaCodeResult();
-            for (Iterator i = javacode.getToplevelClasses().iterator(); i.hasNext(); )
-            {
-                String javaclass = (String)i.next();
-                System.out.println("=======================");
-                System.out.println(javaclass);
-                System.out.println("=======================");
-                javacode.printSourceCode(javaclass, System.out);
-                System.out.flush();
-            }
-        }
+        Schema2Java compiler = new Schema2Java(input);
+
+        final JavaOutputStream joust = createJoust();
+        BindingFile bindingFile = null;
+        TylarWriter twriter = new TylarWriter() {
+          public JavaOutputStream getJavaOutputStream() { return joust; }
+          public void writeBindingFile(BindingFile bf) throws IOException {
+            if (verbose) bf.write().save(System.out);
+          }
+          public void writeSchema(SchemaDocument xsd, String filepath) {}
+        };
+        //FIXME this is kinda dumb, just emulating current behavior.
+        //real test should create a tylar on disk  -pcal
+        compiler.bind(twriter);
 
         // now compile
         // SimpleSchemaToJavaResultCompiler.Params params = new SimpleSchemaToJavaResultCompiler.Params();
@@ -66,6 +68,30 @@ public class BindingTests extends TestCase
         // to test later
         //SimpleSchemaToJavaResultCompiler.compile(result, params);
     }
+
+  //creates a JavaOutputStream that either spits out to System.out
+  //or swallows the source output entirely.  This is temporary.  -pcal
+  private JavaOutputStream createJoust() {
+    final PrintWriter sourceOut;
+    if (verbose) {
+      sourceOut = new PrintWriter(System.out);
+    } else {
+      sourceOut = new PrintWriter(new Writer() { //null writer
+        public void write(char cbuf[], int off, int len) {}
+        public void close() {};
+        public void flush() {};
+      });
+    }
+    return new SourceJavaOutputStream
+            (new WriterFactory() {
+              public Writer createWriter(String x, String y) {
+                sourceOut.println("=======================");
+                return sourceOut;
+              }
+            });
+  }
+
+
 
     public void testBindingFile() throws Exception
     {
