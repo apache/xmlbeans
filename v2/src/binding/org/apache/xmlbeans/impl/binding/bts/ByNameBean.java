@@ -83,12 +83,12 @@ public class ByNameBean extends BindingType
         super(btName);
     }
 
-    public ByNameBean(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    public ByNameBean(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
         super(node);
         
-        org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty[] propArray =
-           ((org.apache.xmlbeans.x2003.x09.bindingConfig.ByNameBean)node).getQnamePropertyArray();
+        org.apache.xml.xmlbeans.bindingConfig.QnameProperty[] propArray =
+           ((org.apache.xml.xmlbeans.bindingConfig.ByNameBean)node).getQnamePropertyArray();
         
         for (int i = 0; i < propArray.length; i++)
         {
@@ -101,13 +101,13 @@ public class ByNameBean extends BindingType
      * 
      * Subclasses should override and call super.write first.
      */ 
-    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
-        org.apache.xmlbeans.x2003.x09.bindingConfig.ByNameBean bnNode = (org.apache.xmlbeans.x2003.x09.bindingConfig.ByNameBean)super.write(node);
+        org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode = (org.apache.xml.xmlbeans.bindingConfig.ByNameBean)super.write(node);
         for (Iterator i = props.iterator(); i.hasNext(); )
         {
             QNameProperty qProp = (QNameProperty)i.next();
-            org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty qpNode = bnNode.addNewQnameProperty();
+            org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode = bnNode.addNewQnameProperty();
             qProp.write(qpNode);
         }
         return bnNode;

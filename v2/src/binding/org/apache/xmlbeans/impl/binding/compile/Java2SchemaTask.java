@@ -64,7 +64,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JFactory;
 import org.apache.xmlbeans.impl.jam.JFileSet;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import java.io.File;
 import java.io.IOException;

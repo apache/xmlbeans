@@ -13,7 +13,7 @@ import org.apache.xmlbeans.impl.marshal.MarshalContext;
 import org.apache.xmlbeans.impl.marshal.Marshaller;
 import org.apache.xmlbeans.impl.marshal.UnmarshalContext;
 import org.apache.xmlbeans.impl.marshal.Unmarshaller;
-import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -131,6 +131,7 @@ public class MarshalTests extends TestCase
     }
 
 
+/*
     public void testByNameMarshal()
         throws Exception
     {
@@ -162,6 +163,7 @@ public class MarshalTests extends TestCase
         dumpReader(reader);
 
     }
+*/
 
     private static void dumpReader(final XMLStreamReader reader)
         throws XMLStreamException

@@ -67,7 +67,7 @@ public class SimpleDocumentBinding extends BindingType
         super(btname);
     }
 
-    public SimpleDocumentBinding(org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding node)
+    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding node)
     {
         super(node);
         typeOfElement = XmlName.forString(node.getTypeOfElement());
@@ -78,10 +78,10 @@ public class SimpleDocumentBinding extends BindingType
      *
      * Subclasses should override and call super.write first.
      */
-    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
-        org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding sdbNode =
-                (org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding) super.write(node);
+        org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding sdbNode =
+                (org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) super.write(node);
         sdbNode.setTypeOfElement(typeOfElement.toString());
         return sdbNode;
     }

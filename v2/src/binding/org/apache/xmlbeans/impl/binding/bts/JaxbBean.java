@@ -83,19 +83,19 @@ public class JaxbBean extends BindingType
         super(btName);
     }
 
-    public JaxbBean(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    public JaxbBean(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
         super(node);
         
-        org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean jbNode = (org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean)node;
+        org.apache.xml.xmlbeans.bindingConfig.JaxbBean jbNode = (org.apache.xml.xmlbeans.bindingConfig.JaxbBean)node;
         
-        org.apache.xmlbeans.x2003.x09.bindingConfig.ParticleProperty[] ppropArray = jbNode.getParticlePropertyArray();
+        org.apache.xml.xmlbeans.bindingConfig.ParticleProperty[] ppropArray = jbNode.getParticlePropertyArray();
         for (int i = 0; i < ppropArray.length; i++)
         {
             addProperty(BindingProperty.forNode(ppropArray[i]));
         }
         
-        org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty[] qpropArray = jbNode.getQnamePropertyArray();
+        org.apache.xml.xmlbeans.bindingConfig.QnameProperty[] qpropArray = jbNode.getQnamePropertyArray();
         for (int i = 0; i < qpropArray.length; i++)
         {
             addProperty(BindingProperty.forNode(qpropArray[i]));
@@ -108,20 +108,20 @@ public class JaxbBean extends BindingType
      * 
      * Subclasses should override and call super.write first.
      */ 
-    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
-        org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean jbNode = (org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean)super.write(node);
+        org.apache.xml.xmlbeans.bindingConfig.JaxbBean jbNode = (org.apache.xml.xmlbeans.bindingConfig.JaxbBean)super.write(node);
         for (Iterator i = getProperties().iterator(); i.hasNext(); )
         {
             BindingProperty bProp = (BindingProperty)i.next();
             if (bProp instanceof ParticleProperty)
             {
-                org.apache.xmlbeans.x2003.x09.bindingConfig.ParticleProperty ppNode = jbNode.addNewParticleProperty();
+                org.apache.xml.xmlbeans.bindingConfig.ParticleProperty ppNode = jbNode.addNewParticleProperty();
                 bProp.write(ppNode);
             }
             else
             {
-                org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty qpNode = jbNode.addNewQnameProperty();
+                org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode = jbNode.addNewQnameProperty();
                 bProp.write(qpNode);
                 
             }

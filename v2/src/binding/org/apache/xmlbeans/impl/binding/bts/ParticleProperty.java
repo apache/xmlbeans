@@ -67,7 +67,7 @@ public class ParticleProperty extends BindingProperty
         super();
     }
 
-    public ParticleProperty(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    public ParticleProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
     {
         super(node);
     }

@@ -80,7 +80,7 @@ public abstract class BindingType
      *
      * Subclasses should have ctors of the same signature and call super(..) first.
      */
-    protected BindingType(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    protected BindingType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
         this.btName = BindingTypeName.forPair(
                 JavaName.forString(node.getJavatype()),
@@ -92,9 +92,9 @@ public abstract class BindingType
      *
      * Subclasses should override and call super.write first.
      */
-    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
-        node = (org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType)node.changeType(kinds.typeForClass(this.getClass()));
+        node = (org.apache.xml.xmlbeans.bindingConfig.BindingType)node.changeType(kinds.typeForClass(this.getClass()));
         node.setJavatype(btName.getJavaName().toString());
         node.setXmlcomponent(btName.getXmlName().toString());
         return node;
@@ -107,9 +107,9 @@ public abstract class BindingType
 
     /* REGISTRY OF SUBCLASSES */
 
-    private static final Class[] ctorArgs = new Class[] {org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType.class};
+    private static final Class[] ctorArgs = new Class[] {org.apache.xml.xmlbeans.bindingConfig.BindingType.class};
 
-    public static BindingType loadFromBindingTypeNode(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    public static BindingType loadFromBindingTypeNode(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
         try
         {
@@ -131,17 +131,17 @@ public abstract class BindingType
     {
         if (!BindingType.class.isAssignableFrom(clazz))
             throw new IllegalArgumentException("Classes must inherit from BindingType");
-        if (!org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType.type.isAssignableFrom(type))
+        if (!org.apache.xml.xmlbeans.bindingConfig.BindingType.type.isAssignableFrom(type))
             throw new IllegalArgumentException("Schema types must inherit from binding-type");
         kinds.registerClassAndType(clazz, type);
     }
 
     static
     {
-        registerClassAndType(JaxbBean.class, org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean.type);
-        registerClassAndType(ByNameBean.class, org.apache.xmlbeans.x2003.x09.bindingConfig.ByNameBean.type);
-        registerClassAndType(SimpleBindingType.class, org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleType.type);
-        registerClassAndType(SimpleDocumentBinding.class, org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding.type);
+        registerClassAndType(JaxbBean.class, org.apache.xml.xmlbeans.bindingConfig.JaxbBean.type);
+        registerClassAndType(ByNameBean.class, org.apache.xml.xmlbeans.bindingConfig.ByNameBean.type);
+        registerClassAndType(SimpleBindingType.class, org.apache.xml.xmlbeans.bindingConfig.SimpleType.type);
+        registerClassAndType(SimpleDocumentBinding.class, org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding.type);
     }
 
 }

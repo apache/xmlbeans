@@ -52,7 +52,9 @@
 * originally based on software copyright (c) 2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
-*/package org.apache.xmlbeans.impl.binding.bts;
+*/
+
+package org.apache.xmlbeans.impl.binding.bts;
 
 /**
  * Represents a Java class name, and provides some utility methods
