@@ -129,6 +129,14 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
 
   public boolean isEnum(Class clazz) { return clazz.isEnum(); }
 
+  public Constructor getEnclosingConstructor(Class clazz) {
+    return clazz.getEnclosingConstructor();
+  }
+
+  public Method getEnclosingMethod(Class clazz) {
+    return clazz.getEnclosingMethod();
+  }
+
   // ========================================================================
   // Private methods
 
