@@ -2544,43 +2544,62 @@ final class Cur
 
     void release ( )
     {
-        if (_state == POOLED || _state == DISPOSED)
-            return;
-
-        moveToCur( null );
-
-        assert isNormal();
-
-        assert _xobj == null;
-        assert _pos  == NO_POS;
-
-        if (_value instanceof Locale.Ref)
-            ((Locale.Ref) _value).clear();
-
-        _value = null;
-        _key = null;
-
-        assert _state == REGISTERED;
-        _locale._registered = listRemove( _locale._registered );
-
-        if (_locale._curPoolCount < 16)
+        if (_tempFrame >= 0)
         {
-            _locale._curPool = listInsert( _locale._curPool );
-            _state = POOLED;
-            _locale._curPoolCount++;
-        }
-        else
-        {
-            _locale = null;
-            _state = DISPOSED;
+            if (_nextTemp != null)
+                _nextTemp._prevTemp = _prevTemp;
+                
+            if (_prevTemp == null)
+                _locale._tempFrames[ _tempFrame ] = _nextTemp;
+            else
+                _prevTemp._nextTemp = _nextTemp;
+
+            _prevTemp = _nextTemp = null;
+            _tempFrame = -1;
         }
 
-        while ( _stackTop != -1 )
-            popButStay();
+        if (_state != POOLED && _state != DISPOSED)
+        {
+            moveToCur( null );
 
-        clearSelection();
+            assert isNormal();
 
-        _id = null;
+            assert _xobj == null;
+            assert _pos  == NO_POS;
+
+            if (_value != null && _value instanceof Locale.Ref)
+            {
+                Locale.Ref r = (Locale.Ref) _value;
+
+                r.clear();
+                r._cur = null;
+            }
+
+            _value = null;
+            _key = null;
+
+            assert _state == REGISTERED;
+            _locale._registered = listRemove( _locale._registered );
+
+            if (_locale._curPoolCount < 16)
+            {
+                _locale._curPool = listInsert( _locale._curPool );
+                _state = POOLED;
+                _locale._curPoolCount++;
+            }
+            else
+            {
+                _locale = null;
+                _state = DISPOSED;
+            }
+
+            while ( _stackTop != -1 )
+                popButStay();
+
+            clearSelection();
+
+            _id = null;
+        }
     }
 
     boolean isOnList ( Cur head )
@@ -3326,6 +3345,7 @@ final class Cur
     String _id;
 
     Cur _nextTemp;
+    Cur _prevTemp;
     int _tempFrame;
 
     Cur _next;

@@ -1971,7 +1971,8 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         assert o != null && !(o instanceof Ref);
         
         Cur c = getCur();
-        
+
+        assert c._tempFrame == -1;
         assert c._value == null;
 
         c._value = new Ref( c, o );
@@ -1996,7 +1997,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             _cur = c;
         }
 
-        final Cur _cur;
+        Cur _cur;
     }
 
     Cur tempCur ( )
@@ -2008,19 +2009,27 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     {
         Cur c = getCur();
 
-        if (c._tempFrame < 0)
+        assert c._tempFrame == -1;
+
+        assert _numTempFramesLeft < _tempFrames.length : "Temp frame not pushed";
+
+        int frame = _tempFrames.length - _numTempFramesLeft - 1;
+
+        assert frame >= 0 && frame < _tempFrames.length;
+
+        Cur next = _tempFrames[ frame ];
+
+        c._nextTemp = next;
+        assert c._prevTemp == null;
+
+        if (next != null)
         {
-            assert _numTempFramesLeft < _tempFrames.length : "Temp frame not pushed";
-                
-            int frame = _tempFrames.length - _numTempFramesLeft - 1;
-
-            assert frame >= 0 && frame < _tempFrames.length;
-
-            c._nextTemp = _tempFrames[ frame ];
-            _tempFrames[ frame ] = c;
-        
-            c._tempFrame = frame;
+            assert next._prevTemp == null;
+            next._prevTemp = c;
         }
+
+        _tempFrames[ frame ] = c;
+        c._tempFrame = frame;
 
         c._id = id;
         
@@ -2100,19 +2109,24 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         
         if (++_entryCount > 1000)
         {
+            pollQueue();
             _entryCount = 0;
+        }
+    }
 
-            if (_refQueue != null)
+    private void pollQueue ( )
+    {
+        if (_refQueue != null)
+        {
+            for ( ; ; )
             {
-                for ( ; ; )
-                {
-                    Ref ref = (Ref) _refQueue.poll();
+                Ref ref = (Ref) _refQueue.poll();
 
-                    if (ref == null)
-                        break;
+                if (ref == null)
+                    break;
 
+                if (ref._cur != null)
                     ref._cur.release();
-                }
             }
         }
     }
@@ -2131,23 +2145,8 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         int frame = _tempFrames.length - ++_numTempFramesLeft;
 
-        Cur c = _tempFrames [ frame ];
-
-        _tempFrames [ frame ] = null;
-        
-        while ( c != null )
-        {
-            assert c._tempFrame == frame;
-
-            Cur next = c._nextTemp;
-
-            c._nextTemp = null;
-            c._tempFrame = -1;
-
-            c.release();
-
-            c = next;
-        }
+        while ( _tempFrames[ frame ] != null )
+            _tempFrames[ frame ].release();
     }
     
     //
@@ -2810,8 +2809,8 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     private ReferenceQueue _refQueue;
     private int            _entryCount;
    
-    private int   _numTempFramesLeft;
-    private Cur[] _tempFrames;
+    int   _numTempFramesLeft;
+    Cur[] _tempFrames;
 
     Cur _curPool;
     int _curPoolCount;
