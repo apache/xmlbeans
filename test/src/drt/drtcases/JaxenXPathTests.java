@@ -63,13 +63,6 @@ import junit.framework.Assert;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-//import org.apache.xmlbeans.impl.xpath.jaxen.XBeansXPath;
-//import org.jaxen.XPathSyntaxException;
-//import org.jaxen.JaxenException;
-//import org.jaxen.XPath;
-//
-//import java.util.List;
-//import java.util.Iterator;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -81,7 +74,19 @@ import java.io.IOException;
 public class JaxenXPathTests extends TestCase
 {
     public JaxenXPathTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(JaxenXPathTests.class); }
+    public static Test suite()
+    {
+        try
+        {
+            Class.forName("org.jaxen.XPath");
+            return new TestSuite(JaxenXPathTests.class);
+        }
+        catch (ClassNotFoundException e)
+        {
+            System.out.println("\n\nWARNING!!!\n\nJaxen.jar not on classpath skipping this test.\n\n");
+            return new TestSuite();
+        }
+    }
 
     public void testConformance() throws Exception
     {
