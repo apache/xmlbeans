@@ -54,11 +54,7 @@ public class Jsr173
     {
         Cur c = gw._xs.getStreamCur();
 
-        Node n = c.isNode() ? (Node) c.getDom() : (Node) null;
-
-        c.release();
-
-        return n;
+        return c.isNode() ? (Node) c.getDom() : (Node) null;
     }
 
     public static XMLStreamReader newXmlStreamReader ( Cur c, Object src, int off, int cch )
@@ -115,7 +111,7 @@ public class Jsr173
         public XMLStreamReaderForNode ( Cur c, boolean inner )
         {
             super( c );
-
+            
             assert c.isContainer() || c.isComment() || c.isProcinst() || c.isAttr();
 
             // Iterate over everything *between* _cur and _end.  Do
@@ -214,7 +210,7 @@ public class Jsr173
             checkChanged();
 
             if (!hasNext())
-                throw new IllegalStateException();
+                throw new IllegalStateException( "No next event in stream" );
 
             int kind = _cur.kind();
 
