@@ -95,6 +95,8 @@ public class StscJavaizer
     private static void verifyInterfaceNameCollisions(Set usedNames, StscState state)
     {
         BindingConfig config = state.getBindingConfig();
+        if (config == null)
+            return;
 
         InterfaceExtension[] exts = config.getInterfaceExtensions();
         for (int i = 0; i < exts.length; i++)
@@ -119,11 +121,12 @@ public class StscJavaizer
     private static void setExtensions(SchemaTypeImpl sImpl, StscState state)
     {
         String javaName = sImpl.getFullJavaName();
+        BindingConfig config = state.getBindingConfig();
 
-        if (javaName != null)
+        if (javaName != null && config != null)
         {
-            sImpl.setInterfaceExtensions(state.getBindingConfig().getInterfaceExtensions(javaName));
-            sImpl.setPrePostExtension(state.getBindingConfig().getPrePostExtension(javaName));
+            sImpl.setInterfaceExtensions(config.getInterfaceExtensions(javaName));
+            sImpl.setPrePostExtension(config.getPrePostExtension(javaName));
         }
     }
 
