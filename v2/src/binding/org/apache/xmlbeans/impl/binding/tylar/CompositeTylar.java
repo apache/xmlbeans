@@ -49,82 +49,102 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems
+* originally based on software copyright (c) 2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
 package org.apache.xmlbeans.impl.binding.tylar;
 
-import java.net.URI;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.SchemaTypeSystem;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
+import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
+
 /**
- * Abstract representation of a type library archive.  This is the interface
- * which is used by the binding runtime for retrieving information about a
- * tylar.
+ * Implementation of Tylar which is a composition of other Tylars.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface Tylar {
+public class CompositeTylar extends BaseTylarImpl {
 
   // ========================================================================
-  // Public methods
+  // Variables
+
+  private Tylar[] mTylars; //the tylars we are composing
+
+  // ========================================================================
+  // Constructors
 
   /**
-   * Returns a short textual description of this tylar.  This is primarily
-   * useful for logging and debugging.
-   */
-  public String getDescription();
-
-  /**
-   * Returns a URI describing the location of the physical store from
-   * which this Tylar was loaded.  This is useful for logging purposes.
-   */
-  public URI getLocation();
-
-  /**
-   * Returns the binding files contained in this Tylar.
-   */
-  public BindingFile[] getBindingFiles();
-
-  /**
-   * Returns the schema documents contained in this Tylar.
-   */
-  public SchemaDocument[] getSchemas();
-
-  /**
-   * Returns a BindingLoader for the bindings in this tylar.  This is really
-   * just a convenience method; it simply returns a composite of the binding
-   * files returned by getBindingFiles() plus the BuiltinBindingLoader.
-   */
-  public BindingLoader getBindingLoader();
-
-  /**
-   * Returns a BindingLoader for the bindings in this tylar.  This is really
-   * just a convenience method; it simply returns a the schema type system
-   * that results from compiling all of the schemas returned by getSchemas()
-   * plus the BuiltinSchemaTypeSystem.
-   */
-  public SchemaTypeSystem getSchemaTypeSystem();
-
-
-  /**
-   * Returns a JClassLoader which can be used to load descriptions of the
-   * java types contained in this tylar.
-   */
-  public JClassLoader getJClassLoader();
-
-  /**
-   * Returns a new ClassLoader that can load any class files contained in
-   * this tylar.  Returns null if this tylar contains no class resources.
+   * Constructs a composition of the tylars in the given collection.  Bindings
+   * and types will be sought in the tylars in the order in which they are
+   * presented in this collection (as returned by Collection.iterator()).
    *
-   * REVIEW are we sure this method is needed?
-   *
-   * @param parent The parent for new classloader.
+   * @throws IllegalArgumentException if any object in the collection is not
+   * a Tylar or the collection is null.
    */
-  public ClassLoader createClassLoader(ClassLoader parent);
+  public CompositeTylar(Collection tylars) {
+    if (tylars == null) throw new IllegalArgumentException("null tylars");
+    mTylars = new Tylar[tylars.size()];
+    int n = 0;
+    for(Iterator i = tylars.iterator(); i.hasNext(); n++) {
+      Object next = i.next();
+      if (next instanceof Tylar) {
+        mTylars[n] = (Tylar)next;
+      } else {
+        throw new IllegalArgumentException("Collection contains a "+
+                next.getClass()+" which does not implement Tylar");
+      }
+    }
+  }
+
+  /**
+   * Constructs a composition of the given Tylars.  Bindings and types
+   * will be sought in the tylars in the order in which they are presented in
+   * this array.
+   */
+  public CompositeTylar(Tylar[] tylars) {
+    if (tylars == null) throw new IllegalArgumentException("null tylars");
+    mTylars = tylars;
+  }
+
+  // ========================================================================
+  // Tylar implementation
+
+  public String getDescription() {
+    return "CompositeTylar containing "+mTylars.length+" tylars";
+  }
+
+  public BindingFile[] getBindingFiles() {
+    //REVIEW consider caching
+    Collection all = new ArrayList();
+    for(int i=0; i<mTylars.length; i++) {
+      all.addAll(Arrays.asList(mTylars[i].getBindingFiles()));
+    }
+    BindingFile[] out = new BindingFile[all.size()];
+    all.toArray(out);
+    return out;
+  }
+
+  public SchemaDocument[] getSchemas() {
+    //REVIEW consider caching
+    Collection all = new ArrayList();
+    for(int i=0; i<mTylars.length; i++) {
+      all.addAll(Arrays.asList(mTylars[i].getSchemas()));
+    }
+    SchemaDocument[] out = new SchemaDocument[all.size()];
+    all.toArray(out);
+    return out;
+  }
+
+  public ClassLoader createClassLoader(ClassLoader cl) {
+    //REVIEW consider caching
+    for(int i=0; i<mTylars.length; i++) {
+      cl = mTylars[i].createClassLoader(cl);
+    }
+    return cl;
+  }
 }

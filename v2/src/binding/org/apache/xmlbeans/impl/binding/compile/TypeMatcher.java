@@ -60,9 +60,17 @@ import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.SchemaTypeSystem;
 
 public interface TypeMatcher
 {
+
+    /**
+     * Called to initializes the TypeMatcher instance.  This is guaranteed
+     * to be called prior to any of the match... methods.
+     */
+    public void init(TypeMatcherContext ctx);
+
     /**
      * Returns a collection of MatchedTypes, advising which
      * Java classes and which Schema types should be matched
@@ -71,7 +79,7 @@ public interface TypeMatcher
      * dealt with automatically if possible, and warnings
      * will be produced for any types that are not covered.
      */ 
-    MatchedType[] matchTypes(BothSourceSet bss);
+    MatchedType[] matchTypes(JClass[] classes, SchemaTypeSystem sts);
     
     /**
      * Returns a collection of MatchedProperties, advising which

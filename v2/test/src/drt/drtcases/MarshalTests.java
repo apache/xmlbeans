@@ -217,7 +217,7 @@ public class MarshalTests extends TestCase
         final File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
@@ -263,7 +263,7 @@ public class MarshalTests extends TestCase
         final File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         StringWriter sw = new StringWriter();
         XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
@@ -302,7 +302,7 @@ public class MarshalTests extends TestCase
         final File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         StringWriter sw = new StringWriter();
         XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
@@ -344,7 +344,7 @@ public class MarshalTests extends TestCase
         final File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
@@ -404,7 +404,7 @@ public class MarshalTests extends TestCase
         final File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
 
         final String javaType = "com.mytest.MyClass";
@@ -481,7 +481,7 @@ public class MarshalTests extends TestCase
         File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
 
         //TODO: remove hard coded values
@@ -544,7 +544,7 @@ public class MarshalTests extends TestCase
         File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         File doc = TestEnv.xbeanCase("marshal/doc2.xml");
 
@@ -577,7 +577,7 @@ public class MarshalTests extends TestCase
         File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         File doc = TestEnv.xbeanCase("marshal/doc2.xml");
 
@@ -635,7 +635,7 @@ public class MarshalTests extends TestCase
         File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         final File doc = TestEnv.xbeanCase("marshal/doc.xml");
         final String javaType = "com.mytest.MyClass";
@@ -675,7 +675,7 @@ public class MarshalTests extends TestCase
         File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContextFromConfig(bcdoc);
 
         //File doc = TestEnv.xbeanCase("marshal/doc2.xml");
         File doc = TestEnv.xbeanCase("marshal/bigdoc.xml");

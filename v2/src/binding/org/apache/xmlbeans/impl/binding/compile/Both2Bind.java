@@ -59,6 +59,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.jam.JClass;
@@ -75,12 +76,13 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
   // Variables
 
   private TypeMatcher mMatcher;
-  private BothSourceSet mBss;
   private Map scratchFromXmlName = new LinkedHashMap();
   private Map scratchFromJavaName = new LinkedHashMap();
   private Map scratchFromBindingName = new LinkedHashMap();
   private BindingFile bindingFile = new BindingFile();
   private LinkedList resolveQueue = new LinkedList();
+  private JClass[] mJavaTypes = null;
+  private SchemaTypeSystem mSchemaTypes = null;
 
   // ========================================================================
   // Constructor
@@ -89,6 +91,22 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
 
   // ========================================================================
   // Compilation attributes
+
+  /**
+   * Sets the java types to be compiled.  This is required.
+   */
+  public void setJavaTypesToMatch(JClass[] jclasses) {
+    if (jclasses == null) throw new IllegalArgumentException("null jclasses");
+    mJavaTypes = jclasses;
+  }
+
+  /**
+   * Sets the schema types to be compiled.  This is required.
+   */
+  public void setSchemaTypesToMatch(SchemaTypeSystem sts) {
+    if (sts == null) throw new IllegalArgumentException("null sts");
+    mSchemaTypes = sts;
+  }
 
   /**
    * Sets a custom TypeMatcher to use for lining up the java and schema types.
@@ -102,7 +120,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
   // ========================================================================
   // BindingCompiler implementation
 
-  public void bind(TylarWriter tw) {
+  protected void internalBind(TylarWriter tw) {
     bind();
     try {
       tw.writeBindingFile(bindingFile);
@@ -113,16 +131,6 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
 
   // ========================================================================
   // Deprecated methods
-
-  /**
-   * @deprecated BothSourceSet should be replaced by attributes on
-   * this class.
-   *
-   * @param bss
-   */
-  public void setBothSourceSet(BothSourceSet bss) {
-    mBss = bss;
-  }
 
   /**
    * @deprecated BindingFile should not be used directly any more - you
@@ -137,7 +145,8 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
   // Private methods
 
   private void bind() {
-    if (mMatcher == null) mMatcher = new SimpleTypeMatcher();
+    if (mMatcher == null) mMatcher = new DefaultTypeMatcher();
+    mMatcher.init(this);
     // Let the passed mMatcher propose any matches it wishes to
 
     resolveInitiallyMatchedTypes();
@@ -309,8 +318,15 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
    * a schema type, and a category.
    */
   private void resolveInitiallyMatchedTypes() {
-    TypeMatcher.MatchedType[] matchedTypes = mMatcher.matchTypes(mBss);
+    if (mJavaTypes == null) {
+      throw new IllegalStateException("javaTypesToMatch was never set");
+    }
+    if (mSchemaTypes == null) {
+      throw new IllegalStateException("schemaTypesToMatch was never set");
+    }
 
+    TypeMatcher.MatchedType[] matchedTypes =
+            mMatcher.matchTypes(mJavaTypes, mSchemaTypes);
     for (int i = 0; i < matchedTypes.length; i++) {
       Scratch scratch = createScratch(matchedTypes[i].getJClass(), matchedTypes[i].getSType());
       scratchFromBindingName.put(scratch.getBindingTypeName(), scratch);
@@ -432,7 +448,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
       return scratch.getBindingType();
 
     // Then look on path
-    BindingType result = mBss.getTylarLoader().getBindingLoader().getBindingType(btName);
+    BindingType result = getBaseBindingLoader().getBindingType(btName);
     if (result != null)
       return result;
 

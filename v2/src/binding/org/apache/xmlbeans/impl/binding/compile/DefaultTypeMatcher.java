@@ -59,11 +59,9 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
 import org.apache.xmlbeans.impl.common.NameUtil;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
-import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
-import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.SchemaTypeSystem;
 
 import javax.xml.namespace.QName;
 import java.util.HashMap;
@@ -77,12 +75,16 @@ import java.util.List;
  * types, and Java properties and Schema elements or
  * attributes, to line them up with each other. 
  */
-public class SimpleTypeMatcher implements TypeMatcher
+public class DefaultTypeMatcher implements TypeMatcher
 {
-    public MatchedType[] matchTypes(BothSourceSet bss)
-    {
-        JClass[] jClasses = bss.getJClasses();
-        SchemaType[] types = bss.getSchemaTypeSystem().globalTypes();
+    private TypeMatcherContext mContext;
+
+    public void init(TypeMatcherContext ctx) {
+      mContext = ctx;
+    }
+
+    public MatchedType[] matchTypes(JClass[] jClasses, SchemaTypeSystem sts) {
+        SchemaType[] types = sts.globalTypes();
         
         List result = new ArrayList();
         
@@ -160,7 +162,7 @@ public class SimpleTypeMatcher implements TypeMatcher
     public boolean putJavaName(String key, Object value)
     {
         String shortName = key;
-        // System.out.println("JavaNameMatcher.put " + key);
+        verbose("JavaNameMatcher.put " + key);
         if (mapByShortName.containsKey(shortName))
             return false;
 
@@ -189,41 +191,44 @@ public class SimpleTypeMatcher implements TypeMatcher
     {
         Object result = null;
         String localName = name.getLocalPart();
-        // System.out.println("JavaNameMatcher.getLocalPart " + localName);
+        verbose("JavaNameMatcher.getLocalPart " + localName);
 
         result = mapByShortName.get(localName);
         if (result != null) {
-            // System.out.println("javaTypeByShortName.get(localName): "+ localName);
+            verbose("javaTypeByShortName.get(localName): "+ localName);
             return result;
         }
 
         String lcLocalName = localName.toLowerCase();
-        // System.out.println("JavaNameMatcher.lcLocalName " + lcLocalName);
+        verbose("JavaNameMatcher.lcLocalName " + lcLocalName);
         result = mapByLowercasedShortName.get(lcLocalName);
         if (result != null) {
-            // System.out.println("javaTypeByLowercasedShortName.get(lcLocalName): " + lcLocalName);
+            verbose("javaTypeByLowercasedShortName.get(lcLocalName): " + lcLocalName);
             return result;
         }
 
         String niceName = NameUtil.upperCamelCase(localName);
-        // System.out.println("JavaNameMatcher.jaxbName " + jaxbName);
+        verbose("JavaNameMatcher.jaxbName " + niceName);
         result = mapByShortName.get(niceName);
         if (result != null) {
-            // System.out.println("javaTypeByShortName.get(jaxbName): " + jaxbName);
+            verbose("javaTypeByShortName.get(jaxbName): " + niceName);
             return result;
         }
 
         String lowercaseNiceName = niceName.toLowerCase();
-        // System.out.println("JavaNameMatcher.lcJaxbName " + lcJaxbName);
+        verbose("JavaNameMatcher.lcJaxbName " + lowercaseNiceName);
         result = mapByLowercasedShortName.get(lowercaseNiceName);
         if (result != null) {
-            // System.out.println("javaTypeByShortName.get(lcJaxbName): " + lcJaxbName);
+            verbose("javaTypeByShortName.get(lcJaxbName): " + lowercaseNiceName);
             return result;
         }
 
-        // System.out.println("javaTypeByShortName.get() no match found: " + localName);
+        verbose("javaTypeByShortName.get() no match found: " + localName);
 
         return null;
     }
 
+    private void verbose(String w) {
+      mContext.getLogger().logVerbose(w);
+    }
 }

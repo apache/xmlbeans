@@ -82,6 +82,19 @@ public abstract class BindingContextFactory
     public abstract BindingContext createBindingContext(URI[] tylarUris)
         throws IOException, XmlException;
 
+  /**
+   * Creates a BindingContext from a tylar located at the given URI.
+   * The order in which tylars appear in the array determines their precedence
+   * for loading types.
+   *
+   * @param tylarUri A URIs to the tylar to be used in the BindingContext.
+   * @return The BindingContext
+   * @throws IOException if a problem occurs while opening or parsing the
+   * contents of the tylars.
+   */
+  public abstract BindingContext createBindingContext(URI tylarUri)
+      throws IOException, XmlException;
+
 
     /**
      * Create a BindingContext that only knows about builtin types
@@ -97,9 +110,12 @@ public abstract class BindingContextFactory
      * @return
      * @throws IOException
      * @throws XmlException
+     *
+     * @deprecated we are not exposing the binding file directly anymore.
+     * use one of the uri-based methods above.
      */
-    public abstract BindingContext createBindingContext(InputStream bindingConfig)
-        throws IOException, XmlException;
+//    public abstract BindingContext createBindingContext(InputStream bindingConfig)
+//        throws IOException, XmlException;
 
     /**
      * Create a BindingContext from a binding config xml file
@@ -108,8 +124,11 @@ public abstract class BindingContextFactory
      * @return
      * @throws IOException
      * @throws XmlException
+     *
+     * @deprecated we are not exposing the binding file directly anymore.
+     * use one of the tylar-based methods above.
      */
-    public abstract BindingContext createBindingContext(File bindingConfig)
+    public abstract BindingContext createBindingContextFromConfig(File bindingConfig)
         throws IOException, XmlException;
 
 

@@ -56,20 +56,15 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileOutputStream;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -78,7 +73,6 @@ public class Both2BindTask extends BindingCompilerTask {
   // =========================================================================
   // Variables
 
-  private File mDestFile = null;
   private Both2Bind mCompiler;
   private Path mSrc = null;
   private Path mClasspath = null;
@@ -133,19 +127,13 @@ public class Both2BindTask extends BindingCompilerTask {
     File[] xsdFiles = (File[]) mXsdFiles.toArray(new File[mXsdFiles.size()]);
     File[] javaFiles = (File[]) mJavaFiles.toArray(new File[mJavaFiles.size()]);
 
-    TylarLoader tylarLoader = null;
-
-    /*if (mClasspath != null) {
-      File[] classpath = namesToFiles(mClasspath.list());
-      tylarLoader = SimpleTylarLoader.forClassPath(classpath);
-    } */
-
     // bind
-    BothSourceSet input = null;
     try {
       String cp = (mClasspath == null) ? null : mClasspath.toString();
-      input = SimpleSourceSet.forJavaAndXsdFiles(javaFiles, xsdFiles, tylarLoader,cp);
-      mCompiler.setBothSourceSet(input);
+      //FIXME when we allow them to set up a base tylar, we need to take
+      //those loaders into account here
+      mCompiler.setSchemaTypesToMatch(createSchemaTypeSystem(xsdFiles));
+      mCompiler.setJavaTypesToMatch(loadJClasses(javaFiles,cp));
     } catch (IOException e) {
       log(e.getMessage());
       throw new BuildException(e);
@@ -154,44 +142,6 @@ public class Both2BindTask extends BindingCompilerTask {
       throw new BuildException(e);
     }
     return mCompiler;
-  }
-
-  // ========================================================================
-  // Temporary destFile hack - remove these methods when we no longer need to
-  // support 'destFile' attribute
-
-  public void execute() throws BuildException {
-    super.execute();
-    if (mDestFile != null) {
-      BindingFile bf = mCompiler.getBindingFile();
-      FileOutputStream out = null;
-      try {
-        out = new FileOutputStream(mDestFile);
-        BindingConfigDocument doc = bf.write();
-        doc.save(out,
-                new XmlOptions().setSavePrettyPrint().
-                setSavePrettyPrintIndent(2));
-      } catch (IOException ioe) {
-        throw new BuildException(ioe);
-      } finally {
-        try {
-          if (out != null)
-            out.close();
-        } catch (IOException ohwell) {
-          ohwell.printStackTrace();
-        }
-      }
-    }
-  }
-
-  public void setDestFile(File file) {
-    log("note: the 'destFile' attribute is deprecated and will soon\n" +
-            "be removed.  You should instead use destJar, which generates\n" +
-            "a full tylar jar (which contains, among other things, the\n" +
-            "binding file).  You should not be directly using the binding " +
-            "file directly anymore");
-    mDestFile = file;
-    super.setDestDir(file.getParentFile());
   }
 
   // =========================================================================
@@ -310,6 +260,4 @@ public class Both2BindTask extends BindingCompilerTask {
       result[i] = new File(names[i]);
     return result;
   }
-
-
 }

@@ -56,17 +56,12 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.bts.*;
-import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylar;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
-import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.jam.*;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.io.File;
 import java.io.IOException;
 
 
@@ -127,8 +122,7 @@ public class Java2Schema extends BindingCompiler {
    * Does the binding work on the inputs passed to the constructor and writes
    * out the tylar.
    */
-  public void bind(TylarWriter writer) {
-    super.notifyCompilationStarted();
+  protected void internalBind(TylarWriter writer) {
     mBindingFile = new BindingFile();
     mLoader = PathBindingLoader.forPath
             (new BindingLoader[] {mBindingFile, super.getBaseBindingLoader()});

@@ -145,6 +145,8 @@ public class Java2SchemaTask extends BindingCompilerTask {
   // BindingCompilerTask implementation
 
   protected BindingCompiler getCompilerToExecute() throws BuildException {
+    //FIXME refactor this so the functionality is shared and consistent with
+    //Both2BindTask
     JFactory jf = JFactory.getInstance();
     String[] list = mSrcDir.list();
     if (list.length == 0) throw new BuildException("srcDir attribute required");
