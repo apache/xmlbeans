@@ -2493,6 +2493,8 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
             props.setEncoding( _piccolo.getEncoding() );
             props.setVersion ( _piccolo.getVersion() );
+
+            super.postLoad(c);
         }
 
         private Piccolo _piccolo;
@@ -2725,6 +2727,9 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         void postLoad ( Cur c )
         {
+            // fix garbage collection of Locale -> Xobj -> STL
+            _locale = null;
+            _context = null;
         }
 
         public Cur load ( Locale l, InputSource is, XmlOptions options )
