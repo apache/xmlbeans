@@ -54,40 +54,27 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.builtin;
 
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
 
-/**
- * A special singleton version of RuntimeBindingTypeTable that knows about
- * all the builtin types that we know how to deal with.
- */
-class BuiltinRuntimeTypeTable
-    extends RuntimeBindingTypeTable
+import java.util.Collection;
+
+public final class DoubleLexerPrinter
+    implements AtomicLexerPrinter
 {
 
-    private static final BuiltinRuntimeTypeTable INSTANCE =
-        new BuiltinRuntimeTypeTable();
-
-    public static RuntimeBindingTypeTable getBuiltinTable()
+    public Object lex(CharSequence value, Collection errors)
     {
-        return INSTANCE;
+        double f = XsTypeConverter.lexDouble(value, errors);
+        return new Double(f);
     }
 
-    private BuiltinRuntimeTypeTable()
+    public CharSequence print(Object value, Collection errors)
     {
-        addXsdBuiltin("float", float.class.getName(),
-                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
-        addXsdBuiltin("float", Float.class.getName(),
-                      new AtomicSimpleTypeConverter(new FloatLexerPrinter()));
-
-        addXsdBuiltin("long", long.class.getName(),
-                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
-        addXsdBuiltin("long", Long.class.getName(),
-                      new AtomicSimpleTypeConverter(new LongLexerPrinter()));
-
-        addXsdBuiltin("string", String.class.getName(),
-                      new AtomicSimpleTypeConverter(new StringLexerPrinter()));
-
+        Double fobj = (Double)value;
+        return XsTypeConverter.printDouble(fobj.doubleValue());
     }
 
 

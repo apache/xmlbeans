@@ -54,30 +54,28 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.builtin;
 
 import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
 
 import java.util.Collection;
 
-final class LongLexerPrinter
+
+public final class ByteLexerPrinter
     implements AtomicLexerPrinter
 {
 
     public Object lex(CharSequence value, Collection errors)
     {
-        //someday if we have a parseLong(CharSequence)
-        //method we can avoid this business
-        String v = XsTypeConverter.stringValue(value);
-
-        long f = XsTypeConverter.lexLong(v, errors);
-        return new Long(f);
+        byte f = XsTypeConverter.lexByte(value, errors);
+        return new Byte(f);
     }
 
     public CharSequence print(Object value, Collection errors)
     {
-        Long fobj = (Long)value;
-        return XsTypeConverter.printLong(fobj.longValue());
+        Byte fobj = (Byte)value;
+        return XsTypeConverter.printByte(fobj.byteValue());
     }
 
 

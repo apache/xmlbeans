@@ -54,23 +54,20 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.builtin;
 
 import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
 
 import java.util.Collection;
 
-final class FloatLexerPrinter
+public final class FloatLexerPrinter
     implements AtomicLexerPrinter
 {
 
     public Object lex(CharSequence value, Collection errors)
     {
-        //someday if we have a parseFloat(CharSequence)
-        //method we can avoid this business
-        String v = XsTypeConverter.stringValue(value);
-
-        float f = XsTypeConverter.lexFloat(v, errors);
+        float f = XsTypeConverter.lexFloat(value, errors);
         return new Float(f);
     }
 

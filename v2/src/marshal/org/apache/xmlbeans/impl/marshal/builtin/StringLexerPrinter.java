@@ -54,17 +54,18 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.builtin;
 
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
 
 import java.util.Collection;
 
-class StringLexerPrinter implements AtomicLexerPrinter
+public class StringLexerPrinter
+    implements AtomicLexerPrinter
 {
     public Object lex(CharSequence value, Collection errors)
     {
-        return XsTypeConverter.stringValue(value);
+        return value.toString();
     }
 
     public CharSequence print(Object value, Collection errors)

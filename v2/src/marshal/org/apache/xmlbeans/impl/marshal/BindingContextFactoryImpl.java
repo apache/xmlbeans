@@ -128,7 +128,7 @@ public class BindingContextFactoryImpl
     private static RuntimeBindingTypeTable buildUnmarshallingTypeTable(BindingFile bf,
                                                                        BindingLoader loader)
     {
-        RuntimeBindingTypeTable tbl = new RuntimeBindingTypeTable();
+        RuntimeBindingTypeTable tbl = RuntimeBindingTypeTable.createRuntimeBindingTypeTable();
 
         for (Iterator itr = bf.bindingTypes().iterator(); itr.hasNext();) {
             BindingType type = (BindingType)itr.next();
