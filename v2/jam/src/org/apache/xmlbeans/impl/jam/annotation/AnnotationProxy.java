@@ -130,13 +130,23 @@ public abstract class AnnotationProxy {
       if (Modifier.isStatic(mods)) continue;
       if (!Modifier.isPublic(mods)) continue;
       if (methods[i].getParameterTypes().length > 0) continue;
+      {
+        // try to limit it to real annotation methods.  
+        // FIXME seems like this could be better
+        Class c = methods[i].getDeclaringClass();
+        String name = c.getName();
+        if (name.equals("java.lang.Object") ||
+          name.equals("java.lang.annotation.Annotation")) {
+          continue;
+        }
+      }
       try {
         setValue(methods[i].getName(),
-                       methods[i].invoke(jsr175annotationObject,null));
+                 methods[i].invoke(jsr175annotationObject,null));
       } catch (IllegalAccessException e) {
-        getLogger().warning(e);
+        //getLogger().warning(e);
       } catch (InvocationTargetException e) {
-        getLogger().warning(e);
+        //getLogger().warning(e);
       }
     }
   }

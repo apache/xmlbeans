@@ -17,6 +17,10 @@
   <property name='classes_dir' value='${build_dir}/classes'/>
   <property name='antlr_jar'   value='external/lib/antlr.jar'/>
 
+  <property name="java15_src"   value='org/apache/xmlbeans/impl/jam/internal/java15'/>
+  <property name="java15_jar"   value='${src_dir}/${java15_src}/java15jam.jar'/>
+  <property name='java15_builddir'  value='${build_dir}/java15'/>
+
   <!--FIXME need to do get the jar ourselves -->
   <property name='staxapi_jar'   value='../build/lib/jsr173_api.jar'/>
 
@@ -53,7 +57,7 @@
     <mkdir dir='${classes_dir}'/>
 
     <javac srcdir='${src_dir}' destdir='${classes_dir}'
-           source='1.4' debug='on'>
+           source='1.4' debug='on' excludes='${java15_src}/**/*.java'>
       <src path='${src_dir}'/>
       <src path='${gen_dir}'/>
       <classpath>
@@ -63,6 +67,8 @@
         <pathelement path='${java.class.path}'/>
       </classpath>
     </javac>
+
+    <unjar src='${java15_jar}' dest='${classes_dir}'/>
 
   </target>
 
@@ -110,6 +116,20 @@
   </target>
 
 
+  <!-- recompiles java15_jar.  THIS ONLY WILL RUN WITH JDK1.5!! -->
+  <target name='java15jar'>
+    <mkdir dir='${java15_builddir}'/>
+    <javac srcdir='${src_dir}' destdir='${java15_builddir}'
+           source='1.5' target='1.5' debug='on' includes='${java15_src}/**/*.java'>
+      <classpath>
+        <pathelement path='${classes_dir}'/>
+        <pathelement path='${java.class.path}'/>
+      </classpath>
+    </javac>
+    <jar jarfile='${java15_jar}' basedir='${java15_builddir}' update='false'/>
+  </target>
+
+
   <target name='repackage' depends='clean,repackage_check,repackage_do'/>
 
   <target name='repackage_check' unless='newpackage'>
@@ -147,5 +167,7 @@
       <property name='src_dir' value='${repackaged_src}'/>
     </ant>
   </target>
+  
+  
 
 </project>

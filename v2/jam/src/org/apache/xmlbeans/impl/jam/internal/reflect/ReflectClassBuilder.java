@@ -12,41 +12,58 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.internal;
+package org.apache.xmlbeans.impl.jam.internal.reflect;
 
 import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 /**
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ReflectingClassBuilder extends JamClassBuilder {
+public class ReflectClassBuilder extends JamClassBuilder {
+
+  // ========================================================================
+  // Constants
+
+  private static final String JAVA15_EXTRACTOR =
+    "org.apache.xmlbeans.impl.jam.internal.java15.Reflect15AnnotationExtractor";
 
   // ========================================================================
   // Public static utilities
 
   public static JamClassBuilder getSystemClassBuilder() {
-    return new ReflectingClassBuilder(ClassLoader.getSystemClassLoader());
+    return new ReflectClassBuilder(ClassLoader.getSystemClassLoader());
   }
 
   // ========================================================================
   // Variables
 
   private ClassLoader mLoader;
-  private boolean mIs15available = true;
+  private ReflectAnnotationExtractor mExtractor = null;
 
   // ========================================================================
   // Constructors
 
-  public ReflectingClassBuilder(ClassLoader rcl) {
+  public ReflectClassBuilder(ClassLoader rcl) {
     if (rcl == null) throw new IllegalArgumentException("null rcl");
     mLoader = rcl;
+    try {
+      mExtractor = (ReflectAnnotationExtractor)
+        Class.forName(JAVA15_EXTRACTOR).newInstance();
+    } catch (ClassNotFoundException e) {
+      //      ctx.error(e);
+    } catch (IllegalAccessException e) {
+      //if this fails, we'll assume it's because we're not under 1.5
+      //    ctx.debug(e);
+    } catch (InstantiationException e) {
+      //if this fails, we'll assume it's because we're not under 1.5
+      //  ctx.debug(e);
+    }
   }
 
   // ========================================================================
@@ -58,7 +75,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     try {
       rclass = mLoader.loadClass(packageName+"."+className);
     } catch(ClassNotFoundException cnfe) {
-      getLogger().debug(cnfe);
+//      getLogger().debug(cnfe);
       return null;
     }
     MClass out = createClassToBuild(packageName, className, null);
@@ -88,14 +105,14 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     Constructor[] ctors = src.getDeclaredConstructors();
     for(int i=0; i<ctors.length; i++) populate(dest.addNewConstructor(),ctors[i]);
     // add the annotations
-    add175Annotations(dest, src);
+    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
   }
 
   private void populate(MField dest, Field src) {
     dest.setSimpleName(src.getName());
     dest.setType(src.getType().getName());
     dest.setModifiers(src.getModifiers());
-    add175Annotations(dest, src);
+    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
   }
 
   private void populate(MConstructor dest, Constructor src) {
@@ -104,12 +121,11 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     Class[] exceptions = src.getExceptionTypes();
     addThrows(dest,exceptions);
     Class[] paramTypes = src.getParameterTypes();
-    /*Annotation[]*/ Object[][] paramAnns = get175ParameterAnnotationsOn(src);
     for(int i=0; i<paramTypes.length; i++) {
-      addParameter(dest, i, paramTypes[i],
-        (paramAnns == null) ? null : paramAnns[i]);
+      MParameter p = addParameter(dest, i, paramTypes[i]);
+      if (mExtractor != null) mExtractor.extractAnnotations(p,src,i);
     }
-    add175Annotations(dest, src);
+    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
   }
 
   private void populate(MMethod dest, Method src) {
@@ -119,12 +135,11 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     Class[] exceptions = src.getExceptionTypes();
     addThrows(dest,exceptions);
     Class[] paramTypes = src.getParameterTypes();
-    /*Annotation[]*/ Object[][] paramAnns = get175ParameterAnnotationsOn(src);
     for(int i=0; i<paramTypes.length; i++) {
-      addParameter(dest, i, paramTypes[i],
-        (paramAnns == null) ? null : paramAnns[i]);
+      MParameter p = addParameter(dest, i, paramTypes[i]);
+      if (mExtractor != null) mExtractor.extractAnnotations(p,src,i);
     }
-    add175Annotations(dest, src);
+    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
   }
 
   private void addThrows(MInvokable dest, Class[] exceptionTypes) {
@@ -133,94 +148,17 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     }
   }
 
-  private void addParameter(MInvokable dest,
-                            int paramNum,
-                            Class paramType,
-                            /*Annotation*/ Object[] param175Anns) {
+  private MParameter addParameter(MInvokable dest,
+                                  int paramNum,
+                                  Class paramType)
+  {
     MParameter p = dest.addNewParameter();
     p.setSimpleName("param"+paramNum);
     p.setType(paramType.getName());
-    if (param175Anns != null) { //add the 175 annotations to the parameter
-      for(int i=0; i<param175Anns.length; i++) {
-        dest.addAnnotationForInstance(param175Anns[i]);
-      }
-    }
-  }
-
-  private void add175Annotations(MAnnotatedElement dest, Object src) {
-    /*Annotation[]*/ Object[] anns = get175AnnotationsOn(src);
-    if (anns == null || anns.length == 0) return;
-    for(int i=0; i<anns.length; i++) {
-      dest.addAnnotationForInstance(src);
-    }
+    return p;
   }
 
 
-
-  /**
-   * <p>Utility method for returning the java.lang.annoatation.Annotations
-   * associated with a given reflection object.  This method accesses the
-   * Annotations via reflection so that JAM will still compile and load
-   * under 1.4.</p>
-   */
-  private /*Annotation[]*/ Object[] get175AnnotationsOn(Object thing) {
-    if (!mIs15available) return null;
-    Method annGetter;
-    try {
-      annGetter = thing.getClass().
-        getMethod("getDeclaredAnnotations", null);
-      return (Object[])annGetter.invoke(thing,null);
-    } catch(NoSuchMethodException nsme) {
-      getLogger().debug(nsme);
-    } catch(IllegalAccessException iae) {
-      getLogger().debug(iae);
-    } catch(InvocationTargetException ite) {
-      getLogger().debug(ite);
-    }
-    mIs15available = false;
-    return null;
-  }
-
-  /**
-   * <p>Utility method for returning the annotations associated with
-   * the parameters of a java.lang.Constructor or java.lang.Method.
-   * This method accesses the Annotations via reflection so that JAM will
-   * still compile and load under 1.4.</p>
-   *
-   * <p>I really don't understand why reflection has not introduced
-   * an abstraction for method parameters.  This has always been a really
-   * gross part of the reflection API and it's gotten even grosser with
-   * JSR175.  JAM to the rescue!</p>
-   *
-   */
-  private /*Annotation[][]*/ Object[][] get175ParameterAnnotationsOn(Object thing)
-  {
-    if (!mIs15available) return null;
-    Method annGetter;
-    try {
-      annGetter = thing.getClass().
-        getMethod("getParameterAnnotations", null);
-      return (Object[][])annGetter.invoke(thing,null);
-    } catch(NoSuchMethodException nsme) {
-      getLogger().debug(nsme);
-    } catch(IllegalAccessException iae) {
-      getLogger().debug(iae);
-    } catch(InvocationTargetException ite) {
-      getLogger().debug(ite);
-    }
-    mIs15available = false;
-    return null;
-  }
-
-
-  /*
-  private static String simpleName(Class clazz) {
-    String out = clazz.getName();
-    int dot = out.lastIndexOf('.');
-    if (dot != -1) out = out.substring(dot+1);
-    return out;
-  }
-  */
 
 
 //salvaged from RClassLoader, may be useful for parser

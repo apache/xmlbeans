@@ -21,7 +21,8 @@ import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.internal.JamClassLoaderImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceImpl;
-import org.apache.xmlbeans.impl.jam.internal.ReflectingClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.parser.ParserClassBuilder;
@@ -125,7 +126,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     b = createClassfileBuilder(ctx);  // then custom classpath
     if (b != null) builders.add(b);
     if (ctx.isUseSystemClasspath()) { // then system classpath
-      builders.add(ReflectingClassBuilder.getSystemClassBuilder());
+      builders.add(ReflectClassBuilder.getSystemClassBuilder());
     }
     JamClassBuilder[] barray = new JamClassBuilder[builders.size()];
     builders.toArray(barray);
@@ -170,7 +171,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     } else {
       URL[] urls = cp.toUrlPath();
       ClassLoader cl = new URLClassLoader(urls);
-      return new ReflectingClassBuilder(cl);
+      return new ReflectClassBuilder(cl);
     }
   }
 

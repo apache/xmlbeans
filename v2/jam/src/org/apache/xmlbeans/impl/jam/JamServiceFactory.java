@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam;
 
 import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
-import org.apache.xmlbeans.impl.jam.internal.ReflectingClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceFactoryImpl;
 
 import java.io.File;
