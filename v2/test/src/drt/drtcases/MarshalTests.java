@@ -191,6 +191,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal(new GDuration("P1Y2M3DT10H30M"), "duration");
 
         testSimpleTypeMarshal("some text here", "string");
+        testSimpleTypeMarshal("  ", "string");
+        testSimpleTypeMarshal("", "string");
         testSimpleTypeMarshal("aToken", "token");
         testSimpleTypeMarshal("       ", "string");
 

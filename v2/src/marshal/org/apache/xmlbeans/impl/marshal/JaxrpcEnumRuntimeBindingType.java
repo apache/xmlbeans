@@ -21,6 +21,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import java.lang.reflect.Method;
 
@@ -82,10 +83,18 @@ final class JaxrpcEnumRuntimeBindingType
         return itemInfo.getItemUnmarshaller();
     }
 
-    Object fromValue(Object itemValue) throws XmlException
+    Object fromValue(Object itemValue, UnmarshalResult context)
+        throws XmlException
     {
-        return ReflectionUtils.invokeMethod(null, itemInfo.getFromValueMethod(),
-                                            new Object[]{itemValue});
+        assert itemValue != null;
+        assert context != null;
+        try {
+            return ReflectionUtils.invokeMethod(null, itemInfo.getFromValueMethod(),
+                                                new Object[]{itemValue});
+        }
+        catch (XmlException iae) {
+            throw new InvalidLexicalValueException(iae, context.getLocation());
+        }
     }
 
 

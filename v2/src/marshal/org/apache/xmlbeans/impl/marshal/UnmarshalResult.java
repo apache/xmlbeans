@@ -128,7 +128,7 @@ final class UnmarshalResult
         return binding_type;
     }
 
-    private void addError(String msg)
+    void addError(String msg)
     {
         addError(msg, baseReader.getLocation());
     }
