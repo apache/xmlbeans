@@ -1,0 +1,29 @@
+<xs:schema targetNamespace="http://openuri.org/primitives"
+    xmlns:pri="http://openuri.org/primitives"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    elementFormDefault="qualified">
+		<xs:element name="primitives">
+			<xs:complexType>
+				<xs:sequence>
+					<xs:element name="numerics" type="pri:numerics" maxOccurs="unbounded"/>
+					<xs:element name="misc" type="pri:misc"/>
+				</xs:sequence>
+			</xs:complexType>
+		</xs:element>
+   	<xs:complexType name="numerics">
+   	  <xs:sequence>
+   		  <xs:element name="mybyte" type="xs:byte"/>
+   	    <xs:element name="myint" type="xs:int"/>
+   	    <xs:element name="mylong" type="xs:long"/>
+   	    <xs:element name="myshort" type="xs:short"/>
+				<xs:element name="myhexbin" type="xs:hexBinary"/>
+				<xs:element name="mydouble" type="xs:double"/>
+				<xs:element name="myfloat" type="xs:float"/>
+   	 </xs:sequence>
+ 	 </xs:complexType>
+ 	 <xs:complexType name="misc">
+		<xs:sequence>
+				<xs:element name="mybool" type="xs:boolean"/>
+		</xs:sequence>
+	</xs:complexType>
+</xs:schema>

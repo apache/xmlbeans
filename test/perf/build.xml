@@ -1,0 +1,543 @@
+<!-- build file -->
+<project name="xmlbeans-perf" default="usage">
+	
+	<target name="usage">
+		<echo>
+	Main Usage:
+	bootstrap - download and unzip benchmark jars - REQUIRED FOR BENCHMARKS 
+	[re]build.all - builds all schema jars and test classes
+	[re]build - builds test and tool classes only
+	[re]build.schema.jars - that's what it does :->
+	clean.all - clean all schema jars and test/tools classes
+	clean - clean test and tools classes
+	clean.schema.jars - clean schema jars
+
+	Schema Builds:
+	v2.schema.jars - required for tools build and v2 perf
+	v1.schema.jars
+	castor.schema.jars
+	jaxb.schema.jars
+	jibx.schema.jars
+
+	Perf Builds:
+	build.tools - perf tools
+	build.v2.perf
+	build.v1.perf
+	build.castor.perf
+	build.jaxb.perf
+	build.jibx.perf
+	build.xerces.perf
+		</echo>
+	</target>
+
+	<property environment="env"/>
+
+	<!-- root properties used for finding everything -->
+	<property name="xmlbeans.perf.root" value="${basedir}"/>
+	<!-- TODO: CVS point to relative v2 build -->
+	<property name="v2.xmlbeans.root" value="${env.XMLBEANS_HOME}"/>
+
+	<property name="src.dir" value="${xmlbeans.perf.root}/src"/>
+	<property name="build.dir" value="${xmlbeans.perf.root}/build"/>
+	<property name="doc.dir" value="${xmlbeans.perf.root}/build/doc"/>
+	<property name="test.case.dir" value="${xmlbeans.perf.root}/cases"/>
+	<property name="temp.dir" value="${xmlbeans.perf.root}/temp"/>
+	<property name="schema.jar.build.dir" value="${xmlbeans.perf.root}/schema_build"/>
+	<property name="3rdparty.dir" value="${xmlbeans.perf.root}/3rdparty"/>
+
+	<!-- benchmark directories -->
+	<property name="v2.dir" value="${v2.xmlbeans.root}"/>
+	<!-- TODO: CVS - point to relative v1 line -->
+    <property name="v1.dir" value="${3rdparty.dir}/v1"/>
+	<property name="castor.dir" value="${3rdparty.dir}/castor"/>
+	<property name="jibx.dir" value="${3rdparty.dir}/jibx"/>
+	<property name="xerces.dir" value="${3rdparty.dir}/xerces"/>
+	<!-- can't download jaxb on the fly, so user has to setup this env var -->
+	<property name="jaxb.dir" value="${env.JAXB_LIBDIR}"/>
+
+	<!-- castor -->
+	<!-- TODO: CVS - crack castor jar and turn off validation -->
+	<property name="castor.jar" value="${castor.dir}/castor-0.9.5.4.jar"/>
+	<property name="castor.url" value="ftp://ftp.exolab.org/pub/castor/castor_0.9.5.4/castor-0.9.5.4.jar"/>
+
+	<!-- jibx -->
+	<property name="jibx.zip" value="${jibx.dir}/jibx-beta3c.zip"/>
+	<property name="jibx.url" value="http://umn.dl.sourceforge.net/sourceforge/jibx/jibx-beta3c.zip"/>
+
+	<!-- v1 -->
+	<property name="v1.zip" value="${v1.dir}/xmlbeans-1.0.3.zip"/>
+	<property name="v1.url" value="http://www.apache.org/dist/xml/xmlbeans/v1.0.3/bin/xmlbeans-1.0.3.zip"/>
+
+	<!-- xerces -->
+	<property name="xercesImpl.jar" value="${xerces.dir}/xerces-2_6_2/xercesImpl.jar"/>
+	<property name="xerces.zip" value="${xerces.dir}/Xerces-J-bin.2.6.2.zip"/>
+	<property name="xerces.url" value="http://www.apache.org/dist/xml/xerces-j/Xerces-J-bin.2.6.2.zip"/>
+
+	<!-- user-defined schema jars for SOM runtime perf tests  -->
+	<property name="v2-purchase-order.jar" value="${schema.jar.build.dir}/v2-purchase-order.jar"/>
+	<property name="v2-primitives.jar" value="${schema.jar.build.dir}/v2-primitives.jar"/>
+	<property name="v2-non-primitives.jar" value="${schema.jar.build.dir}/v2-non-primitives.jar"/>
+	<property name="v1-purchase-order.jar" value="${schema.jar.build.dir}/v1-purchase-order.jar"/>
+	<property name="v1-primitives.jar" value="${schema.jar.build.dir}/v1-primitives.jar"/>
+	<property name="v1-non-primitives.jar" value="${schema.jar.build.dir}/v1-non-primitives.jar"/>
+	<property name="castor-purchase-order.jar" value="${schema.jar.build.dir}/castor-purchase-order.jar"/>
+	<property name="castor-primitives.jar" value="${schema.jar.build.dir}/castor-primitives.jar"/>
+	<property name="castor-non-primitives.jar" value="${schema.jar.build.dir}/castor-non-primitives.jar"/>
+	<property name="jibx-purchase-order.jar" value="${schema.jar.build.dir}/jibx-purchase-order.jar"/>
+	<property name="jaxb-purchase-order.jar" value="${schema.jar.build.dir}/jaxb-purchase-order.jar"/>
+	<property name="jaxb-primitives.jar" value="${schema.jar.build.dir}/jaxb-primitives.jar"/>
+	<property name="jaxb-non-primitives.jar" value="${schema.jar.build.dir}/jaxb-non-primitives.jar"/>
+
+	<!-- util schema jar(s) -->
+	<property name="perf-results.jar" value="${schema.jar.build.dir}/perf-results.jar"/>
+
+	<!-- classpaths -->
+	<path id="tools.classpath">
+		<fileset dir="${v2.dir}/build/lib" includes="*.jar"/>
+		<pathelement path="${perf-results.jar}"/>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+	<path id="v2.classpath">
+		<fileset dir="${v2.dir}/build/lib" includes="*.jar"/>
+		<fileset dir="${v2.dir}/external/lib" includes="*.jar"/>
+		<pathelement path="${v2-purchase-order.jar}"/>
+		<pathelement path="${v2-primitives.jar}"/>
+		<pathelement path="${v2-non-primitives.jar}"/>
+		<pathelement path="${build.dir}"/>
+		<pathelement path="${perf-results.jar}"/>
+	</path>
+	
+	<path id="v1.classpath">
+		<fileset dir="${v1.dir}/xmlbeans-1.0.3/lib" includes="*.jar"/>
+		<pathelement path="${v1-purchase-order.jar}"/>
+		<pathelement path="${v1-primitives.jar}"/>
+		<pathelement path="${v1-non-primitives.jar}"/>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+	<path id="castor.classpath">
+		<pathelement path="${castor.jar}"/>
+		<pathelement path="${xercesImpl.jar}"/>
+		<pathelement path="${castor-purchase-order.jar}"/>
+		<pathelement path="${castor-primitives.jar}"/>
+		<pathelement path="${castor-non-primitives.jar}"/>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+	<path id="jibx.classpath">
+		<fileset dir="${jibx.dir}/jibx/lib" includes="*.jar"/>
+		<pathelement path="${jibx-purchase-order.jar}"/>
+		<pathelement path="${build.dir}"/>
+	</path>
+	<!-- used when building the schema jar -->
+	<path id="jibx.binding.classpath">
+		<fileset dir="${jibx.dir}/jibx/lib" includes="*.jar"/>
+		<pathelement path="${temp.dir}"/>
+	</path>
+
+	<path id="jaxb.classpath">
+		<fileset dir="${jaxb.dir}/endorsed" includes="*.jar"/>
+		<fileset dir="${jaxb.dir}" includes="*.jar"/>
+		<pathelement path="${jaxb-purchase-order.jar}"/>
+		<pathelement path="${jaxb-primitives.jar}"/>
+		<pathelement path="${jaxb-non-primitives.jar}"/>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+	<path id="xerces.classpath">
+		<pathelement path="${xercesImpl.jar}"/>
+		<pathelement path="${build.dir}"/>
+	</path>
+
+	<!-- main build targets  -->
+	<target name="build.all" depends="build.schema.jars,build"/>
+	<target name="clean.all" depends="clean.schema.jars,clean"/>
+	<target name="rebuild.all" depends="rebuild.schema.jars,rebuild"/>
+
+
+	<!-- conveinence src build targets  -->	
+	<target name="build" depends="build.tools,build.v2.perf,build.v1.perf,build.castor.perf,build.jibx.perf,build.xerces.perf,build.jaxb.perf"/>
+
+	<target name="clean">
+		<delete dir="${build.dir}"/>
+		<delete dir="${temp.dir}"/>
+	</target>
+
+	<target name="rebuild" depends="clean,build"/>
+
+
+	<!-- conveinence schema jar build targets -->
+	<target name="build.schema.jars" depends="v2.schema.jars,v1.schema.jars,castor.schema.jars,jibx.schema.jars,jaxb.schema.jars"/>
+	
+	<target name="clean.schema.jars">
+		<delete dir="${schema.jar.build.dir}"/>
+	</target>
+
+	<target name="rebuild.schema.jars" depends="clean.schema.jars,build.schema.jars"/>
+
+
+	<!-- specific build targets -->
+	<target name="clean.bootstrap">
+		<delete dir="${3rdparty.dir}"/>
+	</target>
+	<target name="bootstrap">
+		<mkdir dir="${castor.dir}"/>
+		<get src="${castor.url}" dest="${castor.jar}" verbose="true"/>
+		
+		<mkdir dir="${jibx.dir}"/>
+		<get src="${jibx.url}" dest="${jibx.zip}" verbose="true"/>
+		<unzip src="${jibx.zip}" dest="${jibx.dir}"/>
+
+		<mkdir dir="${v1.dir}"/>
+		<get src="${v1.url}" dest="${v1.zip}" verbose="true"/>
+		<unzip src="${v1.zip}" dest="${v1.dir}"/>
+
+		<mkdir dir="${xerces.dir}"/>
+		<get src="${xerces.url}" dest="${xerces.zip}" verbose="true"/>
+		<unzip src="${xerces.zip}" dest="${xerces.dir}"/>
+
+		<echo message="FOR JAXB SETUP, DONLOAD WSDP 1.5 AND PLACE THESE JAXB JARS IN ${jaxb.dir}"/>
+		<echo message="
+activation.jar
+commons-beanutils.jar
+commons-collections.jar
+commons-digester.jar
+commons-logging.jar
+jaas.jar
+jax-qname.jar
+jaxb-api.jar
+jaxb-impl.jar
+jaxb-libs.jar
+jaxb-xjc.jar
+jta-spec1_0_1.jar
+mail.jar
+namespace.jar
+relaxngDatatype.jar
+xsdlib.jar
+endorsed/dom.jar
+endorsed/sax.jar
+endorsed/xalan.jar
+endorsed/xercesImpl.jar
+endorsed/xsltc.jar
+"/>
+		<echo message="THEN SET JAXB_LIBDIR IN YOUR ENVIRONMENT TO POINT TO ${jaxb.dir}"/>
+
+	</target>
+
+	<target name="build.tools">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="tools.classpath"
+			includes="org/apache/xmlbeans/test/tools/**"
+			source="1.4">
+		</javac>
+	</target>
+
+	<target name="build.v2.perf">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="v2.classpath"
+			includes="org/apache/xmlbeans/test/performance/v2/**,org/apache/xmlbeans/test/performance/utils/**"
+			source="1.4">
+		</javac>
+	</target>
+
+	<target name="build.v1.perf">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="v1.classpath"
+			includes="org/apache/xmlbeans/test/performance/v1/**,org/apache/xmlbeans/test/performance/utils/**"
+			source="1.4">
+		</javac>
+	</target>
+
+	<target name="build.castor.perf">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="castor.classpath"
+			includes="org/apache/xmlbeans/test/performance/castor/**,org/apache/xmlbeans/test/performance/utils/**"
+			source="1.4">
+		</javac>
+	</target>
+
+	<target name="build.jibx.perf">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="jibx.classpath"
+			includes="org/apache/xmlbeans/test/performance/jibx/**,org/apache/xmlbeans/test/performance/utils/**"
+			excludes="org/apache/xmlbeans/test/performance/jibx/binding/**"
+			source="1.4">
+		</javac>
+	</target>
+
+	<target name="build.jaxb.perf" if="jaxb.libdir.exists" depends="check.jaxb.libdir">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="jaxb.classpath"
+			includes="org/apache/xmlbeans/test/performance/jaxb/**,org/apache/xmlbeans/test/performance/utils/**"
+			source="1.4">
+		</javac>
+	</target>
+
+	<target name="build.xerces.perf">
+		<mkdir dir="${build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${build.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="xerces.classpath"
+			includes="org/apache/xmlbeans/test/performance/xerces/**,org/apache/xmlbeans/test/performance/utils/**"
+			source="1.4">
+		</javac>
+	</target>
+
+	<!-- specific schema compile targets  -->
+	<target name="os.init">
+		<condition property="scomp" value="${v2.xmlbeans.root}\bin\scomp.cmd">
+			<os family="windows"/>
+		</condition>
+		<condition property="scomp" value="${v2.xmlbeans.root}/bin/scomp">
+			<os family="unix"/>
+		</condition>
+		<echo message="scomp variable=${scomp}"/>
+	</target>
+
+
+	<!-- v2 schema jars -->
+	<target name="v2.schema.jars">
+		<antcall target="v2.schema.build">
+			<param name="xsd.name" value="purchase-order.xsd"/>
+			<param name="jar.name" value="v2-purchase-order.jar"/>
+		</antcall>
+		<antcall target="v2.schema.build">
+			<param name="xsd.name" value="primitives.xsd"/>
+			<param name="jar.name" value="v2-primitives.jar"/>
+		</antcall>
+		<antcall target="v2.schema.build">
+			<param name="xsd.name" value="non-primitives.xsd"/>
+			<param name="jar.name" value="v2-non-primitives.jar"/>
+		</antcall>
+		<antcall target="v2.schema.build">
+			<param name="xsd.name" value="perf-results.xsd"/>
+			<param name="jar.name" value="perf-results.jar"/>
+		</antcall>
+	</target>
+
+	<target name="v2.schema.build" depends="os.init">
+		<echo message="starting"/>
+		<mkdir dir="${temp.dir}"/>
+		<mkdir dir="${schema.jar.build.dir}"/>
+		<chmod file="${v2.xmlbeans.root}/bin/scomp" perm="755"/>
+		<exec	dir="${temp.dir}"
+					executable="${scomp}" 
+					output="${temp.dir}/scomp_output.txt">
+			<env key="XMLBEANS_HOME" value="${v2.xmlbeans.root}"/>
+			<arg line="-out ${jar.name}"/>
+			<arg line="-d ${temp.dir}"/>
+			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
+		</exec>
+		<copy file="${temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
+		<delete dir="${temp.dir}"/>
+		<echo message="done"/>
+	</target>
+
+
+	<!-- v1 schema jars -->
+	<target name="v1.schema.jars">
+		<antcall target="v1.schema.build">
+			<param name="xsd.name" value="purchase-order.xsd"/>
+			<param name="jar.name" value="v1-purchase-order.jar"/>
+		</antcall>
+		<antcall target="v1.schema.build">
+			<param name="xsd.name" value="primitives.xsd"/>
+			<param name="jar.name" value="v1-primitives.jar"/>
+		</antcall>
+		<antcall target="v1.schema.build">
+			<param name="xsd.name" value="non-primitives.xsd"/>
+			<param name="jar.name" value="v1-non-primitives.jar"/>
+		</antcall>
+	</target>
+
+	<target name="v1.schema.build" depends="os.init">
+		<mkdir dir="${temp.dir}"/>
+		<mkdir dir="${schema.jar.build.dir}"/>
+		<java classname="org.apache.xmlbeans.impl.tool.SchemaCompiler"
+					fork="true"
+					dir="${xmlbeans.perf.root}"
+					classpathref="v1.classpath">
+			<arg line="-out ${temp.dir}/${jar.name}"/>
+			<arg line="-d ${temp.dir}"/>
+			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
+		</java>
+		<copy file="${temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
+		<delete dir="${temp.dir}"/>
+	</target>
+
+	<!-- castor schema jars -->
+	<target name="castor.schema.jars">
+		<antcall target="castor.schema.build">
+			<param name="xsd.name" value="purchase-order.xsd"/>
+			<param name="jar.name" value="castor-purchase-order.jar"/>
+			<param name="ns" value="org.openuri.easypo"/>
+		</antcall>
+		<antcall target="castor.schema.build">
+			<param name="xsd.name" value="primitives.xsd"/>
+			<param name="jar.name" value="castor-primitives.jar"/>
+			<param name="ns" value="org.openuri.primitives"/>
+		</antcall>
+		<antcall target="castor.schema.build">
+			<param name="xsd.name" value="non-primitives.xsd"/>
+			<param name="jar.name" value="castor-non-primitives.jar"/>
+			<param name="ns" value="org.openuri.nonprimitives"/>
+		</antcall>
+	</target>
+
+	<target name="castor.schema.build">
+		<mkdir dir="${temp.dir}"/>
+		<mkdir dir="${schema.jar.build.dir}"/>
+		<java classname="org.exolab.castor.builder.SourceGenerator"
+					fork="true"
+					dir="${xmlbeans.perf.root}"
+					classpathref="castor.classpath">
+			<arg line="-i ${test.case.dir}/xsd/${xsd.name}"/>
+			<arg line="-package ${ns}"/>
+			<arg line="-dest ${temp.dir}"/>
+			<arg line="-f"/>
+			<arg line="-verbose"/>
+		</java>
+		<javac srcdir="${temp.dir}"
+			destdir="${temp.dir}"
+			debug="on"
+			fork="true"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			source="1.4"
+			classpathref="castor.classpath"/>
+		<jar destfile="${schema.jar.build.dir}/${jar.name}"
+				 basedir="${temp.dir}"/>
+		<delete dir="${temp.dir}"/>
+	</target>
+
+
+	<!-- jibx schema jars -->
+	<target name="jibx.schema.jars">
+		<mkdir dir="${temp.dir}"/>
+		<mkdir dir="${schema.jar.build.dir}"/>
+		<javac srcdir="${src.dir}"
+			destdir="${temp.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="jibx.binding.classpath"
+			includes="org/apache/xmlbeans/test/performance/jibx/binding/**"
+			excludes="org/apache/xmlbeans/test/performance/castor/**,org/apache/xmlbeans/test/performance/v2/**,org/apache/xmlbeans/test/performance/utils/**"
+			source="1.4">
+		</javac>
+		<java classname="org.jibx.binding.Compile"
+					fork="true"
+					dir="${xmlbeans.perf.root}"
+					classpathref="jibx.binding.classpath">
+			<arg line="-v"/>
+			<arg line="${test.case.dir}/xsd/purchase-order-jibxbinding.xml"/>
+		</java>
+		<jar destfile="${jibx-purchase-order.jar}"
+				 basedir="${temp.dir}"/>
+		<delete dir="${temp.dir}"/>
+	</target>
+
+
+	<!-- jaxb schema jars -->
+	<target name="jaxb.schema.jars" if="jaxb.libdir.exists" depends="check.jaxb.libdir">
+		<antcall target="jaxb.schema.build">
+			<param name="xsd.name" value="purchase-order.xsd"/>
+			<param name="jar.name" value="jaxb-purchase-order.jar"/>
+			<param name="ns" value="org.openuri.easypo"/>
+		</antcall>
+		<antcall target="jaxb.schema.build">
+			<param name="xsd.name" value="primitives.xsd"/>
+			<param name="jar.name" value="jaxb-primitives.jar"/>
+			<param name="ns" value="org.openuri.primitives"/>
+		</antcall>
+		<antcall target="jaxb.schema.build">
+			<param name="xsd.name" value="non-primitives.xsd"/>
+			<param name="jar.name" value="jaxb-non-primitives.jar"/>
+			<param name="ns" value="org.openuri.nonprimitives"/>
+		</antcall>
+	</target>
+
+	<target name="check.jaxb.libdir">
+		<available property="jaxb.libdir.exists"
+			file="${jaxb.dir}" type="dir" />
+	</target>
+
+	<target name="jaxb.schema.build">
+		<mkdir dir="${temp.dir}"/>
+		<mkdir dir="${schema.jar.build.dir}"/>
+		<java classname="com.sun.tools.xjc.Driver"
+					fork="true"
+					classpathref="jaxb.classpath"
+					failonerror="true">
+			<arg line="-p ${ns}"/>
+			<arg line="-d ${temp.dir}"/>
+			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
+		</java>
+		<javac srcdir="${temp.dir}"
+			destdir="${temp.dir}"
+			debug="on"
+			fork="yes"
+			memoryMaximumSize="1000M"
+			compiler="modern"
+			executable="${env.JAVA_HOME}/bin/javac"
+			classpathref="jaxb.classpath"
+			source="1.4">
+		</javac>
+		<jar destfile="${schema.jar.build.dir}/${jar.name}"
+				 basedir="${temp.dir}"/>
+		<delete dir="${temp.dir}"/>
+	</target>
+
+
+</project>
