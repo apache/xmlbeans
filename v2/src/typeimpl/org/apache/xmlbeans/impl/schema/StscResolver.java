@@ -287,8 +287,8 @@ public class StscResolver
                 else 
                 {
                     if (key.getConstraintCategory() == SchemaIdentityConstraintImpl.CC_KEYREF)
-                        state.error("Keyref cannot refer to another keyref.",
-                            XmlErrorCodes.IDC_NOT_FOUND, idcs[i].getParseObject());
+                        state.error(XmlErrorCodes.IDENTITY_CONSTRAINT_PROPERTIES$KEYREF_REFERS_TO_KEYREF,
+                            null, idcs[i].getParseObject());
 
                     if (key.getFields().length != idcs[i].getFields().length)
                         state.error(XmlErrorCodes.IDENTITY_CONSTRAINT_PROPERTIES$KEY_KEYREF_FIELD_COUNT_EQ,

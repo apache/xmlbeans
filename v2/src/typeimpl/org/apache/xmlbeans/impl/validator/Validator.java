@@ -180,7 +180,7 @@ public final class Validator
                                   int errorType, SchemaType badSchemaType )
     {
         emitFieldError(event, message, null, null, XmlError.SEVERITY_ERROR, offendingQName,
-            expectedSchemaType, expectedQNames , errorType, badSchemaType);
+            expectedSchemaType, expectedQNames, errorType, badSchemaType);
     }
 
     private void emitFieldError ( Event event, String code, Object[] args, QName offendingQName,
@@ -188,7 +188,7 @@ public final class Validator
                                   int errorType, SchemaType badSchemaType )
     {
         emitFieldError(event, null, code, args, XmlError.SEVERITY_ERROR, offendingQName,
-                expectedSchemaType, expectedQNames , errorType, badSchemaType);
+                expectedSchemaType, expectedQNames, errorType, badSchemaType);
     }
 
     private void emitFieldError ( Event event, String message, String code, Object[] args, int severity, QName offendingQName,
@@ -201,8 +201,8 @@ public final class Validator
             fieldName = _stateStack._field.getName();
         }
 
-        Validator.this.emitError( event, message, code, args, severity, fieldName, offendingQName , expectedSchemaType,
-            expectedQNames , errorType, badSchemaType);
+        Validator.this.emitError(event, message, code, args, severity, fieldName, offendingQName, expectedSchemaType,
+            expectedQNames, errorType, badSchemaType);
     }
 
     // For XmlEventListener.error
@@ -391,7 +391,7 @@ public final class Validator
         if (elementType.isNoType())
         {
             emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$NO_TYPE,
-                new Object[] { QNameHelper.pretty(event.getName()) }, event.getName(), null, null,
+                null, event.getName(), null, null,
                 XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
             _eatContent = 1;
@@ -445,8 +445,8 @@ public final class Validator
             {
                 // NOT SURE errorAttributes._expectedSchemaType = xsiType;
                 emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_NOT_FOUND,
-                    new Object[] { value }, event.getName(), xsiType, null,
-                    XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
+                    new Object[] { value }, event.getName(), null, null,
+                    XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
                 _eatContent = 1;
 
@@ -460,7 +460,7 @@ public final class Validator
             {
                 emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_NOT_DERIVED,
                     new Object[] { xsiType, elementType }, event.getName(), elementType, null,
-                    XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
+                    XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
                 _eatContent = 1;
 
@@ -476,7 +476,7 @@ public final class Validator
                     {
                         emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_EXTENSION,
                             new Object[] { xsiType, elementType }, event.getName(), elementType, null,
-                            XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
+                            XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
                         _eatContent = 1;
 
@@ -494,7 +494,7 @@ public final class Validator
                     {
                         emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_RESTRICTION,
                             new Object[] { xsiType, elementType }, event.getName(), elementType, null,
-                            XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
+                            XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
                         _eatContent = 1;
 
@@ -553,7 +553,7 @@ public final class Validator
         {
             emitError(event, XmlErrorCodes.ELEM_LOCALLY_VALID$ABSTRACT,
                 new Object[] { elementType },
-                event.getName(), elementType, null, XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
+                event.getName(), elementType, null, XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
             _eatContent = 1;
 
@@ -577,7 +577,7 @@ public final class Validator
         {
             emitFieldError( event, XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE, null,
                 elementField.getName(), elementField.getType(), null,
-                XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
+                XmlValidationError.ELEMENT_TYPE_INVALID, (state == null ? null : state._type));
 
             _eatContent = 1;
             return;
@@ -863,7 +863,7 @@ public final class Validator
 
     private void findDetailedErrorBegin(Event event, State state, QName qName)
     {
-        String message = null;
+        boolean found = false;
         SchemaProperty[] eltProperties = state._type.getElementProperties();
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
@@ -873,21 +873,21 @@ public final class Validator
             // test if the element is valid
             if (state.test(sProp.getName()))
             {
-                message = "Expected element " + QNameHelper.pretty(sProp.getName()) + " instead of " + QNameHelper.pretty(qName) + " here";
+                found = true;
                 ArrayList expectedNames = new ArrayList();
                 expectedNames.add(sProp.getName());
 
-                // KHK: ?
-                emitFieldError( event, message, qName, sProp.getType(),
-                    expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
+                emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
+                    new Object[] { QNameHelper.pretty(sProp.getName()), QNameHelper.pretty(qName) },
+                    qName, sProp.getType(), expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
 
                 break;
             }
         }
-        if (message == null)
+        if (!found)
         {
-            // KHK: ?
-            emitFieldError( event, "Element not allowed: " + QNameHelper.pretty( qName),
+            emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED,
+                new Object[] { QNameHelper.pretty(qName) },
                 qName, null, null, XmlValidationError.INCORRECT_ELEMENT, state._type);
         }
     }
@@ -895,7 +895,7 @@ public final class Validator
     private void findDetailedErrorEnd(Event event, State state)
     {
         SchemaProperty[] eltProperties  = state._type.getElementProperties();
-        String message = null;
+        boolean found = false;
 
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
@@ -905,25 +905,23 @@ public final class Validator
             // test if the element is valid
             if (state.test(sProp.getName()))
             {
-                message = "Expected element " + QNameHelper.pretty(sProp.getName()) +
-                          " at the end of the content";
+                found = true;
 
                 ArrayList expectedNames = new ArrayList();
                 expectedNames.add(sProp.getName());
 
-                // KHK: ?
-                emitFieldError (event, message, null, sProp.getType(), expectedNames,
-                    XmlValidationError.INCORRECT_ELEMENT, state._type);
+                emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT,
+                    new Object[] { QNameHelper.pretty(sProp.getName()) },
+                    null, sProp.getType(), expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
 
                 break;
             }
         }
 
-        if (message == null)
+        if (!found)
         {
-            // KHK: ?
-            emitFieldError( event, "Expected element(s)", null, null, null,
-                XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
+            emitFieldError( event, XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT,
+                null, null, null, null, XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
         }
     }
 
@@ -1090,10 +1088,8 @@ public final class Validator
 
         if (type.isNoType())
         {
-            // KHK: check this works for both elements and attributes
             emitError(event, (field.isAttribute() ? XmlErrorCodes.ATTR_LOCALLY_VALID$NO_TYPE : XmlErrorCodes.ELEM_LOCALLY_VALID$NO_TYPE),
-                new Object[] { QNameHelper.pretty(field.getName()) },
-                field.getName(), type, null,  XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                null, field.getName(), type, null,  XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
             return null;
         }
@@ -1154,11 +1150,30 @@ public final class Validator
 
             if (!val.valueEquals( def ))
             {
-                // KHK: cvc-attribute.4; cvc-complex-type.3.1 or cvc-au; cvc-elt.5.1.1 or 5.2.2.2.1 or 5.2.2.2.2?;
                 // TODO (dutta) - make this more verbose
-                emitError( event, "Value not equal to fixed value. " + value,
-                    field.getName(), field.getType(), null,
-                    XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                if (field.isAttribute())
+                {
+                    // KHK: check for is cvc-complex-type.3.1 or cvc-au
+                    emitError(event, XmlErrorCodes.ATTR_LOCALLY_VALID$FIXED,
+                        new Object[] { value, fixedValue, QNameHelper.pretty(event.getName()) },
+                        null, field.getType(), null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                }
+                else
+                {
+                    String errorCode = null;
+
+                    // see rule 5 of cvc-elt: Element Locally Valid (Element)
+                    if (type.getContentType() == SchemaType.MIXED_CONTENT)
+                        errorCode = XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT;
+                    else if (type.isSimpleType())
+                        errorCode = XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE;
+                    else
+                        assert false : "Element with fixed may not be EMPTY or ELEMENT_ONLY";
+
+                    emitError(event, errorCode,
+                        new Object[] { value, fixedValue },
+                        field.getName(), field.getType(), null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+                }
 
                 return null;
             }
