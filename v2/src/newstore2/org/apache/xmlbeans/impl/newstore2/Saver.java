@@ -43,11 +43,11 @@ abstract class Saver
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT     = Cur.TEXT;
 
-    protected abstract void emitContainer ( Cur c, QName name );
-    protected abstract void emitFinish    ( Cur c, QName name );
-    protected abstract void emitText      ( Cur c );
-    protected abstract void emitComment   ( Cur c );
-    protected abstract void emitProcinst  ( Cur c );
+    protected abstract void emitContainer ( SaveCur c, QName name );
+    protected abstract void emitFinish    ( SaveCur c, QName name );
+    protected abstract void emitText      ( SaveCur c );
+    protected abstract void emitComment   ( SaveCur c );
+    protected abstract void emitProcinst  ( SaveCur c );
 
     protected void syntheticNamespace ( String prefix, String uri, boolean considerDefault ) { }
 
@@ -60,7 +60,7 @@ abstract class Saver
 
         _wantFragTest = wantFragTest;
 
-        _cur = c.weakCur( this );
+        _cur = makeSaveCur( c, options );
         _preProcess = true;
 
         _namespaceStack = new ArrayList();
@@ -172,7 +172,6 @@ abstract class Saver
             else
             {
                 assert _cur.isContainer();
-                _top = _cur.weakCur( this );
             }
         }
 
@@ -184,7 +183,7 @@ abstract class Saver
 
         if (_postProcess)
         {
-            if (_cur.isAtEndOf( _top ))
+            if (_cur.atEndOfTop())
                 _done = true;
             else
             {
@@ -197,7 +196,7 @@ abstract class Saver
                     {
                         _cur.toEnd();
                         
-                        if (_cur.isAtEndOf( _top ))
+                        if (_cur.atEndOfTop())
                             _done = true;
                         else
                             _cur.next();
@@ -233,8 +232,8 @@ abstract class Saver
         
         if (_done)
         {
-            _cur.release();      _cur = null;
-            Cur.release( _top ); _top = null;
+            _cur.release();
+            _cur = null;
             
             return false;
         }
@@ -264,7 +263,7 @@ abstract class Saver
         assert _cur.isContainer();
         assert !_cur.isRoot() || _cur.getName() == null;
         
-        QName name = _synthElem != null && _cur.isSamePos( _top ) ? _synthElem : _cur.getName();
+        QName name = _synthElem != null && _cur.atTop() ? _synthElem : _cur.getName();
 
         String nameUri = name == null ? null : name.getNamespaceURI();
         
@@ -303,8 +302,10 @@ abstract class Saver
             {
                 QName attrName = _cur.getName();
                 
-                _cur.addToSelection();
+                _cur.addAttrToSelection();
                 _cur.push();
+
+                ensureMapping( attrName.getNamespaceURI(), null, false, true );
 
                 for ( boolean P = _cur.toPrevAttr() ; P ; P = _cur.toPrevAttr() )
                 {
@@ -348,7 +349,7 @@ abstract class Saver
 
     private final void processFinish ( )
     {
-        QName name = _synthElem != null && _cur.isAtEndOf( _top ) ? _synthElem : _cur.getName();
+        QName name = _synthElem != null && _cur.atEndOfTop() ? _synthElem : _cur.getName();
         
         // todo - do _wantFragTest thingy here ...
         
@@ -363,7 +364,7 @@ abstract class Saver
             emitProcinst( _cur );
     }
 
-    private void processTextFragment( Cur c )
+    private void processTextFragment( SaveCur c )
     {
         throw new RuntimeException( "Not impl" );
     }
@@ -423,25 +424,25 @@ abstract class Saver
         return (String) _namespaceStack.get( _currentMapping + 5 );
     }
 
-    private final void pushMappings ( Cur container, boolean ensureDefaultEmpty )
+    private final void pushMappings ( SaveCur c, boolean ensureDefaultEmpty )
     {
-        assert container.isContainer();
+        assert c.isContainer();
         
         _namespaceStack.add( null );
 
-        Cur c = container.tempCur();
-        
+        c.push();
+
         for ( boolean C = true ; C ; C = c.toParentRaw() )
         {
-            Cur a = c.tempCur();
-
+            c.push();
+            
             namespaces:
-            for ( boolean A = a.toFirstAttr() ; A ; A = a.toNextAttr() )
+            for ( boolean A = c.toFirstAttr() ; A ; A = c.toNextAttr() )
             {
-                if (a.isXmlns())
+                if (c.isXmlns())
                 {
-                    String prefix = a.getXmlnsPrefix();
-                    String uri = a.getValueString();
+                    String prefix = c.getXmlnsPrefix();
+                    String uri = c.getValueString();
                     
                     if (ensureDefaultEmpty && prefix.length() == 0 && uri.length() > 0)
                         continue;
@@ -455,8 +456,8 @@ abstract class Saver
                     addMapping( prefix, uri );
                 }
             }
-
-            a.release();
+            
+            c.pop();
 
             // Push all ancestors the first time
             
@@ -464,8 +465,8 @@ abstract class Saver
                 break;
         }
 
-        c.release();
-
+        c.pop();
+        
         if (ensureDefaultEmpty)
         {
             String defaultUri = (String) _prefixMap.get( "" );
@@ -713,11 +714,11 @@ abstract class Saver
             _synthNamespaces.put( uri, considerCreatingDefault ? "useDefault" : null );
         }
         
-        protected void emitContainer ( Cur c, QName name ) { }
-        protected void emitFinish    ( Cur c, QName name ) { }
-        protected void emitText      ( Cur c ) { }
-        protected void emitComment   ( Cur c ) { }
-        protected void emitProcinst  ( Cur c ) { }
+        protected void emitContainer ( SaveCur c, QName name ) { }
+        protected void emitFinish    ( SaveCur c, QName name ) { }
+        protected void emitText      ( SaveCur c ) { }
+        protected void emitComment   ( SaveCur c ) { }
+        protected void emitProcinst  ( SaveCur c ) { }
     }
 
     //
@@ -745,7 +746,7 @@ abstract class Saver
             }
         }
         
-        protected void emitContainer ( Cur c, QName name )
+        protected void emitContainer ( SaveCur c, QName name )
         {
             if (c.isElem())
             {
@@ -780,7 +781,7 @@ abstract class Saver
             }
         }
         
-        protected void emitFinish ( Cur c, QName name )
+        protected void emitFinish ( SaveCur c, QName name )
         {
             if (name != null)
                 emitFinishHelper( name );
@@ -827,7 +828,7 @@ abstract class Saver
             }
         }
                                      
-        private void emitAttrHelper ( Cur a )
+        private void emitAttrHelper ( SaveCur a )
         {
             assert a.isNormalAttr();
             
@@ -847,7 +848,7 @@ abstract class Saver
             emit( '"' );
         }
 
-        private void emitContainerHelper ( Cur saveAttrs, QName name, Cur extraAttr, boolean close )
+        private void emitContainerHelper ( SaveCur saveAttrs, QName name, SaveCur extraAttr, boolean close )
         {
             assert name != null;
 
@@ -880,7 +881,7 @@ abstract class Saver
                 emit( '>' );
         }
         
-        protected void emitText ( Cur c )
+        protected void emitText ( SaveCur c )
         {
             assert c.isText();
             
@@ -889,7 +890,7 @@ abstract class Saver
             entitizeContent();
         }
         
-        protected void emitComment ( Cur c )
+        protected void emitComment ( SaveCur c )
         {
             assert c.isComment();
 
@@ -899,7 +900,7 @@ abstract class Saver
             emit( "-->" );
         }
 
-        protected void emitProcinst ( Cur c )
+        protected void emitProcinst ( SaveCur c )
         {
             assert c.isProcinst();
             
@@ -977,11 +978,11 @@ abstract class Saver
             }
         }
         
-        private void emit ( Cur c )
+        private void emit ( SaveCur c )
         {
             if (c.isText())
             {
-                Object src = c.getChars( -1 );
+                Object src = c.getChars();
                 int cch = c._cchSrc;
                 
                 if (preEmit( cch ))
@@ -1003,7 +1004,7 @@ abstract class Saver
             }
         }
         
-        private void emitValue ( Cur c )
+        private void emitValue ( SaveCur c )
         {
             assert !c.isText() && c.kind() > 0 && !c.hasChildren();
 
@@ -1542,11 +1543,247 @@ abstract class Saver
     //
     //
 
+    private final SaveCur makeSaveCur ( Cur c, XmlOptions options )
+    {
+        SaveCur sc = new NormalSaveCur( c.weakCur( this ) );
+        
+        if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT ))
+            sc = new PrettySaveCur( sc, options );
+
+        return sc;
+    }
+
+    private abstract class SaveCur
+    {
+        abstract boolean atTop ( );
+        abstract boolean atEndOfTop ( );
+        
+        abstract void release ( );
+        
+        abstract int kind ( );
+        
+        abstract QName getName ( );
+        abstract String getLocal ( );
+        abstract String getXmlnsPrefix ( );
+        
+        abstract boolean isRoot       ( );
+        abstract boolean isElem       ( );
+        abstract boolean isAttr       ( );
+        abstract boolean isText       ( );
+        abstract boolean isComment    ( );
+        abstract boolean isProcinst   ( );
+        abstract boolean isFinish     ( );
+        abstract boolean isContainer  ( );
+        abstract boolean isNormalAttr ( );
+        abstract boolean isXmlns      ( );
+        
+        abstract boolean hasChildren  ( );
+        abstract boolean hasText      ( );
+        
+        abstract boolean toFirstAttr ( );
+        abstract boolean toNextAttr ( );
+        abstract boolean toPrevAttr ( );
+        abstract boolean toParentRaw ( );
+        abstract void    toEnd ( );
+        
+        abstract boolean next ( );
+        abstract boolean nextNonAttr ( );
+
+        abstract void    push ( );
+        abstract boolean pop ( );
+        abstract void    clearSelection ( );
+        abstract void    addAttrToSelection ( );
+        abstract void    removeSelection ( int i );
+        abstract int     selectionCount ( );
+        abstract void    moveToSelection ( int i );
+
+        abstract String getValueString ( );
+        abstract Object getChars ( );
+
+        int _offSrc;
+        int _cchSrc;
+    }
+    
+    private final class NormalSaveCur extends SaveCur
+    {
+        NormalSaveCur ( Cur c )
+        {
+            _cur = c;
+
+            if (c.isContainer())
+                _top = c.weakCur( c );
+        }
+
+        void release ( )
+        {
+            _cur.release();
+            _cur = null;
+
+            if (_top != null)
+            {
+                _top.release();
+                _top = null;
+            }
+        }
+        
+        int kind ( ) { return _cur.kind(); }
+        
+        QName getName ( ) { return _cur.getName(); }
+        String getLocal ( ) { return _cur.getLocal(); }
+        String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
+        
+        boolean isRoot       ( ) { return _cur.isRoot();       }
+        boolean isElem       ( ) { return _cur.isElem();       }
+        boolean isAttr       ( ) { return _cur.isAttr();       }
+        boolean isText       ( ) { return _cur.isText();       }
+        boolean isComment    ( ) { return _cur.isComment();    }
+        boolean isProcinst   ( ) { return _cur.isProcinst();   }
+        boolean isFinish     ( ) { return _cur.isFinish();     }
+        boolean isContainer  ( ) { return _cur.isContainer();  }
+        boolean isNormalAttr ( ) { return _cur.isNormalAttr(); }
+        boolean isXmlns      ( ) { return _cur.isXmlns();      }
+        
+        boolean hasChildren  ( ) { return _cur.hasChildren(); }
+        boolean hasText      ( ) { return _cur.hasText();     }
+        
+        boolean atTop      ( ) { assert _top != null; return _cur.isSamePos( _top ); }
+        boolean atEndOfTop ( ) { assert _top != null; return _cur.isAtEndOf( _top ); }
+        
+        boolean toFirstAttr ( ) { return _cur.toFirstAttr(); }
+        boolean toNextAttr  ( ) { return _cur.toNextAttr();  }
+        boolean toPrevAttr  ( ) { return _cur.toPrevAttr();  }
+        boolean toParentRaw ( ) { return _cur.toParentRaw(); }
+        
+        void toEnd ( ) { _cur.toEnd(); }
+        
+        boolean next ( ) { return _cur.next(); }
+        
+        boolean nextNonAttr ( ) { return _cur.nextNonAttr(); }
+        
+        void    push ( )            { _cur.push(); }
+        boolean pop ( )             { return _cur.pop(); }
+        void    clearSelection ( )  { _cur.clearSelection(); }
+        void    addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addToSelection(); }
+        int     selectionCount ( )  { return _cur.selectionCount(); }
+        
+        void moveToSelection ( int i ) { _cur.moveToSelection( i ); }
+        void removeSelection ( int i ) { _cur.removeSelection( i ); }
+        
+        String getValueString ( ) { return _cur.getValueString(); }
+        
+        Object getChars ( )
+        {
+            Object o = _cur.getChars( -1 );
+            
+            _offSrc = _cur._offSrc;
+            _cchSrc = _cur._cchSrc;
+
+            return o;
+        }
+        
+        private Cur _cur;
+        private Cur _top;
+    }
+    
+    private final class PrettySaveCur extends SaveCur
+    {
+        PrettySaveCur ( SaveCur c, XmlOptions options )
+        {
+            _sb = new StringBuffer();
+            
+            _cur = c;
+
+            assert options != null;
+
+            _prettyIndent = 2;
+
+            if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT_INDENT ))
+            {
+                _prettyIndent =
+                    ((Integer) options.get( XmlOptions.SAVE_PRETTY_PRINT_INDENT )).intValue();
+            }
+
+            if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT_OFFSET ))
+            {
+                _prettyOffset =
+                    ((Integer) options.get( XmlOptions.SAVE_PRETTY_PRINT_OFFSET )).intValue();
+            }
+        }
+
+        void release ( ) { _cur.release(); }
+        
+        int kind ( ) { return _cur.kind(); }
+        
+        QName getName ( ) { return _cur.getName(); }
+        String getLocal ( ) { return _cur.getLocal(); }
+        String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
+        
+        boolean isRoot       ( ) { return _cur.isRoot();       }
+        boolean isElem       ( ) { return _cur.isElem();       }
+        boolean isAttr       ( ) { return _cur.isAttr();       }
+        boolean isText       ( ) { return _cur.isText();       }
+        boolean isComment    ( ) { return _cur.isComment();    }
+        boolean isProcinst   ( ) { return _cur.isProcinst();   }
+        boolean isFinish     ( ) { return _cur.isFinish();     }
+        boolean isContainer  ( ) { return _cur.isContainer();  }
+        boolean isNormalAttr ( ) { return _cur.isNormalAttr(); }
+        boolean isXmlns      ( ) { return _cur.isXmlns();      }
+        
+        boolean hasChildren  ( ) { return _cur.hasChildren(); }
+        boolean hasText      ( ) { return _cur.hasText();     }
+        
+        boolean atTop      ( ) { return _cur.atTop(); }
+        boolean atEndOfTop ( ) { return _cur.atEndOfTop(); }
+        
+        boolean toFirstAttr ( ) { return _cur.toFirstAttr(); }
+        boolean toNextAttr ( ) { return _cur.toNextAttr(); }
+        boolean toPrevAttr ( ) { return _cur.toPrevAttr(); }
+        boolean toParentRaw ( ) { return _cur.toParentRaw(); }
+        
+        void toEnd ( ) { _cur.toEnd(); }
+        
+        boolean next ( ) { return _cur.next(); }
+        
+        boolean nextNonAttr ( ) { return _cur.nextNonAttr(); }
+        
+        void    push ( )            { _cur.push(); }
+        boolean pop ( )             { return _cur.pop(); }
+        void    clearSelection ( )  { _cur.clearSelection(); }
+        void    addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addAttrToSelection(); }
+        int     selectionCount ( )  { return _cur.selectionCount(); }
+        
+        void moveToSelection ( int i ) { _cur.moveToSelection( i ); }
+        void removeSelection ( int i ) { _cur.removeSelection( i ); }
+        
+        String getValueString ( ) { return _cur.getValueString(); }
+        
+        Object getChars ( )
+        {
+            Object o = _cur.getChars();
+            
+            _offSrc = _cur._offSrc;
+            _cchSrc = _cur._cchSrc;
+
+            return o;
+        }
+        
+        private SaveCur _cur;
+
+        private int _prettyIndent;
+        private int _prettyOffset;
+
+        private boolean      _text;
+        private StringBuffer _sb;
+    }
+    
+    //
+    //
+    //
+
     private final Locale _locale;
     private final long   _version;
     
-    private Cur _cur;
-    private Cur _top;
+    private SaveCur _cur;
 
     private boolean _preProcess;
     private boolean _postProcess;

@@ -24,6 +24,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlOptions;
 
 import java.io.PrintStream;
 
@@ -115,21 +116,26 @@ public final class Public2
 
     public static String save ( Node n )
     {
+        return save( n, null );
+    }
+    
+    public static String save ( Node n, XmlOptions options )
+    {
         assert n instanceof Dom;
 
         Dom d = (Dom) n;
         
         Locale l = d.locale();
 
-        if (l.noSync())         { l.enter(); try { return saveImpl( d ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { return saveImpl( d ); } finally { l.exit(); } }
+        if (l.noSync())         { l.enter(); try { return saveImpl( d, options ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return saveImpl( d, options ); } finally { l.exit(); } }
     }
     
-    public static String saveImpl ( Dom d )
+    private static String saveImpl ( Dom d, XmlOptions options )
     {
         Cur c = d.tempCur();
         
-        String s = new TextSaver( c, null, null ).saveToString();
+        String s = new TextSaver( c, options, null ).saveToString();
 
         c.release();
 
