@@ -45,7 +45,7 @@ public final class XmlBeans
         if (XMLBEANS_TITLE == null || XMLBEANS_VERSION == null || XMLBEANS_VENDOR == null)
         {
             try {
-                throw new Exception("missing manifest information");
+//                 throw new Exception("missing manifest information");
             }
             catch (Exception e) {
                 System.err.println("XMLBEANS DEBUG missing manifest information");
