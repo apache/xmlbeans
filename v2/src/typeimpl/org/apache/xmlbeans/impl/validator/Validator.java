@@ -1560,6 +1560,13 @@ public final class Validator
 
         _listTypes.add(type);
 
+        if ( type.getPrimitiveType()==null)
+        {
+            // instance has an error so there is no primitive type, an error should have been added
+            _listValue.add(null);
+            return;
+        }
+
         switch ( type.getPrimitiveType().getBuiltinTypeCode() )
         {
             case SchemaType.BTC_ANY_SIMPLE :
