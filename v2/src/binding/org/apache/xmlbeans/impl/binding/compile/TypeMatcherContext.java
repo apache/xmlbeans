@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.jam_old.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
 
 /**
@@ -49,5 +49,5 @@ public interface TypeMatcherContext {
    * Normally, this will simply be the loader backed by the system
    * classloader.
    */
-  public JClassLoader getBaseJavaTypeLoader();
+  public JamClassLoader getBaseJavaTypeLoader();
 }

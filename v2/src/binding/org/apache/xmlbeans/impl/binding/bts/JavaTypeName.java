@@ -12,19 +12,12 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.jam_old.JClass;
-import org.apache.xmlbeans.impl.jam_old.JServiceFactory;
-import org.apache.xmlbeans.impl.jam_old.JService;
-import org.apache.xmlbeans.impl.jam_old.JClassLoader;
-import org.apache.xmlbeans.impl.jam_old.JServiceParams;
-import org.apache.xmlbeans.impl.jam_old.internal.PrimitiveJClass;
+import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlRuntimeException;
 
-import java.io.StringWriter;
 import java.io.IOException;
 import java.lang.reflect.Array;
 
@@ -74,26 +67,6 @@ public final class JavaTypeName {
     return new JavaTypeName(className);
   }
 
-    /**
-     * Builds a JavaTypeName for a a java type name
-     * (in the format returned by Class.getName())
-     */
-    public static JavaTypeName forClassName(String type)
-    {
-        final JServiceFactory jserv_factory = JServiceFactory.getInstance();
-        final JServiceParams params = jserv_factory.createServiceParams();
-        final JService service;
-        try {
-            service = jserv_factory.createService(params);
-        }
-        catch (IOException e) {
-            throw new XmlRuntimeException(e);
-        }
-        final JClassLoader jcl = service.getClassLoader();
-        final JClass jc = jcl.loadClass(type);
-        return forJClass(jc);
-    }
-
 
   /**
    * Builds a JavaTypeName for the array containing items with
@@ -107,16 +80,14 @@ public final class JavaTypeName {
     return forString(itemType.toString() + arrayBrackets);
   }
 
-
-
   /**
-   * Builds a JavaTypeName for the given JClass
+   * Builds a JavaTypeName for the given JClass.
    */
   public static JavaTypeName forJClass(JClass jClass) {
-    if (jClass.isArray()) {
-      return forArray(forJClass(jClass.getArrayComponentType()), jClass.getArrayDimensions());
+    if (jClass.isArrayType()) {
+      return forArray(forJClass(jClass.getArrayComponentType()),
+                      jClass.getArrayDimensions());
     }
-
     JClass[] interfaces = jClass.getInterfaces();
     for (int i = 0; i < interfaces.length; i++) {
       if (interfaces[i].getQualifiedName().equals(XMLOBJECT_CLASSNAME))
@@ -125,6 +96,9 @@ public final class JavaTypeName {
 
     return forString(jClass.getQualifiedName());
   }
+
+
+
 
   // ========================================================================
   // Constructors
@@ -159,16 +133,12 @@ public final class JavaTypeName {
   /**
    * True for classnames that are XmlObjects.
    */
-  public boolean isXmlObject() {
-    return isXmlObject;
-  }
+  public boolean isXmlObject() { return isXmlObject; }
 
   /**
    * Returns the array depth, 0 for non-arrays, 1 for [], 2 for [][], etc.
    */
-  public int getArrayDepth() {
-    return arrayString.length() / 2;
-  }
+  public int getArrayDepth() { return arrayString.length() / 2; }
 
   /**
    * Returns the array item type (peeling off "n" array indexes)
@@ -220,43 +190,6 @@ public final class JavaTypeName {
     return className.substring(index + 1);
   }
 
-  /**
-   * Loads the class represented by this JavaTypeName in the given
-   * ClassLoader.  This is really horrible - the impedance mismatch
-   * in the naming here is very really painful.  Need to do something better.
-   */
-  public Class loadClassIn(ClassLoader loader) throws ClassNotFoundException {
-    int d = getArrayDepth();
-    if (d == 0) {
-      String s = toString();
-      Class out = PrimitiveJClass.getPrimitiveClass(s);
-      if (out != null) return out;
-      return loader.loadClass(s);
-    } else {
-      Class clazz = PrimitiveJClass.getPrimitiveClass(className);
-      if (clazz == null) clazz = loader.loadClass(className);
-      int[] dimensions = new int[d];
-      return Array.newInstance(clazz, dimensions).getClass();
-
-      /* THIS IS COMMENTED OUT BECAUSE IT IS BROKEN ON THE CURRENT 1.5 BETA
-         SEE SUN BUG 4983838.  IT'S NOT CLEAR WHETHER OR NOT THEY'RE GOING
-         TO FIX IT.  MAYBE THE WORKAROUND IS BETTER ANYWAY, THOUGH :(
-      StringWriter buff = new StringWriter();
-      for(int i=0; i<d; i++) buff.write("[");
-      String s = toString();
-      s = s.substring(0,s.indexOf("["));
-      String fd = PrimitiveJClass.getFieldDescriptor(s);
-      if (fd != null) {
-      buff.write(fd);
-      } else {
-      buff.write("L");
-      buff.write(s);
-      buff.write(";");
-      }
-      return loader.loadClass(buff.toString());
-      */
-    }
-  }
 
   // ========================================================================
   // Object implementation
@@ -286,5 +219,88 @@ public final class JavaTypeName {
   public int hashCode() {
     return className.hashCode() + arrayString.length() + (isXmlObject ? 1 : 0);
   }
+
+
+  // ========================================================================
+  // Deprecated methods
+
+  /**
+   * Loads the class represented by this JavaTypeName in the given
+   * ClassLoader.  This is really horrible - the impedance mismatch
+   * in the naming here is very really painful.  Need to do something better.
+   */
+  /**
+   * @deprecated
+   */
+  public Class loadClassIn(ClassLoader loader) throws ClassNotFoundException {
+    int d = getArrayDepth();
+    if (d == 0) {
+      String s = toString();
+      Class out = org.apache.xmlbeans.impl.jam_old.internal.PrimitiveJClass.getPrimitiveClass(s);
+      if (out != null) return out;
+      return loader.loadClass(s);
+    } else {
+      Class clazz = org.apache.xmlbeans.impl.jam_old.internal.PrimitiveJClass.getPrimitiveClass(className);
+      if (clazz == null) clazz = loader.loadClass(className);
+      int[] dimensions = new int[d];
+      return Array.newInstance(clazz, dimensions).getClass();
+
+      /* THIS IS COMMENTED OUT BECAUSE IT IS BROKEN ON THE CURRENT 1.5 BETA
+         SEE SUN BUG 4983838.  IT'S NOT CLEAR WHETHER OR NOT THEY'RE GOING
+         TO FIX IT.  MAYBE THE WORKAROUND IS BETTER ANYWAY, THOUGH :(
+      StringWriter buff = new StringWriter();
+      for(int i=0; i<d; i++) buff.write("[");
+      String s = toString();
+      s = s.substring(0,s.indexOf("["));
+      String fd = PrimitiveJClass.getFieldDescriptor(s);
+      if (fd != null) {
+      buff.write(fd);
+      } else {
+      buff.write("L");
+      buff.write(s);
+      buff.write(";");
+      }
+      return loader.loadClass(buff.toString());
+      */
+    }
+  }
+
+  /**
+   * @deprecated
+   */
+  public static JavaTypeName forClassName(String type)
+  {
+    final org.apache.xmlbeans.impl.jam_old.JServiceFactory jserv_factory =
+      org.apache.xmlbeans.impl.jam_old.JServiceFactory.getInstance();
+    final org.apache.xmlbeans.impl.jam_old.JServiceParams params = jserv_factory.createServiceParams();
+    final org.apache.xmlbeans.impl.jam_old.JService service;
+    try {
+      service = jserv_factory.createService(params);
+    }
+    catch (IOException e) {
+      throw new XmlRuntimeException(e);
+    }
+    final  org.apache.xmlbeans.impl.jam_old.JClassLoader jcl = service.getClassLoader();
+    final  org.apache.xmlbeans.impl.jam_old.JClass jc = jcl.loadClass(type);
+    return forJClass(jc);
+  }
+
+  /**
+   * @deprecated
+   */
+  public static JavaTypeName forJClass(org.apache.xmlbeans.impl.jam_old.JClass jClass) {
+    if (jClass.isArray()) {
+      return forArray(forJClass(jClass.getArrayComponentType()), jClass.getArrayDimensions());
+    }
+
+    org.apache.xmlbeans.impl.jam_old.JClass[] interfaces = jClass.getInterfaces();
+    for (int i = 0; i < interfaces.length; i++) {
+      if (interfaces[i].getQualifiedName().equals(XMLOBJECT_CLASSNAME))
+        return forString("x=" + jClass.getQualifiedName());
+    }
+
+    return forString(jClass.getQualifiedName());
+  }
+
 
 }

@@ -100,8 +100,11 @@ public abstract class AnnotationProxy {
   //docme
   public JAnnotationValue getValue(String named) {
     if (named == null) throw new IllegalArgumentException("null name");
+    //FIXME this impl is very gross
+    named = named.trim();
     JAnnotationValue[] values = getValues();
     for(int i=0; i<values.length; i++) {
+      
       if (named.equals(values[i].getName())) return values[i];
     }
     return null;

@@ -345,6 +345,4 @@ public interface JamServiceParams {
    */
   public void setVerbose(boolean v);
 
-
-
 }

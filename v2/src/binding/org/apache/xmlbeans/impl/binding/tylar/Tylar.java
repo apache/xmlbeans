@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.binding.tylar;
 import java.net.URI;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.jam_old.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
@@ -76,7 +76,7 @@ public interface Tylar {
    * Returns a JClassLoader which can be used to load descriptions of the
    * java types contained in this tylar.
    */
-  public JClassLoader getJClassLoader();
+  public JamClassLoader getJamClassLoader();
 
   /**
    * Returns a new ClassLoader that can load any class files contained in

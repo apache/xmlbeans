@@ -18,9 +18,10 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
-import org.apache.xmlbeans.impl.jam_old.JClass;
-import org.apache.xmlbeans.impl.jam_old.JFactory;
-import org.apache.xmlbeans.impl.jam_old.JFileSet;
+import org.apache.xmlbeans.impl.jam.JamServiceFactory;
+import org.apache.xmlbeans.impl.jam.JamServiceParams;
+import org.apache.xmlbeans.impl.jam.JamService;
+import org.apache.xmlbeans.impl.jam.internal.DirectoryScanner;
 
 import java.io.File;
 import java.io.IOException;
@@ -114,25 +115,52 @@ public class Java2SchemaTask extends BindingCompilerTask {
       //is passed to us
       throw new BuildException("The 'includes' attribute must be set.");
     }
-    JFactory jf = JFactory.getInstance();
+    JamServiceFactory jf = JamServiceFactory.getInstance();
+    JamServiceParams params = jf.createServiceParams();
+    //
+    // process the included sources
+    //
     String[] list = mSrcDir.list();
     if (list.length == 0) throw new BuildException("srcDir attribute required");
     if (list.length > 1) throw new BuildException("multiple srcDirs NYI");
-    JFileSet fs = jf.createFileSet(new File(list[0]));
+    File[] sourceRoots = path2files(mSrcDir);
     StringTokenizer st = new StringTokenizer(mIncludes,",");
-    while(st.hasMoreTokens()) fs.include(st.nextToken().trim());
-    String classpathString = null;
-    if (mClasspath != null) {
-      //this will be removed after jam_old factory is refactored
-      fs.setClasspath(classpathString = mClasspath.toString());
+    while(st.hasMoreTokens()) {
+      params.includeSourcePattern(sourceRoots,st.nextToken().trim());
     }
-    final JClass[] classes;
+//params.setVerbose(DirectoryScanner.class);    
+    //
+    // add the sourcepath and classpath, if specified
+    //
+    if (mSourcepath != null) {
+      File[] files = path2files(mSourcepath);
+      for(int i=0; i<files.length; i++) params.addSourcepath(files[i]);
+    }
+    if (mClasspath != null) {
+      File[] files = path2files(mClasspath);
+      for(int i=0; i<files.length; i++) params.addClasspath(files[i]);
+    }
+    //
+    // create service, get classes, return compiler
+    //
+    JamService service;
     try {
-      classes = jf.loadSources(fs,null,null,null,null,classpathString);
+      service = jf.createService(params);
     } catch(IOException ioe) {
-      ioe.printStackTrace();
       throw new BuildException(ioe);
     }
-    return new Java2Schema(classes);
+    return new Java2Schema_new(service.getAllClasses());
+  }
+
+  // ========================================================================
+  // Private methods
+
+  private File[] path2files(Path path) {
+    String[] list = path.list();
+    File[] out = new File[list.length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = new File(list[i]).getAbsoluteFile();
+    }
+    return out;
   }
 }

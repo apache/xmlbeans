@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.binding.logger;
 
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.jam_old.JElement;
+import org.apache.xmlbeans.impl.jam.JElement;
 
 import java.util.logging.Level;
 
@@ -251,6 +251,63 @@ public class BindingLogger {
       mSink.log(new MessageImpl
               (Level.FINEST, msg, null, javaCtx, xsdCtx, null));
     }
+  }
+
+
+  // ========================================================================
+  // Deprecated methods
+
+  /**
+   * @deprecated
+   */
+  public boolean _logError(Throwable error, org.apache.xmlbeans.impl.jam_old.JElement javaContext) {
+    mAnyErrorsFound = true;
+    mSink.log(new MessageImpl
+            (Level.SEVERE, null, error, null, null, null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * @deprecated
+   */
+  public boolean _logError(Throwable t, org.apache.xmlbeans.impl.jam_old.JElement jCtx, SchemaType xsdCtx) {
+    mAnyErrorsFound = true;
+    mSink.log(new MessageImpl
+            (Level.SEVERE, null, t, null, xsdCtx, null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * @deprecated
+   */
+  public boolean _logError(String msg, org.apache.xmlbeans.impl.jam_old.JElement javaContext) {
+    mAnyErrorsFound = true;
+    mSink.log(new MessageImpl
+            (Level.SEVERE, msg, null, null, null, null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * @deprecated
+   */
+  public boolean _logError(String msg, org.apache.xmlbeans.impl.jam_old.JElement javaCtx, SchemaType xsdCtx) {
+    mAnyErrorsFound = true;
+    mSink.log(new MessageImpl
+            (Level.SEVERE, msg, null, null, xsdCtx, null));
+    return mIgnoreErrors;
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given schema construct.
+   *
+   * @return true if processing should attempt to continue.
+   */
+  public boolean _logError(String msg, org.apache.xmlbeans.impl.jam_old.JElement jCtx, SchemaProperty xCtx) {
+    mAnyErrorsFound = true;
+    mSink.log(new MessageImpl
+            (Level.SEVERE, msg, null, null, null, xCtx));
+    return mIgnoreErrors;
   }
 
 }

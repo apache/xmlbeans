@@ -118,6 +118,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
 
   public MAnnotation getMutableAnnotation(String named) {
     if (mName2Annotation == null) return null;
+    named = named.trim();
     return (MAnnotation)mName2Annotation.get(named);
   }
 
@@ -127,6 +128,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
   public MAnnotation addAnnotationForTag(String tagName) {
+    if (tagName == null) throw new IllegalArgumentException("null tagname");
+    tagName = tagName.trim();
     {
       // looks like we need to maintain a full list no matter what
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
@@ -146,6 +149,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
   public MAnnotation addAnnotationForTag(String tagName, String tagContents) {
+    if (tagName == null) throw new IllegalArgumentException("null tagname");
+    tagName = tagName.trim();
     {
       // looks like we need to maintain a full list no matter what
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
@@ -173,7 +178,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     if (jsr175annotationInstance == null) {
       throw new IllegalArgumentException("null instance");
     }
-    String typename = getAnnotationTypeFor(jsr175annotationInstance);
+    String typename = getAnnotationTypeFor(jsr175annotationInstance); //FIXME this isn't working right
     MAnnotation ann = getMutableAnnotation(typename);
     if (ann != null) {
       ann.setAnnotationInstance(jsr175annotationInstance);

@@ -23,10 +23,6 @@ import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.lang.reflect.Method;
-
 /**
  * <p>Implementation of JProperty.</p>
  *
@@ -141,11 +137,13 @@ public class PropertyImpl extends AnnotatedElementImpl implements JProperty {
    * this property's getter and/or setters.
    */
   public JAnnotation getAnnotation(String named) {
-    return null;//FIXME
+    JAnnotation out = (mGetter != null) ? mGetter.getAnnotation(named) : null;
+    if (out != null) return out;
+    return (mSetter != null) ? mSetter.getAnnotation(named) : null;
   }
 
   public JComment getComment() {
-    //FIXME
+    //REVIEW do we want to somehow merge the comments?
     if (mGetter != null)  return mGetter.getComment();
     if (mSetter != null)  return mSetter.getComment();
     return null;
@@ -153,7 +151,7 @@ public class PropertyImpl extends AnnotatedElementImpl implements JProperty {
 
   public JSourcePosition getSourcePosition() {
     return mGetter != null ?
-            mGetter.getSourcePosition() : mSetter.getSourcePosition();
+      mGetter.getSourcePosition() : mSetter.getSourcePosition();
   }
 
   public void accept(JVisitor visitor) {

@@ -303,7 +303,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
         scratchFromXmlName.put(scratch.getXmlName(), scratch);
       else {
         skip = true;
-        logError("Both " + scratch.getJavaName() + " and " +
+        _logError("Both " + scratch.getJavaName() + " and " +
                 ((Scratch) scratchFromXmlName.get(scratch.getXmlName())).getJavaName() +
                 " match Schema " + scratch.getXmlName(),
                 scratch.getJClass(),scratch.getSchemaType());
@@ -314,7 +314,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
           scratchFromJavaName.put(scratch.getJavaName(), scratch);
         else {
           skip = true;
-          logError("Both " + scratch.getXmlName() + " and " +
+          _logError("Both " + scratch.getXmlName() + " and " +
                   ((Scratch) scratchFromJavaName.get(scratch.getJavaName())).getXmlName()+
                   " match Java " + scratch.getJavaName(),
                   scratch.getJClass(),
@@ -354,7 +354,10 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
    * Computes a BindingType for a scratch.
    */
   private void createBindingType(Scratch scratch, boolean shouldDefault) {
-    assert(scratch.getBindingType() == null);
+    if (scratch == null) throw new IllegalArgumentException("null scratch");
+    if (scratch.getBindingType() != null) {
+      throw new IllegalArgumentException("non-null scratch binding type");
+    }
 
     BindingTypeName btName = BindingTypeName.forPair(scratch.getJavaName(), scratch.getXmlName());
 
@@ -524,7 +527,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
   private void resolveStructure(Scratch scratch) {
 
     if (scratch.getSchemaType().isSimpleType() || scratch.getSchemaType() == XmlObject.type) {
-      logError("Java class " + scratch.getJavaName() +
+      _logError("Java class " + scratch.getJavaName() +
               " does not match Schema type " +
               scratch.getXmlName(),
               scratch.getJClass(),
@@ -562,7 +565,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
       JavaTypeName collection = null;
       if (multiple) {
         if (!jPropType.isArray()) {
-          logError("Property " + jProp + " in " + scratch.getJClass() +
+          _logError("Property " + jProp + " in " + scratch.getJClass() +
                   " is an array, but " + sProp.getName() + " in " +
                   scratch.getSchemaType() + " is a singleton.",
                   jProp,sProp);
@@ -611,12 +614,12 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
         }
       }
       if (scratch.getOnBehalfOf() == null) {
-        logError("Java class " + scratch.getJavaName() +
+        _logError("Java class " + scratch.getJavaName() +
                 " does not match schema type " +
                 scratch.getXmlName() + " (" + reason + ")",
                 scratch.getJClass(),scratch.getSchemaType());
       } else {
-        logError("Java class " + scratch.getJavaName() +
+        _logError("Java class " + scratch.getJavaName() +
                 " does not match schema type " +
                 scratch.getXmlName() + " (" + reason + ")",
                 scratch.getOnBehalfOf().getJProperty(),
