@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -105,6 +106,7 @@ public class Java2Schema extends BindingCompiler {
   private SchemaDocument mSchemaDocument; // schema doc we're generating
   private SchemaDocument.Schema mSchema;
   private JClass[] mClasses; // the input classes
+  private JAnnotationLoader mAnnotationLoader = null;
 
   // =========================================================================
   // Constructors
@@ -114,6 +116,25 @@ public class Java2Schema extends BindingCompiler {
       throw new IllegalArgumentException("null classes");
     }
     mClasses = classesToBind;
+  }
+
+  // ========================================================================
+  // Public methods
+
+  /**
+   * Sets the JAnnotionLoader to be used to 'overlay' external annotations
+   * onto the input JClass set.
+   */
+  public void setAnnotationLoader(JAnnotationLoader jal) {
+    if (mAnnotationLoader == null) throw new IllegalArgumentException("null jal");
+    mAnnotationLoader = jal;
+    //FIXME this is a gross quick hack to get the external annotations
+    //working.  long term, we need to extend jam to allow a jam facade to be
+    //created that imposes the annotations without actually modifying the
+    //input JClasses like we do here.
+    for(int i=0; i<mClasses.length; i++) {
+      ((BaseJElement)mClasses[i]).setAnnotationLoader(mAnnotationLoader);
+    }
   }
 
   // ========================================================================
