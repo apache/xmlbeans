@@ -203,7 +203,7 @@ public class Java2Schema extends BindingCompiler {
     }
     // run through the class' properties to populate the binding and xsdtypes
     SchemaPropertyFacade facade = new SchemaPropertyFacade(xsType,bindType,tns);
-    bindProperties(clazz.getProperties(),facade);
+    bindProperties(getDeclaredProperties(clazz),facade);
     facade.finish();
     // check to see if they want to create a root elements from this type
     JAnnotation[] anns = clazz.getAnnotations(TAG_CT_ROOT);
@@ -290,6 +290,27 @@ public class Java2Schema extends BindingCompiler {
 
   // ========================================================================
   // Private utility methods
+
+  /**
+   * <p>Returns an array containing only the properties for which both
+   * the getter and the setter are declared on the given class.</p>
+   */
+  private JProperty[] getDeclaredProperties(JClass clazz) {
+    JProperty[] props = clazz.getProperties();
+    List out = new ArrayList();
+    for(int i=0; i<props.length; i++) {
+      JMethod m = props[i].getGetter();
+      if (m == null) continue;
+      if (!clazz.equals(m.getContainingClass())) continue;
+      m = props[i].getSetter();
+      if (m == null) continue;
+      if (!clazz.equals(m.getContainingClass())) continue;
+    }
+    JProperty[] array = new JProperty[out.size()];
+    out.toArray(array);
+    return array;
+  }
+
 
   /**
    * Returns a JavaTypeName for the given JClass.  Might want to pool these.
