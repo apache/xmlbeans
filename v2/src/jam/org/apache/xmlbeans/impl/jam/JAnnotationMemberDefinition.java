@@ -22,13 +22,13 @@ package org.apache.xmlbeans.impl.jam;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JAnnotationMemberDeclaration extends JMethod {
+public interface JAnnotationMemberDefinition extends JMethod {
 
   //FIXME so, if the type is an annotation, what are they supposed to do?
   /**
    * Returns a JClass representing the type of this annotation memeber.
    * Note that it is entirely possible that the JClass returned by this
-   * method will be a JAnnotationDeclaration.  Note that getType() and
+   * method will be a JAnnotationDefinition.  Note that getType() and
    * getReturnType() will return exactly the same value.
    *
    * @return
@@ -45,5 +45,5 @@ public interface JAnnotationMemberDeclaration extends JMethod {
 
 
   //REVIEW I don't want to expose this unless somebody really needs it
-  //public JAnnotationDeclaration getContainingAnnotationDefinition();
+  //public JAnnotationDefinition getContainingAnnotationDefinition();
 }
