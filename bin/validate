@@ -5,7 +5,12 @@
 # Validates an instance against a schema.
 
 CP=
+if [ -f $XMLBEANS_HOME/build/ar/xbean.jar ];
+then
 CP=$CP:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar
+else
+CP=$CP:$XMLBEANS_HOME/lib/xbean.jar:$XMLBEANS_HOME/lib/jsr173_api.jar
+fi
 
 case "`uname`" in
     CYGWIN*)
