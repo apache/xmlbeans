@@ -159,10 +159,17 @@ final class RuntimeBindingTypeTable
                                Class javaClass,
                                TypeConverter converter)
     {
+        final JavaTypeName jName = JavaTypeName.forClassName(javaClass.getName());
+        addXsdBuiltin(xsdType, jName, converter);
+    }
+
+    private void addXsdBuiltin(String xsdType,
+                               JavaTypeName jName,
+                               TypeConverter converter)
+    {
         final BindingLoader bindingLoader = BuiltinBindingLoader.getInstance();
 
         QName xml_type = new QName(XSD_NS, xsdType);
-        JavaTypeName jName = JavaTypeName.forString(javaClass.getName());
         XmlTypeName xName = XmlTypeName.forTypeNamed(xml_type);
         BindingType btype =
             bindingLoader.getBindingType(BindingTypeName.forPair(jName, xName));
@@ -252,6 +259,17 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("QName",
                       QName.class,
                       new QNameTypeConverter());
+
+        final JavaTypeName byte_array_jname =
+            JavaTypeName.forArray(JavaTypeName.forString("byte"), 1);
+
+        addXsdBuiltin("base64Binary",
+                      byte_array_jname,
+                      new Base64BinaryTypeConverter());
+
+        addXsdBuiltin("hexBinary",
+                      byte_array_jname,
+                      new HexBinaryTypeConverter());
     }
 
     private static TypeUnmarshaller createSimpleTypeUnmarshaller(SimpleBindingType stype,

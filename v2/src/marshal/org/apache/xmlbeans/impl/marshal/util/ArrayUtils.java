@@ -40,4 +40,55 @@ public class ArrayUtils
         return buf.toString();
     }
 
+
+    public static boolean arrayEquals(Object aa, Object bb)
+    {
+        if (aa == bb) return true;
+
+        if (aa == null)
+            return (bb == null);
+
+        if (!aa.getClass().isArray())
+            return aa.equals(bb);
+
+        if (bb == null)
+            return (aa == null);
+
+        if (!bb.getClass().isArray())
+            return bb.equals(aa);
+
+        final int lena = Array.getLength(aa);
+        final int lenb = Array.getLength(bb);
+
+        if (lena != lenb) return false;
+
+
+        for (int i = 0; i < lena; i++) {
+            final Object oa = Array.get(aa, i);
+            final Object ob = Array.get(bb, i);
+            if (!arrayEquals(oa, ob)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void main(String[] args)
+    {
+        Object a = new int[]{3,4,5,34423,45};
+        Object b = new int[]{3,4,5,34423,45};
+
+        if (a == b) throw new AssertionError("bad objs");
+        if (!arrayEquals(a, b)) throw new AssertionError("bad equals");
+
+        a = new int[][]{{1,2,3},{3,4,5}};
+        b = new int[][]{{1,2,3},{3,4,5}};
+
+        if (a == b) throw new AssertionError("bad objs");
+        if (!arrayEquals(a, b)) throw new AssertionError("bad equals");
+
+        System.out.println("ok");
+
+    }
+
 }

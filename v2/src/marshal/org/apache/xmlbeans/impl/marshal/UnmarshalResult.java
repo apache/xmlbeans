@@ -183,7 +183,7 @@ final class UnmarshalResult
     private BindingType determineBindingType(QName schemaType, String javaType)
     {
         XmlTypeName xname = XmlTypeName.forTypeNamed(schemaType);
-        JavaTypeName jname = JavaTypeName.forString(javaType);
+        JavaTypeName jname = JavaTypeName.forClassName(javaType);
         BindingTypeName btname = BindingTypeName.forPair(jname, xname);
         return bindingLoader.getBindingType(btname);
     }
