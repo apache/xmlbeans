@@ -63,6 +63,8 @@ import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.xmlbeans.impl.newstore2.Xobj.Bookmark;
+
 import org.apache.xmlbeans.impl.newstore2.Locale.LoadContext;
 
 import org.apache.xmlbeans.impl.newstore2.DomImpl.Dom;
@@ -93,12 +95,9 @@ import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
+
 final class Cur
 {
-    static final int TEMP = 0;
-    static final int PERM = 1;
-    static final int WEAK = 2;
-
     static final int TEXT     = 0; // Must be 0
     static final int ROOT     = 1;
     static final int ELEM     = 2;
@@ -107,32 +106,27 @@ final class Cur
     static final int PROCINST = 5;
 
     static final int POOLED       = 0;
-    static final int UNREGISTERED = 1;
-    static final int REGISTERED   = 2;
-    static final int EMBEDDED     = 3;
-    static final int DISPOSED     = 4;
+    static final int REGISTERED   = 1;
+    static final int EMBEDDED     = 2;
+    static final int DISPOSED     = 3;
 
-    private static final int END_POS = -1;
-    private static final int NO_POS  = -2;
+    static final int END_POS = -1;
+    static final int NO_POS  = -2;
     
     Cur ( Locale l )
     {
         _locale = l;
         _pos = NO_POS;
-        _state = UNREGISTERED;
+        
+        _tempFrame = -1;
+        
+        _state = POOLED;
 
-        // BUGBUG -- locations should be thread local ... cursors cannot be used by multiple 
-        // threads ...
-        
-        _locations = _locale._locations;
-        
-        _textLocations = -1;
-        _stackTop = -1;
+        _stackTop = Locations.NULL;
         _selectionFirst = -1;
         _selectionN = -1;
-        _selectionNth = -1;
-        
-        assert isNormal();
+        _selectionLoc = Locations.NULL;
+        _selectionCount = 0;
     }
 
     boolean isPositioned ( ) { assert isNormal(); return _xobj != null; }
@@ -173,18 +167,8 @@ final class Cur
     boolean isDomFragRoot ( ) { return isRoot() && _xobj.getDom() instanceof DocumentFragment; }
 
     private int cchRight ( ) { assert isPositioned(); return _xobj.cchRight( _pos ); }
+    private int cchLeft  ( ) { assert isPositioned(); return _xobj.cchLeft ( _pos ); }
     
-    private int cchLeft ( )
-    {
-        assert isPositioned();
-
-        Xobj x = getDenormal();
-
-        int pa = x.posAfter();
-
-        return _posTemp - (_posTemp < pa ? 1 : pa);
-    }
-
     //
     // Creation methods
     //
@@ -196,7 +180,7 @@ final class Cur
     
     void createDomDocFragRoot ( )
     {
-        moveTo( new DocumentFragXobj( _locale ) );
+        moveTo( new Xobj.DocumentFragXobj( _locale ) );
     }
     
     void createDomDocumentRoot ( )
@@ -206,17 +190,17 @@ final class Cur
     
     void createAttr ( QName name )
     {
-        createHelper( new AttrXobj( _locale, name ) );
+        createHelper( new Xobj.AttrXobj( _locale, name ) );
     }
     
     void createComment ( )
     {
-        createHelper( new CommentXobj( _locale ) );
+        createHelper( new Xobj.CommentXobj( _locale ) );
     }
     
     void createProcinst ( String target )
     {
-        createHelper( new ProcInstXobj( _locale, target ) );
+        createHelper( new Xobj.ProcInstXobj( _locale, target ) );
     }
     
     void createElement ( QName name )
@@ -234,9 +218,9 @@ final class Cur
         Xobj xo;
 
         if (l._saaj == null)
-            xo = new DocumentXobj( l );
+            xo = new Xobj.DocumentXobj( l );
         else
-            xo = new SoapPartDocXobj( l );
+            xo = new Xobj.SoapPartDocXobj( l );
         
         if (l._ownerDoc == null)
             l._ownerDoc = xo.getDom();
@@ -247,20 +231,20 @@ final class Cur
     static Xobj createElementXobj ( Locale l, QName name, QName parentName )
     {
         if (l._saaj == null)
-            return new ElementXobj( l, name );
+            return new Xobj.ElementXobj( l, name );
         
         Class c = l._saaj.identifyElement( name, parentName );
 
-        if (c == SOAPElement.class)       return new SoapElementXobj       ( l, name );
-        if (c == SOAPBody.class)          return new SoapBodyXobj          ( l, name );
-        if (c == SOAPBodyElement.class)   return new SoapBodyElementXobj   ( l, name );
-        if (c == SOAPEnvelope.class)      return new SoapEnvelopeXobj      ( l, name );
-        if (c == SOAPHeader.class)        return new SoapHeaderXobj        ( l, name );
-        if (c == SOAPHeaderElement.class) return new SoapHeaderElementXobj ( l, name );
-        if (c == SOAPFaultElement.class)  return new SoapFaultElementXobj  ( l, name );
-        if (c == Detail.class)            return new DetailXobj            ( l, name );
-        if (c == DetailEntry.class)       return new DetailEntryXobj       ( l, name );
-        if (c == SOAPFault.class)         return new SoapFaultXobj         ( l, name );
+        if (c == SOAPElement.class)       return new Xobj.SoapElementXobj       ( l, name );
+        if (c == SOAPBody.class)          return new Xobj.SoapBodyXobj          ( l, name );
+        if (c == SOAPBodyElement.class)   return new Xobj.SoapBodyElementXobj   ( l, name );
+        if (c == SOAPEnvelope.class)      return new Xobj.SoapEnvelopeXobj      ( l, name );
+        if (c == SOAPHeader.class)        return new Xobj.SoapHeaderXobj        ( l, name );
+        if (c == SOAPHeaderElement.class) return new Xobj.SoapHeaderElementXobj ( l, name );
+        if (c == SOAPFaultElement.class)  return new Xobj.SoapFaultElementXobj  ( l, name );
+        if (c == Detail.class)            return new Xobj.DetailXobj            ( l, name );
+        if (c == DetailEntry.class)       return new Xobj.DetailEntryXobj       ( l, name );
+        if (c == SOAPFault.class)         return new Xobj.SoapFaultXobj         ( l, name );
         
         throw new IllegalStateException( "Unknown SAAJ element class: " + c );
     }
@@ -287,24 +271,28 @@ final class Cur
 
     boolean isSamePos ( Cur that )
     {
-        assert isNormal() && that.isNormal();
+        assert isNormal() && (that == null || that.isNormal());
         
         return _xobj == that._xobj && _pos == that._pos;
     }
+
+    // is this just after the end of that (that must be the start of a node)
     
     boolean isJustAfterEnd ( Cur that )
     {
-        assert isNormal() && that.isNormal() && that.isNode();
+        assert isNormal() && that != null && that.isNormal() && that.isNode();
 
-        if (_xobj == that._xobj)
-            return _pos == that._xobj.posAfter();
-
-        return getDenormal() == that._xobj && _posTemp == that._xobj.posAfter();
+        return that._xobj.isJustAfterEnd( _xobj, _pos );
+    }
+    
+    boolean isJustAfterEnd ( Xobj x )
+    {
+        return x.isJustAfterEnd( _xobj, _pos );
     }
     
     boolean isAtEndOf ( Cur that )
     {
-        assert isNormal() && that.isNormal() && that.isNode();
+        assert that != null && that.isNormal() && that.isNode();
 
         return _xobj == that._xobj && _pos == END_POS;
     }
@@ -316,115 +304,43 @@ final class Cur
         _xobj.setName( newName );
     }
     
-    void changeLocale ( Locale newLocale )
-    {
-        assert newLocale != _locale;
-
-        throw new RuntimeException( "Not implemented" );
-    }
-
-    private void moveTo ( Xobj x )
+    void moveTo ( Xobj x )
     {
         moveTo( x, 0 );
     }
     
-    private void moveTo ( Xobj x, int p )
+    void moveTo ( Xobj x, int p )
     {
-        assert x == null || _locale == x._locale; // TODO - make this work across locals
-        
         // This cursor may not be normalized upon entry, don't assert isNormal() here
-        
+
+        assert x == null || _locale == x._locale;
         assert x != null || p == NO_POS;
         assert x == null || x.isNormal( p );
-        
-        assert _state == UNREGISTERED || _state == REGISTERED || _state == EMBEDDED;
+        assert _state == REGISTERED || _state == EMBEDDED;
+        assert _state == EMBEDDED || (_xobj == null || !isOnList( _xobj._embedded ));
+        assert _state == REGISTERED || (_xobj != null && isOnList( _xobj._embedded ));
 
-        assert _state != REGISTERED || (_xobj == null || !isOnList( _xobj._embedded ));
-        assert _state != REGISTERED || _curKind != PERM;
+        moveToNoCheck( x, p );
 
-        if (_state == UNREGISTERED)
+        assert isNormal();
+    }
+    
+    void moveToNoCheck ( Xobj x, int p )
+    {
+        if (_state == EMBEDDED && x != _xobj)
         {
-            assert _xobj == null || !isOnList( _xobj._embedded );
-            assert !isOnList( _locale._registered );
-
-            if (x != null)
-            {
-                if (_curKind == PERM)
-                {
-                    x._embedded = listInsert( x._embedded );
-                    _state = EMBEDDED;
-                }
-                else if (p > 0)
-                {
-                    _locale._registered = listInsert( _locale._registered );
-                    _state = REGISTERED;
-                }
-            }
-        }
-        else if (_state == EMBEDDED)
-        {
-            assert _xobj != null && isOnList( _xobj._embedded );
-
-            if (x != _xobj)
-            {
-                _xobj._embedded = listRemove( _xobj._embedded );
-
-                if (x != null)
-                {
-                    if (_curKind == PERM)
-                    {
-                        x._embedded = listInsert( x._embedded );
-                    }
-                    else if (p > 0)
-                    {
-                        _locale._registered = listInsert( _locale._registered );
-                        _state = REGISTERED;
-                    }
-                    else
-                    {
-                        _state = UNREGISTERED;
-                    }
-                }
-                else
-                {
-                    _state = UNREGISTERED;
-                }
-            }
+            _xobj._embedded = listRemove( _xobj._embedded );
+            _locale._registered = listInsert( _locale._registered );
+            _state = REGISTERED;
         }
         
         _xobj = x;
         _pos = p;
-
-// TODO - I don't think the following condition can be met (code above prohibits it), so I took
-// this out ... remove permanently later if no problems exist...  Basically, this cur will
-// never be un the unregistered state if p > 0 by the time I get here
-//
-//        if (p > 0 && _state == UNREGISTERED)
-//            registerForTextChange();
-
-        assert isNormal();
-    }
-
-    void embed ( )
-    {
-        assert isNormal();
-        assert _state == REGISTERED;
-
-        _locale._registered = listRemove( _locale._registered );
-
-        if (_pos > 0)
-        {
-            _xobj._embedded = listInsert( _xobj._embedded );
-            _state = EMBEDDED;
-        }
-        else
-            _state = UNREGISTERED;
     }
 
     void moveToCur ( Cur to )
     {
-        assert isNormal();
-        assert to == null || to.isNormal();
+        assert isNormal() && (to == null || to.isNormal());
         
         if (to == null)
             moveTo( null, NO_POS );
@@ -434,50 +350,55 @@ final class Cur
 
     void moveToDom ( Dom d )
     {
-        assert _locale == d.locale(); // TODO - multiple locals
-        assert d instanceof Xobj || d instanceof SoapPartDom;
-        assert d.locale() == _locale;
+        assert _locale == d.locale();
+        assert d instanceof Xobj || d instanceof Xobj.SoapPartDom;
 
-        moveTo( d instanceof Xobj ? (Xobj) d : ((SoapPartDom) d)._docXobj );
+        moveTo( d instanceof Xobj ? (Xobj) d : ((Xobj.SoapPartDom) d)._docXobj );
     }
 
     static final class Locations
     {
-        Locations ( )
+        private static final int NULL = -1;
+        
+        Locations ( Locale l )
         {
+            _locale = l;
+            
             _xobjs = new Xobj [ _initialSize ];
-            _ints  = new int  [ _initialSize ];
+            _poses = new int  [ _initialSize ];
             _curs  = new Cur  [ _initialSize ];
             _next  = new int  [ _initialSize ];
             _prev  = new int  [ _initialSize ];
-            _nextT = new int  [ _initialSize ];
-            _prevT = new int  [ _initialSize ];
+            _nextN = new int  [ _initialSize ];
+            _prevN = new int  [ _initialSize ];
 
-            _next [ _initialSize - 1 ] = -1;
+            _next [ _initialSize - 1 ] = NULL;
 
             for ( int i = _initialSize - 2 ; i >= 0 ; i-- )
             {
+                assert _xobjs[ i ] == null;
+                _poses [ i ] = NO_POS;
                 _next  [ i ] = i + 1;
-                _prev  [ i ] = -1;
-                _nextT [ i ] = -1;
-                _prevT [ i ] = -1;
-                _ints  [ i ] = -1;
+                _prev  [ i ] = NULL;
+                _nextN [ i ] = NULL;
+                _prevN [ i ] = NULL;
             }
 
             _free = 0;
+            _naked = NULL;
         }
 
         boolean isSamePos ( int i, Cur c )
         {
             if (_curs[ i ] == null)
-                return c._xobj == _xobjs[ i ] && c._pos == _ints[ i ];
+                return c._xobj == _xobjs[ i ] && c._pos == _poses[ i ];
             else
                 return c.isSamePos( _curs[ i ] );
         }
         
         boolean isAtEndOf ( int i, Cur c )
         {
-            assert _ints[ i ] == 0;
+            assert _poses[ i ] == 0;
             
             if (_curs[ i ] == null)
                 return c._xobj == _xobjs[ i ] && c._pos == END_POS;
@@ -488,7 +409,7 @@ final class Cur
         void moveTo ( int i, Cur c )
         {
             if (_curs[ i ] == null)
-                c.moveTo( _xobjs[ i ], _ints[ i ] );
+                c.moveTo( _xobjs[ i ], _poses[ i ] );
             else
                 c.moveToCur( _curs[ i ] );
         }
@@ -498,10 +419,11 @@ final class Cur
             return insert( head, before, i, _next, _prev );
         }
 
-        int remove ( int head, int i, Cur owner )
+        int remove ( int head, int i )
         {
             Cur c = _curs[ i ];
             
+            assert c != null || _xobjs[ i ] != null;
             assert c != null || _xobjs[ i ] != null;
 
             if (c != null)
@@ -510,17 +432,16 @@ final class Cur
                 _curs[ i ] = null;
 
                 assert _xobjs[ i ] == null;
-                assert _ints [ i ] == -1;
+                assert _poses [ i ] == NO_POS;
             }
             else
             {
-                assert _xobjs[ i ] != null;
+                assert _xobjs[ i ] != null && _poses[ i ] != NO_POS;
                 
-                if (_ints[ i ] > 0)
-                    owner._textLocations = remove( owner._textLocations, i, _nextT, _prevT );
-
                 _xobjs[ i ] = null;
-                _ints [ i ] = -1;
+                _poses[ i ] = NO_POS;
+                
+                _naked = remove( _naked, i, _nextN, _prevN );
             }
             
             head = remove( head, i, _next, _prev );
@@ -531,47 +452,41 @@ final class Cur
             return head;
         }
 
-        int allocate ( Cur addThis, Cur toThis )
+        int allocate ( Cur addThis )
         {
-            assert addThis.isPositioned() && toThis.isPositioned();
+            assert addThis.isPositioned();
             
-            if (_free == -1)
+            if (_free == NULL)
                 makeRoom();
 
             int i = _free;
             
             _free = _next [ i ];
 
-            _next [ i ] = -1;
-            assert _prev [ i ] == -1;
+            _next [ i ] = NULL;
+            assert _prev [ i ] == NULL;
 
             assert _curs [ i ] == null;
             assert _xobjs[ i ] == null;
-            assert _ints [ i ] == -1;
+            assert _poses[ i ] == NO_POS;
 
             _xobjs [ i ] = addThis._xobj;
-            _ints  [ i ] = addThis._pos;
+            _poses [ i ] = addThis._pos;
 
-            if (addThis._pos > 0)
-            {
-                toThis._textLocations =
-                    insert( toThis._textLocations, toThis._textLocations, i, _nextT, _prevT );
-                
-                toThis.registerForTextChange();
-            }
-            
+            _naked = insert( _naked, NULL, i, _nextN, _prevN );
+
             return i;
         }
-        
+
         private static int insert ( int head, int before, int i, int[] next, int[] prev )
         {
-            if (head == -1)
+            if (head == NULL)
             {
-                assert before == -1;
+                assert before == NULL;
                 prev[ i ] = i;
                 head = i;
             }
-            else if (before != -1)
+            else if (before != NULL)
             {
                 prev[ i ] = prev[ before ];
                 next[ i ] = before;
@@ -583,7 +498,7 @@ final class Cur
             else
             {
                 prev[ i ] = prev[ head ];
-                assert next[ i ] == -1;
+                assert next[ i ] == NULL;
                 next[ prev[ head ] ] = i;
                 prev[ head ] = i;
             }
@@ -596,7 +511,7 @@ final class Cur
             if (prev[ i ] == i)
             {
                 assert head == i;
-                head = -1;
+                head = NULL;
             }
             else
             {
@@ -605,147 +520,146 @@ final class Cur
                 else
                     next[ prev [ i ] ] = next[ i ];
 
-                if (next[ i ] == -1)
+                if (next[ i ] == NULL)
                     prev[ head ] = prev[ i ];
                 else
                 {
                     prev[ next[ i ] ] = prev[ i ];
-                    next[ i ] = -1;
+                    next[ i ] = NULL;
                 }
             }
 
-            prev[ i ] = -1;
-            assert next[ i ] == -1;
+            prev[ i ] = NULL;
+            assert next[ i ] == NULL;
 
             return head;
         }
 
-        void textChangeNotification ( Cur owner )
+        void notifyChange ( )
         {
-            while ( owner._textLocations >= 0 )
+            for ( int i ; (i = _naked) != NULL ; )
             {
-                int i = owner._textLocations;
+                assert _curs[ i ] == null && _xobjs[ i ] != null && _poses[ i ] != NO_POS;
                 
-                Xobj x = _xobjs[ i ];
+                _naked = remove( _naked, i, _nextN, _prevN );
 
-                assert _curs[ i ] == null && x != null && _ints[ i ] > 0;
+                _curs[ i ] = _locale.getCur();
+                _curs[ i ].moveTo( _xobjs[ i ], _poses[ i ] );
                 
-                _curs[ i ] = x._locale.permCur();
-                _curs[ i ].moveTo( x, _ints[ i ] );
-
                 _xobjs[ i ] = null;
-                _ints [ i ] = -1;
-
-                owner._textLocations = remove( owner._textLocations, i, _nextT, _prevT );
+                _poses[ i ] = NO_POS;
             }
         }
-        
+
         int next ( int i ) { return _next[ i ]; }
         int prev ( int i ) { return _prev[ i ]; }
 
         private void makeRoom ( )
         {
-            assert _free == -1;
+            assert _free == NULL;
             
             int l = _xobjs.length;
 
             Xobj [] oldXobjs = _xobjs;
-            int  [] oldInts  = _ints;
+            int  [] oldPoses = _poses;
             Cur  [] oldCurs  = _curs;
             int  [] oldNext  = _next;
             int  [] oldPrev  = _prev;
-            int  [] oldNextT = _nextT;
-            int  [] oldPrevT = _prevT;
+            int  [] oldNextN = _nextN;
+            int  [] oldPrevN = _prevN;
 
             _xobjs = new Xobj [ l * 2 ];
-            _ints  = new int  [ l * 2 ];
+            _poses = new int  [ l * 2 ];
             _curs  = new Cur  [ l * 2 ];
             _next  = new int  [ l * 2 ];
             _prev  = new int  [ l * 2 ];
-            _nextT = new int  [ l * 2 ];
-            _prevT = new int  [ l * 2 ];
+            _nextN = new int  [ l * 2 ];
+            _prevN = new int  [ l * 2 ];
 
             System.arraycopy( oldXobjs, 0, _xobjs, 0, l );
-            System.arraycopy( oldInts,  0, _ints,  0, l );
+            System.arraycopy( oldPoses,  0, _poses, 0, l );
             System.arraycopy( oldCurs,  0, _curs,  0, l );
             System.arraycopy( oldNext,  0, _next,  0, l );
             System.arraycopy( oldPrev,  0, _prev,  0, l );
-            System.arraycopy( oldNextT, 0, _nextT, 0, l );
-            System.arraycopy( oldPrevT, 0, _prevT, 0, l );
+            System.arraycopy( oldNextN, 0, _nextN, 0, l );
+            System.arraycopy( oldPrevN, 0, _prevN, 0, l );
 
-            _next [ l * 2 - 1 ] = -1;
+            _next [ l * 2 - 1 ] = NULL;
 
             for ( int i = l * 2 - 2 ; i >= l ; i-- )
             {
                 _next  [ i ] = i + 1;
-                _prev  [ i ] = -1;
-                _ints  [ i ] = -1;
-                _nextT [ i ] = -1;
-                _prevT [ i ] = -1;
+                _prev  [ i ] = NULL;
+                _nextN [ i ] = NULL;
+                _prevN [ i ] = NULL;
+                _poses [ i ] = NO_POS;
             }
 
             _free = l;
         }
 
         private static final int _initialSize = 32;
+
+        private Locale _locale;
         
         private Xobj [] _xobjs;
-        private int  [] _ints;
+        private int  [] _poses;
         private Cur  [] _curs;
         private int  [] _next;
         private int  [] _prev;
-        private int  [] _nextT;
-        private int  [] _prevT;
+        private int  [] _nextN;
+        private int  [] _prevN;
         
-        private int     _free;
+        private int _free;   // Unused entries
+        private int _naked;  // Entries without Curs
     }
 
     void push ( )
     {
         assert isPositioned();
 
-        int i = _locations.allocate( this, this );
-        _stackTop = _locations.insert( _stackTop, _stackTop, i );
+        int i = _locale._locations.allocate( this );
+        _stackTop = _locale._locations.insert( _stackTop, _stackTop, i );
     }
 
     void popButStay ( )
     {
-        if (_stackTop != -1)
-            _stackTop = _locations.remove( _stackTop, _stackTop, this );
+        if (_stackTop != Locations.NULL)
+            _stackTop = _locale._locations.remove( _stackTop, _stackTop );
     }
     
     boolean pop ( )
     {
-        if (_stackTop == -1)
+        if (_stackTop == Locations.NULL)
             return false;
 
-        _locations.moveTo( _stackTop, this );
-        _stackTop = _locations.remove( _stackTop, _stackTop, this );
+        _locale._locations.moveTo( _stackTop, this );
+        _stackTop = _locale._locations.remove( _stackTop, _stackTop );
 
         return true;
     }
 
     boolean isAtLastPush ( )
     {
-        assert _stackTop != -1;
+        assert _stackTop != Locations.NULL;
         
-        return _locations.isSamePos( _stackTop, this );
+        return _locale._locations.isSamePos( _stackTop, this );
     }
     
     boolean isAtEndOfLastPush ( )
     {
-        assert _stackTop != -1;
+        assert _stackTop != Locations.NULL;
         
-        return _locations.isAtEndOf( _stackTop, this );
+        return _locale._locations.isAtEndOf( _stackTop, this );
     }
 
-    void addToSelection ( Cur c )
+    void addToSelection ( Cur that )
     {
-        assert _locale == c._locale; // TODO - locales
-        assert isPositioned() && c.isPositioned();
+        assert that != null && that.isNormal();
+        assert isPositioned() && that.isPositioned();
 
-        int i = _locations.allocate( c, this );
-        _selectionFirst = _locations.insert( _selectionFirst, -1, i );
+        int i = _locale._locations.allocate( that );
+        _selectionFirst = _locale._locations.insert( _selectionFirst, Locations.NULL, i );
         
         _selectionCount++;
     }
@@ -754,8 +668,8 @@ final class Cur
     {
         assert isPositioned();
 
-        int i = _locations.allocate( this, this );
-        _selectionFirst = _locations.insert( _selectionFirst, -1, i );
+        int i = _locale._locations.allocate( this );
+        _selectionFirst = _locale._locations.insert( _selectionFirst, Locations.NULL, i );
         
         _selectionCount++;
     }
@@ -767,22 +681,22 @@ final class Cur
         if (_selectionN == -1)
         {
             _selectionN = 0;
-            _selectionNth = _selectionFirst;
+            _selectionLoc = _selectionFirst;
         }
 
         while ( _selectionN < i )
         {
-            _selectionNth = _locations.next( _selectionNth );
+            _selectionLoc = _locale._locations.next( _selectionLoc );
             _selectionN++;
         }
             
         while ( _selectionN > i )
         {
-            _selectionNth = _locations.prev( _selectionNth );
+            _selectionLoc = _locale._locations.prev( _selectionLoc );
             _selectionN--;
         }
 
-        return _selectionNth;
+        return _selectionLoc;
     }
     
     void removeSelection ( int i )
@@ -800,12 +714,12 @@ final class Cur
             _selectionN--;
             
             if (i == 0)
-                _selectionNth = -1;
+                _selectionLoc = Locations.NULL;
             else
-                _selectionNth = _locations.prev( _selectionNth );
+                _selectionLoc = _locale._locations.prev( _selectionLoc );
         }
 
-        _selectionFirst = _locations.remove( _selectionFirst, j, this );
+        _selectionFirst = _locale._locations.remove( _selectionFirst, j );
         
         _selectionCount--;
     }
@@ -819,7 +733,7 @@ final class Cur
     {
         assert i >= 0 && i < _selectionCount;
 
-        _locations.moveTo( selectionIndex( i ), this );
+        _locale._locations.moveTo( selectionIndex( i ), this );
     }
 
     void clearSelection ( )
@@ -891,19 +805,21 @@ final class Cur
     boolean hasText ( )
     {
         assert isNode();
-        _xobj.ensureOccupancy();
-        return _xobj.hasTextNoEnureOccupancy();
+        
+        return _xobj.hasTextEnsureOccupancy();
     }
 
     boolean hasAttrs ( )
     {
         assert isNode();
+        
         return _xobj.hasAttrs();
     }
     
     boolean hasChildren ( )
     {
         assert isNode();
+        
         return _xobj.hasChildren();
     }
     
@@ -996,10 +912,12 @@ final class Cur
         
         next();
         
-        insertChars( value, 0, value.length() );
+        insertString( value );
+
+        toParent();
     }
 
-    private void removeFollowingAttrs ( )
+    void removeFollowingAttrs ( )
     {
         assert isAttr();
         
@@ -1142,15 +1060,15 @@ final class Cur
     void toEnd ( )
     {
         assert isNode();
+        
         moveTo( _xobj, END_POS );
     }
     
     void moveToCharNode ( CharNode node )
     {
-        assert _locale == node._locale; // TODO - locales
-        assert node._src instanceof Dom;
+        assert node.getDom() != null && node.getDom().locale() == _locale;
 
-        moveToDom( (Dom) node._src );
+        moveToDom( node.getDom() );
 
         CharNode n;
 
@@ -1232,6 +1150,11 @@ final class Cur
         moveTo( getNormal( x, p ), _posTemp );
 
         return true;
+    }
+    
+    boolean next ( boolean withAttrs )
+    {
+        return withAttrs ? nextWithAttrs() : next();
     }
     
     boolean nextWithAttrs ( )
@@ -1331,6 +1254,23 @@ final class Cur
         return true;
     }
 
+    int prevChars ( int cch )
+    {
+        assert isPositioned();
+
+        int cchLeft = cchLeft();
+
+        if (cch < 0 || cch > cchLeft)
+            cch = cchLeft;
+
+        if (cch == 0)
+            return 0;
+
+        _pos -= cch;
+
+        return cch;
+    }
+    
     int nextChars ( int cch )
     {
         assert isPositioned();
@@ -1354,12 +1294,13 @@ final class Cur
 
     void setCharNodes ( CharNode nodes )
     {
-        assert _locale == nodes._locale; // TODO - locales
+        assert nodes == null || _locale == nodes.locale();
         assert isPositioned();
-        assert !_xobj.isRoot() || _pos > 0;
         
         Xobj x = getDenormal();
         int  p = _posTemp;
+        
+        assert !x.isRoot() || (p > 0 && p < x.posAfter());
 
         if (p >= x.posAfter())
             x._charNodesAfter = nodes;
@@ -1367,7 +1308,7 @@ final class Cur
             x._charNodesValue = nodes;
 
         for ( ; nodes != null ; nodes = nodes._next )
-            nodes._src = x;
+            nodes.setDom( (Dom) x );
 
         // No Need to notify text change or alter version, text nodes are
         // not part of the infoset
@@ -1398,16 +1339,16 @@ final class Cur
         return nodes;
     }
     
-    private static CharNode updateCharNodes ( Locale l, Object src, CharNode nodes, int cch )
+    private static CharNode updateCharNodes ( Locale l, Xobj x, CharNode nodes, int cch )
     {
-        assert nodes == null || nodes._locale == l;
+        assert nodes == null || nodes.locale() == l;
         
         CharNode node = nodes;
         int i = 0;
 
         while ( node != null && cch > 0 )
         {
-            assert node._src == src;
+            assert node.getDom() == x;
 
             if (node._cch > cch)
                 node._cch = cch;
@@ -1423,7 +1364,7 @@ final class Cur
         {
             for ( ; node != null ; node = node._next )
             {
-                assert node._src == src;
+                assert node.getDom() == x;
 
                 if (node._cch != 0)
                     node._cch = 0;
@@ -1434,7 +1375,7 @@ final class Cur
         else
         {
             node = l.createTextNode();
-            node._src = src;
+            node.setDom( (Dom) x );
             node._cch = cch;
             node._off = i;
             nodes = CharNode.appendNode( nodes, node );
@@ -1553,478 +1494,174 @@ final class Cur
         return suggestion;
     }
 
-    //
-    // is this node a proper ancestor of the cursor positioned at that.  If that is just before
-    // or just after this node, then it is not an ancestor (edge case).
-    //
+    // Does the node at this cursor properly contain the position specified by the argument
 
-    boolean ancestorOf ( Cur that )
+    boolean contains ( Cur that )
     {
-        assert isNode() && that.isPositioned();
+        assert isNode();
+        assert that != null && that.isPositioned();
 
-        if (_locale != that._locale)
-            return false;
-
-        if (_xobj == that._xobj)
-            return that._pos == END_POS || (that._pos > 0 && that._pos < _xobj.posAfter());
-        
-        if (_xobj._firstChild == null)
-            return false;
-
-        for ( Xobj x = that._xobj ; x != null ; x = x._parent )
-            if (x == _xobj)
-                return true;
-
-        return false;
+        return _xobj.contains( that );
     }
 
-    // attr is going to be moved/removed, invalidate parent if it is a special attr
-
-    private void invalidateSpecialAttr ( Xobj attr, Cur to )
+    void insertString ( String s )
     {
-        assert attr.isAttr();
-        assert to == null || to._pos == 0 || to._pos == END_POS;
-
-        boolean isXsiType = attr._name.equals( Locale._xsiType );
-        boolean isXsiNil  = attr._name.equals( Locale._xsiNil );
-
-        if (isXsiType || isXsiNil)
-        {
-            if (attr._parent != null)
-            {
-                if (isXsiType) attr._parent.disconnectNonRootUsers();
-                if (isXsiNil ) attr._parent.invalidateNil();
-            }
-
-            if (to != null)
-            {
-                Xobj newParent = to._pos == 0 ? to._xobj._parent : to._xobj;
-
-                if (isXsiType) newParent.disconnectNonRootUsers();
-                if (isXsiNil ) newParent.invalidateNil();
-            }
-        }
+        insertChars( s, 0, s.length() );
     }
     
-    void moveNode ( Cur to )
+    void insertChars ( Object src, int off, int cch )
     {
-        // TODO - should assert that is an attr is being moved, it is ok there
+        assert isPositioned() && !isRoot();
+        assert CharUtil.isValid( src, off, cch );
 
-        // TODO - when moving between locales, need to embed everything to make sure it moves
-        // properly
+        // Check for nothing to insert
 
-        assert isNode() && !isRoot();
-        assert to == null || _locale == to._locale; // TODO - locales
-        assert to == null || to.isPositioned();
-        assert to == null || !ancestorOf( to );
-        assert to == null || (!to.isNode() || !to.isRoot());
-
-        // Check to see if to is at the edge of this node.  If so, no-op
-        
-        if (to != null && (isSamePos( to ) || to.isJustAfterEnd( this )))
+        if (cch <= 0)
             return;
 
-        // Note that all changes to text in are handled by other fcns,
-        // thus, I do not need to notify text changes here.
+        _locale.notifyChange();
 
-        notifyGeneralChange();
+        // The only situation where I need to ensure occupancy is when I'm at the end of a node.
+        // All other positions will require occupancy.  For example, if I'm at the beginning of a
+        // node, then I will either insert in the after text of the previous sibling, or I will
+        // insert in the value of the parent.  In the latter case, because the parent has a child,
+        // it cannot be vacant.
         
-        // We're moving this node, if there is any text after it,
-        // move this text to before this node.
+        if (_pos == END_POS)
+            _xobj.ensureOccupancy();
 
-        Xobj xobjToMove = _xobj;
+        // Get the denormailized Xobj and pos.  This is the Xobj which will actually receive
+        // the new chars.  Note that a denormalized position can never be <= 0.
         
-        if (_xobj.cchAfter() > 0)
-        {
-            Cur fromChars = tempCur( _xobj, _xobj.posAfter() );
-            fromChars.moveChars( this, -1 );
-            fromChars.release();
-            moveTo( xobjToMove ); // Move back to node after text insert
-        }
+        Xobj x = getDenormal();
+        int  p = _posTemp;
         
-        assert _xobj.cchAfter() == 0;
+        assert p > 0;
 
-        // I have the xobj to remove, move this cursor past the object so that
-        // it does not follow the node when I remove it.  Note that I call nextWithAttrs here.
-        // If one is removing the last attribute, next would fail to move.  In this case, I
-        // move out of the attrs into the outer container.  Wierd ...
-
-        toEnd();
-        nextWithAttrs();
-
-        if (xobjToMove._parent != null)
-            xobjToMove._parent.invalidateUser();
-
-        assert !xobjToMove.isRoot();
-
-        // Remove chars to the right of to, remembering them
+        // This will move "this" cursor to be after the inserted text. No worries, I'll update its
+        // position after.  This insertChars takes care of all the appropriate invalidations
+        // (passing true as last arg).
         
-        int cchRight = to == null ? 0 : to.cchRight();
-        Object srcRight = cchRight > 0 ? to.moveChars( null, cchRight ) : null;
-        int offRight = to == null ? 0 : to._offSrc;
+        x.insertCharsHelper( p, src, off, cch, true );
+
+        // Reposition the cursor to be just before the newly inserted text.  It's current
+        // position could have been shifted, or it may have been just before the end tag, or
+        // normalized on another Xobj.
         
-        assert to._pos == 0 || to._pos == END_POS;
-        
-        xobjToMove.disconnectUsers( true );
-
-        if (xobjToMove.isAttr())
-            invalidateSpecialAttr( xobjToMove, to );
-
-        xobjToMove.removeXobj();
-
-        if (to != null)
-        {
-            Xobj newParent = null;
-
-            if (to._pos == 0)
-            {
-                to._xobj.insertXobj( xobjToMove );
-                newParent = to._xobj._parent;
-            }
-            else
-            {
-                to._xobj.appendXobj( xobjToMove );
-                newParent = to._xobj;
-            }
-
-            if (newParent != null)
-                newParent.invalidateUser();
-
-            if (srcRight != null)
-                to.insertChars( srcRight, offRight, cchRight );
-        }
-
-        // TODO - inc version for two locals ....
-        _locale._versionAll++;
-        _locale._versionSansText++;
-    }
-
-    void moveNodeContents ( Cur to, boolean moveAttrs )
-    {
-        // If from (this) and to are the same Cur, I need make them different Curs so I may
-        // manipulate them differently
-
-        if (to == this)
-            to = to.tempCur();
-        
-        // TODO - should assert that is an attr is being moved, it is ok there
-        assert isNode();
-        assert to == null || _locale == to._locale; // TODO - locales
-        assert to == null || to.isPositioned();
-        assert to == null || (!to.isNode() || !to.isRoot());
-
-        boolean hasAttrs = hasAttrs();
-
-        // Check for moving nothing.  Subnodes refers to children *and* attrs
-
-        boolean noSubNodesToMove = !hasChildren() && (!moveAttrs || !hasAttrs);
-
-        if (noSubNodesToMove)
-        {
-            // Special check for vacancy so that I don't pull a value from the TypeStore
-            // to just turn sround and remove it.  Because I use this fcn to clear out
-            // the contents for TypeStore invalidations, need to short circuit this.
-
-            if (_xobj.isVacant())
-            {
-                _xobj.clearBit( Xobj.VACANT ); 
-                return;
-            }
-
-            if (!hasText())
-                return;
-        }
-
-        // See if if to is just inside this node, If so, no-op
-
-        if (to != null)
-        {
-            if (_xobj == to._xobj && to._pos == END_POS)
-                return;
-
-            push();
-
-            if (moveAttrs && hasAttrs)
-                toFirstAttr();
-            else
-                next();
-
-            if (isSamePos( to ))
-            {
-                pop();
-                return;
-            }
-
-            pop();
-        }
-
-        notifyGeneralChange();
-
-        // If there is text to the right of cTo, then I need to move this text to just inside
-        // the right hand side of the node whose contents are moving
-        
-        if (to != null)
-        {
-            if (to.cchRight() > 0)
-            {
-                push();
-                toEnd();
-                to.moveChars( this, -1 );
-                pop();
-            }
-
-            // If I'm moving attrs and there is value text in the location I am inserting,
-            // then that value text must be moved to the attrs
-
-            if (hasAttrs && moveAttrs && to._pos == END_POS && to._xobj._cchValue > 0)
-            {
-                push();
-                next();
-                to.prev();
-                assert to.isText();
-                to.moveChars( this, -1 );
-                pop();
-            }
-        }
-
-        // The value text is not associated with a child, so it needs to be moved separately.
-
-        if (hasText())
-        {
-            push();
-            next();
-            moveChars( to, -1 );
-            pop();
-
-            if (to != null)
-                to.next();
-        }
-            
-        assert to == null || to._pos == 0 || to._pos == END_POS;
-
-        if (noSubNodesToMove)
-            return;
-
-        //
-
-        Xobj firstXobj = _xobj._firstChild;
-        Xobj lastXobj = _xobj._lastChild;
-
-        // Either skip past the attrs, or see if we're moving a special xsi attr
-
-        if (moveAttrs)
-        {
-            for ( Xobj x = firstXobj ; x != null && x.isAttr() ; x = x._nextSibling )
-                invalidateSpecialAttr( x, to );
-        }
-        else
-        {
-            while ( firstXobj != null && firstXobj.isAttr() )
-                firstXobj = firstXobj._nextSibling;
-        }
-
-        // What if we had only attrs as children
-
-        if (firstXobj == null)
-            return;
-
-        for ( Xobj x = firstXobj ; ; x = x._nextSibling )
-        {
-            assert !x.isRoot();
-            
-            x.disconnectUsers( true );
-            
-            if (x == lastXobj)
-                break;
-        }
-
-        // If we're just moving attrs, no content invalidation
-        
-        if (!lastXobj.isAttr())
-            _xobj.invalidateUser();
-
-        _xobj.removeXobjs( firstXobj, lastXobj );
-        
-        if (to != null)
-        {
-            if (to._pos == 0)
-            {
-                to._xobj.insertXobjs( firstXobj, lastXobj );
-
-                if (to._xobj._parent != null)
-                    to._xobj._parent.invalidateUser();
-            }
-            else
-            {
-                to._xobj.appendXobjs( firstXobj, lastXobj );
-                
-                to._xobj.invalidateUser();
-            }
-        }
+        moveTo( x, p );
 
         _locale._versionAll++;
-        _locale._versionSansText++;
     }
+
+    // Move the chars just after this Cur to the "to" Cur.  If no "to" Cur is specified,
+    // then remove the chars.
     
     Object moveChars ( Cur to, int cchMove )
     {
-        assert to == null || _locale == to._locale; // TODO - locales
         assert isPositioned();
-        assert cchMove == 0 || isText();
-        assert to == null || to.isNormal();
-
-        int cchRight = cchRight();
+        assert cchMove <= 0 || cchMove <= cchRight();
+        assert to == null || (to.isPositioned() && !to.isRoot());
 
         if (cchMove < 0)
             cchMove = cchRight();
-        
-        assert cchMove >= 0 && cchMove <= cchRight;
+
+        // If we're instructed to move 0 characters, then return the null triple.
         
         if (cchMove == 0)
         {
-            _cchSrc = 0;
             _offSrc = 0;
+            _cchSrc = 0;
+            
             return null;
         }
 
-        notifyGeneralChange();
-        
-        // No need to ensureOccupancy, because if we're at text, then
-        // we must be occupied
-        
-        assert _xobj.isOccupied();
+        // Here I record the triple of the chars to move.  I will return this.  No need to save
+        // cch 'cause cchMove will be that value.
+
+        Object srcMoved = getChars( cchMove );
+        int    offMoved = _offSrc;
+
+        // Either I'm moving text from the value or the after text.  If after, then the container
+        // must be occupied.  If in the value, because we're just before text, it must be occupied.
+
+        assert isText() && (_pos >= _xobj.posAfter() ? _xobj._parent : _xobj).isOccupied();
                     
         if (to == null)
         {
-            // If there is a cursor in the sequence of chars to remove,
-            // then create a new place for these chars to live and move
-            // them there, taking the cursors with them.
+            // In this case, I'm removing chars vs moving them.  Normally I would like to blow
+            // them away entirely, but if there are any references to those chars via a bookmark
+            // I need to keep them alive.  I do this by moving these chars to a new root.  Note
+            // that because Curs will stay behind, I don't have to check for them.
             
-            notifyTextChange();
-
-            for ( Cur e = _xobj.getEmbedded() ; e != null ; e = e._next )
+            for ( Bookmark b = _xobj._bookmarks ; b != null ; b = b._next )
             {
-                if (e != this && inChars( e, cchMove ))
+                if (inChars( b, cchMove, false ))
                 {
-                    e = _locale.tempCur();
-                    
-                    e.createRoot();
-                    e.next();
-                    
-                    Object chars = moveChars( e, cchMove );
-                    
-                    e.release();
-                    
+                    Cur c = _locale.tempCur();
+
+                    c.createRoot();
+                    c.next();
+
+                    Object chars = moveChars( c, cchMove );
+
+                    c.release();
+
                     return chars;
                 }
             }
         }
         else
         {
-            int pa = _xobj.posAfter();
-
-            // Check for no-op, but return the text "moved"
+            // If the target, "to", is inside or on the edge of the text to be moved, then this
+            // is a no-op.  In this case, I still want to return the text "moved".
+            //
+            // Note how I move "to" and this cur around.  I move "to" to be at the beginning of the
+            // chars moved and "this" to be at the end.  If the text were really moving to a
+            // different location, then "to" would be at the beginning of the newly moved chars,
+            // and "this" would be at the gap left by the newly removed chars.  
             
-            if (inChars( to, cchMove ))
+            if (inChars( to, cchMove, true ))
             {
-                Object src;
-
-                if (_pos >= pa)
-                {
-                    src = _xobj._srcAfter;
-                    _offSrc = _xobj._offAfter + _pos - pa;
-                }
-                else
-                {
-                    src = _xobj._srcValue;
-                    _offSrc = _xobj._offValue + _pos - 1;
-                }
-
-                moveTo( _xobj, _pos + cchMove );
-
+                // BUGBUG - may want to consider shuffling the interior cursors to the right just
+                // like I move "this" to the right...
+                
+                to.moveToCur( this );
+                nextChars( cchMove );
+                
+                _offSrc = offMoved;
                 _cchSrc = cchMove;
                 
-                return src;
+                return srcMoved;
             }
 
-            // Copy the chars, I'll remove the originals next
-            
-            if (_pos < pa)
-                to.insertChars( _xobj._srcValue, _xobj._offValue + _pos - 1, cchMove );
-            else
-                to.insertChars( _xobj._srcAfter, _xobj._offAfter + _pos - pa, cchMove );
+            // Copy the chars here, I'll remove the originals next
+
+            to.insertChars( srcMoved, offMoved, cchMove );
         }
 
-        notifyTextChange();
+        // Notice that I can delay the general change notification to this point because any
+        // modifications up to this point are made by calling other high level operations which
+        // generate this notification themselves.  Also, no need to notify of general change in
+        // the "to" locale because the insertion of chars above handles that.
 
-        // Move any curs.  I don't have to check for a null to, because I handle that case above
-        
-        for ( Cur e = _xobj.getEmbedded() ; e != null ; e = e._next )
-            if (e != this && inChars( e, cchMove ))
-                e.moveTo( to._xobj, to._pos + e._pos - _pos );
+        _locale.notifyChange();
 
-        // Now, remove the original chars
+        // Create a cursor to be where "this" will be after the move.  I need to do this because
+        // the removal of the chars can confuse where "this" is.  Consider the case where chars
+        // are being removed from just before the end of a tag.  In this case, the pos will be
+        // just before the end of the tag after the move and normalizing this position will result
+        // in teh cur going to just before the end tag.  However, if there were children, this
+        // needs to move there.
 
-        Object srcMoved;
-        int    offMoved;
-        
-        int pa = _xobj.posAfter();
-        
-        if (_pos < pa)
-        {
-            int i = _pos - 1;
-            
-            srcMoved = _xobj._srcValue;
-            offMoved = _xobj._offValue + i;
-
-            _xobj._srcValue =
-                _locale._charUtil.removeChars(
-                    i, cchMove,
-                    _xobj._srcValue, _xobj._offValue, _xobj._cchValue );
-
-            _xobj._offValue = _locale._charUtil._offSrc;
-            _xobj._cchValue = _locale._charUtil._cchSrc;
-
-            _xobj.invalidateUser();
-
-            // Perform xsi attr invalidations.  No need to check for this in the following else
-            // because it's text after which cannot be in an attr
-
-            if (_xobj._parent != null && _xobj.isAttr())
-            {
-                if (_xobj._name.equals( Locale._xsiType ))
-                    _xobj._parent.disconnectNonRootUsers();
-                
-                if (_xobj._name.equals( Locale._xsiNil ))
-                    _xobj._parent.invalidateNil();
-            }
-        }
+        if (to == null)
+            _xobj.removeCharsHelper( _pos, cchMove, null, NO_POS, false, true );
         else
-        {
-            int i = _pos - pa;
-            
-            srcMoved = _xobj._srcAfter;
-            offMoved = _xobj._offAfter + i;
+            _xobj.removeCharsHelper( _pos, cchMove, to._xobj, to._pos, false, true );
 
-            _xobj._srcAfter =
-                _locale._charUtil.removeChars(
-                    i, cchMove,
-                    _xobj._srcAfter, _xobj._offAfter, _xobj._cchAfter );
-
-            _xobj._offAfter = _locale._charUtil._offSrc;
-            _xobj._cchAfter = _locale._charUtil._cchSrc;
-
-            if (_xobj._parent != null)
-                _xobj._parent.invalidateUser();
-        }
-        
-        // The case where I delete all value text, _pos will be at end of node,
-        // need to normalize to the first child (if any)
-        
-        if (_pos == _xobj.posAfter() - 1 && _xobj._firstChild != null)
-            moveTo( getNormal( _xobj._firstChild, 0 ), _posTemp );
-        else
-            moveTo( getNormal( _xobj, _pos ), _posTemp );
+        // Need to update the position of this cursor even though it did not move anywhere.  This
+        // needs to happen because it may not be properly normalized anymore.  Note that because
+        // of the removal of the text, this cur may not be normal any more, thus I call moveTo
+        // which does not assume this.
 
         _locale._versionAll++;
 
@@ -2034,119 +1671,482 @@ final class Cur
         return srcMoved;
     }
 
-    void insertChars ( Object src, int off, int cch )
+    void moveNode ( Cur to )
     {
-        assert isNormal() && cch >= 0;
-        assert !isRoot();
-
-        if (cch <= 0)
-            return;
-
-        if (!isPositioned())
-        {
-            createRoot();
-            next();
-        }
-
-        notifyGeneralChange();
+        assert isNode() && !isRoot();
+        assert to == null || to.isPositioned();
+        assert to == null || !contains( to );
+        assert to == null || !to.isRoot();
         
-        // If _pos == 0, then I'll insert in the after of the
-        // denormailzed Xobj or in the value of the container (which
-        // cannot be vacant). No need to ensureOccupancy for these
-        // cases.  The only case I need to ensuringOccupancy is if the
-        // current pos is POS_END, which is the only valid position in
-        // the value when the value is vacant.
+        // TODO - should assert that is an attr is being moved, it is ok there
 
-        if (_pos == END_POS)
-            _xobj.ensureOccupancy();
-        
-        Xobj x = getDenormal();
-        int p = _posTemp;
 
-        assert p > 0;
+        // Record the node to move and skip this cur past it.  This moves this cur to be after
+        // the move to move/remove -- it's final resting place.  The only piece of information
+        // about the source of the move is the node itself.
 
-        // Only need to notify a text change and update cursors if we're inserting text
-        // before any text in the node
+        Xobj x = _xobj;
 
-        if (x._cchValue + x._cchAfter > 0 && p != x.posMax() &&
-                (x._cchAfter != 0 || p != x.posAfter() - 1))
-        {
-            notifyTextChange();
+        skip();
 
-            for ( Cur e = x.getEmbedded() ; e != null ; e = e._next )
-                if (e != this && e._pos >= p)
-                    e._pos += cch;
-        }
+        // I call another function here to move the node.  I do this because  I don't have to
+        // worry about messing with "this" here given that it not should be treated like any other
+        // cursor after this point.
 
-        if (p < x.posAfter())
-        {
-            x._srcValue =
-                _locale._charUtil.insertChars(
-                    p - 1,
-                    x._srcValue, x._offValue, x._cchValue, src, off, cch );
-
-            x._offValue = _locale._charUtil._offSrc;
-            x._cchValue = _locale._charUtil._cchSrc;
-
-            x.invalidateUser();
-
-            if (x._parent != null && x.isAttr())
-            {
-                if (x._name.equals( Locale._xsiType ))
-                    x._parent.disconnectNonRootUsers();
-                
-                if (x._name.equals( Locale._xsiNil ))
-                    x._parent.invalidateNil();
-            }
-        }
-        else
-        {
-            x._srcAfter =
-                _locale._charUtil.insertChars(
-                    p - x.posAfter(),
-                    x._srcAfter, x._offAfter, x._cchAfter, src, off, cch );
-
-            x._offAfter = _locale._charUtil._offSrc;
-            x._cchAfter = _locale._charUtil._cchSrc;
-
-            if (x._parent != null)
-                x.invalidateUser();
-        }
-
-        // If the normalized pos was -1 (before the end), need to set
-        // this cursor to be before the text.
-        
-        moveTo( x, p );
-
-        _locale._versionAll++;
+        moveNode( x, to );
     }
 
+    // Moves text from one place to another in a low-level way, used as a helper for the higher
+    // level functions.  Takes care of moving bookmarks and cursors.  In the high level content
+    // manipulation functions, cursors do not follow content, but this helper moves them.  The
+    // arguments are denormalized.  The Xobj's must be different from eachother but from the same
+    // locale.  The destination must not be not be vacant.
+
+    private static void transferChars ( Xobj xFrom, int pFrom, Xobj xTo, int pTo, int cch )
+    {
+        assert xFrom != xTo;
+        assert xFrom._locale == xTo._locale;
+        assert pFrom > 0 && pFrom <  xFrom.posMax();
+        assert pTo   > 0 && pTo   <= xTo  .posMax();
+        assert cch > 0 && cch <= xFrom.cchRight( pFrom );
+        assert pTo >= xTo.posAfter() || xTo.isOccupied();
+
+        // Copy the chars from -> to without performing any invalidations.  This will scoot curs
+        // and marks around appropriately.  Note that I get the cars with getCharsHelper which
+        // does not check for normalization because the state of the tree at this moment may not
+        // exactly be "correct" here.
+
+        xTo.insertCharsHelper(
+            pTo, xFrom.getCharsHelper( pFrom, cch ), xFrom.offSrc(), xFrom.cchSrc(), false );
+        
+        xFrom.removeCharsHelper( pFrom, cch, xTo, pTo, true, false );
+    }
+
+    // Moves the node x to "to", or removes it if to is null.
+
+    static void moveNode ( Xobj x, Cur to )
+    {
+        assert x != null && !x.isRoot();
+        assert to == null || to.isPositioned();
+        assert to == null || !x.contains( to );
+        assert to == null || !to.isRoot();
+
+        if (to != null)
+        {
+            // Before I go much further, I want to make sure that if "to" is in the container of
+            // a vacant node, I get it occupied.  I do not need to worry about the source being
+            // vacant.
+
+            if (to._pos == END_POS)
+                to._xobj.ensureOccupancy();
+
+            // See if the destination is on the edge of the node to be moved (a no-op).  It is
+            // illegal to call this fcn when to is contained within the node to be moved.  Note
+            // that I make sure that to gets oved to the beginning of the node.  The position of
+            // to in all operations should leave to just before the content moved/inserted.
+
+            if ((to._pos == 0 && to._xobj == x) || to.isJustAfterEnd( x ))
+            {
+                // TODO - should shuffle contained curs to the right???
+                
+                to.moveTo( x );
+                return;
+            }
+        }
+
+        // Notify the locale(s) about the change I am about to make.
+
+        x._locale.notifyChange();
+        
+        x._locale._versionAll++;
+        x._locale._versionSansText++;
+
+        if (to != null && to._locale != x._locale)
+        {
+            to._locale.notifyChange();
+            
+            to._locale._versionAll++;
+            to._locale._versionSansText++;
+        }
+
+        // Node is going away.  Invalidate the parent (the text around the node is merging).
+        // Also, this node may be an attribute -- invalidate special attrs ...
+
+        if (x.isAttr())
+            x.invalidateSpecialAttr( to == null ? null : to.getParentRaw() );
+        else
+        {
+            if (x._parent != null)
+                x._parent.invalidateUser();
+            
+            if (to != null && to.hasParent())
+                to.getParent().invalidateUser();
+        }
+
+        // If there is any text after x, I move it to be before x.  This frees me to extract x
+        // and it's contents with out this text coming along for the ride.  Note that if this
+        // node is the last attr and there is text after it, transferText will move the text
+        // to a potential previous attr.  This is an invalid state for a short period of time.
+        // I need to move this text away here so that when I walk the tree next, *all* curs
+        // embedded in this node or deeper will be moved off this node.
+
+        if (x._cchAfter > 0)
+            transferChars( x, x.posAfter(), x.getDenormal( 0 ), x.posTemp(), x._cchAfter );
+
+        assert x._cchAfter == 0;
+
+        // Walk the node tree, moving curs out, disconnecting users and relocating to a, possibly,
+        // new locale.  I embed the cursors in this locale before itersting to just cause the
+        // embed to happen once.
+
+        x._locale.embedCurs();
+
+        for ( Xobj y = x ; y != null ; y = y.walk( x ) )
+        {
+            while ( y._embedded != null )
+                y._embedded.moveTo( x.getNormal( x.posAfter() ) );
+
+            y.disconnectUser();
+
+            if (to != null)
+                y._locale = to._locale;
+        }
+
+        // Now, actually remove the node
+
+        x.removeXobj();
+
+        // Now, if there is a destination, insert the node there and shuffle the text in the
+        // vicinity of the destination appropriately.
+
+        if (to != null)
+        {
+            // To know where I should insert/append the node to move, I need to see where "to"
+            // would be if there were no text after it.  However, I need to keep "to" where it
+            // is when I move the text after it later.
+            
+            Xobj here = to._xobj;
+            boolean append = to._pos != 0;
+
+            int cchRight = to.cchRight();
+            
+            if (cchRight > 0)
+            {
+                to.push();
+                to.next();
+                here = to._xobj;
+                append = to._pos != 0;
+                to.pop();
+            }
+
+            if (append)
+                here.appendXobj( x );
+            else
+                here.insertXobj( x );
+
+            // The only text I need to move is that to the right of "to".  Even considering all
+            // the cases where an attribute is involed!
+
+            if (cchRight > 0)
+                transferChars( to._xobj, to._pos, x, x.posAfter(), cchRight );
+            
+            to.moveTo( x );
+        }
+    }
+
+    void moveNodeContents ( Cur to, boolean moveAttrs )
+    {
+        assert isNode();
+        assert to == null || !to.isRoot();
+
+        // By calling this helper, I do not have to deal with this Cur any longer.  Basically,
+        // this Cur is out of the picture, it behaves like any other cur at this point.
+
+        moveNodeContents( _xobj, to, moveAttrs );
+    }
+
+    private static void moveNodeContents ( Xobj x, Cur to, boolean moveAttrs )
+    {
+        // TODO - should assert that is an attr is being moved, it is ok there
+        
+        assert to == null || !to.isRoot();
+
+        // Collect a bit of information about the contents to move first.  Note that the collection
+        // of this info must not cause a vacant value to become occupied.
+
+        boolean hasAttrs = x.hasAttrs();
+        boolean noSubNodesToMove = !x.hasChildren() && (!moveAttrs || !hasAttrs);
+
+        // Deal with the cases where only text is involved in the move
+
+        if (noSubNodesToMove)
+        {
+            // If we're vacant and there is no place to move a potential value, then I can avoid
+            // acquiring the text from the TypeStoreUser.  Otherwise, there may be text here I
+            // need to move somewhere else.
+            
+            if (x.isVacant() && to == null)
+            {
+                x.clearBit( Xobj.VACANT );
+
+                x.invalidateUser();
+                x.invalidateSpecialAttr( null );
+                x._locale._versionAll++;
+            }
+            else if (x.hasTextEnsureOccupancy())
+            {
+                Cur c = x.tempCur();
+                c.next();
+                c.moveChars( to, -1 );
+                c.release();
+            }
+            
+            return;
+        }
+
+        // Here I check to see if "to" is just inside x.  In this case this is a no-op.  Note that
+        // the value of x may still be vacant.
+        
+        if (to != null)
+        {
+            // Quick check of the right edge.  If it is there, I need to move "to" to the left edge
+            // so that it is positioned at the beginning of the "moved" content.
+            
+            if (x == to._xobj && to._pos == END_POS)
+            {
+                // TODO - shuffle interior curs?
+                
+                to.moveTo( x );
+                to.next( moveAttrs && hasAttrs );
+                
+                return;
+            }
+
+            // Here I need to see if to is at the left edge.  I push to's current position and
+            // then navigate it to the left edge then compare it to the pushed position...
+
+            to.push();
+            to.moveTo( x );
+            to.next( moveAttrs && hasAttrs );
+            boolean isSame = to.isAtLastPush();
+            to.pop();
+            
+            // TODO - shuffle interior curs?
+            
+            if (isSame)
+                return;
+
+            // Now, after dealing with the edge condition, I can assert that to is not inside x
+
+            assert !x.contains( to );
+            
+            // So, at this point, I've taken case of the no-op cases and the movement of just text.
+            // Also, to must be occupied because I took care of the text only and nothing to move
+            // cases.
+
+            assert to.getParent().isOccupied();
+        }
+
+        // TODO - did I forget to put a changeNotification here?  Look more closely ...
+
+        // Deal with the value text of x which is either on x or the last attribute of x.
+        // I need to get it out of the way to properly deal with the walk of the contents.
+        // In order to reposition "to" properly later, I need to record how many chars were moved.
+
+        int valueMovedCch = 0;
+
+        if (x.hasTextNoEnsureOccupancy())
+        {
+            Cur c = x.tempCur();
+            c.next();
+            c.moveChars( to, -1 );
+            c.release();
+
+            if (to != null)
+                to.nextChars( valueMovedCch = c._cchSrc );
+        }
+
+        // Now, walk all the contents, invalidating special attrs, reportioning cursors,
+        // disconnecting users and relocating to a potentially different locale.  Because I moved
+        // the value text above, no top level attrs should have any text.
+
+        x._locale.embedCurs();
+        
+        Xobj firstToMove = x.walk( x );
+        boolean sawBookmark = false;
+
+        for ( Xobj y = firstToMove ; y != null ; y = y.walk( x ) )
+        {
+            if (y._parent == x && y.isAttr())
+            {
+                assert y._cchAfter == 0;
+                
+                if (!moveAttrs)
+                {
+                    firstToMove = y._nextSibling;
+                    continue;
+                }
+
+                y.invalidateSpecialAttr( to == null ? null : to.getParent() );
+            }
+            
+            for ( Cur c ; (c = y._embedded) != null ; )
+                c.moveTo( x, END_POS );
+            
+            y.disconnectUser();
+
+            if (to != null)
+                y._locale = to._locale;
+
+            sawBookmark = sawBookmark || y._bookmarks != null;
+        }
+
+        Xobj lastToMove = x._lastChild;
+
+        // If there were any bookmarks in the tree to remove, to preserve the content that these
+        // bookmarks reference, move the contents to a new root.  Note that I already moved the
+        // first piece of text above elsewhere.  Note: this has the effect of keeping all of the
+        // contents alive even if there is one bookmark deep into the tree.  I should really
+        // disband all the content, except for the pieces which are bookmarked.
+
+        Cur surragateTo = null;
+        
+        if (sawBookmark && to == null)
+        {
+            surragateTo = to = x._locale.tempCur();
+            to.createRoot();
+            to.next();
+        }
+
+        // Perform the rest of the invalidations.  If only attrs are moving, then no user
+        // invalidation needed.  If I've move text to "to" already, no need to invalidate
+        // again.
+
+        if (!lastToMove.isAttr())
+            x.invalidateUser();
+
+        x._locale._versionAll++;
+        x._locale._versionSansText++;
+
+        if (to != null && valueMovedCch == 0)
+        {
+            to.getParent().invalidateUser();
+            to._locale._versionAll++;
+            to._locale._versionSansText++;
+        }
+
+        // Remove the children and, if needed, move them
+
+        x.removeXobjs( firstToMove, lastToMove );
+
+        // To know where I should insert/append the contents to move, I need to see where "to"
+        // would be if there were no text after it.  
+
+        Xobj here = to._xobj;
+        boolean append = to._pos != 0;
+
+        int cchRight = to.cchRight();
+
+        if (cchRight > 0)
+        {
+            to.push();
+            to.next();
+            here = to._xobj;
+            append = to._pos != 0;
+            to.pop();
+        }
+
+        // Now, I have to shuffle the text around "to" in special ways.  A complication is
+        // the insertion of attributes.  First, if I'm inserting attrs here then, logically,
+        // there can be no text to the left because attrs can only live after another attr
+        // or just inside a container.  So, If attrs are being inserted and there is value
+        // text on the target container, I will need to move this value text to be after
+        // the lew last attribute.  Note that this value text may already live on a current
+        // last attr (before the inserting).  Also, I need to figure this all out before I
+        // move the text after "to" because this text may end up being sent to the same place
+        // as the containers value text when the last new node being inserted is an attr!
+        // Whew!
+
+        if (firstToMove.isAttr())
+        {
+            Xobj lastNewAttr = firstToMove;
+
+            while ( lastNewAttr._nextSibling != null && lastNewAttr._nextSibling.isAttr() )
+                lastNewAttr = lastNewAttr._nextSibling;
+
+            // Get to's parnet now before I potentially move him with the next transfer
+
+            Xobj y = to.getParent();
+
+            if (cchRight > 0)
+                transferChars( to._xobj, to._pos, lastNewAttr, lastNewAttr.posMax(), cchRight );
+
+            if (y.hasTextNoEnsureOccupancy())
+            {
+                int p, cch;
+
+                if (y._cchValue > 0)
+                {
+                    p = 1;
+                    cch = y._cchValue;
+                }
+                else
+                {
+                    y = y.lastAttr();
+                    p = y.posAfter();
+                    cch = y._cchAfter;
+                }
+
+                transferChars( y, p, lastNewAttr, lastNewAttr.posAfter(), cch );
+            }
+        }
+        else if (cchRight > 0)
+            transferChars( to._xobj, to._pos, lastToMove, lastToMove.posMax(), cchRight );
+
+        // After mucking with the text, splice the new tree in
+
+        if (append)
+            here.appendXobjs( firstToMove, lastToMove );
+        else
+            here.insertXobjs( firstToMove, lastToMove );
+
+        // Position "to" to be at the beginning of the newly inserted contents
+
+        to.moveTo( firstToMove );
+        to.prevChars( valueMovedCch );
+
+        // If I consed up a to, release it here
+
+        if (surragateTo != null)
+            surragateTo.release();
+    }
+    
     protected final void setBookmark ( Object key, Object value )
     {
         assert isNormal();
         assert key != null;
 
-        for ( Cur c = _xobj._embedded ; c != null ; c = c._next )
+        for ( Bookmark b = _xobj._bookmarks ; b != null ; b = b._next )
         {
-            if (c._pos == _pos && c._key == key)
+            if (_pos == b._pos && key == b._key)
             {
                 if (value == null)
-                    c.release();
+                    _xobj._bookmarks = b.listRemove( _xobj._bookmarks );
                 else
-                    c._value = value;
+                    b._value = value;
 
                 return;
             }
         }
 
-        Cur cur = _locale.permCur();
+        Bookmark b = new Bookmark();
 
-        cur.moveToCur( this );
+        b._xobj  = _xobj;
+        b._pos   = _pos;
+        b._key   = key;
+        b._value = value;
 
-        assert cur._value == null && cur._key == null;
-
-        cur._key = key;
-        cur._value = value;
+        _xobj._bookmarks = b.listInsert( _xobj._bookmarks );
     }
     
     final Object getBookmark ( Object key )
@@ -2154,9 +2154,9 @@ final class Cur
         assert isNormal();
         assert key != null;
 
-        for ( Cur c = _xobj._embedded ; c != null ; c = c._next )
-            if (c._pos == _pos && c._key == key)
-                return c._value;
+        for ( Bookmark b = _xobj._bookmarks ; b != null ; b = b._next )
+            if (b._pos == _pos && b._key == key)
+                return b._value;
         
         return null;
     }
@@ -2208,109 +2208,64 @@ final class Cur
         return _xobj.getChars( 1, -1, this );
     }
     
-    void copyNode ( Cur cTo )
+    void copyNode ( Cur to )
     {
-        assert cTo != null;
-        assert _locale == cTo._locale; // TODO - locales
+        assert to != null;
         assert isNode();
 
         Xobj newParent = null;
         Xobj copy = null;
-        Xobj xo = _xobj;
             
         walk:
-        for ( ; ; )
+        for ( Xobj x = _xobj ; ; )
         {
-            xo.ensureOccupancy();
+            x.ensureOccupancy();
             
-            Xobj newXo = xo.newNode();
+            Xobj newX = x.newNode( to._locale );
 
-            newXo._srcValue = xo._srcValue;
-            newXo._offValue = xo._offValue;
-            newXo._cchValue = xo._cchValue;
+            newX._srcValue = x._srcValue;
+            newX._offValue = x._offValue;
+            newX._cchValue = x._cchValue;
             
-            newXo._srcAfter = xo._srcAfter;
-            newXo._offAfter = xo._offAfter;
-            newXo._cchAfter = xo._cchAfter;
+            newX._srcAfter = x._srcAfter;
+            newX._offAfter = x._offAfter;
+            newX._cchAfter = x._cchAfter;
 
             // TODO - strange to have charNode stuff inside here .....
-            newXo._charNodesValue = CharNode.copyNodes( xo._charNodesValue, newXo );
-            newXo._charNodesAfter = CharNode.copyNodes( xo._charNodesAfter, newXo );
+            newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX );
+            newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX );
 
             if (newParent == null)
-                copy = newXo;
+                copy = newX;
             else
-                newParent.appendXobj( newXo );
+                newParent.appendXobj( newX );
 
-            if (xo._firstChild != null)
-            {
-                newParent = newXo;
-                xo = xo._firstChild;
-                continue;
-            }
-            
-            if (xo._nextSibling == null)
-            {
-                do
-                {
-                    if (xo == _xobj)
-                        break walk;
-                    
-                    xo = xo._parent;
+            // Walk to the next in-order xobj.  Record the current (y) to compute newParent
+
+            Xobj y = x;
+
+            if ((x = x.walk( _xobj )) == null)
+                break;
+
+            if (y == x._parent)
+                newParent = newX;
+            else
+                for ( ; y._parent != x._parent ; y = y._parent )
                     newParent = newParent._parent;
-
-                    if (xo == _xobj)
-                        break walk;
-                }
-                while ( xo._nextSibling == null );
-            }
-            else if (xo == _xobj)
-                break walk;
-            
-            xo = xo._nextSibling;
         }
 
         copy._srcAfter = null;
         copy._offAfter = 0;
         copy._cchAfter = 0;
 
-        if (cTo.isPositioned())
+        if (to.isPositioned())
         {
-            Cur from = cTo._locale.tempCur();
-            from.moveNode( cTo );
+            Cur from = to._locale.tempCur();
+            from.moveNode( to );
             from.release();
         }
         else
-            cTo.moveTo( copy );
-    }
-
-    void notifyGeneralChange ( )
-    {
-        _locale.notifyGeneralChangeListeners();
-    }
-    
-    void notifyTextChange ( )
-    {
-        _locale.notifyTextChangeListeners();
-    }
-
-    void registerForTextChange ( )
-    {
-        // If next != null, then we're already on the list
-        
-        if (_nextTextChangeListener == null)
-            _locale.registerForTextChange( this );
-    }
-
-    public void textChangeNotification ( )
-    {
-        if (_state == UNREGISTERED)
-        {
-            _locale._registered = listInsert( _locale._registered );
-            _state = REGISTERED;
-        }
-
-        _locations.textChangeNotification( this );
+            to.moveTo( copy );
     }
 
     Cur weakCur ( Object o )
@@ -2322,111 +2277,71 @@ final class Cur
 
     Cur tempCur ( )
     {
-        Cur c = _locale.tempCur();
-        c.moveToCur( this );
-        return c;
+        return tempCur( null );
     }
-
-    Cur permCur ( )
+    
+    Cur tempCur ( String id )
     {
-        Cur c = _locale.permCur();
+        Cur c = _locale.tempCur( id );
         c.moveToCur( this );
         return c;
     }
 
     private Cur tempCur ( Xobj x, int p )
     {
-        assert _locale == x._locale; // TODO - locales
+        assert _locale == x._locale;
         assert x != null || p == NO_POS;
 
         Cur c = _locale.tempCur();
 
-        if (x == null)
-            c.moveTo( null );
-        else
+        if (x != null)
             c.moveTo( getNormal( x, p ), _posTemp );
         
         return c;
     }
 
-    // Is a cursor (c) in the chars defined by cch chars after where this
-    // Cur is positioned.
+    // Is a cursor (c) in the chars defined by cch chars after where this Cur is positioned.
+    // Is inclusive on the left, and inclusive/exclusive on the right depending on the value
+    // of includeEnd.
     
-    boolean inChars ( Cur c, int cch )
+    boolean inChars ( Cur c, int cch, boolean includeEnd )
     {
-        assert _locale == c._locale; // TODO - locales
         assert isPositioned() && isText() && cchRight() >= cch;
-        assert c.isPositioned();
-
-        // No need to ensureOccupancy here
-
-        if (cch < 0)
-            cch = cchRight();
-
-        return (c._xobj != _xobj || c._pos <= 0) ? false : c._pos >= _pos && c._pos < _pos + cch;
+        assert c.isNormal();
+        
+        return _xobj.inChars( _pos, c._xobj, c._pos, cch, includeEnd );
     }
 
+    boolean inChars ( Bookmark b, int cch, boolean includeEnd )
+    {
+        assert isPositioned() && isText() && cchRight() >= cch;
+        assert b._xobj.isNormal( b._pos );
+        
+        return _xobj.inChars( _pos, b._xobj, b._pos, cch, includeEnd );
+    }
+
+    // Can't be static because I need to communicate pos in _posTemp :-(
+    // I wish I had multiple return vars ...
+    
     private Xobj getNormal ( Xobj x, int p )
     {
-        assert p == END_POS || (p >= 0 && p <= x.posMax());
-        
-        if (p == x.posMax())
-        {
-            if (x._nextSibling != null)
-            {
-                x = x._nextSibling;
-                p = 0;
-            }
-            else
-            {
-                x = x.ensureParent();
-                p = END_POS;
-            }
-        }
-        else if (p == x.posAfter() - 1)
-            p = END_POS;
-
-        _posTemp = p;
-
-        return x;
+        Xobj nx = x.getNormal( p );
+        _posTemp = x._locale._posTemp;
+        return nx;
     }
-
+    
     private Xobj getDenormal ( )
     {
         assert isPositioned();
-        assert END_POS == -1;
-        assert !_xobj.isRoot() || _pos >= END_POS;
-        
-        Xobj x = _xobj;
-        int  p = _pos;
 
-        if (p == 0)
-        {
-            if (x._prevSibling != null)
-            {
-                x = x._prevSibling;
-                p = x.posMax();
-            }
-            else
-            {
-                x = x.ensureParent();
-                p = x.posAfter() - 1;
-            }
-        }
-        else if (p == END_POS)
-        {
-            if (x._lastChild != null)
-            {
-                x = x._lastChild;
-                p = x.posMax();
-            }
-            else
-                p = x.posAfter() - 1;
-        }
+        return getDenormal( _xobj, _pos );
+    }
 
-        _posTemp = p;
-
-        return x;
+    private Xobj getDenormal ( Xobj x, int p )
+    {
+        Xobj dx = x.getDenormal( p );
+        _posTemp = x._locale._posTemp;
+        return dx;
     }
 
     // May throw IllegalArgumentException if can't change the type
@@ -2532,8 +2447,6 @@ final class Cur
 
     void release ( )
     {
-        assert _state != POOLED || _nextTemp == null;
-
         if (_state == POOLED || _state == DISPOSED)
             return;
 
@@ -2550,12 +2463,8 @@ final class Cur
         _value = null;
         _key = null;
 
-        _curKind = -1;
-
-        assert _state == REGISTERED || _state == UNREGISTERED;
-        
-        if (_state == REGISTERED)
-            _locale._registered = listRemove( _locale._registered );
+        assert _state == REGISTERED;
+        _locale._registered = listRemove( _locale._registered );
 
         if (_locale._curPoolCount < 16)
         {
@@ -2573,6 +2482,8 @@ final class Cur
             popButStay();
 
         clearSelection();
+
+        _id = null;
     }
 
     boolean isOnList ( Cur head )
@@ -2624,11 +2535,14 @@ final class Cur
         _prev = null;
         assert _next == null;
         
-        _state = -1;
-
         return head;
     }
 
+//    boolean isNormal ( Cur that )
+//    {
+//        return isNormal() && (that == null || (_locale == that._locale && that.isNormal()));
+//    }
+    
     boolean isNormal ( )
     {
         if (_state == POOLED || _state == DISPOSED)
@@ -2639,9 +2553,6 @@ final class Cur
 
         if (!_xobj.isNormal( _pos ))
             return false;
-
-        if (_state == UNREGISTERED)
-            return _pos == 0 || _pos == END_POS;
 
         if (_state == EMBEDDED)
             return isOnList( _xobj._embedded );
@@ -2746,7 +2657,7 @@ final class Cur
             assert prefix == null || prefix.length() > 0;
             assert (_after ? _frontier._parent : _frontier).isContainer();
 
-            start( new AttrXobj( _locale, checkName( _locale.createXmlns( prefix ), true ) ) );
+            start( new Xobj.AttrXobj( _locale, checkName( _locale.createXmlns( prefix ), true ) ) );
 
             text( uri, 0, uri.length() );
             
@@ -2758,7 +2669,7 @@ final class Cur
             assert (_after ? _frontier._parent : _frontier).isContainer();
             
             start(
-                new AttrXobj(
+                new Xobj.AttrXobj(
                     _locale, checkName( _locale.makeQName( uri, local, prefix ), true ) ) );
             
             text( value, 0, value.length() );
@@ -2769,7 +2680,7 @@ final class Cur
         {
             if (!_stripProcinsts)
             {
-                start( new ProcInstXobj( _locale, target ) );
+                start( new Xobj.ProcInstXobj( _locale, target ) );
                 text( value, 0, value.length() );
                 end();
             }
@@ -2779,7 +2690,7 @@ final class Cur
         {
             if (!_stripComments)
             {
-                start( new CommentXobj( _locale ) );
+                start( new Xobj.CommentXobj( _locale ) );
                 text( (Object) buf, off, cch );
                 end();
             }
@@ -2787,23 +2698,23 @@ final class Cur
 
         private void stripLeadingWhitespace ( )
         {
+            CharUtil cu = _locale._charUtil;
+            
             if (_after)
             {
                 _frontier._srcAfter =
-                    _locale._charUtil.stripRight(
-                        _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
+                    cu.stripRight( _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
                 
-                _frontier._offAfter = _locale._charUtil._offSrc;
-                _frontier._cchAfter = _locale._charUtil._cchSrc;
+                _frontier._offAfter = cu._offSrc;
+                _frontier._cchAfter = cu._cchSrc;
             }
             else
             {
                 _frontier._srcValue =
-                    _locale._charUtil.stripRight(
-                        _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
+                    cu.stripRight( _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
                 
-                _frontier._offValue = _locale._charUtil._offSrc;
-                _frontier._cchValue = _locale._charUtil._cchSrc;
+                _frontier._offValue = cu._offSrc;
+                _frontier._cchValue = cu._cchSrc;
             }
         }
         
@@ -2812,25 +2723,27 @@ final class Cur
             if (cch <= 0)
                 return;
 
+            CharUtil cu = _locale._charUtil;
+
             if (_after)
             {
                 _frontier._srcAfter =
-                    _locale._charUtil.saveChars(
+                    cu.saveChars(
                         src, off, cch,
                         _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
 
-                _frontier._offAfter = _locale._charUtil._offSrc;
-                _frontier._cchAfter = _locale._charUtil._cchSrc;
+                _frontier._offAfter = cu._offSrc;
+                _frontier._cchAfter = cu._cchSrc;
             }
             else
             {
                 _frontier._srcValue =
-                    _locale._charUtil.saveChars(
+                    cu.saveChars(
                         src, off, cch,
                         _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
 
-                _frontier._offValue = _locale._charUtil._offSrc;
-                _frontier._cchValue = _locale._charUtil._cchSrc;
+                _frontier._offValue = cu._offSrc;
+                _frontier._cchValue = cu._cchSrc;
             }
         }
         
@@ -2950,7 +2863,7 @@ final class Cur
                             c.next();
                             
                             String namespace = (String) _additionalNamespaces.get( prefix );
-                            c.insertChars( namespace, 0, namespace.length() );
+                            c.insertString( namespace );
                                           
                             c.pop();
                         }
@@ -2980,1827 +2893,6 @@ final class Cur
         private boolean _stripProcinsts;
         private Map     _substituteNamespaces;
         private Map     _additionalNamespaces;
-    }
-
-    //
-    //
-    //
-
-    private abstract static class Xobj implements TypeStore
-    {
-        Xobj ( Locale l, int kind, int domType )
-        {
-            assert
-                kind == ROOT || kind == ELEM || kind == ATTR ||
-                    kind == COMMENT || kind == PROCINST;
-                    
-            _locale = l;
-            _bits = (domType << 4) + kind;
-        }
-
-        boolean entered ( ) { return _locale.entered(); }
-
-        final int kind    ( ) { return _bits & 0xF; }
-        final int domType ( ) { return (_bits & 0xF0) >> 4; }
-        
-        final boolean isRoot      ( ) { return kind() == ROOT; }
-        final boolean isAttr      ( ) { return kind() == ATTR; }
-        final boolean isElem      ( ) { return kind() == ELEM; }
-        final boolean isProcinst  ( ) { return kind() == PROCINST; }
-        final boolean isContainer ( ) { return kindIsContainer( kind() ); }
-        final boolean isUserNode  ( ) { return kindIsUserNode ( kind() ); }
-        
-        boolean isNormalAttr ( ) { return isAttr() && !isXmlns(); }
-
-        final int cchValue ( ) { return _cchValue; }
-        final int cchAfter ( ) { return _cchAfter; }
-
-        final int posAfter ( ) { return 2 + _cchValue; }
-        final int posMax   ( ) { return 2 + _cchValue + _cchAfter; }
-
-        boolean isXmlns ( ) { return isAttr() ? Locale.isXmlns( _name ) : false; }
-
-        String getXmlnsPrefix ( ) { return Locale.xmlnsPrefix( _name ); }
-        String getXmlnsUri    ( ) { return getValue(); }
-
-        boolean hasTextNoEnureOccupancy ( )
-        {
-            if (_cchValue > 0)
-                return true;
-
-            Xobj lastAttr = lastAttr();
-
-            return lastAttr != null && lastAttr._cchAfter > 0;
-        }
-
-        boolean hasAttrs    ( ) { return _firstChild != null &&  _firstChild.isAttr(); }
-        boolean hasChildren ( ) { return _lastChild  != null && !_lastChild .isAttr(); }
-
-        Xobj lastAttr ( )
-        {
-            if (_firstChild == null || !_firstChild.isAttr())
-                return null;
-
-            Xobj lastAttr = _firstChild;
-
-            while ( lastAttr._nextSibling != null && lastAttr._nextSibling.isAttr() )
-                lastAttr = lastAttr._nextSibling;
-
-            return lastAttr;
-        }
-
-        abstract Dom getDom ( );
-        
-        abstract Xobj newNode ( );
-
-        final int cchRight ( int p )
-        {
-            assert isNormal( p );
-            
-            if (p <= 0)
-                return 0;
-            
-            int pa = posAfter();
-            
-            return p < pa ? pa - p - 1 : posMax() - p;
-        }
-
-        //
-        // Dom interface
-        //
-
-        public final Locale locale   ( ) { return _locale;   }
-        public final int    nodeType ( ) { return domType(); }
-        public final QName  getQName ( ) { return _name;     }
-        
-        public final Cur tempCur ( ) { Cur c = _locale.tempCur(); c.moveTo( this ); return c; }
-
-        public void dump ( PrintStream o, Object ref ) { Cur.dump( o, (Xobj) this, ref ); }
-        public void dump ( PrintStream o ) { Cur.dump( o, this, this ); }
-        public void dump ( ) { dump( System.out ); }
-
-        //
-        //
-        //
-
-        Cur getEmbedded ( )
-        {
-            _locale.unregisterCurs();
-            
-            return _embedded;
-        }
-
-        //
-        //
-        //
-
-        final Xobj findXmlnsForPrefix ( String prefix )
-        {
-            assert isContainer() && prefix != null;
-
-            for ( Xobj c = this ; c != null ; c = c._parent )
-                for ( Xobj a = c.firstAttr() ; a != null ; a = a.nextAttr() )
-                    if (a.isXmlns() && a.getXmlnsPrefix().equals( prefix ))
-                        return a;
-
-            return null;
-        }
-
-        final boolean removeAttr ( QName name )
-        {
-            assert isContainer();
-
-            Xobj a = getAttr( name );
-
-            if (a == null)
-                return false;
-
-            Cur c = a.tempCur();
-
-            for ( ; ; )
-            {
-                c.moveNode( null );
-
-                a = getAttr( name );
-
-                if (a == null)
-                    break;
-
-                c.moveTo( a );
-            }
-
-            c.release();
-
-            return true;
-        }
-
-        final Xobj setAttr ( QName name, String value )
-        {
-            assert isContainer();
-
-            Cur c = tempCur();
-
-            if (c.toAttr( name ))
-                c.removeFollowingAttrs();
-            else
-            {
-                c.next();
-                c.createAttr( name );
-            }
-
-            c.setValue( value );
-
-            Xobj a = c._xobj;
-
-            c.release();
-
-            return a;
-        }
-
-        final void setName ( QName newName )
-        {
-            assert isAttr() || isElem() || isProcinst();
-            assert newName != null;
-
-            if (!_name.equals( newName ) || !_name.getPrefix().equals( newName.getPrefix() ))
-            {
-                _locale.notifyGeneralChangeListeners();
-
-                QName oldName = _name;
-
-                _name = newName;
-
-                if (!isProcinst())
-                {
-                    Xobj disconnectFromHere = this;
-                    
-                    if (isAttr() && _parent != null)
-                    {
-                        if (oldName.equals( Locale._xsiType ) || newName.equals( Locale._xsiType ))
-                            disconnectFromHere = _parent;
-                            
-                        if (oldName.equals( Locale._xsiNil ) || newName.equals( Locale._xsiNil ))
-                            _parent.invalidateNil();
-                    }
-
-                    disconnectFromHere.disconnectNonRootUsers();
-                }
-
-                _locale._versionAll++;
-                _locale._versionSansText++;
-            }
-        }
-
-        final Xobj ensureParent ( )
-        {
-            assert _parent != null || (!isRoot() && cchAfter() == 0);
-            return _parent == null ? new DocumentFragXobj( _locale ).appendXobj( this ) : _parent;
-        }
-
-        final Xobj firstAttr ( )
-        {
-            return _firstChild == null || !_firstChild.isAttr() ? null : _firstChild;
-        }
-        
-        final Xobj nextAttr ( )
-        {
-            return _nextSibling == null || !_nextSibling.isAttr() ? null : _nextSibling;
-        }
-
-        final boolean isValid ( )
-        {
-            if (isVacant() && (_cchValue != 0 || _user == null))
-                return false;
-
-            return true;
-        }
-
-        final boolean isNormal ( int p )
-        {
-            if (!isValid())
-                return false;
-            
-            if (p == END_POS)
-                return true;
-
-            if (p < 0 || p > posMax())
-                return false;
-
-            if (isRoot())
-            {
-                if (p >= posAfter())
-                    return false;
-            }
-            else if (!isAttr())
-            {
-                if (p >= posMax())
-                    return false;
-            }
-            else if (p >= posAfter())
-            {
-                if (_cchAfter == 0)
-                    return false;
-
-                if (_nextSibling != null && _nextSibling.isAttr())
-                    return false;
-
-                if (_parent == null || !(_parent.isRoot() || _parent.kind() == ELEM))
-                    return false;
-            }
-
-            return true;
-        }
-
-        Xobj removeXobj ( )
-        {
-            if (_parent != null)
-            {
-                if (_parent._firstChild == this)
-                    _parent._firstChild = _nextSibling;
-
-                if (_parent._lastChild == this)
-                    _parent._lastChild = _prevSibling;
-
-                if (_prevSibling != null)
-                    _prevSibling._nextSibling = _nextSibling;
-
-                if (_nextSibling != null)
-                    _nextSibling._prevSibling = _prevSibling;
-
-                _parent = null;
-                _prevSibling = null;
-                _nextSibling = null;
-            }
-
-            return this;
-        }
-
-        Xobj insertXobj ( Xobj s )
-        {
-            assert _locale == s._locale;
-            assert !s.isRoot() && !isRoot();
-            assert s._parent == null;
-            assert s._prevSibling == null;
-            assert s._nextSibling == null;
-
-            ensureParent();
-
-            s._parent = _parent;
-            s._prevSibling = _prevSibling;
-            s._nextSibling = this;
-
-            if (_prevSibling != null)
-                _prevSibling._nextSibling = s;
-            else
-                _parent._firstChild = s;
-
-            _prevSibling = s;
-
-            return this;
-        }
-
-        Xobj appendXobj ( Xobj c )
-        {
-            assert _locale == c._locale;
-            assert !c.isRoot();
-            assert c._parent == null;
-            assert c._prevSibling == null;
-            assert c._nextSibling == null;
-            assert _lastChild == null || _firstChild != null;
-
-            c._parent = this;
-            c._prevSibling = _lastChild;
-
-            if (_lastChild == null)
-                _firstChild = c;
-            else
-                _lastChild._nextSibling = c;
-
-            _lastChild = c;
-
-            return this;
-        }
-
-        void removeXobjs ( Xobj first, Xobj last )
-        {
-            assert _locale == first._locale;
-            assert last._locale == first._locale;
-            assert first._parent == this;
-            assert last._parent == this;
-
-            if (_firstChild == first)
-                _firstChild = last._nextSibling;
-
-            if (_lastChild == last)
-                _lastChild = first._prevSibling;
-
-            if (first._prevSibling != null)
-                first._prevSibling._nextSibling = last._nextSibling;
-
-            if (last._nextSibling != null)
-                last._nextSibling._prevSibling = first._prevSibling;
-
-            // Leave the children linked together
-            
-            first._prevSibling = null;
-            last._nextSibling = null;
-
-            for ( ; first != null ; first = first._nextSibling )
-                first._parent = null;
-        }
-        
-        void insertXobjs ( Xobj first, Xobj last )
-        {
-            assert _locale == first._locale;
-            assert last._locale == first._locale;
-            assert first._parent == null && last._parent == null;
-            assert first._prevSibling == null;
-            assert last._nextSibling == null;
-
-            first._prevSibling = _prevSibling;
-            last._nextSibling = this;
-
-            if (_prevSibling != null)
-                _prevSibling._nextSibling = first;
-            else
-                _parent._firstChild = first;
-
-            _prevSibling = last;
-
-            for ( ; first != this ; first = first._nextSibling )
-                first._parent = _parent;
-        }
-        
-        void appendXobjs ( Xobj first, Xobj last )
-        {
-            assert _locale == first._locale;
-            assert last._locale == first._locale;
-            assert first._parent == last._parent;
-            assert first._parent == null && last._parent == null;
-            assert first._prevSibling == null;
-            assert last._nextSibling == null;
-            assert !first.isRoot();
-
-            first._prevSibling = _lastChild;
-            
-            if (_lastChild == null)
-                _firstChild = first;
-            else
-                _lastChild._nextSibling = first;
-
-            _lastChild = last;
-
-            for ( ; first != null ; first = first._nextSibling )
-                first._parent = this;
-        }
-
-        String getValue ( int wsr )
-        {
-            ensureOccupancy();
-            return getString( 1, -1, wsr );
-        }
-        
-        String getValue ( )
-        {
-            ensureOccupancy();
-            return getString( 1, -1, Locale.WS_PRESERVE );
-        }
-        
-        String getString ( int pos, int cch, int wsr )
-        {
-            int cchRight = cchRight( pos );
-
-            if (cchRight == 0)
-                return "";
-
-            if (cch < 0 || cch > cchRight)
-                cch = cchRight;
-
-            int pa = posAfter();
-
-            assert pos > 0;
-
-            String s;
-
-            if (pos >= pa)
-            {
-                s = CharUtil.getString( _srcAfter, _offAfter + pos - pa, cch );
-
-                if (pos == pa && cch == _cchAfter)
-                {
-                    _srcAfter = s;
-                    _offAfter = 0;
-                }
-            }
-            else
-            {
-                s = CharUtil.getString( _srcValue, _offValue + pos - 1, cch );
-
-                if (pos == 1 && cch == _cchValue)
-                {
-                    _srcValue = s;
-                    _offValue = 0;
-                }
-            }
-
-            return Locale.applyWhiteSpaceRule( s, wsr );
-        }
-
-        Object getChars ( int pos, int cch, Cur c )
-        {
-            int cchRight = cchRight( pos );
-
-            if (cch < 0 || cch > cchRight)
-                cch = cchRight;
-
-            if (cch == 0)
-            {
-                c._offSrc = 0;
-                c._cchSrc = 0;
-                
-                return null;
-            }
-
-            int pa = posAfter();
-
-            Object src;
-
-            if (pos >= pa)
-            {
-                src = _srcAfter;
-                c._offSrc = _offAfter + pos - pa;
-            }
-            else
-            {
-                src = _srcValue;
-                c._offSrc = _offValue + pos - 1;
-            }
-            
-            c._cchSrc = cch;
-            
-            return src;
-        }
-
-        //
-        // 
-        //
-
-        private final void setBit     ( int mask ) { _bits |=  mask; }
-        private final void clearBit   ( int mask ) { _bits &= ~mask; }
-        
-        private final boolean bitIsSet   ( int mask ) { return (_bits & mask) != 0; }
-        private final boolean bitIsClear ( int mask ) { return (_bits & mask) == 0; }
-
-        private static final int VACANT   = 0x100;
-        private static final int STABLEUSER = 0x200;
-
-        final boolean isVacant     ( ) { return bitIsSet  ( VACANT ); }
-        final boolean isOccupied   ( ) { return bitIsClear( VACANT ); }
-        
-        final boolean isStableUser    ( ) { return bitIsSet( STABLEUSER ); }
-
-        void invalidateNil ( )
-        {
-            if (_user != null)
-                _user.invalidate_nilvalue();
-        }
-
-        void setStableType ( SchemaType type )
-        {
-            assert isValid();
-            assert isRoot(); // Only at root for now
-
-            disconnectUsers( true );
-
-            assert _user == null;
-
-            _user = ((TypeStoreUserFactory) type).createTypeStoreUser();
-
-            _user.attach_store( this );
-
-            setBit( STABLEUSER );
-        }
-
-        void disconnectNonRootUsers ( )
-        {
-            disconnectUsers( !isRoot() );
-        }
-        
-        void disconnectUsers ( boolean doMe )
-        {
-            Xobj x = this;
-
-            main_loop:
-            for ( ; ; )
-            {
-                if (x._firstChild != null && x._user != null &&
-                        (!x.isStableUser() || (x == this && doMe)))
-                {
-                    x = x._firstChild;
-                    continue;
-                }
-
-                for ( ; ; x = x._parent )
-                {
-                    // post document order process here
-
-                    if (x._user != null && (x != this || doMe))
-                    {
-                        x.ensureOccupancy();
-                        x._user.disconnect_store();
-                        x._user = null;
-                    }
-
-                    if (x == this)
-                        break main_loop;
-
-                    if (x._nextSibling != null)
-                    {
-                        x = x._nextSibling;
-                        break;
-                    }
-                }
-            }
-        }
-
-        /**
-         * Given a prefix, returns the namespace corresponding to
-         * the prefix at this location, or null if there is no mapping
-         * for this prefix.
-         * <p>
-         * prefix="" indicates the absence of a prefix.  A return value
-         * of "" indicates the no-namespace, and should not be confused
-         * with a return value of null, which indicates an illegal
-         * state, where there is no mapping for the given prefix.
-         * <p>
-         * If the the default namespace is not explicitly mapped in the xml,
-         * the xml spec says that it should be mapped to the no-namespace.
-         * When the 'defaultAlwaysMapped' parameter is true, the default namepsace
-         * will return the no-namespace even if it is not explicity
-         * mapped, otherwise the default namespace will return null.
-         * <p>
-         * This function intercepts the built-in prefixes "xml" and
-         * "xmlns" and returns their well-known namespace URIs.
-         *
-         * @param prefix The prefix to look up.
-         * @param mapDefault If true, return the no-namespace for the default namespace if not set.
-         * @return The mapped namespace URI ("" if no-namespace), or null if no mapping.
-         */
-        
-        final String namespaceForPrefix ( String prefix, boolean defaultAlwaysMapped )
-        {
-            if (prefix == null)
-                prefix = "";
-            
-            // handle built-in prefixes
-            
-            if (prefix.equals( "xml" ))
-                return Locale._xml1998Uri;
-            
-            if (prefix.equals( "xmlns" ))
-                return Locale._xmlnsUri;
-
-            for ( Xobj x = this ; x != null ; x = x._parent )
-                for ( Xobj a = x._firstChild ; a != null && a.isAttr() ; a = a._nextSibling )
-                    if (a.isXmlns() && a.getXmlnsPrefix().equals( prefix ))
-                        return a.getXmlnsUri();
-
-            return defaultAlwaysMapped && prefix.length() == 0 ? "" : null;
-        }
-
-        final QName getValueAsQName ( )
-        {
-            assert !hasChildren();
-
-            // TODO -
-            // caching the QName value in this object would prevent one from having
-            // to repeat all this string arithmatic over and over again.  Perhaps
-            // when I make the store capable of handling strong simple types this
-            // can be done ...
-
-            String value = getValue( Locale.WS_COLLAPSE );
-            
-            String prefix, localname;
-
-            int firstcolon = value.indexOf( ':' );
-
-            if (firstcolon >= 0)
-            {
-                prefix = value.substring( 0, firstcolon );
-                localname = value.substring( firstcolon + 1 );
-            }
-            else
-            {
-                prefix = "";
-                localname = value;
-            }
-
-            String uri = namespaceForPrefix( prefix, true );
-
-            if (uri == null)
-                return null; // no prefix definition found - that's illegal
-
-            return new QName( uri, localname );
-        }
-        
-        final Xobj getAttr ( QName name )
-        {
-            for ( Xobj x = _firstChild ; x != null && x.isAttr() ; x = x._nextSibling )
-                if (x._name.equals( Locale._xsiType ))
-                    return x;
-
-            return null;
-        }
-        
-        final QName getXsiTypeName ( )
-        {
-            assert isContainer();
-
-            Xobj a = getAttr( Locale._xsiType );
-
-            return a == null ? null : a.getValueAsQName();
-        }
-
-        final TypeStoreUser getUser ( )
-        {
-            assert isUserNode();
-            assert _user != null || (!isRoot() && !isStableUser());
-
-            if (_user == null)
-            {
-                // BUGBUG - this is recursive
-                
-                TypeStoreUser parentUser =
-                    _parent == null
-                        ? ((TypeStoreUserFactory) XmlBeans.NO_TYPE).createTypeStoreUser()
-                        : _parent.getUser();
-
-                _user =
-                    isElem()
-                        ? parentUser.create_element_user( _name, getXsiTypeName() )
-                        : parentUser.create_attribute_user( _name );
-                
-                _user.attach_store( this );
-            }
-
-            return _user;
-        }
-
-        final void invalidateUser ( )
-        {
-            assert isUserNode() && isValid();
-            
-            if (_user != null)
-                _user.invalidate_value();
-        }
-        
-        final void ensureOccupancy ( )
-        {
-            assert isValid();
-            
-            if (isVacant())
-            {
-                assert isUserNode();
-                
-                // In order to use Cur to set the value, I mark the
-                // value as occupied and remove the user to prohibit
-                // further user invalidations
-
-                clearBit( VACANT ); 
-
-                TypeStoreUser user = _user;
-                _user = null;
-                
-                String value = user.build_text( this );
-
-                Cur c = tempCur();
-
-                c.next();
-
-                c.insertChars( value, 0, value.length() );
-
-                c.release();
-
-                _user = user;
-            }
-        }
-        
-        //
-        // TypeStore
-        //
-        
-        public SchemaTypeLoader get_schematypeloader ( )
-        {
-            return _locale._schemaTypeLoader;
-        }
-        
-        public XmlLocale get_locale ( )
-        {
-            return _locale;
-        }
-
-        // TODO - remove this when I've replaced the old store
-        public Object get_root_object ( )
-        {
-            return _locale;
-        }
-        
-        public boolean is_attribute    ( ) { assert isValid(); return isAttr();               }
-        public boolean validate_on_set ( ) { assert isValid(); return _locale._validateOnSet; }
-
-        // TODO - need to set up the frame here for now ... when I have converted the code gen,
-        // do it there and remove it from here.
-        //
-        // Note that not all of these need the temp frame ...
-        
-        public void invalidate_text ( )
-        {
-            _locale.enter();
-
-            try
-            {
-                assert isValid();
-
-                if (!isVacant())
-                {
-                    if (hasTextNoEnureOccupancy() || hasChildren())
-                    {
-                        TypeStoreUser user = _user;
-                        _user = null;
-
-                        Cur c = tempCur();
-                        c.moveNodeContents( null, false );
-                        c.release();
-
-                        _user = user;
-                    }
-
-                    setBit( VACANT );
-                }
-
-                assert isValid();
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public String fetch_text ( int whitespaceRule )
-        {
-            assert isValid() && isOccupied();
-
-            return getValue( whitespaceRule );
-        }
-        
-        public XmlCursor new_cursor ( )
-        {
-            _locale.enter();
-            
-            try
-            {
-                Cur c = tempCur();
-                XmlCursor xc = new Cursor( c );
-                c.release();
-                return xc;
-
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public SchemaField get_schema_field ( )
-        {
-            assert isValid();
-
-            if (isRoot())
-                return null;
-
-            TypeStoreUser parentUser = ensureParent().getUser();
-
-            if (isAttr())
-                return parentUser.get_attribute_field( _name );
-
-            assert isElem();
-
-            TypeStoreVisitor visitor = parentUser.new_visitor();
-
-            if (visitor == null)
-                return null;
-
-            for ( Xobj x = _parent._firstChild ; ; x = x._nextSibling )
-            {
-                if (x.isElem())
-                {
-                    visitor.visit( x._name );
-
-                    if (x == this)
-                        return visitor.get_schema_field();
-                }
-            }
-        }
-
-        public void validate ( ValidatorListener eventSink )
-        {
-            _locale.enter();
-            
-            try
-            {
-                Cur c = tempCur();
-                Validate validate = new Validate( c, eventSink );
-                c.release();
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public TypeStoreUser change_type ( SchemaType type )
-        {
-            _locale.enter();
-            
-            try
-            {
-                Cur c = tempCur();
-                c.setType( type );
-                c.release();
-            }
-            finally
-            {
-                _locale.exit();
-            }
-
-            return _user;
-        }
-        
-        public QName get_xsi_type ( )
-        {
-            return getXsiTypeName();
-        }
-
-        public void store_text ( String text )
-        {
-            _locale.enter();
-            
-            try
-            {
-                Cur c = tempCur();
-                
-                c.moveNodeContents( null, false );
-                
-                if (text != null && text.length() > 0)
-                {
-                    c.next();
-                    c.insertChars( text, 0, text.length() );
-                }
-                
-                c.release();
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public int compute_flags ( )
-        {
-            if (isRoot())
-                return 0;
-            
-            TypeStoreUser parentUser = ensureParent().getUser();
-
-            if (isAttr())
-                return parentUser.get_attributeflags( _name );
-
-            int f = parentUser.get_elementflags( _name );
-
-            if (f != -1)
-                return f;
-            
-            TypeStoreVisitor visitor = parentUser.new_visitor();
-
-            if (visitor == null)
-                return 0;
-            
-            for ( Xobj x = _parent._firstChild ; ; x = x._nextSibling )
-            {
-                if (x.isElem())
-                {
-                    visitor.visit( x._name );
-
-                    if (x == this)
-                        return visitor.get_elementflags();
-                }
-            }
-        }
-        
-        public String compute_default_text ( )
-        {
-            if (isRoot())
-                return null;
-            
-            TypeStoreUser parentUser = ensureParent().getUser();
-
-            if (isAttr())
-                return parentUser.get_default_attribute_text( _name );
-
-            String result = parentUser.get_default_element_text( _name );
-
-            if (result != null)
-                return result;
-
-            TypeStoreVisitor visitor = parentUser.new_visitor();
-
-            if (visitor == null)
-                return null;
-            
-            for ( Xobj x = _parent._firstChild ; ; x = x._nextSibling )
-            {
-                if (x.isElem())
-                {
-                    visitor.visit( x._name );
-
-                    if (x == this)
-                        return visitor.get_default_text();
-                }
-            }
-        }
-        
-        public boolean find_nil ( )
-        {
-            if (isAttr())
-                return false;
-
-            _locale.enter();
-
-            try
-            {
-                Xobj a = getAttr( Locale._xsiNil );
-
-                if (a == null)
-                    return false;
-
-                String value = a.getValue( Locale.WS_COLLAPSE );
-
-                return value.equals( "true" ) || value.equals( "1" );
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public void invalidate_nil ( )
-        {
-            if (isAttr())
-                return;
-
-            _locale.enter();
-
-            try
-            {
-                if (!_user.build_nil())
-                    removeAttr( Locale._xsiNil );
-                else
-                    setAttr( Locale._xsiNil, "true" );
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public int count_elements ( QName name )
-        {
-            int count = 0;
-            
-            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && x._name.equals( name ))
-                    count++;
-
-            return count;
-        }
-        
-        public int count_elements ( QNameSet names )
-        {
-            int count = 0;
-            
-            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && names.contains( x._name ))
-                    count++;
-
-            return count;
-        }
-        
-        public TypeStoreUser find_element_user ( QName name, int i )
-        {
-            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && x._name.equals( name ) && --i < 0)
-                    return x.getUser();
-
-            return null;
-        }
-        
-        public TypeStoreUser find_element_user ( QNameSet names, int i )
-        {
-            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && names.contains( x._name ) && --i < 0)
-                    return x.getUser();
-
-            return null;
-        }
-        
-        public void find_all_element_users ( QName name, List fillMeUp )
-        {
-            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && x._name.equals( name ))
-                    fillMeUp.add( x.getUser() );
-        }
-        
-        public void find_all_element_users ( QNameSet names, List fillMeUp )
-        {
-            for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && names.contains( x._name ))
-                    fillMeUp.add( x.getUser() );
-        }
-
-        private static TypeStoreUser insertElement ( QName name, Xobj x, int pos )
-        {
-            x._locale.enter();
-
-            try
-            {
-                Cur c = x._locale.tempCur();
-                c.moveTo( x, pos );
-                c.createElement( name );
-                TypeStoreUser user = c.getUser();
-                c.release();
-                return user;
-            }
-            finally
-            {
-                x._locale.exit();
-            }
-        }
-        
-        public TypeStoreUser insert_element_user ( QName name, int i )
-        {
-            if (i < 0)
-                throw new IndexOutOfBoundsException();
-
-            if (!isContainer())
-                throw new IllegalStateException();
-            
-            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && x._name.equals( name ) && --i < 0)
-                    return insertElement( name, x, 0 );
-
-            return add_element_user( name );
-        }
-        
-        public TypeStoreUser insert_element_user ( QNameSet names, QName name, int i )
-        {
-            if (i < 0)
-                throw new IndexOutOfBoundsException();
-
-            if (!isContainer())
-                throw new IllegalStateException();
-            
-            for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && names.contains( x._name ) && --i < 0)
-                    return insertElement( name, x, 0 );
-
-            return add_element_user( name );
-        }
-        
-        public TypeStoreUser add_element_user ( QName name )
-        {
-            if (!isContainer())
-                throw new IllegalStateException();
-
-            QNameSet endSet = null;
-            Xobj candidate = null;
-
-            for ( ; ; )
-            {
-                Xobj x = candidate == null ? _lastChild : candidate._prevSibling;
-
-                while ( x != null && !x.isElem() )
-                    x = x._prevSibling;
-
-                if (x == null || x._name.equals( name ))
-                    break;
-
-                if (endSet == null)
-                    endSet = _user.get_element_ending_delimiters( name );
-
-                if (endSet.contains( x._name ))
-                    candidate = x;
-            }
-
-            return
-                candidate == null
-                    ? insertElement( name, this, END_POS )
-                    : insertElement( name, candidate, 0 );
-        }
-        
-        private static void removeElement ( Xobj x )
-        {
-            if (x == null)
-                throw new IndexOutOfBoundsException();
-            
-            x._locale.enter();
-
-            try
-            {
-                Cur c = x.tempCur();
-                c.moveNode( null );
-                c.release();
-            }
-            finally
-            {
-                x._locale.exit();
-            }
-        }
-                
-        public void remove_element ( QName name, int i )
-        {
-            if (i < 0)
-                throw new IndexOutOfBoundsException();
-
-            if (!isContainer())
-                throw new IllegalStateException();
-
-            Xobj x;
-            
-            for ( x = _firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && x._name.equals( name ) && --i < 0)
-                    break;
-
-            removeElement( x );
-        }
-        
-        public void remove_element ( QNameSet names, int i )
-        {
-            if (i < 0)
-                throw new IndexOutOfBoundsException();
-
-            if (!isContainer())
-                throw new IllegalStateException();
-
-            Xobj x;
-            
-            for ( x = _firstChild ; x != null ; x = x._nextSibling )
-                if (x.isElem() && names.contains( x._name ) && --i < 0)
-                    break;
-
-            removeElement( x );
-        }
-        
-        public TypeStoreUser find_attribute_user ( QName name )
-        {
-            Xobj a = getAttr( name );
-
-            return a == null ? null : a.getUser();
-        }
-        
-        public TypeStoreUser add_attribute_user ( QName name )
-        {
-            if (getAttr( name ) != null)
-                throw new IndexOutOfBoundsException();
-
-            _locale.enter();
-
-            try
-            {
-                return setAttr( name, "" ).getUser();
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public void remove_attribute ( QName name )
-        {
-            try
-            {
-                if (!removeAttr( name ))
-                    throw new IndexOutOfBoundsException();
-            }
-            finally
-            {
-                _locale.exit();
-            }
-        }
-        
-        public TypeStoreUser copy_contents_from ( TypeStore source )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public void array_setter ( XmlObject[] sources, QName elementName )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public void visit_elements ( TypeStoreVisitor visitor )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public XmlObject[] exec_query ( String queryExpr, XmlOptions options ) throws XmlException
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public String find_prefix_for_nsuri ( String nsuri, String suggested_prefix )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-        
-        public String getNamespaceForPrefix ( String prefix )
-        {
-            throw new RuntimeException( "Not implemeneted" );
-        }
-
-        //
-        //
-        //
-
-        Locale _locale;
-        QName _name;
-
-        private Cur _embedded;
-        
-        private int _bits;
-
-        private Xobj _parent;
-        private Xobj _nextSibling;
-        private Xobj _prevSibling;
-        private Xobj _firstChild;
-        private Xobj _lastChild;
-        
-        private Object _srcValue, _srcAfter;
-        private int    _offValue, _offAfter;
-        private int    _cchValue, _cchAfter;
-
-        // TODO - put this in a ptr off this node
-        private CharNode _charNodesValue;
-        private CharNode _charNodesAfter;
-
-        // TODO - put this in a ptr off this node
-        private TypeStoreUser _user;
-    }
-
-    private abstract static class NodeXobj extends Xobj implements Dom, Node, NodeList
-    {
-        NodeXobj ( Locale l, int kind, int domType )
-        {
-            super( l, kind, domType );
-        }
-
-        Dom getDom ( ) { return this; }
-
-        //
-        //
-        //
-        
-        public int getLength ( ) { return DomImpl._childNodes_getLength( this ); }
-        public Node item ( int i ) { return DomImpl._childNodes_item( this, i ); }
-
-        public Node appendChild ( Node newChild ) { return DomImpl._node_appendChild( this, newChild ); }
-        public Node cloneNode ( boolean deep ) { return DomImpl._node_cloneNode( this, deep ); }
-        public NamedNodeMap getAttributes ( ) { return null; }
-        public NodeList getChildNodes ( ) { return this; }
-        public Node getParentNode ( ) { return DomImpl._node_getParentNode( this ); }
-        public Node removeChild ( Node oldChild ) { return DomImpl._node_removeChild( this, oldChild ); }
-        public Node getFirstChild ( ) { return DomImpl._node_getFirstChild( this ); }
-        public Node getLastChild ( ) { return DomImpl._node_getLastChild( this ); }
-        public String getLocalName ( ) { return DomImpl._node_getLocalName( this ); }
-        public String getNamespaceURI ( ) { return DomImpl._node_getNamespaceURI( this ); }
-        public Node getNextSibling ( ) { return DomImpl._node_getNextSibling( this ); }
-        public String getNodeName ( ) { return DomImpl._node_getNodeName( this ); }
-        public short getNodeType ( ) { return DomImpl._node_getNodeType( this ); }
-        public String getNodeValue ( ) { return DomImpl._node_getNodeValue( this ); }
-        public Document getOwnerDocument ( ) { return DomImpl._node_getOwnerDocument( this ); }
-        public String getPrefix ( ) { return DomImpl._node_getPrefix( this ); }
-        public Node getPreviousSibling ( ) { return DomImpl._node_getPreviousSibling( this ); }
-        public boolean hasAttributes ( ) { return DomImpl._node_hasAttributes( this ); }
-        public boolean hasChildNodes ( ) { return DomImpl._node_hasChildNodes( this ); }
-        public Node insertBefore ( Node newChild, Node refChild ) { return DomImpl._node_insertBefore( this, newChild, refChild ); }
-        public boolean isSupported ( String feature, String version ) { return DomImpl._node_isSupported( this, feature, version ); }
-        public void normalize ( ) { DomImpl._node_normalize( this ); }
-        public Node replaceChild ( Node newChild, Node oldChild ) { return DomImpl._node_replaceChild( this, newChild, oldChild ); }
-        public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
-        public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
-        
-        // DOM Level 3
-        public Object getUserData ( String key ) { return DomImpl._node_getUserData( this, key ); }
-        public Object setUserData ( String key, Object data, UserDataHandler handler ) { return DomImpl._node_setUserData( this, key, data, handler ); }
-        public Object getFeature ( String feature, String version ) { return DomImpl._node_getFeature( this, feature, version ); }
-        public boolean isEqualNode ( Node arg ) { return DomImpl._node_isEqualNode( this, arg ); }
-        public boolean isSameNode ( Node arg ) { return DomImpl._node_isSameNode( this, arg ); }
-        public String lookupNamespaceURI ( String prefix ) { return DomImpl._node_lookupNamespaceURI( this, prefix ); }
-        public String lookupPrefix ( String namespaceURI ) { return DomImpl._node_lookupPrefix( this, namespaceURI ); }
-        public boolean isDefaultNamespace ( String namespaceURI ) { return DomImpl._node_isDefaultNamespace( this, namespaceURI ); }
-        public void setTextContent ( String textContent ) { DomImpl._node_setTextContent( this, textContent ); }
-        public String getTextContent ( ) { return DomImpl._node_getTextContent( this ); }
-        public short compareDocumentPosition ( Node other ) { return DomImpl._node_compareDocumentPosition( this, other ); }
-        public String getBaseURI ( ) { return DomImpl._node_getBaseURI( this ); }
-    }
-
-    private final static class DocumentXobj extends NodeXobj implements Document
-    {
-        DocumentXobj ( Locale l )
-        {
-            super( l, ROOT, DomImpl.DOCUMENT );
-        }
-        
-        Xobj newNode ( ) { return new DocumentXobj( _locale ); }
-        
-        //
-        //
-        //
-        
-        public Attr createAttribute ( String name ) { return DomImpl._document_createAttribute( this, name ); }
-        public Attr createAttributeNS ( String namespaceURI, String qualifiedName ) { return DomImpl._document_createAttributeNS( this, namespaceURI, qualifiedName ); }
-        public CDATASection createCDATASection ( String data ) { return DomImpl._document_createCDATASection( this, data ); }
-        public Comment createComment ( String data ) { return DomImpl._document_createComment( this, data ); }
-        public DocumentFragment createDocumentFragment ( ) { return DomImpl._document_createDocumentFragment( this ); }
-        public Element createElement ( String tagName ) { return DomImpl._document_createElement( this, tagName ); }
-        public Element createElementNS ( String namespaceURI, String qualifiedName ) { return DomImpl._document_createElementNS( this, namespaceURI, qualifiedName ); }
-        public EntityReference createEntityReference ( String name ) { return DomImpl._document_createEntityReference( this, name ); }
-        public ProcessingInstruction createProcessingInstruction ( String target, String data ) { return DomImpl._document_createProcessingInstruction( this, target, data ); }
-        public Text createTextNode ( String data ) { return DomImpl._document_createTextNode( this, data ); }
-        public DocumentType getDoctype ( ) { return DomImpl._document_getDoctype( this ); }
-        public Element getDocumentElement ( ) { return DomImpl._document_getDocumentElement( this ); }
-        public Element getElementById ( String elementId ) { return DomImpl._document_getElementById( this, elementId ); }
-        public NodeList getElementsByTagName ( String tagname ) { return DomImpl._document_getElementsByTagName( this, tagname ); }
-        public NodeList getElementsByTagNameNS ( String namespaceURI, String localName ) { return DomImpl._document_getElementsByTagNameNS( this, namespaceURI, localName ); }
-        public DOMImplementation getImplementation ( ) { return DomImpl._document_getImplementation( this ); }
-        public Node importNode ( Node importedNode, boolean deep ) { return DomImpl._document_importNode( this, importedNode, deep ); }
-
-        // DOM Level 3
-        public Node adoptNode ( Node source ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getDocumentURI ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public DOMConfiguration getDomConfig ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getInputEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public boolean getStrictErrorChecking ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getXmlEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public boolean getXmlStandalone ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getXmlVersion ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void normalizeDocument ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public Node renameNode ( Node n, String namespaceURI, String qualifiedName ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setDocumentURI ( String documentURI ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setStrictErrorChecking ( boolean strictErrorChecking ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setXmlStandalone ( boolean xmlStandalone ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setXmlVersion ( String xmlVersion ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-    }
-
-    private static class DocumentFragXobj extends NodeXobj implements DocumentFragment
-    {
-        DocumentFragXobj ( Locale l ) { super( l, ROOT, DomImpl.DOCFRAG ); }
-        
-        Xobj newNode ( ) { return new DocumentFragXobj( _locale ); }
-    }
-
-    private final static class ElementAttributes implements NamedNodeMap
-    {
-        ElementAttributes ( ElementXobj elementXobj )
-        {
-            _elementXobj = elementXobj;
-        }
-        
-        public int getLength ( ) { return DomImpl._attributes_getLength( _elementXobj ); }
-        public Node getNamedItem ( String name ) { return DomImpl._attributes_getNamedItem ( _elementXobj, name ); }
-        public Node getNamedItemNS ( String namespaceURI, String localName ) { return DomImpl._attributes_getNamedItemNS ( _elementXobj, namespaceURI, localName ); }
-        public Node item ( int index ) { return DomImpl._attributes_item ( _elementXobj, index ); }
-        public Node removeNamedItem ( String name ) { return DomImpl._attributes_removeNamedItem ( _elementXobj, name ); }
-        public Node removeNamedItemNS ( String namespaceURI, String localName ) { return DomImpl._attributes_removeNamedItemNS ( _elementXobj, namespaceURI, localName ); }
-        public Node setNamedItem ( Node arg ) { return DomImpl._attributes_setNamedItem ( _elementXobj, arg ); }
-        public Node setNamedItemNS ( Node arg ) { return DomImpl._attributes_setNamedItemNS ( _elementXobj, arg ); }
-
-        private ElementXobj _elementXobj;
-    }
-    
-    private static class ElementXobj extends NodeXobj implements Element
-    {
-        ElementXobj ( Locale l, QName name )
-        {
-            super( l, ELEM, DomImpl.ELEMENT );
-            _name = name;
-        }
-        
-        Xobj newNode ( ) { return new ElementXobj( _locale, _name ); }
-        
-        //
-        //
-        //
-        
-        public NamedNodeMap getAttributes ( )
-        {
-            if (_attributes == null)
-                _attributes = new ElementAttributes( this );
-            
-            return _attributes;
-        }
-        
-        public String getAttribute ( String name ) { return DomImpl._element_getAttribute( this, name ); }
-        public Attr getAttributeNode ( String name ) { return DomImpl._element_getAttributeNode( this, name ); }
-        public Attr getAttributeNodeNS ( String namespaceURI, String localName ) { return DomImpl._element_getAttributeNodeNS( this, namespaceURI, localName ); }
-        public String getAttributeNS ( String namespaceURI, String localName ) { return DomImpl._element_getAttributeNS( this, namespaceURI, localName ); }
-        public NodeList getElementsByTagName ( String name ) { return DomImpl._element_getElementsByTagName( this, name ); }
-        public NodeList getElementsByTagNameNS ( String namespaceURI, String localName ) { return DomImpl._element_getElementsByTagNameNS( this, namespaceURI, localName ); }
-        public String getTagName ( ) { return DomImpl._element_getTagName( this ); }
-        public boolean hasAttribute ( String name ) { return DomImpl._element_hasAttribute( this, name ); }
-        public boolean hasAttributeNS ( String namespaceURI, String localName ) { return DomImpl._element_hasAttributeNS( this, namespaceURI, localName ); }
-        public void removeAttribute ( String name ) { DomImpl._element_removeAttribute( this, name ); }
-        public Attr removeAttributeNode ( Attr oldAttr ) { return DomImpl._element_removeAttributeNode( this, oldAttr ); }
-        public void removeAttributeNS ( String namespaceURI, String localName ) { DomImpl._element_removeAttributeNS( this, namespaceURI, localName ); }
-        public void setAttribute ( String name, String value ) { DomImpl._element_setAttribute( this, name, value ); }
-        public Attr setAttributeNode ( Attr newAttr ) { return DomImpl._element_setAttributeNode( this, newAttr ); }
-        public Attr setAttributeNodeNS ( Attr newAttr ) { return DomImpl._element_setAttributeNodeNS( this, newAttr ); }
-        public void setAttributeNS ( String namespaceURI, String qualifiedName, String value ) { DomImpl._element_setAttributeNS( this, namespaceURI, qualifiedName, value ); }
-        
-        // DOM Level 3
-        public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setIdAttribute ( String name, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setIdAttributeNS ( String namespaceURI, String localName, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setIdAttributeNode ( Attr idAttr, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-
-        private ElementAttributes _attributes;
-    }
-
-    private static class AttrXobj extends NodeXobj implements Attr
-    {
-        AttrXobj ( Locale l, QName name )
-        {
-            super( l, ATTR, DomImpl.ATTR );
-            _name = name;
-        }
-
-        Xobj newNode ( ) { return new AttrXobj( _locale, _name ); }
-        
-        //
-        //
-        //
-
-        public String getName ( ) { return DomImpl._node_getNodeName( this ); }
-        public Element getOwnerElement ( ) { return DomImpl._attr_getOwnerElement( this ); }
-        public boolean getSpecified ( ) { return DomImpl._attr_getSpecified( this ); }
-        public String getValue ( ) { return DomImpl._node_getNodeValue( this ); }
-        public void setValue ( String value ) { DomImpl._node_setNodeValue( this, value ); }
-        
-        // DOM Level 3
-        public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public boolean isId ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-    }
-    
-    private static class CommentXobj extends NodeXobj implements Comment
-    {
-        CommentXobj ( Locale l ) { super( l, COMMENT, DomImpl.COMMENT ); }
-
-        Xobj newNode ( ) { return new CommentXobj( _locale ); }
-        
-        public NodeList getChildNodes ( ) { return DomImpl._emptyNodeList; }
-        
-        public void appendData ( String arg ) { DomImpl._characterData_appendData( this, arg ); }
-        public void deleteData ( int offset, int count ) { DomImpl._characterData_deleteData( this, offset, count ); }
-        public String getData ( ) { return DomImpl._characterData_getData( this ); }
-        public int getLength ( ) { return DomImpl._characterData_getLength( this ); }
-        public void insertData ( int offset, String arg ) { DomImpl._characterData_insertData( this, offset, arg ); }
-        public void replaceData ( int offset, int count, String arg ) { DomImpl._characterData_replaceData( this, offset, count, arg ); }
-        public void setData ( String data ) { DomImpl._characterData_setData( this, data ); }
-        public String substringData ( int offset, int count ) { return DomImpl._characterData_substringData( this, offset, count ); }
-    }
-
-    private static class ProcInstXobj extends NodeXobj implements ProcessingInstruction
-    {
-        ProcInstXobj ( Locale l, String target )
-        {
-            super( l, PROCINST, DomImpl.PROCINST );
-            _name = _locale.makeQName( null, target );
-        }
-        
-        Xobj newNode ( ) { return new ProcInstXobj( _locale, _name.getLocalPart() ); }
-        
-        public String getData ( ) { return DomImpl._processingInstruction_getData( this ); }
-        public String getTarget ( ) { return DomImpl._processingInstruction_getTarget( this ); }
-        public void setData ( String data ) { DomImpl._processingInstruction_setData( this, data ); }
-    }
-    
-    //
-    // SAAJ objects
-    //
-
-    private static class SoapPartDocXobj extends Xobj
-    {
-        SoapPartDocXobj ( Locale l )
-        {
-            super( l, ROOT, DomImpl.DOCUMENT );
-            _soapPartDom = new SoapPartDom( this );
-        }
-
-        Dom getDom ( ) { return _soapPartDom; }
-
-        Xobj newNode ( ) { return new SoapPartDocXobj( _locale ); }
-        
-        SoapPartDom _soapPartDom;
-    }
-    
-    private static class SoapPartDom extends SOAPPart implements Dom, Document, NodeList
-    {
-        SoapPartDom ( SoapPartDocXobj docXobj )
-        {
-            _docXobj = docXobj;
-        }
-        
-        public int    nodeType ( ) { return DomImpl.DOCUMENT;   }
-        public Locale locale   ( ) { return _docXobj._locale;   }
-        public Cur    tempCur  ( ) { return _docXobj.tempCur(); }
-        public QName  getQName ( ) { return _docXobj._name;     }
-        
-        public void dump ( ) { dump( System.out ); }
-        public void dump ( PrintStream o ) { _docXobj.dump( o ); }
-        public void dump ( PrintStream o, Object ref ) { _docXobj.dump( o, ref ); }
-
-        public String name ( ) { return "#document"; }
-        
-        public Node appendChild ( Node newChild ) { return DomImpl._node_appendChild( this, newChild ); }
-        public Node cloneNode ( boolean deep ) { return DomImpl._node_cloneNode( this, deep ); }
-        public NamedNodeMap getAttributes ( ) { return null; }
-        public NodeList getChildNodes ( ) { return this; }
-        public Node getParentNode ( ) { return DomImpl._node_getParentNode( this ); }
-        public Node removeChild ( Node oldChild ) { return DomImpl._node_removeChild( this, oldChild ); }
-        public Node getFirstChild ( ) { return DomImpl._node_getFirstChild( this ); }
-        public Node getLastChild ( ) { return DomImpl._node_getLastChild( this ); }
-        public String getLocalName ( ) { return DomImpl._node_getLocalName( this ); }
-        public String getNamespaceURI ( ) { return DomImpl._node_getNamespaceURI( this ); }
-        public Node getNextSibling ( ) { return DomImpl._node_getNextSibling( this ); }
-        public String getNodeName ( ) { return DomImpl._node_getNodeName( this ); }
-        public short getNodeType ( ) { return DomImpl._node_getNodeType( this ); }
-        public String getNodeValue ( ) { return DomImpl._node_getNodeValue( this ); }
-        public Document getOwnerDocument ( ) { return DomImpl._node_getOwnerDocument( this ); }
-        public String getPrefix ( ) { return DomImpl._node_getPrefix( this ); }
-        public Node getPreviousSibling ( ) { return DomImpl._node_getPreviousSibling( this ); }
-        public boolean hasAttributes ( ) { return DomImpl._node_hasAttributes( this ); }
-        public boolean hasChildNodes ( ) { return DomImpl._node_hasChildNodes( this ); }
-        public Node insertBefore ( Node newChild, Node refChild ) { return DomImpl._node_insertBefore( this, newChild, refChild ); }
-        public boolean isSupported ( String feature, String version ) { return DomImpl._node_isSupported( this, feature, version ); }
-        public void normalize ( ) { DomImpl._node_normalize( this ); }
-        public Node replaceChild ( Node newChild, Node oldChild ) { return DomImpl._node_replaceChild( this, newChild, oldChild ); }
-        public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
-        public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
-        
-        // DOM Level 3
-        public Object getUserData ( String key ) { return DomImpl._node_getUserData( this, key ); }
-        public Object setUserData ( String key, Object data, UserDataHandler handler ) { return DomImpl._node_setUserData( this, key, data, handler ); }
-        public Object getFeature ( String feature, String version ) { return DomImpl._node_getFeature( this, feature, version ); }
-        public boolean isEqualNode ( Node arg ) { return DomImpl._node_isEqualNode( this, arg ); }
-        public boolean isSameNode ( Node arg ) { return DomImpl._node_isSameNode( this, arg ); }
-        public String lookupNamespaceURI ( String prefix ) { return DomImpl._node_lookupNamespaceURI( this, prefix ); }
-        public String lookupPrefix ( String namespaceURI ) { return DomImpl._node_lookupPrefix( this, namespaceURI ); }
-        public boolean isDefaultNamespace ( String namespaceURI ) { return DomImpl._node_isDefaultNamespace( this, namespaceURI ); }
-        public void setTextContent ( String textContent ) { DomImpl._node_setTextContent( this, textContent ); }
-        public String getTextContent ( ) { return DomImpl._node_getTextContent( this ); }
-        public short compareDocumentPosition ( Node other ) { return DomImpl._node_compareDocumentPosition( this, other ); }
-        public String getBaseURI ( ) { return DomImpl._node_getBaseURI( this ); }
-        public Node adoptNode ( Node source ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getDocumentURI ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public DOMConfiguration getDomConfig ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getInputEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public boolean getStrictErrorChecking ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getXmlEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public boolean getXmlStandalone ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public String getXmlVersion ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void normalizeDocument ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public Node renameNode ( Node n, String namespaceURI, String qualifiedName ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setDocumentURI ( String documentURI ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setStrictErrorChecking ( boolean strictErrorChecking ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setXmlStandalone ( boolean xmlStandalone ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-        public void setXmlVersion ( String xmlVersion ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
-                
-        public Attr createAttribute ( String name ) { return DomImpl._document_createAttribute( this, name ); }
-        public Attr createAttributeNS ( String namespaceURI, String qualifiedName ) { return DomImpl._document_createAttributeNS( this, namespaceURI, qualifiedName ); }
-        public CDATASection createCDATASection ( String data ) { return DomImpl._document_createCDATASection( this, data ); }
-        public Comment createComment ( String data ) { return DomImpl._document_createComment( this, data ); }
-        public DocumentFragment createDocumentFragment ( ) { return DomImpl._document_createDocumentFragment( this ); }
-        public Element createElement ( String tagName ) { return DomImpl._document_createElement( this, tagName ); }
-        public Element createElementNS ( String namespaceURI, String qualifiedName ) { return DomImpl._document_createElementNS( this, namespaceURI, qualifiedName ); }
-        public EntityReference createEntityReference ( String name ) { return DomImpl._document_createEntityReference( this, name ); }
-        public ProcessingInstruction createProcessingInstruction ( String target, String data ) { return DomImpl._document_createProcessingInstruction( this, target, data ); }
-        public Text createTextNode ( String data ) { return DomImpl._document_createTextNode( this, data ); }
-        public DocumentType getDoctype ( ) { return DomImpl._document_getDoctype( this ); }
-        public Element getDocumentElement ( ) { return DomImpl._document_getDocumentElement( this ); }
-        public Element getElementById ( String elementId ) { return DomImpl._document_getElementById( this, elementId ); }
-        public NodeList getElementsByTagName ( String tagname ) { return DomImpl._document_getElementsByTagName( this, tagname ); }
-        public NodeList getElementsByTagNameNS ( String namespaceURI, String localName ) { return DomImpl._document_getElementsByTagNameNS( this, namespaceURI, localName ); }
-        public DOMImplementation getImplementation ( ) { return DomImpl._document_getImplementation( this ); }
-        public Node importNode ( Node importedNode, boolean deep ) { return DomImpl._document_importNode( this, importedNode, deep ); }
-
-        public int getLength ( ) { return DomImpl._childNodes_getLength( this ); }
-        public Node item ( int i ) { return DomImpl._childNodes_item( this, i ); }
-
-        public void removeAllMimeHeaders ( ) { DomImpl._soapPart_removeAllMimeHeaders( this ); }
-        public void removeMimeHeader ( String name ) { DomImpl._soapPart_removeMimeHeader( this, name ); }
-        public Iterator getAllMimeHeaders ( ) { return DomImpl._soapPart_getAllMimeHeaders( this ); }
-        public SOAPEnvelope getEnvelope ( ) { return DomImpl._soapPart_getEnvelope( this ); }
-        public Source getContent ( ) { return DomImpl._soapPart_getContent( this ); }
-        public void setContent ( Source source ) { DomImpl._soapPart_setContent( this, source ); }
-        public String[] getMimeHeader ( String name ) { return DomImpl._soapPart_getMimeHeader( this, name ); }
-        public void addMimeHeader ( String name, String value ) { DomImpl._soapPart_addMimeHeader( this, name,value ); }
-        public void setMimeHeader ( String name, String value ) { DomImpl._soapPart_setMimeHeader( this, name, value ); }
-        public Iterator getMatchingMimeHeaders ( String[] names ) { return DomImpl._soapPart_getMatchingMimeHeaders( this, names ); }
-        public Iterator getNonMatchingMimeHeaders ( String[] names ) { return DomImpl._soapPart_getNonMatchingMimeHeaders( this, names ); }
-    
-        SoapPartDocXobj _docXobj;
-    }
-
-    private static class SoapElementXobj
-        extends ElementXobj implements SOAPElement, javax.xml.soap.Node
-    {
-        SoapElementXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new SoapElementXobj( _locale, _name ); }
-        
-        public void detachNode ( ) { DomImpl._soapNode_detachNode( this ); }
-        public void recycleNode ( ) { DomImpl._soapNode_recycleNode( this ); }
-        public String getValue ( ) { return DomImpl._soapNode_getValue( this ); }
-        public void setValue ( String value ) { DomImpl._soapNode_setValue( this, value ); }
-        public SOAPElement getParentElement ( ) { return DomImpl._soapNode_getParentElement( this ); }
-        public void setParentElement ( SOAPElement p ) { DomImpl._soapNode_setParentElement( this, p ); }
-        
-        public void removeContents ( ) { DomImpl._soapElement_removeContents( this ); }
-        public String getEncodingStyle ( ) { return DomImpl._soapElement_getEncodingStyle( this ); }
-        public void setEncodingStyle ( String encodingStyle ) { DomImpl._soapElement_setEncodingStyle( this, encodingStyle ); }
-        public boolean removeNamespaceDeclaration ( String prefix ) { return DomImpl._soapElement_removeNamespaceDeclaration( this, prefix ); }
-        public Iterator getAllAttributes ( ) { return DomImpl._soapElement_getAllAttributes( this ); }
-        public Iterator getChildElements ( ) { return DomImpl._soapElement_getChildElements( this ); }
-        public Iterator getNamespacePrefixes ( ) { return DomImpl._soapElement_getNamespacePrefixes( this ); }
-        public SOAPElement addAttribute ( Name name, String value ) throws SOAPException { return DomImpl._soapElement_addAttribute( this, name, value ); }
-        public SOAPElement addChildElement ( SOAPElement oldChild ) throws SOAPException { return DomImpl._soapElement_addChildElement( this, oldChild ); }
-        public SOAPElement addChildElement ( Name name ) throws SOAPException { return DomImpl._soapElement_addChildElement( this, name ); }
-        public SOAPElement addChildElement ( String localName ) throws SOAPException { return DomImpl._soapElement_addChildElement( this, localName ); }
-        public SOAPElement addChildElement ( String localName, String prefix ) throws SOAPException { return DomImpl._soapElement_addChildElement( this, localName, prefix ); }
-        public SOAPElement addChildElement ( String localName, String prefix, String uri ) throws SOAPException { return DomImpl._soapElement_addChildElement( this, localName, prefix, uri ); }
-        public SOAPElement addNamespaceDeclaration ( String prefix, String uri ) { return DomImpl._soapElement_addNamespaceDeclaration( this, prefix, uri ); }
-        public SOAPElement addTextNode ( String data ) { return DomImpl._soapElement_addTextNode( this, data ); }
-        public String getAttributeValue ( Name name ) { return DomImpl._soapElement_getAttributeValue( this, name ); }
-        public Iterator getChildElements ( Name name ) { return DomImpl._soapElement_getChildElements( this, name ); }
-        public Name getElementName ( ) { return DomImpl._soapElement_getElementName( this ); }
-        public String getNamespaceURI ( String prefix ) { return DomImpl._soapElement_getNamespaceURI( this, prefix ); }
-        public Iterator getVisibleNamespacePrefixes ( ) { return DomImpl._soapElement_getVisibleNamespacePrefixes( this ); }
-        public boolean removeAttribute ( Name name ) { return DomImpl._soapElement_removeAttribute( this, name ); }
-    }
-    
-    private static class SoapBodyXobj extends SoapElementXobj implements SOAPBody
-    {
-        SoapBodyXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new SoapBodyXobj( _locale, _name ); }
-        
-        public boolean hasFault ( ) { return DomImpl.soapBody_hasFault( this ); }
-        public SOAPFault addFault ( ) throws SOAPException { return DomImpl.soapBody_addFault( this ); }
-        public SOAPFault getFault ( ) { return DomImpl.soapBody_getFault( this ); }
-        public SOAPBodyElement addBodyElement ( Name name ) { return DomImpl.soapBody_addBodyElement( this, name ); }
-        public SOAPBodyElement addDocument ( Document document ) { return DomImpl.soapBody_addDocument( this, document ); }
-        public SOAPFault addFault ( Name name, String s ) throws SOAPException { return DomImpl.soapBody_addFault( this, name, s ); }
-        public SOAPFault addFault ( Name faultCode, String faultString, java.util.Locale locale ) throws SOAPException { return DomImpl.soapBody_addFault( this, faultCode, faultString, locale ); }
-    }
-    
-    private static class SoapBodyElementXobj extends SoapElementXobj implements SOAPBodyElement
-    {
-        SoapBodyElementXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new SoapBodyElementXobj( _locale, _name ); }
-    }
-    
-    private static class SoapEnvelopeXobj extends SoapElementXobj implements SOAPEnvelope
-    {
-        SoapEnvelopeXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new SoapEnvelopeXobj( _locale, _name ); }
-        
-        public SOAPBody addBody ( ) throws SOAPException { return DomImpl._soapEnvelope_addBody( this ); }
-        public SOAPBody getBody ( ) throws SOAPException { return DomImpl._soapEnvelope_getBody( this ); }
-        public SOAPHeader getHeader ( ) throws SOAPException { return DomImpl._soapEnvelope_getHeader( this ); }
-        public SOAPHeader addHeader ( ) throws SOAPException { return DomImpl._soapEnvelope_addHeader( this ); }
-        public Name createName ( String localName ) { return DomImpl._soapEnvelope_createName( this, localName ); }
-        public Name createName ( String localName, String prefix, String namespaceURI ) { return DomImpl._soapEnvelope_createName( this, localName, prefix, namespaceURI ); }
-    }
-
-    private static class SoapHeaderXobj extends SoapElementXobj implements SOAPHeader
-    {
-        SoapHeaderXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new SoapHeaderXobj( _locale, _name ); }
-        
-        public Iterator examineAllHeaderElements ( ) { return DomImpl.soapHeader_examineAllHeaderElements( this ); }
-        public Iterator extractAllHeaderElements ( ) { return DomImpl.soapHeader_extractAllHeaderElements( this ); }
-        public Iterator examineHeaderElements ( String actor ) { return DomImpl.soapHeader_examineHeaderElements( this, actor ); }
-        public Iterator examineMustUnderstandHeaderElements ( String mustUnderstandString ) { return DomImpl.soapHeader_examineMustUnderstandHeaderElements( this, mustUnderstandString ); }
-        public Iterator extractHeaderElements ( String actor ) { return DomImpl.soapHeader_extractHeaderElements( this, actor ); }
-        public SOAPHeaderElement addHeaderElement ( Name name ) { return DomImpl.soapHeader_addHeaderElement( this, name ); }
-    }
-    
-    private static class SoapHeaderElementXobj extends SoapElementXobj implements SOAPHeaderElement
-    {
-        SoapHeaderElementXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new SoapHeaderElementXobj( _locale, _name ); }
-        
-        public void setMustUnderstand ( boolean mustUnderstand ) { DomImpl.soapHeaderElement_setMustUnderstand( this, mustUnderstand ); }
-        public boolean getMustUnderstand ( ) { return DomImpl.soapHeaderElement_getMustUnderstand( this ); }
-        public void setActor ( String actor ) { DomImpl.soapHeaderElement_setActor( this, actor ); }
-        public String getActor ( ) { return DomImpl.soapHeaderElement_getActor( this ); }
-    }
-    
-    private static class SoapFaultXobj extends SoapBodyElementXobj implements SOAPFault
-    {
-        SoapFaultXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new SoapFaultXobj( _locale, _name ); }
-
-        public void setFaultString ( String faultString ) { DomImpl.soapFault_setFaultString( this, faultString ); }
-        public void setFaultString ( String faultString, java.util.Locale locale ) { DomImpl.soapFault_setFaultString( this, faultString, locale ); }
-        public void setFaultCode ( Name faultCodeName ) throws SOAPException { DomImpl.soapFault_setFaultCode( this, faultCodeName ); }
-        public void setFaultActor ( String faultActorString ) { DomImpl.soapFault_setFaultActor( this, faultActorString ); }
-        public String getFaultActor ( ) { return DomImpl.soapFault_getFaultActor( this ); }
-        public String getFaultCode ( ) { return DomImpl.soapFault_getFaultCode( this ); }
-        public void setFaultCode ( String faultCode ) throws SOAPException { DomImpl.soapFault_setFaultCode( this, faultCode ); }
-        public java.util.Locale getFaultStringLocale ( ) { return DomImpl.soapFault_getFaultStringLocale( this ); }
-        public Name getFaultCodeAsName ( ) { return DomImpl.soapFault_getFaultCodeAsName( this ); }
-        public String getFaultString ( ) { return DomImpl.soapFault_getFaultString( this ); }
-        public Detail addDetail ( ) throws SOAPException { return DomImpl.soapFault_addDetail( this ); }
-        public Detail getDetail ( ) { return DomImpl.soapFault_getDetail( this ); }
-    }
-
-    private static class SoapFaultElementXobj extends SoapElementXobj implements SOAPFaultElement
-    {
-        SoapFaultElementXobj ( Locale l, QName name ) { super( l, name ); }
-
-        Xobj newNode ( ) { return new SoapFaultElementXobj( _locale, _name ); }
-    }
-    
-    private static class DetailXobj extends SoapFaultElementXobj implements Detail
-    {
-        DetailXobj ( Locale l, QName name ) { super( l, name ); }
-        
-        Xobj newNode ( ) { return new DetailXobj( _locale, _name ); }
-        
-        public DetailEntry addDetailEntry ( Name name ) { return DomImpl.detail_addDetailEntry( this, name ); }
-        public Iterator getDetailEntries ( ) { return DomImpl.detail_getDetailEntries( this ); }
-    }
-
-    private static class DetailEntryXobj extends SoapElementXobj implements DetailEntry
-    {
-        Xobj newNode ( ) { return new DetailEntryXobj( _locale, _name ); }
-
-        DetailEntryXobj ( Locale l, QName name ) { super( l, name ); }
     }
 
     //
@@ -4881,7 +2973,7 @@ final class Cur
         if (ref == c)
             o.print( "*:" );
         
-        o.print( prefix + "cur[" + c._pos + "]" );
+        o.print( prefix + (c._id == null ? "<cur>" : c._id) + "[" + c._pos + "]" );
     }
     
     private static void dumpCurs ( PrintStream o, Xobj xo, Object ref )
@@ -4893,6 +2985,19 @@ final class Cur
         {
             if (c._xobj == xo)
                 dumpCur( o, "R:", c, ref );
+        }
+    }
+    
+    private static void dumpBookmarks ( PrintStream o, Xobj xo, Object ref )
+    {
+        for ( Bookmark b = xo._bookmarks ; b != null ; b = b._next )
+        {
+            o.print( " " );
+            
+            if (ref == b)
+                o.print( "*:" );
+            
+            o.print( "<mark>" + "[" + b._pos + "]" );
         }
     }
     
@@ -4913,17 +3018,6 @@ final class Cur
     {
         if (xo == null)
             return;
-
-        if (ref instanceof Cur)
-        {
-            Cur c = (Cur) ref;
-
-            if (c._state == UNREGISTERED)
-            {
-                c._locale._registered = c.listInsert( c._locale._registered );
-                c._state = REGISTERED;
-            }
-        }
 
         if (xo == ref)
             o.print( "* " );
@@ -4957,6 +3051,9 @@ final class Cur
             o.print( " )" );
         }
 
+        if (xo.isVacant())
+            o.print( " (VACANT)" );
+
         if (xo._srcAfter != null || xo._charNodesAfter != null)
         {
             o.print( " After( " );
@@ -4967,6 +3064,7 @@ final class Cur
         }
 
         dumpCurs( o, xo, ref );
+        dumpBookmarks( o, xo, ref );
 
         String className = xo.getClass().getName();
         
@@ -4991,6 +3089,11 @@ final class Cur
         for ( xo = xo._firstChild ; xo != null ; xo = xo._nextSibling )
             dumpXobj( o, xo, level + 1, ref );
     }
+
+    void setId ( String id )
+    {
+        _id = id;
+    }
     
     //
     //
@@ -4998,11 +3101,12 @@ final class Cur
 
     Locale _locale;
     
-    private Xobj _xobj;
-    private int _pos;
+    Xobj _xobj;
+    int _pos;
 
     int _state;
-    int _curKind;
+
+    String _id;
 
     Cur _nextTemp;
     int _tempFrame;
@@ -5013,16 +3117,11 @@ final class Cur
     Object _key;
     Object _value;
 
-    Cur _nextTextChangeListener;
-
-    Locations _locations;
-    int       _textLocations;
-
     int _stackTop;
 
     int _selectionFirst;
-    int _selectionN;       // the selection user index 0 .. N
-    int _selectionNth;     // Index in _locations
+    int _selectionN;
+    int _selectionLoc;
     int _selectionCount;
     
     private int _posTemp;

@@ -240,8 +240,14 @@ public final class Public2
     public static XmlCursor newStore ( Saaj saaj )
     {
         Locale l = newLocale( saaj );
-
-        Cur c = l.permCur();
+        
+        if (l.noSync())         { l.enter(); try { return _newStore( l ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return _newStore( l ); } finally { l.exit(); } }
+    }
+        
+    public static XmlCursor _newStore ( Locale l )
+    {
+        Cur c = l.tempCur();
 
         c.createRoot();
 
@@ -283,18 +289,71 @@ public final class Public2
     public static void dump ( Node n )      { dump( System.out, n ); }
     public static void dump ( XmlCursor c ) { dump( System.out, c ); }
 
+    private static class TestTypeStoreUser implements TypeStoreUser
+    {
+        TestTypeStoreUser ( String value ) { _value = value; }
+        public void attach_store(TypeStore store) { }
+        public SchemaType get_schema_type() { throw new RuntimeException( "Not impl" ); }
+        public TypeStore get_store() { throw new RuntimeException( "Not impl" ); }
+        public void invalidate_value() { }
+        public boolean uses_invalidate_value() { throw new RuntimeException( "Not impl" ); }
+        public String build_text(NamespaceManager nsm) { return _value; }
+        public boolean build_nil() { throw new RuntimeException( "Not impl" ); }
+        public void invalidate_nilvalue() { throw new RuntimeException( "Not impl" ); }
+        public void invalidate_element_order() { throw new RuntimeException( "Not impl" ); }
+        public void validate_now() { throw new RuntimeException( "Not impl" ); }
+        public void disconnect_store() { throw new RuntimeException( "Not impl" ); }
+        public TypeStoreUser create_element_user(QName eltName, QName xsiType) { return new TestTypeStoreUser( "ELEM" ); }
+        public TypeStoreUser create_attribute_user(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public String get_default_element_text(QName eltName) { throw new RuntimeException( "Not impl" ); }
+        public String get_default_attribute_text(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public SchemaType get_element_type(QName eltName, QName xsiType) { throw new RuntimeException( "Not impl" ); }
+        public SchemaType get_attribute_type(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public int get_elementflags(QName eltName) { throw new RuntimeException( "Not impl" ); }
+        public int get_attributeflags(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public SchemaField get_attribute_field(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public boolean is_child_element_order_sensitive() { throw new RuntimeException( "Not impl" ); }
+        public QNameSet get_element_ending_delimiters(QName eltname) { throw new RuntimeException( "Not impl" ); }
+        public TypeStoreVisitor new_visitor() { throw new RuntimeException( "Not impl" ); }
+
+        private String _value;
+    }
+
     public static void test ( ) throws Exception
     {
-        Locale l1 = newLocale( null );
+        Locale l = newLocale( null );
 
-        Cur c = l1.tempCur();
-        c.next();
-        c.createElement( new QName( "foo" ) );
+        l.enter();
 
-        Locale lTo = newLocale( null );
-        Cur cTo = lTo.tempCur();
-        cTo.next();
-        c.moveNode( cTo );
+        try
+        {
+            Cur c = l.parse( "<a x='y'>AA<b/>BB<c/>CC</a>", XmlObject.type, null );
+            c.setId( "From" );
+            c.next();
+            c.next();
+
+            c.setBookmark( Public2.class, null );
+            
+            c.next();
+            
+            c.setBookmark( Public2.class, null );
+
+            c.toParent();
+
+            c.dump();
+            
+            c.moveNodeContents( null, false );
+            
+            c.dump();
+        }
+        catch ( Throwable e )
+        {
+            e.printStackTrace();
+        }
+        finally
+        {
+            l.exit();
+        }
     }
 }
  

@@ -275,7 +275,6 @@ public abstract class NodeWithChildrenTest extends NodeTest {
         super.testInsertBefore(null, target);
     }
 
-
     /**
      *  pre: child is not a parent ancestor
      */

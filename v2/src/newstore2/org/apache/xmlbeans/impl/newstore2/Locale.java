@@ -142,11 +142,11 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         // Lazy create this (loading up a locale should use the thread locale one)
         // same goes for the qname factory .. use thread local for hte most part when loading
         
-        _charUtil = CharUtil.getThreadLocalCharUtil();
+        _charUtil = new CharUtil( 1024 );
         
         _qnameFactory = new DefaultQNameFactory();
         
-        _locations = new Locations();
+        _locations = new Locations( this );
 
         _schemaTypeLoader = stl;
 
@@ -531,7 +531,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return x;
     }
     
-    private Cur parse ( String xmlText, SchemaType type, XmlOptions options )
+    Cur parse ( String xmlText, SchemaType type, XmlOptions options )
         throws XmlException
     {
         Cur c =
@@ -659,74 +659,52 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return props;
     }
 
-    void registerForTextChange ( Cur c )
+    interface ChangeListener
     {
-        // The end of this list points to itself so that I can know if
-        // any cur is on the list by seeing if netx != null.
+        void notifyChange ( );
+
+        void setNextChangeListener ( ChangeListener listener );
         
-        assert c._nextTextChangeListener == null;
-        
-        if (_textChangeListeners == null)
-            _textChangeListeners = c._nextTextChangeListener = c;
-        else
-        {
-            c._nextTextChangeListener = _textChangeListeners;
-            _textChangeListeners = c;
-        }
+        ChangeListener getNextChangeListener ( );
     }
 
-    interface GeneralChangeListener
+    void registerForChange ( ChangeListener listener )
     {
-        void notifyGeneralChange ( );
-
-        void setNextGeneralChangeListener ( GeneralChangeListener listener );
-        
-        GeneralChangeListener getNextGeneralChangeListener ( );
-    }
-
-    void registerForGeneralChange ( GeneralChangeListener listener )
-    {
-        if (listener.getNextGeneralChangeListener() == null)
+        if (listener.getNextChangeListener() == null)
         {
-            if (_generalChangeListeners == null)
-                listener.setNextGeneralChangeListener( listener );
+            if (_changeListeners == null)
+                listener.setNextChangeListener( listener );
             else
-                listener.setNextGeneralChangeListener( _generalChangeListeners );
+                listener.setNextChangeListener( _changeListeners );
         
-            _generalChangeListeners = listener;
+            _changeListeners = listener;
         }
     }
 
-    void notifyGeneralChangeListeners ( )
+    void notifyChange ( )
     {
-        while ( _generalChangeListeners != null )
+        // First, notify the registered listeners ...
+        
+        while ( _changeListeners != null )
         {
-            _generalChangeListeners.notifyGeneralChange();
+            _changeListeners.notifyChange();
 
-            if (_generalChangeListeners.getNextGeneralChangeListener() == _generalChangeListeners)
-                _generalChangeListeners.setNextGeneralChangeListener( null );
+            if (_changeListeners.getNextChangeListener() == _changeListeners)
+                _changeListeners.setNextChangeListener( null );
 
-            GeneralChangeListener next = _generalChangeListeners.getNextGeneralChangeListener();
+            ChangeListener next = _changeListeners.getNextChangeListener();
 
-            _generalChangeListeners.setNextGeneralChangeListener( null );
+            _changeListeners.setNextChangeListener( null );
 
-            _generalChangeListeners = next;
+            _changeListeners = next;
         }
+
+        // Then, prepare for the change in a locale specific way.  Need to create real Curs for
+        // 'virtual' Curs in Locations
+
+        _locations.notifyChange();
     }
     
-    void notifyTextChangeListeners ( )
-    {
-        while ( _textChangeListeners != null )
-        {
-            _textChangeListeners.textChangeNotification();
-
-            if (_textChangeListeners._nextTextChangeListener == _textChangeListeners)
-                _textChangeListeners._nextTextChangeListener = null;
-
-            _textChangeListeners = _textChangeListeners._nextTextChangeListener;
-        }
-    }
-
     //
     // Cursor helpers
     //
@@ -1238,16 +1216,11 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return _versionAll;
     }
 
-    Cur permCur ( )
-    {
-        return getCur( Cur.PERM );
-    }
-    
     Cur weakCur ( Object o )
     {
         assert o != null && !(o instanceof Ref);
         
-        Cur c = getCur( Cur.WEAK );
+        Cur c = getCur();
         
         assert c._value == null;
 
@@ -1278,11 +1251,16 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
     Cur tempCur ( )
     {
-        Cur c = getCur( Cur.TEMP );
+        return tempCur( null );
+    }
+    
+    Cur tempCur ( String id )
+    {
+        Cur c = getCur();
 
         if (c._tempFrame < 0)
         {
-            assert _numTempFramesLeft < _tempFrames.length;
+            assert _numTempFramesLeft < _tempFrames.length : "Temp frame not pushed";
                 
             int frame = _tempFrames.length - _numTempFramesLeft - 1;
 
@@ -1293,46 +1271,47 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         
             c._tempFrame = frame;
         }
+
+        c._id = id;
         
         return c;
     }
 
-    void unregisterCurs ( )
+    Cur getCur ( )
     {
-        while ( _registered != null )
-            _registered.embed();
-        
-        assert _registered == null;
-    }
-
-    private Cur getCur ( int curKind )
-    {
-        assert curKind == Cur.TEMP || curKind == Cur.PERM || curKind == Cur.WEAK;
         assert _curPool == null || _curPoolCount > 0;
         
         Cur c;
         
         if (_curPool == null)
-        {
             c = new Cur( this );
-            c._tempFrame = -1;
-        }
         else
         {
-            c = _curPool;
-            _curPool = c.listRemove( _curPool );
-            c._state = Cur.UNREGISTERED;
+            _curPool = _curPool.listRemove( c = _curPool );
             _curPoolCount--;
         }
 
-        assert c._state == Cur.UNREGISTERED;
+        assert c._state == Cur.POOLED;
         assert c._prev == null && c._next == null;
-        assert !c.isPositioned();
+        assert c._xobj == null && c._pos == Cur.NO_POS;
         assert c._value == null;
-                
-        c._curKind = curKind;
 
+        _registered = c.listInsert( _registered );
+        c._state = Cur.REGISTERED;
+                
         return c;
+    }
+
+    void embedCurs ( )
+    {
+        for ( Cur c ; (c = _registered) != null ; )
+        {
+            assert c._xobj != null;
+            
+            _registered = c.listRemove( _registered );
+            c._xobj._embedded = c.listInsert( c._xobj._embedded );
+            c._state = Cur.EMBEDDED;
+        }
     }
 
     TextNode createTextNode ( )
@@ -2009,9 +1988,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
     Cur _registered;
 
-    GeneralChangeListener _generalChangeListeners;
-    
-    Cur _textChangeListeners;
+    ChangeListener _changeListeners;
     
     long _versionAll;
     long _versionSansText;
@@ -2027,4 +2004,6 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     QNameFactory _qnameFactory;
 
     boolean _validateOnSet;
+
+    int _posTemp;
 } 

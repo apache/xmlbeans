@@ -19,6 +19,11 @@ import java.io.PrintStream;
 
 public final class CharUtil
 {
+    public CharUtil ( int charBufSize )
+    {
+        _charBufSize = charBufSize;
+    }
+
     public static CharIterator getThreadLocalCharIterator ( Object src, int off, int cch )
     {
         CharIterator charIter = (CharIterator) tl_charIter.get();
@@ -682,11 +687,6 @@ public final class CharUtil
         }
     }
     
-    private CharUtil ( int charBufSize )
-    {
-        _charBufSize = charBufSize;
-    }
-
     public final static class CharIterator
     {
         void init ( Object src, int off, int cch )
