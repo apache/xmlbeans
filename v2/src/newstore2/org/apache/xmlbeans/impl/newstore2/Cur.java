@@ -809,14 +809,16 @@ final class Cur
             return false;
 
         Cur r = _locale.tempCur();
+        
         r.createRoot();
+
+        Xobj root = r._xobj;
+        
         r.next();
         moveNode( r );
         r.release();
 
-        assert _xobj._parent != null;
-
-        moveTo( _xobj._parent );
+        moveTo( root );
 
         return true;
     }
@@ -1288,32 +1290,40 @@ final class Cur
     
     void moveNode ( Cur to )
     {
+        assert to == null || _locale == to._locale; // TODO - locales
         assert isNode() && !isRoot();
+        assert to == null || to._locale == _locale;
         assert to == null || to.isPositioned();
         assert to == null || !ancestorOf( to );
         assert to == null || (!to.isNode() || !to.isRoot());
 
-        notifyGeneralChange();
-        
         // Note that all changes to text in are handled by other fcns,
         // thus, I do not need to notify text changes here.
 
-        // TODO - this code may not handle targets near attributes
-        // perfectly ... check this
-
-        // We're moveing this node, if there is any text after it,
+        notifyGeneralChange();
+        
+        // We're moving this node, if there is any text after it,
         // move this text to before this node.
+
+        Xobj xobjToMove = _xobj;
         
         if (_xobj.cchAfter() > 0)
         {
             Cur fromChars = tempCur( _xobj, _xobj.posAfter() );
             fromChars.moveChars( this, -1 );
             fromChars.release();
+            moveTo( xobjToMove ); // Move back to node after text insert
         }
         
         assert _xobj.cchAfter() == 0;
 
-        _xobj.removeXobj();
+        // I have the xobj to remove, move this cursor past the object so that
+        // it does not follow the node when I remove it.
+
+        toEnd();
+        next();
+
+        xobjToMove.removeXobj();
 
         if (to != null)
         {
@@ -1321,30 +1331,19 @@ final class Cur
             int cchRight = to.cchRight();
             
             if (cchRight > 0)
-            {
                 srcRight = to.moveChars( null, cchRight );
-                assert cchRight == to._cchSrc;
-            }
 
             assert to._pos == 0 || to._pos == END_POS;
 
             if (to._pos == 0)
-                to._xobj.insertXobj( _xobj );
+                to._xobj.insertXobj( xobjToMove );
             else
-                to._xobj.appendXobj( _xobj );
+                to._xobj.appendXobj( xobjToMove );
 
             if (srcRight != null)
-            {
-                Cur toChars = tempCur( _xobj, _xobj.posAfter() );
-                toChars.insertChars( srcRight, to._offSrc, cchRight );
-                toChars.release();
-            }
+                to.insertChars( srcRight, to._offSrc, cchRight );
         }
 
-        // todo - make a callback to master to do this work in addition
-        // to providing a notification thast a chnage will take place
-        // .. will have to make the call earler. ...
-        
         _locale._versionAll++;
         _locale._versionSansText++;
     }
