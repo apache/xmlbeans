@@ -76,6 +76,7 @@ public class JFileSetImpl implements JFileSet {
 
   private List mIncludes = new ArrayList();
   private List mExcludes = new ArrayList();
+  private String mClasspath = null;
   private boolean mCaseSensitive = true;
   private File mBasedir;
   protected String[] includes;
@@ -152,6 +153,15 @@ public class JFileSetImpl implements JFileSet {
   public void setCaseSensitive(boolean b) {
     mCaseSensitive = b;
   }
+
+  public void setClasspath(String classpath) {
+    mClasspath = classpath;
+  }
+
+    // =========================================================================
+  // Public methods
+
+  public String getClasspath() { return mClasspath; }
 
   // ========================================================================
   // Directory scanner stuff
@@ -796,6 +806,4 @@ public class JFileSetImpl implements JFileSet {
     }
     return ret;
   }
-
-
 }
