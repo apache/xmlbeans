@@ -540,7 +540,7 @@
     <property name="area.names" value="compile, dom, misc, random,
                                        ValidatingXSRTests,xmlcursor, xmlobject,
                                        xmltokensource, checkin,
-                                       scomp"/>
+                                       scomp, tools"/>
 
     <target name="list.areas" description="List areas for -Dtest.area param">
         <echo message="${area.names}"/>
@@ -763,10 +763,17 @@
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
     </target>
+    <target name="build.area.tools">
+	        <property name="includes.for.compile"
+	            value="**/tools/**/*.java"/>
+	        <property name="testcasejar.update" value="true"/>
+	        <antcall target="unit.build"/>
+    </target>
+
     <!-- FREQ Target -->
     <target name="build.area.checkin" depends="clean.tests,extensions.build">
         <property name="includes.for.compile"
-            value="**/checkin/**/*.java, 
+            value="**/checkin/**/*.java,
                    **/common/**/*.java"/>
         <!--<property name="excludes.from.compile"
             value="**/extensions/**"/>-->
