@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
+<document>
+	<header>
+		<title>XMLBeans Documentation</title>
+	</header>
+	<body>
+		<section>
+			<title>XMLBeans FAQ</title>
+			<p>Coming soon ... Until then you can find documentation in the CVS download</p>
+		</section>
+		<section>
+			<title>XMLBeans Version 1 User Documentation</title>
+			<p>Coming soon ... Until then you can find documentation in the CVS download</p>
+		</section>
+		<section>
+			<title>XMLBeans Version 1 JavaDoc</title>
+			<p>Coming soon ... Until then you can find documentation in the CVS download</p>
+		</section>
+	</body>
+</document>
