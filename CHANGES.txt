@@ -1,49 +1,48 @@
 Changes in v2.0.0-beta1:
 
-* new store implementation, including native DOM implementation (ericvas)
-* Piccolo is now the default parser.XmlOptions.setLoadUseXMLReader (XMLReader xmlReader) can be used when a diffrent parser is required. (cezar)
-* Sample xml generation from an schema file (radup)
-* New failfast behavior for simple types, more consistent (radup)
-* EntityResolver is setable in SchemaCompiler (David Jencks)
-* XPath 2.0 and Xquery support through Saxon (Yana Kadiyska)
-* java 1.5 generics for array properties added to generated source (kkrouse)
-* Simplified working with substitution groups by adding XmlObject.substitute() method (radup)
-* "-noVDoc" command-line option for scomp to skip validation of <xs:documentation> contents (radup)
+* new store implementation, including native DOM implementation
+* Piccolo is now the default parser.XmlOptions.setLoadUseXMLReader (XMLReader xmlReader) can be used when a diffrent parser is required.
+* Sample xml generation from an schema file
+* New failfast behavior for simple types, more consistent
+* EntityResolver is setable in SchemaCompiler
+* XPath 2.0 and Xquery support through Saxon
+* java 1.5 generics for array properties added to generated source
+* Simplified working with substitution groups by adding XmlObject.substitute() method
+* "-noVDoc" command-line option for scomp to skip validation of <xs:documentation> contents
 * uniform access to the getSourceName() method in Schema Object Model
-* Cleaned up schema compilation APIs with a XmlBeans.compileXmlBeans() (kkrouse)
-* Added error codes and improved validation error messages (kkrouse)
-* Changed .xsb format and loading strategy to improve performance (radup)
-* Ability to pass URLs instead of Files for Wsdl/Schemas (Jacob Danner)
-* Added option to pass in "##local" to -allowmdef (radup)
-* Inst2xsd: support for xsi:nil and qname fix. (cezar)
-* adding getCurrentElementSchemaType in Validator for finding schema types of elements with xsi:type attribute (cezar)
-* adding ValidatingInfoXMLStreamReader for PSVI access on XMLStreamReaders (cezar)
-* added Location to streaming validation errors (kkrouse)
-* Instance 2 schema tool (cezar)
-* Support for arbitrarily nesting <xsd:redefine>s (radup)
-* New "schema bookmark" mechanism allowing one to tag user data on Schema Object Model entities (radup)
-* Add ability for XmlSaxHandler to insert bookmarks while loading (ericvas)
-* Added a diff utility that compares two jars (or directories) containing compiled Schema types.(radup)
-* Interface and pre-post extensions (cezar)
-* Enabled ValidatingXMLStreamReader to start validating from both current and next event in the XMLStreamReader (cezar)
-* Functionality to retrieve xml validation errors programatically (patch from Dutta Satadip)
-* Added saver options to not save xml decl (ericvas)
-* Added ability to compile Schemas containing references to SOAP11 encoded arrays (radup)
-* selectChildren and selectAttributes for dynamic getters and some wildcard scenarios (cezar)
-* Location in ValidatingXmlStreamReader (cezar)
-* Added a wrapper over jsr173's XMLStreamReader (cezar)
-* Added support for default value in XMLStreamReaderExt interface and implementation. (cezar)
-* Adding typed value for QName case in the Validator (cezar)
-* Adding an utility for validation of simple schema types (cezar)
-* Improved the Validator to ofer PSVI info (cezar)
-* Exposed some of the XMLSchema validator functionality in the public interfaces (davidbau,Dutta Satadip)
-* Added support for XML Catalog, based on Apache Commons CatalogResolver (cezar)
-* Added XMLStreamReaderExt an extention of XMLStreamReader which alowes getting strongly typed java values from a stream (cezar)
-* Adds support for annotations in XMLSchema (davidbau)
-* Added JSR 173 support (ericvas)
+* Cleaned up schema compilation APIs with a XmlBeans.compileXmlBeans()
+* Added error codes and improved validation error messages
+* Changed .xsb format and loading strategy to improve performance
+* Ability to pass URLs instead of Files for Wsdl/Schemas
+* Added option to pass in "##local" to -allowmdef
+* Inst2xsd: support for xsi:nil and qname fix.
+* adding getCurrentElementSchemaType in Validator for finding schema types of elements with xsi:type attribute
+* adding ValidatingInfoXMLStreamReader for PSVI access on XMLStreamReaders
+* added Location to streaming validation errors
+* Instance 2 schema tool
+* Support for arbitrarily nesting <xsd:redefine>s
+* New "schema bookmark" mechanism allowing one to tag user data on Schema Object Model entities
+* Add ability for XmlSaxHandler to insert bookmarks while loading
+* Added a diff utility that compares two jars (or directories) containing compiled Schema types
+* Interface and pre-post extensions
+* Enabled ValidatingXMLStreamReader to start validating from both current and next event in the XMLStreamReader
+* Functionality to retrieve xml validation errors programatically
+* Added saver options to not save xml decl
+* Added ability to compile Schemas containing references to SOAP11 encoded arrays
+* selectChildren and selectAttributes for dynamic getters and some wildcard scenarios
+* Location in ValidatingXmlStreamReader
+* Added a wrapper over jsr173's XMLStreamReader
+* Added support for default value in XMLStreamReaderExt interface and implementation
+* Adding typed value for QName case in the Validator
+* Adding an utility for validation of simple schema types
+* Improved the Validator to ofer PSVI info
+* Exposed some of the XMLSchema validator functionality in the public interfaces
+* Added support for XML Catalog, based on Apache Commons CatalogResolver
+* Added XMLStreamReaderExt an extention of XMLStreamReader which alowes getting strongly typed java values from a stream
+* Adds support for annotations in XMLSchema
+* Added JSR 173 support
 
-
-* performance tests (Jamie Zyskowski)
-* various feature tests (Yana Kadiyska, Jacob Danner)
-* samples and documentation (Steve Traut)
-* packaging, licencing changes (Cliff Schmidt)
+* performance tests
+* various feature tests
+* samples and documentation
+* packaging, licencing changes
