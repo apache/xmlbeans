@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Arrays;
+import java.util.Date;
 
 public class YourClass
     implements ObjectFactory
@@ -63,6 +64,7 @@ public class YourClass
     private long[] simpleLongArray = {RND.nextLong(),
                                       RND.nextLong()};
 
+    private Date someDate;
 
     //hack alert
     static final Random RND = new Random();
@@ -331,6 +333,16 @@ public class YourClass
     public void setSimpleLongArray(long[] simpleLongArray)
     {
         this.simpleLongArray = simpleLongArray;
+    }
+
+    public Date getSomeDate()
+    {
+        return someDate;
+    }
+
+    public void setSomeDate(Date someDate)
+    {
+        this.someDate = someDate;
     }
 
     public boolean equals(Object o)

@@ -16,7 +16,9 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.BindingContext;
+import org.apache.xmlbeans.EncodingStyle;
 import org.apache.xmlbeans.Marshaller;
+import org.apache.xmlbeans.SoapMarshaller;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
@@ -31,7 +33,6 @@ import java.util.Collection;
 final class BindingContextImpl implements BindingContext
 {
     private final BindingLoader bindingLoader;
-    private final RuntimeTypeFactory runtimeTypeFactory;
     private final RuntimeBindingTypeTable typeTable;
     private final SchemaTypeLoaderProvider schemaTypeLoaderProvider;
 
@@ -41,9 +42,7 @@ final class BindingContextImpl implements BindingContext
                        SchemaTypeLoaderProvider provider)
     {
         this.bindingLoader = bindingLoader;
-        runtimeTypeFactory = new RuntimeTypeFactory();
-        this.typeTable =
-            RuntimeBindingTypeTable.createTable(runtimeTypeFactory);
+        this.typeTable = RuntimeBindingTypeTable.createTable();
         this.schemaTypeLoaderProvider = provider;
     }
 
@@ -69,9 +68,7 @@ final class BindingContextImpl implements BindingContext
     public Marshaller createMarshaller()
         throws XmlException
     {
-        return new MarshallerImpl(bindingLoader,
-                                  typeTable,
-                                  runtimeTypeFactory);
+        return new MarshallerImpl(bindingLoader, typeTable);
     }
 
 
@@ -79,10 +76,22 @@ final class BindingContextImpl implements BindingContext
         throws XmlException
     {
         if (options == null) {
-            throw new IllegalArgumentException("options must not be null");
+            throw new IllegalArgumentException("null options");
         }
 
         return createMarshaller();
+    }
+
+    public SoapMarshaller createSoapMarshaller(EncodingStyle encodingStyle)
+        throws XmlException
+    {
+        if (encodingStyle == null) {
+            throw new IllegalArgumentException("null encodingStyle");
+        }
+
+        return new SoapMarshallerImpl(bindingLoader,
+                                      typeTable,
+                                      encodingStyle);
     }
 
     static Collection extractErrorHandler(XmlOptions options)

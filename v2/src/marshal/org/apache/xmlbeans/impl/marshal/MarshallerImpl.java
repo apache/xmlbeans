@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 
 import javax.xml.namespace.NamespaceContext;
@@ -41,7 +42,6 @@ final class MarshallerImpl
     //per binding context constants
     private final BindingLoader loader;
     private final RuntimeBindingTypeTable typeTable;
-    private final RuntimeTypeFactory runtimeTypeFactory;
 
     private static final XMLOutputFactory XML_OUTPUT_FACTORY =
         XMLOutputFactory.newInstance();
@@ -49,12 +49,10 @@ final class MarshallerImpl
     private static final String XML_VERSION = "1.0";
 
     public MarshallerImpl(BindingLoader loader,
-                          RuntimeBindingTypeTable typeTable,
-                          RuntimeTypeFactory runtimeTypeFactory)
+                          RuntimeBindingTypeTable typeTable)
     {
         this.loader = loader;
         this.typeTable = typeTable;
-        this.runtimeTypeFactory = runtimeTypeFactory;
     }
 
     public XMLStreamReader marshal(Object obj,
@@ -95,8 +93,19 @@ final class MarshallerImpl
                                               Object obj)
         throws XmlException
     {
+        assert btype != null;
+
         final RuntimeBindingType runtime_type =
-            runtimeTypeFactory.createRuntimeType(btype, typeTable, loader);
+            typeTable.getRuntimeTypeFactory().createRuntimeType(btype,
+                                                                typeTable,
+                                                                loader);
+
+        if (obj != null && !runtime_type.getJavaType().isAssignableFrom(obj.getClass())) {
+            String m = "instance type: " + obj.getClass() +
+                " not an instance of expected type: " +
+                runtime_type.getJavaType();
+            throw new XmlException(m);
+        }
 
         RuntimeGlobalProperty prop =
             new RuntimeGlobalProperty(elem_qn, runtime_type);
@@ -111,7 +120,8 @@ final class MarshallerImpl
         throws XmlException
     {
         //TODO: actually use the options!
-        return marshal(obj, EmptyNamespaceContext.getInstance());
+        NamespaceContext nscontext = getNamespaceContextFromOptions(options);
+        return marshal(obj, nscontext);
     }
 
     private static JavaTypeName determineJavaType(Object obj)
@@ -187,7 +197,8 @@ final class MarshallerImpl
                                XmlOptions options)
         throws XmlException
     {
-        XMLStreamReader rdr = marshal(obj, EmptyNamespaceContext.getInstance());
+        NamespaceContext nscontext = getNamespaceContextFromOptions(options);
+        XMLStreamReader rdr = marshal(obj, nscontext);
         XmlObject xobj = XmlObject.Factory.parse(rdr);
         try {
             xobj.save(out, options);
@@ -216,7 +227,7 @@ final class MarshallerImpl
     }
 
     private static XMLStreamWriter createXmlStreamWriter(OutputStream out,
-                                                  final String encoding)
+                                                         final String encoding)
         throws XMLStreamException
     {
         XMLStreamWriter writer;
@@ -284,6 +295,27 @@ final class MarshallerImpl
         }
     }
 
+    public void marshalElement(XMLStreamWriter writer,
+                               Object obj,
+                               QName elementName,
+                               String javaType,
+                               XmlOptions options)
+        throws XmlException
+    {
+        if (writer == null)
+            throw new IllegalArgumentException("null writer");
+
+        final XMLStreamReader rdr =
+            marshalElement(obj, elementName, javaType, options);
+
+        try {
+            XmlReaderToWriter.writeAll(rdr, writer);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
+    }
+
     public void marshalType(XMLStreamWriter writer,
                             Object obj,
                             QName elementName,
@@ -292,7 +324,6 @@ final class MarshallerImpl
                             XmlOptions options)
         throws XmlException
     {
-        //TODO: actually use the options!!
         marshalType(writer, obj, elementName, schemaType, javaType);
     }
 
@@ -303,9 +334,86 @@ final class MarshallerImpl
                                        XmlOptions options)
         throws XmlException
     {
-        //TODO: actually use the options!!
-        return marshalType(obj, elementName, schemaType, javaType, EmptyNamespaceContext.getInstance());
+        NamespaceContext nscontext = getNamespaceContextFromOptions(options);
+
+        return marshalType(obj, elementName, schemaType, javaType,
+                           nscontext);
     }
+
+    public XMLStreamReader marshalElement(Object obj,
+                                          QName elementName,
+                                          String javaType,
+                                          XmlOptions options)
+        throws XmlException
+    {
+        if (elementName == null)
+            throw new IllegalArgumentException("null elementName");
+
+        //TODO: we could allow javaType to be null in which case we could
+        //use our usual lookup methods (as in plain marshal)
+        if (javaType == null)
+            throw new IllegalArgumentException("null javaType");
+
+
+        final SimpleDocumentBinding doc_binding =
+            determineDocumentType(elementName);
+
+        final XmlTypeName elem_type = doc_binding.getTypeOfElement();
+        final BindingType type =
+            loadBindingType(elem_type,
+                            JavaTypeName.forClassName(javaType),
+                            loader);
+
+        if (type == null) {
+            final String msg = "failed to find a suitable binding type for" +
+                " use in marshalling \"" + elementName + "\" " +
+                " using java type: " + javaType +
+                " schema type: " + elem_type +
+                " instance type: " + obj.getClass().getName();
+            throw new XmlException(msg);
+        }
+        NamespaceContext nscontext = getNamespaceContextFromOptions(options);
+        return createMarshalResult(type, elementName,
+                                   nscontext, obj);
+    }
+
+    private static NamespaceContext getNamespaceContextFromOptions(XmlOptions options)
+    {
+        //TODO: do this properly
+        return EmptyNamespaceContext.getInstance();
+    }
+
+    private SimpleDocumentBinding determineDocumentType(QName global_element)
+        throws XmlException
+    {
+        final XmlTypeName type_name =
+            XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, global_element);
+        BindingType doc_binding_type = getPojoBindingType(type_name);
+        return (SimpleDocumentBinding)doc_binding_type;
+    }
+
+
+    private BindingType getPojoBindingType(final XmlTypeName type_name)
+        throws XmlException
+    {
+        final BindingTypeName btName = loader.lookupPojoFor(type_name);
+        if (btName == null) {
+            final String msg = "failed to load java type corresponding " +
+                "to " + type_name;
+            throw new XmlException(msg);
+        }
+
+        BindingType bt = loader.getBindingType(btName);
+
+        if (bt == null) {
+            final String msg = "failed to load BindingType for " + btName;
+            throw new XmlException(msg);
+        }
+
+        return bt;
+    }
+
+
 
 
     //TODO: refine this algorithm to deal better

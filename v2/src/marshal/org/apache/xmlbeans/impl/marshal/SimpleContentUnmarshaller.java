@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 
-public final class SimpleContentUnmarshaller
+final class SimpleContentUnmarshaller
     extends AttributeUnmarshaller
 {
 

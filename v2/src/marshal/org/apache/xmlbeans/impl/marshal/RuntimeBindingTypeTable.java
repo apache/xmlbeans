@@ -63,14 +63,12 @@ final class RuntimeBindingTypeTable
         BUILTIN_MARSHALLER_MAP = (ConcurrentReaderHashMap)tbl.marshallerMap;
     }
 
-    static RuntimeBindingTypeTable createTable(RuntimeTypeFactory factory)
+    static RuntimeBindingTypeTable createTable()
     {
-        assert factory != null;
-
         final RuntimeBindingTypeTable tbl =
             new RuntimeBindingTypeTable((Map)BUILTIN_UNMARSHALLER_MAP.clone(),
                                         (Map)BUILTIN_MARSHALLER_MAP.clone(),
-                                        factory);
+                                        new RuntimeTypeFactory());
         return tbl;
     }
 
