@@ -320,10 +320,8 @@ public class SomTestBase extends CompileTestBase
         }
         catch (IllegalStateException ise)
         {
-            System.out.println("Msg is:");
-            ise.getMessage();
-            System.out.println("Msg is:");
-            ise.printStackTrace();
+            // uncomment to see the stack trace
+            // ise.printStackTrace();
             return false;
         }
         return true;

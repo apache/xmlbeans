@@ -259,7 +259,7 @@ public class XmlBeanCompilationTests extends CompileTestBase
                 //compare to the expected xm_errors
                 if ((xErr.getErrorCode().compareTo("src-resolve") == 0) &&
                         (xErr.getMessage().compareTo(
-                                "type 'aType@http://baz' not found.") ==
+                                "type 'bType@http://baz' not found.") ==
                         0))
                     psom_expError = true;
             }

@@ -80,7 +80,7 @@ public class CompileTestBase extends CompileCommon {
             "targetNamespace=\"http://bar\" " +
             "xmlns:tnf=\"http://baz\" " +
             "xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"> " +
-            "<xs:element name=\"elErrName\" type=\"tnf:aType\" /> " +
+            "<xs:element name=\"elErrName\" type=\"tnf:bType\" /> " +
             "</xs:schema>";
 
     public CompileTestBase(String name) {
