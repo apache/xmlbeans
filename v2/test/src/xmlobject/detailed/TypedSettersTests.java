@@ -147,8 +147,11 @@ public class TypedSettersTests extends TestCase
     public void testJavaNoTypeSingletonElementWithXsiType ( )
         throws Exception
     {
-        XmlObject x = XmlObject.Factory.parse( "<xyzzy/>", new XmlOptions().setDocumentType( XmlObject.type ) );
-        XmlObject x2 = XmlObject.Factory.parse( fmt( "<bubba $type(xs:int) $xsi $schema>69</bubba>" ) );
+        XmlObject x = XmlObject.Factory.parse( "<xyzzy/>", new XmlOptions()
+                .setDocumentType( XmlObject.type ) );
+        String input= fmt( "<bubba $type(xs:int) $xsi $schema>69</bubba>" );
+        XmlObject x2 = XmlObject.Factory
+                .parse( input );
         XmlCursor c = x.newCursor();
         XmlCursor c2 = x2.newCursor();
 

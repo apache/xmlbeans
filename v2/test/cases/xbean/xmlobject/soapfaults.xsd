@@ -2,12 +2,15 @@
     xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns="http://xmlobjecttest/soapfaults" elementFormDefault="qualified"
     attributeFormDefault="unqualified">
+
     <xs:element name="first-fault" type="first-fault-type">
         <xs:annotation>
             <xs:documentation>Comment describing your root element</xs:documentation>
         </xs:annotation>
     </xs:element>
+
     <xs:element name="second-fault" type="second-fault-type"/>
+    
     <xs:complexType name="first-fault-type">
         <xs:sequence>
             <xs:element name="a-string" type="xs:string"/>
@@ -15,9 +18,11 @@
             <xs:element name="a-date" type="xs:date"/>
         </xs:sequence>
     </xs:complexType>
+
     <xs:complexType name="second-fault-type">
         <xs:sequence>
             <xs:element name="a-fault-item" type="xs:string" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
 </xs:schema>
+

@@ -38,7 +38,8 @@ public class PrettyPrintNamespaceTest extends TestCase {
         c.insertAttribute("a", "aaaa");
         c.insertNamespace("", "aaaa");
 
-        String str = "<aaaa:a aaaa:a=\"\" xmlns=\"aaaa\" xmlns:aaaa=\"aaaa\"/>";
+        String str =
+                "<a aaaa:a=\"\" xmlns=\"aaaa\" xmlns:aaaa=\"aaaa\"/>";
 
         assertTrue("XmlText() Failed.", x.xmlText().equals(str));
         assertTrue("toString() Failed.", x.toString().trim().equals(str));
@@ -54,15 +55,15 @@ public class PrettyPrintNamespaceTest extends TestCase {
         subInfo.setSubdesc("there");
         doc.setTest(subInfo);
         String lnSep = System.getProperty("line.separator");
-        String str1 = "<mtes:Test xsi:type=\"mtes:SubInfo\" xmlns:mtes=\"http://www.mtest.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + lnSep +
-                "  <mtes:desc>hi</mtes:desc>" + lnSep +
-                "  <mtes:subdesc>there</mtes:subdesc>" + lnSep +
-                "</mtes:Test>";
-        String str2 = "<mtes:Test xsi:type=\"mtes:SubInfo\" xmlns:mtes=\"http://www.mtest.com\" " +
+        String str1 = "<mt:Test xsi:type=\"mt:SubInfo\" xmlns:mt=\"http://www.mtest.com\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + lnSep +
+                "  <mt:desc>hi</mt:desc>" + lnSep +
+                "  <mt:subdesc>there</mt:subdesc>" + lnSep +
+                "</mt:Test>";
+        String str2 = "<mt:Test xsi:type=\"mt:SubInfo\" xmlns:mt=\"http://www.mtest.com\" " +
                 "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" +
-                "<mtes:desc>hi</mtes:desc>" +
-                "<mtes:subdesc>there</mtes:subdesc>" +
-                "</mtes:Test>";
+                "<mt:desc>hi</mt:desc>" +
+                "<mt:subdesc>there</mt:subdesc>" +
+                "</mt:Test>";
 
         //System.out.println(doc.xmlText());
         assertTrue("XmlText() Failed.", doc.xmlText().equals(str2));

@@ -255,6 +255,35 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         }
     }
 
+    public void testDumb() throws Exception {
+        m_xo = XmlObject.Factory.parse("<foo>01234</foo>");
+        m_xc = m_xo.newCursor();
+        toNextTokenOfType(m_xc, TokenType.TEXT);
+        XmlCursor xc1 = m_xc.newCursor();
+        xc1.toNextChar(2);
+        assertEquals(2, m_xc.copyChars(2, xc1));
+    }
+
+    public void testDumbDelete() throws Exception {
+        m_xo = XmlObject.Factory.parse("<foo>01234</foo>");
+        m_xc = m_xo.newCursor();
+        toNextTokenOfType(m_xc, TokenType.TEXT);
+        XmlCursor xc1 = m_xc.newCursor();
+        m_xc.toNextChar(2);
+        m_xc.setBookmark(_theBookmark);
+        m_xc.toStartDoc();
+        //remove the text , bookmark goes bye bye too
+        xc1.removeXml();
+        xc1.toCursor(m_xc);
+        //both at start of original doc
+        assertEquals(m_xc.currentTokenType(),
+                XmlCursor.TokenType.STARTDOC);
+        assertTrue(m_xc.isAtSamePositionAs(xc1));
+        //move xc1 to outer space
+        xc1.toBookmark(_theBookmark);
+        assertTrue(!m_xc.isInSameDocument(xc1));
+        assertTrue(!m_xc.isLeftOf(xc1));
+    }
 
     public void testToBookmarkPostRemove() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
@@ -264,31 +293,26 @@ public class ToBookmarkTest extends BasicCursorTestCase {
             assertEquals("<bar>text</bar>", m_xc.xmlText());
         m_xc.toNextToken();
         m_xc.setBookmark(_theBookmark);  // set annot. at 'text'
-        m_xc.toStartDoc();
+
         XmlCursor xc1 = m_xc.newCursor();
         xc1.toBookmark(_theBookmark);
         SimpleBookmark sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
         assertEquals("value", sa.text);
-        xc1.toEndDoc();
+        m_xc.toStartDoc();
+        xc1.toPrevToken();
+        xc1.removeXml();
+        xc1.toStartDoc();
+        assertTrue(m_xc.isAtSamePositionAs(xc1));
+        assertEquals("<foo/>", m_xc.xmlText());
+        //test modified, the two cursors are not in the same
+        //tree anymore
+        assertEquals(true, xc1.toBookmark(_theBookmark));
+        assertTrue(!xc1.isInSameDocument(m_xc));
+        assertTrue(!xc1.isLeftOf(m_xc));
 
-        m_xc.selectPath("$this//bar");
-        while (m_xc.toNextSelection()) {
-            m_xc.removeXml();
-            m_xc.toStartDoc();
-            try {
-                assertEquals("<foo/>", m_xc.xmlText());
-                //test modified, the two cursors are not in the same
-                //tree anymore
-                assertEquals(true, xc1.toBookmark(_theBookmark));
-                assertTrue( ! xc1.isInSameDocument(m_xc));
-                assertTrue( ! xc1.isLeftOf(m_xc));
-
-                sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
-                assertNull(sa);
-                assertEquals(TokenType.ENDDOC, xc1.currentTokenType());
-            } catch (Exception e) {
-            }
-        }
+        sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
+        assertNull(sa);
+        assertEquals(TokenType.ENDDOC, xc1.currentTokenType());
         xc1.dispose();
     }
 
@@ -310,7 +334,7 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         try {
             assertEquals("<foo>text</foo>", m_xc.xmlText());
             assertEquals(true, xc1.toBookmark(_theBookmark));
-            assertTrue( ! xc1.isInSameDocument(m_xc));
+            assertTrue(!xc1.isInSameDocument(m_xc));
         } finally {
             xc1.dispose();
         }
@@ -330,10 +354,11 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         xc1.toEndDoc();
         try {
             assertEquals(true, xc1.toBookmark(_theBookmark));
-            assertTrue( ! xc1.isInSameDocument(m_xc));
-            SimpleBookmark sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
-            assertNull(sa);
-            assertEquals(TokenType.ENDDOC, xc1.currentTokenType());
+            assertTrue(!xc1.isInSameDocument(m_xc));
+            SimpleBookmark sa =
+                    (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
+            assertEquals("value", sa.text);
+            assertEquals(TokenType.TEXT, xc1.currentTokenType());
         } finally {
             xc1.dispose();
         }
@@ -354,10 +379,10 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         assertEquals("<foo>changed</foo>", m_xc.xmlText());
         try {
             assertEquals(true, xc1.toBookmark(_theBookmark));
-            assertTrue( ! xc1.isInSameDocument(m_xc));
+            assertTrue(!xc1.isInSameDocument(m_xc));
             SimpleBookmark sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
-            assertNull(sa);
-            assertEquals(TokenType.ENDDOC, xc1.currentTokenType());
+               assertEquals("value", sa.text);
+            assertEquals(TokenType.TEXT, xc1.currentTokenType());
         } finally {
             xc1.dispose();
         }

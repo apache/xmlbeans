@@ -61,8 +61,12 @@ public class NodeTest extends TestCase {
     public void testNameTestNCName() throws XmlException {
         String sQuery1 = "$this//*";
         XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
-        String sExpected ="<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>";
+        String sExpected ="<pre:baz baz:at0=\"val1\" " +
+                "xmlns:baz=\"http://uri\" xmlns:pre=\"http://uri.com\"/>";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
+        c.toNextToken();
+        assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
+        assertEquals("bar",c.getName().getLocalPart());
         c.selectPath(sQuery1);
         assertEquals(1, c.getSelectionCount());
         c.toNextSelection();
@@ -75,7 +79,7 @@ public class NodeTest extends TestCase {
         XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<pre:baz pre:at0=\"val1\" xmlns:pre=\"http://uri\"/>";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
-         assertEquals("foo",c.getName().getLocalPart());
+        assertEquals("foo",c.getName().getLocalPart());
         c.selectPath(sQuery1);
         assertEquals(1, c.getSelectionCount());
         c.toNextSelection();

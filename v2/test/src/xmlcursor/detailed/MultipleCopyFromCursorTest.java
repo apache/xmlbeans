@@ -22,6 +22,8 @@ import junit.framework.*;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 
 
@@ -32,6 +34,8 @@ import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
 import org.tranxml.tranXML.version40.CodeList309;
 import org.tranxml.tranXML.version40.LocationIdentifierDocument.LocationIdentifier;
+
+import java.util.ArrayList;
 
 
 /**
@@ -86,12 +90,29 @@ public class MultipleCopyFromCursorTest extends TestCase {
                                       "http://www.tranxml.org/TranXML/Version4.0");
             aCursors[0].insertAttributeWithValue("Qualifier", "FR");
              aCursors[0].toEndToken();
+            aCursors[0].toNextToken();//move past the end token
             aCursors[0].insertElementWithText("CountrySubdivisionCode",
                                               "http://www.tranxml.org/TranXML/Version4.0",
                                               "xyz");
             aCursors[0].toCursor(xc);
             GeographicLocation gl = (GeographicLocation) aCursors[0].getObject();
-            assertEquals(true, gl.validate());
+            XmlOptions validateOptions=new XmlOptions();
+            ArrayList errors=new ArrayList();
+            validateOptions.setErrorListener(errors);
+            try{
+            assertEquals(true, gl.validate(validateOptions));
+            }catch (Throwable t){
+                StringBuffer sb=new StringBuffer();
+               for (int i = 0; i < errors.size(); i++) {
+                XmlError error = (XmlError) errors.get(i);
+
+                sb.append("Message: " + error.getMessage() + "\n");
+                if (error.getCursorLocation() != null)
+                    System.out.println("Location of invalid XML: " +
+                            error.getCursorLocation().xmlText() + "\n");
+            }
+                throw new Exception(" Validation failed "+sb.toString());
+            }
 
             assertEquals("DALLAS", gl.getCityName().getStringValue());
             assertEquals("TX", gl.getStateOrProvinceCode());

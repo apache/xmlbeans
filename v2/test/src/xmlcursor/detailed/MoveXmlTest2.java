@@ -86,14 +86,19 @@ public class MoveXmlTest2 extends BasicCursorTestCase{
 
 	toNextTokenOfType(m_xc1,TokenType.START);
 	toNextTokenOfType(m_xc,TokenType.END);
-	assertEquals(false,m_xc.moveXml(m_xc1));
-
+    try{
+	m_xc.moveXml(m_xc1);
+    fail(" need IllegalArgumentException");
+    }catch(IllegalArgumentException e){}
 	toPrevTokenOfType(m_xc,TokenType.STARTDOC);
 	toPrevTokenOfType(m_xc1,TokenType.STARTDOC);
 
 	toNextTokenOfType(m_xc1,TokenType.START);
 	toNextTokenOfType(m_xc,TokenType.ENDDOC);
-	assertEquals(false,m_xc.moveXml(m_xc1));
+	  try{
+	m_xc.moveXml(m_xc1);
+    fail(" need IllegalArgumentException");
+    }catch(IllegalArgumentException e){}
     }
 
     public void testInvalidToCursorPos(){

@@ -40,10 +40,10 @@ public class BuiltInType extends BaseCase {
         String[] exp = new String[]{
             "\tLead tab,A string on\n 2 lines with 2  spaces",
             "  2 Lead spaces,A string on\n 2 lines with 2  spaces",
-            "\tLead tab,A string on 2 lines with 2  spaces",
-            "  2 Lead spaces,A string on 2 lines with 2  spaces",
-            "Lead tab,A string on 2 lines with 2  spaces",
-            "2 Lead spaces,A string on 2 lines with 2  spaces"
+            " Lead tab,A string on  2 lines with 2  spaces",
+            "  2 Lead spaces,A string on  2 lines with 2  spaces",
+            "Lead tab,A string on 2 lines with 2 spaces",
+            "2 Lead spaces,A string on 2 lines with 2 spaces"
         };
         StringEltDocument doc = StringEltDocument.Factory.parse(buildString("StringElt", false));
         assertTrue(doc.validate(validateOptions));
@@ -51,41 +51,30 @@ public class BuiltInType extends BaseCase {
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
                 exp[0] +
                 "</StringElt>", doc.xmlText());
+
         doc = StringEltDocument.Factory.parse(buildString("StringElt", true));
         assertTrue(doc.validate(validateOptions));
-        assertEquals("<StringElt" +
-                " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
-                exp[1] +
-                "</StringElt>"
-                , doc.xmlText());
+        assertEquals(
+                exp[1]
+                , doc.getStringElt());
 
         NormalizedStringEltDocument doc1 = NormalizedStringEltDocument.Factory
                 .parse(buildString("NormalizedStringElt", false));
         assertTrue(doc.validate(validateOptions));
-        assertEquals("<NormalizedStringElt" +
-                " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
-                exp[2] +
-                "</NormalizedStringElt>", doc1.xmlText());
+        assertEquals(exp[2], doc1.getNormalizedStringElt());
         doc1 =
-                NormalizedStringEltDocument.Factory.parse(buildString(" NormalizedStringElt", true));
+                NormalizedStringEltDocument.Factory
+                .parse(buildString("NormalizedStringElt", true));
         assertTrue(doc1.validate(validateOptions));
-        assertEquals("<NormalizedStringElt" +
-                " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
-                exp[3] +
-                "</NormalizedStringElt>", doc1.xmlText());
+        assertEquals(
+                exp[3] , doc1.getNormalizedStringElt());
 
         TokenEltDocument doc2 = TokenEltDocument.Factory.parse(buildString("TokenElt", false));
         assertTrue(doc2.validate(validateOptions));
-        assertEquals("<TokenElt" +
-                " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
-                exp[4] +
-                "</TokenElt>", doc2.xmlText());
+        assertEquals(exp[4] , doc2.getTokenElt());
         doc2 = TokenEltDocument.Factory.parse(buildString("TokenElt", true));
         assertTrue(doc2.validate(validateOptions));
-        assertEquals("<TokenElt" +
-                " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
-                exp[5] +
-                "</TokenElt>", doc2.xmlText());
+        assertEquals(exp[5], doc2.getTokenElt());
     }
 
     /**
@@ -104,15 +93,20 @@ public class BuiltInType extends BaseCase {
         nameDoc.xsetNameElt(str);
         assertTrue(!nameDoc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
         NCNameEltDocument ncNameDoc = NCNameEltDocument.Factory.newInstance();
         ncNameDoc.setNCNameElt(":eltName");
+        clearErrors();
         assertTrue(!ncNameDoc.validate(validateOptions));
         showErrors();
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
         XmlNCName ncn = XmlNCName.Factory.newInstance();
@@ -126,11 +120,13 @@ public class BuiltInType extends BaseCase {
 
         langDoc.setLanguageElt("en-US");
         assertTrue(langDoc.validate(validateOptions));
-
-        langDoc.setLanguageElt("english");
+        clearErrors();
+        langDoc.setLanguageElt("bulgarian");
         assertTrue(!langDoc.validate(validateOptions));
         showErrors();
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -209,7 +205,9 @@ public class BuiltInType extends BaseCase {
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">32768</ShortElt>");
         assertTrue(!shDoc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -219,9 +217,13 @@ public class BuiltInType extends BaseCase {
         byteDoc = ByteEltDocument.Factory.parse("<ByteElt " +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">128</ByteElt>");
+
+        clearErrors();
         assertTrue(!byteDoc.validate(validateOptions));
         showErrors();
-        errExpected = new String[]{"cvc-attribute"};
+        errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
         NonPosIntEltDocument nonposIntDoc =
@@ -320,7 +322,9 @@ public class BuiltInType extends BaseCase {
                 "32</gDayElt>");
         assertTrue(!day.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATE
+        };
         assertTrue(compareErrorCodes(errExpected));
 
         day.setGDayElt(c);

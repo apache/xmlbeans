@@ -99,7 +99,7 @@ public class SelectAttributeTests
 
         QName qn = new QName(abcUri, "att3");
         String exp = saStartFrag + "Attribute 3" + endFrag;
-        XmlObject x = doc.getWithAny().selectAttribute(qn);
+        XmlObject x = doc.getWithOther().selectAttribute(qn);
 
         validateTest("testSelectWithQNameForAny", exp, x);
 
