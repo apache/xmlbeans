@@ -193,6 +193,11 @@ final class Locale implements DOMImplementation, SaajCallback
         return _saaj == null ? new CdataNode( this ) : new SaajCdataNode( this );
     }
 
+    boolean entered ( )
+    {
+        return _tempFrames.length - _numTempFramesLeft > 0;
+    }
+
     void enter ( )
     {
         assert _numTempFramesLeft >= 0;
@@ -507,7 +512,7 @@ final class Locale implements DOMImplementation, SaajCallback
                     else
                     {
                         _context.attr(
-                            aqn.substring( i + 1 ), atts.getURI( i ), aqn.substring( 0, i ),
+                            aqn.substring( colon + 1 ), atts.getURI( i ), aqn.substring( 0, colon ),
                             atts.getValue( i ) );
                     }
                 }
