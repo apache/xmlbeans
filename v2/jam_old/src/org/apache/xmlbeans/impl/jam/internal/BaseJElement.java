@@ -131,6 +131,8 @@ public abstract class BaseJElement implements JElement {
     return out[0];
   }
 
+  public Object getArtifact() { return null; }
+
   // ========================================================================
   // Object implementation
 
