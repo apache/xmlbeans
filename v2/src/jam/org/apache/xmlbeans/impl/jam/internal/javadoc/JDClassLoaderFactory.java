@@ -66,6 +66,8 @@ import org.apache.xmlbeans.impl.jam.internal.JFileSetImpl;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * <p>This class does its best to encapsulate and make threadsafe the
@@ -76,21 +78,14 @@ import java.util.List;
 public final class JDClassLoaderFactory extends Doclet {
 
   // ========================================================================
-  // Variables
-
-  private static RootDoc mCurrentRoot = null;
-
-  // ========================================================================
   // Singleton
 
   private static final JDClassLoaderFactory INSTANCE =
-          new JDClassLoaderFactory();
+    new JDClassLoaderFactory();
 
   private JDClassLoaderFactory() {}
 
-  public static final JDClassLoaderFactory getInstance() {
-    return INSTANCE;
-  }
+  public static final JDClassLoaderFactory getInstance() { return INSTANCE; }
 
   // ========================================================================
   // Public methods
@@ -102,23 +97,28 @@ public final class JDClassLoaderFactory extends Doclet {
   public synchronized JDClassLoader create(JFileSet fileset,
                                            JClassLoader parentLoader,
                                            JAnnotationLoader annLoader,
-                                           PrintWriter out)
-          throws IOException, FileNotFoundException {
+                                           PrintWriter out,
+                                           String sourcePath,
+                                           String classPath)
+          throws IOException, FileNotFoundException
+  {
     List argList = new ArrayList();
     argList.add("-private");
-
-    String cp = ((JFileSetImpl)fileset).getClasspath();
-    if (cp != null) {
-      argList.add("-docletpath");
-      argList.add(cp);
-      argList.add("-classpath");
-      argList.add(cp);
-    }
     File[] files = fileset.getFiles();
     if (files.length == 0) {
       throw new FileNotFoundException("No input files found.");
     }
-    for (int i = 0; i < files.length; i++) {
+    if (sourcePath != null) {
+      argList.add("-sourcepath");
+      argList.add(sourcePath);
+    }
+    if (classPath != null) {
+      argList.add("-classpath");
+      argList.add(classPath);
+      argList.add("-docletpath");
+      argList.add(classPath);
+    }
+    for(int i=0; i<files.length; i++) {
       argList.add(files[i].toString());
       if (out != null) out.println(files[i].toString());
     }
@@ -127,33 +127,35 @@ public final class JDClassLoaderFactory extends Doclet {
     // create a buffer to capture the crap javadoc spits out.  we'll
     // just ignore it unless something goes wrong
     StringWriter spew = new StringWriter();
-    PrintWriter spewWriter = new PrintWriter(spew);
+    PrintWriter spewWriter = new PrintWriter(System.out);
+
+    JavadocResults.prepare();
     int result =
             com.sun.tools.javadoc.Main.execute("JAM",
-                    spewWriter,
-                    spewWriter,
-                    spewWriter,
-                    this.getClass().getName(),
-                    args);
-    if (result != 0 || mCurrentRoot == null) {
+                                               spewWriter,
+                                               spewWriter,
+                                               spewWriter,
+                                               this.getClass().getName(),
+                                               args);
+    RootDoc root = JavadocResults.getRoot();
+    if (result != 0 || root == null) {
       spewWriter.flush();
-      throw new RuntimeException("Unknown javadoc problem: result=" + result +
-              ", mCurrentRoot=" + mCurrentRoot + ":\n" +
-              spew.toString());
+      throw new RuntimeException("Unknown javadoc problem: result="+result+
+                                 ", root="+root+":\n"+
+                                 spew.toString());
     }
-    JDClassLoader loader = new JDClassLoader(mCurrentRoot, parentLoader);
-    mCurrentRoot = null;
-    return loader;
+    return new JDClassLoader(root,parentLoader);
   }
 
   // ========================================================================
   // Doclet 'implementation'
 
+
   public static boolean start(RootDoc root) {
-    if (mCurrentRoot != null) {  // should not be possible
-      throw new IllegalStateException();
-    }
-    mCurrentRoot = root;
+    JavadocResults.setRoot(root);
     return true;
   }
+
+
 }
+

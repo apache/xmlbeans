@@ -157,15 +157,15 @@ public class Java2SchemaTask extends Task {
     JFactory jf = JFactory.getInstance();
     String[] list = mSrcDir.list();
     if (list.length != 1) throw new IllegalStateException("NYI");
-    JFileSet fs = jf.createFileSet(new File("."/*list[0]*/));
+    JFileSet fs = jf.createFileSet(new File(list[0]));
     fs.include(mIncludes);
     if (mClasspath != null) {
-      System.out.println(mClasspath.toString()+"  set classpath");
+      //this will be removed after jam factory is refactored
       fs.setClasspath(mClasspath.toString());
     }
     final JClass[] classes;
     try {
-      classes = jf.loadSources(fs);
+      classes = jf.loadSources(fs,null,null,null,null,mClasspath.toString());
     } catch(IOException ioe) {
       ioe.printStackTrace();
       throw new BuildException(ioe);

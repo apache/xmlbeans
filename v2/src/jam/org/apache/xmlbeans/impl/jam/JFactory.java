@@ -158,12 +158,44 @@ public class JFactory {
                               PrintWriter log)
           throws IOException, FileNotFoundException {
     JDClassLoader loader = JDClassLoaderFactory.getInstance().
-            create(fs, parentLoader, annLoader, log);
+            create(fs, parentLoader, annLoader, log, null,null);
     Collection classes = loader.getResolvedClasses();
     JClass[] out = new JClass[classes.size()];
     classes.toArray(out);
     return out;
   }
+
+
+
+  /**
+   * Note that this method is guaranteed to return a non-empty array;
+   * FileNotFoundException is thrown if no classes are found to parse.
+   *
+   * @param sourcePath A semicolon-separated path on which
+   * sources will be located for resolving types that are not included
+   * in the filest.  It is ignored if null.
+   *
+   * @throws FileNotFoundException If no java source files could be
+   * located in the given fileset.
+   * @throws IOException If an IO error occurred while reading the
+   * source files.
+   */
+  public JClass[] loadSources(JFileSet fs,
+                              JClassLoader parentLoader,
+                              JAnnotationLoader annLoader,
+                              PrintWriter log,
+                              String sourcePath,
+                              String classPath)
+    throws IOException, FileNotFoundException
+  {
+    JDClassLoader loader = JDClassLoaderFactory.getInstance().
+      create(fs,parentLoader,annLoader,log,sourcePath,classPath);
+    Collection classes = loader.getResolvedClasses();
+    JClass[] out = new JClass[classes.size()];
+    classes.toArray(out);
+    return out;
+  }
+
 
   /**
    * @param parent Optional parameter which specifies a parent
