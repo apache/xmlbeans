@@ -661,4 +661,34 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue
     {
         ((SimpleValue)underlyingXmlObject()).objectSet(obj);
     }
+
+    public XmlObject[] selectChildren(QName elementName)
+    {
+        return underlyingXmlObject().selectChildren(elementName);
+    }
+
+    public XmlObject[] selectChildren(String elementUri, String elementLocalName)
+    {
+        return underlyingXmlObject().selectChildren(elementUri, elementLocalName);
+    }
+
+    public XmlObject[] selectChildren(QNameSet elementNameSet)
+    {
+        return underlyingXmlObject().selectChildren(elementNameSet);
+    }
+
+    public XmlObject selectAttribute(QName attributeName)
+    {
+        return underlyingXmlObject().selectAttribute(attributeName);
+    }
+
+    public XmlObject selectAttribute(String attributeUri, String attributeLocalName)
+    {
+        return underlyingXmlObject().selectAttribute(attributeUri, attributeLocalName);
+    }
+
+    public XmlObject[] selectAttributes(QNameSet attributeNameSet)
+    {
+        return underlyingXmlObject().selectAttributes(attributeNameSet);
+    }
 }
