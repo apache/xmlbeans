@@ -17,13 +17,17 @@ package org.apache.xmlbeans.impl.binding.tylar;
 
 import java.io.*;
 import java.net.URI;
+import java.net.URLClassLoader;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.jar.JarEntry;
 import java.util.jar.JarInputStream;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
@@ -32,7 +36,7 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class DefaultTylarLoader implements TylarLoader {
+public class DefaultTylarLoader implements TylarLoader, TylarConstants {
 
   // ========================================================================
   // Constants
@@ -40,17 +44,20 @@ public class DefaultTylarLoader implements TylarLoader {
   private static final String FILE_SCHEME = "file";
 
   private static final char[] OTHER_SEPCHARS = {'\\'};
+
   private static final char SEPCHAR = '/';
 
   private static final boolean VERBOSE = false;
 
   private static final String BINDING_FILE_JARENTRY =
-          normalizeEntryName(TylarConstants.BINDING_FILE);
+          normalizeEntryName(TylarConstants.BINDING_FILE).toLowerCase();
 
   private static final String SCHEMA_DIR_JARENTRY =
-          normalizeEntryName(TylarConstants.SCHEMA_DIR);
+          normalizeEntryName(TylarConstants.SCHEMA_DIR).toLowerCase();
 
   private static final String SCHEMA_EXT = ".xsd";
+
+  private static final String STS_PREFIX = "schema"+SEPCHAR+"system"+SEPCHAR;
 
   // ========================================================================
   // Singleton
@@ -157,9 +164,20 @@ public class DefaultTylarLoader implements TylarLoader {
     BindingFile bf = null;
     Collection schemas = null;
     StubbornInputStream stubborn = new StubbornInputStream(jin);
+    String stsName = null;
     while ((entry = jin.getNextJarEntry()) != null) {
-      if (entry.isDirectory()) continue;
       String name = normalizeEntryName(entry.getName());
+      if (name.endsWith(""+SEPCHAR)) {
+        if (name.startsWith(STS_PREFIX) &&
+          name.length() > STS_PREFIX.length()) {
+          // the name of the sts is the name of the only directory under
+          // schema/system
+          stsName = STS_PACKAGE+"."+name.substring(STS_PREFIX.length(),name.length()-1);
+          if (VERBOSE) System.out.println("sts name is "+stsName);
+        }
+        continue;
+      }
+      name = name.toLowerCase();
       if (name.equals(BINDING_FILE_JARENTRY)) {
         if (VERBOSE) System.out.println("parsing binding file "+name);
         bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(stubborn));
@@ -184,7 +202,27 @@ public class DefaultTylarLoader implements TylarLoader {
                "' is not a tylar: it does not contain a binding file");
     }
     jin.close();
-    return new TylarImpl(source,bf,schemas);
+    if (VERBOSE) System.out.println("Done reading jar entries");
+    SchemaTypeSystem sts = null;
+    if (stsName != null) {
+      {
+        try {
+          URLClassLoader ucl = new URLClassLoader(new URL[] {source.toURL()});
+          sts = SchemaTypeSystemImpl.forName(stsName,ucl);
+          if (sts == null) throw new IllegalStateException("null returned by SchemaTypeSystemImpl.forName()");
+          if (VERBOSE) System.out.println("successfully loaded schema type system");
+        } catch(Exception e) {
+          System.out.println
+            ("[XBEANS] Notice: an unexpected error occurred while trying to read\n " +
+             "a binary version of your schemas from "+source+".\n"+
+             "Your bindings were still loaded, but you may have suffered some " +
+             "performance degradation if your schemas are very large or " +
+             "complicated.\n"+e.getMessage());
+          if (SHOW_XSB_ERRORS) e.printStackTrace();
+        }
+      }
+    }
+    return new TylarImpl(source,bf,schemas,sts);
   }
   // ========================================================================
   // Private methods
@@ -195,7 +233,7 @@ public class DefaultTylarLoader implements TylarLoader {
    * leading slashes or anything else that can go wrong.
    */
   private static final String normalizeEntryName(String name) {
-    name = name.toLowerCase().trim();
+    name = name.trim();
     for(int i=0; i<OTHER_SEPCHARS.length; i++) {
       name = name.replace(OTHER_SEPCHARS[i],SEPCHAR);
     }

@@ -187,7 +187,17 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JClass[] getImportedClasses() {
-    return new JClass[0];//FIXME
+//    if (true) throw new IllegalStateException();
+    String[] imports = getImportSpecs();
+    if (imports == null) return new JClass[0];
+    List list = new ArrayList();
+    for(int i=0; i<imports.length; i++) {
+      if (imports[i].endsWith("*")) continue;
+      list.add(getClassLoader().loadClass(imports[i]));
+    }
+    JClass[] out = new JClass[list.size()];
+    list.toArray(out);
+    return out;
   }
 
   public void accept(MVisitor visitor) { visitor.visit(this); }

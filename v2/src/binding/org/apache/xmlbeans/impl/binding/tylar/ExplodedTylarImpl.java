@@ -38,6 +38,8 @@ import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.ValidatingJavaOutputStream;
 import org.apache.xmlbeans.impl.common.JarHelper;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
+import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
@@ -119,12 +121,24 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     parseSchemas(new File(dir, SCHEMA_DIR), schemas);
     SchemaTypeSystem sts = null;
     {
-      File stsDir = new File(dir, STS_DIR);
-      if (stsDir.exists()) {
-        //FIXME i still dont get how to do this.  Where is the TypeSystemHolder?
-        // sts = SchemaTypeSystemImpl.forName()
+      //try to read the xsbs.  first we need to figure out the sts name.
+      try {
+        File stsDir = new File(dir, "schema"+SEP+"system");
+        String stsName = stsDir.list()[0];
+        ClassLoader cl = new URLClassLoader(new URL[]{dir.toURL()});
+        sts = SchemaTypeSystemImpl.forName(STS_PACKAGE+"."+stsName,cl);
+        if (sts == null) throw new IllegalStateException("null returned by SchemaTypeSystemImpl.forName()");
+        if (VERBOSE) System.out.println
+          ("[XBEANS] loaded schema type system '"+stsName+"'");
+      } catch(Exception e) {
+        System.out.println
+          ("[XBEANS] Notice: an unexpected error occurred while trying to read\n " +
+           "a binary version of your schemas from "+dir+".\n"+
+           "Your bindings were still loaded, but you may have suffered some " +
+           "performance degradation if your schemas are very large or " +
+           "complicated.\n"+e.getMessage());
+        if (SHOW_XSB_ERRORS) e.printStackTrace();
       }
-
     }
 
     return new ExplodedTylarImpl(dir, bf, schemas, sts, joust);
@@ -174,11 +188,16 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     if (sts == null) throw new IllegalArgumentException("null sts");
     mSchemaTypeSystem = sts;
     try {
-      sts.saveToDirectory(new File(mRootDir, STS_DIR));
+      SchemaCodeGenerator.saveTypeSystem(sts,
+                                         mRootDir,
+                                         null,null,null);
     } catch(Exception e) {
-      System.out.println("[XBEANS] HAS A PROBLEM WRITING XSBs, IGNORING FOR NOW: "+
-                         e.getMessage()+"\n YOUR BINDINGS ARE STILL OK");
-      //e.printStackTrace(System.out);
+      System.out.println
+        ("[XBEANS] Notice: an unexpected error occurred while trying to save\n " +
+         "a binary version of your schemas.  Your bindings are still\n "+
+         "ok, but you may suffer some performance degradation if your schemas\n "+
+         "are very large or complicated.\n"+e.getMessage());
+      if (VERBOSE) e.printStackTrace();
     }
   }
 
