@@ -1106,12 +1106,11 @@
     </target>
 
     <!-- temporary build utils ... zieg =============
-
     <target name='binding-test' depends='declare-tasks, jam.classes'>
         <mkdir dir='build/private/classes/marshal'/>
         <java2schema
             srcdir='test/cases/marshal'
-            includes='com/mytest/*.java'
+            includes='com/mytest/**/*.java'
             destdir='build/private/classes/marshal'>
         </java2schema>
     </target>
@@ -1133,6 +1132,7 @@
         </taskdef>
     </target>
     -->
+
 
 
 </project>

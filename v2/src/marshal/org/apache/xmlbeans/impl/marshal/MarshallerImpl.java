@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
@@ -68,37 +69,41 @@ import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import java.util.ArrayList;
+import java.io.OutputStream;
 import java.util.Collection;
 
 final class MarshallerImpl
     implements Marshaller
 {
-    private final Collection errors;
     private final BindingLoader loader;
     private final RuntimeBindingTypeTable typeTable;
     private final ScopedNamespaceContext namespaceContext;
     private final RuntimeTypeFactory runtimeTypeFactory =
         new RuntimeTypeFactory();
+    private final Collection errors;
+    private final XmlOptions options;
 
     private int prefixCnt = 0;
 
     private static final String NSPREFIX = "n";
+    private static final String XML_VERSION = "1.0";
 
     MarshallerImpl(NamespaceContext root_nsctx,
                    BindingLoader loader,
                    RuntimeBindingTypeTable typeTable,
-                   Collection errors)
+                   XmlOptions options)
     {
         this.namespaceContext = new ScopedNamespaceContext(root_nsctx);
         this.loader = loader;
         this.typeTable = typeTable;
-        this.errors = errors;
+        this.errors = BindingContextImpl.extractErrorHandler(options);
+        this.options = options;
 
-        namespaceContext.openScope(); //TODO: verify this
+        namespaceContext.openScope();
     }
 
     public XMLStreamReader marshall(Object obj,
@@ -120,15 +125,18 @@ final class MarshallerImpl
 
         //get type for this element/object pair
         final BindingTypeName type_name = loader.lookupTypeFor(jname);
+        if (type_name == null) {
+            String msg = "failed to lookup type for " + jname;
+            throw new XmlException(msg);
+        }
         final BindingType btype = loader.getBindingType(type_name);
+        if (btype == null) {
+            String msg = "failed to load type " + type_name;
+            throw new XmlException(msg);
+        }
 
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(btype, elem_qn);
-
-        final ArrayList errors = new ArrayList();
-        MarshallerImpl ctx = new MarshallerImpl(nscontext, loader,
-                                                typeTable, errors);
-
-        return new MarshalResult(prop, obj, ctx);
+        return new MarshalResult(prop, obj, this);
     }
 
     public void marshall(XMLStreamWriter writer, Object obj)
@@ -137,6 +145,45 @@ final class MarshallerImpl
         XMLStreamReader rdr = marshall(obj, writer.getNamespaceContext());
         try {
             XmlReaderToWriter.writeAll(rdr, writer);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
+    }
+
+    public void marshall(OutputStream out, Object obj)
+        throws XmlException
+    {
+        String encoding = (String)options.get(XmlOptions.CHARACTER_ENCODING);
+        if (encoding != null) {
+            marshall(out, obj, encoding);
+        } else {
+            try {
+                final XMLOutputFactory xof = XMLOutputFactory.newInstance();
+                final XMLStreamWriter writer = xof.createXMLStreamWriter(out);
+                marshall(writer, obj);
+            }
+            catch (XMLStreamException e) {
+                throw new XmlException(e);
+            }
+        }
+    }
+
+    public void marshall(OutputStream out, Object obj, String encoding)
+        throws XmlException
+    {
+        if (encoding == null) {
+            throw new IllegalArgumentException("null encoding");
+        }
+
+        try {
+            XMLOutputFactory output_factory = XMLOutputFactory.newInstance();
+            XMLStreamWriter writer =
+                output_factory.createXMLStreamWriter(out, encoding);
+            writer.writeStartDocument(encoding, XML_VERSION);
+            marshall(writer, obj);
+            writer.writeEndDocument();
+            writer.close();
         }
         catch (XMLStreamException e) {
             throw new XmlException(e);
@@ -268,7 +315,8 @@ final class MarshallerImpl
         do {
             prefix = NSPREFIX + (++prefixCnt);
             testuri = namespaceContext.getNamespaceURI(prefix);
-        } while (testuri != null);
+        }
+        while (testuri != null);
         assert prefix != null;
         namespaceContext.bindNamespace(prefix, uri);
         return prefix;

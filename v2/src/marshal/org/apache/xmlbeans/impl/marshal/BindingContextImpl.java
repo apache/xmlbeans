@@ -87,41 +87,29 @@ final class BindingContextImpl
 
     public Unmarshaller createUnmarshaller(XmlOptions options)
         throws XmlException
-
     {
-        Collection errors = extractErrorHandler(options);
+        if (options == null) {
+            throw new IllegalArgumentException("options must not be null");
+        }
 
-        final int prev = errors.size();
-        final UnmarshallerImpl unmarshalContext =
-            new UnmarshallerImpl(bindingLoader, typeTable, errors);
-        checkErrors(prev, errors, "error creating UnmarshalContext");
-        return unmarshalContext;
+        return new UnmarshallerImpl(bindingLoader, typeTable, options);
     }
 
 
     public Marshaller createMarshaller(XmlOptions options)
         throws XmlException
     {
-        Collection errors = extractErrorHandler(options);
+        if (options == null) {
+            throw new IllegalArgumentException("options must not be null");
+        }
 
-        final int prev = errors.size();
-        final MarshallerImpl mc = new MarshallerImpl(EmptyNamespaceContext.getInstance(),
-                                                     bindingLoader,
-                                                     typeTable, errors);
-        checkErrors(prev, errors, "error creating Marshaller");
-        return mc;
+        return new MarshallerImpl(EmptyNamespaceContext.getInstance(),
+                                  bindingLoader,
+                                  typeTable,
+                                  options);
     }
 
-
-    static void checkErrors(int prev_size, Collection errors, String err_msg)
-        throws XmlException
-    {
-        if (errors.size() <= prev_size) return;
-        throw new XmlException(err_msg, null, errors);
-    }
-
-
-    private static Collection extractErrorHandler(XmlOptions options)
+    static Collection extractErrorHandler(XmlOptions options)
     {
         Collection underlying = (Collection)options.get(XmlOptions.ERROR_LISTENER);
         Collection errors = new XmlErrorWatcher(underlying);

@@ -62,6 +62,7 @@ import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
@@ -74,6 +75,7 @@ import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
+import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
@@ -98,6 +100,7 @@ final class UnmarshallerImpl
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
     private final Collection errors;
+    private final XmlOptions options;
     private final XsiAttributeHolder xsiAttributeHolder =
         new XsiAttributeHolder();
 
@@ -110,11 +113,12 @@ final class UnmarshallerImpl
 
     UnmarshallerImpl(BindingLoader bindingLoader,
                      RuntimeBindingTypeTable typeTable,
-                     Collection errors)
+                     XmlOptions options)
     {
         this.bindingLoader = bindingLoader;
-        this.errors = errors;
         this.typeTable = typeTable;
+        this.errors = BindingContextImpl.extractErrorHandler(options);
+        this.options = options;
     }
 
 
@@ -195,6 +199,23 @@ final class UnmarshallerImpl
         advanceToFirstItemOfInterest();
         BindingType bindingType = determineRootType();
         return unmarshalBindingType(bindingType);
+    }
+
+    public Object unmarshal(InputStream doc)
+        throws XmlException
+    {
+        String encoding = (String)options.get(XmlOptions.CHARACTER_ENCODING);
+
+        try {
+            final XMLInputFactory xif = XMLInputFactory.newInstance();
+            final XMLStreamReader reader =
+                encoding == null ? xif.createXMLStreamReader(doc) :
+                xif.createXMLStreamReader(doc, encoding);
+            return unmarshal(reader);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
     }
 
 

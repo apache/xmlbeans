@@ -60,6 +60,7 @@ import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.OutputStream;
 
 /**
  * A Marshaller object is used to convert Java objects to XML documents.
@@ -106,6 +107,42 @@ public interface Marshaller
      * @throws XmlException
      */
     void marshall(XMLStreamWriter writer, Object obj)
+        throws XmlException;
+
+
+    /**
+     * Write an XML representation of the Java object to the provided writer
+     * as a complete xml document using the default encoding
+     *
+     * The object is expected to correspond to a global element in a schema.
+     * The first matching global element will be used as the root element.
+     *
+     * An XML Declaration will be written declaring the encoding if one was
+     * set via XmlOptions
+     *
+     * @param out
+     * @param obj
+     * @throws XmlException
+     */
+    void marshall(OutputStream out, Object obj)
+        throws XmlException;
+
+
+    /**
+     * Write an XML representation of the Java object to the provided writer
+     * as a complete xml document
+     *
+     * The object is expected to correspond to a global element in a schema.
+     * The first matching global element will be used as the root element.
+     *
+     * An XML Declaration will be written declaring the encoding.
+     *
+     * @param out
+     * @param obj
+     * @param encoding      encoding used when writing the document
+     * @throws XmlException
+     */
+    void marshall(OutputStream out, Object obj, String encoding)
         throws XmlException;
 
 
