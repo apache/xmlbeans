@@ -64,6 +64,7 @@
     </xs:complexContent>
   </xs:complexType>
 
+
   <xs:complexType name="jaxb-bean">
     <xs:complexContent>
       <xs:extension base="tns:binding-type">

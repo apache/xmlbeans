@@ -68,38 +68,38 @@ import java.io.IOException;
 
 /**
  * Represents a BindingLoader whose contents are loaded from a
- * single binding-config file. (See binding-config.xsd) 
+ * single binding-config file. (See binding-config.xsd)
  */
 public class BindingFile extends BaseBindingLoader
 {
 
     /**
      * This constructor is used when making a new one out of the blue.
-     */ 
+     */
     public BindingFile()
     {
         // nothing to do - all maps are empty
     }
-    
+
     /**
      * Loader
-     */ 
+     */
     public static BindingFile forDoc(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc)
     {
         return new BindingFile(doc);
     }
-    
+
     /**
      * This constructor loads an instance from an XML file
-     */ 
+     */
     protected BindingFile(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc)
     {
         List errors = new ArrayList();
         if (!doc.validate(new XmlOptions().setErrorListener(errors)))
             throw new IllegalArgumentException(errors.size() > 0 ? errors.get(0).toString() : "Invalid binding-config document");
-        
+
         // todo: in the loops below, validate that entries are unique, or modify schema to do so.
-        
+
         org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType[] btNodes =
                 doc.getBindingConfig().getBindings().getBindingTypeArray();
         for (int i = 0; i < btNodes.length; i++)
@@ -115,7 +115,7 @@ public class BindingFile extends BaseBindingLoader
             XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
             xmlFromJava.put(jName, pair(jName, xName));
         }
-        
+
         mNodes = doc.getBindingConfig().getXmlToPojo().getMappingArray();
         for (int i = 0; i < mNodes.length; i++)
         {
@@ -132,10 +132,10 @@ public class BindingFile extends BaseBindingLoader
             javaFromXmlObj.put(xName, pair(jName, xName));
         }
     }
-    
+
     /**
      * Writes out to XML
-     */ 
+     */
     public org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument write() throws IOException
     {
         org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc =
@@ -143,22 +143,22 @@ public class BindingFile extends BaseBindingLoader
         write(doc);
         return doc;
     }
-    
+
     /**
      * This function copies an instance into an empty doc.
-     */ 
+     */
     private void write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc)
     {
         if (doc.getBindingConfig() != null)
             throw new IllegalArgumentException("Can only write into empty doc");
         org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument.BindingConfig bcNode = doc.addNewBindingConfig();
-        
+
         // make tables
         org.apache.xmlbeans.x2003.x09.bindingConfig.BindingTable btabNode = bcNode.addNewBindings();
         org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable jtabNode = bcNode.addNewJavaToXml();
         org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable pojotabNode = bcNode.addNewXmlToPojo();
         org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable xotabNode = bcNode.addNewXmlToXmlobj();
-        
+
         // fill em in: binding types (delegate to BindingType.write)
         for (Iterator i = bindingTypes.values().iterator(); i.hasNext(); )
         {
@@ -177,7 +177,7 @@ public class BindingFile extends BaseBindingLoader
             mNode.setJavatype(jName.toString());
             mNode.setXmlcomponent(xName.toString());
         }
-            
+
         // to-pojo
         for (Iterator i = javaFromXmlPojo.entrySet().iterator(); i.hasNext(); )
         {
@@ -213,7 +213,8 @@ public class BindingFile extends BaseBindingLoader
         }
         if (fromXmlDefault)
         {
-            xmlFromJava.put(bType.getJavaName(), bType.getXmlName());
+            xmlFromJava.put(bType.getJavaName(),
+                            pair(bType.getJavaName(),bType.getXmlName()));
         }
     }
 

@@ -86,8 +86,7 @@ public final class JDClassLoaderFactory extends Doclet {
   private static final JDClassLoaderFactory INSTANCE =
           new JDClassLoaderFactory();
 
-  private JDClassLoaderFactory() {
-  }
+  private JDClassLoaderFactory() {}
 
   public static final JDClassLoaderFactory getInstance() {
     return INSTANCE;
