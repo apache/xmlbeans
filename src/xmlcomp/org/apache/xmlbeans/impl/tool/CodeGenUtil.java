@@ -25,6 +25,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileFilter;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -241,6 +242,9 @@ public class CodeGenUtil
         }
         catch (Throwable e)
         {
+            if ( e instanceof IOException )
+                System.err.println("'javac' is required on the path.");
+
             System.err.println(e.toString());
             System.err.println(e.getCause());
             e.printStackTrace(System.err);
