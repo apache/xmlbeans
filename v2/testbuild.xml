@@ -485,7 +485,15 @@
     </target>
 
     <target name="build.xpath">
+      <condition property="xbean_xpath.jar.exists">
+          <available file="${build.lib}/xbean_xpath.jar" /> 
+      </condition>
+      <if>
+      <not><isset property="xbean_xpath.jar.exists"/></not>
+      <then>
         <ant target="xbean_xpath.jar"/>
+         </then>
+      </if>
     </target>
 
     <!-- Builds the tests -->
@@ -591,6 +599,7 @@
             excludes="${excludes.from.compile}"
             classpathref="test.run.classpath"
             optimize="on"
+            source="1.4"
             verbose="false"
             failonerror="true"/>
         <jar destfile="${build.dir.test.lib}/testcases.jar"
@@ -619,8 +628,13 @@
                     <loop>
                         <basename property="testcase" path="${case}"/>
                         <basename property="feature.basename" path="${feature}"/>
-                    
-
+                       
+                         <available file="${build.dir.test.schemas.lib}/${feature.basename}_${testcase}.jar" property="jar.exists"/>
+                       <!--  uptodate srcfile= targetfile="${jarname}" property="jar.exists"/-->
+                       <echo message="JAR ${build.dir.test.schemas.lib}/${feature.basename}_${testcase}.jar, Exists: ${jar.exists}"/>
+                        <if>
+                         <isfalse value="${jar.exists}"/>
+                        <then>
                         <java classname="${schema.compiler}"
                             classpathref="build.classpath"
                             fork="true">
@@ -629,7 +643,8 @@
                              ${xbeans.test.cases}/xbean/extensions/${feature.basename}/${testcase}"
                                 />
                         </java>
-                      
+                         </then>
+                      </if>
                     </loop>
                 </foreachloop>
             </loop>
@@ -637,7 +652,7 @@
         </foreachloop>
     </target>
     
-    <target name="build.area.xmlobject">
+    <target name="build.area.xmlobject" depends="extensions.build">
         <property name="this.schema.dirs"
             value="${build.dir.test.schemas}/xbean/xmlobject,
                   ${build.dir.test.schemas}/xbean/xmlcursor,
@@ -651,14 +666,9 @@
 
         <property name="includes.for.compile"
             value="**/xmlobject/**/*.java"/>
-        <property name="excludes.from.compile"
-            value="**/extensions/**"/>
-        <!--   <property name="includes.for.compile"
-           value="**/xmlobject/checkin/*.java,
-                 **/xmlobject/common/*.java,
-                 **/xmlobject/detailed/*.java,
-                 **/xmlobject/schematypes/*.java,
-                 **/xmlobject/xmlloader/*.java"/>-->
+       <!-- <property name="excludes.from.compile"
+            value="**/extensions/**"/> -->
+      
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
 
@@ -708,11 +718,11 @@
 
     <!--TODO: need to compile a subset of the schemas; figure out what and set a separate var-->
     <!-- FREQ Target -->
-    <target name="build.area.checkin" depends="clean.tests">
+    <target name="build.area.checkin" depends="clean.tests,extensions.build">
         <property name="includes.for.compile"
             value="**/checkin/**/*.java, **/common/**/*.java"/>
-        <property name="excludes.from.compile"
-            value="**/extensions/**"/>
+        <!--<property name="excludes.from.compile"
+            value="**/extensions/**"/>-->
         <property name="this.schema.dirs"
             value="${checkin.schema.dirs}"/>
         <property name="this.schema.standalone.dirs"
@@ -728,10 +738,15 @@
     <!-- =============================================================== -->
     <!-- START: JUNIT Tests                                              -->
     <target name="checkin">
-        <property name="area.name" value="checkin"/>
+        <property name="build.area" value="checkin"/>
         <antcall target="build"/>
-        <ant target="marshal-drt"/>
-        <ant target="binding-drt"/>
+      
+        <antcall target="run.junit"/>
+    </target>
+
+    <target name="detailed">
+        <property name="tests.spec" value="**/detailed/**"/>
+        <antcall target="build"/>
         <antcall target="run.junit"/>
     </target>
 
