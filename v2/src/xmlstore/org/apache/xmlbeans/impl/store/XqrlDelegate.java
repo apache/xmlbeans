@@ -23,18 +23,21 @@ public final class XqrlDelegate
     {
     }
 
-    static void check ( Object o )
-    {
-        if (o == null)
-        {
-            throw
-                new UnsupportedOperationException(
-                    "This operation requires xqrl.jar" );
-        }
-    }
+//    static void check ( Object o )
+//    {
+//        if (o == null)
+//        {
+//            throw
+//                new UnsupportedOperationException(
+//                    "This operation requires xqrl.jar" );
+//        }
+//    }
 
     static Path.Query compilePath ( String path, String currentNodeVar )
     {
+        if (_compilePath==null)
+            return null;
+
         return
             (Path.Query)
                 invoke( _compilePath, new Object[] { path, currentNodeVar } );
@@ -68,7 +71,7 @@ public final class XqrlDelegate
         {
             throw
                 new UnsupportedOperationException(
-                    "This operation requires xqrl.jar" );
+                    "This query is too complex to be processed." );
         }
 
         try

@@ -161,6 +161,12 @@ public abstract class Path
                         _xqrlPathCache.put( path.getPathExpr(), path );
                 }
             }
+
+            if (path == null)
+            {
+                throw new UnsupportedOperationException(
+                    "This query is too complex to be processed." );
+            }
         }
 
         return path == null ? null : path.getPathExpr();
@@ -252,9 +258,11 @@ public abstract class Path
 
         static Path create ( String pathExpr, String currentNodeVar )
         {
-            return new XqrlPathImpl(
-                pathExpr,
-                XqrlDelegate.compilePath( pathExpr, currentNodeVar ) );
+            Path.Query p = XqrlDelegate.compilePath( pathExpr, currentNodeVar );
+            if (p==null)
+                return null;
+
+            return new XqrlPathImpl(pathExpr, p);
         }
 
         protected PathEngine execute (

@@ -1101,38 +1101,38 @@ public class MarshalTests extends TestCase
 
             // -- this is currently broken --
             //now try unmarshalType...
-//        final FileInputStream fis = new FileInputStream(instance);
-//        final XMLStreamReader rdr =
-//            XMLInputFactory.newInstance().createXMLStreamReader(fis);
-//        QName schema_type = new QName("http://nosuch.domain.name", "USAddress");
-//        String java_type = obj.getClass().getName();
-//
-//        //not super robust but this should work for valid xml
-//        while(!rdr.isStartElement()) {
-//            rdr.next();
-//        }
-//
-//        um.unmarshalType(rdr, schema_type, java_type, opts);
-//        rdr.close();
-//        fis.close();
-//
-//        reportErrors(errors);
-//        Assert.assertTrue(errors.isEmpty());
+        final FileInputStream fis = new FileInputStream(instance);
+        final XMLStreamReader rdr =
+            XMLInputFactory.newInstance().createXMLStreamReader(fis);
+        QName schema_type = new QName("http://nosuch.domain.name", "USAddress");
+        String java_type = obj.getClass().getName();
+
+        //not super robust but this should work for valid xml
+        while(!rdr.isStartElement()) {
+            rdr.next();
+        }
+
+        um.unmarshalType(rdr, schema_type, java_type, opts_validation_on);
+        rdr.close();
+        fis.close();
+
+        reportErrors(errors);
+        Assert.assertTrue(errors.isEmpty());
 
 
             // -- this is currently broken --
             //now lets try validating our stream over objects
-//        final Marshaller marshaller = binding_context.createMarshaller();
-//        final XmlOptions empty_opts = new XmlOptions();
-//        final XMLStreamReader obj_rdr =
-//            marshaller.marshal(obj, empty_opts);
-//        inform("VALIDATION-OBJ: " + obj);
-//
-//        final Object obj2 = um.unmarshal(obj_rdr, opts_validation_on);
-//        inform("obj2="+obj2);
-//        obj_rdr.close();
-//        reportErrors(errors);
-//        Assert.assertTrue(errors.isEmpty());
+        final Marshaller marshaller = binding_context.createMarshaller();
+        final XmlOptions empty_opts = new XmlOptions();
+        final XMLStreamReader obj_rdr =
+            marshaller.marshal(obj, empty_opts);
+        inform("VALIDATION-OBJ: " + obj);
+
+        final Object obj2 = um.unmarshal(obj_rdr, opts_validation_on);
+        inform("obj2="+obj2);
+        obj_rdr.close();
+        reportErrors(errors);
+        Assert.assertTrue(!errors.isEmpty());
 
             // depends on reasonable equals methods which we do not have yet
             //Assert.assertEquals(obj, obj2);
@@ -1142,6 +1142,7 @@ public class MarshalTests extends TestCase
             thread.setContextClassLoader(curr_cl);
         }
     }
+
 
     private static void reportErrors(List errors)
     {

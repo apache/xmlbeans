@@ -19,6 +19,7 @@ import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
@@ -182,8 +183,8 @@ public interface XmlObject extends XmlTokenSource
      *      }
      * }
      * </pre>
-     * 
-     * @param options An object that implements the {@link java.util.Collection 
+     *
+     * @param options An object that implements the {@link java.util.Collection
      * Collection} interface.
      */
     boolean validate(XmlOptions options);
@@ -448,6 +449,54 @@ public interface XmlObject extends XmlTokenSource
     static final int GREATER_THAN = 1;
     /** NOT_EQUAL is 2. See {@link #compareValue}. */
     static final int NOT_EQUAL = 2;
+
+    /**
+     * Selects the contents of the children elements with the given name.
+     * @param elementName The name of the elements to be selected.
+     * @return Returns the contents of the selected elements.
+     */
+    XmlObject[] selectChildren(QName elementName);
+
+    /**
+     * Selects the contents of the children elements with the given name.
+     * @param elementUri The URI of the elements to be selected.
+     * @param elementLocalName The local name of the elements to be selected.
+     * @return Returns the contents of the selected elements.
+     */
+    XmlObject[] selectChildren(String elementUri, String elementLocalName);
+
+    /**
+     * Selects the contents of the children elements that are contained in the elementNameSet.
+     * @param elementNameSet Set of element names to be selected.
+     * @return Returns the contents of the selected elements.
+     * @see SchemaType#qnameSetForWildcardElements()
+     * @see QNameSetBuilder for creating sets of qnames
+     */
+    XmlObject[] selectChildren(QNameSet elementNameSet);
+
+    /**
+     * Selects the content of the attribute with the given name.
+     * @param attributeName The name of the attribute to be selected.
+     * @return Returns the contents of the selected attribute.
+     */
+    XmlObject selectAttribute(QName attributeName);
+
+    /**
+     * Selects the content of the attribute with the given name.
+     * @param attributeUri The URI of the attribute to be selected.
+     * @param attributeLocalName The local name of the attribute to be selected.
+     * @return Returns the content of the selected attribute.
+     */
+    XmlObject selectAttribute(String attributeUri, String attributeLocalName);
+
+    /**
+     * Selects the contents of the attributes that are contained in the elementNameSet.
+     * @param attributeNameSet Set of attribute names to be selected.
+     * @return Returns the contents of the selected attributes.
+     * @see SchemaType#qnameSetForWildcardAttributes()
+     * @see QNameSetBuilder for creating sets of qnames
+     */
+    XmlObject[] selectAttributes(QNameSet attributeNameSet);
 
     /**
      * Static factory class for creating new instances.  Note that if

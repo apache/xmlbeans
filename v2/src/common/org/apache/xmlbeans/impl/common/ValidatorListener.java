@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.common;
 
 import org.apache.xmlbeans.XmlCursor;
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 
 /**
  * First event must be a BEGIN with no name (to communicate any xsi
@@ -40,6 +41,7 @@ public interface ValidatorListener
         public static final int COLLAPSE = 3;
 
         XmlCursor getLocationAsCursor ( );
+        Location getLocation();
 
         boolean getXsiType  ( Chars chars ); // BEGIN xsi:type
         boolean getXsiNil   ( Chars chars ); // BEGIN xsi:nil

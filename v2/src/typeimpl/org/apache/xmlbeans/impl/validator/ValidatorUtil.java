@@ -49,6 +49,11 @@ public class ValidatorUtil
             return null;
         }
 
+        public javax.xml.stream.Location getLocation()
+        {
+            return null;
+        }
+
         // fill up chars with the xsi:type attribute value if there is one othervise return false
         public boolean getXsiType(Chars chars) // BEGIN xsi:type
         {

@@ -43,6 +43,7 @@ import org.apache.xmlbeans.xml.stream.XMLName;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
 import javax.xml.namespace.QName;
 
+
 public final class ValidatingXMLInputStream
     extends GenericXmlInputStream implements Event
 {
@@ -247,7 +248,42 @@ public final class ValidatingXMLInputStream
     {
         return null;
     }
-    
+
+    public javax.xml.stream.Location getLocation()
+    {
+        try
+        {
+            final org.apache.xmlbeans.xml.stream.Location xeLoc = _source.peek().getLocation();
+
+            if (xeLoc==null)
+                return null;
+
+            javax.xml.stream.Location loc = new javax.xml.stream.Location()
+            {
+                public int getLineNumber()
+                { return xeLoc.getLineNumber(); }
+
+                public int getColumnNumber()
+                { return xeLoc.getColumnNumber(); }
+
+                public int getCharacterOffset()
+                { return -1;}
+
+                public String getPublicId()
+                { return xeLoc.getPublicId(); }
+
+                public String getSystemId()
+                { return xeLoc.getSystemId(); }
+            };
+
+            return loc;
+        }
+        catch (XMLStreamException e)
+        {
+            return null;
+        }
+    }
+
     public boolean getXsiType ( Chars chars )
     {
         if (_xsiType == null)

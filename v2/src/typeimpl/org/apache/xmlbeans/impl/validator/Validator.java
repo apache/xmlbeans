@@ -122,8 +122,7 @@ public final class Validator
             {
                 assert event != null;
 
-                _errorListener.add(
-                    XmlError.forCursor( msg, severity, event.getLocationAsCursor() ) );
+                _errorListener.add(IdentityConstraint.errorForEvent(msg, severity, event));
             }
         }
     }

@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.common;
 
 import org.apache.xmlbeans.impl.common.ValidatorListener.Event;
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
+
 import org.apache.xmlbeans.*;
 import java.util.*;
 
@@ -119,9 +121,31 @@ public class IdentityConstraint {
         {
             assert event != null;
             
-            _errorListener.add(
-                XmlError.forCursor( msg, event.getLocationAsCursor() ) );
+            _errorListener.add(errorForEvent(msg, XmlError.SEVERITY_ERROR, event));
         }
+    }
+
+    public static XmlError errorForEvent(String msg, int severity, Event event)
+    {
+        XmlCursor loc = event.getLocationAsCursor();
+        XmlError error;
+        if (loc!=null)
+            error = XmlError.forCursor(msg, severity, loc);
+        else
+        {
+            Location location = event.getLocation();
+            if (location!=null)
+            {
+                error = XmlError.forLocation(msg, severity,
+                    location.getSystemId(), location.getLineNumber(),
+                    location.getColumnNumber(), location.getCharacterOffset());
+            }
+            else
+            {
+                error = XmlError.forMessage(msg, severity);
+            }
+        }
+        return error;
     }
 
     private void setSavePoint( ConstraintState cs )

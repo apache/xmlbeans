@@ -42,6 +42,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Calendar;
 import java.util.Collection;
+import java.util.ArrayList;
 
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -92,7 +93,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             return get_store().get_root_object();
         return this;
     }
-    
+
     private static XmlObjectBase underlying(XmlObject obj)
     {
         if (obj == null)
@@ -118,12 +119,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
             // copy the type
             XmlObject result = get_store().get_schematypeloader().newInstance(schemaType(), null);
-            
+
 
             // copy the data
             XmlObjectBase target = underlying(result);
             target.get_store().copy_contents_from(get_store());
-            
+
             return result;
         }
     }
@@ -139,7 +140,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public XMLStreamReader newXMLStreamReader()
         { return newXMLStreamReader(null); }
-    
+
     public XMLStreamReader newXMLStreamReader(XmlOptions options)
         { XmlCursor cur = newCursorForce(); try { return cur.newXMLStreamReader(makeInnerOptions(options)); } finally { cur.dispose(); } }
 
@@ -407,7 +408,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             c.selectPath( path, options );
 
             if (!c.hasNextSelection())
-                selections = new XmlObject[ 0 ];
+                selections = EMPTY_RESULT;
             else
             {
                 selections = new XmlObject [ c.getSelectionCount() ];
@@ -2229,6 +2230,171 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 return 0;
 
             return value_hash_code();
+        }
+    }
+
+    private static final XmlObject[] EMPTY_RESULT = new XmlObject[0];
+
+    /**
+     * Selects the contents of the children elements with the given name.
+     */
+    public XmlObject[] selectChildren(QName elementName)
+    {
+        XmlCursor xc = this.newCursor();
+        try
+        {
+            if (!xc.isContainer())
+                return EMPTY_RESULT;
+
+            List result = new ArrayList();
+
+            if (xc.toChild(elementName))
+            {
+                // look for elements
+                do
+                {
+                    result.add(xc.getObject());
+                }
+                while (xc.toNextSibling(elementName));
+            }
+            if (result.size() == 0)
+                return EMPTY_RESULT;
+            else
+                return (XmlObject[]) result.toArray(EMPTY_RESULT);
+        }
+        finally
+        {
+            xc.dispose();
+        }
+    }
+
+    /**
+     * Selects the contents of the children elements with the given name.
+     */
+    public XmlObject[] selectChildren(String elementUri, String elementLocalName)
+    {
+        return selectChildren(new QName(elementUri, elementLocalName));
+    }
+
+    /**
+     * Selects the contents of the children elements that are contained in the elementNameSet.
+     */
+    public XmlObject[] selectChildren(QNameSet elementNameSet)
+    {
+        if (elementNameSet==null)
+            throw new IllegalArgumentException();
+
+        XmlCursor xc = this.newCursor();
+        try
+        {
+            if (!xc.isContainer())
+                return EMPTY_RESULT;
+
+            List result = new ArrayList();
+
+            if (xc.toFirstChild())
+            {
+                // look for elements
+                do
+                {
+                    assert xc.isContainer();
+                    if (elementNameSet.contains(xc.getName()))
+                    {
+                        result.add(xc.getObject());
+                    }
+                }
+                while (xc.toNextSibling());
+            }
+            if (result.size() == 0)
+                return EMPTY_RESULT;
+            else
+                return (XmlObject[]) result.toArray(EMPTY_RESULT);
+        }
+        finally
+        {
+            xc.dispose();
+        }
+    }
+
+    /**
+     * Selects the content of the attribute with the given name.
+     */
+    public XmlObject selectAttribute(QName attributeName)
+    {
+        XmlCursor xc = this.newCursor();
+
+        try
+        {
+            if (!xc.isContainer())
+                return null;
+
+            List result = new ArrayList();
+
+            if (xc.toFirstAttribute())
+            {
+                //look for attributes
+                do
+                {
+                    if (xc.getName().equals(attributeName))
+                    {
+                        return xc.getObject();
+                    }
+                }
+                while (xc.toNextAttribute());
+            }
+            return null;
+        }
+        finally
+        {
+            xc.dispose();
+        }
+    }
+
+    /**
+     * Selects the content of the attribute with the given name.
+     */
+    public XmlObject selectAttribute(String attributeUri, String attributeLocalName)
+    {
+        return selectAttribute(new QName(attributeUri, attributeLocalName));
+    }
+
+    /**
+     * Selects the contents of the attributes that are contained in the elementNameSet.
+     */
+    public XmlObject[] selectAttributes(QNameSet attributeNameSet)
+    {
+        if (attributeNameSet==null)
+            throw new IllegalArgumentException();
+
+        XmlCursor xc = this.newCursor();
+        try
+        {
+            if (!xc.isContainer())
+                return EMPTY_RESULT;
+
+            List result = new ArrayList();
+
+            if (xc.toFirstAttribute())
+            {
+                //look for attributes
+                do
+                {
+                    if (attributeNameSet.contains(xc.getName()))
+                    {
+                        result.add(xc.getObject());
+                    }
+                }
+                while (xc.toNextAttribute());
+            }
+
+            if (result.size() == 0)
+                return EMPTY_RESULT;
+            else
+                return (XmlObject[]) result.toArray(EMPTY_RESULT);
+        }
+        finally
+        {
+            xc.dispose();
         }
     }
 

@@ -63,6 +63,8 @@ import java.util.Arrays;
  *   </ul>
  * </li>
  * </ul>
+ *
+ * @see QNameSetBuilder
  */
 public final class QNameSet implements QNameSetSpecification, java.io.Serializable
 {
@@ -186,7 +188,6 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
     {
         return new QNameSet(null, Collections.EMPTY_SET, Collections.EMPTY_SET, Collections.singleton(name));
     }
-
 
     /**
      * Constructs a QNameSetBuilder whose contents are given by

@@ -138,6 +138,11 @@ public class ValidatingXMLStreamReader
             return null;
         }
 
+        public javax.xml.stream.Location getLocation()
+        {
+            return _xmlStream.getLocation();
+        }
+
         // fill up chars with the xsi:type attribute value if there is one othervise return false
         public boolean getXsiType(Chars chars) // BEGIN xsi:type
         {
@@ -259,6 +264,11 @@ public class ValidatingXMLStreamReader
             return null;
         }
 
+        public javax.xml.stream.Location getLocation()
+        {
+            return _xmlStream.getLocation();
+        }
+
         // fill up chars with the xsi:type attribute value if there is one othervise return false
         public boolean getXsiType(Chars chars) // BEGIN xsi:type
         {
@@ -342,9 +352,15 @@ public class ValidatingXMLStreamReader
         {
             _xmlStream = xsr;
         }
-        // can return null, used only to locate errors
+
+        // should return null, getLocation will be used, used only to locate errors
         public XmlCursor getLocationAsCursor()
         { return null; }
+
+        public javax.xml.stream.Location getLocation()
+        {
+            return _xmlStream.getLocation();
+        }
 
         // fill up chars with the xsi:type attribute value if there is one othervise return false
         public boolean getXsiType(Chars chars) // BEGIN xsi:type
@@ -414,6 +430,9 @@ public class ValidatingXMLStreamReader
 
                 if (_contentType==null)
                     _contentType = typeForGlobalElement(qname);
+
+                if (_state==STATE_ERROR)
+                    break;
 
                 initValidator(_contentType);
                 _validator.nextEvent(Validator.BEGIN, _elemEvent);
@@ -494,7 +513,7 @@ public class ValidatingXMLStreamReader
                     _state = STATE_ERROR;
                 }
                 initValidator(_contentType);
-                _validator.nextEvent(Validator.BEGIN, _elemEvent);
+                _validator.nextEvent(Validator.BEGIN, _simpleEvent);
             }
 
             _validator.nextEvent(Validator.TEXT, _elemEvent);
