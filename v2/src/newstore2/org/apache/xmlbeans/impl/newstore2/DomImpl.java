@@ -3256,8 +3256,21 @@ final class DomImpl
             return c;
         }
 
+        public static boolean isOnList ( CharNode nodes, CharNode node )
+        {
+            assert node != null;
+            
+            for ( CharNode cn = nodes ; cn != null ; cn = cn._next )
+                if (cn == node)
+                    return true;
+
+            return false;
+        }
+
         public static CharNode remove ( CharNode nodes, CharNode node )
         {
+            assert isOnList( nodes, node );
+            
             if (nodes == node)
                 nodes = node._next;
             else
@@ -3273,6 +3286,8 @@ final class DomImpl
 
         public static CharNode insertNode ( CharNode nodes, CharNode newNode, CharNode before )
         {
+            assert !isOnList( nodes, newNode );
+            assert before == null || isOnList( nodes, before );
             assert newNode != null;
             assert newNode._prev == null && newNode._next == null;
 
