@@ -39,6 +39,15 @@ public class Inst2XsdDetailedAttrTest extends Inst2XsdTestBase {
     public void test_attrgMonth() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("--02--"), "gMonth");
     }
+    
+    public void test_attrbyte() throws Exception {
+        runAttrTypeChecking(getAttrTypeXml("123"), "byte");
+        runAttrTypeChecking(getAttrTypeXml("+100"), "byte");
+        runAttrTypeChecking(getAttrTypeXml("-1"), "byte");
+        runAttrTypeChecking(getAttrTypeXml("0"), "byte");
+        runAttrTypeChecking(getAttrTypeXml("127"), "byte");
+        runAttrTypeChecking(getAttrTypeXml("-128"), "byte");
+    }
 
     public void test_attrduration() throws Exception {
         runAttrTypeChecking(getAttrTypeXml("P1347Y"), "duration");
