@@ -91,6 +91,11 @@
 					<td>scott.ziegler@nospam.bea.com</td>
 					<td>&nbsp;</td>
 				</tr>
+				<tr>
+					<td>Patrick Calahan</td>
+					<td>pcal@nospam.bea.com</td>
+					<td>&nbsp;</td>
+				</tr>
 			</table>
 			<note label="Emailing Committers">It is recommended that you use the mailing lists above to communicate about the XMLBeans project rather than emailing the committers directly.</note>
 			<note>The nospam. prefix on the email addresses above was put there as an attempt to thwart automatic email harvesting by spammers.  To email someone on this 
