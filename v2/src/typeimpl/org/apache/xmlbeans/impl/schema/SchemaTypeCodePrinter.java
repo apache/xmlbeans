@@ -592,7 +592,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         StringBuffer sb = new StringBuffer();
 
         InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
-        for (int i = 0; i < exts.length; i++)
+        if (exts != null) for (int i = 0; i < exts.length; i++)
             sb.append(", " + exts[i].getInterface());
 
         return sb.toString();
@@ -2298,7 +2298,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             return;
 
         InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
-        for (int i = 0; i < exts.length; i++)
+        if (exts != null) for (int i = 0; i < exts.length; i++)
         {
             InterfaceExtension.MethodSignature[] methods = exts[i].getMethods();
             if (methods != null)
