@@ -122,6 +122,7 @@ public class Java2SchemaTask extends BindingCompilerTask {
   protected BindingCompiler getCompilerToExecute() throws BuildException {
     //FIXME refactor this so the functionality is shared and consistent with
     //Both2BindTask
+    if (mSrcDir == null) throw new BuildException("srcDir attribute required");
     if (mIncludes == null) {
       //FIXME we need to improve/expand the ways in which the input source set
       //is passed to us
