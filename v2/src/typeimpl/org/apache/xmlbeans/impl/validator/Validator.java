@@ -1617,7 +1617,7 @@ public final class Validator
         return _localElement;// != null ? _localElement : (_stateStack!=null ? (SchemaLocalElement)_stateStack._field : null);
     }
 
-    public SchemaParticle getCurrentWildcaldElement()
+    public SchemaParticle getCurrentWildcardElement()
     {
         return _wildcardElement;
     }
