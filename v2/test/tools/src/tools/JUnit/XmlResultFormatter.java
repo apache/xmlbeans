@@ -222,7 +222,7 @@ public class XmlResultFormatter implements JUnitResultFormatter {
         testRecord.setStatus(TEST_ERROR);
         testRecord.setThrowable(t);
         // Special case when test class is missing...
-        if (t.toString().contains("ClassNotFoundException"))
+        if (t.toString().indexOf("ClassNotFoundException") > -1)
         {
             records.add(testRecord);
             testRecord = null;
