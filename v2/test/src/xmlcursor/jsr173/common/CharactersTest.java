@@ -16,7 +16,6 @@
 package xmlcursor.jsr173.common;
 
 
-
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 
@@ -39,13 +38,11 @@ import junit.framework.*;
  * hasText
  * Token Types should be DTD, ER, Chars, Comment, Space
  * currently DTD and ER are Not Impl
- *
- *
- *
  */
 public abstract class CharactersTest extends TestCase {
 
-    public abstract XMLStreamReader getStream(XmlCursor c)throws Exception;
+    public abstract XMLStreamReader getStream(XmlCursor c) throws Exception;
+
     public void testHasText() throws Exception {
         assertEquals(XMLStreamConstants.START_DOCUMENT,
                 m_stream.getEventType());
@@ -66,7 +63,7 @@ public abstract class CharactersTest extends TestCase {
         assertFalse(m_stream.hasText());
         assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
         assertFalse(m_stream.hasText());
-         assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
+        assertEquals(XMLStreamConstants.END_ELEMENT, m_stream.next());
         assertFalse(m_stream.hasText());
 
         assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
@@ -75,126 +72,152 @@ public abstract class CharactersTest extends TestCase {
     }
 
     //also testing getTextStart and getTextLength
-    public void testGetTextCharacters() throws Exception{
+    public void testGetTextCharacters() throws Exception {
         try {
             assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
             m_stream.getTextLength();
             fail("Illegal State");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
-        char[] result=m_stream.getTextCharacters();
-        assertEquals(" some comment ",new String(result).substring(m_stream.getTextStart(),
+        char[] result = m_stream.getTextCharacters();
+        assertEquals(" some comment ", new String(result).substring(m_stream.getTextStart(),
                 m_stream.getTextLength()));
 
         try {
-           assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
             m_stream.getTextLength();
             fail("Illegal State");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
 
         assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result=m_stream.getTextCharacters();
-        assertEquals("some text",new String(result).substring(m_stream.getTextStart(),
+        result = m_stream.getTextCharacters();
+        assertEquals("some text", new String(result).substring(m_stream.getTextStart(),
                 m_stream.getTextLength()));
 
-        m_stream.next();  m_stream.next();//skip empty elt
-         m_stream.next(); //end foo
+        m_stream.next();
+        m_stream.next();//skip empty elt
+        m_stream.next(); //end foo
         assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result=m_stream.getTextCharacters();
-        assertEquals("\t",new String(result).substring(m_stream.getTextStart(),
+        result = m_stream.getTextCharacters();
+        assertEquals("\t", new String(result).substring(m_stream.getTextStart(),
                 m_stream.getTextLength()));
         try {
             m_stream.next();
             m_stream.getTextLength();
             fail("Illegal State");
+        } catch (IllegalStateException e) {
         }
-        catch (IllegalStateException e) {
+    }
+
+
+    public void testGetTextCharactersBufferNegStart() throws Exception {
+        m_stream.next();
+        try {
+            m_stream.getTextCharacters(-1, new char[10], 12, 12);
+            fail(" java.lang.IndexOutOfBoundsException - if " +
+                    "length < 0 or targetStart + length > length of target ");
+        } catch (java.lang.IndexOutOfBoundsException e) {
         }
     }
 
-
-    public void testGetTextCharactersBufferNegStart() throws Exception{
-       m_stream.next();
-       m_stream.getTextCharacters(-1,new char[10],12,12);
-    }
-
-    public void testGetTextCharactersBufferNull() throws Exception{
-       m_stream.next();
-       m_stream.getTextCharacters(0,null,12,12);
-    }
-
-     public void testGetTextCharactersLargeSrcOff() throws Exception{
-       m_stream.next();
-       m_stream.getTextCharacters(110,new char[10],0,9);
-    }
-     public void testGetTextCharactersLargeTrgOff() throws Exception{
-       m_stream.next();
-       m_stream.getTextCharacters(110,new char[10],10,9);
-    }
-
-    public void testGetTextCharactersLargeLen() throws Exception{
-       m_stream.next();
-       char[] buff=new char[9];
-      int nCopied=m_stream.getTextCharacters(0,buff,0,30);
-       assertEquals(nCopied,buff.length);
-       assertEquals( "some text",new String(buff) );
+    public void testGetTextCharactersBufferNull() throws Exception {
+        m_stream.next();
+        try {
+            m_stream.getTextCharacters(0, null, 12, 12);
+            fail(" java.lang.NullPointerException - is if target is null ");
+        } catch (java.lang.NullPointerException e) {
+        }
 
     }
+
+    public void testGetTextCharactersLargeSrcOff() throws Exception {
+        m_stream.next();
+        try {
+            m_stream.getTextCharacters(110, new char[10], 0, 9);
+            fail(" java.lang.IndexOutOfBoundsException - if " +
+                    "length < 0 or targetStart + length > length of target ");
+        } catch (java.lang.IndexOutOfBoundsException e) {
+        }
+    }
+
+    public void testGetTextCharactersLargeTrgOff() throws Exception {
+        m_stream.next();
+        try {
+            m_stream.getTextCharacters(110, new char[10], 10, 9);
+            fail(" java.lang.IndexOutOfBoundsException - if " +
+                    "length < 0 or targetStart + length > length of target ");
+        } catch (java.lang.IndexOutOfBoundsException e) {
+        }
+    }
+
+    public void testGetTextCharactersLargeLen() throws Exception {
+        m_stream.next();
+        char[] buff = new char[9];
+        try {
+            int nCopied = m_stream.getTextCharacters(0, buff, 0, 30);
+            assertEquals(nCopied, buff.length);
+            fail(" java.lang.IndexOutOfBoundsException - if " +
+                    "length < 0 or targetStart + length > length of target ");
+        } catch (java.lang.IndexOutOfBoundsException e) {
+        }
+
+    }
+
     //off+len past end
-    public void testGetTextCharactersLargeSum() throws Exception{
-       m_stream.next();
-        char[] buff=new char[9];
-      int nCopied=m_stream.getTextCharacters(0,buff,3,10);
-      assertEquals( "   some te",new String(buff) );
+    public void testGetTextCharactersLargeSum() throws Exception {
+        m_stream.next();
+        char[] buff = new char[9];
+        try {
+            int nCopied = m_stream.getTextCharacters(0, buff, 3, 10);
+            fail(" java.lang.IndexOutOfBoundsException - if " +
+                    "length < 0 or targetStart + length > length of target ");
+        } catch (java.lang.IndexOutOfBoundsException e) {
+        }
+
     }
 
 
-    public void testGetText() throws Exception{
+    public void testGetText() throws Exception {
         try {
             assertEquals(XMLStreamConstants.START_DOCUMENT, m_stream.getEventType());
             m_stream.getText();
             fail("Illegal State");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
         assertEquals(XMLStreamConstants.COMMENT, m_stream.next());
-       String result=m_stream.getText();
-        assertEquals(" some comment ",result);
+        String result = m_stream.getText();
+        assertEquals(" some comment ", result);
 
         try {
-           assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
+            assertEquals(XMLStreamConstants.START_ELEMENT, m_stream.next());
             m_stream.getText();
             fail("Illegal State");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
 
 
         assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result=m_stream.getText();
-        assertEquals( "some text",result );
+        result = m_stream.getText();
+        assertEquals("some text", result);
 
-        m_stream.next();  m_stream.next();//skip empty elt
-         m_stream.next(); //end foo
+        m_stream.next();
+        m_stream.next();//skip empty elt
+        m_stream.next(); //end foo
         assertEquals(XMLStreamConstants.CHARACTERS, m_stream.next());
-        result=m_stream.getText();
-        assertEquals("\t", result );
+        result = m_stream.getText();
+        assertEquals("\t", result);
         try {
             m_stream.next();
             m_stream.getText();
             fail("Illegal State");
-        }
-        catch (IllegalStateException e) {
+        } catch (IllegalStateException e) {
         }
     }
-
 
 
     public void setUp() throws Exception {

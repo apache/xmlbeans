@@ -296,7 +296,8 @@ public abstract class AttributeTest extends TestCase {
 
     }
    public void testIsAttributeSpecified() throws Exception {
-         assertEquals( XMLStreamConstants.START_DOCUMENT, m_stream.getEventType() );
+         assertEquals( XMLStreamConstants.START_DOCUMENT,
+                 m_stream.getEventType() );
        try{
            m_stream.isAttributeSpecified(0);
            fail("Bad state");

@@ -149,23 +149,16 @@ public class TypedSettersTests extends TestCase
     {
         XmlObject x = XmlObject.Factory.parse( "<xyzzy/>", new XmlOptions()
                 .setDocumentType( XmlObject.type ) );
-        String input= fmt( "<bubba $type(xs:int) $xsi $schema>69</bubba>" );
+        String input= fmt( "<xml-fragment $type(xs:int) $xsi $schema>" +
+                "69</xml-fragment>" );
+        //String input=
         XmlObject x2 = XmlObject.Factory
                 .parse( input );
-        XmlCursor c = x.newCursor();
-        XmlCursor c2 = x2.newCursor();
 
-        c.toNextToken();
-        c2.toNextToken();
 
-        XmlObject xyzzy = c.getObject();
-        XmlObject bubba = c2.getObject();
 
-        Assert.assertTrue( bubba.schemaType() == XmlInt.type );
+        Assert.assertTrue(x2.schemaType() == XmlInt.type );
 
-//        xyzzy.set( bubba );
-
-//        Assert.assertTrue( x.xmlText().equals( fmt( "<xyzzy $type(xs:int) $xsi $schema>moo</xyzzy>" ) ) );
-    }
+  }
     
 }
