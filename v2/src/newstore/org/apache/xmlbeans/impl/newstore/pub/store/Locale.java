@@ -205,7 +205,6 @@ public abstract class Locale implements DOMImplementation, SaajCallback
         _unembedded = c.listInsert( _unembedded, Cur.UNEMBEDDED );
 
         assert c._obj == null;
-        assert c._curKind == -1;
 
         if (obj != null)
             c._obj = new Ref( c, obj );
