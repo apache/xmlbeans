@@ -425,7 +425,7 @@
             </then>
             <else>
                 <echo message="build.area is not set"/>
-                <!--compile checkin schemas only for checkin-->
+                <!--compile checkin schemas only for checkin
                 <if>
                     <or>
                     <not><isset property="tests.spec"/></not>
@@ -448,7 +448,8 @@
                         <antcall target="build.schemas"/>
                     </else>
                 </if>
-
+                -->
+                <antcall target="build.schemas"/>
                 <antcall target="build.tests"/>
 
             </else>
