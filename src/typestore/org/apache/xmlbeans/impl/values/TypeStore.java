@@ -335,6 +335,7 @@ public interface TypeStore extends NamespaceManager
 
     /**
      * Returns the monitor object, used for synchronizing access to the doc.
+     * @deprecated
      */ 
     Object get_root_object();
 
