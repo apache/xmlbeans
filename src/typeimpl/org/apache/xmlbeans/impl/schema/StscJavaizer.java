@@ -164,6 +164,11 @@ public class StscJavaizer
     {
         if (sImpl.isJavaized())
             return;
+        
+        SchemaTypeImpl baseType = (SchemaTypeImpl)sImpl.getBaseType();
+        if (baseType != null)
+            skipJavaizingType(baseType);
+        
         sImpl.startJavaizing();
         secondPassProcessType(sImpl);
         sImpl.finishJavaizing();
