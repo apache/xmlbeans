@@ -1769,7 +1769,12 @@ public final class Root extends Finish implements XmlStore
         }
         case Node.ELEMENT_NODE :
         {
-            context.begin( n.getLocalName(), n.getNamespaceURI() );
+            String localName = n.getLocalName();
+
+            if (localName == null)
+                localName = n.getNodeName();
+            
+            context.begin( localName, n.getNamespaceURI() );
 
             NamedNodeMap attrs = n.getAttributes();
 
@@ -1780,6 +1785,9 @@ public final class Root extends Finish implements XmlStore
                 String uri = a.getNamespaceURI();
                 String local = a.getLocalName();
                 String value = a.getNodeValue();
+
+                if (local == null)
+                    local = a.getNodeName();
 
                 if (uri != null && uri.equals( _xmlnsUri ))
                 {
