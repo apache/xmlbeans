@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
+import org.apache.xmlbeans.impl.jam.JMethod;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -107,13 +108,35 @@ public interface TypeMatcher
     {
         private JProperty jProperty;
         private SchemaProperty sProperty;
+        private JMethod isSetter = null;
 
         public MatchedProperties(JProperty jProperty, SchemaProperty sProperty)
         {
-            this.jProperty = jProperty;
-            this.sProperty = sProperty;
+            this(jProperty,sProperty,null);
         }
 
+        public MatchedProperties(JProperty jProperty,
+                                 SchemaProperty sProperty,
+                                 JMethod isSetter)
+        {
+            this.jProperty = jProperty;
+            this.sProperty = sProperty;
+            if (isSetter != null) {
+              if (isSetter.getParameters().length > 0) {
+                throw new IllegalArgumentException
+                  ("an isSetter method must take no parameters ('"+
+                   isSetter.getQualifiedName()+"')");
+              }
+              if (!isSetter.getReturnType().getQualifiedName().
+                equals("boolean")) {
+                throw new IllegalArgumentException
+                  ("an isSetter method must return 'boolean' ('"+
+                   isSetter.getQualifiedName()+"')");
+              }
+            }
+            this.isSetter = isSetter;
+        }
+      
         public JProperty getJProperty()
         {
             return jProperty;
@@ -123,6 +146,12 @@ public interface TypeMatcher
         {
             return sProperty;
         }
+
+        public JMethod getIsSetter()
+        {
+            return isSetter;
+        }
+
     }
     
     

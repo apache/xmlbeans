@@ -23,6 +23,7 @@ import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
+import org.apache.xmlbeans.impl.jam.JMethod;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
@@ -591,6 +592,8 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
       prop.setAttribute(sProp.isAttribute());
       prop.setSetterName(MethodName.create(jProp.getSetter()));
       prop.setGetterName(MethodName.create(jProp.getGetter()));
+      JMethod isSetter = matchedProperties[i].getIsSetter();
+      if (isSetter != null) prop.setIssetterName(MethodName.create(isSetter));
       prop.setCollectionClass(collection);
       prop.setBindingType(bType);
       prop.setNillable(sProp.hasNillable() != SchemaProperty.NEVER);
