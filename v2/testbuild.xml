@@ -845,6 +845,7 @@
             formatter="tools.JUnit.XmlResultFormatterImpl"
             showOutput="${showoutput}"
             reportFile="${report.log.file}"
+            classes="${test.area.run}"
             fork="true"
             resultproperty="junit.failcount"
             failonerror="false">

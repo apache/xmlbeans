@@ -59,11 +59,14 @@ Will build all dom tests and run the dom checkin tests.
 (Alternatively, you can chain the targets like this:
        ant testbuild run.junit -Dtest.area=dom -Dtest.spec="**/dom/checkin/**" )
 
+To run a single class:
+   * ant run.junit -Dtest.spec="xmlobject.detailed.NilTest"
 
 Parameters:
   - test.area:   specifies an area to build and run
   - test.spec:   this option is valid at runtime only, 
-                 and is used to allow the user to specify a fileset of their liking.
+                 and is used to allow the user to specify a fileset of their liking.It could also be
+		 used to specify a class to be run.
                  It should be used <b>INSTEAD</b> of test.area
                  ***If you provide both, -Dtest.spec will take precedence, and the area will be disregarded.
 
