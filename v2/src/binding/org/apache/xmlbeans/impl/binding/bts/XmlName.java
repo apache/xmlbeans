@@ -3,7 +3,7 @@
  * Author: David Bau
  * Date: Oct 1, 2003
  */
-package org.apache.xmlbeans.impl.binding;
+package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.common.XMLChar;
 

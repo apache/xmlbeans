@@ -1,15 +1,70 @@
-/**
- * XBeans implementation.
- * Author: David Bau
- * Date: Oct 6, 2003
- */
-package org.apache.xmlbeans.impl.binding;
+/*
+* The Apache Software License, Version 1.1
+*
+*
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
+* reserved.
+*
+* Redistribution and use in source and binary forms, with or without
+* modification, are permitted provided that the following conditions
+* are met:
+*
+* 1. Redistributions of source code must retain the above copyright
+*    notice, this list of conditions and the following disclaimer.
+*
+* 2. Redistributions in binary form must reproduce the above copyright
+*    notice, this list of conditions and the following disclaimer in
+*    the documentation and/or other materials provided with the
+*    distribution.
+*
+* 3. The end-user documentation included with the redistribution,
+*    if any, must include the following acknowledgment:
+*       "This product includes software developed by the
+*        Apache Software Foundation (http://www.apache.org/)."
+*    Alternately, this acknowledgment may appear in the software itself,
+*    if and wherever such third-party acknowledgments normally appear.
+*
+* 4. The names "Apache" and "Apache Software Foundation" must
+*    not be used to endorse or promote products derived from this
+*    software without prior written permission. For written
+*    permission, please contact apache@apache.org.
+*
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
+*    written permission of the Apache Software Foundation.
+*
+* THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+* WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+* OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+* DISCLAIMED.  IN NO EVENT SHALL THE APACHE SOFTWARE FOUNDATION OR
+* ITS CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+* SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+* LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
+* USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+* ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+* OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT
+* OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+* SUCH DAMAGE.
+* ====================================================================
+*
+* This software consists of voluntary contributions made by many
+* individuals on behalf of the Apache Software Foundation and was
+* originally based on software copyright (c) 2003 BEA Systems
+* Inc., <http://www.bea.com/>. For more information on the Apache Software
+* Foundation, please see <http://www.apache.org/>.
+*/
+package org.apache.xmlbeans.impl.binding.bts;
+
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 import javax.xml.namespace.QName;
 import java.util.Map;
 import java.util.LinkedHashMap;
 
-public class BuiltinBindingLoader extends BindingLoader
+/**
+ * 
+ */ 
+public class BuiltinBindingLoader extends BaseBindingLoader
 {
     private Map bindingTypes = new LinkedHashMap();    // name-pair -> BindingType
     private Map xmlFromJava = new LinkedHashMap();     // javaName -> xmlName
@@ -23,15 +78,16 @@ public class BuiltinBindingLoader extends BindingLoader
         XmlName xn = XmlName.forTypeNamed(new QName(xsns, xmlType));
         JavaName jn = JavaName.forString(javaName);
         BindingType bt = new BuiltinBindingType(jn, xn, !pojo);
-        bindingTypes.put(new NamePair(jn, xn), bt);
+        NamePair pair = pair(jn, xn);
+        bindingTypes.put(pair, bt);
         if (defaultForJava)
-            xmlFromJava.put(jn, xn);
+            xmlFromJava.put(jn, pair);
         if (defaultForXml)
         {
             if (pojo)
-                javaFromXmlPojo.put(xn, jn);
+                javaFromXmlPojo.put(xn, pair);
             else
-                javaFromXmlObj.put(xn, jn);
+                javaFromXmlObj.put(xn, pair);
         }
     }
     
@@ -115,67 +171,4 @@ public class BuiltinBindingLoader extends BindingLoader
         addPojoXml("NOTATION", "java.lang.String");
     }
 
-    public BindingType getBindingType(JavaName jName, XmlName xName)
-    {
-        return null;
-    }
-
-    public BindingType getBindingTypeForXmlPojo(XmlName xName)
-    {
-        return null;
-    }
-
-    public BindingType getBindingTypeForXmlObj(XmlName xName)
-    {
-        return null;
-    }
-
-    public BindingType getBindingTypeForJava(JavaName jName)
-    {
-        return null;
-    }
-    
-    private static class NamePair
-    {
-        private final JavaName jName;
-        private final XmlName xName;
-
-        NamePair(JavaName jName, XmlName xName)
-        {
-            this.jName = jName;
-            this.xName = xName;
-        }
-
-        public JavaName getJavaName()
-        {
-            return jName;
-        }
-
-        public XmlName getXmlName()
-        {
-            return xName;
-        }
-
-        public boolean equals(Object o)
-        {
-            if (this == o) return true;
-            if (!(o instanceof BuiltinBindingLoader.NamePair)) return false;
-
-            final BuiltinBindingLoader.NamePair namePair = (BuiltinBindingLoader.NamePair) o;
-
-            if (!jName.equals(namePair.jName)) return false;
-            if (!xName.equals(namePair.xName)) return false;
-
-            return true;
-        }
-
-        public int hashCode()
-        {
-            int result;
-            result = jName.hashCode();
-            result = 29 * result + xName.hashCode();
-            return result;
-        }
-    }
-    
 }
