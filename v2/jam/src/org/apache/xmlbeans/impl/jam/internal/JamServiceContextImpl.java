@@ -215,13 +215,13 @@ public class JamServiceContextImpl implements JamServiceContext,
 
   public MVisitor getInitializer() {
     List initers = new ArrayList();
-    initers.add((mCommentInitializer != null) ? mCommentInitializer :
-                new CommentInitializer());
-
+    // for now, we don't have a default comment initializer.  may need to
+    // change this someday.
+    if (mCommentInitializer != null) initers.add(mCommentInitializer);
+    // initers.add((mCommentInitializer != null) ? mCommentInitializer :
+    //             new CommentInitializer());
     initers.add((mPropertyInitializer != null) ? mPropertyInitializer :
                 new PropertyInitializer());
-
-
     if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
     // now go
     MVisitor[] inits = new MVisitor[initers.size()];

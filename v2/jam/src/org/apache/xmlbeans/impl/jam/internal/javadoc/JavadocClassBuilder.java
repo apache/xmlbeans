@@ -50,7 +50,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
   private JamServiceContext mServiceContext;
   private JavadocAnnotationExtractor mExtractor = null;
 
-  private boolean mParseTags = false;//FIXME
+  private boolean mParseTags = true;//FIXME
 
   // ========================================================================
   // Constructors
@@ -279,10 +279,23 @@ public class JavadocClassBuilder extends JamClassBuilder {
 
   private void addAnnotations(MAnnotatedElement dest, ProgramElementDoc src) {
     if (mParseTags) {
+      //THIS IS THE CURRENT DEFAULT BEHAVIOR - LET JAVADOC IDENTIFY THE
+      //TAGS FOR US
       String comments = src.commentText();
       if (comments != null) dest.createComment().setText(comments);
-      Tag[] t = src.tags();
-      //FIXME!!!
+      Tag[] tags = src.tags();
+      if (mServiceContext.isVerbose()) {
+        mServiceContext.verbose(PREFIX+ "processing "+tags.length+
+                                " javadoc tags on "+dest.getQualifiedName());
+      }
+      for(int i=0; i<tags.length; i++) {
+        if (mServiceContext.isVerbose()) {
+          mServiceContext.verbose(PREFIX+ "...'"+
+                                  tags[i].name()+"' ' "+tags[i].text());
+        }
+        //note: name() returns the '@', so we strip it
+        dest.addAnnotationForTag(tags[i].name().substring(1),tags[i].text());
+      }
     } else {
       String comments = src.getRawCommentText();
       if (comments != null) dest.createComment().setText(comments);
