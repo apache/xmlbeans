@@ -87,18 +87,18 @@ public abstract class BindingType
                 XmlName.forString(node.getXmlcomponent()));
     }
 
-    /**
-     * This function copies an instance back out to the relevant part of the XML file.
-     *
-     * Subclasses should override and call super.write first.
-     */
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        node = (org.apache.xml.xmlbeans.bindingConfig.BindingType)node.changeType(kinds.typeForClass(this.getClass()));
-        node.setJavatype(btName.getJavaName().toString());
-        node.setXmlcomponent(btName.getXmlName().toString());
-        return node;
-    }
+  /**
+   * This function copies an instance back out to the relevant part of the XML file.
+   *
+   * Subclasses should override and call super.write first.
+   */
+  protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
+  {
+      node = (org.apache.xml.xmlbeans.bindingConfig.BindingType)node.changeType(kinds.typeForClass(this.getClass()));
+      node.setJavatype(btName.getJavaName().toString());
+      node.setXmlcomponent(btName.getXmlName().toString());
+      return node;
+  }
 
     public final BindingTypeName getName()
     {

@@ -103,7 +103,8 @@ public class ByNameBean extends BindingType
      */ 
     protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
-        org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode = (org.apache.xml.xmlbeans.bindingConfig.ByNameBean)super.write(node);
+        org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
+                (org.apache.xml.xmlbeans.bindingConfig.ByNameBean)super.write(node);
         for (Iterator i = props.iterator(); i.hasNext(); )
         {
             QNameProperty qProp = (QNameProperty)i.next();
@@ -112,7 +113,7 @@ public class ByNameBean extends BindingType
         }
         return bnNode;
     }
-    
+
     /**
      * Returns an unmodifiable collection of QNameProperty objects.
      */ 
