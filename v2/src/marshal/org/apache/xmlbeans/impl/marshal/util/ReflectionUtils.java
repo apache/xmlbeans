@@ -38,6 +38,7 @@ public final class ReflectionUtils
 //
 //        assert decl.isAssignableFrom(got) : "DECL=" + decl + " GOT:" + got;
 
+        assert (checkParams(method, params));
 
         try {
             return method.invoke(target, params);
@@ -51,6 +52,19 @@ public final class ReflectionUtils
         catch (InvocationTargetException ite) {
             throw new XmlException(ite.getTargetException());
         }
+    }
+
+    private static boolean checkParams(Method method, Object[] params)
+    {
+        final int expected_len = method.getParameterTypes().length;
+        final int actual_len = params == null ? 0 : params.length;
+
+        if (actual_len != expected_len) {
+            String msg = "Method " + method + " expects " + expected_len +
+                " parameters -- got " + actual_len;
+            throw new AssertionError(msg);
+        }
+        return true;
     }
 
     /**
