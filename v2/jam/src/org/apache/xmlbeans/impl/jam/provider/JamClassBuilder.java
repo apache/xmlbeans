@@ -134,7 +134,7 @@ public abstract class JamClassBuilder {
       logger.warning("This build of JAM was produced under JDK 1.4." +
                       "Even though you are running under JDK 1.5, "+
                       "JSR175-style annotations will not be available");
-      logger.verbose(t);
+      if (logger.isVerbose(this)) logger.verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
@@ -143,7 +143,7 @@ public abstract class JamClassBuilder {
     if (!mWarningAlreadyIssued && logger != null) {
       logger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
                       "source annotations will not be available");
-      logger.verbose(t);
+      if (logger.isVerbose(this)) logger.verbose(t);
       mWarningAlreadyIssued = true;
     }
   }
