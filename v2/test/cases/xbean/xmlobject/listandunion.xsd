@@ -65,4 +65,77 @@
     </xs:complexType>
   </xs:element>
 
+
+  <!-- get/set java type should be java.lang.String -->
+  <xs:element name="union-of-string">
+    <xs:simpleType>
+        <xs:union memberTypes="xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <!-- get/set java type should be java.lang.Object -->
+  <xs:element name="union-of-date-and-string">
+    <xs:simpleType>
+        <xs:union memberTypes="xs:date xs:string"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <!-- get/set java type should be java.util.Calendar -->
+  <xs:element name="union-of-time-and-date">
+    <xs:simpleType>
+        <xs:union memberTypes="xs:time xs:date"/>
+    </xs:simpleType>
+  </xs:element>
+
+  <!-- get/set java type should be org.openuri.lut.StringEnum.Enum -->
+  <xs:element name="union-of-string-enum" type="tns:union-of-string-enum"/>
+  <xs:simpleType name="union-of-string-enum">
+      <xs:union memberTypes="tns:string-enum"/>
+  </xs:simpleType>
+
+  <xs:simpleType name="string-enum">
+    <xs:restriction base="xs:string">
+        <xs:enumeration value="ABC"/>
+        <xs:enumeration value="DEF"/>
+        <xs:enumeration value="123"/>
+        <xs:enumeration value="456"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- get/set java type should be org.openuri.lut.StringEnum.Enum -->
+  <xs:element name="union-of-string-enum1-and-string-enum2">
+    <xs:simpleType>
+      <xs:union memberTypes="tns:string-enum-derived1 tns:string-enum-derived2"/>
+    </xs:simpleType>
+  </xs:element>
+
+
+  <xs:simpleType name="string-enum-derived1">
+    <xs:restriction base="tns:string-enum">
+        <xs:enumeration value="ABC"/>
+        <xs:enumeration value="DEF"/>
+        <xs:enumeration value="123"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="string-enum-derived2">
+    <xs:restriction base="tns:string-enum">
+        <xs:enumeration value="ABC"/>
+        <xs:enumeration value="DEF"/>
+        <xs:enumeration value="456"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- get/set java type should be java.lang.String ?? -->
+  <!--
+  <xs:element name="enum-of-union-of-string-enum">
+    <xs:simpleType>
+        <xs:restriction base="tns:union-of-string-enum">
+            <xs:enumeration value="ABC"/> <!- - only allowed value? - ->
+            <xs:enumeration value="XYZ"/> <!- - should never be a legal value? - ->
+        </xs:restriction>
+    </xs:simpleType>
+  </xs:element>
+  -->
+
 </xs:schema>
