@@ -65,11 +65,16 @@ import javax.xml.namespace.QName;
 
 final class Locale implements DOMImplementation, SaajCallback
 {
-    public static final String _xsi         = "http://www.w3.org/2001/XMLSchema-instance";
-    public static final String _schema      = "http://www.w3.org/2001/XMLSchema";
-    public static final String _openFragUri = "http://www.openuri.org/fragment";
-    public static final String _xml1998Uri  = "http://www.w3.org/XML/1998/namespace";
-    public static final String _xmlnsUri    = "http://www.w3.org/2000/xmlns/";
+    static final String _xsi         = "http://www.w3.org/2001/XMLSchema-instance";
+    static final String _schema      = "http://www.w3.org/2001/XMLSchema";
+    static final String _openFragUri = "http://www.openuri.org/fragment";
+    static final String _xml1998Uri  = "http://www.w3.org/XML/1998/namespace";
+    static final String _xmlnsUri    = "http://www.w3.org/2000/xmlns/";
+    
+    static final QName _xsiNil          = new QName( _xsi, "nil" );
+    static final QName _xsiType         = new QName( _xsi, "type" );
+    static final QName _openuriFragment = new QName( _openFragUri, "fragment" );
+    static final QName _xmlFragment     = new QName( "xml-fragment" );
     
     Locale ( )
     {
@@ -308,6 +313,28 @@ final class Locale implements DOMImplementation, SaajCallback
         }
     }
 
+    static final boolean isWhiteSpace ( String s )
+    {
+        int l = s.length();
+
+        while ( l-- > 0)
+            if (!isWhiteSpace( s.charAt( l )))
+                  return false;
+
+        return true;
+    }
+
+    static final boolean isWhiteSpace ( StringBuffer sb )
+    {
+        int l = sb.length();
+
+        while ( l-- > 0)
+            if (!isWhiteSpace( sb.charAt( l )))
+                  return false;
+
+        return true;
+    }
+
     static boolean beginsWithXml ( String name )
     {
         if (name.length() < 3)
@@ -323,6 +350,32 @@ final class Locale implements DOMImplementation, SaajCallback
         }
 
         return false;
+    }
+
+    static boolean isXmlns ( QName name )
+    {
+        String prefix = name.getPrefix();
+
+        if (prefix.equals( "xmlns" ))
+            return true;
+
+        return prefix.length() == 0 && name.getLocalPart().equals( "xmlns" );
+    }
+
+    QName createXmlns ( String prefix )
+    {
+        if (prefix == null)
+            prefix = "";
+        
+        return
+            prefix.length() == 0
+                ? makeQName( _xmlnsUri, "xmlns", "" )
+                : makeQName( _xmlnsUri, prefix, "xmlns" );
+    }
+    
+    static String xmlnsPrefix ( QName name )
+    {
+        return name.getPrefix().equals( "xmlns" ) ? name.getLocalPart() : "";
     }
 
     //

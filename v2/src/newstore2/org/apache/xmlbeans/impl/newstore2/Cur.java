@@ -1628,20 +1628,12 @@ final class Cur
 
         boolean isXmlns ( )
         {
-            if (!isAttr())
-                return false;
-
-            String prefix = _name.getPrefix();
-
-            if (prefix.equals( "xmlns" ))
-                return true;
-
-            return prefix.length() == 0 && _name.getLocalPart().equals( "xmlns" );
+            return isAttr() ? Locale.isXmlns( _name ) : false;
         }
 
         String getXmlnsPrefix ( )
         {
-            return _name.getPrefix().equals( "xmlns" ) ? _name.getLocalPart() : "";
+            return Locale.xmlnsPrefix( _name );
         }
 
         String getXmlnsUri ( )
@@ -1669,7 +1661,7 @@ final class Cur
         }
 
         public void dump ( PrintStream o, Object ref ) { Cur.dump( o, (Xobj) this, ref ); }
-        public void dump ( PrintStream o ) { Cur.dump( o, (Xobj) this ); }
+        public void dump ( PrintStream o ) { Cur.dump( o, this, this ); }
         public void dump ( ) { dump( System.out ); }
 
         //
@@ -2406,7 +2398,7 @@ final class Cur
 
     void dump ( )
     {
-        dump( System.out );
+        dump( System.out, _xobj, this );
     }
 
     void dump ( PrintStream o )
@@ -2417,23 +2409,41 @@ final class Cur
             return;
         }
 
-        dump( o, _xobj );
+        dump( o, _xobj, this );
     }
 
-    private static void dumpCur ( PrintStream o, String prefix, Cur c )
+    public static void dump ( PrintStream o, Xobj xo, Object ref )
     {
-        o.print( " " + prefix + "cur[" + c._pos + "]" );
+        if (ref == null)
+            ref = xo;
+        
+        while ( xo._parent != null )
+            xo = xo._parent;
+
+        dumpXobj( o, xo, 0, ref );
+        
+        o.println();
     }
     
-    private static void dumpCurs ( PrintStream o, Xobj xo )
+    private static void dumpCur ( PrintStream o, String prefix, Cur c, Object ref )
+    {
+        o.print( " " );
+        
+        if (ref == c)
+            o.print( "*:" );
+        
+        o.print( prefix + "cur[" + c._pos + "]" );
+    }
+    
+    private static void dumpCurs ( PrintStream o, Xobj xo, Object ref )
     {
         for ( Cur c = xo._embedded ; c != null ; c = c._next )
-            dumpCur( o, "*", c );
+            dumpCur( o, "E:", c, ref );
         
         for ( Cur c = xo._locale._unembedded ; c != null ; c = c._next )
         {
             if (c._xobj == xo)
-                dumpCur( o, "", c );
+                dumpCur( o, "U:", c, ref );
         }
     }
     
@@ -2496,7 +2506,7 @@ final class Cur
             o.print( " )" );
         }
 
-        dumpCurs( o, xo );
+        dumpCurs( o, xo, ref );
 
         String className = xo.getClass().getName();
         
@@ -2520,22 +2530,6 @@ final class Cur
 
         for ( xo = xo._firstChild ; xo != null ; xo = xo._nextSibling )
             dumpXobj( o, xo, level + 1, ref );
-    }
-    
-    public static void dump ( PrintStream o, Xobj xo, Object ref )
-    {
-        dumpXobj( o, xo, 0, ref );
-        o.println();
-    }
-    
-    public static void dump ( PrintStream o, Xobj xo )
-    {
-        Xobj ref = xo;
-        
-        while ( xo._parent != null )
-            xo = xo._parent;
-
-        dump( o, xo, (Object) ref );
     }
     
     //

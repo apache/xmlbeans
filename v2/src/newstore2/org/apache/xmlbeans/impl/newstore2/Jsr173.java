@@ -60,10 +60,6 @@ public class Jsr173
     //
     //
     //
-
-    //
-    //
-    //
     
     private static final class XMLStreamReaderForNode extends XMLStreamReaderBase
     {

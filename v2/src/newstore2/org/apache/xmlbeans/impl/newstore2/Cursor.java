@@ -152,10 +152,18 @@ public final class Cursor implements XmlCursor
         throw new IllegalArgumentException( msg );
     }
 
-    private void insert ( Cur thisStuff )
+    private void insertNode ( Cur thisStuff, String text )
     {
+        assert thisStuff.kind() != TEXT && thisStuff.kind() > 0;
         assert isValid( thisStuff );
         assert isValid();
+
+        if (text != null && text.length() > 0)
+        {
+            thisStuff.next();
+            thisStuff.insertChars( text, 0, text.length() );
+            thisStuff.toParent();
+        }
 
         int thisKind = thisStuff.kind();
 
@@ -169,9 +177,6 @@ public final class Cursor implements XmlCursor
 
         if (k == ROOT)
             complain( "Can't insert before the start of the document." );
-
-        if (k == ATTR && thisKind != TEXT)
-            complain( "Can only insert attributes before other attributes." );
 
         if (thisKind == ATTR)
         {
@@ -187,22 +192,7 @@ public final class Cursor implements XmlCursor
             }
         }
 
-        if (thisKind == TEXT)
-            thisStuff.moveChars( _cur, -1 );
-        else
-            thisStuff.moveNode( _cur );
-    }
-    
-    private void insertWithValue ( Cur thisStuff, String text )
-    {
-        if (text != null && text.length() > 0)
-        {
-            thisStuff.next();
-            thisStuff.insertChars( text, 0, text.length() );
-            thisStuff.toParent();
-        }
-
-        insert( thisStuff );
+        thisStuff.moveNode( _cur );
     }
     
     //
@@ -234,6 +224,19 @@ public final class Cursor implements XmlCursor
         }
     }
 
+    public boolean _isStartdoc   ( ){ return _currentTokenType().isStartdoc();  }
+    public boolean _isEnddoc     ( ){ return _currentTokenType().isEnddoc();    }
+    public boolean _isStart      ( ){ return _currentTokenType().isStart();     }
+    public boolean _isEnd        ( ){ return _currentTokenType().isEnd();       }
+    public boolean _isText       ( ){ return _currentTokenType().isText();      }
+    public boolean _isAttr       ( ){ return _currentTokenType().isAttr();      }
+    public boolean _isNamespace  ( ){ return _currentTokenType().isNamespace(); }
+    public boolean _isComment    ( ){ return _currentTokenType().isComment();   }
+    public boolean _isProcinst   ( ){ return _currentTokenType().isProcinst();  }
+    public boolean _isContainer  ( ){ return _currentTokenType().isContainer(); }
+    public boolean _isFinish     ( ){ return _currentTokenType().isFinish();    }
+    public boolean _isAnyAttr    ( ){ return _currentTokenType().isAnyAttr();   }
+    
     public TokenType _toNextToken ( )
     {
         assert isValid();
@@ -316,67 +319,6 @@ public final class Cursor implements XmlCursor
         return _locale;
     }
     
-    public boolean _isStartdoc ( )
-    {
-        // TODO - can make these faster .... perhaps even inline?
-        return _currentTokenType().isStartdoc();
-    }
-
-    public boolean _isEnddoc ( )
-    {
-        return _currentTokenType().isEnddoc();
-    }
-
-    public boolean _isStart ( )
-    {
-        return _currentTokenType().isStart();
-    }
-
-    public boolean _isEnd ( )
-    {
-        return _currentTokenType().isEnd();
-    }
-
-    public boolean _isText ( )
-    {
-        return _currentTokenType().isText();
-    }
-
-    public boolean _isAttr ( )
-    {
-        return _currentTokenType().isAttr();
-    }
-
-    public boolean _isNamespace ( )
-    {
-        return _currentTokenType().isNamespace();
-    }
-
-    public boolean _isComment ( )
-    {
-        return _currentTokenType().isComment();
-    }
-
-    public boolean _isProcinst ( )
-    {
-        return _currentTokenType().isProcinst();
-    }
-
-    public boolean _isContainer ( )
-    {
-        return _currentTokenType().isContainer();
-    }
-
-    public boolean _isFinish ( )
-    {
-        return _currentTokenType().isFinish();
-    }
-
-    public boolean _isAnyAttr ( )
-    {
-        return _currentTokenType().isAnyAttr();
-    }
-
     public boolean _toFirstChild ( )
     {
         throw new RuntimeException( "Not implemented" );
@@ -897,19 +839,25 @@ public final class Cursor implements XmlCursor
     
     public void _insertChars ( String text )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (text != null && text.length() > 0)
+        {
+            if (_cur.isRoot() || _cur.isAttr())
+                complain( "Can't insert before the document or an attribute." );
+
+            _cur.insertChars( text, 0, text.length() );
+        }
     }
 
     //
     // Inserting elements
     //
     
-    public void _insertElement         ( String localName                          ) { _insertElementWithText( localName, null, null ); }
-    public void _insertElement         ( String localName, String uri              ) { _insertElementWithText( localName, uri, null ); }
-    public void _insertElement         ( QName  name                               ) { _insertElementWithText( name, null ); }
     public void _beginElement          ( String localName                          ) { _insertElementWithText( localName, null, null ); _toPrevToken(); }
     public void _beginElement          ( String localName, String uri              ) { _insertElementWithText( localName, uri ); _toPrevToken(); }
     public void _beginElement          ( QName  name                               ) { _insertElementWithText( name, null ); _toPrevToken(); }
+    public void _insertElement         ( String localName                          ) { _insertElementWithText( localName, null, null ); }
+    public void _insertElement         ( String localName, String uri              ) { _insertElementWithText( localName, uri, null ); }
+    public void _insertElement         ( QName  name                               ) { _insertElementWithText( name, null ); }
     public void _insertElementWithText ( String localName, String text             ) { _insertElementWithText( localName, null, text ); }
     public void _insertElementWithText ( String localName, String uri, String text ) { _insertElementWithText( _locale.makeQName( uri, localName ), text ); }
     
@@ -921,7 +869,7 @@ public final class Cursor implements XmlCursor
 
         c.createElement( name );
 
-        insertWithValue( c, text );
+        insertNode( c, text );
 
         c.release();
     }
@@ -930,30 +878,11 @@ public final class Cursor implements XmlCursor
     //
     //
     
-    public void _insertAttribute ( String localName )
-    {
-        _insertAttributeWithValue( localName, null );
-    }
-    
-    public void _insertAttribute ( String localName, String uri )
-    {
-        _insertAttributeWithValue( localName, uri, null );
-    }
-    
-    public void _insertAttribute ( QName name )
-    {
-        _insertAttributeWithValue( name, null );
-    }
-    
-    public void _insertAttributeWithValue ( String localName, String value )
-    {
-        _insertAttributeWithValue( localName, null, value );
-    }
-    
-    public void _insertAttributeWithValue ( String localName, String uri, String value )
-    {
-        _insertAttributeWithValue( _locale.makeQName( uri, localName ), value );
-    }
+    public void _insertAttribute          ( String localName )                           { _insertAttributeWithValue( localName, null ); }
+    public void _insertAttribute          ( String localName, String uri )               { _insertAttributeWithValue( localName, uri, null ); }
+    public void _insertAttribute          ( QName name )                                 { _insertAttributeWithValue( name, null ); }
+    public void _insertAttributeWithValue ( String localName, String value )             { _insertAttributeWithValue( localName, null, value ); }
+    public void _insertAttributeWithValue ( String localName, String uri, String value ) { _insertAttributeWithValue( _locale.makeQName( uri, localName ), value ); }
     
     public void _insertAttributeWithValue ( QName name, String text )
     {
@@ -961,7 +890,7 @@ public final class Cursor implements XmlCursor
 
         c.createAttr( name );
 
-        insertWithValue( c, text );
+        insertNode( c, text );
         
         c.release();
     }
@@ -972,15 +901,7 @@ public final class Cursor implements XmlCursor
     
     public void _insertNamespace ( String prefix, String namespace )
     {
-        if (prefix == null)
-            prefix = "";
-
-        QName name =
-            prefix.length() == 0
-                ? _locale.makeQName( _locale._xmlnsUri, "xmlns", "" )
-                : _locale.makeQName( _locale._xmlnsUri, "xmlns", prefix );
-
-        _insertAttributeWithValue( name, namespace );
+        _insertAttributeWithValue( _locale.createXmlns( prefix ), namespace );
     }
     
     public void _insertComment ( String text )
@@ -989,7 +910,7 @@ public final class Cursor implements XmlCursor
 
         c.createComment();
         
-        insertWithValue( c, text );
+        insertNode( c, text );
         
         c.release();
     }
@@ -1000,7 +921,7 @@ public final class Cursor implements XmlCursor
 
         c.createProcinst( target );
 
-        insertWithValue( c, text );
+        insertNode( c, text );
         
         c.release();
     }

@@ -106,19 +106,99 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
+        XmlOptions innerOptions = new XmlOptions();
+        innerOptions.setSaveInner();
+        
+        XmlOptions synthOptions = new XmlOptions();
+        synthOptions.setSaveSyntheticDocumentElement( new QName( "synth" ) );
+        
+        XmlObject x = XmlObject.Factory.parse( "<a x='y'/>" );
+        XmlCursor cx = x.newCursor();
+        cx.toFirstChild();
+        cx.save( System.out, innerOptions );
+        
         XmlCursor c = Public2.newStore();
 
         c.toNextToken();
 
         c.beginElement( "foo" );
-        c.insertAttributeWithValue( "a1", "<>><<" );
-        c.insertComment( "comment" );
-        c.insertProcInst( "target", "value" );
-        c.insertElementWithText( "gag", "text" );
+        c.insertNamespace( "ns1", "ns1.com" );
+        c.insertAttributeWithValue( "x", "y" );
+        c.insertElementWithText( "bar", "text" );
+        c.insertElementWithText( "bar2", "text" );
 
         c.toStartDoc();
+        Public2.dump( c );
 
-        System.out.println( c.xmlText() );
+        c.toStartDoc();
+        System.out.println( "Rename document: " + c.xmlText( synthOptions ) );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        System.out.println( "Rename doc elem: " + c.xmlText( synthOptions ) );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        System.out.println( "Inner Doc Elem: " + c.xmlText( innerOptions ) );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        System.out.println( "Doc Elem: " + c.xmlText() );
+        
+        c.toStartDoc();
+        System.out.println( "Whole doc: " + c.xmlText() );
+
+        c.toStartDoc();
+        c.toNextToken();
+        c.toNextToken();
+        System.out.println( "Namespace: " + c.xmlText() );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        System.out.println( "Attr: " + c.xmlText() );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        System.out.println( "Nested elem: " + c.xmlText() );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        System.out.println( "Text: " + c.xmlText() );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        System.out.println( "Nothing: " + c.xmlText() );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        System.out.println( "Rename attr: " + c.xmlText( synthOptions ) );
+        
+        c.toStartDoc();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        c.toNextToken();
+        System.out.println( "Rename Text: " + c.xmlText( synthOptions ) );
+        
+        // TODO - set saving of inner of elem with attrs, does the old
+        // saver save out the attributes or just hte content?
 
 
 //        Document doc = Public2.parse( "<a/>" );

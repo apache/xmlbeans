@@ -43,7 +43,9 @@ abstract class Saver
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT     = Cur.TEXT;
 
-    protected abstract void emitContainer ( SaveCur c, QName name );
+    protected abstract boolean emitContainer (
+        SaveCur c, QName name, ArrayList attrNames, ArrayList attrValues );
+    
     protected abstract void emitFinish    ( SaveCur c, QName name );
     protected abstract void emitText      ( SaveCur c );
     protected abstract void emitComment   ( SaveCur c );
@@ -51,26 +53,21 @@ abstract class Saver
 
     protected void syntheticNamespace ( String prefix, String uri, boolean considerDefault ) { }
 
-    Saver ( Cur c, boolean wantFragTest, XmlOptions options )
+    Saver ( Cur c, XmlOptions options )
     {
         options = XmlOptions.maskNull( options );
 
         _locale = c._locale;
         _version = _locale.version();
 
-        _wantFragTest = wantFragTest;
-
-        _cur = new NormalSaveCur( c.weakCur( this ) );
-        
-        if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT ))
-            _cur = new PrettySaveCur( _cur, options );
-        
-        _preProcess = true;
+        _cur = createSaveCur( c, options  );
 
         _namespaceStack = new ArrayList();
         _uriMap = new HashMap();
         _prefixMap = new HashMap();
-        _firstPush = true;
+
+        _attrNames = new ArrayList();
+        _attrValues = new ArrayList ();
 
         _newLine = System.getProperty( "line.separator" );
 
@@ -125,15 +122,173 @@ abstract class Saver
             _filterProcinst =
                 (String) options.get( XmlOptions.SAVE_FILTER_PROCINST );
         }
-        
-        // TODO - _synthElem
-        // TODO - _fragment
-        // TODO - _inner
     }
 
-    protected boolean needsFrag ( )
+    private SaveCur createSaveCur ( Cur c, XmlOptions options )
     {
-        return _needsFrag;
+        QName synthName = (QName) options.get( XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT );
+
+        QName fragName = synthName;
+
+        if (fragName == null)
+        {
+            fragName = 
+                options.hasOption( XmlOptions.SAVE_USE_OPEN_FRAGMENT )
+                    ? Locale._openuriFragment
+                    : Locale._xmlFragment;
+        }
+
+        boolean saveInner = 
+            options.hasOption( XmlOptions.SAVE_INNER ) &&
+                !options.hasOption( XmlOptions.SAVE_OUTER );
+
+        Cur start = c.tempCur();
+        Cur end   = c.tempCur();
+
+        SaveCur cur = null;
+
+        int k = c.kind();
+
+        switch ( k )
+        {
+        case ROOT :
+        {
+            positionToInner( c, start, end );
+
+            if (isFragment( start, end ))
+            {
+                positionToInner( c, start, end );
+                cur = new FragSaveCur( start, end, fragName );
+            }
+            else if (synthName != null)
+            {
+                positionToInner( c, start, end );
+                cur = new FragSaveCur( start, end, synthName );
+            }
+            else
+                cur = new DocSaveCur( c );
+
+            break;
+        }
+        
+        case ELEM :
+        {
+            if (saveInner)
+            {
+                positionToInner( c, start, end );
+                boolean isFrag = isFragment( start, end );
+                cur = new FragSaveCur( start, end, isFragment( start, end ) ? fragName : synthName);
+            }
+            else if (synthName != null)
+            {
+                positionToInner( c, start, end );
+                cur = new FragSaveCur( start, end, synthName );
+            }
+            else
+            {
+                start.moveToCur( c );
+                end.moveToCur( c );
+                end.toEnd();
+                end.next();
+
+                cur = new FragSaveCur( start, end, null );
+            }
+
+            break;
+        }
+        }
+
+        if (cur == null)
+        {
+            assert k < 0 || k == ATTR || k == COMMENT || k == PROCINST || k == TEXT;
+
+            if (k < 0)
+            {
+                start.moveToCur( c );
+                end.moveToCur( c );
+            }
+            else if (k == TEXT)
+            {
+                start.moveToCur( c );
+                end.moveToCur( c );
+                end.next();
+            }
+            else if (saveInner)
+            {
+                start.moveToCur( c );
+                start.next();
+                
+                end.moveToCur( c );
+                end.toEnd();
+            }
+            else if (k == ATTR)
+            {
+                start.moveToCur( c );
+                end.moveToCur( c );
+            }
+            else
+            {
+                start.moveToCur( c );
+                end.moveToCur( c );
+                end.toEnd();
+                end.next();
+            }
+
+            cur = new FragSaveCur( start, end, fragName );
+        }
+
+        if (options.hasOption( XmlOptions.SAVE_PRETTY_PRINT ))
+            cur = new PrettySaveCur( cur, options );
+
+        start.release();
+        end.release();
+
+        return cur;
+    }
+
+    private void positionToInner ( Cur c, Cur start, Cur end )
+    {
+        assert c.isContainer();
+
+        start.moveToCur( c );
+
+        if (!start.toFirstAttr())
+            start.next();
+
+        end.moveToCur( c );
+        end.toEnd();
+    }
+
+    private static boolean isFragment ( Cur start, Cur end )
+    {
+        assert !end.isAttr();
+
+        int numDocElems = 0;
+        
+        while ( ! start.isSamePos( end ) )
+        {
+            int k = start.kind();
+
+            if (k == ATTR)
+                break;
+            
+            if (k == TEXT && !Locale.isWhiteSpace( start.getString( -1 )))
+                break;
+
+            if (k == ELEM && ++numDocElems > 1)
+                break;
+
+            // Move to next token
+
+            assert k != ATTR;
+            
+            if (k == ELEM)
+                start.toEnd();
+            
+            start.next();
+        }
+        
+        return !start.isSamePos( end );
     }
 
     protected boolean saveNamespacesFirst ( )
@@ -141,11 +296,6 @@ abstract class Saver
         return _saveNamespacesFirst;
     }
 
-    protected void skipContainer ( )
-    {
-        _skipContainer = true;
-    }
-    
     private final void checkVersion ( )
     {
         if (_version != _locale.version())
@@ -158,27 +308,6 @@ abstract class Saver
         
         checkVersion();
 
-        if (_preProcess)
-        {
-            assert _cur != null;
-
-            _preProcess = false;
-
-            //
-            // 
-            //
-
-            if (_cur.isFinish())
-            {
-                _done = true;
-                processTextFragment( _cur );
-            }
-            else
-            {
-                assert _cur.isContainer();
-            }
-        }
-
         if (_postPop)
         {
             popMappings();
@@ -187,31 +316,24 @@ abstract class Saver
 
         if (_postProcess)
         {
-            if (_cur.atEndOfTop())
+            int k = _cur.kind();
+            
+            if (k == -ROOT)
                 _done = true;
             else
             {
-                switch ( _cur.kind() )
+                switch ( k )
                 {
                 case ROOT :
                 case ELEM :
                 {
                     if (_skipContainer)
                     {
+                        assert _cur.isElem();
                         _cur.toEnd();
-                        
-                        if (_cur.atEndOfTop())
-                            _done = true;
-                        else
-                            _cur.next();
                     }
-                    else
-                    {
-                        _cur.next();
 
-                        while ( _cur.isAttr() )
-                            _cur.next();
-                    }
+                    _cur.next();
                     
                     break;
                 }
@@ -249,15 +371,13 @@ abstract class Saver
 
         checkVersion();
 
-        _skipContainer = false;
-
         switch ( _cur.kind() )
         {
-            case   ROOT : case   ELEM : { processContainer();               break; }
-            case - ROOT : case - ELEM : { processFinish(); _postPop = true; break; }
-            case TEXT                 : { emitText( _cur );                 break; }
-            case COMMENT              : { emitComment( _cur );              break; }
-            case PROCINST             : { processProcinst();                break; }
+            case   ROOT : case   ELEM : { _skipContainer = processContainer(); break; }
+            case - ROOT : case - ELEM : { processFinish(); _postPop = true;    break; }
+            case TEXT                 : { emitText( _cur );                    break; }
+            case COMMENT              : { emitComment( _cur );                 break; }
+            case PROCINST             : { processProcinst();                   break; }
 
             default : throw new RuntimeException( "Unexpected kind" );
         }
@@ -267,12 +387,12 @@ abstract class Saver
         return true;
     }
 
-    private final void processContainer ( )
+    private final boolean processContainer ( )
     {
         assert _cur.isContainer();
         assert !_cur.isRoot() || _cur.getName() == null;
-        
-        QName name = _synthElem != null && _cur.atTop() ? _synthElem : _cur.getName();
+
+        QName name = _cur.getName();
 
         String nameUri = name == null ? null : name.getNamespaceURI();
         
@@ -302,43 +422,47 @@ abstract class Saver
         if (name != null)
             ensureMapping( nameUri, null, !ensureDefaultEmpty, false );
 
-        _cur.clearSelection();
+        //
+        //
+        //
+
+        _attrNames.clear();
+        _attrValues.clear();
+
         _cur.push();
 
+        attrs:
         for ( boolean A = _cur.toFirstAttr() ; A ; A = _cur.toNextAttr() )
         {
             if (_cur.isNormalAttr())
             {
                 QName attrName = _cur.getName();
-                
-                _cur.addAttrToSelection();
-                _cur.push();
 
-                ensureMapping( attrName.getNamespaceURI(), null, false, true );
-
-                for ( boolean P = _cur.toPrevAttr() ; P ; P = _cur.toPrevAttr() )
+                _attrNames.add( attrName );
+                               
+                for ( int i = _attrNames.size() - 2 ; i >= 0 ; i-- )
                 {
-                    if (_cur.getName().equals( attrName ))
+                    if (_attrNames.get( i ).equals( attrName ))
                     {
-                        _cur.removeSelection( _cur.selectionCount() - 1 );
-                        break;
+                        _attrNames.remove( _attrNames.size() - 1 );
+                        continue attrs;
                     }
                 }
+
+                _attrValues.add( _cur.getAttrValue() );
                 
-                _cur.pop();
+                ensureMapping( attrName.getNamespaceURI(), null, false, true );
             }
         }
         
         _cur.pop();
 
-        // todo - do _wantFragTest thingy here ...
-        
         // If I am doing aggressive namespaces and we're emitting a
         // container which can contain content, add the namespaces
         // we've computed.  Basically, I'm making sure the pre-computed
         // namespaces are mapped on the first container which has a name.
 
-        if (_preComputedNamespaces != null && (name != null || _needsFrag))
+        if (_preComputedNamespaces != null && name != null)
         {
             for ( Iterator i = _preComputedNamespaces.keySet().iterator() ; i.hasNext() ; )
             {
@@ -353,14 +477,12 @@ abstract class Saver
             _preComputedNamespaces = null;
         }
 
-        emitContainer( _cur, name );
+        return emitContainer( _cur, name, _attrNames, _attrValues );
     }
 
     private final void processFinish ( )
     {
-        QName name = _synthElem != null && _cur.atEndOfTop() ? _synthElem : _cur.getName();
-        
-        // todo - do _wantFragTest thingy here ...
+        QName name = _cur.getName();
         
         emitFinish( _cur, name );
         
@@ -369,15 +491,10 @@ abstract class Saver
     
     private final void processProcinst ( )
     {
-        if (_filterProcinst == null || !_cur.getLocal().equals( _filterProcinst ))
+        if (_filterProcinst == null || !_cur.getName().getLocalPart().equals( _filterProcinst ))
             emitProcinst( _cur );
     }
 
-    private void processTextFragment( SaveCur c )
-    {
-        throw new RuntimeException( "Not impl" );
-    }
-    
     //
     // Layout of namespace stack:
     //
@@ -441,40 +558,32 @@ abstract class Saver
 
         c.push();
 
-        for ( boolean C = true ; C ; C = c.toParentRaw() )
+        namespaces:
+        for ( boolean A = c.toFirstAttr() ; A ; A = c.toNextAttr() )
         {
-            c.push();
-            
-            namespaces:
-            for ( boolean A = c.toFirstAttr() ; A ; A = c.toNextAttr() )
+            if (c.isXmlns())
             {
-                if (c.isXmlns())
-                {
-                    String prefix = c.getXmlnsPrefix();
-                    String uri = c.getXmlnsUri();
-                    
-                    if (ensureDefaultEmpty && prefix.length() == 0 && uri.length() > 0)
-                        continue;
-                    
-                    // Make sure the prefix is not already mapped in this frame
+                String prefix = c.getXmlnsPrefix();
+                String uri = c.getXmlnsUri();
 
-                    for ( iterateMappings() ; hasMapping() ; nextMapping() )
-                        if (mappingPrefix().equals( prefix ))
-                            continue namespaces;
-
-                    addMapping( prefix, uri );
-                }
+                if (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)
+                    addNewFrameMapping( prefix, uri );
             }
-            
-            c.pop();
-
-            // Push all ancestors the first time
-            
-            if (!_firstPush)
-                break;
         }
 
         c.pop();
+
+        if (c.isRoot() && _cur._ancestorNamespaces != null)
+        {
+            for ( int i = 0 ; i < _cur._ancestorNamespaces.size() ; i += 2 )
+            {
+                String prefix = (String) _cur._ancestorNamespaces.get( i );
+                String uri    = (String) _cur._ancestorNamespaces.get( i + 1 );
+                
+                if (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)
+                    addNewFrameMapping( prefix, uri );
+            }
+        }
         
         if (ensureDefaultEmpty)
         {
@@ -486,10 +595,19 @@ abstract class Saver
             if (defaultUri.length() > 0)
                 addMapping( "", "" );
         }
-
-        _firstPush = false;
     }
-    
+
+    private final void addNewFrameMapping ( String prefix, String uri )
+    {
+        // Make sure the prefix is not already mapped in this frame
+
+        for ( iterateMappings() ; hasMapping() ; nextMapping() )
+            if (mappingPrefix().equals( prefix ))
+                return;;
+
+        addMapping( prefix, uri );
+    }
+
     private final void addMapping ( String prefix, String uri )
     {
         assert uri != null;
@@ -714,7 +832,7 @@ abstract class Saver
         
         SynthNamespaceSaver ( Cur c, XmlOptions options )
         {
-            super( c, false, options );
+            super( c, options );
         }
         
         protected void syntheticNamespace (
@@ -723,7 +841,9 @@ abstract class Saver
             _synthNamespaces.put( uri, considerCreatingDefault ? "useDefault" : null );
         }
         
-        protected void emitContainer ( SaveCur c, QName name ) { }
+        protected boolean emitContainer (
+            SaveCur c, QName name, ArrayList attrNames, ArrayList attrValues ) { return false; }
+        
         protected void emitFinish    ( SaveCur c, QName name ) { }
         protected void emitText      ( SaveCur c ) { }
         protected void emitComment   ( SaveCur c ) { }
@@ -738,7 +858,7 @@ abstract class Saver
     {
         TextSaver ( Cur c, XmlOptions options, String encoding )
         {
-            super( c, true, options );
+            super( c, options );
 
             if (encoding != null)
             {
@@ -755,28 +875,21 @@ abstract class Saver
             }
         }
         
-        protected void emitContainer ( SaveCur c, QName name )
+        protected boolean emitContainer (
+            SaveCur c, QName name, ArrayList attrNames, ArrayList attrValues )
         {
+            boolean skipElem = false;
+            
             if (c.isElem())
             {
-                emitContainerHelper( c, name, null, false );
+                emitContainerHelper( name, false, attrNames, attrValues );
 
                 assert c.isContainer();
 
-                if (!c.hasChildren())
+                if (!c.hasChildren() && !c.hasText())
                 {
-                    if (c.hasText())
-                    {
-                        emit( '>' );
-                        emitValue( c );
-                        entitizeContent();
-                        emit( "</" );
-                        emitName( name );
-                    }
-                    else
-                        emit( '/' );
-                    
-                    skipContainer();
+                    emit( '/' );
+                    skipElem = true;
                 }
                 
                 emit( '>' );
@@ -786,8 +899,10 @@ abstract class Saver
                 assert c.isRoot();
 
                 if (name != null)
-                    emitContainerHelper( c, name, null, true );
+                    emitContainerHelper( name, true, attrNames, attrValues );
             }
+
+            return skipElem;
         }
         
         protected void emitFinish ( SaveCur c, QName name )
@@ -837,27 +952,18 @@ abstract class Saver
             }
         }
                                      
-        private void emitAttrHelper ( SaveCur a )
+        private void emitAttrHelper ( QName attrName, String attrValue )
         {
-            assert a.isNormalAttr();
-            
             emit( ' ' );
-            emitName( a.getName() );
+            emitName( attrName );
             emit( "=\"" );
-
-            a.push();
-            a.next();
-            
-            emit( a );
-
-            a.pop();
-
+            emit( attrValue );
             entitizeAttrValue();
-
             emit( '"' );
         }
 
-        private void emitContainerHelper ( SaveCur saveAttrs, QName name, SaveCur extraAttr, boolean close )
+        private void emitContainerHelper (
+            QName name, boolean close, ArrayList attrNames, ArrayList attrValues )
         {
             assert name != null;
 
@@ -867,21 +973,8 @@ abstract class Saver
             if (saveNamespacesFirst())
                 emitNamespacesHelper();
 
-            if (saveAttrs != null)
-            {
-                saveAttrs.push();
-                
-                for ( int i = 0 ; i < saveAttrs.selectionCount() ; i++ )
-                {
-                    saveAttrs.moveToSelection( i );
-                    emitAttrHelper( saveAttrs );
-                }
-                
-                saveAttrs.pop();
-            }
-
-            if (extraAttr != null)
-                emitAttrHelper( extraAttr);
+            for ( int i = 0 ; i < attrNames.size() ; i++ )
+                emitAttrHelper( (QName) attrNames.get( i ), (String) attrValues.get( i ) );
 
             if (!saveNamespacesFirst())
                 emitNamespacesHelper();
@@ -916,7 +1009,7 @@ abstract class Saver
             emit( "<?" );
             
             // TODO - encoding issues here?
-            emit( c.getLocal() );
+            emit( c.getName().getLocalPart() );
 
             if (c.hasText())
             {
@@ -1017,7 +1110,7 @@ abstract class Saver
         
         private void emitValue ( SaveCur c )
         {
-            assert !c.isText() && c.kind() > 0 && !c.hasChildren();
+            assert !c.isText() && !c.isAttr() && c.kind() > 0 && !c.hasChildren();
 
             c.push();
             c.next();
@@ -1565,16 +1658,12 @@ abstract class Saver
         boolean isFinish     ( ) { return Cur.kindIsFinish( kind() ); }
         boolean isContainer  ( ) { return Cur.kindIsContainer( kind() ); }
         boolean isNormalAttr ( ) { return kind() == ATTR && !isXmlns(); }
-        
-        abstract boolean atTop ( );
-        abstract boolean atEndOfTop ( );
-        
+
         abstract void release ( );
         
         abstract int kind ( );
         
         abstract QName  getName ( );
-        abstract String getLocal ( );
         abstract String getXmlnsPrefix ( );
         abstract String getXmlnsUri ( );
         
@@ -1585,81 +1674,61 @@ abstract class Saver
         
         abstract boolean toFirstAttr ( );
         abstract boolean toNextAttr ( );
-        abstract boolean toPrevAttr ( );
-        abstract boolean toParentRaw ( );
-        abstract void    toEnd ( );
+        abstract String  getAttrValue ( );
         
-        abstract boolean next ( );
+        abstract boolean next  ( );
+        abstract void    toEnd ( );
 
         abstract void push ( );
         abstract void pop ( );
-        abstract void clearSelection ( );
-        abstract void addAttrToSelection ( );
-        abstract void removeSelection ( int i );
-        abstract int  selectionCount ( );
-        abstract void moveToSelection ( int i );
 
         abstract Object getChars ( );
+
+        ArrayList _ancestorNamespaces;
 
         int _offSrc;
         int _cchSrc;
     }
     
-    private static final class NormalSaveCur extends SaveCur
+    // TODO - saving a fragment need to take namesapces from root and
+    // reflect them on the document element
+    
+    private static final class DocSaveCur extends SaveCur
     {
-        NormalSaveCur ( Cur c )
+        DocSaveCur ( Cur c )
         {
-            _cur = c;
-
-            if (c.isContainer())
-                _top = c.weakCur( c );
+            assert c.isRoot();
+            _cur = c.weakCur( this );
         }
 
         void release ( )
         {
             _cur.release();
             _cur = null;
-
-            if (_top != null)
-            {
-                _top.release();
-                _top = null;
-            }
         }
         
         int kind ( ) { return _cur.kind(); }
         
-        QName getName ( ) { return _cur.getName(); }
-        String getLocal ( ) { return _cur.getLocal(); }
+        QName  getName        ( ) { return _cur.getName(); }
         String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
         String getXmlnsUri    ( ) { return _cur.getXmlnsUri(); }
         
-        boolean isXmlns      ( ) { return _cur.isXmlns();     }
+        boolean isXmlns       ( ) { return _cur.isXmlns();     }
         
-        boolean hasChildren  ( ) { return _cur.hasChildren(); }
-        boolean hasText      ( ) { return _cur.hasText();     }
+        boolean hasChildren   ( ) { return _cur.hasChildren(); }
+        boolean hasText       ( ) { return _cur.hasText();     }
         
-        boolean atTop      ( ) { assert _top != null; return _cur.isSamePos( _top ); }
-        boolean atEndOfTop ( ) { assert _top != null; return _cur.isAtEndOf( _top ); }
+        boolean toFirstAttr   ( ) { return _cur.toFirstAttr(); }
+        boolean toNextAttr    ( ) { return _cur.toNextAttr();  }
+        String  getAttrValue  ( ) { assert _cur.isAttr(); return _cur.getValueString(); }
         
-        boolean toFirstAttr ( ) { return _cur.toFirstAttr(); }
-        boolean toNextAttr  ( ) { return _cur.toNextAttr();  }
-        boolean toPrevAttr  ( ) { return _cur.toPrevAttr();  }
-        boolean toParentRaw ( ) { return _cur.toParentRaw(); }
+        void    toEnd         ( ) { _cur.toEnd();              }
+        boolean next          ( ) { return _cur.next();        }
         
-        void toEnd ( ) { _cur.toEnd(); }
-        
-        boolean next ( ) { return _cur.next(); }
-        
-        void push ( )            { _cur.push(); }
-        void pop ( )             { _cur.pop(); }
-        void clearSelection ( )  { _cur.clearSelection(); }
-        void addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addToSelection(); }
-        int  selectionCount ( )  { return _cur.selectionCount(); }
-        
-        void moveToSelection ( int i ) { _cur.moveToSelection( i ); }
-        void removeSelection ( int i ) { _cur.removeSelection( i ); }
+        void push ( )         { _cur.push(); }
+        void pop  ( )         { _cur.pop(); }
 
+        
         Object getChars ( )
         {
             Object o = _cur.getChars( -1 );
@@ -1671,76 +1740,304 @@ abstract class Saver
         }
         
         private Cur _cur;
-        private Cur _top;
+    }
+
+    private static final class FragSaveCur extends SaveCur
+    {
+        FragSaveCur ( Cur start, Cur end, QName synthElem )
+        {
+            _saveAttr = start.isAttr() && start.isSamePos( end );
+
+            _cur = start.weakCur( this );
+            _end = end.weakCur( this );
+
+            _elem = synthElem;
+            
+            _state = ROOT_START;
+            
+            _stateStack = new int [ 8 ];
+
+            start.push();
+            computeAncestorNamespaces( start );
+            start.pop();
+        }
+
+        private void computeAncestorNamespaces ( Cur c )
+        {
+            _ancestorNamespaces = new ArrayList();
+            
+            while ( c.toParentRaw() )
+            {
+                if (c.toFirstAttr())
+                {
+                    do
+                    {
+                        if (c.isXmlns())
+                        {
+                            _ancestorNamespaces.add( c.getXmlnsPrefix() );
+                            _ancestorNamespaces.add( c.getXmlnsUri() );
+                        }
+                    }
+                    while ( c.toNextAttr() );
+                    
+                    c.toParent();
+                }
+            }
+        }
+        
+        //
+        //
+        //
+        
+        void release ( )
+        {
+            _cur.release();
+            _cur = null;
+
+            _end.release();
+            _end = null;
+        }
+
+        int kind ( )
+        {
+            switch ( _state )
+            {
+            case ROOT_START : return  ROOT;
+            case ELEM_START : return  ELEM;
+            case ELEM_END   : return -ELEM;
+            case ROOT_END   : return -ROOT;
+            }
+            
+            assert _state == CUR;
+            
+            return _cur.kind();
+        }
+        
+        QName getName ( )
+        {
+            switch ( _state )
+            {
+            case ROOT_START :
+            case ROOT_END   : return null;
+            case ELEM_START : 
+            case ELEM_END   : return _elem;
+            }
+            
+            assert _state == CUR;
+
+            return _cur.getName();
+        }
+        
+        String getXmlnsPrefix ( )
+        {
+            assert _state == CUR && _cur.isAttr();
+            return _cur.getXmlnsPrefix();
+        }
+        
+        String getXmlnsUri ( )
+        {
+            assert _state == CUR && _cur.isAttr();
+            return _cur.getXmlnsUri();
+        }
+        
+        boolean isXmlns ( )
+        {
+            assert _state == CUR && _cur.isAttr();
+            return _cur.isXmlns();
+        }
+        
+        boolean hasChildren ( )
+        {
+            boolean hasChildren = false;
+            
+            if (isContainer())
+            {
+                push();
+                next();
+
+                if (!isText() && !isFinish())
+                    hasChildren = true;
+                
+                pop();
+            }
+
+            return hasChildren;
+        }
+        
+        boolean hasText ( )
+        {
+            boolean hasText = false;
+            
+            if (isContainer())
+            {
+                push();
+                next();
+
+                if (isText())
+                    hasText = true;
+                
+                pop();
+            }
+
+            return hasText;
+        }
+        
+        Object getChars ( )
+        {
+            assert _state == CUR && _cur.isText();
+
+            Object src = _cur.getChars( -1 );
+            
+            _offSrc = _cur._offSrc;
+            _cchSrc = _cur._cchSrc;
+
+            return src;
+        }
+        
+        boolean next ( )
+        {
+            switch ( _state )
+            {
+            case ROOT_START :
+            {
+                _state = _elem == null ? CUR : ELEM_START;
+                return true;
+            }
+
+            case ELEM_START :
+            {
+                if (_saveAttr)
+                    _state = ELEM_END;
+                else
+                {
+                    if (_cur.isAttr())
+                    {
+                        _cur.toParent();
+                        _cur.next();
+                    }
+
+                    if (_cur.isSamePos( _end ))
+                        _state = ELEM_END;
+                    else
+                        _state = CUR;
+                }
+
+                return true;
+            }
+
+            case CUR :
+            {
+                assert !_cur.isAttr();
+
+                _cur.next();
+
+                if (_cur.isSamePos( _end ))
+                    _state = _elem == null ? ROOT_END : ELEM_END;
+
+                return true;
+            }
+            
+            case ELEM_END :
+            {
+                _state = ROOT_END;
+                return true;
+            }
+            }
+
+            assert _state == ROOT_END;
+            
+            return false;
+        }
+        
+        void toEnd ( )
+        {
+            switch ( _state )
+            {
+            case ROOT_START : _state = ROOT_END; return;
+            case ELEM_START : _state = ELEM_END; return;
+            case ROOT_END   :
+            case ELEM_END   : return;
+            }
+
+            assert _state == CUR && !_cur.isAttr() && !_cur.isText();
+
+            _cur.toEnd();
+        }
+        
+        boolean toFirstAttr ( )
+        {
+            switch ( _state )
+            {
+            case ROOT_END   :
+            case ELEM_END   : 
+            case ROOT_START : return false;
+            case CUR        : return _cur.toFirstAttr();
+            }
+            
+            assert _state == ELEM_START;
+
+            if (!_cur.isAttr())
+                return false;
+            
+            _state = CUR;
+                
+            return true;
+        }
+        
+        boolean toNextAttr ( )
+        {
+            assert _state == CUR;
+            return !_saveAttr && _cur.toNextAttr();
+        }
+        
+        String getAttrValue ( )
+        {
+            assert _state == CUR && _cur.isAttr();
+            return _cur.getValueString();
+        }
+
+        void push ( )
+        {
+            if (_stateStackSize == _stateStack.length)
+            {
+                int[] newStateStack = new int [ _stateStackSize * 2 ];
+                System.arraycopy( _stateStack, 0, newStateStack, 0, _stateStackSize );
+                _stateStack = newStateStack;
+            }
+
+            _stateStack [ _stateStackSize++ ] = _state;
+            _cur.push();
+        }
+
+        void pop ()
+        {
+            _cur.pop();
+            _state = _stateStack [ --_stateStackSize ];
+        }
+        
+        //
+        //
+        //
+
+        private Cur _cur;
+        private Cur _end;
+
+        private QName _elem;
+
+        private boolean _saveAttr;
+        
+        private static final int ROOT_START = 1;
+        private static final int ELEM_START = 2;
+        private static final int ROOT_END   = 3;
+        private static final int ELEM_END   = 4;
+        private static final int CUR        = 5;
+        
+        private int _state;
+
+        private int[] _stateStack;
+        private int   _stateStackSize;
     }
     
-//    private static final class FragmentSaveCur extends SaveCur
-//    {
-//        NormalSaveCur ( SaveCur c )
-//        {
-//            assert !c.isRoot();
-//            
-//            _cur = c;
-//        }
-//
-//        void release ( )
-//        {
-//            _cur.release();
-//            _cur = null;
-//
-//            if (_top != null)
-//            {
-//                _top.release();
-//                _top = null;
-//            }
-//        }
-//        
-//        int kind ( ) { return _cur.kind(); }
-//        
-//        QName getName ( ) { return _cur.getName(); }
-//        String getLocal ( ) { return _cur.getLocal(); }
-//        String getXmlnsPrefix ( ) { return _cur.getXmlnsPrefix(); }
-//        String getXmlnsUri    ( ) { return _cur.getXmlnsUri(); }
-//        
-//        boolean isXmlns      ( ) { return _cur.isXmlns();     }
-//        
-//        boolean hasChildren  ( ) { return _cur.hasChildren(); }
-//        boolean hasText      ( ) { return _cur.hasText();     }
-//        
-//        boolean atTop      ( ) { assert _top != null; return _cur.isSamePos( _top ); }
-//        boolean atEndOfTop ( ) { assert _top != null; return _cur.isAtEndOf( _top ); }
-//        
-//        boolean toFirstAttr ( ) { return _cur.toFirstAttr(); }
-//        boolean toNextAttr  ( ) { return _cur.toNextAttr();  }
-//        boolean toPrevAttr  ( ) { return _cur.toPrevAttr();  }
-//        boolean toParentRaw ( ) { return _cur.toParentRaw(); }
-//        
-//        void toEnd ( ) { _cur.toEnd(); }
-//        
-//        boolean next ( ) { return _cur.next(); }
-//        
-//        void push ( )            { _cur.push(); }
-//        void pop ( )             { _cur.pop(); }
-//        void clearSelection ( )  { _cur.clearSelection(); }
-//        void addAttrToSelection ( )  { assert _cur.isAttr(); _cur.addToSelection(); }
-//        int  selectionCount ( )  { return _cur.selectionCount(); }
-//        
-//        void moveToSelection ( int i ) { _cur.moveToSelection( i ); }
-//        void removeSelection ( int i ) { _cur.removeSelection( i ); }
-//
-//        Object getChars ( )
-//        {
-//            Object o = _cur.getChars( -1 );
-//            
-//            _offSrc = _cur._offSrc;
-//            _cchSrc = _cur._cchSrc;
-//
-//            return o;
-//        }
-//        
-//        private SaveCur _cur;
-//    }
-
     private static final class PrettySaveCur extends SaveCur
     {
         PrettySaveCur ( SaveCur c, XmlOptions options )
@@ -1771,32 +2068,18 @@ abstract class Saver
         
         int kind ( ) { return _txt == null ? _cur.kind() : TEXT; }
         
-        QName  getName ( )        { assert _txt == null; return _cur.getName(); }
-        String getLocal ( )       { assert _txt == null; return _cur.getLocal(); }
+        QName  getName        ( ) { assert _txt == null; return _cur.getName(); }
         String getXmlnsPrefix ( ) { assert _txt == null; return _cur.getXmlnsPrefix(); }
         String getXmlnsUri    ( ) { assert _txt == null; return _cur.getXmlnsUri(); }
         
-        boolean isRoot       ( ) { return _txt == null ? _cur.isRoot()       : false; }
-        boolean isElem       ( ) { return _txt == null ? _cur.isElem()       : false; }
-        boolean isAttr       ( ) { return _txt == null ? _cur.isAttr()       : false; }
-        boolean isText       ( ) { return _txt == null ? _cur.isText()       : true;  }
-        boolean isComment    ( ) { return _txt == null ? _cur.isComment()    : false; }
-        boolean isProcinst   ( ) { return _txt == null ? _cur.isProcinst()   : false; }
-        boolean isFinish     ( ) { return _txt == null ? _cur.isFinish()     : false; }
-        boolean isContainer  ( ) { return _txt == null ? _cur.isContainer()  : false; }
-        boolean isNormalAttr ( ) { return _txt == null ? _cur.isNormalAttr() : false; }
-        boolean isXmlns      ( ) { return _txt == null ? _cur.isXmlns()      : false; }
+        boolean isXmlns       ( ) { return _txt == null ? _cur.isXmlns()      : false; }
         
-        boolean hasChildren  ( ) { return _txt == null ? _cur.hasChildren() : false; }
-        boolean hasText      ( ) { return _txt == null ? _cur.hasText()     : false; }
+        boolean hasChildren   ( ) { return _txt == null ? _cur.hasChildren() : false; }
+        boolean hasText       ( ) { return _txt == null ? _cur.hasText()     : false; }
         
-        boolean atTop      ( ) { return _txt == null ? _cur.atTop() : false;      }
-        boolean atEndOfTop ( ) { return _txt == null ? _cur.atEndOfTop() : false; }
-        
-        boolean toFirstAttr ( ) { assert _txt == null; return _cur.toFirstAttr(); }
-        boolean toNextAttr  ( ) { assert _txt == null; return _cur.toNextAttr(); }
-        boolean toPrevAttr  ( ) { assert _txt == null; return _cur.toPrevAttr(); }
-        boolean toParentRaw ( ) { return _cur.toParentRaw(); }
+        boolean toFirstAttr   ( ) { assert _txt == null; return _cur.toFirstAttr(); }
+        boolean toNextAttr    ( ) { assert _txt == null; return _cur.toNextAttr(); }
+        String  getAttrValue  ( ) { throw new RuntimeException( "Not impl" ); }
         
         void toEnd ( ) { assert _txt == null; _cur.toEnd(); }
         
@@ -1820,8 +2103,6 @@ abstract class Saver
 
             if (kind == ROOT || kind == ELEM)
             {
-                _sb.append( "[after container]" );
-                
                 if (_cur.isText())
                 {
                     Object src = _cur.getChars();
@@ -1845,18 +2126,6 @@ abstract class Saver
         void push ( ) { _cur.push(); _stack.add( _txt ); }
         
         void pop ( ) { _cur.pop(); _txt = (String) _stack.remove( _stack.size() - 1 ); }
-        
-        void clearSelection ( )  { _cur.clearSelection(); }
-        int  selectionCount ( )  { return _cur.selectionCount(); }
-        
-        void addAttrToSelection ( )
-        {
-            assert _cur.isAttr() && _txt == null;
-            _cur.addAttrToSelection();
-        }
-        
-        void moveToSelection ( int i ) { _cur.moveToSelection( i ); assert isAttr(); }
-        void removeSelection ( int i ) { _cur.removeSelection( i ); }
         
         Object getChars ( )
         {
@@ -1912,24 +2181,22 @@ abstract class Saver
     
     private SaveCur _cur;
 
-    private boolean _preProcess;
     private boolean _postProcess;
     private boolean _postPop;
     private boolean _done;
     private boolean _skipContainer;
-    private boolean _needsFrag;
 
-    private QName   _synthElem;
     private Map     _suggestedPrefixes;
     private boolean _useDefaultNamespace;
     private HashMap _preComputedNamespaces;
-    private boolean _wantFragTest;
     private boolean _saveNamespacesFirst;
     private String  _filterProcinst;
 
+    private ArrayList _attrNames;
+    private ArrayList _attrValues;
+
     private ArrayList _namespaceStack;
     private int       _currentMapping;
-    private boolean   _firstPush;
     private HashMap   _uriMap;
     private HashMap   _prefixMap;
     private String    _initialDefaultUri;
