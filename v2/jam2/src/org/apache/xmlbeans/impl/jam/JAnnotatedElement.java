@@ -1,0 +1,65 @@
+package org.apache.xmlbeans.impl.jam;
+
+import org.apache.xmlbeans.impl.jam.annotation.ValueMap;
+
+/**
+ * <p>Base abstraction for JElements which can carry annotations and comments.
+ * The only JElements which cannot do this are JAnnotation and JComment.</p>
+ *
+ * @author Patrick Calahan <pcal@bea.com>
+ */
+public abstract interface JAnnotatedElement extends JElement {
+
+  // ========================================================================
+  // Public methods
+
+  /**
+   * <p>Returns the metadata JAnnotations that are associated with
+   * this abstraction.  Returns an empty array if there are no
+   * annotations.</p>
+   */
+  public JAnnotation[] getAnnotations();
+
+  /**
+   * <p>Returns the JAnnotation which is being proxied by the given subclass
+   * of CustomAnnotationProxyBase, or null if no such annotation exists.  If it
+   * does exist, the <code>getProxy()</code> method on the returned
+   * object is guaranteed to return be an instance of the proxyClass.</p>
+   *
+   * @throws IllegalArgumentException if the proxyClass parameter is null
+   * or not a subclass of <code>CustomAnnotationProxyBase</code>.
+   */
+  public JAnnotation getAnnotation(Class proxyClass);
+
+  /**
+   * <p>Returns an instance of CustomAnnotationProxyBase on this elements for which the given
+   * proxy class has been established.  This method is guaranteed to
+   * return either an instance of the given proxyClass or null.</p>
+   *
+   * <p>This method is simply a convenient shorthand for
+   * <code>getAnnotation(proxyClass).getProxy()</code>.</p>
+   *
+   * @throws IllegalArgumentException if the proxyClass parameter is null
+   * or not a subclass of <code>AnnotationProxy</code>.
+   */
+  public Object getAnnotationProxy(Class proxyClass);
+
+  /**
+   * <p>Returns the annotation that represents the named 175 annotation
+   * or javadoc tag on this elements.</p>
+   */
+  public JAnnotation getAnnotation(String tagnameOr175typename);
+
+  /**
+  * <p>This method is simply a convenient shorthand for
+  * <code>getAnnotation(name).getValues()</code>.</p>
+  */
+  public ValueMap getAnnotationValues(String tagnameOr175typename);
+
+  /**
+   * <p>Returns the comment associated with this abstraction.
+   * Returns null if it has no comment.</p>
+   */
+  public JComment getComment();
+
+}
