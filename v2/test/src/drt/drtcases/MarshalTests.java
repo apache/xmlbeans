@@ -14,6 +14,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -29,6 +30,8 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.io.CharArrayWriter;
+import java.io.CharArrayReader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -175,8 +178,11 @@ public class MarshalTests extends TestCase
     public void testByNameMarshalPerf()
         throws Exception
     {
-        final int trials = 100;
-        final int depth = 3;
+        //crank up these numbers to see real perf testing
+        //the test still has some value aside from perf
+        //in that it can test large stack depths.
+        final int trials = 10;
+        final int depth = 15;
 
         Random rnd = new Random();
 
@@ -195,7 +201,7 @@ public class MarshalTests extends TestCase
             curr = my_c;
         }
 
-        System.out.println("top_obj = " + top_obj);
+        //System.out.println("top_obj = " + top_obj);
 
         final File bcdoc = getBindingConfigDocument();
 
@@ -236,7 +242,7 @@ public class MarshalTests extends TestCase
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
-        System.out.println(" out_obj = " + top_obj);
+        //System.out.println(" out_obj = " + top_obj);
         Assert.assertEquals(top_obj, out_obj);
         System.out.println("milliseconds: " + diff + " trials: " + trials);
         System.out.println("milliseconds PER trial: " + (diff / (double)trials));
@@ -383,47 +389,47 @@ public class MarshalTests extends TestCase
         System.out.println("+++++TYPE obj = " + obj);
     }
 
-//    public void testPerfByNameBeanUnmarshall()
-//        throws Exception
-//    {
-//        BindingConfigDocument bcdoc = getBindingConfigDocument();
-//
-//        IBindingContext bindingContext =
-//            IBindingContextFactory.createBindingContext(bcdoc);
-//
-//        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
-//
-//        Assert.assertNotNull(unmarshaller);
-//
-//        //TODO: remove hard coded path
-//        File doc = new File("test/cases/marshal/doc.xml");
-//        final FileReader fileReader = new FileReader(doc);
-//        CharArrayWriter cw = new CharArrayWriter();
-//
-//        bufferedStreamCopy(fileReader, cw);
-//        final char[] chars = cw.toCharArray();
-//        final CharArrayReader cr = new CharArrayReader(chars);
-//
-//        final int trials = 5000;
-//
-//        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
-//
-//        final long before_millis = System.currentTimeMillis();
-//        for (int i = 0; i < trials; i++) {
-//            cr.reset();
-//            XMLStreamReader xrdr =
-//                xmlInputFactory.createXMLStreamReader(cr);
-//
-//            Object obj = unmarshaller.unmarshal(xrdr);
-//
-//            if ((i % 1000) == 0)
-//                System.out.println("i=" + i + "\tobj = " + obj);
-//        }
-//        final long after_millis = System.currentTimeMillis();
-//        final long diff = (after_millis - before_millis);
-//        System.out.println("milliseconds: " + diff + " trials: " + trials);
-//        System.out.println("milliseconds PER trial: " + (diff / (double)trials));
-//    }
+    public void DISABLED_testPerfByNameBeanUnmarshall()
+        throws Exception
+    {
+        File bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+
+        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
+
+        Assert.assertNotNull(unmarshaller);
+
+        //TODO: remove hard coded path
+        File doc = TestEnv.xbeanCase("marshal/doc2.xml");
+        final FileReader fileReader = new FileReader(doc);
+        CharArrayWriter cw = new CharArrayWriter();
+
+        bufferedStreamCopy(fileReader, cw);
+        final char[] chars = cw.toCharArray();
+        final CharArrayReader cr = new CharArrayReader(chars);
+
+        final int trials = 5000;
+
+        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+
+        final long before_millis = System.currentTimeMillis();
+        for (int i = 0; i < trials; i++) {
+            cr.reset();
+            XMLStreamReader xrdr =
+                xmlInputFactory.createXMLStreamReader(cr);
+
+            Object obj = unmarshaller.unmarshal(xrdr);
+
+            if ((i % 1000) == 0)
+                System.out.println("i=" + i + "\tobj = " + obj);
+        }
+        final long after_millis = System.currentTimeMillis();
+        final long diff = (after_millis - before_millis);
+        System.out.println("milliseconds: " + diff + " trials: " + trials);
+        System.out.println("milliseconds PER trial: " + (diff / (double)trials));
+    }
 
     protected static void bufferedStreamCopy(Reader in, Writer out)
         throws IOException

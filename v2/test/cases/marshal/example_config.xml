@@ -27,6 +27,13 @@
                 <bin:setter>setMyFloat</bin:setter>
                 <bin:qname>java:MyFloat</bin:qname>
             </bin:qname-property>
+            <bin:qname-property>
+                <bin:xmlcomponent>t=boolean@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>boolean</bin:javatype>
+                <bin:getter>isSomeBool</bin:getter>
+                <bin:setter>setSomeBool</bin:setter>
+                <bin:qname>java:SomeBool</bin:qname>
+            </bin:qname-property>
         </bin:binding-type>
         <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
             <bin:xmlcomponent>t=MyClass@java:com.mytest</bin:xmlcomponent>
