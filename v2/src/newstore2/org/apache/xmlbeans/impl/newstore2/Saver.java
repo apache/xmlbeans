@@ -51,6 +51,8 @@ abstract class Saver
 
     Saver ( Cur c, boolean wantFragTest, XmlOptions options )
     {
+        options = XmlOptions.maskNull( options );
+
         _locale = c._locale;
         _version = _locale.version();
 
@@ -182,11 +184,6 @@ abstract class Saver
                     break;
                                                
                 default : throw new RuntimeException( "Unexpected kind" );
-                }
-
-                if (_cur.isText())
-                {
-                    throw new RuntimeException( "Not implemented" );
                 }
             }
 
@@ -802,7 +799,6 @@ abstract class Saver
                 }
                 
                 saveAttrs.pop();
-                
             }
 
             if (extraAttr != null)

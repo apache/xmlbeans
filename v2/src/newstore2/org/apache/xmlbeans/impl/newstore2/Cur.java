@@ -223,22 +223,16 @@ final class Cur
 
     boolean isNormalAttr ( )
     {
-        return isAttr() && !isXmlns();
+        assert isNormal() && _xobj != null && _pos == 0;
+
+        return _xobj.isNormalAttr();
     }
     
     boolean isXmlns ( )
     {
         assert isNormal() && _xobj != null && _pos == 0;
 
-        if (!isAttr())
-            return false;
-
-        String prefix = _xobj._name.getPrefix();
-        
-        if (prefix.equals( "xmlns" ))
-            return true;
-
-        return prefix.length() == 0 && _xobj._name.getLocalPart().equals( "xmlns" );
+        return _xobj.isXmlns();
     }
 
     QName getName ( )
@@ -266,7 +260,15 @@ final class Cur
         assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
         assert isXmlns();
 
-        return _xobj._name.getPrefix().equals( "xmlns" ) ? _xobj._name.getLocalPart() : "";
+        return _xobj.getXmlnsPrefix();
+    }
+
+    String getXmlnsUri ( )
+    {
+        assert isNormal() && _xobj != null && (_pos == 0 || _pos == _xobj.posEnd());
+        assert isXmlns();
+
+        return _xobj.getXmlnsUri();
     }
 
     void setName ( QName name )
@@ -294,7 +296,7 @@ final class Cur
     boolean isAtEndOf ( Cur that )
     {
         assert isNormal() && that.isNormal();
-        assert _pos == 0 && that._pos == 0;
+        assert that._pos == 0;
 
         return _xobj == that._xobj && _pos == that._xobj.posEnd();
     }
@@ -736,7 +738,23 @@ final class Cur
 
     final String namespaceForPrefix ( String prefix )
     {
-        throw new RuntimeException( "Not implemented" );
+        assert isContainer();
+        
+        if (prefix == null)
+            prefix = "";
+        
+        if (prefix.equals( "xml" ))
+            return Locale._xml1998Uri;
+
+        if (prefix.equals( "xmlns" ))
+            return Locale._xmlnsUri;
+        
+        for ( Xobj c = _xobj ; c != null ; c = c._parent )
+            for ( Xobj a = _xobj._firstChild ; a != null && a.isAttr() ; a = a._nextSibling )
+                if (_xobj.isXmlns() && _xobj.getXmlnsPrefix().equals( prefix ))
+                    return _xobj.getXmlnsUri();
+
+        return null;
     }
 
     final String prefixForNamespace ( String ns )
@@ -1225,8 +1243,6 @@ final class Cur
         
         if (_state == EMBEDDED && x != _xobj)
         {
-            assert _curKind != PERM;
-            
             _xobj._embedded = listRemove( _xobj._embedded );
 
             _locale._unembedded = listInsert( _locale._unembedded );
@@ -1265,8 +1281,6 @@ final class Cur
 
         assert _xobj == null;
         assert _pos  == -1;
-
-        assert _curKind == TEMP;
 
         if (_obj instanceof Locale.Ref)
             ((Locale.Ref) _obj).clear();
@@ -1542,6 +1556,8 @@ final class Cur
         final boolean isElem      ( ) { return kind() == ELEM; }
         final boolean isContainer ( ) { return kindIsContainer( kind() ); }
         
+        boolean isNormalAttr ( ) { return isAttr() && !isXmlns(); }
+
         final int cchValue ( ) { return _cchValue; }
         final int cchAfter ( ) { return _cchAfter; }
         
@@ -1553,6 +1569,29 @@ final class Cur
         {
             assert isNormal( p );
             return p == 0 ? kind() : p == posEnd() ? - kind() : TEXT;
+        }
+
+        boolean isXmlns ( )
+        {
+            if (!isAttr())
+                return false;
+
+            String prefix = _name.getPrefix();
+
+            if (prefix.equals( "xmlns" ))
+                return true;
+
+            return prefix.length() == 0 && _name.getLocalPart().equals( "xmlns" );
+        }
+
+        String getXmlnsPrefix ( )
+        {
+            return _name.getPrefix().equals( "xmlns" ) ? _name.getLocalPart() : "";
+        }
+
+        String getXmlnsUri ( )
+        {
+            return getString( 1, _cchValue );
         }
 
         abstract Dom getDom ( );
