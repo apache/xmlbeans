@@ -57,15 +57,13 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.BindingContext;
-import org.apache.xmlbeans.MarshalContext;
 import org.apache.xmlbeans.Marshaller;
-import org.apache.xmlbeans.UnmarshalContext;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.stream.XMLStreamReader;
 import java.util.Collection;
 
 /**
@@ -87,73 +85,31 @@ final class BindingContextImpl
     }
 
 
-    public Unmarshaller createUnmarshaller()
-        throws XmlException
-    {
-        return new UnmarshallerImpl(bindingLoader, typeTable);
-    }
-
-    public UnmarshalContext createUnmarshallContext(Collection errors,
-                                                    XMLStreamReader reader)
+    public Unmarshaller createUnmarshaller(XmlOptions options)
         throws XmlException
 
     {
-        if (errors == null) {
-            throw new IllegalArgumentException("errors must not be null");
-        }
+        Collection errors = extractErrorHandler(options);
 
         final int prev = errors.size();
-        final UnmarshalContextImpl uc =
-            new UnmarshalContextImpl(reader, bindingLoader, typeTable, errors);
-        checkErrors(prev, errors, "error creating UnmarshalContext");
-        return uc;
-    }
-
-    public UnmarshalContext createUnmarshallContext(Collection errors)
-        throws XmlException
-
-    {
-        if (errors == null) {
-            throw new IllegalArgumentException("errors must not be null");
-        }
-
-        final int prev = errors.size();
-        final UnmarshalContextImpl unmarshalContext =
-            new UnmarshalContextImpl(bindingLoader, typeTable, errors);
+        final UnmarshallerImpl unmarshalContext =
+            new UnmarshallerImpl(bindingLoader, typeTable, errors);
         checkErrors(prev, errors, "error creating UnmarshalContext");
         return unmarshalContext;
     }
 
 
-    public Marshaller createMarshaller()
-
+    public Marshaller createMarshaller(XmlOptions options)
         throws XmlException
     {
-        return new MarshallerImpl(bindingLoader, typeTable);
-    }
-
-    public MarshalContext createMarshallContext(Collection errors,
-                                                NamespaceContext ns_context)
-        throws XmlException
-
-    {
-        if (errors == null) {
-            throw new IllegalArgumentException("errors must not be null");
-        }
+        Collection errors = extractErrorHandler(options);
 
         final int prev = errors.size();
-        final MarshalContextImpl mc = new MarshalContextImpl(ns_context,
-                                                             bindingLoader,
-                                                             typeTable, errors);
-        checkErrors(prev, errors, "error creating MarshalContext");
+        final MarshallerImpl mc = new MarshallerImpl(EmptyNamespaceContext.getInstance(),
+                                                     bindingLoader,
+                                                     typeTable, errors);
+        checkErrors(prev, errors, "error creating Marshaller");
         return mc;
-    }
-
-    public MarshalContext createMarshallContext(Collection errors)
-        throws XmlException
-    {
-        return createMarshallContext(errors,
-                                     EmptyNamespaceContext.getInstance());
     }
 
 
@@ -163,5 +119,14 @@ final class BindingContextImpl
         if (errors.size() <= prev_size) return;
         throw new XmlException(err_msg, null, errors);
     }
+
+
+    private static Collection extractErrorHandler(XmlOptions options)
+    {
+        Collection underlying = (Collection)options.get(XmlOptions.ERROR_LISTENER);
+        Collection errors = new XmlErrorWatcher(underlying);
+        return errors;
+    }
+
 
 }

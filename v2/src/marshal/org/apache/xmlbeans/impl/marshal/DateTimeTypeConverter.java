@@ -66,19 +66,19 @@ final class DateTimeTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         XmlCalendar val = context.getCalendarValue();
         return val;
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         return context.getAttributeCalendarValue();
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         Calendar c = (Calendar)value;
         return XsTypeConverter.printDateTime(c);

@@ -61,20 +61,20 @@ import org.apache.xmlbeans.impl.util.XsTypeConverter;
 final class BooleanTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         boolean b = context.getBooleanValue();
         return Boolean.valueOf(b);
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         boolean b = context.getAttributeBooleanValue();
         return Boolean.valueOf(b);
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         Boolean b = (Boolean)value;
         return XsTypeConverter.printBoolean(b.booleanValue());

@@ -59,29 +59,28 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
-import java.math.BigDecimal;
 
 final class QNameTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         QName val = context.getQNameValue();
         return val;
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         return context.getAttributeQNameValue();
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         QName val = (QName)value;
         return XsTypeConverter.printQName(val,
                                           context.getNamespaceContext(),
-                                          context.getErrors());
+                                          context.getErrorCollection());
     }
 }

@@ -62,11 +62,11 @@ abstract class XmlTypeVisitor
 {
     private final Object parentObject;
     private final RuntimeBindingProperty bindingProperty;
-    protected final MarshalContextImpl marshalContext;
+    protected final MarshallerImpl marshalContext;
 
     XmlTypeVisitor(Object parentObject,
                    RuntimeBindingProperty property,
-                   MarshalContextImpl context)
+                   MarshallerImpl context)
     {
         this.parentObject = parentObject;
         this.bindingProperty = property;

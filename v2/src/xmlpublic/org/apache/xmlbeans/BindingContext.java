@@ -57,10 +57,6 @@
 package org.apache.xmlbeans;
 
 
-import javax.xml.namespace.NamespaceContext;
-import javax.xml.stream.XMLStreamReader;
-import java.util.Collection;
-
 /**
  * A BindingContext contains the runtime information necessary to marshal
  * or unmarshal a set of types.
@@ -70,25 +66,10 @@ import java.util.Collection;
  */
 public interface BindingContext
 {
-    Unmarshaller createUnmarshaller()
+    Unmarshaller createUnmarshaller(XmlOptions options)
         throws XmlException;
 
-    UnmarshalContext createUnmarshallContext(Collection errors,
-                                             XMLStreamReader reader)
-        throws XmlException;
-
-    UnmarshalContext createUnmarshallContext(Collection errors)
-        throws XmlException;
-
-
-    Marshaller createMarshaller()
-        throws XmlException;
-
-    MarshalContext createMarshallContext(Collection errors,
-                                         NamespaceContext namespaceContext)
-        throws XmlException;
-
-    MarshalContext createMarshallContext(Collection errors)
+    Marshaller createMarshaller(XmlOptions options)
         throws XmlException;
 
 }

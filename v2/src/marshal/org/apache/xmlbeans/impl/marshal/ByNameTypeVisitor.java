@@ -78,7 +78,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
 
     ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
-                      MarshalContextImpl context)
+                      MarshallerImpl context)
     {
         super(obj, property, context);
         final BindingType pt = property.getType();
@@ -104,8 +104,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         do {
             boolean hit_end = advanceToNextItem();
             if (hit_end) return END;
-        }
-        while (!currentPropHasMore());
+        } while (!currentPropHasMore());
 
         assert propIdx >= 0;
 
@@ -160,7 +159,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         if (haveMultipleItem) {
             if (currMultipleItem != null) return true;
             //skip null items in a collection if this element is not nillable
-            return (getCurrentProperty().isNillable()); 
+            return (getCurrentProperty().isNillable());
         }
         if (currMultipleIterator != null) return false;  //an empty collection
 

@@ -59,8 +59,6 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
-import org.apache.xmlbeans.impl.common.XmlStreamUtils;
-import org.apache.xmlbeans.XmlError;
 
 final class ByNameUnmarshaller implements TypeUnmarshaller
 {
@@ -71,7 +69,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         this.type = new ByNameRuntimeBindingType(type);
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public Object unmarshal(UnmarshallerImpl context)
     {
         final Object inter = type.createIntermediary(context);
         deserializeAttributes(inter, context);
@@ -79,13 +77,13 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         return type.getFinalObjectFromIntermediary(inter, context);
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         throw new UnsupportedOperationException();
     }
 
     //TODO: cleanup this code.  We are doing extra work for assertion checking
-    private void deserializeContents(Object inter, UnmarshalContextImpl context)
+    private void deserializeContents(Object inter, UnmarshallerImpl context)
     {
         assert context.isStartElement();
         final String ourStartUri = context.getNamespaceURI();
@@ -117,7 +115,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
 
 
     private static void fillElementProp(RuntimeBindingProperty prop,
-                                        UnmarshalContextImpl context,
+                                        UnmarshallerImpl context,
                                         Object inter)
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
@@ -128,15 +126,14 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
             prop.fill(inter, prop_val);
         }
         catch (InvalidLexicalValueException ilve) {
-            //error messages should have been added to the context by this
-            //point, so we'll just skip calling any setters and keep on going
-            assert !context.getErrors().isEmpty();
+            //unlike attributes, the error has been added to the context
+            //already via BaseSimpleTypeConveter...
         }
     }
 
 
     private static void fillAttributeProp(RuntimeBindingProperty prop,
-                                          UnmarshalContextImpl context,
+                                          UnmarshallerImpl context,
                                           Object inter)
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
@@ -147,15 +144,14 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
             prop.fill(inter, prop_val);
         }
         catch (InvalidLexicalValueException ilve) {
-            // (cezar) Todo: for Scott to take a look
-            //error messages should have been added to the context by this
-            //point, so we'll just skip calling any setters and keep on going
-            //context.addError(ilve.getMessage());
-            //assert !context.getErrors().isEmpty();
+            //TODO: review error messages
+            String msg = "invalid value for " + prop.getName() +
+                ": " + ilve.getMessage();
+            context.addError(msg, ilve.getLocation());
         }
     }
 
-    private void deserializeAttributes(Object inter, UnmarshalContextImpl context)
+    private void deserializeAttributes(Object inter, UnmarshallerImpl context)
     {
         while (context.hasMoreAttributes()) {
             RuntimeBindingProperty prop = findMatchingAttributeProperty(context);
@@ -168,7 +164,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         }
     }
 
-    private RuntimeBindingProperty findMatchingAttributeProperty(UnmarshalContextImpl context)
+    private RuntimeBindingProperty findMatchingAttributeProperty(UnmarshallerImpl context)
     {
         String uri = context.getCurrentAttributeNamespaceURI();
         String lname = context.getCurrentAttributeLocalName();
@@ -176,7 +172,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         return type.getMatchingAttributeProperty(uri, lname);
     }
 
-    private RuntimeBindingProperty findMatchingElementProperty(UnmarshalContextImpl context)
+    private RuntimeBindingProperty findMatchingElementProperty(UnmarshallerImpl context)
     {
         String uri = context.getNamespaceURI();
         String lname = context.getLocalName();

@@ -4,7 +4,7 @@
     xmlns:My="java:com.mytest"
     xmlns:n1="java:com.mytest" >
 
-    <My:Myelt ignore="someval" My:Attrib="4444.123456789f">
+    <My:Myelt ignore="someval" My:Attrib="4444.123456789">
         <My:MyFloat>111111165.34</My:MyFloat>
         <My:MyClass xsi:type="My:MySubClass">
             <My:Myatt xsi:type="xsd:token">inner-str</My:Myatt>

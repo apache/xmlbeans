@@ -63,20 +63,20 @@ import java.io.InputStream;
 final class HexBinaryTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         final InputStream val = context.getHexBinaryValue();
         return MarshalStreamUtils.inputStreamToBytes(val);
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         final InputStream val = context.getAttributeHexBinaryValue();
         return MarshalStreamUtils.inputStreamToBytes(val);
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         byte[] val = (byte[])value;
         return XsTypeConverter.printHexBinary(val);

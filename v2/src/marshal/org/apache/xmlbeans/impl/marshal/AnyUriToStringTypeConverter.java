@@ -63,18 +63,18 @@ final class AnyUriToStringTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         return context.getAnyUriValue();
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         return context.getAttributeAnyUriValue();
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         String val = (String)value;
         return XsTypeConverter.printString(val);

@@ -60,10 +60,10 @@ import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
 
@@ -136,7 +136,7 @@ final class ByNameRuntimeBindingType
         }
     }
 
-    Object createIntermediary(UnmarshalContextImpl context)
+    Object createIntermediary(UnmarshallerImpl context)
     {
         if (hasMulti) {
             return new UResultHolder(this);
@@ -146,7 +146,7 @@ final class ByNameRuntimeBindingType
     }
 
     Object getFinalObjectFromIntermediary(Object retval,
-                                          UnmarshalContextImpl context)
+                                          UnmarshallerImpl context)
     {
         if (hasMulti) {
             UResultHolder rh = (UResultHolder)retval;
@@ -214,11 +214,12 @@ final class ByNameRuntimeBindingType
         return isSubType;
     }
 
-    public QName getSchemaTypeName() {
+    public QName getSchemaTypeName()
+    {
         return byNameBean.getName().getXmlName().getQName();
     }
 
-    
+
     private static final class Property implements RuntimeBindingProperty
     {
         private final int propertyIndex;
@@ -349,7 +350,7 @@ final class ByNameRuntimeBindingType
         }
 
 
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContextImpl context)
+        public TypeUnmarshaller getTypeUnmarshaller(UnmarshallerImpl context)
         {
             final QName xsi_type = context.getXsiType();
 
@@ -417,14 +418,14 @@ final class ByNameRuntimeBindingType
         }
 
         //non simple type props can throw some runtime exception.
-        public CharSequence getLexical(Object value, MarshalContextImpl context)
+        public CharSequence getLexical(Object value, MarshallerImpl context)
         {
             assert value != null;
             assert marshaller != null : "no marhsaller for " + bindingProperty;
             return marshaller.print(value, context);
         }
 
-        public Object getValue(Object parentObject, MarshalContextImpl context)
+        public Object getValue(Object parentObject, MarshallerImpl context)
         {
             assert parentObject != null;
             assert beanClass.isAssignableFrom(parentObject.getClass()) :
@@ -444,7 +445,7 @@ final class ByNameRuntimeBindingType
         }
 
         //TODO: check isSet methods
-        public boolean isSet(Object parentObject, MarshalContextImpl context)
+        public boolean isSet(Object parentObject, MarshallerImpl context)
         {
             if (bindingProperty.isNillable())
                 return true;

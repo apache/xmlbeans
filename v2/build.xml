@@ -204,7 +204,6 @@
     <pathelement location="external/lib/junit.jar"/>
     <pathelement location="build/ar/xbean.jar"/>
     <pathelement location="build/lib/jsr173_api.jar"/>
-    <pathelement location="build/lib/jsr173_ri.jar"/>
     <pathelement location="build/private/lib/easypo.jar"/>
     <pathelement location="build/private/lib/numerals.jar"/>
     <pathelement location="build/private/lib/schemas.jar"/>
@@ -1133,7 +1132,7 @@
             </classpath>
         </taskdef>
     </target>
-
     -->
+
 
 </project>

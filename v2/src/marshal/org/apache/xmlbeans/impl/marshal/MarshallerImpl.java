@@ -56,7 +56,6 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.MarshalContext;
 import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlRuntimeException;
@@ -73,33 +72,42 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.ArrayList;
+import java.util.Collection;
 
-/**
- * Entry point for marshalling java objects to xml.
- */
 final class MarshallerImpl
     implements Marshaller
 {
-    private final BindingLoader bindingLoader;
+    private final Collection errors;
+    private final BindingLoader loader;
     private final RuntimeBindingTypeTable typeTable;
+    private final ScopedNamespaceContext namespaceContext;
+    private final RuntimeTypeFactory runtimeTypeFactory =
+        new RuntimeTypeFactory();
 
+    private int prefixCnt = 0;
 
-    /*package*/
-    MarshallerImpl(BindingLoader bindingLoader,
-                   RuntimeBindingTypeTable typeTable)
+    private static final String NSPREFIX = "n";
+
+    MarshallerImpl(NamespaceContext root_nsctx,
+                   BindingLoader loader,
+                   RuntimeBindingTypeTable typeTable,
+                   Collection errors)
     {
-        this.bindingLoader = bindingLoader;
+        this.namespaceContext = new ScopedNamespaceContext(root_nsctx);
+        this.loader = loader;
         this.typeTable = typeTable;
+        this.errors = errors;
+
+        namespaceContext.openScope(); //TODO: verify this
     }
 
     public XMLStreamReader marshall(Object obj,
-                                    NamespaceContext nscontext,
-                                    MarshalContext context)
+                                    NamespaceContext nscontext)
         throws XmlException
     {
 
         final JavaTypeName jname = JavaTypeName.forString(obj.getClass().getName());
-        BindingTypeName root_elem_btype = bindingLoader.lookupElementFor(jname);
+        BindingTypeName root_elem_btype = loader.lookupElementFor(jname);
         if (root_elem_btype == null) {
             final String msg = "failed to find root " +
                 "element corresponding to " + jname;
@@ -111,22 +119,22 @@ final class MarshallerImpl
         final QName elem_qn = elem.getQName();
 
         //get type for this element/object pair
-        final BindingTypeName type_name = bindingLoader.lookupTypeFor(jname);
-        final BindingType btype = bindingLoader.getBindingType(type_name);
+        final BindingTypeName type_name = loader.lookupTypeFor(jname);
+        final BindingType btype = loader.getBindingType(type_name);
 
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(btype, elem_qn);
 
         final ArrayList errors = new ArrayList();
-        MarshalContextImpl ctx = new MarshalContextImpl(nscontext, bindingLoader,
-                                                        typeTable, errors);
+        MarshallerImpl ctx = new MarshallerImpl(nscontext, loader,
+                                                typeTable, errors);
 
         return new MarshalResult(prop, obj, ctx);
     }
 
-    public void marshall(XMLStreamWriter writer, Object obj, MarshalContext context)
+    public void marshall(XMLStreamWriter writer, Object obj)
         throws XmlException
     {
-        XMLStreamReader rdr = marshall(obj, writer.getNamespaceContext(), null);
+        XMLStreamReader rdr = marshall(obj, writer.getNamespaceContext());
         try {
             XmlReaderToWriter.writeAll(rdr, writer);
         }
@@ -135,33 +143,28 @@ final class MarshallerImpl
         }
     }
 
-    public XMLStreamReader marshallType(Object obj,
-                                        QName elementName,
-                                        QName schemaType,
-                                        String javaType,
-                                        MarshalContext context)
+    public XMLStreamReader marshalType(Object obj,
+                                       QName elementName,
+                                       QName schemaType,
+                                       String javaType,
+                                       NamespaceContext namespaceContext)
         throws XmlException
     {
-        MarshalContextImpl our_context = (MarshalContextImpl)context;
-
-        //TODO: REVIEW: this seems odd, should we move this method to the context?
-        assert bindingLoader.equals(our_context.getLoader());
-        assert typeTable.equals(our_context.getTypeTable());
-
         BindingType type = determineBindingType(obj, schemaType, javaType);
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
-        return new MarshalResult(prop, obj, our_context);
+        return new MarshalResult(prop, obj, this);
     }
 
-    public void marshallType(XMLStreamWriter writer,
-                             Object obj,
-                             QName elementName,
-                             QName schemaType,
-                             String javaType,
-                             MarshalContext context)
+    public void marshalType(XMLStreamWriter writer,
+                            Object obj,
+                            QName elementName,
+                            QName schemaType,
+                            String javaType)
         throws XmlException
     {
-        XMLStreamReader rdr = marshallType(obj, elementName, schemaType, javaType, context);
+        XMLStreamReader rdr = marshalType(obj, elementName, schemaType,
+                                          javaType,
+                                          writer.getNamespaceContext());
         try {
             XmlReaderToWriter.writeAll(rdr, writer);
         }
@@ -176,7 +179,7 @@ final class MarshallerImpl
     {
         //TODO: consult object when needed for polymorphism
         BindingType binding_type = lookupBindingType(javaType, schemaType,
-                                                     bindingLoader);
+                                                     loader);
 
         return binding_type;
     }
@@ -199,6 +202,76 @@ final class MarshallerImpl
             throw new XmlRuntimeException(msg);
         }
         return binding_type;
+    }
+
+
+    Collection getErrorCollection()
+    {
+        return errors;
+    }
+
+    BindingLoader getLoader()
+    {
+        return loader;
+    }
+
+    RuntimeBindingTypeTable getTypeTable()
+    {
+        return typeTable;
+    }
+
+    ScopedNamespaceContext getNamespaceContext()
+    {
+        return namespaceContext;
+    }
+
+    RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
+    {
+        String expectedJavaClass = type.getName().getJavaName().toString();
+        String actualJavaClass = instance.getClass().getName();
+        if (!actualJavaClass.equals(expectedJavaClass)) {
+            //redefine type
+            JavaTypeName tn = JavaTypeName.forString(actualJavaClass);
+            BindingTypeName bindingTypeName = loader.lookupTypeFor(tn);
+            if (bindingTypeName != null) {
+                final BindingType bindingType =
+                    loader.getBindingType(bindingTypeName);
+                if (bindingType != null) {
+                    type = bindingType;
+                } else {
+                    //fallthrough to use the expected type...
+                    //TODO: consider adding a warning to the errors?
+                }
+            } else {
+                //fallthrough to use the expected type...
+                //TODO: consider adding a warning to the errors?
+            }
+        }
+        return runtimeTypeFactory.createRuntimeType(type, typeTable, loader);
+    }
+
+    String ensurePrefix(String uri)
+    {
+        String prefix = namespaceContext.getPrefix(uri);
+        if (prefix == null) {
+            prefix = bindNextPrefix(uri);
+        }
+        assert prefix != null;
+        return prefix;
+    }
+
+    private String bindNextPrefix(final String uri)
+    {
+        assert uri != null;
+        String testuri;
+        String prefix;
+        do {
+            prefix = NSPREFIX + (++prefixCnt);
+            testuri = namespaceContext.getNamespaceURI(prefix);
+        } while (testuri != null);
+        assert prefix != null;
+        namespaceContext.bindNamespace(prefix, uri);
+        return prefix;
     }
 
 }

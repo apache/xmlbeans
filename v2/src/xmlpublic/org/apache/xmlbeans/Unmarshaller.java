@@ -61,9 +61,13 @@ import javax.xml.stream.XMLStreamReader;
 
 /**
  * An Unmarshaller is used to unmarshal xml documents into Java objects.
+ * The object is not thread safe and should not be shared
+ * amonst threads.  It can however be shared across different invocations of
+ * Unmarshaller.unmarshalType() for a given document.
  */
 public interface Unmarshaller
 {
+
     /**
      * unmarshall an entire xml document.
      *
@@ -76,11 +80,10 @@ public interface Unmarshaller
      * the end element corresponding to the start element from the precondition
      *
      *
-     * @param context
      * @return
      * @throws org.apache.xmlbeans.XmlException
      */
-    Object unmarshal(UnmarshalContext context)
+    Object unmarshal(XMLStreamReader reader)
         throws XmlException;
 
     /**
@@ -100,12 +103,11 @@ public interface Unmarshaller
      *
      * @param schemaType
      * @param javaType
-     * @param context
      * @return
      * @throws org.apache.xmlbeans.XmlException
      */
-    Object unmarshalType(QName schemaType,
-                         String javaType,
-                         UnmarshalContext context)
+    Object unmarshalType(XMLStreamReader reader,
+                         QName schemaType,
+                         String javaType)
         throws XmlException;
 }

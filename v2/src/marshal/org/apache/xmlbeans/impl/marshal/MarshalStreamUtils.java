@@ -59,8 +59,8 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;

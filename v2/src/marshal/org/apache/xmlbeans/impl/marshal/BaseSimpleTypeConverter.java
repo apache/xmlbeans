@@ -72,13 +72,13 @@ abstract class BaseSimpleTypeConverter
     {
     }
 
-    public final Object unmarshal(UnmarshalContextImpl context)
+    public final Object unmarshal(UnmarshallerImpl context)
     {
         try {
             return getObject(context);
         }
-        catch(InvalidLexicalValueException ilve) {
-            context.addError(ilve.getMessage());
+        catch (InvalidLexicalValueException ilve) {
+            context.addError(ilve.getMessage(), ilve.getLocation());
             throw ilve;
         }
         finally {
@@ -87,6 +87,6 @@ abstract class BaseSimpleTypeConverter
         }
     }
 
-    protected abstract Object getObject(UnmarshalContextImpl context);
+    protected abstract Object getObject(UnmarshallerImpl context);
 
 }
