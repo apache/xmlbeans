@@ -15,77 +15,52 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.JavaInstanceFactory;
+
 
 
 /**
  * A property that addresses an XML element or attribute by name
  * rather than by position.
  */
-public class ParentInstanceFactory extends JavaInstanceFactory
+public class ParentInstanceFactory
+  extends JavaInstanceFactory
 {
 
-    // ========================================================================
-    // Variables
-    private MethodName createObjectMethod;
+  // ========================================================================
+  // Variables
+  private MethodName createObjectMethod;
 
-    // ========================================================================
-    // Constructors
-
-    public ParentInstanceFactory()
-    {
-        super();
-    }
-
-    public ParentInstanceFactory(MethodName factoryMethod)
-    {
-        super();
-        setCreateObjectMethod(factoryMethod);
-    }
+  private static final long serialVersionUID = 1L;
 
 
-    public ParentInstanceFactory(org.apache.xml.xmlbeans.bindingConfig.JavaInstanceFactory node)
-    {
-        super(node);
-        org.apache.xml.xmlbeans.bindingConfig.ParentInstanceFactory pifNode =
-            (org.apache.xml.xmlbeans.bindingConfig.ParentInstanceFactory)node;
-        this.createObjectMethod =
-            MethodName.create(pifNode.getCreateObjectMethod());
-    }
 
-    // ========================================================================
-    // Public methods
-    public MethodName getCreateObjectMethod()
-    {
-        return createObjectMethod;
-    }
+  // ========================================================================
+  // Constructors
 
-    public void setCreateObjectMethod(MethodName createObjectMethod)
-    {
-        this.createObjectMethod = createObjectMethod;
-    }
+  public ParentInstanceFactory()
+  {
+    super();
+  }
 
-    // ========================================================================
-    // BindingType implementation
+  public ParentInstanceFactory(MethodName factoryMethod)
+  {
+    super();
+    setCreateObjectMethod(factoryMethod);
+  }
 
-    /**
-     * This function copies an instance back out to the relevant part of the XML file.
-     *
-     * Subclasses should override and call super.write first.
-     */
-    protected org.apache.xml.xmlbeans.bindingConfig.JavaInstanceFactory write(org.apache.xml.xmlbeans.bindingConfig.JavaInstanceFactory node)
-    {
-        node = super.write(node);
+  // ========================================================================
+  // Public methods
+  public MethodName getCreateObjectMethod()
+  {
+    return createObjectMethod;
+  }
 
-        org.apache.xml.xmlbeans.bindingConfig.ParentInstanceFactory pifNode =
-            (org.apache.xml.xmlbeans.bindingConfig.ParentInstanceFactory)node;
+  public void setCreateObjectMethod(MethodName createObjectMethod)
+  {
+    this.createObjectMethod = createObjectMethod;
+  }
 
-        if (createObjectMethod != null) {
-            createObjectMethod.write(pifNode.addNewCreateObjectMethod());
-        }
-
-        return pifNode;
-    }
-
+  // ========================================================================
+  // BindingType implementation
 
 }

@@ -23,6 +23,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingFileUtils;
 import org.apache.xmlbeans.impl.binding.tylar.DefaultTylarLoader;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.binding.tylar.TylarLoader;
@@ -40,7 +41,7 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
 {
     public BindingContext createBindingContext(ClassLoader cl) throws IOException, XmlException
     {
-        if (cl == null) throw new IllegalArgumentException("null uris");
+        if (cl == null) throw new IllegalArgumentException("null classloader");
         //FIXME loader class needs to be pluggable
         TylarLoader loader = DefaultTylarLoader.getInstance();
         if (loader == null) throw new IllegalStateException("null loader");
@@ -99,7 +100,7 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
     {
         BindingConfigDocument doc =
             BindingConfigDocument.Factory.parse(bindingConfig);
-        BindingFile bf = BindingFile.forDoc(doc);
+        BindingFile bf = BindingFileUtils.forDoc(doc);
         SchemaTypeLoaderProvider provider =
             UnusedSchemaTypeLoaderProvider.getInstance();
         return createBindingContext(bf, provider);

@@ -15,17 +15,13 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
-
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Iterator;
-import java.util.IdentityHashMap;
-import java.util.Collections;
-import java.util.Collection;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.IdentityHashMap;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * A binding loader which delegates to a list of other loaders when

@@ -15,9 +15,8 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
 /**
  * A binding of a simple user-defined type that operates by
@@ -26,130 +25,86 @@ import org.apache.xmlbeans.XmlException;
 public class SimpleBindingType extends BindingType
 {
 
-    // ========================================================================
-    // Variables
+  // ========================================================================
+  // Variables
 
-    private XmlTypeName asIfXmlType;
-    private int whitespace = XmlWhitespace.WS_UNSPECIFIED;
+  private XmlTypeName asIfXmlType;
+  private int whitespace = XmlWhitespace.WS_UNSPECIFIED;
 
-    // ========================================================================
-    // Constructors
+  private static final long serialVersionUID = 1L;
 
-    public SimpleBindingType(BindingTypeName btName)
-    {
-        super(btName);
+
+  // ========================================================================
+  // Constructors
+
+  public SimpleBindingType()
+  {
+  }
+
+  public SimpleBindingType(BindingTypeName btName)
+  {
+    super(btName);
+  }
+
+  public void accept(BindingTypeVisitor visitor) throws XmlException
+  {
+    visitor.visit(this);
+  }
+
+  // ========================================================================
+  // Public methods
+
+  // typically the "as if" type is the closest base builtin type.
+  public XmlTypeName getAsIfXmlType()
+  {
+    return asIfXmlType;
+  }
+
+  public void setAsIfXmlType(XmlTypeName asIfXmlType)
+  {
+    this.asIfXmlType = asIfXmlType;
+  }
+
+  // question: do we want an "as if Java type" as well?
+
+  public BindingTypeName getAsIfBindingTypeName()
+  {
+    if (getAsIfXmlType() == null) {
+      throw new IllegalStateException("SimpleBindingType must have" +
+                                      " an asIfXmlType " + this);
     }
+    return BindingTypeName.forPair(getName().getJavaName(), getAsIfXmlType());
+  }
 
-    public SimpleBindingType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        super(node);
-        org.apache.xml.xmlbeans.bindingConfig.SimpleType stNode = (org.apache.xml.xmlbeans.bindingConfig.SimpleType)node;
-        org.apache.xml.xmlbeans.bindingConfig.AsXmlType as_xml = stNode.getAsXml();
-        asIfXmlType = XmlTypeName.forString(as_xml.getStringValue());
 
-        if (as_xml.isSetWhitespace()) {
-            org.apache.xml.xmlbeans.bindingConfig.AsXmlType.Whitespace.Enum ws =
-                as_xml.getWhitespace();
-            if (ws.equals(org.apache.xml.xmlbeans.bindingConfig.AsXmlType.Whitespace.PRESERVE)) {
-                whitespace = XmlWhitespace.WS_PRESERVE;
-            } else if (ws.equals(org.apache.xml.xmlbeans.bindingConfig.AsXmlType.Whitespace.REPLACE)) {
-                whitespace = XmlWhitespace.WS_REPLACE;
-            } else if (ws.equals(org.apache.xml.xmlbeans.bindingConfig.AsXmlType.Whitespace.COLLAPSE)) {
-                whitespace = XmlWhitespace.WS_COLLAPSE;
-            } else {
-                throw new AssertionError("invalid whitespace: " + ws);
-            }
+  /**
+   * Gets whitespace facet -- use the constants from
+   * org.apache.xmlbeans.impl.common.XmlWhitespace
+   *
+   * @return whitespace constant from XmlWhitespace
+   */
+  public int getWhitespace()
+  {
+    return whitespace;
+  }
 
-        }
+  /**
+   * Sets whitespace facet -- use the constants from
+   * org.apache.xmlbeans.impl.common.XmlWhitespace
+   *
+   * @param ws  whitespace constant from XmlWhitespace
+   */
+  public void setWhitespace(int ws)
+  {
+    switch (ws) {
+      case XmlWhitespace.WS_UNSPECIFIED:
+      case XmlWhitespace.WS_PRESERVE:
+      case XmlWhitespace.WS_REPLACE:
+      case XmlWhitespace.WS_COLLAPSE:
+        whitespace = ws;
+        break;
+      default:
+        throw new IllegalArgumentException("invalid whitespace: " + ws);
     }
-
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        org.apache.xml.xmlbeans.bindingConfig.SimpleType stNode = (org.apache.xml.xmlbeans.bindingConfig.SimpleType)super.write(node);
-
-        org.apache.xml.xmlbeans.bindingConfig.AsXmlType as_if = stNode.addNewAsXml();
-        as_if.setStringValue(asIfXmlType.toString());
-
-        switch (whitespace) {
-            case XmlWhitespace.WS_UNSPECIFIED:
-                break;
-            case XmlWhitespace.WS_PRESERVE:
-                as_if.setWhitespace(org.apache.xml.xmlbeans.bindingConfig.AsXmlType.Whitespace.PRESERVE);
-                break;
-            case XmlWhitespace.WS_REPLACE:
-                as_if.setWhitespace(org.apache.xml.xmlbeans.bindingConfig.AsXmlType.Whitespace.REPLACE);
-                break;
-            case XmlWhitespace.WS_COLLAPSE:
-                as_if.setWhitespace(org.apache.xml.xmlbeans.bindingConfig.AsXmlType.Whitespace.COLLAPSE);
-                break;
-            default:
-                throw new AssertionError("invalid whitespace: " + whitespace);
-        }
-
-
-        stNode.setAsXml(as_if);
-        return stNode;
-    }
-
-    public void accept(BindingTypeVisitor visitor) throws XmlException
-    {
-        visitor.visit(this);
-    }
-
-    // ========================================================================
-    // Public methods
-
-    // typically the "as if" type is the closest base builtin type.
-    public XmlTypeName getAsIfXmlType()
-    {
-        return asIfXmlType;
-    }
-
-    public void setAsIfXmlType(XmlTypeName asIfXmlType)
-    {
-        this.asIfXmlType = asIfXmlType;
-    }
-
-    // question: do we want an "as if Java type" as well?
-
-    public BindingTypeName getAsIfBindingTypeName()
-    {
-        if (asIfXmlType == null) {
-            throw new IllegalStateException("SimpleBindingType must have" +
-                                            " an asIfXmlType " + this);
-        }
-        return BindingTypeName.forPair(getName().getJavaName(), asIfXmlType);
-    }
-
-
-    /**
-     * Gets whitespace facet -- use the constants from
-     * org.apache.xmlbeans.impl.common.XmlWhitespace
-     *
-     * @return whitespace constant from XmlWhitespace
-     */
-    public int getWhitespace()
-    {
-        return whitespace;
-    }
-
-    /**
-     * Sets whitespace facet -- use the constants from
-     * org.apache.xmlbeans.impl.common.XmlWhitespace
-     *
-     * @param ws  whitespace constant from XmlWhitespace
-     */
-    public void setWhitespace(int ws)
-    {
-        switch (ws) {
-            case XmlWhitespace.WS_UNSPECIFIED:
-            case XmlWhitespace.WS_PRESERVE:
-            case XmlWhitespace.WS_REPLACE:
-            case XmlWhitespace.WS_COLLAPSE:
-                whitespace = ws;
-                break;
-            default:
-                throw new IllegalArgumentException("invalid whitespace: " + ws);
-        }
-    }
+  }
 }

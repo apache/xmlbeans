@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.binding.tylar;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.binding.bts.BindingFileUtils;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
@@ -99,7 +100,7 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
   // TylarWriter implementation
 
   public void writeBindingFile(BindingFile bf) throws IOException {
-    bf.write().save(mOut,mOptions);
+    BindingFileUtils.write(bf).save(mOut,mOptions);
   }
 
   public void writeSchema(SchemaDocument xsd, String fp) throws IOException {

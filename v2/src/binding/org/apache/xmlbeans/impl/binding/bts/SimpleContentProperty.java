@@ -15,26 +15,23 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
-
-import javax.xml.namespace.QName;
 
 /**
  * A property that represents the simple content of a complex type
  * with simple content.
  */
-public class SimpleContentProperty extends BindingProperty
+public class SimpleContentProperty
+  extends BindingProperty
 {
   // ========================================================================
   // Constructors
+
+  private static final long serialVersionUID = 1L;
+
 
   public SimpleContentProperty()
   {
     super();
   }
 
-  public SimpleContentProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
-  {
-    super(node);
-  }
 }

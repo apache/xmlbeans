@@ -20,7 +20,8 @@ import org.apache.xmlbeans.XmlException;
 /**
  * BindingType for root elements.
  */
-public class SimpleDocumentBinding extends BindingType {
+public class SimpleDocumentBinding extends BindingType
+{
 
   // ========================================================================
   // Variables
@@ -30,47 +31,33 @@ public class SimpleDocumentBinding extends BindingType {
   // ========================================================================
   // Constructors
 
-  public SimpleDocumentBinding(BindingTypeName btname) {
+  public SimpleDocumentBinding()
+  {
+  }
+
+  public SimpleDocumentBinding(BindingTypeName btname)
+  {
     super(btname);
-  }
-
-  public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding node) {
-    super(node);
-    typeOfElement = XmlTypeName.forString(node.getTypeOfElement());
-  }
-
-  public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
-    this((org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) node);
   }
 
   // ========================================================================
   // Public methods
 
-  public XmlTypeName getTypeOfElement() {
+  public XmlTypeName getTypeOfElement()
+  {
     return typeOfElement;
   }
 
-  public void setTypeOfElement(XmlTypeName typeOfElement) {
+  public void setTypeOfElement(XmlTypeName typeOfElement)
+  {
     this.typeOfElement = typeOfElement;
   }
 
   // ========================================================================
   // BindingType implementation
 
-  /**
-   * This function copies an instance back out to the relevant part of the XML file.
-   *
-   * Subclasses should override and call super.write first.
-   */
-  protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
-    org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding sdbNode =
-            (org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) super.write(node);
-    sdbNode.setTypeOfElement(typeOfElement.toString());
-    return sdbNode;
+  public void accept(BindingTypeVisitor visitor) throws XmlException
+  {
+    visitor.visit(this);
   }
-
-    public void accept(BindingTypeVisitor visitor) throws XmlException
-    {
-        visitor.visit(this);
-    }
 }

@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.binding.tylar;
 
-import java.io.File;
 
 /**
  * These constants describe the physical structure of the tylar archive.
@@ -33,6 +32,7 @@ public interface TylarConstants {
 
   public static final String SRC_ROOT     = "META-INF"+SEP+"src";
   public static final String BINDING_FILE = "META-INF"+SEP+"binding-file.xml";
+  public static final String BINDING_SER  = "META-INF"+SEP+"binding-file.ser";
   public static final String SCHEMA_DIR   = "META-INF"+SEP+"schemas";
 
   public static final String STS_PACKAGE  = "schema.system";

@@ -17,8 +17,8 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.jam.JMethod;
 import org.apache.xmlbeans.impl.jam.JParameter;
-import org.apache.xml.xmlbeans.bindingConfig.JavaMethodName;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -36,13 +36,21 @@ import java.util.Arrays;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class MethodName {
+public class MethodName
+  implements Serializable
+{
 
   // ========================================================================
   // Variables
 
   private String mMethodName;
+
+
   private JavaTypeName[] mParamTypes;
+
+  private static final long serialVersionUID = 1L;
+
+
 
   // ========================================================================
   // Factory methods
@@ -50,7 +58,8 @@ public class MethodName {
   /**
    * Creates a MethodName which names the given JMethod.
    */
-  public static MethodName create(JMethod m) {
+  public static MethodName create(JMethod m)
+  {
     JParameter[] params = m.getParameters();
     if (params == null || params.length == 0) {
       return new MethodName(m.getSimpleName());
@@ -67,7 +76,8 @@ public class MethodName {
    * Creates a MethodName for a method with the given name and no parameters
    * (e.g., a getter).
    */
-  public static MethodName create(String methodName) {
+  public static MethodName create(String methodName)
+  {
     return new MethodName(methodName);
   }
 
@@ -75,7 +85,8 @@ public class MethodName {
    * Creates a MethodName for a method with the given name and a single
    * parameter of the given type (e.g., a setter).
    */
-  public static MethodName create(String methodName, JavaTypeName paramType) {
+  public static MethodName create(String methodName, JavaTypeName paramType)
+  {
     return create(methodName, new JavaTypeName[]{paramType});
   }
 
@@ -83,7 +94,8 @@ public class MethodName {
    * Creates a MethodName for a method with the given name and a set
    * of parameters of the given types.
    */
-  public static MethodName create(String methodName, JavaTypeName[] paramTypes) {
+  public static MethodName create(String methodName, JavaTypeName[] paramTypes)
+  {
     if (paramTypes == null || paramTypes.length == 0) {
       return new MethodName(methodName);
     } else {
@@ -94,15 +106,9 @@ public class MethodName {
   /**
    * Creates a MethodName from the given XmlObject.
    */
-  /*package*/
-  static MethodName create(JavaMethodName jmn) {
-    if (jmn == null) return null;
-    
-    return create(jmn.getMethodName(),
-                  namesForStrings(jmn.getParamTypeArray()));
-  }
 
-  private static JavaTypeName[] namesForStrings(String[] names) {
+  static JavaTypeName[] namesForStrings(String[] names)
+  {
     JavaTypeName[] out = new JavaTypeName[names.length];
     for (int i = 0; i < out.length; i++) out[i] = JavaTypeName.forString(names[i]);
     return out;
@@ -112,12 +118,14 @@ public class MethodName {
   // ========================================================================
   // Constructors
 
-  private MethodName(String methodName, JavaTypeName[] types) {
+  private MethodName(String methodName, JavaTypeName[] types)
+  {
     mMethodName = methodName;
     mParamTypes = types;
   }
 
-  private MethodName(String methodName) {
+  private MethodName(String methodName)
+  {
     mMethodName = methodName;
     mParamTypes = new JavaTypeName[0];
   }
@@ -125,8 +133,14 @@ public class MethodName {
   // ========================================================================
   // Public methods
 
-  public String getSimpleName() {
+  public String getSimpleName()
+  {
     return mMethodName;
+  }
+
+  public JavaTypeName[] getParamTypes()
+  {
+    return mParamTypes;
   }
 
   /**
@@ -142,7 +156,8 @@ public class MethodName {
    * @throws IllegalArgumentException if containingClass is null.
    */
   public Method getMethodOn(Class containingClass)
-          throws ClassNotFoundException, NoSuchMethodException {
+    throws ClassNotFoundException, NoSuchMethodException
+  {
     if (containingClass == null) {
       throw new IllegalArgumentException("null class");
     }
@@ -159,19 +174,21 @@ public class MethodName {
   // ========================================================================
   // Object implementation
 
-  public boolean equals(Object o) {
+  public boolean equals(Object o)
+  {
     if (this == o) return true;
     if (!(o instanceof MethodName)) return false;
     final MethodName methodName = (MethodName) o;
     if (mMethodName != null ? !mMethodName.equals(methodName.mMethodName) :
-            methodName.mMethodName != null)
+      methodName.mMethodName != null)
       return false;
     if (!Arrays.equals(mParamTypes, methodName.mParamTypes)) return false;
 
     return true;
   }
 
-  public int hashCode() {
+  public int hashCode()
+  {
     return (mMethodName != null ? mMethodName.hashCode() : 0);
   }
 
@@ -182,15 +199,6 @@ public class MethodName {
   /**
    * Populates the given xmlobject with our contents.
    */
-  /*package*/
-  void write(JavaMethodName name) {
-    name.setMethodName(mMethodName);
-    if (mParamTypes != null && mParamTypes.length > 0) {
-      String[] types = new String[mParamTypes.length];
-      for (int i = 0; i < types.length; i++) types[i] = mParamTypes[i].toString();
-      name.setParamTypeArray(types);
-    }
-  }
 
   /* should make this a test
    public static void main(String[] args) throws Exception {

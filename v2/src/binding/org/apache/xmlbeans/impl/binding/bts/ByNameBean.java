@@ -15,25 +15,23 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
-import java.util.Map;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Collections;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * A by-name binding is one that connects XML and Java based on the
  * QNames of XML elements and attributes, rather than by sequencing
  * or particle trees.
  */
-public class ByNameBean extends BindingType {
+public class ByNameBean extends BindingType
+{
 
   // ========================================================================
   // Variables
@@ -47,77 +45,67 @@ public class ByNameBean extends BindingType {
   // ========================================================================
   // Constructors
 
-  public ByNameBean(BindingTypeName btName) {
-    super(btName);
+  public ByNameBean()
+  {
   }
 
-  public ByNameBean(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
-    super(node);
-
-    org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
-            (org.apache.xml.xmlbeans.bindingConfig.ByNameBean) node; 
-
-    org.apache.xml.xmlbeans.bindingConfig.GenericXmlProperty gxp =
-            bnNode.getAnyProperty();
-    if (gxp != null)
-      setAnyElementProperty((GenericXmlProperty) BindingProperty.forNode(gxp));
-
-    gxp = bnNode.getAnyAttributeProperty();
-    if (gxp != null)
-      setAnyAttributeProperty((GenericXmlProperty) BindingProperty.forNode(gxp));
-
-    org.apache.xml.xmlbeans.bindingConfig.QnameProperty[] propArray =
-            bnNode.getQnamePropertyArray();
-
-    for (int i = 0; i < propArray.length; i++) {
-      addProperty((QNameProperty) BindingProperty.forNode(propArray[i]));
-    }
+  public ByNameBean(BindingTypeName btName)
+  {
+    super(btName);
   }
 
   // ========================================================================
   // Public methods
 
-  public GenericXmlProperty getAnyElementProperty() {
+  public GenericXmlProperty getAnyElementProperty()
+  {
     return anyElement;
   }
 
-  public void setAnyElementProperty(GenericXmlProperty prop) {
+  public void setAnyElementProperty(GenericXmlProperty prop)
+  {
     anyElement = prop;
   }
 
-  public GenericXmlProperty getAnyAttributeProperty() {
+  public GenericXmlProperty getAnyAttributeProperty()
+  {
     return anyAttribute;
   }
 
-  public void setAnyAttributeProperty(GenericXmlProperty prop) {
+  public void setAnyAttributeProperty(GenericXmlProperty prop)
+  {
     anyAttribute = prop;
   }
-    
+
   /**
    * Returns an unmodifiable collection of QNameProperty objects.
    */
-  public Collection getProperties() {
+  public Collection getProperties()
+  {
     return Collections.unmodifiableCollection(props);
   }
 
   /**
    * Looks up a property by attribute name, null if no match.
    */
-  public QNameProperty getPropertyForAttribute(QName name) {
+  public QNameProperty getPropertyForAttribute(QName name)
+  {
     return (QNameProperty) attProps.get(name);
   }
 
   /**
    * Looks up a property by element name, null if no match.
    */
-  public QNameProperty getPropertyForElement(QName name) {
+  public QNameProperty getPropertyForElement(QName name)
+  {
     return (QNameProperty) eltProps.get(name);
   }
 
   /**
    * Adds a new property
    */
-  public void addProperty(QNameProperty newProp) {
+  public void addProperty(QNameProperty newProp)
+  {
     if (hasProperty(newProp))
       throw new IllegalArgumentException("duplicate property: " + newProp.getQName() + " in type " + this);
 
@@ -128,41 +116,20 @@ public class ByNameBean extends BindingType {
       eltProps.put(newProp.getQName(), newProp);
   }
 
-    public boolean hasProperty(QNameProperty newProp)
-    {
-        final QName prop_qname = newProp.getQName();
-        return newProp.isAttribute() ? attProps.containsKey(prop_qname) :
-            eltProps.containsKey(prop_qname);
-    }
-
-    // ========================================================================
-  // BindingType implementation
-
-  /**
-   * This function copies an instance back out to the relevant part of the XML file.
-   *
-   * Subclasses should override and call super.write first.
-   */
-  protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
-    org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
-            (org.apache.xml.xmlbeans.bindingConfig.ByNameBean) super.write(node);
-
-    if (anyElement != null)
-      anyElement.write(bnNode.addNewAnyProperty());
-    if (anyAttribute != null)
-      anyAttribute.write(bnNode.addNewAnyAttributeProperty());
-    for (Iterator i = props.iterator(); i.hasNext();) {
-      QNameProperty qProp = (QNameProperty) i.next();
-      org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode = bnNode.addNewQnameProperty();
-      qProp.write(qpNode);
-    }
-    return bnNode;
+  public boolean hasProperty(QNameProperty newProp)
+  {
+    final QName prop_qname = newProp.getQName();
+    return newProp.isAttribute() ? attProps.containsKey(prop_qname) :
+      eltProps.containsKey(prop_qname);
   }
 
-    public void accept(BindingTypeVisitor visitor) throws XmlException
-    {
-        visitor.visit(this);
-    }
+  // ========================================================================
+  // BindingType implementation
+
+  public void accept(BindingTypeVisitor visitor) throws XmlException
+  {
+    visitor.visit(this);
+  }
 
 
 }

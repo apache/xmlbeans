@@ -20,6 +20,7 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -33,6 +34,7 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.binding.bts.BindingFileUtils;
 import org.apache.xmlbeans.impl.binding.joust.FileWriterFactory;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
@@ -116,6 +118,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     } else {
       throw new IOException("No such directory " + dir);
     }
+    //TODO: prefer loading binary version of bts
     BindingFile bf = parseBindingFile(new File(dir, BINDING_FILE));
     Collection schemas = new ArrayList();
     parseSchemas(new File(dir, SCHEMA_DIR), schemas);
@@ -167,6 +170,18 @@ public class ExplodedTylarImpl extends BaseTylarImpl
   public void writeBindingFile(BindingFile bf) throws IOException {
     mBindingFile = bf;
     writeBindingFile(bf, new File(mRootDir, BINDING_FILE));
+    writeBindingSer(bf);
+  }
+
+  private void writeBindingSer(BindingFile bf) throws IOException
+  {
+    File ser_file = new File(mRootDir, BINDING_SER);
+    FileOutputStream fos = new FileOutputStream(ser_file);
+    ObjectOutputStream oos = new ObjectOutputStream(fos);
+    oos.writeObject(bf);
+    oos.close();
+    fos.close();
+    assert ser_file.exists();
   }
 
   public void writeSchema(SchemaDocument xsd, String schemaFileName)
@@ -360,7 +375,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     FileReader in = null;
     try {
       in = new FileReader(file);
-      return BindingFile.forDoc(BindingConfigDocument.Factory.parse(in));
+      return BindingFileUtils.forDoc(BindingConfigDocument.Factory.parse(in));
     } catch (IOException ioe) {
       throw ioe;
     } catch (XmlException xe) {
@@ -382,7 +397,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     try {
       file.getParentFile().mkdirs();
       out = new FileWriter(file);
-      BindingConfigDocument doc = bf.write();
+      BindingConfigDocument doc = BindingFileUtils.write(bf);
       doc.save(out,
                new XmlOptions().setSavePrettyPrint().
                setSavePrettyPrintIndent(XML_INDENT));
