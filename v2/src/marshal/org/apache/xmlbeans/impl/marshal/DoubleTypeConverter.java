@@ -61,11 +61,9 @@ import org.apache.xmlbeans.impl.common.XsTypeConverter;
 final class DoubleTypeConverter
     extends BaseSimpleTypeConverter
 {
-    public Object unmarshal(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshalContextImpl context)
     {
         double val = context.getDoubleValue();
-        assert context.isEndElement();
-        context.next();
         return new Double(val);
     }
 

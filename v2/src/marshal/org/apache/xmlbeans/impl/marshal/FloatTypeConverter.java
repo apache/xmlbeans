@@ -61,13 +61,6 @@ import org.apache.xmlbeans.impl.common.XsTypeConverter;
 final class FloatTypeConverter
     extends BaseSimpleTypeConverter
 {
-    public Object unmarshal(UnmarshalContextImpl context)
-    {
-        float val = context.getFloatValue();
-        assert context.isEndElement();
-        context.next();
-        return new Float(val);
-    }
 
     public Object unmarshalAttribute(UnmarshalContextImpl context)
     {
@@ -80,5 +73,11 @@ final class FloatTypeConverter
     {
         Float val = (Float)value;
         return XsTypeConverter.printFloat(val.floatValue());
+    }
+
+    protected Object getObject(UnmarshalContextImpl context)
+    {
+        float val = context.getFloatValue();
+        return new Float(val);
     }
 }

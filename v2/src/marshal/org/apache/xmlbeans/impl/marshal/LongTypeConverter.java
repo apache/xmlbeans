@@ -61,11 +61,9 @@ import org.apache.xmlbeans.impl.common.XsTypeConverter;
 final class LongTypeConverter
     extends BaseSimpleTypeConverter
 {
-    public Object unmarshal(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshalContextImpl context)
     {
         long val = context.getLongValue();
-        assert context.isEndElement();
-        context.next();
         return new Long(val);
     }
 

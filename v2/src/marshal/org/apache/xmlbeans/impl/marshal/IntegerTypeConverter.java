@@ -63,11 +63,9 @@ import java.math.BigInteger;
 final class IntegerTypeConverter
     extends BaseSimpleTypeConverter
 {
-    public Object unmarshal(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshalContextImpl context)
     {
         BigInteger val = context.getBigIntegerValue();
-        assert context.isEndElement();
-        context.next();
         return val;
     }
 

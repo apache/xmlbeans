@@ -61,11 +61,9 @@ import org.apache.xmlbeans.impl.common.XsTypeConverter;
 final class ShortTypeConverter
     extends BaseSimpleTypeConverter
 {
-    public Object unmarshal(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshalContextImpl context)
     {
         short val = context.getShortValue();
-        assert context.isEndElement();
-        context.next();
         return new Short(val);
     }
 

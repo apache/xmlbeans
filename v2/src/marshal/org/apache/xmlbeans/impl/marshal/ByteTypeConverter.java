@@ -61,11 +61,9 @@ import org.apache.xmlbeans.impl.common.XsTypeConverter;
 final class ByteTypeConverter
     extends BaseSimpleTypeConverter
 {
-    public Object unmarshal(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshalContextImpl context)
     {
         byte val = context.getByteValue();
-        assert context.isEndElement();
-        context.next();
         return new Byte(val);
     }
 

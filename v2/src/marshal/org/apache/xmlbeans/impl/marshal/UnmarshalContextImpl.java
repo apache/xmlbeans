@@ -613,6 +613,5 @@ final class UnmarshalContextImpl
 
         return baseReader.getAttributeLocalName(currentAttributeIndex);
     }
-
 }
 
