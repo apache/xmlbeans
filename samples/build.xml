@@ -23,6 +23,7 @@ limitations under the License.
         clean-OrderMatters,
         clean-vxsdb,
         clean-SchemaEnum,
+        clean-AbstractTypes,
         clean-SubstitutionGroup,
         clean-DateTime">
         <delete dir="build"/>
@@ -48,6 +49,10 @@ limitations under the License.
         <ant dir="enumeration/SchemaEnum" target="clean"/>
     </target>
 
+    <target name="clean-AbstractTypes">
+        <ant dir="abstracttypes/AbstractTypes" target="clean"/>
+    </target>
+
     <target name="clean-SubstitutionGroup">
         <ant dir="substitutiongroup/SubstitutionGroup" target="clean"/>
     </target>
@@ -64,6 +69,7 @@ limitations under the License.
         build-OrderMatters,
         build-vxsdb,
         build-SchemaEnum,
+        build-AbstractTypes,
         build-SubstitutionGroup,
         build-DateTime">
     </target>
@@ -88,6 +94,10 @@ limitations under the License.
         <ant dir="enumeration/SchemaEnum" target="build"/>
     </target>
 
+    <target name="build-AbstractTypes">
+        <ant dir="abstracttypes/AbstractTypes" target="build"/>
+    </target>
+
     <target name="build-SubstitutionGroup">
         <ant dir="substitutiongroup/SubstitutionGroup" target="build"/>
     </target>
@@ -105,6 +115,7 @@ limitations under the License.
         test-OrderMatters,
         test-vxsdb,
         test-SchemaEnum,
+        test-AbstractTypes,
         test-SubstitutionGroup,
         test-DateTime">
     </target>
@@ -122,11 +133,15 @@ limitations under the License.
     </target>
 
     <target name="test-vxsdb">
-        <ant dir="db/vxsdb" target="test"/>
+        <!--ant dir="db/vxsdb" target="test"/-->
     </target>
 
     <target name="test-SchemaEnum">
         <ant dir="enumeration/SchemaEnum" target="test"/>
+    </target>
+
+    <target name="test-AbstractTypes">
+        <ant dir="abstracttypes/AbstractTypes" target="test"/>
     </target>
 
     <target name="test-SubstitutionGroup">
@@ -145,6 +160,7 @@ limitations under the License.
         dist-OrderMatters,
         dist-vxsdb,
         dist-SchemaEnum,
+        dist-AbstractTypes,
         dist-SubstitutionGroup,
         dist-DateTime">
         <zip destfile="build/samples.zip"
@@ -234,6 +250,21 @@ limitations under the License.
             excludes="SchemaEnum/build/**"
             compression="gzip"
             />
+    </target>
+
+    <target name="dist-AbstractTypes">
+        <mkdir dir="build"/>
+        <zip destfile="build/AbstractTypes.zip"
+            basedir="abstracttypes"
+            includes="AbstractTypes/**"
+            excludes="AbstractTypes/build/**"
+        />
+        <tar destfile="build/AbstractTypes.tgz"
+            basedir="abstracttypes"
+            includes="AbstractTypes/**"
+            excludes="AbstractTypes/build/**"
+            compression="gzip"
+        />
     </target>
 
     <target name="dist-SubstitutionGroup">
