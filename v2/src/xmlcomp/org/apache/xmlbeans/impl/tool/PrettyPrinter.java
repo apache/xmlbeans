@@ -19,6 +19,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
 
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Collections;
 import java.io.File;
 import java.io.IOException;
@@ -28,9 +30,42 @@ public class PrettyPrinter
 {
     private static final int DEFAULT_INDENT = 2;
 
+    public static void printUsage()
+    {
+        System.out.println("Pretty prints XML files.");
+        System.out.println("Usage: xpretty [switches] file.xml");
+        System.out.println("Switches:");
+        System.out.println("    -indent #   use the given indent");
+        System.out.println("    -license prints license information");
+    }
+
     public static void main(String[] args)
     {
-        CommandLine cl = new CommandLine(args, Collections.singleton("indent"));
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+
+        CommandLine cl = new CommandLine(args, flags, Collections.singleton("indent"));
+
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
@@ -40,11 +75,7 @@ public class PrettyPrinter
         
         if (cl.args().length == 0)
         {
-            System.out.println("Pretty prints XML files.");
-            System.out.println("Usage: xpretty [switches] file.xml");
-            System.out.println("Switches:");
-            System.out.println("    -indent #   use the given indent");
-            System.out.println("    -license prints license information");
+            printUsage();
             return;
         }
         

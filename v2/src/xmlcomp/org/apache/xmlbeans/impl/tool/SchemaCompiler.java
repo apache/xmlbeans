@@ -45,43 +45,62 @@ import org.xml.sax.EntityResolver;
 
 public class SchemaCompiler
 {
+    public static void printUsage()
+    {
+        System.out.println("Compiles a schema into XML Bean classes and metadata.");
+        System.out.println("Usage: scomp [opts] [dirs]* [schema.xsd]* [service.wsdl]* [config.xsdconfig]*");
+        System.out.println("Options include:");
+        System.out.println("    -cp [a;b;c] - classpath");
+        System.out.println("    -d [dir] - target binary directory for .class and .xsb files");
+        System.out.println("    -src [dir] - target directory for generated .java files");
+        System.out.println("    -srconly - do not compile .java files or jar the output.");
+        System.out.println("    -out [result.jar] - the name of the output jar");
+        System.out.println("    -dl - permit network downloads for imports and includes (default is off)");
+        System.out.println("    -noupa - do not enforce the unique particle attribution rule");
+        System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
+        System.out.println("    -noann - ignore annotations");
+        System.out.println("    -compiler - path to external java compiler");
+        System.out.println("    -jar - path to jar utility");
+        System.out.println("    -ms - initial memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_START + "')");
+        System.out.println("    -mx - maximum memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_MAX + "')");
+        System.out.println("    -debug - compile with debug symbols");
+        System.out.println("    -quiet - print fewer informational messages");
+        System.out.println("    -verbose - print more informational messages");
+        System.out.println("    -license - prints license information");
+        System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces");
+        System.out.println("    -catalog [file] -  catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)");
+        /* Undocumented feature - pass in one schema compiler extension and related parameters
+        System.out.println("    -repackage - repackage specification");
+        System.out.println("    -extension - registers a schema compiler extension");
+        System.out.println("    -extensionParms - specify parameters for the compiler extension");
+        System.out.println("    -schemaCodePrinter - specify SchemaCodePrinter class");
+        */
+        System.out.println();
+        System.out.println("If you require a different java compiler, use the XMLBean Ant task instead.");
+    }
+
     public static void main(String[] args)
     {
         if (args.length == 0)
         {
-            System.out.println("Compiles a schema into XML Bean classes and metadata.");
-            System.out.println("Usage: scomp [opts] [dirs]* [schema.xsd]* [service.wsdl]* [config.xsdconfig]*");
-            System.out.println("Options include:");
-            System.out.println("    -cp [a;b;c] - classpath");
-            System.out.println("    -d [dir] - target binary directory for .class and .xsb files");
-            System.out.println("    -src [dir] - target directory for generated .java files");
-            System.out.println("    -srconly - do not compile .java files or jar the output.");
-            System.out.println("    -out [result.jar] - the name of the output jar");
-            System.out.println("    -dl - permit network downloads for imports and includes (default is off)");
-            System.out.println("    -noupa - do not enforce the unique particle attribution rule");
-            System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
-            System.out.println("    -noann - ignore annotations");
-            System.out.println("    -compiler - path to external java compiler");
-            System.out.println("    -jar - path to jar utility");
-            System.out.println("    -ms - initial memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_START + "')");
-            System.out.println("    -mx - maximum memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_MAX + "')");
-            System.out.println("    -debug - compile with debug symbols");
-            System.out.println("    -quiet - print fewer informational messages");
-            System.out.println("    -verbose - print more informational messages");
-            System.out.println("    -license - prints license information");
-            System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces");
-            System.out.println("    -catalog [file] -  catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)");
-            /* Undocumented feature - pass in one schema compiler extension and related parameters
-            System.out.println("    -repackage - repackage specification");
-            System.out.println("    -extension - registers a schema compiler extension");
-            System.out.println("    -extensionParms - specify parameters for the compiler extension");
-            System.out.println("    -schemaCodePrinter - specify SchemaCodePrinter class");
-            */
-            System.out.println();
-            System.out.println("If you require a different java compiler, use the XMLBean Ant task instead.");
+            printUsage();
             System.exit(0);
             return;
         }
+
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+        flags.add("quiet");
+        flags.add("verbose");
+        flags.add("dl");
+        flags.add("noupa");
+        flags.add("nopvr");
+        flags.add("noann");
+        flags.add("srconly");
+        flags.add("debug");
 
         Set opts = new HashSet();
         opts.add("out");
@@ -99,7 +118,24 @@ public class SchemaCompiler
         opts.add("extensionParms");
         opts.add("allowmdef");
         opts.add("catalog");
-        CommandLine cl = new CommandLine(args, opts);
+        CommandLine cl = new CommandLine(args, flags, opts);
+
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
 
         if (cl.getOpt("license") != null)
         {

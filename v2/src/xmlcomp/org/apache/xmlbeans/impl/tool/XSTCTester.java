@@ -28,6 +28,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.util.Set;
+import java.util.HashSet;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Date;
@@ -36,11 +38,45 @@ import java.net.URI;
 
 public class XSTCTester
 {
+    public static void printUsage()
+    {
+        System.out.println("Usage: xstc [-showpass] [-errcode] foo_LTGfmt.xml ...");
+    }
+
     public static void main(String[] args) throws IOException
     {
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("showpass");
+        flags.add("errcode");
+
         long start = System.currentTimeMillis();
         
-        CommandLine cl = new CommandLine(args, Collections.EMPTY_SET);
+        CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.args().length == 0) {
+            printUsage();
+            return;
+        }
+
         boolean showpass = (cl.getOpt("showpass") != null);
         boolean errcode = (cl.getOpt("errcode") != null);
 

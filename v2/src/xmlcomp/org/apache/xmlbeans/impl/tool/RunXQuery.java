@@ -21,13 +21,51 @@ import org.apache.xmlbeans.*;
 
 public class RunXQuery
 {
+    public static void printUsage()
+    {
+        System.out.println("Run an XQuery against an XML instance");
+        System.out.println("Usage:");
+        System.out.println("xquery [-verbose] [-pretty] [-q <query> | -qf query.xq] [file.xml]*");
+        System.out.println(" -q <query> to specify a query on the command-line");
+        System.out.println(" -qf <query> to specify a file containing a query");
+        System.out.println(" -pretty pretty-prints the results");
+        System.out.println(" -license prints license information");
+        System.out.println(" the query is run on each XML file specified");
+        System.out.println("");
+    }
+
     public static void main ( String[] args ) throws Exception
     {
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+        flags.add("verbose");
+        flags.add("pretty");
+
         CommandLine cl =
             new CommandLine(
-                args,
+                args, flags,
                 Arrays.asList( new String[] { "q", "qf" } ) );
         
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
@@ -39,15 +77,7 @@ public class RunXQuery
         
         if (args.length == 0)
         {
-            System.out.println("Run an XQuery against an XML instance");
-            System.out.println("Usage:");
-            System.out.println("xquery [-verbose] [-pretty] [-q <query> | -qf query.xq] [file.xml]*");
-            System.out.println(" -q <query> to specify a query on the command-line");
-            System.out.println(" -qf <query> to specify a file containing a query");
-            System.out.println(" -pretty pretty-prints the results");
-            System.out.println(" -license prints license information");
-            System.out.println(" the query is run on each XML file specified");
-            System.out.println("");
+            printUsage();
             System.exit(0);
             return;
         }
