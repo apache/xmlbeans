@@ -37,5 +37,13 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
- 
+
+  <!-- bug CR128906: gen'd java code must qualify java.lang.* types -->
+  <xs:simpleType name="object">
+    <xs:restriction base="xs:token">
+      <xs:enumeration value="abc"/>
+      <xs:enumeration value="def"/>
+    </xs:restriction>
+  </xs:simpleType>
+
 </xs:schema>
