@@ -1749,42 +1749,22 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
             // Read documentation items
             n = readInt();
-            DocumentationDocument.Documentation[] documentationItems =
-                new DocumentationDocument.Documentation[n];
+            String[] docStrings = new String[n];
             for (int i = 0; i <  n; i++)
             {
-                String doc = readString();
-                try 
-                {
-                    documentationItems[i] = DocumentationDocument.Factory.
-                        parse(doc).getDocumentation();
-                }
-                catch (XmlException e)
-                {
-                    throw new RuntimeException( e.getMessage(), e );
-                }
+                docStrings[i] = readString();
             }
 
             // Read application info items
             n = readInt();
-            AppinfoDocument.Appinfo[] appInfoItems =
-                new AppinfoDocument.Appinfo[n];
+            String[] appInfoStrings = new String[n];
             for (int i = 0; i < n; i++)
             {
-                String appInfo = readString();
-                try
-                {
-                    appInfoItems[i] = AppinfoDocument.Factory.
-                        parse(appInfo).getAppinfo();
-                }
-                catch(XmlException e)
-                {
-                    throw new RuntimeException( e.getMessage(), e );
-                }
+                appInfoStrings[i] = readString();
             }
 
-            return new SchemaAnnotationImpl(c, appInfoItems,
-                documentationItems, attributes);
+            return new SchemaAnnotationImpl(c, appInfoStrings,
+                docStrings, attributes);
         }
 
         void writeAnnotations(SchemaAnnotation[] anns)

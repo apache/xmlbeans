@@ -22,6 +22,7 @@ import javax.xml.namespace.QName;
 import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.w3.x2001.xmlSchema.AppinfoDocument;
 import org.w3.x2001.xmlSchema.Annotated;
@@ -32,15 +33,61 @@ import org.apache.xmlbeans.SchemaComponent;
 public class SchemaAnnotationImpl implements SchemaAnnotation
 {
     private SchemaContainer _container;
+    private String[] _appInfoAsXml;
     private AppinfoDocument.Appinfo[] _appInfo;
+    private String[] _documentationAsXml;
     private DocumentationDocument.Documentation[] _documentation;
     private Attribute[] _attributes;
 
     public XmlObject[] getApplicationInformation()
-    {   return _appInfo; }
+    {
+        if (_appInfo == null)
+        {
+            int n = _appInfoAsXml.length;
+            _appInfo = new AppinfoDocument.Appinfo[n];
+            for (int i = 0; i < n; i++)
+            {
+                String appInfo = _appInfoAsXml[i];
+                try
+                {
+                    _appInfo[i] = AppinfoDocument.Factory.
+                        parse(appInfo).getAppinfo();
+                }
+                catch(XmlException e)
+                {
+                    // problem in the classfile
+                    _appInfo[i] = AppinfoDocument.Factory.
+                        newInstance().getAppinfo();
+                }
+            }
+        }
+        return _appInfo;
+    }
 
     public XmlObject[] getUserInformation()
-    {   return _documentation; }
+    {
+        if (_documentation == null)
+        {
+            int n = _documentationAsXml.length;
+            _documentation = new DocumentationDocument.Documentation[n];
+            for (int i = 0; i <  n; i++)
+            {
+                String doc = _documentationAsXml[i];
+                try 
+                {
+                    _documentation[i] = DocumentationDocument.Factory.
+                        parse(doc).getDocumentation();
+                }
+                catch (XmlException e)
+                {
+                    // problem in the classfile
+                    _documentation[i] = DocumentationDocument.Factory.
+                        newInstance().getDocumentation();
+                }
+            }
+        }
+        return _documentation;
+    }
 
     public Attribute[] getAttributes()
     {   return _attributes; }
@@ -125,13 +172,12 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
     }
 
     /*package*/ SchemaAnnotationImpl(SchemaContainer c,
-        AppinfoDocument.Appinfo[] aap,
-        DocumentationDocument.Documentation[] adoc,
+        String[] aapStrings, String[] adocStrings,
         Attribute[] aat)
     {
         _container = c;
-        _appInfo = aap;
-        _documentation = adoc;
+        _appInfoAsXml = aapStrings;
+        _documentationAsXml = adocStrings;
         _attributes = aat;
     }
 

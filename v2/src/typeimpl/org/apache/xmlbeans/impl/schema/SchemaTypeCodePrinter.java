@@ -279,7 +279,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         indent();
         emit("private " + shortName + "() { }");
         emit("public static final org.apache.xmlbeans.SchemaTypeSystem typeSystem = loadTypeSystem();");
-        emit("static { typeSystem.resolve(); }");
+        // Commenting out this line has the effect of not loading all components in a
+        // typesystem upfront, but just as they are needed, which may improve
+        // performance significantly
+//         emit("static { typeSystem.resolve(); }");
         emit("private static final org.apache.xmlbeans.SchemaTypeSystem loadTypeSystem()");
         emit("{");
         indent();
