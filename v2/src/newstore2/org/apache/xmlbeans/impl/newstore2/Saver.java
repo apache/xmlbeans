@@ -1011,6 +1011,8 @@ abstract class Saver
                     _in = (_in + cch) % _buf.length;
                 }
             }
+            else
+                preEmit( 0 );
         }
         
         private void emitValue ( SaveCur c )
