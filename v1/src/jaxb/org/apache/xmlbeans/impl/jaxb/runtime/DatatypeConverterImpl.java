@@ -68,6 +68,7 @@ import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.impl.util.Base64;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.impl.common.ParseUtil;
 import org.apache.xmlbeans.XmlDateTime;
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlTime;
@@ -226,13 +227,13 @@ public class DatatypeConverterImpl implements DatatypeConverterInterface
 
     public long parseUnsignedInt(String s)
     {
-        try { return Long.parseLong(s); }
+        try { return Long.parseLong(ParseUtil.trimInitialPlus(s)); }
         catch (Exception e) { throw new NullPointerException("invalid unsigned int " + s); }
     }
 
     public int parseUnsignedShort(String s)
     {
-        try { return Integer.parseInt(s); }
+        try { return Integer.parseInt(ParseUtil.trimInitialPlus(s)); }
         catch (Exception e) { throw new NullPointerException("invalid unsigned short " + s); }
     }
 
@@ -255,13 +256,13 @@ public class DatatypeConverterImpl implements DatatypeConverterInterface
 
     public int parseInt(String s)
     {
-        try { return Integer.parseInt(s); }
+        try { return Integer.parseInt(ParseUtil.trimInitialPlus(s)); }
         catch (Exception e) { throw new NullPointerException("invalid int " + s); }
     }
 
     public long parseLong(String s)
     {
-        try { return Long.parseLong(s); }
+        try { return Long.parseLong(ParseUtil.trimInitialPlus(s)); }
         catch (Exception e) { throw new NullPointerException("invalid long " + s); }
     }
 

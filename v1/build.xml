@@ -65,6 +65,7 @@
         <pathelement location="build/private/lib/schemas.jar"/>
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
+        <pathelement location="build/private/lib/numerals.jar"/>
       </classpath>
       <formatter type="plain"/>
       <test name="drtcases.SmokeTests" outfile="build/test/output/drt-product" />
@@ -137,6 +138,7 @@
     <pathelement location="build/private/lib/schemas.jar"/>
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
+    <pathelement location="build/private/lib/numerals.jar"/>
     <pathelement location="build/classes/xmlinputstream"/>
   </path>
 
@@ -147,7 +149,8 @@
 
   <!-- builddrt target ============================================== -->
 
-  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar, xstypes.jar, enumtest.jar">
+  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar,
+  	  xstypes.jar, enumtest.jar, numerals.jar">
     <mkdir dir="build/private/classes/drt"/>
     <javac
        srcdir="test/src/drt"
@@ -281,6 +284,20 @@
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
       <arg line="-out build/private/lib/easypo.jar test/src/easypo"/>
+    </java>
+  </target>
+
+  <!-- numerals (for testing) target ================================== -->
+  <target name="numerals.check">
+    <uptodate property="numerals.notRequired" targetfile="build/private/lib/numerals.jar">
+      <srcfiles dir="test/src/numerals" includes="**/*"/>
+      <srcfiles dir="build/ar" includes="xbean.jar"/>
+    </uptodate>
+  </target>
+  <target name="numerals.jar" depends="numerals.check, dirs, xbean" unless="numerals.notRequired">
+    <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+      <jvmarg value="-ea"/>
+      <arg line="-out build/private/lib/numerals.jar test/src/numerals"/>
     </java>
   </target>
 
