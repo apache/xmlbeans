@@ -29,8 +29,10 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.net.URI;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringWriter;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.ArrayList;
@@ -67,17 +69,21 @@ public class RuntimeTylar implements Tylar, TylarConstants {
   // ========================================================================
   // Constructors
 
-  /*package*/ RuntimeTylar(ClassLoader loader) {
+  /*package*/ RuntimeTylar(ClassLoader loader) throws IOException {
     if (loader == null) throw new IllegalArgumentException("null loader");
+    sanityCheck(loader);
     mClassLoader = loader;
     mLocations = new URL[0];
     mDescription = "loaded from "+loader.toString();
+
   }
 
 
   /*package*/ RuntimeTylar(ClassLoader loader, URL[] locs)
+    throws IOException
   {
     if (loader == null) throw new IllegalArgumentException("null loader");
+    sanityCheck(loader);
     if (locs == null) throw new IllegalArgumentException("null locs");
     mClassLoader = loader;
     mLocations = locs;
@@ -155,5 +161,28 @@ try {
        JamServiceFactory.getInstance().createJamClassLoader(mClassLoader);
     }
     return mJamClassLoader;
+  }
+
+  // ========================================================================
+  // Private
+
+  private static void sanityCheck(ClassLoader cl) throws IOException {
+    Enumeration urls = cl.getResources(BINDING_FILE);
+    if (urls == null || !urls.hasMoreElements()) {
+      StringWriter msg = new StringWriter();
+      msg.write("The given classloader does not contain any xbean binding\n" +
+                "files ("+BINDING_FILE+"\n");
+      if (cl instanceof URLClassLoader) {
+        msg.write("URLClassLoader path:");
+        URL[] cl_urls = ((URLClassLoader)cl).getURLs();
+        for(int i=0; i<cl_urls.length; i++) {
+          msg.write(cl_urls[i].toString());
+          msg.write("\n");
+        }
+      } else {
+        msg.write(cl.getClass().toString());
+      }
+      throw new IOException(msg.toString());
+    }
   }
 }
