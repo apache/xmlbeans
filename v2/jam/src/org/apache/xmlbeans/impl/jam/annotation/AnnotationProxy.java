@@ -52,13 +52,13 @@ public abstract class AnnotationProxy {
   // ========================================================================
   // Variables
 
-  private JamServiceContext mContext;
+  protected JamServiceContext mContext;
 
   //FIXME need to expose a knob for setting this
   private String mNvPairDelims = DEFAULT_NVPAIR_DELIMS;
 
   // ========================================================================
-  // Initialization methods - called by JAM, don'
+  // Initialization methods - called by JAM, don't implement
 
   /**
    * <p>Called by JAM to initialize the proxy.  Do not try to call this
