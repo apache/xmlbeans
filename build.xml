@@ -33,6 +33,7 @@
         <echo message="usage       - this help text"/>
         <echo message="deploy      - builds our implementation jar (xbean.jar)"/>
         <echo message="clean       - cleans out the xbeans directories"/>
+        <echo message="clean.jars  - cleans out any downloaded jars"/>
         <echo message="docs        - builds the JavaDoc documentation in ./build/docs"/>
         <echo message="xmlpublic.jar-builds xmlpublic.jar, containing just the public code"/>
         <echo message="sources     - zips up the XmlBeans source code"/>
@@ -47,6 +48,19 @@
 
     <target name="clean">
         <delete dir="build"/>
+    </target>
+
+    <target name="clean.jars" description="Delete any downloaded jars">
+        <delete>
+            <fileset dir="external/lib">
+                <include name="saxonb8-2.zip"/>
+                <include name="jsr173.jar"/>
+                <include name="jsr173_1.0_api.jar"/>
+                <include name="saxon8.jar"/>
+                <include name="jsr173_1.0_ri.jar"/>
+                <include name="xcresolver.zip"/>
+            </fileset>
+        </delete>
     </target>
 
     <target name="deploy" depends="xbean"/>
@@ -67,32 +81,32 @@
       <condition property="saxon8.jar.exists">
         <or>
           <available file="build/lib/saxon8.jar"/>
-	        <available file="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
-	      </or>
+          <available file="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
+        </or>
       </condition>
     </target>
 
     <target name="saxon8.jar" depends="check.saxon8.jar, dirs"
         unless="saxon8.jar.exists">
-        <get dest="build/lib/saxonb8-2.zip"
+        <get dest="external/lib/saxonb8-2.zip"
             src="http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1-1.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
-        <unzip src="build/lib/saxonb8-2.zip" dest="build/lib/">
+        <unzip src="external/lib/saxonb8-2.zip" dest="external/lib/">
             <patternset>
                 <include name="saxon8.jar"/>
             </patternset>
         </unzip>
-
+        <copy file="external/lib/saxon8.jar" tofile="build/lib/saxon8.jar"/>
     </target>
 
     <target name="check.jsr173.jar">
         <condition property="jsr173.jar.exists">
-            <available file="build/lib/jsr173.jar"/>
+            <available file="external/lib/jsr173.jar"/>
         </condition>
     </target>
 
     <target name="jsr173.jar" depends="check.jsr173.jar, dirs" unless="jsr173.jar.exists">
-        <get dest="build/lib/jsr173.jar"
+        <get dest="external/lib/jsr173.jar"
             src="http://workshop.bea.com/xmlbeans/jsr173v1/jsr173.jar"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
     </target>
@@ -104,12 +118,12 @@
     </target>
 
     <target name="jsr173_api.jar" depends="jsr173.jar, jsr173_ri.jar, check.jsr173_api.jar" unless="jsr173_api.jar.exists">
-        <unjar src="build/lib/jsr173.jar" dest="build/lib">
+        <unjar src="external/lib/jsr173.jar" dest="external/lib">
             <patternset>
                 <include name="jsr173_1.0_api.jar"/>
             </patternset>
         </unjar>
-        <move file="build/lib/jsr173_1.0_api.jar" tofile="build/lib/jsr173_api.jar"/>
+        <copy file="external/lib/jsr173_1.0_api.jar" tofile="build/lib/jsr173_api.jar"/>
     </target>
 
     <target name="check.jsr173_ri.jar">
@@ -119,23 +133,23 @@
     </target>
 
     <target name="jsr173_ri.jar" depends="jsr173.jar, check.jsr173_ri.jar" unless="jsr173_ri.jar.exists">
-        <unjar src="build/lib/jsr173.jar" dest="build/lib">
+        <unjar src="external/lib/jsr173.jar" dest="external/lib">
             <patternset>
                 <include name="jsr173_1.0_ri.jar"/>
             </patternset>
         </unjar>
-        <move file="build/lib/jsr173_1.0_ri.jar" tofile="build/lib/jsr173_ri.jar"/>
+        <copy file="external/lib/jsr173_1.0_ri.jar" tofile="build/lib/jsr173_ri.jar"/>
     </target>
 
     <!-- get resolver.jar -->
     <target name="check.xcresolver.zip">
         <condition property="xcresolver.zip.exists">
-            <available file="build/lib/xcresolver.zip"/>
+            <available file="external/lib/xcresolver.zip"/>
         </condition>
     </target>
 
     <target name="xcresolver.zip" depends="check.xcresolver.zip, dirs" unless="xcresolver.zip.exists">
-        <get dest="build/lib/xcresolver.zip"
+        <get dest="external/lib/xcresolver.zip"
             src="http://www.apache.org/dist/xml/commons/binaries/xml-commons-resolver-1.1.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
     </target>
@@ -147,14 +161,13 @@
     </target>
 
     <target name="resolver.jar" depends="xcresolver.zip, check.resolver.jar" unless="resolver.jar.exists">
-        <unzip src="build/lib/xcresolver.zip" dest="build/lib/">
+        <unzip src="external/lib/xcresolver.zip" dest="external/lib/">
             <patternset>
                 <include name="*/resolver.jar"/>
             </patternset>
         </unzip>
-        <move file="build/lib/xml-commons-resolver-1.1/resolver.jar" tofile="build/lib/resolver.jar"/>
-        <delete dir="build/lib/xml-commons-resolver-1.1"/>
-        <delete file="build/lib/xcresolver.zip"/>
+        <copy file="external/lib/xml-commons-resolver-1.1/resolver.jar" tofile="build/lib/resolver.jar"/>
+        <delete dir="external/lib/xml-commons-resolver-1.1"/>
     </target>
 
 
