@@ -140,7 +140,8 @@ final class Cur
     int kind ( )
     {
         assert isPositioned();
-        return _pos == 0 ? _xobj.kind() : _pos == END_POS ? -_xobj.kind() : TEXT;
+        int kind = _xobj.kind();
+        return _pos == 0 ? kind : (_pos == END_POS ? - kind : TEXT);
     }
 
     boolean isRoot      ( ) { assert isPositioned(); return _pos == 0 && _xobj.kind() == ROOT;     }
@@ -912,6 +913,31 @@ final class Cur
         moveTo( parent );
 
         return true;
+    }
+
+    void toRoot ()
+    {
+        Xobj xobj = _xobj;
+        while (!xobj.isRoot())
+        {
+            if (xobj._parent==null)
+            {
+                Cur r = _locale.tempCur();
+
+                r.createRoot();
+
+                Xobj root = r._xobj;
+
+                r.next();
+                moveNode( r );
+                r.release();
+
+                xobj = root;
+                break;
+            }
+            xobj = xobj._parent;
+        }
+        moveTo(xobj);
     }
 
     boolean hasText ( )

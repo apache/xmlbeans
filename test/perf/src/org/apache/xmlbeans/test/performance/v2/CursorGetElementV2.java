@@ -68,8 +68,8 @@ public class CursorGetElementV2
     // Class.getSimpleName() is only provided in jdk1.5, so have to trim package name off test name for logging to support 1.4
     System.out.print(Constants.DELIM+test.getClass().getName().substring(test.getClass().getName().lastIndexOf('.')+1)+" flavor="+flavor+" ");
     System.out.print("hash "+hash+" ");
-    System.out.print("time "+cputime+"\n");
-    
+    System.out.print("time "+cputime+" ");
+    System.out.print("time/it " + ((double)cputime)/((double)iterations) + "\n");
   }
 
   private int run(XmlCursor p_cursor) throws Exception

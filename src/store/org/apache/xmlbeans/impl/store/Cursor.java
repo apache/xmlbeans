@@ -293,51 +293,75 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _isStartdoc() {
-        return _currentTokenType().isStartdoc();
+        //return _currentTokenType().isStartdoc();
+        assert isValid();
+        return _cur.isRoot();
     }
 
     public boolean _isEnddoc() {
-        return _currentTokenType().isEnddoc();
+        //return _currentTokenType().isEnddoc();
+        assert isValid();
+        return _cur.isEndRoot();
     }
 
     public boolean _isStart() {
-        return _currentTokenType().isStart();
+        //return _currentTokenType().isStart();
+        assert isValid();
+        return _cur.isElem();
     }
 
     public boolean _isEnd() {
-        return _currentTokenType().isEnd();
+        //return _currentTokenType().isEnd();
+        assert isValid();
+        return _cur.isEnd();
     }
 
     public boolean _isText() {
-        return _currentTokenType().isText();
+        //return _currentTokenType().isText();
+        assert isValid();
+        return _cur.isText();
     }
 
     public boolean _isAttr() {
-        return _currentTokenType().isAttr();
+        //return _currentTokenType().isAttr();
+        assert isValid();
+        return _cur.isNormalAttr();
     }
 
     public boolean _isNamespace() {
-        return _currentTokenType().isNamespace();
+        //return _currentTokenType().isNamespace();
+        assert isValid();
+        return _cur.isXmlns();
     }
 
     public boolean _isComment() {
-        return _currentTokenType().isComment();
+        //return _currentTokenType().isComment();
+        assert isValid();
+        return _cur.isComment();
     }
 
     public boolean _isProcinst() {
-        return _currentTokenType().isProcinst();
+        //return _currentTokenType().isProcinst();
+        assert isValid();
+        return _cur.isProcinst();
     }
 
     public boolean _isContainer() {
-        return _currentTokenType().isContainer();
+        //return _currentTokenType().isContainer();
+        assert isValid();
+        return _cur.isContainer();
     }
 
     public boolean _isFinish() {
-        return _currentTokenType().isFinish();
+        //return _currentTokenType().isFinish();
+        assert isValid();
+        return _cur.isFinish();
     }
 
     public boolean _isAnyAttr() {
-        return _currentTokenType().isAnyAttr();
+        //return _currentTokenType().isAnyAttr();
+        assert isValid();
+        return _cur.isAttr();
     }
 
     public TokenType _toNextToken() {
@@ -964,7 +988,8 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public boolean _hasNextToken() {
-        return _cur.kind() != -ROOT;
+        //return _cur.kind() != -ROOT;
+        return _cur._pos!=Cur.END_POS || _cur._xobj.kind()!=ROOT;
     }
 
     public boolean _hasPrevToken() {
@@ -1254,8 +1279,9 @@ public final class Cursor implements XmlCursor, ChangeListener {
     }
 
     public void _toStartDoc() {
-        while (_cur.toParent())
-            ;
+//        while (_cur.toParent())
+//            ;
+          _cur.toRoot();
     }
 
     public void _toEndDoc() {
@@ -2882,217 +2908,217 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public boolean isStartdoc() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isStartdoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isStartdoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isEnddoc() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isEnddoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isEnddoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isStart() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isStart();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isStart();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isEnd() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isEnd();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isEnd();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isText() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isText();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isText();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isAttr() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isAttr();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isAttr();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isNamespace() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isNamespace();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isNamespace();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isComment() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isComment();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isComment();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isProcinst() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isProcinst();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isProcinst();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isContainer() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isContainer();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isContainer();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isFinish() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isFinish();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isFinish();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public boolean isAnyAttr() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isAnyAttr();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _isAnyAttr();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
@@ -3116,19 +3142,19 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public boolean hasNextToken() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _hasNextToken();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _hasNextToken();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
@@ -3314,19 +3340,19 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public boolean toFirstChild() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _toFirstChild();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _toFirstChild();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
@@ -3494,19 +3520,19 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public boolean toFirstAttribute() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _toFirstAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 return _toFirstAttribute();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
@@ -3728,37 +3754,37 @@ public final class Cursor implements XmlCursor, ChangeListener {
 
     public void toStartDoc() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 _toStartDoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 _toStartDoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 
     public void toEndDoc() {
         if (preCheck()) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 _toEndDoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         } else synchronized (_cur._locale) {
-            _cur._locale.enter();
-            try {
+//            _cur._locale.enter();
+//            try {
                 _toEndDoc();
-            } finally {
-                _cur._locale.exit();
-            }
+//            } finally {
+//                _cur._locale.exit();
+//            }
         }
     }
 

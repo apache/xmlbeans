@@ -1462,8 +1462,8 @@ abstract class Saver
 
             assert available == getAvailable();
 
-            if (available == 0)
-                return 0;
+//            if (available == 0)
+//                return 0;
 
             return available;
         }
@@ -2541,7 +2541,7 @@ abstract class Saver
             boolean hasChildren = false;
             
             if (isContainer())
-            {
+            {   // is there a faster way to do this?
                 push();
                 next();
 
