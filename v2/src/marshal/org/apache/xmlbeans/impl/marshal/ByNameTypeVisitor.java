@@ -109,7 +109,9 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     {
         final RuntimeBindingProperty property = getCurrentElementProperty();
         if (property.isMultiple()) {
-            Object prop_obj = property.getValue(getParentObject(), marshalResult);
+            final Object parent = getParentObject();
+            final Object prop_obj = property.isSet(parent, marshalResult) ?
+                property.getValue(parent, marshalResult) : null;
             final Iterator itr = MarshalResult.getCollectionIterator(prop_obj);
             currMultipleIterator = itr;
             if (itr.hasNext()) {
@@ -135,8 +137,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
         final RuntimeBindingProperty property = getCurrentElementProperty();
 
-        final boolean set = property.isSet(getParentObject(), marshalResult);
-        return set;
+        return property.isSet(getParentObject(), marshalResult);
     }
 
     public XmlTypeVisitor getCurrentChild() throws XmlException

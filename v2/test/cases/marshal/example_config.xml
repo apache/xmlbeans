@@ -240,13 +240,17 @@
                 <bin:xmlcomponent>t=integer@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
                 <bin:javatype>java.math.BigInteger</bin:javatype>
                 <bin:getter>
-                   <bin:method-name>getBigInt</bin:method-name>
+                    <bin:method-name>getBigInt</bin:method-name>
                 </bin:getter>
                 <bin:setter>
-                   <bin:method-name>setBigInt</bin:method-name>
-                   <bin:param-type>java.math.BigInteger</bin:param-type>
+                    <bin:method-name>setBigInt</bin:method-name>
+                    <bin:param-type>java.math.BigInteger</bin:param-type>
                 </bin:setter>
+                <bin:issetter>
+                    <bin:method-name>isSetBigInt</bin:method-name>
+                </bin:issetter>
                 <bin:qname>java:BigInt</bin:qname>
+                <bin:nillable>true</bin:nillable>
             </bin:qname-property>
         </bin:binding-type>
     </bin:bindings>

@@ -271,6 +271,7 @@ final class ByNameRuntimeBindingType
         private final TypeMarshaller marshaller; // used only for simple types
         private final Method getMethod;
         private final Method setMethod;
+        private final Method issetMethod;
         private final boolean javaPrimitive;
         private final Object defaultValue;
 
@@ -301,6 +302,7 @@ final class ByNameRuntimeBindingType
             collectionElementClass = getCollectionElementClass(prop, bindingType);
             getMethod = getGetterMethod(prop, beanClass);
             setMethod = getSetterMethod(prop, beanClass);
+            issetMethod = getIssetterMethod(prop, beanClass);
             javaPrimitive = propertyClass.isPrimitive();
 
             String def = bindingProperty.getDefault();
@@ -472,7 +474,8 @@ final class ByNameRuntimeBindingType
             return unmarshaller;
         }
 
-        public void fill(final Object inter, final Object prop_obj) throws XmlException
+        public void fill(final Object inter, final Object prop_obj)
+            throws XmlException
         {
             //means xsi:nil was true but we're a primtive.
             //schema should have nillable="false" so this
@@ -480,30 +483,19 @@ final class ByNameRuntimeBindingType
             if (prop_obj == null && javaPrimitive)
                 return;
 
-            try {
-                if (beanHasMulti) {
-                    final UResultHolder rh = (UResultHolder)inter;
+            if (beanHasMulti) {
+                final UResultHolder rh = (UResultHolder)inter;
 
-                    if (isMultiple()) {
-                        rh.addItem(propertyIndex, prop_obj);
-                    } else {
-                        setMethod.invoke(rh.getValue(), new Object[]{prop_obj});
-                    }
+                if (isMultiple()) {
+                    rh.addItem(propertyIndex, prop_obj);
                 } else {
-                    setMethod.invoke(inter, new Object[]{prop_obj});
+                    invokeMethod(rh.getValue(), setMethod,
+                                 new Object[]{prop_obj});
                 }
-            }
-            catch (SecurityException e) {
-                throw new XmlException(e);
-            }
-            catch (IllegalAccessException e) {
-                throw new XmlException(e);
-            }
-            catch (InvocationTargetException e) {
-                throw new XmlException(e);
+            } else {
+                invokeMethod(inter, setMethod, new Object[]{prop_obj});
             }
         }
-
 
         public void fillDefaultValue(Object inter)
             throws XmlException
@@ -517,18 +509,7 @@ final class ByNameRuntimeBindingType
             throws XmlException
         {
             assert isMultiple();
-            try {
-                setMethod.invoke(inter, new Object[]{prop_obj});
-            }
-            catch (SecurityException e) {
-                throw new XmlException(e);
-            }
-            catch (IllegalAccessException e) {
-                throw new XmlException(e);
-            }
-            catch (InvocationTargetException e) {
-                throw new XmlException(e);
-            }
+            invokeMethod(inter, setMethod, new Object[]{prop_obj});
         }
 
         public CharSequence getLexical(Object value, MarshalResult result)
@@ -553,13 +534,35 @@ final class ByNameRuntimeBindingType
             assert parentObject != null;
             assert beanClass.isAssignableFrom(parentObject.getClass()) :
                 parentObject.getClass() + " is not a " + beanClass;
+
+            return invokeMethod(parentObject, getMethod, EMPTY_OBJECT_ARRAY);
+        }
+
+        //TODO: check isSet methods
+        public boolean isSet(Object parentObject, MarshalResult result)
+            throws XmlException
+        {
+            if (issetMethod == null)
+                return isSetFallback(parentObject, result);
+
+            final Boolean isset =
+                (Boolean)invokeMethod(parentObject, issetMethod,
+                                      EMPTY_OBJECT_ARRAY);
+            return isset.booleanValue();
+        }
+
+        private static Object invokeMethod(Object target,
+                                           Method method,
+                                           Object[] params)
+            throws XmlException
+        {
             try {
-                return getMethod.invoke(parentObject, EMPTY_OBJECT_ARRAY);
-            }
-            catch (SecurityException e) {
-                throw new XmlException(e);
+                return method.invoke(target, params);
             }
             catch (IllegalAccessException e) {
+                throw new XmlException(e);
+            }
+            catch (IllegalArgumentException e) {
                 throw new XmlException(e);
             }
             catch (InvocationTargetException e) {
@@ -567,10 +570,10 @@ final class ByNameRuntimeBindingType
             }
         }
 
-        //TODO: check isSet methods
-        public boolean isSet(Object parentObject, MarshalResult result)
+        private boolean isSetFallback(Object parentObject, MarshalResult result)
             throws XmlException
         {
+            //REVIEW: nillable is winning over minOccurs="0".  Is this correct?
             if (bindingProperty.isNillable())
                 return true;
 
@@ -592,20 +595,30 @@ final class ByNameRuntimeBindingType
                                               Class beanClass)
             throws XmlException
         {
+            if (!binding_prop.hasSetter()) return null;
+
             MethodName setterName = binding_prop.getSetterName();
-            try {
-                final Method set_method = setterName.getMethodOn(beanClass);
-                return set_method;
+            return getMethodOnClass(setterName, beanClass);
+        }
+
+        private static Method getIssetterMethod(QNameProperty binding_prop,
+                                                Class clazz)
+            throws XmlException
+        {
+            if (!binding_prop.hasIssetter())
+                return null;
+
+            Method isset_method =
+                getMethodOnClass(binding_prop.getIssetterName(), clazz);
+
+            if (!isset_method.getReturnType().equals(Boolean.TYPE)) {
+                String msg = "invalid isset method: " + isset_method +
+                    " -- return type must be boolean not " +
+                    isset_method.getReturnType().getName();
+                throw new XmlException(msg);
             }
-            catch (NoSuchMethodException e) {
-                throw new XmlException(e);
-            }
-            catch (SecurityException e) {
-                throw new XmlException(e);
-            }
-            catch (ClassNotFoundException cnfe) {
-                throw new XmlException(cnfe);
-            }
+
+            return isset_method;
         }
 
 
@@ -614,19 +627,25 @@ final class ByNameRuntimeBindingType
             throws XmlException
         {
             MethodName getterName = binding_prop.getGetterName();
+            return getMethodOnClass(getterName, beanClass);
+        }
+
+
+        private static Method getMethodOnClass(MethodName method_name,
+                                               Class clazz)
+            throws XmlException
+        {
             try {
-                final Method get_method =
-                    getterName.getMethodOn(beanClass);
-                return get_method;
+                return method_name.getMethodOn(clazz);
             }
             catch (NoSuchMethodException e) {
                 throw new XmlException(e);
             }
-            catch (SecurityException e) {
-                throw new XmlException(e);
+            catch (SecurityException se) {
+                throw new XmlException(se);
             }
             catch (ClassNotFoundException cnfe) {
-                throw new XmlException(cnfe);//should never happen
+                throw new XmlException(cnfe);
             }
         }
 

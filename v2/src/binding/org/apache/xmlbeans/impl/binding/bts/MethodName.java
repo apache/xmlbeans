@@ -96,7 +96,8 @@ public class MethodName {
    */
   /*package*/
   static MethodName create(JavaMethodName jmn) {
-
+    if (jmn == null) return null;
+    
     return create(jmn.getMethodName(),
                   namesForStrings(jmn.getParamTypeArray()));
   }

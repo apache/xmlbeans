@@ -33,6 +33,7 @@ public abstract class BindingProperty {
   private BindingTypeName btName;
   private MethodName getter;
   private MethodName setter;
+  private MethodName issetter;
   private String field;
   private JavaTypeName collection;
 
@@ -58,6 +59,7 @@ public abstract class BindingProperty {
             XmlTypeName.forString(node.getXmlcomponent()));
     this.getter = MethodName.create(node.getGetter());
     this.setter = MethodName.create(node.getSetter());
+    this.issetter = MethodName.create(node.getIssetter());
     this.field = node.getField();
     String collection = node.getCollection();
     if (collection != null)
@@ -123,6 +125,18 @@ public abstract class BindingProperty {
 
   public void setSetterName(MethodName mn) {
     setter = mn;
+  }
+
+  public boolean hasIssetter() {
+    return !isField() && issetter != null;
+  }
+
+  public MethodName getIssetterName() {
+    return isField() ? null : issetter;
+  }
+
+  public void setIssetterName(MethodName mn) {
+    issetter = mn;
   }
 
   public String getFieldName() {
