@@ -74,7 +74,7 @@ import java.net.MalformedURLException;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ReflectJamTest_150 extends JamTestBase {
+public class ReflectJamTest_150 extends JamTestBase_150 {
 
   // ========================================================================
   // Constructors
@@ -119,8 +119,15 @@ public class ReflectJamTest_150 extends JamTestBase {
   // ========================================================================
   // Reflection-specific test methods
 
+  // ========================================================================
+  // Reflection-specific test methods
+
+//FIXME please move this up into base class
+
+  private static final String EXTJAR_JAR = "../../build/jam/test/extjar.jar";
+
   public void testClassLoaderWrapper() throws MalformedURLException {
-    File aJarNotInTheClasspath = new File("dummy.jar");
+    File aJarNotInTheClasspath = new File(EXTJAR_JAR);
     assertTrue(aJarNotInTheClasspath.getAbsolutePath()+" does not exist",
                aJarNotInTheClasspath.exists());
     URL url = aJarNotInTheClasspath.toURL();

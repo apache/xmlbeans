@@ -59,6 +59,7 @@ import org.apache.xmlbeans.impl.jam.*;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.IOException;
+import java.io.File;
 import java.util.*;
 
 import org.apache.xmlbeans.test.jam.cases.jsr175.RFEAnnotation;
@@ -127,8 +128,8 @@ public abstract class JamTestBase_150 extends JamTestBase {
 */
 
   public void testIsEnum() {
-    JClass gts = mLoader.loadClass(DUMMY+".MyEnum");
-    assertTrue(gts.getQualifiedName()+".isEnumType() must be true",
+    JClass gts = resolved(mLoader.loadClass(DUMMY+".MyEnum"));
+    assertTrue(gts.getQualifiedName()+" - isEnumType() must be true",
                gts.isEnumType() == true);
   }
 
@@ -284,5 +285,8 @@ public abstract class JamTestBase_150 extends JamTestBase {
     super.addAllKnownClasses(c);
   }
 
+  protected File[] getCasesSourcepath() {
+    return new File[] {new File("cases/src"), new File("cases/src_150")};
+  }
 
 }

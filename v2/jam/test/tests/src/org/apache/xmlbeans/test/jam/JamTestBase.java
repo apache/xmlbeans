@@ -297,7 +297,6 @@ public abstract class JamTestBase extends TestCase {
                inners[0].getClasses().length == 0);
   }
 
-
   public void testAllClassesAvailable() {
     JClass[] classes = mResult.getAllClasses();
     List classNames = new ArrayList(classes.length);
@@ -312,10 +311,25 @@ public abstract class JamTestBase extends TestCase {
       //System.out.println("found:");
       //for(int i=0; i<classNames.size(); i++) System.out.println(classNames.get(i).toString());
     }
-    assertTrue("result does not contain all expected classes",
-               classNames.containsAll(expected));
-    assertTrue("result contains more than expected classes",
-               expected.containsAll(classNames));
+
+    if (!classNames.containsAll(expected)) {
+      expected.removeAll(classNames);
+      System.out.println("Missing classes are: ");
+      for(Iterator i = expected.iterator(); i.hasNext(); ) {
+        System.out.println(" "+i.next());
+      }
+      assertTrue("result does not contain all expected classes",
+                 false);
+    }
+    if (!expected.containsAll(classNames)) {
+      classNames.removeAll(expected);
+      System.out.println("Extra classes are: ");
+      for(Iterator i = classNames.iterator(); i.hasNext(); ) {
+        System.out.println(" "+i.next());
+      }
+      assertTrue("result contains more than expected classes",
+                 false);
+    }
   }
 
   public void testAnnotationUrlValues() {
