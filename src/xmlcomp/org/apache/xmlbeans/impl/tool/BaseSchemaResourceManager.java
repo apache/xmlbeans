@@ -15,12 +15,13 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.xmlbeans.impl.util.HexBin;
-import org.apache.xmlbeans.impl.common.IOUtil;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemasDocument;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemasDocument.DownloadedSchemas;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemaEntry;
+import org.apache.xmlbeans.impl.util.HexBin;
+import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -44,6 +45,9 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 
 public abstract class BaseSchemaResourceManager extends SchemaImportResolver
 {
+    // User-Agent: XMLBeans/1.0.4 (org.apache.xmlbeans)
+    private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
+
     private String _defaultCopyDirectory;
     private DownloadedSchemasDocument _importsDoc;
     private Map _resourceForFilename = new HashMap();
@@ -554,7 +558,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         {
             URL url = new URL( schemaLocation );
             URLConnection conn = url.openConnection();
-            conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.3");
+            conn.addRequestProperty("User-Agent", USER_AGENT);
             conn.addRequestProperty("Accept", "application/xml, text/xml, */*");
             DigestInputStream input = digestInputStream(conn.getInputStream());
             IOUtil.copyCompletely(input, buffer);

@@ -51,6 +51,20 @@ public class InstanceValidator
             return;
         }
         
+        if (cl.getOpt("license") != null)
+        {
+            CommandLine.printLicense();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
+
         boolean dl = (cl.getOpt("dl") != null);
         boolean nopvr = (cl.getOpt("nopvr") != null);
         boolean noupa = (cl.getOpt("noupa") != null);

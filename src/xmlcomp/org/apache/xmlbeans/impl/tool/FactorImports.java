@@ -59,6 +59,13 @@ public class FactorImports
             return;
         }
 
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
+
         args = cl.args();
         if (args.length != 1)
         {
