@@ -27,7 +27,7 @@ import xmlcursor.common.*;
  *
  */
 public class GetTextValueTest extends BasicCursorTestCase {
- /*
+
 
     String sDoc = Common.XML_FOO_NS_PREFIX;
 
@@ -38,7 +38,7 @@ public class GetTextValueTest extends BasicCursorTestCase {
     public static Test suite() {
         return new TestSuite(GetTextValueTest.class);
     }
-
+ /*
     
      // Depth first concatenation of all text leaves
      
