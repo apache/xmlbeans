@@ -1,14 +1,13 @@
 package org.apache.xmlbeans.impl.newstore;
 
-import org.apache.xmlbeans.impl.newstore.DomImpl.Dom;
+import org.apache.xmlbeans.impl.newstore.pub.store.Dom;
 
 import javax.xml.namespace.QName;
 
-import org.apache.xmlbeans.impl.newstore.xcur.Master;
-import org.apache.xmlbeans.impl.newstore.xcur.Xcur;
+import org.apache.xmlbeans.impl.newstore.pub.store.Locale;
+import org.apache.xmlbeans.impl.newstore.pub.store.Cur;
 
 import java.util.Iterator;
-import java.util.Locale;
 
 import javax.xml.soap.Detail;
 import javax.xml.soap.DetailEntry;
@@ -43,32 +42,25 @@ public abstract class SaajImpl
     
     public static void saajCallback_setSaajData ( Dom d, Object o )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
-        try
-        {
-            if (m.noSync())         { m.enter(); impl_saajCallback_setSaajData( d, o ); }
-            else synchronized ( m ) { m.enter(); impl_saajCallback_setSaajData( d, o ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { impl_saajCallback_setSaajData( d, o ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { impl_saajCallback_setSaajData( d, o ); } finally { l.exit(); } }
     }
     
     public static void impl_saajCallback_setSaajData ( Dom d, Object o )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
-        Xcur x = m.tempCur();
+        Cur c = l.tempCur();
 
-        x.moveToDom( d );
+        c.moveToDom( d );
 
         SaajData sd = null;
 
         if (o != null)
         {
-            sd = (SaajData) x.getBookmark( SaajData.class );
+            sd = (SaajData) c.getBookmark( SaajData.class );
 
             if (sd == null)
                 sd = new SaajData();
@@ -76,65 +68,57 @@ public abstract class SaajImpl
             sd._obj = o;
         }
         
-        x.setBookmark( SaajData.class, sd );
+        c.setBookmark( SaajData.class, sd );
+
+        c.release();
     }
 
     public static Object saajCallback_getSaajData ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return impl_saajCallback_getSaajData( d ); }
-            else synchronized ( m ) { m.enter(); return impl_saajCallback_getSaajData( d ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return impl_saajCallback_getSaajData( d ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return impl_saajCallback_getSaajData( d ); } finally { l.exit(); } }
     }
     
     public static Object impl_saajCallback_getSaajData ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
-        Xcur x = m.tempCur();
+        Cur c = l.tempCur();
 
-        x.moveToDom( d );
+        c.moveToDom( d );
 
-        SaajData sd = (SaajData) x.getBookmark( SaajData.class );
+        SaajData sd = (SaajData) c.getBookmark( SaajData.class );
 
-        return sd == null ? null : sd._obj;
+        Object o = sd == null ? null : sd._obj;
+
+        c.release();
+
+        return o;
     }
 
     public static Element saajCallback_createSoapElement ( Dom d, QName name, QName parentName )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         Dom e;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); e = impl_saajCallback_createSoapElement( d, name, parentName ); }
-            else synchronized ( m ) { m.enter(); e = impl_saajCallback_createSoapElement( d, name, parentName ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { e = impl_saajCallback_createSoapElement( d, name, parentName ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { e = impl_saajCallback_createSoapElement( d, name, parentName ); } finally { l.exit(); } }
 
         return (Element) e;
     }
     
     public static Dom impl_saajCallback_createSoapElement ( Dom d, QName name, QName parentName )
     {
-        Xcur x = d.master().tempCur();
+        Cur c = d.locale().tempCur();
         
-        x.createElement( name, parentName );
+        c.createElement( name, parentName );
         
-        Dom e = x.getDom();
+        Dom e = c.getDom();
         
-        x.release();
+        c.release();
         
         return e;
     }
@@ -142,19 +126,12 @@ public abstract class SaajImpl
     public static Element saajCallback_importSoapElement (
         Dom d, Element elem, boolean deep, QName parentName )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         Dom e;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); e = impl_saajCallback_importSoapElement( d, elem, deep, parentName ); }
-            else synchronized ( m ) { m.enter(); e = impl_saajCallback_importSoapElement( d, elem, deep, parentName ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { e = impl_saajCallback_importSoapElement( d, elem, deep, parentName ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { e = impl_saajCallback_importSoapElement( d, elem, deep, parentName ); } finally { l.exit(); } }
 
         return (Element) e;
     }
@@ -172,17 +149,10 @@ public abstract class SaajImpl
     
     public static Text saajCallback_ensureSoapTextNode ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return impl_saajCallback_ensureSoapTextNode( d ); }
-            else synchronized ( m ) { m.enter(); return impl_saajCallback_ensureSoapTextNode( d ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return impl_saajCallback_ensureSoapTextNode( d ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return impl_saajCallback_ensureSoapTextNode( d ); } finally { l.exit(); } }
     }
     
     public static Text impl_saajCallback_ensureSoapTextNode ( Dom d )
@@ -207,104 +177,62 @@ public abstract class SaajImpl
     
     public static void _soapNode_detachNode ( Dom n )
     {
-        Master m = n.master();
+        Locale l = n.locale();
 
         javax.xml.soap.Node node = (javax.xml.soap.Node) n;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapNode_detachNode( node ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapNode_detachNode( node ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapNode_detachNode( node ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_detachNode( node ); } finally { l.exit(); } }
     }
     
     public static void _soapNode_recycleNode ( Dom n )
     {
-        Master m = n.master();
+        Locale l = n.locale();
 
         javax.xml.soap.Node node = (javax.xml.soap.Node) n;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapNode_recycleNode( node ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapNode_recycleNode( node ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapNode_recycleNode( node ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_recycleNode( node ); } finally { l.exit(); } }
     }
     
     public static String _soapNode_getValue ( Dom n )
     {
-        Master m = n.master();
+        Locale l = n.locale();
 
         javax.xml.soap.Node node = (javax.xml.soap.Node) n;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapNode_getValue( node ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapNode_getValue( node ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapNode_getValue( node ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapNode_getValue( node ); } finally { l.exit(); } }
     }
 
     public static void _soapNode_setValue ( Dom n, String value )
     {
-        Master m = n.master();
+        Locale l = n.locale();
 
         javax.xml.soap.Node node = (javax.xml.soap.Node) n;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapNode_setValue( node, value ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapNode_setValue( node, value ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapNode_setValue( node, value ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_setValue( node, value ); } finally { l.exit(); } }
     }
 
     public static SOAPElement _soapNode_getParentElement ( Dom n )
     {
-        Master m = n.master();
+        Locale l = n.locale();
 
         javax.xml.soap.Node node = (javax.xml.soap.Node) n;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapNode_getParentElement( node ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapNode_getParentElement( node ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapNode_getParentElement( node ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapNode_getParentElement( node ); } finally { l.exit(); } }
     }
 
     public static void _soapNode_setParentElement ( Dom n, SOAPElement p )
     {
-        Master m = n.master();
+        Locale l = n.locale();
 
         javax.xml.soap.Node node = (javax.xml.soap.Node) n;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapNode_setParentElement( node, p ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapNode_setParentElement( node, p ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapNode_setParentElement( node, p ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapNode_setParentElement( node, p ); } finally { l.exit(); } }
     }
 
     //
@@ -313,359 +241,212 @@ public abstract class SaajImpl
 
     public static void _soapElement_removeContents ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapElement_removeContents( se ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapElement_removeContents( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapElement_removeContents( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapElement_removeContents( se ); } finally { l.exit(); } }
     }
     
     public static String _soapElement_getEncodingStyle ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getEncodingStyle( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getEncodingStyle( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getEncodingStyle( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getEncodingStyle( se ); } finally { l.exit(); } }
     }
     
     public static void _soapElement_setEncodingStyle ( Dom d, String encodingStyle )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapElement_setEncodingStyle( se, encodingStyle ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapElement_setEncodingStyle( se, encodingStyle ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapElement_setEncodingStyle( se, encodingStyle ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapElement_setEncodingStyle( se, encodingStyle ); } finally { l.exit(); } }
     }
     
     public static boolean _soapElement_removeNamespaceDeclaration ( Dom d, String prefix )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_removeNamespaceDeclaration( se, prefix ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_removeNamespaceDeclaration( se, prefix ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_removeNamespaceDeclaration( se, prefix ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_removeNamespaceDeclaration( se, prefix ); } finally { l.exit(); } }
     }
     
     public static Iterator _soapElement_getAllAttributes ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getAllAttributes( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getAllAttributes( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getAllAttributes( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getAllAttributes( se ); } finally { l.exit(); } }
     }
     
     public static Iterator _soapElement_getChildElements ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getChildElements( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getChildElements( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getChildElements( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getChildElements( se ); } finally { l.exit(); } }
     }
     
     public static Iterator _soapElement_getNamespacePrefixes ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getNamespacePrefixes( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getNamespacePrefixes( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getNamespacePrefixes( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getNamespacePrefixes( se ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addAttribute ( Dom d, Name name, String value ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addAttribute( se, name, value ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addAttribute( se, name, value ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addAttribute( se, name, value ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addAttribute( se, name, value ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addChildElement ( Dom d, SOAPElement oldChild ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addChildElement( se, oldChild ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addChildElement( se, oldChild ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addChildElement( se, oldChild ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addChildElement( se, oldChild ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addChildElement ( Dom d, Name name ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addChildElement( se, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addChildElement( se, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addChildElement( se, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addChildElement( se, name ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addChildElement ( Dom d, String localName ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addChildElement( se, localName ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addChildElement( se, localName ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addChildElement( se, localName ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addChildElement( se, localName ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addChildElement ( Dom d, String localName, String prefix ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addChildElement( se, localName, prefix ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addChildElement( se, localName, prefix ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addChildElement( se, localName, prefix ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addChildElement( se, localName, prefix ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addChildElement ( Dom d, String localName, String prefix, String uri ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addChildElement( se, localName, prefix, uri ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addChildElement( se, localName, prefix, uri ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addChildElement( se, localName, prefix, uri ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addChildElement( se, localName, prefix, uri ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addNamespaceDeclaration ( Dom d, String prefix, String uri )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addNamespaceDeclaration( se, prefix, uri ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addNamespaceDeclaration( se, prefix, uri ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addNamespaceDeclaration( se, prefix, uri ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addNamespaceDeclaration( se, prefix, uri ); } finally { l.exit(); } }
     }
     
     public static SOAPElement _soapElement_addTextNode ( Dom d, String data )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_addTextNode( se, data ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_addTextNode( se, data ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_addTextNode( se, data ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_addTextNode( se, data ); } finally { l.exit(); } }
     }
     
     public static String _soapElement_getAttributeValue ( Dom d, Name name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getAttributeValue( se, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getAttributeValue( se, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getAttributeValue( se, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getAttributeValue( se, name ); } finally { l.exit(); } }
     }
     
     public static Iterator _soapElement_getChildElements ( Dom d, Name name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getChildElements( se, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getChildElements( se, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getChildElements( se, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getChildElements( se, name ); } finally { l.exit(); } }
     }
     
     public static Name _soapElement_getElementName ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getElementName( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getElementName( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getElementName( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getElementName( se ); } finally { l.exit(); } }
     }
     
     public static String _soapElement_getNamespaceURI ( Dom d, String prefix )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getNamespaceURI( se, prefix ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getNamespaceURI( se, prefix ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getNamespaceURI( se, prefix ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getNamespaceURI( se, prefix ); } finally { l.exit(); } }
     }
     
     public static Iterator _soapElement_getVisibleNamespacePrefixes ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_getVisibleNamespacePrefixes( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_getVisibleNamespacePrefixes( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_getVisibleNamespacePrefixes( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_getVisibleNamespacePrefixes( se ); } finally { l.exit(); } }
     }
     
     public static boolean _soapElement_removeAttribute ( Dom d, Name name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPElement se = (SOAPElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapElement_removeAttribute( se, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapElement_removeAttribute( se, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapElement_removeAttribute( se, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapElement_removeAttribute( se, name ); } finally { l.exit(); } }
     }
 
     //
@@ -674,104 +455,62 @@ public abstract class SaajImpl
 
     public static SOAPBody _soapEnvelope_addBody ( Dom d ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPEnvelope se = (SOAPEnvelope) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapEnvelope_addBody( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapEnvelope_addBody( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapEnvelope_addBody( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapEnvelope_addBody( se ); } finally { l.exit(); } }
     }
     
     public static SOAPBody _soapEnvelope_getBody ( Dom d ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPEnvelope se = (SOAPEnvelope) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapEnvelope_getBody( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapEnvelope_getBody( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapEnvelope_getBody( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapEnvelope_getBody( se ); } finally { l.exit(); } }
     }
     
     public static SOAPHeader _soapEnvelope_getHeader ( Dom d ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPEnvelope se = (SOAPEnvelope) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapEnvelope_getHeader( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapEnvelope_getHeader( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapEnvelope_getHeader( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapEnvelope_getHeader( se ); } finally { l.exit(); } }
     }
     
     public static SOAPHeader _soapEnvelope_addHeader ( Dom d ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPEnvelope se = (SOAPEnvelope) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapEnvelope_addHeader( se ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapEnvelope_addHeader( se ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapEnvelope_addHeader( se ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapEnvelope_addHeader( se ); } finally { l.exit(); } }
     }
     
     public static Name _soapEnvelope_createName ( Dom d, String localName )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPEnvelope se = (SOAPEnvelope) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapEnvelope_createName( se, localName ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapEnvelope_createName( se, localName ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapEnvelope_createName( se, localName ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapEnvelope_createName( se, localName ); } finally { l.exit(); } }
     }
     
     public static Name _soapEnvelope_createName ( Dom d, String localName, String prefix, String namespaceURI )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPEnvelope se = (SOAPEnvelope) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapEnvelope_createName( se, localName, prefix, namespaceURI ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapEnvelope_createName( se, localName, prefix, namespaceURI ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapEnvelope_createName( se, localName, prefix, namespaceURI ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapEnvelope_createName( se, localName, prefix, namespaceURI ); } finally { l.exit(); } }
     }
 
     //
@@ -780,104 +519,62 @@ public abstract class SaajImpl
 
     public static Iterator soapHeader_examineAllHeaderElements ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeader sh = (SOAPHeader) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeader_examineAllHeaderElements( sh ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeader_examineAllHeaderElements( sh ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeader_examineAllHeaderElements( sh ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeader_examineAllHeaderElements( sh ); } finally { l.exit(); } }
     }
 
     public static Iterator soapHeader_extractAllHeaderElements ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeader sh = (SOAPHeader) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeader_extractAllHeaderElements( sh ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeader_extractAllHeaderElements( sh ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeader_extractAllHeaderElements( sh ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeader_extractAllHeaderElements( sh ); } finally { l.exit(); } }
     }
 
     public static Iterator soapHeader_examineHeaderElements ( Dom d, String actor )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeader sh = (SOAPHeader) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeader_examineHeaderElements( sh, actor ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeader_examineHeaderElements( sh, actor ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeader_examineHeaderElements( sh, actor ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeader_examineHeaderElements( sh, actor ); } finally { l.exit(); } }
     }
 
     public static Iterator soapHeader_examineMustUnderstandHeaderElements ( Dom d, String mustUnderstandString )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeader sh = (SOAPHeader) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeader_examineMustUnderstandHeaderElements( sh, mustUnderstandString ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeader_examineMustUnderstandHeaderElements( sh, mustUnderstandString ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeader_examineMustUnderstandHeaderElements( sh, mustUnderstandString ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeader_examineMustUnderstandHeaderElements( sh, mustUnderstandString ); } finally { l.exit(); } }
     }
 
     public static Iterator soapHeader_extractHeaderElements ( Dom d, String actor )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeader sh = (SOAPHeader) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeader_extractHeaderElements( sh, actor ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeader_extractHeaderElements( sh, actor ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeader_extractHeaderElements( sh, actor ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeader_extractHeaderElements( sh, actor ); } finally { l.exit(); } }
     }
 
     public static SOAPHeaderElement soapHeader_addHeaderElement ( Dom d, Name name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeader sh = (SOAPHeader) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeader_addHeaderElement( sh, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeader_addHeaderElement( sh, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeader_addHeaderElement( sh, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeader_addHeaderElement( sh, name ); } finally { l.exit(); } }
     }
     
     //
@@ -886,121 +583,72 @@ public abstract class SaajImpl
 
     public static boolean soapBody_hasFault ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPBody sb = (SOAPBody) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapBody_hasFault( sb ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapBody_hasFault( sb ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapBody_hasFault( sb ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapBody_hasFault( sb ); } finally { l.exit(); } }
     }
     
     public static SOAPFault soapBody_addFault ( Dom d ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPBody sb = (SOAPBody) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapBody_addFault( sb ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapBody_addFault( sb ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapBody_addFault( sb ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapBody_addFault( sb ); } finally { l.exit(); } }
     }
     
     public static SOAPFault soapBody_getFault ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPBody sb = (SOAPBody) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapBody_getFault( sb ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapBody_getFault( sb ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapBody_getFault( sb ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapBody_getFault( sb ); } finally { l.exit(); } }
     }
     
     public static SOAPBodyElement soapBody_addBodyElement ( Dom d, Name name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPBody sb = (SOAPBody) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapBody_addBodyElement( sb, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapBody_addBodyElement( sb, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapBody_addBodyElement( sb, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapBody_addBodyElement( sb, name ); } finally { l.exit(); } }
     }
     
     public static SOAPBodyElement soapBody_addDocument ( Dom d, Document document )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPBody sb = (SOAPBody) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapBody_addDocument( sb, document ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapBody_addDocument( sb, document ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapBody_addDocument( sb, document ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapBody_addDocument( sb, document ); } finally { l.exit(); } }
     }
     
     public static SOAPFault soapBody_addFault ( Dom d, Name name, String s ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPBody sb = (SOAPBody) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapBody_addFault( sb, name, s ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapBody_addFault( sb, name, s ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapBody_addFault( sb, name, s ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapBody_addFault( sb, name, s ); } finally { l.exit(); } }
     }
     
-    public static SOAPFault soapBody_addFault ( Dom d, Name faultCode, String faultString, Locale locale ) throws SOAPException
+    public static SOAPFault soapBody_addFault ( Dom d, Name faultCode, String faultString, java.util.Locale locale ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPBody sb = (SOAPBody) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapBody_addFault( sb, faultCode, faultString, locale ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapBody_addFault( sb, faultCode, faultString, locale ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapBody_addFault( sb, faultCode, faultString, locale ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapBody_addFault( sb, faultCode, faultString, locale ); } finally { l.exit(); } }
     }
     
     //
@@ -1009,206 +657,122 @@ public abstract class SaajImpl
 
     public static void soapFault_setFaultString ( Dom d, String faultString )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapFault_setFaultString( sf, faultString ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapFault_setFaultString( sf, faultString ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapFault_setFaultString( sf, faultString ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapFault_setFaultString( sf, faultString ); } finally { l.exit(); } }
     }
     
-    public static void soapFault_setFaultString ( Dom d, String faultString, Locale locale )
+    public static void soapFault_setFaultString ( Dom d, String faultString, java.util.Locale locale )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapFault_setFaultString( sf, faultString, locale ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapFault_setFaultString( sf, faultString, locale ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapFault_setFaultString( sf, faultString, locale ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapFault_setFaultString( sf, faultString, locale ); } finally { l.exit(); } }
     }
     
     public static void soapFault_setFaultCode ( Dom d, Name faultCodeName ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapFault_setFaultCode( sf, faultCodeName ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapFault_setFaultCode( sf, faultCodeName ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapFault_setFaultCode( sf, faultCodeName ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapFault_setFaultCode( sf, faultCodeName ); } finally { l.exit(); } }
     }
     
     public static void soapFault_setFaultActor ( Dom d, String faultActorString )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapFault_setFaultActor( sf, faultActorString ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapFault_setFaultActor( sf, faultActorString ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapFault_setFaultActor( sf, faultActorString ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapFault_setFaultActor( sf, faultActorString ); } finally { l.exit(); } }
     }
     
     public static String soapFault_getFaultActor ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapFault_getFaultActor( sf ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapFault_getFaultActor( sf ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapFault_getFaultActor( sf ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapFault_getFaultActor( sf ); } finally { l.exit(); } }
     }
     
     public static String soapFault_getFaultCode ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapFault_getFaultCode( sf ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapFault_getFaultCode( sf ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapFault_getFaultCode( sf ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapFault_getFaultCode( sf ); } finally { l.exit(); } }
     }
     
     public static void soapFault_setFaultCode ( Dom d, String faultCode ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapFault_setFaultCode( sf, faultCode ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapFault_setFaultCode( sf, faultCode ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapFault_setFaultCode( sf, faultCode ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapFault_setFaultCode( sf, faultCode ); } finally { l.exit(); } }
     }
     
-    public static Locale soapFault_getFaultStringLocale ( Dom d )
+    public static java.util.Locale soapFault_getFaultStringLocale ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapFault_getFaultStringLocale( sf ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapFault_getFaultStringLocale( sf ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapFault_getFaultStringLocale( sf ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapFault_getFaultStringLocale( sf ); } finally { l.exit(); } }
     }
     
     public static Name soapFault_getFaultCodeAsName ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapFault_getFaultCodeAsName( sf ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapFault_getFaultCodeAsName( sf ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapFault_getFaultCodeAsName( sf ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapFault_getFaultCodeAsName( sf ); } finally { l.exit(); } }
     }
     
     public static String soapFault_getFaultString ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapFault_getFaultString( sf ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapFault_getFaultString( sf ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapFault_getFaultString( sf ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapFault_getFaultString( sf ); } finally { l.exit(); } }
     }
     
     public static Detail soapFault_addDetail ( Dom d ) throws SOAPException
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapFault_addDetail( sf ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapFault_addDetail( sf ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapFault_addDetail( sf ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapFault_addDetail( sf ); } finally { l.exit(); } }
     }
     
     public static Detail soapFault_getDetail ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPFault sf = (SOAPFault) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapFault_getDetail( sf ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapFault_getDetail( sf ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapFault_getDetail( sf ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapFault_getDetail( sf ); } finally { l.exit(); } }
     }
     
     //
@@ -1217,70 +781,42 @@ public abstract class SaajImpl
 
     public static void soapHeaderElement_setMustUnderstand ( Dom d, boolean mustUnderstand )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeaderElement she = (SOAPHeaderElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapHeaderElement_setMustUnderstand( she, mustUnderstand ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapHeaderElement_setMustUnderstand( she, mustUnderstand ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapHeaderElement_setMustUnderstand( she, mustUnderstand ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapHeaderElement_setMustUnderstand( she, mustUnderstand ); } finally { l.exit(); } }
     }
     
     public static boolean soapHeaderElement_getMustUnderstand ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeaderElement she = (SOAPHeaderElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeaderElement_getMustUnderstand( she ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeaderElement_getMustUnderstand( she ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeaderElement_getMustUnderstand( she ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeaderElement_getMustUnderstand( she ); } finally { l.exit(); } }
     }
     
     public static void soapHeaderElement_setActor ( Dom d, String actor )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeaderElement she = (SOAPHeaderElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapHeaderElement_setActor( she, actor ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapHeaderElement_setActor( she, actor ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapHeaderElement_setActor( she, actor ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapHeaderElement_setActor( she, actor ); } finally { l.exit(); } }
     }
     
     public static String soapHeaderElement_getActor ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPHeaderElement she = (SOAPHeaderElement) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapHeaderElement_getActor( she ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapHeaderElement_getActor( she ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapHeaderElement_getActor( she ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapHeaderElement_getActor( she ); } finally { l.exit(); } }
     }
     
     //
@@ -1289,36 +825,22 @@ public abstract class SaajImpl
 
     public static DetailEntry detail_addDetailEntry ( Dom d, Name name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         Detail detail = (Detail) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.detail_addDetailEntry( detail, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.detail_addDetailEntry( detail, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.detail_addDetailEntry( detail, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.detail_addDetailEntry( detail, name ); } finally { l.exit(); } }
     }
     
     public static Iterator detail_getDetailEntries ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         Detail detail = (Detail) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.detail_getDetailEntries( detail ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.detail_getDetailEntries( detail ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.detail_getDetailEntries( detail ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.detail_getDetailEntries( detail ); } finally { l.exit(); } }
     }
     
     //
@@ -1327,188 +849,111 @@ public abstract class SaajImpl
 
     public static void soapPart_removeAllMimeHeaders ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapPart_removeAllMimeHeaders( sp ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapPart_removeAllMimeHeaders( sp ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapPart_removeAllMimeHeaders( sp ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapPart_removeAllMimeHeaders( sp ); } finally { l.exit(); } }
     }
     
     public static void soapPart_removeMimeHeader ( Dom d, String name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapPart_removeMimeHeader( sp, name ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapPart_removeMimeHeader( sp, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapPart_removeMimeHeader( sp, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapPart_removeMimeHeader( sp, name ); } finally { l.exit(); } }
     }
     
     public static Iterator soapPart_getAllMimeHeaders ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapPart_getAllMimeHeaders( sp ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapPart_getAllMimeHeaders( sp ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapPart_getAllMimeHeaders( sp ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapPart_getAllMimeHeaders( sp ); } finally { l.exit(); } }
     }
     
     public static SOAPEnvelope soapPart_getEnvelope ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapPart_getEnvelope( sp ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapPart_getEnvelope( sp ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapPart_getEnvelope( sp ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapPart_getEnvelope( sp ); } finally { l.exit(); } }
     }
     
     public static Source soapPart_getContent ( Dom d )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapPart_getContent( sp ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapPart_getContent( sp ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapPart_getContent( sp ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapPart_getContent( sp ); } finally { l.exit(); } }
     }
     
     public static void soapPart_setContent ( Dom d, Source source )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapPart_setContent( sp, source ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapPart_setContent( sp, source ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapPart_setContent( sp, source ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapPart_setContent( sp, source ); } finally { l.exit(); } }
     }
     
     public static String[] soapPart_getMimeHeader ( Dom d, String name )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapPart_getMimeHeader( sp, name ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapPart_getMimeHeader( sp, name ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapPart_getMimeHeader( sp, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapPart_getMimeHeader( sp, name ); } finally { l.exit(); } }
     }
     
     public static void soapPart_addMimeHeader ( Dom d, String name, String value )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapPart_addMimeHeader( sp, name, value ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapPart_addMimeHeader( sp, name, value ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapPart_addMimeHeader( sp, name, value ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapPart_addMimeHeader( sp, name, value ); } finally { l.exit(); } }
     }
     
     public static void soapPart_setMimeHeader ( Dom d, String name, String value )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); m._saaj.soapPart_setMimeHeader( sp, name, value ); }
-            else synchronized ( m ) { m.enter(); m._saaj.soapPart_setMimeHeader( sp, name, value ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { l._saaj.soapPart_setMimeHeader( sp, name, value ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { l._saaj.soapPart_setMimeHeader( sp, name, value ); } finally { l.exit(); } }
     }
     
     public static Iterator soapPart_getMatchingMimeHeaders ( Dom d, String[] names )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapPart_getMatchingMimeHeaders( sp, names ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapPart_getMatchingMimeHeaders( sp, names ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapPart_getMatchingMimeHeaders( sp, names ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapPart_getMatchingMimeHeaders( sp, names ); } finally { l.exit(); } }
     }
     
     public static Iterator soapPart_getNonMatchingMimeHeaders ( Dom d, String[] names )
     {
-        Master m = d.master();
+        Locale l = d.locale();
 
         SOAPPart sp = (SOAPPart) d;
 
-        try
-        {
-            if (m.noSync())         { m.enter(); return m._saaj.soapPart_getNonMatchingMimeHeaders( sp, names ); }
-            else synchronized ( m ) { m.enter(); return m._saaj.soapPart_getNonMatchingMimeHeaders( sp, names ); }
-        }
-        finally
-        {
-            m.exit();
-        }
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapPart_getNonMatchingMimeHeaders( sp, names ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapPart_getNonMatchingMimeHeaders( sp, names ); } finally { l.exit(); } }
     }
 }

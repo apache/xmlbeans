@@ -1,20 +1,20 @@
-package org.apache.xmlbeans.impl.newstore.xcur;
+package org.apache.xmlbeans.impl.newstore;
 
 import java.io.PrintStream;
 
 import java.util.Iterator;
-import java.util.Locale;
 
-import org.apache.xmlbeans.impl.newstore.xcur.Master;
-import org.apache.xmlbeans.impl.newstore.xcur.Master.LoadContext;
-import org.apache.xmlbeans.impl.newstore.xcur.Xcur;
+import org.apache.xmlbeans.impl.newstore.pub.store.Locale;
+import org.apache.xmlbeans.impl.newstore.pub.store.Locale.LoadContext;
+import org.apache.xmlbeans.impl.newstore.pub.store.Cur;
+import org.apache.xmlbeans.impl.newstore.pub.store.Dom;
+import org.apache.xmlbeans.impl.newstore.pub.store.Dom.CharNode;
+import org.apache.xmlbeans.impl.newstore.pub.store.Dom.TextNode;
 
 import org.apache.xmlbeans.impl.newstore.SaajImpl;
 
+import org.apache.xmlbeans.impl.newstore.CharUtil;
 import org.apache.xmlbeans.impl.newstore.DomImpl;
-import org.apache.xmlbeans.impl.newstore.DomImpl.Dom;
-import org.apache.xmlbeans.impl.newstore.DomImpl.CharNode;
-import org.apache.xmlbeans.impl.newstore.DomImpl.TextNode;
 
 import org.w3c.dom.Attr;
 import org.w3c.dom.CDATASection;
@@ -54,16 +54,16 @@ import javax.xml.transform.Source;
 
 import javax.xml.namespace.QName;
 
-public final class Mcur extends Xcur
+public final class Mcur extends Cur
 {
-    protected Master _master ( )
+    protected Locale _locale ( )
     {
-        return _master;
+        return _locale;
     }
     
     protected void _dispose ( )
     {
-        _master = null;
+        _locale = null;
     }
     
     protected int _kind ( )
@@ -76,7 +76,7 @@ public final class Mcur extends Xcur
     {
         assert isNormal();
         
-        Xobj xo = _master.createElement( name, parentName );
+        Xobj xo = _locale.createElement( name, parentName );
         
         if (_xobj != null)
         {
@@ -92,7 +92,7 @@ public final class Mcur extends Xcur
     {
         assert isNormal();
         
-        Xobj xo = _master.createXobj( kind, name );
+        Xobj xo = _locale.createXobj( kind, name );
 
         if (_xobj != null)
         {
@@ -132,7 +132,7 @@ public final class Mcur extends Xcur
         if (raw || _xobj.isRoot())
             return false;
 
-        Mcur r = (Mcur) _master.tempCur();
+        Mcur r = (Mcur) _locale.tempCur();
         r.createRoot( ROOT );
         r.next();
         _moveNode( r );
@@ -206,9 +206,9 @@ public final class Mcur extends Xcur
         return true;
     }
 
-    protected boolean _isSamePosition ( Xcur xThat )
+    protected boolean _isSamePosition ( Cur cThat )
     {
-        Mcur that = (Mcur) xThat;
+        Mcur that = (Mcur) cThat;
 
         assert isNormal() && that.isNormal();
 
@@ -227,13 +227,13 @@ public final class Mcur extends Xcur
         return _xobj.getDom();
     }
 
-    protected void _moveToCur ( Xcur x )
+    protected void _moveToCur ( Cur c )
     {
-        if (x == null)
+        if (c == null)
             set( null, -1 );
         else
         {
-            Mcur m = (Mcur) x;
+            Mcur m = (Mcur) c;
             set( m._xobj, m._pos );
         }
     }
@@ -241,7 +241,7 @@ public final class Mcur extends Xcur
     protected void _moveToDom ( Dom d )
     {
         assert d instanceof Xobj || d instanceof SoapPartDom;
-        assert d.master() == _master;
+        assert d.locale() == _locale;
 
         set( d instanceof Xobj ? (Xobj) d : ((SoapPartDom) d)._docXobj, 0 );
     }
@@ -252,8 +252,8 @@ public final class Mcur extends Xcur
         assert name != null;
         _xobj._name = name;
         
-        _master._versionAll++;
-        _master._versionSansText++;
+        _locale._versionAll++;
+        _locale._versionSansText++;
     }
     
     protected final QName _getName ( )
@@ -350,36 +350,38 @@ public final class Mcur extends Xcur
             if (p >= x.posAfter())
             {
                 x._srcAfter =
-                    _master.insertChars(
-                        p - x.posAfter(), x._srcAfter, x._offAfter, x._cchAfter, src, off, cch );
-
-                x._offAfter = _master._offSrc;
-                x._cchAfter = _master._cchSrc;
+                    _locale._charUtil.insertChars(
+                        p - x.posAfter(),
+                        x._srcAfter, x._offAfter, x._cchAfter, src, off, cch );
+                
+                x._offAfter = _locale._charUtil._offSrc;
+                x._cchAfter = _locale._charUtil._cchSrc;
             }
             else
             {
                 x._srcValue =
-                    _master.insertChars(
-                        p - 1, x._srcValue, x._offValue, x._cchValue, src, off, cch );
-
-                x._offValue = _master._offSrc;
-                x._cchValue = _master._cchSrc;
+                    _locale._charUtil.insertChars(
+                        p - 1,
+                        x._srcValue, x._offValue, x._cchValue, src, off, cch );
+                
+                x._offValue = _locale._charUtil._offSrc;
+                x._cchValue = _locale._charUtil._cchSrc;
             }
             
-            _master._versionAll++;
+            _locale._versionAll++;
         }
     }
 
-    protected void _copyNode ( Xcur xTo )
+    protected void _copyNode ( Cur cTo )
     {
         // TODO - make moveNode, moveChars, etc, deal with targeting different
         // masters -- may have to copy instead of move .....
 
-        assert xTo != null;
+        assert cTo != null;
         assert _xobj != null && _pos == 0;
 
         // How to copy between fcur and mcur???
-        Mmaster tm = (Mmaster) xTo.master();
+        Mlocale tm = (Mlocale) cTo.locale();
         
         Xobj newParent = null;
         Xobj copy = null;
@@ -432,7 +434,7 @@ public final class Mcur extends Xcur
         copy._offAfter = 0;
         copy._cchAfter = 0;
 
-        Mcur to = (Mcur) xTo;
+        Mcur to = (Mcur) cTo;
 
         if (to._xobj == null)
             to.set( copy, 0 );
@@ -446,9 +448,9 @@ public final class Mcur extends Xcur
         }
     }
 
-    protected void _moveNode ( Xcur xTo )
+    protected void _moveNode ( Cur cTo )
     {
-        Mcur to = (Mcur) xTo;
+        Mcur to = (Mcur) cTo;
         
         assert _xobj != null && _pos == 0 && !_xobj.isRoot();
         assert to == null || (to.isNormal() && !_ancestorOf( to ));
@@ -495,13 +497,13 @@ public final class Mcur extends Xcur
         // to providing a notification thast a chnage will take place
         // .. will have to make the call earler. ...
         
-        _master._versionAll++;
-        _master._versionSansText++;
+        _locale._versionAll++;
+        _locale._versionSansText++;
     }
     
-    protected Object _moveChars ( Xcur xTo, int cchMove )
+    protected Object _moveChars ( Cur cTo, int cchMove )
     {
-        Mcur to = (Mcur) xTo;
+        Mcur to = (Mcur) cTo;
         
         assert _xobj != null && isNormal() && (to == null || to.isNormal());
         assert cchMove >= 0 && cchMove <= cchRight();
@@ -509,15 +511,13 @@ public final class Mcur extends Xcur
         if (cchMove == 0)
             return null;
 
-        _cchSrc = cchMove;
-
         if (to == null)
         {
             for ( Mcur e = _xobj.getEmbedded() ; e != null ; e = (Mcur) e._next )
             {
                 if (e != this && e._pos >= _pos && e._pos < _pos + cchMove)
                 {
-                    e = (Mcur) _master.tempCur();
+                    e = (Mcur) _locale.tempCur();
                     e.createRoot( ROOT );
                     e.next();
                     Object chars = _moveChars( e, cchMove );
@@ -547,6 +547,8 @@ public final class Mcur extends Xcur
 
                 _pos += cchMove;
                 
+                _cchSrc = cchMove;
+                
                 return src;
             }
 
@@ -556,51 +558,40 @@ public final class Mcur extends Xcur
                 to._insertChars( _xobj._srcAfter, _xobj._offAfter + _pos - pe - 1, cchMove );
         }
 
+        Object srcMoved;
+        int    offMoved;
+        
         int pe = _xobj.posEnd();
-
-        Object srcChars;
         
         if (_pos <= pe)
         {
-            assert _xobj._srcValue instanceof String || _xobj._srcValue instanceof char[];
-            
             int i = _pos - 1;
             
-            srcChars = _xobj._srcValue;
-            _offSrc = _xobj._offValue + i;
+            srcMoved = _xobj._srcValue;
+            offMoved = _xobj._offValue + i;
 
-            if (_xobj._cchValue == cchMove)
-                _xobj._srcValue = null;
-            else if (i == 0)
-                _xobj._offValue += cchMove;
-            else if (i + cchMove != _xobj._cchValue)
-            {
-                _xobj._offValue = _master.saveChars( _xobj._srcValue, _xobj._offValue + i, cchMove);
-                _xobj._srcValue = _master._savedChars;
-            }
+            _xobj._srcValue =
+                _locale._charUtil.removeChars(
+                    i, cchMove,
+                    _xobj._srcValue, _xobj._offValue, _xobj._cchValue );
 
-            _xobj._cchValue -= cchMove;
+            _xobj._offValue = _locale._charUtil._offSrc;
+            _xobj._cchValue = _locale._charUtil._cchSrc;
         }
         else
         {
-            assert _xobj._srcAfter instanceof String || _xobj._srcAfter instanceof char[];
-
             int i = _pos - pe - 1;
+            
+            srcMoved = _xobj._srcAfter;
+            offMoved = _xobj._offAfter + i;
 
-            srcChars = _xobj._srcAfter;
-            _offSrc = _xobj._offAfter + i;
+            _xobj._srcAfter =
+                _locale._charUtil.removeChars(
+                    i, cchMove,
+                    _xobj._srcAfter, _xobj._offAfter, _xobj._cchAfter );
 
-            if (_xobj._cchAfter == cchMove)
-                _xobj._srcAfter = null;
-            else if (i == 0)
-                _xobj._offAfter += cchMove;
-            else if (i + cchMove != _xobj._cchAfter)
-            {
-                _xobj._offAfter = _master.saveChars( _xobj._srcAfter, _xobj._offAfter + i, cchMove);
-                _xobj._srcAfter = _master._savedChars;
-            }
-
-            _xobj._cchAfter -= cchMove;
+            _xobj._offAfter = _locale._charUtil._offSrc;
+            _xobj._cchAfter = _locale._charUtil._cchSrc;
         }
         
         for ( Mcur e = _xobj.getEmbedded() ; e != null ; e = (Mcur) e._next )
@@ -615,14 +606,17 @@ public final class Mcur extends Xcur
         else
             set( getNormal( _xobj, _pos ), _posTemp );
 
-        _master._versionAll++;
+        _locale._versionAll++;
 
-        return srcChars;
+        _offSrc = offMoved;
+        _cchSrc = cchMove;
+
+        return srcMoved;
     }
     
-    protected boolean _ancestorOf ( Xcur xThat )
+    protected boolean _ancestorOf ( Cur cThat )
     {
-        Mcur that = (Mcur) xThat;
+        Mcur that = (Mcur) cThat;
         
         assert _xobj != null && that._xobj != null;
         assert isNormal() && that.isNormal() && _pos == 0;
@@ -682,12 +676,12 @@ public final class Mcur extends Xcur
         if (p > x.posEnd())
         {
             nodes = x._charNodesAfter =
-                updateCharNodes( _master, x, x._charNodesAfter, x._cchAfter );
+                updateCharNodes( _locale, x, x._charNodesAfter, x._cchAfter );
         }
         else
         {
             nodes = x._charNodesValue =
-                updateCharNodes( _master, x, x._charNodesValue, x._cchValue );
+                updateCharNodes( _locale, x, x._charNodesValue, x._cchValue );
         }
 
         return nodes;
@@ -718,7 +712,7 @@ public final class Mcur extends Xcur
         CharNode n;
 
         n = _xobj._charNodesValue =
-            updateCharNodes( _master, _xobj, _xobj._charNodesValue, _xobj._cchValue );
+            updateCharNodes( _locale, _xobj, _xobj._charNodesValue, _xobj._cchValue );
         
         for ( ; n != null ; n = n._next )
         {
@@ -730,7 +724,7 @@ public final class Mcur extends Xcur
         }
 
         n = _xobj._charNodesAfter =
-            updateCharNodes( _master, _xobj, _xobj._charNodesAfter, _xobj._cchAfter );
+            updateCharNodes( _locale, _xobj, _xobj._charNodesAfter, _xobj._cchAfter );
 
         for ( ; n != null ; n = n._next )
         {
@@ -746,6 +740,10 @@ public final class Mcur extends Xcur
     
     protected final void _setBookmark ( Class c, Object o )
     {
+        // BUGBUG - setting _obj must be more controlled. ... I want to
+        // be able to move pointers to differnet backends .... need to
+        // know which curs to move ...
+        
         assert isNormal();
         assert c != null;
         assert o == null || o.getClass() == c;
@@ -763,13 +761,13 @@ public final class Mcur extends Xcur
             }
         }
 
-        Xcur x = _master.permCur();
+        Cur cur = _locale.permCur();
 
-        x.moveToCur( this );
+        cur.moveToCur( this );
 
-        assert x._obj == null;
+        assert cur._obj == null;
 
-        x._obj = o;
+        cur._obj = o;
     }
     
     protected final Object _getBookmark ( Class c )
@@ -788,9 +786,9 @@ public final class Mcur extends Xcur
     //
     //
     
-    private Mcur ( Mmaster m )
+    private Mcur ( Mlocale m )
     {
-        _master = m;
+        _locale = m;
         _pos = -1;
     }
 
@@ -798,7 +796,7 @@ public final class Mcur extends Xcur
     {
         assert x != null || p == -1;
 
-        Mcur m = (Mcur) _master.tempCur();
+        Mcur m = (Mcur) _locale.tempCur();
 
         if (x != null && p == x.posMax())
         {
@@ -886,9 +884,9 @@ public final class Mcur extends Xcur
     }
 
     
-    public static Master newMaster ( )
+    public static Locale newLocale ( )
     {
-        return new Mmaster();
+        return new Mlocale();
     }
     
     private void set ( Xobj x, int p )
@@ -902,7 +900,7 @@ public final class Mcur extends Xcur
             assert _curKind != PERM;
             
             _xobj._embedded = listRemove( _xobj._embedded );
-            _master._unembedded = listInsert( _master._unembedded, UNEMBEDDED );
+            _locale._unembedded = listInsert( _locale._unembedded, UNEMBEDDED );
         }
 
         _xobj = x;
@@ -910,24 +908,16 @@ public final class Mcur extends Xcur
 
         if (_curKind == PERM && _state == UNEMBEDDED && _xobj != null)
         {
-            _master._unembedded = listRemove( _master._unembedded );
+            _locale._unembedded = listRemove( _locale._unembedded );
             _xobj._embedded = listInsert( _xobj._embedded, EMBEDDED );
         }
 
         assert isNormal();
     }
 
-    static final class Mmaster extends Master
+    public static final class Mlocale extends Locale
     {
-        Mmaster ( )
-        {
-            _charBufSize = 1024;
-
-            _currentBuffer = new char [ _charBufSize ];
-            _currentOffset = 0;
-        }
-        
-        protected Xcur newCur ( )
+        protected Cur newCur ( )
         {
             return new Mcur( this );
         }
@@ -1004,126 +994,15 @@ public final class Mcur extends Xcur
             return _saaj == null ? new CommentXobj( this ) : new SaajCommentXobj( this );
         }
         
-        int saveChars ( Object src, int off, int cch )
-        {
-            assert src == null || src instanceof String || src instanceof char[];
-            
-            if (src instanceof String)
-                return saveChars( (String) src, off, cch );
-            else
-                return saveChars( (char[]) src, off, cch );
-        }
-        
-        int saveChars ( String s, int off, int cch )
-        {
-            int savedOff;
-            
-            if (cch == 0)
-            {
-                _savedChars = null;
-                savedOff = 0;
-            }
-            else
-            {
-                savedOff = allocateChars( cch );
-                s.getChars( off, off + cch, _savedChars, savedOff );
-            }
-
-            return savedOff;
-        }
-        
-        int saveChars ( char[] buf, int off, int cch )
-        {
-            int savedOff;
-            
-            if (cch == 0)
-            {
-                _savedChars = null;
-                savedOff = 0;
-            }
-            else
-            {
-                savedOff = allocateChars( cch );
-                System.arraycopy( buf, off, _savedChars, savedOff, cch );
-            }
-            
-            return savedOff;
-        }
-                 
-        int saveChars ( char[] buf, int off, int cch, char[] bufX, int offX, int cchX )
-        {
-            int savedOff;
-            
-            if (cch == 0)
-            {
-                _savedChars = bufX;
-                savedOff = offX;
-            }
-            else
-            {
-                // TODO - manage two buffers so I waster less space ...
-                
-                if (bufX == _currentBuffer && offX + cchX == _currentOffset &&
-                        _currentBuffer.length - _currentOffset >= cch)
-                {
-                    System.arraycopy( buf, off, _currentBuffer, _currentOffset, cch );
-                    
-                    _currentOffset += cch;
-                    _savedChars = _currentBuffer;
-                    savedOff = offX;
-                }
-                else
-                {
-                    savedOff = allocateChars( cch + cchX );
-                    
-                    System.arraycopy( bufX, offX, _savedChars, savedOff, cchX );
-                    System.arraycopy( buf, off, _savedChars, savedOff + cchX, cch );
-                }
-            }
-
-            return savedOff;
-        }
-
-        private int allocateChars ( int cch )
-        {
-            int off;
-            
-            int cchFree = _currentBuffer.length - _currentOffset;
-
-            if (cchFree > cch)
-            {
-                _savedChars = _currentBuffer;
-                off = _currentOffset;
-                _currentOffset += cch;
-            }
-            else
-            {
-                int cchAlloc = _charBufSize;
-
-                if (cch > cchAlloc)
-                    cchAlloc += cch;
-
-                _savedChars = _currentBuffer = new char [ cchAlloc ];
-                _currentOffset = cch;
-                off = 0;
-            }
-            
-            return off;
-        }
-
-        private int    _charBufSize;
-        private int    _currentOffset;
-        private char[] _currentBuffer;
-
-        char[] _savedChars;
+        private CharUtil _charUtil = CharUtil.getThreadLocalCharUtil();
     }
 
     private static final class MLoadContext extends LoadContext
     {
-        MLoadContext ( Mmaster m )
+        MLoadContext ( Mlocale m )
         {
-            _master = m;
-            _frontier = _master.createDocument();
+            _locale = m;
+            _frontier = _locale.createDocument();
             _after = false;
         }
 
@@ -1155,7 +1034,7 @@ public final class Mcur extends Xcur
         
         protected void startElement ( QName name )
         {
-            start( _master.createElement( name, (_after ? _frontier._parent :_frontier)._name ) );
+            start( _locale.createElement( name, (_after ? _frontier._parent :_frontier)._name ) );
         }
         
         protected void endElement ( )
@@ -1167,7 +1046,7 @@ public final class Mcur extends Xcur
         protected void xmlns ( String prefix, String uri )
         {
             assert (_after ? _frontier._parent : _frontier).isContainer();
-            start( new XmlnsXobj( _master, _master.makeQName( null, prefix ) ) );
+            start( new XmlnsXobj( _locale, _locale.makeQName( null, prefix ) ) );
             text( uri );
             end();
         }
@@ -1175,132 +1054,91 @@ public final class Mcur extends Xcur
         protected void attr ( String local, String uri, String value )
         {
             assert (_after ? _frontier._parent : _frontier).isContainer();
-            start( new AttrXobj( _master, _master.makeQName( uri, local ) ) );
+            start( new AttrXobj( _locale, _locale.makeQName( uri, local ) ) );
             text( value );
             end();
         }
         
         protected void procInst ( String target, String value )
         {
-            start( new ProcInstXobj( _master, _master.makeQName( null, target ) ) );
+            start( new ProcInstXobj( _locale, _locale.makeQName( null, target ) ) );
             text( value );
             end();
         }
         
         protected void comment ( char[] buf, int off, int cch )
         {
-            start( _master.createComment() );
+            start( _locale.createComment() );
             text( buf, off, cch );
             end();
         }
         
         protected void text ( String s )
         {
-            int cch = s.length();
-
-            if (cch <= 0)
-                return;
-
-            if (_after)
-            {
-                if (_frontier._cchAfter == 0)
-                {
-                    _frontier._srcAfter = s;
-                    _frontier._offAfter = 0;
-                    _frontier._cchAfter = cch;
-                }
-                else
-                    // TODO - make this faster ... don't do extra checks
-                    text( s.toCharArray(), 0, cch);
-            }
-            else
-            {
-                if (_frontier._cchValue == 0)
-                {
-                    _frontier._srcValue = s;
-                    _frontier._offValue = 0;
-                    _frontier._cchValue = cch;
-                }
-                else
-                    text( s.toCharArray(), 0, cch );
-            }
+            text( s, 0, s.length() );
         }
         
-        protected void text ( char[] buff, int off, int cch )
+        protected void text ( Object src, int off, int cch )
         {
             if (cch <= 0)
                 return;
 
             if (_after)
             {
-                if (_frontier._cchAfter == 0)
-                {
-                    _frontier._offAfter = _master.saveChars( buff, off, cch );
-                    _frontier._srcAfter = _master._savedChars;
-                    _frontier._cchAfter = cch;
-                }
-                else
-                {
-                    assert _frontier._srcAfter instanceof char[];
-                    
-                    _frontier._offAfter =
-                        _master.saveChars(
-                            buff, off, cch,
-                            (char[]) _frontier._srcAfter,
-                            _frontier._offAfter, _frontier._cchAfter );
-                    
-                    _frontier._srcAfter = _master._savedChars;
-                    _frontier._cchAfter += cch;
-                }
+                _frontier._srcAfter =
+                    _locale._charUtil.saveChars(
+                        src, off, cch,
+                        _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
+
+                _frontier._offAfter = _locale._charUtil._offSrc;
+                _frontier._cchAfter = _locale._charUtil._cchSrc;
             }
             else
             {
-                if (_frontier._cchValue == 0)
-                {
-                    _frontier._offValue = _master.saveChars( buff, off, cch );
-                    _frontier._srcValue = _master._savedChars;
-                    _frontier._cchValue = cch;
-                }
-                else
-                {
-                    assert _frontier._srcValue instanceof char[];
-                    
-                    _frontier._offValue =
-                        _master.saveChars(
-                            buff, off, cch,
-                            (char[]) _frontier._srcValue,
-                            _frontier._offValue, _frontier._cchValue );
+                _frontier._srcValue =
+                    _locale._charUtil.saveChars(
+                        src, off, cch,
+                        _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
 
-                    _frontier._srcValue = _master._savedChars;
-                    _frontier._cchValue += cch;
-                }
+                _frontier._offValue = _locale._charUtil._offSrc;
+                _frontier._cchValue = _locale._charUtil._cchSrc;
             }
         }
         
-        protected Xcur finish ( )
+        protected void text ( char[] src, int off, int cch )
+        {
+            text( (Object) src, off, cch );
+        }
+        
+        protected Cur finish ( )
         {
             if (_after)
                 _frontier = _frontier._parent;
 
             assert _frontier != null && _frontier._parent == null;
 
-            Mcur x = (Mcur) _master.tempCur();
+            Mcur c = (Mcur) _locale.tempCur();
 
-            x.set( _frontier, 0 );
+            c.set( _frontier, 0 );
 
-            return x;
+            return c;
+        }
+
+        public void dump ( )
+        {
+            _frontier.dump();
         }
         
-        private Mmaster _master;
+        private Mlocale _locale;
         private Xobj    _frontier;
         private boolean _after;
     }
 
     private abstract static class Xobj 
     {
-        Xobj ( Mmaster m, int kind, int domType )
+        Xobj ( Mlocale m, int kind, int domType )
         {
-            _master = m;
+            _locale = m;
             _bits = (domType << 8) + kind;
         }
 
@@ -1313,7 +1151,8 @@ public final class Mcur extends Xcur
         final boolean isRoot      ( ) { return type() == ROOT; }
         final boolean isAttr      ( ) { return type() == ATTR; }
         final boolean isElem      ( ) { return type() == ELEM; }
-        final boolean isContainer ( ) { return type() <= ELEM; }
+        final boolean isLeaf      ( ) { return type() == LEAF; }
+        final boolean isContainer ( ) { return typeIsContainer( type() ); }
 
         final int cchValue ( ) { return _cchValue; }
         final int cchAfter ( ) { return _cchAfter; }
@@ -1354,9 +1193,9 @@ public final class Mcur extends Xcur
             return p == 0 ? kind() : p == posEnd() ? - kind() : TEXT;
         }
 
-        public Xcur tempCur ( )
+        public Cur tempCur ( )
         {
-            Mcur mx = (Mcur) _master.tempCur();
+            Mcur mx = (Mcur) _locale.tempCur();
             mx.set( this, 0 );
             return mx;
         }
@@ -1370,7 +1209,7 @@ public final class Mcur extends Xcur
         Xobj ensureParent ( )
         {
             assert _parent != null || (!isRoot() && cchAfter() == 0);
-            return _parent == null ? new RootXobj( _master ).appendXobj( this ) : _parent;
+            return _parent == null ? new RootXobj( _locale ).appendXobj( this ) : _parent;
         }
 
         Mcur getEmbeddedRaw ( )
@@ -1380,10 +1219,10 @@ public final class Mcur extends Xcur
         
         Mcur getEmbedded ( )
         {
-            while ( _master._unembedded != null )
+            while ( _locale._unembedded != null )
             {
-                Mcur m = (Mcur) _master._unembedded;
-                _master._unembedded = m.listRemove( _master._unembedded );
+                Mcur m = (Mcur) _locale._unembedded;
+                _locale._unembedded = m.listRemove( _locale._unembedded );
                 m._xobj._embedded = m.listInsert( m._xobj._embedded, EMBEDDED );
             }
 
@@ -1414,7 +1253,7 @@ public final class Mcur extends Xcur
 
         Xobj appendXobj ( Xobj c )
         {
-            assert _master == c._master;
+            assert _locale == c._locale;
             assert !c.isRoot();
             assert c._parent == null;
             assert c._prevSibling == null;
@@ -1436,7 +1275,7 @@ public final class Mcur extends Xcur
 
         Xobj insertXobj ( Xobj s )
         {
-            assert _master == s._master;
+            assert _locale == s._locale;
             assert !s.isRoot() && !isRoot();
             assert s._parent == null;
             assert s._prevSibling == null;
@@ -1458,70 +1297,24 @@ public final class Mcur extends Xcur
 
         void insertValueText ( int i, Object src, int off, int cch )
         {
-            assert src instanceof String || src instanceof char[];
             assert cch > 0;
             
-            if (_cchValue == 0)
-            {
-                _srcValue = src;
-                _offValue = off;
-                _cchValue = cch;
-            }
-            else
-            {
-                // TODO - handle char[] better ...
-
-                if (src instanceof char[])
-                {
-                    src = new String( (char[]) src, off, cch );
-                    off = 0;
-                }
-
-                int newCch = _cchValue + cch;
-
-                _srcValue =
-                    strInsert(
-                        i,
-                        (String) _srcValue, _offValue, _cchValue,
-                        (String) src, off, cch );
-
-                _offValue = 0;
-                _cchValue = newCch;
-            }
+            _srcValue =
+                _locale._charUtil.insertChars( i, _srcValue, _offValue, _cchValue, src, off, cch );
+                
+            _offValue = _locale._charUtil._offSrc;
+            _cchValue = _locale._charUtil._cchSrc;
         }
         
         void insertAfterText ( int i, Object src, int off, int cch )
         {
-            assert src instanceof String || src instanceof char[];
             assert cch > 0;
-            
-            if (_cchAfter == 0)
-            {
-                _srcAfter = src;
-                _offAfter = off;
-                _cchAfter = cch;
-            }
-            else
-            {
-                // TODO - handle char[] better ...
-                
-                if (src instanceof char[])
-                {
-                    src = new String( (char[]) src, off, cch );
-                    off = 0;
-                }
-                
-                int newCch = _cchAfter + cch;
 
-                _srcAfter =
-                    strInsert(
-                        i,
-                        (String) _srcAfter, _offAfter, _cchAfter,
-                        (String) src, off, cch );
+            _srcAfter =
+                _locale._charUtil.insertChars( i, _srcAfter, _offAfter, _cchAfter, src, off, cch );
 
-                _offAfter = 0;
-                _cchAfter = newCch;
-            }
+            _offAfter = _locale._charUtil._offSrc;
+            _cchAfter = _locale._charUtil._cchSrc;
         }
         
         private static String strInsert (
@@ -1544,12 +1337,12 @@ public final class Mcur extends Xcur
 
             // TODO - save this string back into the xobj for use later
             if (pos > pe)
-                return Master.makeString( _srcAfter, _offAfter + pos - pe - 1, cch );
+                return CharUtil.getString( _srcAfter, _offAfter + pos - pe - 1, cch );
             else
-                return Master.makeString( _srcValue, _offValue + pos - 1, cch );
+                return CharUtil.getString( _srcValue, _offValue + pos - 1, cch );
         }
 
-        Object getChars ( int pos, int cch, Xcur x )
+        Object getChars ( int pos, int cch, Cur c )
         {
             int cchRight = cchRight( pos );
 
@@ -1558,8 +1351,8 @@ public final class Mcur extends Xcur
 
             if (cch == 0)
             {
-                x._offSrc = 0;
-                x._cchSrc = 0;
+                c._offSrc = 0;
+                c._cchSrc = 0;
                 
                 return null;
             }
@@ -1571,15 +1364,15 @@ public final class Mcur extends Xcur
             if (pos > pe)
             {
                 src = _srcAfter;
-                x._offSrc = _offAfter + pos - pe - 1;
+                c._offSrc = _offAfter + pos - pe - 1;
             }
             else
             {
                 src = _srcValue;
-                x._offSrc = _offValue + pos - 1;
+                c._offSrc = _offValue + pos - 1;
             }
             
-            x._cchSrc = cch;
+            c._cchSrc = cch;
             
             return src;
         }
@@ -1600,9 +1393,9 @@ public final class Mcur extends Xcur
         
         private int _bits;
         
-        Mmaster _master;
+        Mlocale _locale;
         QName   _name;
-        Xcur    _embedded;
+        Cur     _embedded;
 
         Xobj _parent;
         Xobj _nextSibling;
@@ -1622,14 +1415,14 @@ public final class Mcur extends Xcur
 
     private static class RootXobj extends Xobj
     {
-        RootXobj ( Mmaster m ) { super( m, ROOT, 0 ); }
+        RootXobj ( Mlocale m ) { super( m, ROOT, 0 ); }
         
         Dom getDom ( ) { throw new IllegalStateException(); }
     }
     
     private static class SoapPartDocXobj extends Xobj
     {
-        SoapPartDocXobj ( Mmaster m )
+        SoapPartDocXobj ( Mlocale m )
         {
             super( m, DOMDOC, DomImpl.DOCUMENT );
             _soapPartDom = new SoapPartDom( this );
@@ -1642,9 +1435,9 @@ public final class Mcur extends Xcur
     
     private abstract static class NodeXobj extends Xobj implements Node, Dom, NodeList
     {
-        NodeXobj ( Mmaster m, int kind, int type ) { super( m, kind, type ); }
+        NodeXobj ( Mlocale m, int kind, int type ) { super( m, kind, type ); }
         
-        public Master master     ( ) { return _master;   }
+        public Locale locale     ( ) { return _locale;   }
         public int    nodeType   ( ) { return domType(); }
         
 //        public Dom    altParent  ( ) { return _altParent;                   }
@@ -1672,13 +1465,6 @@ public final class Mcur extends Xcur
             else
                 return prefix + ":" + _name.getLocalPart();
         }
-
-        public Dom firstChild  ( )       { return DomImpl.node_getFirstChild ( this ); }
-        public Dom nextSibling ( )       { return DomImpl.node_getNextSibling( this ); }
-        public Dom parent      ( )       { return DomImpl.node_getParentNode( this );  }
-        public Dom remove      ( )       { return DomImpl.domRemove( this );           }
-        public Dom insert      ( Dom b ) { return DomImpl.domInsert( this, b );        }
-        public Dom append      ( Dom p ) { return DomImpl.domAppend( this, p );        }
 
         public int getLength ( ) { return DomImpl._childNodes_getLength( this ); }
         public Node item ( int i ) { return DomImpl._childNodes_item( this, i ); }
@@ -1714,7 +1500,7 @@ public final class Mcur extends Xcur
     
     private static class DocumentXobj extends NodeXobj implements Document
     {
-        DocumentXobj ( Mmaster m )
+        DocumentXobj ( Mlocale m )
         {
             super( m, DOMDOC, DomImpl.DOCUMENT );
         }
@@ -1742,7 +1528,7 @@ public final class Mcur extends Xcur
     
     private static class DocumentFragXobj extends NodeXobj implements DocumentFragment
     {
-        DocumentFragXobj ( Mmaster m ) { super( m, DOMFRAG, DomImpl.DOCFRAG ); }
+        DocumentFragXobj ( Mlocale m ) { super( m, DOMFRAG, DomImpl.DOCFRAG ); }
 
         public String name ( ) { return "#document-fragment"; }
     }
@@ -1768,7 +1554,7 @@ public final class Mcur extends Xcur
     
     private static class ElementXobj extends NodeXobj implements Element
     {
-        ElementXobj ( Mmaster m, QName name ) { super( m, ELEM, DomImpl.ELEMENT ); _name = name; }
+        ElementXobj ( Mlocale m, QName name ) { super( m, ELEM, DomImpl.ELEMENT ); _name = name; }
         
         public String name ( ) { return getQName(); }
     
@@ -1805,10 +1591,10 @@ public final class Mcur extends Xcur
     
     private static class AttrXobj extends NodeXobj implements Attr
     {
-        AttrXobj ( Mmaster m ) { super( m, ATTR, DomImpl.ATTR ); }
-        AttrXobj ( Mmaster m, QName name ) { super( m, ATTR, DomImpl.ATTR ); _name = name; }
-        AttrXobj ( Mmaster m, int kind, int type ) { super( m, kind, type ); }
-        AttrXobj ( Mmaster m, int kind, int type, QName name ) { super( m, kind, type ); _name = name; }
+        AttrXobj ( Mlocale m ) { super( m, ATTR, DomImpl.ATTR ); }
+        AttrXobj ( Mlocale m, QName name ) { super( m, ATTR, DomImpl.ATTR ); _name = name; }
+        AttrXobj ( Mlocale m, int kind, int type ) { super( m, kind, type ); }
+        AttrXobj ( Mlocale m, int kind, int type, QName name ) { super( m, kind, type ); _name = name; }
         
         public String name ( ) { return getQName(); }
         
@@ -1821,14 +1607,19 @@ public final class Mcur extends Xcur
     
     private static class XmlnsXobj extends AttrXobj
     {
-        XmlnsXobj ( Mmaster m, QName name ) { super( m, XMLNS, DomImpl.ATTR, name ); }
+        XmlnsXobj ( Mlocale m, QName name ) { super( m, XMLNS, DomImpl.ATTR, name ); }
         
-        public String name ( ) { return getQName(); }
+        public String name ( )
+        {
+            assert _name.getPrefix() == null  || _name.getPrefix().length() == 0;
+            // TODO - move this to a more generic place .....
+            return "xmlns:" + _name.getLocalPart();
+        }
     }
     
     private static class ProcInstXobj extends NodeXobj implements ProcessingInstruction
     {
-        ProcInstXobj ( Mmaster m, QName name ) { super( m, PROCINST, DomImpl.PROCINST ); _name = name; }
+        ProcInstXobj ( Mlocale m, QName name ) { super( m, PROCINST, DomImpl.PROCINST ); _name = name; }
         
         public String name ( ) { return _name.getLocalPart(); }
         
@@ -1839,7 +1630,7 @@ public final class Mcur extends Xcur
     
     private static class CommentXobj extends NodeXobj implements Comment
     {
-        CommentXobj ( Mmaster m ) { super( m, COMMENT, DomImpl.COMMENT ); }
+        CommentXobj ( Mlocale m ) { super( m, COMMENT, DomImpl.COMMENT ); }
 
         public NodeList getChildNodes ( ) { return DomImpl._emptyNodeList; }
         
@@ -1857,7 +1648,7 @@ public final class Mcur extends Xcur
 
     private static class SaajCommentXobj extends CommentXobj implements javax.xml.soap.Text
     {
-        SaajCommentXobj ( Mmaster m ) { super( m ); }
+        SaajCommentXobj ( Mlocale m ) { super( m ); }
         
         public String name ( ) { return "#comment"; }
         
@@ -1894,17 +1685,10 @@ public final class Mcur extends Xcur
         }
         
         public int    nodeType ( ) { return DomImpl.DOCUMENT;   }
-        public Master master   ( ) { return _docXobj._master;   }
-        public Xcur   tempCur  ( ) { return _docXobj.tempCur(); }
+        public Locale locale   ( ) { return _docXobj._locale;   }
+        public Cur    tempCur  ( ) { return _docXobj.tempCur(); }
         public QName  qName    ( ) { return _docXobj._name;     }
         
-        public Dom firstChild  ( )       { return DomImpl.node_getFirstChild ( this ); }
-        public Dom nextSibling ( )       { return DomImpl.node_getNextSibling( this ); }
-        public Dom parent      ( )       { return DomImpl.node_getParentNode( this );  }
-        public Dom remove      ( )       { return DomImpl.domRemove( this );           }
-        public Dom insert      ( Dom b ) { return DomImpl.domInsert( this, b );        }
-        public Dom append      ( Dom p ) { return DomImpl.domAppend( this, p );        }
-
         public void dump ( ) { dump( System.out ); }
         public void dump ( PrintStream o ) { _docXobj.dump( o ); }
 
@@ -1975,7 +1759,7 @@ public final class Mcur extends Xcur
     private static class SoapElementXobj
         extends ElementXobj implements SOAPElement, javax.xml.soap.Node
     {
-        SoapElementXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapElementXobj ( Mlocale m, QName name ) { super( m, name ); }
         
         public void detachNode ( ) { SaajImpl._soapNode_detachNode( this ); }
         public void recycleNode ( ) { SaajImpl._soapNode_recycleNode( this ); }
@@ -2009,7 +1793,7 @@ public final class Mcur extends Xcur
     
     private static class SoapEnvelopeXobj extends SoapElementXobj implements SOAPEnvelope
     {
-        SoapEnvelopeXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapEnvelopeXobj ( Mlocale m, QName name ) { super( m, name ); }
         
         public SOAPBody addBody ( ) throws SOAPException { return SaajImpl._soapEnvelope_addBody( this ); }
         public SOAPBody getBody ( ) throws SOAPException { return SaajImpl._soapEnvelope_getBody( this ); }
@@ -2021,7 +1805,7 @@ public final class Mcur extends Xcur
 
     private static class SoapHeaderXobj extends SoapElementXobj implements SOAPHeader
     {
-        SoapHeaderXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapHeaderXobj ( Mlocale m, QName name ) { super( m, name ); }
         
         public Iterator examineAllHeaderElements ( ) { return SaajImpl.soapHeader_examineAllHeaderElements( this ); }
         public Iterator extractAllHeaderElements ( ) { return SaajImpl.soapHeader_extractAllHeaderElements( this ); }
@@ -2033,7 +1817,7 @@ public final class Mcur extends Xcur
     
     private static class SoapBodyXobj extends SoapElementXobj implements SOAPBody
     {
-        SoapBodyXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapBodyXobj ( Mlocale m, QName name ) { super( m, name ); }
         
         public boolean hasFault ( ) { return SaajImpl.soapBody_hasFault( this ); }
         public SOAPFault addFault ( ) throws SOAPException { return SaajImpl.soapBody_addFault( this ); }
@@ -2041,26 +1825,26 @@ public final class Mcur extends Xcur
         public SOAPBodyElement addBodyElement ( Name name ) { return SaajImpl.soapBody_addBodyElement( this, name ); }
         public SOAPBodyElement addDocument ( Document document ) { return SaajImpl.soapBody_addDocument( this, document ); }
         public SOAPFault addFault ( Name name, String s ) throws SOAPException { return SaajImpl.soapBody_addFault( this, name, s ); }
-        public SOAPFault addFault ( Name faultCode, String faultString, Locale locale ) throws SOAPException { return SaajImpl.soapBody_addFault( this, faultCode, faultString, locale ); }
+        public SOAPFault addFault ( Name faultCode, String faultString, java.util.Locale locale ) throws SOAPException { return SaajImpl.soapBody_addFault( this, faultCode, faultString, locale ); }
     }
     
     private static class SoapBodyElementXobj extends SoapElementXobj implements SOAPBodyElement
     {
-        SoapBodyElementXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapBodyElementXobj ( Mlocale m, QName name ) { super( m, name ); }
     }
     
     private static class SoapFaultXobj extends SoapBodyElementXobj implements SOAPFault
     {
-        SoapFaultXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapFaultXobj ( Mlocale m, QName name ) { super( m, name ); }
 
         public void setFaultString ( String faultString ) { SaajImpl.soapFault_setFaultString( this, faultString ); }
-        public void setFaultString ( String faultString, Locale locale ) { SaajImpl.soapFault_setFaultString( this, faultString, locale ); }
+        public void setFaultString ( String faultString, java.util.Locale locale ) { SaajImpl.soapFault_setFaultString( this, faultString, locale ); }
         public void setFaultCode ( Name faultCodeName ) throws SOAPException { SaajImpl.soapFault_setFaultCode( this, faultCodeName ); }
         public void setFaultActor ( String faultActorString ) { SaajImpl.soapFault_setFaultActor( this, faultActorString ); }
         public String getFaultActor ( ) { return SaajImpl.soapFault_getFaultActor( this ); }
         public String getFaultCode ( ) { return SaajImpl.soapFault_getFaultCode( this ); }
         public void setFaultCode ( String faultCode ) throws SOAPException { SaajImpl.soapFault_setFaultCode( this, faultCode ); }
-        public Locale getFaultStringLocale ( ) { return SaajImpl.soapFault_getFaultStringLocale( this ); }
+        public java.util.Locale getFaultStringLocale ( ) { return SaajImpl.soapFault_getFaultStringLocale( this ); }
         public Name getFaultCodeAsName ( ) { return SaajImpl.soapFault_getFaultCodeAsName( this ); }
         public String getFaultString ( ) { return SaajImpl.soapFault_getFaultString( this ); }
         public Detail addDetail ( ) throws SOAPException { return SaajImpl.soapFault_addDetail( this ); }
@@ -2069,7 +1853,7 @@ public final class Mcur extends Xcur
 
     private static class SoapHeaderElementXobj extends SoapElementXobj implements SOAPHeaderElement
     {
-        SoapHeaderElementXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapHeaderElementXobj ( Mlocale m, QName name ) { super( m, name ); }
         
         public void setMustUnderstand ( boolean mustUnderstand ) { SaajImpl.soapHeaderElement_setMustUnderstand( this, mustUnderstand ); }
         public boolean getMustUnderstand ( ) { return SaajImpl.soapHeaderElement_getMustUnderstand( this ); }
@@ -2079,17 +1863,17 @@ public final class Mcur extends Xcur
     
     private static class DetailEntryXobj extends SoapElementXobj implements DetailEntry
     {
-        DetailEntryXobj ( Mmaster m, QName name ) { super( m, name ); }
+        DetailEntryXobj ( Mlocale m, QName name ) { super( m, name ); }
     }
 
     private static class SoapFaultElementXobj extends SoapElementXobj implements SOAPFaultElement
     {
-        SoapFaultElementXobj ( Mmaster m, QName name ) { super( m, name ); }
+        SoapFaultElementXobj ( Mlocale m, QName name ) { super( m, name ); }
     }
     
     private static class DetailXobj extends SoapFaultElementXobj implements Detail
     {
-        DetailXobj ( Mmaster m, QName name ) { super( m, name ); }
+        DetailXobj ( Mlocale m, QName name ) { super( m, name ); }
         
         public DetailEntry addDetailEntry ( Name name ) { return SaajImpl.detail_addDetailEntry( this, name ); }
         public Iterator getDetailEntries ( ) { return SaajImpl.detail_getDetailEntries( this ); }
@@ -2099,6 +1883,11 @@ public final class Mcur extends Xcur
     //
     //
 
+    public void dump ( )
+    {
+        dump( System.out );
+    }
+    
     public void dump ( PrintStream o )
     {
         if (_xobj == null)
@@ -2117,10 +1906,10 @@ public final class Mcur extends Xcur
     
     private static void dumpXcurs ( PrintStream o, Xobj xo )
     {
-        for ( Xcur x = xo._embedded ; x != null ; x = x._next )
+        for ( Cur x = xo._embedded ; x != null ; x = x._next )
             dumpXcur( o, "*", (Mcur) x );
         
-        for ( Xcur x = xo._master._unembedded ; x != null ; x = x._next )
+        for ( Cur x = xo._locale._unembedded ; x != null ; x = x._next )
         {
             Mcur mx = (Mcur) x;
             
@@ -2133,82 +1922,6 @@ public final class Mcur extends Xcur
     {
         for ( CharNode n = nodes ; n != null ; n = n._next )
             o.print( " " + (n instanceof TextNode ? "TEXT" : "CDATA") + "[" + n._cch + "]" );
-    }
-    
-    private static void dumpText ( PrintStream o, String s )
-    {
-        o.print( "\"" );
-        
-        for ( int i = 0 ; i < s.length() ; i++ )
-        {
-            char ch = s.charAt( i );
-
-            if (i == 36)
-            {
-                o.print( "..." );
-                break;
-            }
-
-            if      (ch == '\n') o.print( "\\n" );
-            else if (ch == '\r') o.print( "\\r" );
-            else if (ch == '\t') o.print( "\\t" );
-            else if (ch == '\f') o.print( "\\f" );
-            else if (ch == '\f') o.print( "\\f" );
-            else if (ch == '"' ) o.print( "\\\"" );
-            else                 o.print( ch );
-        }
-        
-        o.print( "\"" );
-    }
-    
-    private static void dumpText ( PrintStream o, Object src, int off, int cch )
-    {
-        if (src == null)
-            o.print( "<null>" );
-        else if (src instanceof String)
-        {
-            String s = (String) src;
-            
-            o.print( "String" );
-
-            if (off != 0 || cch != s.length())
-            {
-                o.print( " offf: " + off + ", cch: " + cch );
-                
-                if (off < 0 || off > s.length() || off + cch < 0 || off + cch > s.length())
-                {
-                    o.print( " (Error)" );
-                    return;
-                }
-            }
-
-            o.print( ": " );
-            dumpText( o, s.substring( off, off + cch ) );
-        }
-        else if (src instanceof char[])
-        {
-            char[] chars = (char[]) src;
-
-            o.print( "char[]" );
-
-            if (off != 0 || cch != chars.length)
-            {
-                o.print( " off: " + off + ", cch: " + cch );
-                
-                if (off < 0 || off > chars.length || off + cch < 0 || off + cch > chars.length)
-                {
-                    o.print( " (Error)" );
-                    return;
-                }
-            }
-
-            o.print( ": " );
-            dumpText( o, new String( chars, off, cch ) );
-        }
-        else
-        {
-            o.print( "Unknown text source" );
-        }
     }
     
     private static void dumpXobj ( PrintStream o, Xobj xo, int level, Xobj ref )
@@ -2232,7 +1945,7 @@ public final class Mcur extends Xcur
         if (xo._srcValue != null || xo._charNodesValue != null)
         {
             o.print( " Value( " );
-            dumpText( o, xo._srcValue, xo._offValue, xo._cchValue );
+            CharUtil.dumpChars( o, xo._srcValue, xo._offValue, xo._cchValue );
             dumpNodes( o, xo._charNodesValue );
             o.print( " )" );
         }
@@ -2240,7 +1953,7 @@ public final class Mcur extends Xcur
         if (xo._srcAfter != null || xo._charNodesAfter != null)
         {
             o.print( " After( " );
-            dumpText( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
+            CharUtil.dumpChars( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
             dumpNodes( o, xo._charNodesAfter );
             o.print( " )" );
         }
@@ -2269,7 +1982,7 @@ public final class Mcur extends Xcur
     //
     //
     
-    private Mmaster _master;
+    private Mlocale _locale;
     
     private Xobj _xobj;
     private int  _pos;
