@@ -38,9 +38,9 @@
   <target name='all' depends='compile'/>
 
   <target name='parser'>
+    <!-- skipping parser generation for now, just noise at this point
     <delete dir='${gen_dir}'/>
     <mkdir dir='${gen_dir}'/>
-    <!-- skipping parser generation for now, just noise at this point
     <antlr outputdirectory='${gen_dir}' target='${src_dir}/java.g'
            debug='false'>
        <classpath>

@@ -464,12 +464,9 @@
   </target>
 
   <target name='jam'>
-    <ant dir='${jam_root}' target='clean' inheritAll='false' />
-    <ant dir='${jam_root}' target='all' inheritAll='false' />
-    <move todir="build/classes/jam">
-      <fileset dir="build/${jam_root}/classes" />
-    </move>
-    <delete dir='build/${jam_root}'/>
+    <ant dir='${jam_root}' target='all' inheritAll='false'>
+      <property name="classes_dir" value="../build/classes/jam"/>
+    </ant>
   </target>
 
   <!-- marshal target =============================================== -->
