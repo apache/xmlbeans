@@ -138,7 +138,12 @@ public abstract class BindingCompiler extends BindingLogger
       tempDir = createTempDir();
       tempDir.deleteOnExit();//REVIEW maybe we should delete it ourselves?
       ExplodedTylar et = bindAsExplodedTylar(tempDir);
-      return et.toJar(tylarJar);
+      if (et == null) {
+        logError("Fatal error encountered building tylar.");
+        return null;
+      } else {
+        return et.toJar(tylarJar);
+      }
     } catch(IOException ioe) {
       logError(ioe);
       return null;
