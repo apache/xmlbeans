@@ -71,12 +71,23 @@ public class StscImporter
         private Schema schema;
         private String chameleonNamespace;
         private Redefine redefine;
+        private int redefinedBy;
 
         public SchemaToProcess(Schema schema, String chameleonNamespace, Redefine redefine)
         {
             this.schema = schema;
             this.chameleonNamespace = chameleonNamespace;
             this.redefine = redefine;
+            this.redefinedBy = -1;
+        }
+
+        // This makes sense only when part of a list, which is always the case
+        public SchemaToProcess(Schema schema, String chameleonNamespace, Redefine redefine, int redefinedBy)
+        {
+            this.schema = schema;
+            this.chameleonNamespace = chameleonNamespace;
+            this.redefine = redefine;
+            this.redefinedBy = redefinedBy;
         }
 
         /**
@@ -101,6 +112,14 @@ public class StscImporter
         public Redefine getRedefine()
         {
             return redefine;
+        }
+
+        /**
+         * The index of the redefining schema if processed via redefine
+         */
+        public int getRedefinedBy()
+        {
+            return redefinedBy;
         }
 
         /**
@@ -714,7 +733,7 @@ public class StscImporter
                             if (emptyStringIfNull(redefined.getTargetNamespace()).equals(sourceNamespace))
                             {
                                 // non-chameleon case
-                                addScanNeeded(new SchemaToProcess(redefined, null, redefines[i]));
+                                addScanNeeded(new SchemaToProcess(redefined, null, redefines[i], result.size()-1));
                             }
                             else if (redefined.getTargetNamespace() != null)
                             {
@@ -724,7 +743,7 @@ public class StscImporter
                             else
                             {
                                 // chameleon redefine
-                                addScanNeeded(new SchemaToProcess(redefined, sourceNamespace, redefines[i]));
+                                addScanNeeded(new SchemaToProcess(redefined, sourceNamespace, redefines[i], result.size()-1));
                                 usedEmptyNamespaceSchema(redefined);
                             }
                         }

@@ -443,12 +443,13 @@ public class StscState
         return result;
     }
     
-    SchemaTypeImpl findRedefinedGlobalType(QName name, String chameleonNamespace, QName redefinedName)
+    SchemaTypeImpl findRedefinedGlobalType(QName name, String chameleonNamespace, SchemaTypeImpl redefinedBy)
     {
+        QName redefinedName = redefinedBy.getName();
         name = compatName(name, chameleonNamespace);
         if (name.equals(redefinedName))
         {
-            return (SchemaTypeImpl)_redefinedGlobalTypes.get(name);
+            return (SchemaTypeImpl)_redefinedGlobalTypes.get(redefinedBy);
             // BUGBUG: should also link against _importingLoader.findRedefinedType
         }
         SchemaTypeImpl result = (SchemaTypeImpl)_globalTypes.get(name);
@@ -457,21 +458,21 @@ public class StscState
         return result;
     }
 
-    void addGlobalType(SchemaTypeImpl type, boolean redefined)
+    void addGlobalType(SchemaTypeImpl type, SchemaTypeImpl redefined)
     {
         if (type != null)
         {
             QName name = type.getName();
             
-            if (redefined)
+            if (redefined != null)
             {
-                if (_redefinedGlobalTypes.containsKey(name))
+                if (_redefinedGlobalTypes.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
                         error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
-                    _redefinedGlobalTypes.put(name, type);
+                    _redefinedGlobalTypes.put(redefined, type);
             }
             else
             {
@@ -609,12 +610,13 @@ public class StscState
         return result;
     }
 
-    SchemaAttributeGroupImpl findRedefinedAttributeGroup(QName name, String chameleonNamespace, QName redefinitionFor)
+    SchemaAttributeGroupImpl findRedefinedAttributeGroup(QName name, String chameleonNamespace, SchemaAttributeGroupImpl redefinedBy)
     {
+        QName redefinitionFor = redefinedBy.getName();
         name = compatName(name, chameleonNamespace);
         if (name.equals(redefinitionFor))
         {
-            return (SchemaAttributeGroupImpl)_redefinedAttributeGroups.get(name);
+            return (SchemaAttributeGroupImpl)_redefinedAttributeGroups.get(redefinedBy);
             // BUGBUG: should also link against _importingLoader.findRedefinedAttributeGroup
         }
         SchemaAttributeGroupImpl result = (SchemaAttributeGroupImpl)_attributeGroups.get(name);
@@ -623,20 +625,20 @@ public class StscState
         return result;
     }
 
-    void addAttributeGroup(SchemaAttributeGroupImpl attributeGroup, boolean redefined)
+    void addAttributeGroup(SchemaAttributeGroupImpl attributeGroup, SchemaAttributeGroupImpl redefined)
     {
         if (attributeGroup != null)
         {
             QName name = attributeGroup.getName();
-            if (redefined)
+            if (redefined != null)
             {
-                if (_redefinedAttributeGroups.containsKey(name))
+                if (_redefinedAttributeGroups.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
                         error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
-                    _redefinedAttributeGroups.put(name, attributeGroup);
+                    _redefinedAttributeGroups.put(redefined, attributeGroup);
                 
             }
             else
@@ -672,12 +674,13 @@ public class StscState
         return result;
     }
 
-    SchemaModelGroupImpl findRedefinedModelGroup(QName name, String chameleonNamespace, QName redefinitionFor)
+    SchemaModelGroupImpl findRedefinedModelGroup(QName name, String chameleonNamespace, SchemaModelGroupImpl redefinedBy)
     {
+        QName redefinitionFor = redefinedBy.getName();
         name = compatName(name, chameleonNamespace);
         if (name.equals(redefinitionFor))
         {
-            return (SchemaModelGroupImpl)_redefinedModelGroups.get(name);
+            return (SchemaModelGroupImpl)_redefinedModelGroups.get(redefinedBy);
             // BUGBUG: should also link against _importingLoader.findRedefinedModelGroup
         }
         SchemaModelGroupImpl result = (SchemaModelGroupImpl)_modelGroups.get(name);
@@ -686,20 +689,20 @@ public class StscState
         return result;
     }
 
-    void addModelGroup(SchemaModelGroupImpl modelGroup, boolean redefined)
+    void addModelGroup(SchemaModelGroupImpl modelGroup, SchemaModelGroupImpl redefined)
     {
         if (modelGroup != null)
         {
             QName name = modelGroup.getName();
-            if (redefined)
+            if (redefined != null)
             {
-                if (_redefinedModelGroups.containsKey(name))
+                if (_redefinedModelGroups.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
                         error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_GLOBAL_TYPE, null);
                 }
                 else
-                    _redefinedModelGroups.put(name, modelGroup);
+                    _redefinedModelGroups.put(redefined, modelGroup);
             }
             else
             {

@@ -377,7 +377,7 @@ public class StscSimpleTypeResolver
         {
             if (sImpl.isRedefinition())
             {
-                baseImpl = state.findRedefinedGlobalType(parseRestr.getBase(), sImpl.getChameleonNamespace(), sImpl.getName());
+                baseImpl = state.findRedefinedGlobalType(parseRestr.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseImpl != null && !baseImpl.getName().equals(sImpl.getName()))
                     state.error("A type redefinition must restrict the original type definition", XmlErrorContext.GENERIC_ERROR, parseRestr);
             }

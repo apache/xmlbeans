@@ -2,7 +2,7 @@
     xmlns="http://example.org/prod"
     targetNamespace="http://example.org/prod" >
 
-    <xsd:redefine schemaLocation="redefine1.xsd">
+    <xsd:redefine schemaLocation="redefine1.xsddonotcompile">
         <xsd:simpleType name="DressSizeType">
             <xsd:restriction base="DressSizeType">
                 <xsd:minInclusive value="2" />

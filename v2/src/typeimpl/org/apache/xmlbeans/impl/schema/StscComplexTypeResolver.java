@@ -357,7 +357,7 @@ public class StscComplexTypeResolver
         {
             if (sImpl.isRedefinition())
             {
-                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl.getName());
+                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
                     state.error("A type redefinition must extend the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
             }
@@ -476,7 +476,7 @@ public class StscComplexTypeResolver
         {
             if (sImpl.isRedefinition())
             {
-                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl.getName());
+                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
                     state.error("A type redefinition must extend the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
             }
@@ -609,7 +609,7 @@ public class StscComplexTypeResolver
         {
             if (sImpl.isRedefinition())
             {
-                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl.getName());
+                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
                     state.error("A type redefinition must restrict the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
             }
@@ -707,7 +707,7 @@ public class StscComplexTypeResolver
         {
             if (sImpl.isRedefinition())
             {
-                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl.getName());
+                baseType = state.findRedefinedGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), sImpl);
                 if (baseType != null && !baseType.getName().equals(sImpl.getName()))
                     state.error("A type redefinition must extend the original type definition", XmlErrorContext.GENERIC_ERROR, parseTree);
             }
@@ -834,7 +834,9 @@ public class StscComplexTypeResolver
     static void translateAttributeModel(
             XmlObject parseTree, String targetNamespace, boolean chameleon,
             List anonymousTypes, SchemaType outerType,
-            Set seenAttributes, SchemaAttributeModelImpl result, SchemaType baseType, boolean extension, QName redefinitionFor)
+            Set seenAttributes, SchemaAttributeModelImpl result,
+            SchemaType baseType, boolean extension,
+            SchemaAttributeGroupImpl redefinitionFor)
     {
         StscState state = StscState.get();
         if (seenAttributes == null)
@@ -976,7 +978,8 @@ public class StscComplexTypeResolver
                     if (redefinitionFor != null)
                     {
                         group = state.findRedefinedAttributeGroup(ref, chameleon ? targetNamespace : null, redefinitionFor);
-                        if (group != null && redefinitionFor.equals(group.getName()))
+                        if (group != null &&
+                            redefinitionFor.getName().equals(group.getName()))
                         {
                             if (seenRedefinition)
                                 state.error("An attribute group redefinition must include at most one reference to the original definition.", XmlErrorContext.GENERIC_ERROR, xsdag);
@@ -1005,9 +1008,9 @@ public class StscComplexTypeResolver
                     }
 
                     state.startProcessing(group);
-                    QName nestedRedefinitionFor = null;
+                    SchemaAttributeGroupImpl nestedRedefinitionFor = null;
                     if (group.isRedefinition())
-                        nestedRedefinitionFor = group.getName();
+                        nestedRedefinitionFor = group;
                     translateAttributeModel(group.getParseObject(), subTargetNamespace, chameleon, anonymousTypes, outerType, seenAttributes, result, baseType, extension, nestedRedefinitionFor);
                     state.finishProcessing(group);
                     break;
@@ -1070,17 +1073,17 @@ public class StscComplexTypeResolver
     
     private static class RedefinitionForGroup
     {
-        private QName groupName;
+        private SchemaModelGroupImpl group;
         private boolean seenRedefinition = false;
 
-        public RedefinitionForGroup(QName groupName)
+        public RedefinitionForGroup(SchemaModelGroupImpl group)
         {
-            this.groupName = groupName;
+            this.group = group;
         }
 
-        public QName getGroupName()
+        public SchemaModelGroupImpl getGroup()
         {
-            return groupName;
+            return group;
         }
 
         public boolean isSeenRedefinition()
@@ -1180,8 +1183,8 @@ public class StscComplexTypeResolver
                 
                 if (redefinitionFor != null)
                 {
-                    group = state.findRedefinedModelGroup(ref, chameleon ? targetNamespace : null, redefinitionFor.getGroupName());
-                    if (group != null && group.getName().equals(redefinitionFor.getGroupName()))
+                    group = state.findRedefinedModelGroup(ref, chameleon ? targetNamespace : null, redefinitionFor.getGroup());
+                    if (group != null && group.getName().equals(redefinitionFor.getGroup().getName()))
                     {
                         if (redefinitionFor.isSeenRedefinition())
                             state.error("Group redefinition must refer to the original definition at most once", XmlErrorContext.GENERIC_ERROR, parseTree);
@@ -1254,6 +1257,8 @@ public class StscComplexTypeResolver
 
         if (maxOccurs != null && maxOccurs.compareTo(BigInteger.ONE) < 0)
         {
+            // remove from the list of anonymous types if it was added
+            anonymousTypes.remove(sPart.getType());
             return null; // maxOccurs == minOccurs == 0, same as no particle at all.
         }
 
@@ -1265,7 +1270,7 @@ public class StscComplexTypeResolver
             state.startProcessing(group);
             redefinitionFor = null;
             if (group.isRedefinition())
-                redefinitionFor = new RedefinitionForGroup(group.getName());
+                redefinitionFor = new RedefinitionForGroup(group);
         }
 
         if (hasChildren)

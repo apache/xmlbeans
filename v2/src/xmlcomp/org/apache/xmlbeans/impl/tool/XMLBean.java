@@ -649,7 +649,7 @@ public class XMLBean extends MatchingTask
         this.includeJavaRuntime = includeJavaRuntime;
     }
 
-    public boolean isIncrementalSrcGen()
+    public boolean isNoSrcRegen()
     {
         return noSrcRegen;
     }

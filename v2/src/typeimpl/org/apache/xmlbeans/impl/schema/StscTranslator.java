@@ -55,18 +55,17 @@ public class StscTranslator
 
     public static void addAllDefinitions(StscImporter.SchemaToProcess[] schemasAndChameleons)
     {
+        // Build all redefine objects
+        RedefinitionHolder redefinitions[] =
+            new RedefinitionHolder[schemasAndChameleons.length];
         for (int i = 0; i < schemasAndChameleons.length; i++)
-        {
-            addAllDefinitions(
-                schemasAndChameleons[i].getSchema(),
-                schemasAndChameleons[i].getChameleonNamespace(),
-                schemasAndChameleons[i].getRedefine());
-        }
-    }
+            redefinitions[i] = new RedefinitionHolder(schemasAndChameleons[i].getRedefine());
 
-    public static void addAllDefinitions(Schema schema, String givenTargetNamespace, Redefine redefine)
-    {
         StscState state = StscState.get();
+        for (int j = 0; j < schemasAndChameleons.length; j++)
+        {
+            Schema schema = schemasAndChameleons[j].getSchema();
+            String givenTargetNamespace = schemasAndChameleons[j].getChameleonNamespace();
 
         // quick check for a few unsupported features
 
@@ -88,25 +87,65 @@ public class StscTranslator
         
         state.addNamespace(targetNamespace);
 
-        // make a note of all redefinitions
-        RedefinitionHolder redefinitions = new RedefinitionHolder(redefine);
-
+        List redefChain = new ArrayList();
         TopLevelComplexType[] complexTypes = schema.getComplexTypeArray();
         for (int i = 0; i < complexTypes.length; i++)
         {
-            TopLevelComplexType redef = redefinitions.redefineComplexType(complexTypes[i].getName());
-            state.addGlobalType(translateGlobalComplexType(complexTypes[i], targetNamespace, chameleon, false), redef != null);
+            TopLevelComplexType type = complexTypes[i];
+            TopLevelComplexType redef= redefinitions[j].redefineComplexType(type.getName());
+
             if (redef != null)
-                state.addGlobalType(translateGlobalComplexType(redef, targetNamespace, chameleon, true), false);
+            {
+                int p = schemasAndChameleons[j].getRedefinedBy();
+                while (redef != null)
+                {
+                    redefChain.add(type);
+                    type = redef;
+                    redef = redefinitions[p].redefineComplexType(type.getName());
+                    p = schemasAndChameleons[p].getRedefinedBy();
+                }
+            }
+
+            SchemaTypeImpl t = translateGlobalComplexType(type, targetNamespace, chameleon, redefChain.size() > 0);
+            state.addGlobalType(t, null);
+            SchemaTypeImpl r;
+            for (int k = redefChain.size()-1; k >= 0; k--)
+            {
+                redef = (TopLevelComplexType) redefChain.remove(k);
+                r = translateGlobalComplexType(redef, targetNamespace, chameleon, k > 0);
+                state.addGlobalType(r, t);
+                t = r;
+            }
         }
 
         TopLevelSimpleType[] simpleTypes = schema.getSimpleTypeArray();
         for (int i = 0; i < simpleTypes.length; i++)
         {
-            TopLevelSimpleType redef = redefinitions.redefineSimpleType(simpleTypes[i].getName());
-            state.addGlobalType(translateGlobalSimpleType(simpleTypes[i], targetNamespace, chameleon, false), redef != null);
+            TopLevelSimpleType type = simpleTypes[i];
+            TopLevelSimpleType redef = redefinitions[j].redefineSimpleType(type.getName());
+
             if (redef != null)
-                state.addGlobalType(translateGlobalSimpleType(redef, targetNamespace, chameleon, true), false);
+            {
+                int p = schemasAndChameleons[j].getRedefinedBy();
+                while (redef != null)
+                {
+                    redefChain.add(type);
+                    type = redef;
+                    redef = redefinitions[p].redefineSimpleType(type.getName());
+                    p = schemasAndChameleons[p].getRedefinedBy();
+                }
+            }
+
+            SchemaTypeImpl t = translateGlobalSimpleType(type, targetNamespace, chameleon,redefChain.size() > 0);
+            state.addGlobalType(t, null);
+            SchemaTypeImpl r;
+            for (int k = redefChain.size()-1; k >= 0; k--)
+            {
+                redef = (TopLevelSimpleType) redefChain.remove(k);
+                r = translateGlobalSimpleType(redef, targetNamespace, chameleon, k > 0);
+                state.addGlobalType(r, t);
+                t = r;
+            }
         }
 
         TopLevelElement[] elements = schema.getElementArray();
@@ -126,26 +165,70 @@ public class StscTranslator
         NamedGroup[] modelgroups = schema.getGroupArray();
         for (int i = 0; i < modelgroups.length; i++)
         {
-            NamedGroup redef = redefinitions.redefineModelGroup(modelgroups[i].getName());
-            state.addModelGroup(translateModelGroup(modelgroups[i], targetNamespace, chameleon, false), redef != null);
+            NamedGroup group = modelgroups[i];
+            NamedGroup redef = redefinitions[j].redefineModelGroup(group.getName());
+
             if (redef != null)
-                state.addModelGroup(translateModelGroup(redef, targetNamespace, chameleon, true), false);
+            {
+                int p = schemasAndChameleons[j].getRedefinedBy();
+                while (redef != null)
+                {
+                    redefChain.add(group);
+                    group = redef;
+                    redef = redefinitions[p].redefineModelGroup(group.getName());
+                    p = schemasAndChameleons[p].getRedefinedBy();
+                }
+            }
+
+            SchemaModelGroupImpl g = translateModelGroup(group, targetNamespace, chameleon, redefChain.size() > 0);
+            state.addModelGroup(g, null);
+            SchemaModelGroupImpl r;
+            for (int k = redefChain.size()-1; k >= 0; k--)
+            {
+                redef = (NamedGroup) redefChain.remove(k);
+                r = translateModelGroup(redef, targetNamespace, chameleon, k > 0);
+                state.addModelGroup(r, g);
+                g = r;
+            }
         }
 
         NamedAttributeGroup[] attrgroups = schema.getAttributeGroupArray();
         for (int i = 0; i < attrgroups.length; i++)
         {
-            NamedAttributeGroup redef = redefinitions.redefineAttributeGroup(attrgroups[i].getName());
-            state.addAttributeGroup(translateAttributeGroup(attrgroups[i], targetNamespace, chameleon, false), redef != null);
+            NamedAttributeGroup group = attrgroups[i];
+            NamedAttributeGroup redef = redefinitions[j].redefineAttributeGroup(group.getName());
+
             if (redef != null)
-                state.addAttributeGroup(translateAttributeGroup(redef, targetNamespace, chameleon, true), false);
+            {
+                int p = schemasAndChameleons[j].getRedefinedBy();
+                while (redef != null)
+                {
+                    redefChain.add(group);
+                    group = redef;
+                    redef = redefinitions[p].redefineAttributeGroup(group.getName());
+                    p = schemasAndChameleons[p].getRedefinedBy();
+                }
+            }
+
+            SchemaAttributeGroupImpl g = translateAttributeGroup(group, targetNamespace, chameleon, redefChain.size() > 0);
+            state.addAttributeGroup(g, null);
+            SchemaAttributeGroupImpl r;
+            for (int k = redefChain.size()-1; k >= 0; k--)
+            {
+                redef = (NamedAttributeGroup) redefChain.remove(k);
+                r = translateAttributeGroup(redef, targetNamespace, chameleon, k > 0);
+                state.addAttributeGroup(r, g);
+                g = r;
+            }
         }
 
         AnnotationDocument.Annotation[] annotations = schema.getAnnotationArray();
         for (int i = 0; i < annotations.length; i++)
             state.addAnnotation(SchemaAnnotationImpl.getAnnotation(state.sts(), schema, annotations[i]));
+        }
 
-        redefinitions.complainAboutMissingDefinitions();
+        for (int i = 0; i < redefinitions.length; i++)
+            redefinitions[i].complainAboutMissingDefinitions();
     }
     
     private static class RedefinitionHolder
