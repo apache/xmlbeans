@@ -9,7 +9,7 @@ CP=$CP:$XMLBEANS_HOME/build/ar/xbean.jar
 
 case "`uname`" in
     CYGWIN*)
-        cp=`cygpath -w -p $cp`
+        CP=`cygpath -w -p $CP`
         ;;
 esac
 

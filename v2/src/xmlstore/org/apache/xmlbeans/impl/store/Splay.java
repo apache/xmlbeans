@@ -2415,7 +2415,7 @@ public abstract class Splay extends Goobers
             localname = value;
         }
 
-        String uri = namespaceForPrefix( prefix );
+        String uri = namespaceForPrefix( prefix, true );
 
         if (uri == null)
             return null; // no prefix definition found - that's illegal
@@ -2676,13 +2676,20 @@ public abstract class Splay extends Goobers
      * with a return value of null, which indicates an illegal
      * state, where there is no mapping for the given prefix.
      * <p>
+     * If the the default namespace is not explicitly mapped in the xml,
+     * the xml spec says that it should be mapped to the no-namespace.
+     * When the 'defaultAlwaysMapped' parameter is true, the default namepsace
+     * will return the no-namespace even if it is not explicity
+     * mapped, otherwise the default namespace will return null.
+     * <p>
      * This function intercepts the built-in prefixes "xml" and
      * "xmlns" and returns their well-known namespace URIs.
      *
      * @param prefix The prefix to look up.
+     * @param mapDefault If true, return the no-namespace for the default namespace if not set.
      * @return The mapped namespace URI ("" if no-namespace), or null if no mapping.
      */
-    final String namespaceForPrefix ( String prefix )
+    final String namespaceForPrefix ( String prefix, boolean defaultAlwaysMapped )
     {
         // null same as "", means look up the default namespace
         if (prefix == null)
@@ -2706,9 +2713,11 @@ public abstract class Splay extends Goobers
             }
         }
 
-        // no xmlns decl?  no problem for the default namespace
-        if (prefix.length() == 0)
-            return "";
+        // CR135193: if defaultAlwaysMapped, return no-namespace when no default namespace is found
+        // otherwise, return null to indicate no default namespace was found.
+        if (defaultAlwaysMapped && prefix.length() == 0) {
+                return "";
+        }
 
         // no namespace defn found: return null
         return null;
