@@ -35,8 +35,12 @@ public class NewJServiceFactory extends DefaultJResultFactory {
                                             JClassLoader parent)
           throws IOException
   {
-    ParserClassBuilder pcb = new ParserClassBuilder(params);
-    return new JClassLoaderImpl(pcb,null);
+    EClassBuilder[] builders = new EClassBuilder[2];
+    builders[0] = new ParserClassBuilder(params);
+    // FIXME this is a temporary hack - we shouldnt have to do this
+    builders[1] = ReflectionClassBuilder.getSystemClassBuilder();
+    CompositeClassBuilder ccb = new CompositeClassBuilder(builders);
+    return new JClassLoaderImpl(ccb,null);
   }
 
 }

@@ -20,6 +20,8 @@ import org.apache.xmlbeans.impl.jam.editable.EMethod;
 import org.apache.xmlbeans.impl.jam.JAnnotationMemberDefinition;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 
+import java.util.List;
+
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
@@ -32,8 +34,9 @@ public class EAnnotationDefinitionImpl extends EClassImpl
 
   public EAnnotationDefinitionImpl(String packageName,
                                    String simpleName,
-                                   JClassLoader classLoader) {
-    super(packageName,simpleName,classLoader);
+                                   JClassLoader classLoader,
+                                   String[] importSpecs) {
+    super(packageName,simpleName,classLoader,importSpecs);
   }
 
   // ========================================================================

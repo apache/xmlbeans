@@ -75,8 +75,8 @@ public class EServiceFactory {
       //
       //dumb test code
       //
-      EClass testClass = service.addNewClass("com.bea.pcal","TestClass");
-      EClass fooClass = service.addNewClass("com.bea.pcal","Foo");
+      EClass testClass = service.addNewClass("com.bea.pcal","TestClass",null);
+      EClass fooClass = service.addNewClass("com.bea.pcal","Foo",null);
       testClass.addNewMethod().setReturnType(fooClass);
       testClass.addNewField().setUnqualifiedType("TestClass");
       //

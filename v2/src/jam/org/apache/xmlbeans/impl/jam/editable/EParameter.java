@@ -27,4 +27,6 @@ public interface EParameter extends JParameter, EMember {
   public void setType(String typeName);
 
   public void setType(JClass type);
+
+  public void setUnqualifiedType(String ucname);
 }

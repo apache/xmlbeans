@@ -24,7 +24,9 @@ import org.apache.xmlbeans.impl.jam.JClass;
  */
 public interface EService extends JService {
 
-  public EClass addNewClass(String packageName, String className);
+  public EClass addNewClass(String packageName,
+                            String className,
+                            String[] importSpecs);
 
   public EClass addNewClass(JClass copyme);
 }

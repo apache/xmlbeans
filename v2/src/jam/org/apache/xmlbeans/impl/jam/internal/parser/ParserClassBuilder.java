@@ -41,7 +41,7 @@ public class ParserClassBuilder implements EClassBuilder {
   // ========================================================================
   // Constants
 
-  private static final boolean VERBOSE = true;
+  private static final boolean VERBOSE = false;
 
   // ========================================================================
   // Variables

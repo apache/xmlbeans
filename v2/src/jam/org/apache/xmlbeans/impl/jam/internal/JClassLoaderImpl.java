@@ -67,7 +67,7 @@ public class JClassLoaderImpl implements JClassLoader {
     JClass out = (JClass)mFd2ClassCache.get(fd);
     if (out != null) return out;
     if (fd.startsWith("[")) {
-      return ArrayJClass.createClassFor(fd,this);
+      return ArrayJClass.createClassForFD(fd,this);
     } else {
       if (fd.equals("java.lang.Object")) return ObjectJClass.getInstance();
       if (fd.equals("void")) return VoidJClass.getInstance();
@@ -77,7 +77,6 @@ public class JClassLoaderImpl implements JClassLoader {
     String pkg;
     String name;
     if (dot == -1) {
-      //System.out.println("==== "+fd);
       pkg = "";
       name = fd;
     } else {
@@ -89,7 +88,7 @@ public class JClassLoaderImpl implements JClassLoader {
       out = ROOT.loadClass(fd);
     }
     if (out == null) {
-      out = new EClassImpl(pkg,name,this);
+      out = new EClassImpl(pkg,name,this,null);
       ((EClassImpl)out).setIsUnresolved(true);
       if (mVerbose) System.out.println("[JClassLoaderImpl] unresolve class '"+
                                        pkg+" "+name+"'!!");

@@ -51,7 +51,7 @@ public class EClassImpl extends EMemberImpl
   // are we an interface or a class?
   private boolean mIsInterface = false;
 
-  private List mImports = null;
+  private String[] mImports = null;
 
   // FIXME implement this - we should only create one UnqualifiedJClassRef
   // for each unqualified name so as to avoid resolving them over and over.
@@ -62,9 +62,11 @@ public class EClassImpl extends EMemberImpl
 
   public EClassImpl(String packageName,
                     String simpleName,
-                    JClassLoader classLoader) {
+                    JClassLoader classLoader,
+                    String[] importSpecs) {
     super(simpleName,classLoader);
     mPackageName = packageName;
+    mImports = importSpecs;
   }
 
   // ========================================================================
@@ -319,19 +321,6 @@ public class EClassImpl extends EMemberImpl
     return out;
   }
 
-  public void addImportSpec(String spec) {
-    if (spec == null) throw new IllegalArgumentException("null spec");
-    if (mImports == null) mImports = new ArrayList();
-    mImports.add(spec);
-  }
-
-  public void addImportSpecs(Collection c) {
-    if (c == null) throw new IllegalArgumentException("null collection");
-    for(Iterator i = c.iterator(); i.hasNext(); ) {
-      addImportSpec((String)i.next());
-    }
-  }
-
   public void setIsInterface(boolean b) {
     mIsInterface = b;
   }
@@ -361,9 +350,7 @@ public class EClassImpl extends EMemberImpl
 
   public String[] getImportSpecs() {
     if (mImports == null) return new String[0];
-    String[] out = new String[mImports.size()];
-    mImports.toArray(out);
-    return out;
+    return mImports;
   }
 
   // ========================================================================
