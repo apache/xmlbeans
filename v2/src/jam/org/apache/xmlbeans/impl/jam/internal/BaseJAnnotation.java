@@ -73,6 +73,7 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
   // Constants
 
   private static final String NAME_VALUE_SEPS = "\n\r";
+  private static final boolean STRIP_QUOTES = false;
 
   // ========================================================================
   // Variables
@@ -99,12 +100,14 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
     mParent = parent;
     mName = name;
     mValue = value;  // ok to be null
-    if (mValue != null) {
-      mValue = mValue.trim();
-      if (mValue.length() > 1) {
-        if  (mValue.charAt(0) == '\"' &&
-                mValue.charAt(mValue.length()-1) == '\"') {
-          mValue = mValue.substring(1,mValue.length()-1);
+    if (STRIP_QUOTES){
+      if (mValue != null) {
+        mValue = mValue.trim();
+        if (mValue.length() > 1) {
+          if  (mValue.charAt(0) == '\"' &&
+                  mValue.charAt(mValue.length()-1) == '\"') {
+            mValue = mValue.substring(1,mValue.length()-1);
+          }
         }
       }
     }
