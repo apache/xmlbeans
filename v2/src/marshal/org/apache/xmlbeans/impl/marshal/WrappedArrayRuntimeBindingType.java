@@ -134,17 +134,6 @@ final class WrappedArrayRuntimeBindingType
             acc.append(prop_obj);
         }
 
-        //non simple type props can throw some runtime exception.
-        CharSequence getLexical(Object value, MarshalResult result)
-            throws XmlException
-        {
-            assert value != null;
-            assert  result != null;
-            assert itemType.getMarshaller() != null;
-
-            return itemType.getMarshaller().print(value, result);
-        }
-
         Object getValue(Object parentObject, MarshalResult result)
             throws XmlException
         {

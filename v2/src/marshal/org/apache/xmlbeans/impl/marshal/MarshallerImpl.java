@@ -377,7 +377,7 @@ final class MarshallerImpl
                                    nscontext, obj);
     }
 
-    private static NamespaceContext getNamespaceContextFromOptions(XmlOptions options)
+    static NamespaceContext getNamespaceContextFromOptions(XmlOptions options)
     {
         //TODO: do this properly
         return EmptyNamespaceContext.getInstance();

@@ -215,17 +215,19 @@ final class MarshalResult implements XMLStreamReader
     {
         if (instance == null ||
             expected.isJavaPrimitive() ||
-            expected.isJavaFinal() ||
-            instance.getClass().equals(expected.getJavaType())) {
+            expected.isJavaFinal()) {
+            return expected;
+        }
+
+        final Class instance_class = instance.getClass();
+        if (instance_class.equals(expected.getJavaType())) {
             return expected;
         }
 
         final BindingTypeName type_name = expected.getBindingType().getName();
-        String expectedJavaClass = type_name.getJavaName().toString();
-        String actualJavaClass = instance.getClass().getName();
-        if (!actualJavaClass.equals(expectedJavaClass)) {
+        if (!instance_class.getName().equals(type_name.getJavaName().toString())) {
             final BindingType actual_type =
-                MarshallerImpl.lookupBindingType(instance.getClass(),
+                MarshallerImpl.lookupBindingType(instance_class,
                                                  type_name.getJavaName(),
                                                  type_name.getXmlName(),
                                                  bindingLoader);

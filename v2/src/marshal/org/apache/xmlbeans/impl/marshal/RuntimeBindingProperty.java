@@ -88,8 +88,24 @@ abstract class RuntimeBindingProperty
     abstract QName getName();
 
     //non simple type props can throw an exception
-    abstract CharSequence getLexical(Object value, MarshalResult result)
-        throws XmlException;
+    final CharSequence getLexical(Object value,
+                                  MarshalResult result)
+        throws XmlException
+    {
+        assert value != null :
+            "null value for " + getName();
+
+        assert  result != null;
+
+        final RuntimeBindingType actualRuntimeType =
+            getActualRuntimeType(value, result);
+
+        assert actualRuntimeType.getMarshaller() != null :
+            "null marshaller for prop=" + getName() +
+            " propType=" + actualRuntimeType;
+
+        return actualRuntimeType.getMarshaller().print(value, result);
+    }
 
     abstract Object getValue(Object parentObject, MarshalResult result)
         throws XmlException;

@@ -42,7 +42,6 @@ abstract class NamedXmlTypeVisitor
         actualRuntimeBindingType =
             property.getActualRuntimeType(parentObject, result);
 
-        //TODO: optimize to avoid object creation
         final String uri = getBindingProperty().getName().getNamespaceURI();
         if (uri.length() > 0) {
             prefix = marshalResult.ensurePrefix(uri);
