@@ -142,8 +142,8 @@ public class BuiltinBindingLoader extends BaseBindingLoader {
     addPojoXml("unsignedInt", "long");
     addPojoXml("unsignedShort", "int");
     addPojoXml("unsignedByte", "short");
-    addPojoTwoWay("anyURI", "java.lang.String");
-    addPojo("anyURI", "java.net.URI");
+    addPojoXml("anyURI", "java.lang.String");
+    addPojoJava("anyURI", "java.net.URI");
     addPojoTwoWay("QName", "javax.xml.namespace.QName");
     addPojoXml("NOTATION", "java.lang.String");
 
