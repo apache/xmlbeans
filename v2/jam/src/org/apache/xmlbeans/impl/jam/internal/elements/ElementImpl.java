@@ -92,7 +92,7 @@ public abstract class ElementImpl implements Comparable, MElement {
 
   public void setSimpleName(String name) {
     if (name == null) throw new IllegalArgumentException("null name");
-    mSimpleName = name;
+    mSimpleName = name.trim();
   }
 
   public MSourcePosition createSourcePosition() {

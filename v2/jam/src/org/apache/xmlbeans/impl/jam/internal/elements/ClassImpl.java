@@ -572,7 +572,7 @@ public class ClassImpl extends MemberImpl implements MClass,
     // check all of arg's implemented interfaces, recursively
     JClass[] interfaces = arg.getInterfaces();
     if (interfaces != null) {
-      for (int i = 0; i < interfaces.length; i++) {
+      for (int i=0; i<interfaces.length; i++) {
         if (isAssignableFromRecursively(interfaces[i])) return true;
       }
     }
