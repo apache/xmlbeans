@@ -78,7 +78,7 @@ public class TestRunUtil
         }
         catch (InvocationTargetException e)
         {
-            throw e.getCause();
+            throw e.getTargetException();
         }
         finally
         {

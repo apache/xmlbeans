@@ -79,7 +79,12 @@ public interface SchemaComponent
             { _schemaComponent = schemaComponent; }
 
         protected Ref(SchemaTypeSystem schemaTypeSystem, String handle)
-            { assert(handle != null); _schemaTypeSystem = schemaTypeSystem; _handle = handle; }
+        {
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(handle != null);
+            _schemaTypeSystem = schemaTypeSystem;
+            _handle = handle;
+        }
 
         private SchemaComponent _schemaComponent;
         private SchemaTypeSystem _schemaTypeSystem;

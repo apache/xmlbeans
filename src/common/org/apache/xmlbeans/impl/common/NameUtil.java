@@ -495,7 +495,7 @@ public class NameUtil
         List result = null;
 
         if ( i >= 0 && uri.substring(0, i).equals("java"))
-            result =  Arrays.asList(uri.substring(i + 1).split("\\."));
+            result = Arrays.asList(StringUtils.split(uri.substring(i + 1), '.'));
 
         else {
             result = new ArrayList();

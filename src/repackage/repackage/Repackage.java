@@ -15,9 +15,12 @@
 
 package repackage;
 
+import org.apache.xmlbeans.impl.regex.RegularExpression;
+import org.apache.xmlbeans.impl.regex.Match;
+import org.apache.xmlbeans.impl.common.StringUtils;
+
 import java.io.*;
 import java.util.*;
-import java.util.regex.*;
 
 public class Repackage
 {
@@ -25,37 +28,37 @@ public class Repackage
     {
         new Repackage().repackage( args );
     }
-    
+
     public void repackage ( String[] args ) throws Exception
     {
         if (args.length != 2 || !args[0].equals( "-repackage" ))
             throw new RuntimeException( "Usage: repackage -repackage [spec]" );
-        
+
         _repackager = new Repackager( args[ 1 ] );
 
         _fromPackages = _repackager.getFromPackages();
         _toPackages = _repackager.getToPackages();
-        
+
         _packagePattern =
-            Pattern.compile( "^\\s*package\\s+((?:\\w|\\.)*)\\s*;", Pattern.MULTILINE );
-        
+            new RegularExpression( "^\\s*package\\s+((?:\\w|\\.)*)\\s*;", "m");
+
         _moveAlongFiles = new ArrayList();
         _movedDirs = new HashMap();
-        
+
         File currentDir   = new File( "." );
         File buildDir     = new File( currentDir, "build" );
         File repackageDir = new File( buildDir, "repackage" );
 
         System.out.println( "Deleting repackage dir ..." );
-        
+
         recursiveDelete( repackageDir );
 
         repackageDir.mkdirs();
-        
+
         ArrayList files = new ArrayList();
 
         fillFiles( files, currentDir );
-        
+
         System.out.println( "Repackaging " + files.size() + " files ..." );
 
         int prefixLength = currentDir.getCanonicalPath().length();
@@ -71,7 +74,7 @@ public class Repackage
 
             repackageFile( name );
         }
-        
+
         finishMovingFiles();
     }
 
@@ -92,7 +95,7 @@ public class Repackage
     {
         _moveAlongFiles.add(name);
     }
-    
+
     public void finishMovingFiles ( )
         throws IOException
     {
@@ -100,12 +103,12 @@ public class Repackage
         {
             String name = (String) i.next();
             String toName = name;
-            
+
             String srcDir = Repackager.dirForPath( name );
             String toDir = (String) _movedDirs.get( srcDir );
-            
+
             if (toDir != null)
-                toName = new File( toDir, new File( name ).getName() ).toString(); 
+                toName = new File( toDir, new File( name ).getName() ).toString();
 
             if (name.endsWith( ".html" ))
                 repackageNonJavaFile( name, toName );
@@ -120,39 +123,41 @@ public class Repackage
         StringBuffer sb = readFile( new File( _sourceBase, name ) );
 
         _repackager.repackage( sb );
-        
+
         writeFile( new File( _targetBase, name ), sb );
     }
-    
+
     public void repackageNonJavaFile ( String sourceName, String targetName )
         throws IOException
     {
         StringBuffer sb = readFile( new File( _sourceBase, sourceName ) );
 
         _repackager.repackage( sb );
-        
+
         writeFile( new File( _targetBase, targetName ), sb );
     }
-    
+
     public void repackageJavaFile ( String name )
         throws IOException
     {
         StringBuffer sb = readFile( new File( _sourceBase, name ) );
 
-        Matcher packageMatcher = _packagePattern.matcher( sb );
+        Match packageMatcher = new Match();
 
-        if (packageMatcher.find())
+        if (_packagePattern.matches(sb.toString(), packageMatcher))
         {
-            String pkg = packageMatcher.group( 1 );
-            int pkgStart = packageMatcher.start( 1 );
-            int pkgEnd = packageMatcher.end( 1 );
-            
-            if (packageMatcher.find())
-                throw new RuntimeException( "Two package specifications found: " + name );
-            
-            List filePath = Repackager.splitPath( name, File.separatorChar );
+            String pkg = packageMatcher.getCapturedText( 1 );
+            int pkgStart = packageMatcher.getBeginning( 1 );
+            int pkgEnd = packageMatcher.getEnd( 1 );
+
+            //group 0 is the whole package statement, 1 is package name
+            if (packageMatcher.getNumberOfGroups() > 2)
+                throw new RuntimeException( "More than one package specifications found: "
+                        + name + ", numGroups=" + packageMatcher.getNumberOfGroups() );
+
+            List filePath = Arrays.asList(StringUtils.split( name, File.separatorChar ));
             String srcDir = Repackager.dirForPath( name );
-            
+
             // Sort the repackage spec so that longer from's are first to match
             // longest package first
 
@@ -178,7 +183,7 @@ public class Repackage
                     break;
             }
 
-            List pkgPath = Repackager.splitPath( pkg, '.' );
+            List pkgPath = Arrays.asList(StringUtils.split( pkg, '.' ));
 
             int f = filePath.size() - 2;
 
@@ -190,7 +195,7 @@ public class Repackage
 
             List changeTo = null;
             List changeFrom = null;
-            
+
             from:
             for ( int i = 0 ; i < _fromPackages.size() ; i ++ )
             {
@@ -221,11 +226,11 @@ public class Repackage
                         newPkg += ".";
                         newName += File.separatorChar;
                     }
-                    
+
                     newPkg += changeTo.get( i );
                     newName += changeTo.get( i );
                 }
-                
+
                 for ( int i = filePath.size() - pkgPath.size() - 2 ; i >= 0 ; i-- )
                     newName = (String) filePath.get( i ) + File.separatorChar + newName;
 
@@ -241,7 +246,7 @@ public class Repackage
 
                 name = newName;
                 String newDir = Repackager.dirForPath( name );
-                
+
                 if (!srcDir.equals(newDir))
                 {
                     _movedDirs.put(srcDir, newDir);
@@ -250,7 +255,7 @@ public class Repackage
         }
 
         _repackager.repackage( sb );
-        
+
         writeFile( new File( _targetBase, name ), sb );
     }
 
@@ -258,7 +263,7 @@ public class Repackage
         throws IOException
     {
         f.getParentFile().mkdirs();
-        
+
         OutputStream out = new FileOutputStream( f );
         Writer w = new OutputStreamWriter( out );
         Reader r = new StringReader( chars.toString() );
@@ -269,7 +274,7 @@ public class Repackage
         w.close();
         out.close();
     }
-    
+
     StringBuffer readFile ( File f )
         throws IOException
     {
@@ -285,20 +290,20 @@ public class Repackage
 
         return w.getBuffer();
     }
-    
+
     public void copyFile ( File from, File to ) throws IOException
     {
         to.getParentFile().mkdirs();
-        
+
         FileInputStream in = new FileInputStream( from );
         FileOutputStream out = new FileOutputStream( to );
 
         copy( in, out );
-        
+
         out.close();
         in.close();
     }
-    
+
     public void copy ( InputStream in, OutputStream out ) throws IOException
     {
         byte[] buffer = new byte [ 1024 * 16 ];
@@ -313,7 +318,7 @@ public class Repackage
             out.write( buffer, 0, n );
         }
     }
-    
+
     public void copy ( Reader r, Writer w ) throws IOException
     {
         char[] buffer = new char [ 1024 * 16 ];
@@ -328,7 +333,7 @@ public class Repackage
             w.write( buffer, 0, n );
         }
     }
-    
+
     public void fillFiles ( ArrayList files, File file ) throws IOException
     {
         if (!file.isDirectory())
@@ -341,7 +346,7 @@ public class Repackage
 
         if (file.getName().equals( "build" ))
             return;
-        
+
         // Exclude CVS directories
         if (file.getName().equals( "CVS" ))
             return;
@@ -373,11 +378,11 @@ public class Repackage
 
     private List _fromPackages;
     private List _toPackages;
-    
-    private Pattern _packagePattern;
+
+    private RegularExpression _packagePattern;
 
     private Repackager _repackager;
-    
+
     private Map _movedDirs;
     private List _moveAlongFiles;
 }

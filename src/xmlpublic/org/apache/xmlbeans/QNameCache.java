@@ -37,8 +37,11 @@ public final class QNameCache
      */ 
     public QNameCache(int initialCapacity, float loadFactor)
     {
-        assert initialCapacity > 0;
-        assert loadFactor > 0 && loadFactor < 1;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(initialCapacity > 0);
+            XmlBeans.assertTrue(loadFactor > 0 && loadFactor < 1);
+        }
 
         // Find a power of 2 >= initialCapacity
         int capacity = 16;
@@ -74,8 +77,9 @@ public final class QNameCache
         /*
         return new QName(uri, localName);
         */
-        assert localName != null;
-        
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(localName != null);
+
         if (uri == null) uri = "";
 
         int index = hash(uri, localName) & hashmask;

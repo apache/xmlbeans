@@ -37,7 +37,7 @@ public class EditBuildScript
 
         String tokenStr = "<property name=\"" + args[ 1 ] + "\" value=\"";
                          
-        int i = sb.indexOf( tokenStr );
+        int i = new String(sb).indexOf( tokenStr );
 
         if (i < 0)
             throw new IllegalArgumentException( "Can't find token: " + tokenStr );

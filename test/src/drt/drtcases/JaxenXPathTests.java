@@ -22,6 +22,7 @@ import junit.framework.Assert;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -84,7 +85,7 @@ public class JaxenXPathTests extends TestCase
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new XmlRuntimeException(e);
         }
     }
 
@@ -159,11 +160,11 @@ public class JaxenXPathTests extends TestCase
         }
         catch (XmlException e)
         {
-            throw new RuntimeException(e);
+            throw new XmlRuntimeException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new XmlRuntimeException(e);
         }
     }
 
@@ -182,11 +183,11 @@ public class JaxenXPathTests extends TestCase
         }
         catch (FileNotFoundException e)
         {
-            throw new RuntimeException(e);
+            throw new XmlRuntimeException(e);
         }
         catch (IOException e)
         {
-            throw new RuntimeException(e);
+            throw new XmlRuntimeException(e);
         }
     }
 }

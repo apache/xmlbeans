@@ -17,8 +17,9 @@ package org.apache.xmlbeans.impl.store;
 
 import java.lang.reflect.Method;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlRuntimeException;
 
-public final class XqrlDelegate 
+public final class XqrlDelegate
 {
     private XqrlDelegate ( )
     {
@@ -54,11 +55,7 @@ public final class XqrlDelegate
         if (e instanceof RuntimeException)
             throw (RuntimeException) e;
         
-        Throwable cause = e.getCause();
-        
-        RuntimeException rte = new RuntimeException( cause.getMessage() );
-        
-        rte.initCause( cause );
+        XmlRuntimeException rte = new XmlRuntimeException( e.toString(), e );
 
         throw rte;
     }
@@ -124,7 +121,7 @@ public final class XqrlDelegate
             }
             catch ( Exception e )
             {
-                throw new RuntimeException( e );
+                throw new XmlRuntimeException( e );
             }
         }
     }

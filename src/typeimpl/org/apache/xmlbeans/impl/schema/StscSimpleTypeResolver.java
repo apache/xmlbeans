@@ -33,6 +33,7 @@ import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlByte;
 import org.apache.xmlbeans.XmlShort;
 import org.apache.xmlbeans.XmlUnsignedByte;
+import org.apache.xmlbeans.XmlBeans;
 import org.w3.x2001.xmlSchema.*;
 
 public class StscSimpleTypeResolver
@@ -55,7 +56,8 @@ public class StscSimpleTypeResolver
     {
         SimpleType parseSt = (SimpleType)sImpl.getParseObject();
         
-        assert sImpl.isSimpleType();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(sImpl.isSimpleType());
 
         // Verify: have list, union, or restriction, but not more than one
         int count =
@@ -224,7 +226,8 @@ public class StscSimpleTypeResolver
                 sImpl.setListItemTypeRef(itemImpl.getRef());
                 break;
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 sImpl.setListItemTypeRef(BuiltinSchemaTypeSystem.ST_ANY_SIMPLE.getRef());
         }
 
@@ -586,7 +589,8 @@ public class StscSimpleTypeResolver
                 }
                 return false;
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 return false;
         }
     }
@@ -604,7 +608,8 @@ public class StscSimpleTypeResolver
             case SchemaType.FACET_MAX_EXCLUSIVE:
                 return SchemaType.FACET_MAX_INCLUSIVE;
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 throw new IllegalStateException();
         }
     }

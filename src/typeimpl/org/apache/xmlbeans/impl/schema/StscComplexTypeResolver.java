@@ -39,6 +39,8 @@ import org.apache.xmlbeans.XmlNonNegativeInteger;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaLocalElement;
 import org.apache.xmlbeans.QNameSetSpecification;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
 
 public class StscComplexTypeResolver
 {
@@ -289,7 +291,7 @@ public class StscComplexTypeResolver
         int particleCode = translateParticleCode(parseGroup);
 
         // used to ensure consistency (doesn't become part of the result)
-        Map elementModel = new LinkedHashMap();
+        Map elementModel = new SequencedHashMap();
 
         // build content model and anonymous types
         SchemaParticle contentModel = translateContentModel(sImpl, parseGroup, targetNamespace, chameleon, particleCode, anonymousTypes, elementModel, false, null);
@@ -393,7 +395,7 @@ public class StscComplexTypeResolver
         int particleCode = translateParticleCode(parseEg);
 
         // used to ensure consistency (doesn't become part of the result)
-        Map elementModel = new LinkedHashMap();
+        Map elementModel = new SequencedHashMap();
 
         // build content model and anonymous types
         SchemaParticle contentModel = translateContentModel(
@@ -1108,7 +1110,8 @@ public class StscComplexTypeResolver
 
         // emitDBG("Translating content model for " + outerType);
         // indentDBG();
-        assert(particleCode != 0);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(particleCode != 0);
 
         boolean hasChildren = false;
         BigInteger minOccurs;
@@ -1241,7 +1244,8 @@ public class StscComplexTypeResolver
                     break;
 
                 default:
-                    assert(false);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(false);
                     throw new IllegalStateException();
             }
         }
@@ -1343,7 +1347,8 @@ public class StscComplexTypeResolver
                 return part;
 
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 throw new IllegalStateException();
         }
         
@@ -1408,7 +1413,7 @@ public class StscComplexTypeResolver
 
     static Map buildAttributePropertyModelByQName(SchemaAttributeModel attrModel, SchemaType owner)
     {
-        Map result = new LinkedHashMap();
+        Map result = new SequencedHashMap();
         SchemaLocalAttribute[] attruses = attrModel.getAttributes();
 
         for (int i = 0; i < attruses.length; i++)
@@ -1441,14 +1446,15 @@ public class StscComplexTypeResolver
                 model = Collections.EMPTY_MAP;
                 break;
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 throw new IllegalStateException();
         }
 
         if (model == null)
         {
             // build model for children
-            model = new LinkedHashMap();
+            model = new SequencedHashMap();
             SchemaParticle[] children = part.getParticleChildren();
 
             for (int i = 0; i < children.length; i++)
@@ -1468,7 +1474,8 @@ public class StscComplexTypeResolver
                         continue;
                     }
                     // consistency verified in an earlier step
-                    assert(oProp.getType().equals(iProp.getType()));
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(oProp.getType().equals(iProp.getType()));
 
                     mergeProperties(oProp, iProp, asSequence);
                 }

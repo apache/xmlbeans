@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.TimeZone;
+import java.util.SimpleTimeZone;
 
 /**
  * Represents an XML Schema-compatible Gregorian date.
@@ -40,7 +41,7 @@ import java.util.TimeZone;
 public final class GDate implements GDateSpecification, java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     // for fast equality comparison, hashing, and serialization
     private transient String _canonicalString;
     private transient String _string;
@@ -56,15 +57,15 @@ public final class GDate implements GDateSpecification, java.io.Serializable
     private int _tzsign;
     private int _tzh;
     private int _tzm;
-    
-    
+
+
     /* package */ static final BigDecimal _zero = BigDecimal.valueOf(0);
     /* package */ static final BigDecimal _one = BigDecimal.valueOf(1);
 
     /**
      * Constructs a GDate based on a lexical representation.
      */
-    public GDate(CharSequence string)
+    public GDate(String string)
     {
         // first trim XML whitespace
         int len = string.length();
@@ -247,7 +248,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
                     }
                     try
                     {
-                        fs = new BigDecimal(string.subSequence(start, len).toString());
+                        fs = new BigDecimal(string.substring(start, len));
                     }
                     catch (Throwable e)
                     {
@@ -364,6 +365,15 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      */
     public GDate(Calendar calendar)
     {
+        XmlCalendar xCal = null;
+        boolean isXC = false;
+
+        if (calendar instanceof XmlCalendar)
+        {
+            isXC = true;
+            xCal = (XmlCalendar) calendar;
+        }
+
         // we must scrape the "isSet" information out before accessing anything
         boolean isSetYear = calendar.isSet(Calendar.YEAR);
         boolean isSetEra = calendar.isSet(Calendar.ERA);
@@ -380,9 +390,9 @@ public final class GDate implements GDateSpecification, java.io.Serializable
 
         if (isSetYear)
         {
-            int y = calendar.get(Calendar.YEAR);
+            int y = isXC ? xCal.peek(Calendar.YEAR) : calendar.get(Calendar.YEAR);
             if (isSetEra && calendar instanceof GregorianCalendar)
-                if (calendar.get(Calendar.ERA) == GregorianCalendar.BC)
+                if ((isXC ? xCal.peek(Calendar.ERA) : calendar.get(Calendar.ERA)) == GregorianCalendar.BC)
                     y = 1 - y;
             _bits |= HAS_YEAR;
             _CY = y;
@@ -390,12 +400,12 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         if (isSetMonth)
         {
             _bits |= HAS_MONTH;
-            _M = calendar.get(Calendar.MONTH) + 1; // !!note
+            _M = (isXC ? xCal.peek(Calendar.MONTH) : calendar.get(Calendar.MONTH)) + 1; // !!note
         }
         if (isSetDay)
         {
             _bits |= HAS_DAY;
-            _D = calendar.get(Calendar.DAY_OF_MONTH);
+            _D = isXC ? xCal.peek(Calendar.DAY_OF_MONTH) : calendar.get(Calendar.DAY_OF_MONTH);
         }
         boolean gotTime = false;
 
@@ -406,30 +416,34 @@ public final class GDate implements GDateSpecification, java.io.Serializable
 
         if (isSetHourOfDay)
         {
-            h = calendar.get(Calendar.HOUR_OF_DAY);
+            h = isXC ? xCal.peek(Calendar.HOUR_OF_DAY) : calendar.get(Calendar.HOUR_OF_DAY);
             gotTime = true;
         }
         else if (isSetHour && isSetAmPm)
         {
-            h = calendar.get(Calendar.HOUR) + calendar.get(Calendar.AM_PM) * 12;
+            if (isXC)
+                h = xCal.peek(Calendar.HOUR) + xCal.peek(Calendar.AM_PM) * 12;
+            else
+                h = calendar.get(Calendar.HOUR) + calendar.get(Calendar.AM_PM) * 12;
             gotTime = true;
         }
 
         if (isSetMinute)
         {
-            m = calendar.get(Calendar.MINUTE);
+            m = isXC ? xCal.peek(Calendar.MINUTE) : calendar.get(Calendar.MINUTE);
             gotTime = true;
         }
 
         if (isSetSecond)
         {
-            s = calendar.get(Calendar.SECOND);
+            s = isXC ? xCal.peek(Calendar.SECOND) : calendar.get(Calendar.SECOND);
             gotTime = true;
         }
 
         if (isSetMillis)
         {
-            fs = BigDecimal.valueOf(calendar.get(Calendar.MILLISECOND), 3);
+            fs = BigDecimal.valueOf(isXC ? xCal.peek(Calendar.MILLISECOND)
+                                         : calendar.get(Calendar.MILLISECOND), 3);
             gotTime = true;
         }
 
@@ -444,9 +458,11 @@ public final class GDate implements GDateSpecification, java.io.Serializable
 
         if (isSetZone)
         {
-            int zoneOffsetInMilliseconds = calendar.get(Calendar.ZONE_OFFSET);
+            int zoneOffsetInMilliseconds = isXC ? xCal.peek(Calendar.ZONE_OFFSET)
+                                                : calendar.get(Calendar.ZONE_OFFSET);
             if (isSetDst)
-                zoneOffsetInMilliseconds += calendar.get(Calendar.DST_OFFSET);
+                zoneOffsetInMilliseconds += isXC ? xCal.peek(Calendar.DST_OFFSET)
+                                                 : calendar.get(Calendar.DST_OFFSET);
 
             _bits |= HAS_TIMEZONE;
             if (zoneOffsetInMilliseconds == 0)
@@ -537,7 +553,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         return (ch - '0');
     }
 
-    private static final int twoDigit(CharSequence str, int index)
+    private static final int twoDigit(String str, int index)
     {
         char ch1 = str.charAt(index);
         char ch2 = str.charAt(index + 1);
@@ -758,7 +774,7 @@ public final class GDate implements GDateSpecification, java.io.Serializable
      * contained in this instance, or 0 if the
      * instance doesn't contain information corresponding to a
      * Schema type.
-     * <p> 
+     * <p>
      * Value will be equal to
      * {@link SchemaType#BTC_NOT_BUILTIN},
      * {@link SchemaType#BTC_G_YEAR},
@@ -899,7 +915,8 @@ public final class GDate implements GDateSpecification, java.io.Serializable
 
     private static final int _padTwoAppend(char[] b, int i, int n)
     {
-        assert(n >= 0 && n < 100);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(n >= 0 && n < 100);
         b[i] = _tensDigit[n];
         b[i + 1] = _onesDigit[n];
         return i + 2;
@@ -926,43 +943,45 @@ public final class GDate implements GDateSpecification, java.io.Serializable
         b[i + 3] = _onesDigit[r];
         return i + 4;
     }
-    
+
     private static final TimeZone GMTZONE = TimeZone.getTimeZone("GMT");
+    private static final int ONE_MINUTE = 60 * 1000;
+    private static final int ONE_HOUR = 60 * ONE_MINUTE;
     private static final TimeZone[] MINUSZONE =
             {
-                TimeZone.getTimeZone("GMT-00:00"),
-                TimeZone.getTimeZone("GMT-01:00"),
-                TimeZone.getTimeZone("GMT-02:00"),
-                TimeZone.getTimeZone("GMT-03:00"),
-                TimeZone.getTimeZone("GMT-04:00"),
-                TimeZone.getTimeZone("GMT-05:00"),
-                TimeZone.getTimeZone("GMT-06:00"),
-                TimeZone.getTimeZone("GMT-07:00"),
-                TimeZone.getTimeZone("GMT-08:00"),
-                TimeZone.getTimeZone("GMT-09:00"),
-                TimeZone.getTimeZone("GMT-10:00"),
-                TimeZone.getTimeZone("GMT-11:00"),
-                TimeZone.getTimeZone("GMT-12:00"),
-                TimeZone.getTimeZone("GMT-13:00"),
-                TimeZone.getTimeZone("GMT-14:00"),
+                new SimpleTimeZone(0, "GMT-00:00"),
+                new SimpleTimeZone(-1 * ONE_HOUR, "GMT-01:00"),
+                new SimpleTimeZone(-2 * ONE_HOUR, "GMT-02:00"),
+                new SimpleTimeZone(-3 * ONE_HOUR, "GMT-03:00"),
+                new SimpleTimeZone(-4 * ONE_HOUR, "GMT-04:00"),
+                new SimpleTimeZone(-5 * ONE_HOUR, "GMT-05:00"),
+                new SimpleTimeZone(-6 * ONE_HOUR, "GMT-06:00"),
+                new SimpleTimeZone(-7 * ONE_HOUR, "GMT-07:00"),
+                new SimpleTimeZone(-8 * ONE_HOUR, "GMT-08:00"),
+                new SimpleTimeZone(-9 * ONE_HOUR, "GMT-09:00"),
+                new SimpleTimeZone(-10 * ONE_HOUR, "GMT-10:00"),
+                new SimpleTimeZone(-11 * ONE_HOUR, "GMT-11:00"),
+                new SimpleTimeZone(-12 * ONE_HOUR, "GMT-12:00"),
+                new SimpleTimeZone(-13 * ONE_HOUR, "GMT-13:00"),
+                new SimpleTimeZone(-14 * ONE_HOUR, "GMT-14:00")
             };
     private static final TimeZone[] PLUSZONE =
             {
-                TimeZone.getTimeZone("GMT+00:00"),
-                TimeZone.getTimeZone("GMT+01:00"),
-                TimeZone.getTimeZone("GMT+02:00"),
-                TimeZone.getTimeZone("GMT+03:00"),
-                TimeZone.getTimeZone("GMT+04:00"),
-                TimeZone.getTimeZone("GMT+05:00"),
-                TimeZone.getTimeZone("GMT+06:00"),
-                TimeZone.getTimeZone("GMT+07:00"),
-                TimeZone.getTimeZone("GMT+08:00"),
-                TimeZone.getTimeZone("GMT+09:00"),
-                TimeZone.getTimeZone("GMT+10:00"),
-                TimeZone.getTimeZone("GMT+11:00"),
-                TimeZone.getTimeZone("GMT+12:00"),
-                TimeZone.getTimeZone("GMT+13:00"),
-                TimeZone.getTimeZone("GMT+14:00"),
+                new SimpleTimeZone(0, "GMT+00:00"),
+                new SimpleTimeZone(1 * ONE_HOUR, "GMT+01:00"),
+                new SimpleTimeZone(2 * ONE_HOUR, "GMT+02:00"),
+                new SimpleTimeZone(3 * ONE_HOUR, "GMT+03:00"),
+                new SimpleTimeZone(4 * ONE_HOUR, "GMT+04:00"),
+                new SimpleTimeZone(5 * ONE_HOUR, "GMT+05:00"),
+                new SimpleTimeZone(6 * ONE_HOUR, "GMT+06:00"),
+                new SimpleTimeZone(7 * ONE_HOUR, "GMT+07:00"),
+                new SimpleTimeZone(8 * ONE_HOUR, "GMT+08:00"),
+                new SimpleTimeZone(9 * ONE_HOUR, "GMT+09:00"),
+                new SimpleTimeZone(10 * ONE_HOUR, "GMT+10:00"),
+                new SimpleTimeZone(11 * ONE_HOUR, "GMT+11:00"),
+                new SimpleTimeZone(12 * ONE_HOUR, "GMT+12:00"),
+                new SimpleTimeZone(13 * ONE_HOUR, "GMT+13:00"),
+                new SimpleTimeZone(14 * ONE_HOUR, "GMT+14:00")
             };
 
     /* package */ static final TimeZone timeZoneForGDate(GDateSpecification date)
@@ -974,18 +993,21 @@ public final class GDate implements GDateSpecification, java.io.Serializable
             return GMTZONE;
         if (date.getTimeZoneMinute() == 0 && date.getTimeZoneHour() <= 14 && date.getTimeZoneHour() >= 0)
             return date.getTimeZoneSign() < 0 ? MINUSZONE[date.getTimeZoneHour()] : PLUSZONE[date.getTimeZoneHour()];
-        
+
+        int h = date.getTimeZoneHour(),
+            m = date.getTimeZoneMinute(),
+            offset = h * ONE_HOUR + m * ONE_MINUTE;
         char[] zb = new char[9];
         zb[0] = 'G';
         zb[1] = 'M';
         zb[2] = 'T';
         zb[3] = (date.getTimeZoneSign() < 0) ? '-' : '+';
-        GDate._padTwoAppend(zb, 4, date.getTimeZoneHour());
+        GDate._padTwoAppend(zb, 4, h);
         zb[6] = ':';
-        GDate._padTwoAppend(zb, 7, date.getTimeZoneMinute());
-        return TimeZone.getTimeZone(new String(zb));
+        GDate._padTwoAppend(zb, 7, m);
+        return new SimpleTimeZone(zb[3] == '+' ? offset : -offset, new String(zb));
     }
-    
+
     /* package */ static String formatGDate(GDateSpecification spec)
     {
         // We've used a char[] rather than a StringBuffer for a 4x speedup

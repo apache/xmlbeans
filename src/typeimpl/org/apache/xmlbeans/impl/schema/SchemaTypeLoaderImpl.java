@@ -23,8 +23,10 @@ import org.apache.xmlbeans.SchemaModelGroup;
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
+import org.apache.xmlbeans.impl.common.IdentityMap;
 import javax.xml.namespace.QName;
 
 import java.io.InputStream;
@@ -34,7 +36,6 @@ import java.util.WeakHashMap;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.IdentityHashMap;
 
 public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 {
@@ -118,7 +119,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     private static class SubLoaderList
     {
         private List theList = new ArrayList();
-        private Map seen = new IdentityHashMap();
+        private Map seen = new IdentityMap();
 
         private boolean add(SchemaTypeLoader loader)
         {
@@ -305,7 +306,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findTypeRef(name);
-                    assert(result != null) : "Type system registered type " + QNameHelper.pretty(name) + " but does not return it";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered type " + QNameHelper.pretty(name) + " but does not return it");
                 }
             }
             _typeCache.put(name, result);
@@ -329,7 +331,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.typeForClassname(classname);
-                    assert(result != null) : "Type system registered type " + classname + " but does not return it";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered type " + classname + " but does not return it");
                 }
             }
             _classnameCache.put(classname, result);
@@ -351,7 +354,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findDocumentTypeRef(name);
-                    assert(result != null) : "Type system registered element " + QNameHelper.pretty(name) + " but does not contain document type";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered element " + QNameHelper.pretty(name) + " but does not contain document type");
                 }
             }
             _documentCache.put(name, result);
@@ -373,7 +377,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findAttributeTypeRef(name);
-                    assert(result != null) : "Type system registered attribute " + QNameHelper.pretty(name) + " but does not contain attribute type";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered attribute " + QNameHelper.pretty(name) + " but does not contain attribute type");
                 }
             }
             _attributeCache.put(name, result);
@@ -395,7 +400,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findElementRef(name);
-                    assert(result != null) : "Type system registered element " + QNameHelper.pretty(name) + " but does not return it";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered element " + QNameHelper.pretty(name) + " but does not return it");
                 }
             }
             _elementCache.put(name, result);
@@ -417,7 +423,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findAttributeRef(name);
-                    assert(result != null) : "Type system registered attribute " + QNameHelper.pretty(name) + " but does not return it";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered attribute " + QNameHelper.pretty(name) + " but does not return it");
                 }
             }
             _attributeCache.put(name, result);
@@ -439,7 +446,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findModelGroupRef(name);
-                    assert(result != null) : "Type system registered model group " + QNameHelper.pretty(name) + " but does not return it";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered model group " + QNameHelper.pretty(name) + " but does not return it");
                 }
             }
             _modelGroupCache.put(name, result);
@@ -461,7 +469,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findAttributeGroupRef(name);
-                    assert(result != null) : "Type system registered attribute group " + QNameHelper.pretty(name) + " but does not return it";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered attribute group " + QNameHelper.pretty(name) + " but does not return it");
                 }
             }
             _attributeGroupCache.put(name, result);
@@ -483,7 +492,8 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                 if (ts != null)
                 {
                     result = ts.findIdentityConstraintRef(name);
-                    assert(result != null) : "Type system registered identity constraint " + QNameHelper.pretty(name) + " but does not return it";
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(result != null, "Type system registered identity constraint " + QNameHelper.pretty(name) + " but does not return it");
                 }
             }
             _idConstraintCache.put(name, result);

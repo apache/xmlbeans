@@ -16,23 +16,23 @@
 package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.common.NetUtils;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
 
 import java.util.Map;
-import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Collection;
 import java.io.File;
-import java.io.FileFilter;
-import java.net.URI;
+import java.net.URL;
 
 public class CommandLine
 {
     public CommandLine(String[] args, Collection scheme)
     {
-        _options = new LinkedHashMap();
+        _options = new SequencedHashMap();
         ArrayList endargs = new ArrayList();
 
         for (int i = 0; i < args.length; i++)
@@ -125,10 +125,11 @@ public class CommandLine
                 }
                 else
                 {
-                    URI currUri = files[i].toURI();
+                    URL currUri = IOUtil.fileToURL(files[i]);
                     
                     // Give up on the basedir. There may be none
-                    if (_baseDir != null && _baseDir.toURI().relativize(currUri).equals(currUri))
+                    if (_baseDir != null && currUri.equals(
+                        NetUtils.relativize(IOUtil.fileToURL(_baseDir).getPath(), currUri.getPath())))
                     {
                         _baseDir = null;
                         noBaseDir = true;

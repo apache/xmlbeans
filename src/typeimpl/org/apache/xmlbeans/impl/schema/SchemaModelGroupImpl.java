@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.SchemaModelGroup;
 import org.apache.xmlbeans.SchemaComponent;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import javax.xml.namespace.QName;
@@ -43,7 +44,8 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
 
     public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x)
     {
-        assert _name == null || name.equals( _name );
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_name == null || name.equals( _name ));
         
         _name = name;
         _parseTNS = targetNamespace;

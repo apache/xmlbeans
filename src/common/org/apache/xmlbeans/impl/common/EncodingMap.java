@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.common;
 
+import org.apache.xmlbeans.XmlBeans;
+
 import java.util.HashMap;
 import java.util.Iterator;
 
@@ -38,20 +40,23 @@ public class EncodingMap
     private final static void addMapping (
         String java, String iana, boolean isDefault )
     {
-        assert !_iana_to_java.containsKey( iana );
-        assert java.toUpperCase().equals( java );
-        assert iana.toUpperCase().equals( iana );
-        
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(!_iana_to_java.containsKey( iana ));
+            XmlBeans.assertTrue(java.equalsIgnoreCase( java ));
+        }
+
         _iana_to_java.put( iana, java );
 
         if (isDefault)
         {
-            assert !_java_to_iana.containsKey( java );
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!_java_to_iana.containsKey( java ));
             _java_to_iana.put( java, iana );
         }
     }
 
-    private final static boolean completeMappings ( )
+    private final static void completeMappings ( )
     {
         HashMap m = new HashMap();
 
@@ -61,10 +66,8 @@ public class EncodingMap
         for ( Iterator i = m.keySet().iterator() ; i.hasNext() ; )
         {
             Object k = i.next();
-            assert _java_to_iana.containsKey( k ): k;
+            XmlBeans.assertTrue(_java_to_iana.containsKey( k ), k.toString());
         }
-
-        return true;
     }
 
     static
@@ -395,6 +398,6 @@ public class EncodingMap
         addMapping( "UNICODELITTLE", "UTF-16LE",               true  );
         addMapping( "UTF8",          "UTF-8",                  true  );
 
-        assert completeMappings();
+        if (XmlBeans.ASSERTS) completeMappings();
     };
 }

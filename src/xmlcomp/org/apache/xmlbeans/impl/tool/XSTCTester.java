@@ -19,6 +19,10 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlCalendar;
+import org.apache.xmlbeans.impl.regex.RegularExpression;
+import org.apache.xmlbeans.impl.regex.Match;
+import org.apache.xmlbeans.impl.common.StringUtils;
+import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.ltgfmt.TestsDocument;
 import org.apache.xml.xmlbeans.x2004.x02.xmlbean.ltgfmt.FileDesc;
 
@@ -31,27 +35,26 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Date;
-import java.util.regex.Pattern;
-import java.net.URI;
+import java.net.URL;
 
 public class XSTCTester
 {
     public static void main(String[] args) throws IOException
     {
         long start = System.currentTimeMillis();
-        
+
         CommandLine cl = new CommandLine(args, Collections.EMPTY_SET);
         boolean showpass = (cl.getOpt("showpass") != null);
         File[] allFiles = cl.getFiles();
         Collection ltgFiles = new ArrayList();
         Harness harness = new XMLBeanXSTCHarness();
-        
+
         for (int i = 0; i < allFiles.length; i++)
         {
             if (allFiles[i].getName().indexOf("LTG") >= 0)
                 ltgFiles.add(allFiles[i]);
         }
-        
+
         File resultsFile = new File("out.html");
         PrintWriter writer = new PrintWriter(new FileWriter(resultsFile));
         writer.println("<html>");
@@ -124,17 +127,17 @@ public class XSTCTester
         writer.println("<tr><td colspan=3>Summary: " + failures + " failures out of " + cases + " cases run.</td></tr>");
         writer.println("</table>");
         writer.close();
-        
+
         long finish = System.currentTimeMillis();
         System.out.println("Time run tests: " + ((double)(finish - start) / 1000.0) + " seconds" );
-        
+
         // Launch results
         if (System.getProperty("os.name").toLowerCase().indexOf("windows") >= 0)
             Runtime.getRuntime().exec("cmd /c start iexplore \"" + resultsFile.getAbsolutePath() + "\"");
         else
             System.out.println("Results output to " + resultsFile);
     }
-    
+
     public static class TestCase
     {
         private File ltgFile;
@@ -198,7 +201,7 @@ public class XSTCTester
             return rvExpected;
         }
     }
-    
+
     public static class TestCaseResult
     {
         private TestCase testCase;
@@ -252,38 +255,38 @@ public class XSTCTester
         {
             this.ivMessages.addAll(ivMessages);
         }
-        
+
         public void setCrash(boolean crash)
         {
             this.crash = crash;
         }
-        
+
         public boolean isCrash()
         {
             return crash;
         }
-        
+
         public boolean succeeded()
         {
             return !crash && (isIvActual() == testCase.isIvExpected()) && (isSvActual() == testCase.isSvExpected());
         }
     }
-    
+
     public static interface Harness
     {
         public void runTestCase(TestCaseResult result);
     }
-    
+
     public static String makeHTMLLink(File file, boolean value)
     {
         if (file == null)
             return "&nbsp;";
-        URI uri = file.getAbsoluteFile().toURI();
-        return "<a href=\"" + uri + "\" target=_blank>" + Boolean.toString(value) + "</a>";
+        URL uri = IOUtil.fileToURL(file);
+        return "<a href=\"" + uri + "\" target=_blank>" + value + "</a>";
     }
-    
-    private static final Pattern leadingSpace = Pattern.compile("^\\s+", Pattern.MULTILINE);
-    
+
+    private static final RegularExpression leadingSpace = new RegularExpression("^\\s+", "m");
+
     public static String makeHTMLDescription(TestCase testCase)
     {
         StringBuffer sb = new StringBuffer();
@@ -291,25 +294,38 @@ public class XSTCTester
         if (testCase.getSchemaFile() == null)
             sb.append("about:No schema");
         else
-            sb.append(testCase.getSchemaFile().getAbsolutePath().replaceAll("\\\\", "\\\\\\\\"));
+            sb.append(StringUtils.replaceAll(testCase.getSchemaFile().getAbsolutePath(),
+                "\\\\", "\\\\\\\\"));
 
         sb.append("\", \"");
         if (testCase.getInstanceFile() == null)
             sb.append("about:No instance");
         else
-            sb.append(testCase.getInstanceFile().getAbsolutePath().replaceAll("\\\\", "\\\\\\\\"));
+            sb.append(StringUtils.replaceAll(testCase.getInstanceFile().getAbsolutePath(),
+                "\\\\", "\\\\\\\\"));
         sb.append("\")'><xmp>");
-        sb.append(leadingSpace.matcher(testCase.getDescription()).replaceAll("") + "(" + testCase.getId() + ")");
+
+        Match m = new Match();
+        String desc = testCase.getDescription();
+        if (leadingSpace.matches(desc, m))
+        {
+            StringBuffer sbDesc = new StringBuffer(desc);
+            StringUtils.replaceAll(m, sbDesc, "");
+            desc = new String(sbDesc);
+        }
+
+        sb.append(desc);
+        sb.append( "(").append(testCase.getId()).append(")");
         sb.append("</xmp></a>");
         return sb.toString();
     }
-    
+
     public static void summarizeResultAsHTMLTableRows(TestCaseResult result, PrintWriter out)
     {
         TestCase testCase = result.getTestCase();
         boolean sRight = testCase.getSchemaFile() == null || testCase.isSvExpected() == result.isSvActual();
         boolean iRight = testCase.getInstanceFile() == null || testCase.isIvExpected() == result.isIvActual();
-        
+
         out.println(result.isCrash() ? "<tr bgcolor=black color=white>" : "<tr>");
         out.println("<td valign=top>" + makeHTMLDescription(testCase) + "</td>");
         String sLinks;
@@ -317,7 +333,7 @@ public class XSTCTester
             sLinks = makeHTMLLink(testCase.getSchemaFile(), result.isSvActual());
         else
             sLinks = makeHTMLLink(testCase.getSchemaFile(), result.isSvActual()) + "<br>" + makeHTMLLink(testCase.getResourceFile(), result.isSvActual());
-        
+
         out.println((sRight ? "<td valign=top>" : result.isSvActual() ? "<td bgcolor=orange valign=top>" : "<td bgcolor=red valign=top>") + sLinks + "</td>");
         out.println((iRight ? "<td valign=top>" : result.isIvActual() ? "<td bgcolor=orange valign=top>" : "<td bgcolor=red valign=top>") + makeHTMLLink(testCase.getInstanceFile(), result.isIvActual()) + "</td>");
         out.println("</tr>");
@@ -334,7 +350,7 @@ public class XSTCTester
             out.println("</xmp></tr></td>");
         }
     }
-    
+
     public static TestCase[] parseLTGFile(File ltgFile, Collection outerErrors)
     {
         Collection errors = new ArrayList();
@@ -347,9 +363,9 @@ public class XSTCTester
             TestsDocument doc = TestsDocument.Factory.parse(ltgFile, ltgOptions);
             if (!doc.validate(ltgOptions))
                 throw new Exception("Document " + ltgFile + " not valid.");
-            
+
             org.apache.xml.xmlbeans.x2004.x02.xmlbean.ltgfmt.TestCase[] testCases = doc.getTests().getTestArray();
-            
+
             Collection result = new ArrayList();
             for (int i = 0; i < testCases.length; i++)
             {
@@ -370,7 +386,7 @@ public class XSTCTester
                         outerErrors.add(XmlError.forObject("Can't read file " + theFile, filedescs[j]).toString());
                         continue;
                     }
-                    
+
                     switch (filedescs[j].getRole().intValue())
                     {
                         case FileDesc.Role.INT_INSTANCE:
@@ -379,21 +395,21 @@ public class XSTCTester
                             newCase.instanceFile = theFile;
                             newCase.ivExpected = filedescs[j].getValidity();
                             break;
-                            
+
                         case FileDesc.Role.INT_SCHEMA:
                             if (newCase.schemaFile != null)
                                 outerErrors.add(XmlError.forObject("More than one schema file speicifed - ignoring all but last", filedescs[j]).toString());
                             newCase.schemaFile = theFile;
                             newCase.svExpected = filedescs[j].getValidity();
                             break;
-                            
+
                         case FileDesc.Role.INT_RESOURCE:
                             if (newCase.resourceFile != null)
                                 outerErrors.add(XmlError.forObject("More than one resource file speicifed - ignoring all but last", filedescs[j]).toString());
                             newCase.resourceFile = theFile;
                             newCase.rvExpected = filedescs[j].getValidity();
                             break;
-                        
+
                         default:
                             throw new XmlException(XmlError.forObject("Unexpected file role", filedescs[j]));
                     }
@@ -411,5 +427,5 @@ public class XSTCTester
             return null;
         }
     }
-    
+
 }

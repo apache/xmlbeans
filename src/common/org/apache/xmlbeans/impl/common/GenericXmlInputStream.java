@@ -20,6 +20,7 @@ import org.apache.xmlbeans.xml.stream.XMLEvent;
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLName;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.XmlRuntimeException;
 
 public class GenericXmlInputStream implements XMLInputStream
 {
@@ -74,7 +75,7 @@ public class GenericXmlInputStream implements XMLInputStream
             }
             catch ( XMLStreamException e )
             {
-                throw new RuntimeException( e );
+                throw new XmlRuntimeException( e );
             }
             
             _master._initialized = true;

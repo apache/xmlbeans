@@ -22,11 +22,14 @@ import org.apache.xmlbeans.impl.common.ValidatorListener;
 import org.apache.xmlbeans.impl.common.XmlEventBase;
 import org.apache.xmlbeans.impl.common.XmlNameImpl;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
 import org.apache.xmlbeans.impl.store.Splay.Container;
 import org.apache.xmlbeans.impl.store.Splay.Xmlns;
 import org.apache.xmlbeans.impl.values.NamespaceManager;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlRuntimeException;
 import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -36,7 +39,6 @@ import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
@@ -75,28 +77,38 @@ public abstract class Saver implements NamespaceManager
     //
     //
     //
-    
-    private final Object monitor()
+
+    /*  javac error (JDK 1.3.1):
+        "monitor() is inherited from org.apache.xmlbeans.impl.store.Saver.XmlInputStreamSaver.XmlEventImpl
+        and hides method in outer class org.apache.xmlbeans.impl.store.Saver.  An explicit 'this'
+        qualifier must be used to select the desired instance."
+
+        To minimize the number of changes, this method was renamed to avoid javac confusion.
+    */
+    private final Object saverMonitor()
     {
         return _root;
     }
 
     Saver ( Root r, Splay s, int p, XmlOptions options )
     {
-        assert Root.dv > 0 || s.getRootSlow() == r;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(Root.dv > 0 || s.getRootSlow() == r);
 
-        // Input s and p must be normalized already
-        assert p < s.getEndPos();
+            // Input s and p must be normalized already
+            XmlBeans.assertTrue(p < s.getEndPos());
+        }
 
         _root = r;
         _top = _splay = s;
         _pos = p;
         _version = r.getVersion();
         _sb = new StringBuffer();
-        _attrs = new LinkedHashMap();
+        _attrs = new SequencedHashMap();
         _attrNames = new HashSet();
         _firstPush = true;
-        
+
 
         // Initialize the state of the namespaces
         _namespaceStack = new ArrayList();
@@ -104,17 +116,17 @@ public abstract class Saver implements NamespaceManager
         _prefixMap = new HashMap();
 
         // Stops the synthesis of this namspace and make for better
-        // roundtripping 
+        // roundtripping
         addMapping( "xml", Splay._xml1998Uri );
 
         // Check for implicit namespaces
-        
+
         options = XmlOptions.maskNull( options );
 
         if (options.hasOption( XmlOptions.SAVE_IMPLICIT_NAMESPACES ))
         {
             Map m = (Map) options.get( XmlOptions.SAVE_IMPLICIT_NAMESPACES );
-            
+
             for ( Iterator i = m.keySet().iterator() ; i.hasNext() ; )
             {
                 String prefix = (String) i.next();
@@ -124,9 +136,9 @@ public abstract class Saver implements NamespaceManager
 
         if (options.hasOption( XmlOptions.SAVE_SUGGESTED_PREFIXES ))
             _suggestedPrefixes = (Map) options.get( XmlOptions.SAVE_SUGGESTED_PREFIXES);
-        
+
         // If the default prefix has not been mapped, do so now
-        
+
         if (getNamespaceForPrefix( "" ) == null)
         {
             _initialDefaultUri = new String( "" );
@@ -164,7 +176,7 @@ public abstract class Saver implements NamespaceManager
             if (!saver._synthNamespaces.isEmpty())
                 _preComputedNamespaces = saver._synthNamespaces;
         }
-        
+
         _useDefaultNamespace =
             options.hasOption( XmlOptions.SAVE_USE_DEFAULT_NAMESPACE );
 
@@ -180,14 +192,14 @@ public abstract class Saver implements NamespaceManager
             _fragment = Splay._xmlFragment;
 
         // Outer overrides inner
-        
+
         _inner =
             options.hasOption( XmlOptions.SAVE_INNER ) &&
                 !options.hasOption( XmlOptions.SAVE_OUTER );
-        
+
         if (_inner && !_top.isDoc())
             _synthElem = _fragment;
-        
+
         else if (options.hasOption( XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT ))
         {
             _fragment = _synthElem =
@@ -196,17 +208,31 @@ public abstract class Saver implements NamespaceManager
             if (_synthElem == null)
                 throw new IllegalArgumentException( "Null synthetic element" );
         }
-        
+
         _preProcess = true;
     }
 
-    protected final void checkVersion ( )
+    /*  javac error (JDK 1.3.1):
+        "checkVersion() is inherited from org.apache.xmlbeans.impl.store.Saver.XmlInputStreamSaver.XmlEventImpl
+        and hides method in outer class org.apache.xmlbeans.impl.store.Saver.  An explicit 'this'
+        qualifier must be used to select the desired instance."
+
+        To minimize the number of changes, this method was renamed to avoid javac confusion.
+    */
+    protected final void checkSaverVersion ( )
     {
         if (_version != _root.getVersion())
             throw new ConcurrentModificationException( "Document changed during save" );
     }
 
-    protected final Root getRoot ( ) { return _root; }
+    /*  javac error (JDK 1.3.1):
+        "getRoot() is inherited from org.apache.xmlbeans.impl.store.Saver.XmlInputStreamSaver.XmlEventImpl
+        and hides method in outer class org.apache.xmlbeans.impl.store.Saver.  An explicit 'this'
+        qualifier must be used to select the desired instance."
+
+        To minimize the number of changes, this method was renamed to avoid javac confusion.
+    */
+    protected final Root getSaverRoot ( ) { return _root; }
     protected final Map  getUriMap ( ) { return _uriMap; }
     protected final Map  getPrefixMap ( ) { return _prefixMap; }
 
@@ -221,7 +247,7 @@ public abstract class Saver implements NamespaceManager
 
     protected abstract void emitDocType(
         String doctypeName, String publicID, String systemID );
-    
+
     protected abstract void emitComment ( Splay s );
     protected abstract void emitTextAfter ( Splay s, int p, int cch );
     protected abstract void emitEnd ( Splay s, QName name );
@@ -229,7 +255,7 @@ public abstract class Saver implements NamespaceManager
     protected abstract void emitContainer ( Container c, QName name );
 
     // Called when a synthetic prefix is created.
-    
+
     protected void syntheticNamespace (
         String prefix, String uri, boolean considerCreatingDefault ) { }
 
@@ -253,16 +279,20 @@ public abstract class Saver implements NamespaceManager
 
     final String text ( )
     {
-        assert _text != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_text != null);
         
         return _text.toString();
     }
 
     final boolean noText ( )
     {
-        assert _text != null || _sb.length() == 0;
-        assert _text == null || _text == _sb;
-        
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(_text != null || _sb.length() == 0);
+            XmlBeans.assertTrue(_text == null || _text == _sb);
+        }
+
         return _text == null;
     }
 
@@ -299,9 +329,9 @@ public abstract class Saver implements NamespaceManager
 
     protected final boolean process ( )
     {
-        synchronized (monitor())
+        synchronized (saverMonitor())
         {
-            checkVersion();
+            checkSaverVersion();
     
             if (_preProcess)
             {
@@ -319,7 +349,8 @@ public abstract class Saver implements NamespaceManager
                 if ((p == 0 && s.isFinish()) ||
                       (s.isLeaf() && p == s.getPosLeafEnd()))
                 {
-                    assert _splay == null;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(_splay == null);
                     processTextFragment( null, 0, 0 );
                     return true;
                 }
@@ -328,9 +359,11 @@ public abstract class Saver implements NamespaceManager
     
                 if (p > 0)
                 {
-                    assert !s.isLeaf() || p != s.getPosLeafEnd();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(!s.isLeaf() || p != s.getPosLeafEnd());
                     processTextFragment( s, p, s.getPostCch( p ) );
-                    assert _splay == null;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(_splay == null);
                     return true;
                 }
     
@@ -372,7 +405,8 @@ public abstract class Saver implements NamespaceManager
                     return true;
                 }
     
-                assert s.isContainer();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isContainer());
     
                 _splay = s;
                 _endSplay = s.isContainer() ? s.getFinishSplay() : s;
@@ -394,7 +428,8 @@ public abstract class Saver implements NamespaceManager
     
             if (_postProcess)
             {
-                assert _splay != null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_splay != null);
     
                 boolean emitted = false;
     
@@ -408,21 +443,26 @@ public abstract class Saver implements NamespaceManager
     
                     if (_skipContainerFinish)
                     {
-                        assert s.isBegin() && !s.isLeaf() && s.getCchAfter() ==0;
-                        assert _splay.isFinish();
-    
+                        if (XmlBeans.ASSERTS)
+                        {
+                            XmlBeans.assertTrue(s.isBegin() && !s.isLeaf() && s.getCchAfter() == 0);
+                            XmlBeans.assertTrue(_splay.isFinish());
+                        }
+
                         _splay = _splay == _endSplay ? null : _splay.nextSplay();
                     }
     
                     if (_skipContainerFinish || s.isLeaf())
                     {
-                        assert !_postPop;
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(!_postPop);
                         _postPop = true;
                     }
     
                     if (!s.isDoc())
                     {
-                        assert noText();
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(noText());
     
                         int cchAfter = s.getCchAfter();
     
@@ -432,7 +472,7 @@ public abstract class Saver implements NamespaceManager
     
                             if (cchAfter > 0)
                             {
-                                Root r = getRoot();
+                                Root r = getSaverRoot();
     
                                 r._text.fetch(
                                     _text,
@@ -505,7 +545,7 @@ public abstract class Saver implements NamespaceManager
             if (_splay == null)
                 return false;
     
-            if (_version != getRoot().getVersion())
+            if (_version != getSaverRoot().getVersion())
                 throw new IllegalStateException( "Document changed" );
     
             _skipContainerFinish = false;
@@ -541,7 +581,8 @@ public abstract class Saver implements NamespaceManager
             case Splay.ATTR :
             default :
             {
-                assert false: "Unexpected splay kind " + _splay.getKind();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "Unexpected splay kind " + _splay.getKind());
                 return false;
             }
             }
@@ -554,7 +595,8 @@ public abstract class Saver implements NamespaceManager
 
     private final void processContainer ( Container c )
     {
-        assert c.isDoc() || c.isBegin();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(c.isDoc() || c.isBegin());
 
         QName name =
             _synthElem != null && c == _top
@@ -616,7 +658,8 @@ public abstract class Saver implements NamespaceManager
         if (name != null)
             ensureMapping( nameUri, null, !ensureDefaultEmpty, false );
 
-        assert noText();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(noText());
 
         if (c.isInvalid())
         {
@@ -652,7 +695,7 @@ public abstract class Saver implements NamespaceManager
         {
             if (_text == null)
             {
-                Root r = getRoot();
+                Root r = getSaverRoot();
 
                 r._text.fetch(
                     _text = _sb,
@@ -688,13 +731,14 @@ public abstract class Saver implements NamespaceManager
         if (_wantFragTest && name == null)
         {
             if ((_text != null && !Splay.isWhiteSpace( _text )) ||
-                  !c.isAfterWhiteSpace( getRoot() ))
+                  !c.isAfterWhiteSpace( getSaverRoot() ))
             {
                 _needsFrag = true;
             }
             else
             {
-                assert !c.isLeaf();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(!c.isLeaf());
                 
                 Splay s = c.nextSplay();
 
@@ -720,7 +764,7 @@ public abstract class Saver implements NamespaceManager
                             s = s.getFinishSplay();
                         }
 
-                        if (!s.isAfterWhiteSpace( getRoot() ))
+                        if (!s.isAfterWhiteSpace( getSaverRoot() ))
                         {
                             _needsFrag = true;
                             break;
@@ -757,7 +801,8 @@ public abstract class Saver implements NamespaceManager
         {
             // See if I need to gen a fragment for the document
 
-            assert name != null || (c.isDoc() && _synthElem == null);
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(name != null || (c.isDoc() && _synthElem == null));
 
             if (name == null)
             {
@@ -801,7 +846,8 @@ public abstract class Saver implements NamespaceManager
 
         emitEnd( _splay, name );
 
-        assert !_postPop;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!_postPop);
 
         _postPop = true;
     }
@@ -855,13 +901,15 @@ public abstract class Saver implements NamespaceManager
 
     private final void processAttrFragment ( Splay s )
     {
-        assert s.isNormalAttr();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(s.isNormalAttr());
 
         pushFragmentMappings( s );
 
         ensureMapping( s.getUri(), null, false, true );
 
-        assert noText();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(noText());
 
         if (s.isInvalid())
         {
@@ -933,19 +981,22 @@ public abstract class Saver implements NamespaceManager
 
     String mappingPrefix ( )
     {
-        assert hasMapping();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(hasMapping());
         return (String) _namespaceStack.get( _currentMapping + 6 );
     }
 
     String mappingUri ( )
     {
-        assert hasMapping();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(hasMapping());
         return (String) _namespaceStack.get( _currentMapping + 7 );
     }
 
     String mappingPrevPrefixUri ( )
     {
-        assert hasMapping();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(hasMapping());
         return (String) _namespaceStack.get( _currentMapping + 5 );
     }
 
@@ -996,7 +1047,8 @@ public abstract class Saver implements NamespaceManager
             String defaultUri = (String) _prefixMap.get( "" );
 
             // I map the default to "" at the very beginning
-            assert defaultUri != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(defaultUri != null);
 
             if (defaultUri.length() > 0)
                 addMapping( "", "" );
@@ -1048,8 +1100,11 @@ public abstract class Saver implements NamespaceManager
 
     private final void addMapping ( String prefix, String uri )
     {
-        assert uri != null;
-        assert prefix != null;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(uri != null);
+            XmlBeans.assertTrue(prefix != null);
+        }
 
         // If the prefix being mapped here is already mapped to a uri,
         // that uri will either go out of scope or be mapped to another
@@ -1091,7 +1146,8 @@ public abstract class Saver implements NamespaceManager
                     i -= 8;
                 }
 
-                assert i > 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(i > 0);
             }
         }
 
@@ -1172,7 +1228,8 @@ public abstract class Saver implements NamespaceManager
 
     protected final String getUriMapping ( String uri )
     {
-        assert _uriMap.get( uri ) != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_uriMap.get( uri ) != null);
         return (String) _uriMap.get( uri );
     }
 
@@ -1203,8 +1260,11 @@ public abstract class Saver implements NamespaceManager
         String uri, String candidatePrefix,
         boolean considerCreatingDefault, boolean mustHavePrefix )
     {
-        assert uri != null;
-        assert candidatePrefix == null || candidatePrefix.length() > 0;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(uri != null);
+            XmlBeans.assertTrue(candidatePrefix == null || candidatePrefix.length() > 0);
+        }
 
         // Can be called for no-namespaced things
 
@@ -1250,7 +1310,8 @@ public abstract class Saver implements NamespaceManager
             }
         }
 
-        assert candidatePrefix != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(candidatePrefix != null);
 
         syntheticNamespace( candidatePrefix, uri, considerCreatingDefault );
 
@@ -1261,8 +1322,11 @@ public abstract class Saver implements NamespaceManager
 
     public final String find_prefix_for_nsuri ( String uri, String prefix )
     {
-        assert uri != null;
-        assert prefix == null || prefix.length() > 0;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(uri != null);
+            XmlBeans.assertTrue(prefix == null || prefix.length() > 0);
+        }
 
         boolean emptyUri = uri.length() == 0;
         
@@ -1291,7 +1355,7 @@ public abstract class Saver implements NamespaceManager
     
     static final class SynthNamespaceSaver extends Saver
     {
-        LinkedHashMap _synthNamespaces = new LinkedHashMap();
+        Map _synthNamespaces = new SequencedHashMap();
         
         SynthNamespaceSaver ( Root r, Splay s, int p, XmlOptions options )
         {
@@ -1360,7 +1424,7 @@ public abstract class Saver implements NamespaceManager
                         emit( '>' );
 
                         if (_text == null)
-                            emit( getRoot().getCp( c ), cch );
+                            emit( getSaverRoot().getCp( c ), cch );
                         else
                             emit( _text );
 
@@ -1374,7 +1438,8 @@ public abstract class Saver implements NamespaceManager
                 }
                 else
                 {
-                    assert !c.isLeaf();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(!c.isLeaf());
 
                     if (c.getCchAfter() == 0 && c.nextNonAttrSplay().isEnd())
                     {
@@ -1387,13 +1452,14 @@ public abstract class Saver implements NamespaceManager
             }
             else
             {
-                assert c.isDoc();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(c.isDoc());
 
                 if (name != null)
                     emitContainerHelper( c, name, null, null, true );
 
                 if (_text == null)
-                    emit( getRoot().getCp( c ), c.getCch() );
+                    emit( getSaverRoot().getCp( c ), c.getCch() );
                 else
                     emit( _text );
 
@@ -1403,7 +1469,8 @@ public abstract class Saver implements NamespaceManager
 
         private void emitAttrHelper ( Splay s, String invalidValue )
         {
-            assert s.isNormalAttr();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(s.isNormalAttr());
             
             emit( ' ' );
             emitName( s.getName() );
@@ -1412,7 +1479,7 @@ public abstract class Saver implements NamespaceManager
             if (invalidValue != null)
                 emit( invalidValue );
             else
-                emit( getRoot().getCp( s ), s.getCch() );
+                emit( getSaverRoot().getCp( s ), s.getCch() );
 
             entitizeAttrValue();
 
@@ -1433,7 +1500,8 @@ public abstract class Saver implements NamespaceManager
             Splay extraAttr, StringBuffer extraAttrText,
             boolean close )
         {
-            assert name != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(name != null);
 
             emit( '<' );
             emitName( name );
@@ -1466,7 +1534,7 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitText ( Splay s, int p, int cch )
         {
-            emit( s.getCpForPos( getRoot(), p ), cch );
+            emit( s.getCpForPos( getSaverRoot(), p ), cch );
             entitizeContent();
         }
 
@@ -1537,8 +1605,11 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitXmlns ( String prefix, String uri )
         {
-            assert prefix != null;
-            assert uri != null;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(prefix != null);
+                XmlBeans.assertTrue(uri != null);
+            }
 
             emit( "xmlns" );
 
@@ -1590,7 +1661,8 @@ public abstract class Saver implements NamespaceManager
         protected void emitDocType(
             String doctypeName, String publicID, String systemID )
         {
-            assert doctypeName != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(doctypeName != null);
             
             emit( "<!DOCTYPE " );
             emit( doctypeName );
@@ -1613,16 +1685,18 @@ public abstract class Saver implements NamespaceManager
         
         protected void emitComment ( Splay s )
         {
-            assert s.isComment();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(s.isComment());
             emit( "<!--" );
-            emit( getRoot().getCp( s ), s.getCchValue() );
+            emit( getSaverRoot().getCp( s ), s.getCchValue() );
             entitizeComment();
             emit( "-->" );
         }
 
         protected void emitProcinst ( Splay s )
         {
-            assert s.isProcinst();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(s.isProcinst());
             emit( "<?" );
             // TODO - encoding issues here?
             emit( s.getLocal() );
@@ -1630,7 +1704,7 @@ public abstract class Saver implements NamespaceManager
             if (s.getCchValue() > 0)
             {
                 emit( " " );
-                emit( getRoot().getCp( s ), s.getCchValue() );
+                emit( getSaverRoot().getCp( s ), s.getCchValue() );
                 entitizeProcinst();
             }
 
@@ -1658,7 +1732,8 @@ public abstract class Saver implements NamespaceManager
                 if (!process())
                     break;
 
-            assert available == getAvailable();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(available == getAvailable());
 
             if (available == 0)
                 return 0;
@@ -1668,11 +1743,13 @@ public abstract class Saver implements NamespaceManager
 
         private void emitName ( QName name )
         {
-            assert name != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(name != null);
 
             String uri = name.getNamespaceURI();
 
-            assert uri != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(uri != null);
 
             if (uri.length() != 0)
             {
@@ -1685,14 +1762,16 @@ public abstract class Saver implements NamespaceManager
                 }
             }
 
-            assert name.getLocalPart().length() > 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(name.getLocalPart().length() > 0);
 
             emit( name.getLocalPart() );
         }
 
         private boolean preEmit ( int cch )
         {
-            assert cch >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(cch >= 0);
             
             _lastEmitCch = cch;
 
@@ -1702,7 +1781,8 @@ public abstract class Saver implements NamespaceManager
             if (_free < cch)
                 resize( cch, -1 );
 
-            assert cch <= _free;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(cch <= _free);
 
             int used = getAvailable();
 
@@ -1712,8 +1792,11 @@ public abstract class Saver implements NamespaceManager
             
             if (used == 0)
             {
-                assert _in == _out;
-                assert _free == _buf.length;
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue(_in == _out);
+                    XmlBeans.assertTrue(_free == _buf.length);
+                }
                 _in = _out = 0;
             }
 
@@ -1721,7 +1804,8 @@ public abstract class Saver implements NamespaceManager
 
             _free -= cch;
             
-            assert _free >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_free >= 0);
 
             return false;
         }
@@ -1773,8 +1857,8 @@ public abstract class Saver implements NamespaceManager
         private void emit ( int cp, int cch )
         {
             emit(
-                getRoot()._text._buf,
-                getRoot()._text.unObscure( cp, cch ),
+                getSaverRoot()._text._buf,
+                getSaverRoot()._text.unObscure( cp, cch ),
                 cch );
         }
 
@@ -1789,7 +1873,8 @@ public abstract class Saver implements NamespaceManager
 
         private void emit ( char[] buf, int off, int cch )
         {
-            assert cch >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(cch >= 0);
 
             if (preEmit( cch ))
                 return;
@@ -2023,7 +2108,8 @@ public abstract class Saver implements NamespaceManager
 
         private int replace ( int i, String replacement )
         {
-            assert replacement.length() > 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(replacement.length() > 0);
 
             int dCch = replacement.length() - 1;
 
@@ -2033,15 +2119,18 @@ public abstract class Saver implements NamespaceManager
                 return i + 1;
             }
 
-            assert _free >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_free >= 0);
 
             if (dCch > _free)
                 i = resize( dCch, i );
             
-            assert _free >= 0;
-
-            assert _free >= dCch;
-            assert getAvailable() > 0;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(_free >= 0);
+                XmlBeans.assertTrue(_free >= dCch);
+                XmlBeans.assertTrue(getAvailable() > 0);
+            }
 
             if (_out > _in && i >= _out)
             {
@@ -2051,7 +2140,8 @@ public abstract class Saver implements NamespaceManager
             }
             else
             {
-                assert i < _in;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(i < _in);
                 System.arraycopy( _buf, i, _buf, i + dCch, _in - i );
                 _in += dCch;
             }
@@ -2060,7 +2150,8 @@ public abstract class Saver implements NamespaceManager
 
             _free -= dCch;
             
-            assert _free >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_free >= 0);
 
             return i + dCch + 1;
         }
@@ -2076,9 +2167,12 @@ public abstract class Saver implements NamespaceManager
 
         private int resize ( int cch, int i )
         {
-            assert _free >= 0;
-            assert cch > 0;
-            assert cch > _free;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(_free >= 0);
+                XmlBeans.assertTrue(cch > 0);
+                XmlBeans.assertTrue(cch > _free);
+            }
 
             int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
             int used = getAvailable();
@@ -2092,13 +2186,15 @@ public abstract class Saver implements NamespaceManager
             {
                 if (_in > _out)
                 {
-                    assert i == -1 || (i >= _out && i < _in);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(i == -1 || (i >= _out && i < _in));
                     System.arraycopy( _buf, _out, newBuf, 0, used );
                     i -= _out;
                 }
                 else
                 {
-                    assert i == -1 || (i >= _out || i < _in);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(i == -1 || (i >= _out || i < _in));
                     System.arraycopy( _buf, _out, newBuf, 0, used - _in );
                     System.arraycopy( _buf, 0, newBuf, used - _in, _in );
                     i = i >= _out ? i - _out : i + _out;
@@ -2111,13 +2207,17 @@ public abstract class Saver implements NamespaceManager
             else
             {
                 _free += newBuf.length;
-                assert _in == 0 && _out == 0;
-                assert i == -1;
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue(_in == 0 && _out == 0);
+                    XmlBeans.assertTrue(i == -1);
+                }
             }
 
             _buf = newBuf;
 
-            assert _free >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_free >= 0);
 
             return i;
         }
@@ -2127,7 +2227,8 @@ public abstract class Saver implements NamespaceManager
             if (ensure( 1 ) == 0)
                 return -1;
 
-            assert getAvailable() > 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(getAvailable() > 0);
 
             int ch = _buf[ _out ];
 
@@ -2174,7 +2275,8 @@ public abstract class Saver implements NamespaceManager
             _out = (_out + len) % _buf.length;
             _free += len;
 
-            assert _free >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_free >= 0);
 
             return len;
         }
@@ -2193,7 +2295,8 @@ public abstract class Saver implements NamespaceManager
             {
                 // I don't want to deal with the circular cases
 
-                assert _out == 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_out == 0);
 
                 try
                 {
@@ -2202,12 +2305,13 @@ public abstract class Saver implements NamespaceManager
                 }
                 catch ( IOException e )
                 {
-                    throw new RuntimeException( e );
+                    throw new XmlRuntimeException( e );
                 }
 
                 _free += charsAvailable;
                 
-                assert _free >= 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_free >= 0);
                 
                 _in = 0;
             }
@@ -2228,7 +2332,8 @@ public abstract class Saver implements NamespaceManager
             while ( process() )
                 ;
 
-            assert _out == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(_out == 0);
 
             int available = getAvailable();
 
@@ -2332,7 +2437,7 @@ public abstract class Saver implements NamespaceManager
             }
             catch ( UnsupportedEncodingException e )
             {
-                throw new RuntimeException( e );
+                throw new XmlRuntimeException( e );
             }
 
             _textSaver = new TextSaver( r, s, p, options, encoding );
@@ -2381,7 +2486,8 @@ public abstract class Saver implements NamespaceManager
                 if (InputStreamSaver.this.ensure( 1 ) == 0)
                     return -1;
 
-                assert getAvailable() > 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(getAvailable() > 0);
 
                 int bite = _buf[ _out ];
 
@@ -2443,7 +2549,8 @@ public abstract class Saver implements NamespaceManager
                 if (_free == 0)
                     resize( 1 );
 
-                assert _free > 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_free > 0);
 
                 _buf[ _in ] = (byte) bite;
 
@@ -2453,7 +2560,8 @@ public abstract class Saver implements NamespaceManager
 
             public void write ( byte[] buf, int off, int cbyte )
             {
-                assert cbyte >= 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(cbyte >= 0);
 
                 if (cbyte == 0)
                     return;
@@ -2463,8 +2571,11 @@ public abstract class Saver implements NamespaceManager
 
                 if (_in == _out)
                 {
-                    assert getAvailable() == 0;
-                    assert _free == _buf.length - getAvailable();
+                    if (XmlBeans.ASSERTS)
+                    {
+                        XmlBeans.assertTrue(getAvailable() == 0);
+                        XmlBeans.assertTrue(_free == _buf.length - getAvailable());
+                    }
                     _in = _out = 0;
                 }
 
@@ -2490,7 +2601,8 @@ public abstract class Saver implements NamespaceManager
 
             void resize ( int cbyte )
             {
-                assert cbyte > _free;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(cbyte > _free);
 
                 int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
                 int used = getAvailable();
@@ -2522,7 +2634,8 @@ public abstract class Saver implements NamespaceManager
                 else
                 {
                     _free += newBuf.length;
-                    assert _in == 0 && _out == 0;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(_in == 0 && _out == 0);
                 }
 
                 _buf = newBuf;
@@ -2570,11 +2683,13 @@ public abstract class Saver implements NamespaceManager
 
         private void enqueue ( XmlEventImpl e )
         {
-            assert e._next == null;
+            if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(e._next == null);
 
             if (_in == null)
             {
-                assert _out == null;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_out == null);
                 _out = _in = e;
             }
             else
@@ -2595,8 +2710,9 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitText ( Splay s, int p, int cch )
         {
-            assert cch > 0;
-            enqueue( new CharacterDataImpl( getRoot(), s, p, null ) );
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(cch > 0);
+            enqueue( new CharacterDataImpl( getSaverRoot(), s, p, null ) );
         }
 
         protected void emitTextFragment ( Splay s, int p, int cch )
@@ -2621,12 +2737,12 @@ public abstract class Saver implements NamespaceManager
             if (_text == null)
                 emitText( s, p, cch );
             else
-                enqueue( new CharacterDataImpl( getRoot(), s, -1, text() ) );
+                enqueue( new CharacterDataImpl( getSaverRoot(), s, -1, text() ) );
         }
 
         protected void emitEndPrefixMappings ( )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             for ( iterateMappings() ; hasMapping() ; nextMapping() )
             {
@@ -2645,7 +2761,7 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitEnd ( Splay s, QName name )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             if (s.isRoot())
                 enqueue( new EndDocumentImpl( r, s ) );
@@ -2653,7 +2769,8 @@ public abstract class Saver implements NamespaceManager
                 enqueue( new EndElementImpl( r, s, name, getUriMap() ) );
             else
             {
-                assert s.isLeaf();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isLeaf());
                 enqueue( new EndElementImpl( r, s, name, getUriMap() ) );
             }
 
@@ -2677,12 +2794,12 @@ public abstract class Saver implements NamespaceManager
         
         protected void emitComment ( Splay s )
         {
-            enqueue( new CommentImpl( getRoot(), s ) );
+            enqueue( new CommentImpl( getSaverRoot(), s ) );
         }
 
         protected void emitProcinst ( Splay s )
         {
-            enqueue( new ProcessingInstructionImpl( getRoot(), s ) );
+            enqueue( new ProcessingInstructionImpl( getSaverRoot(), s ) );
         }
 
         protected void emitAttrFragment ( Splay s )
@@ -2692,7 +2809,7 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitContainer ( Container c, QName name )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             for ( iterateMappings() ; hasMapping() ; nextMapping() )
             {
@@ -2712,7 +2829,8 @@ public abstract class Saver implements NamespaceManager
 
             if (c.isDoc())
             {
-                assert c.isDoc();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(c.isDoc());
 
                 if (_text != null)
                 {
@@ -2750,14 +2868,17 @@ public abstract class Saver implements NamespaceManager
             if (uri.length() == 0)
                 uri = null;
 
-            assert n.getLocalPart().length() > 0;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(n.getLocalPart().length() > 0);
 
-            // The following assert may fire if someone computes a name
-            // of an element/attr too late (after other events have been
-            // enqueued and the uri map has been updated.  I check later
-            // to make sure we don't crash, however.
+                // The following assert may fire if someone computes a name
+                // of an element/attr too late (after other events have been
+                // enqueued and the uri map has been updated.  I check later
+                // to make sure we don't crash, however.
 
-            assert uri == null || uriMap.containsKey( uri ) : "Problem uri " + uri;
+                XmlBeans.assertTrue(uri == null || uriMap.containsKey( uri ), "Problem uri " + uri);
+            }
 
             String prefix = null;
 
@@ -3200,7 +3321,7 @@ public abstract class Saver implements NamespaceManager
                         prefix = "xmlns";
                     }
 
-                    _name = new XmlNameImpl( null, local, prefix );
+                    this._name = new XmlNameImpl( null, local, prefix );
                 }
 
                 public String getValue ( )
@@ -3221,10 +3342,11 @@ public abstract class Saver implements NamespaceManager
                     Root r, Splay s, String value, Map uriMap )
                 {
                     super( r );
-                    assert s.isNormalAttr();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(s.isNormalAttr());
                     _splay = s;
                     _value = value;
-                    _name = computeName( s.getName(), uriMap );
+                    this._name = computeName( s.getName(), uriMap );
                 }
 
                 public String getValue ( )
@@ -3233,7 +3355,7 @@ public abstract class Saver implements NamespaceManager
                     {
                         checkVersion();
     
-                        return _value != null ? _value : _splay.getText( _root );
+                        return _value != null ? _value : _splay.getText( this._root );
                     }
                 }
 
@@ -3351,7 +3473,8 @@ public abstract class Saver implements NamespaceManager
             {
                 super( XMLEvent.CHARACTER_DATA, r, s );
 
-                assert p > 0 || (charData != null && charData.length() > 0);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(p > 0 || (charData != null && charData.length() > 0));
 
                 _pos = p;
                 _charData = charData;
@@ -3396,7 +3519,8 @@ public abstract class Saver implements NamespaceManager
             {
                 super( XMLEvent.END_ELEMENT, r, s );
 
-                assert s.isLeaf() || s.isEnd();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isLeaf() || s.isEnd());
 
                 if (name == null)
                 {
@@ -3445,7 +3569,8 @@ public abstract class Saver implements NamespaceManager
             CommentImpl ( Root r, Splay s )
             {
                 super( XMLEvent.COMMENT, r, s );
-                assert s.isComment();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isComment());
             }
 
             public String getContent ( )
@@ -3476,7 +3601,8 @@ public abstract class Saver implements NamespaceManager
             ProcessingInstructionImpl ( Root r, Splay s )
             {
                 super( XMLEvent.PROCESSING_INSTRUCTION, r, s );
-                assert s.isProcinst();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isProcinst());
             }
 
             public String getTarget ( )
@@ -3538,7 +3664,8 @@ public abstract class Saver implements NamespaceManager
 
             _wantDupAttrs = true;
 
-            assert p == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(p == 0);
 
             _startSplay = s;
             _vEventSink = vEventSink;
@@ -3571,7 +3698,8 @@ public abstract class Saver implements NamespaceManager
         {
             if (_text == null)
             {
-                assert cch > 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(cch > 0);
                 emitEvent( ValidatorListener.TEXT, s, p, null, s, p );
             }
             else
@@ -3617,10 +3745,13 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitContainer ( Container c, QName name )
         {
-            assert _xsiNoLoc == null;
-            assert _xsiLoc == null;
-            assert _xsiType == null;
-            assert _xsiNil == null;
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(_xsiNoLoc == null);
+                XmlBeans.assertTrue(_xsiLoc == null);
+                XmlBeans.assertTrue(_xsiType == null);
+                XmlBeans.assertTrue(_xsiNil == null);
+            }
 
             for ( Splay s = c.nextSplay() ; s.isAttr() ; s = s.nextSplay() )
             {
@@ -3681,7 +3812,8 @@ public abstract class Saver implements NamespaceManager
 
             if (c.isDoc())
             {
-                assert c.isDoc();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(c.isDoc());
 
                 if (_text != null)
                 {
@@ -3736,15 +3868,18 @@ public abstract class Saver implements NamespaceManager
 
             boolean hasText = text != null || sText != null;
 
-            assert
-                !hasText ||
-                    (kind == ValidatorListener.ATTR ||
-                        kind == ValidatorListener.TEXT);
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue(
+                    !hasText ||
+                        (kind == ValidatorListener.ATTR ||
+                            kind == ValidatorListener.TEXT));
 
-            assert kind != ValidatorListener.ATTR || hasText;
-            assert kind != ValidatorListener.TEXT || hasText;
+                XmlBeans.assertTrue(kind != ValidatorListener.ATTR || hasText);
+                XmlBeans.assertTrue(kind != ValidatorListener.TEXT || hasText);
 
-            assert kind != ValidatorListener.ATTR || name != null;
+                XmlBeans.assertTrue(kind != ValidatorListener.ATTR || name != null);
+            }
 
             _name = name;
             _sText = sText;
@@ -3765,8 +3900,8 @@ public abstract class Saver implements NamespaceManager
 
         public XmlCursor getLocationAsCursor ( )
         {
-            checkVersion();
-            return new Cursor( getRoot(), _sLoc, _pLoc );
+            checkSaverVersion();
+            return new Cursor( getSaverRoot(), _sLoc, _pLoc );
         }
 
         public boolean getXsiType ( Chars chars )
@@ -3818,11 +3953,12 @@ public abstract class Saver implements NamespaceManager
         private void setChars (
             Chars chars, int wsr, String string, Splay sText, int pText )
         {
-            assert string != null || sText != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(string != null || sText != null);
 
-            checkVersion();
+            checkSaverVersion();
 
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             chars.buffer = null;
             chars.string = null;
@@ -3851,7 +3987,8 @@ public abstract class Saver implements NamespaceManager
             }
             else
             {
-                assert pText == sText.getPosAfter();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(pText == sText.getPosAfter());
 
                 boolean moreText = false;
 
@@ -4092,7 +4229,8 @@ public abstract class Saver implements NamespaceManager
             }
             else
             {
-                assert c.isDoc();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(c.isDoc());
 
                 if (name != null)
                     emitContainerHelper( c, name, null, null );
@@ -4106,7 +4244,8 @@ public abstract class Saver implements NamespaceManager
 
         private void emitAttrHelper ( Splay s, String value )
         {
-            assert s.isNormalAttr();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(s.isNormalAttr());
             
             String local = s.getLocal();
             String uri = s.getUri();
@@ -4115,7 +4254,7 @@ public abstract class Saver implements NamespaceManager
                 s.getUri(), s.getLocal(),
                 getPrefixedName( s.getName() ),
                 "CDATA",
-                value == null ? s.getText( getRoot() ) : value );
+                value == null ? s.getText( getSaverRoot() ) : value );
         }
 
         private void addNamespaceAttr ( String prefix, String uri )
@@ -4148,7 +4287,8 @@ public abstract class Saver implements NamespaceManager
             Container c, QName name,
             Splay extraAttr, StringBuffer extraAttrText )
         {
-            assert name != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(name != null);
             
             _attributes.clear();
 
@@ -4188,7 +4328,7 @@ public abstract class Saver implements NamespaceManager
         
         private void emitCharacters ( Splay s, int p, int cch )
         {
-            emitCharacters( s.getCpForPos( getRoot(), p ), cch );
+            emitCharacters( s.getCpForPos( getSaverRoot(), p ), cch );
         }
         
         private void emitCharacters ( int cp, int cch )
@@ -4197,7 +4337,7 @@ public abstract class Saver implements NamespaceManager
                 return;
 
             emitCharacters(
-                getRoot()._text._buf, getRoot()._text.unObscure( cp, cch ),
+                getSaverRoot()._text._buf, getSaverRoot()._text.unObscure( cp, cch ),
                 cch );
         }
         
@@ -4330,14 +4470,14 @@ public abstract class Saver implements NamespaceManager
         {
             if (_lexicalhandler != null)
             {
-                int cp = getRoot().getCp( s );
+                int cp = getSaverRoot().getCp( s );
                 int cch = s.getCchValue();
 
                 try
                 {
                     _lexicalhandler.comment(
-                        getRoot()._text._buf,
-                        getRoot()._text.unObscure( cp, cch ),
+                        getSaverRoot()._text._buf,
+                        getSaverRoot()._text.unObscure( cp, cch ),
                         cch );
                 }
                 catch ( SAXException e )
@@ -4352,7 +4492,7 @@ public abstract class Saver implements NamespaceManager
             try
             {
                 _contentHandler.processingInstruction(
-                    s.getLocal(), s.getText( getRoot() ) );
+                    s.getLocal(), s.getText( getSaverRoot() ) );
             }
             catch ( SAXException e )
             {
@@ -4425,7 +4565,7 @@ public abstract class Saver implements NamespaceManager
                 }
                 catch ( ParserConfigurationException e )
                 {
-                    throw new RuntimeException( e.getMessage(), e );
+                    throw new XmlRuntimeException( e.getMessage(), e );
                 }
             }
         };
@@ -4466,7 +4606,7 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitContainer ( Container c, QName name )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             if (c.isDoc())
             {
@@ -4503,7 +4643,8 @@ public abstract class Saver implements NamespaceManager
             }
             else
             {
-                assert c.isBegin();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(c.isBegin());
 
                 String qname = c.getLocal();
 
@@ -4587,9 +4728,10 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitTextAfter ( Splay s, int p, int cch )
         {
-            assert cch > 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(cch > 0);
 
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             String text = null;
 
@@ -4612,7 +4754,7 @@ public abstract class Saver implements NamespaceManager
                 
         protected void emitComment ( Splay s )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             _currentNode.insertBefore(
                 _doc.createComment(
@@ -4622,7 +4764,7 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitProcinst ( Splay s )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             _currentNode.insertBefore(
                 _doc.createProcessingInstruction(
@@ -4652,7 +4794,7 @@ public abstract class Saver implements NamespaceManager
             
             if (s != null)
             {
-                Root r = getRoot();
+                Root r = getSaverRoot();
 
                 _currentNode.insertBefore(
                     _doc.createTextNode(
@@ -4667,7 +4809,7 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitCommentFragment ( Splay s )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             _currentNode.insertBefore(
                 _doc.createComment(
@@ -4677,7 +4819,7 @@ public abstract class Saver implements NamespaceManager
 
         protected void emitProcinstFragment ( Splay s )
         {
-            Root r = getRoot();
+            Root r = getSaverRoot();
 
             _currentNode.insertBefore(
                 _doc.createProcessingInstruction(
@@ -4698,7 +4840,7 @@ public abstract class Saver implements NamespaceManager
     protected StringBuffer  _text;
     protected StringBuffer  _sb;
     protected boolean       _skipContainerFinish;
-    protected LinkedHashMap _attrs;
+    protected SequencedHashMap     _attrs;
     
     private HashSet _attrNames;
 
@@ -4736,7 +4878,7 @@ public abstract class Saver implements NamespaceManager
     private boolean   _firstPush;
     private String    _initialDefaultUri;
     
-    private HashMap _preComputedNamespaces;
+    private Map     _preComputedNamespaces;
     private String  _filterProcinst;
     private Map     _suggestedPrefixes;
 

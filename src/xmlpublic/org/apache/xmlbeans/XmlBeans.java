@@ -40,6 +40,31 @@ public final class XmlBeans
         };
 
     /**
+     * By default, assertions are off.  This can be turned on by setting the
+     * system property "xmlbeans.enableassertions" or "xmlbeans.ea".
+     */
+    public static final boolean ASSERTS = _getAsserting();
+
+    private static boolean _getAsserting()
+    {
+        return    System.getProperty("xmlbeans.ea") != null
+               || System.getProperty("xmlbeans.esa") != null
+               || System.getProperty("xmlbeans.enableassertions") != null;
+    }
+
+    public static final void assertTrue(boolean test, String message)
+    {
+        if (ASSERTS && !test)
+            throw new RuntimeException(message == null ? "AssertionException, no message."
+                                                       : "AssertionException: ".concat(message));
+    }
+
+    public static final void assertTrue(boolean test)
+    {
+        assertTrue(test, null);
+    }
+
+    /**
      * Returns a thread local QNameCache
      */
     public static QNameCache getQNameCache ( )
@@ -72,8 +97,7 @@ public final class XmlBeans
 
     private static RuntimeException causedException(RuntimeException e, Throwable cause)
     {
-        e.initCause(cause);
-        return e;
+        return new XmlRuntimeException(e.toString(), cause);
     }
 
     private static XmlException wrappedException(Throwable e)
@@ -222,7 +246,7 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            throw causedException(new IllegalStateException(e.getMessage()), e.getTargetException());
         }
     }
 
@@ -242,7 +266,7 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            throw causedException(new IllegalStateException(e.getMessage()), e.getTargetException());
         }
     }
 
@@ -301,7 +325,7 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw wrappedException(e.getCause());
+            throw wrappedException(e.getTargetException());
         }
     }
     
@@ -351,7 +375,7 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw wrappedException(e.getCause());
+            throw wrappedException(e.getTargetException());
         }
     }
     
@@ -375,7 +399,7 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            throw causedException(new IllegalStateException(e.getMessage()), e.getTargetException());
         }
     }
 
@@ -435,7 +459,7 @@ public final class XmlBeans
         }
         catch (InvocationTargetException e)
         {
-            throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+            throw causedException(new IllegalStateException(e.getMessage()), e.getTargetException());
         }
     }
 

@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -77,7 +78,8 @@ public class JavaQNameHolder extends XmlObjectBase
         
         String prefix = nsm.find_prefix_for_nsuri( namespace, null );
 
-        assert prefix != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(prefix != null);
         
         return prefix + ":" + localPart;
     }
@@ -151,7 +153,8 @@ public class JavaQNameHolder extends XmlObjectBase
     // BUGBUG - having prefix here may not work
     protected void set_QName(QName name)
     {
-        assert name != null;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(name != null);
         
         // Sync force of creation of namesapce mapping ..
         

@@ -19,6 +19,7 @@
 package org.apache.xmlbeans.impl.config;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 
 import javax.xml.namespace.QName;
@@ -64,7 +65,8 @@ public class PrePostExtension
 
     private boolean lookAfterPreAndPost(XmlObject loc)
     {
-        assert _delegateToClass!=null : "Delegate to class handler expected.";
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_delegateToClass != null, "Delegate to class handler expected.");
         boolean valid = true;
 
         try

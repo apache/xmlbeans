@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.common.PrefixResolver;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.util.ArrayList;
 import java.util.Map;
@@ -137,7 +138,8 @@ public class NamespaceContext implements PrefixResolver
                 return ((PrefixResolver)_obj).getNamespaceForPrefix(prefix);
                 
             default:
-                assert false : "Improperly initialized NamespaceContext.";
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "Improperly initialized NamespaceContext.");
                 return null;
         }
     }

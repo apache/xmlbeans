@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.store;
 
+import org.apache.xmlbeans.XmlRuntimeException;
+
 import java.lang.reflect.Constructor;
 import java.util.List;
 
@@ -40,7 +42,7 @@ public final class JaxenXBeansDelegate
         }
         catch (Exception e)
         {
-            throw new RuntimeException(e);
+            throw new XmlRuntimeException(e);
         }
     }
 
@@ -80,7 +82,7 @@ public final class JaxenXBeansDelegate
             }
             catch ( Exception e )
             {
-                throw new RuntimeException( e );
+                throw new XmlRuntimeException( e );
             }
         }
     }

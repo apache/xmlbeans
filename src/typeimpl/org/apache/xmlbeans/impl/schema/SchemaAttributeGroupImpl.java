@@ -20,6 +20,7 @@ import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlBeans;
 
 public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
 {
@@ -43,7 +44,8 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
 
     public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x)
     {
-        assert _name == null || name.equals( _name );
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_name == null || name.equals( _name ));
 
         _name = name;
         _parseTNS = targetNamespace;

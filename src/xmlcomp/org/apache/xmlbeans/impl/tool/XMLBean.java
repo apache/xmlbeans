@@ -29,7 +29,8 @@ import java.io.File;
 import java.io.StringWriter;
 import java.io.PrintWriter;
 import java.util.*;
-import java.net.URI;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 import org.apache.xmlbeans.XmlError;
 
@@ -669,14 +670,14 @@ public class XMLBean extends MatchingTask
         this.memoryMaximumSize = memoryMaximumSize;
     }
 
-    private static URI uriFromFile(File f)
+    private URL urlFromFile(File f)
     {
         if (f == null)
             return null;
 
         try
         {
-            return f.getCanonicalFile().toURI();
+            return f.getCanonicalFile().toURL();
         }
         catch(java.io.IOException e)
         {
@@ -684,19 +685,27 @@ public class XMLBean extends MatchingTask
             // if the filename is "aux", "lpt1", etc. It's the caller's responsibility
             // to deal with those cases correctly, usually by calling FileSvc.invalidPathCheck()
             // MessageSvc.get().logException(e);
-            return f.getAbsoluteFile().toURI();
+            try
+            {
+                return f.getAbsoluteFile().toURL();
+            }
+            catch (MalformedURLException mue)
+            {
+                log(mue.toString(), Project.MSG_ERR);
+                return null;
+            }
         }
     }
 
     public class ErrorLogger extends AbstractCollection
     {
         private boolean _noisy;
-        private URI _baseURI;
+        private URL _baseURL;
 
         public ErrorLogger(boolean noisy)
         {
             _noisy = noisy;
-            _baseURI = uriFromFile(project.getBaseDir());
+            _baseURL = urlFromFile(project.getBaseDir());
         }
 
         public boolean add(Object o)
@@ -705,11 +714,11 @@ public class XMLBean extends MatchingTask
             {
                 XmlError err = (XmlError)o;
                 if (err.getSeverity() == XmlError.SEVERITY_ERROR)
-                    log(err.toString(_baseURI), Project.MSG_ERR);
+                    log(err.toString(_baseURL), Project.MSG_ERR);
                 else if (err.getSeverity() == XmlError.SEVERITY_WARNING)
-                    log(err.toString(_baseURI), Project.MSG_WARN);
+                    log(err.toString(_baseURL), Project.MSG_WARN);
                 else if (_noisy)
-                    log(err.toString(_baseURI), Project.MSG_INFO);
+                    log(err.toString(_baseURL), Project.MSG_INFO);
             }
             return false;
         }

@@ -45,6 +45,7 @@ import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaGlobalAttribute;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlInteger;
+import org.apache.xmlbeans.XmlBeans;
 
 import javax.xml.namespace.QName;
 
@@ -506,7 +507,8 @@ public class StscTranslator
                 // recovery: ignore
             }
             
-            assert(xsdElt instanceof LocalElement);
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(xsdElt instanceof LocalElement);
             SchemaGlobalElement referenced = state.findGlobalElement(ref, chameleon ? targetNamespace : null);
             if (referenced == null)
             {

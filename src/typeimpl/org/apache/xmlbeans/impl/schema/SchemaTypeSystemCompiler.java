@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.List;
 import java.util.Arrays;
-import java.net.URI;
 
 import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 import org.w3.x2001.xmlSchema.SchemaDocument;
@@ -45,7 +44,7 @@ public class SchemaTypeSystemCompiler
         private XmlOptions options;
         private Collection errorListener;
         private boolean javaize;
-        private URI baseURI;
+        private String baseURI;
         private Map sourcesToCopyMap;
 
         public String getName()
@@ -118,12 +117,12 @@ public class SchemaTypeSystemCompiler
             this.javaize = javaize;
         }
 
-        public URI getBaseURI()
+        public String getBaseURI()
         {
             return baseURI;
         }
 
-        public void setBaseURI(URI baseURI)
+        public void setBaseURI(String baseURI)
         {
             this.baseURI = baseURI;
         }
@@ -146,7 +145,7 @@ public class SchemaTypeSystemCompiler
     
     /* package!!! */ static SchemaTypeSystemImpl compileImpl(
         String name, Schema[] schemas, Config[] configs,
-        SchemaTypeLoader linkTo, XmlOptions options, Collection outsideErrors, boolean javaize, URI baseURI, Map sourcesToCopyMap)
+        SchemaTypeLoader linkTo, XmlOptions options, Collection outsideErrors, boolean javaize, String baseURI, Map sourcesToCopyMap)
     {
         if (linkTo == null)
             throw new IllegalArgumentException("Must supply linkTo");

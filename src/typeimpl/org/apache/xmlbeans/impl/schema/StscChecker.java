@@ -26,6 +26,7 @@ import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.XmlID;
 import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -279,7 +280,8 @@ public class StscChecker
                     // 5.3 ... then the particle of the complex type definition itself must be a ·valid restriction· of the particle of the {content type} of the {base type definition}
                     SchemaParticle baseModel = baseType.getContentModel();
                     SchemaParticle derivedModel = sType.getContentModel();
-                    assert(baseModel != null && derivedModel != null);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(baseModel != null && derivedModel != null);
                     if (baseModel == null || derivedModel == null)
                     {
                         XBeanDebug.logStackTrace("Null models that weren't caught by EMPTY_CONTENT: " + baseType + " (" + baseModel + "), " + sType + " (" + derivedModel + ")");
@@ -346,7 +348,8 @@ public class StscChecker
                             restrictionValid = false;
                             break;
                         default:
-                            assert false : XBeanDebug.logStackTrace("Unknown schema type for Derived Type");
+                            if (XmlBeans.ASSERTS)
+                                XmlBeans.assertTrue(false, XBeanDebug.logStackTrace("Unknown schema type for Derived Type"));
                     }
                     break;
                 case SchemaParticle.WILDCARD:
@@ -367,7 +370,8 @@ public class StscChecker
                             restrictionValid = nsRecurseCheckCardinality(baseModel, derivedModel, errors, context);
                             break;
                         default:
-                            assert false : XBeanDebug.logStackTrace("Unknown schema type for Derived Type");
+                            if (XmlBeans.ASSERTS)
+                                XmlBeans.assertTrue(false, XBeanDebug.logStackTrace("Unknown schema type for Derived Type"));
                     }
                     break;
                 case SchemaParticle.ALL:
@@ -390,7 +394,8 @@ public class StscChecker
                             restrictionValid = recurseUnordered(baseModel, derivedModel, errors, context);
                             break;
                         default:
-                            assert false : XBeanDebug.logStackTrace("Unknown schema type for Derived Type");
+                            if (XmlBeans.ASSERTS)
+                                XmlBeans.assertTrue(false, XBeanDebug.logStackTrace("Unknown schema type for Derived Type"));
                     }
                     break;
                 case SchemaParticle.CHOICE:
@@ -413,7 +418,8 @@ public class StscChecker
                             restrictionValid = mapAndSum(baseModel, derivedModel, errors, context);
                             break;
                         default:
-                            assert false : XBeanDebug.logStackTrace("Unknown schema type for Derived Type");
+                            if (XmlBeans.ASSERTS)
+                                XmlBeans.assertTrue(false, XBeanDebug.logStackTrace("Unknown schema type for Derived Type"));
                     }
                     break;
                 case SchemaParticle.SEQUENCE:
@@ -437,11 +443,13 @@ public class StscChecker
                             restrictionValid = recurse(baseModel, derivedModel, errors, context);
                             break;
                         default:
-                            assert false : XBeanDebug.logStackTrace("Unknown schema type for Derived Type");
+                            if (XmlBeans.ASSERTS)
+                                XmlBeans.assertTrue(false, XBeanDebug.logStackTrace("Unknown schema type for Derived Type"));
                     }
                     break;
                 default:
-                    assert false : XBeanDebug.logStackTrace("Unknown schema type for Base Type");
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(false, XBeanDebug.logStackTrace("Unknown schema type for Base Type"));
 
             }
         }
@@ -451,8 +459,11 @@ public class StscChecker
 
     private static boolean mapAndSum(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context)  {
         // mapAndSum is call if base: CHOICE, derived: SEQUENCE
-        assert baseModel.getParticleType() == SchemaParticle.CHOICE;
-        assert derivedModel.getParticleType() == SchemaParticle.SEQUENCE;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(baseModel.getParticleType() == SchemaParticle.CHOICE);
+            XmlBeans.assertTrue(derivedModel.getParticleType() == SchemaParticle.SEQUENCE);
+        }
         boolean mapAndSumValid = true;
         // Schema Component Constraint: Particle Derivation OK (Sequence:Choice -- MapAndSum)
         // For a sequence group particle to be a ·valid restriction· of a choice group particle all of the following
@@ -545,9 +556,10 @@ public class StscChecker
         // base: ALL, derived: ELEMENT
         // base: CHOICE, derived: ELEMENT
         // base: SEQUENCE, derived: ELEMENT
-        assert (baseModel.getParticleType() == SchemaParticle.ALL && derivedModel.getParticleType() == SchemaParticle.ELEMENT)
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue((baseModel.getParticleType() == SchemaParticle.ALL && derivedModel.getParticleType() == SchemaParticle.ELEMENT)
                 || (baseModel.getParticleType() == SchemaParticle.CHOICE && derivedModel.getParticleType() == SchemaParticle.ELEMENT)
-                || (baseModel.getParticleType() == SchemaParticle.SEQUENCE && derivedModel.getParticleType() == SchemaParticle.ELEMENT);
+                || (baseModel.getParticleType() == SchemaParticle.SEQUENCE && derivedModel.getParticleType() == SchemaParticle.ELEMENT));
         // Schema Component Constraint: Particle Derivation OK (Elt:All/Choice/Sequence -- RecurseAsIfGroup)
 
         // For an element declaration particle to be a ·valid restriction· of a group particle
@@ -571,7 +583,8 @@ public class StscChecker
 
     private static boolean recurseLax(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context)  {
         // recurseLax is called if base: CHOICE, derived: CHOICE
-        assert baseModel.getParticleType() == SchemaParticle.CHOICE && derivedModel.getParticleType() == SchemaParticle.CHOICE;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(baseModel.getParticleType() == SchemaParticle.CHOICE && derivedModel.getParticleType() == SchemaParticle.CHOICE);
         boolean recurseLaxValid = true;
         //Schema Component Constraint: Particle Derivation OK (Choice:Choice -- RecurseLax)
         // For a choice group particle to be a ·valid restriction· of another choice group particle all of the
@@ -627,7 +640,8 @@ public class StscChecker
 
     private static boolean recurseUnordered(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context) {
         // recurseUnorder is called when base: ALL and derived: SEQ
-        assert baseModel.getParticleType() == SchemaParticle.ALL && derivedModel.getParticleType() == SchemaParticle.SEQUENCE;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(baseModel.getParticleType() == SchemaParticle.ALL && derivedModel.getParticleType() == SchemaParticle.SEQUENCE);
         boolean recurseUnorderedValid = true;
         // Schema Component Constraint: Particle Derivation OK (Sequence:All -- RecurseUnordered)
         // For a sequence group particle to be a ·valid restriction· of an all group particle all of the
@@ -828,10 +842,13 @@ public class StscChecker
         // base: ANY, derived: ALL
         // base: ANY, derived: CHOICE
         // base: ANY, derived: SEQUENCE
-        assert baseModel.getParticleType() == SchemaParticle.WILDCARD;
-        assert (derivedModel.getParticleType() == SchemaParticle.ALL)
-                || (derivedModel.getParticleType() == SchemaParticle.CHOICE)
-                || (derivedModel.getParticleType() == SchemaParticle.SEQUENCE);
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(baseModel.getParticleType() == SchemaParticle.WILDCARD);
+            XmlBeans.assertTrue((derivedModel.getParticleType() == SchemaParticle.ALL)
+                    || (derivedModel.getParticleType() == SchemaParticle.CHOICE)
+                    || (derivedModel.getParticleType() == SchemaParticle.SEQUENCE));
+        }
         boolean nsRecurseCheckCardinality = true;
         // For a group particle to be a ·valid restriction· of a wildcard particle all of the following must be true:
         // 1 Every member of the {particles} of the group is a ·valid restriction· of the wildcard as defined by Particle Valid (Restriction) (§3.9.6).
@@ -1189,8 +1206,11 @@ public class StscChecker
 
     private static boolean nsSubset(SchemaParticle baseModel, SchemaParticle derivedModel, Collection errors, XmlObject context) {
         // nsSubset is called when base: ANY, derived: ANY
-        assert baseModel.getParticleType() == SchemaParticle.WILDCARD;
-        assert derivedModel.getParticleType() == SchemaParticle.WILDCARD;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(baseModel.getParticleType() == SchemaParticle.WILDCARD);
+            XmlBeans.assertTrue(derivedModel.getParticleType() == SchemaParticle.WILDCARD);
+        }
         boolean nsSubset = false;
         // For a wildcard particle to be a ·valid restriction· of another wildcard particle all of the following must be true:
         // 1 R's occurrence range must be a valid restriction of B's occurrence range as defined by Occurrence Range OK (§3.9.6).
@@ -1214,7 +1234,8 @@ public class StscChecker
 
     private static boolean nsCompat(SchemaParticle baseModel, SchemaLocalElement derivedElement, Collection errors, XmlObject context) {
         // nsCompat is called when base: ANY, derived: ELEMENT
-        assert baseModel.getParticleType() == SchemaParticle.WILDCARD;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(baseModel.getParticleType() == SchemaParticle.WILDCARD);
         boolean nsCompat = false;
         // For an element declaration particle to be a ·valid restriction· of a wildcard particle all of the following must be true:
         // 1 The element declaration's {target namespace} is ·valid· with respect to the wildcard's {namespace constraint}

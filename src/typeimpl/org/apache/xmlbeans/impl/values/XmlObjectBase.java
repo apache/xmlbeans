@@ -494,9 +494,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     {
-        assert TypeStore.NILLABLE   == 1;
-        assert TypeStore.HASDEFAULT == 2;
-        assert TypeStore.FIXED      == 4;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(TypeStore.NILLABLE   == 1);
+            XmlBeans.assertTrue(TypeStore.HASDEFAULT == 2);
+            XmlBeans.assertTrue(TypeStore.FIXED      == 4);
+        }
     }
 
     private static final int FLAG_NILLABLE        = TypeStore.NILLABLE;
@@ -710,7 +713,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public final void invalidate_value()
     {
-        assert((_flags & FLAG_STORE) != 0);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
         _flags |= FLAG_VALUE_DATED;
     }
 
@@ -728,7 +732,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public final void invalidate_nilvalue()
     {
-        assert((_flags & FLAG_STORE) != 0);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
         _flags |= FLAG_VALUE_DATED | FLAG_NIL_DATED;
     }
 
@@ -741,7 +746,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public final void invalidate_element_order()
     {
-        assert((_flags & FLAG_STORE) != 0);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
         _flags |= FLAG_VALUE_DATED | FLAG_NIL_DATED | FLAG_ELEMENT_DATED;
     }
 
@@ -751,7 +757,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public final TypeStore get_store()
     {
-        assert((_flags & FLAG_STORE) != 0);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
         return (TypeStore)_textsource;
     }
 
@@ -767,8 +774,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public final String build_text(NamespaceManager nsm)
     {
-        assert((_flags & FLAG_STORE) != 0);
-        assert((_flags & FLAG_VALUE_DATED) == 0);
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
+            XmlBeans.assertTrue((_flags & FLAG_VALUE_DATED) == 0);
+        }
         if ((_flags & (FLAG_NIL | FLAG_ISDEFAULT)) != 0)
             return "";
         return compute_text(
@@ -781,8 +791,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public boolean build_nil()
     {
-        assert((_flags & FLAG_STORE) != 0);
-        assert((_flags & FLAG_VALUE_DATED) == 0);
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
+            XmlBeans.assertTrue((_flags & FLAG_VALUE_DATED) == 0);
+        }
         return (_flags & FLAG_NIL) != 0;
     }
 
@@ -806,7 +819,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public void disconnect_store()
     {
-        assert((_flags & FLAG_STORE) != 0);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
         _flags |= FLAGS_DATED | FLAG_ORPHANED;
         // do NOT null out _textsource, because we need it non-null for synchronization
     }
@@ -876,7 +890,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public String get_default_element_text(QName eltName)
     {
-        assert(_isComplexContent());
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_isComplexContent());
         if (!_isComplexContent())
             throw new IllegalStateException();
 
@@ -892,7 +907,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     public String get_default_attribute_text(QName attrName)
     {
-        assert(_isComplexType());
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_isComplexType());
         if (!_isComplexType())
             throw new IllegalStateException();
 
@@ -1161,7 +1177,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             if ((_flags & FLAG_ORPHANED) != 0)
                 throw new XmlValueDisconnectedException();
 
-            assert((_flags & FLAG_STORE) != 0);
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue((_flags & FLAG_STORE) != 0);
 
             check_element_dated();
 
@@ -1619,7 +1636,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         {
             XmlAnySimpleType v = (XmlAnySimpleType)obj;
             SchemaType instanceType = ((SimpleValue)v).instanceType();
-            assert(instanceType != null) : "Nil case should have been handled already";
+            if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(instanceType != null, "Nil case should have been handled already");
 
             // handle lists
             if (instanceType.getSimpleVariety() == SchemaType.LIST)
@@ -1636,11 +1654,13 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             // handle atomic types
             synchronized (monitor())
             {
-                assert(instanceType.getSimpleVariety() == SchemaType.ATOMIC);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(instanceType.getSimpleVariety() == SchemaType.ATOMIC);
                 switch (instanceType.getPrimitiveType().getBuiltinTypeCode())
                 {
                     default:
-                        assert(false) : "encountered nonprimitive type.";
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(false, "encountered nonprimitive type.");
                     // case SchemaType.BTC_ANY_SIMPLE:  This is handled below...
                     // but we eventually want to handle it with a treecopy, so
                     // eventually we should break here.
@@ -1729,7 +1749,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                             }
                             default:
                             {
-                                assert(false) : "invalid numeric bit count";
+                                if (XmlBeans.ASSERTS)
+                                    XmlBeans.assertTrue(false, "invalid numeric bit count");
                                 // fallthrough
                             }
                             case SchemaType.SIZE_BIG_DECIMAL:
@@ -1898,7 +1919,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     protected void set_long(long v)
         { set_BigInteger(BigInteger.valueOf(v)); }
     protected void set_char(char v)
-        { set_String(Character.toString(v)); }
+        { set_String(new String(new char[] {v})); }
     protected void set_float(float v)
         { set_BigDecimal(new BigDecimal(v)); }
     protected void set_double(double v)
@@ -1938,7 +1959,9 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     private final boolean comparable_value_spaces(SchemaType t1, SchemaType t2)
     {
-        assert(t1.getSimpleVariety() != SchemaType.UNION && t2.getSimpleVariety() != SchemaType.UNION);
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(t1.getSimpleVariety() != SchemaType.UNION
+                    && t2.getSimpleVariety() != SchemaType.UNION);
 
         if (!t1.isSimpleType() && !t2.isSimpleType())
             return (t1.getContentType() == t2.getContentType());
@@ -2376,9 +2399,13 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 XmlOptions opts = new XmlOptions().setDocumentType(XmlBeans.typeForClass(_xbeanClass));
                 _impl = XmlBeans.getContextTypeLoader().parse(xmlText, null, opts);
             }
-            catch (Exception e)
+            catch(XmlException xe)
             {
-                throw (IOException)(new IOException(e.getMessage()).initCause(e));
+                throw new XmlRuntimeException(xe);
+            }
+            catch(ClassNotFoundException cnfe)
+            {
+                throw new XmlRuntimeException(cnfe);
             }
         }
 
@@ -2538,7 +2565,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             return obj;
 
         SchemaType instanceType = ((SimpleValue)obj).instanceType();
-        assert(instanceType != null) : "Nil case should have been handled above";
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(instanceType != null, "Nil case should have been handled above");
 
         // handle lists
         if (instanceType.getSimpleVariety() == SchemaType.LIST)
@@ -2584,7 +2612,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                         return base.getBigIntegerValue();
 
                     default:
-                        assert(false) : "invalid numeric bit count";
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(false, "invalid numeric bit count");
                         // fallthrough
                     case SchemaType.SIZE_BIG_DECIMAL:
                         return base.getBigDecimalValue();
@@ -2607,7 +2636,8 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 return base.getCalendarValue();
 
             default:
-                assert(false) : "encountered nonprimitive type.";
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false, "encountered nonprimitive type.");
                 // fallthrough
 
             // NB: for string enums we just do java.lang.String

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.common.XPath;
@@ -136,7 +137,8 @@ public abstract class Path
 
         synchronized ( _xbeanPathCache )
         {
-            assert (xqrl |= options.hasOption( _useXqrlForXpath )) || true;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue((xqrl |= options.hasOption( _useXqrlForXpath )) || true);
 
             if (!xqrl || options.hasOption( _useXbeanForXpath ))
             {
@@ -160,7 +162,8 @@ public abstract class Path
 
             if (path == null)
             {
-                assert ! options.hasOption( _useXbeanForXpath );
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(! options.hasOption( _useXbeanForXpath ));
 
                 path = (Path) _xqrlPathCache.get( pathExpr );
 
@@ -310,7 +313,8 @@ public abstract class Path
 
         static Path create ( String pathExpr, String currentNodeVar )
         {
-            assert !currentNodeVar.startsWith( "$" );
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!currentNodeVar.startsWith( "$" ));
 
             try
             {
@@ -348,7 +352,7 @@ public abstract class Path
                 }
                 catch ( Throwable e )
                 {
-                    throw new RuntimeException( "Can't compile path", e );
+                    throw new XmlRuntimeException( "Can't compile path", e );
                 }
             }
 
@@ -364,7 +368,8 @@ public abstract class Path
         {
             XBeanPathEngine ( XPath xpath, Root r, Splay s )
             {
-                assert s.isContainer();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isContainer());
 
                 _root = r;
                 _curr = _top = s;
@@ -493,7 +498,8 @@ public abstract class Path
 
         static Path create ( String pathExpr, String currentNodeVar )
         {
-            assert !currentNodeVar.startsWith( "$" ); // cezar review with ericvas
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!currentNodeVar.startsWith( "$" )); // cezar review with ericvas
 
             JaxenXBeansDelegate.SelectPathInterface impl = JaxenXBeansDelegate.createInstance( pathExpr );
             if (impl == null)

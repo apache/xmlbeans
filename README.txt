@@ -1,4 +1,4 @@
-XMLBeans v1.0.3
+XMLBeans v1.0.3 (jdk1.3 port)
 
 Welcome to XmlBeans!
 

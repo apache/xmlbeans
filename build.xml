@@ -13,7 +13,7 @@
      limitations under the License. -->
 <project name="Xbean" default="default" basedir=".">
 
-  <property name="build.compiler" value="javac1.4"/>
+  <property name="build.compiler" value="javac1.3"/>
   <property name="product.version" value="1.0.3"/>
 
   <target name="usage">
@@ -56,10 +56,12 @@
        <java classname="Random" fork="true" failonerror="true">
           <classpath>
             <pathelement location="build/ar/xbean.jar"/>
+            <pathelement location="build/lib/xml-apis.jar"/>
+            <pathelement location="build/lib/xercesImpl.jar"/>
             <pathelement location="build/private/lib/easypo.jar"/>
             <pathelement location="build/private/lib/random.jar"/>
           </classpath>
-         <jvmarg value="-ea"/>
+         <jvmarg value="-Dxmlbeans.ea"/>
          <arg line="-seed 0 -i 20 -noquery"/>
        </java>
 
@@ -67,12 +69,14 @@
     <echo message="Running xbean product drt tests"/>
     <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
     <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <sysproperty key="xbean.rootdir" value="${basedir}"/>
       <sysproperty key="treeasserts" value="true"/>
       <classpath>
         <pathelement location="external/lib/junit.jar"/>
         <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/xml-apis.jar"/>
+        <pathelement location="build/lib/xercesImpl.jar"/>
         <pathelement location="build/private/lib/drt.jar"/>
         <pathelement location="build/private/lib/easypo.jar"/>
         <pathelement location="build/private/lib/schemas.jar"/>
@@ -102,7 +106,7 @@
     <target name="extensionsTest" depends="extensions.compile">
       <echo message="JUnit output being sent to build/test/output/drt-extensions.txt"/>
       <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="external/lib/junit.jar"/>
@@ -125,47 +129,57 @@
 
     <target name="build.simpleBeans" unless="simpleBeans.notRequired" depends="simpleBeans.check">
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean/po.xsd"/>
       </java>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase/po.xsd"/>
       </java>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/multInterfaces.jar test/src/extensions/multInterfaces/po.xsd"/>
       </java>
 
       <!-- **Pre/Post Handlers -->
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/readOnlyBean.jar test/src/extensions/prePostFeature/readOnlyBean/po.xsd"/>
       </java>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/ValueRestriction.jar test/src/extensions/prePostFeature/ValueRestriction/company.xsd"/>
       </java>
@@ -181,56 +195,68 @@
       </javac>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/extensions.jar test/src/extensions/myPackage"/>
       </java>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean"/>
       </java>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase"/>
       </java>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/multInterfaces.jar test/src/extensions/multInterfaces"/>
       </java>
       <!--Pre Post Feature -->
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/readOnlyBean.jar test/src/extensions/prePostFeature/readOnlyBean"/>
       </java>
 
       <java classname="${schema_compiler}" fork="true" failonerror="true">
-        <jvmarg value="-ea"/>
+        <jvmarg value="-Dxmlbeans.ea"/>
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="build/test/extensions"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
+          <pathelement location="build/lib/xercesImpl.jar"/>
         </classpath>
         <arg line="-out build/private/lib/ValueRestriction.jar test/src/extensions/prePostFeature/ValueRestriction"/>
       </java>
@@ -278,7 +304,7 @@
     <!-- compare the contents of the first jar to the contents of the second jar -->
     <antcall target="zipcompare.classes" inheritAll="false"/>
     <java classname="zipcompare.ZipCompare"
-          classpath="build/private/classes/zipcompare"
+          classpath="build/private/classes/zipcompare:build/classes/common"
           fork="true"
           failonerror="true">
       <arg line="build/ar/xbean.jar build/private/lib/oldxbean.jar"/>
@@ -303,10 +329,11 @@
 
   <!-- zipcompare (for checking bootstrap) ============================ -->
 
-  <target name="zipcompare.classes">
+  <target name="zipcompare.classes" depends="common.classes">
     <mkdir dir="build/private/classes/zipcompare"/>
     <javac srcdir="src/zipcompare"
            destdir="build/private/classes/zipcompare"
+           classpath="build/classes/common"
            debug="on"/>
   </target>
 
@@ -315,6 +342,7 @@
   <path id="test.compile.path">
     <pathelement location="external/lib/junit.jar"/>
     <pathelement location="build/ar/xbean.jar"/>
+    <pathelement location="build/lib/xml-apis.jar"/>
     <pathelement location="build/private/lib/easypo.jar"/>
     <pathelement location="build/private/lib/ericschema.jar"/>
     <pathelement location="build/private/lib/schemas.jar"/>
@@ -328,6 +356,7 @@
 
   <path id="test.run.path">
     <pathelement location="build/ar/xbean.jar"/>
+    <pathelement location="build/lib/xml-apis.jar"/>
     <pathelement location="external/lib/junit.jar"/>
   </path>
 
@@ -340,7 +369,7 @@
        srcdir="test/src/drt"
        destdir="build/private/classes/drt"
        classpathref="test.compile.path"
-       source="1.4"
+       source="1.3"
        debug="on"/>
   </target>
 
@@ -352,6 +381,8 @@
 
   <path id="scomp.run.path">
     <pathelement location="build/lib/xbean.jar"/>
+    <pathelement location="build/lib/xml-apis.jar"/>
+    <pathelement location="build/lib/xercesImpl.jar"/>
   </path>
 
   <target name="stsschema.check">
@@ -363,7 +394,7 @@
 
   <target name="stsschema.jar" depends="stsschema.check, dirs, xbean" unless="stsschema.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-out build/private/lib/stsschema.jar test/src/stsschema"/>
     </java>
   </target>
@@ -372,11 +403,12 @@
 
   <target name="soaptest.classes" depends="dirs, stsschema.jar">
     <mkdir dir="build/private/classes/soaptest"/>
-    <javac srcdir="test/src/soaptest" destdir="build/private/classes/soaptest" source="1.4" debug="on">
+    <javac srcdir="test/src/soaptest" destdir="build/private/classes/soaptest" source="1.3" debug="on">
       <classpath>
         <pathelement location="external/lib/jdom.jar"/>
         <pathelement location="external/lib/junit.jar"/>
         <pathelement location="build/ar/xbean.jar"/>
+        <pathelement location="build/lib/xml-apis.jar"/>
         <pathelement location="build/private/lib/stsschema.jar"/>
       </classpath>
     </javac>
@@ -395,7 +427,7 @@
        srcdir="test/src/erictest"
        destdir="build/private/classes/erictest"
        classpathref="test.compile.path"
-       source="1.4"
+       source="1.3"
        debug="on"/>
   </target>
 
@@ -411,7 +443,7 @@
        srcdir="test/src/random"
        destdir="build/private/classes/random"
        classpathref="test.compile.path"
-       source="1.4"
+       source="1.3"
        debug="on"/>
   </target>
 
@@ -423,7 +455,7 @@
 
   <target name="teststore.classes" depends="dirs">
     <mkdir dir="build/private/classes/teststore"/>
-    <javac srcdir="test/src/teststore" destdir="build/private/classes/teststore" source="1.4" debug="on">
+    <javac srcdir="test/src/teststore" destdir="build/private/classes/teststore" source="1.3" debug="on">
       <classpath>
         <pathelement location="build/private/classes/simpletypes"/>
         <pathelement location="build/private/classes/xmlcomp"/>
@@ -450,7 +482,7 @@
 
   <target name="simpletypes.jar" depends="simpletypes.check, dirs" unless="simpletype.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-name schema.test.simple -out build/private/lib/simpletypes.jar test/cases/schema/simple"/>
     </java>
   </target>
@@ -466,7 +498,7 @@
 
   <target name="easypo.jar" depends="easypo.check, dirs, xbean" unless="easypo.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-out build/private/lib/easypo.jar test/src/easypo"/>
     </java>
   </target>
@@ -480,7 +512,7 @@
   </target>
   <target name="numerals.jar" depends="numerals.check, dirs, xbean" unless="numerals.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-out build/private/lib/numerals.jar test/src/numerals"/>
     </java>
   </target>
@@ -496,7 +528,7 @@
 
   <target name="schemas.jar" depends="schemas.check, dirs, xbean" unless="schemas.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-out build/private/lib/schemas.jar test/src/schemas"/>
     </java>
   </target>
@@ -512,7 +544,7 @@
 
   <target name="ericschema.jar" depends="ericschema.check, dirs, xbean" unless="ericschema.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-src build/private/src -out build/private/lib/ericschema.jar test/src/ericschema"/>
     </java>
   </target>
@@ -528,7 +560,7 @@
 
   <target name="enumtest.jar" depends="enumtest.check, dirs, xbean" unless="enumtest.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-out build/private/lib/enumtest.jar test/src/enumtest"/>
     </java>
   </target>
@@ -544,7 +576,7 @@
 
   <target name="xstypes.jar" depends="xstypes.check, dirs, xbean" unless="xstypes.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="-out build/private/lib/xstypes.jar test/src/xstypes"/>
     </java>
   </target>
@@ -557,10 +589,10 @@
     <property name="docs.dir" value="build/docs"/>
     <delete dir="${docs.dir}"/>
     <mkdir dir="${docs.dir}"/>
-    <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="1.4" stylesheetfile="docs/stylesheet.css">
+    <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="1.3" stylesheetfile="docs/stylesheet.css">
       <link href="http://xml.apache.org/xmlbeans/docs/reference/index.html"/>
-      <link href="http://java.sun.com/j2se/1.4.2/docs/api/"/>
-      <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
+      <link href="http://java.sun.com/j2se/1.3.1/docs/api/"/>
+      <link href="http://java.sun.com/j2ee/1.3/docs/api/"/>
       <link href="http://xml.apache.org/xerces-j/apiDocs/"/>
       <classpath>
         <pathelement location="build/ar/xbean.jar"/>
@@ -583,7 +615,7 @@
       srcdir="test/src/streamtest"
       destdir="build/private/classes/streamtest"
       classpathref="test.compile.path"
-      source="1.4"
+      source="1.3"
       debug="on"/>
   </target>
 
@@ -600,7 +632,7 @@
     <java classname="streamtest.XmlStreamConformance"
           classpathref="run.streamconf.path"
           fork="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <!--arg line="test/cases/streamconf/small.xml" /-->
       <arg line="test/cases/streamconf/dtd.xml" />
     </java>
@@ -631,6 +663,8 @@
 
      <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
      <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/ar/xbean.jar"/>
+     <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/xml-apis.jar"/>
+     <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/xercesImpl.jar"/>
      <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
      <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/lib/xbean_xpath.jar"/>
 
@@ -701,7 +735,7 @@
   <!-- previously in xbean.xml -->
 
   <target name="xbean.jar"
-        depends="dirs, xmlpublic.classes, typestore.classes,
+        depends="dirs, xml-apis.jar, xercesImpl.jar, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
                  xmlstore.classes,
                  oldxbean.jar, xsdschema.classes,
@@ -736,7 +770,7 @@
 
   <target name="xmlpublic.classes" depends="dirs, xmlinputstream.classes">
     <mkdir dir="build/classes/xmlpublic"/>
-    <javac srcdir="src/xmlpublic" destdir="build/classes/xmlpublic" source="1.4" debug="on">
+    <javac srcdir="src/xmlpublic" destdir="build/classes/xmlpublic" source="1.3" debug="on">
       <classpath>
         <pathelement location="build/classes/xmlinputstream"/>
       </classpath>
@@ -756,7 +790,7 @@
 
   <target name="typestore.classes" depends="dirs, xmlpublic.classes, common.classes, xmlinputstream.classes">
     <mkdir dir="build/classes/typestore"/>
-    <javac srcdir="src/typestore" destdir="build/classes/typestore" source="1.4" debug="on">
+    <javac srcdir="src/typestore" destdir="build/classes/typestore" source="1.3" debug="on">
       <classpath>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
@@ -770,11 +804,14 @@
 
   <target name="common.classes" depends="dirs, xmlpublic.jar, xmlinputstream.classes">
     <mkdir dir="build/classes/common"/>
-    <javac srcdir="src/common" destdir="build/classes/common" source="1.4" debug="on">
+    <javac destdir="build/classes/common" source="1.3" debug="on">
       <classpath>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/lib/xmlpublic.jar"/>
+        <pathelement location="build/lib/xml-apis.jar"/>
       </classpath>
+      <src path="src/common"/>
+      <src path="src/typeimpl/org/apache/xmlbeans/impl/regex"/>
     </javac>
 
   </target>
@@ -783,7 +820,7 @@
 
   <target name="typeimpl.classes" depends="dirs, repackage.classes, xmlpublic.classes, typestore.classes, xsdschema.classes, configschema.classes, toolschema.classes">
     <mkdir dir="build/classes/typeimpl"/>
-    <javac destdir="build/classes/typeimpl" source="1.4" debug="on">
+    <javac destdir="build/classes/typeimpl" source="1.3" debug="on">
       <classpath>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/common"/>
@@ -793,6 +830,7 @@
         <pathelement location="build/classes/xmlconfig"/>
         <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/xsdschema"/>
+        <pathelement location="build/lib/xml-apis.jar"/>
       </classpath>
 
         <src path="src/typeimpl"/>
@@ -816,7 +854,7 @@
 
   <target name="xmlcomp.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes">
     <mkdir dir="build/classes/xmlcomp"/>
-    <javac srcdir="src/xmlcomp" destdir="build/classes/xmlcomp" source="1.4" debug="on">
+    <javac srcdir="src/xmlcomp" destdir="build/classes/xmlcomp" source="1.3" debug="on">
       <classpath>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
@@ -827,6 +865,7 @@
         <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/toolschema"/>
         <pathelement location="build/classes/xsdschema"/>
+        <pathelement location="build/lib/xml-apis.jar"/>
       </classpath>
     </javac>
 
@@ -837,12 +876,13 @@
   <target name="xmlstore.classes"
         depends="dirs, common.classes, typestore.classes, xmlpublic.classes">
     <mkdir dir="build/classes/xmlstore"/>
-    <javac srcdir="src/xmlstore" destdir="build/classes/xmlstore" source="1.4" debug="on">
+    <javac srcdir="src/xmlstore" destdir="build/classes/xmlstore" source="1.3" debug="on">
       <classpath id="xmlstore.compile.path">
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/typestore"/>
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/common"/>
+        <pathelement location="build/lib/xml-apis.jar"/>
       </classpath>
     </javac>
 
@@ -858,6 +898,8 @@
 
   <path id="bootstrap.run.path">
     <pathelement location="build/private/lib/oldxbean.jar"/>
+    <pathelement location="build/lib/xml-apis.jar"/>
+    <pathelement location="build/lib/xercesImpl.jar"/>
   </path>
 
   <path id="bootstrap.compile.path">
@@ -885,7 +927,7 @@
     <delete dir="build/classes/xsdschema"/>
     <delete dir="build/src/xsdschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="${repackage_arg} -name sXMLSCHEMA -cp ${xsdschema.compile.path} -srconly -d build/classes/xsdschema -src build/src/xsdschema src/xsdschema/schema"/>
     </java>
   </target>
@@ -907,7 +949,7 @@
     <delete dir="build/classes/xmlschema"/>
     <delete dir="build/src/xmlschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="${repackage_arg} -name sXMLLANG -d build/classes/xmlschema -src build/src/xmlschema -srconly src/xmlschema/schema"/>
     </java>
   </target>
@@ -916,7 +958,7 @@
 
   <target name="xmlconfig.classes" depends="dirs, xmlpublic.jar, configschema.classes">
     <mkdir dir="build/classes/xmlconfig"/>
-    <javac srcdir="src/xmlconfig" destdir="build/classes/xmlconfig" source="1.4" debug="on">
+    <javac srcdir="src/xmlconfig" destdir="build/classes/xmlconfig" source="1.3" debug="on">
       <classpath>
         <pathelement location="build/lib/xmlpublic.jar"/>
         <pathelement location="build/classes/configschema"/>
@@ -941,7 +983,7 @@
   <target name="configschema.classes" depends="configschema.check, xmlpublic.classes, oldxbean.jar" unless="configschema.notRequired">
     <delete dir="build/classes/configschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="${repackage_arg} -name sXMLCONFIG -srconly -src build/src/configschema -d build/classes/configschema src/configschema/schema"/>
     </java>
   </target>
@@ -963,7 +1005,7 @@
     <delete dir="build/classes/toolschema"/>
     <mkdir dir="build/src/toolschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
-      <jvmarg value="-ea"/>
+      <jvmarg value="-Dxmlbeans.ea"/>
       <arg line="${repackage_arg} -name sXMLTOOLS -srconly -src build/src/toolschema -d build/classes/toolschema src/toolschema"/>
     </java>
   </target>
@@ -982,6 +1024,7 @@
             <arg value="${replacement}"/>
             <classpath>
                 <pathelement location="build/classes/repackage"/>
+                <pathelement location="build/classes/common"/>
             </classpath>
         </java>
     </target>
@@ -1017,6 +1060,7 @@
         <java classname="repackage.Repackage" fork="true" failonerror="true">
             <classpath>
                 <pathelement location="build/classes/repackage"/>
+                <pathelement location="build/classes/common"/>
             </classpath>
             <arg line="${new_repackage_arg}"/>
         </java>
@@ -1044,7 +1088,34 @@
 
     <target name="repackage.classes">
         <mkdir dir="build/classes/repackage"/>
-        <javac srcdir="src/repackage" destdir="build/classes/repackage" source="1.4" debug="on"/>
+        <javac srcdir="src/repackage" destdir="build/classes/repackage" source="1.3" debug="on" classpath="build/classes/common"/>
+    </target>
+
+
+    <target name="check.xml-apis.jar">
+        <condition property="xml-apis.jar.exists">
+            <available file="build/lib/xml-apis.jar"/>
+        </condition>
+    </target>
+
+    <target name="xml-apis.jar" depends="check.xml-apis.jar, dirs" unless="xml-apis.jar.exists">
+        <get dest="external/lib/xml-apis-1.0.b2.jar"
+            src="http://www.ibiblio.org/maven/xml-apis/jars/xml-apis-1.0.b2.jar"
+            verbose="true" usetimestamp="true" ignoreerrors="true"/>
+        <copy file="external/lib/xml-apis-1.0.b2.jar" tofile="build/lib/xml-apis.jar" />
+    </target>
+
+    <target name="check.xercesImpl.jar">
+        <condition property="xercesImpl.jar.exists">
+            <available file="build/lib/xercesImpl.jar"/>
+        </condition>
+    </target>
+
+    <target name="xercesImpl.jar" depends="check.xercesImpl.jar, dirs" unless="xercesImpl.jar.exists">
+        <get dest="external/lib/xercesImpl-2.6.2.jar"
+            src="http://www.ibiblio.org/maven/xerces/jars/xercesImpl-2.6.2.jar"
+            verbose="true" usetimestamp="true" ignoreerrors="true"/>
+        <copy file="external/lib/xercesImpl-2.6.2.jar" tofile="build/lib/xercesImpl.jar" />
     </target>
 
    <target name="check.jaxen.jar">
@@ -1054,7 +1125,7 @@
    </target>
 
    <target name="jaxen.jar" depends="check.jaxen.jar, dirs" unless="jaxen.jar.exists">
-     <!--get dest="build/lib/jaxen.jar"
+     <!--get dest="external/lib/jaxen.jar"
           src="http://www.ibiblio.org/maven/jaxen/jars/jaxen-1.1-beta-2.jar"
           verbose="true" usetimestamp="true" ignoreerrors="true"/ -->
      <copy file="external/lib/jaxen-1.1-beta-2.jar" tofile="build/lib/jaxen.jar" />
@@ -1068,7 +1139,7 @@
        srcdir="src/xpath"
        destdir="build/private/classes/xpath"
        classpathref="xpath.compile.path"
-       source="1.4"
+       source="1.3"
        debug="on">
       <classpath id="xpath.compile.path">
           <pathelement location="build/lib/xmlpublic.jar"/>
@@ -1090,7 +1161,7 @@
        srcdir="test/src/xpath"
        destdir="build/private/classes/testxpath"
        classpathref="testxpath.compile.path"
-       source="1.4"
+       source="1.3"
        debug="on">
       <classpath id="testxpath.compile.path">
           <pathelement location="build/lib/xmlpublic.jar"/>
@@ -1109,7 +1180,6 @@
           <pathelement location="build/lib/xbean_xpath.jar"/>
           <pathelement location="build/private/classes/testxpath"/>
       </classpath>
-      <jvmarg value="-da"/>
       <arg line='test/cases/xpath/much_ado.xml "PLAY/ACT/SCENE/SPEECH/SPEAKER"'/>
     </java>
   </target>

@@ -1,4 +1,4 @@
-XMLBeans v 1.0.3 Development Kit
+XMLBeans v 1.0.3 Development Kit (jdk1.3 port)
 
 
 Welcome to XMLBeans!

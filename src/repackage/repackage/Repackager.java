@@ -15,10 +15,12 @@
 
 package repackage;
 
+import org.apache.xmlbeans.impl.common.StringUtils;
+import org.apache.xmlbeans.impl.regex.Match;
+import org.apache.xmlbeans.impl.regex.RegularExpression;
+
 import java.util.List;
 import java.util.ArrayList;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
 import java.io.File;
 
 public class Repackager
@@ -27,26 +29,26 @@ public class Repackager
     {
         _fromPackages = new ArrayList();
         _toPackages = new ArrayList();
-        
-        List repackages = splitPath( repackageSpecs, ';' );
+
+        String[] repackages = StringUtils.split( repackageSpecs, ';' );
 
         // Sort the repackage spec so that longer from's are first to match
         // longest package first
-        
+
         for ( ; ; )
         {
             boolean swapped = false;
 
-            for ( int i = 1 ; i < repackages.size() ; i++ )
+            for ( int i = 1 ; i < repackages.length ; i++ )
             {
-                String spec1 = (String) repackages.get( i - 1 );
-                String spec2 = (String) repackages.get( i );
-                
+                String spec1 = repackages[ i - 1 ];
+                String spec2 = repackages[ i ];
+
                 if (spec1.indexOf( ':' ) < spec2.indexOf( ':' ))
                 {
-                    repackages.set( i - 1, spec2 );
-                    repackages.set( i, spec1 );
-                    
+                    repackages[ i - 1 ] = spec2;
+                    repackages[ i ] = spec1;
+
                     swapped = true;
                 }
             }
@@ -55,10 +57,10 @@ public class Repackager
                 break;
         }
 
-        for ( int i = 0 ; i < repackages.size() ; i++ )
+        for ( int i = 0 ; i < repackages.length ; i++ )
         {
-            String spec = (String) repackages.get( i );
-            
+            String spec = repackages[ i ];
+
             int j = spec.indexOf( ':' );
 
             if (j < 0 || spec.indexOf( ':', j + 1 ) >= 0)
@@ -67,11 +69,11 @@ public class Repackager
             String from = spec.substring( 0, j );
             String to = spec.substring( j + 1 );
 
-            _fromPackages.add( Repackager.splitPath( from, '.' ) );
-            _toPackages.add( Repackager.splitPath( to, '.' ) );
+            _fromPackages.add( StringUtils.split( from, '.' ) );
+            _toPackages.add( StringUtils.split( to, '.' ) );
         }
 
-        _fromMatchers = new Matcher [ _fromPackages.size() * 2 ];
+        _fromPatterns = new RegularExpression [ _fromPackages.size() * 2 ];
         _toPackageNames = new String [ _fromPackages.size() * 2 ];
 
         addPatterns( '.', 0 );
@@ -86,7 +88,7 @@ public class Repackager
             List to = (List) _toPackages.get( i );
 
             String pattern = "";
-            
+
             for ( int j = 0 ; j < from.size() ; j++ )
             {
                 if (j > 0)
@@ -94,9 +96,9 @@ public class Repackager
 
                 pattern += from.get( j );
             }
-            
+
             String toPackage = "";
-            
+
             for ( int j = 0 ; j < to.size() ; j++ )
             {
                 if (j > 0)
@@ -105,21 +107,20 @@ public class Repackager
                 toPackage += to.get( j );
             }
 
-            _fromMatchers[ off + i ] = Pattern.compile( pattern ).matcher( null );
+            _fromPatterns[ off + i ] = new RegularExpression( pattern );
             _toPackageNames[ off + i ] = toPackage;
         }
     }
 
     public void repackage ( StringBuffer sb )
     {
-        for ( int i = 0 ; i < _fromMatchers.length ; i++ )
+        for ( int i = 0 ; i < _fromPatterns.length ; i++ )
         {
-            Matcher matcher = (Matcher) _fromMatchers[ i ];
+            Match matcher = new Match();
+            boolean matches = _fromPatterns[ i ].matches(sb.toString());
 
-            matcher.reset( sb );
-
-            while ( matcher.find() )
-                sb.replace( matcher.start(), matcher.end(), _toPackageNames[ i ] );
+            if (matches)
+                StringUtils.replaceAll(matcher, sb, _toPackageNames[ i ]);
         }
     }
 
@@ -132,29 +133,7 @@ public class Repackager
     {
         return _toPackages;
     }
-    
-    public static ArrayList splitPath ( String path, char separator )
-    {
-        ArrayList components = new ArrayList();
-        
-        for ( ; ; )
-        {
-            int i = path.indexOf( separator );
 
-            if (i < 0)
-                break;
-
-            components.add( path.substring( 0, i ) );
-            
-            path = path.substring( i + 1 );
-        }
-
-        if (path.length() > 0)
-            components.add( path );
-
-        return components;
-    }
-    
     public static String dirForPath ( String path )
     {
         return new File(path).getParent();
@@ -162,7 +141,7 @@ public class Repackager
 
     private List _fromPackages;
     private List _toPackages;
-    
-    private Matcher[] _fromMatchers;
+
+    private RegularExpression[] _fromPatterns;
     private String[]  _toPackageNames;
 }

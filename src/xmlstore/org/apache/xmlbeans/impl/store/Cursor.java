@@ -28,6 +28,7 @@ import org.apache.xmlbeans.impl.store.Splay.Goober;
 import org.apache.xmlbeans.impl.store.Splay.Procinst;
 import org.apache.xmlbeans.impl.store.Splay.Xmlns;
 import org.apache.xmlbeans.XmlCursor.ChangeStamp;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -53,8 +54,8 @@ import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 public final class Cursor implements XmlCursor, ChangeListener
 {
-    Cursor ( Root r, Splay s )        { assert s != null; _data = CursorData.getOne( r ); set( s ); }
-    Cursor ( Root r, Splay s, int p ) { assert s != null; _data = CursorData.getOne( r ); set( s, p ); }
+    Cursor ( Root r, Splay s )        { if (XmlBeans.ASSERTS) XmlBeans.assertTrue(s != null); _data = CursorData.getOne( r ); set( s ); }
+    Cursor ( Root r, Splay s, int p ) { if (XmlBeans.ASSERTS) XmlBeans.assertTrue(s != null); _data = CursorData.getOne( r ); set( s, p ); }
 
     //
     //
@@ -86,7 +87,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         
         int pa = s.getPosAfter();
 
-        assert p >= pa || s.isLeaf();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p >= pa || s.isLeaf());
         
         return p >= pa ? s.getCchAfter() - p + pa : s.getPosLeafEnd() - p;
     }
@@ -155,10 +157,12 @@ public final class Cursor implements XmlCursor, ChangeListener
     
             Type t = s.getType( r );
     
-            assert t != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(t != null);
     
             XmlObject result = t.getXmlObject();
-            assert result != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(result != null);
             return result;
         }
     }
@@ -265,8 +269,9 @@ public final class Cursor implements XmlCursor, ChangeListener
             if (a.getRoot() != getRoot())
                 return false;
     
-            assert a.getSplay() != null;
-    
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(a.getSplay() != null);
+
             set( a );
     
             return true;
@@ -535,9 +540,12 @@ public final class Cursor implements XmlCursor, ChangeListener
             }
             else
             {
-                assert p > 0;
-                assert !s.isRoot();
-                
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue(p > 0);
+                    XmlBeans.assertTrue(!s.isRoot());
+                }
+
                 if (p >= s.getPosAfter() && s.getCchAfter() > 0)
                 {
                     s = s.nextSplay();
@@ -545,9 +553,12 @@ public final class Cursor implements XmlCursor, ChangeListener
                 }
                 else
                 {
-                    assert s.isLeaf();
-                    assert p < s.getPosAfter();
-    
+                    if (XmlBeans.ASSERTS)
+                    {
+                        XmlBeans.assertTrue(s.isLeaf());
+                        XmlBeans.assertTrue(p < s.getPosAfter());
+                    }
+
                     if (p != s.getPosLeafEnd())
                         p = s.getPosLeafEnd();
                     else if (s.getCchAfter() > 0)
@@ -580,7 +591,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                 {
                     Splay t = os.prevNonAttrSplay();
     
-                    assert t.isContainer();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(t.isContainer());
     
                     //
                     // We're navigating to the content of a container.  Flush
@@ -597,7 +609,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                 }
                 else if (s.isAttr() && !os.isAttr() && os.getMaxPos() > 0)
                 {
-                    assert os.isContainer();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(os.isContainer());
     
                     s = s.nextNonAttrSplay();
                 }
@@ -623,7 +636,8 @@ public final class Cursor implements XmlCursor, ChangeListener
     
             if (p == 1 && s.isInvalid())
             {
-                assert s.isLeaf();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(s.isLeaf());
                 p += s.ensureContentValid();
             }
     
@@ -655,7 +669,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                 {
                     t = t.prevNonAttrSplay();
     
-                    assert t.isContainer();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(t.isContainer());
     
                     if (t.isDoc())
                         t.ensureContentValid();
@@ -673,13 +688,15 @@ public final class Cursor implements XmlCursor, ChangeListener
     
             if (s.isAttr())
             {
-                assert p == 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(p == 0);
     
                 Splay t = s.prevSplay();
     
                 if (!t.isAttr())
                 {
-                    assert t.isContainer();
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(t.isContainer());
     
                     set( t, 0 );
                     return currentTokenType();
@@ -700,21 +717,28 @@ public final class Cursor implements XmlCursor, ChangeListener
             }
             else
             {
-                assert p > 0;
-                assert !s.isRoot();
-    
+                if (XmlBeans.ASSERTS)
+                {
+                    XmlBeans.assertTrue(p > 0);
+                    XmlBeans.assertTrue(!s.isRoot());
+                }
+
                 int posAfter = s.getPosAfter();
     
                 if (p >= posAfter)
                 {
-                    assert s.getCchAfter() > 0;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(s.getCchAfter() > 0);
                     p = posAfter - 1;
                 }
                 else
                 {
-                    assert s.isValid();
-                    assert s.isLeaf();
-                    
+                    if (XmlBeans.ASSERTS)
+                    {
+                        XmlBeans.assertTrue(s.isValid());
+                        XmlBeans.assertTrue(s.isLeaf());
+                    }
+
                     p = p > 1 && p == posAfter - 1 ? 1 : 0;
                 }
             }
@@ -944,9 +968,12 @@ public final class Cursor implements XmlCursor, ChangeListener
 
     void insert ( Splay sInsert, String value )
     {
-        assert !isDisposed();
-        assert Root.dv > 0 || sInsert.getRootSlow() == null;
-        assert sInsert.getCch() == 0;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue(!isDisposed());
+            XmlBeans.assertTrue(Root.dv > 0 || sInsert.getRootSlow() == null);
+            XmlBeans.assertTrue(sInsert.getCch() == 0);
+        }
 
         if (value != null)
             sInsert.adjustCch( value.length() );
@@ -961,7 +988,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         else
             s.insert( getRoot(), p, sInsert, null, 0, 0, true );
 
-        assert validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(validate());
     }
 
     public String getTextValue ( )
@@ -1190,7 +1218,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
     
-            assert !getSplay().isRoot() || getPos() == 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!getSplay().isRoot() || getPos() == 0);
             return !getSplay().isRoot();
         }
     }
@@ -1286,7 +1315,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             if (cch < 0 || cch > maxCch)
                 cch = maxCch;
     
-            assert p + cch <= s.getEndPos();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(p + cch <= s.getEndPos());
     
             if (p + cch == s.getEndPos())
                 toNextToken();
@@ -1329,7 +1359,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             else
                 maxCch = p - s.getPosAfter();
     
-            assert pText <= sText.getEndPos();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(pText <= sText.getEndPos());
     
             if (maxCch == 0 || cch == 0)
                 return 0;
@@ -1512,7 +1543,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             }
             else
             {
-                assert p > 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(p > 0);
     
                 if (s.isContainer())
                 {
@@ -2039,7 +2071,8 @@ public final class Cursor implements XmlCursor, ChangeListener
     
             String result = s.prefixForNamespace( getRoot(), ns, null, true);
 
-            assert result != null;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(result != null);
 
             return result;
         }
@@ -2062,7 +2095,8 @@ public final class Cursor implements XmlCursor, ChangeListener
     
             do
             {
-                assert c.isContainer();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(c.isContainer());
     
                 QName cName = c.getName();
                 
@@ -2263,7 +2297,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             Splay s = getSplay();
             int   p = getPos();
     
-            assert p < s.getEndPos();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(p < s.getEndPos());
     
             if (p > 0)
             {
@@ -2272,7 +2307,8 @@ public final class Cursor implements XmlCursor, ChangeListener
     
                 int cchRemove = removeChars( getPostCch() );
     
-                assert cchRemove > 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(cchRemove > 0);
     
                 return true;
             }
@@ -2363,7 +2399,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                     rSrc, pSrc, getPostCch(), rDst, sDst, pDst, false ) > 0;
         }
                     
-        assert pSrc == 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(pSrc == 0);
             
         // Check for a movement of stuff into itself!  This case is basically
         // a no-op
@@ -2374,7 +2411,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             return false;
         }
             
-        assert pSrc == 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(pSrc == 0);
             
         sSrc.move( rSrc, cDst.getRoot(), cDst.getSplay(), cDst.getPos(), true );
             
@@ -2446,7 +2484,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         if (s.checkInsertionValidity( p, sDst, pDst, true ))
             return copyCharsImpl( getPostCch(), dst ) > 0;
             
-        assert p == 0;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(p == 0);
             
         // Need to make a splay copy before getting the text because the copy
         // will validate invalid contents/values
@@ -2499,7 +2538,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                 return false;
     
             TokenType tt = toFirstContentToken();
-            assert !tt.isNone();
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(!tt.isNone());
     
             boolean removed = !isFinish();
             
@@ -2508,7 +2548,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                 while ( !isFinish() )
                 {
                     boolean b = removeXml();
-                    assert b;
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(b);
                 }
             }
             finally
@@ -2600,7 +2641,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             return false;
             
         TokenType tt = toFirstContentToken();
-        assert !tt.isNone();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!tt.isNone());
                     
         boolean moved = !isFinish();
                     
@@ -2612,7 +2654,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             while ( !isFinish() )
             {
                 boolean b = moveXmlImpl( dst );
-                assert b;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(b);
             }
         }
         finally
@@ -2694,7 +2737,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         }
             
         TokenType tt = toFirstContentToken();
-        assert !tt.isNone();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!tt.isNone());
                     
         boolean copied = !isFinish();
                     
@@ -2714,7 +2758,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                     break;
             
                 boolean b = copyXmlImpl( dst );
-                assert b;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(b);
             }
         }
         finally
@@ -2958,7 +3003,7 @@ public final class Cursor implements XmlCursor, ChangeListener
             if (e instanceof RuntimeException)
                 throw (RuntimeException) e;
             
-            throw new RuntimeException( e.getMessage(), e );
+            throw new XmlRuntimeException( e.getMessage(), e );
         }
     }
     
@@ -3009,7 +3054,8 @@ public final class Cursor implements XmlCursor, ChangeListener
                         break SWITCH;
 
                     case TokenType.INT_STARTDOC:
-                        assert false;
+                        if (XmlBeans.ASSERTS)
+                            XmlBeans.assertTrue(false);
                         break LOOP;
 
                 }
@@ -3135,7 +3181,8 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     private boolean validate ( )
     {
-        assert _data._goober.getRoot().validate();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_data._goober.getRoot().validate());
         return true;
     }
 
@@ -3163,7 +3210,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         
         void add ( Root r, Splay s, int p )
         {
-            assert s.getRootSlow() == r;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(s.getRootSlow() == r);
             
             if (_cursors != null)
             {
@@ -3178,7 +3226,8 @@ public final class Cursor implements XmlCursor, ChangeListener
             
             if (_splays == null)
             {
-                assert _count == 0;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(_count == 0);
                 _splays = new Splay [ 16 ];
                 _positions = new int [ 16 ];
             }
@@ -3202,7 +3251,8 @@ public final class Cursor implements XmlCursor, ChangeListener
 
         void pop ( )
         {
-            assert size() > 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(size() > 0);
 
             if (_cursors != null)
             {
@@ -3253,7 +3303,8 @@ public final class Cursor implements XmlCursor, ChangeListener
 
         boolean setCursor ( Cursor c, int i )
         {
-            assert i >= 0;
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(i >= 0);
 
             while ( _pathEngine != null && currentSize() <= i )
             {
@@ -3266,12 +3317,14 @@ public final class Cursor implements XmlCursor, ChangeListener
             
             if (_cursors != null)
             {
-                assert i < _cursors.size();
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(i < _cursors.size());
                 c.set( (CursorGoober) _cursors.get( i ) );
             }
             else
             {
-                assert i < _count;
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(i < _count);
                 c.set( _splays[ i ], _positions[ i ] );
             }
 

@@ -7,8 +7,12 @@ cp=
 
 if [ -e $XMLBEANS_HOME/build/ar/xbean.jar ]; then
     cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar;
+    cp=$cp:$XMLBEANS_HOME/build/lib/xml-apis.jar;
+    cp=$cp:$XMLBEANS_HOME/build/lib/xercesImpl.jar;
 elif [ -e $XMLBEANS_HOME/lib/xbean.jar ]; then
     cp=$cp:$XMLBEANS_HOME/lib/xbean.jar;
+    cp=$cp:$XMLBEANS_HOME/lib/xml-apis.jar;
+    cp=$cp:$XMLBEANS_HOME/lib/xercesImpl.jar;
 fi
 
 case "`uname`" in

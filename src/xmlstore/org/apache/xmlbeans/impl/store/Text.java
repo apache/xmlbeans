@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.store;
 
 //import org.apache.xmlbeans.impl.store.Root.WriteContext;
 //import org.apache.xmlbeans.impl.store.Root.ReadContext;
+import org.apache.xmlbeans.XmlBeans;
+
 import java.io.IOException;
 
 public final class Text
@@ -37,7 +39,8 @@ public final class Text
 
     private void copy ( char[] newBuf )
     {
-        assert _buf != null && newBuf.length >= length();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( _buf != null && newBuf.length >= length() );
         
         System.arraycopy( _buf, 0, newBuf, 0, _gap );
 
@@ -50,7 +53,8 @@ public final class Text
 
     void resize ( int cch )
     {
-        assert cch > _gapLen;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( cch > _gapLen );
         
         int newSize = length() + cch;
         int newLen = _buf == null ? 1024 : _buf.length * 2;
@@ -105,7 +109,8 @@ public final class Text
                 insert( pos, (Text) txt, off, cch );
             else
             {
-                assert txt instanceof char[];
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue( txt instanceof char[] );
                 insert( pos, (char[]) txt, off, cch );
             }
         }
@@ -149,9 +154,12 @@ public final class Text
     
     void insert ( int pos, char[] chars, int off, int cch )
     {
-        assert chars != _buf;
-        assert pos >= 0 && pos <= length();
-        
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( chars != _buf );
+            XmlBeans.assertTrue( pos >= 0 && pos <= length() );
+        }
+
         if (cch > 0)
         {
             if (cch > _gapLen)
@@ -173,13 +181,17 @@ public final class Text
     
     void insert ( int pos, String s, int off, int cch )
     {
-        assert pos >= 0 && pos <= length();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( pos >= 0 && pos <= length() );
         
         if (cch > 0)
         {
-            assert off >= 0 && off < s.length();
-            assert cch <= s.length() - off;
-            
+            if (XmlBeans.ASSERTS)
+            {
+                XmlBeans.assertTrue( off >= 0 && off < s.length() );
+                XmlBeans.assertTrue( cch <= s.length() - off );
+            }
+
             if (cch > _gapLen)
                 resize( cch );
             
@@ -199,11 +211,13 @@ public final class Text
     
     void remove ( int pos, int cch, char[] retBuf, int off )
     {
-        assert pos >= 0 && pos + cch <= length();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( pos >= 0 && pos + cch <= length() );
 
         moveGap( pos );
 
-        assert retBuf == null || retBuf.length - off >= cch;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( retBuf == null || retBuf.length - off >= cch );
 
         if (cch > 0 && retBuf != null)
             System.arraycopy( _buf, _gap + _gapLen, retBuf, off, cch );
@@ -223,8 +237,11 @@ public final class Text
 
     int unObscure ( int pos, int cch )
     {
-        assert cch >= 0;
-        assert pos >= 0 && pos + cch <= length();
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( cch >= 0 );
+            XmlBeans.assertTrue( pos >= 0 && pos + cch <= length() );
+        }
 
         if (cch > 0 && (pos < _gap && pos + cch > _gap))
             moveGap( pos + cch );
@@ -234,7 +251,8 @@ public final class Text
 
     void fetch ( StringBuffer sb, int pos, int cch )
     {
-        assert pos >= 0 && pos + cch <= length();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( pos >= 0 && pos + cch <= length() );
 
         if (cch == 0)
             return;
@@ -259,7 +277,8 @@ public final class Text
 
     String fetch ( int pos, int cch )
     {
-        assert pos >= 0 && pos + cch <= length();
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue( pos >= 0 && pos + cch <= length() );
 
         if (cch == 0)
             return "";
@@ -280,9 +299,12 @@ public final class Text
 
     void fetch ( char[] buf, int off, int pos, int cch )
     {
-        assert off >= 0;
-        assert pos >= 0 && pos + cch <= length();
-        assert buf.length - off >= cch;
+        if (XmlBeans.ASSERTS)
+        {
+            XmlBeans.assertTrue( off >= 0 );
+            XmlBeans.assertTrue( pos >= 0 && pos + cch <= length() );
+            XmlBeans.assertTrue( buf.length - off >= cch );
+        }
 
         if (cch == 0)
             return;

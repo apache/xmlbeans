@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.impl.values.*;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.SequencedHashSet;
 import org.apache.xmlbeans.impl.config.ExtensionHolder;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaGlobalElement;
@@ -37,6 +38,7 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.lang.reflect.Constructor;
 import java.util.*;
@@ -754,7 +756,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         // Add entries for each element property for substitution group members
         if (_propertyModelByElementName != null)
         {
-            _validSubstitutions = new LinkedHashSet();
+            _validSubstitutions = new SequencedHashSet();
             Collection eltProps = _propertyModelByElementName.values();
             for (Iterator it = eltProps.iterator() ; it.hasNext() ; )
             {
@@ -1088,8 +1090,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     private void computeFlatUnionModel()
     {
-        Set constituentMemberTypes = new LinkedHashSet();
-        Set allSubTypes = new LinkedHashSet();
+        Set constituentMemberTypes = new SequencedHashSet();
+        Set allSubTypes = new SequencedHashSet();
         SchemaType commonBaseType = null;
 
         allSubTypes.add(this);
@@ -1118,7 +1120,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                     commonBaseType = mImpl.getCommonBaseType(commonBaseType);
                     break;
                 default:
-                    assert(false);
+                    if (XmlBeans.ASSERTS)
+                        XmlBeans.assertTrue(false);
             }
         }
 
@@ -1891,7 +1894,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                 break;
             sImpl1 = (SchemaTypeImpl)sImpl1.getBaseType();
             sImpl2 = (SchemaTypeImpl)sImpl2.getBaseType();
-            assert(sImpl1 != null && sImpl2 != null); // must meet at anyType
+            if (XmlBeans.ASSERTS)
+                XmlBeans.assertTrue(sImpl1 != null && sImpl2 != null); // must meet at anyType
         }
         return sImpl1;
     }

@@ -19,16 +19,18 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaComponent;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.common.SequencedHashSet;
+
 import javax.xml.namespace.QName;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.HashSet;
 
 public class SchemaGlobalElementImpl extends SchemaLocalElementImpl
         implements SchemaGlobalElement
 {
     private static final QName[] EMPTY_QNAME_ARRAY = new QName[0];
-    private Set _sgMembers = new LinkedHashSet();
+    private Set _sgMembers = new SequencedHashSet();
     private boolean _finalExt;
     private boolean _finalRest;
     private SchemaTypeSystem _typeSystem;

@@ -437,7 +437,7 @@ public final class QNameSet implements QNameSetSpecification, java.io.Serializab
             sb.append(prettyQName((QName)i.next()));
             sb.append(", ");
         }
-        int index = sb.lastIndexOf(", ");
+        int index = new String(sb).lastIndexOf(", ");
         if (index > 0)
             sb.setLength(index);
         sb.append(')');

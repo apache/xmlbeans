@@ -15,7 +15,9 @@
 
 package org.apache.xmlbeans.impl.values;
 
-public class XmlValueDisconnectedException extends RuntimeException
+import org.apache.xmlbeans.XmlRuntimeException;
+
+public class XmlValueDisconnectedException extends XmlRuntimeException
 {
     XmlValueDisconnectedException ( )
     {

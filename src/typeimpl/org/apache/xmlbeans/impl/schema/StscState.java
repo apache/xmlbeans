@@ -15,8 +15,7 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
-import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.*;
 import org.apache.xmlbeans.impl.config.SchemaConfig;
 import org.apache.xmlbeans.impl.config.ExtensionHolder;
 import org.apache.xmlbeans.XmlObject;
@@ -33,10 +32,10 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.values.XmlStringImpl;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.util.HexBin;
+import org.apache.xmlbeans.impl.common.SequencedHashMap;
 
 import java.util.*;
-import java.net.URISyntaxException;
-import java.net.URI;
+import java.net.URL;
 import java.io.File;
 
 
@@ -62,21 +61,21 @@ public class StscState
 
     private SchemaTypeLoader _importingLoader;
 
-    private Map _redefinedGlobalTypes        = new LinkedHashMap();
-    private Map _redefinedModelGroups        = new LinkedHashMap();
-    private Map _redefinedAttributeGroups    = new LinkedHashMap();
+    private Map _redefinedGlobalTypes        = new SequencedHashMap();
+    private Map _redefinedModelGroups        = new SequencedHashMap();
+    private Map _redefinedAttributeGroups    = new SequencedHashMap();
         
-    private Map _globalTypes        = new LinkedHashMap();
-    private Map _globalElements     = new LinkedHashMap();
-    private Map _globalAttributes   = new LinkedHashMap();
-    private Map _modelGroups        = new LinkedHashMap();
-    private Map _attributeGroups    = new LinkedHashMap();
-    private Map _documentTypes      = new LinkedHashMap();
-    private Map _attributeTypes     = new LinkedHashMap();
-    private Map _typesByClassname   = new LinkedHashMap();
+    private Map _globalTypes        = new SequencedHashMap();
+    private Map _globalElements     = new SequencedHashMap();
+    private Map _globalAttributes   = new SequencedHashMap();
+    private Map _modelGroups        = new SequencedHashMap();
+    private Map _attributeGroups    = new SequencedHashMap();
+    private Map _documentTypes      = new SequencedHashMap();
+    private Map _attributeTypes     = new SequencedHashMap();
+    private Map _typesByClassname   = new SequencedHashMap();
     private Map _misspelledNames    = new HashMap();
     private Set _processingGroups   = new HashSet();
-    private Map _idConstraints      = new LinkedHashMap();
+    private Map _idConstraints      = new SequencedHashMap();
     private Set _namespaces         = new HashSet();
     private boolean _noUpa;
     private boolean _noPvr;
@@ -161,7 +160,7 @@ public class StscState
             XmlError.forLocation(
               message,
               XmlError.SEVERITY_ERROR,
-              location.toURI().toString(), 0, 0, 0);
+              IOUtil.fileToURL(location).toString(), 0, 0, 0);
         errorListener.add(err);
     }
 
@@ -243,8 +242,8 @@ public class StscState
 
         try
         {
-            URI uri = new URI(uriString);
-            return uri.getScheme().equalsIgnoreCase("file");
+            URL url = new URL(uriString);
+            return url.getProtocol().equalsIgnoreCase("file");
         }
         catch (Exception e)
         {
@@ -734,13 +733,15 @@ public class StscState
 
     void startProcessing(Object obj)
     {
-        assert(!_processingGroups.contains(obj));
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(!_processingGroups.contains(obj));
         _processingGroups.add(obj);
     }
 
     void finishProcessing(Object obj)
     {
-        assert(_processingGroups.contains(obj));
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(_processingGroups.contains(obj));
         _processingGroups.remove(obj);
     }
 
@@ -880,7 +881,8 @@ public class StscState
                 basicMessage = "Identity constraint '" + QNameHelper.pretty(itemName) + "' not found.";
                 break;
             default:
-                assert(false);
+                if (XmlBeans.ASSERTS)
+                    XmlBeans.assertTrue(false);
                 basicMessage = "Definition " + QNameHelper.pretty(itemName) + " not found.";
                 break;
         }
@@ -984,7 +986,7 @@ public class StscState
     /**
      * The base URI to use for nice filenames when saving sources.
      */
-    public void setBaseUri(URI uri)
+    public void setBaseUri(String uri)
     {
         _baseURI = uri;
     }
@@ -1015,24 +1017,18 @@ public class StscState
         {
             // looks like a URL?
             int colon = uri.indexOf(':');
-            if (colon <= 1 || !uri.substring(0, colon).matches("^\\w+$"))
+            if (colon <= 1 || !StringUtils.matches(uri.substring(0, colon), "^\\w+$"))
                 uri = PROJECT_URL_PREFIX + "/" + uri.replace('\\', '/');
         }
 
         // now relativize against that...
         if (_baseURI != null)
         {
-            try
-            {
-                URI relative = _baseURI.relativize(new URI(uri));
-                if (!relative.isAbsolute())
-                    return relative.toString();
-                else
-                    uri = relative.toString();
-            }
-            catch (URISyntaxException e)
-            {
-            }
+            String relative = NetUtils.relativize(_baseURI, uri);
+            if (relative.charAt(0) != '/')
+                return relative;
+            else
+                uri = relative;
         }
         
         if (!forSavedFilename)
@@ -1075,6 +1071,6 @@ public class StscState
     }
 
     Map _sourceForUri = new HashMap();
-    URI _baseURI = URI.create(PROJECT_URL_PREFIX + "/");
+    String _baseURI = PROJECT_URL_PREFIX + "/";
     SchemaTypeLoader _s4sloader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
 }

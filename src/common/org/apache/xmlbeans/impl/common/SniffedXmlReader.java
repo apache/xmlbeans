@@ -18,7 +18,6 @@ package org.apache.xmlbeans.impl.common;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.BufferedReader;
-import java.nio.charset.Charset;
 
 public class SniffedXmlReader extends BufferedReader
 {
@@ -43,17 +42,6 @@ public class SniffedXmlReader extends BufferedReader
         }
         return total;
     }
-
-    // BUGBUG in JDK: Charset.forName is not threadsafe, so we'll prime it
-    // with the common charsets.
-
-    private static Charset dummy1 = Charset.forName("UTF-8");
-    private static Charset dummy2 = Charset.forName("UTF-16");
-    private static Charset dummy3 = Charset.forName("UTF-16BE");
-    private static Charset dummy4 = Charset.forName("UTF-16LE");
-    private static Charset dummy5 = Charset.forName("ISO-8859-1");
-    private static Charset dummy6 = Charset.forName("US-ASCII");
-    private static Charset dummy7 = Charset.forName("Cp1252");
 
 
     private String sniffForXmlDecl() throws IOException

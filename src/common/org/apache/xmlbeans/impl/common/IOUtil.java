@@ -19,35 +19,15 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.IOException;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.net.URI;
-import java.nio.channels.FileChannel;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 public class IOUtil
 {
     public static void copyCompletely(InputStream input, OutputStream output)
         throws IOException
     {
-        //if both are file streams, use channel IO
-        if ((output instanceof FileOutputStream) && (input instanceof FileInputStream))
-        {
-            try
-            {
-                FileChannel target = ((FileOutputStream) output).getChannel();
-                FileChannel source = ((FileInputStream) input).getChannel();
-                
-                source.transferTo(0, Integer.MAX_VALUE, target);
-                
-                source.close();
-                target.close();
-                
-                return;
-            }
-            catch (Exception e)
-            { /* failover to byte stream version */ }
-        }
-        
         byte[] buf = new byte[8192];
         while (true)
         {
@@ -61,28 +41,17 @@ public class IOUtil
         try { output.close(); } catch (IOException ignore) {}
     }
 
-    public static void copyCompletely(URI input, URI output)
+    public static void copyCompletely(URL input, URL output)
         throws IOException
     {
         try
         {
-            InputStream in = null;
-            try
-            {
-                File f = new File(input);
-                if (f.exists())
-                    in = new FileInputStream(f);
-            }
-            catch (Exception notAFile)
-            {}
-            
-            File out = new File(output);
+            InputStream in = input.openStream();
+
+            File out = new File(output.getPath());
             File dir = out.getParentFile();
             dir.mkdirs();
             
-            if (in == null)
-                in = input.toURL().openStream();
-                
             IOUtil.copyCompletely(in, new FileOutputStream(out));
         }
         catch (IllegalArgumentException e)
@@ -91,4 +60,15 @@ public class IOUtil
         }
     }
 
+    public static URL fileToURL(File file)
+    {
+        try
+        {
+            return file.toURL();
+        }
+        catch (MalformedURLException e)
+        {
+            return null;
+        }
+    }
 }

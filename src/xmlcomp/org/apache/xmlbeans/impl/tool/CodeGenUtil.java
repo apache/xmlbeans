@@ -15,6 +15,9 @@
 
 package org.apache.xmlbeans.impl.tool;
 
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.impl.common.StringUtils;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -25,9 +28,9 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.FileFilter;
 import java.io.FileWriter;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 
 public class CodeGenUtil
 {
@@ -36,26 +39,16 @@ public class CodeGenUtil
     public static String DEFAULT_COMPILER = "javac";
     public static String DEFAULT_JAR = "jar";
 
-    //workaround for Sun bug # 4723726
-    public static URI resolve(URI base, URI child)
+    public static URL resolve(URL base, String child)
     {
-        URI ruri = base.resolve(child);
-        
-        //fix up normalization bug
-        if ("file".equals(ruri.getScheme()) && ! child.equals(ruri))
+        try
         {
-            if (base.getPath().startsWith("//") && !ruri.getPath().startsWith("//"))
-            {
-                String path = "///".concat(ruri.getPath());
-                try
-                {
-                    ruri = new URI("file", null, path, ruri.getQuery(), ruri.getFragment());
-                }
-                catch(URISyntaxException uris)
-                {}
-            }
+            return new URL(base, child);
         }
-        return ruri;
+        catch (MalformedURLException e)
+        {
+            return null;
+        }
     }
     
     static void addAllJavaFiles(List srcFiles, List args)
@@ -89,7 +82,7 @@ public class CodeGenUtil
 
         // bizarre.  javac expects backslash escaping if we quote the classpath
         // bizarre also.  replaceAll expects replacement backslashes to be double escaped.
-        return "\"" + filename.replaceAll("\\\\", "\\\\\\\\") + "\"";
+        return "\"" + StringUtils.replaceAll(filename, "\\\\", "\\\\\\\\") + "\"";
     }
 
     static private String quoteNoEscapeFilename(String filename)
@@ -125,7 +118,8 @@ public class CodeGenUtil
         List args = new ArrayList();
 
         File javac = findJavaTool(javacPath == null ? DEFAULT_COMPILER : javacPath);
-        assert (javac.exists()) : "compiler not found " + javac;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(javac.exists(), "compiler not found " + javac);
         args.add(javac.getAbsolutePath());
 
         if (outdir == null)
@@ -163,9 +157,6 @@ public class CodeGenUtil
             // bizarre.  javac expects backslash escaping if we quote the classpath
             args.add(quoteAndEscapeFilename(classPath.toString()));
         }
-
-        args.add("-source");
-        args.add("1.4");
 
         args.add(debug ? "-g" : "-g:none");
 
@@ -246,7 +237,6 @@ public class CodeGenUtil
                 System.err.println("'javac' is required on the path.");
 
             System.err.println(e.toString());
-            System.err.println(e.getCause());
             e.printStackTrace(System.err);
             return false;
         }
@@ -260,7 +250,7 @@ public class CodeGenUtil
     public static File[] systemClasspath()
     {
         List cp = new ArrayList();
-        String[] systemcp = System.getProperty("java.class.path").split(File.pathSeparator);
+        String[] systemcp = StringUtils.split(System.getProperty("java.class.path"), File.pathSeparatorChar);
         for (int i = 0; i < systemcp.length; i++)
         {
             cp.add(new File(systemcp[i]));
@@ -278,7 +268,8 @@ public class CodeGenUtil
         List args = new ArrayList();
 
         File jar = findJavaTool(jarPath == null ? DEFAULT_JAR : jarPath);
-        assert (jar.exists()) : "jar not found " + jar;
+        if (XmlBeans.ASSERTS)
+            XmlBeans.assertTrue(jar.exists(), "jar not found " + jar);
         args.add(jar.getAbsolutePath());
 
         args.add("cf" + (verbose ? "v" : ""));
