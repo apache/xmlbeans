@@ -1595,10 +1595,23 @@ final class DomImpl
     
     public static Dom node_replaceChild ( Dom p, Dom newChild, Dom oldChild )
     {
+        // Remove the old child firest to avoid a dom exception raised
+        // when inserting two document elements
+        
         Dom nextNode = node_getNextSibling( oldChild );
         
         node_removeChild( p, oldChild );
-        node_insertBefore( p, newChild, nextNode );
+
+        try
+        {
+            node_insertBefore( p, newChild, nextNode );
+        }
+        catch ( DOMException e )
+        {
+            node_insertBefore( p, oldChild, nextNode );
+
+            throw e;
+        }
 
         return oldChild;
     }
