@@ -93,7 +93,7 @@ final class MarshalResult implements XMLStreamReader
 
         //TODO: cleanup instanceof
         if (btype instanceof ByNameBean) {
-            return new ByNameTypeVisitor(property, obj);
+            return new ByNameTypeVisitor(property, obj, context);
         } else if (btype instanceof SimpleBindingType) {
             return new SimpleTypeVisitor(property, obj, context);
         } else if (btype instanceof BuiltinBindingType) {

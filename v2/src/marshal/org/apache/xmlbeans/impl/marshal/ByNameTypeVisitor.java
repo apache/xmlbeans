@@ -61,7 +61,8 @@ import javax.xml.namespace.QName;
 class ByNameTypeVisitor extends XmlTypeVisitor
 {
 
-    public ByNameTypeVisitor(RuntimeBindingProperty property, Object obj)
+    public ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
+                             MarshalContext context)
     {
         super(obj);
     }

@@ -60,7 +60,7 @@ public final class BindingTypeName
 {
     private final JavaName jName;
     private final XmlName xName;
-    
+
     public static BindingTypeName forPair(JavaName jName, XmlName xName)
     {
         return new BindingTypeName(jName, xName);
@@ -81,13 +81,13 @@ public final class BindingTypeName
     {
         return xName;
     }
-    
+
     public boolean equals(Object o)
     {
         if (this == o) return true;
         if (!(o instanceof BindingTypeName)) return false;
 
-        final BindingTypeName bindingTypeName = (BindingTypeName) o;
+        final BindingTypeName bindingTypeName = (BindingTypeName)o;
 
         if (!jName.equals(bindingTypeName.jName)) return false;
         if (!xName.equals(bindingTypeName.xName)) return false;
@@ -102,4 +102,10 @@ public final class BindingTypeName
         result = 29 * result + xName.hashCode();
         return result;
     }
+
+    public String toString()
+    {
+        return "BindingTypeName[" + jName + ";" + xName + "]";
+    }
+
 }

@@ -77,6 +77,13 @@ import java.util.Iterator;
 public class BindingContextFactory
 {
 
+    public static BindingContext createBindingContext()
+    {
+        BindingFile empty = new BindingFile();
+        return createBindingContext(empty);
+    }
+
+
     public static BindingContext createBindingContext(InputStream bindingConfig)
         throws IOException, XmlException
     {
@@ -96,7 +103,11 @@ public class BindingContextFactory
     public static BindingContext createBindingContext(BindingConfigDocument doc)
     {
         BindingFile bf = BindingFile.forDoc(doc);
+        return createBindingContext(bf);
+    }
 
+    private static BindingContext createBindingContext(BindingFile bf)
+    {
         BindingLoader bindingLoader = buildBindingLoader(bf);
         RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bf, bindingLoader);
 

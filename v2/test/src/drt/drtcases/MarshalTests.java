@@ -102,7 +102,9 @@ public class MarshalTests extends TestCase
             bindingContext.createMarshallContext(namespaceContext, errors);
 
         final XMLStreamReader reader =
-            m.marshallType(orig, new QName("uri", "lname"),
+            m.marshallType(orig,
+//                           new QName("uri", "lname"),
+                           new QName("lname"),
                            new QName("http://www.w3.org/2001/XMLSchema", xsd_type),
                            orig.getClass().getName(),
                            ctx);
@@ -114,17 +116,45 @@ public class MarshalTests extends TestCase
             final int state = reader.next();
             System.out.println("next is " + state);
         }
-
-
-//        StringWriter sw = new StringWriter();
-//        XMLStreamWriter xwriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
-//        final ReaderToWriter rtow = new ReaderToWriter(xwriter);
-//        rtow.write(reader);
-//        xwriter.close();
-//        sw.close();
-//
-//        System.out.println("OUTPUT=|" + sw.getBuffer() + "|");
     }
+
+//
+//    //only works for values where .toString() is equivalent to marshalling
+//    public void __testByNameMarshal()
+//        throws Exception
+//    {
+//        MyClass mc = new MyClass();
+//        mc.setMyatt("attval");
+//
+//        BindingFile bf = new BindingFile();
+//        BindingConfigDocument bindingConfigDocument = bf.write();
+//
+//        BindingContext bindingContext =
+//            BindingContextFactory.createBindingContext(bindingConfigDocument);
+//
+//        Marshaller m = bindingContext.createMarshaller();
+//
+//        EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
+//        final ArrayList errors = new ArrayList();
+//        MarshalContext ctx =
+//            bindingContext.createMarshallContext(namespaceContext, errors);
+//
+//        final XMLStreamReader reader =
+//            m.marshallType(mc, new QName("uri", "lname"),
+//                           new QName("java:com.mytest", "MyClass"),
+//                           mc.getClass().getName(),
+//                           ctx);
+//
+//
+//        System.out.println("==================OBJ: " + mc);
+//        while (reader.hasNext()) {
+//            System.out.println("STATE: " + XmlStreamUtils.printEvent(reader));
+//            final int state = reader.next();
+//            System.out.println("next is " + state);
+//        }
+//
+//
+//    }
 
     public void testByNameBeanUnmarshal()
         throws Exception

@@ -176,7 +176,7 @@ public final class XmlStreamUtils
                                 StringBuffer b)
   {
     if (uri != null && !("".equals(uri))) b.append("['" + uri + "']:");
-    if (prefix != null) b.append(prefix + ":");
+    if (prefix != null && !("".equals(prefix))) b.append(prefix + ":");
     if (localName != null) b.append(localName);
   }
 
