@@ -20,7 +20,7 @@ import org.apache.xmlbeans.PrePostExtension;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JMethod;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
+import org.apache.xmlbeans.impl.xb.xmlconfig.Extensionconfig;
 
 
 public class PrePostExtensionImpl implements PrePostExtension

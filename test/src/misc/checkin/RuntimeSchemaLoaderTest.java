@@ -30,7 +30,7 @@ import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
 
 
 import tools.util.*;

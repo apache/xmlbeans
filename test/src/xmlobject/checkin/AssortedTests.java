@@ -29,7 +29,7 @@ import com.easypo.XmlLineItemBean;
 
 import java.math.BigInteger;
 
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import xint.test.PositionDocument;
 
 public class AssortedTests extends TestCase

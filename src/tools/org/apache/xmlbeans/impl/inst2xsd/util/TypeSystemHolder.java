@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.inst2xsd.util;
 
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlQName;
 import org.apache.xmlbeans.XmlCursor;
@@ -140,15 +140,15 @@ public class TypeSystemHolder
         return schDoc;
     }
 
-    private static org.w3.x2001.xmlSchema.SchemaDocument.Schema getTopLevelSchemaElement(SchemaDocument schDoc, 
+    private static org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema getTopLevelSchemaElement(SchemaDocument schDoc,
         String tns)
     {
-        org.w3.x2001.xmlSchema.SchemaDocument.Schema sch = schDoc.getSchema();
+        org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema sch = schDoc.getSchema();
         if (sch==null)
         {
             sch = schDoc.addNewSchema();
-            sch.setAttributeFormDefault(org.w3.x2001.xmlSchema.FormChoice.Enum.forString("unqualified"));
-            sch.setElementFormDefault(org.w3.x2001.xmlSchema.FormChoice.Enum.forString("qualified"));
+            sch.setAttributeFormDefault(org.apache.xmlbeans.impl.xb.xsdschema.FormChoice.Enum.forString("unqualified"));
+            sch.setElementFormDefault(org.apache.xmlbeans.impl.xb.xsdschema.FormChoice.Enum.forString("qualified"));
             if (!tns.equals(""))
                 sch.setTargetNamespace(tns);
         }
@@ -160,9 +160,9 @@ public class TypeSystemHolder
     {
         assert tns.equals(globalElement.getName().getNamespaceURI());
 
-        org.w3.x2001.xmlSchema.SchemaDocument.Schema sch = getTopLevelSchemaElement(schDoc, tns);
+        org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema sch = getTopLevelSchemaElement(schDoc, tns);
 
-        org.w3.x2001.xmlSchema.TopLevelElement topLevelElem = sch.addNewElement();
+        org.apache.xmlbeans.impl.xb.xsdschema.TopLevelElement topLevelElem = sch.addNewElement();
         topLevelElem.setName(globalElement.getName().getLocalPart());
 
         if (globalElement.isNillable())
@@ -174,7 +174,7 @@ public class TypeSystemHolder
         fillUpTypeOnElement(elemType, topLevelElem, tns);
     }
 
-    private void fillUpLocalElement(Element element, org.w3.x2001.xmlSchema.LocalElement localSElement, String tns)
+    private void fillUpLocalElement(Element element, org.apache.xmlbeans.impl.xb.xsdschema.LocalElement localSElement, String tns)
     {
         fillUpElementDocumentation(localSElement, element.getComment());
         if (!element.isRef())
@@ -202,7 +202,7 @@ public class TypeSystemHolder
             localSElement.setNillable(element.isNillable());
     }
 
-    private void fillUpTypeOnElement(Type elemType, org.w3.x2001.xmlSchema.Element parentSElement, String tns)
+    private void fillUpTypeOnElement(Type elemType, org.apache.xmlbeans.impl.xb.xsdschema.Element parentSElement, String tns)
     {
         if (elemType.isGlobal())
         {
@@ -218,15 +218,15 @@ public class TypeSystemHolder
         }
         else
         {
-            org.w3.x2001.xmlSchema.LocalComplexType localComplexType = parentSElement.addNewComplexType();
+            org.apache.xmlbeans.impl.xb.xsdschema.LocalComplexType localComplexType = parentSElement.addNewComplexType();
             fillUpContentForComplexType(elemType, localComplexType, tns);
         }
     }
 
-    private void fillUpEnumeration(Type type, org.w3.x2001.xmlSchema.Element parentSElement)
+    private void fillUpEnumeration(Type type, org.apache.xmlbeans.impl.xb.xsdschema.Element parentSElement)
     {
         assert type.isEnumeration() && !type.isComplexType() : "Enumerations must be on simple types only.";
-        org.w3.x2001.xmlSchema.RestrictionDocument.Restriction restriction = parentSElement.addNewSimpleType().addNewRestriction();
+        org.apache.xmlbeans.impl.xb.xsdschema.RestrictionDocument.Restriction restriction = parentSElement.addNewSimpleType().addNewRestriction();
         restriction.setBase(type.getName());
         if (type.isQNameEnumeration())
         {
@@ -235,7 +235,7 @@ public class TypeSystemHolder
                 QName value = (QName) type.getEnumerationQNames().get(i);
                 XmlQName xqname = XmlQName.Factory.newValue(value);
 
-                org.w3.x2001.xmlSchema.NoFixedFacet enumSElem = restriction.addNewEnumeration();
+                org.apache.xmlbeans.impl.xb.xsdschema.NoFixedFacet enumSElem = restriction.addNewEnumeration();
                 XmlCursor xc  = enumSElem.newCursor();
 
                 String newPrefix = xc.prefixForNamespace(value.getNamespaceURI());
@@ -256,28 +256,28 @@ public class TypeSystemHolder
     }
 
     private void fillUpAttributesInComplexTypesSimpleContent(Type elemType,
-        org.w3.x2001.xmlSchema.SimpleExtensionType sExtension, String tns)
+        org.apache.xmlbeans.impl.xb.xsdschema.SimpleExtensionType sExtension, String tns)
     {
         for (int i = 0; i < elemType.getAttributes().size(); i++)
         {
             Attribute att = (Attribute) elemType.getAttributes().get(i);
-            org.w3.x2001.xmlSchema.Attribute sAttribute = sExtension.addNewAttribute();
+            org.apache.xmlbeans.impl.xb.xsdschema.Attribute sAttribute = sExtension.addNewAttribute();
             fillUpLocalAttribute(att, sAttribute, tns);
         }
     }
 
     private void fillUpAttributesInComplexTypesComplexContent(Type elemType,
-        org.w3.x2001.xmlSchema.ComplexType localSComplexType, String tns)
+        org.apache.xmlbeans.impl.xb.xsdschema.ComplexType localSComplexType, String tns)
     {
         for (int i = 0; i < elemType.getAttributes().size(); i++)
         {
             Attribute att = (Attribute) elemType.getAttributes().get(i);
-            org.w3.x2001.xmlSchema.Attribute sAttribute = localSComplexType.addNewAttribute();
+            org.apache.xmlbeans.impl.xb.xsdschema.Attribute sAttribute = localSComplexType.addNewAttribute();
             fillUpLocalAttribute(att, sAttribute, tns);
         }
     }
 
-    private void fillUpLocalAttribute(Attribute att, org.w3.x2001.xmlSchema.Attribute sAttribute, String tns)
+    private void fillUpLocalAttribute(Attribute att, org.apache.xmlbeans.impl.xb.xsdschema.Attribute sAttribute, String tns)
     {
         if (att.isRef())
         {
@@ -289,19 +289,19 @@ public class TypeSystemHolder
             sAttribute.setType(att.getType().getName());
             sAttribute.setName(att.getName().getLocalPart());
             if (att.isOptional())
-                sAttribute.setUse(org.w3.x2001.xmlSchema.Attribute.Use.OPTIONAL);
+                sAttribute.setUse(org.apache.xmlbeans.impl.xb.xsdschema.Attribute.Use.OPTIONAL);
         }
     }
 
-    private void fillUpContentForComplexType(Type type, org.w3.x2001.xmlSchema.ComplexType sComplexType, String tns)
+    private void fillUpContentForComplexType(Type type, org.apache.xmlbeans.impl.xb.xsdschema.ComplexType sComplexType, String tns)
     {
         if (type.getContentType()==Type.COMPLEX_TYPE_SIMPLE_CONTENT)
         {
-            org.w3.x2001.xmlSchema.SimpleContentDocument.SimpleContent simpleContent = sComplexType.addNewSimpleContent();
+            org.apache.xmlbeans.impl.xb.xsdschema.SimpleContentDocument.SimpleContent simpleContent = sComplexType.addNewSimpleContent();
 
             assert type.getExtensionType()!=null && type.getExtensionType().getName()!=null : "Extension type must exist and be named for a COMPLEX_TYPE_SIMPLE_CONTENT";
 
-            org.w3.x2001.xmlSchema.SimpleExtensionType ext = simpleContent.addNewExtension();
+            org.apache.xmlbeans.impl.xb.xsdschema.SimpleExtensionType ext = simpleContent.addNewExtension();
             ext.setBase(type.getExtensionType().getName());
 
             fillUpAttributesInComplexTypesSimpleContent(type, ext, tns);
@@ -313,7 +313,7 @@ public class TypeSystemHolder
                 sComplexType.setMixed(true);
             }
 
-            org.w3.x2001.xmlSchema.ExplicitGroup explicitGroup;
+            org.apache.xmlbeans.impl.xb.xsdschema.ExplicitGroup explicitGroup;
             if (type.getTopParticleForComplexOrMixedContent()==Type.PARTICLE_SEQUENCE)
             {
                 explicitGroup = sComplexType.addNewSequence();
@@ -330,7 +330,7 @@ public class TypeSystemHolder
             {
                 Element child = (Element) type.getElements().get(i);
                 assert !child.isGlobal();
-                org.w3.x2001.xmlSchema.LocalElement childLocalElement = explicitGroup.addNewElement();
+                org.apache.xmlbeans.impl.xb.xsdschema.LocalElement childLocalElement = explicitGroup.addNewElement();
                 fillUpLocalElement(child, childLocalElement, tns);
             }
 
@@ -342,9 +342,9 @@ public class TypeSystemHolder
     private void fillUpGlobalAttribute(Attribute globalAttribute, SchemaDocument schDoc, String tns)
     {
         assert tns.equals(globalAttribute.getName().getNamespaceURI());
-        org.w3.x2001.xmlSchema.SchemaDocument.Schema sch = getTopLevelSchemaElement(schDoc, tns);
+        org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema sch = getTopLevelSchemaElement(schDoc, tns);
 
-        org.w3.x2001.xmlSchema.TopLevelAttribute topLevelAtt = sch.addNewAttribute();
+        org.apache.xmlbeans.impl.xb.xsdschema.TopLevelAttribute topLevelAtt = sch.addNewAttribute();
         topLevelAtt.setName(globalAttribute.getName().getLocalPart());
 
         Type elemType = globalAttribute.getType();
@@ -355,16 +355,16 @@ public class TypeSystemHolder
         }
         else
         {
-            //org.w3.x2001.xmlSchema.LocalSimpleType localSimpleType = topLevelAtt.addNewSimpleType();
+            //org.apache.xmlbeans.impl.xb.xsdschema.LocalSimpleType localSimpleType = topLevelAtt.addNewSimpleType();
             throw new IllegalStateException();
         }
     }
 
-    private static void fillUpElementDocumentation(org.w3.x2001.xmlSchema.Element element, String comment)
+    private static void fillUpElementDocumentation(org.apache.xmlbeans.impl.xb.xsdschema.Element element, String comment)
     {
         if (comment!=null && comment.length()>0)
         {
-            org.w3.x2001.xmlSchema.DocumentationDocument.Documentation documentation = element.addNewAnnotation().addNewDocumentation();
+            org.apache.xmlbeans.impl.xb.xsdschema.DocumentationDocument.Documentation documentation = element.addNewAnnotation().addNewDocumentation();
             documentation.set(org.apache.xmlbeans.XmlString.Factory.newValue(comment));
         }
     }
@@ -373,9 +373,9 @@ public class TypeSystemHolder
     private void fillUpGlobalType(Type globalType, SchemaDocument schDoc, String tns)
     {
         assert tns.equals(globalType.getName().getNamespaceURI());
-        org.w3.x2001.xmlSchema.SchemaDocument.Schema sch = getTopLevelSchemaElement(schDoc, tns);
+        org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema sch = getTopLevelSchemaElement(schDoc, tns);
 
-        org.w3.x2001.xmlSchema.TopLevelComplexType topLevelComplexType = sch.addNewComplexType();
+        org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType topLevelComplexType = sch.addNewComplexType();
         topLevelComplexType.setName(globalType.getName().getLocalPart());
 
         fillUpContentForComplexType(globalType, topLevelComplexType, tns);

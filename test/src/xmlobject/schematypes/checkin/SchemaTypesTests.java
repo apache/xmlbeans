@@ -33,7 +33,7 @@ import java.io.InputStream;
 
 import org.openuri.xstypes.test.*;
 import org.openuri.def.DefaultsDocument;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 import javax.xml.namespace.QName;
 

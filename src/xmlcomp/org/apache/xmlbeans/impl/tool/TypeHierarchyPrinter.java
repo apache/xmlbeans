@@ -35,7 +35,7 @@ import java.util.Set;
 import java.util.HashSet;
 import java.io.File;
 
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 public class TypeHierarchyPrinter
 {

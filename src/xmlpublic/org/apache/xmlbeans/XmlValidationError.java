@@ -309,5 +309,4 @@ public class XmlValidationError extends XmlError
     {
         this._expectedSchemaType = _expectedSchemaType;
     }
-
 }

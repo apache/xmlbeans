@@ -3,7 +3,7 @@ package tools.inst2xsd.common;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2Xsd;
 import org.apache.xmlbeans.impl.inst2xsd.Inst2XsdOptions;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;

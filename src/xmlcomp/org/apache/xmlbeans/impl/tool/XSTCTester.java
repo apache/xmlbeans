@@ -15,8 +15,8 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import com.bea.x2003.x05.xmlbean.ltgfmt.TestsDocument;
-import com.bea.x2003.x05.xmlbean.ltgfmt.FileDesc;
+import org.apache.xmlbeans.impl.xb.ltgfmt.TestsDocument;
+import org.apache.xmlbeans.impl.xb.ltgfmt.FileDesc;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlError;
@@ -425,7 +425,7 @@ public class XSTCTester
             if (!doc.validate(ltgOptions))
                 throw new Exception("Document " + ltgFile + " not valid.");
             
-            com.bea.x2003.x05.xmlbean.ltgfmt.TestCase[] testCases = doc.getTests().getTestArray();
+            org.apache.xmlbeans.impl.xb.ltgfmt.TestCase[] testCases = doc.getTests().getTestArray();
             
             Collection result = new ArrayList();
             for (int i = 0; i < testCases.length; i++)

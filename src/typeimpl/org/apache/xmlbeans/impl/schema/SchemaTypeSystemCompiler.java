@@ -35,8 +35,8 @@ import java.util.Set;
 import java.util.Arrays;
 import java.net.URI;
 
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 
 import java.util.Collection;
@@ -481,5 +481,4 @@ public class SchemaTypeSystemCompiler
 
         return success;
     }
-
 }

@@ -15,39 +15,48 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
-import org.apache.xmlbeans.impl.schema.PathResourceLoader;
-import org.apache.xmlbeans.impl.schema.ResourceLoader;
-import org.apache.xmlbeans.impl.schema.StscState;
-import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
-import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
-import org.apache.xmlbeans.impl.schema.FilerImpl;
-import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
-import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-import org.apache.xmlbeans.impl.common.ResolverUtil;
-import org.apache.xmlbeans.impl.common.IOUtil;
-import org.apache.xmlbeans.impl.common.JarHelper;
-import org.apache.xmlbeans.impl.values.XmlListImpl;
-import org.apache.xmlbeans.impl.config.BindingConfigImpl;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaCodePrinter;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.SimpleValue;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.common.ResolverUtil;
+import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
+import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
+import org.apache.xmlbeans.impl.schema.PathResourceLoader;
+import org.apache.xmlbeans.impl.schema.ResourceLoader;
+import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
+import org.apache.xmlbeans.impl.schema.StscState;
+import org.apache.xmlbeans.impl.schema.FilerImpl;
+import org.apache.xmlbeans.impl.common.JarHelper;
+import org.apache.xmlbeans.impl.values.XmlListImpl;
+import org.apache.xmlbeans.impl.xb.xmlconfig.ConfigDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.xml.sax.EntityResolver;
+import org.apache.xmlbeans.impl.config.BindingConfigImpl;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
 import java.net.URI;
 import java.net.URL;
-
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.xml.sax.EntityResolver;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 import repackage.Repackager;
 
 public class SchemaCompiler
@@ -790,12 +799,12 @@ public class SchemaCompiler
 
                     XmlObject wsdldoc = loader.parse(wsdlFiles[i], null, options);
 
-                    if (!(wsdldoc instanceof org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument))
+                    if (!(wsdldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument))
                         StscState.addError(errorListener, XmlErrorCodes.INVALID_DOCUMENT_TYPE,
                             new Object[] { wsdlFiles[i], "wsdl" }, wsdldoc);
                     else
                     {
-                        addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)wsdldoc, errorListener, noVDoc, scontentlist);
+                        addWsdlSchemas(wsdlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument)wsdldoc, errorListener, noVDoc, scontentlist);
                     }
                 }
                 catch (XmlException e)
@@ -825,14 +834,12 @@ public class SchemaCompiler
 
                     XmlObject urldoc = loader.parse(urlFiles[i], null, options);
 
-                    boolean isXsd = false;
-                    if ((urldoc instanceof org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument))
+                    if ((urldoc instanceof org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument))
                     {
-                        addWsdlSchemas(urlFiles[i].toString(), (org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument)urldoc, errorListener, noVDoc, scontentlist);
+                        addWsdlSchemas(urlFiles[i].toString(), (org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument)urldoc, errorListener, noVDoc, scontentlist);
                     }
                     else if ((urldoc instanceof SchemaDocument))
                     {
-                        isXsd = true;
                         addSchema(urlFiles[i].toString(), (SchemaDocument)urldoc,
                             errorListener, noVDoc, scontentlist);
                     }
@@ -943,7 +950,7 @@ public class SchemaCompiler
     }
 
     private static void addWsdlSchemas(String name,
-        org.apache.internal.xmlbeans.wsdlsubst.DefinitionsDocument wsdldoc,
+        org.apache.xmlbeans.impl.xb.substwsdl.DefinitionsDocument wsdldoc,
         XmlErrorWatcher errorListener, boolean noVDoc, List scontentlist)
     {
         if (wsdlContainsEncoded(wsdldoc))
@@ -1009,14 +1016,14 @@ public class SchemaCompiler
 
         if (repackage!=null)
         {
-            SchemaTypeLoaderImpl.LOAD_METADATA_PACKAGE = SchemaTypeSystemImpl.METADATA_PACKAGE;
+            SchemaTypeLoaderImpl.METADATA_PACKAGE_LOAD = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
 
-            // not yet enabled
-            //String stsPackage = SchemaTypeSystem.class.getPackage().getName();
-            //Repackager repackager = new Repackager( repackage );
+            String stsPackage = SchemaTypeSystem.class.getPackage().getName();
+            Repackager repackager = new Repackager( repackage );
 
-            //SchemaTypeSystemImpl.METADATA_PACKAGE = repackager.repackage(new StringBuffer(stsPackage)).toString().replace('.','_');
-            SchemaTypeSystemImpl.METADATA_PACKAGE = "";
+            SchemaTypeSystemImpl.METADATA_PACKAGE_GEN = repackager.repackage(new StringBuffer(stsPackage)).toString().replace('.','_');
+
+            System.out.println("\n\n\n" + stsPackage + ".SchemaCompiler  Metadata LOAD:" + SchemaTypeLoaderImpl.METADATA_PACKAGE_LOAD + " GEN:" + SchemaTypeSystemImpl.METADATA_PACKAGE_GEN);
         }
 
         SchemaCodePrinter codePrinter = params.getSchemaCodePrinter();
@@ -1043,7 +1050,7 @@ public class SchemaCompiler
 
         boolean result = true;
 
-        File schemasDir = IOUtil.createDir(classesDir, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE + "/src");
+        File schemasDir = IOUtil.createDir(classesDir, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/src");
 
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
@@ -1065,6 +1072,7 @@ public class SchemaCompiler
             Repackager repackager = (repackage == null ? null : new Repackager(repackage));
             FilerImpl filer = new FilerImpl(classesDir, srcDir, repackager, verbose, incrSrcGen);
 
+            // currently just for schemaCodePrinter
             XmlOptions options = new XmlOptions();
             if (codePrinter != null)
                 options.setSchemaCodePrinter(codePrinter);

@@ -151,7 +151,7 @@ public class StoreTests extends TestCase
         x = XmlObject.Factory.parse(
             "<schema xmlns='http://www.w3.org/2001/XMLSchema'/>" );
         Assert.assertTrue(
-            x.schemaType() == org.w3.x2001.xmlSchema.SchemaDocument.type );
+            x.schemaType() == org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.type );
 
         x = XmlObject.Factory.parse(
             "<schema xmlns='http://www.w3.org/2001/XMLSchema/moo'/>" );
@@ -160,16 +160,16 @@ public class StoreTests extends TestCase
         x = XmlObject.Factory.parse(
             "<schema xmlns='http://www.w3.org/2001/XMLSchema'/>" );
         Assert.assertTrue(
-            x.schemaType() == org.w3.x2001.xmlSchema.SchemaDocument.type );
+            x.schemaType() == org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.type );
 
-        x = org.w3.x2001.xmlSchema.SchemaDocument.Factory.parse(
+        x = org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Factory.parse(
                 "<schema xmlns='http://www.w3.org/2001/XMLSchema'/>" );
         Assert.assertTrue(
-            x.schemaType() == org.w3.x2001.xmlSchema.SchemaDocument.type );
+            x.schemaType() == org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.type );
 
         try {
             x = 
-                org.w3.x2001.xmlSchema.SchemaDocument.Factory.parse(
+                org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Factory.parse(
                     "<schema xmlns='http://www.w3.org/2001/XMLSchema/moo'/>" );
             Assert.assertTrue( false );
         }

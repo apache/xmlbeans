@@ -28,7 +28,7 @@ import org.openuri.sgs.ADocument;
 import org.openuri.sgs.BDocument;
 import org.openuri.sgs.CDocument;
 import org.openuri.sgs.RootDocument;
-import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
 
 public class SubstGroupTests extends TestCase
 {

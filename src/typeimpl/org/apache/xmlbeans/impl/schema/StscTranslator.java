@@ -15,43 +15,58 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import java.util.*;
-import java.util.List;
-import java.math.BigInteger;
-
-import org.w3.x2001.xmlSchema.*;
-import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
-import org.w3.x2001.xmlSchema.RedefineDocument.Redefine;
-
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.QNameSetBuilder;
+import org.apache.xmlbeans.SchemaAttributeModel;
+import org.apache.xmlbeans.SchemaBookmark;
+import org.apache.xmlbeans.SchemaGlobalAttribute;
+import org.apache.xmlbeans.SchemaGlobalElement;
+import org.apache.xmlbeans.SchemaIdentityConstraint;
+import org.apache.xmlbeans.SchemaLocalAttribute;
+import org.apache.xmlbeans.SchemaParticle;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlAnySimpleType;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlNonNegativeInteger;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlPositiveInteger;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.impl.common.XPath;
-import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
-import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.values.NamespaceContext;
-import org.apache.xmlbeans.impl.values.XmlPositiveIntegerImpl;
 import org.apache.xmlbeans.impl.values.XmlNonNegativeIntegerImpl;
-import org.apache.xmlbeans.impl.regex.RegularExpression;
+import org.apache.xmlbeans.impl.values.XmlPositiveIntegerImpl;
+import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
+import org.apache.xmlbeans.impl.xb.xsdschema.Annotated;
+import org.apache.xmlbeans.impl.xb.xsdschema.AnnotationDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.Attribute;
+import org.apache.xmlbeans.impl.xb.xsdschema.AttributeGroup;
+import org.apache.xmlbeans.impl.xb.xsdschema.Element;
+import org.apache.xmlbeans.impl.xb.xsdschema.FieldDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.FormChoice;
+import org.apache.xmlbeans.impl.xb.xsdschema.Keybase;
+import org.apache.xmlbeans.impl.xb.xsdschema.KeyrefDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.LocalElement;
+import org.apache.xmlbeans.impl.xb.xsdschema.LocalSimpleType;
+import org.apache.xmlbeans.impl.xb.xsdschema.NamedAttributeGroup;
+import org.apache.xmlbeans.impl.xb.xsdschema.NamedGroup;
+import org.apache.xmlbeans.impl.xb.xsdschema.RedefineDocument.Redefine;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument.Schema;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelAttribute;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelElement;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelSimpleType;
 import org.apache.xmlbeans.soap.SOAPArrayType;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.SchemaGlobalElement;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaParticle;
-import org.apache.xmlbeans.QNameSet;
-import org.apache.xmlbeans.QNameSetBuilder;
-import org.apache.xmlbeans.SchemaBookmark;
-import org.apache.xmlbeans.SchemaIdentityConstraint;
-import org.apache.xmlbeans.SchemaAttributeModel;
-import org.apache.xmlbeans.SchemaLocalAttribute;
-import org.apache.xmlbeans.SchemaGlobalAttribute;
-import org.apache.xmlbeans.XmlAnySimpleType;
-import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlNonNegativeInteger;
-import org.apache.xmlbeans.XmlPositiveInteger;
 
 import javax.xml.namespace.QName;
+import java.math.BigInteger;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 
 public class StscTranslator
 {
@@ -90,12 +105,12 @@ public class StscTranslator
         if (targetNamespace == null)
             targetNamespace = "";
 
-        SchemaContainer container = null;
+        //SchemaContainer container = null;
         if (targetNamespace.length() > 0 || !isEmptySchema(schema))
         {
             state.registerContribution(targetNamespace, schema.documentProperties().getSourceName());
             state.addNewContainer(targetNamespace);
-            container = state.getContainer(targetNamespace);
+            //container = state.getContainer(targetNamespace);
         }
 
         List redefChain = new ArrayList();

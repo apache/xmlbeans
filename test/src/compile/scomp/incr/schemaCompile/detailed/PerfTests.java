@@ -24,8 +24,8 @@ import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.tool.CodeGenUtil;
 import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
 import org.apache.xmlbeans.impl.tool.Diff;
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3.x2001.xmlSchema.TopLevelComplexType;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
 import org.apache.xmlbeans.*;
 
 import java.io.File;

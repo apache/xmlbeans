@@ -98,14 +98,14 @@ public class Diff
         {
             ZipEntry ze = (ZipEntry) entries1.nextElement();
             String name = ze.getName();
-            if (name.startsWith("schema" + SchemaTypeSystemImpl.METADATA_PACKAGE + "/system/s") && name.endsWith(".xsb"))
+            if (name.startsWith("schema" + SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/system/s") && name.endsWith(".xsb"))
                 list1.add(ze);
         }
         for (; entries2.hasMoreElements(); )
         {
             ZipEntry ze = (ZipEntry) entries2.nextElement();
             String name = ze.getName();
-            if (name.startsWith("schema" + SchemaTypeSystemImpl.METADATA_PACKAGE + "/system/s") && name.endsWith(".xsb"))
+            if (name.startsWith("schema" + SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/system/s") && name.endsWith(".xsb"))
                 list2.add(ze);
         }
         ZipEntry[] files1 = (ZipEntry[]) list1.toArray(new ZipEntry[list1.size()]);
@@ -168,10 +168,10 @@ public class Diff
 
         /**
          * Navigate three directories deep to get to the type system.
-         * Assume the schema[METADATA_PACKAGE]/system/* structure
+         * Assume the schema[METADATA_PACKAGE_LOAD]/system/* structure
          */
-        File temp1 = new File(dir1, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE + "/system");
-        File temp2 = new File(dir2, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE + "/system");
+        File temp1 = new File(dir1, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/system");
+        File temp2 = new File(dir2, "schema" + SchemaTypeSystemImpl.METADATA_PACKAGE_GEN + "/system");
         if (temp1.exists() && temp2.exists())
         {
             File[] files1 = temp1.listFiles();

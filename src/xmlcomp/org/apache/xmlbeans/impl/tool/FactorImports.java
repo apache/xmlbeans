@@ -15,15 +15,15 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.w3.x2001.xmlSchema.TopLevelComplexType;
-import org.w3.x2001.xmlSchema.TopLevelSimpleType;
-import org.w3.x2001.xmlSchema.TopLevelElement;
-import org.w3.x2001.xmlSchema.TopLevelAttribute;
-import org.w3.x2001.xmlSchema.NamedGroup;
-import org.w3.x2001.xmlSchema.NamedAttributeGroup;
-import org.w3.x2001.xmlSchema.FormChoice;
-import org.w3.x2001.xmlSchema.IncludeDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.SchemaDocument;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelComplexType;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelSimpleType;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelElement;
+import org.apache.xmlbeans.impl.xb.xsdschema.TopLevelAttribute;
+import org.apache.xmlbeans.impl.xb.xsdschema.NamedGroup;
+import org.apache.xmlbeans.impl.xb.xsdschema.NamedAttributeGroup;
+import org.apache.xmlbeans.impl.xb.xsdschema.FormChoice;
+import org.apache.xmlbeans.impl.xb.xsdschema.IncludeDocument;
 
 import java.util.Arrays;
 import java.util.Set;
