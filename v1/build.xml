@@ -79,7 +79,7 @@
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
         <pathelement location="build/private/lib/numerals.jar"/>
-        <pathelement location="build/private/lib/xbean_xpath.jar"/>
+        <pathelement location="build/lib/xbean_xpath.jar"/>
         <pathelement location="build/lib/jaxen.jar"/>
       </classpath>
       <formatter type="plain"/>
@@ -320,7 +320,7 @@
     <pathelement location="build/private/lib/schemas.jar"/>
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
-    <pathelement location="build/private/lib/xbean_xpath.jar"/>
+    <pathelement location="build/lib/xbean_xpath.jar"/>
     <pathelement location="build/private/lib/numerals.jar"/>
     <pathelement location="build/lib/jaxen.jar"/>
     <pathelement location="build/classes/xmlinputstream"/>
@@ -618,7 +618,7 @@
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
         <fileset dir="xkit"/>
-        <fileset dir="." includes="bin/**"/>
+        <fileset dir="." includes="bin/**" />
         <fileset file="CHANGES.txt" />
      </copy>
      <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
@@ -626,12 +626,13 @@
         <fileset dir="src/xmlschema/schema" includes="XML.xsd,w3c-xml-license.html"/>
      </copy>
      <copy todir="build/private/xmlbeans-${product.version}/schemas">
-        <fileset dir="test/src" includes="easypo/*.xsd,easypo/*.xsdconfig"/>
+        <fileset dir="test/src" includes="easypo/*.xsd, easypo/*.xsdconfig"/>
      </copy>
 
      <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
      <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/ar/xbean.jar"/>
      <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
+     <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/lib/xbean_xpath.jar"/>
 
      <mkdir dir="build/private/xmlbeans-${product.version}/src/schema"/>
      <copy todir="build/private/xmlbeans-${product.version}/src/schema">
@@ -643,20 +644,28 @@
         <fileset dir="build/docs"/>
      </copy>
 
+     <chmod dir="build/private/xmlbeans-${product.version}/bin" perm="ugo+rx" includes="**" />
+
      <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
-          excludes="">
+          excludes="xmlbeans-${product.version}/bin/dumpxsb, 
+                    xmlbeans-${product.version}/bin/scomp, 
+                    xmlbeans-${product.version}/bin/validate">
          <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
+         <zipfileset dir="build/private/xmlbeans-${product.version}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" filemode="755"/>
      </zip>
      <tar destfile="build/private/incubating-xmlbeans-${product.version}.tgz"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
-          excludes=""
+          excludes="xmlbeans-${product.version}/bin/dumpxsb, 
+                    xmlbeans-${product.version}/bin/scomp, 
+                    xmlbeans-${product.version}/bin/validate"
           compression="gzip">
          <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
+         <tarfileset dir="build/private/xmlbeans-${product.version}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" mode="755"/>
      </tar>
   </target>
 
@@ -668,11 +677,12 @@
      	<zipfileset
      		dir="."
        		includes="**"
-            excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
+                excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
        		prefix="xmlbeans-${product.version}" />
          <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
+         <zipfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" filemode="755"/>
      </zip>
      <tar destfile="build/private/incubating-xmlbeans-${product.version}-src.tgz"
 	 	  compression="gzip">
@@ -680,10 +690,11 @@
      		dir="."
        		includes="**"
        		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
        		prefix="xmlbeans-${product.version}"/>
          <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
+         <tarfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" mode="755"/>
      </tar>
   </target>
 
@@ -1068,7 +1079,7 @@
   </target>
 
   <target name="xbean_xpath.jar" depends="xpath.classes">
-    <jar jarfile="build/private/lib/xbean_xpath.jar" basedir="build/private/classes/xpath"/>
+    <jar jarfile="build/lib/xbean_xpath.jar" basedir="build/private/classes/xpath"/>
   </target>
 
   <!-- test xpath target ============================================= -->
@@ -1084,7 +1095,7 @@
       <classpath id="testxpath.compile.path">
           <pathelement location="build/lib/xmlpublic.jar"/>
           <pathelement location="build/lib/jaxen.jar"/>
-          <pathelement location="build/private/lib/xbean_xpath.jar"/>
+          <pathelement location="build/lib/xbean_xpath.jar"/>
           <pathelement location="build/classes/xmlinputstream"/>
       </classpath>
     </javac>
@@ -1095,7 +1106,7 @@
       <classpath>
           <pathelement location="build/lib/xbean.jar"/>
           <pathelement location="build/lib/jaxen.jar"/>
-          <pathelement location="build/private/lib/xbean_xpath.jar"/>
+          <pathelement location="build/lib/xbean_xpath.jar"/>
           <pathelement location="build/private/classes/testxpath"/>
       </classpath>
       <jvmarg value="-da"/>
