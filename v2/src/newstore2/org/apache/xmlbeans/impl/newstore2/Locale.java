@@ -59,6 +59,7 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlDocumentProperties;
 
 import javax.xml.namespace.QName;
 
@@ -77,12 +78,27 @@ final class Locale implements DOMImplementation, SaajCallback
         _charUtil = CharUtil.getThreadLocalCharUtil();
     }
 
-    public long version ( )
+    static XmlDocumentProperties getDocProps ( Cur c )
+    {
+        Cur cRoot = c.tempCur();
+
+        while ( cRoot.toParent() )
+            ;
+
+        XmlDocumentProperties props =
+            (XmlDocumentProperties) cRoot.getBookmark( XmlDocumentProperties.class );
+
+        cRoot.release();
+
+        return props;
+    }
+
+    long version ( )
     {
         return _versionAll;
     }
 
-    public QName makeQName ( String uri, String localPart )
+    QName makeQName ( String uri, String localPart )
     {
         assert localPart != null && localPart.length() > 0;
         // TODO - make sure name is a well formed name?
@@ -90,7 +106,7 @@ final class Locale implements DOMImplementation, SaajCallback
         return new QName( uri, localPart );
     }
 
-    public QName makeQName ( String uri, String local, String prefix )
+    QName makeQName ( String uri, String local, String prefix )
     {
         return new QName( uri, local, prefix == null ? "" : prefix );
     }
@@ -278,7 +294,7 @@ final class Locale implements DOMImplementation, SaajCallback
         return _noSync;
     }
     
-    public static boolean beginsWithXml ( String name )
+    static boolean beginsWithXml ( String name )
     {
         if (name.length() < 3)
             return false;
