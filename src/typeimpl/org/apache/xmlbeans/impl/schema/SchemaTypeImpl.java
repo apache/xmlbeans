@@ -830,12 +830,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         if (xsiType != null)
         {
             SchemaType itype = wildcardTypeLoader.findType(xsiType);
-            if (itype == null)
-                return BuiltinSchemaTypeSystem.ST_NO_TYPE;
-            if (type.isAssignableFrom(itype))
+
+            // NOTE: a previous version of XMLBeans used ST_NO_TYPE if the
+            // xsiType was not derived from 'type', but this results in a
+            // ClassCastException.  Instead we ignore xsi:type if it's not
+            // found or a derived type.
+            if (itype != null && type.isAssignableFrom(itype)) {
                 return itype;
-            else
-                return BuiltinSchemaTypeSystem.ST_NO_TYPE;
+            }
         }
 
         return type;
@@ -894,10 +896,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             if (xsiType != null)
             {
                 SchemaType itype = wildcardTypeLoader.findType(xsiType);
-                if (itype == null || !type.isAssignableFrom(itype))
-                    type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
-                else
+
+                // NOTE: a previous version of XMLBeans used ST_NO_TYPE if the
+                // xsiType was not derived from 'type', but this results in a
+                // ClassCastException.  Instead we ignore xsi:type if it's not
+                // found or a derived type.
+                if (itype != null && type.isAssignableFrom(itype)) {
                     type = itype;
+                }
             }
         }
 
