@@ -350,9 +350,15 @@ final class DomImpl
         return prefix;
     }
     
-    private static void validateNcName ( String prefix )
+    private static void validateName ( String name )
     {
-        if (prefix != null && prefix.length() > 0 && !XMLChar.isValidNCName( prefix ))
+        if (name != null && name.length() > 0 && !XMLChar.isValidName( name ))
+            throw new InvalidCharacterError();
+    }
+    
+    private static void validateNcName ( String name )
+    {
+        if (name != null && name.length() > 0 && !XMLChar.isValidNCName( name ))
             throw new InvalidCharacterError();
     }
     
@@ -383,14 +389,16 @@ final class DomImpl
         Cur cFrom = n.tempCur();
 
         cFrom.toEnd();
-        cFrom.next();
 
-        CharNode fromNodes = cFrom.getCharNodes();
-
-        if (fromNodes != null)
+        if (cFrom.next())
         {
-            cFrom.setCharNodes( null );
-            cTo.setCharNodes( CharNode.appendNodes( cTo.getCharNodes(), fromNodes ) );
+            CharNode fromNodes = cFrom.getCharNodes();
+
+            if (fromNodes != null)
+            {
+                cFrom.setCharNodes( null );
+                cTo.setCharNodes( CharNode.appendNodes( cTo.getCharNodes(), fromNodes ) );
+            }
         }
 
         cTo.moveNode( null );
@@ -781,7 +789,10 @@ final class DomImpl
     
     public static Dom document_createProcessingInstruction ( Dom d, String target, String data )
     {
-        validateNcName( target );
+        validateName( target );
+        
+        if (Locale.beginsWithXml( target ))
+            throw new NamespaceErr( "Invalid target - is 'xml'" );
         
         Locale l = d.locale();
 
