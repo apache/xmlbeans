@@ -59,6 +59,8 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.MarshalContext;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 
 import javax.xml.namespace.NamespaceContext;
 import java.util.Collection;
@@ -110,8 +112,28 @@ final class MarshalContextImpl
         return namespaceContext;
     }
 
-    RuntimeBindingType createRuntimeBindingType(BindingType type)
+    RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
     {
+        String expectedJavaClass = type.getName().getJavaName().toString();
+        String actualJavaClass = instance.getClass().getName();
+        if (!actualJavaClass.equals(expectedJavaClass)) {
+            //redefine type
+            JavaTypeName tn = JavaTypeName.forString(actualJavaClass);
+            BindingTypeName bindingTypeName = loader.lookupTypeFor(tn);
+            if (bindingTypeName != null) {
+                final BindingType bindingType =
+                    loader.getBindingType(bindingTypeName);
+                if (bindingType != null) {
+                    type = bindingType;
+                } else {
+                    //fallthrough to use the expected type...
+                    //TODO: consider adding a warning to the errors?
+                }
+            } else {
+                //fallthrough to use the expected type...
+                //TODO: consider adding a warning to the errors?
+            }
+        }
         return runtimeTypeFactory.createRuntimeType(type, typeTable, loader);
     }
 

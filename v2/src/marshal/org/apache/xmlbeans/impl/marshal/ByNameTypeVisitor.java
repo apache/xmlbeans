@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
+
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -78,7 +81,8 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
                       MarshalContextImpl context)
     {
         super(obj, property, context);
-        type = (ByNameRuntimeBindingType)context.createRuntimeBindingType(property.getType());
+        final BindingType pt = property.getType();
+        type = (ByNameRuntimeBindingType)context.createRuntimeBindingType(pt, obj);
         maxPropCount = obj == null ? 0 : type.getPropertyCount();
     }
 
@@ -211,9 +215,18 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         if (getParentObject() == null) {
             QName nil_qn = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
             names.add(nil_qn);
-            vals.add("true");
+            vals.add(XsTypeConverter.printBoolean(true));
         } else {
-            //TODO: xsi:type for polymorphism
+
+            if (type.isSubType()) {
+                QName aname = fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
+                names.add(aname);
+                QName tn = fillPrefix(type.getSchemaTypeName());
+                String aval = XsTypeConverter.getQNameString(tn.getNamespaceURI(),
+                                                             tn.getLocalPart(),
+                                                             tn.getPrefix());
+                vals.add(aval);
+            }
 
             for (int i = 0, len = maxPropCount; i < len; i++) {
                 final RuntimeBindingProperty prop = type.getProperty(i);

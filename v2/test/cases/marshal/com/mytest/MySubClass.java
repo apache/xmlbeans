@@ -74,11 +74,13 @@ public class MySubClass
         this.bigInt = bigInt;
     }
 
-    //TODO: clean this up
     public String toString()
     {
-        String parent = super.toString();
-        return parent + " AND bigInt=" + bigInt;
+        return "com.mytest.MySubClass{" +
+            "super=" + super.toString() +
+            " bigInt=" + bigInt +
+            "}";
     }
+
 
 }

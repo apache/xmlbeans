@@ -78,6 +78,7 @@ final class MarshalStreamUtils
         "noNamespaceSchemaLocation";
 
     static final QName XSI_NIL_QNAME = new QName(XSI_NS, XSI_NIL_ATTR);
+    static final QName XSI_TYPE_QNAME = new QName(XSI_NS, XSI_TYPE_ATTR);
 
 
     static void getXsiAttributes(XsiAttributeHolder holder,
