@@ -1,0 +1,145 @@
+<!--
+Copyright 2004 The Apache Software Foundation
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+ -->
+<project name="XMLBeans Samples" default="build">
+
+    <!-- ========================== clean ==== -->
+
+    <target name="clean" depends="
+        clean-SampleTemplate,
+        clean-MixedContent,
+        clean-SchemaEnum">
+        <delete dir="build"/>
+    </target>
+
+    <target name="clean-SampleTemplate">
+        <ant dir="template/SampleTemplate" target="clean"/>
+    </target>
+
+    <target name="clean-MixedContent">
+        <ant dir="cursor/MixedContent" target="clean"/>
+    </target>
+
+    <target name="clean-SchemaEnum">
+        <ant dir="enumeration/SchemaEnum" target="clean"/>
+    </target>
+
+    <!-- ========================== build ==== -->
+
+    <target name="build" depends="
+        build-SampleTemplate,
+        build-MixedContent,
+        build-SchemaEnum">
+    </target>
+
+    <target name="build-SampleTemplate">
+        <ant dir="template/SampleTemplate" target="build"/>
+    </target>
+
+    <target name="build-MixedContent">
+        <ant dir="cursor/MixedContent" target="build"/>
+    </target>
+
+    <target name="build-SchemaEnum">
+        <ant dir="enumeration/SchemaEnum" target="build"/>
+    </target>
+
+    <!-- ========================== test ==== -->
+    <!-- to ensure all samples build and run -->
+
+    <target name="test" depends="
+        test-SampleTemplate,
+        test-MixedContent,
+        test-SchemaEnum">
+    </target>
+
+    <target name="test-SampleTemplate">
+        <ant dir="template/SampleTemplate" target="test"/>
+    </target>
+
+    <target name="test-MixedContent">
+        <ant dir="cursor/MixedContent" target="test"/>
+    </target>
+
+    <target name="test-SchemaEnum">
+        <ant dir="enumeration/SchemaEnum" target="test"/>
+    </target>
+
+    <!-- ========================== dist ==== -->
+
+    <target name="dist" depends="
+        dist-SampleTemplate,
+        dist-MixedContent,
+        dist-SchemaEnum">
+        <zip destfile="build/samples.zip"
+            basedir=".."
+            includes="samples/**"
+            excludes="**/build/**"
+            />
+        <tar destfile="build/samples.tgz"
+            basedir=".."
+            includes="samples/**"
+            excludes="**/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-SampleTemplate">
+        <mkdir dir="build"/>
+        <zip destfile="build/SampleTemplate.zip"
+            basedir="template"
+            includes="SampleTemplate/**"
+            excludes="SampleTemplate/build/**"
+            />
+        <tar destfile="build/SampleTemplate.tgz"
+            basedir="template"
+            includes="SampleTemplate/**"
+            excludes="SampleTemplate/build/**"
+            compression="gzip"
+            />
+    </target>
+
+
+    <target name="dist-MixedContent">
+        <mkdir dir="build"/>
+        <zip destfile="build/MixedContent.zip"
+            basedir="cursor"
+            includes="MixedContent/**"
+            excludes="MixedContent/build/**"
+            />
+        <tar destfile="build/MixedContent.tgz"
+            basedir="cursor"
+            includes="MixedContent/**"
+            excludes="MixedContent/build/**"
+            compression="gzip"
+            />
+    </target>
+
+    <target name="dist-SchemaEnum">
+        <mkdir dir="build"/>
+        <zip destfile="build/SchemaEnum.zip"
+            basedir="enumeration"
+            includes="SchemaEnum/**"
+            excludes="SchemaEnum/build/**"
+            />
+        <tar destfile="build/SchemaEnum.tgz"
+            basedir="enumeration"
+            includes="SchemaEnum/**"
+            excludes="SchemaEnum/build/**"
+            compression="gzip"
+            />
+    </target>
+
+</project>
