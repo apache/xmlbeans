@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+
+<project     
+    xmlns:j="jelly:core"
+    xmlns:jelant="jelly:ant"
+    xmlns:util="jelly:util">
+  
+    <!-- ================================================================== -->
+    <!-- XMLBean PlugIn                                                     -->
+    <!-- ================================================================== -->
+  
+	<!-- This goal generates the XMLBeans from the .xsd files -->
+	<goal name="xmlbeans:xmlbean"
+          description="Generates XMLBeans from XML Schema files.">
+
+		<taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean">
+			<classpath>
+				<path refid="maven.dependency.classpath"/>
+			</classpath>
+		</taskdef>
+
+		<xmlbean>
+			<!-- list of additional options -->
+			<j:set var="opsDelim" value=","/>
+			<j:set var="addOps" value="schema,includes,excludes,destfile,classgendir,srconly,srcgendir,debug"/>
+
+			<!-- Setup the XMLBean's ant properties: -->
+			<util:tokenize var="ops" delim="${opsDelim}">${addOps}</util:tokenize>
+			<j:forEach items="${ops}" var="op">
+				<j:set var="op_var_name" value="maven.xmlbeans.xmlbean.${op}"/>
+				<j:set var="opX" value="${op_var_name}X"/>
+				<j:if test="${opX != 'X'}">
+					<jelant:setProperty name="${op}" value="${context.getVariable(op_var_name)}"/>
+				</j:if>
+			</j:forEach>
+			<classpath>
+				<path refid="maven.dependency.classpath"/>
+			</classpath>
+		</xmlbean>
+        
+	</goal>
+	
+  
+</project>
