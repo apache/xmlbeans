@@ -111,7 +111,7 @@ final class MarshallerImpl
 
     private static JavaTypeName determineJavaType(Class clazz)
     {
-        return JavaTypeName.forString(clazz.getName());
+        return JavaTypeName.forClassName(clazz.getName());
     }
 
     public void marshal(XMLStreamWriter writer, Object obj)
@@ -241,7 +241,7 @@ final class MarshallerImpl
     {
         final BindingType type =
             loadBindingType(XmlTypeName.forTypeNamed(schemaType),
-                            JavaTypeName.forString(javaType),
+                            JavaTypeName.forClassName(javaType),
                             loader);
 
         if (type == null) {

@@ -32,8 +32,9 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
-import org.apache.xmlbeans.impl.tool.PrettyPrinter;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
+import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
+import org.apache.xmlbeans.impl.tool.PrettyPrinter;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -41,18 +42,18 @@ import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.FileInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -114,6 +115,7 @@ public class MarshalTests extends TestCase
         testSimpleTypeUnmarshal(new BigDecimal("43434343342.233434342"), "decimal");
         testSimpleTypeUnmarshal(new Float(54.5423f), "float");
         testSimpleTypeUnmarshal(new Double(23432.43234), "double");
+        testSimpleTypeUnmarshal(new Double(23432.43234), "double");
 
         testStringTypeUnmarshal("string");
         testStringTypeUnmarshal("normalizedString");
@@ -130,6 +132,11 @@ public class MarshalTests extends TestCase
         Calendar c = Calendar.getInstance();
 
         testSimpleTypeUnmarshal(c, "2002-03-06T08:04:39.265Z", "dateTime");
+
+
+        final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
+        testSimpleTypeUnmarshal(bytes, "AQIDBAUG", "base64Binary");
+        testSimpleTypeUnmarshal(bytes, "010203040506", "hexBinary");
 
     }
 
@@ -158,6 +165,11 @@ public class MarshalTests extends TestCase
 
         testSimpleTypeMarshal(new QName("someuri", "somelname"), "QName");
         testSimpleTypeMarshal(new QName("nakedlname"), "QName");
+
+        final byte[] bytes = new byte[]{1, 2, 3, 4, 5, 6};
+        testSimpleTypeMarshal(bytes, "base64Binary");
+        testSimpleTypeMarshal(bytes, "hexBinary");
+
     }
 
 
@@ -199,6 +211,12 @@ public class MarshalTests extends TestCase
             XmlCalendar got = (XmlCalendar)obj;
             String got_lex = got.toString();
             Assert.assertEquals(lexval, got_lex);
+        } else if (expected.getClass().isArray()) {
+            final boolean eq = ArrayUtils.arrayEquals(expected, obj);
+            final String s = "arrays not equal.  " +
+                "expected " + ArrayUtils.arrayToString(expected) +
+                " got " + ArrayUtils.arrayToString(obj);
+            Assert.assertTrue(s, eq);
         } else {
             Assert.assertEquals(expected, obj);
         }
@@ -502,7 +520,7 @@ public class MarshalTests extends TestCase
             myelt.setAttrib(rnd.nextFloat());
             myelt.setMyFloat(rnd.nextFloat());
             myelt.setBooleanArray(bools);
-            myelt.setWrappedArrayOne(new String[]{"W1"+rnd.nextInt(), null, "W2" + rnd.nextInt()});
+            myelt.setWrappedArrayOne(new String[]{"W1" + rnd.nextInt(), null, "W2" + rnd.nextInt()});
             myelt.setWrappedArrayTwo(null);
             final com.mytest.MyClass my_c = new com.mytest.MyClass();
             myelt.setMyClass(my_c);
@@ -612,25 +630,24 @@ public class MarshalTests extends TestCase
         final long before_millis = System.currentTimeMillis();
 
         RoundTripRunner[] runners = new RoundTripRunner[thread_cnt];
-        for(int i = 0 ; i < thread_cnt ; i++) {
+        for (int i = 0; i < thread_cnt; i++) {
             runners[i] = new RoundTripRunner(top_obj, msh, umsh, elem_name,
                                              schemaType, class_name, javaType, options, trials);
         }
 
         inform("starting " + thread_cnt + " threads...");
 
-        for(int i = 0 ; i < thread_cnt ; i++) {
+        for (int i = 0; i < thread_cnt; i++) {
             runners[i].start();
         }
 
-        inform("trials=" + trials +  "\tjoining " + thread_cnt + " threads...");
+        inform("trials=" + trials + "\tjoining " + thread_cnt + " threads...");
 
-        for(int i = 0 ; i < thread_cnt ; i++) {
+        for (int i = 0; i < thread_cnt; i++) {
             runners[i].join();
         }
 
         inform("joined " + thread_cnt + " threads.");
-
 
 
         final long after_millis = System.currentTimeMillis();
@@ -641,7 +658,7 @@ public class MarshalTests extends TestCase
         inform("milliseconds: " + diff + " trials: " + trials +
                " threads=" + thread_cnt);
         inform("milliseconds PER trial: " + (diff / (double)trials));
-        inform("milliseconds PER roundtrip: " + (diff / ((double)trials*thread_cnt)));
+        inform("milliseconds PER roundtrip: " + (diff / ((double)trials * thread_cnt)));
     }
 
     private static Object doRoundTrip(MyClass top_obj,
@@ -705,9 +722,9 @@ public class MarshalTests extends TestCase
                 Object out_obj = null;
                 for (int i = 0; i < t; i++) {
                     out_obj = doRoundTrip(top_obj, msh,
-                                                 umsh, elem_name,
-                                                 schemaType, class_name,
-                                                 javaType, options);
+                                          umsh, elem_name,
+                                          schemaType, class_name,
+                                          javaType, options);
                 }
                 Assert.assertEquals(top_obj, out_obj);
             }
@@ -805,12 +822,12 @@ public class MarshalTests extends TestCase
             int i = 0;
             if (VERBOSE)
                 inform((i++) + "\tSTATE: " +
-                                   XmlStreamUtils.printEvent(reader));
+                       XmlStreamUtils.printEvent(reader));
             while (reader.hasNext()) {
                 final int state = reader.next();
                 if (VERBOSE)
                     inform((i++) + "\tSTATE: " +
-                                       XmlStreamUtils.printEvent(reader));
+                           XmlStreamUtils.printEvent(reader));
             }
         }
     }
@@ -1017,7 +1034,8 @@ public class MarshalTests extends TestCase
             createBindingContextFromConfig(bcdoc);
     }
 
-    private static void  inform(String msg) {
+    private static void inform(String msg)
+    {
         if (VERBOSE) System.out.println(msg);
     }
 }

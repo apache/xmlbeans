@@ -37,7 +37,6 @@ final class DateTimeTypeConverter
         return context.getAttributeCalendarValue();
     }
 
-    //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {
         Calendar c = (Calendar)value;

@@ -16,10 +16,16 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JServiceFactory;
+import org.apache.xmlbeans.impl.jam.JService;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JServiceParams;
 import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlRuntimeException;
 
 import java.io.StringWriter;
+import java.io.IOException;
 import java.lang.reflect.Array;
 
 /**
@@ -67,6 +73,27 @@ public final class JavaTypeName {
   public static JavaTypeName forString(String className) {
     return new JavaTypeName(className);
   }
+
+    /**
+     * Builds a JavaTypeName for a a java type name
+     * (in the format returned by Class.getName())
+     */
+    public static JavaTypeName forClassName(String type)
+    {
+        final JServiceFactory jserv_factory = JServiceFactory.getInstance();
+        final JServiceParams params = jserv_factory.createServiceParams();
+        final JService service;
+        try {
+            service = jserv_factory.createService(params);
+        }
+        catch (IOException e) {
+            throw new XmlRuntimeException(e);
+        }
+        final JClassLoader jcl = service.getClassLoader();
+        final JClass jc = jcl.loadClass(type);
+        return forJClass(jc);
+    }
+
 
   /**
    * Builds a JavaTypeName for the array containing items with

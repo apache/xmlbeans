@@ -120,7 +120,7 @@ public interface Unmarshaller
      * corresponding to the start element from the precondition
      *
      * @param schemaType
-     * @param javaType
+     * @param javaType the java type in the format returned by Class.getName()
      * @return
      * @throws org.apache.xmlbeans.XmlException
      */
@@ -153,7 +153,7 @@ public interface Unmarshaller
      *
      *
      * @param schemaType
-     * @param javaType
+     * @param javaType the java type in the format returned by Class.getName()
      * @return
      * @throws org.apache.xmlbeans.XmlException
      */

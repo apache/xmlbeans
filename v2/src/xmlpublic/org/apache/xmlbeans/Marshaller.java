@@ -218,7 +218,7 @@ public interface Marshaller
      * @param obj
      * @param elementName
      * @param schemaType
-     * @param javaType
+     * @param javaType   the java type in the format returned by Class.getName()
      * @param namespaceContext
      * @return
      * @throws XmlException
@@ -250,7 +250,7 @@ public interface Marshaller
      * @param obj
      * @param elementName
      * @param schemaType
-     * @param javaType
+     * @param javaType the java type in the format returned by Class.getName()
      * @param options
      * @return
      * @throws XmlException
@@ -276,7 +276,7 @@ public interface Marshaller
      * @param obj
      * @param elementName
      * @param schemaType
-     * @param javaType
+     * @param javaType the java type in the format returned by Class.getName()
      * @throws XmlException
      */
     void marshalType(XMLStreamWriter writer,
@@ -306,7 +306,7 @@ public interface Marshaller
      * @param obj
      * @param elementName
      * @param schemaType
-     * @param javaType
+     * @param javaType the java type in the format returned by Class.getName()
      * @throws XmlException
      */
     void marshalType(XMLStreamWriter writer,
