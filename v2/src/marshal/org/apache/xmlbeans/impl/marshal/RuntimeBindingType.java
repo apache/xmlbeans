@@ -203,7 +203,7 @@ abstract class RuntimeBindingType
         return ClassLoadingUtils.loadClass(jclass, backup);
     }
 
-    protected QName getSchemaTypeName()
+    protected final QName getSchemaTypeName()
     {
         return getBindingType().getName().getXmlName().getQName();
     }
@@ -255,7 +255,7 @@ abstract class RuntimeBindingType
             "}";
     }
 
-    protected void checkInstance(Object obj)
+    protected boolean checkInstance(Object obj)
         throws XmlException
     {
         final Class java_type = getJavaType();
@@ -266,6 +266,7 @@ abstract class RuntimeBindingType
                 " not an instance of expected type: " + java_type;
             throw new XmlException(m);
         }
+        return true;
     }
 
     //really means "can have element children"
