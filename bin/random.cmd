@@ -5,10 +5,10 @@
 @rem Invokes Random test
 
 setlocal
-if "%XMLBEANS_HOME%" EQU "" (set XMLBEANS_HOME=%~dp0..)
+call _setlib
 
 set cp=
-set cp=%cp%;%XMLBEANS_HOME%\build\ar\xbean.jar
+set cp=%cp%;%XMLBEANS_LIB%\xbean.jar
 set cp=%cp%;%XMLBEANS_HOME%\build\private\lib\random.jar
 set cp=%cp%;%XMLBEANS_HOME%\build\private\lib\easypo.jar
 
