@@ -90,6 +90,8 @@ final class MarshalResult implements XMLStreamReader
                                                   MarshalResult result)
         throws XmlException
     {
+        assert property != null;
+
         BindingType btype = property.getType();
 
         //TODO: cleanup instanceof
@@ -588,6 +590,27 @@ final class MarshalResult implements XMLStreamReader
     public RuntimeBindingTypeTable getTypeTable()
     {
         return typeTable;
+    }
+
+    static RuntimeBindingType findActualRuntimeType(Object property_value,
+                                                    RuntimeBindingType expected_type,
+                                                    MarshalResult result)
+        throws XmlException
+    {
+        if (property_value == null)
+            return expected_type;
+        
+        if (expected_type.isJavaPrimitive())
+            return expected_type;
+
+        final Class instance_class = property_value.getClass();
+        if (instance_class.equals(expected_type.getJavaType()))
+            return expected_type;
+
+        BindingType btype = expected_type.getBindingType();
+        //TODO: improve this method by going up the type hierarchy
+        //also avoid duplicate work with going on in this next call.
+        return result.createRuntimeBindingType(btype, property_value);
     }
 
 

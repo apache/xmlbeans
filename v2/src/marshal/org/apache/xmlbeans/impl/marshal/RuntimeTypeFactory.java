@@ -19,6 +19,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
+import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 
 import java.util.HashMap;
@@ -31,10 +33,9 @@ import java.util.Map;
 final class RuntimeTypeFactory
 {
     //concurrent hashMap allows us to do hash lookups outside of any sync blocks,
-    //and successful lookups  involve no locking, which should be
+    //and successful lookups involve no locking, which should be
     //99% of the cases in any sort of long running process
     private final Map initedTypeMap = new ConcurrentReaderHashMap();
-
 
     private final Map tempTypeMap = new HashMap();
 
@@ -56,7 +57,7 @@ final class RuntimeTypeFactory
             if (rtype == null) {
                 rtype = allocateType(type);
                 tempTypeMap.put(type, rtype);
-                rtype.initialize(type_table, binding_loader);
+                rtype.initialize(type_table, binding_loader, this);
                 initedTypeMap.put(type, rtype);
                 tempTypeMap.remove(type); // save some memory.
             }
@@ -71,6 +72,10 @@ final class RuntimeTypeFactory
         //TODO: fix instanceof nastiness
         if (type instanceof ByNameBean) {
             return new ByNameRuntimeBindingType((ByNameBean)type);
+        } else if (type instanceof BuiltinBindingType) {
+            return new BuiltinRuntimeBindingType((BuiltinBindingType)type);
+        } else if (type instanceof SimpleBindingType) {
+            return new SimpleRuntimeBindingType((SimpleBindingType)type);
         }
 
         throw new AssertionError("unknown type: " + type);

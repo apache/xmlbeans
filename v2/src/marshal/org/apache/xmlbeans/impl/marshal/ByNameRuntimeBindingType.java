@@ -39,10 +39,9 @@ import java.util.Iterator;
 
 
 final class ByNameRuntimeBindingType
-    implements RuntimeBindingType
+    extends RuntimeBindingType
 {
     private final ByNameBean byNameBean;
-    private final Class javaClass;
     private final Property[] attributeProperties;
     private final Property[] elementProperties;
     private final boolean hasMulti;  //has any multi properties
@@ -52,18 +51,14 @@ final class ByNameRuntimeBindingType
     ByNameRuntimeBindingType(ByNameBean btype)
         throws XmlException
     {
+        super(btype);
         byNameBean = btype;
-        try {
-            javaClass = getJavaClass(btype, getClass().getClassLoader());
-            if (javaClass.isPrimitive() || javaClass.isArray()) {
-                final String msg = "invalid ByNameBean java type: " + javaClass +
-                    " found in " + btype;
-                throw new XmlException(msg);
-            }
-        }
-        catch (ClassNotFoundException e) {
-            final String msg = "failed to load " + btype.getName().getJavaName();
-            throw new XmlException(msg, e);
+
+        final Class java_type = getJavaType();
+        if (java_type.isPrimitive() || java_type.isArray()) {
+            final String msg = "invalid ByNameBean java type: " + java_type +
+                " found in " + btype;
+            throw new XmlException(msg);
         }
 
         int elem_prop_cnt = 0;
@@ -92,7 +87,8 @@ final class ByNameRuntimeBindingType
 
     //prepare internal data structures for use
     public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader loader)
+                           BindingLoader loader,
+                           RuntimeTypeFactory rttFactory)
         throws XmlException
     {
         int att_idx = 0;
@@ -102,8 +98,8 @@ final class ByNameRuntimeBindingType
             final boolean is_att = bprop.isAttribute();
 
             final Property prop = new Property(is_att ? att_idx : elem_idx,
-                                               javaClass, hasMulti, bprop,
-                                               typeTable, loader);
+                                               getJavaType(), hasMulti, bprop,
+                                               typeTable, loader, rttFactory);
             if (is_att)
                 attributeProperties[att_idx++] = prop;
             else
@@ -117,7 +113,7 @@ final class ByNameRuntimeBindingType
         if (hasMulti) {
             return new UResultHolder(this);
         } else {
-            return ClassLoadingUtils.newInstance(javaClass);
+            return ClassLoadingUtils.newInstance(getJavaType());
         }
     }
 
@@ -132,15 +128,6 @@ final class ByNameRuntimeBindingType
             return retval;
         }
     }
-
-    private static Class getJavaClass(BindingType btype, ClassLoader backup)
-        throws ClassNotFoundException
-    {
-        final JavaTypeName javaName = btype.getName().getJavaName();
-        String jclass = javaName.toString();
-        return ClassLoadingUtils.loadClass(jclass, backup);
-    }
-
 
     RuntimeBindingProperty getElementProperty(int index)
     {
@@ -209,16 +196,6 @@ final class ByNameRuntimeBindingType
         return attributeProperties.length;
     }
 
-    public boolean hasDefaultAttributes()
-    {
-        return hasDefaultAttributes;
-    }
-
-    public QName getSchemaTypeName()
-    {
-        return byNameBean.getName().getXmlName().getQName();
-    }
-
     public void fillDefaultAttributes(Object inter, UnmarshalResult context)
         throws XmlException
     {
@@ -241,7 +218,7 @@ final class ByNameRuntimeBindingType
         private final Class beanClass;
         private final boolean beanHasMulti;          //consider a subclass
         private final QNameProperty bindingProperty;
-        private final BindingType bindingType;
+        private final RuntimeBindingType runtimeBindingType;
         private final Class propertyClass;
         private final Class collectionElementClass; //null for non collections
         private final TypeUnmarshaller unmarshaller;
@@ -249,7 +226,6 @@ final class ByNameRuntimeBindingType
         private final Method getMethod;
         private final Method setMethod;
         private final Method issetMethod;
-        private final boolean javaPrimitive;
         private final Object defaultValue;
 
         private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
@@ -259,7 +235,8 @@ final class ByNameRuntimeBindingType
                  boolean bean_has_multis,
                  QNameProperty prop,
                  RuntimeBindingTypeTable typeTable,
-                 BindingLoader loader)
+                 BindingLoader loader,
+                 RuntimeTypeFactory rttFactory)
             throws XmlException
         {
             if (prop.getQName() == null) {
@@ -274,17 +251,24 @@ final class ByNameRuntimeBindingType
             this.bindingProperty = prop;
             this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
             this.marshaller = lookupMarshaller(prop.getTypeName(), typeTable, loader);
-            this.bindingType = loader.getBindingType(prop.getTypeName());
-            propertyClass = getPropertyClass(prop, bindingType);
-            collectionElementClass = getCollectionElementClass(prop, bindingType);
+
+            final BindingType binding_type = loader.getBindingType(prop.getTypeName());
+            if (binding_type == null) {
+                throw new XmlException("unable to load " + prop.getTypeName());
+            }
+            runtimeBindingType =
+                rttFactory.createRuntimeType(binding_type, typeTable, loader);
+            assert runtimeBindingType != null;
+
+            propertyClass = getPropertyClass(prop, binding_type);
+            collectionElementClass = getCollectionElementClass(prop, binding_type);
             getMethod = getGetterMethod(prop, beanClass);
             setMethod = getSetterMethod(prop, beanClass);
             issetMethod = getIssetterMethod(prop, beanClass);
-            javaPrimitive = propertyClass.isPrimitive();
 
             String def = bindingProperty.getDefault();
             if (def != null) {
-                defaultValue = extractDefaultObject(def, bindingType,
+                defaultValue = extractDefaultObject(def, binding_type,
                                                     typeTable, loader);
                 if (!prop.isAttribute()) {
                     //TODO: deal with defaulting elements!
@@ -340,8 +324,6 @@ final class ByNameRuntimeBindingType
                 }
             }
             catch (ClassNotFoundException ex) {
-                final String s = "error loading " +
-                    btype.getName().getJavaName();
                 throw new XmlException(ex);
             }
             return propertyClass;
@@ -365,8 +347,6 @@ final class ByNameRuntimeBindingType
                 }
             }
             catch (ClassNotFoundException ex) {
-                final String s = "error loading " +
-                    btype.getName().getJavaName();
                 throw new XmlException(ex);
             }
         }
@@ -374,7 +354,21 @@ final class ByNameRuntimeBindingType
 
         public BindingType getType()
         {
-            return bindingType;
+            return getRuntimeBindingType().getBindingType();
+        }
+
+        public RuntimeBindingType getRuntimeBindingType()
+        {
+            return runtimeBindingType;
+        }
+
+        public RuntimeBindingType getActualRuntimeType(Object property_value,
+                                                       MarshalResult result)
+            throws XmlException
+        {
+            return MarshalResult.findActualRuntimeType(property_value,
+                                                       runtimeBindingType,
+                                                       result);
         }
 
         public QName getName()
@@ -459,7 +453,7 @@ final class ByNameRuntimeBindingType
             //means xsi:nil was true but we're a primtive.
             //schema should have nillable="false" so this
             //is a validation problem
-            if (prop_obj == null && javaPrimitive)
+            if (prop_obj == null && runtimeBindingType.isJavaPrimitive())
                 return;
 
             if (beanHasMulti) {
@@ -527,26 +521,6 @@ final class ByNameRuntimeBindingType
                 (Boolean)invokeMethod(parentObject, issetMethod,
                                       EMPTY_OBJECT_ARRAY);
             return isset.booleanValue();
-        }
-
-        //REVIEW: this method needs optimization
-        public boolean isTypeSubstituted(Object property_value,
-                                         MarshalResult result)
-            throws XmlException
-        {
-            if (javaPrimitive) return false;
-
-            final Class instance_class = property_value.getClass();
-            final Class prop_class = propClass();
-            if (instance_class.equals(prop_class))
-                return false;
-
-            return true;
-        }
-
-        private Class propClass() {
-            return collectionElementClass == null ?
-                propertyClass : collectionElementClass;
         }
 
         private static Object invokeMethod(Object target,
@@ -666,7 +640,7 @@ final class ByNameRuntimeBindingType
         UResultHolder(ByNameRuntimeBindingType type)
         {
             runtimeBindingType = type;
-            value = ClassLoadingUtils.newInstance(type.javaClass);
+            value = ClassLoadingUtils.newInstance(type.getJavaType());
         }
 
 

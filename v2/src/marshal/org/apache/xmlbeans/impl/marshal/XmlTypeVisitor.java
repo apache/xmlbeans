@@ -25,26 +25,27 @@ abstract class XmlTypeVisitor
     private final RuntimeBindingProperty bindingProperty;
     protected final MarshalResult marshalResult;
 
-    XmlTypeVisitor(Object parentObject,
+    XmlTypeVisitor(Object obj,
                    RuntimeBindingProperty property,
                    MarshalResult result)
+        throws XmlException
     {
-        this.parentObject = parentObject;
+        this.parentObject = obj;
         this.bindingProperty = property;
         marshalResult = result;
+
     }
 
 
-    protected Object getParentObject()
+    protected final Object getParentObject()
     {
         return parentObject;
     }
 
-    protected RuntimeBindingProperty getBindingProperty()
+    protected final RuntimeBindingProperty getBindingProperty()
     {
         return bindingProperty;
     }
-
 
     static final int START = 1;
     static final int CONTENT = 2;
@@ -72,7 +73,7 @@ abstract class XmlTypeVisitor
     {
     }
 
-    protected abstract int getAttributeCount() 
+    protected abstract int getAttributeCount()
         throws XmlException;
 
     protected abstract String getAttributeValue(int idx);

@@ -85,8 +85,11 @@ final class MarshallerImpl
             throw new XmlException(msg);
         }
 
+        final RuntimeBindingType runtime_type =
+            runtimeTypeFactory.createRuntimeType(btype, typeTable, loader);
+
         RuntimeGlobalProperty prop =
-            new RuntimeGlobalProperty(btype, elem_qn);
+            new RuntimeGlobalProperty(elem_qn, runtime_type);
 
         //TODO: review null options param
         return new MarshalResult(runtimeTypeFactory, loader, typeTable,
@@ -236,21 +239,25 @@ final class MarshallerImpl
                                        NamespaceContext namespaceContext)
         throws XmlException
     {
-        BindingType type = lookupBindingType(obj.getClass(),
-                                             JavaTypeName.forString(javaType),
-                                             XmlTypeName.forTypeNamed(schemaType),
-                                             loader);
+        final BindingType type =
+            loadBindingType(XmlTypeName.forTypeNamed(schemaType),
+                            JavaTypeName.forString(javaType),
+                            loader);
+
         if (type == null) {
             final String msg = "failed to find a suitable binding type for" +
                 " use in marshalling \"" + elementName + "\". " +
-                " instance type: " + obj.getClass().getName() +
-                " expected java type: " + javaType +
-                " schema type: " + schemaType;
+                " using java type: " + javaType +
+                " schema type: " + schemaType +
+                " instance type: " + obj.getClass().getName();
             throw new XmlException(msg);
         }
 
+        final RuntimeBindingType runtime_type =
+            runtimeTypeFactory.createRuntimeType(type, typeTable, loader);
+
         RuntimeGlobalProperty prop =
-            new RuntimeGlobalProperty(type, elementName);
+            new RuntimeGlobalProperty(elementName, runtime_type);
 
         return new MarshalResult(runtimeTypeFactory, loader, typeTable,
                                  namespaceContext, prop, obj, null);

@@ -25,6 +25,12 @@ interface RuntimeBindingProperty
 {
     BindingType getType();
 
+    RuntimeBindingType getRuntimeBindingType();
+
+    RuntimeBindingType getActualRuntimeType(Object property_value,
+                                            MarshalResult result)
+        throws XmlException;
+
     QName getName();
 
     TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
@@ -41,10 +47,6 @@ interface RuntimeBindingProperty
         throws XmlException;
 
     boolean isSet(Object parentObject, MarshalResult result)
-        throws XmlException;
-
-    //used during marshalling to determine if we need to write xsi:type info
-    boolean isTypeSubstituted(Object property_value, MarshalResult result)
         throws XmlException;
 
     boolean isMultiple();

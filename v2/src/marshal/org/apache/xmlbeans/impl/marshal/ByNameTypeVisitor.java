@@ -25,12 +25,12 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
-final class ByNameTypeVisitor extends NamedXmlTypeVisitor
+final class ByNameTypeVisitor
+    extends NamedXmlTypeVisitor
 {
     private final ByNameRuntimeBindingType type;
     private final int maxElementPropCount;
     private final int maxAttributePropCount;
-    private final boolean needsXsiType;
     private int elemPropIdx = -1;
     private List attributeNames;
     private List attributeValues;
@@ -46,16 +46,13 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
         super(obj, property, result);
         final BindingType pt = property.getType();
 
-        needsXsiType = property.isTypeSubstituted(obj, result);
-        if (needsXsiType) {
-            type = (ByNameRuntimeBindingType)result.createRuntimeBindingType(pt, obj);
-        } else {
-            type = (ByNameRuntimeBindingType)result.createRuntimeBindingType(pt);
-        }
+        type = (ByNameRuntimeBindingType)getActualRuntimeBindingType();
+
 
         maxElementPropCount = obj == null ? 0 : type.getElementPropertyCount();
         maxAttributePropCount = obj == null ? 0 : type.getAttributePropertyCount();
     }
+
 
     protected int getState()
     {
@@ -195,7 +192,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
             names.add(nil_qn);
             vals.add(XsTypeConverter.printBoolean(true));
         } else {
-            if (needsXsiType) {
+            if (needsXsiType()) {
                 QName aname = fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
                 names.add(aname);
                 QName tn = fillPrefix(type.getSchemaTypeName());

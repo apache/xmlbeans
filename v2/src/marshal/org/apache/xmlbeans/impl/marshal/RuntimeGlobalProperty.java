@@ -23,19 +23,33 @@ import javax.xml.namespace.QName;
 final class RuntimeGlobalProperty
     implements RuntimeBindingProperty
 {
-    private final BindingType type;
     private final QName rootElement;
+    private final RuntimeBindingType runtimeBindingType;
 
-    public RuntimeGlobalProperty(BindingType type,
-                                 QName rootElement)
+    public RuntimeGlobalProperty(QName rootElement,
+                                 RuntimeBindingType runtimeBindingType)
     {
-        this.type = type;
         this.rootElement = rootElement;
+        this.runtimeBindingType = runtimeBindingType;
     }
 
     public BindingType getType()
     {
-        return type;
+        return runtimeBindingType.getBindingType();
+    }
+
+    public RuntimeBindingType getRuntimeBindingType()
+    {
+        return runtimeBindingType;
+    }
+
+    public RuntimeBindingType getActualRuntimeType(Object parentObject,
+                                                   MarshalResult result)
+        throws XmlException
+    {
+        return MarshalResult.findActualRuntimeType(parentObject,
+                                                   runtimeBindingType,
+                                                   result);
     }
 
     public QName getName()
@@ -60,6 +74,8 @@ final class RuntimeGlobalProperty
     {
         //TODO: polymorphism checks
 
+        final BindingType type = getType();
+
         final TypeMarshaller tm =
             result.getTypeTable().getTypeMarshaller(type);
 
@@ -81,14 +97,6 @@ final class RuntimeGlobalProperty
         throws XmlException
     {
         return true;
-    }
-
-    //used during marshalling to determine if we need to write xsi:type info
-    public boolean isTypeSubstituted(Object property_value, MarshalResult result)
-        throws XmlException
-    {
-        //TODO: this needs to be done properly
-        return false;
     }
 
     public boolean isMultiple()
