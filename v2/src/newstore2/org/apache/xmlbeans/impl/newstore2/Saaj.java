@@ -139,6 +139,8 @@ public interface Saaj
     void    soapHeaderElement_setActor          ( SOAPHeaderElement soapHeaderElement, String actor );
     String  soapHeaderElement_getActor          ( SOAPHeaderElement soapHeaderElement );
 
+    boolean soapText_isComment (javax.xml.soap.Text text );
+
     DetailEntry detail_addDetailEntry   ( Detail detail, Name name );
     Iterator    detail_getDetailEntries ( Detail detail );
 }

@@ -392,7 +392,6 @@ final class DomImpl
     private static void removeNode ( Dom n )
     {
         assert n.nodeType() != TEXT && n.nodeType() != CDATA;
-        assert parent( n ) != null;
         
         Cur cTo = n.tempCur();
         Cur cFrom = n.tempCur();
@@ -3823,7 +3822,7 @@ final class DomImpl
             super( l );
         }
 
-        public boolean isComment ( ) { return false; }
+        public boolean isComment ( ) { return DomImpl._soapText_isComment( this ); }
         
         public void detachNode ( ) { DomImpl._soapNode_detachNode( this ); }
         public void recycleNode ( ) { DomImpl._soapNode_recycleNode( this ); }
@@ -3840,7 +3839,7 @@ final class DomImpl
             super( l );
         }
 
-        public boolean isComment ( ) { return false; }
+        public boolean isComment ( ) { return DomImpl._soapText_isComment( this ); }
         
         public void detachNode ( ) { DomImpl._soapNode_detachNode( this ); }
         public void recycleNode ( ) { DomImpl._soapNode_recycleNode( this ); }
@@ -3848,6 +3847,20 @@ final class DomImpl
         public void setValue ( String value ) { DomImpl._soapNode_setValue( this, value ); }
         public SOAPElement getParentElement ( ) { return DomImpl._soapNode_getParentElement( this ); }
         public void setParentElement ( SOAPElement p ) { DomImpl._soapNode_setParentElement( this, p ); }
+    }
+
+    //
+    // Soap Text Node
+    //
+
+    public static boolean _soapText_isComment ( Dom n )
+    {
+        Locale l = n.locale();
+
+        javax.xml.soap.Text text = (javax.xml.soap.Text) n;
+
+        if (l.noSync())         { l.enter(); try { return l._saaj.soapText_isComment( text ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l._saaj.soapText_isComment( text ); } finally { l.exit(); } }
     }
     
     //
