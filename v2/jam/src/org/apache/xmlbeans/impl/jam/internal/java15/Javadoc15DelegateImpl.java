@@ -16,6 +16,8 @@ package org.apache.xmlbeans.impl.jam.internal.java15;
 
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
+import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
+import org.apache.xmlbeans.impl.jam.mutable.MElement;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.Javadoc15Delegate;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
@@ -87,6 +89,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
   private void populateAnnotation(MAnnotation dest, 
                                   AnnotationDesc src, 
                                   SourcePosition sp) {
+    if (sp != null) JavadocClassBuilder.addSourcePosition(dest,sp);
     AnnotationDesc.MemberValuePair[] mvps = src.memberValues();
     for(int i=0; i<mvps.length; i++) {
       Type jmt = mvps[i].member().returnType();
@@ -180,6 +183,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
                                    AnnotationValue[] annValueArray,
                                    SourcePosition sp)
   {
+    if (sp != null) JavadocClassBuilder.addSourcePosition(dest,sp);
     String memberName = memberDoc.name();
     Type returnType = memberDoc.returnType();
     if (annValueArray.length == 0) {

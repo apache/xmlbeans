@@ -289,13 +289,16 @@ public class JavadocClassBuilder extends JamClassBuilder {
     }
   }
 
-  private void addSourcePosition(MElement dest, Doc src) {
-    SourcePosition jds = src.position();
-    if (jds == null) return;
+  public static void addSourcePosition(MElement dest, Doc src) {
+    SourcePosition pos = src.position();
+    if (pos != null) addSourcePosition(dest,pos);
+  }
+
+  public static void addSourcePosition(MElement dest, SourcePosition pos) {
     MSourcePosition sp = dest.createSourcePosition();
-    sp.setColumn(jds.column());
-    sp.setLine(jds.line());
-    File f = jds.file();
+    sp.setColumn(pos.column());
+    sp.setLine(pos.line());
+    File f = pos.file();
     if (f != null) sp.setSourceURI(f.toURI());
   }
 

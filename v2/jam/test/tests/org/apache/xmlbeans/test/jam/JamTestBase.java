@@ -415,6 +415,8 @@ public abstract class JamTestBase extends TestCase {
                employeeList.length == 2);
     JAnnotation boog = employeeList[0];
     assertTrue("boog annotation is null",boog != null);
+    //FIXME shouldnt be isCommentsAvailable
+    if (isCommentsAvailable()) assertTrue(boog.getSourcePosition() != null);
     {
       JAnnotationValue firstName = boog.getValue("firstName");
       assertTrue("firstName is null",firstName != null);
@@ -485,6 +487,9 @@ public abstract class JamTestBase extends TestCase {
       assertTrue("address is null",addressValue != null);
       JAnnotation address = addressValue.asAnnotation();
       assertTrue("address is null",address != null);
+      //FIXME shouldnt be isCommentsAvailable
+      if (isCommentsAvailable()) assertTrue(boog.getSourcePosition() != null);
+
       {
         JAnnotationValue street = address.getValue("street");
         assertTrue("street is null",street != null);
