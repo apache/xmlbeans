@@ -508,6 +508,19 @@ final class Cur
         return true;
     }
     
+    boolean toLastAttr ( )
+    {
+        assert _xobj != null && isNormal() && _pos == 0;
+
+        if (!toFirstAttr())
+            return false;
+
+        while ( toNextAttr() )
+            ;
+
+        return true;
+    }
+    
     boolean toNextAttr ( )
     {
         assert _xobj != null && isNormal() && _pos == 0 && isAttr();
@@ -572,6 +585,49 @@ final class Cur
         }
 
         assert false;
+    }
+    
+    boolean prev ( )
+    {
+        assert isNormal();
+
+        if (_xobj.isRoot() && _pos == 0)
+            return false;
+        
+        Xobj x = getDenormal();
+        int  p = _posTemp;
+
+        assert p != 0;
+
+        int pa = x.posAfter();
+
+        if (p > pa)
+            p = pa;
+        else if (p == pa)
+        {
+            if (x.isAttr() && x._cchAfter > 0)
+            {
+                x = x.ensureParent();
+                p = 0;
+            }
+            else
+                p = pa - 1;
+        }
+        else if (p == pa - 1)
+        {
+            p = x._cchValue > 0 ? 1 : 0;
+        }
+        else if (p > 1)
+            p = 1;
+        else
+        {
+            assert p == 1;
+            p = 0;
+        }
+        
+        set( getNormal( x, p ), _posTemp );
+
+        return true;
     }
     
     boolean next ( )
@@ -1196,6 +1252,7 @@ final class Cur
     private Xobj getDenormal ( )
     {
         assert _xobj != null && isNormal();
+        assert !_xobj.isRoot() || _pos > 0;
         
         Xobj x = _xobj;
         int  p = _pos;

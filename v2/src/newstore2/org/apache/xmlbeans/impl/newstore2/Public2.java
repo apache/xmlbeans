@@ -205,18 +205,45 @@ public final class Public2
         d.dump( o );
     }
 
-    public static void dump ( Dom d )
-    {
-        dump( System.out, d );
-    }
-
-    public static void dump ( Node n )
-    {
-        dump( System.out, n );
-    }
-
     public static void dump ( PrintStream o, Node n )
     {
         dump( o, (Dom) n );
+    }
+
+    public static void dump ( PrintStream o, XmlCursor c )
+    {
+        ((Cursor) c).dump( o );
+    }
+
+    public static void dump ( Dom  d )      { dump( System.out, d ); }
+    public static void dump ( Node n )      { dump( System.out, n ); }
+    public static void dump ( XmlCursor c ) { dump( System.out, c ); }
+
+    public static void test ( Node n )
+    {
+        Dom d = (Dom) n;
+        
+        Cur c = d.locale().permCur();
+        c.moveToDom( d );
+
+        c.dump();
+        
+        for ( ; ; )
+        {
+            if (!c.next())
+                break;
+            
+            c.dump();
+        }
+
+        for ( ; ; )
+        {
+            if (!c.prev())
+                break;
+            
+            c.dump();
+        }
+
+        c.release();
     }
 }
