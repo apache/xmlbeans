@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package compile.scomp.detailed;
+package compile.scomp.checkin;
 
 import junit.framework.TestCase;
 import junit.framework.Assert;
