@@ -1,4 +1,4 @@
-10/30/2003
+XMLBeans v1.0.2
 
 Welcome to XmlBeans!
 
