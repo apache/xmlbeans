@@ -5,6 +5,7 @@
   <property name='src-jamtest' value='.' />
   <property name='xbean-build-dir' value='../../../build'/>
   <property name='build-dir' value='${xbean-build-dir}/test/jamtest'/>
+  <property name='dummy-dir' value='${xbean-build-dir}/test/jamtest/dummyclasses'/>
   <property name='junit-jar' value='../../../external/lib/junit.jar' />
 
   <path id='classpath' >
@@ -21,12 +22,19 @@
   <property name='classpath-value' refid='classpath'/>
 
   <target name='all' depends='build,run' />
-  
+
   <target name='build' >
     <mkdir dir='${build-dir}'/>
     <javac
        srcdir='tests'
        destdir='${build-dir}'
+       classpathref='classpath'
+       includes='**/*.java'
+     />
+    <mkdir dir='${dummy-dir}'/>
+    <javac
+       srcdir='dummyclasses'
+       destdir='${dummy-dir}'
        classpathref='classpath'
        includes='**/*.java'
      />
@@ -50,7 +58,8 @@
         <pathelement path='${classpath-value}'/> <!--ref no workie-->
       </classpath>
       <formatter type='plain' usefile='false'/>
-      <test name='org.apache.xmlbeans.test.jam.JamTests'/>
+      <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
+      <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
     </junit>
   </target>
 
