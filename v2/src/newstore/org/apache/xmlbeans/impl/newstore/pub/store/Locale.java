@@ -311,11 +311,12 @@ public abstract class Locale implements DOMImplementation, SaajCallback
     private static class SaxLoader
             implements ContentHandler, LexicalHandler, ErrorHandler, EntityResolver
     {
+        private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
         SaxLoader ( )
         {
             try
             {
-                _xr = SAXParserFactory.newInstance().newSAXParser().getXMLReader();
+                _xr = saxParserFactory.newSAXParser().getXMLReader();
 
                 _xr.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
                 _xr.setFeature( "http://xml.org/sax/features/namespaces", true );
