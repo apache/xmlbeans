@@ -3,7 +3,7 @@
 @rem Invokes pretty printer
 
 setlocal
-call _setlib
+if "%XMLBEANS_LIB%" EQU "" call %~dp0_setlib
 
 set cp=
 set cp=%cp%;%XMLBEANS_LIB%\xbean.jar
