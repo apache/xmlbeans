@@ -806,7 +806,7 @@ public class Jsr173
             // TODO - avoid creating a string here
             String s = getText();
 
-            return _locale._charUtil.isWhiteSpace( s, 0, s.length() );
+            return _locale.getCharUtil().isWhiteSpace( s, 0, s.length() );
         }
 
         public Location getLocation ( )

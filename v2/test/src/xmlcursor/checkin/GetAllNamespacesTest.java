@@ -96,14 +96,14 @@ public class GetAllNamespacesTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, XmlCursor.TokenType.START);
 
 // NEWSTORE START
-//            m_xc.getAllNamespaces(null);
-        try {
             m_xc.getAllNamespaces(null);
-            fail("Map is null: should get an error");
-        }
-        catch (Exception e) {
-            System.err.println("Error thrown " + e.getMessage());
-        }
+//        try {
+//            m_xc.getAllNamespaces(null);
+//            fail("Map is null: should get an error");
+//        }
+//        catch (Exception e) {
+//            System.err.println("Error thrown " + e.getMessage());
+//        }
 // NEWSTORE END
     }
 

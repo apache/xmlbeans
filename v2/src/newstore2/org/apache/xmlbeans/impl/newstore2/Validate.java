@@ -204,7 +204,7 @@ final class Validate implements ValidatorListener.Event
         if (_cur.isAttr())
         {
             return
-                _cur._locale._charUtil.isWhiteSpace(
+                _cur._locale.getCharUtil().isWhiteSpace(
                     _cur.getFirstChars(), _cur._offSrc, _cur._cchSrc );
         }
         
@@ -213,13 +213,13 @@ final class Validate implements ValidatorListener.Event
         if (_oneChunk)
         {
             return
-                _cur._locale._charUtil.isWhiteSpace(
+                _cur._locale.getCharUtil().isWhiteSpace(
                     _textCur.getChars( -1 ), _textCur._offSrc, _textCur._cchSrc );
         }
 
         String s = _textSb.toString();
         
-        return _cur._locale._charUtil.isWhiteSpace( s, 0, s.length() );
+        return _cur._locale.getCharUtil().isWhiteSpace( s, 0, s.length() );
     }
 
     public String getNamespaceForPrefix ( String prefix )

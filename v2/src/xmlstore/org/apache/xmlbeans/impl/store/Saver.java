@@ -1085,11 +1085,8 @@ public abstract class Saver implements NamespaceManager
                     {
                         renamePrefix = (String) _namespaceStack.get( i - 8 );
 
-                        if (renamePrefix == null ||
-                              !renamePrefix.equals( prefix ))
-                        {
+                        if (renamePrefix == null || !renamePrefix.equals( prefix ))
                             break;
-                        }
                     }
 
                     i -= 8;
@@ -4417,13 +4414,13 @@ public abstract class Saver implements NamespaceManager
             // to create the fragment
 
 // NEWSTORE START
-//            DOMImplementation impl =
-//                org.apache.xmlbeans.impl.newstore2.Public2.getDomImplementation();
-//
-//            _doc = impl.createDocument( null, "foo", null );
-//
-//            _doc.removeChild( _doc.getDocumentElement() );
-            _doc = ((DocumentBuilder) _threadDocumentBuilderFactory.get()).newDocument();
+            DOMImplementation impl =
+                org.apache.xmlbeans.impl.newstore2.Public2.getDomImplementation();
+
+            _doc = impl.createDocument( null, "foo", null );
+
+            _doc.removeChild( _doc.getDocumentElement() );
+//            _doc = ((DocumentBuilder) _threadDocumentBuilderFactory.get()).newDocument();
 // NEWSTORE END
 
             Node result;

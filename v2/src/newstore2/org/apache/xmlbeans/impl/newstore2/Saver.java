@@ -156,15 +156,9 @@ abstract class Saver
             positionToInner( c, start, end );
 
             if (Locale.isFragment( start, end ))
-            {
-                positionToInner( c, start, end );
                 cur = new FragSaveCur( start, end, fragName );
-            }
             else if (synthName != null)
-            {
-                positionToInner( c, start, end );
                 cur = new FragSaveCur( start, end, synthName );
-            }
             else
                 cur = new DocSaveCur( c );
 
@@ -176,7 +170,6 @@ abstract class Saver
             if (saveInner)
             {
                 positionToInner( c, start, end );
-                boolean isFrag = Locale.isFragment( start, end );
                 
                 cur =
                     new FragSaveCur(
@@ -185,6 +178,7 @@ abstract class Saver
             else if (synthName != null)
             {
                 positionToInner( c, start, end );
+                
                 cur = new FragSaveCur( start, end, synthName );
             }
             else
@@ -519,7 +513,7 @@ abstract class Saver
 
         for ( iterateMappings() ; hasMapping() ; nextMapping() )
             if (mappingPrefix().equals( prefix ))
-                return;;
+                return;
 
         addMapping( prefix, uri );
     }
@@ -2074,7 +2068,7 @@ abstract class Saver
     //
     //
 
-    private static abstract class SaveCur
+    static abstract class SaveCur
     {
         final boolean isRoot       ( ) { return kind() == ROOT;     }
         final boolean isElem       ( ) { return kind() == ELEM;     }
