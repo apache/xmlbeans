@@ -24,6 +24,23 @@ package org.apache.xmlbeans.impl.jam;
  * returns the outer class.  Otherwise, it returns the containing
  * package.</p>
  *
+ * <p><b>Important Note:</b> Because JAM's classloading machinery may swap
+ * instances of JClass out of memory at any time, you should never rely on
+ * instance equality (i.e., '==') when comparing two JClasses.  To illustrate:
+ * it is possible (though rather unlikely) that that the following expression
+ * will evaluate to false</p>
+ *
+ * <code>
+ *   JMethod myJMethod = ...
+ *   myJMethod.getReturnType() == myJMethod.getReturnType()
+ * </code>
+ *
+ * <p>Instead, you should always use equals()</p>
+
+ * <code>
+ *   myJMethod.getReturnType().equals(myJMethod.getReturnType())
+ * </code>
+ *
  * <p>REVIEW a bunch of these methods (getMethods, getConstructors...)
  * could throw SecurityException if the JClass is backed by
  * java.lang.Class (see javadocs for Class).  We're currently ignoring

@@ -222,7 +222,9 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     if (s != null) dest.setSuperclass(s.qualifiedName());
     // set the interfaces
     ClassDoc[] ints = src.interfaces();
-    for(int i=0; i<ints.length; i++) dest.addInterface(ints[i].qualifiedName());
+    for(int i=0; i<ints.length; i++) {
+      dest.addInterface(ints[i].qualifiedName());
+    }
     // add the fields
     FieldDoc[] fields = src.fields();
     for(int i=0; i<fields.length; i++) populate(dest.addNewField(),fields[i]);
