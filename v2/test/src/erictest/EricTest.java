@@ -106,30 +106,19 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<z:foo xmlns:z='uri'>text<z:a>25</z:a></z:foo>" );
-
-        Element e = doc.getDocumentElement();
-
-        Attr a = (Attr) e.getAttributes().item( 0 );
-
-        Public2.dump( doc );
-
-        e.removeAttributeNode( a );
-
-        Public2.dump( doc );
-        
-
-        
+        XmlOptions pp = new XmlOptions();
+        pp.setSavePrettyPrint();
         
         XmlCursor c = Public2.newStore();
 
         c.toNextToken();
-        c.insertChars( "abc" );
-        c.insertElement( "foo" );
+        c.beginElement( "a" );
+        c.insertChars( "xyz" );
+        c.beginElement( "b" );
 
         c.toStartDoc();
 
-        System.out.println( Public2.save( c ) );
+        System.out.println( "\"" + Public2.save( c, pp ) + "\"" );
     }
 }
 

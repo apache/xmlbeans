@@ -227,23 +227,18 @@ public final class Public2
         c.moveToDom( d );
 
         c.dump();
+
+        c.next();
+        c.next();
+        c.next();
+
+        c.dump();
         
-        for ( ; ; )
-        {
-            if (!c.next())
-                break;
-            
-            c.dump();
-        }
-
-        for ( ; ; )
-        {
-            if (!c.prev())
-                break;
-            
-            c.dump();
-        }
-
+        c.nextChars( -1 );
+//        c.next();
+        
+        c.dump();
+        
         c.release();
     }
 }
