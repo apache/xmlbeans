@@ -64,6 +64,8 @@ import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.impl.common.ResolverUtil;
+import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -79,6 +81,7 @@ import java.util.*;
 import java.net.URI;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.xml.sax.EntityResolver;
 
 public class SchemaCompiler
 {
@@ -107,6 +110,7 @@ public class SchemaCompiler
             System.out.println("    -verbose - print more informational messages");
             System.out.println("    -license - prints license information");
             System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces");
+            System.out.println("    -catalog [file] -  catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)");
             /* Undocumented feature - pass in one schema compiler extension and related parameters
             System.out.println("    -repackage - repackage specification");
             System.out.println("    -extension - registers a schema compiler extension");
@@ -132,6 +136,7 @@ public class SchemaCompiler
         opts.add("extension");
         opts.add("extensionParms");
         opts.add("allowmdef");
+        opts.add("catalog");
         CommandLine cl = new CommandLine(args, opts);
 
         if (cl.getOpt("license") != null)
@@ -236,9 +241,9 @@ public class SchemaCompiler
             jarfile = new File(outputfilename);
 
         if (src == null)
-            src = SchemaCodeGenerator.createDir(tempdir, "src");
+            src = IOUtil.createDir(tempdir, "src");
         if (classes == null)
-            classes = SchemaCodeGenerator.createDir(tempdir, "classes");
+            classes = IOUtil.createDir(tempdir, "classes");
 
         File[] classpath = null;
         String cpString = cl.getOpt("cp");
@@ -276,6 +281,8 @@ public class SchemaCompiler
 
         XmlErrorPrinter err = new XmlErrorPrinter(verbose, baseURI);
 
+        String catString = cl.getOpt("catalog");
+
         Parameters params = new Parameters();
         params.setBaseDir(baseDir);
         params.setXsdFiles(xsdFiles);
@@ -304,6 +311,7 @@ public class SchemaCompiler
         params.setExtensions(extensions);
         params.setJaxb(jaxb);
         params.setMdefNamespaces(mdefNamespaces);
+        params.setCatalogFile(catString);
 
         boolean result = compile(params);
 
@@ -345,6 +353,7 @@ public class SchemaCompiler
         private List extensions = Collections.EMPTY_LIST;
         private boolean jaxb;
         private Set mdefNamespaces = Collections.EMPTY_SET;
+        private String catalogFile;
 
         public File getBaseDir()
         {
@@ -615,6 +624,16 @@ public class SchemaCompiler
             this.mdefNamespaces = mdefNamespaces;
         }
 
+        public String getCatalogFile()
+        {
+            return catalogFile;
+        }
+
+        public void setCatalogFile(String catalogPropFile)
+        {
+            this.catalogFile = catalogPropFile;
+        }
+
     }
 
     private static SchemaTypeSystem loadTypeSystem(
@@ -622,7 +641,7 @@ public class SchemaCompiler
         File[] wsdlFiles, File[] configFiles, ResourceLoader cpResourceLoader,
         boolean download, boolean noUpa, boolean noPvr, boolean noAnn,
         Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
-        Collection outerErrorListener)
+        Collection outerErrorListener, File schemasDir, EntityResolver entResolver)
     {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
@@ -645,6 +664,7 @@ public class SchemaCompiler
                     XmlOptions options = new XmlOptions();
                     options.setLoadLineNumbers();
                     options.setLoadMessageDigest();
+                    options.setEntityResolver(entResolver);
 
                     XmlObject schemadoc = loader.parse(xsdFiles[i], null, options);
                     if (!(schemadoc instanceof SchemaDocument))
@@ -682,7 +702,7 @@ public class SchemaCompiler
                     options.setLoadSubstituteNamespaces(Collections.singletonMap(
                             "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst"
                     ));
-
+                    options.setEntityResolver(entResolver);
 
                     XmlObject wsdldoc = loader.parse(wsdlFiles[i], null, options);
 
@@ -732,6 +752,7 @@ public class SchemaCompiler
                 {
                     XmlOptions options = new XmlOptions();
                     options.put( XmlOptions.LOAD_LINE_NUMBERS );
+                    options.setEntityResolver(entResolver);
 
                     XmlObject configdoc = loader.parse(configFiles[i], null, options);
                     if (!(configdoc instanceof ConfigDocument))
@@ -773,6 +794,7 @@ public class SchemaCompiler
         if (mdefNamespaces != null)
             opts.setCompileMdefNamespaces(mdefNamespaces);
         opts.setCompileNoValidation(); // already validated here
+        opts.setEntityResolver(entResolver);
 
         // now pass it to the main compile function
         SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
@@ -785,6 +807,7 @@ public class SchemaCompiler
         params.setJavaize(true);
         params.setBaseURI(baseURI);
         params.setSourcesToCopyMap(sourcesToCopyMap);
+        params.setSchemasDir(schemasDir);
         return SchemaTypeSystemCompiler.compile(params);
     }
 
@@ -818,6 +841,8 @@ public class SchemaCompiler
         boolean jaxb = params.getJaxb();
         Set mdefNamespaces = params.getMdefNamespaces();
 
+        EntityResolver cmdLineEntRes = ResolverUtil.resolverForCatalog(params.getCatalogFile());
+
         if (srcDir == null || classesDir == null)
             throw new IllegalArgumentException("src and class gen directories may not be null.");
 
@@ -836,9 +861,13 @@ public class SchemaCompiler
 
         boolean result = true;
 
+        File schemasDir = IOUtil.createDir(classesDir, "schema/src");
+
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
-        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, configFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, mdefNamespaces, baseDir, sourcesToCopyMap, errorListener);
+        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, configFiles, cpResourceLoader,
+            download, noUpa, noPvr, noAnn, mdefNamespaces, baseDir, sourcesToCopyMap, errorListener,
+            schemasDir, cmdLineEntRes);
         if (errorListener.hasError())
             result = false;
         long finish = System.currentTimeMillis();
@@ -852,7 +881,9 @@ public class SchemaCompiler
 
             // generate source and .xsb
             List sourcefiles = new ArrayList();
-            result &= SchemaCodeGenerator.compileTypeSystem(system, srcDir, javaFiles, sourcesToCopyMap, classpath, classesDir, outputJar, nojavac, jaxb, errorListener, repackage, verbose, sourcefiles);
+            result &= SchemaCodeGenerator.compileTypeSystem(system, srcDir, javaFiles, sourcesToCopyMap,
+                classpath, classesDir, outputJar, nojavac, jaxb, errorListener, repackage, verbose,
+                sourcefiles, schemasDir);
             result &= !errorListener.hasError();
 
             if (result)

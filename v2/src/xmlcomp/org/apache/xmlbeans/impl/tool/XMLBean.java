@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 * are met:
 *
 * 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer. 
+*    notice, this list of conditions and the following disclaimer.
 *
 * 2. Redistributions in binary form must reproduce the above copyright
 *    notice, this list of conditions and the following disclaimer in
@@ -18,19 +18,19 @@
 *    distribution.
 *
 * 3. The end-user documentation included with the redistribution,
-*    if any, must include the following acknowledgment:  
+*    if any, must include the following acknowledgment:
 *       "This product includes software developed by the
 *        Apache Software Foundation (http://www.apache.org/)."
 *    Alternately, this acknowledgment may appear in the software itself,
 *    if and wherever such third-party acknowledgments normally appear.
 *
-* 4. The names "Apache" and "Apache Software Foundation" must 
+* 4. The names "Apache" and "Apache Software Foundation" must
 *    not be used to endorse or promote products derived from this
-*    software without prior written permission. For written 
+*    software without prior written permission. For written
 *    permission, please contact apache@apache.org.
 *
-* 5. Products derived from this software may not be called "Apache 
-*    XMLBeans", nor may "Apache" appear in their name, without prior 
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
 *    written permission of the Apache Software Foundation.
 *
 * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -49,7 +49,7 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems 
+* originally based on software copyright (c) 2000-2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
@@ -73,15 +73,16 @@ import java.util.*;
 import java.net.URI;
 
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.common.IOUtil;
 
 /**
  * Modeled after Ant's javac and zip tasks.
  *
  * Schema files to process, or directories of schema files, are set with the 'schema'
  * attribute, and can be filtered with 'includes' and 'excludes'.
- * Alternatively, one or more nested &lt;fileset&gt; elements can specify the 
+ * Alternatively, one or more nested &lt;fileset&gt; elements can specify the
  * files and directories to be used to generate this XMLBean.
- * The include set can also define .java files that should be built as well.  
+ * The include set can also define .java files that should be built as well.
  * See the FileSet documentation at http://jakarta.apache.org/ant/manual/index.html
  * for instructions on FileSets if you are unfamiliar with their usage.
  */
@@ -89,14 +90,14 @@ import org.apache.xmlbeans.XmlError;
 public class XMLBean extends MatchingTask
 {
     private ArrayList   schemas = new ArrayList();
-    
+
     private Path        classpath;
-    
+
     private File        destfile,
                         schema,
                         srcgendir,
                         classgendir;
-    
+
     private boolean     quiet,
                         verbose,
                         debug,
@@ -107,14 +108,15 @@ public class XMLBean extends MatchingTask
                         fork = true,
                         includeAntRuntime = true,
                         includeJavaRuntime = false;
-    
+
     private String      typesystemname,
                         forkedExecutable,
                         compiler,
                         debugLevel,
                         memoryInitialSize,
-                        memoryMaximumSize;
-    
+                        memoryMaximumSize,
+                        catalog;
+
     private List        extensions = new ArrayList();
 
     private HashMap     _extRouter = new HashMap(5);
@@ -142,7 +144,7 @@ public class XMLBean extends MatchingTask
                 return;
             }
         }
-        
+
         _extRouter.put(XSD, new HashSet());
         _extRouter.put(WSDL, new HashSet());
         _extRouter.put(JAVA, new HashSet());
@@ -164,10 +166,10 @@ public class XMLBean extends MatchingTask
                 processPaths(new String[] { schema.getName() }, theBasedir);
             }
         }
-        
+
         if (fileset.getDir(project) != null)
             schemas.add(fileset);
-        
+
         Iterator si = schemas.iterator();
         while (si.hasNext())
         {
@@ -181,7 +183,7 @@ public class XMLBean extends MatchingTask
 
         Set xsdList = (Set) _extRouter.get(XSD);
         Set wsdlList = (Set) _extRouter.get(WSDL);
-        
+
         if (xsdList.size() + wsdlList.size() == 0)
         {
             log("Could not find any xsd or wsdl files to process.", Project.MSG_WARN);
@@ -220,26 +222,26 @@ public class XMLBean extends MatchingTask
                 tmpdir = SchemaCodeGenerator.createTempDir();
             }
             if (srcgendir == null)
-                srcgendir = SchemaCodeGenerator.createDir(tmpdir, "src");
+                srcgendir = IOUtil.createDir(tmpdir, "src");
             if (classgendir == null)
-                classgendir = SchemaCodeGenerator.createDir(tmpdir, "classes");
-            
+                classgendir = IOUtil.createDir(tmpdir, "classes");
+
             // use the system classpath if user didn't provide any
             if (classpath == null)
             {
                 classpath = new Path(project);
                 classpath.concatSystemClasspath();
             }
-        
+
             // prepend the output directory on the classpath
             Path.PathElement pathElement = classpath.createPathElement();
             pathElement.setLocation(classgendir);
-        
+
             String[] paths = classpath.list();
             File[] cp = new File[paths.length];
             for (int i = 0; i < paths.length; i++)
                 cp[i] = new File(paths[i]);
-        
+
             // generate the source
             SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
             params.setBaseDir(theBasedir);
@@ -259,6 +261,7 @@ public class XMLBean extends MatchingTask
             params.setDownload(download);
             params.setExtensions(extensions);
             params.setErrorListener(err);
+            params.setCatalogFile(catalog);
             success = SchemaCompiler.compile(params);
 
             if (success && !srconly) {
@@ -310,7 +313,7 @@ public class XMLBean extends MatchingTask
             //interrupted means cancel
             if (e instanceof InterruptedException)
                 throw new BuildException(e);
-            
+
             log("Exception while building schemas: " + e.getMessage(), Project.MSG_ERR);
             StringWriter sw = new StringWriter();
             e.printStackTrace(new PrintWriter(sw));
@@ -366,7 +369,7 @@ public class XMLBean extends MatchingTask
      * supplied by other compiled xml beans JAR files, or if .java files are in the
      * schema fileset.
      * @param classpath Optional.
-     */ 
+     */
     public void setClasspath(Path classpath)
     {
         if (this.classpath != null)
@@ -374,7 +377,7 @@ public class XMLBean extends MatchingTask
         else
             this.classpath = classpath;
     }
-    
+
     /**
      * Adds a path to the classpath.
      */
@@ -393,10 +396,10 @@ public class XMLBean extends MatchingTask
     {
         if (classpath == null)
             classpath = new Path(project);
-        
+
         classpath.createPath().setRefid(classpathref);
     }
-    
+
     public Path getClasspath()
     {
         return classpath;
@@ -412,7 +415,7 @@ public class XMLBean extends MatchingTask
      * will output the results of this task into a jar with the same name.
      * Optional, defaults to "xmltypes.jar".
      * @param destfile Optional.
-     */ 
+     */
     public void setDestfile(File destfile)
     {
         this.destfile = destfile;
@@ -427,7 +430,7 @@ public class XMLBean extends MatchingTask
      * Set a location to generate .java files into.  Optional, defaults to
      * a temp dir.
      * @param srcgendir Optional.
-     */ 
+     */
     public void setSrcgendir(File srcgendir)
     {
         this.srcgendir = srcgendir;
@@ -442,7 +445,7 @@ public class XMLBean extends MatchingTask
      * Set a location to generate .class files into.  Optional, defaults to
      * a temp dir.
      * @param classgendir Optional.
-     */ 
+     */
     public void setClassgendir(File classgendir)
     {
         this.classgendir = classgendir;
@@ -457,7 +460,7 @@ public class XMLBean extends MatchingTask
     {
         this.compiler = compiler;
     }
-    
+
     public boolean isDownload()
     {
         return download;
@@ -494,7 +497,7 @@ public class XMLBean extends MatchingTask
     /**
      * Controls the amount of output.  Defaults to true.
      * @param verbose Optional.
-     */ 
+     */
     public void setVerbose(boolean verbose)
     {
         this.verbose = verbose;
@@ -508,7 +511,7 @@ public class XMLBean extends MatchingTask
     /**
      * Controls the amount of output.  Defaults to false.
      * @param quiet Optional.
-     */ 
+     */
     public void setQuiet(boolean quiet)
     {
         this.quiet = quiet;
@@ -546,7 +549,7 @@ public class XMLBean extends MatchingTask
     /**
      * Generate debugging symbols.
      * @param debug Optional.
-     */ 
+     */
     public void setDebug(boolean debug)
     {
         this.debug = debug;
@@ -584,12 +587,12 @@ public class XMLBean extends MatchingTask
      * A value of true means that only source will be generated.  Optional,
      * default is false.
      * @param srconly Optional.
-     */ 
+     */
     public void setSrconly(boolean srconly)
     {
         this.srconly = srconly;
     }
- 
+
     public String getTypesystemname()
     {
         return typesystemname;
@@ -606,12 +609,12 @@ public class XMLBean extends MatchingTask
     }
 
     /**
-     * The name of the package that the TypeSystemHolder class should be 
+     * The name of the package that the TypeSystemHolder class should be
      * generated in. Normally this should be left unspecified.  None of
      * the xml beans are generated in this package.
      * <BR><BR>Use .xsdconfig files to modify xml bean package or class names.
      * @param typesystemname Optional.
-     */ 
+     */
     public void setTypesystemname(String typesystemname)
     {
         this.typesystemname = typesystemname;
@@ -626,7 +629,7 @@ public class XMLBean extends MatchingTask
      * Determines whether or not the ant target will continue if the XMLBean
      * creation encounters a build error.  Defaults to true.  Optional.
      * @param failonerror Optional.
-     */ 
+     */
     public void setFailonerror(boolean failonerror)
     {
         this.failonerror = failonerror;
@@ -676,6 +679,22 @@ public class XMLBean extends MatchingTask
     public void setMemoryMaximumSize(String memoryMaximumSize)
     {
         this.memoryMaximumSize = memoryMaximumSize;
+    }
+
+    /**
+     * Gets the XML Catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)
+     */
+    public String getCatalog()
+    {
+        return catalog;
+    }
+
+    /**
+     * Sets the XML Catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)
+     */
+    public void setCatalog(String catalog)
+    {
+        this.catalog = catalog;
     }
 
     private static URI uriFromFile(File f)

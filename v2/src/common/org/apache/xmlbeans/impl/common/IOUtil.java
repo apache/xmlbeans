@@ -62,6 +62,10 @@ import java.io.IOException;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.Writer;
+import java.io.Reader;
+import java.io.FileWriter;
+import java.io.FileReader;
 import java.net.URI;
 import java.nio.channels.FileChannel;
 
@@ -102,6 +106,22 @@ public class IOUtil
         try { output.close(); } catch (IOException ignore) {}
     }
 
+    public static void copyCompletely(Reader input, Writer output)
+        throws IOException
+    {
+        char[] buf = new char[8192];
+        while (true)
+        {
+            int length = input.read(buf);
+            if (length < 0)
+                break;
+            output.write(buf, 0, length);
+        }
+
+        try { input.close(); } catch (IOException ignore) {}
+        try { output.close(); } catch (IOException ignore) {}
+    }
+
     public static void copyCompletely(URI input, URI output)
         throws IOException
     {
@@ -132,4 +152,11 @@ public class IOUtil
         }
     }
 
+    public static File createDir(File rootdir, String subdir)
+    {
+        File newdir = (subdir == null) ? rootdir : new File(rootdir, subdir);
+        boolean created = (newdir.exists() && newdir.isDirectory()) || newdir.mkdirs();
+        assert(created) : "Could not create " + newdir.getAbsolutePath();
+        return newdir;
+    }
 }

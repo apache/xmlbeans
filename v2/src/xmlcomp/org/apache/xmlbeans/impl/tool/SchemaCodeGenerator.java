@@ -56,26 +56,35 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-
-import java.io.*;
-import java.util.*;
-import java.net.URL;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
-
 import org.apache.xmlbeans.impl.schema.SchemaTypeCodePrinter;
-import org.apache.xmlbeans.impl.common.IOUtil;
-
 import repackage.Repackager;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 public class SchemaCodeGenerator
 {
     // input directory, output dir filename
     // todo: output jar
-    public static boolean compileTypeSystem(SchemaTypeSystem saver, File sourcedir, File[] javasrc, Map sourcesToCopyMap, File[] classpath, File classesdir, File outputJar, boolean nojavac, boolean jaxb, XmlErrorWatcher errors, String repackage, boolean verbose, List sourcefiles )
+    public static boolean compileTypeSystem(SchemaTypeSystem saver, File sourcedir, File[] javasrc,
+         Map sourcesToCopyMap, File[] classpath, File classesdir, File outputJar, boolean nojavac,
+         boolean jaxb, XmlErrorWatcher errors, String repackage, boolean verbose, List sourcefiles,
+         File schemasDir)
     {
 
         if (sourcedir == null || classesdir == null)
@@ -85,36 +94,39 @@ public class SchemaCodeGenerator
 
         saver.saveToDirectory(classesdir);
 
-        // Save the schema sources to the classes directory
-        if ((sourcesToCopyMap != null) && (sourcesToCopyMap.size() > 0))
-        {
-            File schemasdir = createDir(classesdir, "schema/src");
-
-            for (Iterator iter = sourcesToCopyMap.keySet().iterator(); iter.hasNext();)
-            {
-                String key = (String)iter.next();
-
-                try
-                {
-                    URL url = new URL(key);
-                    String schemalocation = (String)sourcesToCopyMap.get(key);
-
-                    File targetFile = new File(schemasdir, schemalocation);
-                    File parentDir = new File(targetFile.getParent());
-                    createDir(parentDir, null);
-
-                    // Copy the file from filepath to schema/src/<schemaFile>
-                    InputStream in = url.openStream();
-                    FileOutputStream out = new FileOutputStream(new File(schemasdir, schemalocation));
-                    IOUtil.copyCompletely(in, out);
-                }
-                catch (IOException e)
-                {
-                    System.err.println("IO Error " + e);
-                    // failure = true; - not cause for failure
-                }
-            }
-        }
+        // Schema files already copyed when they where parsed
+//        if ((sourcesToCopyMap != null) && (sourcesToCopyMap.size() > 0))
+//        {
+//            for (Iterator iter = sourcesToCopyMap.keySet().iterator(); iter.hasNext();)
+//            {
+//                String key = (String)iter.next();
+//
+//                try
+//                {
+//                    String schemalocation = (String)sourcesToCopyMap.get(key);
+//
+//                    File targetFile = new File(schemasDir, schemalocation);
+//                    if (targetFile.exists())
+//                        continue;
+//
+//                    File parentDir = new File(targetFile.getParent());
+//                    IOUtil.createDir(parentDir, null);
+//
+//                    InputStream in = null;
+//                    URL url = new URL(key);
+//                    // Copy the file from filepath to schema/src/<schemaFile>
+//                    in = url.openStream();
+//
+//                    FileOutputStream out = new FileOutputStream(targetFile);
+//                    IOUtil.copyCompletely(in, out);
+//                }
+//                catch (IOException e)
+//                {
+//                    System.err.println("IO Error " + e);
+//                    // failure = true; - not cause for failure
+//                }
+//            }
+//        }
 
         Repackager repackager = repackage == null ? null : new Repackager( repackage );
 
@@ -283,14 +295,6 @@ public class SchemaCodeGenerator
             e2.initCause(e);
             throw e2;
         }
-    }
-
-    protected static File createDir(File rootdir, String subdir)
-    {
-        File newdir = (subdir == null) ? rootdir : new File(rootdir, subdir);
-        boolean created = (newdir.exists() && newdir.isDirectory()) || newdir.mkdirs();
-        assert(created) : "Could not create " + newdir.getAbsolutePath();
-        return newdir;
     }
 
     protected static File createTempDir() throws IOException
