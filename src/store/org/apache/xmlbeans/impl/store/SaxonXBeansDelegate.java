@@ -29,6 +29,7 @@ import java.lang.reflect.Constructor;
  */
 public final class SaxonXBeansDelegate
 {
+    protected static boolean bInstantiated = false;
     static
     {
         boolean hasTheJars = false;
@@ -78,6 +79,7 @@ public final class SaxonXBeansDelegate
 
     static SelectPathInterface createInstance(String xpath, Map namespaceMap)
     {
+        bInstantiated = true;
         if (_constructor == null)
             return null;
 

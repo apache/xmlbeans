@@ -133,7 +133,7 @@ public abstract class Path
 
             if (path != null)
                 _xbeanPathCache.put(path._pathKey, path);
-            else {
+            else if (! SaxonXBeansDelegate.bInstantiated ){
                 path = createXqrlCompiledPath(pathExpr, currentVar);
                 if (path != null)
                     _xqrlPathCache.put(path._pathKey, path);
