@@ -210,21 +210,4 @@ public class MethodName {
      }
    }
    */
-
-  /**
-   * @deprecated
-   */
-  public static MethodName create(org.apache.xmlbeans.impl.jam_old.JMethod m) {
-    org.apache.xmlbeans.impl.jam_old.JParameter[] params = m.getParameters();
-    if (params == null || params.length == 0) {
-      return new MethodName(m.getSimpleName());
-    } else {
-      JavaTypeName[] types = new JavaTypeName[params.length];
-      for (int i = 0; i < types.length; i++) {
-        types[i] = JavaTypeName.forJClass(params[i].getType());
-      }
-      return new MethodName(m.getSimpleName(), types);
-    }
-  }
-  
 }
