@@ -69,19 +69,18 @@ interface RuntimeBindingProperty
 
     boolean isAttribute();
 
-    TypeUnmarshaller getTypeUnmarshaller(UnmarshallerImpl context);
+    TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context);
 
     void fill(Object inter, Object prop_obj);
 
     //non simple type props can throw some runtime exception.
-    CharSequence getLexical(Object parent, MarshallerImpl context);
+    CharSequence getLexical(Object parent, MarshalResult result);
 
-    Object getValue(Object parentObject, MarshallerImpl context);
+    Object getValue(Object parentObject, MarshalResult result);
 
-    boolean isSet(Object parentObject, MarshallerImpl context);
+    boolean isSet(Object parentObject, MarshalResult result);
 
     boolean isMultiple();
 
     boolean isNillable();
-
 }

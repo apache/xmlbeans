@@ -78,11 +78,12 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
 
     ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
-                      MarshallerImpl context)
+                      MarshalResult result)
     {
-        super(obj, property, context);
+        super(obj, property, result);
         final BindingType pt = property.getType();
-        type = (ByNameRuntimeBindingType)context.createRuntimeBindingType(pt, obj);
+
+        type = (ByNameRuntimeBindingType)result.createRuntimeBindingType(pt, obj);
         maxPropCount = obj == null ? 0 : type.getPropertyCount();
     }
 
@@ -140,7 +141,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
     {
         final RuntimeBindingProperty property = getCurrentProperty();
         if (property.isMultiple()) {
-            Object prop_obj = property.getValue(getParentObject(), marshalContext);
+            Object prop_obj = property.getValue(getParentObject(), marshalResult);
             final Iterator itr = MarshalResult.getCollectionIterator(prop_obj);
             currMultipleIterator = itr;
             if (itr.hasNext()) {
@@ -167,7 +168,7 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
         if (property.isAttribute()) return false;
 
-        final boolean set = property.isSet(getParentObject(), marshalContext);
+        final boolean set = property.isSet(getParentObject(), marshalResult);
         return set;
     }
 
@@ -177,13 +178,13 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
         if (haveMultipleItem) {
             return MarshalResult.createVisitor(property, currMultipleItem,
-                                               marshalContext);
+                                               marshalResult);
         } else {
-            Object prop_obj = property.getValue(getParentObject(), marshalContext);
+            Object prop_obj = property.getValue(getParentObject(), marshalResult);
             if (prop_obj instanceof Collection) {
                 throw new AssertionError("not good: " + prop_obj);
             }
-            return MarshalResult.createVisitor(property, prop_obj, marshalContext);
+            return MarshalResult.createVisitor(property, prop_obj, marshalResult);
         }
     }
 
@@ -233,13 +234,13 @@ final class ByNameTypeVisitor extends NamedXmlTypeVisitor
                 final RuntimeBindingProperty prop = type.getProperty(i);
 
                 if (!prop.isAttribute()) continue;
-                if (!prop.isSet(getParentObject(), marshalContext)) continue;
+                if (!prop.isSet(getParentObject(), marshalResult)) continue;
 
                 final Object value = prop.getValue(getParentObject(),
-                                                   marshalContext);
+                                                   marshalResult);
 
                 final CharSequence val = prop.getLexical(value,
-                                                         marshalContext);
+                                                         marshalResult);
 
                 if (val == null) continue;
 

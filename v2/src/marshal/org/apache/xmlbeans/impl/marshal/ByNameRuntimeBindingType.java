@@ -138,7 +138,7 @@ final class ByNameRuntimeBindingType
         }
     }
 
-    Object createIntermediary(UnmarshallerImpl context)
+    Object createIntermediary(UnmarshalResult context)
     {
         if (hasMulti) {
             return new UResultHolder(this);
@@ -148,7 +148,7 @@ final class ByNameRuntimeBindingType
     }
 
     Object getFinalObjectFromIntermediary(Object retval,
-                                          UnmarshallerImpl context)
+                                          UnmarshalResult context)
     {
         if (hasMulti) {
             UResultHolder rh = (UResultHolder)retval;
@@ -389,7 +389,7 @@ final class ByNameRuntimeBindingType
         }
 
 
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshallerImpl context)
+        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
         {
             //don't need any xsi stuff for attributes.
             if (bindingProperty.isAttribute()) return unmarshaller;
@@ -460,7 +460,7 @@ final class ByNameRuntimeBindingType
         }
 
         //non simple type props can throw some runtime exception.
-        public CharSequence getLexical(Object value, MarshallerImpl context)
+        public CharSequence getLexical(Object value, MarshalResult result)
         {
 
             //TODO: after marshalling table is refactored
@@ -471,7 +471,7 @@ final class ByNameRuntimeBindingType
                                          " class=" + beanClass);
             }
 
-            if (context == null) {
+            if (result == null) {
                 throw new AssertionError("null value for " + bindingProperty +
                                          " class=" + beanClass);
             }
@@ -483,10 +483,10 @@ final class ByNameRuntimeBindingType
                 throw new AssertionError(msg);
             }
 
-            return marshaller.print(value, context);
+            return marshaller.print(value, result);
         }
 
-        public Object getValue(Object parentObject, MarshallerImpl context)
+        public Object getValue(Object parentObject, MarshalResult result)
         {
             assert parentObject != null;
             assert beanClass.isAssignableFrom(parentObject.getClass()) :
@@ -506,12 +506,12 @@ final class ByNameRuntimeBindingType
         }
 
         //TODO: check isSet methods
-        public boolean isSet(Object parentObject, MarshallerImpl context)
+        public boolean isSet(Object parentObject, MarshalResult result)
         {
             if (bindingProperty.isNillable())
                 return true;
 
-            Object val = getValue(parentObject, context);
+            Object val = getValue(parentObject, result);
             return (val != null);
         }
 

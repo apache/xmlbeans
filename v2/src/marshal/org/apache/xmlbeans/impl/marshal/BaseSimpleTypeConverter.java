@@ -72,7 +72,7 @@ abstract class BaseSimpleTypeConverter
     {
     }
 
-    public final Object unmarshal(UnmarshallerImpl context)
+    public final Object unmarshal(UnmarshalResult context)
     {
         try {
             return getObject(context);
@@ -87,6 +87,6 @@ abstract class BaseSimpleTypeConverter
         }
     }
 
-    protected abstract Object getObject(UnmarshallerImpl context);
+    protected abstract Object getObject(UnmarshalResult context);
 
 }

@@ -73,7 +73,7 @@ final class PreserveStringTypeConverter
     {
     }
 
-    protected Object getObject(UnmarshallerImpl context)
+    protected Object getObject(UnmarshalResult context)
     {
         return context.getStringValue(XmlWhitespace.WS_PRESERVE);
     }

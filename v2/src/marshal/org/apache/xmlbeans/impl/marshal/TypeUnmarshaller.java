@@ -66,28 +66,28 @@ interface TypeUnmarshaller
 {
     /**
      * Unmarshalls the current node in the xml into a java object.
-     * The UnmarshalContext must be pointing at the start element of the node
+     * The UnmarshalResult must be pointing at the start element of the node
      * to be unmarshalled (such that XmlStreamReader.isStarteElement()
      * returns true).  The unmarshal method must consume the entire contents
      * of that node including the matching end element.
      *
-     * @param context  contains that state of the document unmarshal process
+     * @param result  contains that state of the document unmarshal process
      * @return  Object representing the converted xml
      */
-    Object unmarshal(UnmarshallerImpl context);
+    Object unmarshal(UnmarshalResult result);
 
     /**
      * unmarshal the lexical value of an instance of xsd:anySimpleType.
      * This could be called on an attribute value or on element content.
      *
-     * @param context
+     * @param result
      * @return Object representing java value of lexical
      *
      * @exception UnsupportedOperationException if the
      *            <tt>unmarshalSimpleType</tt> operation is not supported
      *            by this TypeUnmarshaller.
      */
-    Object unmarshalAttribute(UnmarshallerImpl context);
+    Object unmarshalAttribute(UnmarshalResult result);
 
 
     /**

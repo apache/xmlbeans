@@ -56,7 +56,10 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
@@ -78,37 +81,61 @@ import java.util.Stack;
 
 final class MarshalResult implements XMLStreamReader
 {
-    private final MarshallerImpl context;
+
+    //per binding context constants
+    private final RuntimeTypeFactory runtimeTypeFactory;
+    private final BindingLoader bindingLoader;
+    private final RuntimeBindingTypeTable typeTable;
 
     //state fields
-    private XmlTypeVisitor currVisitor;
+    private final Collection errors;
+    private final ScopedNamespaceContext namespaceContext;
     private final Stack visitorStack = new Stack();
+    private XmlTypeVisitor currVisitor;
     private int currentEventType = XMLStreamReader.START_ELEMENT;
     private boolean initedAttributes = false;
+    private int prefixCnt = 0;
 
 
     private static final String ATTRIBUTE_XML_TYPE = "CDATA";
+    private static final String NSPREFIX = "n";
 
-    MarshalResult(RuntimeBindingProperty property, Object obj,
-                  MarshallerImpl context)
+
+    //TODO: REVIEW: consider ways to reduce the number of parameters here
+    MarshalResult(RuntimeTypeFactory runtimeTypeFactory,
+                  BindingLoader loader,
+                  RuntimeBindingTypeTable tbl,
+                  NamespaceContext root_nsctx,
+                  RuntimeBindingProperty property,
+                  Object obj,
+                  XmlOptions options)
     {
-        currVisitor = createVisitor(property, obj, context);
-        this.context = context;
+        this.runtimeTypeFactory = runtimeTypeFactory;
+        bindingLoader = loader;
+        typeTable = tbl;
+        namespaceContext = new ScopedNamespaceContext(root_nsctx);
+        namespaceContext.openScope();
+
+        errors = BindingContextImpl.extractErrorHandler(options);
+
+        //TODO: REVIEW: passing this from a ctor can be touble
+        currVisitor = createVisitor(property, obj, this);
+
     }
 
     protected static XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
                                                   Object obj,
-                                                  MarshallerImpl context)
+                                                  MarshalResult result)
     {
         BindingType btype = property.getType();
 
         //TODO: cleanup instanceof
         if (btype instanceof ByNameBean) {
-            return new ByNameTypeVisitor(property, obj, context);
+            return new ByNameTypeVisitor(property, obj, result);
         } else if (btype instanceof SimpleBindingType) {
-            return new SimpleTypeVisitor(property, obj, context);
+            return new SimpleTypeVisitor(property, obj, result);
         } else if (btype instanceof BuiltinBindingType) {
-            return new SimpleTypeVisitor(property, obj, context);
+            return new SimpleTypeVisitor(property, obj, result);
         }
 
         throw new AssertionError("UNIMP TYPE: " + btype);
@@ -137,6 +164,53 @@ final class MarshalResult implements XMLStreamReader
     }
 
 
+    String ensurePrefix(String uri)
+    {
+        String prefix = namespaceContext.getPrefix(uri);
+        if (prefix == null) {
+            prefix = bindNextPrefix(uri);
+        }
+        assert prefix != null;
+        return prefix;
+    }
+
+
+    private String bindNextPrefix(final String uri)
+    {
+        assert uri != null;
+        String testuri;
+        String prefix;
+        do {
+            prefix = NSPREFIX + (++prefixCnt);
+            testuri = namespaceContext.getNamespaceURI(prefix);
+        } while (testuri != null);
+        assert prefix != null;
+        namespaceContext.bindNamespace(prefix, uri);
+        return prefix;
+    }
+
+
+
+    RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
+    {
+        final BindingTypeName type_name = type.getName();
+        String expectedJavaClass = type_name.getJavaName().toString();
+        String actualJavaClass = instance.getClass().getName();
+        if (!actualJavaClass.equals(expectedJavaClass)) {
+            final BindingType actual_type =
+                MarshallerImpl.lookupBindingType(instance.getClass(),
+                                                 type_name.getJavaName(),
+                                                 type_name.getXmlName(),
+                                                 bindingLoader);
+            if (actual_type != null) {
+                type = actual_type;          //redefine type param
+            }
+            //else go with original type and hope for the best...
+        }
+        return runtimeTypeFactory.createRuntimeType(type, typeTable, bindingLoader);
+    }
+
+
     private int advanceToNext()
     {
         final int next_state = currVisitor.advance();
@@ -159,13 +233,13 @@ final class MarshalResult implements XMLStreamReader
     private void pushVisitor(XmlTypeVisitor v)
     {
         visitorStack.push(v);
-        context.getNamespaceContext().openScope();
+        namespaceContext.openScope();
         initedAttributes = false;
     }
 
     private XmlTypeVisitor popVisitor()
     {
-        context.getNamespaceContext().closeScope();
+        namespaceContext.closeScope();
         final XmlTypeVisitor tv = (XmlTypeVisitor)visitorStack.pop();
         return tv;
     }
@@ -298,25 +372,25 @@ final class MarshalResult implements XMLStreamReader
     public int getNamespaceCount()
     {
         initAttributes();
-        return context.getNamespaceContext().getCurrentScopeNamespaceCount();
+        return namespaceContext.getCurrentScopeNamespaceCount();
     }
 
 
     public String getNamespacePrefix(int i)
     {
         initAttributes();
-        return context.getNamespaceContext().getCurrentScopeNamespacePrefix(i);
+        return namespaceContext.getCurrentScopeNamespacePrefix(i);
     }
 
     public String getNamespaceURI(int i)
     {
         initAttributes();
-        return context.getNamespaceContext().getCurrentScopeNamespaceURI(i);
+        return namespaceContext.getCurrentScopeNamespaceURI(i);
     }
 
     public NamespaceContext getNamespaceContext()
     {
-        return context.getNamespaceContext();
+        return namespaceContext;
     }
 
     public int getEventType()
@@ -373,8 +447,7 @@ final class MarshalResult implements XMLStreamReader
               return length;
           }
 
-          final int len = seq.length();
-          char[] val = new char[len];
+          //TODO: review this code
           int cnt = 0;
           for (int src_idx = sourceStart, dest_idx = targetStart; cnt < length; cnt++) {
               target[dest_idx++] = seq.charAt(src_idx++);
@@ -514,6 +587,16 @@ final class MarshalResult implements XMLStreamReader
             ", visitorStack=" + (visitorStack == null ? null : "size:" + visitorStack.size() + visitorStack) +
             ", currVisitor=" + currVisitor +
             "}";
+    }
+
+    Collection getErrorCollection()
+    {
+        return errors;
+    }
+
+    public RuntimeBindingTypeTable getTypeTable()
+    {
+        return typeTable;
     }
 
 

@@ -62,6 +62,7 @@ import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+
 import java.util.Collection;
 
 /**
@@ -82,6 +83,12 @@ public final class BindingContextImpl implements BindingContext
     }
 
 
+    public Unmarshaller createUnmarshaller()
+        throws XmlException
+    {
+        return new UnmarshallerImpl(bindingLoader, typeTable);
+    }
+
     public Unmarshaller createUnmarshaller(XmlOptions options)
         throws XmlException
     {
@@ -89,7 +96,13 @@ public final class BindingContextImpl implements BindingContext
             throw new IllegalArgumentException("options must not be null");
         }
 
-        return new UnmarshallerImpl(bindingLoader, typeTable, options);
+        return createUnmarshaller();
+    }
+
+    public Marshaller createMarshaller()
+        throws XmlException
+    {
+        return new MarshallerImpl(bindingLoader, typeTable);
     }
 
 
@@ -100,23 +113,25 @@ public final class BindingContextImpl implements BindingContext
             throw new IllegalArgumentException("options must not be null");
         }
 
-        return new MarshallerImpl(EmptyNamespaceContext.getInstance(),
-                                  bindingLoader,
-                                  typeTable,
-                                  options);
+        return createMarshaller();
     }
 
 
     /**
      * @deprecated do not use this
      */
-    public BindingLoader getBindingLoader() { return bindingLoader; }
+    public BindingLoader getBindingLoader()
+    {
+        return bindingLoader;
+    }
 
     static Collection extractErrorHandler(XmlOptions options)
     {
-        Collection underlying = (Collection)options.get(XmlOptions.ERROR_LISTENER);
-        if (underlying != null)
-            return underlying;
+        if (options != null) {
+            Collection underlying = (Collection)options.get(XmlOptions.ERROR_LISTENER);
+            if (underlying != null)
+                return underlying;
+        }
 
         return FailFastErrorHandler.getInstance();
     }

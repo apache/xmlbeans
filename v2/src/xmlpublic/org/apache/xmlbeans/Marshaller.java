@@ -72,6 +72,8 @@ public interface Marshaller
 {
 
     /**
+     * @deprecated use XmlOptions based method instead
+     *
      * Get an XMLStreamReader object that represents the Java object as XML.
      * Note that the object's contents are accessed on demand, so modifying
      * the object while reading from the reader will produce undefined results.
@@ -92,6 +94,39 @@ public interface Marshaller
                             NamespaceContext nscontext)
         throws XmlException;
 
+
+    /**
+     * Get an XMLStreamReader object that represents the Java object as XML.
+     * Note that the object's contents are accessed on demand, so modifying
+     * the object while reading from the reader will produce undefined results.
+     *
+     * The object is expected to correspond to a global element in a schema.
+     * The first matching global element will be used as the root element.
+     *
+     * As of this writing (11/22/2003), the returned reader will NOT contain
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The reader's first event is a START_ELEMENT event.
+     *
+     * <p>Use the <em>options</em> parameter to specify the following:</p>
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * <li>The encoding for the document, as described in
+     * {@link XmlOptions#setCharacterEncoding}.</li>
+     * </ul>
+     *
+     *
+     * @param obj
+     * @param options
+     * @return  XMLStreamReader representing the XML content
+     * @throws XmlException
+     */
+    XMLStreamReader marshal(Object obj,
+                            XmlOptions options)
+        throws XmlException;
+
+
     /**
      * Write an XML representation of the Java object to the provided writer.
      *
@@ -107,6 +142,35 @@ public interface Marshaller
      * @throws XmlException
      */
     void marshal(XMLStreamWriter writer, Object obj)
+        throws XmlException;
+
+    /**
+     * Write an XML representation of the Java object to the provided writer.
+     *
+     * The object is expected to correspond to a global element in a schema.
+     * The first matching global element will be used as the root element.
+     *
+     * As of this writing (11/22/2003), this method will NOT write
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The first event written will be a START_ELEMENT event.
+     *
+     *
+     * <p>Use the <em>options</em> parameter to specify the following:</p>
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * <li>The encoding for the document, as described in
+     * {@link XmlOptions#setCharacterEncoding}.</li>
+     * </ul>
+     *
+     *
+     * @param obj
+     * @param writer
+     * @param options
+     * @throws XmlException
+     */
+    void marshal(XMLStreamWriter writer, Object obj, XmlOptions options)
         throws XmlException;
 
 
@@ -130,6 +194,40 @@ public interface Marshaller
 
     /**
      * Write an XML representation of the Java object to the provided writer
+     * as a complete xml document using the default encoding
+     *
+     * The object is expected to correspond to a global element in a schema.
+     * The first matching global element will be used as the root element.
+     *
+     * An XML Declaration will be written declaring the encoding if one was
+     * set via XmlOptions
+     *
+     * <p>Use the <em>options</em> parameter to specify the following:</p>
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * <li>The encoding for the document, as described in
+     * {@link XmlOptions#setCharacterEncoding}.</li>
+     * <li>Whether to pretty print the output, as described in
+     * {@link XmlOptions#setSavePrettyPrint}.</li>
+     * <li>level of indenting when pretty printing, as described in
+     * {@link XmlOptions#setSavePrettyPrintIndent}.</li>
+     * </ul>
+     *
+     * @param out
+     * @param obj
+     * @param options
+     * @throws XmlException
+     */
+    void marshal(OutputStream out, Object obj, XmlOptions options)
+        throws XmlException;
+
+
+    /**
+     * @deprecated use XmlOptions based method instead
+     *
+     * Write an XML representation of the Java object to the provided writer
      * as a complete xml document
      *
      * The object is expected to correspond to a global element in a schema.
@@ -147,6 +245,8 @@ public interface Marshaller
 
 
     /**
+     * @deprecated use XmlOptions version
+     *
      * Get an XMLStreamReader object that represents the given java type.
 
      * It is the responsibility of the caller to ensure that
@@ -172,6 +272,37 @@ public interface Marshaller
         throws XmlException;
 
 
+
+    /**
+     * Get an XMLStreamReader object that represents the given java type.
+
+     * It is the responsibility of the caller to ensure that
+     * obj is an instanceof javaType
+
+     * As of this writing (11/22/2003), the returned reader will NOT contain
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The reader's first event is a START_ELEMENT event.
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * </ul>
+     *
+     * @param obj
+     * @param elementName
+     * @param schemaType
+     * @param javaType
+     * @param options
+     * @return
+     * @throws XmlException
+     */
+    XMLStreamReader marshalType(Object obj,
+                                QName elementName,
+                                QName schemaType,
+                                String javaType,
+                                XmlOptions options)
+        throws XmlException;
+
     /**
      * Write an XML representation of the Java object to the provided writer.
      *
@@ -195,5 +326,37 @@ public interface Marshaller
                      QName schemaType,
                      String javaType)
         throws XmlException;
+
+
+    /**
+     * Write an XML representation of the Java object to the provided writer.
+     *
+     * It is the responsibility of the caller to ensure that
+     * obj is an instanceof javaType
+     *
+     * As of this writing (11/22/2003), this method will NOT write
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The first event written will be a START_ELEMENT event.
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * </ul>
+     *
+     * @param writer
+     * @param obj
+     * @param elementName
+     * @param schemaType
+     * @param javaType
+     * @throws XmlException
+     */
+    void marshalType(XMLStreamWriter writer,
+                     Object obj,
+                     QName elementName,
+                     QName schemaType,
+                     String javaType,
+                     XmlOptions options)
+        throws XmlException;
+
 
 }
