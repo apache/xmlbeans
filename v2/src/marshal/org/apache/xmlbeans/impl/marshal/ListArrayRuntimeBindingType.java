@@ -127,18 +127,13 @@ final class ListArrayRuntimeBindingType
         Object getValue(Object parentObject, MarshalResult result)
             throws XmlException
         {
-            return Array.get(parentObject, result.getCurrIndex());
+            throw new AssertionError("not used");
         }
 
         boolean isSet(Object parentObject, MarshalResult result)
             throws XmlException
         {
-            throw new AssertionError("UNIMP: TODO: FIXME");
-            //if (itemType.isJavaPrimitive()) return true;
-
-            //TODO: consider isSet for array elements?
-
-            //return getValue(parentObject, result) != null;
+            throw new AssertionError("not used");
         }
 
         boolean isMultiple()
