@@ -32,7 +32,7 @@ public class SoapArrayType
   private QName itemName;
   private BindingTypeName itemType;
   private boolean itemNillable;
-  private int ranks;
+  private int[] ranks;
 
   private static final long serialVersionUID = 1L;
 
@@ -89,12 +89,12 @@ public class SoapArrayType
     this.itemNillable = nillable;
   }
 
-  public int getRanks()
+  public int[] getRanks()
   {
     return ranks;
   }
 
-  public void setRanks(int ranks)
+  public void setRanks(int[] ranks)
   {
     this.ranks = ranks;
   }
