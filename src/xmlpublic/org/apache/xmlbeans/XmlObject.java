@@ -624,7 +624,7 @@ public interface XmlObject extends XmlTokenSource
          * </tr>
          * </table> 
          * 
-         * @param s The string to parse.
+         * @param xmlAsString The string to parse.
          * @param options Options as specified.
          * @return A new instance containing the specified XML.
          */ 
