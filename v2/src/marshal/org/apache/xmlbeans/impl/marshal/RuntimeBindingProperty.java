@@ -74,4 +74,6 @@ interface RuntimeBindingProperty
     //non simple type props can throw some runtime exception.
     CharSequence getLexical(Object parent, MarshalContext context);
 
+    Object getValue(Object parentObject, MarshalContext context);
+
 }

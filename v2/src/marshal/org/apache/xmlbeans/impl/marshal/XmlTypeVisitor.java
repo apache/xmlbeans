@@ -62,27 +62,36 @@ import javax.xml.stream.XMLStreamReader;
 abstract class XmlTypeVisitor
 {
     protected final Object parentObject;
+    protected final RuntimeBindingProperty bindingProperty;
+    protected final MarshalContext marshalContext;
 
-    protected XmlTypeVisitor(Object parent)
+    XmlTypeVisitor(Object parentObject,
+                   RuntimeBindingProperty property,
+                   MarshalContext context)
     {
-        parentObject = parent;
+        this.parentObject = parentObject;
+        this.bindingProperty = property;
+        this.marshalContext = context;
     }
 
-    static final int CHARACTERS = XMLStreamReader.CHARACTERS;
-    static final int START_ELEMENT = XMLStreamReader.START_ELEMENT;
-    static final int END_ELEMENT = XMLStreamReader.END_ELEMENT;
 
-    // needs to update _currProp AND _currPropObj
-    protected abstract void advance();
+    static final int START = 1;
+    static final int CONTENT = 2;
+    static final int CHARS = 3;
+    static final int END = 4;
 
-    protected abstract boolean hasMoreChildren();
+    protected abstract int getState();
 
-    //return XmlTypeVisitorFactory.createXmlTypeVisitor(_currProp.get, _currPropObj);
-    protected abstract XmlTypeVisitor getCurrChild();
+    /**
+     *
+     * @return  next state
+     */
+    protected abstract int advance();
+
+    public abstract XmlTypeVisitor getCurrentChild();
+
 
     protected abstract QName getName();
-
-    protected abstract boolean isCharacters();
 
     protected abstract int getAttributeCount();
 
@@ -91,5 +100,13 @@ abstract class XmlTypeVisitor
     protected abstract QName getAttributeName(int idx);
 
     protected abstract CharSequence getCharData();
+
+    public String toString()
+    {
+        return this.getClass().getName() +
+            " prop=" + bindingProperty.getName() +
+            " type=" + bindingProperty.getType().getName();
+    }
+
 
 }

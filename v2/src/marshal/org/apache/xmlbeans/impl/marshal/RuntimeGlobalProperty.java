@@ -108,4 +108,9 @@ class RuntimeGlobalProperty
         final CharSequence retval = tm.print(parent, context);
         return retval;
     }
+
+    public Object getValue(Object parent_obj, MarshalContext context)
+    {
+        throw new AssertionError("UNIMP: " + this);
+    }
 }

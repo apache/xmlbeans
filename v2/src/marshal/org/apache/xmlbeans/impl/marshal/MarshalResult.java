@@ -72,17 +72,14 @@ final class MarshalResult implements XMLStreamReader
 {
     private XmlTypeVisitor currVisitor;
     private final Stack visitorStack = new Stack();
-    private final QName topElement;
     private final MarshalContext context;
     private int currentEventType = XMLStreamReader.START_ELEMENT;
 
     MarshalResult(RuntimeBindingProperty property, Object obj,
-                  QName elementName, MarshalContext context)
+                  MarshalContext context)
     {
         currVisitor = createVisitor(property, obj, context);
-        topElement = elementName;
         this.context = context;
-        pushVisitor(currVisitor);
     }
 
     protected static XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
@@ -111,26 +108,81 @@ final class MarshalResult implements XMLStreamReader
 
     public int next() throws XMLStreamException
     {
-        final int retval;
+        int retval = -1;
 
-
-        if (currVisitor.hasMoreChildren()) {
-            XmlTypeVisitor nextVisitor = currVisitor.getCurrChild();
-            currVisitor.advance();
-            pushVisitor(currVisitor);
-            currVisitor = nextVisitor;
-            if (nextVisitor.isCharacters()) {
-                retval = XMLStreamReader.CHARACTERS;
-            } else {
-                retval = XMLStreamReader.START_ELEMENT;
-            }
-        } else {
-            currVisitor = popVisitor();
-            if (currVisitor.isCharacters())
-                return next(); //chars have no matching end tags
-            retval = XMLStreamReader.END_ELEMENT;
+        final int curr_state = currVisitor.getState();
+        switch (curr_state) {
+            case XmlTypeVisitor.START:
+                {
+                    final int next_state = currVisitor.advance();
+                    switch (next_state) {
+                        case XmlTypeVisitor.CONTENT:
+                            pushVisitor(currVisitor);
+                            currVisitor = currVisitor.getCurrentChild();
+                            retval = START_ELEMENT;
+                            break;
+                        case XmlTypeVisitor.CHARS:
+                            pushVisitor(currVisitor);
+                            currVisitor = currVisitor.getCurrentChild();
+                            retval = CHARACTERS;
+                            break;
+                        case XmlTypeVisitor.END:
+                            retval = END_ELEMENT;
+                            break;
+                        default:
+                            throw new AssertionError("bad state: " + curr_state);
+                    }
+                }
+                break;
+            case XmlTypeVisitor.CHARS:
+                {
+                    currVisitor = popVisitor();
+                    final int next_state = currVisitor.advance();
+                    switch (next_state) {
+                        case XmlTypeVisitor.CONTENT:
+                            pushVisitor(currVisitor);
+                            currVisitor = currVisitor.getCurrentChild();
+                            retval = START_ELEMENT;
+                            break;
+                        case XmlTypeVisitor.CHARS:
+                            pushVisitor(currVisitor);
+                            currVisitor = currVisitor.getCurrentChild();
+                            retval = CHARACTERS;
+                        case XmlTypeVisitor.END:
+                            retval = END_ELEMENT;
+                            break;
+                        default:
+                            throw new AssertionError("bad state: " + curr_state);
+                    }
+                }
+                break;
+            case XmlTypeVisitor.END:
+                {
+                    currVisitor = popVisitor();
+                    final int next_state = currVisitor.advance();
+                    switch (next_state) {
+                        case XmlTypeVisitor.CONTENT:
+                            pushVisitor(currVisitor);
+                            currVisitor = currVisitor.getCurrentChild();
+                            retval = START_ELEMENT;
+                            break;
+                        case XmlTypeVisitor.CHARS:
+                            pushVisitor(currVisitor);
+                            currVisitor = currVisitor.getCurrentChild();
+                            retval = CHARACTERS;
+                        case XmlTypeVisitor.END:
+                            retval = END_ELEMENT;
+                            break;
+                         default:
+                            throw new AssertionError("bad state: " + curr_state);
+                    }
+                }
+                break;
+            default:
+                throw new AssertionError("unknown state: " + curr_state);
         }
 
+        assert retval != -1;
         currentEventType = retval;
         return retval;
     }
@@ -144,7 +196,8 @@ final class MarshalResult implements XMLStreamReader
     private XmlTypeVisitor popVisitor()
     {
         context.getNamespaceContext().closeScope();
-        return (XmlTypeVisitor)visitorStack.pop();
+        final XmlTypeVisitor tv = (XmlTypeVisitor)visitorStack.pop();
+        return tv;
     }
 
     public void require(int i, String s, String s1)
@@ -165,12 +218,19 @@ final class MarshalResult implements XMLStreamReader
 
     public boolean hasNext() throws XMLStreamException
     {
-        return !visitorStack.isEmpty();
+
+//        return !visitorStack.isEmpty();
+
+        if (visitorStack.isEmpty()) {
+            return (currVisitor.getState() != XmlTypeVisitor.END);
+        } else {
+            return true;
+        }
     }
 
     public void close() throws XMLStreamException
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        //TODO: consider freeing memory
     }
 
     public String getNamespaceURI(String s)

@@ -56,21 +56,40 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
-class RuntimeTypeFactory
+abstract class NamedXmlTypeVisitor
+    extends XmlTypeVisitor
 {
-    public static RuntimeBindingType createRuntimeType(BindingType type)
+    private String prefix;
+
+    NamedXmlTypeVisitor(Object parentObject,
+                        RuntimeBindingProperty property,
+                        MarshalContext context)
     {
-        //TODO: consider syncronized cache of these objects
-
-        //TODO: fix instanceof nastiness
-        if (type instanceof ByNameBean) {
-            return new ByNameRuntimeBindingType((ByNameBean)type);
-        }
-
-        throw new AssertionError("unknown type: " + type);
+        super(parentObject, property, context);
     }
+
+    protected QName getName()
+    {
+        //TODO: optimize this method (and related)
+        final QName pname = bindingProperty.getName();
+        final String uri = pname.getNamespaceURI();
+
+        assert uri != null;  //QName's should use "" for no namespace
+
+        if (uri.length() == 0) {
+            return new QName(pname.getLocalPart());
+        } else {
+
+            if (prefix == null) {
+                prefix = marshalContext.ensurePrefix(uri);
+            }
+
+            return new QName(uri, pname.getLocalPart(), prefix);
+        }
+    }
+
 
 }
