@@ -15,8 +15,6 @@
 
 package org.apache.xmlbeans.impl.newstore2;
 
-import java.util.ArrayList;
-
 import java.io.PrintStream;
 
 public final class CharUtil
@@ -26,14 +24,16 @@ public final class CharUtil
         return (CharUtil) tl_charUtil.get();
     }
 
-    private static void getString ( StringBuffer sb, int d, Object src, int off, int cch )
+    public static void getString ( StringBuffer sb, Object src, int off, int cch )
     {
         assert isValid( src, off, cch );
 
         if (cch == 0)
             return;
 
-        if (src instanceof String)
+        if (src instanceof char[])
+            sb.append( (char[]) src, off, cch );
+        else if (src instanceof String)
         {
             String s = (String) src;
             
@@ -42,18 +42,11 @@ public final class CharUtil
             else
                 sb.append( s.substring( off, off + cch ) );
         }
-        else if (src instanceof char[])
-            sb.append( (char[]) src, off, cch );
         else
-            ((CharJoin) src).getString( sb, d, off, cch );
+            ((CharJoin) src).getString( sb, off, cch );
     }
     
-    public static void getString ( StringBuffer sb, Object src, int off, int cch )
-    {
-        getString( sb, 0, src, off, cch );
-    }
-    
-    public static void getChars ( char[] chars, int start, int d, Object src, int off, int cch )
+    public static void getChars ( char[] chars, int start, Object src, int off, int cch )
     {
         assert isValid( src, off, cch );
         assert chars != null && start >= 0 && start <= chars.length;
@@ -61,17 +54,12 @@ public final class CharUtil
         if (cch == 0)
             return;
 
-        if (src instanceof String)
-            ((String) src).getChars( off, off + cch, chars, start );
-        else if (src instanceof char[])
+        if (src instanceof char[])
             System.arraycopy( (char[]) src, off, chars, start, cch );
+        else if (src instanceof String)
+            ((String) src).getChars( off, off + cch, chars, start );
         else
-            ((CharJoin) src).getChars( chars, start, d, off, cch );
-    }
-    
-    public static void getChars ( char[] chars, int start, Object src, int off, int cch )
-    {
-        getChars( chars, start, 0, src, off, cch );
+            ((CharJoin) src).getChars( chars, start, off, cch );
     }
     
     public static String getString ( Object src, int off, int cch )
@@ -80,6 +68,9 @@ public final class CharUtil
 
         if (cch == 0)
             return "";
+
+        if (src instanceof char[])
+            return new String( (char[]) src, off, cch );
 
         if (src instanceof String)
         {
@@ -91,14 +82,96 @@ public final class CharUtil
             return s.substring( off, off + cch );
         }
 
-        if (src instanceof char[])
-            return new String( (char[]) src, off, cch );
-
         StringBuffer sb = new StringBuffer();
         
-        ((CharJoin) src).getString( sb, 0, off, cch );
+        ((CharJoin) src).getString( sb, off, cch );
         
         return sb.toString();
+    }
+
+    public static final boolean isWhiteSpace ( char ch )
+    {
+        switch ( ch )
+        {
+            case ' ': case '\t': case '\n': case '\r': return true;
+            default                                  : return false;
+        }
+    }
+
+    public Object stripRight ( Object src, int off, int cch )
+    {
+        assert isValid( src, off, cch );
+        
+        if (cch > 0)
+        {
+            int oldCch = cch;
+
+            _charIterator.init( src, off, cch );
+            _charIterator.setPos( cch - 1 );
+
+            while ( isWhiteSpace( _charIterator.currChar() ) && --cch > 0 )
+                _charIterator.prev();
+        }
+        
+        if (cch == 0)
+        {
+            _offSrc = 0;
+            _cchSrc = 0;
+            
+            return null;
+        }
+
+        _offSrc = off;
+        _cchSrc = cch;
+
+        return src;
+    }
+    
+    public Object stripLeft ( Object src, int off, int cch )
+    {
+        assert isValid( src, off, cch );
+
+        if (cch > 0)
+        {
+            if (src instanceof char[])
+            {
+                char[] chars = (char[]) src;
+
+                while ( cch > 0 && isWhiteSpace( chars[ off ] ) )
+                    { cch--; off++; }
+            }
+            else if (src instanceof String)
+            {
+                String s = (String) src;
+
+                while ( cch > 0 && isWhiteSpace( s.charAt( off ) ) )
+                    { cch--; off++; }
+            }
+            else
+            {
+                int oldCch = cch;
+            
+                _charIterator.init( src, off, cch );
+                
+                while ( isWhiteSpace( _charIterator.currChar() ) && --cch > 0 )
+                    _charIterator.next();
+                
+                off += oldCch - cch;
+            }
+        }
+
+        if (cch == 0)
+        {
+            _offSrc = 0;
+            _cchSrc = 0;
+            
+            return null;
+        }
+
+        _offSrc = off;
+        _cchSrc = cch;
+
+        return src;
     }
 
     public Object insertChars (
@@ -138,7 +211,7 @@ public final class CharUtil
 
         Object newSrc;
 
-        if (_cchSrc <= 32 && canAllocate( _cchSrc ))
+        if (_cchSrc <= MAX_COPY && canAllocate( _cchSrc ))
         {
             char[] chars = allocate( _cchSrc );
 
@@ -155,18 +228,25 @@ public final class CharUtil
         {
             _offSrc = 0;
 
+            CharJoin newJoin;
+
             if (posInsert == 0)
-                newSrc = new CharJoin( srcInsert, offInsert, cchInsert, src, off, cch );
+                newJoin = new CharJoin( srcInsert, offInsert, cchInsert, src, off, cch );
             else if (posInsert == cch)
-                newSrc = new CharJoin( src, off, cch, srcInsert, offInsert, cchInsert );
+                newJoin = new CharJoin( src, off, cch, srcInsert, offInsert, cchInsert );
             else
             {
-                newSrc =
+                newJoin =
                     new CharJoin( 
                         new CharJoin( src, off, posInsert, srcInsert, offInsert, cchInsert ),
                         0, posInsert + cchInsert,
                         src, off + posInsert, cch - posInsert );
             }
+            
+            if (newJoin._depth > CharJoin.MAX_DEPTH)
+                newSrc = saveChars( newJoin, _offSrc, _cchSrc, null, 0, 0 );
+            else
+                newSrc = newJoin;
         }
 
         assert isValid( newSrc, _offSrc, _cchSrc );
@@ -181,23 +261,29 @@ public final class CharUtil
         assert cchRemove >= 0 && posRemove + cchRemove <= cch;
 
         Object newSrc;
-        int newOff;
 
-        if (cch == cchRemove)
+        _cchSrc = cch - cchRemove;
+        
+        if (_cchSrc == 0)
         {
             newSrc = null;
-            newOff = 0;
+            _offSrc = 0;
         }
         else if (posRemove == 0)
         {
             newSrc = src;
-            newOff = off + cchRemove;
+            _offSrc = off + cchRemove;
         }
-        else if (posRemove + cchRemove != cch)
+        else if (posRemove + cchRemove == cch)
+        {
+            newSrc = src;
+            _offSrc = off;
+        }
+        else
         {
             int cchAfter = cch - cchRemove;
             
-            if (cchAfter <= 32 && canAllocate( cchAfter ))
+            if (cchAfter <= MAX_COPY && canAllocate( cchAfter ))
             {
                 char[] chars = allocate( cchAfter );
 
@@ -208,27 +294,25 @@ public final class CharUtil
                     src, off + posRemove + cchRemove, cch - posRemove - cchRemove );
 
                 newSrc = chars;
-                newOff = _offSrc;
+                _offSrc = _offSrc;
             }
             else
             {
-                newSrc = 
+                CharJoin newJoin =
                     new CharJoin(
                         src, off, posRemove,
                         src, off + posRemove + cchRemove, cch - posRemove - cchRemove );
-                
-                newOff = 0;
+
+                if (newJoin._depth > CharJoin.MAX_DEPTH)
+                    newSrc = saveChars( newJoin, 0, _cchSrc, null, 0, 0 );
+                else
+                {
+                    newSrc = newJoin;
+                    _offSrc = 0;
+                }
             }
         }
-        else
-        {
-            newSrc = src;
-            newOff = off;
-        }
         
-        _offSrc = newOff;
-        _cchSrc = cch - cchRemove;
-
         assert isValid( newSrc, _offSrc, _cchSrc );
         
         return newSrc;
@@ -347,6 +431,12 @@ public final class CharUtil
         o.print( "\"" );
     }
 
+    public static void dump ( Object src, int off, int cch )
+    {
+        dumpChars( System.out, src, off, cch );
+        System.out.println();
+    }
+    
     public static void dumpChars ( PrintStream p, Object src, int off, int cch )
     {
         p.print( "cch=" + cch + ", off=" + off + ": " );
@@ -413,34 +503,25 @@ public final class CharUtil
         if (src == null)
             return off == 0 && cch == 0;
 
-        if (src instanceof String)
-        {
-            String s = (String) src;
-            return off <= s.length() && off + cch <= s.length();
-        }
-
         if (src instanceof char[])
         {
             char[] c = (char[]) src;
             return off <= c.length && off + cch <= c.length;
         }
 
+        if (src instanceof String)
+        {
+            String s = (String) src;
+            return off <= s.length() && off + cch <= s.length();
+        }
+
         if (src instanceof CharJoin)
         {
-            CharJoin cj = (CharJoin) src;
-            return cj.isValid( off, cch );
+            return ((CharJoin) src).isValid( off, cch );
         }
 
         return false;
     }
-
-    // These members are used to communicate offset and character count
-    // information back to a caller of various methods on CharUtil.
-    // Usually, the methods returns the src Object, and these two hold
-    // the offset and the char count.
-    
-    public int _offSrc;
-    public int _cchSrc;
 
     //
     // Private stuff
@@ -469,179 +550,81 @@ public final class CharUtil
             }
             
             _depth = depth;
+
+            assert _depth <= MAX_DEPTH + 1;
         }
         
-        public final Object _srcLeft;
-        public final int    _offLeft;
-        public final int    _cchLeft;
+        final Object _srcLeft;
+        final int    _offLeft;
+        final int    _cchLeft;
 
-        public final Object _srcRight;
-        public final int    _offRight;
-        public final int    _cchRight;
+        final Object _srcRight;
+        final int    _offRight;
+        final int    _cchRight;
 
-        public final int _depth;
+        final int _depth;
+
+        static final int MAX_DEPTH = 64;
 
         public int length ( ) { return _cchLeft + _cchRight; }
 
         public boolean isValid ( int off, int cch )
         {
-            // Eliminate left recursion
-            
-            for ( CharJoin cj = this ; ; cj = (CharJoin) cj._srcLeft )
-            {
-                if (off < 0 || cch < 0 || off > cj.length() || off + cch > cj.length())
-                    return false;
+            if (off < 0 || cch < 0 || off > length() || off + cch > length())
+                return false;
 
-                if (!CharUtil.isValid( cj._srcRight, cj._offRight, cj._cchRight ))
-                    return false;
+            if (!CharUtil.isValid( _srcRight, _offRight, _cchRight ))
+                return false;
 
-                if (!(cj._srcLeft instanceof CharJoin))
-                      return CharUtil.isValid( cj._srcLeft, cj._offLeft, cj._cchLeft );
+            if (!CharUtil.isValid( _srcLeft, _offLeft, _cchLeft ))
+                return false;
 
-                off = cj._offLeft;
-                cch = cj._cchLeft;
-            }
+            return true;
         }
 
-        private void getString ( StringBuffer sb, int d, int off, int cch )
+        private void getString ( StringBuffer sb, int off, int cch )
         {
             assert cch > 0;
             
-            // Avoid deep left recursion
-            
-            if (d++ < 32)
+            if (off < _cchLeft)
             {
-                if (off < _cchLeft)
-                {
-                    int cchL = _cchLeft - off;
+                int cchL = _cchLeft - off;
 
-                    if (cchL > cch)
-                        cchL = cch;
-                        
-                    CharUtil.getString( sb, d, _srcLeft, _offLeft + off, cchL );
-                    
-                    cch -= cchL;
-                    
-                    if (cch > 0)
-                        CharUtil.getString( sb, d, _srcRight, _offRight, cch );
-                }
-                else
-                {
-                    CharUtil.getString( sb, d, _srcRight, _offRight + off - _cchLeft, cch );
-                }
+                if (cchL > cch)
+                    cchL = cch;
+
+                CharUtil.getString( sb, _srcLeft, _offLeft + off, cchL );
+
+                cch -= cchL;
+
+                if (cch > 0)
+                    CharUtil.getString( sb, _srcRight, _offRight, cch );
             }
             else
-            {
-                ArrayList left = new ArrayList();
-                
-                for ( CharJoin cj = this ; ; cj = (CharJoin) cj._srcLeft )
-                {
-                    left.add( cj );
-                    
-                    if (!(cj._srcLeft instanceof CharJoin))
-                    {
-                        if (off < cj._cchLeft)
-                        {
-                            int cchL = cj._cchLeft - off;
-
-                            if (cchL > cch)
-                                cchL = cch;
-
-                            CharUtil.getString( sb, d, cj._srcLeft, cj._offLeft + off, cchL );
-
-                            cch -= cchL;
-                        }
-                        
-                        break;
-                    }
-                }
-
-                for ( int i = left.size() - 1 ; i >= 0 ; i-- )
-                {
-                    if (cch <= 0)
-                        break;
-                    
-                    CharJoin cj = (CharJoin) left.get( i );
-
-                    int cchR = cch < cj._cchRight ? cch : cj._cchRight;
-
-                    CharUtil.getString( sb, d, cj._srcRight, cj._offRight, cchR );
-
-                    cch -= cchR;
-                }
-            }
+                CharUtil.getString( sb, _srcRight, _offRight + off - _cchLeft, cch );
         }
 
-        private void getChars ( char[] chars, int start, int d, int off, int cch )
+        private void getChars ( char[] chars, int start, int off, int cch )
         {
             assert cch > 0;
 
-            if (d++ < 32)
+            if (off < _cchLeft)
             {
-                if (off < _cchLeft)
-                {
-                    int cchL = _cchLeft - off;
+                int cchL = _cchLeft - off;
 
-                    if (cchL > cch)
-                        cchL = cch;
+                if (cchL > cch)
+                    cchL = cch;
 
-                    CharUtil.getChars( chars, start, d, _srcLeft, _offLeft + off, cchL );
+                CharUtil.getChars( chars, start, _srcLeft, _offLeft + off, cchL );
 
-                    start += cchL;
-                    cch -= cchL;
-                    
-                    if (cch > 0)
-                        CharUtil.getChars( chars, start, d, _srcRight, _offRight, cch );
-                }
-                else
-                {
-                    CharUtil.getChars(
-                        chars, start, d, _srcRight, _offRight + off - _cchLeft, cch );
-                }
+                start += cchL;
+                cch -= cchL;
+
+                if (cch > 0)
+                    CharUtil.getChars( chars, start, _srcRight, _offRight, cch );
             }
             else
-            {
-                ArrayList left = new ArrayList();
-
-                for ( CharJoin cj = this ; ; cj = (CharJoin) cj._srcLeft )
-                {
-                    left.add( cj );
-
-                    if (!(cj._srcLeft instanceof CharJoin))
-                    {
-                        if (off < cj._cchLeft)
-                        {
-                            int cchL = cj._cchLeft - off;
-
-                            if (cchL > cch)
-                                cchL = cch;
-
-                            CharUtil.getChars(
-                                chars, start, d, cj._srcLeft, cj._offLeft + off, cchL );
-
-                            start += cchL;
-                            cch -= cchL;
-                        }
-
-                        break;
-                    }
-                }
-
-                for ( int i = left.size() - 1 ; i >= 0 ; i-- )
-                {
-                    if (cch <= 0)
-                        break;
-
-                    CharJoin cj = (CharJoin) left.get( i );
-
-                    int cchR = cch < cj._cchRight ? cch : cj._cchRight;
-
-                    CharUtil.getChars( chars, start, d, cj._srcRight, cj._offRight, cchR );
-
-                    start += cchR;
-                    cch -= cchR;
-                }
-            }
+                CharUtil.getChars( chars, start, _srcRight, _offRight + off - _cchLeft, cch );
         }
 
         private void dumpChars( int off, int cch )
@@ -663,13 +646,167 @@ public final class CharUtil
     {
         _charBufSize = charBufSize;
     }
+
+    public final static class CharIterator
+    {
+        void init ( Object src, int off, int cch )
+        {
+            assert cch > 0;
+            assert isValid( src, off, cch );
+            
+            _src = src;
+            _off = off;
+            _cch = cch;
+
+            _top = -1;
+
+            while ( _src instanceof CharJoin )
+            {
+                CharJoin cj = (CharJoin) _src;
+
+                _joins[ ++_top ] = cj;
+                _poses[   _top ] = 0;
+
+                if (cj._cchLeft > 0)
+                {
+                    _src = cj._srcLeft;
+                    _off = cj._offLeft;
+                    _cch = cj._cchLeft;
+                }
+                else
+                {
+                    _src = cj._srcRight;
+                    _off = cj._offRight;
+                    _cch = cj._cchRight;
+                }
+            }
+
+            _currPos  = 0;
+            _startPos = 0;
+
+            cacheLeaf();
+        }
+
+        char currChar ( )
+        {
+            assert _src instanceof String || _src instanceof char[];
+
+            int index = _off + _currPos - _startPos;
+
+            return _chars == null ? _string.charAt( index ) : _chars[ index ];
+        }
+
+        void prev ( )
+        {
+            setPos( _currPos - 1 );
+        }
+        
+        void next ( )
+        {
+            setPos( _currPos + 1 );
+        }
+
+        void setPos ( final int newPos )
+        {
+            assert newPos >= 0;
+            assert !(_src instanceof CharJoin);
+
+            if (newPos < _startPos || newPos >= _startPos + _cch)
+            {
+                _startPos = _poses[ _top ];
+
+                while ( newPos < _startPos || newPos >= _startPos + _joins[ _top ].length() )
+                {
+                    _joins[ _top-- ] = null;
+                    _startPos = _poses[ _top ];
+                }
+
+                CharJoin cj = _joins[ _top ];
+
+                for ( ; ; )
+                {
+                    if (newPos < _startPos + cj._cchLeft)
+                    {
+                        _src = cj._srcLeft;
+                        _off = cj._offLeft;
+                        _cch = cj._offLeft;
+                    }
+                    else
+                    {
+                        _src = cj._srcRight;
+                        _off = cj._offRight;
+                        _cch = cj._offRight;
+
+                        _startPos += cj._cchLeft;
+                    }
+
+                    if (!(_src instanceof CharJoin))
+                        break;
+
+                    cj = (CharJoin) _src;
+                    
+                    _joins[ ++_top ] = cj;
+                    _poses[   _top ] = _startPos;
+                }
+
+                cacheLeaf();
+            }
+
+            assert newPos >= _startPos && newPos < _startPos + _cch;
+
+            _currPos = newPos;
+        }
+
+        private void cacheLeaf ( )
+        {
+            assert _src instanceof String || _src instanceof char[];
+            
+            if (_src instanceof char[])
+            {
+                _chars = (char[]) _src;
+                _string = null;
+            }
+            else
+            {
+                _string = (String) _src;
+                _chars = null;
+            }
+        }
+            
+        private Object _src;
+        private int    _off;
+        private int    _cch;
+        
+        private int    _startPos;
+        private int    _currPos;
+
+        private String _string;
+        private char[] _chars;
+        
+        private CharJoin[] _joins = new CharJoin[ CharJoin.MAX_DEPTH + 1 ];
+        private int[]      _poses = new int     [ CharJoin.MAX_DEPTH + 1 ];
+        private int        _top;
+    }
     
     private static ThreadLocal tl_charUtil =
         new ThreadLocal() { protected Object initialValue() { return new CharUtil( 1024 * 32 ); } };
+
+    private CharIterator _charIterator = new CharIterator();
+
+    private static final int MAX_COPY = 8;
+//    private static final int MAX_COPY = 64;
 
     // Current char buffer we're allcoating new chars to
 
     private int    _charBufSize;
     private int    _currentOffset;
     private char[] _currentBuffer;
+    
+    // These members are used to communicate offset and character count
+    // information back to a caller of various methods on CharUtil.
+    // Usually, the methods returns the src Object, and these two hold
+    // the offset and the char count.
+    
+    public int _offSrc;
+    public int _cchSrc;
 }

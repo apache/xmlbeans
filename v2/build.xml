@@ -388,7 +388,8 @@
 
   <!-- erictest target ============================================= -->
 
-  <target name="erictest.classes" depends="dirs, xbean, ericschema.jar, jsr173_api.jar">
+  <!--target name="erictest.classes" depends="dirs, xbean, ericschema.jar, jsr173_api.jar"-->
+  <target name="erictest.classes" depends="dirs, xbean, jsr173_api.jar">
     <mkdir dir="build/private/classes/erictest"/>
     <javac srcdir="test/src/erictest" destdir="build/private/classes/erictest" source="1.4" debug="on">
       <classpath>
@@ -499,7 +500,7 @@
   <target name="ericschema.jar" depends="ericschema.check, dirs, xbean" unless="ericschema.notRequired">
     <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
       <jvmarg value="-ea"/>
-      <arg line="-src build/private/src -out build/private/lib/ericschema.jar test/src/ericschema"/>
+      <arg line="-debug -src build/private/src -out build/private/lib/ericschema.jar test/src/ericschema"/>
     </java>
   </target>
 
@@ -765,10 +766,12 @@
 
   <!-- typeimpl target ============================================== -->
 
-  <target name="typeimpl.classes" depends="dirs, repackage.classes, xmlpublic.classes, typestore.classes, xsdschema.classes, configschema.classes, toolschema.classes, jsr173_api.jar">
+  <target name="typeimpl.classes" depends="dirs, xmlstore.classes, newstore2.classes, repackage.classes, xmlpublic.classes, typestore.classes, xsdschema.classes, configschema.classes, toolschema.classes, jsr173_api.jar">
     <mkdir dir="build/classes/typeimpl"/>
     <javac destdir="build/classes/typeimpl" source="1.4" debug="on">
       <classpath>
+        <pathelement location="build/classes/newstore2"/>
+        <pathelement location="build/classes/xmlstore"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/repackage"/>

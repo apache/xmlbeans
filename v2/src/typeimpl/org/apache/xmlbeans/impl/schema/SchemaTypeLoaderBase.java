@@ -16,8 +16,12 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.impl.common.QNameHelper;
-import org.apache.xmlbeans.impl.values.XmlStore;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLInputStream;
+
+// NEWSTORE START
+//import org.apache.xmlbeans.impl.newstore2.Locale;
+import org.apache.xmlbeans.impl.store.Root;
+// NEWSTORE END
 
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaField;
@@ -58,7 +62,6 @@ import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 {
-    private static final Method _rootBuilder = getMethod( "org.apache.xmlbeans.impl.store.Root", "newStore", new Class[] { SchemaTypeLoader.class, SchemaType.class, XmlOptions.class } );
     private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.store.Path", "getCompiledPath", new Class[] { String.class, XmlOptions.class } );
     private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.store.Path", "getCompiledQuery", new Class[] { String.class, XmlOptions.class } );
 
@@ -97,13 +100,6 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
             ise.initCause( e );
             throw ise;
         }
-    }
-
-    private XmlStore createNewStore ( SchemaType type, XmlOptions options )
-    {
-        return
-            (XmlStore)
-                invokeMethod( _rootBuilder, new Object[] { this, type, options } );
     }
 
     private static String doCompilePath ( String pathExpr, XmlOptions options ) { return (String) invokeMethod( _pathCompiler, new Object[] { pathExpr, options } ); }
@@ -186,30 +182,55 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
     public XmlObject newInstance ( SchemaType type, XmlOptions options )
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
         if (hook != null)
             return hook.newInstance( this, type, options );
 
-        return createNewStore( type, options ).getObject();
+// NEWSTORE START
+//        return Locale.newInstance( this, type, options );
+        return Root.newInstance( this, type, options );
+// NEWSTORE END
     }
 
     public XmlObject parse ( String xmlText, SchemaType type, XmlOptions options ) throws XmlException
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
         if (hook != null)
             return hook.parse( this, xmlText, type, options );
 
-        return createNewStore( null, options ).loadXml( xmlText, type, options );
+// NEWSTORE START
+//        return Locale.parseToXmlObject( this, xmlText, type, options );
+        return Root.parse( this, xmlText, type, options );
+// NEWSTORE END
     }
 
     public XmlObject parse ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
         if (hook != null)
             return hook.parse( this, xis, type, options );
-
-        return createNewStore( null, options ).loadXml( xis, type, options );
+        
+// NEWSTORE START
+//        return Locale.parseToXmlObject( this, xis, type, options );
+        return Root.parse( this, xis, type, options );
+// NEWSTORE END
     }
 
+    public XmlObject parse ( XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException
+    {
+        XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
+        if (hook != null)
+            return hook.parse( this, xsr, type, options );
+
+// NEWSTORE START
+//        return Locale.parseToXmlObject( this, xsr, type, options );
+        return Root.parse( this, xsr, type, options );
+// NEWSTORE END
+    }
+    
     public XmlObject parse ( File file, SchemaType type, XmlOptions options ) throws XmlException, IOException
     {
         if (options == null)
@@ -294,22 +315,17 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         }
     }
 
-    public XmlObject parse ( XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException
-    {
-        XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
-        if (hook != null)
-            return hook.parse( this, xsr, type, options );
-
-        return createNewStore( null, options ).loadXml( xsr, type, options );
-    }
-    
     public XmlObject parse ( InputStream jiois, SchemaType type, XmlOptions options ) throws XmlException, IOException
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
         DigestInputStream digestStream = null;
-        setupDigest: if (options != null && options.hasOption(XmlOptions.LOAD_MESSAGE_DIGEST))
+        
+        setupDigest:
+        if (options != null && options.hasOption( XmlOptions.LOAD_MESSAGE_DIGEST ))
         {
             MessageDigest sha;
+            
             try
             {
                 sha = MessageDigest.getInstance("SHA");
@@ -319,17 +335,20 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
                 break setupDigest;
             }
 
-            digestStream = new DigestInputStream(jiois, sha);
+            digestStream = new DigestInputStream( jiois, sha );
             jiois = digestStream;
         }
 
         if (hook != null)
             return hook.parse( this, jiois, type, options );
 
-        XmlObject result = createNewStore( null, options ).loadXml( jiois, type, options );
+// NEWSTORE START
+//        XmlObject result = Locale.parseToXmlObject( this, jiois, type, options );
+        XmlObject result = Root.parse( this, jiois, type, options );
+// NEWSTORE END
 
         if (digestStream != null)
-            result.documentProperties().setMessageDigest(digestStream.getMessageDigest().digest());
+            result.documentProperties().setMessageDigest( digestStream.getMessageDigest().digest() );
 
         return result;
     }
@@ -337,28 +356,40 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
     public XmlObject parse ( Reader jior, SchemaType type, XmlOptions options ) throws XmlException, IOException
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
         if (hook != null)
             return hook.parse( this, jior, type, options );
 
-        return createNewStore( null, options ).loadXml( jior, type, options );
+// NEWSTORE START
+//        return Locale.parseToXmlObject( this, jior, type, options );
+        return Root.parse( this, jior, type, options );
+// NEWSTORE END
     }
 
     public XmlObject parse ( Node node, SchemaType type, XmlOptions options ) throws XmlException
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
         if (hook != null)
             return hook.parse( this, node, type, options );
 
-        return createNewStore( null, options ).loadXml( node, type, options );
+// NEWSTORE START
+//        return Locale.parseToXmlObject( this, node, type, options );
+        return Root.parse( this, node, type, options );
+// NEWSTORE END
     }
 
     public XmlSaxHandler newXmlSaxHandler ( SchemaType type, XmlOptions options )
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        
         if (hook != null)
             return hook.newXmlSaxHandler( this, type, options );
 
-        return createNewStore( null, options ).newSaxHandler( type, options );
+// NEWSTORE START
+//        return Locale.newSaxHandler( this, type, options );
+        return Root.newSaxHandler( this, type, options );
+// NEWSTORE END
     }
 
     public XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException

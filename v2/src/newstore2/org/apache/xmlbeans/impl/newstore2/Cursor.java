@@ -563,6 +563,9 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     
     public Node _getDomNode ( )
     {
+        // BUGBUG - does the erong thing when on text ...
+        assert !_cur.isText();
+        
         return (Node) _cur.getDom();
     }
     
@@ -583,6 +586,7 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     
     public void notifyGeneralChange ( )
     {
+        // Noit sure why I need a general change notification .. .is text enuf?
         throw new RuntimeException( "Not implemented" );
     }
 
@@ -673,7 +677,8 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     
     public XmlBookmark _toPrevBookmark ( Object key )
     {
-        throw new RuntimeException( "Not implemented" );
+        // TODO - implement me!
+        return null;
     }
     
     public String _namespaceForPrefix ( String prefix )
@@ -867,13 +872,16 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     
     public String _getTextValue ( )
     {
+        if (_cur.isText())
+            return _getChars();
+        
         if (!_cur.isNode())
         {
             throw new IllegalStateException(
                 "Can't get text value, current token can have no text value" );
         }
 
-        return Locale.getTextValue ( _cur, Locale.WS_PRESERVE );
+        return Locale.getTextValue( _cur, Locale.WS_PRESERVE );
     }
     
     public int _getTextValue ( char[] returnedChars, int offset, int maxCharacterCount )
@@ -949,12 +957,22 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     
     public void _setBookmark ( XmlBookmark bookmark )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (bookmark != null)
+        {
+            if (bookmark.getKey() == null)
+                throw new IllegalArgumentException( "Annotation key is null" );
+            
+            _clearBookmark( bookmark.getKey() );
+
+            // TODO - I Don't do weak bookmarks yet ...
+            _cur.setBookmark( bookmark.getKey(), bookmark );
+        }
     }
     
     public XmlBookmark _getBookmark ( Object key )
     {
-        throw new RuntimeException( "Not implemented" );
+        // TODO - I Don't do weak bookmarks yet ...
+        return key == null ? null : (XmlBookmark) _cur.getBookmark( key );
     }
     
     public void _clearBookmark ( Object key )

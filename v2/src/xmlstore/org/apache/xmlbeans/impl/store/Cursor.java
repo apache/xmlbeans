@@ -2603,6 +2603,7 @@ public final class Cursor implements XmlCursor, ChangeListener
 
             for ( ; ; )
             {
+// BUGBUG - contains is too wide, is incluive [] not ()
                 if (dst.isAtSamePositionAs( this ))
                 {
                     dst.pop();

@@ -258,7 +258,7 @@ public class Jsr173
             int k = _cur.kind();
 
             if (k == Cur.COMMENT)
-                return _cur.getValueString();
+                return _cur.getValueAsString();
 
             if (k == Cur.TEXT)
                 return _cur.getString( -1 );
@@ -390,7 +390,7 @@ public class Jsr173
 
             if (ca != null)
             {
-                value = ca.getValueString();
+                value = ca.getValueAsString();
                 ca.release();
             }
 
@@ -499,7 +499,7 @@ public class Jsr173
 
             if (ca != null)
             {
-                value = ca.getValueString();
+                value = ca.getValueAsString();
                 ca.release();
             }
 
@@ -587,7 +587,7 @@ public class Jsr173
         public String getNamespaceURI ( int index )
         {
             Cur ca = toXmlns( _cur, index );
-            String uri = ca.getValueString();
+            String uri = ca.getValueAsString();
             ca.release();
             return uri;
         }
@@ -751,7 +751,7 @@ public class Jsr173
 
         public String getPIData ( )
         {
-            return _cur.kind() == Cur.PROCINST ? _cur.getValueString() : null;
+            return _cur.kind() == Cur.PROCINST ? _cur.getValueAsString() : null;
         }
 
         //
@@ -954,7 +954,7 @@ public class Jsr173
                 assert b;
             }
 
-            String ns = c.namespaceForPrefix( prefix );
+            String ns = c.namespaceForPrefix( prefix, true );
 
             if (cParent != null)
                 cParent.release();
