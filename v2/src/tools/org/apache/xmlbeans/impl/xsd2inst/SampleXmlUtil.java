@@ -63,6 +63,8 @@ import java.util.Arrays;
 
 import javax.xml.namespace.QName;
 
+package org.apache.xmlbeans.impl.xsd2inst;
+
 public class SampleXmlUtil
 {
     private boolean _soapEnc;
