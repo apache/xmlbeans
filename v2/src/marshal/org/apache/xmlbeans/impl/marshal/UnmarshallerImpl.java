@@ -68,7 +68,6 @@ import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
-import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -89,20 +88,27 @@ final class UnmarshallerImpl
         this.typeTable = typeTable;
     }
 
-    public Object unmarshal(XMLStreamReader reader)
+    public Object unmarshal(UnmarshalContext context)
         throws XmlException
     {
-        MarshalStreamUtils.advanceToFirstItemOfInterest(reader);
+        if (!(context instanceof UnmarshalContextImpl)) {
+            String name = context == null ? null : context.getClass().getName();
+            String msg = "context must be created using a BindingContext.  " +
+                "Illegal type: " + name;
+            throw new IllegalArgumentException(msg);
+        }
 
-        UnmarshalContextImpl context = createUnmarshallContext(reader,
-                                                               new ArrayList());
+        UnmarshalContextImpl our_context = (UnmarshalContextImpl)context;
 
-        final BindingType bindingType = determineRootType(context);
+        our_context.advanceToFirstItemOfInterest();
+
+        BindingType bindingType = determineRootType(our_context);
 
         return unmarshalBindingType(bindingType, context);
     }
 
-    private Object unmarshalBindingType(final BindingType bindingType,
+
+    private Object unmarshalBindingType(BindingType bindingType,
                                         UnmarshalContext context)
         throws XmlException
     {
@@ -124,9 +130,10 @@ final class UnmarshallerImpl
         return um.unmarshal(our_context);
     }
 
-    public Object unmarshallType(QName schemaType,
-                                 String javaType,
-                                 UnmarshalContext context)
+
+    public Object unmarshalType(QName schemaType,
+                                String javaType,
+                                UnmarshalContext context)
         throws XmlException
     {
         BindingType btype = determineBindingType(schemaType, javaType);
@@ -171,7 +178,7 @@ final class UnmarshallerImpl
     {
         final BindingTypeName btName = bindingLoader.lookupPojoFor(type_name);
         if (btName == null) {
-            throw new XmlException("failed to load BindingTypeName for " + type_name);
+            throw new XmlException("failed to load pojo for " + type_name);
         }
 
         BindingType bt = bindingLoader.getBindingType(btName);

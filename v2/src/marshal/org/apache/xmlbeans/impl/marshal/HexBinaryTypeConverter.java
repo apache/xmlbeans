@@ -54,28 +54,31 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans;
+package org.apache.xmlbeans.impl.marshal;
 
-import java.util.Collection;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
-/**
- * A MarshalContext object represents the state of an marshal operation
- * of a given document.  The object is not thread safe and should not be shared
- * amonst threads.  It can however be shared across different invocations of
- * Marshaller.marshalType() for a given document.
- */
-public interface MarshalContext
+import java.io.InputStream;
+
+final class HexBinaryTypeConverter
+    extends BaseSimpleTypeConverter
 {
-    /**
-     * Do we have errors?
-     *
-     * @return
-     */
-    boolean hasErrors();
+    protected Object getObject(UnmarshalContextImpl context)
+    {
+        final InputStream val = context.getHexBinaryValue();
+        return MarshalStreamUtils.inputStreamToBytes(val);
+    }
 
-    /**
-     *
-     * @return  read-only collection of error objects
-     */
-    Collection getErrors();
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    {
+        final InputStream val = context.getAttributeHexBinaryValue();
+        return MarshalStreamUtils.inputStreamToBytes(val);
+    }
+
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContextImpl context)
+    {
+        byte[] val = (byte[])value;
+        return XsTypeConverter.printHexBinary(val);
+    }
 }

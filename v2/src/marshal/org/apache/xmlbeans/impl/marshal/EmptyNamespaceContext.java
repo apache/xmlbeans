@@ -54,28 +54,39 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans;
+package org.apache.xmlbeans.impl.marshal;
 
-import java.util.Collection;
+import javax.xml.namespace.NamespaceContext;
+import java.util.Iterator;
 
-/**
- * A MarshalContext object represents the state of an marshal operation
- * of a given document.  The object is not thread safe and should not be shared
- * amonst threads.  It can however be shared across different invocations of
- * Marshaller.marshalType() for a given document.
- */
-public interface MarshalContext
+public final class EmptyNamespaceContext
+    implements NamespaceContext
 {
-    /**
-     * Do we have errors?
-     *
-     * @return
-     */
-    boolean hasErrors();
+    private static final NamespaceContext INSTANCE =
+        new EmptyNamespaceContext();
 
-    /**
-     *
-     * @return  read-only collection of error objects
-     */
-    Collection getErrors();
+    public static NamespaceContext getInstance()
+    {
+        return INSTANCE;
+    }
+
+    private EmptyNamespaceContext()
+    {
+    }
+
+    public String getNamespaceURI(String s)
+    {
+        return null;
+    }
+
+    public String getPrefix(String s)
+    {
+        return null;
+    }
+
+    public Iterator getPrefixes(String s)
+    {
+        return null;
+    }
+
 }

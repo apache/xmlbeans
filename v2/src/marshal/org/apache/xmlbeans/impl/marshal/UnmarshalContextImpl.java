@@ -138,6 +138,12 @@ final class UnmarshalContextImpl
         updateAttributeState();
     }
 
+
+    public boolean hasErrors()
+    {
+        return !errors.isEmpty();
+    }
+
     public Collection getErrors()
     {
         return Collections.unmodifiableCollection(errors);
@@ -310,7 +316,21 @@ final class UnmarshalContextImpl
 
     XmlCalendar getCalendarValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getCalendarValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    String getAnyUriValue() {
+        try {
+            return baseReader.getStringValue(XMLStreamReaderExt.WS_COLLAPSE);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     Date getDateValue()
@@ -433,6 +453,17 @@ final class UnmarshalContextImpl
         }
     }
 
+    public String getAttributeAnyUriValue()
+    {
+        try {
+            return baseReader.getAttributeStringValue(currentAttributeIndex,
+                                                      XMLStreamReaderExt.WS_COLLAPSE);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
     InputStream getAttributeHexBinaryValue()
     {
         throw new AssertionError("unimp");
@@ -514,6 +545,12 @@ final class UnmarshalContextImpl
         return ret;
     }
 
+
+    public void advanceToFirstItemOfInterest()
+    {
+        assert baseReader != null;
+        MarshalStreamUtils.advanceToFirstItemOfInterest(baseReader);
+    }
 
     int next()
     {
@@ -622,5 +659,6 @@ final class UnmarshalContextImpl
 
         return baseReader.getAttributeLocalName(currentAttributeIndex);
     }
+
 }
 

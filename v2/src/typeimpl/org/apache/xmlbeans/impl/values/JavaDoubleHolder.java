@@ -60,7 +60,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.ValidationContext;
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;

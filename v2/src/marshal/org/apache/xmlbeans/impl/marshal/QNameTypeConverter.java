@@ -54,28 +54,34 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans;
+package org.apache.xmlbeans.impl.marshal;
 
-import java.util.Collection;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
-/**
- * A MarshalContext object represents the state of an marshal operation
- * of a given document.  The object is not thread safe and should not be shared
- * amonst threads.  It can however be shared across different invocations of
- * Marshaller.marshalType() for a given document.
- */
-public interface MarshalContext
+import javax.xml.namespace.QName;
+import java.math.BigDecimal;
+
+final class QNameTypeConverter
+    extends BaseSimpleTypeConverter
 {
-    /**
-     * Do we have errors?
-     *
-     * @return
-     */
-    boolean hasErrors();
 
-    /**
-     *
-     * @return  read-only collection of error objects
-     */
-    Collection getErrors();
+    protected Object getObject(UnmarshalContextImpl context)
+    {
+        QName val = context.getQNameValue();
+        return val;
+    }
+
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    {
+        return context.getAttributeQNameValue();
+    }
+
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContextImpl context)
+    {
+        QName val = (QName)value;
+        return XsTypeConverter.printQName(val,
+                                          context.getNamespaceContext(),
+                                          context.getErrors());
+    }
 }

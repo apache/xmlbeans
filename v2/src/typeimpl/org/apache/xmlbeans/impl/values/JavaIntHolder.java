@@ -64,7 +64,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 public abstract class JavaIntHolder extends XmlObjectBase
 {
