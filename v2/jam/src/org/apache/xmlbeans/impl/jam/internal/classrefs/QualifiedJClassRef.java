@@ -40,6 +40,15 @@ public class QualifiedJClassRef implements JClassRef {
   /**
    * Creates a new JClassRef for a qualified class or type name.
    */
+  public static JClassRef create(JClass clazz) {
+    if (clazz == null) throw new IllegalArgumentException("null clazz");
+    return new QualifiedJClassRef(clazz.getFieldDescriptor(),
+                                  clazz.getClassLoader());
+  }
+
+  /**
+   * Creates a new JClassRef for a qualified class or type name.
+   */
   public static JClassRef create(String qcname,
                                  JClassRefContext ctx) {
     if (qcname == null) throw new IllegalArgumentException("null qcname");

@@ -88,6 +88,11 @@ public class JamClassIterator implements Iterator {
   public Object next() { return nextClass(); }
 
   // ========================================================================
+  // Public methods
+
+  public int getSize() { return mClassNames.length; }
+
+  // ========================================================================
   // Unsupported methods
 
   /**

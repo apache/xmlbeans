@@ -33,6 +33,9 @@ public class JamLoggerImpl implements JamLogger {
   private Set mVerboseClasses = null;
   private PrintWriter mOut = new PrintWriter(System.out,true);
 
+  //FIXME temp until JamServiceContextImpl is no longer a subclass
+  protected void setOut(PrintWriter out) { mOut= out; }
+
   // ========================================================================
   // JamLogger implementation
 
