@@ -35,6 +35,11 @@ import java.util.*;
 public class RussianDollStrategy
     implements XsdGenStrategy
 {
+    static final String _xsi         = "http://www.w3.org/2001/XMLSchema-instance";
+
+    static final QName _xsiNil          = new QName( _xsi, "nil", "xsi" );
+    static final QName _xsiType         = new QName( _xsi, "type", "xsi" );
+
     public void processDoc(XmlObject[] instances, Inst2XsdOptions options, TypeSystemHolder typeSystemHolder)
     {
         for (int i = 0; i < instances.length; i++)
@@ -56,15 +61,25 @@ public class RussianDollStrategy
             Element withElem = processElement(xc, comment.toString(), options, typeSystemHolder);
             withElem.setGlobal(true);
 
-            Element intoElem = typeSystemHolder.getGlobalElement(withElem.getName());
+            addGlobalElement(withElem, typeSystemHolder, options);
+        }
+    }
 
-            if (intoElem==null)
-                typeSystemHolder.addGlobalElement(withElem);
-            else
-            {
-                combineTypes(intoElem.getType(), withElem.getType(), options);
-                combineElementComments(intoElem, withElem);
-            }
+    protected Element addGlobalElement(Element withElem, TypeSystemHolder typeSystemHolder, Inst2XsdOptions options)
+    {
+        assert withElem.isGlobal();
+        Element intoElem = typeSystemHolder.getGlobalElement(withElem.getName());
+
+        if (intoElem==null)
+        {
+            typeSystemHolder.addGlobalElement(withElem);
+            return withElem;
+        }
+        else
+        {
+            combineTypes(intoElem.getType(), withElem.getType(), options);
+            combineElementComments(intoElem, withElem);
+            return intoElem;
         }
     }
 
@@ -91,7 +106,11 @@ public class RussianDollStrategy
             {
                 case XmlCursor.TokenType.INT_ATTR:
                     // todo check for xsi:type
-                    attributes.add(processAttribute(xc, options, element.getName().getNamespaceURI(), typeSystemHolder));
+                    // ignore xsi:type and xsi:nil atributes
+                    QName attName = xc.getName();
+                    if (!_xsiNil.equals(attName) && !_xsiType.equals(attName))
+                        attributes.add(processAttribute(xc, options, element.getName().getNamespaceURI(), typeSystemHolder));
+
                     break;
 
                 case XmlCursor.TokenType.INT_START:
@@ -108,7 +127,7 @@ public class RussianDollStrategy
                     break;
 
                 case XmlCursor.TokenType.INT_NAMESPACE:
-                    // ignore for now,
+                    // ignore,
                     // each element and attribute will take care to define itself in the right targetNamespace
                     break;
 
@@ -200,7 +219,7 @@ public class RussianDollStrategy
 
             if (currentElem==null)
             {   // first element in this type
-                checkIfElementReferenceIsNeeded(child, parentNamespace, typeSystemHolder);
+                checkIfElementReferenceIsNeeded(child, parentNamespace, typeSystemHolder, options);
                 elemType.addElement(child);
                 elemNamesToElements.put(child.getName(), child);
                 currentElem = child;
@@ -220,7 +239,7 @@ public class RussianDollStrategy
                 Element sameElem = (Element)elemNamesToElements.get(child.getName());
                 if (sameElem==null)
                 {   // new element name
-                    checkIfElementReferenceIsNeeded(child, parentNamespace, typeSystemHolder);
+                    checkIfElementReferenceIsNeeded(child, parentNamespace, typeSystemHolder, options);
                     elemType.addElement(child);
                     elemNamesToElements.put(child.getName(), child);
                 }
@@ -235,7 +254,8 @@ public class RussianDollStrategy
         }
     }
 
-    protected void checkIfElementReferenceIsNeeded(Element child, String parentNamespace, TypeSystemHolder typeSystemHolder)
+    protected void checkIfElementReferenceIsNeeded(Element child, String parentNamespace,
+        TypeSystemHolder typeSystemHolder, Inst2XsdOptions options)
     {
         if (!child.getName().getNamespaceURI().equals(parentNamespace))
         {
@@ -244,7 +264,7 @@ public class RussianDollStrategy
             referencedElem.setName(child.getName());
             referencedElem.setType(child.getType());
 
-            typeSystemHolder.addGlobalElement(referencedElem);
+            referencedElem = addGlobalElement(referencedElem, typeSystemHolder, options);
 
             child.setRef(referencedElem); // clears child's type
         }
@@ -451,8 +471,16 @@ public class RussianDollStrategy
         return XmlString.type.getName();
     }
 
+
     protected void combineTypes(Type into, Type with, Inst2XsdOptions options)
     {
+        if (into==with)
+            return;
+
+        if (into.isGlobal() && with.isGlobal() && into.getName().equals(with.getName()))
+            return;
+
+
         if (into.getContentType()==Type.SIMPLE_TYPE_SIMPLE_CONTENT &&
             with.getContentType()==Type.SIMPLE_TYPE_SIMPLE_CONTENT)
         {
@@ -465,12 +493,12 @@ public class RussianDollStrategy
             (with.getContentType()==Type.SIMPLE_TYPE_SIMPLE_CONTENT ||
             with.getContentType()==Type.COMPLEX_TYPE_SIMPLE_CONTENT) )
         {
-            //complex type simple content
-            into.setContentType(Type.COMPLEX_TYPE_SIMPLE_CONTENT);
-
             // take the extension name if it's a complex type
             QName intoTypeName = into.isComplexType() ? into.getExtensionType().getName() : into.getName();
             QName withTypeName = with.isComplexType() ? with.getExtensionType().getName() : with.getName();
+
+            //complex type simple content
+            into.setContentType(Type.COMPLEX_TYPE_SIMPLE_CONTENT);
 
             QName moreGeneralTypeName = combineToMoreGeneralSimpleType(intoTypeName, withTypeName);
             if (into.isComplexType())
@@ -528,7 +556,6 @@ public class RussianDollStrategy
             with.getContentType()==Type.SIMPLE_TYPE_SIMPLE_CONTENT) : "Invalid arguments";
 
         //simple type simple content
-
         into.setName(combineToMoreGeneralSimpleType(into.getName(), with.getName()));
 
         // take care of enumeration values
@@ -646,6 +673,10 @@ public class RussianDollStrategy
             for (int j = 0; j < into.getElements().size(); j++)
             {
                 Element intoElem = (Element)into.getElements().get(j);
+
+                if (intoElem==fromElem)
+                    continue outterLoop;
+
                 if (intoElem.getName().equals(fromElem.getName()))
                 {
                     combineTypes(intoElem.getType(), fromElem.getType(), options);
@@ -658,6 +689,8 @@ public class RussianDollStrategy
             }
             // fromElem doesn't exist in into type, will add it right now
             into.addElement(fromElem);
+            fromElem.setMinOccurs(0);
+            fromElem.setMaxOccurs(Element.UNBOUNDED);
         }
 
         // for all the elements that are in into and not in from they need to be optional
@@ -688,7 +721,7 @@ public class RussianDollStrategy
 
     protected void combineElementComments(Element into, Element with)
     {
-        if (with.getComment()!=null || with.getComment().length()>0)
+        if (with.getComment()!=null && with.getComment().length()>0)
         {
             if (into.getComment()==null)
                 into.setComment(with.getComment());

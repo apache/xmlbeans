@@ -300,6 +300,7 @@ public class TypeSystemHolder
             for (int i = 0; i < type.getElements().size(); i++)
             {
                 Element child = (Element) type.getElements().get(i);
+                assert !child.isGlobal();
                 org.w3.x2001.xmlSchema.LocalElement childLocalElement = explicitGroup.addNewElement();
                 fillUpLocalElement(child, childLocalElement, tns);
             }
@@ -354,7 +355,9 @@ public class TypeSystemHolder
     public String toString()
     {
         return "TypeSystemHolder{" +
-            "_globalElements=" + _globalElements +
-            "}";
+            "\n\n_globalElements=" + _globalElements +
+            "\n\n_globalAttributes=" + _globalAttributes +
+            "\n\n_globalTypes=" + _globalTypes +
+            "\n}";
     }
 }

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.inst2xsd;
 import org.apache.xmlbeans.impl.inst2xsd.util.Element;
 import org.apache.xmlbeans.impl.inst2xsd.util.TypeSystemHolder;
 import org.apache.xmlbeans.impl.inst2xsd.util.Type;
+import org.apache.xmlbeans.impl.inst2xsd.util.Attribute;
 
 import javax.xml.namespace.QName;
 
@@ -54,7 +55,7 @@ public class VenetianBlindStrategy
                 }
                 else
                 {
-                    if (compatibleTypes(elemType, candidate))
+                    if (compatibleTypes(candidate, elemType))
                     {
                         combineTypes(candidate, elemType, options);
                         elem.setType(candidate);
@@ -69,18 +70,48 @@ public class VenetianBlindStrategy
     {
         // when two types look like they are the same ?
 
-        if (!elemType.isComplexType() && !candidate.isComplexType())
+        if (elemType==candidate)
             return true;
 
-        if (elemType.isComplexType() && !candidate.isComplexType())
-            return false;
-        if (!elemType.isComplexType() && candidate.isComplexType())
-            return false;
-
-        // both complex after this point
-
-        //todo: be smarter: look at att and elem names and types - compute a difference index
+//        if (typeIsReferencedInside(elemType, candidate) || typeIsReferencedInside(candidate, elemType))
+//            return false;
+//
+//        if (!elemType.isComplexType() && !candidate.isComplexType())
+//            return true;
+//
+//        if (elemType.isComplexType() && !candidate.isComplexType())
+//            return false;
+//        if (!elemType.isComplexType() && candidate.isComplexType())
+//            return false;
+//
+//        // both complex after this point
+//
+//        //todo: be smarter: look at att and elem names and types - compute a difference index
 
         return true;
+    }
+
+    private boolean typeIsReferencedInside(Type entity, Type container)
+    {
+        for (int i = 0; i < container.getElements().size(); i++)
+        {
+            Element element = (Element) container.getElements().get(i);
+            if (entity==element.getType())
+                return true;
+
+            if (typeIsReferencedInside(entity, element.getType()))
+                return true;
+        }
+
+        for (int i = 0; i < container.getAttributes().size(); i++)
+        {
+            Attribute attribute = (Attribute) container.getAttributes().get(i);
+            if (entity==attribute.getType())
+                return true;
+
+            if (typeIsReferencedInside(entity, attribute.getType()))
+                return true;
+        }
+        return false;
     }
 }
