@@ -125,21 +125,25 @@ public abstract class Locale implements DOMImplementation, SaajCallback
 
         _numTempFrames--;
 
-        Cur c = _tempFrames[ _numTempFrames ];
-        _tempFrames[ _numTempFrames ] = null;
-
-        while ( c != null )
+        if (_numTempFrames < _tempFrames.length)
         {
-            assert c._tempCurFrame == _numTempFrames;
 
-            Cur next = c._nextTemp;
+            Cur c = _tempFrames[ _numTempFrames ];
+            _tempFrames[ _numTempFrames ] = null;
 
-            c._nextTemp = null;
-            c._tempCurFrame = -1;
+            while ( c != null )
+            {
+                assert c._tempCurFrame == _numTempFrames;
 
-            c.release();
+                Cur next = c._nextTemp;
 
-            c = next;
+                c._nextTemp = null;
+                c._tempCurFrame = -1;
+
+                c.release();
+
+                c = next;
+            }
         }
     }
 
