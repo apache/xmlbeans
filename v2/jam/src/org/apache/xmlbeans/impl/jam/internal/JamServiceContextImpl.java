@@ -67,7 +67,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
 
 
   private MVisitor mCommentInitializer = null;
-  private MVisitor mPropertyInitializer = null;
+  private MVisitor mPropertyInitializer = new PropertyInitializer();
   private List mOtherInitializers = null;
   private List mUnstructuredSourceFiles = null;
   private List mClassLoaders = null;
@@ -234,8 +234,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     if (mCommentInitializer != null) initers.add(mCommentInitializer);
     // initers.add((mCommentInitializer != null) ? mCommentInitializer :
     //             new CommentInitializer());
-    initers.add((mPropertyInitializer != null) ? mPropertyInitializer :
-                new PropertyInitializer());
+    if (mPropertyInitializer != null) initers.add(mPropertyInitializer);
     if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
     // now go
     MVisitor[] inits = new MVisitor[initers.size()];

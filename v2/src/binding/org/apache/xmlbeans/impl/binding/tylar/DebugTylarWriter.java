@@ -26,6 +26,7 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.io.File;
 
 /**
  * Implementation of TylarWriter which simply dumps everything it gets to some
@@ -114,5 +115,19 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
   public Writer createWriter(String packageName, String className)
           throws IOException {
     return mOut;
+  }
+
+  // ========================================================================
+  // main method
+
+  public static void main(String[] args) {
+    try {
+      TylarLoader loader = DefaultTylarLoader.getInstance();
+      Tylar tylar = loader.load(new File(args[0]).toURI());
+      new DebugTylarWriter().write(tylar);
+    } catch(Exception e) {
+      e.printStackTrace();
+    }
+    System.out.flush();
   }
 }

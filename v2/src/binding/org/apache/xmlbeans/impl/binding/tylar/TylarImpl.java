@@ -48,18 +48,22 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
 
   public TylarImpl() {}
 
+
   /**
    * @param sourceUri source uri or null
    * @param bf the binding file
    * @param schemas the schemas
+   * @param sts schema type system (or null)
    */
   public TylarImpl(URI sourceUri,
                    BindingFile bf,
-                   Collection schemas)
+                   Collection schemas,
+                   SchemaTypeSystem sts)
   {
     mSourceURI = sourceUri;
     mBindingFile = bf;
     mSchemas = schemas;
+    mSts = sts;
   }
 
   // ========================================================================
@@ -120,4 +124,18 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
   }
 
   public void close() {}
+
+  // ========================================================================
+  // Deprecated methods
+  
+  /**
+   * @deprecated
+   */
+  public TylarImpl(URI sourceUri,
+                   BindingFile bf,
+                   Collection schemas)
+  {
+    this(sourceUri,bf,schemas,null);
+  }
+
 }

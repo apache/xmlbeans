@@ -175,7 +175,17 @@ public class JavadocClassBuilder extends JamClassBuilder {
       }
       return null;
     }
-    MClass out = createClassToBuild(packageName, className, null);
+    String[] importSpecs = null;
+    {
+      ClassDoc[] imported = cd.importedClasses();
+      if (imported != null) {
+        importSpecs = new String[imported.length];
+        for(int i=0; i<imported.length; i++) {
+          importSpecs[i] = imported[i].qualifiedName();
+        }
+      }
+    }
+    MClass out = createClassToBuild(packageName, className, importSpecs);
     out.setArtifact(cd);
     return out;
   }

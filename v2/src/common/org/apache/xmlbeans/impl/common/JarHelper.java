@@ -119,6 +119,7 @@ public class JarHelper
   // ========================================================================
   // Private methods
 
+  private static final char SEP = '/';
   /**
    * Recursively jars up the given path under the given directory.
    */
@@ -127,13 +128,14 @@ public class JarHelper
     if (mVerbose) System.out.println("checking " + dirOrFile2jar);
     if (dirOrFile2jar.isDirectory()) {
       String[] dirList = dirOrFile2jar.list();
-      String subPath = (path == null)? File.separator :
-              (path+dirOrFile2jar.getName()+File.separator);
-      JarEntry je = new JarEntry(subPath);
-      je.setTime(dirOrFile2jar.lastModified());
-      jos.putNextEntry(je);
-      jos.flush();
-      jos.closeEntry();
+      String subPath = (path == null)? "" : (path+dirOrFile2jar.getName()+SEP);
+      if (path != null) {
+        JarEntry je = new JarEntry(subPath);
+        je.setTime(dirOrFile2jar.lastModified());
+        jos.putNextEntry(je);
+        jos.flush();
+        jos.closeEntry();
+      }
       for (int i = 0; i < dirList.length; i++) {
         File f = new File(dirOrFile2jar, dirList[i]);
         jarDir(f,jos,subPath);

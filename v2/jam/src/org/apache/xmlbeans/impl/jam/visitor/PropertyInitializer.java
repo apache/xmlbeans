@@ -51,6 +51,8 @@ public class PropertyInitializer extends MVisitor {
       if (name.startsWith("get") && name.length() > 3 ||
         name.startsWith("is") && name.length() > 2) {
         JClass typ = methods[i].getReturnType();
+        //FIXME we just want the name - this forces the whole thing to be resolved
+        // need to either getReturnTypeRef() or change ClassImpl so that it lazily builds itself
         if (typ == null) continue; // must have a typ and have
         if (methods[i].getParameters().length > 0) continue; //no params
         if (name.startsWith("get")) {
