@@ -58,6 +58,7 @@ final class RuntimeTypeFactory
                                                 BindingLoader binding_loader)
         throws XmlException
     {
+        assert type != null;
         RuntimeBindingType rtype = (RuntimeBindingType)initedTypeMap.get(type);
         if (rtype != null) return rtype;
 

@@ -23,9 +23,7 @@ import java.io.OutputStream;
 
 /**
  * A Marshaller object is used to convert Java objects to XML documents.
- * The object is not thread safe and should not be shared between threads.
- * It can however be shared across different invocations of
- * Marshaller.marshalType() for a given document.
+ * The object is thread safe and stateless.
  */
 public interface Marshaller
 {
@@ -121,7 +119,7 @@ public interface Marshaller
      * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
      * <li>The encoding for the document, as described in
      * {@link XmlOptions#setCharacterEncoding}.</li>
-     * </ul>
+     * </ul>B
      *
      *
      * @param obj
@@ -231,7 +229,6 @@ public interface Marshaller
         throws XmlException;
 
 
-
     /**
      * Get an XMLStreamReader object that represents the given java type.
 
@@ -260,6 +257,35 @@ public interface Marshaller
                                 QName schemaType,
                                 String javaType,
                                 XmlOptions options)
+        throws XmlException;
+
+
+    /**
+     * Get an XMLStreamReader object that represents the given java type.
+
+     * It is the responsibility of the caller to ensure that
+     * obj is an instanceof javaType
+
+     * As of this writing (11/22/2003), the returned reader will NOT contain
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The reader's first event is a START_ELEMENT event.
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * </ul>
+     *
+     * @param obj
+     * @param elementName  name of global element from a known schema
+     * @param javaType the java type in the format returned by Class.getName()
+     * @param options
+     * @return
+     * @throws XmlException
+     */
+    XMLStreamReader marshalElement(Object obj,
+                                   QName elementName,
+                                   String javaType,
+                                   XmlOptions options)
         throws XmlException;
 
     /**
@@ -317,5 +343,33 @@ public interface Marshaller
                      XmlOptions options)
         throws XmlException;
 
+
+    /**
+     * Write an XML representation of the Java object to the provided output.
+     *
+     * It is the responsibility of the caller to ensure that
+     * obj is an instanceof javaType
+     *
+     * As of this writing (11/22/2003), this method will NOT write
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The first event written will be a START_ELEMENT event.
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * </ul>
+     *
+     * @param writer
+     * @param obj
+     * @param elementName  name of global element from a known schema
+     * @param javaType the java type in the format returned by Class.getName()
+     * @throws XmlException
+     */
+    void marshalElement(XMLStreamWriter writer,
+                        Object obj,
+                        QName elementName,
+                        String javaType,
+                        XmlOptions options)
+        throws XmlException;
 
 }

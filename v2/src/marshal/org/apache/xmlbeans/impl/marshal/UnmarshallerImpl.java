@@ -112,6 +112,29 @@ class UnmarshallerImpl implements Unmarshaller
         return result.unmarshalType(reader, schemaType, javaType);
     }
 
+    public Object unmarshalElement(XMLStreamReader reader,
+                                   QName globalElement,
+                                   String javaType,
+                                   XmlOptions options)
+        throws XmlException
+    {
+        if (reader == null)
+            throw new IllegalArgumentException("null reader");
+        if (globalElement == null)
+            throw new IllegalArgumentException("null globalElement");
+        if (javaType == null)
+            throw new IllegalArgumentException("null javaType");
+        if (!reader.isStartElement()) {
+            throw new IllegalStateException("reader must be positioned on a start element");
+        }
+
+        final UnmarshalResult result =
+            new UnmarshalResult(bindingLoader, typeTable,
+                                schemaTypeLoaderProvider, options);
+
+        return result.unmarshalElement(reader, globalElement, javaType);
+    }
+
     XMLInputFactory getXmlInputFactory()
     {
         return XML_INPUT_FACTORY;

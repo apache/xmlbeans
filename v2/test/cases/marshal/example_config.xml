@@ -290,6 +290,18 @@
                 <bin:qname>java:simpleLongArray</bin:qname>
             </bin:qname-property>
 
+            <bin:qname-property>
+                <bin:xmlcomponent>t=dateTime@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>java.util.Date</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getSomeDate</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setSomeDate</bin:method-name>
+                    <bin:param-type>java.util.Date</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:SomeDate</bin:qname>
+            </bin:qname-property>
 
 
         </bin:binding-type>

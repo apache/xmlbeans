@@ -162,4 +162,35 @@ public interface Unmarshaller
                          String javaType,
                          XmlOptions options)
         throws XmlException;
+
+    /**
+     * unmarshal an xml instance of a given schema element
+     *
+     * PRECONDITIONS:
+     * reader.isStartElement() must return true
+     * reader is positioned on an element matching globalElement
+     *   (or on a a valid substitution for that element).
+     *
+     * POSTCONDITIONS:
+     * reader will be positioned immediately after the end element
+     * corresponding to the start element from the precondition
+     *
+     * <p>Use the <em>options</em> parameter to specify the following:</p>
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * </ul>
+     *
+     *
+     * @param globalElement  name of a global element
+     * @param javaType the java type in the format returned by Class.getName()
+     * @return
+     * @throws org.apache.xmlbeans.XmlException
+     */
+    Object unmarshalElement(XMLStreamReader reader,
+                            QName globalElement,
+                            String javaType,
+                            XmlOptions options)
+        throws XmlException;
 }

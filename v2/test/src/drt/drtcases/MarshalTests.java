@@ -480,7 +480,8 @@ public class MarshalTests extends TestCase
         Assert.assertNotNull(ctx);
 
 
-        ctx.marshalType(w, mc, new QName("java:com.mytest", "load"),
+        ctx.marshalType(w, mc,
+                        new QName("java:com.mytest", "load"),
                         new QName("java:com.mytest", "MyClass"),
                         mc.getClass().getName(), options);
 
@@ -523,6 +524,53 @@ public class MarshalTests extends TestCase
             XMLInputFactory.newInstance().createXMLStreamReader(sr);
         Unmarshaller umctx = bindingContext.createUnmarshaller();
         Object out_obj = umctx.unmarshal(rdr, options);
+        Assert.assertEquals(mc, out_obj);
+        Assert.assertTrue(errors.isEmpty());
+    }
+
+    public void testByNameMarshalElementViaWriter()
+        throws Exception
+    {
+        com.mytest.MyClass mc = new com.mytest.MyClass();
+        mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(99999.777f);
+        myelt.setMyFloat(5555.4444f);
+//        myelt.setMyClass(new com.mytest.MyClass());
+        myelt.setMyClass(null);
+        mc.setMyelt(myelt);
+
+        myelt.setStringArray(new String[]{"one", "two", "three"});
+
+
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+
+        StringWriter sw = new StringWriter();
+        XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+
+        final XmlOptions options = new XmlOptions();
+        Collection errors = new LinkedList();
+        options.setErrorListener(errors);
+        Marshaller ctx =
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
+
+        final QName elem_name = new QName("java:com.mytest", "load");
+        ctx.marshalElement(w,
+                           mc,
+                           elem_name,
+                           mc.getClass().getName(),
+                           options);
+
+        //now unmarshall from String and compare objects...
+        StringReader sr = new StringReader(sw.getBuffer().toString());
+        XMLStreamReader rdr =
+            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+        Unmarshaller umctx = bindingContext.createUnmarshaller();
+        while(!rdr.isStartElement()) {rdr.next();}
+        Object out_obj = umctx.unmarshalElement(rdr, elem_name,
+                                                mc.getClass().getName(),
+                                                options);
         Assert.assertEquals(mc, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }

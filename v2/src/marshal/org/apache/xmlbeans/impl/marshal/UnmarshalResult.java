@@ -213,21 +213,7 @@ final class UnmarshalResult
                          String javaType)
         throws XmlException
     {
-        if (isValidating()) {
-            ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
-            SchemaTypeLoader schemaTypeLoader =
-                schemaTypeLoaderProvider.getSchemaTypeLoader();
-            SchemaType schema_type = schemaTypeLoader.findType(schemaType);
-            if (schema_type == null) {
-                String e = "unable to locate definition of type " +
-                    schemaType + " in supplied schema type system";
-                throw new XmlException(e);
-            }
-            vr.init(reader, schema_type, schemaTypeLoader, options, errors);
-            reader = vr; //note changing param
-        }
-
-        enrichXmlStream(reader);
+        doctorStream(schemaType, reader);
 
         final QName xsi_type = getXsiType();
 
@@ -248,6 +234,62 @@ final class UnmarshalResult
         }
         return unmarshalBindingType(btype);
     }
+
+    private void doctorStream(QName schemaType,
+                              XMLStreamReader reader)
+        throws XmlException
+    {
+        if (isValidating()) {
+            ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
+            SchemaTypeLoader schemaTypeLoader =
+                schemaTypeLoaderProvider.getSchemaTypeLoader();
+            SchemaType schema_type = schemaTypeLoader.findType(schemaType);
+            if (schema_type == null) {
+                String e = "unable to locate definition of type " +
+                    schemaType + " in supplied schema type system";
+                throw new XmlException(e);
+            }
+            vr.init(reader, schema_type, schemaTypeLoader, options, errors);
+            reader = vr; //note changing param
+        }
+
+        enrichXmlStream(reader);
+    }
+
+
+    Object unmarshalElement(XMLStreamReader reader,
+                            QName globalElement,
+                            String javaType)
+        throws XmlException
+    {
+        final BindingType binding_type =
+            determineTypeForGlobalElement(globalElement);
+        final XmlTypeName type_name = binding_type.getName().getXmlName();
+        assert type_name.isGlobal();
+        assert type_name.isSchemaType();
+        final QName schema_type = type_name.getQName();
+        doctorStream(schema_type, reader);
+
+        final QName xsi_type = getXsiType();
+
+        BindingType btype = null;
+
+        if (xsi_type != null) {
+            btype = getPojoTypeFromXsiType(xsi_type);
+        }
+
+        if (btype == null) {
+            btype = determineBindingType(schema_type, javaType);
+        }
+
+        if (btype == null) {
+            final String msg = "unable to find binding type for " +
+                schema_type + " : " + javaType;
+            throw new XmlException(msg);
+        }
+        return unmarshalBindingType(btype);
+    }
+
 
     private boolean isValidating()
     {
@@ -277,14 +319,20 @@ final class UnmarshalResult
         if (retval == null) {
             QName root_elem_qname = new QName(this.getNamespaceURI(),
                                               this.getLocalName());
-            final XmlTypeName type_name =
-                XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, root_elem_qname);
-            BindingType doc_binding_type = getPojoBindingType(type_name, true);
-            SimpleDocumentBinding sd = (SimpleDocumentBinding)doc_binding_type;
-            retval = getPojoBindingType(sd.getTypeOfElement(), true);
+            retval = determineTypeForGlobalElement(root_elem_qname);
         }
 
         return retval;
+    }
+
+    private BindingType determineTypeForGlobalElement(QName elem)
+        throws XmlException
+    {
+        final XmlTypeName type_name =
+            XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, elem);
+        BindingType doc_binding_type = getPojoBindingType(type_name, true);
+        SimpleDocumentBinding sd = (SimpleDocumentBinding)doc_binding_type;
+        return getPojoBindingType(sd.getTypeOfElement(), true);
     }
 
     //will return null on error and log errors
