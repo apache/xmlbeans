@@ -723,6 +723,7 @@ public class NameUtil
               || c == PERIOD
               || c == COLON
               || c == DOT
+              || c == USCORE
               || c == TELEIA
               || c == AYAH
               || c == ELHIZB);
