@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.editable;
 
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JProperty;
 
 /**
  * Editable representation of a java class or interface.
@@ -27,8 +28,6 @@ public interface EClass extends EMember, JClass {
   public void setIsInterface(boolean b);
 
   public void setIsAnnotationType(boolean b);  
-
-  public void setIsUnresolved(boolean b);
 
   /**
    * Sets the class which this class extends.  The class name must be fully-
@@ -157,11 +156,7 @@ public interface EClass extends EMember, JClass {
   public EMethod[] getEditableMethods();
 
 
+  public JProperty addNewProperty(String name, EMethod getter, EMethod setter);
 
-  // not sure that these are something we want to do.  is a property really
-  // an inherent part of a java type?
-
-//  public EProperty createProperty(EMethod getter, EMethod setter);
-
-//  public void removeProperty(EProperty prop);
+  public void removeProperty(JProperty prop);
 }

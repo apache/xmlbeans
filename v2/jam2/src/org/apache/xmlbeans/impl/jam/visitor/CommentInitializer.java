@@ -120,43 +120,19 @@ public class CommentInitializer extends ElementVisitor {
     commentedElement.getEditableComment().setText(trimmedComment);
   }
 
-  private String mNameValueSeparators;
-  private static final String DEFAULT_NAME_VALUE_SEPS = "\n\r";
 
+  //FIXME this method nned help
   protected void processJavadocTag(EAnnotatedElement element, String tagtext) {
-    if (mTag2Annclass != null) {
-      StringTokenizer st = new StringTokenizer(tagtext,mNameValueSeparators);
-      //get the tagname.  it'd better start with '@'
-      String tagName = st.nextToken().trim();
-      String tagContents = null;//FIXME
-      if (!tagName.startsWith("@")) {
-        throw new IllegalArgumentException("invalid tagtext '"+tagtext+"'");
-      }
-      tagName = tagName.substring(1).trim();
-      element.addAnnotationForTag(tagName,tagContents);
+    tagtext = tagtext.trim();
+    if (!tagtext.startsWith("@")) {
+      throw new IllegalArgumentException("invalid tagtext '"+tagtext+"'");
     }
+    tagtext = tagtext.substring(1).trim();
+    int space = tagtext.indexOf(' ');
+    String tagname = tagtext.substring(0,space);
+    tagtext = tagtext.substring(space).trim();
+    element.addAnnotationForTag(tagname,tagtext);
   }
-
-/*
-      ea.setAnnotationObject(ann);
-      // now populate ann from name-value pairs FIXME
-      while (st.hasMoreTokens()) {
-        String pair = st.nextToken();
-        int eq = pair.indexOf('=');
-        if (eq <= 0) continue; // if not there or is first character
-        String name = pair.substring(0, eq).trim();
-        String value = (eq < pair.length() - 1) ? pair.substring(eq + 1) : null;
-        setValue(ann,name,value);
-      }
-    }
-
-  }
-
-  private void setValue(Object dest, String name, String value) {
-   //FIXME Method
-  }
-
-  */
 
 
   // ========================================================================
@@ -207,25 +183,4 @@ public class CommentInitializer extends ElementVisitor {
     if (offset >= rawLine.length()) return "";
     return rawLine.substring(offset+1).trim();
   }
-
-
-  // salvaged from BaseJAnnotation
-  /**
-   * Taking the stringValue of this annotation as a
-   * line-break-sepearated list of name-value pairs, creates a new
-   * JAnnotation for each pair and adds it to the given collection.
-
-  protected void getLocalAnnotations(Collection out) {
-    StringTokenizer st = new StringTokenizer(mValue, NAME_VALUE_SEPS);
-    while (st.hasMoreTokens()) {
-      String pair = st.nextToken();
-      int eq = pair.indexOf('=');
-      if (eq <= 0) continue; // if not there or is first character
-      String name = pair.substring(0, eq).trim();
-      String value = (eq < pair.length() - 1) ? pair.substring(eq + 1) : null;
-      JAnnotation ann = new BaseJAnnotation(this, name, value);
-      out.add(ann);
-    }
-  }
-   */
 }

@@ -343,6 +343,10 @@ public class JamServiceContextImpl implements JamServiceContext,
     if (mVerbose) t.printStackTrace(mOut);
   }
 
+  public void warning(Throwable t) {
+    error(t);//FIXME
+  }
+
   public void error(Throwable t) {
     t.printStackTrace(mOut);
   }
@@ -397,18 +401,25 @@ public class JamServiceContextImpl implements JamServiceContext,
 
   private AnnotationProxy createProxy(Class clazz) {
     if (clazz == null) clazz = mDefaultAnnotationProxyClass;
+    AnnotationProxy p;
     if (clazz != null) {
       try {
         //hopefully, it's pretty unlikely anything will go wrong, since
-        //we validate all of the proxy classes on the way in
-        clazz.newInstance();
+        //we validate all proxy classes on the way in
+        p = (AnnotationProxy)clazz.newInstance();
+        p.init(this);
+        return p;
       } catch (IllegalAccessException iae) {
         error(iae);
+      } catch (ClassCastException cce) {
+        error(cce);
       } catch (InstantiationException ie) {
         error(ie);
       }
     }
-    return new DefaultAnnotationProxy();
+    p = new DefaultAnnotationProxy();
+    p.init(this);
+    return p;
   }
 
   /**

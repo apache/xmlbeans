@@ -231,26 +231,26 @@ public interface JamServiceParams {
    * type (i.e. an extension of <code>java.lang.annotation.Annotation</code>).
    * JAM will create instances of the given class to act as proxies to
    * declarations of the given 175 annotation type.  The proxy class must
-   * extend <code>CustomAnnotationProxyBase</code>.</p>
+   * extend <code>TypedAnnotationProxyBase</code>.</p>
    *
    * <p>Note that the 175 Annotation type is specified by name (as opposed
    * to Class) so that it is not required for the Annotation class to be
    * compiled.  However, this name MUST be a fully-qualified java
    * classname.</p>
    *
-   * <pYou must register a unique CustomAnnotationProxyBase subclass for every JSR175
+   * <pYou must register a unique TypedAnnotationProxyBase subclass for every JSR175
    * Annotation classname.  This is because JAM (like JSR175) will only
    * expose one annotation of a given (proxy) type per java elements.</p>
    *
    * <p>However, it is acceptable (and often desirable) to register the same
-   * CustomAnnotationProxyBase subclass for both a javadoc tag and a 175 annotation
+   * TypedAnnotationProxyBase subclass for both a javadoc tag and a 175 annotation
    * type.  This allows JAM to provide your application with a unified view of
    * java metadata, whether it is represented as javadoc tags or JSR175
    * annotations.</p>
    *
    * @throws IllegalArgumentException if the proxyClass parameter is null,
    * does not have a public default constructor, or is not a subclass of
-   * <code>CustomAnnotationProxyBase</code>.
+   * <code>TypedAnnotationProxyBase</code>.
    * @throws IllegalArgumentException if the qualified175AnnotationClassname
    * is null or not a valid java classname.
    * @throws IllegalArgumentException if a proxy has already been registered
@@ -263,26 +263,26 @@ public interface JamServiceParams {
    * <p>Registers a given class to serve as proxy for a javadoc tag.
    * JAM will create instances of the given class to act as
    * proxies to the tag's metadata.  The proxy class must extend
-   * <code>CustomAnnotationProxyBase</code>.
+   * <code>TypedAnnotationProxyBase</code>.
    *
    * <p>Note that the 175 Annotation type is specified by name (as opposed
    * to Class) so that it is not required for the Annotation class to be
    * compiled.  However, this name MUST be a fully-qualified java
    * classname.</p>
    *
-   * <pYou must register a unique CustomAnnotationProxyBase subclass for each javadoc
+   * <pYou must register a unique TypedAnnotationProxyBase subclass for each javadoc
    * tag name.  This is because JAM (like JSR175) will only expose one
    * annotation of a given (proxy) type per java elements.</p>
    *
    * <p>However, it is acceptable (and often desirable) to register the same
-   * CustomAnnotationProxyBase subclass for both a javadoc tag and a 175 annotation
+   * TypedAnnotationProxyBase subclass for both a javadoc tag and a 175 annotation
    * type.  This allows JAM to provide your application with a unified view of
    * java metadata, whether it is represented as javadoc tags or JSR175
    * annotations.</p>
    *
    * @throws IllegalArgumentException if the proxyClass parameter is null,
    * does not have a public default constructor, or is not a subclass of
-   * <code>CustomAnnotationProxyBase</code>.
+   * <code>TypedAnnotationProxyBase</code>.
    * @throws IllegalArgumentException if the tagname is null or not a valid
    * javadoc tag name.
    * @throws IllegalArgumentException if a proxy has already been registered
@@ -303,7 +303,7 @@ public interface JamServiceParams {
 
 
   /**
-   * <p>Sets the subclass of CustomAnnotationProxyBase to be instantiated when no
+   * <p>Sets the subclass of TypedAnnotationProxyBase to be instantiated when no
    * proxy is registered for a given tag or 175 type.  Instances of the
    * default proxy class are never returned via the JAM API, but they are
    * used internally to implement the default, untyped mapping; you can use
@@ -312,7 +312,7 @@ public interface JamServiceParams {
    *
    * @throws IllegalArgumentException if the proxyClass parameter is null,
    * does not have a public default constructor, or is not a subclass of
-   * <code>CustomAnnotationProxyBase</code>.
+   * <code>TypedAnnotationProxyBase</code>.
    */
   public void setDefaultAnnotationProxyClass(Class c);
 

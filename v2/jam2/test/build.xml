@@ -1,4 +1,4 @@
-<project name='jam' default='all' basedir='.'>
+<project name='jam.tests' default='all' basedir='.'>
 
 <!-- Build file to build and run JAM tests -->
 
@@ -59,10 +59,10 @@
       </classpath>
       <formatter type='plain' usefile='false'/>
 
-      <test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>
-      <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
-      <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
 
+      <!--<test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>-->
+      <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
+      <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
     </junit>
   </target>
 

@@ -17,19 +17,12 @@ package org.apache.xmlbeans.impl.jam.annotation;
 import java.util.HashMap;
 import java.util.Map;
 
-
-//REVIEW we may need to expose this in the public API
 /**
- * <p>Implementation of CustomAnnotationProxyBase which is used when no user-defined
- * type has been registered.  All it does is stuff values into an
- * ValueMap.  Note that it inherits all of the tag and annotation
- * processing behaviors from AnnotationProxy.</p>
+ * <p>Implementation of AnnotationProxy which is used when no user-defined
+ * type has been registered for a given annotation..  All it does is stuff
+ * values into a ValueMap.  Note that it inherits all of the default tag and
+ * annotation processing behaviors from AnnotationProxy.</p>
  *
- * <p>The default implementation of this class methods will often be sufficient
- * but extending classes are free to override them if specialized processing
- * behavior is required.  A typical example might be overriding
- * <code>initFromJavadocTag()</code> in provide a specialized mapping from
- * the tag's name-value pairs to the proxy's properties.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
@@ -59,7 +52,7 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
   }
 
   // ========================================================================
-  // CustomAnnotationProxyBase implementation
+  // TypedAnnotationProxyBase implementation
 
   /**
    * <p>Overrides this behavior to simply stuff the value into our

@@ -43,7 +43,7 @@ public interface JAnnotation extends JElement {
    * JAnnotatedElement.getAnnotationProxy(proxyClass).</p>
    *
    * <p>The value returned is guaranteed to be either a user-defined
-   * subclass of CustomAnnotationProxyBase or null.</p>
+   * subclass of TypedAnnotationProxyBase or null.</p>
    */
   public Object getProxy();
 

@@ -30,6 +30,11 @@ public interface JamLogger {
   public void debug(Throwable t);
 
   /**
+   * <p>Outputs a debug message as appropriate.</p>
+   */
+  public void warning(Throwable t);
+
+  /**
    * <p>Outputs an error as appropriate.</p>
    */
   public void error(Throwable t);

@@ -17,14 +17,15 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
+import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.reflect.Method;
 
 /**
  * <p>Implementation of JProperty.</p>
- *
- * @deprecated need to move this down under elements, and expose an EProperty.
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
@@ -35,76 +36,7 @@ public class PropertyImpl implements JProperty {
 
   private String mName;
   private JMethod mGetter, mSetter;
-  private JClass mType;
-
-  // ========================================================================
-  // Factory
-
-
-  // REVIEW should these be available via a getter on JClass?  Seems
-  // ok to me, but there were some concerns that this might confusing.
-  /**
-   * Returns an array of properties found on the given class.
-   */
-  public static JProperty[] getProperties(JClass clazz)
-  {
-    Map name2prop = new HashMap();
-    JMethod[] methods = clazz.getMethods();
-    for(int i=0; i<methods.length; i++) {
-      String name = methods[i].getSimpleName();
-      //
-      // process getters
-      //
-      if (name.startsWith("get") && name.length() > 3 || name.startsWith("is") && name.length() > 2) {
-        JClass type = methods[i].getReturnType();
-        if (type == null) continue; // must have a type and have
-        if (methods[i].getParameters().length > 0) continue; //no params
-        if (name.startsWith("get"))
-          name = name.substring(3);
-        else
-          name = name.substring(2);
-        PropertyImpl prop = (PropertyImpl)name2prop.get(name);
-        if (prop == null) {
-          prop = new PropertyImpl(name,methods[i],null,type);
-          name2prop.put(name,prop);
-        } else {
-          if (type.equals(prop.getType())) {
-            // if it's the same type, cool - just add the getter
-            prop.mGetter = methods[i];
-          } else {
-            // Otherwise, getter/setter types are mismatched and we
-            // don't have a property.  REVIEW ok?
-            name2prop.remove(name);
-          }
-        }
-      }
-      //
-      // process setters
-      //
-      if (name.startsWith("set") && name.length() > 3) {
-        if (methods[i].getParameters().length != 1) continue; //1 param reqd
-        JClass type = methods[i].getParameters()[0].getType();
-        name = name.substring(3);
-        PropertyImpl prop = (PropertyImpl)name2prop.get(name);
-        if (prop == null) {
-          prop = new PropertyImpl(name,null,methods[i],type);
-          name2prop.put(name,prop);
-        } else {
-          if (type.equals(prop.getType())) {
-            // if it's the same type, cool - just add the getter
-            prop.mSetter = methods[i];
-          } else {
-            // Otherwise, getter/setter types are mismatched and we
-            // don't have a property.  REVIEW ok?
-            name2prop.remove(name);
-          }
-        }
-      }
-    }
-    JProperty[] out = new JProperty[name2prop.values().size()];
-    name2prop.values().toArray(out);
-    return out;
-  }
+  private JClassRef mTypeRef;
 
   // ========================================================================
   // Constructor
@@ -117,14 +49,16 @@ public class PropertyImpl implements JProperty {
    * case.</p>
    */
   public PropertyImpl(String name,
-                       JMethod getter,
-                       JMethod setter,
-                       JClass type)
+                      JMethod getter,
+                      JMethod setter,
+                      String qualifiedTypeName)
   {
+    //FIXME should do more validation on the arguments
     mName = name;
     mGetter = getter;
     mSetter = setter;
-    mType = type;
+    mTypeRef = UnqualifiedJClassRef.create
+      (qualifiedTypeName,((ClassImpl)getter.getContainingClass()));
   }
 
   // ========================================================================
@@ -133,7 +67,7 @@ public class PropertyImpl implements JProperty {
   /**
    * Returns a JClass which represents the type of this property.
    */
-  public JClass getType() { return mType; }
+  public JClass getType() { return mTypeRef.getRefClass(); }
 
   /**
    * Returns the simple name of this property.  For example, for a
@@ -190,6 +124,12 @@ public class PropertyImpl implements JProperty {
   }
    */
 
+  //internal use only
+  public void setSetter(JMethod method) { mSetter = method; }
+
+  //internal use only
+  public void setGetter(JMethod method) { mGetter = method; }
+
   /**
    * Returns the first annotation with the given name that is found on
    * this property's getter and/or setters.
@@ -204,15 +144,6 @@ public class PropertyImpl implements JProperty {
     if (mSetter != null)  return mSetter.getComment();
     return null;
   }
-
-/*
-  public JComment[] getComments() {
-    return combine((mGetter == null) ?
-                   BaseJElement.NO_COMMENT : mGetter.getComments(),
-                   (mSetter == null) ?
-                   BaseJElement.NO_COMMENT : mSetter.getComments());
-  }
-*/
 
   public JElement getParent() {
     return mGetter != null ? mGetter.getParent() : mSetter.getParent();

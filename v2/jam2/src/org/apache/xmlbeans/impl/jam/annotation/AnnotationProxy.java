@@ -14,10 +14,25 @@
  */
 package org.apache.xmlbeans.impl.jam.annotation;
 
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+
+import java.util.StringTokenizer;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * <p>Provides a proxied view of some annotation artifact.  JAM calls the
  * public methods on this class to initialize the proxy with annotation
  * values; those methods should not be called by user code.</p>
+ *
+ * <p>This class provides default implementations of
+ * initFromAnnotationInstance() and initFromJavadocTag() which will often be
+ * sufficient.  However, extending classes are free to override them if
+ * they need to specialize how tags and annotations are mapped into the
+ * proxy's member values.  A typical example might be overriding
+ * <code>initFromJavadocTag()</code> in provide a specialized parsing of
+ * the tags's name-value pairs.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
@@ -33,23 +48,47 @@ public abstract class AnnotationProxy {
    */
   public static final String SINGLE_MEMBER_NAME = "value";
 
+
+  /**
+   * <p>The delimiters to use by default when parsing out name=value pairs
+   * from a javadoc tag.</p>
+   */
+  private static final String DEFAULT_NVPAIR_DELIMS = "\n\r";
+
+
+  // ========================================================================
+  // Variables
+
+  private JamLogger mLogger;
+
+  //FIXME need to expose a knob for setting this
+  private String mNvPairDelims = DEFAULT_NVPAIR_DELIMS;
+
+  // ========================================================================
+  // Initialization methods - called by JAM, don'
+
+  /**
+   * <p>Called by JAM to initialize the proxy.  Do not try to call this
+   * yourself.</p>
+   */
+  public void init(JamLogger logger) {
+    if (logger == null) throw new IllegalArgumentException("null logger");
+    mLogger = logger;
+  }
+
   // ========================================================================
   // Public abstract methods
 
   /**
    * <p>Called by JAM to initialize a named member on this annotation proxy.
    * </p>
-   *
-   *
-   * <p>
-   * (DOCME: provide details on widening and conversion algorithms).
-   * </p>
-   *
-   * @param name
-   * @param value
    */
   public abstract void setMemberValue(String name, Object value);
 
+  /**
+   * <p>Called to provide the JAM client with ValueMap containing
+   * this value's annotations.</p>
+   */
   public abstract ValueMap getValueMap();
 
   // ========================================================================
@@ -70,8 +109,26 @@ public abstract class AnnotationProxy {
    * <p>Extending classes are free to override this method if different
    * behavior is required.</p>
    */
-  public void initFromAnnotationInstance(Object jst175annotationObject) {
-
+  public void initFromAnnotationInstance(Object jsr175annotationObject) {
+    if (jsr175annotationObject == null) throw new IllegalArgumentException();
+    Class annType = jsr175annotationObject.getClass();
+    //FIXME this is a bit clumsy right now - I think we need to be a little
+    // more surgical in identifying the annotation member methods
+    Method[] methods = annType.getMethods();
+    for(int i=0; i<methods.length; i++) {
+      int mods = methods[i].getModifiers();
+      if (Modifier.isStatic(mods)) continue;
+      if (!Modifier.isPublic(mods)) continue;
+      if (methods[i].getParameterTypes().length > 0) continue;
+      try {
+        setMemberValue(methods[i].getName(),
+                       methods[i].invoke(jsr175annotationObject,null));
+      } catch (IllegalAccessException e) {
+        getLogger().warning(e);
+      } catch (InvocationTargetException e) {
+        getLogger().warning(e);
+      }
+    }
   }
 
   /**
@@ -88,8 +145,25 @@ public abstract class AnnotationProxy {
    * <p>Extending classes are free to override this method if different
    * behavior is required.</p>
    */
-  public void initFromJavadocTag(String tagContents) {
-
+  public void initFromJavadocTag(String tagline) {
+    if (tagline == null) throw new IllegalArgumentException("null tagline");
+    StringTokenizer st = new StringTokenizer(tagline, mNvPairDelims);
+    while (st.hasMoreTokens()) {
+      String pair = st.nextToken();
+      int eq = pair.indexOf('=');
+      if (eq <= 0) continue; // if not there or is first character
+      String name = pair.substring(0, eq).trim();
+      String value = (eq < pair.length() - 1) ? pair.substring(eq + 1) : null;
+      if (value != null) setMemberValue(name,value);
+    }
   }
 
+  // ========================================================================
+  // Protected methods
+
+  /**
+   * <p>Returns an instance of JamLogger that this AnnotationProxy should use
+   * for logging debug and error messages.</p>
+   */
+  protected JamLogger getLogger() { return mLogger; }
 }

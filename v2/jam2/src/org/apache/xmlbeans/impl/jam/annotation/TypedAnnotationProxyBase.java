@@ -14,6 +14,9 @@
  */
 package org.apache.xmlbeans.impl.jam.annotation;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+
 
 /**
  * <p>Base for user-defined annotation classes which provide strongly-typed
@@ -24,17 +27,12 @@ package org.apache.xmlbeans.impl.jam.annotation;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public abstract class CustomAnnotationProxyBase extends AnnotationProxy {
-
-  // ========================================================================
-  // Variables
-
-  private ValueMap mValueMap = null;  // created only on demand
+public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
 
   // ========================================================================
   // Constructors
 
-  protected CustomAnnotationProxyBase() {}
+  protected TypedAnnotationProxyBase() {}
 
   // ========================================================================
   // Public methods
@@ -51,7 +49,17 @@ public abstract class CustomAnnotationProxyBase extends AnnotationProxy {
    * behavior is required.</p>
    */
   public void setMemberValue(String name, Object value) {
-    throw new UnsupportedOperationException("NYI");
+    if (name == null) throw new IllegalArgumentException("null name");
+    if (value == null) throw new IllegalArgumentException("null value");
+    Method m = getSetterFor(name,value.getClass());
+    if (m == null) return;
+    try {
+      m.invoke(this,new Object[] {value});
+    } catch (IllegalAccessException e) {
+      getLogger().warning(e);
+    } catch (InvocationTargetException e) {
+      getLogger().warning(e);
+    }
   }
 
   /**
@@ -65,6 +73,33 @@ public abstract class CustomAnnotationProxyBase extends AnnotationProxy {
    * behavior is required.</p>
    */
   public ValueMap getValueMap() {
+    //FIXME build it up via reflection, i guess.  Or maybe we should
+    //remember what got set via setMemberValue()?  I dunno, it's kind of
+    //a weird thing for them to be asking for an untyped version of this
+    //annotation for which they've gone to the trouble of building a typed
+    //proxy.  Somebody will do it, though, so we need to think about what
+    //the right thing to do is and do it.  They can always override if
+    //they dont like it.
     throw new UnsupportedOperationException("NYI");
+  }
+
+  // ========================================================================
+  // Protected methods
+
+  /**
+   * <p>Gets the setter that should be used for setting the given member
+   * with the given value.  This is part of the setMemberValue()
+   * implementation, but is broken out as a separate protected method to
+   * provide a convenient override point for extensions to do simple name
+   * mappings without having to completely re-implement setMemberValue().</p>
+   */
+  protected Method getSetterFor(String memberName, Class valueType) {
+    try {
+      return this.getClass().getMethod("set"+memberName,
+                                       new Class[] {valueType});
+    } catch(NoSuchMethodException nsme) {
+      getLogger().warning(nsme);
+      return null;
+    }
   }
 }
