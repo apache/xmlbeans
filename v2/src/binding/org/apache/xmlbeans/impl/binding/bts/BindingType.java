@@ -141,6 +141,7 @@ public abstract class BindingType
         registerClassAndType(JaxbBean.class, org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean.type);
         registerClassAndType(ByNameBean.class, org.apache.xmlbeans.x2003.x09.bindingConfig.ByNameBean.type);
         registerClassAndType(SimpleBindingType.class, org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleType.type);
+        registerClassAndType(SimpleDocumentBinding.class, org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding.type);
     }
 
 }

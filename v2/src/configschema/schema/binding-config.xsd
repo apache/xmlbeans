@@ -43,12 +43,22 @@
       <!-- todo: maybe more java info, e.g., instanceType, is-interface, is-xmlobj etc? -->
     </xs:sequence>
   </xs:complexType>
-    
+
   <xs:complexType name="simple-type">
     <xs:complexContent>
       <xs:extension base="tns:binding-type">
         <xs:sequence>
           <xs:element name="as-xml" type="tns:xml-signature"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="simple-document-binding">
+    <xs:complexContent>
+      <xs:extension base="tns:binding-type">
+        <xs:sequence>
+          <xs:element name="element-name" type="xs:string"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
