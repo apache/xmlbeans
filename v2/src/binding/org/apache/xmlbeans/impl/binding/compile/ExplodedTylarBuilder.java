@@ -160,6 +160,7 @@ public class ExplodedTylarBuilder implements TylarBuilder {
       File javaFile = new File(mDir, className.replace('.', '/') + ".java");
       FileOutputStream out = null;
       try {
+        javaFile.getParentFile().mkdirs();
         out = new FileOutputStream(javaFile);
         jcg.printSourceCode(className, out);
       } catch (IOException e) {
