@@ -118,10 +118,10 @@ public class JDClassLoader implements JClassLoader
       if (out != null) return out;
       ClassDoc jc = mRootDoc.classNamed(fd);
       if (jc != null) {
-	mFd2Class.put(fd,out = JDFactory.getInstance().createClass(jc,this));
-	return out;
+        mFd2Class.put(fd,out = JDFactory.getInstance().createClass(jc,this));
+        return out;
       } else {
-	return mParentLoader.loadClass(fd);
+        return mParentLoader.loadClass(fd);
       }
     }
   }

@@ -82,23 +82,29 @@ public final class PrimitiveJClass extends BuiltinJClass {
     {"double", "D", double.class},
   };
 
-  private static final Map NAME_TO_CLASS, FD_TO_CLASS;
+  private static final Map NAME_TO_JCLASS, FD_TO_JCLASS,
+  NAME_TO_FD, NAME_TO_CLASS;
 
   static {
+    NAME_TO_JCLASS = new HashMap();
+    FD_TO_JCLASS = new HashMap();
+    NAME_TO_FD = new HashMap();
     NAME_TO_CLASS = new HashMap();
-    FD_TO_CLASS = new HashMap();
     for (int i = 0; i < PRIMITIVES.length; i++) {
       PrimitiveJClass c = new PrimitiveJClass
               ((String) PRIMITIVES[i][0],
                       (String) PRIMITIVES[i][1],
                       (Class) PRIMITIVES[i][2]);
-      NAME_TO_CLASS.put(c.getQualifiedName(), c);
-      FD_TO_CLASS.put(c.getFieldDescriptor(), c);
+      NAME_TO_JCLASS.put(c.getQualifiedName(), c);
+      FD_TO_JCLASS.put(c.getFieldDescriptor(), c);
+      NAME_TO_FD.put(PRIMITIVES[i][0],PRIMITIVES[i][1]);
+      NAME_TO_CLASS.put(PRIMITIVES[i][0],PRIMITIVES[i][2]);
     }
   };
 
   // ========================================================================
   // Factory methods
+
 
   /**
    * Returns a JClass representing the named primitive type.  The name
@@ -107,9 +113,9 @@ public final class PrimitiveJClass extends BuiltinJClass {
    * name a primitive type.
    */
   public static JClass getPrimitiveClassForName(String named) {
-    JClass out = (JClass) NAME_TO_CLASS.get(named);
+    JClass out = (JClass) NAME_TO_JCLASS.get(named);
     if (out != null) return out;
-    return (JClass) FD_TO_CLASS.get(named);
+    return (JClass) FD_TO_JCLASS.get(named);
   }
 
   /**
@@ -129,8 +135,25 @@ public final class PrimitiveJClass extends BuiltinJClass {
    * (e.g. 'I').
    */
   public static boolean isPrimitive(String name) {
-    return (NAME_TO_CLASS.get(name) != null ||
-            FD_TO_CLASS.get(name) != null);
+    return (NAME_TO_JCLASS.get(name) != null ||
+            FD_TO_JCLASS.get(name) != null);
+  }
+
+  /**
+   * Returns the field descriptor for the given name, e.g. 'int' returns
+   * 'I'.
+   */
+  public static final String getFieldDescriptor(String classname) {
+    return (String)NAME_TO_FD.get(classname);
+  }
+
+  /**
+   * Returns the primitve class for the given name, e.g. 'int' returns
+   * int.class.  It's really stupid that there isn't a way to deal
+   * with this built in to java.
+   */
+  public static final Class getPrimitiveClass(String classname) {
+    return (Class)NAME_TO_CLASS.get(classname);
   }
 
 

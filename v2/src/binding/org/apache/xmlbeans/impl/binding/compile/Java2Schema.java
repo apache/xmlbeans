@@ -267,23 +267,24 @@ public class Java2Schema extends BindingCompiler {
                          (props[i],TAG_EL_NAME,props[i].getSimpleName()));
         }
       }
-      { // set the getters and setters
-        facade.setGetter(props[i].getGetter().getSimpleName());
-        facade.setSetter(props[i].getSetter().getSimpleName());
-      }
       { // determine the property type to use and set it
+        JClass propType = null;
         String annotatedType = getAnnotation(props[i],TAG_EL_ASTYPE,null);
         if (annotatedType == null) {
-          facade.setType(props[i].getType());
+          facade.setType(propType = props[i].getType());
         } else {
-          JClass clazz = props[i].getType().forName(annotatedType);
-          if (clazz.isUnresolved()) {
+          propType = props[i].getType().forName(annotatedType);
+          if (propType.isUnresolved()) {
             logError(props[i],"Could not find class named '"+
-                              clazz.getQualifiedName()+"'");
+                              propType.getQualifiedName()+"'");
           } else {
-            facade.setType(clazz);
+            facade.setType(propType);
           }
         }
+      }
+      { // set the getters and setters
+        facade.setGetter(props[i].getGetter());
+        facade.setSetter(props[i].getSetter());
       }
       { // determine if the property is nillable
         JAnnotation a = props[i].getAnnotation(TAG_EL_NILLABLE);
@@ -486,12 +487,16 @@ public class Java2Schema extends BindingCompiler {
     /**
      * Sets the name of the java getter for this property.
      */
-    public void setGetter(String g) { mBtsProp.setGetterName(g); }
+    public void setGetter(JMethod g) {
+      mBtsProp.setGetterName(MethodName.create(g));
+    }
 
     /**
      * Sets the name of the java setter for this property.
      */
-    public void setSetter(String s) { mBtsProp.setSetterName(s); }
+    public void setSetter(JMethod s) {
+      mBtsProp.setSetterName(MethodName.create(s));
+    }
 
     /**
      * Sets the type of the property.  Currently handles arrays

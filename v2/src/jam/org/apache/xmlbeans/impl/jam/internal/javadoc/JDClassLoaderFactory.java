@@ -121,9 +121,13 @@ public class JDClassLoaderFactory extends Doclet {
     argList.toArray(args);
     // create a buffer to capture the crap javadoc spits out.  we'll
     // just ignore it unless something goes wrong
-    StringWriter spew = new StringWriter();
-    PrintWriter spewWriter = new PrintWriter(System.out);
-
+    PrintWriter spewWriter;
+    StringWriter spew = null;
+    if (out == null) {
+      spewWriter = new PrintWriter(spew = new StringWriter());
+    } else {
+      spewWriter = out;
+    }
     JavadocResults.prepare();
     int result = com.sun.tools.javadoc.Main.execute("JAM",
                                                     spewWriter,
@@ -136,14 +140,13 @@ public class JDClassLoaderFactory extends Doclet {
       spewWriter.flush();
       throw new RuntimeException("Unknown javadoc problem: result="+result+
                                  ", root="+root+":\n"+
-                                 spew.toString());
+                                 ((spew == null) ? "" : spew.toString()));
     }
     return JDFactory.getInstance().createClassLoader(root,parentLoader);
   }
 
   // ========================================================================
   // Doclet 'implementation'
-
 
   public static boolean start(RootDoc root) {
     JavadocResults.setRoot(root);

@@ -56,16 +56,7 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
-import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
-import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
-import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
-import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
+import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.Variable;
@@ -432,8 +423,6 @@ public class Schema2Java extends BindingCompiler {
         BindingType bType = bindingTypeForSchemaType(sType);
 
         String propName = pickUniquePropertyName(props[i].getName(), seenMethodNames);
-        String getter = "get" + propName;
-        String setter = "set" + propName;
         boolean isMultiple = isMultiple(props[i]);
         JavaTypeName collection = null;
         if (isMultiple)
@@ -442,8 +431,9 @@ public class Schema2Java extends BindingCompiler {
         prop = new QNameProperty();
         prop.setQName(props[i].getName());
         prop.setAttribute(props[i].isAttribute());
-        prop.setSetterName(setter);
-        prop.setGetterName(getter);
+        prop.setSetterName(MethodName.create("set"+propName,
+                                             bType.getName().getJavaName()));
+        prop.setGetterName(MethodName.create("get"+propName));
         prop.setCollectionClass(collection);
         prop.setBindingType(bType);
         prop.setNillable(props[i].hasNillable() != SchemaProperty.NEVER);
@@ -959,7 +949,8 @@ public class Schema2Java extends BindingCompiler {
     // pick field names
     for (Iterator i = props.iterator(); i.hasNext();) {
       QNameProperty prop = (QNameProperty) i.next();
-      fieldNames.put(prop, pickUniqueFieldName(prop.getGetterName(), seenFieldNames));
+      fieldNames.put(prop, pickUniqueFieldName(prop.getGetterName().getSimpleName(),
+                                               seenFieldNames));
     }
 
     // print fields, getters, and setters
@@ -979,14 +970,14 @@ public class Schema2Java extends BindingCompiler {
       //write getter
       mJoust.startMethod(Modifier.PUBLIC,
                          jType.toString(),
-                         prop.getGetterName(),
+                         prop.getGetterName().getSimpleName(),
                          null, null, null);
       mJoust.writeReturnStatement(propertyField);
       mJoust.endMethodOrConstructor();
       //write setter
       Variable[] params = mJoust.startMethod(Modifier.PUBLIC,
                                              "void",
-                                             prop.getSetterName(),
+                                             prop.getSetterName().getSimpleName(),
                                              new String[]{jType.toString()},
                                              new String[]{fieldName},
                                              null);

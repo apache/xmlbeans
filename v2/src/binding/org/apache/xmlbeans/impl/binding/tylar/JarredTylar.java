@@ -131,7 +131,8 @@ public class JarredTylar implements Tylar {
         //FIXME this doesn't work
         //   schemas.add(SchemaDocument.Factory.parse(in));
         // so we do this instead
-        schemas.add(new StringReader(getEntryContents(in)));
+        schemas.add(SchemaDocument.Factory.parse
+                    (new StringReader(getEntryContents(in))));
       } else {
         if (VERBOSE) {
           System.out.println("ignoring unknown jar entry: "+name);
@@ -227,6 +228,11 @@ public class JarredTylar implements Tylar {
     int count = 0;
     while ((count = in.read(buffer, 0, buffer.length)) != -1) {
       writer.write(new String(buffer, 0, count));
+    }
+    if (VERBOSE) {
+      System.out.println("=== SCHEMA CONTENTS ===");
+      System.out.println(writer.toString());
+      System.out.println("=== END SCHEMA CONTENTS ===");
     }
     return writer.toString();
   }
