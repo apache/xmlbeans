@@ -122,10 +122,6 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertNotNull("Schema Type System created is Null.",
                 modifiedSTS);
 
-        // Recovered Errors, Test for saving of the PSOM - should not be able to save
-        Assert.assertTrue("Valid SOM " + modifiedSTS.getName() + "Save failed !",
-                checkPSOMSave(modifiedSTS));
-
         // test the PSOM created : walk thro the PSOM, look for # of elements,attributes,types & attribute groups
         inspectSOM(modifiedSTS, 3, 2, 1, 0);
 
@@ -133,7 +129,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertTrue("Valid Partial SOM " + modifiedSTS.getName() + "Save failed",
                 checkPSOMSave(modifiedSTS));
 
-        // Look for a added attribute(s)/Element(s) by name in the STS
+        // Look for  added attribute(s)/Element(s) by name in the STS
         Assert.assertTrue("Attribute expected, not found 'testAttributeComplex'",
                 lookForAttributeInSTS(modifiedSTS,
                 "testAttributeComplex"));
@@ -145,7 +141,8 @@ public class PartialSOMCheckinTest extends SomTestBase
                         "SimpleTypeElem"));
 
         // validate against an xml instance
-        validateInstance(getTestCaseFile("instance_elemattr_valid.xml"), modifiedSTS);
+        Assert.assertTrue("Validation against instance failed ",
+        validateInstance(getTestCaseFile("instance_elemattr_valid.xml"), modifiedSTS));
 
         // Step 3: now creat the Schema Type System with the original XSD again
         SchemaTypeSystem finalSTS = createNewSTS("elemattr.xsd",
@@ -192,7 +189,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertTrue("Validation against instance Failed ",
                 validateInstance(getTestCaseFile("instance_elemattr_valid.xml"), baseSTS));
 
-        // Step 2: create a Schema Type System with the new xsd file that modifications to existing schema : modified
+        // Step 2: create a Schema Type System with the new xsd file with modifications to existing schema
         SchemaTypeSystem modifiedSTS = createNewSTS("elemattr_modified.xsd",
                 baseSTS,
                 "ModifiedSchemaTS",
@@ -242,7 +239,8 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertTrue("Validation against instance Failed ",
                 validateInstance(getTestCaseFile("instance_elemattr_valid.xml"), finalSTS));
 
-        // TODO compare this to the original schema here
+        // compare this to the original schema here - the root dir names used to save the PSOMs are the same as the STS names
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
     }
 
     public void testDeleteAttributeAndElements() throws Exception
@@ -303,7 +301,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         // Step 3: now creat the Schema Type System with the original XSD again
         SchemaTypeSystem finalSTS = createNewSTS("elemattr_added.xsd",
                 modifiedSTS,
-                "BaseSchemaTS",
+                "FinalSchemaTS",
                 sBaseSourceName);
 
         Assert.assertNotNull("Schema Type System created is Null.", finalSTS);
@@ -319,7 +317,9 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertTrue("Validation against instance Failed ",
                 validateInstance(getTestCaseFile("instance_elemattr_valid.xml"), finalSTS));
 
-        // TODO compare this to the original schema here
+        // compare this to the original schema here
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
+
     }
 
     public void testAddDataTypes() throws Exception
@@ -461,7 +461,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         String sBaseSourceName = "testsourcename";
         SchemaTypeSystem baseSTS = createNewSTS("datatypes_added.xsd",
                 null,
-                "BaseSchema",
+                "BaseSchemaTS",
                 sBaseSourceName);
 
         Assert.assertNotNull("Schema Type System created is Null.", baseSTS);
@@ -578,7 +578,8 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertTrue("Validation against instance Failed ",
                 validateInstance(getTestCaseFile("instance_datatypes_valid.xml"), finalSTS));
 
-        // TODO compare this to the original schema here
+        // compare this to the original schema here
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
 
         // additional validation - check to see if all types are resolved to their respective types
         Assert.assertEquals("Unresolved Simple Type should be 'attachmentTypes'",
@@ -614,8 +615,6 @@ public class PartialSOMCheckinTest extends SomTestBase
     public void testModifyDataTypes() throws Exception
     {
         System.out.println("Inside test case testModifyDataTypes()");
-
-        // 1. remove one of the constituent types for the union and test to see if union is anySimpleType
 
         // Step 1: read in a clean XSD datatypes_added.xsd, to create a base schema with no unresolved components
         String sBaseSourceName = "testsourcename";
@@ -653,6 +652,7 @@ public class PartialSOMCheckinTest extends SomTestBase
 
 
         //Step 2 : modify types from the schema - should result in STS with unresolved refs
+        //remove one of the constituent types for the union and test to see if union is anySimpleType
         SchemaTypeSystem modifiedSTS = createNewSTS("datatypes_modified.xsd",
                 baseSTS,
                 "ModifiedSchemaTS",
@@ -708,8 +708,8 @@ public class PartialSOMCheckinTest extends SomTestBase
                 "union.attachmentUnionType",
                 getElementType(finalSTS, "testUnionTypeElem"));
 
-        // TODO compare this to the original schema here
-
+        // compare this to the original schema here
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
     }
 
     public void testDeleteDerivedTypes() throws Exception
@@ -866,8 +866,8 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertTrue("Validation against instance failed",
                 validateInstance(getTestCaseFile("instance_derived_types_valid.xml"), finalSTS));
 
-        // TODO compare this to the original schema here
-
+        // compare this to the original schema here
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
     }
 
 
@@ -883,8 +883,7 @@ public class PartialSOMCheckinTest extends SomTestBase
                 sBaseSourceName);
         Assert.assertNotNull("Schema Type System created is Null.", baseSTS);
 
-        Assert.assertEquals("No Recovered Errors for Invalid PSOM",
-                true,
+        Assert.assertTrue("No Recovered Errors for Invalid PSOM",
                 printRecoveredErrors());
 
         // the tests - Walk thro the valid SOM
@@ -960,7 +959,7 @@ public class PartialSOMCheckinTest extends SomTestBase
     {
         System.out.println("Inside test case testAddReusableGroups()");
 
-        // Step 1: read in incomplete XSD derived_types_added.xsd with base and derived types to create a base schema with no unresolved components
+        // Step 1: read in invalid XSD groups.xsd
         String sBaseSourceName = "testsourcename";
         SchemaTypeSystem baseSTS = createNewSTS("groups.xsd",
                 null,
@@ -988,8 +987,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertEquals("Elem Type  should be 'ModelGrpType'",
                 "ModelGrpType",
                 getElementType(baseSTS, "ModelGrpTypeElem"));
-        Assert.assertEquals("Elem Type  should be 'AttributeGroup'",
-                "AttributeGroup",
+        Assert.assertTrue("Elem Type  should be 'AttributeGroup'",
                 getAttributeGroup(baseSTS, "AttributeGroup"));
 
         // Step 2: create a SOM with valid xsd
@@ -1018,8 +1016,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertEquals("Elem Type  should be 'ModelGrpType'",
                 "ModelGrpType",
                 getElementType(modifiedSTS, "ModelGrpTypeElem"));
-        Assert.assertEquals("Elem Type  should be 'AttributeGroup'",
-                "AttributeGroup",
+        Assert.assertTrue("Elem Type  should be 'AttributeGroup'",
                 getAttributeGroup(modifiedSTS, "AttributeGroup"));
 
 
@@ -1068,8 +1065,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertEquals("Elem Type  should be 'ModelGrpType'",
                 "ModelGrpType",
                 getElementType(baseSTS, "ModelGrpTypeElem"));
-        Assert.assertEquals("Elem Type  should be 'AttributeGroup'",
-                "AttributeGroup",
+        Assert.assertTrue("Elem Type  should be 'AttributeGroup'",
                 getAttributeGroup(baseSTS, "AttributeGroup"));
 
         // Step 2: create a valid SOM and add to these
@@ -1190,8 +1186,7 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertEquals("Elem Type  should be 'ModelGrpType'",
                 "ModelGrpType",
                 getElementType(modifiedSTS, "ModelGrpTypeElem"));
-        Assert.assertEquals("Elem Type  should be 'AttributeGroup'",
-                "AttributeGroup",
+        Assert.assertTrue("Elem Type  should be 'AttributeGroup'",
                 getAttributeGroup(modifiedSTS, "AttributeGroup"));
 
         // step 3: create a PSOM with the original xsd
@@ -1225,7 +1220,8 @@ public class PartialSOMCheckinTest extends SomTestBase
         //Assert.assertEquals("Elem Type  should be 'ModelGrpType'", "ModelGrpType", getElementType(baseSTS, "ModelGrpTypeElem"));
         //Assert.assertEquals("Elem Type  should be 'AttributeGroup'", "AttributeGroup", getAttributeGroup(baseSTS,"AttributeGroup"));
 
-        //TODO compare soms
+        // compare this to the original schema here
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
     }
 
     public void testModifySubstitutionGroups() throws Exception
@@ -1323,8 +1319,8 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertEquals("Elem Type  should be 'ExtensionSubGrpHeadElemType' (base)",
                 "ExtensionSubGrpHeadElemType", getElementType(finalSTS, "SubGrpMemberElem2"));
 
-        //TODO compare soms
-
+        // compare this to the original schema here
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
     }
 
     public void testModifyIdConstraints() throws Exception
@@ -1345,6 +1341,10 @@ public class PartialSOMCheckinTest extends SomTestBase
 
         // the tests - Walk thro the valid SOM
         inspectSOM(baseSTS, 5, 0, 2, 0);
+
+        Assert.assertTrue("Constraint 'uniqueConstraint' should be found",lookForIdentityConstraint(baseSTS,"uniqueConstraint"));
+        Assert.assertTrue("Constraint 'keyConstraint' should be found",lookForIdentityConstraint(baseSTS,"keyConstraint"));
+        Assert.assertTrue("Constraint 'KeyRefConstraint' should be found",lookForIdentityConstraint(baseSTS,"KeyRefConstraint"));
 
         // Test for saving of the SOM - should go thro
         Assert.assertTrue("SOM " + baseSTS.getName() + "Save failed!",
@@ -1388,9 +1388,8 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertFalse("Validation against instance failed",
                 validateInstance(getTestCaseFile("instance_constraints_invalid.xml"), modifiedSTS));
 
-        // TODO a way around QName
         Assert.assertFalse("KeyRef 'KeyRefConstraint' should not be resolved",
-                lookForIdentityConstraint(modifiedSTS, "KeyRefConstraint"));
+                lookForIdentityConstraint(modifiedSTS, "KeyConstraint"));
 
         // Step 3 : recreate SOM in first step and compare it
         SchemaTypeSystem finalSTS = createNewSTS("constraints_added.xsd",
@@ -1414,9 +1413,9 @@ public class PartialSOMCheckinTest extends SomTestBase
         Assert.assertTrue("Validation against instance failed",
                 validateInstance(getTestCaseFile("instance_constraints_valid.xml"), finalSTS));
 
-        // TODO compare the STSs here
+        // compare this to the original schema here
+        Assert.assertTrue(compareSavedSOMs("BaseSchemaTS","FinalSchemaTS"));
     }
-
 
 }
 

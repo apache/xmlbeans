@@ -130,7 +130,9 @@
         <xsd:all>
             <xsd:element name="Greetings" type="xsd:string"/>
             <xsd:element name="Signature" type="xsd:string"/>
+            <!--
             <xsd:element name="ContactNumber" type="xsd:string"/>
+            -->
         </xsd:all>
     </xsd:complexType>
 

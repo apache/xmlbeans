@@ -193,15 +193,15 @@
     <!-- 3. mixed content -->
     <xsd:complexType name="RestrictionBaseMixedContentType">
         <xsd:sequence>
-            <xsd:element name="ExtBaseMixedElem1" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="ExtBaseMixedElem2" type="CarEngineType" minOccurs="0"/>
+            <xsd:element name="ResBaseMixedElem1" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="ResBaseMixedElem2" type="CarEngineType" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
 
     <xsd:complexType name="RestrictionBaseMixedContentType2">
         <xsd:sequence>
-            <xsd:element name="ExtBaseMixedElem3" type="xsd:string" minOccurs="0"/>
-            <xsd:element name="ExtBaseMixedElem4" type="CarEngineType" minOccurs="0"/>
+            <xsd:element name="ResBaseMixedElem3" type="xsd:string" minOccurs="0"/>
+            <xsd:element name="ResBaseMixedElem4" type="CarEngineType" minOccurs="0"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -213,7 +213,7 @@
             -->
             <xsd:restriction base="RestrictionBaseMixedContentType2">
                 <xsd:sequence>
-                    <xsd:element name="ExtBaseMixedElem1" type="xsd:string" />
+                    <xsd:element name="ResBaseMixedElem3" type="xsd:string" />
                 </xsd:sequence>
             </xsd:restriction>
         </xsd:complexContent>

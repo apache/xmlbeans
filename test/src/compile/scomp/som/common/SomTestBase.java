@@ -32,6 +32,7 @@ import compile.scomp.common.CompileCommon;
 import compile.scomp.common.CompileTestBase;
 import junit.framework.Assert;
 import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.impl.tool.Diff;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -49,8 +50,8 @@ import java.util.List;
 public class SomTestBase extends CompileTestBase
 {
     public static String P = File.separator;
-    public static String casesRootDir = CompileCommon.caseroot + P + "xbean" + P + "compile" + P + "som";
-    public static String somOutputRootDir = CompileCommon.outputroot + P + "som";
+    public static String casesRootDir = CompileCommon.caseroot + P + "xbean" + P + "compile" + P + "som" + P;
+    public static String somOutputRootDir = CompileCommon.outputroot + P + "som" + P;
     public static long runid;
     public static PrintWriter outlog = null;
 
@@ -109,6 +110,18 @@ public class SomTestBase extends CompileTestBase
                     + "), #types (" + expectedGlobalTypes + "), #attr groups (" + expectedAttrGroups + ")");
             out.println("-------------------------------------------------------");
 
+            out.println("New STUFF -------------------------------------------------------");
+            schematypesys.resolve();
+            if (schematypesys.isNamespaceDefined("TestNameSpace"))
+            {
+                out.println("Name Space 'TestNameSpace' for this STS is define ..");
+            }
+            else
+            {
+                out.println("No Name Space 'TestNameSpace' for this STS is NOT ndefine ..");
+            }
+            out.println("End New STUFF -------------------------------------------------------");
+
             // walk thro the SOM here
             out.println("----- Loader Name      :" + schematypesys.getName());
 
@@ -157,6 +170,11 @@ public class SomTestBase extends CompileTestBase
 
             out.println("----- # of Schema Annotations :" + schematypesys.annotations().length);
             Assert.assertNotNull("Invalid Annotations Collection returned in STS " + schematypesys.annotations());
+            for (int i = 0; i < schematypesys.annotations().length; i++)
+            {
+                out.println("\t------> Annotation Application Info Array :" + schematypesys.annotations()[i].getApplicationInformation().toString());
+                out.println("\t------> Annotation User Info Array :" + schematypesys.annotations()[i].getUserInformation().toString());
+            }
 
             out.println("----- # of Attribute Types :" + schematypesys.attributeTypes().length);
             Assert.assertNotNull("Invalid Attribute Types Collection returned in STS " + schematypesys.attributeTypes());
@@ -226,7 +244,7 @@ public class SomTestBase extends CompileTestBase
                     out.println("\t+++-> Each derived prop name : " + schemaProperty.getName());
                 }
 
-                // TODO anonymus types - complete this
+                // TODO anonymus types 
                 //schema.getAnonymousTypes();
 
             }
@@ -250,10 +268,14 @@ public class SomTestBase extends CompileTestBase
     {
         // The QName for the find is constructed using the local name since the schemas have no namespace
         SchemaGlobalAttribute sga = tgtSTS.findAttribute(new QName(sAttrLocalName));
-        if(sga == null)
+        if (sga == null)
+        {
             return false;
+        }
         else
+        {
             return true;
+        }
     }
 
     public boolean lookForElemInSTS(SchemaTypeSystem tgtSTS,
@@ -262,20 +284,29 @@ public class SomTestBase extends CompileTestBase
         // The QName for the find is constructed using the local name since the schemas have no namespace
         SchemaGlobalElement sge = tgtSTS.findElement(new QName(sElemLocalName));
 
-        if(sge == null)
+        if (sge == null)
+        {
             return false;
+        }
         else
+        {
             return true;
+        }
     }
 
     public boolean lookForIdentityConstraint(SchemaTypeSystem sts,
                                              String ConstraintLocalName)
     {
 
-        SchemaIdentityConstraint.Ref ref = sts.findIdentityConstraintRef(new QName(ConstraintLocalName));
-        Assert.assertNotNull(ref);
-
-        return false;
+        SchemaIdentityConstraint.Ref icref = sts.findIdentityConstraintRef(new QName(ConstraintLocalName));
+        if (icref == null)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
     }
 
     public boolean checkPSOMSave(SchemaTypeSystem tgtSTS)
@@ -296,20 +327,69 @@ public class SomTestBase extends CompileTestBase
 
     }
 
+    public boolean compareSavedSOMs(String outDirSchemaOne, String outDirSchemaTwo)
+    {
+        System.out.println("Comparing Schemas....");
+
+        String runDir = somOutputRootDir + P + runid + P;
+        File sts1 = new File(somOutputRootDir + P + runid + P + outDirSchemaOne);
+        if (!sts1.exists() && (!sts1.isDirectory()))
+        {
+            System.out.println("Schema Type System save dir specified (" + runDir + outDirSchemaOne + ") does not exist!");
+            return false;
+        }
+
+        File sts2 = new File(somOutputRootDir + P + runid + P + outDirSchemaTwo);
+        if (!sts2.exists() && (!sts2.isDirectory()))
+        {
+            System.out.println("Schema Type System save dir specified (" + runDir + outDirSchemaTwo + ") does not exist!");
+            return false;
+        }
+
+        List diff = new ArrayList();
+        Diff.filesAsXsb(sts1, sts2, diff);
+        if (diff.isEmpty())
+        {
+            return true;
+        }
+        else
+        {
+            for (Iterator itr = diff.iterator(); itr.hasNext();)
+            {
+                System.out.println("Difference found : " + itr.next());
+            }
+            return false;
+        }
+    }
+
     public boolean printRecoveredErrors()
     {
         // check list of errors and print them
+        boolean errFound = false;
         if (!errors.isEmpty())
         {
-            System.out.println("Schema invalid: partial schema type system recovered");
             for (Iterator i = errors.iterator(); i.hasNext();)
             {
-                System.out.println("Err Msg (s): " + i.next());
+                XmlError eacherr = (XmlError) i.next();
+                int errSeverity = eacherr.getSeverity();
+                if (errSeverity == XmlError.SEVERITY_ERROR)
+                {
+                    System.out.println("Schema invalid: partial schema type system recovered");
+                    System.out.println("Err Msg (s) at line #" + eacherr.getLine() + ": " + eacherr.getMessage());
+                    errFound = true;
+                }
+                else if (errSeverity == XmlError.SEVERITY_WARNING)
+                {
+                    System.out.println("Warning Msg (s) at line #" + eacherr.getLine() + ": " + eacherr.getMessage());
+                }
+                else if (errSeverity == XmlError.SEVERITY_INFO)
+                {
+                    System.out.println("Info Msg (s) at line #" + eacherr.getLine() + ": " + eacherr.getMessage());
+                }
             }
             errors.clear();
-            return true;
         }
-        return false;
+        return errFound;
     }
 
     public boolean validateInstance(File instancefile,
@@ -368,7 +448,7 @@ public class SomTestBase extends CompileTestBase
     public File getTestCaseFile(String sFileName)
     {
         String sFileWithPath = casesRootDir + P + sFileName;
-        System.out.println("getTestCaseFile() Opening File : " + sFileWithPath);
+        //System.out.println("getTestCaseFile() Opening File : " + sFileWithPath);
         File schemaFile = new File(sFileWithPath);
         Assert.assertNotNull("Schema File " + sFileWithPath + " Loading failed", schemaFile);
         return (schemaFile);
@@ -379,35 +459,41 @@ public class SomTestBase extends CompileTestBase
                                  String sElementLocalName)
     {
 
-        for (int i = 0; i < sts.globalElements().length; i++)
+        SchemaGlobalElement elem = sts.findElement(new QName(sElementLocalName));
+        if (elem != null)
         {
-            //System.out.println("comparing getname, input-> " + sts.globalElements()[i].getName().getLocalPart() + ":" + sElementLocalName);
-            if (sts.globalElements()[i].getName().getLocalPart().equals(sElementLocalName))
-            {
-                System.out.println("getElementType() returning " + sts.globalElements()[i].getType().getName().getLocalPart());
-                return sts.globalElements()[i].getType().getName().getLocalPart();
-            }
+            return elem.getType().getName().getLocalPart();
         }
         return "ElemNotFound";
-        //TODO : change this to findElement
     }
 
-    public String getAttributeGroup(SchemaTypeSystem sts,
-                                    String sAttrGrpLocalName)
+    public boolean getAttributeGroup(SchemaTypeSystem sts,
+                                     String sAttrGrpLocalName)
     {
-        for (int i = 0; i < sts.attributeGroups().length; i++)
+        SchemaAttributeGroup attrGp = sts.findAttributeGroup(new QName(sAttrGrpLocalName));
+        if (attrGp == null)
         {
-            //System.out.println("comparing getname, input-> " + sts.attributeGroups()[i].getName().getLocalPart() + ":" + sAttrGrpLocalName);
-            if (sts.attributeGroups()[i].getName().getLocalPart().equals(sAttrGrpLocalName))
-            {
-                System.out.println("getElementType() returning " + sts.attributeGroups()[i].getName().getLocalPart());
-                return sts.attributeGroups()[i].getName().getLocalPart();
-            }
+            return false;
         }
-        return "AttributeGrpNotFound";
-        //TODO : change this to findAttributeGroup
+        else
+        {
+            return true;
+        }
     }
 
+    public boolean getModelGroup(SchemaTypeSystem sts,
+                                 String sModelGrpLocalName)
+    {
+        SchemaModelGroup.Ref modelGp = sts.findModelGroupRef(new QName(sModelGrpLocalName));
+        if (modelGp == null)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
 
     public SchemaTypeSystem createNewSTS(String xsdFileName,
                                          SchemaTypeSystem baseSchema,
@@ -418,7 +504,7 @@ public class SomTestBase extends CompileTestBase
         {
             File xsdModified = getTestCaseFile(xsdFileName);
             XmlObject xsdModifiedObj = XmlObject.Factory.parse(xsdModified);
-            System.out.println("xsdModSRCName: "+xsdModifiedObj.documentProperties().getSourceName());
+            System.out.println("Source Name for STS: " + xsdModifiedObj.documentProperties().getSourceName());
             xsdModifiedObj.documentProperties().setSourceName(sBaseSourceName);
             Assert.assertNotNull("Xml Object creation failed", xsdModifiedObj);
             XmlObject[] xobjArr = new XmlObject[]{xsdModifiedObj};
