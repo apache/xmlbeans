@@ -184,7 +184,8 @@ public class StscImporter
         // URI is pointing at something nested inside a jar, we seem to have
         // to this ourselves to make sure that the nested jar url gets
         // resolved correctly   
-        if (childUri.equals(ruri) && base.getScheme().equals("jar")) {
+        if (childUri.equals(ruri) &&
+          (base.getScheme().equals("jar") || base.getScheme().equals("zip"))) {
             String r = base.toString();
             int lastslash = r.lastIndexOf('/');
             r = r.substring(0,lastslash) + "/" + childUri;
