@@ -151,7 +151,6 @@ public class JamClassLoaderImpl implements JamClassLoader {
         mFd2ClassCache.remove(fd.trim());
         return null;
       } else {
-//        System.out.println("got "+fd+" from cache");
         return (MClass)out;
       }
     }
