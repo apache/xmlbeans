@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -516,7 +516,7 @@ import java.text.CharacterIterator;
  * <hr width="50%">
  *
  * @author TAMURA Kent &lt;kent@trl.ibm.co.jp&gt;
- * @version $Id: RegularExpression.java,v 1.2 2003/09/16 19:57:59 ericvas Exp $
+ * @version $Id: RegularExpression.java,v 1.3 2003/09/24 23:31:06 ericvas Exp $
  */
 public class RegularExpression implements java.io.Serializable {
     static final boolean DEBUG = false;

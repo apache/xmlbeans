@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -71,7 +71,7 @@ import java.io.UnsupportedEncodingException;
  *
  * @author Jeffrey Rodriguez
  * @author Sandy Gao
- * @version $Id: Base64.java,v 1.1 2003/09/15 18:20:30 ericvas Exp $
+ * @version $Id: Base64.java,v 1.2 2003/09/24 23:31:08 ericvas Exp $
  */
 public final class  Base64 {
 
