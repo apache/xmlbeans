@@ -32,6 +32,9 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.ProcessingInstruction;
 import org.w3c.dom.Text;
 import org.w3c.dom.DOMImplementation;
+import org.w3c.dom.UserDataHandler;
+import org.w3c.dom.DOMConfiguration;
+import org.w3c.dom.TypeInfo;
 
 import javax.xml.soap.Detail;
 import javax.xml.soap.DetailEntry;
@@ -1947,6 +1950,20 @@ final class Cur
         public Node replaceChild ( Node newChild, Node oldChild ) { return DomImpl._node_replaceChild( this, newChild, oldChild ); }
         public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
         public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
+        
+        // Level 3
+        public Object getUserData ( String key ) { return DomImpl._node_getUserData( this, key ); }
+        public Object setUserData ( String key, Object data, UserDataHandler handler ) { return DomImpl._node_setUserData( this, key, data, handler ); }
+        public Object getFeature ( String feature, String version ) { return DomImpl._node_getFeature( this, feature, version ); }
+        public boolean isEqualNode ( Node arg ) { return DomImpl._node_isEqualNode( this, arg ); }
+        public boolean isSameNode ( Node arg ) { return DomImpl._node_isSameNode( this, arg ); }
+        public String lookupNamespaceURI ( String prefix ) { return DomImpl._node_lookupNamespaceURI( this, prefix ); }
+        public String lookupPrefix ( String namespaceURI ) { return DomImpl._node_lookupPrefix( this, namespaceURI ); }
+        public boolean isDefaultNamespace ( String namespaceURI ) { return DomImpl._node_isDefaultNamespace( this, namespaceURI ); }
+        public void setTextContent ( String textContent ) { DomImpl._node_setTextContent( this, textContent ); }
+        public String getTextContent ( ) { return DomImpl._node_getTextContent( this ); }
+        public short compareDocumentPosition ( Node other ) { return DomImpl._node_compareDocumentPosition( this, other ); }
+        public String getBaseURI ( ) { return DomImpl._node_getBaseURI( this ); }
     }
 
     private final static class DocumentXobj extends NodeXobj implements Document
@@ -1979,6 +1996,22 @@ final class Cur
         public NodeList getElementsByTagNameNS ( String namespaceURI, String localName ) { return DomImpl._document_getElementsByTagNameNS( this, namespaceURI, localName ); }
         public DOMImplementation getImplementation ( ) { return DomImpl._document_getImplementation( this ); }
         public Node importNode ( Node importedNode, boolean deep ) { return DomImpl._document_importNode( this, importedNode, deep ); }
+
+        // DOM Level 3
+        public Node adoptNode ( Node source ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getDocumentURI ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public DOMConfiguration getDomConfig ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getInputEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public boolean getStrictErrorChecking ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getXmlEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public boolean getXmlStandalone ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getXmlVersion ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void normalizeDocument ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public Node renameNode ( Node n, String namespaceURI, String qualifiedName ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setDocumentURI ( String documentURI ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setStrictErrorChecking ( boolean strictErrorChecking ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setXmlStandalone ( boolean xmlStandalone ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setXmlVersion ( String xmlVersion ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
     }
 
     private static class DocumentFragXobj extends NodeXobj implements DocumentFragment
@@ -2046,6 +2079,12 @@ final class Cur
         public Attr setAttributeNodeNS ( Attr newAttr ) { return DomImpl._element_setAttributeNodeNS( this, newAttr ); }
         public void setAttributeNS ( String namespaceURI, String qualifiedName, String value ) { DomImpl._element_setAttributeNS( this, namespaceURI, qualifiedName, value ); }
         
+        // DOM Level 3
+        public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setIdAttribute ( String name, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setIdAttributeNS ( String namespaceURI, String localName, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setIdAttributeNode ( Attr idAttr, boolean isId ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+
         private ElementAttributes _attributes;
     }
 
@@ -2068,6 +2107,10 @@ final class Cur
         public boolean getSpecified ( ) { return DomImpl._attr_getSpecified( this ); }
         public String getValue ( ) { return DomImpl._node_getNodeValue( this ); }
         public void setValue ( String value ) { DomImpl._node_setNodeValue( this, value ); }
+        
+        // DOM Level 3
+        public TypeInfo getSchemaTypeInfo ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public boolean isId ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
     }
     
     private static class CommentXobj extends NodeXobj implements Comment
@@ -2166,6 +2209,34 @@ final class Cur
         public void setNodeValue ( String nodeValue ) { DomImpl._node_setNodeValue( this, nodeValue ); }
         public void setPrefix ( String prefix ) { DomImpl._node_setPrefix( this, prefix ); }
         
+        // Level 3
+        public Object getUserData ( String key ) { return DomImpl._node_getUserData( this, key ); }
+        public Object setUserData ( String key, Object data, UserDataHandler handler ) { return DomImpl._node_setUserData( this, key, data, handler ); }
+        public Object getFeature ( String feature, String version ) { return DomImpl._node_getFeature( this, feature, version ); }
+        public boolean isEqualNode ( Node arg ) { return DomImpl._node_isEqualNode( this, arg ); }
+        public boolean isSameNode ( Node arg ) { return DomImpl._node_isSameNode( this, arg ); }
+        public String lookupNamespaceURI ( String prefix ) { return DomImpl._node_lookupNamespaceURI( this, prefix ); }
+        public String lookupPrefix ( String namespaceURI ) { return DomImpl._node_lookupPrefix( this, namespaceURI ); }
+        public boolean isDefaultNamespace ( String namespaceURI ) { return DomImpl._node_isDefaultNamespace( this, namespaceURI ); }
+        public void setTextContent ( String textContent ) { DomImpl._node_setTextContent( this, textContent ); }
+        public String getTextContent ( ) { return DomImpl._node_getTextContent( this ); }
+        public short compareDocumentPosition ( Node other ) { return DomImpl._node_compareDocumentPosition( this, other ); }
+        public String getBaseURI ( ) { return DomImpl._node_getBaseURI( this ); }
+        public Node adoptNode ( Node source ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getDocumentURI ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public DOMConfiguration getDomConfig ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getInputEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public boolean getStrictErrorChecking ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getXmlEncoding ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public boolean getXmlStandalone ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public String getXmlVersion ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void normalizeDocument ( ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public Node renameNode ( Node n, String namespaceURI, String qualifiedName ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setDocumentURI ( String documentURI ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setStrictErrorChecking ( boolean strictErrorChecking ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setXmlStandalone ( boolean xmlStandalone ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+        public void setXmlVersion ( String xmlVersion ) { throw new RuntimeException( "DOM Level 3 Not implemented" ); }
+                
         public Attr createAttribute ( String name ) { return DomImpl._document_createAttribute( this, name ); }
         public Attr createAttributeNS ( String namespaceURI, String qualifiedName ) { return DomImpl._document_createAttributeNS( this, namespaceURI, qualifiedName ); }
         public CDATASection createCDATASection ( String data ) { return DomImpl._document_createCDATASection( this, data ); }
@@ -2183,7 +2254,7 @@ final class Cur
         public NodeList getElementsByTagNameNS ( String namespaceURI, String localName ) { return DomImpl._document_getElementsByTagNameNS( this, namespaceURI, localName ); }
         public DOMImplementation getImplementation ( ) { return DomImpl._document_getImplementation( this ); }
         public Node importNode ( Node importedNode, boolean deep ) { return DomImpl._document_importNode( this, importedNode, deep ); }
-        
+
         public int getLength ( ) { return DomImpl._childNodes_getLength( this ); }
         public Node item ( int i ) { return DomImpl._childNodes_item( this, i ); }
 
@@ -2352,6 +2423,9 @@ final class Cur
         Xobj newNode ( ) { return new SaajCommentXobj( _locale ); }
         
         public Text splitText ( int offset ) { throw new IllegalStateException(); }
+        public String getWholeText ( ) { throw new IllegalStateException(); }
+        public boolean isElementContentWhitespace ( ) { throw new IllegalStateException(); }
+        public Text replaceWholeText ( String content ) { throw new IllegalStateException(); }
 
         public boolean isComment ( ) { return true; }
         
