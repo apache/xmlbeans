@@ -117,14 +117,14 @@ public abstract class JDExecutableMember extends JDMember {
     if (mParameters == null) {
       Parameter[] params = mMember.parameters();
       if (params == null || params.length == 0) {
-	mParameters = NO_PARAMETER;
+        mParameters = NO_PARAMETER;
       } else {
-	mParameters = new JDParameter[params.length];
-	for(int i=0; i<params.length; i++) {
-	  mParameters[i] = JDFactory.getInstance().createParameter(params[i],
-					   this,
-					   mLoader);
-	}
+        mParameters = new JDParameter[params.length];
+        for(int i=0; i<params.length; i++) {
+          mParameters[i] = JDFactory.getInstance().createParameter(params[i],
+                                                                   this,
+                                                                   mLoader);
+        }
       }
     }
     return mParameters;
