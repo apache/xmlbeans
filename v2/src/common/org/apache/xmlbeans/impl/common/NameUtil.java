@@ -722,7 +722,6 @@ public class NameUtil
         return (c == HYPHEN
               || c == PERIOD
               || c == COLON
-              || c == USCORE
               || c == DOT
               || c == TELEIA
               || c == AYAH
