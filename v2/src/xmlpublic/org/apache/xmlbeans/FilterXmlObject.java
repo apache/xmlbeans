@@ -76,6 +76,7 @@ import org.xml.sax.SAXException;
 import org.xml.sax.ext.LexicalHandler;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 /**
  * A FilterXmlObject delegates to some other XmlObject, which it can use as
@@ -207,6 +208,11 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue
         return underlyingXmlObject().newXMLInputStream();
     }
 
+    public XMLStreamReader newXMLStreamReader()
+    {
+        return underlyingXmlObject().newXMLStreamReader();
+    }
+    
     public String xmlText()
     {
         return underlyingXmlObject().xmlText();
@@ -252,6 +258,11 @@ public abstract class FilterXmlObject implements XmlObject, SimpleValue
         return underlyingXmlObject().newXMLInputStream(options);
     }
 
+    public XMLStreamReader newXMLStreamReader(XmlOptions options)
+    {
+        return underlyingXmlObject().newXMLStreamReader(options);
+    }
+    
     public String xmlText(XmlOptions options)
     {
         return underlyingXmlObject().xmlText(options);
