@@ -274,7 +274,17 @@ public class StscState
             _doingDownloads = true;
         
         if (options.hasOption(XmlOptions.COMPILE_MDEF_NAMESPACES))
+        {
             _mdefNamespaces.addAll((Collection)options.get(XmlOptions.COMPILE_MDEF_NAMESPACES));
+            
+            String local = "##local";
+            
+            if (_mdefNamespaces.contains(local))
+            {
+                _mdefNamespaces.remove(local);
+                _mdefNamespaces.add("");
+            }
+        }
     }
     
     /**
