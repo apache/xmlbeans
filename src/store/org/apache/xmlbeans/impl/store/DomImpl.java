@@ -1308,12 +1308,54 @@ final class DomImpl
         case DOCFRAG :
         case ATTR :
         {
-	     if (n instanceof Xobj)
+	   /*  if (n instanceof Xobj)
          {
              Xobj node = (Xobj) n;
              if (node.isFirstChildPtrDomUsable())
-                 return (Xobj.NodeXobj) node._firstChild;
+             {
+                 Dom myNode = (Xobj.NodeXobj) node._firstChild;
+                  boolean nullFC =
+                         node._firstChild == null &&
+                         node._srcValue == null &&
+                          node._charNodesValue == null;
+                     boolean null1FC =
+                         node._firstChild != null &&
+                         !node._firstChild.isAttr() &&
+                         node._srcValue == null &&
+                         node._charNodesValue == null;
+                 String dump1 = null;
+                 if ( myNode != null ){
+                     dump1 = node._firstChild.new_cursor().xmlText();
+                 }
+
+
+                 Cur c = n.tempCur();
+
+                 c.next();
+
+                 if ((fc = c.getCharNodes()) == null)
+                 {
+                     c.moveToDom(n);
+
+                     if (c.toFirstChild())
+                         fc = c.getDom();
+                 }
+
+                 c.release();
+                 if (myNode != fc)
+                 {
+                    XmlCursor c1 = node.new_cursor();
+                     throw new RuntimeException("DOMFC wrong result " +
+                         c1.xmlText()+" B1 FC "+nullFC+" B2 FC "+null1FC+
+                         " exp "+fc+" got "+ dump1);
+                 }
+
+                 break;
+
+
+             }
          }
+	      */
 
             Cur c = n.tempCur();
             
@@ -2614,13 +2656,23 @@ final class DomImpl
         
         //optimize for the 0 and 1 child case
 
-        if (n instanceof Xobj)
+       /* if (n instanceof Xobj)
         {
             Xobj node = (Xobj) n;
             int count;
-            if ((count = node.getDomZeroOneChildren()) < 2)
-                return count;
-        }
+            if ((count = node.getDomZeroOneChildren()) < 2){
+                long version = n.locale().version();
+                XmlCursor c1 = node.new_cursor();
+                String s ="" ;//= c1.xmlText();
+                int real =  n.locale().domLength(n);
+                if (count != real)
+                     throw new RuntimeException( "DOM ZEROONE short "+count+
+                         " real "+ real+" "+s+" "+c1.xmlText()+
+                         " ver1"+version+" ver2 "+n.locale().version());
+                      return count;
+            }
+
+        }*/
         
         return n.locale().domLength(n);
     }
