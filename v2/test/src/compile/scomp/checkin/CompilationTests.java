@@ -112,10 +112,13 @@ public class CompilationTests extends TestCase
         system = XmlBeans.compileXsd(schemas, builtin, options);
         Assert.assertNotNull("Compilation failed during inititial compile.", system);
         System.out.println("-= Initial Compile =-");
+        
         for (int i = 0; i < system.globalTypes().length; i++) {
             System.out.println("[" + i + "]-" + system.globalTypes()[i].getName());
         }
-
+        for (int i = 0; i < system.globalAttributes().length; i++) {
+            System.out.println("[" + i + "]-" + system.globalAttributes()[i].getName());
+        }
         for (int i = 0; i < system.globalElements().length; i++) {
             System.out.println("[" + i + "]=" + system.globalElements()[i].getName());
         }
@@ -133,7 +136,9 @@ public class CompilationTests extends TestCase
         for (int i = 0; i < system.globalTypes().length; i++) {
             System.out.println("[" + i + "]-" + system.globalTypes()[i].getName());
         }
-
+        for (int i = 0; i < system.globalAttributes().length; i++) {
+            System.out.println("[" + i + "]-" + system.globalAttributes()[i].getName());
+        }
         for (int i = 0; i < system.globalElements().length; i++) {
             System.out.println("[" + i + "]=" + system.globalElements()[i].getName());
         }
@@ -143,14 +148,18 @@ public class CompilationTests extends TestCase
         system = XmlBeans.compileXsd(schemas, builtin, options);
         Assert.assertNotNull("Compilation failed during reference compile.", system);
         SchemaCodeGenerator.saveTypeSystem(system, out, null, null, null);
+
         System.out.println("-= Sanity Compile =-");
         for (int i = 0; i < system.globalTypes().length; i++) {
             System.out.println("[" + i + "]-" + system.globalTypes()[i].getName());
         }
-
+        for (int i = 0; i < system.globalAttributes().length; i++) {
+            System.out.println("[" + i + "]-" + system.globalAttributes()[i].getName());
+        }
         for (int i = 0; i < system.globalElements().length; i++) {
             System.out.println("[" + i + "]=" + system.globalElements()[i].getName());
         }
+
         // Compare the results
         String oldPropValue = System.getProperty("xmlbeans.diff.diffIndex");
         System.setProperty("xmlbeans.diff.diffIndex", "false");
@@ -164,7 +173,7 @@ public class CompilationTests extends TestCase
                 message.write(((String) errors.get(i)) + "\n");
             Assert.fail("Differences encountered:" + message);
         }
-        throw new Exception("AHHH");
+
     }
 
     public void testSchemaBookmarks() throws Throwable
