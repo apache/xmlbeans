@@ -557,7 +557,17 @@ public class XmlOptions implements java.io.Serializable
     public XmlOptions setEntityResolver(EntityResolver resolver) {
         return set( ENTITY_RESOLVER, resolver );
     }
-
+    
+    /**
+     * If this option is set when compiling a schema, then the given
+     * SchemaTypeCodePrinter.Printer will be used to generate the
+     * Java code.
+     * 
+     * @see XmlBeans#compileXsd
+     */
+    public XmlOptions setSchemaCodePrinter(SchemaCodePrinter printer) {
+        return set( SCHEMA_CODE_PRINTER, printer );
+    }
 
     //
     // Complete set of XmlOption's
@@ -643,7 +653,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String VALIDATE_ON_SET                 =  "VALIDATE_ON_SET";
     /** @exclude */
     public static final String ENTITY_RESOLVER                 =  "ENTITY_RESOLVER";
-    
+    /** @exclude */
+    public static final String SCHEMA_CODE_PRINTER             = "SCHEMA_CODE_PRINTER";
 
     private static final XmlOptions EMPTY_OPTIONS;
     static {
