@@ -77,7 +77,7 @@ import java.util.Iterator;
 /**
  * creates BindingContext objects from various inputs.
  */
-public class BindingContextFactoryImpl
+public final class BindingContextFactoryImpl
     extends BindingContextFactory
 {
     public BindingContext createBindingContext()

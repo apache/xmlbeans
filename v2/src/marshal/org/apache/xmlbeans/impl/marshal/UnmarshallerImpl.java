@@ -74,7 +74,7 @@ import java.util.Collection;
 /**
  * A Unmarshaller knows how to convert xml to java objects.
  */
-class UnmarshallerImpl
+final class UnmarshallerImpl
     implements Unmarshaller
 {
     private final BindingLoader bindingLoader;

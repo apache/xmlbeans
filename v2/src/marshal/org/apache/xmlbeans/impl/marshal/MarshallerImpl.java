@@ -77,7 +77,7 @@ import java.util.ArrayList;
 /**
  * Entry point for marshalling java objects to xml.
  */
-class MarshallerImpl
+final class MarshallerImpl
     implements Marshaller
 {
     private final BindingLoader bindingLoader;

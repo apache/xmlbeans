@@ -69,7 +69,7 @@ import java.util.Map;
  * currently NOT thread safe (by design)
  */
 
-class RuntimeTypeFactory
+final class RuntimeTypeFactory
 {
     private final Map typeMap = new HashMap();
 

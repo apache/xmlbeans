@@ -183,6 +183,10 @@ public class BuiltinBindingLoader extends BaseBindingLoader
         addPojoJava("short", Short.class.getName());
         addPojoJava("byte", Byte.class.getName());
         addPojoJava("boolean", Boolean.class.getName());
+        addPojoJava("unsignedInt", Long.class.getName());
+        addPojoJava("unsignedShort", Integer.class.getName());
+        addPojoJava("unsignedByte", Short.class.getName());
+
         //TODO: deal with char and java.lang.Character
 
     }

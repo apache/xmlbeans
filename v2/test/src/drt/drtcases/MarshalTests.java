@@ -34,6 +34,8 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 
 
 public class MarshalTests extends TestCase
@@ -69,6 +71,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeUnmarshal(new Short((short)5543), "short");
         testSimpleTypeUnmarshal(new Integer(55434535), "int");
         testSimpleTypeUnmarshal(new Long(554345354445555555L), "long");
+        testSimpleTypeUnmarshal(new BigInteger("55434535443332323245555555"), "integer");
+        testSimpleTypeUnmarshal(new BigDecimal("43434343342.233434342"), "decimal");
         testSimpleTypeUnmarshal(new Float(54.5423f), "float");
         testSimpleTypeUnmarshal(new Double(23432.43234), "double");
         testSimpleTypeUnmarshal("random string", "string");
@@ -83,6 +87,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal(new Short((short)5543), "short");
         testSimpleTypeMarshal(new Integer(55434535), "int");
         testSimpleTypeMarshal(new Long(554345354445555555L), "long");
+        testSimpleTypeMarshal(new BigInteger("55434535443332323245555555"), "integer");
+        testSimpleTypeMarshal(new BigDecimal("43434343342.233434342"), "decimal");
         testSimpleTypeMarshal(new Float(5555.5555f), "float");
         testSimpleTypeMarshal(new Double(1231.444), "double");
         testSimpleTypeMarshal("some text here", "string");
@@ -107,7 +113,7 @@ public class MarshalTests extends TestCase
 
         Assert.assertEquals(expected, obj);
 
-        System.out.println("OK for " + expected);
+//        System.out.println("OK for " + expected);
     }
 
 
