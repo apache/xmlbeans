@@ -35,6 +35,21 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.Dom;
 
 import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
 
+import org.apache.xmlbeans.impl.values.TypeStore;
+import org.apache.xmlbeans.impl.values.TypeStoreUser;
+import org.apache.xmlbeans.impl.values.TypeStoreVisitor;
+import org.apache.xmlbeans.impl.values.TypeStoreUserFactory;
+
+import org.apache.xmlbeans.SchemaType;
+
+import org.apache.xmlbeans.impl.values.NamespaceManager;
+
+import javax.xml.namespace.QName;
+
+import org.apache.xmlbeans.SchemaField;
+
+import org.apache.xmlbeans.QNameSet;
+
 public final class Public2
 {
     private static Locale newLocale ( Saaj saaj )
@@ -57,6 +72,11 @@ public final class Public2
         Locale l = ((Dom) doc).locale();
 
         l._noSync = ! sync;
+    }
+
+    public static String compilePath ( String path, XmlOptions options )
+    {
+        return Path.compilePath( path, options );
     }
 
     public static DOMImplementation getDomImplementation ( )
@@ -255,20 +275,114 @@ public final class Public2
     public static void dump ( Node n )      { dump( System.out, n ); }
     public static void dump ( XmlCursor c ) { dump( System.out, c ); }
 
+    static class MyTypeStoreUser implements org.apache.xmlbeans.impl.values.TypeStoreUser
+    {
+        MyTypeStoreUser ( Cur c )
+        {
+            c.setRootType( this );
+
+            assert _store != null;
+        }
+        
+        void setValue ( String newValue )
+        {
+            assert newValue != null;
+            
+            _store.invalidate_text();
+            _value = newValue;
+        }
+
+        String getValue ( )
+        {
+            if (_value == null)
+                _value = _store.fetch_text( TypeStore.WS_UNSPECIFIED );
+            
+            assert _value != null;
+
+            return _value;
+        }
+        
+        public void attach_store ( TypeStore store )
+        {
+            _store = store;
+        }
+        
+        public TypeStore get_store ( )
+        {
+            return _store;
+        }
+        
+        public String build_text ( NamespaceManager nsm )
+        {
+            assert _value != null;
+            return _value;
+        }
+        
+        public void invalidate_value()
+        {
+            _value = null;
+        }
+        
+        public SchemaType get_schema_type() { throw new RuntimeException( "Not impl" ); }
+        public boolean uses_invalidate_value() { throw new RuntimeException( "Not impl" ); }
+        public boolean build_nil() { throw new RuntimeException( "Not impl" ); }
+        public void invalidate_nilvalue() { throw new RuntimeException( "Not impl" ); }
+        public void invalidate_element_order() { throw new RuntimeException( "Not impl" ); }
+        public void validate_now() { throw new RuntimeException( "Not impl" ); }
+        public void disconnect_store() { throw new RuntimeException( "Not impl" ); }
+        public TypeStoreUser create_element_user(QName eltName, QName xsiType) { throw new RuntimeException( "Not impl" ); }
+        public TypeStoreUser create_attribute_user(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public SchemaType get_element_type(QName eltName, QName xsiType) { throw new RuntimeException( "Not impl" ); }
+        public SchemaType get_attribute_type(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public String get_default_element_text(QName eltName) { throw new RuntimeException( "Not impl" ); }
+        public String get_default_attribute_text(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public int get_elementflags(QName eltName) { throw new RuntimeException( "Not impl" ); }
+        public int get_attributeflags(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public SchemaField get_attribute_field(QName attrName) { throw new RuntimeException( "Not impl" ); }
+        public boolean is_child_element_order_sensitive() { throw new RuntimeException( "Not impl" ); }
+        public QNameSet get_element_ending_delimiters(QName eltname) { throw new RuntimeException( "Not impl" ); }
+        public TypeStoreVisitor new_visitor() { throw new RuntimeException( "Not impl" ); }
+
+        private TypeStore _store;
+        private String    _value;
+    }
+
     public static void test ( Node n )
     {
-        CharUtil cu = CharUtil.getThreadLocalCharUtil();
-
-        Object src = null;
-        int off = 0;
-        int cch = 0;
-
-        src = cu.insertChars( 0, src, off, cch, "1234567890123456789012345678901234567890", 0, 40 );
-        off = cu._offSrc;
-        cch = cu._cchSrc;
+        Dom d = (Dom) n;
         
-        CharUtil.dumpChars( System.out, src, cu._offSrc, cu._cchSrc );
+        Locale l = d.locale();
 
-        cu.getChars( new char [ 100 ], 0, src, cu._offSrc, cu._cchSrc );
+        l.enter();
+
+        try
+        {
+            doTest( d );
+        }
+        finally
+        {
+            l.exit();
+        }
+    }
+        
+    public static void doTest ( Dom d )
+    {
+        Cur c = d.locale().tempCur();
+
+        c.moveToDom( d );
+
+        MyTypeStoreUser user = new MyTypeStoreUser( c );
+
+        c.next();
+
+        user.setValue( "abc" );
+
+        c.insertChars( "123", 0, 3 );
+        
+        c.release();
+
+        System.out.println( user.getValue() );
+        
+        user.setValue( "abc" );
     }
 }
