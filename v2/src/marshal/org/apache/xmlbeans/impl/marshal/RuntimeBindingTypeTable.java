@@ -248,6 +248,14 @@ final class RuntimeBindingTypeTable
         addBuiltinType("positiveInteger", bigint, integer_conv);
         addBuiltinType("unsignedLong", bigint, integer_conv);
 
+        final TypeConverter i2iconv = new IntegerToIntTypeConverter();
+        addBuiltinType("integer", int.class, i2iconv);
+        addBuiltinType("nonPositiveInteger", int.class, i2iconv);
+        addBuiltinType("negativeInteger", int.class, i2iconv);
+        addBuiltinType("nonNegativeInteger", int.class, i2iconv);
+        addBuiltinType("positiveInteger", int.class, i2iconv);
+        addBuiltinType("unsignedLong", int.class, i2iconv);
+
         addBuiltinType("decimal", BigDecimal.class,
                        new DecimalTypeConverter());
 
