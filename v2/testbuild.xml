@@ -160,6 +160,8 @@
 
     <fileset id="schema.files.copy" dir="${xbeans.test.cases.test.files}">
         <include name="**/*.xsd"/>
+        <!--needed for scomp and redefine-->
+        <include name="**/*.xs"/>
         <include name="**/*.xsddonotcompile"/>
         <include name="**/*.txt"/>
         <include name="**/*.xml"/>
