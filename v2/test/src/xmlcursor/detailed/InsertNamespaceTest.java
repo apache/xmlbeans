@@ -161,9 +161,9 @@ public class InsertNamespaceTest extends BasicCursorTestCase {
 
         try {
             m_xc.insertNamespace("prefix", null);
-            assertTrue(false);  // should NOT get here.
+            fail("Inserting null NS not OK");
         } catch (IllegalArgumentException e) {
-            assertTrue(true);
+
         }
 
         // OLD CODE:

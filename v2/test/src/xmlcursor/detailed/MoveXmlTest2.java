@@ -46,7 +46,9 @@ public class MoveXmlTest2 extends BasicCursorTestCase{
 
     public void testNormalCase(){
 	String sExpectedTrg1="<!--BOOK COMMENT--><target/>";
-	String sExpectedSrc1="<bk:book at0=\"value0\" xmlns:bk=\"urn:loc.gov:books\">text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
+	String sExpectedSrc1="<bk:book at0=\"value0\" " +
+            "xmlns:bk=\"urn:loc.gov:books\">" +
+            "text0<author at0=\"v0\" at1=\"value1\"/></bk:book>";
 
 
 	toNextTokenOfType(m_xc1,TokenType.START);
@@ -59,10 +61,17 @@ public class MoveXmlTest2 extends BasicCursorTestCase{
 
 
 	sExpectedTrg1="<!--BOOK COMMENT--><target xmlns:bk=\"urn:loc.gov:books\"/>";
-	sExpectedSrc1="<urn:book at0=\"value0\" xmlns:urn=\"urn:loc.gov:books\">text0<author at0=\"v0\" at1=\"value1\"/></urn:book>";
+	sExpectedSrc1="<bk:book " +
+            "at0=\"value0\" " +
+            "xmlns:bk=\"urn:loc.gov:books\">" +
+            "text0<author at0=\"v0\" at1=\"value1\"/>" +
+            "</bk:book>";
+
+    //copy the namespace declaration exlplicitly
 	toNextTokenOfType(m_xc1,TokenType.END);
 	toNextTokenOfType(m_xc, TokenType.NAMESPACE);
 	m_xc.moveXml(m_xc1);
+
 	toPrevTokenOfType(m_xc,TokenType.STARTDOC);
 	toPrevTokenOfType(m_xc1,TokenType.STARTDOC);
 

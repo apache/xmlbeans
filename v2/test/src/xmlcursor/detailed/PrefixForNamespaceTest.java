@@ -127,13 +127,8 @@ public class PrefixForNamespaceTest extends BasicCursorTestCase {
         m_xc.insertNamespace("pre3", "uri3");
         m_xc.insertNamespace(null, "uridefault");
         toNextTokenOfType(m_xc, TokenType.END);
-
-        try {
-            m_xc.prefixForNamespace("nsa");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException iae) {
-        }
-        //  assertEquals("ns1", m_xc.prefixForNamespace("nsa"));
+        //the default prefix
+         assertEquals("", m_xc.prefixForNamespace("nsa"));
         // assertEquals("pre1", m_xc.prefixForNamespace("uri1"));
     }
 
