@@ -55,6 +55,8 @@ public class RussianDollStrategy
                 xc.toNextToken();
                 if( xc.isComment() )
                     comment.append(xc.getTextValue());
+                else if (xc.isEnddoc())
+                    return;
             }
             // xc now on the root element
 
@@ -179,13 +181,16 @@ public class RussianDollStrategy
         else
         {
             // simple content
-            xc.toParent();  // hack workaround for being able to call xc.getNamespaceForPrefix()
+            // hack workaround for being able to call xc.getNamespaceForPrefix()
+            XmlCursor xcForNamespaces = xc.newCursor();
+            xcForNamespaces.toParent();
+
             if (attributes.size()>0)
             {
                 elemType.setContentType(Type.COMPLEX_TYPE_SIMPLE_CONTENT);
 
                 Type extendedType = Type.createNamedType(
-                    processSimpleContentType(textBuff.toString(), options, xc), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
+                    processSimpleContentType(textBuff.toString(), options, xcForNamespaces), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
                 elemType.setExtensionType(extendedType);
 
                 processAttributesInComplexType(elemType, attributes);
@@ -193,19 +198,18 @@ public class RussianDollStrategy
             else
             {
                 elemType.setContentType(Type.SIMPLE_TYPE_SIMPLE_CONTENT);
-                elemType.setName(processSimpleContentType(textBuff.toString(), options, xc));
+                elemType.setName(processSimpleContentType(textBuff.toString(), options, xcForNamespaces));
 
                 // add enumeration value
                 String enumValue = XmlString.type.getName().equals(elemType.getName()) ? textBuff.toString() : collapsedText;
-                elemType.addEnumerationValue(enumValue, xc);
+                elemType.addEnumerationValue(enumValue, xcForNamespaces);
             }
 
-            xc.toEndToken(); // end hack
+            xcForNamespaces.dispose(); // end hack
         }
 
         checkIfReferenceToGlobalTypeIsNeeded( element, typeSystemHolder, options);
 
-        xc.toNextToken();  // advance over end element
         return element;
     }
 
