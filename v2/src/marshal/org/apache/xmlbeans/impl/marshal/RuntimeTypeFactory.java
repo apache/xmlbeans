@@ -21,6 +21,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeVisitor;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.binding.bts.ListArrayType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
@@ -210,6 +211,11 @@ final class RuntimeTypeFactory
             runtimeBindingType = new WrappedArrayRuntimeBindingType(wrappedArrayType);
         }
 
+        public void visit(ListArrayType listArrayType)
+            throws XmlException
+        {
+            // todo: Implement
+        }
 
     }
 

@@ -85,10 +85,11 @@ public class EnumerationPrintHelper
   private static final int T_URI           = 21; // java.net.URI
   private static final int T_BYTE_ARRAY    = 22; // byte[]
 
-  EnumerationPrintHelper(JavaTypeName typeName, ExpressionFactory exprFactory, int schemaTypeCode)
+  EnumerationPrintHelper(JavaTypeName typeName, ExpressionFactory exprFactory, SchemaType schemaType)
   {
-    if (schemaTypeCode == SchemaType.BTC_BASE_64_BINARY ||
-      schemaTypeCode == SchemaType.BTC_HEX_BINARY)
+    mSchemaTypeCode = extractTypeCode(schemaType);
+    if (mSchemaTypeCode == SchemaType.BTC_BASE_64_BINARY ||
+      mSchemaTypeCode == SchemaType.BTC_HEX_BINARY)
       mArray = typeName.getArrayDepth() > 1;
     else
       mArray = typeName.getArrayDepth() > 0;
@@ -99,7 +100,7 @@ public class EnumerationPrintHelper
       t = typeName.getArrayItemType(1).toString();
     else
       t = typeName.toString();
-    mSchemaTypeCode = schemaTypeCode;
+
     switch (t.charAt(0))
     {
       case 'j':
@@ -311,7 +312,7 @@ public class EnumerationPrintHelper
     return result;
   }
 
-  public Expression getFromStringExpr(Variable param) {
+  public Expression getFromStringExpr(Expression param) {
     Expression result = null;
     String s = param.getMemento().toString();
     switch (mTypeCode)
@@ -575,5 +576,24 @@ public class EnumerationPrintHelper
   {
     return mSchemaTypeCode == SchemaType.BTC_BASE_64_BINARY ||
            mSchemaTypeCode == SchemaType.BTC_HEX_BINARY;
+  }
+
+  private int extractTypeCode(SchemaType sType) {
+    boolean done = false;
+    while (!done) {
+      switch (sType.getSimpleVariety()) {
+        case SchemaType.ATOMIC:
+          done = true;
+          break;
+        case SchemaType.UNION:
+          throw new IllegalArgumentException("Unions are not currently supported");
+        case SchemaType.LIST:
+          sType = sType.getListItemType();
+          break;
+        default:
+          throw new IllegalStateException();
+      }
+    }
+    return sType.getPrimitiveType().getBuiltinTypeCode();
   }
 }

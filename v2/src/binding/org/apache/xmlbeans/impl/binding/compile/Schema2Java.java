@@ -75,6 +75,9 @@ public class Schema2Java extends BindingCompiler {
   {"java.lang.Integer", "java.lang.Boolean", "java.lang.Float",
    "java.lang.Long", "java.lang.Double", "java.lang.Short",
    "java.lang.Character"};
+  private static String WILDCARD_ELEMENT_MAPPING = "javax.xml.soap.SOAPElement";
+  private static String WILDCARD_ATTRIBUTE_MAPPING = "javax.xml.soap.SOAPElement";
+  private static final String xsns = "http://www.w3.org/2001/XMLSchema";
 
   // ========================================================================
   // Constructors
@@ -265,9 +268,13 @@ public class Schema2Java extends BindingCompiler {
 
       if (sType.isSimpleType()) {
         // simple types are atomic
+        // the order of these checks is important: an enumeration of lists will
+        // be both an enumeration and a list
         // todo: what about simple content, custom codecs, etc?
         if (isEnumeration(sType))
           scratch = new Scratch(sType, xmlName, Scratch.ENUM_TYPE);
+        else if (isList(sType))
+          scratch = new Scratch(sType, xmlName, Scratch.LIST_TYPE);
         else
           scratch = new Scratch(sType, xmlName, Scratch.ATOMIC_TYPE);
       } else if (sType.isDocumentType()) {
@@ -331,6 +338,23 @@ public class Schema2Java extends BindingCompiler {
           return;
         }
 
+      case Scratch.LIST_TYPE:
+        {
+          SchemaType itemType = getListItemType(scratch.getSchemaType());
+          Scratch itemScratch = scratchForSchemaType(itemType);
+          JavaTypeName itemName = null;
+          if (itemScratch == null) {
+            itemName = getTypeNameFromLoader(itemType);
+          }
+          else {
+            // The type is in the current scratch area
+            resolveJavaName(itemScratch);
+            itemName = itemScratch.getJavaName();
+          }
+          if (itemName != null)
+            scratch.setJavaName(JavaTypeName.forArray(itemName, 1));
+          return;
+        }
       case Scratch.LITERALARRAY_TYPE:
         {
           SchemaType itemType = getLiteralArrayItemType(scratch.getSchemaType());
@@ -338,18 +362,8 @@ public class Schema2Java extends BindingCompiler {
               getProperties()[0].hasNillable() != SchemaProperty.NEVER;
           Scratch itemScratch = scratchForSchemaType(itemType);
           JavaTypeName itemName = null;
-          if (itemScratch == null)
-          {
-              BindingType bType = mLoader.getBindingType(mLoader.
-                  lookupPojoFor(XmlTypeName.forSchemaType(itemType)));
-              if (bType != null)
-                  itemName = bType.getName().getJavaName();
-              else if (itemType.isBuiltinType())
-                  logError("Bultin type " + itemType.getName() + " is not supported",
-                      null, itemType);
-              else
-                  throw new IllegalStateException(itemType.getName().toString()+
-                      " type is not on mLoader");
+          if (itemScratch == null) {
+            itemName = getTypeNameFromLoader(itemType);
           }
           else
           {
@@ -488,10 +502,16 @@ public class Schema2Java extends BindingCompiler {
         bindingFile.addBindingType(enumResult, true, true);
         break;
 
+      case Scratch.LIST_TYPE:
+        ListArrayType listResult = new ListArrayType(btName);
+        scratch.setBindingType(listResult);
+        bindingFile.addBindingType(listResult, shouldBeFromJavaDefault(btName), true);
+        break;
+
       case Scratch.LITERALARRAY_TYPE:
         WrappedArrayType arrayResult = new WrappedArrayType(btName);
         scratch.setBindingType(arrayResult);
-        bindingFile.addBindingType(arrayResult, true, true);
+        bindingFile.addBindingType(arrayResult, shouldBeFromJavaDefault(btName), true);
         break;
 
       case Scratch.SOAPARRAY:
@@ -563,8 +583,7 @@ public class Schema2Java extends BindingCompiler {
         seenMethodNames.add(prop.getSetterName());
     }
 
-    if (schemaType.getContentType() == SchemaType.SIMPLE_CONTENT/* &&
-        baseType.isSimpleType()*/) {
+    if (schemaType.getContentType() == SchemaType.SIMPLE_CONTENT) {
       // Go up the type hierarchy to find the first simple type ancestor of
       // this complex type
       while (!baseType.isSimpleType())
@@ -581,7 +600,33 @@ public class Schema2Java extends BindingCompiler {
           bType.getName().getJavaName()));
       prop.setGetterName(MethodName.create("get" + propName));
       prop.setBindingType(bType);
-      scratch.addSimpleContentProperty(prop);
+      scratch.setSimpleContentProperty(prop);
+    }
+    else {
+      // Handle the element wildcards
+      if (schemaType.hasElementWildcards()) {
+        // First, we have to see if it's just one wildcard or more
+        boolean multiple = countWildcards(schemaType.getContentModel()) > 1;
+        // We have to look at the base type and check multiplicity
+        if (baseType != null &&
+          baseType.getBuiltinTypeCode() != SchemaType.BTC_ANY_TYPE) {
+          boolean hasBaseElementWildcards = baseType.hasElementWildcards();
+          boolean baseMultiple = countWildcards(baseType.getContentModel()) > 1;
+          if (hasBaseElementWildcards && multiple != baseMultiple)
+            logError("Could not bind type\"" + schemaType.getName() +
+                    "\" because its base type \"" + baseType.getName() +
+                    "\" has only one element wildcard and the current type has more.",
+                    null, schemaType);
+        }
+        GenericXmlProperty prop = new GenericXmlProperty();
+        String propName = "_any";
+        BindingType bType = getWildcardElementBindingType(multiple);
+        prop.setSetterName(MethodName.create("set" + propName,
+            bType.getName().getJavaName()));
+        prop.setGetterName(MethodName.create("get" + propName));
+        prop.setBindingType(bType);
+        scratch.setAnyElementProperty(prop);
+      }
     }
 
     if (derivationType == SchemaType.DT_RESTRICTION)
@@ -590,7 +635,20 @@ public class Schema2Java extends BindingCompiler {
         return;
     }
 
-    // now deal with remaining props
+    // Handle the attribute wildcards
+    // No check is necessary, because it always maps to the same type if present
+    if (schemaType.hasAttributeWildcards()) {
+      String propName = "_anyAttribute";
+      GenericXmlProperty prop = new GenericXmlProperty();
+      BindingType bType = getWildcardAttributeBindingType();
+      prop.setSetterName(MethodName.create("set" + propName,
+          bType.getName().getJavaName()));
+      prop.setGetterName(MethodName.create("get" + propName));
+      prop.setBindingType(bType);
+      scratch.setAnyAttributeProperty(prop);
+    }
+
+    // Now deal with remaining props
     SchemaProperty[] props = schemaType.getProperties();
     for (int i = 0; i < props.length; i++) {
       QNameProperty prop = (QNameProperty) (props[i].isAttribute() ? seenAttrProps : seenEltProps).get(props[i].getName());
@@ -598,8 +656,8 @@ public class Schema2Java extends BindingCompiler {
         // already seen property: verify multiplicity looks cool
         if (prop.isMultiple() != isMultiple(props[i])) {
             logError("Could not bind element \"" + props[i].getName() +
-                "\" because the corresponding element in the base type has a " +
-                "different 'maxOccurs' value", null, props[i]);
+                    "\" because the corresponding element in the base type has a " +
+                    "different 'maxOccurs' value", null, props[i]);
         }
 
         // todo: think about optionality and nillability too
@@ -639,7 +697,8 @@ public class Schema2Java extends BindingCompiler {
    */
   private void resolveJavaArray(Scratch scratch)
   {
-    if (scratch.getCategory() != Scratch.LITERALARRAY_TYPE)
+    if (scratch.getCategory() != Scratch.LITERALARRAY_TYPE &&
+        scratch.getCategory() != Scratch.LIST_TYPE)
       return;
 
     if (scratch.isStructureResolved())
@@ -647,24 +706,39 @@ public class Schema2Java extends BindingCompiler {
 
     scratch.setStructureResolved(true);
 
-    if (!(scratch.getBindingType() instanceof WrappedArrayType))
-      throw new IllegalStateException();
-    WrappedArrayType bType = (WrappedArrayType) scratch.getBindingType();
-    JavaTypeName itemName = scratch.getJavaName().getArrayItemType(1);
-    assert(itemName != null);
-    SchemaType sType = getLiteralArrayItemType(scratch.getSchemaType());
-    assert sType != null : "This was already checked and determined to be non-null";
-    SchemaProperty prop = scratch.getSchemaType().getProperties()[0];
-    bType.setItemName(prop.getName());
-    BindingType itemType = bindingTypeForSchemaType(sType);
-    if (itemType == null)
-      throw new IllegalStateException("Type " + sType.getName() +
-        " not found in type loader");
+    BindingType scratchBindingType = scratch.getBindingType();
+    if (scratchBindingType instanceof WrappedArrayType) {
+      WrappedArrayType bType = (WrappedArrayType) scratchBindingType;
+      JavaTypeName itemName = scratch.getJavaName().getArrayItemType(1);
+      assert(itemName != null);
+      SchemaType sType = getLiteralArrayItemType(scratch.getSchemaType());
+      assert sType != null : "This was already checked and determined to be non-null";
+      SchemaProperty prop = scratch.getSchemaType().getProperties()[0];
+      bType.setItemName(prop.getName());
+      BindingType itemType = bindingTypeForSchemaType(sType);
+      if (itemType == null)
+        throw new IllegalStateException("Type " + sType.getName() +
+          " not found in type loader");
 
-    bType.setItemNillable(prop.hasNillable() != SchemaProperty.NEVER);
-    if (bType.isItemNillable())
-      itemType = findBoxedType(itemType);
-    bType.setItemType(itemType.getName());
+      bType.setItemNillable(prop.hasNillable() != SchemaProperty.NEVER);
+      if (bType.isItemNillable())
+        itemType = findBoxedType(itemType);
+      bType.setItemType(itemType.getName());
+    }
+    else if (scratchBindingType instanceof ListArrayType) {
+      ListArrayType bType = (ListArrayType) scratchBindingType;
+      JavaTypeName itemName = scratch.getJavaName().getArrayItemType(1);
+      assert (itemName != null);
+      SchemaType sType = getListItemType(scratch.getSchemaType());
+      assert (sType != null);
+      BindingType itemType = bindingTypeForSchemaType(sType);
+      if (itemType == null)
+        throw new IllegalStateException("Type " + sType.getName() +
+          " not found in the type loader");
+      bType.setItemType(itemType.getName());
+    }
+    else
+      throw new IllegalStateException();
   }
 
   /**
@@ -732,8 +806,13 @@ public class Schema2Java extends BindingCompiler {
     // case 1: it's in the current area
     Scratch scratch = scratchForSchemaType(sType);
     if (scratch != null) {
-      resolveJavaStructure(scratch);
-      return scratch.getQNameProperties();
+      // The type found may not be a structure
+      if (scratch.getCategory() == Scratch.STRUCT_TYPE) {
+        resolveJavaStructure(scratch);
+        return scratch.getQNameProperties();
+      }
+      else
+        return null;
     }
 
     // case 2: it's in the mLoader
@@ -772,6 +851,28 @@ public class Schema2Java extends BindingCompiler {
             forSchemaType(sType)));
 
     return bType;
+  }
+
+  /**
+   * Returns a BindingType representing the default type for <xs:any> content
+   */
+  private BindingType getWildcardElementBindingType(boolean multiple) {
+    JavaTypeName javaName;
+    javaName = JavaTypeName.forString(WILDCARD_ELEMENT_MAPPING);
+    if (multiple)
+      javaName = JavaTypeName.forArray(javaName, 1);
+    XmlTypeName xmlName = XmlTypeName.forTypeNamed(new QName(xsns, "anyType"));
+    return new SimpleBindingType(BindingTypeName.forPair(javaName, xmlName));
+  }
+
+  /**
+   * Returns a BindingType representing the default type for <xs:anyAttribute>
+   */
+  private BindingType getWildcardAttributeBindingType() {
+    JavaTypeName javaName;
+    javaName = JavaTypeName.forString(WILDCARD_ATTRIBUTE_MAPPING);
+    XmlTypeName xmlName = XmlTypeName.forTypeNamed(new QName(xsns, "anyType"));
+    return new SimpleBindingType(BindingTypeName.forPair(javaName, xmlName));
   }
 
   private JavaTypeName getBoxedName(JavaTypeName jName)
@@ -904,6 +1005,41 @@ public class Schema2Java extends BindingCompiler {
   }
 
   /**
+   * Searches the content of a complex type to see if more than one <xs:any>
+   * wildcard was defined
+   */
+  private int countWildcards(SchemaParticle p)
+  {
+    int totalWildcards = 0;
+    switch (p.getParticleType()) {
+      case SchemaParticle.ALL:
+      case SchemaParticle.SEQUENCE:
+        {
+          SchemaParticle[] children = p.getParticleChildren();
+          for (int i = 0; i < children.length; i++)
+            totalWildcards += countWildcards(children[i]);
+        }
+        break;
+      case SchemaParticle.CHOICE:
+        {
+          SchemaParticle[] children = p.getParticleChildren();
+          for (int i = 0; i < children.length; i++) {
+            int n = countWildcards(children[i]);
+            if (n > totalWildcards)
+              totalWildcards = n;
+          }
+        }
+        break;
+      case SchemaParticle.ELEMENT:
+        break;
+      case SchemaParticle.WILDCARD:
+        totalWildcards = p.getIntMaxOccurs();
+        break;
+      }
+    return totalWildcards;
+  }
+
+  /**
    * Picks a unique fully-qualified Java class name for the given schema
    * type.  Uses and updates the "usedNames" set.
    */
@@ -981,6 +1117,25 @@ public class Schema2Java extends BindingCompiler {
   }
 
   /**
+   * Searches on the mLoader for the given schema type and
+   * returns the java name of the type found or errors
+   * if it cannot find the type
+   */
+  private JavaTypeName getTypeNameFromLoader(SchemaType sType) {
+    BindingType bType = mLoader.getBindingType(mLoader.
+      lookupPojoFor(XmlTypeName.forSchemaType(sType)));
+    if (bType != null)
+      return bType.getName().getJavaName();
+    else if (sType.isBuiltinType())
+      logError("Bultin type " + sType.getName() + " is not supported",
+        null, sType);
+    else
+      throw new IllegalStateException(sType.getName().toString()+
+        " type is not on mLoader");
+    return null;
+  }
+
+  /**
    * Looks on both the mLoader and in the current scratch area for
    * the binding type corresponding to the given schema type.  Must
    * be called after all the binding types have been created.
@@ -1033,6 +1188,10 @@ public class Schema2Java extends BindingCompiler {
     return prop[0].getType();
   }
 
+  private static SchemaType getListItemType(SchemaType sType) {
+    return sType.getListItemType();
+  }
+
   /**
    * True if the given schema type is interpreted as a .NET-style
    * array.
@@ -1046,6 +1205,13 @@ public class Schema2Java extends BindingCompiler {
    */
   private static boolean isEnumeration(SchemaType sType) {
     return sType.getEnumerationValues() != null;
+  }
+
+  /**
+   * True if the given schema type is a list type
+   */
+  private static boolean isList(SchemaType sType) {
+    return getListItemType(sType) != null;
   }
 
   /**
@@ -1074,11 +1240,12 @@ public class Schema2Java extends BindingCompiler {
     public static final int ATOMIC_TYPE = 1;
     public static final int STRUCT_TYPE = 2;
     public static final int ENUM_TYPE = 3;
-    public static final int LITERALARRAY_TYPE = 4;
-    public static final int SOAPARRAY_REF = 5;
-    public static final int SOAPARRAY = 6;
-    public static final int ELEMENT = 7;
-    public static final int ATTRIBUTE = 8;
+    public static final int LIST_TYPE = 4;
+    public static final int LITERALARRAY_TYPE = 5;
+    public static final int SOAPARRAY_REF = 6;
+    public static final int SOAPARRAY = 7;
+    public static final int ELEMENT = 8;
+    public static final int ATTRIBUTE = 9;
 
     public int getCategory() {
       return category;
@@ -1138,7 +1305,7 @@ public class Schema2Java extends BindingCompiler {
         throw new IllegalStateException();
     }
 
-    public void addSimpleContentProperty(SimpleContentProperty prop) {
+    public void setSimpleContentProperty(SimpleContentProperty prop) {
       if (bindingType instanceof SimpleContentBean)
         ((SimpleContentBean) bindingType).setSimpleContentProperty(prop);
       else
@@ -1150,6 +1317,38 @@ public class Schema2Java extends BindingCompiler {
         return ((SimpleContentBean) bindingType).getSimpleContentProperty();
       else
         return null;
+    }
+
+    public void setAnyAttributeProperty(GenericXmlProperty prop) {
+      if (bindingType instanceof ByNameBean)
+        ((ByNameBean) bindingType).setAnyAttributeProperty(prop);
+      else if (bindingType instanceof SimpleContentBean)
+        ((SimpleContentBean) bindingType).setAnyAttributeProperty(prop);
+      else
+        throw new IllegalStateException();
+    }
+
+    public GenericXmlProperty getAnyAttributeProperty() {
+      if (bindingType instanceof ByNameBean)
+        return ((ByNameBean) bindingType).getAnyAttributeProperty();
+      else if (bindingType instanceof SimpleContentBean)
+        return ((SimpleContentBean) bindingType).getAnyAttributeProperty();
+      else
+        throw new IllegalStateException();
+    }
+
+    public void setAnyElementProperty(GenericXmlProperty prop) {
+      if (bindingType instanceof ByNameBean)
+        ((ByNameBean) bindingType).setAnyElementProperty(prop);
+      else
+        throw new IllegalStateException();
+    }
+
+    public GenericXmlProperty getAnyElementProperty() {
+      if (bindingType instanceof  ByNameBean)
+        return ((ByNameBean) bindingType).getAnyElementProperty();
+      else
+        throw new IllegalStateException();
     }
 
     public boolean isStructureResolved() {
@@ -1337,6 +1536,24 @@ public class Schema2Java extends BindingCompiler {
         scprop.getGetterName().getSimpleName(), scprop.getSetterName().getSimpleName());
     }
 
+    // Write out the Generic Xml properties, if needed
+    GenericXmlProperty gxprop = scratch.getAnyElementProperty();
+    if (gxprop != null) {
+      String fieldName = pickUniqueFieldName(gxprop.getGetterName().getSimpleName(),
+        seenFieldNames);
+      JavaTypeName jType = gxprop.getTypeName().getJavaName();
+      addJavaBeanProperty(fieldName, jType.toString(),
+        gxprop.getGetterName().getSimpleName(), gxprop.getSetterName().getSimpleName());
+    }
+    gxprop = scratch.getAnyAttributeProperty();
+    if (gxprop != null) {
+      String fieldName = pickUniqueFieldName(gxprop.getGetterName().getSimpleName(),
+        seenFieldNames);
+      JavaTypeName jType = gxprop.getTypeName().getJavaName();
+      addJavaBeanProperty(fieldName, jType.toString(),
+        gxprop.getGetterName().getSimpleName(), gxprop.getSetterName().getSimpleName());
+    }
+
     Collection props = scratch.getQNameProperties();
     Map fieldNames = new HashMap();
 
@@ -1395,7 +1612,7 @@ public class Schema2Java extends BindingCompiler {
     JavaTypeName baseType = enumType.getBaseTypeName().getJavaName();
     EnumerationPrintHelper enumHelper =
             new EnumerationPrintHelper(baseType, mJoust.getExpressionFactory(),
-                    scratch.getSchemaType().getPrimitiveType().getBuiltinTypeCode());
+                    scratch.getSchemaType());
 
     // figure out what import statements we need
     boolean useArrays = enumHelper.isArray() || enumHelper.isBinary();
@@ -1505,10 +1722,18 @@ public class Schema2Java extends BindingCompiler {
             new String[] {baseType.toString()},
             new String[] {"value"},
             null);
+    String valueVarName = "value";
+    if (useArrays) {
+      mJoust.writeStatement(shortClassName + " new" + valueVarName + " = new " +
+        shortClassName + "(" + valueVarName + ")");
+      valueVarName = "new" + valueVarName;
+    }
     mJoust.writeStatement("if (" + instanceMapName + ".containsKey(" +
-            (useArrays ? "new " + shortClassName + "(value)" : enumHelper.getObjectVersion("value")) +
+            (useArrays ? valueVarName : enumHelper.getObjectVersion("value")) +
             ")) return (" + shortClassName + ") " +
-            instanceMapName + ".get(" + enumHelper.getObjectVersion("value") + ")");
+            instanceMapName + ".get(" +
+            (useArrays ? valueVarName : enumHelper.getObjectVersion("value"))
+            + ")");
     mJoust.writeStatement("else throw new IllegalArgumentException()");
     mJoust.endMethodOrConstructor();
 
@@ -1529,7 +1754,8 @@ public class Schema2Java extends BindingCompiler {
         baseType.getArrayItemType(1).toString() + "[" + STRING_PARTS + ".length" + "]");
       mJoust.writeStatement("for (int i = 0; i < " + BASETYPE_ARRAY + ".length; i++) " +
         BASETYPE_ARRAY + "[i] = " +
-        enumHelper.getFromStringExpr(params[0]).getMemento().toString());
+        enumHelper.getFromStringExpr(mJoust.getExpressionFactory().createVerbatim(
+                 STRING_PARTS + "[i]")).getMemento().toString());
       mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(
             enumType.getFromValueMethod().getSimpleName() + "(" + BASETYPE_ARRAY + ")"));
     }
@@ -1553,7 +1779,7 @@ public class Schema2Java extends BindingCompiler {
       mJoust.writeStatement("for (int i = 0; i < " + instanceVarName + ".length; i++) " +
         STRING_LIST + ".append(" + enumHelper.getToXmlString(instanceVar, "i") +
         ").append(' ')");
-      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(STRING_LIST));
+      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(STRING_LIST + ".toString()"));
     }
     else {
       mJoust.writeReturnStatement(enumHelper.getToXmlExpr(instanceVar));
@@ -1572,7 +1798,7 @@ public class Schema2Java extends BindingCompiler {
         STRING_LIST + ".append(String.valueOf(" +
         instanceVarName + "[i]" +
         ")).append(' ')");
-      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(STRING_LIST));
+      mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(STRING_LIST + ".toString()"));
     }
     else {
       mJoust.writeReturnStatement(mJoust.getExpressionFactory().createVerbatim(
@@ -1613,7 +1839,7 @@ public class Schema2Java extends BindingCompiler {
     if (enumHelper.isArray()) {
       mJoust.writeStatement("int val = 0;");
       mJoust.writeStatement("for (int i = 0; i < " + instanceVarName + ".length; i++) " +
-        "{ val *= 19; val =+ " +
+        "{ val *= 19; val += " +
         enumHelper.getHashCode(instanceVarName).getMemento().toString() +
         "; }");
       mJoust.writeStatement("return val");

@@ -114,6 +114,7 @@ public abstract class BindingType {
     registerClassAndType(ByNameBean.class, org.apache.xml.xmlbeans.bindingConfig.ByNameBean.type);
     registerClassAndType(SimpleContentBean.class, org.apache.xml.xmlbeans.bindingConfig.SimpleContentBean.type);
     registerClassAndType(WrappedArrayType.class, org.apache.xml.xmlbeans.bindingConfig.WrappedArray.type);
+    registerClassAndType(ListArrayType.class, org.apache.xml.xmlbeans.bindingConfig.ListArray.type);
     registerClassAndType(SimpleBindingType.class, org.apache.xml.xmlbeans.bindingConfig.SimpleType.type);
     registerClassAndType(JaxrpcEnumType.class, org.apache.xml.xmlbeans.bindingConfig.JaxrpcEnumType.type);
     registerClassAndType(SimpleDocumentBinding.class, org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding.type);

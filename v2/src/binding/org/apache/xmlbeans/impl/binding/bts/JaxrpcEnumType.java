@@ -92,8 +92,8 @@ public class JaxrpcEnumType extends BindingType
             fromValueMethod.write(jnode.addNewFromValueMethod());
         }
 
-        if (getValueMethod != null) {
-            getValueMethod.write(jnode.addNewGetValueMethod());
+        if (toXMLMethod != null) {
+            toXMLMethod.write(jnode.addNewToXMLMethod());
         }
 
         if (fromStringMethod != null) {

@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.ListArrayType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
@@ -506,6 +507,12 @@ final class RuntimeBindingTypeTable
                                                      runtimeBindingTypeTable,
                                                      loader);
             typeUnmarshaller = new WrappedArrayUnmarshaller(rtt);
+        }
+
+        public void visit(ListArrayType listArrayType)
+            throws XmlException
+        {
+            // todo: implement
         }
 
         public TypeUnmarshaller getUnmarshaller()
