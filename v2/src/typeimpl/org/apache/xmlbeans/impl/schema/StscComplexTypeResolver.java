@@ -1320,6 +1320,7 @@ public class StscComplexTypeResolver
                 String newTargetNamespace = group.getTargetNamespace();
                 if (newTargetNamespace != null)
                     targetNamespace = newTargetNamespace;
+                chameleon = group.getChameleonNamespace() != null;
             }
 
             switch (particleCode)

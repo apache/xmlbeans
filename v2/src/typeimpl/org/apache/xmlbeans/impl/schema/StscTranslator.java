@@ -103,24 +103,28 @@ public class StscTranslator
         for (int i = 0; i < complexTypes.length; i++)
         {
             TopLevelComplexType type = complexTypes[i];
-            TopLevelComplexType redef= redefinitions[j].redefineComplexType(type.getName());
-
-            if (redef != null)
+            TopLevelComplexType redef;
+            int p = j;
+            // 1. Traverse the list of redefining Schemas putting all redefinitions
+            // of this type in a List
+            do
             {
-                int p = schemasAndChameleons[j].getRedefinedBy();
-                while (redef != null)
+                redef = redefinitions[p].redefineComplexType(type.getName());
+                if (redef != null)
                 {
                     redefChain.add(type);
                     type = redef;
-                    redef = redefinitions[p].redefineComplexType(type.getName());
-                    p = schemasAndChameleons[p].getRedefinedBy();
                 }
+                p = schemasAndChameleons[p].getRedefinedBy();
             }
+            while (p >= 0);
 
             SchemaTypeImpl t = translateGlobalComplexType(type, targetNamespace, chameleon, redefChain.size() > 0);
             state.addGlobalType(t, null);
             SchemaTypeImpl r;
-            for (int k = redefChain.size()-1; k >= 0; k--)
+            // 2. Traverse the List built in step 1 in reverse and add all the
+            // types in it to the list of redefined types
+            for (int k = redefChain.size() - 1; k >= 0; k--)
             {
                 redef = (TopLevelComplexType) redefChain.remove(k);
                 r = translateGlobalComplexType(redef, targetNamespace, chameleon, k > 0);
@@ -133,19 +137,19 @@ public class StscTranslator
         for (int i = 0; i < simpleTypes.length; i++)
         {
             TopLevelSimpleType type = simpleTypes[i];
-            TopLevelSimpleType redef = redefinitions[j].redefineSimpleType(type.getName());
-
-            if (redef != null)
+            TopLevelSimpleType redef;
+            int p = j;
+            do
             {
-                int p = schemasAndChameleons[j].getRedefinedBy();
-                while (redef != null)
+                redef = redefinitions[p].redefineSimpleType(type.getName());
+                if (redef != null)
                 {
                     redefChain.add(type);
                     type = redef;
-                    redef = redefinitions[p].redefineSimpleType(type.getName());
-                    p = schemasAndChameleons[p].getRedefinedBy();
                 }
+                p = schemasAndChameleons[p].getRedefinedBy();
             }
+            while (p >= 0);
 
             SchemaTypeImpl t = translateGlobalSimpleType(type, targetNamespace, chameleon,redefChain.size() > 0);
             state.addGlobalType(t, null);
@@ -177,19 +181,19 @@ public class StscTranslator
         for (int i = 0; i < modelgroups.length; i++)
         {
             NamedGroup group = modelgroups[i];
-            NamedGroup redef = redefinitions[j].redefineModelGroup(group.getName());
-
-            if (redef != null)
+            NamedGroup redef;
+            int p = j;
+            do
             {
-                int p = schemasAndChameleons[j].getRedefinedBy();
-                while (redef != null)
+                redef = redefinitions[p].redefineModelGroup(group.getName());
+                if (redef != null)
                 {
                     redefChain.add(group);
                     group = redef;
-                    redef = redefinitions[p].redefineModelGroup(group.getName());
-                    p = schemasAndChameleons[p].getRedefinedBy();
                 }
+                p = schemasAndChameleons[p].getRedefinedBy();
             }
+            while (p >= 0);
 
             SchemaModelGroupImpl g = translateModelGroup(group, targetNamespace, chameleon, redefChain.size() > 0);
             state.addModelGroup(g, null);
@@ -207,19 +211,19 @@ public class StscTranslator
         for (int i = 0; i < attrgroups.length; i++)
         {
             NamedAttributeGroup group = attrgroups[i];
-            NamedAttributeGroup redef = redefinitions[j].redefineAttributeGroup(group.getName());
-
-            if (redef != null)
+            NamedAttributeGroup redef;
+            int p = j;
+            do
             {
-                int p = schemasAndChameleons[j].getRedefinedBy();
-                while (redef != null)
+                redef = redefinitions[p].redefineAttributeGroup(group.getName());
+                if (redef != null)
                 {
                     redefChain.add(group);
                     group = redef;
-                    redef = redefinitions[p].redefineAttributeGroup(group.getName());
-                    p = schemasAndChameleons[p].getRedefinedBy();
                 }
+                p = schemasAndChameleons[p].getRedefinedBy();
             }
+            while (p >= 0);
 
             SchemaAttributeGroupImpl g = translateAttributeGroup(group, targetNamespace, chameleon, redefChain.size() > 0);
             state.addAttributeGroup(g, null);
