@@ -60,6 +60,8 @@ import java.lang.ref.ReferenceQueue;
 import java.lang.ref.Reference;
 import java.lang.ref.PhantomReference;
 
+import java.lang.reflect.Method;
+
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DocumentType;
 import org.w3c.dom.Document;
@@ -86,7 +88,12 @@ import java.io.StringReader;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.impl.common.ResolverUtil;
+
 import org.w3c.dom.DOMImplementation;
+
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlRuntimeException;
 
 import org.apache.xmlbeans.impl.newstore.SaajImpl;
 
@@ -102,6 +109,12 @@ import org.apache.xmlbeans.impl.newstore.DomImpl.SaajCdataNode;
 
 public abstract class Locale implements DOMImplementation, SaajCallback
 {
+    public static final String _xsi         = "http://www.w3.org/2001/XMLSchema-instance";
+    public static final String _schema      = "http://www.w3.org/2001/XMLSchema";
+    public static final String _openFragUri = "http://www.openuri.org/fragment";
+    public static final String _xml1998Uri  = "http://www.w3.org/XML/1998/namespace";
+    public static final String _xmlnsUri    = "http://www.w3.org/2000/xmlns/";
+    
     public Locale ( )
     {
         _noSync = true;
@@ -304,29 +317,138 @@ public abstract class Locale implements DOMImplementation, SaajCallback
         return _saaj == null ? new CdataNode( this ) : new SaajCdataNode( this );
     }
 
+    public static boolean beginsWithXml ( String name )
+    {
+        if (name.length() < 3)
+            return false;
+
+        char ch;
+
+        if (((ch = name.charAt( 0 )) == 'x' || ch == 'X') &&
+                ((ch = name.charAt( 1 )) == 'm' || ch == 'M') &&
+                ((ch = name.charAt( 2 )) == 'l' || ch == 'L'))
+        {
+            return true;
+        }
+
+        return false;
+    }
+
     //
     // Loading/parsing
     //
 
-    private static class SaxLoader
-            implements ContentHandler, LexicalHandler, ErrorHandler, EntityResolver
+    private static ThreadLocal tl_saxLoaders =
+        new ThreadLocal ( ) { protected Object initialValue ( ) { return newSaxLoader(); } };
+
+    private static SaxLoader getSaxLoader ( )
     {
-        private static SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-        SaxLoader ( )
+        return (SaxLoader) tl_saxLoaders.get();
+    }
+
+    private static SaxLoader newSaxLoader ( )
+    {
+        SaxLoader sl = null;
+        
+        try
         {
+            sl = PiccoloSaxLoader.newInstance();
+
+            if (sl == null)
+                sl = DefaultSaxLoader.newInstance();
+        }
+        catch ( Exception e )
+        {
+            throw new RuntimeException( "Can't find an XML parser", e );
+        }
+
+        if (sl == null)
+            throw new RuntimeException( "Can't find an XML parser" );
+        
+        return sl;
+    }
+
+    private static class DefaultSaxLoader extends SaxLoader
+    {
+        private DefaultSaxLoader ( XMLReader xr )
+        {
+            super( xr, null );
+        }
+        
+        static SaxLoader newInstance ( ) throws Exception
+        {
+            return
+                new DefaultSaxLoader(
+                    SAXParserFactory.newInstance().newSAXParser().getXMLReader() );
+        }
+    }
+    
+    private static class PiccoloSaxLoader extends SaxLoader
+    {
+        // TODO - Need to look at root.java to bring this loader up to
+        // date with all needed features
+
+        private PiccoloSaxLoader (
+            XMLReader xr, Locator startLocator, Method m_getEncoding, Method m_getVersion )
+        {
+            super( xr, startLocator );
+
+            _m_getEncoding = m_getEncoding;
+            _m_getVersion = m_getVersion;
+        }
+
+        static SaxLoader newInstance ( ) throws Exception
+        {
+            Class pc = null;
+            
             try
             {
-                _xr = saxParserFactory.newSAXParser().getXMLReader();
+                pc = Class.forName( "com.bluecast.xml.Piccolo" );
+            }
+            catch ( ClassNotFoundException e )
+            {
+                return null;
+            }
+                
+            XMLReader xr = (XMLReader) pc.newInstance();
 
+            Method m_getEncoding     = pc.getMethod( "getEncoding", null );
+            Method m_getVersion      = pc.getMethod( "getVersion", null );
+            Method m_getStartLocator = pc.getMethod( "getStartLocator", null );
+
+            Locator startLocator =
+                (Locator) m_getStartLocator.invoke( xr, null );
+
+            return new PiccoloSaxLoader( xr, startLocator, m_getEncoding, m_getVersion );
+        }
+        
+        private Method _m_getEncoding;
+        private Method _m_getVersion;
+    }
+    
+    private static abstract class SaxLoader
+            implements ContentHandler, LexicalHandler, ErrorHandler, EntityResolver
+    {
+        SaxLoader ( XMLReader xr, Locator startLocator )
+        {
+            _xr = xr;
+            _startLocator = startLocator;
+            
+            try
+            {
                 _xr.setFeature( "http://xml.org/sax/features/namespace-prefixes", true );
                 _xr.setFeature( "http://xml.org/sax/features/namespaces", true );
                 _xr.setFeature( "http://xml.org/sax/features/validation", false );
-
-
                 _xr.setProperty( "http://xml.org/sax/properties/lexical-handler", this );
                 _xr.setContentHandler( this );
                 _xr.setErrorHandler( this );
-                _xr.setEntityResolver( this );
+                
+                EntityResolver entRes = ResolverUtil.getGlobalEntityResolver();
+                
+                if (entRes == null)
+                    entRes = this;
+                
+                xr.setEntityResolver( entRes );
             }
             catch ( Throwable e )
             {
@@ -369,6 +491,22 @@ public abstract class Locale implements DOMImplementation, SaajCallback
         public void startElement ( String uri, String local, String qName, Attributes atts )
             throws SAXException
         {
+            if (local.length() == 0)
+                local = qName;
+            
+            // Out current parser (Piccolo) does not error when a
+            // namespace is used and not defined.  Check for these here
+
+            if (qName.indexOf( ':' ) >= 0 && uri.length() == 0)
+            {
+                XmlError err =
+                    XmlError.forMessage(
+                        "Use of undefined namespace prefix: " +
+                            qName.substring( 0, qName.indexOf( ':' ) ));
+
+                throw new XmlRuntimeException( err.toString(), null, err );
+            }
+
             _context.startElement( _locale.makeQualifiedQName( uri, qName ) );
 
             for ( int i = 0, len = atts.getLength() ; i < len ; i++ )
@@ -376,9 +514,35 @@ public abstract class Locale implements DOMImplementation, SaajCallback
                 String aqn = atts.getQName( i );
 
                 if (aqn.equals( "xmlns" ))
+                {
                     _context.xmlns( "", atts.getValue( i ) );
+                }
                 else if (aqn.startsWith( "xmlns:" ))
-                    _context.xmlns( aqn.substring( 6 ), atts.getValue( i ) );
+                {
+                    String prefix = aqn.substring( 6 );
+
+                    if (prefix.length() == 0)
+                    {
+                        XmlError err =
+                            XmlError.forMessage( "Prefix not specified", XmlError.SEVERITY_ERROR );
+
+                        throw new XmlRuntimeException( err.toString(), null, err );
+                    }
+
+                    String attrUri = atts.getValue( i );
+                    
+                    if (attrUri.length() == 0)
+                    {
+                        XmlError err =
+                            XmlError.forMessage(
+                                "Prefix can't be mapped to no namespace: " + prefix,
+                                XmlError.SEVERITY_ERROR );
+
+                        throw new XmlRuntimeException( err.toString(), null, err );
+                    }
+
+                    _context.xmlns( prefix, attrUri );
+                }
                 else
                 {
                     String attrLocal = atts.getLocalName( i );
@@ -426,6 +590,14 @@ public abstract class Locale implements DOMImplementation, SaajCallback
 
         public void startPrefixMapping ( String prefix, String uri ) throws SAXException
         {
+            if (beginsWithXml( prefix ) && ! ( "xml".equals( prefix ) && _xml1998Uri.equals( uri )))
+            {
+                XmlError err =
+                    XmlError.forMessage(
+                        "Prefix can't begin with XML: " + prefix, XmlError.SEVERITY_ERROR );
+
+                throw new XmlRuntimeException( err.toString(), null, err );
+            }
         }
 
         public void endPrefixMapping ( String prefix ) throws SAXException
@@ -478,11 +650,12 @@ public abstract class Locale implements DOMImplementation, SaajCallback
         private Locale      _locale;
         private XMLReader   _xr;
         private LoadContext _context;
+        private Locator     _startLocator;
     }
 
     private Dom load ( InputSource is )
     {
-        return new SaxLoader().load( this, is ).getDom();
+        return getSaxLoader().load( this, is ).getDom();
     }
 
     public Dom load ( Reader r )

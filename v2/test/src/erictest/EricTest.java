@@ -152,15 +152,12 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public.parse( "<a><b><c/></b><d/><b/></a>", Public.memoryBackend() );
-
-        NodeList elements = doc.getDocumentElement().getElementsByTagName( "*" );
-
-        for ( int i = 0 ; i < elements.getLength() ; i++ )
-        {
-            org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( elements.item( i ) );
-        }
-
+        String xml = "<?bonk honk?><a p='q' xmlns:foo='bar'>12&amp;34567<b/><!--moo--></a>";
+        Document doc = Public.parse( xml, Public.memoryBackend() );
+        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
+                
+                
+                                              
 
         
         

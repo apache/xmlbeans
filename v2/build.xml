@@ -882,11 +882,12 @@
   <!-- newstore target ============================================== -->
 
   <target name="newstore.classes"
-        depends="dirs, xmlpublic.classes, saaj_api.classes">
+        depends="dirs, common.classes, xmlpublic.classes, saaj_api.classes">
     <mkdir dir="build/classes/newstore"/>
     <javac srcdir="src/newstore" destdir="build/classes/newstore" source="1.4" debug="on">
       <classpath id="newstore.compile.path">
         <pathelement location="build/lib/jsr173_api.jar"/>
+        <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/saaj_api"/>

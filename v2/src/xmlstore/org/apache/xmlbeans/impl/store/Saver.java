@@ -1896,7 +1896,7 @@ public abstract class Saver implements NamespaceManager
 
                 lastWasBracket = _buf[ i ] == ']';
 
-                if (++i == n)
+                if (++i == _buf.length)
                     i = 0;
 
                 for ( int cch = _lastEmitCch ; cch > 0 ; cch-- )
@@ -1913,7 +1913,7 @@ public abstract class Saver implements NamespaceManager
                     secondToLastWasBracket = lastWasBracket;
                     lastWasBracket = ch == ']';
 
-                    if (i == n)
+                    if (i == _buf.length)
                         i = 0;
                 }
 
@@ -1934,7 +1934,7 @@ public abstract class Saver implements NamespaceManager
                     else
                         i++;
 
-                    if (i == n)
+                    if (i == _buf.length)
                         i = 0;
                 }
             }
@@ -1946,7 +1946,6 @@ public abstract class Saver implements NamespaceManager
                 return;
 
             int i = _lastEmitIn;
-            final int n = _buf.length;
 
             for ( int cch = _lastEmitCch ; cch > 0 ; cch-- )
             {
@@ -1961,7 +1960,7 @@ public abstract class Saver implements NamespaceManager
                 else
                     i++;
 
-                if (i == n)
+                if (i == _buf.length)
                     i = 0;
             }
         }
@@ -1972,7 +1971,6 @@ public abstract class Saver implements NamespaceManager
                 return;
 
             int i = _lastEmitIn;
-            final int n = _buf.length;
 
             boolean lastWasDash = false;
 
@@ -2002,7 +2000,7 @@ public abstract class Saver implements NamespaceManager
                     i++;
                 }
 
-                if (i == n)
+                if (i == _buf.length)
                     i = 0;
             }
 
@@ -2019,7 +2017,6 @@ public abstract class Saver implements NamespaceManager
                 return;
 
             int i = _lastEmitIn;
-            final int n = _buf.length;
 
             boolean lastWasQuestion = false;
 
@@ -2046,7 +2043,7 @@ public abstract class Saver implements NamespaceManager
                     i++;
                 }
 
-                if (i == n)
+                if (i == _buf.length)
                     i = 0;
             }
         }
