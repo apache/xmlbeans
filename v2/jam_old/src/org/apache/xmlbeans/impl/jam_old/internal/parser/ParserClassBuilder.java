@@ -25,8 +25,8 @@ import org.apache.xmlbeans.impl.jam_old.provider.JPath;
 import org.apache.xmlbeans.impl.jam_old.provider.EClassBuilder;
 import org.apache.xmlbeans.impl.jam_old.internal.BaseJClassLoader;
 import org.apache.xmlbeans.impl.jam_old.internal.JamPrinter;
-import org.apache.xmlbeans.impl.jam_old.internal.parser.generated.JavaLexer;
-import org.apache.xmlbeans.impl.jam_old.internal.parser.generated.JavaParser;
+//import org.apache.xmlbeans.impl.jam_old.internal.parser.generated.JavaLexer;
+//import org.apache.xmlbeans.impl.jam_old.internal.parser.generated.JavaParser;
 
 import java.io.*;
 import java.util.List;
@@ -102,13 +102,14 @@ public class ParserClassBuilder implements EClassBuilder {
   // Private methods
 
   private static EClass[] parse(Reader in, JClassLoader loader) throws Exception {
-    if (in == null) throw new IllegalArgumentException("null in");
+    throw new IllegalStateException("parser disabled");
+    /*if (in == null) throw new IllegalArgumentException("null in");
     if (loader == null) throw new IllegalArgumentException("null loader");
     JavaLexer lexer = new JavaLexer(in);
     JavaParser parser = new JavaParser(lexer);
     parser.setClassLoader(loader);
     parser.start();
-    return parser.getResults();
+    return parser.getResults();*/
   }
 
   // ========================================================================
