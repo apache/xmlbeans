@@ -106,26 +106,26 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
                 Collections.EMPTY_SET));
         SchemaLocalAttributeImpl attr = new SchemaLocalAttributeImpl();
         attr.init(new QName("", ATTR_ID), BuiltinSchemaTypeSystem.ST_ID.getRef(),
-            SchemaLocalAttribute.OPTIONAL, null, null, null, false, null, null);
+            SchemaLocalAttribute.OPTIONAL, null, null, null, false, null, null, null);
         attrModel.addAttribute(attr);
         attr = new SchemaLocalAttributeImpl();
         attr.init(new QName("", ATTR_HREF), BuiltinSchemaTypeSystem.ST_ANY_URI.getRef(),
-            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null);
+            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null, null);
         attrModel.addAttribute(attr);
         attr = new SchemaLocalAttributeImpl();
         attr.init(new QName(SOAPENC, ARRAY_TYPE), BuiltinSchemaTypeSystem.ST_STRING.getRef(),
-            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null);
+            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null, null);
         attrModel.addAttribute(attr);
         attr = new SchemaLocalAttributeImpl();
         attr.init(new QName(SOAPENC, ATTR_OFFSET), BuiltinSchemaTypeSystem.ST_STRING.getRef(),
-            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null);
+            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null, null);
         attrModel.addAttribute(attr);
         soapArray.setContentModel(contentModel, attrModel, Collections.EMPTY_MAP, Collections.EMPTY_MAP, false);
 
         // soapenc:arrayType
         arrayType = new SchemaGlobalAttributeImpl(this);
         arrayType.init(new QName(SOAPENC, ARRAY_TYPE), BuiltinSchemaTypeSystem.ST_STRING.getRef(),
-            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null);
+            SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null, null);
         _handlesToObjects.put(soapArrayHandle, soapArray);
         _handlesToObjects.put(ARRAY_TYPE.toLowerCase() + "attribute", arrayType);
     }

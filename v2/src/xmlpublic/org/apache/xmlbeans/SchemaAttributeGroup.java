@@ -61,4 +61,10 @@ public interface SchemaAttributeGroup extends SchemaComponent, SchemaAnnotated
         public final SchemaAttributeGroup get()
             { return (SchemaAttributeGroup)getComponent(); }
     }
+
+    /**
+     * Returns user-specific information.
+     * @see SchemaBookmark
+     */
+    Object getUserData();
 }

@@ -27,6 +27,7 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
     private SchemaTypeSystem _typeSystem;
     private QName _name;
     private XmlObject _parseObject;
+    private Object _userData;
     private String _parseTNS;
     private boolean _chameleon;
     private boolean _redefinition;
@@ -43,7 +44,7 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
         _name = name;
     }
 
-    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x, SchemaAnnotation a)
+    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x, SchemaAnnotation a, Object userData)
     {
         assert _name == null || name.equals( _name );
         
@@ -53,6 +54,7 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
         _redefinition = redefinition;
         _parseObject = x;
         _annotation = a;
+        _userData = userData;
     }
 
     public SchemaTypeSystem getTypeSystem()
@@ -88,4 +90,7 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
 
     public SchemaComponent.Ref getComponentRef()
         { return getRef(); }
+
+    public Object getUserData()
+    {   return _userData; }
 }

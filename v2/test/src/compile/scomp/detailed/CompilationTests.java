@@ -19,11 +19,17 @@ import junit.framework.TestCase;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.tool.CodeGenUtil;
 import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.w3.x2001.xmlSchema.TopLevelComplexType;
+import org.apache.xmlbeans.SchemaBookmark;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 
 import java.io.File;
@@ -31,6 +37,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
+import java.util.Collections;
 
 import tools.util.TestRunUtil;
 
@@ -62,12 +69,56 @@ public class CompilationTests extends TestCase
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
-        Assert.assertTrue("Build failed", SchemaCompiler.compile(params));
-        Assert.assertTrue("Cannout find " + outputjar, outputjar.exists());
+        params.setMdefNamespaces(Collections.singleton("http://java.sun.com/xml/ns/j2ee"));
+        List errors = new ArrayList();
+        params.setErrorListener(errors);
+        boolean result = SchemaCompiler.compile(params);
+        if (!result)
+        {
+            // Display the errors
+            for (int i = 0; i < errors.size(); i++)
+            {
+                XmlError error = (XmlError) errors.get(i);
+                if (error.getSeverity() == XmlError.SEVERITY_ERROR)
+                    System.out.println(error.toString());
+            }
+        }
+        Assert.assertTrue("Build failed", result);
+        Assert.assertTrue("Cannot find " + outputjar, outputjar.exists());
     }
 
 
-   
+    public void testSchemaBookmarks() throws Throwable
+    {
+        File srcSchema = xbeanCase("simple/person.xsd");
+        // Parse
+        SchemaDocument.Schema parsed = SchemaDocument.Factory.parse(srcSchema).getSchema();
+        // Navigate to the type definition
+        TopLevelComplexType[] cTypes = parsed.getComplexTypeArray();
+        boolean found = false;
+        int i;
+        for (i = 0; i < cTypes.length; i++)
+            if ("person".equals(cTypes[i].getName()))
+            {
+                found = true;
+                break;
+            }
+        Assert.assertTrue("Could not find the \"person\" complex type", found);
+        // Set the bookmark
+        SchemaBookmark sb = new SchemaBookmark("MyBookmark");
+        cTypes[i].newCursor().setBookmark(sb);
+        // Compile it into STS
+        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[]{parsed},
+            XmlBeans.getBuiltinTypeSystem(), null);
+        Assert.assertNotNull("Could not compile person.xsd", sts);
+        SchemaType personType = sts.findType(QNameHelper.forLNS("person", "http://openuri.org/mytest"));
+        Assert.assertNotNull("Could not find the \"person\" schema type", personType);
+        // Check that the bookmark made it through
+        Object val = personType.getUserData();
+        Assert.assertNotNull("Schema user data not found!", val);
+        Assert.assertEquals("MyBookmark", val);
+    }
+
 
     public void __testSimple() throws Throwable
     {
