@@ -33,12 +33,12 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
     // update the intval when setting via text, nil.
     protected void set_text(String s)
     {
-        StringEnumAbstractBase enum = schemaType().enumForString(s);
-        if (enum == null)
+        StringEnumAbstractBase se = schemaType().enumForString(s);
+        if (se == null)
             throw new XmlValueOutOfRangeException("String '" + s + "' is not a valid enumerated value for " + schemaType());
 
         super.set_text(s);
-        _val = enum;
+        _val = se;
     }
 
     public static void validateLexical(String v, SchemaType sType, ValidationContext context)
@@ -70,13 +70,13 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
         return _val;
     }
 
-    protected void set_enum(StringEnumAbstractBase enum)
+    protected void set_enum(StringEnumAbstractBase se)
     {
         Class ejc = schemaType().getEnumJavaClass();
-        if (ejc != null && !enum.getClass().equals(ejc))
+        if (ejc != null && !se.getClass().equals(ejc))
             throw new XmlValueOutOfRangeException();
 
-        super.set_text(enum.toString());
-        _val = enum;
+        super.set_text(se.toString());
+        _val = se;
     }
 }
