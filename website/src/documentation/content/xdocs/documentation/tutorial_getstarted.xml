@@ -503,7 +503,7 @@ newItem.setQuantity(itemQuantity);</source>
                     </link>, you would move the cursor to an <code>ATTR</code> token that represents
                     the attribute, as illustrated here.</p>
                 <p>
-                    <img src="../../../resources/images/tokentypes.jpg" width="644" height="212" alt="Token types"/>
+                    <img src="../images/tokentypes.jpg" width="644" height="212" alt="Token types"/>
                 </p>
                 <p>But for for the moment, the code will leave the cursor where it is. Instead,
                     you'll call another method to get the URI for the default namespace — you're
@@ -537,14 +537,14 @@ cursor.beginElement(&quot;per-unit-ounces&quot;, namespaceUri);
                 <p>The following illustrates the shifting and moving of tokens that occurs between
                     inserting a new cursor and beginning a new element.</p>
                 <p>
-                    <img src="../../../resources/images/tokentypes_newcursor.jpg" width="476"
+                    <img src="../images/tokentypes_newcursor.jpg" width="476"
                         height="153" alt="Inserting a new cursor."/>
                 </p>
                 <p>
-                    <img src="../../../resources/images/beginelement.jpg" width="419" height="166" alt="Beginning a new element."/>
+                    <img src="../images/beginelement.jpg" width="419" height="166" alt="Beginning a new element."/>
                 </p>
                 <p>
-                    <img src="../../../resources/images/after_beginelement.jpg" width="449"
+                    <img src="../images/after_beginelement.jpg" width="449"
                         height="129" alt="After the new element begins."/>
                 </p>
                 <p>Cursor operations are like this. You move the cursor from token to token as if
