@@ -500,6 +500,28 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         }
     }
 
+    public XmlObject substitute(QName name, SchemaType type)
+    {
+        if (name == null)
+            throw new IllegalArgumentException( "Invalid name (null)" );
+
+        if (type == null)
+            throw new IllegalArgumentException( "Invalid type (null)" );
+
+        if ((_flags & FLAG_STORE) == 0)
+        {
+            throw
+                new IllegalStateException(
+                    "XML Value Objects cannot be used with substitution" );
+        }
+
+        synchronized (monitor())
+        {
+            check_orphaned();
+            return (XmlObject) get_store().substitute( name, type );
+        }
+    }
+
     private int _flags;
     private Object _textsource;
 

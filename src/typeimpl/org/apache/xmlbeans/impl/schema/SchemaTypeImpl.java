@@ -856,15 +856,30 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         }
         else
         {
-            if (!_typedWildcardElements.contains(eltName) || wildcardTypeLoader == null)
+            if (wildcardTypeLoader == null)
                 return BuiltinSchemaTypeSystem.ST_NO_TYPE;
 
-            SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
-            if (elt == null)
-                return BuiltinSchemaTypeSystem.ST_NO_TYPE;
-            // According to http://www.w3.org/TR/xmlschema-1/#key-lva,
-            // the line above should return ST_ANY_TYPE.
-            type = elt.getType();
+            if (_typedWildcardElements.contains(eltName))
+            {
+                SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
+                if (elt == null)
+                    return BuiltinSchemaTypeSystem.ST_NO_TYPE;
+                // According to http://www.w3.org/TR/xmlschema-1/#key-lva,
+                // the line above should return ST_ANY_TYPE.
+                type = elt.getType();
+            }
+            else
+            {
+                // Substitution groups
+                SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
+                SchemaGlobalElement head = elt.substitutionGroup();
+                if (head == null)
+                    return BuiltinSchemaTypeSystem.ST_NO_TYPE;
+                prop = (SchemaProperty)_propertyModelByElementName.get(head.getName());
+                if (prop == null)
+                    return BuiltinSchemaTypeSystem.ST_NO_TYPE;
+                type = elt.getType();
+            }
         }
 
         if (xsiType != null && wildcardTypeLoader != null)

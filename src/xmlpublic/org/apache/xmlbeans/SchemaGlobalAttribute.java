@@ -23,11 +23,6 @@ package org.apache.xmlbeans;
 public interface SchemaGlobalAttribute extends SchemaLocalAttribute, SchemaComponent
 {
     /**
-     * The name of the source .xsd file within which this attribute was defined
-     */ 
-    String getSourceName();
-
-    /**
      * Used to allow on-demand loading of elements.
      * 
      * @exclude

@@ -25,11 +25,6 @@ import javax.xml.namespace.QName;
 public interface SchemaGlobalElement extends SchemaLocalElement, SchemaComponent
 {
     /**
-     * The name of the source .xsd file within which this attribute was defined
-     */ 
-    String getSourceName();
-
-    /**
      * Set of QNames for elements that are the members of the
      * substitution group for which this element is the head,
      * not including this element.

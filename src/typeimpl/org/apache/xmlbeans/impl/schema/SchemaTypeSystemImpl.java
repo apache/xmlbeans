@@ -81,7 +81,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 {
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;  // must match == to be compatible
-    public static final int MINOR_VERSION = 20; // must be <= to be compatible
+    public static final int MINOR_VERSION = 21; // must be <= to be compatible
     public static final int RELEASE_NUMBER = 0; // should be compatible even if < or >
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
@@ -2269,6 +2269,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             try
             {
                 impl.init(name, readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, GroupDocument.Factory.parse( readString() ).getGroup(), readAnnotation(container), null);
+                if (atLeast(2, 21, 0))
+                    impl.setFilename(readString());
                 return impl;
             }
             catch (SchemaTypeLoaderException e)
@@ -2315,6 +2317,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 }
                 impl.setNSMap(nsMappings);
 
+                if (atLeast(2, 21, 0))
+                    impl.setFilename(readString());
+
                 return impl;
             }
             catch (SchemaTypeLoaderException e)
@@ -2341,6 +2346,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             try
             {
                 impl.init( name, readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, AttributeGroupDocument.Factory.parse( readString() ).getAttributeGroup(), readAnnotation(container), null);
+                if (atLeast(2, 21, 0))
+                    impl.setFilename(readString());
                 return impl;
             }
             catch (SchemaTypeLoaderException e)
@@ -2852,7 +2859,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 writeString(prefix);
                 writeString(uri);
             }
-
+            writeString(idc.getSourceName());
         }
 
         SchemaParticle[] readParticleArray()
@@ -3093,6 +3100,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeShort(impl.isRedefinition() ? 1 : 0); // new for version 2.15
             writeString(impl.getParseObject().xmlText(new XmlOptions().setSaveOuter()));
             writeAnnotation(impl.getAnnotation());
+            writeString(impl.getSourceName());
         }
 
         void writeAttributeGroupData(SchemaAttributeGroup grp)
@@ -3104,6 +3112,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             writeShort(impl.isRedefinition() ? 1 : 0); // new for version 2.15
             writeString(impl.getParseObject().xmlText(new XmlOptions().setSaveOuter()));
             writeAnnotation(impl.getAnnotation());
+            writeString(impl.getSourceName());
         }
 
         XmlValueRef readXmlValueObject()

@@ -32,6 +32,7 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
     private boolean _chameleon;
     private boolean _redefinition;
     private SchemaAnnotation _annotation;
+    private String _filename;
 
     public SchemaAttributeGroupImpl(SchemaContainer container)
     {
@@ -69,6 +70,12 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
 
     public int getComponentType()
         { return SchemaComponent.ATTRIBUTE_GROUP; }
+
+    public void setFilename(String filename)
+        { _filename = filename; }
+
+    public String getSourceName()
+        { return _filename; }
 
     public QName getName()
         { return _name; }

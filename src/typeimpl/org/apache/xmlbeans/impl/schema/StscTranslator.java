@@ -964,6 +964,7 @@ public class StscTranslator
         }
 
         state.addIdConstraint(ic);
+        ic.setFilename(findFilename(parseIC));
 
         return state.findIdConstraint(ic.getName(), targetNamespace, null);
 
@@ -981,6 +982,7 @@ public class StscTranslator
         SchemaModelGroupImpl result = new SchemaModelGroupImpl(c);
         SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(c, namedGroup);
         result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, namedGroup, ann, getUserData(namedGroup));
+        result.setFilename(findFilename(namedGroup));
         return result;
     }
 
@@ -996,6 +998,7 @@ public class StscTranslator
         SchemaAttributeGroupImpl result = new SchemaAttributeGroupImpl(c);
         SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(c, attrGroup);
         result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, attrGroup, ann, getUserData(attrGroup));
+        result.setFilename(findFilename(attrGroup));
         return result;
     }
 

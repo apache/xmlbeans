@@ -70,6 +70,11 @@ public interface SchemaComponent
     QName getName();
 
     /**
+     * The name of the source .xsd in which this component was defined (if known)
+     */
+    String getSourceName();
+
+    /**
      * A lazy reference to a component. Used by SchemaTypeLoaders to
      * avoid loading components until they are actually needed.
      * 

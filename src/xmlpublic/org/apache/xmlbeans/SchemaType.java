@@ -417,12 +417,6 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated
      */
     public SchemaTypeSystem getTypeSystem();
 
-    /**
-     * Returns the filename for the XSD file from which this type
-     * was loaded. Intended for use when debugging.
-     */
-    public String getSourceName();
-
     /** True if this type cannot be used directly in instances */
     public boolean isAbstract();
 
