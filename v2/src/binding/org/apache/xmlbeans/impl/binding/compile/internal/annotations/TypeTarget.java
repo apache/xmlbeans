@@ -47,9 +47,9 @@ public class TypeTarget extends NamedTarget {
   // ========================================================================
   // Accessors
 
-  public ElementTarget[] getTopLevelElements() {
+  public TopLevelElementTarget[] getTopLevelElements() {
     if (mTargetElements == null) return null;
-    ElementTarget[] out = new ElementTarget[mTargetElements.size()];
+    TopLevelElementTarget[] out = new TopLevelElementTarget[mTargetElements.size()];
     mTargetElements.toArray(out);
     return out;
   }
@@ -61,7 +61,7 @@ public class TypeTarget extends NamedTarget {
 
   public void addNewTopLevelElement(QName qn) {
     if (mTargetElements == null) mTargetElements = new ArrayList();
-    mTargetElements.add(new ElementTarget(qn));
+    mTargetElements.add(new TopLevelElementTarget(qn));
   }
 
   public void setIgnoreJavaInheritance(boolean b) { mIgnoreInheritance = b; }

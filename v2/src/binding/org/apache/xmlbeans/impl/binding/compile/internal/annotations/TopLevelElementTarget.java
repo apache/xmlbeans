@@ -19,33 +19,13 @@ import javax.xml.namespace.QName;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ElementTarget extends NamedTarget {
-
-  // ========================================================================
-  // Variables
-
-  private boolean mRequired;
-  private boolean mAttribute;
-  private boolean mNillable;
-  private boolean mExclude;
+public class TopLevelElementTarget extends NamedTarget {
 
   // ========================================================================
   // Constructors
 
-  public ElementTarget(QName qn) { super(qn); }
+  public TopLevelElementTarget(QName qn) { super(qn); }
 
-  public ElementTarget(String ns, String local) { super(ns,local); }
-
-  // ========================================================================
-  // Public methods
-
-  public boolean isRequired() { return mRequired; }
-
-  public boolean isAttribute() { return mAttribute; }
-
-  public boolean isNillable() { return mNillable; }
-
-  public boolean isExclude() { return mExclude; }
-
+  public TopLevelElementTarget(String ns, String local) { super(ns,local); }
 
 }

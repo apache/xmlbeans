@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 import org.apache.xmlbeans.impl.binding.compile.internal.annotations.ClassBindingInfo;
 import org.apache.xmlbeans.impl.binding.compile.internal.annotations.TypeTarget;
-import org.apache.xmlbeans.impl.binding.compile.internal.annotations.ElementTarget;
+import org.apache.xmlbeans.impl.binding.compile.internal.annotations.TopLevelElementTarget;
 import org.apache.xmlbeans.impl.binding.compile.Java2Schema;
 
 import javax.xml.namespace.QName;
@@ -73,7 +73,7 @@ public class Java2SchemaAnnotationHelper {
       if (info != null) {
         TypeTarget tt = info.getDefaultTargetType();
         if (tt != null) {
-          ElementTarget[] e = tt.getTopLevelElements();
+          TopLevelElementTarget[] e = tt.getTopLevelElements();
           if (e != null && e.length > 0) {
             if (list == null) list = new ArrayList();
             for(int i=0; i<e.length; i++) {
