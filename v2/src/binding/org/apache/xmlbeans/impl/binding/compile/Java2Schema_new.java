@@ -326,7 +326,7 @@ public class Java2Schema_new extends BindingCompiler {
                                String annName,
                                String dflt) {
     //System.out.print("checking for "+annName+" on "+elem.getQualifiedName());
-    JAnnotation ann = elem.getAnnotation(annName);
+    JAnnotation ann = getAnnotation(elem,annName);
     if (ann == null) {
       //System.out.println("...no annotation");
       return dflt;
@@ -349,7 +349,7 @@ public class Java2Schema_new extends BindingCompiler {
                                 String annName,
                                 boolean dflt) {
     //System.out.print("checking for "+annName+" on "+elem.getQualifiedName());
-    JAnnotation ann = elem.getAnnotation(annName);
+    JAnnotation ann = getAnnotation(elem,annName);
     if (ann == null) {
       //System.out.println("...no annotation");
       return dflt;
@@ -364,6 +364,16 @@ public class Java2Schema_new extends BindingCompiler {
     }
     //System.out.println("\n\n\n...value of "+annName+" is "+val.asBoolean()+"!!!!!!!!!");
     return val.asBoolean();
+  }
+
+  //FIXME this is temporary until we get the tags/175 sorted out
+  private JAnnotation getAnnotation(JAnnotatedElement e,
+                                    String named) {
+    JAnnotation[] tags = e.getAllJavadocTags();
+    for(int i=0; i<tags.length; i++) {
+      if (tags[i].getSimpleName().equals(named)) return tags[i];
+    }
+    return null;
   }
 
   /**

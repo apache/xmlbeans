@@ -47,7 +47,7 @@
 
   
 
-  <target name='compile' depends='exclude15,parser'>
+  <target name='compile' depends='exclude15,jsr173,parser'>
     <mkdir dir='${classes_dir}'/>
     <javac srcdir='${src_dir}' destdir='${classes_dir}'
            debug='on' excludes='${exclude15}'>
@@ -62,6 +62,12 @@
     </javac>
 
 
+  </target>
+
+
+  <target name='jsr173'>
+    <ant dir='..' target='jsr173.jar' inheritAll='false' />
+    <ant dir='..' target='jsr173_ri.jar' inheritAll='false' />
   </target>
 
   <target name='test'>

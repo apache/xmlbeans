@@ -21,6 +21,7 @@ import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.internal.JamClassLoaderImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceImpl;
+import org.apache.xmlbeans.impl.jam.internal.CachedClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
@@ -232,5 +233,22 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
                    null);//FIXME get javadoc args from param props
   }
    */
+
+  // ========================================================================
+  // For internal use only - used by JamXmlUtils
+
+  public JamService createService(CachedClassBuilder builder)
+  {
+    JamServiceParams jsps = createServiceParams();
+    JamClassLoader cl = new JamClassLoaderImpl((ElementContext)jsps,//eww
+                                               builder,null);
+    //this is a nasty way to shoehorn it in there, should do better
+    ((JamServiceContextImpl)jsps).setClassLoader(cl);
+    builder.init((ElementContext)jsps);
+
+    return new JamServiceImpl((ElementContext)jsps,
+                              builder.getClassNames());
+  }
+
 
 }

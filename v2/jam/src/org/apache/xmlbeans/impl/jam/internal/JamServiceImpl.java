@@ -87,6 +87,9 @@ public class JamServiceImpl implements JamService {
     throw new IllegalStateException("NYI");
   }
 
+  public void setClassNames(String[] names) {
+    mClassNames = names;
+  }
 
 
 }

@@ -57,7 +57,7 @@ package org.apache.xmlbeans.test.jam;
 
 import junit.framework.TestCase;
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.xml.JamXmlWriter;
+import org.apache.xmlbeans.impl.jam.xml.JamXmlUtils;
 import org.w3c.dom.Document;
 
 import javax.xml.stream.XMLStreamException;
@@ -72,6 +72,7 @@ import java.io.FileReader;
 import java.io.StringReader;
 import java.io.InputStream;
 import java.io.Writer;
+import java.io.FileInputStream;
 import java.util.*;
 
 import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
@@ -92,7 +93,7 @@ public abstract class JamTestBase extends TestCase {
   // Constants
 
   private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
-  private static final boolean WRITE_RESULT_ON_FAIL = true;
+  private static final boolean WRITE_RESULT_ON_FAIL = false;
 
   private static final String WRITE_RESULT_PREFIX = "result-";
 
@@ -174,6 +175,7 @@ public abstract class JamTestBase extends TestCase {
   private JamService mResult = null;
   private JamClassLoader mLoader = null;
 
+
   // ========================================================================
   // Constructors
 
@@ -248,6 +250,30 @@ public abstract class JamTestBase extends TestCase {
                classNames.containsAll(expected));
     assertTrue("result contains more than expected classes",
                expected.containsAll(classNames));
+  }
+
+  public void testXmlWriter() throws XMLStreamException, IOException
+  {
+    final String MASTER = "testXmlWriter.xml";
+    JClass[] classes = mResult.getAllClasses();
+    StringWriter xml = new StringWriter();
+    JamXmlUtils.getInstance().toXml(classes,xml);
+    //
+    compare(xml.toString(), MASTER);
+  }
+
+  public void testXmlRoundtrip() throws XMLStreamException, IOException
+  {
+    final String MASTER = "testXmlRoundtrip.xml";
+    final String SOURCE = "testXmlWriter.xml";
+    JamXmlUtils jxu = JamXmlUtils.getInstance();
+    //JClass[] classes = mResult.getAllClasses();
+    File source = new File(getMasterDir(),SOURCE);
+    JClass[] classes = jxu.createService(new FileInputStream(source)).
+      getAllClasses();
+    StringWriter xml = new StringWriter();
+    JamXmlUtils.getInstance().toXml(classes,xml);
+    compare(xml.toString(), MASTER);
   }
 
   public void testPackageNames()
@@ -406,15 +432,42 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Private methods
 
-  private void compare(JElement element, String masterName) {
+  private void compare(String result, String masterFileName) {
+    try {
+      File masterFile = new File(getMasterDir().getAbsolutePath(),masterFileName);
+      StringWriter diff = new StringWriter();
+      if (masterFile.exists()) {
+        FileReader inA = new FileReader(masterFile);
+        StringReader inB = new StringReader(result);
+        boolean same = Differ.getInstance().diff(inA,inB,diff);
+        if (same) return;
+      } else {
+        System.out.println("WARNING: Missing master file: "+masterFile);
+      }
+      if (WRITE_RESULT_ON_FAIL) {
+        File resultFile = new File(getMasterDir(),WRITE_RESULT_PREFIX+masterFileName);
+        FileWriter rout = new FileWriter(resultFile);
+        rout.write(result);
+        rout.close();
+        System.out.println("WARNING: Comparison failed, ignoring, wrote \n"+
+                           resultFile);
+      }
+      if (CONTINUE_ON_COMPARE_FAIL) return;
+      fail("Result did not match master at "+masterFile+":\n"+
+           diff.toString());
+    } catch(IOException ioe) {
+      ioe.printStackTrace();
+      fail(ioe.getMessage());
+    }
+  }
+
+  private void compare(JClass clazz, String masterName) {
     try {
       String result = null;
       {
         StringWriter resultWriter = new StringWriter();
         PrintWriter out = new PrintWriter(resultWriter,true);
-        JamXmlWriter jxw = null;
-        jxw = new JamXmlWriter(out);
-        jxw.write(element);
+        JamXmlUtils.getInstance().toXml(new JClass[] {clazz}, out);
         out.flush();
         result = resultWriter.toString();
         /*
@@ -432,27 +485,7 @@ public abstract class JamTestBase extends TestCase {
         }
         */
       }
-      File masterFile = new File(getMasterDir().getAbsolutePath(),masterName);
-      StringWriter diff = new StringWriter();
-      if (masterFile.exists()) {
-        FileReader inA = new FileReader(masterFile);
-        StringReader inB = new StringReader(result);
-        boolean same = Differ.getInstance().diff(inA,inB,diff);
-        if (same) return;
-      } else {
-        System.out.println("WARNING: Missing master file: "+masterFile);
-      }
-      if (WRITE_RESULT_ON_FAIL) {
-        File resultFile = new File(getMasterDir(),WRITE_RESULT_PREFIX+masterName);
-        FileWriter rout = new FileWriter(resultFile);
-        rout.write(result);
-        rout.close();
-        System.out.println("WARNING: Comparison failed, ignoring, wrote \n"+
-                           resultFile);
-      }
-      if (CONTINUE_ON_COMPARE_FAIL) return;
-      fail("Result did not match master at "+masterFile+":\n"+
-           diff.toString());
+      compare(result,masterName);
     } catch(XMLStreamException xse) {
       xse.printStackTrace();
       fail(xse.getMessage());
