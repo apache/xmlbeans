@@ -54,79 +54,48 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.schema;
+package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
-import org.apache.xmlbeans.SchemaAnnotation;
-import org.apache.xmlbeans.SchemaComponent;
-import org.apache.xmlbeans.SchemaAttributeGroup;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaTypeSystem;
 
-public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
+//import org.w3.x2001.xmlSchema.AppinfoDocument;
+//import org.w3.x2001.xmlSchema.DocumentationDocument;
+
+/**
+ * Represents a Schema annotation.
+ */
+public interface SchemaAnnotation extends SchemaComponent
 {
-    private SchemaTypeSystem _typeSystem;
-    private QName _name;
-    private XmlObject _parseObject;
-    private String _parseTNS;
-    private boolean _chameleon;
-    private boolean _redefinition;
-    private SchemaAnnotation _annotation;
+    /**
+     * Retrieves all application information items from this annotation
+     */
+    public XmlObject[] getApplicationInformation();
 
-    public SchemaAttributeGroupImpl(SchemaTypeSystem typeSystem)
+    /**
+     * Retrieves all document information items from this annotation
+     */
+    public XmlObject[] getUserInformation();
+
+    /**
+     * Retrieves all attributes that are is a namespace other than
+     * http://www.w3.org/2001/XMLSchema
+     * from the annotation element and from the enclosing Schema component
+     */
+    public Attribute[] getAttributes();
+
+    /**
+     * Represents an attribute instance
+     */
+    public static interface Attribute
     {
-        _typeSystem = typeSystem;
+        /**
+         * Returns the name of the attribute
+         */
+        QName getName();
+
+        /**
+         * Returns the value of the attribute
+         */
+        String getValue();
     }
-
-    public SchemaAttributeGroupImpl(SchemaTypeSystem typeSystem, QName name)
-    {
-        this(typeSystem);
-        _name = name;
-    }
-
-    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x, SchemaAnnotation a)
-    {
-        assert _name == null || name.equals( _name );
-
-        _name = name;
-        _parseTNS = targetNamespace;
-        _chameleon = chameleon;
-        _redefinition = redefinition;
-        _parseObject = x;
-        _annotation = a;
-    }
-
-    public SchemaTypeSystem getTypeSystem()
-    {
-        return _typeSystem;
-    }
-
-    public int getComponentType()
-        { return SchemaComponent.ATTRIBUTE_GROUP; }
-
-    public QName getName()
-        { return _name; }
-
-    public XmlObject getParseObject()
-        { return _parseObject; }
-
-    public String getTargetNamespace()
-        { return _parseTNS; }
-
-    public String getChameleonNamespace()
-        { return _chameleon ? _parseTNS : null; }
-
-    public SchemaAnnotation getAnnotation()
-        { return _annotation; }
-
-    private SchemaAttributeGroup.Ref _selfref = new SchemaAttributeGroup.Ref(this);
-    
-    public SchemaAttributeGroup.Ref getRef()
-        { return _selfref; }
-
-    public SchemaComponent.Ref getComponentRef()
-        { return getRef(); }
-
-    public boolean isRedefinition()
-        { return _redefinition; }
 }

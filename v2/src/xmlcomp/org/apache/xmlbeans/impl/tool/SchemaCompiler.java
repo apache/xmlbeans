@@ -97,6 +97,7 @@ public class SchemaCompiler
             System.out.println("    -dl - permit network downloads for imports and includes (default is off)");
             System.out.println("    -noupa - do not enforce the unique particle attribution rule");
             System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
+            System.out.println("    -noann - ignore annotations");
             System.out.println("    -compiler - path to external java compiler");
             System.out.println("    -jar - path to jar utility");
             System.out.println("    -ms - initial memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_START + "')");
@@ -155,6 +156,7 @@ public class SchemaCompiler
         boolean download = (cl.getOpt("dl") != null);
         boolean noUpa = (cl.getOpt("noupa") != null);
         boolean noPvr = (cl.getOpt("nopvr") != null);
+        boolean noAnn = (cl.getOpt("noann") != null);
         boolean nojavac = (cl.getOpt("srconly") != null);
         boolean debug = (cl.getOpt("debug") != null);
         boolean jaxb = (cl.getOpt("jaxb") != null);
@@ -295,6 +297,7 @@ public class SchemaCompiler
         params.setDownload(download);
         params.setNoUpa(noUpa);
         params.setNoPvr(noPvr);
+        params.setNoAnn(noAnn);
         params.setDebug(debug);
         params.setErrorListener(err);
         params.setRepackage(repackage);
@@ -336,6 +339,7 @@ public class SchemaCompiler
         private Collection errorListener;
         private boolean noUpa;
         private boolean noPvr;
+        private boolean noAnn;
         private boolean debug;
         private String repackage;
         private List extensions = Collections.EMPTY_LIST;
@@ -502,6 +506,16 @@ public class SchemaCompiler
             this.noPvr = noPvr;
         }
 
+        public boolean isNoAnn()
+        {
+            return noAnn;
+        }
+
+        public void setNoAnn(boolean noAnn)
+        {
+            this.noAnn = noAnn;
+        }
+
         public boolean isDebug()
         {
             return debug;
@@ -606,8 +620,9 @@ public class SchemaCompiler
     private static SchemaTypeSystem loadTypeSystem(
         String name, File[] xsdFiles,
         File[] wsdlFiles, File[] configFiles, ResourceLoader cpResourceLoader,
-        boolean download, boolean noUpa, boolean noPvr, Set mdefNamespaces,
-        File baseDir, Map sourcesToCopyMap, Collection outerErrorListener)
+        boolean download, boolean noUpa, boolean noPvr, boolean noAnn,
+        Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
+        Collection outerErrorListener)
     {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
@@ -753,6 +768,8 @@ public class SchemaCompiler
             opts.setCompileNoUpaRule();
         if (noPvr)
             opts.setCompileNoPvrRule();
+        if (noAnn)
+            opts.setCompileNoAnnotations();
         if (mdefNamespaces != null)
             opts.setCompileMdefNamespaces(mdefNamespaces);
         opts.setCompileNoValidation(); // already validated here
@@ -794,6 +811,7 @@ public class SchemaCompiler
         boolean download = params.isDownload();
         boolean noUpa = params.isNoUpa();
         boolean noPvr = params.isNoPvr();
+        boolean noAnn = params.isNoAnn();
         Collection outerErrorListener = params.getErrorListener();
         String repackage = params.getRepackage();
         List extensions = params.getExtensions();
@@ -820,7 +838,7 @@ public class SchemaCompiler
 
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
-        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, configFiles, cpResourceLoader, download, noUpa, noPvr, mdefNamespaces, baseDir, sourcesToCopyMap, errorListener);
+        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, configFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, mdefNamespaces, baseDir, sourcesToCopyMap, errorListener);
         if (errorListener.hasError())
             result = false;
         long finish = System.currentTimeMillis();

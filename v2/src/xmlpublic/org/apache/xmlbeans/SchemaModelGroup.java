@@ -69,7 +69,7 @@ import javax.xml.namespace.QName;
  * doesn't represent anything. Its contents are merged into
  * the logical model at parse time.
  */
-public interface SchemaModelGroup extends SchemaComponent
+public interface SchemaModelGroup extends SchemaComponent, SchemaAnnotated
 {
     /**
      * Returns SchemaComponent.GROUP.

@@ -214,6 +214,10 @@ public interface SchemaTypeSystem extends SchemaTypeLoader
     public SchemaAttributeGroup[] attributeGroups();
 
     /**
+     * Returns the top-level annotations */
+    public SchemaAnnotation[] annotations();
+
+    /**
      * Initializes a type system (resolves all handles within the type system).
      */
     public void resolve();

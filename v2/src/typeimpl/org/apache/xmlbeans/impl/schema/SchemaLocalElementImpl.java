@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.schema;
 
+import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaLocalElement;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
@@ -69,6 +70,7 @@ public class SchemaLocalElementImpl extends SchemaParticleImpl
     private boolean _blockRest;
     private boolean _blockSubst;
     protected boolean _abs;
+    private SchemaAnnotation _annotation;
     private SOAPArrayType _wsdlArrayType;
     private SchemaIdentityConstraint.Ref[] _constraints = new SchemaIdentityConstraint.Ref[0];
 
@@ -111,9 +113,19 @@ public class SchemaLocalElementImpl extends SchemaParticleImpl
         _blockSubst = substitution;
     }
 
+    public void setAnnotation(SchemaAnnotation ann)
+    {
+        _annotation = ann;
+    }
+
     public void setWsdlArrayType(SOAPArrayType arrayType)
     {
         _wsdlArrayType = arrayType;
+    }
+
+    public SchemaAnnotation getAnnotation()
+    {
+        return _annotation;
     }
 
     public SOAPArrayType getWSDLArrayType()

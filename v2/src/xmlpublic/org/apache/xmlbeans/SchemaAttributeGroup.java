@@ -71,7 +71,7 @@ import javax.xml.namespace.QName;
  * 
  * @see SchemaTypeLoader#findAttributeGroup
  */
-public interface SchemaAttributeGroup extends SchemaComponent
+public interface SchemaAttributeGroup extends SchemaComponent, SchemaAnnotated
 {
     /**
      * Returns SchemaComponent.ATTRIBUTE_GROUP.

@@ -57,6 +57,7 @@
 package org.apache.xmlbeans.impl.schema;
 
 import javax.xml.namespace.QName;
+import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.XmlObject;
@@ -74,7 +75,7 @@ public class SchemaLocalAttributeImpl implements SchemaLocalAttribute, SchemaWSD
     {
     }
 
-    public void init(QName name, SchemaType.Ref typeref, int use, String deftext, XmlObject parseObject, XmlValueRef defvalue, boolean isFixed, SOAPArrayType wsdlArray)
+    public void init(QName name, SchemaType.Ref typeref, int use, String deftext, XmlObject parseObject, XmlValueRef defvalue, boolean isFixed, SOAPArrayType wsdlArray, SchemaAnnotation ann)
     {
         if (_xmlName != null || _typeref != null)
             throw new IllegalStateException("Already initialized");
@@ -87,6 +88,7 @@ public class SchemaLocalAttributeImpl implements SchemaLocalAttribute, SchemaWSD
         _isFixed = isFixed;
         _xmlName = name;
         _wsdlArrayType = wsdlArray;
+        _annotation = ann;
     }
 
     private String _defaultText;
@@ -97,6 +99,7 @@ public class SchemaLocalAttributeImpl implements SchemaLocalAttribute, SchemaWSD
     private SchemaType.Ref _typeref;
     private SOAPArrayType _wsdlArrayType;
     private int _use;
+    private SchemaAnnotation _annotation;
     protected XmlObject _parseObject; // for QName resolution
 
     public boolean isTypeResolved()
@@ -128,6 +131,9 @@ public class SchemaLocalAttributeImpl implements SchemaLocalAttribute, SchemaWSD
 
     public boolean isAttribute()
         { return true; }
+
+    public SchemaAnnotation getAnnotation()
+        { return _annotation; }
 
     public SchemaType getType()
         { return _typeref.get(); }

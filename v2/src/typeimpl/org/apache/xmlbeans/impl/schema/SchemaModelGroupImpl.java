@@ -56,8 +56,9 @@
 
 package org.apache.xmlbeans.impl.schema;
 
-import org.apache.xmlbeans.SchemaModelGroup;
+import org.apache.xmlbeans.SchemaAnnotation;
 import org.apache.xmlbeans.SchemaComponent;
+import org.apache.xmlbeans.SchemaModelGroup;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import javax.xml.namespace.QName;
@@ -70,6 +71,7 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
     private String _parseTNS;
     private boolean _chameleon;
     private boolean _redefinition;
+    private SchemaAnnotation _annotation;
 
     public SchemaModelGroupImpl(SchemaTypeSystem typeSystem)
     {
@@ -82,7 +84,7 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
         _name = name;
     }
 
-    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x)
+    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x, SchemaAnnotation a)
     {
         assert _name == null || name.equals( _name );
         
@@ -91,6 +93,7 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
         _chameleon = chameleon;
         _redefinition = redefinition;
         _parseObject = x;
+        _annotation = a;
     }
 
     public SchemaTypeSystem getTypeSystem()
@@ -115,6 +118,9 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
     
     public boolean isRedefinition()
         { return _redefinition; }
+
+    public SchemaAnnotation getAnnotation()
+        { return _annotation; }
 
     private SchemaModelGroup.Ref _selfref = new SchemaModelGroup.Ref(this);
     

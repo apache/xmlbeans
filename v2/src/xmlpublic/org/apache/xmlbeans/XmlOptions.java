@@ -523,7 +523,17 @@ public class XmlOptions implements java.io.Serializable
     public XmlOptions setCompileNoPvrRule () { 
         return set( COMPILE_NO_PVR_RULE ); 
     }
-    
+
+    /**
+     * if this option is set, the schema compiler will skip annotations when
+     * processing Schema components.
+     * 
+     * @see XmlBeans#compileXsd
+     */
+    public XmlOptions setCompileNoAnnotations() {
+        return set( COMPILE_NO_ANNOTATIONS );
+    }
+
     /**
      * If this option is set, then the schema compiler will try to download
      * schemas that appear in imports and includes from network based URLs.
@@ -652,6 +662,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String COMPILE_NO_UPA_RULE             =  "COMPILE_NO_UPA_RULE";
     /** @exclude */
     public static final String COMPILE_NO_PVR_RULE             =  "COMPILE_NO_PVR_RULE";
+    /** @exclude */
+    public static final String COMPILE_NO_ANNOTATIONS          =  "COMPILE_NO_ANNOTATIONS";
     /** @exclude */
     public static final String COMPILE_DOWNLOAD_URLS           =  "COMPILE_DOWNLOAD_URLS";
     /** @exclude */
