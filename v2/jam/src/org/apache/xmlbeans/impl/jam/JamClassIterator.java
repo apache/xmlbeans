@@ -91,6 +91,8 @@ public class JamClassIterator implements Iterator {
   // Unsupported methods
 
   /**
+   * Not supported.
+   *
    * @throws UnsupportedOperationException
    */
   public void remove() {
