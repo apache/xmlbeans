@@ -12,47 +12,47 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.test.jam;
+package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.JService;
-import org.apache.xmlbeans.impl.jam.JServiceFactory;
-import org.apache.xmlbeans.impl.jam.JServiceParams;
-import org.apache.xmlbeans.impl.jam.provider.NewJServiceFactory;
+import org.apache.xmlbeans.impl.jam.editable.EComment;
+import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
+import org.apache.xmlbeans.impl.jam.JSourcePosition;
 
+import java.io.StringWriter;
+import java.io.BufferedReader;
+import java.io.StringReader;
 import java.io.IOException;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class ParserJamTest extends JamTestBase {
+public class ECommentImpl implements EComment {
+
+  // ========================================================================
+  // Variables
+
+  private String mText = null;
+  private ESourcePosition mSourcePosition = null;
 
   // ========================================================================
   // Constructors
 
-  public ParserJamTest(String name) {
-    super(name);
-  }
+  public ECommentImpl() {}
 
   // ========================================================================
-  // JamTestBase implementation
+  // EComment implementation
 
-  protected JService getResultToTest() throws IOException {
-    JServiceFactory jsf = new NewJServiceFactory();
-    JServiceParams params = jsf.createServiceParams();
-    params.includeSourceFiles(getDummyclassesSourceRoot(),"**/*.java");
-    return jsf.createService(params);
+  public void setText(String text) {
+    mText = text;
   }
 
-  protected boolean isAnnotationsAvailable() {
-    return false;//FIXME!!
+  public String getText() {
+    return (mText == null) ? "" : mText;
   }
 
-  protected boolean isParameterNamesKnown() {
-    return true;
+  public JSourcePosition getSourcePosition() {
+    return mSourcePosition;
   }
 
-  protected boolean isCommentsAvailable() {
-    return true;
-  }
 }

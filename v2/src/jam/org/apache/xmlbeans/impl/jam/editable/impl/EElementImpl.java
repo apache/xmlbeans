@@ -15,13 +15,11 @@
 
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.editable.EElement;
-import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
-import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
+import org.apache.xmlbeans.impl.jam.editable.*;
 import org.apache.xmlbeans.impl.jam.*;
 
 import java.util.List;
+import java.util.ArrayList;
 
 /**
  *
@@ -36,6 +34,7 @@ public abstract class EElementImpl implements EElement {
   private ESourcePosition mPosition = null;
   private JClassLoader mClassLoader;
   private List mAnnotations = null;
+  private List mComments = null;
 
   // ========================================================================
   // Constructors
@@ -64,17 +63,12 @@ public abstract class EElementImpl implements EElement {
     return mPosition;
   }
 
-  //FIXME
   public JComment[] getComments() {
-    return new JComment[0];
+    return getEditableComments();
   }
 
   public JAnnotation[] getAnnotations() {
     return getEditableAnnotations();
-  }
-
-  public JAnnotation[] getAnnotations(String named) {
-    return getAnnotations(); //FIXME remove this method please
   }
 
   public JAnnotation getAnnotation(String named) {
@@ -84,12 +78,26 @@ public abstract class EElementImpl implements EElement {
   // ========================================================================
   // EElement implementation
 
-  public void setSimpleName(String name) {
-    mSimpleName = name;
+  public EComment[] getEditableComments() {
+    if (mComments == null) mComments = new ArrayList();
+    EComment[] out = new EComment[mComments.size()];
+    mComments.toArray(out);
+    return out;
   }
 
-  public EAnnotation createAnnotation() {
-    return null;
+  public EComment addNewComment() {
+    if (mComments == null) mComments = new ArrayList();
+    EComment out = new ECommentImpl();
+    mComments.add(out);
+    return out;
+  }
+
+  public void removeComment(EComment comment) {
+    if (mComments != null) mComments.remove(comment);
+  }
+
+  public void setSimpleName(String name) {
+    mSimpleName = name;
   }
 
   public ESourcePosition createSourcePosition() {
@@ -105,10 +113,14 @@ public abstract class EElementImpl implements EElement {
   }
 
   public EAnnotation addNewAnnotation() {
-    return null;
+    if (mAnnotations == null) mAnnotations = new ArrayList();
+    EAnnotation out = new EAnnotationImpl();
+    mAnnotations.add(out);
+    return out;
   }
 
   public void removeAnnotation(EAnnotation ann) {
+    if (mAnnotations != null) mAnnotations.remove(ann);
   }
 
   public EAnnotation[] getEditableAnnotations() {
@@ -162,5 +174,11 @@ public abstract class EElementImpl implements EElement {
     for(int i=0; i<elems.length; i++) elems[i].acceptAndWalk(v);
   }
 
+  // ========================================================================
+  // Deprecated method impls
+
+  public JAnnotation[] getAnnotations(String named) {
+    return getAnnotations(); //FIXME remove this method please
+  }
 
 }

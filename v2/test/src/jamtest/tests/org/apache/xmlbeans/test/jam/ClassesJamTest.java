@@ -90,4 +90,8 @@ public class ClassesJamTest extends JamTestBase {
   }
 
   protected boolean isParameterNamesKnown() { return false; }
+
+  protected boolean isCommentsAvailable() {
+    return false;
+  }
 }

@@ -12,16 +12,43 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.xmlbeans.test.jam.dummyclasses;
 
-package org.apache.xmlbeans.impl.jam.editable;
+import org.apache.xmlbeans.test.jam.dummyclasses.ejb.MyEjbException;
 
-import org.apache.xmlbeans.impl.jam.JMember;
+import java.net.MalformedURLException;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EMember extends EElement, JMember {
+public abstract class HeavilyCommented {
 
-  public void setModifiers(int modifiers);
+  /**
+   * A simple comment.
+   */
+  protected abstract void simpleComment();
+
+  /**
+   * A comment which
+   * spans
+   *
+   * several
+   *
+   *
+   * lines.
+   */
+  protected abstract void multilineComment();
+
+
+
+  /**
+   * Here is some
+   **funky
+   comment text
+                            but it should still
+   **** parse correctly
+   */
+//  protected abstract void strangeComment();
+
 }

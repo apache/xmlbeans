@@ -214,7 +214,7 @@ options {
 
   private void applyJavadocs(EMember member) {
     if (mLastJavadoc != null) {
-      member.addComment(mLastJavadoc);
+      member.addNewComment().setText(mLastJavadoc);
       if (VERBOSE) {
         System.out.println("adding javadocs to "+member.getSimpleName()+":");
         System.out.println(mLastJavadoc);

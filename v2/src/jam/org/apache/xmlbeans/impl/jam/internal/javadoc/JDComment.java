@@ -19,6 +19,11 @@ package org.apache.xmlbeans.impl.jam.internal.javadoc;
 import org.apache.xmlbeans.impl.jam.JComment;
 import org.apache.xmlbeans.impl.jam.JSourcePosition;
 
+import java.io.StringWriter;
+import java.io.BufferedReader;
+import java.io.StringReader;
+import java.io.IOException;
+
 /**
  * Javadoc-backed implementation of Comment.
  *
@@ -36,7 +41,7 @@ public class JDComment implements JComment
   // Constructors
   
   public JDComment(String text) {
-    mText = text;
+    mText = normalize(text);
   }
 
   // ========================================================================
@@ -49,4 +54,28 @@ public class JDComment implements JComment
   public JSourcePosition getSourcePosition() {
     return mPosition;
   }
+
+  // ========================================================================
+  // Private methods
+
+  //this is really just so we can all pass the same comment tests
+  private static final String normalize(String text) {
+    StringWriter out = new StringWriter();
+    BufferedReader in = new BufferedReader(new StringReader(text));
+    String line;
+    try {
+      boolean addBreak = false;
+      while((line = in.readLine()) != null) {
+        if (addBreak) out.write('\n');
+        addBreak = true;
+        out.write(line.trim());
+      }
+    } catch(IOException howOdd) {
+      howOdd.printStackTrace();
+      return text;
+    }
+    return out.toString();
+
+  }
+
 }

@@ -36,4 +36,5 @@ public abstract class FooImpl extends Base implements Foo {
 
 
 
+
 }
