@@ -211,7 +211,7 @@ public class SchemaCopy
     
     private static final XmlOptions loadOptions = new XmlOptions().
             setLoadSubstituteNamespaces(Collections.singletonMap(
-                    "http://www.apache.org/internal/xmlbeans/wsdlsubst", "http://schemas.xmlsoap.org/wsdl/"
+                    "http://schemas.xmlsoap.org/wsdl/", "http://www.apache.org/internal/xmlbeans/wsdlsubst" 
             ));
 
     private static Map findRelativeInOne(URI source, URI target)
@@ -224,6 +224,7 @@ public class SchemaCopy
             xcur.toFirstChild();
 
             Map result = new LinkedHashMap();
+
             if (xobj instanceof SchemaDocument)
                 putMappingsFromSchema(result, source, target, ((SchemaDocument)xobj).getSchema());
             else if (xobj instanceof DefinitionsDocument)

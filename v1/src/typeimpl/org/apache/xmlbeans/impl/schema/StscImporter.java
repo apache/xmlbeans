@@ -76,11 +76,19 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.MalformedURLException;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.InputStream;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
+import javax.xml.transform.Source;
 
 public class StscImporter
 {
@@ -383,28 +391,10 @@ public class StscImporter
                 return null;
             }
 
-            if (absoluteURL.startsWith(PROJECT_URL_PREFIX))
-            {
-                state.error("Could not find specified resource in the local project.", XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
-                addFailedDownload(absoluteURL);
-                return null;
-            }
-
             // try to download
             download: try
             {
-                // For parsing XSD and WSDL files, we should use the SchemaDocument
-                // classloader rather than the thread context classloader.  This is
-                // because in some situations (such as when being invoked by ant
-                // underneath the ide) the context classloader is potentially weird
-                // (because of the design of ant).
-
-                XmlOptions options = new XmlOptions();
-                options.put( XmlOptions.LOAD_LINE_NUMBERS );
-                options.put( XmlOptions.LOAD_MESSAGE_DIGEST );
-
-                URL urlDownload = new URL(absoluteURL);
-                XmlObject xdoc = state.getS4SLoader().parse(urlDownload, null, options);
+                XmlObject xdoc = downloadDocument(state.getS4SLoader(), targetNamespace, absoluteURL);
 
                 Schema result = findMatchByDigest(xdoc);
                 String shortname = state.relativize(absoluteURL);
@@ -439,7 +429,7 @@ public class StscImporter
             }
             catch (MalformedURLException malformed)
             {
-                state.error("URL is not well-formed", XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
+                state.error("URL \"" + absoluteURL + "\" is not well-formed", XmlErrorContext.CANNOT_FIND_RESOURCE, referencedBy);
             }
             catch (IOException connectionProblem)
             {
@@ -453,6 +443,69 @@ public class StscImporter
             // record failure so that we don't try to download this URL again
             addFailedDownload(absoluteURL);
             return null;
+        }
+        
+        private XmlObject downloadDocument(SchemaTypeLoader loader, String namespace, String absoluteURL)
+                throws MalformedURLException, IOException, XmlException
+        {
+            StscState state = StscState.get();
+            
+            EntityResolver resolver = state.getEntityResolver();
+            if (resolver != null)
+            {
+                InputSource source;
+                try
+                {
+                    source = resolver.resolveEntity(namespace, absoluteURL);
+                }
+                catch (SAXException e)
+                {
+                    throw new XmlException(e);
+                }
+                    
+                // first preference for InputSource contract: character stream
+                Reader reader = source.getCharacterStream();
+                if (reader != null)
+                {
+                    XmlOptions options = new XmlOptions();
+                    options.setLoadLineNumbers();
+                    options.setDocumentSourceName(absoluteURL);
+                    return loader.parse(reader, null, options);
+                }
+                
+                // second preference for InputSource contract: 
+                InputStream bytes = source.getByteStream();
+                if (bytes != null)
+                {
+                    String encoding = source.getEncoding();
+                    XmlOptions options = new XmlOptions();
+                    options.setLoadLineNumbers();
+                    options.setLoadMessageDigest();
+                    options.setDocumentSourceName(absoluteURL);
+                    if (encoding != null)
+                        options.setCharacterEncoding(encoding);
+                    return loader.parse(bytes, null, options);
+                }
+                
+                // third preference: use the (possibly redirected) url
+                String urlToLoad = source.getSystemId();
+                if (urlToLoad == null)
+                    throw new IOException("EntityResolver unable to resolve " + absoluteURL + " (for namespace " + namespace + ")");
+                XmlOptions options = new XmlOptions();
+                options.setLoadLineNumbers();
+                options.setLoadMessageDigest();
+                options.setDocumentSourceName(absoluteURL);
+                URL urlDownload = new URL(urlToLoad);
+                return loader.parse(urlDownload, null, options);
+            }
+            
+            // no resolver - just use the URL directly, no substitution
+            XmlOptions options = new XmlOptions();
+            options.setLoadLineNumbers();
+            options.setLoadMessageDigest();
+                
+            URL urlDownload = new URL(absoluteURL);
+            return loader.parse(urlDownload, null, options);
         }
 
         private void addSuccessfulDownload(NsLocPair key, Schema schema)

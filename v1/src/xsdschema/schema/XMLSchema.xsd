@@ -73,7 +73,7 @@
  <xs:annotation>
   <xs:documentation>
     Part 1 version: Id: XMLSchema.xsd,v 1.53 2003/02/24 17:40:07 ht Exp 
-    Part 2 version: Id: datatypes.xsd,v 1.58 2003/02/26 14:01:29 ht Exp 
+    Part 2 version: Id: datatypes.xsd,v 1.60 2003/04/05 11:02:30 ht Exp 
   </xs:documentation>
  </xs:annotation>
 
@@ -192,7 +192,7 @@
    <xs:documentation>
    A utility type, not for public use</xs:documentation>
    <xs:documentation>
-   #all or (possibly empty) subset of {extension, restriction}</xs:documentation>
+   #all or (possibly empty) subset of {extension, restriction, list, union}</xs:documentation>
   </xs:annotation>
   <xs:union>
    <xs:simpleType>    
@@ -1140,7 +1140,7 @@ use</xs:documentation>
                            child:: is also allowed
          </xs:documentation>
         </xs:annotation>
-        <!-- TSH commented out since this incorrectly does not allow white space -->
+        <!-- TSH modified to allow white space -->
         <xs:pattern
             value="(\.\s*//\s*)?(((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.)(\s*/\s*(((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.))*(\s*\|\s*(\.\s*//\s*)?(((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.)(\s*/\s*(((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.))*)*">
         </xs:pattern>
@@ -1175,7 +1175,7 @@ use</xs:documentation>
           Path    ::=    ('.//')? ( Step '/' )* ( Step | '@' NameTest ) 
          </xs:documentation>
         </xs:annotation>
-        <!-- TSH commented out since this incorrectly does not allow white space -->
+        <!-- TSH modified to allow white space -->
         <xs:pattern value="(\.\s*//\s*)?((((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.)\s*/\s*)*((((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.)|((attribute\s*::\s*|@\s*)((\i\c*:)?(\i\c*|\*))))(\s*\|\s*(\s*\.//\s*)?((((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.)/)*((((child\s*::\s*)?((\i\c*:)?(\i\c*|\*)))|\.)|((attribute\s*::\s*|@\s*)((\i\c*:)?(\i\c*|\*)))))*">
         </xs:pattern>
        </xs:restriction>
@@ -2034,7 +2034,7 @@ use</xs:documentation>
     </xs:annotation>
     <xs:restriction base="xs:decimal">
       <xs:fractionDigits value="0" fixed="true" id="integer.fractionDigits"/>
-      <xs:pattern value='[-+]?[0-9]+'/>
+      <xs:pattern value="[\-+]?[0-9]+"/>
     </xs:restriction>
   </xs:simpleType>
 
