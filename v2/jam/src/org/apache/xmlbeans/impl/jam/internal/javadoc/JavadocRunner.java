@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
 import com.sun.javadoc.Doclet;
 import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.LanguageVersion;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -35,9 +36,31 @@ import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 public class JavadocRunner extends Doclet {
 
   // ========================================================================
+  // Constants
+  
+  private static final String JAVADOC_RUNNER_150 =
+    "org.apache.xmlbeans.impl.jam.internal.java15.JavadocRunner_150";
+  
+  // ========================================================================
+  // Factory methods
+  
+  public static JavadocRunner newInstance() {
+    //REVIEW we should probably normalize the handling of 1.5-specific class
+    //instantation and error handling
+    try {
+      Class onefive = Class.forName(JAVADOC_RUNNER_150);
+      return (JavadocRunner)onefive.newInstance();
+    } catch(ClassNotFoundException cnfe) {
+    } catch (IllegalAccessException e) {
+    } catch (InstantiationException e) {
+    }
+    return new JavadocRunner();
+  }
+  
+  // ========================================================================
   // Constructor
 
-  /* package */ JavadocRunner() {}
+  public JavadocRunner() {}
 
   // ========================================================================
   // Public methods
@@ -130,4 +153,10 @@ public class JavadocRunner extends Doclet {
     JavadocResults.setRoot(root);
     return true;
   }
+
+  /* need to tuck this away in 1.5-safeville
+  public static LanguageVersion languageVersion() {
+    return LanguageVersion.JAVA_1_5;
+  }
+  */
 }

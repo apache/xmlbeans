@@ -54,7 +54,7 @@
 
   <target name='all' depends='compile,test' />
 
-  <target name='compile' depends='annogen'>
+  <target name='compile'>
     <mkdir dir='${dummy_dir}'/>
     <javac
        source='1.5' target='1.5'
@@ -79,10 +79,11 @@
   </target>
 
 
-  <target name='annogen'>
 <!--
-commented out, just checked in the generated code for now because
-of JDK versioning problems when running in ant
+skipping this target for now, just checked in the generated code 
+for now because JDK versioning problems when running in ant
+-->
+  <target name='annogen'>
 
     <taskdef name='annogen'
              classname='org.apache.xmlbeans.impl.jam.annogen.tools.AnnogenTask'
@@ -92,7 +93,7 @@ of JDK versioning problems when running in ant
              includes='org/apache/xmlbeans/test/jam/dummyclasses/jsr175/RFEAnnotation.java'
              classpathref='classpath'
              pre15CompatibilityMode='true'/>
--->
+
   </target>
 
 

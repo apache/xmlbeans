@@ -274,7 +274,11 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
 
   public void includeSourceFile(File file) {
     if (file == null) throw new IllegalArgumentException("null file");
-    if (isVerbose(this)) verbose(PREFIX+ "adding source "+file.getAbsoluteFile());
+    file = file.getAbsoluteFile();
+    if (isVerbose(this)) verbose(PREFIX+ "adding source ");
+    if (!file.exists()) throw new IllegalArgumentException(file+" does not exist");
+    if (file.isDirectory()) throw new IllegalArgumentException
+      (file+" cannot be included as a source file because it is a directory.");    
     if (mUnstructuredSourceFiles == null) {
       mUnstructuredSourceFiles = new ArrayList();
     }

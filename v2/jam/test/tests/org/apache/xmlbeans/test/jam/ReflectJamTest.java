@@ -119,13 +119,6 @@ public class ReflectJamTest extends JamTestBase {
   // ========================================================================
   // Reflection-specific test methods
 
-//FIXME move this to JamTestBase when javadoc's ClassDoc.isEnum() is working
-  public void testIsEnum() {
-    JClass gts = mLoader.loadClass(DUMMY+".MyEnum");
-    assertTrue(gts.getQualifiedName()+".isEnumType() must be true",
-               gts.isEnumType() == true);
-  }
-
   public void testClassLoaderWrapper() throws MalformedURLException {
     File aJarNotInTheClasspath = new File("dummy.jar");
     assertTrue(aJarNotInTheClasspath.getAbsolutePath()+" does not exist",
