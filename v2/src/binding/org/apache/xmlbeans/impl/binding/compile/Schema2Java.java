@@ -1394,6 +1394,8 @@ public class Schema2Java extends BindingCompiler {
     public GenericXmlProperty getAnyElementProperty() {
       if (bindingType instanceof  ByNameBean)
         return ((ByNameBean) bindingType).getAnyElementProperty();
+      else if (bindingType instanceof SimpleContentBean)
+        return null;
       else
         throw new IllegalStateException();
     }
