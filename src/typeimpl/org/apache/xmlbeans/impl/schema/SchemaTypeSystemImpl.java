@@ -147,15 +147,24 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
      * repackage process scomp needs to load from old package and generate into
      * a new package.
      */
-    public static String METADATA_PACKAGE_GEN = (
+    public static String METADATA_PACKAGE_GEN;
+    static
+    {
+        // fix for maven classloader
+        Package stsPackage = SchemaTypeSystem.class.getPackage();
+        String stsPackageName = (stsPackage==null) ?
+            SchemaTypeSystem.class.getName().substring(0, SchemaTypeSystem.class.getName().lastIndexOf(".")) :
+            stsPackage.getName();
+
+        METADATA_PACKAGE_GEN = (
         // next line should use String addition to avoid replacement by Repackager:  "org." + "apache." + "xmlbeans"
-        ("org." + "apache." + "xmlbeans").equals(SchemaTypeSystem.class.getPackage().getName())     ?
+        ("org." + "apache." + "xmlbeans").equals(stsPackageName) ?
         // This is the original org apache xmlbeans package, to maintain backwards compatibility resource pathes must remain the same
         "" :
         // This is the private package XMLBeans, all the metadata will end up in a specific/private resource path
-        SchemaTypeSystem.class.getPackage().getName().replaceAll("\\.", "_")
+        stsPackageName.replaceAll("\\.", "_")
         );
-
+    }
 
     private static String nameToPathString(String nameForSystem)
     {
