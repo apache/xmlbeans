@@ -105,9 +105,13 @@ public class SourcesJamTest_150 extends JamTestBase_150 {
     return false;
   }
 
-  protected boolean isParamseterNamesKnown() {
+  //kind of a quick hack for now, should remove this and make sure that
+  //even the classes case make the annotations available using a special
+  //JStore
+  protected boolean isParameterNamesKnown() {
     return true;
   }
+
 
   protected boolean isCommentsAvailable() {
     return true;
