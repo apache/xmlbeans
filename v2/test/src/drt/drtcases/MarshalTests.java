@@ -297,7 +297,7 @@ public class MarshalTests extends TestCase
         Marshaller ctx =
             bindingContext.createMarshaller(options);
 
-        ctx.marshall(w, mc);
+        ctx.marshal(w, mc);
 
         //now unmarshall from String and compare objects...
         StringReader sr = new StringReader(sw.getBuffer().toString());
@@ -339,7 +339,7 @@ public class MarshalTests extends TestCase
             bindingContext.createMarshaller(options);
 
         final String encoding = "UTF-16";
-        ctx.marshall(baos, mc, encoding);
+        ctx.marshal(baos, mc, encoding);
         baos.close();
         final byte[] buf = baos.toByteArray();
         System.out.println("Doc="+new String(buf, encoding));

@@ -88,8 +88,8 @@ public interface Marshaller
      * @return  XMLStreamReader representing the XML content
      * @throws XmlException
      */
-    XMLStreamReader marshall(Object obj,
-                             NamespaceContext nscontext)
+    XMLStreamReader marshal(Object obj,
+                            NamespaceContext nscontext)
         throws XmlException;
 
     /**
@@ -106,7 +106,7 @@ public interface Marshaller
      * @param writer
      * @throws XmlException
      */
-    void marshall(XMLStreamWriter writer, Object obj)
+    void marshal(XMLStreamWriter writer, Object obj)
         throws XmlException;
 
 
@@ -124,7 +124,7 @@ public interface Marshaller
      * @param obj
      * @throws XmlException
      */
-    void marshall(OutputStream out, Object obj)
+    void marshal(OutputStream out, Object obj)
         throws XmlException;
 
 
@@ -142,7 +142,7 @@ public interface Marshaller
      * @param encoding      encoding used when writing the document
      * @throws XmlException
      */
-    void marshall(OutputStream out, Object obj, String encoding)
+    void marshal(OutputStream out, Object obj, String encoding)
         throws XmlException;
 
 

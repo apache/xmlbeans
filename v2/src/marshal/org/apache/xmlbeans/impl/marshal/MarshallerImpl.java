@@ -106,8 +106,8 @@ final class MarshallerImpl
         namespaceContext.openScope();
     }
 
-    public XMLStreamReader marshall(Object obj,
-                                    NamespaceContext nscontext)
+    public XMLStreamReader marshal(Object obj,
+                                   NamespaceContext nscontext)
         throws XmlException
     {
 
@@ -139,10 +139,10 @@ final class MarshallerImpl
         return new MarshalResult(prop, obj, this);
     }
 
-    public void marshall(XMLStreamWriter writer, Object obj)
+    public void marshal(XMLStreamWriter writer, Object obj)
         throws XmlException
     {
-        XMLStreamReader rdr = marshall(obj, writer.getNamespaceContext());
+        XMLStreamReader rdr = marshal(obj, writer.getNamespaceContext());
         try {
             XmlReaderToWriter.writeAll(rdr, writer);
         }
@@ -151,17 +151,17 @@ final class MarshallerImpl
         }
     }
 
-    public void marshall(OutputStream out, Object obj)
+    public void marshal(OutputStream out, Object obj)
         throws XmlException
     {
         String encoding = (String)options.get(XmlOptions.CHARACTER_ENCODING);
         if (encoding != null) {
-            marshall(out, obj, encoding);
+            marshal(out, obj, encoding);
         } else {
             try {
                 final XMLOutputFactory xof = XMLOutputFactory.newInstance();
                 final XMLStreamWriter writer = xof.createXMLStreamWriter(out);
-                marshall(writer, obj);
+                marshal(writer, obj);
             }
             catch (XMLStreamException e) {
                 throw new XmlException(e);
@@ -169,7 +169,7 @@ final class MarshallerImpl
         }
     }
 
-    public void marshall(OutputStream out, Object obj, String encoding)
+    public void marshal(OutputStream out, Object obj, String encoding)
         throws XmlException
     {
         if (encoding == null) {
@@ -181,7 +181,7 @@ final class MarshallerImpl
             XMLStreamWriter writer =
                 output_factory.createXMLStreamWriter(out, encoding);
             writer.writeStartDocument(encoding, XML_VERSION);
-            marshall(writer, obj);
+            marshal(writer, obj);
             writer.writeEndDocument();
             writer.close();
         }
@@ -315,8 +315,7 @@ final class MarshallerImpl
         do {
             prefix = NSPREFIX + (++prefixCnt);
             testuri = namespaceContext.getNamespaceURI(prefix);
-        }
-        while (testuri != null);
+        } while (testuri != null);
         assert prefix != null;
         namespaceContext.bindNamespace(prefix, uri);
         return prefix;

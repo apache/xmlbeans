@@ -58,7 +58,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 
 /**
- * A TypeMarshaller knows how to marshall a java object into xml.
+ * A TypeMarshaller knows how to marshal a java object into xml.
  */
 interface TypeMarshaller
 {
