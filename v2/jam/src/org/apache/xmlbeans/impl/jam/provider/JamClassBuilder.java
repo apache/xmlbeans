@@ -32,7 +32,7 @@ public abstract class JamClassBuilder {
   // Variables
 
   private ElementContext mContext = null;
-  private static boolean mWarningAlreadyIssued = false;
+  public static boolean mWarningAlreadyIssued = false;
 
   // ========================================================================
   // Public methods
