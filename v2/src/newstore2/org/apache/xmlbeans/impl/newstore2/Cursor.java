@@ -949,7 +949,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         
         _cur.clearSelection();
         
-        _currentSelection = 0;
+        _currentSelection = -1;
     }
     
     public String _namespaceForPrefix ( String prefix )
