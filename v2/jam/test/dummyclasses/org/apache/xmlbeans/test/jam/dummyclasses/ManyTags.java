@@ -31,5 +31,5 @@ public class ManyTags {
    * @baz x=1
    */
   public int getId() { return -1; }
-
+  
 }
