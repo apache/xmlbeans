@@ -60,6 +60,7 @@ package org.apache.xmlbeans;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
 
 /**
  * BindingContextFactory is used to create BindingContext objects
@@ -67,6 +68,20 @@ import java.io.InputStream;
  */
 public abstract class BindingContextFactory
 {
+  /**
+   * Creates a BindingContext from a set of tylars located at the given URI.
+   * The order in which tylars appear in the array determines their precedence
+   * for loading types.
+   *
+   * @param tylarUris An array of URIs which identify the tylars to be used
+   * in the BindingContext.
+   * @return The BindingContext
+   * @throws IOException if a problem occurs while opening or parsing the
+   * contents of the tylars.
+   */
+   public abstract BindingContext createBindingContext(URI[] tylarUris)
+          throws IOException, XmlException;
+
     /**
      * Create a BindingContext that only knows about builtin types
      *
