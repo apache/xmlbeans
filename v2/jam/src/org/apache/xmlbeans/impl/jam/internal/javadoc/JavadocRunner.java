@@ -140,6 +140,9 @@ public class JavadocRunner extends Doclet {
       RootDoc root = JavadocResults.getRoot();
       if (result != 0 || root == null) {
         spewWriter.flush();
+        if (JavadocClassloadingException.isClassloadingProblemPresent()) {
+          throw new JavadocClassloadingException();
+        }
         throw new RuntimeException("Unknown javadoc problem: result="+result+
                                    ", root="+root+":\n"+
                                    ((spew == null) ? "" : spew.toString()));
