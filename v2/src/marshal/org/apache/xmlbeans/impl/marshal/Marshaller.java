@@ -56,30 +56,25 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
 /**
  * Entry point for marshalling java objects to xml.
  */
-public class Marshaller
+public interface Marshaller
 {
-    private final BindingLoader bindingLoader;
-    private final RuntimeBindingTypeTable typeTable;
+    //TODO: REVIEW: throws?  errors?
+    XMLStreamReader marshall(Object obj, NamespaceContext nscontext);
 
 
-    /*package*/
-    Marshaller(BindingLoader bindingLoader,
-               RuntimeBindingTypeTable typeTable)
-    {
-        this.bindingLoader = bindingLoader;
-        this.typeTable = typeTable;
-    }
-
-    public XMLStreamReader marshall(NamespaceContext nscontext)
-    {
-        throw new AssertionError("UNIMPLEMENTED");
-    }
+    XMLStreamReader marshallType(Object obj,
+                                 QName elementName,
+                                 QName schemaType,
+                                 String javaType,
+                                 MarshalContext context)
+        throws XmlException;
 }

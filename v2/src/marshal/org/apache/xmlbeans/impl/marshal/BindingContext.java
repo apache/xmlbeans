@@ -58,6 +58,10 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.namespace.NamespaceContext;
+import java.util.Collection;
+
 /**
  * Main entry point into marshalling framework.
  * Use the BindingContextFactory to create one
@@ -81,4 +85,26 @@ public class BindingContext
     {
         return new UnmarshallerImpl(bindingLoader, typeTable);
     }
+
+    //TODO: REVIEW: should error collection concept be exposed here?
+    public UnmarshalContext createUnmarshallContext(XMLStreamReader reader,
+                                                    Collection errors)
+    {
+        return new UnmarshalContext(reader, bindingLoader, typeTable, errors);
+    }
+
+
+    public Marshaller createMarshaller()
+    {
+        return new MarshallerImpl(bindingLoader, typeTable);
+    }
+
+    //TODO: REVIEW: should error collection concept be exposed here?
+    public MarshalContext createMarshallContext(NamespaceContext namespaceContext,
+                                                Collection errors)
+    {
+        return new MarshalContext(namespaceContext, bindingLoader, typeTable, errors);
+    }
+
+
 }

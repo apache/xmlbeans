@@ -1028,5 +1028,32 @@
         </javac>
     </target>
 
+    <!-- temporary build utils ... zieg =============
+    <target name='binding-test' depends='declare-tasks, jam.classes'>
+        <mkdir dir='build/private/classes/marshal'/>
+        <java2schema
+            srcdir='test/cases/marshal'
+            includes='test/cases/marshal/com/mytest/*.java'
+            destdir='build/private/classes/marshal'>
+        </java2schema>
+    </target>
+    <target name='declare-tasks'>
+        <taskdef name='java2schema'
+            classname='org.apache.xmlbeans.impl.binding.compile.Java2SchemaTask'>
+            <classpath>
+                <pathelement location="build/classes/binding"/>
+                <pathelement location="build/classes/compile"/>
+                <pathelement location="build/classes/jam"/>
+                <pathelement location="build/classes/common"/>
+                <pathelement location="build/classes/configschema"/>
+                <pathelement location="build/classes/typeimpl"/>
+                <pathelement location="build/classes/xmlinputstream"/>
+                <pathelement location="build/classes/xmlpublic"/>
+                <pathelement location="build/lib/jsr173_07_api.jar"/>
+                <pathelement location="build/lib/xmlpublic.jar"/>
+            </classpath>
+        </taskdef>
+    </target>
+   -->
 
 </project>

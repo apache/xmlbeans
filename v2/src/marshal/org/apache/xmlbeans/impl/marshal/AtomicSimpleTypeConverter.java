@@ -92,5 +92,11 @@ class AtomicSimpleTypeConverter
     {
     }
 
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContext context)
+    {
+        return lexerPrinter.print(value, context.getErrorCollection());
+    }
+
 
 }

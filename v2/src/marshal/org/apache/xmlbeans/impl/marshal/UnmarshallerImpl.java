@@ -60,6 +60,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -80,7 +82,7 @@ class UnmarshallerImpl
 
     /*package*/
     UnmarshallerImpl(BindingLoader bindingLoader,
-                 RuntimeBindingTypeTable typeTable)
+                     RuntimeBindingTypeTable typeTable)
     {
         this.bindingLoader = bindingLoader;
         this.typeTable = typeTable;
@@ -90,12 +92,20 @@ class UnmarshallerImpl
         throws XmlException
     {
         UnmarshalContext context = createUnmarshallContext(reader,
-                                                            new ArrayList());
+                                                           new ArrayList());
 
         advanceToFirstItemOfInterest(reader);
 
         final BindingType bindingType = determineRootType(context);
 
+        return unmarshalBindingType(bindingType, context);
+
+    }
+
+    private Object unmarshalBindingType(final BindingType bindingType,
+                                        UnmarshalContext context)
+        throws XmlException
+    {
         TypeUnmarshaller um =
             typeTable.getTypeUnmarshaller(bindingType);
 
@@ -115,6 +125,30 @@ class UnmarshallerImpl
         }
 
         return type_instance;
+    }
+
+    public Object unmarshallType(QName schemaType,
+                                 String javaType,
+                                 UnmarshalContext context)
+        throws XmlException
+    {
+        assert context.getXmlStream().isStartElement();
+
+        BindingType btype = determineBindingType(schemaType, javaType);
+        if (btype == null) {
+            final String msg = "unable to find binding type for " +
+                schemaType + " : " + javaType;
+            throw new XmlException(msg);
+        }
+        return unmarshalBindingType(btype, context);
+    }
+
+    private BindingType determineBindingType(QName schemaType, String javaType)
+    {
+        XmlName xname = XmlName.forTypeNamed(schemaType);
+        JavaName jname = JavaName.forString(javaType);
+        BindingTypeName btname = BindingTypeName.forPair(jname, xname);
+        return bindingLoader.getBindingType(btname);
     }
 
     private static String errorsToMsg(final Collection errors)
@@ -201,7 +235,7 @@ class UnmarshallerImpl
     }
 
     private UnmarshalContext createUnmarshallContext(XMLStreamReader reader,
-                                                      Collection errors)
+                                                     Collection errors)
     {
         return new UnmarshalContext(reader, bindingLoader, typeTable, errors);
     }

@@ -122,6 +122,11 @@ final class ByNameRuntimeBindingType
         return retval;
     }
 
+    public BindingType getType()
+    {
+        return byNameBean;
+    }
+
     //TODO: optimize this linear scan
     RuntimeBindingProperty getMatchingElementProperty(String uri,
                                                       String localname)
@@ -160,6 +165,7 @@ final class ByNameRuntimeBindingType
     private static final class Property implements RuntimeBindingProperty
     {
         private final QNameProperty bindingProperty;
+        private final BindingType bindingType;
         private final TypeUnmarshaller unmarshaller;
         private final Class propertyClass;
         private final Method setMethod;
@@ -172,7 +178,7 @@ final class ByNameRuntimeBindingType
         {
             this.bindingProperty = prop;
             this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
-            final BindingType bindingType = loader.getBindingType(prop.getTypeName());
+            this.bindingType = loader.getBindingType(prop.getTypeName());
             try {
                 this.propertyClass = getJavaClass(bindingType, getClass().getClassLoader());
             }
@@ -185,6 +191,16 @@ final class ByNameRuntimeBindingType
             javaPrimitive = propertyClass.isPrimitive();
         }
 
+
+        public BindingType getType()
+        {
+            return bindingType;
+        }
+
+        public QName getName()
+        {
+            return bindingProperty.getQName();
+        }
 
         private TypeUnmarshaller lookupUnmarshaller(BindingProperty prop,
                                                     RuntimeBindingTypeTable typeTable,
@@ -233,6 +249,12 @@ final class ByNameRuntimeBindingType
             catch (InvocationTargetException e) {
                 throw new XmlRuntimeException(e);
             }
+        }
+
+        //non simple type props can throw some runtime exception.
+        public CharSequence getLexical(Object parent, MarshalContext context)
+        {
+            return "FIXME this="+this;
         }
 
         private static Method getSetterMethod(QNameProperty bindingProperty1,

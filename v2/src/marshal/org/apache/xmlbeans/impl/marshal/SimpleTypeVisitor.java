@@ -56,55 +56,76 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
-
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
-public interface Unmarshaller
+final class SimpleTypeVisitor extends XmlTypeVisitor
 {
-    /**
-     * unmarshall an entire xml document.
-     *
-     * PRECONDITIONS:
-     * reader must be positioned at or before the root
-     * start element of the document.
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     *
-     * @param reader
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshal(XMLStreamReader reader)
-        throws XmlException;
+    private final RuntimeBindingProperty property;
+    private final MarshalContext context;
 
-    /**
-     * unmarshal an xml instance of a given schema type
-     *
-     * No attention is paid to the actual tag on which the reader is positioned.
-     * It is only the contents that matter
-     * (including attributes on that start tag).
-     *
-     *
-     * PRECONDITIONS:
-     * reader.isStartElement() must return true
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     * @param schemaType
-     * @param javaType
-     * @param context
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
-        throws XmlException;
+    private boolean beforeChild = true;
+    private String prefix;
+
+    public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
+                             MarshalContext context)
+    {
+        super(obj);
+        this.property = property;
+        this.context = context;
+
+
+    }
+
+    protected void advance()
+    {
+        beforeChild = false;
+    }
+
+    protected boolean hasMoreChildren()
+    {
+        return beforeChild;
+    }
+
+    protected XmlTypeVisitor getCurrChild()
+    {
+        return new CharacterVisitor(property, parentObject, context);
+    }
+
+    protected QName getName()
+    {
+        final QName pname = property.getName();
+
+        if (prefix == null) {
+            prefix = context.ensurePrefix(pname.getNamespaceURI());
+        }
+
+        return new QName(pname.getNamespaceURI(), pname.getLocalPart(), prefix);
+    }
+
+    protected boolean isCharacters()
+    {
+        return false;
+    }
+
+    protected int getAttributeCount()
+    {
+        //TODO: xsi type considerations
+        return 0;
+    }
+
+    protected String getAttributeValue(int idx)
+    {
+        throw new UnsupportedOperationException("UNIMPLEMENTED");
+    }
+
+    protected QName getAttributeName(int idx)
+    {
+        throw new UnsupportedOperationException("UNIMPLEMENTED");
+    }
+
+    protected CharSequence getCharData()
+    {
+        throw new IllegalStateException("not text");
+    }
+
 }

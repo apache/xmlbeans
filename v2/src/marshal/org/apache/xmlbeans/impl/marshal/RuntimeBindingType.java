@@ -57,6 +57,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 /**
  * what we need to know about a binding type at runtime.
@@ -78,5 +79,7 @@ interface RuntimeBindingType
 
     Object getFinalObjectFromIntermediary(Object retval,
                                           UnmarshalContext context);
+
+    BindingType getType();
 
 }

@@ -56,10 +56,22 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
+
+import javax.xml.namespace.QName;
+
 
 interface RuntimeBindingProperty
 {
+    BindingType getType();
+    
+    QName getName();
+
     TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context);
 
     void fill(Object inter, Object prop_obj);
+
+    //non simple type props can throw some runtime exception.
+    CharSequence getLexical(Object parent, MarshalContext context);
+
 }

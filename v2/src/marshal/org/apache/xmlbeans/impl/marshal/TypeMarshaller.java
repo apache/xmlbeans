@@ -56,9 +56,13 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+
+
 /**
  * A TypeMarshaller knows how to marshall a java object into xml.
  */
 interface TypeMarshaller
 {
+    //non simple types can throw a runtime exception
+    CharSequence print(Object value, MarshalContext context);
 }
