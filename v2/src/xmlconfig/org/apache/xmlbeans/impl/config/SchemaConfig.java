@@ -37,6 +37,9 @@ public class SchemaConfig
     private Map _packageMap;
     private Map _prefixMap;
     private Map _suffixMap;
+    private Map _packageMapByUriPrefix; // uri prefix -> package
+    private Map _prefixMapByUriPrefix;  // uri prefix -> name prefix
+    private Map _suffixMapByUriPrefix;  // uri prefix -> name suffix
     private Map _qnameMap;
     private ExtensionHolder _extensionHolder;
 
@@ -45,6 +48,9 @@ public class SchemaConfig
         _packageMap = Collections.EMPTY_MAP;
         _prefixMap = Collections.EMPTY_MAP;
         _suffixMap = Collections.EMPTY_MAP;
+        _packageMapByUriPrefix = Collections.EMPTY_MAP;
+        _prefixMapByUriPrefix = Collections.EMPTY_MAP;
+        _suffixMapByUriPrefix = Collections.EMPTY_MAP;
         _qnameMap = Collections.EMPTY_MAP;
         _extensionHolder = null;
     }
@@ -61,6 +67,9 @@ public class SchemaConfig
         _packageMap = new LinkedHashMap();
         _prefixMap = new LinkedHashMap();
         _suffixMap = new LinkedHashMap();
+        _packageMapByUriPrefix = new LinkedHashMap();
+        _prefixMapByUriPrefix = new LinkedHashMap();
+        _suffixMapByUriPrefix = new LinkedHashMap();
         _qnameMap = new LinkedHashMap();
         _extensionHolder = new ExtensionHolder();
 
@@ -73,6 +82,9 @@ public class SchemaConfig
                 recordNamespaceSetting(nsa[j].getUri(), nsa[j].getPackage(), _packageMap);
                 recordNamespaceSetting(nsa[j].getUri(), nsa[j].getPrefix(), _prefixMap);
                 recordNamespaceSetting(nsa[j].getUri(), nsa[j].getSuffix(), _suffixMap);
+                recordNamespacePrefixSetting(nsa[j].getUriprefix(), nsa[j].getPackage(), _packageMapByUriPrefix);
+                recordNamespacePrefixSetting(nsa[j].getUriprefix(), nsa[j].getPrefix(), _prefixMapByUriPrefix);
+                recordNamespacePrefixSetting(nsa[j].getUriprefix(), nsa[j].getSuffix(), _suffixMapByUriPrefix);
             }
 
             Qnameconfig[] qnc = config.getQnameArray();
@@ -87,6 +99,7 @@ public class SchemaConfig
                 recordExtensionSetting(jamLoader, ext[j]);
             }
         }
+
         _extensionHolder.secondPhaseValidation();
         //todo _extensionHolder.normalize();
     }
@@ -108,6 +121,18 @@ public class SchemaConfig
                     uri = "";
                 result.put(uri, value);
             }
+        }
+    }
+
+    private static void recordNamespacePrefixSetting(List list, String value, Map result)
+    {
+        if (value == null)
+            return;
+        else if (list == null)
+            return;
+        for (Iterator i = list.iterator(); i.hasNext(); )
+        {
+            result.put(i.next(), value);
         }
     }
 
@@ -143,14 +168,45 @@ public class SchemaConfig
         _extensionHolder.addPrePostExtension(PrePostExtension.newInstance(jamLoader, xbeanSet, ext.getPrePostSet()));
     }
 
-    private String lookup(Map map, String uri)
+
+    private String lookup(Map map, Map mapByUriPrefix, String uri)
     {
         if (uri == null)
             uri = "";
         String result = (String)map.get(uri);
         if (result != null)
             return result;
-        return (String) map.get("##any");
+        if (mapByUriPrefix != null)
+        {
+            result = lookupByUriPrefix(mapByUriPrefix, uri);
+            if (result != null)
+                return result;
+        }
+
+        return (String)map.get("##any");
+    }
+
+    private String lookupByUriPrefix(Map mapByUriPrefix, String uri)
+    {
+        if (uri == null)
+            return null;
+        if (!mapByUriPrefix.isEmpty())
+        {
+            String uriprefix = null;
+            Iterator i = mapByUriPrefix.keySet().iterator();
+            while (i.hasNext())
+            {
+                String nextprefix = (String)i.next();
+                if (uriprefix != null && nextprefix.length() < uriprefix.length())
+                    continue;
+                if (uri.startsWith(nextprefix))
+                    uriprefix = nextprefix;
+            }
+
+            if (uriprefix != null)
+                return (String)mapByUriPrefix.get(uriprefix);
+        }
+        return null;
     }
 
     //package methods
@@ -167,17 +223,17 @@ public class SchemaConfig
     //public methods
     public String lookupPackageForNamespace(String uri)
     {
-        return lookup(_packageMap, uri);
+        return lookup(_packageMap, _packageMapByUriPrefix, uri);
     }
 
     public String lookupPrefixForNamespace(String uri)
     {
-        return lookup(_prefixMap, uri);
+        return lookup(_prefixMap, _prefixMapByUriPrefix, uri);
     }
 
     public String lookupSuffixForNamespace(String uri)
     {
-        return lookup(_suffixMap, uri);
+        return lookup(_suffixMap, _suffixMapByUriPrefix, uri);
     }
 
     public String lookupJavanameForQName(QName qname)
