@@ -19,9 +19,9 @@ package org.apache.xmlbeans.impl.inst2xsd;
 
      Options:
        * Design
-          o Russian Doll Design
-          o Salami Slice Design
-          o Venetian Blind Design
+          o Russian Doll Design - local elements and local types
+          o Salami Slice Design - global elements and local types
+          o Venetian Blind Design - local elements and global complex types
        * Simple content types (leafs)
           o smart (default) - try to find out the right simple shema type
           o always xsd:string
@@ -36,7 +36,7 @@ public class Inst2XsdOptions
     public static final int DESIGN_SALAMI_SLICE   = 2;
     public static final int DESIGN_VENETIAN_BLIND = 3;
 
-    private int _design = DESIGN_RUSSIAN_DOLL;
+    private int _design = DESIGN_VENETIAN_BLIND;
 
     // schema type for simple content values
     public static final int SIMPLE_CONTENT_TYPES_SMART  = 1;
@@ -49,6 +49,8 @@ public class Inst2XsdOptions
     public static final int ENUMERATION_NOT_MORE_THAN_DEFAULT = 10;
 
     private int _enumerations = ENUMERATION_NOT_MORE_THAN_DEFAULT;
+
+    private boolean _verbose = false;
 
 
     public int getDesign()
@@ -68,6 +70,8 @@ public class Inst2XsdOptions
      */
     public void setDesign(int designType)
     {
+        if (designType!=DESIGN_RUSSIAN_DOLL && designType!=DESIGN_SALAMI_SLICE && designType!=DESIGN_VENETIAN_BLIND)
+            throw new IllegalArgumentException("Unknown value for design type.");
         _design = designType;
     }
 
@@ -83,6 +87,8 @@ public class Inst2XsdOptions
 
     public void setUseEnumerations(int useEnumerations)
     {
+        if (useEnumerations<ENUMERATION_NEVER)
+            throw new IllegalArgumentException("UseEnumerations must be set to a value bigger than " + ENUMERATION_NEVER);
         _enumerations = useEnumerations;
     }
 
@@ -93,6 +99,18 @@ public class Inst2XsdOptions
 
     public void setSimpleContentTypes(int simpleContentTypes)
     {
+        if (simpleContentTypes!=SIMPLE_CONTENT_TYPES_SMART && simpleContentTypes!=SIMPLE_CONTENT_TYPES_STRING)
+            throw new IllegalArgumentException("Unknown value for simpleContentTypes.");
         _simpleContentTypes = simpleContentTypes;
+    }
+
+    public boolean isVerbose()
+    {
+        return _verbose;
+    }
+
+    public void setVerbose(boolean verbose)
+    {
+        _verbose = verbose;
     }
 }

@@ -61,11 +61,11 @@ public class CommandLine
     {
         try
         {
-            IOUtil.copyCompletely(CommandLine.class.getClassLoader().getResourceAsStream("license.txt"), System.out);
+            IOUtil.copyCompletely(CommandLine.class.getClassLoader().getResourceAsStream("LICENSE.txt"), System.out);
         }
         catch (Exception e)
         {
-            System.out.println("License available in this JAR in license.txt");
+            System.out.println("License available in this JAR in LICENSE.txt");
         }
     }
 

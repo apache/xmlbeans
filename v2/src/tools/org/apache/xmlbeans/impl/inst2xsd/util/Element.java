@@ -119,7 +119,8 @@ public class Element
             ", _minOccurs = " + _minOccurs +
             ", _maxOccurs = " + _maxOccurs +
             ", _comment = " + _comment +
-            ",\n    _type = " + _type +
+            ",\n    _type = " + ( _type==null ? "null" :
+                (_type.isGlobal() ? _type.getName().toString() : _type.toString())) +
             "\n  }";
     }
 }

@@ -25,7 +25,8 @@ public class SalamiSliceStrategy
     extends RussianDollStrategy
     implements XsdGenStrategy
 {
-    protected void checkIfElementReferenceIsNeeded(Element child, String parentNamespace, TypeSystemHolder typeSystemHolder)
+    protected void checkIfElementReferenceIsNeeded(Element child, String parentNamespace,
+        TypeSystemHolder typeSystemHolder, Inst2XsdOptions options)
     {
         // always add element references
         Element referencedElem = new Element();
@@ -33,7 +34,7 @@ public class SalamiSliceStrategy
         referencedElem.setName(child.getName());
         referencedElem.setType(child.getType());
 
-        typeSystemHolder.addGlobalElement(referencedElem);
+        referencedElem = addGlobalElement(referencedElem, typeSystemHolder, options);
 
         child.setRef(referencedElem); // clears child's type
     }

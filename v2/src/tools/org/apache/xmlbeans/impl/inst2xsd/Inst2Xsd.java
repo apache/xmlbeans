@@ -19,16 +19,19 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlError;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.apache.xmlbeans.impl.inst2xsd.util.TypeSystemHolder;
+import org.apache.xmlbeans.impl.tool.CommandLine;
 
 import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.Set;
+import java.util.HashSet;
 
 /**
  * @author Cezar Andrei (cezar.andrei at bea.com) Date: Jul 16, 2004
@@ -37,26 +40,168 @@ import java.util.Iterator;
  *
  * How it works:
  *  - first: pass through all the instances, building a TypeSystemHolder structure
- *  - second: serialize the TypeSystemHolder structure into   
+ *  - second: serialize the TypeSystemHolder structure into SchemaDocuments
  */
 public class Inst2Xsd
 {
     public static void main(String[] args)
         throws IOException, XmlException
     {
-        if (args.length != 1)
+        if (args.length == 0)
         {
-            System.out.println("Usage: Inst2xsd instance.xml");
+            printHelp();
+            System.exit(0);
             return;
         }
 
-        File instFile = new File(args[0]);
+        Set opts = new HashSet();
+        opts.add("design");
+        opts.add("simple-content-types");
+        opts.add("enumerations");
+        opts.add("outDir");
+        opts.add("outPrefix");
+
+        CommandLine cl = new CommandLine(args, opts);
         Inst2XsdOptions inst2XsdOptions = new Inst2XsdOptions();
-        inst2XsdOptions.setDesign(Inst2XsdOptions.DESIGN_VENETIAN_BLIND);
-        SchemaDocument[] schemas = inst2xsd(new Reader[] {new FileReader(instFile)}, inst2XsdOptions);
+
+        if (cl.getOpt("license") != null)
+        {
+            CommandLine.printLicense();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.getOpt("help") != null)
+        {
+            printHelp();
+            System.exit(0);
+            return;
+        }
+
+        String design = cl.getOpt("design");
+        if (design==null)
+        {
+            // default
+        }
+        else if (design.equals("vb"))
+        {
+            inst2XsdOptions.setDesign(Inst2XsdOptions.DESIGN_VENETIAN_BLIND);
+        }
+        else if (design.equals("rd"))
+        {
+            inst2XsdOptions.setDesign(Inst2XsdOptions.DESIGN_RUSSIAN_DOLL);
+        }
+        else if (design.equals("ss"))
+        {
+            inst2XsdOptions.setDesign(Inst2XsdOptions.DESIGN_SALAMI_SLICE);
+        }
+        else
+        {
+            printHelp();
+            System.exit(0);
+            return;
+        }
+
+        String simpleContent = cl.getOpt("simple-content-types");
+        if (simpleContent==null)
+        {
+            //default
+        }
+        else if (simpleContent.equals("smart"))
+        {
+            inst2XsdOptions.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_SMART);
+        }
+        else if (simpleContent.equals("string"))
+        {
+            inst2XsdOptions.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
+        }
+        else
+        {
+            printHelp();
+            System.exit(0);
+            return;
+        }
+
+        String enumerations = cl.getOpt("enumerations");
+        if (enumerations==null)
+        {
+            // default
+        }
+        else if (enumerations.equals("never"))
+        {
+            inst2XsdOptions.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
+        }
+        else
+        {
+            try
+            {
+                int intVal = Integer.parseInt(enumerations);
+                inst2XsdOptions.setUseEnumerations(intVal);
+            }
+            catch (NumberFormatException e)
+            {
+                printHelp();
+                System.exit(0);
+                return;
+            }
+        }
+
+        File outDir = new File( cl.getOpt("outDir")==null ? "." : cl.getOpt("outDir"));
+
+        String outPrefix = cl.getOpt("outPrefix");
+        if (outPrefix==null)
+            outPrefix = "schema";
+
+        inst2XsdOptions.setVerbose((cl.getOpt("verbose") != null));
+        boolean validate = cl.getOpt("validate")!=null;
+
+        File[] xmlFiles = cl.filesEndingWith(".xml");
+        XmlObject[] xmlInstances = new XmlObject[xmlFiles.length];
+        for (int i = 0; i < xmlFiles.length; i++)
+        {
+            xmlInstances[i] = XmlObject.Factory.parse(xmlFiles[i]);
+        }
+
+        SchemaDocument[] schemaDocs = inst2xsd(xmlInstances, inst2XsdOptions);
+
+        for (int i = 0; i < schemaDocs.length; i++)
+        {
+            SchemaDocument schema = schemaDocs[i];
+
+            if (inst2XsdOptions.isVerbose())
+                System.out.println("----------------------\n\n" + schema);
+
+            schema.save(new File(outDir, outPrefix + i + ".xsd"), new XmlOptions().setSavePrettyPrint());
+        }
+
+        if (validate)
+        {
+            validateInstances(schemaDocs, xmlInstances);
+        }
+    }
+
+    private static void printHelp()
+    {
+        System.out.println("Generates XMLSchema from instance xml documents.");
+        System.out.println("Usage: inst2xsd [opts] [instance.xml]*");
+        System.out.println("Options include:");
+        System.out.println("    -design [rd|ss|vb] - XMLSchema design type");
+        System.out.println("             rd  - Russian Doll Design - local elements and local types");
+        System.out.println("             ss  - Salami Slice Design - global elements and local types");
+        System.out.println("             vb  - Venetian Blind Design (default) - local elements and global complex types");
+        System.out.println("    -simple-content-types [smart|string] - Simple content types detection (leaf text). Smart is the default");
+        System.out.println("    -enumerations [never|NUMBER] - Use enumerations. Default value is " + Inst2XsdOptions.ENUMERATION_NOT_MORE_THAN_DEFAULT + ".");
+        System.out.println("    -outDir [dir] - Directory for output files. Default is '.'");
+        System.out.println("    -outPrefix [file_name_prefix] - Prefix for output file names. Default is 'schema'");
+        System.out.println("    -validate - Validates input instances agaist generated schemas.");
+        System.out.println("    -verbose - print more informational messages");
+        System.out.println("    -license - print license information");
+        System.out.println("    -help - help imformation");
     }
 
     private Inst2Xsd() {}
+
+    // public entry points
 
     public static SchemaDocument[] inst2xsd(Reader[] instReaders, Inst2XsdOptions options)
         throws IOException, XmlException
@@ -98,16 +243,10 @@ public class Inst2Xsd
         // processDoc the instance
         strategy.processDoc(instances, options, typeSystemHolder);
 
-        // debug only
-        //System.out.println("typeSystemHolder.toString(): " + typeSystemHolder);
-        SchemaDocument[] sDocs = typeSystemHolder.getSchemaDocuments();
+        if (options.isVerbose())
+            System.out.println("typeSystemHolder.toString(): " + typeSystemHolder);
 
-        for (int i = 0; i < sDocs.length; i++)
-        {
-            System.out.println("--------------------\n\n" + sDocs[i] );
-        }
-        assert validateInstances(sDocs, instances);
-        // end debug only
+        SchemaDocument[] sDocs = typeSystemHolder.getSchemaDocuments();
 
         return sDocs;
     }
@@ -128,12 +267,16 @@ public class Inst2Xsd
             {
                 e.printStackTrace(System.out);
             }
-            System.out.println("Schema invalid");
+            System.out.println("\n-------------------\n\nInvalid schemas.");
             for (Iterator errors = compErrors.iterator(); errors.hasNext(); )
-                System.out.println(errors.next());
+            {
+                XmlError xe = (XmlError)errors.next();
+                System.out.println(xe.getLine() + ":" + xe.getColumn() + " " + xe.getMessage());
+            }
             return false;
         }
 
+        System.out.println("\n-------------------");
         boolean result = true;
 
         for (int i = 0; i < instances.length; i++)
@@ -163,13 +306,14 @@ public class Inst2Xsd
                 result = false;
             }
             else if (xobj.validate(new XmlOptions().setErrorListener(errors)))
-                System.out.println("Instance[" + i + "] valid.");
+                System.out.println("Instance[" + i + "] valid - " + instances[i].documentProperties().getSourceName());
             else
             {
-                System.out.println("Instance[" + i + "] NOT valid.");
+                System.out.println("Instance[" + i + "] NOT valid - " + instances[i].documentProperties().getSourceName());
                 for (Iterator it = errors.iterator(); it.hasNext(); )
                 {
-                    System.out.println("    " + it.next());
+                    XmlError xe = (XmlError)it.next();
+                    System.out.println(xe.getLine() + ":" + xe.getColumn() + " " + xe.getMessage());
                 }
                 result = false;
             }
@@ -177,5 +321,4 @@ public class Inst2Xsd
 
         return result;
     }
-
 }
