@@ -96,6 +96,15 @@ public class DefaultBuiltinBindingLoader extends BuiltinBindingLoader {
     addPojoXml("nonNegativeInteger", "java.math.BigInteger");
     addPojoXml("positiveInteger", "java.math.BigInteger");
     addPojoXml("unsignedLong", "java.math.BigInteger");
+
+    //some don't like BigInteger...
+    addPojo("integer", "int");
+    addPojo("nonPositiveInteger", "int");
+    addPojo("negativeInteger", "int");
+    addPojo("nonNegativeInteger", "int");
+    addPojo("positiveInteger", "int");
+    addPojo("unsignedLong", "int");
+
     addPojoXml("unsignedInt", "long");
     addPojoXml("unsignedShort", "int");
     addPojoXml("unsignedByte", "short");
