@@ -45,4 +45,21 @@ package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
   aka={"joe t","joe","bleh"}
 )
 public class NestedAnnotatedClass {
+
+
+
+
+  public void someMethod(
+    @EmployeeAnnotation( firstName="Joe",
+                         lastName="Louis",
+                         address=@AddressAnnotation(street="parameter annotation!!", city="Chicago",zip=4343),
+                         specialDigits={5,3},
+                         active=Constants.Bool.TRUE,
+                         aka={"joe t","joe","bleh"}
+    )
+    int joeLouisParameter)
+  {
+
+  }
+
 }

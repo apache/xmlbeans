@@ -21,7 +21,7 @@ import java.lang.annotation.*;
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE,ElementType.PARAMETER})
 public @interface EmployeeAnnotation {
     String firstName();
     String lastName();
