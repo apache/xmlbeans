@@ -85,6 +85,15 @@ public final class XsTypeConverter
             //current jdk impl of parseFloat calls trim() on the string.
             //Any other space is illegal anyway, whether there are one or more spaces.
             //so no need to do a collapse pass through the string.
+            if (cs.length()>0)
+            {
+                char ch = cs.charAt(cs.length()-1);
+                if (ch=='f' || ch=='F')
+                {
+                    if (cs.charAt(cs.length()-2)!='N')
+                        throw new NumberFormatException("Invalid char '" + ch + "' in float.");
+                }
+            }
             return Float.parseFloat(v);
         }
         catch (NumberFormatException e) {
@@ -132,6 +141,12 @@ public final class XsTypeConverter
             //current jdk impl of parseDouble calls trim() on the string.
             //Any other space is illegal anyway, whether there are one or more spaces.
             //so no need to do a collapse pass through the string.
+            if (cs.length()>0)
+            {
+                char ch = cs.charAt(cs.length()-1);
+                if (ch=='d' || ch=='D')
+                    throw new NumberFormatException("Invalid char '" + ch + "' in double.");
+            }
             return Double.parseDouble(v);
         }
         catch (NumberFormatException e) {
@@ -205,6 +220,11 @@ public final class XsTypeConverter
     public static BigInteger lexInteger(CharSequence cs)
         throws NumberFormatException
     {
+        if (cs.length()>1)
+        {
+            if (cs.charAt(0)=='+' && cs.charAt(1)=='-')
+                throw new NumberFormatException("Illegal char sequence '+-'");
+        }
         final String v = cs.toString();
 
         //TODO: consider special casing zero and one to return static values
