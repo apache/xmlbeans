@@ -197,7 +197,7 @@ public class RussianDollStrategy
 
                 // add enumeration value
                 String enumValue = XmlString.type.getName().equals(elemType.getName()) ? textBuff.toString() : collapsedText;
-                elemType.addEnumerationValue(enumValue);
+                elemType.addEnumerationValue(enumValue, xc);
             }
 
             xc.toEndToken(); // end hack
@@ -581,11 +581,7 @@ public class RussianDollStrategy
         // take care of enumeration values
         if (options.isUseEnumerations())
         {
-            for (int i = 0; i < with.getEnumerationValues().size(); i++)
-            {
-                String enumValue = (String) with.getEnumerationValues().get(i);
-                into.addEnumerationValue(enumValue);
-            }
+            into.addAllEnumerationsFrom(with);
 
             if (into.getEnumerationValues().size()>options.getUseEnumerations())
             {
