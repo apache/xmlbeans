@@ -268,10 +268,15 @@ public class XMLBean extends MatchingTask
                 SchemaCodeGenerator.tryHardToDelete(tmpdir);
             }
         }
+        catch (BuildException e)
+        {
+            // re-throw anything thrown from javac or jar task
+            throw e;
+        }
         catch (Throwable e)
         {
             //interrupted means cancel
-            if (e instanceof InterruptedException)
+            if (e instanceof InterruptedException || failonerror)
                 throw new BuildException(e);
             
             log("Exception while building schemas: " + e.getMessage(), Project.MSG_ERR);
