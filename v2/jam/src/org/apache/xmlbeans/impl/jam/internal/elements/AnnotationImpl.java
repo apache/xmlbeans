@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 /**
  * <p>Standard implementation of AnnotationImpl.</p>
@@ -70,6 +71,27 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
     mAnnotationInstance = o;
   }
 
+  public void setSimpleValue(String name, Object value, JClass type) {
+    mProxy.setValue(name,value,type);
+  }
+
+  public void setSimpleValueArray(String name, Object[] value, JClass type) {
+    throw new IllegalStateException("NYI");
+  }
+
+  public MAnnotation createNestedValue(String name, String annTypeName) {
+    AnnotationProxy p = getContext().createProxyForAnnotationType(annTypeName);
+    AnnotationImpl out = new AnnotationImpl(getContext(),p,annTypeName);
+    mProxy.setValue(name,out,null);//REVIEW null?
+    return out;
+  }
+
+  public MAnnotation[] createNestedValueArray(String name,
+                                              String annTypeName,
+                                              int dimensions) {
+    throw new IllegalStateException("NYI");
+  }
+
   // ========================================================================
   // JElement implementation
 
@@ -81,11 +103,5 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
 
   public void accept(JVisitor visitor) { visitor.visit(this); }
 
-  // ========================================================================
-  // MElement implementation
-
-  public AnnotationProxy getMutableProxy() {
-    return mProxy;
-  }
 
 }

@@ -29,6 +29,7 @@ public class AnnotationValueImpl implements JAnnotationValue {
   // Variables
 
   private Object mValue = null;
+  private JClass mType = null;
   private String mName;
   private ElementContext mContext;
   private boolean mIsDefaultUsed = false;
@@ -38,17 +39,20 @@ public class AnnotationValueImpl implements JAnnotationValue {
 
   public AnnotationValueImpl(ElementContext ctx,
                              String name,
-                             Object value) {
+                             Object value,
+                             JClass type) {
     if (ctx == null) throw new IllegalArgumentException("null ctx");
     if (name == null) throw new IllegalArgumentException("null name");
     if (value == null) throw new IllegalArgumentException("null value");
+    //if (type == null) throw new IllegalArgumentException("null type");
     mContext = ctx;
     mName = name;
     mValue = value;
+    mType = type;
   }
 
   // ========================================================================
-  // EAnnotationMember implementation
+  // ??? implementation  maybe we don't want this anymore
 
   public void setValue(Object o) {
     mValue = o;
@@ -142,8 +146,7 @@ public class AnnotationValueImpl implements JAnnotationValue {
 
   //docme
   public JClass getType() {
-    return (mValue == null) ? null :
-      mContext.getClassLoader().loadClass(mValue.getClass().getName());
+    return mType;
   }
 
   public Object getValue() {
@@ -151,7 +154,11 @@ public class AnnotationValueImpl implements JAnnotationValue {
   }
 
   public JAnnotation asAnnotation() {
-    throw new IllegalStateException("NYI");
+    if (mValue instanceof JAnnotation) {
+      return (JAnnotation)mValue;
+    } else {
+      return null; //REVIEW or throw?
+    }
   }
 
   public JClass asClass() {

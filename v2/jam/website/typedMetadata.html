@@ -24,26 +24,29 @@ community.
 </p>
 
 <p>
-However, JSR175 is also going to cause some difficulties for a particular
-set of java developers who are trying to build particular kinds of tools.
-This document provides a detailed description of what those difficulties
-are and how the JAM API can help.
+However, the transition to JSR175 is going to be painful for some 
+developers, especially those who have already developed tools which process
+javadoc tags.  This document provides a detailed description of what 
+some of those difficulties are and how the JAM API can help.
 </p>
 
 <h3>The Problem</h3>
 
 <p>
-One of the primary benefits promised by JSR175 is that it provides
-a strongly-typed access model for java metadata.  Gone will be the days
-of parsing nastily-encoded javadoc tags, replaced by the convenience 
-of simple bean-like interfaces.  Unfortunately, there are a few flaws in
-how this vision has been realized. 
+JSR175 brings us a world in which Java has language constructs
+to support the declaration of metadata, as well as strongly-typed APIs
+for accessing it at runtime.  Gone will be the days of parsing
+nastily-encoded javadoc tags, replaced by the convenience of 
+compile-time checks on annotations and simple bean-like interfaces for
+accessing them.  There is no doubt that these are huge and long-overdue
+improvements to Java.
 </p>
-
 <p>
-The most obvious flaw is that it will only be possible in JDK1.5.  Java
-developers who wish to utilize 175 must convince their users to upgrade to
-a new JRE.  Historically, this has often been a very difficult thing to
+However, there are a few practical problems which java developers
+face when looking at JSR175.  The most obvious is that it only works in
+JDK1.5.  Java developers who wish to utilize 175 must convince their users
+to upgrade to a new JRE.  Historically, this has often been a very
+difficult thing to
 do.  Developers who are unable to convince their users to upgrade to 1.5
 but wish to still take advantage of JSR175 are faced with the daunting 
 task of wedding older javadoc tag-based annotations with the newer 175
@@ -112,12 +115,12 @@ you to use an untyped access model for metadata on those types.
 <p>
 
 <p>
-<u>This is unacceptable</u>, especially the last part.  Strong typing
-in java programming is almost always a Good Thing, and again, one of the
-great promises of 175 is to bring strong typing to the world of metadata.
-The failure to fully deliver on this promise to our cadre of compiler 
-and compiler extension authors may cause them to wonder what was so great 
-about JSR175 in the first place.
+This is somewhat inconvenient.  Strong typing in java programming is
+almost always a Good Thing, and again, one of the great promises of 175
+is to bring strong typing to the world of metadata.  The failure to fully
+deliver on this promise to our cadre of compiler and compiler extension
+authors may cause them to wonder what was so great about JSR175 in the
+first place.
 </p>
 
 <p>

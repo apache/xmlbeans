@@ -328,6 +328,8 @@ public interface JClass extends JMember {
    */
   public String getFieldDescriptor();
 
+  //uncomment me please
+//  public boolean isEnumType();
 
   /**
    * <p>Returns the JamClassLoader which loaded this class.</p>

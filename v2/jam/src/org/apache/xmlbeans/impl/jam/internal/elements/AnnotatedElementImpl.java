@@ -164,7 +164,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     if (out != null) {
       //REVIEW this is a weird case where they add the same thing twice.
       // we'll just go with it for now.
-      out.getMutableProxy().initFromJavadocTag(tagContents);
+      ((AnnotationProxy)out.getProxy()).initFromJavadocTag(tagContents);
     } else {
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       proxy.initFromJavadocTag(tagContents);
@@ -175,28 +175,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return out;
   }
 
-  public MAnnotation addAnnotationForInstance(Class annType,
-                                              Object instance) {
-    if (annType == null) throw new IllegalArgumentException("null anntype");
-    if (instance == null) throw new IllegalArgumentException("null instance");
-    MAnnotation ann = getMutableAnnotation(annType);
-    if (ann != null) {
-      ann.setAnnotationInstance(instance);
-      ann.getMutableProxy().initFromAnnotationInstance(annType,instance);
-      //REVIEW this is a weird case where they add another instance
-      // of the same annotation type.  We'll just go with it for now,
-      // but we might want to throw an exception here, not sure.
-    } else {
-      AnnotationProxy proxy = getContext().createProxyForAnnotationType
-        (getAnnotationTypeFor(instance));
-      proxy.initFromAnnotationInstance(annType,instance);
-      ann = new AnnotationImpl(getContext(),proxy,annType.getName());
-      ann.setAnnotationInstance(instance);
-      setArtifact(instance);
-      addAnnotation(ann);
-    }
-    return ann;
-  }
+
 
   public MAnnotation addAnnotationForType(String jsr175annotationClassname) {
     ClassImpl.validateClassName(jsr175annotationClassname);
@@ -242,11 +221,34 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
   // ========================================================================
-  // Private methods
+  // Old stuff
+ /*
+ private String getAnnotationTypeFor(/*Annotation Object annotationInstance) {
+   //FIXME this may be broken, not sure yet what the class of an annotation
+   // instance is.  we may need to climb the type tree.
+   return annotationInstance.getClass().getName();
+ }
 
-  private String getAnnotationTypeFor(/*Annotation*/ Object annotationInstance) {
-    //FIXME this may be broken, not sure yet what the class of an annotation
-    // instance is.  we may need to climb the type tree.
-    return annotationInstance.getClass().getName();
-  }
+  public MAnnotation addAnnotationForInstance(Class annType,
+                                              Object instance) {
+    if (annType == null) throw new IllegalArgumentException("null anntype");
+    if (instance == null) throw new IllegalArgumentException("null instance");
+    MAnnotation ann = getMutableAnnotation(annType);
+    if (ann != null) {
+      ann.setAnnotationInstance(instance);
+      ((AnnotationProxy)ann.getProxy()).initFromAnnotationInstance(annType,instance);//REVIEW not totally comfortable with this cast
+      //REVIEW this is a weird case where they add another instance
+      // of the same annotation type.  We'll just go with it for now,
+      // but we might want to throw an exception here, not sure.
+    } else {
+      AnnotationProxy proxy = getContext().createProxyForAnnotationType
+        (getAnnotationTypeFor(instance));
+      proxy.initFromAnnotationInstance(annType,instance);
+      ann = new AnnotationImpl(getContext(),proxy,annType.getName());
+      ann.setAnnotationInstance(instance);
+      setArtifact(instance);
+      addAnnotation(ann);
+    }
+    return ann;
+  }*/
 }

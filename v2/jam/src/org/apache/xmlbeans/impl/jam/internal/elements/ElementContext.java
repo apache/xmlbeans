@@ -23,7 +23,9 @@ import org.apache.xmlbeans.impl.jam.provider.JamLogger;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ElementContext extends JamLogger {
+public interface ElementContext extends JamLogger /**REMOVE THIS EXTENDS PLEASE*/ {
+
+  public JamLogger getLogger();
 
   /**
    * <p>Returns the classloader the elements should use for type resolution.

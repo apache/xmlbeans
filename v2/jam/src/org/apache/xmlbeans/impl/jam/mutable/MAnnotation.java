@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JAnnotation;
+import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 
 /**
@@ -30,6 +31,16 @@ public interface MAnnotation extends JAnnotation, MElement {
 
   public void setAnnotationInstance(Object o);
 
-  public AnnotationProxy getMutableProxy();
+  public void setSimpleValue(String name, Object value, JClass type);
+
+  public void setSimpleValueArray(String name, Object[] value, JClass type);
+
+  public MAnnotation createNestedValue(String name, String annTypeName);
+
+  public MAnnotation[] createNestedValueArray(String name,
+                                              String annTypeName,
+                                              int dimensions);
+
+  //public AnnotationProxy getMutableProxy();//i think this is bad
 
 }

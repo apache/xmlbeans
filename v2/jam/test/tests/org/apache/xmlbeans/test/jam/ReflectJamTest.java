@@ -58,6 +58,8 @@ package org.apache.xmlbeans.test.jam;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.JamService;
+import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.java15.Reflect15DelegateImpl;
 
 import java.io.IOException;
 import java.io.File;
@@ -82,6 +84,8 @@ public class ReflectJamTest extends JamTestBase {
   protected JamService getResultToTest() throws IOException {
     JamServiceFactory jsf = JamServiceFactory.getInstance();
     JamServiceParams params = jsf.createServiceParams();
+//params.setVerbose(ReflectClassBuilder.class);
+//params.setVerbose(Reflect15DelegateImpl.class);
     params.includeClassPattern(getDummyclassesClassPath(),"**/*.class");
     return jsf.createService(params);
   }

@@ -157,8 +157,8 @@
   <target name='exclude15.warn' unless='exclude15'>
     <echo message='======================================================'/>
     <echo message='W A R N I N G:  You are building JAM without JDK 1.5.'/>
-    <echo message='The resulting build of JAM will not support any'/>
-    <echo message='1.5-specific functionality (such as JSR175),'/>
+    <echo message='The resulting build of JAM will not support'/>
+    <echo message='1.5-specific functionality such as JSR175,'/>
     <echo message='even if 1.5 is available at runtime.  For this'/>
     <echo message='reason, it is recommended that you always build'/>
     <echo message='JAM under 1.5.'/>
@@ -168,5 +168,8 @@
          above doesn't seem to work.  so, just do it here -->
     <property name='exclude15' value='**/internal/java15/**/*.java'/>
   </target>
+
+
+
 
 </project>

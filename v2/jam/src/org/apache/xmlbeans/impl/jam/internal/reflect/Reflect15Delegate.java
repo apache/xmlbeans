@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
 import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.mutable.MParameter;
 import org.apache.xmlbeans.impl.jam.mutable.MField;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
@@ -27,8 +28,10 @@ import java.lang.reflect.Field;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ReflectAnnotationExtractor {
-  
+public interface Reflect15Delegate {
+
+  public void init(ElementContext ctx);
+
   public void extractAnnotations(MMember dest, Method src);
 
   public void extractAnnotations(MConstructor dest, Constructor src);
@@ -39,6 +42,8 @@ public interface ReflectAnnotationExtractor {
 
   public void extractAnnotations(MParameter dest, Method src, int paramNum);
 
-  public void extractAnnotations(MParameter dest, Constructor src, int paramNum);  
+  public void extractAnnotations(MParameter dest, Constructor src, int paramNum);
+
+  public boolean isEnum(Class clazz);
 
 }

@@ -93,6 +93,7 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public boolean isUnresolvedType() { return false; }
   public boolean isObjectType() { return false; }
   public boolean isVoidType() { return false; }
+  public boolean isEnumType() { return false; }
   public Class getPrimitiveClass() { return null; }
   public boolean isAbstract() { return false; }
   public boolean isFinal() { return false; }
@@ -110,11 +111,14 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   public MConstructor[] getMutableConstructors() { return NO_CONSTRUCTOR; }
   public MMethod[] getMutableMethods() { return NO_METHOD; }
 
+  // can't do any of this stuff
+
   public void setSimpleName(String s) { nocando(); }
 
   public void setIsAnnotationType(boolean b) { nocando(); }
   public void setIsInterface(boolean b) { nocando(); }
-  public void setIsUnresolved(boolean b) { nocando(); }
+  public void setIsUnresolvedType(boolean b) { nocando(); }
+  public void setIsEnumType(boolean b) { nocando(); }
   public void setSuperclass(String qualifiedClassName) { nocando(); }
   public void setSuperclassUnqualified(String unqualifiedClassName) { nocando(); }
   public void setSuperclass(JClass clazz) { nocando(); }
