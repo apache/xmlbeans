@@ -17,7 +17,6 @@
 package dom.checkin;
 
 
-
 import dom.common.CharacterDataTest;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -80,7 +79,8 @@ public class TextTest extends CharacterDataTest {
         try {
             ((Text) m_node).splitText(-1);
             fail("Deleting OOB chars");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
         }
     }
@@ -89,7 +89,8 @@ public class TextTest extends CharacterDataTest {
         try {
             ((Text) m_node).splitText(((Text) m_node).getLength() + 1);
             fail("Deleting OOB chars");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.INDEX_SIZE_ERR);
         }
     }
@@ -109,9 +110,10 @@ public class TextTest extends CharacterDataTest {
         ((Text) m_node).splitText(0);
         assertEquals(nChildCount + 2, parent.getChildNodes().getLength());
     }
+
     //code coverage case; not sure why it's important
-       public void testSplitTextNoParent() {
-        m_node=m_doc.createTextNode("foobar");
+    public void testSplitTextNoParent() {
+        m_node = m_doc.createTextNode("foobar");
         ((Text) m_node).splitText(3);
         assertEquals("foo", m_node.getNodeValue());
     }

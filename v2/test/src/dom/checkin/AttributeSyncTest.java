@@ -17,7 +17,6 @@
 package dom.checkin;
 
 
-
 import junit.framework.Test;
 import junit.framework.TestSuite;
 

@@ -14,7 +14,6 @@
  */
 
 
-
 package dom.checkin;
 
 import junit.framework.Assert;
@@ -31,42 +30,43 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.io.StringReader;
 
-public class DomTests extends TestCase
-{
-    public DomTests(String name) { super(name); }
-    public static Test suite() { return new TestSuite(DomTests.class); }
+public class DomTests extends TestCase {
+    public DomTests(String name) {
+        super(name);
+    }
+
+    public static Test suite() {
+        return new TestSuite(DomTests.class);
+    }
 
     static String[] _args;
     static String _test;
 
-  
 
-    public void doTestDomImport ( String xml )
-        throws Exception
-    {
+    public void doTestDomImport(String xml)
+            throws Exception {
         DocumentBuilderFactory f = DocumentBuilderFactory.newInstance();
         f.setNamespaceAware(true);
         DocumentBuilder parser = f.newDocumentBuilder();
 
-        Document doc = parser.parse( new InputSource( new StringReader( xml ) ) );
+        Document doc = parser.parse(new InputSource(new StringReader(xml)));
 
-        XmlObject x = XmlObject.Factory.parse( doc );
+        XmlObject x = XmlObject.Factory.parse(doc);
 
-        Assert.assertTrue( x.xmlText().equals( xml ) );
+        Assert.assertTrue(x.xmlText().equals(xml));
     }
-    
-    public void doTestDomExport ( String xml )
-        throws Exception
-    {
-        XmlObject x = XmlObject.Factory.parse( XmlObject.Factory.parse( xml ).newDomNode() );
-        Assert.assertTrue( x.xmlText().equals( xml ) );
+
+    public void doTestDomExport(String xml)
+            throws Exception {
+        XmlObject x = XmlObject.Factory.parse(
+                XmlObject.Factory.parse(xml).newDomNode());
+        Assert.assertTrue(x.xmlText().equals(xml));
     }
-    
-    public void doTest ( String xml )
-        throws Exception
-    {
-        doTestDomImport( xml );
-        doTestDomExport( xml );
+
+    public void doTest(String xml)
+            throws Exception {
+        doTestDomImport(xml);
+        doTestDomExport(xml);
     }
 
 //    public void testDom2 ( )
@@ -83,53 +83,49 @@ public class DomTests extends TestCase
 //        System.out.println( x.xmlText() );
 //    }
     
-    public void testDom ( )
-        throws Exception
-    {
-        doTest( "<foo xmlns=\"x\"/>" );
-        doTest( "<foo xmlns=\"x\" xmlns:e=\"v\"/>" );
-        doTest( "<foo>a<?X?>b</foo>" );
-        doTest( "<foo>a<!--X-->b</foo>" );
-        doTest( "<!--X--><foo/>" );
-        doTest( "<foo/>" );
-        doTest( "<foo x=\"y\"/>" );
-        doTest( "<foo><a/><b>moo</b></foo>" );
-        
+    public void testDom()
+            throws Exception {
+        doTest("<foo xmlns=\"x\"/>");
+        doTest("<foo xmlns=\"x\" xmlns:e=\"v\"/>");
+        doTest("<foo>a<?X?>b</foo>");
+        doTest("<foo>a<!--X-->b</foo>");
+        doTest("<!--X--><foo/>");
+        doTest("<foo/>");
+        doTest("<foo x=\"y\"/>");
+        doTest("<foo><a/><b>moo</b></foo>");
+
         String xx =
-            "<!--gg--><?a b?><foo>sdsd<a/>sdsd<b>moo</b>sd<!--asas-->sd</foo><!--hh-->";
-        
-        doTest( xx );
+                "<!--gg--><?a b?><foo>sdsd<a/>sdsd<b>moo</b>sd<!--asas-->sd</foo><!--hh-->";
+
+        doTest(xx);
 
         String xml =
-            "<xml-fragment>" +
-            "foo" +
-            "</xml-fragment>";
-
-        doTestDomExport( xml );
-        
-        try
-        {
-            xml =
-                "<xml-fragment " +
-                "  foo='bar'>" +
+                "<xml-fragment>" +
+                "foo" +
                 "</xml-fragment>";
-                
-            doTestDomExport( xml );
-            
-            Assert.assertTrue( false );
+
+        doTestDomExport(xml);
+
+        try {
+            xml =
+                    "<xml-fragment " +
+                    "  foo='bar'>" +
+                    "</xml-fragment>";
+
+            doTestDomExport(xml);
+
+            Assert.assertTrue(false);
         }
-        catch ( Exception e )
-        {
+        catch (Exception e) {
         }
 
-        XmlObject x = XmlObject.Factory.parse( xx );
+        XmlObject x = XmlObject.Factory.parse(xx);
 
         XmlCursor c = x.newCursor();
 
-        for ( ; ; )
-        {
+        for (; ;) {
             Node n = c.newDomNode();
-            XmlObject.Factory.parse( n );
+            XmlObject.Factory.parse(n);
 
             if (c.toNextToken().isNone())
                 break;

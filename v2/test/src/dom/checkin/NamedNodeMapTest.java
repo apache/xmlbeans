@@ -133,7 +133,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.removeNamedItem(null);
             fail("removing a non-existing value");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
         }
     }
@@ -142,7 +143,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.removeNamedItem("at7");
             fail("removing a non-existing value");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
         }
 
@@ -172,7 +174,7 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
 
         result = m_nodeMap.getNamedItemNS("uri:foo", "at4");
         assertEquals(result, m_nodeMap.removeNamedItemNS("uri:foo", "at4"));
-          assertEquals(null, m_nodeMap.getNamedItemNS("uri:foo", "at4"));
+        assertEquals(null, m_nodeMap.getNamedItemNS("uri:foo", "at4"));
 
         assertEquals(nCount - 1, m_node.getAttributes().getLength());
 
@@ -182,8 +184,10 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         assertEquals(m_node.getAttributes().getLength(), nCount - 2);
 
         //liveness test
-        assertEquals(nCount - 2, m_docNS.getFirstChild().getAttributes().getLength());
-        assertEquals(null, m_docNS.getFirstChild().getAttributes().getNamedItem("at3"));
+        assertEquals(nCount - 2,
+                m_docNS.getFirstChild().getAttributes().getLength());
+        assertEquals(null,
+                m_docNS.getFirstChild().getAttributes().getNamedItem("at3"));
     }
 
     public void testRemoveNamedItemNS_DNE() {
@@ -193,7 +197,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
             result = m_nodeMap.removeNamedItemNS("uri:fo1", "at0");
             if (m_node.getAttributes().getLength() != nLen)
                 fail("removing a non-existing attr");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
         }
 
@@ -201,7 +206,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
             result = m_nodeMap.getNamedItemNS("uri:fo1", null);
             if (result != null)
                 fail("removing a non-existing attr");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.NOT_FOUND_ERR);
         }
     }
@@ -226,7 +232,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItem(newAt);
             fail("Inserting node created from a different doc");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
         }
 
@@ -235,7 +242,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItem(newAt);
             fail("Inserting node in use");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.INUSE_ATTRIBUTE_ERR);
         }
 
@@ -244,7 +252,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItem(newAt);
             fail("Inserting node  different doc");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
         }
 
@@ -254,7 +263,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItem(null);
             fail("Setting to null");
-        } catch (java.lang.IllegalArgumentException e) {
+        }
+        catch (java.lang.IllegalArgumentException e) {
         }
     }
 
@@ -263,7 +273,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItem(toSet);
             fail("Inserting node  different impl");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
         }
     }
@@ -296,7 +307,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItemNS(null);
             fail("Setting to null");
-        } catch (java.lang.IllegalArgumentException e) {
+        }
+        catch (java.lang.IllegalArgumentException e) {
         }
     }
 
@@ -305,7 +317,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItemNS(toSet);
             fail("Inserting node  different impl");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.WRONG_DOCUMENT_ERR);
         }
     }
@@ -316,7 +329,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItem(toSet);
             fail("Inserting node  different impl");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
         }
     }
@@ -326,7 +340,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
         try {
             m_nodeMap.setNamedItemNS(toSet);
             fail("Inserting node  different impl");
-        } catch (DOMException de) {
+        }
+        catch (DOMException de) {
             assertEquals(de.code, DOMException.HIERARCHY_REQUEST_ERR);
         }
     }
@@ -341,7 +356,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
     public void loadSync() throws Exception {
         _loader = Loader.getLoader();
 
-        if (sXml == null && sXmlNS == null) throw new IllegalArgumentException("Test bug : Initialize xml strings");
+        if (sXml == null && sXmlNS == null) throw new IllegalArgumentException(
+                "Test bug : Initialize xml strings");
         m_doc = (org.w3c.dom.Document) _loader.loadSync(sXml);
         if (sXmlNS != null && sXmlNS.length() > 0)
             m_docNS = (org.w3c.dom.Document) _loader.loadSync(sXmlNS);

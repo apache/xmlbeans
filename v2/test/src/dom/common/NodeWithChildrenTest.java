@@ -275,22 +275,30 @@ public abstract class NodeWithChildrenTest extends NodeTest {
         super.testInsertBefore(null, target);
     }
 
-    public void testAppendChildExisting() {
-        Node child = m_doc.getFirstChild();
+
+    /**
+     *  pre: child is not a parent ancestor
+     */
+    public void testAppendChildExisting(Node child) {
+
         if (child == m_node)
             child = m_doc.getLastChild();
-        //if still the same, SOL
-
+        //if still the same, too bad
         super.testAppendChild(child);
     }
 
-    public void testInsertExistingNode() {
+    /**
+     * pre: child cannot be an ancestor of m_node
+     * @param child
+   */
+    public void testInsertExistingNode(Node child) {
         Node target = m_node.getFirstChild();
-        Node child = m_doc.getFirstChild();
+        if (target.getParentNode()==child.getParentNode())
+            child=child.getParentNode();
         assertFalse(target == null || child == null);
         super.testInsertBefore(child, target);
     }
-
+       
     public void testInsertBeforeDocFrag() {
         DocumentFragment child = m_doc.createDocumentFragment();
         child.appendChild(m_doc.createElement("foo1"));

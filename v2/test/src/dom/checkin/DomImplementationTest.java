@@ -117,7 +117,7 @@ public class DomImplementationTest extends TestCase {
         assertFalse(m_imp.hasFeature("foobar", "2.0"));
         assertFalse(m_imp.hasFeature("xml", "-2"));
         assertTrue(m_imp.hasFeature("xml", null));
-         assertTrue(m_imp.hasFeature("xml", ""));
+        assertTrue(m_imp.hasFeature("xml", ""));
         assertFalse(m_imp.hasFeature("xml", "300"));
     }
 

@@ -33,7 +33,8 @@ public class PITest extends NodeTest {
 
     public PITest(String s) {
         super(s);
-        sXml = "<bar><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo>text</foo></bar>";
+        sXml =
+                "<bar><?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo>text</foo></bar>";
         //inspired by Common.XML_FOO_PROCINST;
     }
 
@@ -56,7 +57,9 @@ public class PITest extends NodeTest {
 
 
     public void testNodeValue() {
-        assertEquals("type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"", m_node.getNodeValue());
+        assertEquals(
+                "type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"",
+                m_node.getNodeValue());
     }
 
 
@@ -101,19 +104,24 @@ public class PITest extends NodeTest {
     }
 
     public void testGetData() {
-        assertEquals("type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"", ((ProcessingInstruction) m_node).getData());
+        assertEquals(
+                "type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"",
+                ((ProcessingInstruction) m_node).getData());
     }
 
     public void testGetTarget() {
-        assertEquals("xml-stylesheet", ((ProcessingInstruction) m_node).getTarget());
+        assertEquals("xml-stylesheet",
+                ((ProcessingInstruction) m_node).getTarget());
 
 
     }
 
     public void testSetData(String data) {
 
-        ((ProcessingInstruction) m_node).setData("\"type=\\\"text/xsl\\\" xmlns=\\\"http://newURI.org/shipping/\\\"\"");
-        assertEquals("type=\"text/xsl\" xmlns=\"http://newURI.org/shipping/\"", ((ProcessingInstruction) m_node).getData());
+        ((ProcessingInstruction) m_node).setData(
+                "\"type=\\\"text/xsl\\\" xmlns=\\\"http://newURI.org/shipping/\\\"\"");
+        assertEquals("type=\"text/xsl\" xmlns=\"http://newURI.org/shipping/\"",
+                ((ProcessingInstruction) m_node).getData());
     }
 
     public void moveToNode() {
@@ -123,30 +131,35 @@ public class PITest extends NodeTest {
     }
 
     //TODO: Test PI with funky but legal chatacters in the name, eg. :
-    public void testPiTargetChars(){
-        ProcessingInstruction node=m_doc.createProcessingInstruction("foo:123-_","some body");
+    public void testPiTargetChars() {
+        ProcessingInstruction node = m_doc.createProcessingInstruction(
+                "foo:123-_", "some body");
         m_node.getParentNode().appendChild(node);
-        m_node= m_node.getParentNode().getLastChild();
+        m_node = m_node.getParentNode().getLastChild();
         assertEquals("foo:123-_", ((ProcessingInstruction) m_node).getTarget());
     }
 
     //TODO: Test Illegal PI Targets: xml target, starting with a digit
-     public void testPiTargetIllegalChars(){
-         ProcessingInstruction node;
-            try{
-                node=m_doc.createProcessingInstruction("7foo:?123-&","some body");
-                fail("Can't start w/ a digit");
-            }catch(DOMException e){
-                assertEquals(DOMException.INVALID_CHARACTER_ERR,e.code);
-            }
+    public void testPiTargetIllegalChars() {
+        ProcessingInstruction node;
+        try {
+            node =
+                    m_doc.createProcessingInstruction("7foo:?123-&",
+                            "some body");
+            fail("Can't start w/ a digit");
+        }
+        catch (DOMException e) {
+            assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+        }
 
-            try{
-                node=m_doc.createProcessingInstruction("xml","foo");
-                fail("Can't be xml");
-            }catch(DOMException e){
-                assertEquals(DOMException.INVALID_CHARACTER_ERR,e.code);
-            }
-     }
+        try {
+            node = m_doc.createProcessingInstruction("xml", "foo");
+            fail("Can't be xml");
+        }
+        catch (DOMException e) {
+            assertEquals(DOMException.INVALID_CHARACTER_ERR, e.code);
+        }
+    }
 
     public void setUp() throws Exception {
         super.setUp();
