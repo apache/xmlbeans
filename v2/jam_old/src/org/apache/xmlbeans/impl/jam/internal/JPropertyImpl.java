@@ -221,6 +221,8 @@ public class JPropertyImpl implements JProperty {
             mGetter.getSourcePosition() : mSetter.getSourcePosition();
   }
 
+  public Object getArtifact() { return null; }
+  
   // ========================================================================
   // Object implementation
 
