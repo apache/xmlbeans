@@ -127,14 +127,11 @@ for now because JDK versioning problems when running in ant
              classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
              classpathref='classpath'/>
 
-    <property name='sources_test' value='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
-    <property name='reflect_test' value='org.apache.xmlbeans.test.jam.ReflectJamTest'/>
-    <condition property='sources_test' value='${sources_test}_150'>
+    <condition property='suffix' value='_150'>
      <isset property='do15compile'/>
     </condition>
-    <condition property='reflect_test' value='${reflect_test}_150'>
-     <isset property='do15compile'/>
-    </condition>
+    <property name='sources_test' value='org.apache.xmlbeans.test.jam.SourcesJamTest${suffix}'/>
+    <property name='reflect_test' value='org.apache.xmlbeans.test.jam.ReflectJamTest${suffix}'/>
 
 
 <!-- why do these have to be separate?  something gets
