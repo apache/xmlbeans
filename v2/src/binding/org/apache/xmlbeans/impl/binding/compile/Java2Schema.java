@@ -17,15 +17,15 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xmlbeans.impl.jam_old.*;
-import org.apache.xmlbeans.impl.jam_old.internal.BaseJElement;
-import org.apache.xmlbeans.impl.jam_old.internal.JPropertyImpl;
+import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Properties;
+import java.util.Map;
+import java.util.HashMap;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -63,8 +63,8 @@ public class Java2Schema extends BindingCompiler {
 
   public static final String TAG_AT               = "xsdgen:attribute";
   public static final String TAG_AT_NAME          = TAG_AT+".name";
-  public static final String TAG_AT_CHECKER       = TAG_AT+".isSetMethod";
 
+  public static final String TAG_ISSETTER         = "xsdgen:isSetMethodFor";
 
   // this is the character that replaces invalid characters when creating new
   // xml names.
@@ -79,7 +79,6 @@ public class Java2Schema extends BindingCompiler {
   //private Map mTns2Schema = new HashMap();
   private SchemaDocument.Schema mSchema;
   private JClass[] mClasses; // the input classes
-  private JAnnotationLoader mAnnotationLoader = null;
 
   // =========================================================================
   // Constructors
@@ -89,25 +88,6 @@ public class Java2Schema extends BindingCompiler {
       throw new IllegalArgumentException("null classes");
     }
     mClasses = classesToBind;
-  }
-
-  // ========================================================================
-  // Public methods
-
-  /**
-   * Sets the JAnnotionLoader to be used to 'overlay' external annotations
-   * onto the input JClass set.
-   */
-  public void setAnnotationLoader(JAnnotationLoader jal) {
-    if (jal == null) throw new IllegalArgumentException("null jal");
-    mAnnotationLoader = jal;
-    //FIXME this is a gross quick hack to get the external annotations
-    //working.  long term, we need to extend jam_old to allow a jam_old facade to be
-    //created that imposes the annotations without actually modifying the
-    //input JClasses like we do here.
-    for(int i=0; i<mClasses.length; i++) {
-      ((BaseJElement)mClasses[i]).setAnnotationLoader(mAnnotationLoader);
-    }
   }
 
   // ========================================================================
@@ -177,8 +157,8 @@ public class Java2Schema extends BindingCompiler {
     xsType.setName(xsdName);
     // deal with inheritance - see if it extends anything
     JClass superclass = clazz.getSuperclass();
-    if (superclass != null && !superclass.isObject() &&
-      !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
+    if (superclass != null && !superclass.isObjectType() &&
+            !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
       // FIXME we're ignoring interfaces at the moment
       BindingType superBindingType = getBindingTypeFor(superclass);
       ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
@@ -190,35 +170,65 @@ public class Java2Schema extends BindingCompiler {
                                                      XmlTypeName.forTypeNamed(qname));
     ByNameBean bindType = new ByNameBean(btname);
     mBindingFile.addBindingType(bindType,true,true);
-    if (clazz.isPrimitive()) {
+    if (clazz.isPrimitiveType()) {
       // it's good to have registerd the dummy type, but don't go further
-      logError("Unexpected simple type: "+clazz.getQualifiedName());
+      logError("Unexpected simple type",clazz);
       return bindType;
     }
     String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
     if (rootName != null) {
       QName rootQName = new QName(tns, rootName);
       BindingTypeName docBtName =
-        BindingTypeName.forPair(getJavaName(clazz),
-                                XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, rootQName));
+              BindingTypeName.forPair(getJavaName(clazz),
+                                      XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, rootQName));
       SimpleDocumentBinding sdb = new SimpleDocumentBinding(docBtName);
       sdb.setTypeOfElement(btname.getXmlName());
       mBindingFile.addBindingType(sdb,true,true);
     }
     // run through the class' properties to populate the binding and xsdtypes
     SchemaPropertyFacade facade = new SchemaPropertyFacade(xsType,bindType,tns);
-    bindProperties(JPropertyImpl.getProperties(clazz.getDeclaredMethods()),facade);
+    Map props2issetters = new HashMap();
+    getIsSetters(clazz,props2issetters);
+    bindProperties(clazz.getDeclaredProperties(),props2issetters,facade);
     facade.finish();
     // check to see if they want to create a root elements from this type
-    JAnnotation[] anns = clazz.getAnnotations(TAG_CT_ROOT);
+    JAnnotation[] anns = getNamedTags(clazz.getAllJavadocTags(),TAG_CT_ROOT);
     for(int i=0; i<anns.length; i++) {
       TopLevelElement root = mSchema.addNewElement();
-      root.setName(makeNcNameSafe(anns[i].getStringValue()));
+      root.setName(makeNcNameSafe(anns[i].getValue
+                                  (JAnnotation.SINGLE_VALUE_NAME).asString()));
       root.setType(qname);
       // FIXME still not entirely clear to me what we should do about
       // the binding file here
     }
     return bindType;
+  }
+
+  private void getIsSetters(JClass clazz, Map outPropname2jmethod) {
+    JMethod[] methods = clazz.getDeclaredMethods();
+    for(int i=0; i<methods.length; i++) {
+      JAnnotation ann = methods[i].getAnnotation(TAG_ISSETTER);
+      if (ann != null) {
+        if (!methods[i].getReturnType().getQualifiedName().equals("boolean")) {
+          logWarning("Method "+methods[i].getQualifiedName()+" is marked "+
+                     TAG_ISSETTER+"\nbut it does not return boolean."+
+                     "Ignoring.");
+          continue;
+        }
+        if (methods[i].getParameters().length > 0) {
+          logWarning("Method "+methods[i].getQualifiedName()+" is marked "+
+                     TAG_ISSETTER+"\nbut takes arguments.  Ignoring.");
+          continue;
+        }
+        JAnnotationValue propNameVal = ann.getValue(JAnnotation.SINGLE_VALUE_NAME);
+        if (propNameVal == null) {
+          logWarning("Method "+methods[i].getQualifiedName()+" is marked "+
+                     TAG_ISSETTER+"\nbut but no property name is given.  Ignoring");
+          continue;
+        }
+        outPropname2jmethod.put(propNameVal.asString(),methods[i]);
+      }
+    }
   }
 
   /**
@@ -232,25 +242,28 @@ public class Java2Schema extends BindingCompiler {
    * @param facade Allows us to create and manipulate properties,
    * hides the dirty work
    */
-  private void bindProperties(JProperty[] props, SchemaPropertyFacade facade) {
+  private void bindProperties(JProperty[] props,
+                              Map props2issetters,
+                              SchemaPropertyFacade facade) {
     for(int i=0; i<props.length; i++) {
       if (getAnnotation(props[i],TAG_EL_EXCLUDE,false)) {
-        logVerbose("Marked excluded, skipping property "+props[i].getQualifiedName());
+        logVerbose("Marked excluded, skipping",props[i]);
         continue;
       }
       if (props[i].getGetter() == null || props[i].getSetter() == null) {
-        logVerbose("Does not have both getter and setter, skipping "+props[i].getQualifiedName());
+        logVerbose("Does not have both getter and setter, skipping",props[i]);
         continue; // REVIEW this might have to change someday
       }
+      String propName;
       { // determine the property name to use and set it
-        String propName = getAnnotation(props[i],TAG_AT_NAME,null);
+        propName = getAnnotation(props[i],TAG_AT_NAME,null);
         if (propName != null) {
           facade.newAttributeProperty(props[i]);
           facade.setSchemaName(propName);
         } else {
           facade.newElementProperty(props[i]);
           facade.setSchemaName(getAnnotation
-                               (props[i],TAG_EL_NAME,props[i].getSimpleName()));
+                         (props[i],TAG_EL_NAME,props[i].getSimpleName()));
         }
       }
       { // determine the property type to use and set it
@@ -259,16 +272,16 @@ public class Java2Schema extends BindingCompiler {
         if (annotatedType == null) {
           facade.setType(propType = props[i].getType());
         } else {
-          if (props[i].getType().isArray()) {
+          if (props[i].getType().isArrayType()) {
             //THIS IS A QUICK GROSS HACK THAT SHOULD BE REMOVED.
             //IF SOMEONE WANTS TO AS TYPE AN ARRAY PROPERTY, THEY NEED
             //TO ASTYPE IT TO THE ARRAY TYPE THEMSELVES
             annotatedType = "[L"+annotatedType+";";
           }
           propType = props[i].getType().forName(annotatedType);
-          if (propType.isUnresolved()) {
+          if (propType.isUnresolvedType()) {
             logError("Could not find class named '"+
-                    propType.getQualifiedName()+"'");
+                    propType.getQualifiedName()+"'",props[i]);
           } else {
             facade.setType(propType);
           }
@@ -278,14 +291,19 @@ public class Java2Schema extends BindingCompiler {
         facade.setGetter(props[i].getGetter());
         facade.setSetter(props[i].getSetter());
       }
+      {
+        JMethod issetter = (JMethod)props2issetters.get(propName);
+        if (issetter != null) facade.setIssetter(issetter);
+      }
       { // determine if the property is nillable
         JAnnotation a = props[i].getAnnotation(TAG_EL_NILLABLE);
         if (a != null) {
           // if the tag is there but empty, set it to true.  is that weird?
-          if (a.getStringValue().trim().length() == 0) {
+          JAnnotationValue val = a.getValue(JAnnotation.SINGLE_VALUE_NAME);
+          if (val == null || val.asString().trim().length() == 0) {
             facade.setNillable(true);
           } else {
-            facade.setNillable(a.getBooleanValue());
+            facade.setNillable(val.asBoolean());
           }
         }
       }
@@ -305,9 +323,22 @@ public class Java2Schema extends BindingCompiler {
    * if the annotation is not present.
    * REVIEW seems like having this functionality in jam_old would be nice
    */
-  private String getAnnotation(JElement elem, String annName, String dflt) {
-    JAnnotation ann = elem.getAnnotation(annName);
-    return (ann == null) ? dflt : ann.getStringValue();
+  private String getAnnotation(JAnnotatedElement elem,
+                               String annName,
+                               String dflt) {
+    //System.out.print("checking for "+annName+" on "+elem.getQualifiedName());
+    JAnnotation ann = getAnnotation(elem,annName);
+    if (ann == null) {
+      //System.out.println("...no annotation");
+      return dflt;
+    }
+    JAnnotationValue val = ann.getValue(JAnnotation.SINGLE_VALUE_NAME);
+    if (val == null) {
+      //System.out.println("...no value!!!");
+      return dflt;
+    }
+    //System.out.println("\n\n\n...value of "+annName+" is "+val.asString()+"!!!!!!!!!");
+    return val.asString();
   }
 
   /**
@@ -315,13 +346,35 @@ public class Java2Schema extends BindingCompiler {
    * if the annotation is not present.
    * REVIEW seems like having this functionality in jam_old would be nice
    */
-  private boolean getAnnotation(JElement elem, String annName, boolean dflt) {
-    JAnnotation ann = elem.getAnnotation(annName);
-//    return (ann == null) ? dflt : ann.getBooleanValue();
-    if (ann == null) return false;
-    String a = ann.getStringValue();
-    if (a == null || a.trim().length() == 0) return true; //ewww
-    return ann.getBooleanValue();
+  private boolean getAnnotation(JAnnotatedElement elem,
+                                String annName,
+                                boolean dflt) {
+    //System.out.print("checking for "+annName+" on "+elem.getQualifiedName());
+    JAnnotation ann = getAnnotation(elem,annName);
+    if (ann == null) {
+      //System.out.println("...no annotation");
+      return dflt;
+    }
+    JAnnotationValue val = ann.getValue(JAnnotation.SINGLE_VALUE_NAME);
+    if (val == null || val.asString().length() == 0) {
+      //System.out.println("\n\n\n...no value, returning true!!!");
+      //this is a little bit gross.  the logic here is that if the tag is
+      //present but empty, it actually is a true value.  E.g., an empty
+      //@exclude tag means "yes, do exclude."
+      return true;
+    }
+    //System.out.println("\n\n\n...value of "+annName+" is "+val.asBoolean()+"!!!!!!!!!");
+    return val.asBoolean();
+  }
+
+  //FIXME this is temporary until we get the tags/175 sorted out
+  private JAnnotation getAnnotation(JAnnotatedElement e,
+                                    String named) {
+    JAnnotation[] tags = e.getAllJavadocTags();
+    for(int i=0; i<tags.length; i++) {
+      if (tags[i].getSimpleName().equals(named)) return tags[i];
+    }
+    return null;
   }
 
   /**
@@ -331,10 +384,10 @@ public class Java2Schema extends BindingCompiler {
     getBindingTypeFor(clazz);  //ensure that we've bound it
     JavaTypeName jtn = JavaTypeName.forString(clazz.getQualifiedName());
     BindingTypeName btn = mLoader.lookupTypeFor(jtn);
-    logVerbose("BindingTypeName is "+btn);
+    logVerbose("BindingTypeName is "+btn,clazz);
     BindingType bt = mLoader.getBindingType(btn);
     if (bt != null) return bt.getName().getXmlName().getQName();
-    logError("could not get qname");
+    logError("could not get qname",clazz);
     return new QName("ERROR",clazz.getQualifiedName());
   }
 
@@ -343,18 +396,18 @@ public class Java2Schema extends BindingCompiler {
    * This takes annotations into consideration.
    */
   private String getTargetNamespace(JClass clazz) {
-    JAnnotation ann = clazz.getAnnotation(TAG_CT_TARGETNS);
-    if (ann != null) return ann.getStringValue();
+    String val = getAnnotation(clazz,TAG_CT_TARGETNS,null);
+    if (val != null) return val;
     // Ok, they didn't specify it in the markup, so we have to
     // synthesize it from the classname.
     String pkg_name;
-    if (clazz.isPrimitive()) {
+    if (clazz.isPrimitiveType()) {
       pkg_name = JAVA_NAMESPACE_URI;
     } else {
       JPackage pkg = clazz.getContainingPackage();
       pkg_name = (pkg == null) ? "" : pkg.getQualifiedName();
       if (pkg_name.startsWith(JAVA_PACKAGE_PREFIX)) {
-        pkg_name = JAVA_NAMESPACE_URI+"."+
+        pkg_name = JAVA_NAMESPACE_URI+'.'+
                 pkg_name.substring(JAVA_PACKAGE_PREFIX.length());
       }
     }
@@ -536,9 +589,9 @@ public class Java2Schema extends BindingCompiler {
      */
     public void setType(JClass propType) {
       if (mXsElement != null) {
-        if (propType.isArray()) {
+        if (propType.isArrayType()) {
           if (propType.getArrayDimensions() != 1) {
-            logError("Multidimensional arrays NYI"); //FIXME
+            logError("Multidimensional arrays NYI",mSrcContext); //FIXME
           }
           JClass componentType = propType.getArrayComponentType();
           mXsElement.setMaxOccurs("unbounded");
@@ -552,8 +605,9 @@ public class Java2Schema extends BindingCompiler {
           mBtsProp.setBindingType(getBindingTypeFor(propType));
         }
       } else if (mXsAttribute != null) {
-        if (propType.isArray()) {
-          logError("Array properties cannot be mapped to xml attributes");
+        if (propType.isArrayType()) {
+          logError("Array properties cannot be mapped to xml attributes",
+                  mSrcContext);
         } else {
           mXsAttribute.setType(getQnameFor(propType));
           mBtsProp.setBindingType(getBindingTypeFor(propType));
@@ -571,7 +625,7 @@ public class Java2Schema extends BindingCompiler {
         mXsElement.setNillable(b);
         mBtsProp.setNillable(b);
       } else if (mXsAttribute != null) {
-        logError("Attributes cannot be nillable:");
+        logError("Attributes cannot be nillable:",mSrcContext);
       } else {
         throw new IllegalStateException();
       }
@@ -613,6 +667,22 @@ public class Java2Schema extends BindingCompiler {
       mBtsProp = new QNameProperty();
     }
   }
+
+
+  //this is temporary, will go away when we have our 175 story straight
+  private static JAnnotation[] getNamedTags(JAnnotation[] tags,
+                                            String named)
+  {
+    if (tags == null || tags.length == 0) return new JAnnotation[0];
+    List list = new ArrayList();
+    for(int i=0; i<tags.length; i++) {
+      if (tags[i].getSimpleName().equals(named)) list.add(tags[i]);
+    }
+    JAnnotation[] out = new JAnnotation[list.size()];
+    list.toArray(out);
+    return out;
+  }
+
 
 
 }

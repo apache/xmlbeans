@@ -149,7 +149,7 @@ public class Java2SchemaTask extends BindingCompilerTask {
     } catch(IOException ioe) {
       throw new BuildException(ioe);
     }
-    return new Java2Schema_new(service.getAllClasses());
+    return new Java2Schema(service.getAllClasses());
   }
 
   // ========================================================================
