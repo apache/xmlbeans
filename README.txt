@@ -1,4 +1,4 @@
-XMLBeans v1.0.4-rc1
+XMLBeans v1.0.4
 
 Welcome to XmlBeans!
 

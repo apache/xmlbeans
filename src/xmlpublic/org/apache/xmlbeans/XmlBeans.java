@@ -28,7 +28,7 @@ import java.lang.reflect.Method;
 public final class XmlBeans
 {
     private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
-    private static String XMLBEANS_VERSION = "1.0.4-rc1";
+    private static String XMLBEANS_VERSION = "1.0.4";
     private static String XMLBEANS_VENDOR = "Apache Software Foundation";
 
     static
