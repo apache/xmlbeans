@@ -28,18 +28,15 @@ abstract class PullSoapMarshalResult
     private final ObjectRefTable objectRefTable;
     private final boolean writingMultiRefdObjs;
 
-    protected static final String ID_PREFIX = "i";
-
-
     //TODO: REVIEW: consider ways to reduce the number of parameters here
     PullSoapMarshalResult(BindingLoader loader,
-                      RuntimeBindingTypeTable tbl,
-                      NamespaceContext root_nsctx,
-                      RuntimeBindingProperty property,
-                      Object obj,
-                      XmlOptions options,
-                      ObjectRefTable object_ref_table,
-                      boolean writingMultiRefdObjs)
+                          RuntimeBindingTypeTable tbl,
+                          NamespaceContext root_nsctx,
+                          RuntimeBindingProperty property,
+                          Object obj,
+                          XmlOptions options,
+                          ObjectRefTable object_ref_table,
+                          boolean writingMultiRefdObjs)
         throws XmlException
     {
         super(loader, tbl, root_nsctx, property, obj, options);
@@ -67,7 +64,8 @@ abstract class PullSoapMarshalResult
         if (objectRefTable != null) {
             int id = objectRefTable.getId(top_lvl_obj);
             if (id >= 0) {
-                fillAndAddAttribute(getIdAttributeName(), ID_PREFIX + id);
+                fillAndAddAttribute(getIdAttributeName(),
+                                    Soap11Constants.constructRefValueFromId(id));
             }
         }
 

@@ -50,6 +50,13 @@ abstract class AttributeUnmarshaller
         type.getFinalObjectFromIntermediary(inter, context);
     }
 
+    public void unmarshalIntoIntermediary(Object intermediary,
+                                          UnmarshalResult result)
+        throws XmlException
+    {
+        throw new AssertionError("UNIMP!!!");
+    }
+
     public Object unmarshalAttribute(UnmarshalResult context)
     {
         throw new UnsupportedOperationException("not an attribute: " +

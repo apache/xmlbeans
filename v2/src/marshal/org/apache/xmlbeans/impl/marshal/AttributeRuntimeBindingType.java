@@ -108,8 +108,6 @@ abstract class AttributeRuntimeBindingType
 
     protected abstract Collection getQNameProperties();
 
-    protected abstract Object createIntermediary(UnmarshalResult context);
-
     //some subclass will certainly need to override this
     protected Object createIntermediary(UnmarshalResult context,
                                         Object actual_object)

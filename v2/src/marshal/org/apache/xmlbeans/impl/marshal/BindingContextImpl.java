@@ -22,6 +22,7 @@ import org.apache.xmlbeans.SoapMarshaller;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SoapUnmarshaller;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 import java.util.Collection;
@@ -92,6 +93,18 @@ final class BindingContextImpl implements BindingContext
         return new SoapMarshallerImpl(bindingLoader,
                                       typeTable,
                                       encodingStyle);
+    }
+
+    public SoapUnmarshaller createSoapUnmarshaller(EncodingStyle encodingStyle)
+        throws XmlException
+    {
+        if (encodingStyle == null) {
+            throw new IllegalArgumentException("null encodingStyle");
+        }
+
+        return new SoapUnmarshallerImpl(bindingLoader,
+                                        typeTable,
+                                        encodingStyle);
     }
 
     static Collection extractErrorHandler(XmlOptions options)

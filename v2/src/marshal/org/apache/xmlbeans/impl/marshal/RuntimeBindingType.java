@@ -23,14 +23,15 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.StringReader;
-import java.lang.reflect.Method;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * what we need to know about a binding type at runtime.
@@ -42,7 +43,8 @@ abstract class RuntimeBindingType
     private final BindingType bindingType;
     private final Class javaClass;
     private final boolean javaPrimitive;
-    private final boolean javaFinal;
+    private final boolean canHaveSubtype;
+
     private TypeMarshaller marshaller;
     private TypeUnmarshaller unmarshaller;
 
@@ -71,7 +73,10 @@ abstract class RuntimeBindingType
         }
 
         javaPrimitive = javaClass.isPrimitive();
-        javaFinal = ReflectionUtils.isClassFinal(javaClass);
+        canHaveSubtype = !(javaPrimitive ||
+            ReflectionUtils.isClassFinal(javaClass) ||
+            isTypeAnonymous(bindingType));
+
         unmarshaller = um;
         marshaller = m;
     }
@@ -80,6 +85,11 @@ abstract class RuntimeBindingType
     abstract void accept(RuntimeTypeVisitor visitor)
         throws XmlException;
 
+
+    protected Object createIntermediary(UnmarshalResult context)
+    {
+        throw new UnsupportedOperationException("this=" + this);
+    }
 
     Object getObjectFromIntermediate(Object inter)
     {
@@ -138,9 +148,16 @@ abstract class RuntimeBindingType
         return javaPrimitive;
     }
 
-    final boolean isJavaFinal()
+    final boolean canHaveSubtype()
     {
-        return javaFinal;
+        return canHaveSubtype;
+    }
+
+    private static boolean isTypeAnonymous(BindingType btype)
+    {
+        final XmlTypeName xml_type = btype.getName().getXmlName();
+        assert xml_type.isSchemaType();
+        return !xml_type.isGlobal();
     }
 
     final protected TypeUnmarshaller getUnmarshaller()
@@ -228,6 +245,7 @@ abstract class RuntimeBindingType
     }
 
     abstract boolean hasElementChildren();
+
 
     protected abstract static class BeanRuntimeProperty
         extends RuntimeBindingProperty

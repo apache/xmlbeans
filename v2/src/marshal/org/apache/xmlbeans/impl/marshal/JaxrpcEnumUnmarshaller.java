@@ -37,7 +37,7 @@ final class JaxrpcEnumUnmarshaller
         try {
             return runtimeType.fromValue(itemValue, result);
         }
-        catch(InvalidLexicalValueException e) {
+        catch (InvalidLexicalValueException e) {
             result.addError(e.getMessage(), e.getLocation());
             throw e;
         }
@@ -49,6 +49,12 @@ final class JaxrpcEnumUnmarshaller
         throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
+    public void unmarshalIntoIntermediary(Object intermediary,
+                                          UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
+    }
 
     public Object unmarshalAttribute(UnmarshalResult result)
         throws XmlException

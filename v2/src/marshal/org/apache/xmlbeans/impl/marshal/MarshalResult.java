@@ -88,8 +88,7 @@ abstract class MarshalResult
         do {
             prefix = NSPREFIX + (++prefixCnt);
             testuri = getNamespaceContext().getNamespaceURI(prefix);
-        }
-        while (testuri != null);
+        } while (testuri != null);
         assert prefix != null;
         return prefix;
     }
@@ -158,9 +157,7 @@ abstract class MarshalResult
                                                    Object instance)
         throws XmlException
     {
-        if (instance == null ||
-            expected.isJavaPrimitive() ||
-            expected.isJavaFinal()) {
+        if (instance == null || !expected.canHaveSubtype()) {
             return expected;
         }
 

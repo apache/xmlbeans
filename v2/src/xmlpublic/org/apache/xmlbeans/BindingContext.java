@@ -78,4 +78,14 @@ public interface BindingContext
         throws XmlException;
 
 
+    /**
+     * Create an Marshaller object capable of marshalling types
+     * known by this context
+     *
+     * @return Marshaller object
+     * @throws XmlException
+     */
+    SoapUnmarshaller createSoapUnmarshaller(EncodingStyle encodingStyle)
+        throws XmlException;
+
 }

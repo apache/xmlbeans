@@ -29,7 +29,7 @@ import java.lang.reflect.Method;
 
 abstract class RuntimeBindingProperty
 {
-    protected final RuntimeBindingType containingType;
+    private final RuntimeBindingType containingType;
 
     //TODO: when we have other types of factories,
     //this will need to more general
@@ -87,6 +87,7 @@ abstract class RuntimeBindingProperty
 
     abstract QName getName();
 
+
     //non simple type props can throw an exception
     final CharSequence getLexical(Object value,
                                   MarshalResult result)
@@ -135,15 +136,7 @@ abstract class RuntimeBindingProperty
         try {
             final Object this_val;
             if (hasFactory()) {
-                final Object actual_obj =
-                    containingType.getObjectFromIntermediate(inter);
-                if (parentFactoryMethodTakesClassArg) {
-                    this_val =
-                        createObjectViaFactory(actual_obj,
-                                               rtt.getJavaType());
-                } else {
-                    this_val = createObjectViaFactory(actual_obj);
-                }
+                this_val = createObjectViaFactory(inter, rtt);
                 um.unmarshalAttribute(this_val, context);
             } else {
                 this_val = um.unmarshalAttribute(context);
@@ -157,69 +150,6 @@ abstract class RuntimeBindingProperty
         }
     }
 
-    final void extractAndFillElementProp(final UnmarshalResult context,
-                                         Object inter)
-        throws XmlException
-    {
-        try {
-            final String lexical_default = this.getLexicalDefault();
-            if (lexical_default != null) {
-                context.setNextElementDefault(lexical_default);
-            }
-            final RuntimeBindingType actual_rtt =
-                context.determineActualRuntimeType(getRuntimeBindingType());
-            final Object this_val;
-            if (hasFactory()) {
-                final Object actual_obj =
-                    containingType.getObjectFromIntermediate(inter);
-                if (parentFactoryMethodTakesClassArg) {
-                    this_val = createObjectViaFactory(actual_obj,
-                                                      actual_rtt.getJavaType());
-                } else {
-                    this_val = createObjectViaFactory(actual_obj);
-                }
-                actual_rtt.getUnmarshaller().unmarshal(this_val, context);
-            } else {
-                final TypeUnmarshaller um;
-                if (context.hasXsiNil()) {
-                    um = NullUnmarshaller.getInstance();
-                } else {
-                    um = actual_rtt.getUnmarshaller();
-                }
-                this_val = um.unmarshal(context);
-            }
-            fill(inter, this_val);
-        }
-        catch (InvalidLexicalValueException ilve) {
-            //unlike attributes, the error has been added to the context
-            //already via BaseSimpleTypeConveter...
-        }
-    }
-
-    private Object createObjectViaFactory(Object parent,
-                                          Class actual_prop_class)
-        throws XmlException
-    {
-        assert parent != null;
-        assert parentFactoryMethod != null;
-        assert parentFactoryMethodTakesClassArg;
-
-        return ReflectionUtils.invokeMethod(parent,
-                                            parentFactoryMethod,
-                                            new Object[]{actual_prop_class});
-    }
-
-    private Object createObjectViaFactory(Object parent)
-        throws XmlException
-    {
-        assert parent != null;
-        assert parentFactoryMethod != null;
-        assert !parentFactoryMethodTakesClassArg;
-
-        return ReflectionUtils.invokeMethod(parent,
-                                            parentFactoryMethod,
-                                            null);
-    }
 
     //these methods should be used only by this type and subclasses
     protected abstract void fill(Object inter, Object prop_obj)
@@ -230,5 +160,28 @@ abstract class RuntimeBindingProperty
         return parentFactoryMethod != null;
     }
 
+    Object createObjectViaFactory(Object inter,
+                                  final RuntimeBindingType actual_rtt)
+        throws XmlException
+    {
+        final Object actual_obj =
+            containingType.getObjectFromIntermediate(inter);
+
+        assert actual_obj != null;
+        assert parentFactoryMethod != null;
+
+
+        final Object[] params;
+        if (parentFactoryMethodTakesClassArg) {
+            params = new Object[]{actual_rtt.getJavaType()};
+        } else {
+            params = null;
+        }
+
+        return ReflectionUtils.invokeMethod(actual_obj,
+                                            parentFactoryMethod,
+                                            params);
+
+    }
 
 }

@@ -21,7 +21,7 @@ import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
-public final class ObjectRefTable
+final class ObjectRefTable
 {
     private final IdentityHashMap table = new IdentityHashMap();
     private boolean haveMultiplyRefdObj = false;

@@ -15,29 +15,20 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
+import java.util.Map;
+import java.util.HashMap;
 
-import javax.xml.namespace.QName;
-
-class Soap11RefdObjectVisitor
-    extends RefdObjectVisitor
+final class RefObjectTable
 {
-    public Soap11RefdObjectVisitor(RuntimeBindingProperty property,
-                                   Object obj,
-                                   PullMarshalResult result,
-                                   int id)
-        throws XmlException
+    private final Map refTable = new HashMap();
+
+    Object getObjectForRef(String ref)
     {
-        super(property, obj, result, id);
+        return refTable.get(ref);
     }
 
-    protected QName getRefQName()
+    void putObjectForRef(String ref, Object val)
     {
-        return Soap11Constants.REF_NAME;
-    }
-
-    protected String getRefValue()
-    {
-        return Soap11Constants.constructRefValueFromId(id);
+        refTable.put(ref, val);
     }
 }

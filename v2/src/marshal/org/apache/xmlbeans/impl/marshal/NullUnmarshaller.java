@@ -44,6 +44,13 @@ final class NullUnmarshaller
         throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
+    public void unmarshalIntoIntermediary(Object intermediary,
+                                          UnmarshalResult result)
+        throws XmlException
+    {
+        result.skipElement();
+    }
+
     public Object unmarshalAttribute(UnmarshalResult context)
     {
         throw new UnsupportedOperationException("not supported: this=" + this);

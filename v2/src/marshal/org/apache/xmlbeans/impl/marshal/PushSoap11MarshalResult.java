@@ -25,13 +25,6 @@ import javax.xml.stream.XMLStreamWriter;
 final class PushSoap11MarshalResult
     extends PushSoapMarshalResult
 {
-
-    private static final QName ID_NAME = new QName("id");
-    private static final QName REF_NAME = new QName("href");
-    private static final String REF_PREFIX =
-        '#' + PullSoapMarshalResult.ID_PREFIX;
-
-
     PushSoap11MarshalResult(BindingLoader bindingLoader,
                             RuntimeBindingTypeTable typeTable,
                             XMLStreamWriter writer,
@@ -44,16 +37,21 @@ final class PushSoap11MarshalResult
 
     protected QName getRefQName()
     {
-        return REF_NAME;
+        return Soap11Constants.REF_NAME;
     }
 
     protected String getRefValue(int id)
     {
-        return REF_PREFIX + Integer.toString(id);
+        return Soap11Constants.constructRefValueFromId(id);
     }
 
     protected QName getIdQName()
     {
-        return ID_NAME;
+        return Soap11Constants.ID_NAME;
+    }
+
+    protected String getIdValue(int id)
+    {
+        return Soap11Constants.constructRefValueFromId(id);
     }
 }
