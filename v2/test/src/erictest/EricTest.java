@@ -152,24 +152,17 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        String xml =
-            "<schema\n" +
-            "  xmlns='http://www.w3.org/2001/XMLSchema'>\n" +
-            "</schema>";
+        Document doc = Public.parse( "<a><b><c/></b><d/><b/></a>", Public.memoryBackend() );
 
-//        String xml =
-//            "<schema\n" +
-//            "  xmlns='http://www.w3.org/2001/XMLSchema'>\n" +
-//            "</schema>";
+        NodeList elements = doc.getDocumentElement().getElementsByTagName( "*" );
 
-        XmlObject document = XmlObject.Factory.parse( xml );
-//        document.getSchema().save( System.out );
-        XmlCursor c = document.newCursor();
-        c.toFirstChild();
-        c.getObject().newDomNode();
-//        document.getSchema().newDomNode();
+        for ( int i = 0 ; i < elements.getLength() ; i++ )
+        {
+            org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( elements.item( i ) );
+        }
+
+
         
-
         
 //        charTest();
         domTest();
