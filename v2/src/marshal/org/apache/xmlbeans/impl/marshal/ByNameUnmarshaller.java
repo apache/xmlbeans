@@ -147,9 +147,11 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
             prop.fill(inter, prop_val);
         }
         catch (InvalidLexicalValueException ilve) {
+            // (cezar) Todo: for Scott to take a look
             //error messages should have been added to the context by this
             //point, so we'll just skip calling any setters and keep on going
-            assert !context.getErrors().isEmpty();
+            //context.addError(ilve.getMessage());
+            //assert !context.getErrors().isEmpty();
         }
     }
 
