@@ -156,7 +156,8 @@ public class Java2SchemaTask extends Task {
   public void execute() throws BuildException {
     JFactory jf = JFactory.getInstance();
     String[] list = mSrcDir.list();
-    if (list.length != 1) throw new IllegalStateException("NYI");
+    if (list.length == 0) throw new BuildException("srcDir attribute required");
+    if (list.length > 1) throw new BuildException("multipled srcDirs NYI");
     JFileSet fs = jf.createFileSet(new File(list[0]));
     fs.include(mIncludes);
     String classpathString = null;

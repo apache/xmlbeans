@@ -138,7 +138,6 @@ public class JFileSetImpl implements JFileSet {
     }
   }
 
-
   // ========================================================================
   // JFileSet implementation
 
