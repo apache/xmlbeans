@@ -41,7 +41,7 @@ abstract class MarshalResult
     private int prefixCnt = 0;
 
     private static final String NSPREFIX = "n";
-    private static final boolean PRETTY_PREFIX = false;
+    private static final boolean PRETTY_PREFIX = true;
 
 
     //TODO: REVIEW: consider ways to reduce the number of parameters here
