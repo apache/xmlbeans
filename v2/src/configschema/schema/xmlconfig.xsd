@@ -37,6 +37,14 @@
           </xs:annotation>
         </xs:element>
 
+        <xs:element name="extension" type="xb:extensionconfig">
+          <xs:annotation>
+              <xs:documentation>
+                  Specifies extensions for the generated types in the 'for' attribute.
+              </xs:documentation>
+          </xs:annotation>
+        </xs:element>
+
       </xs:choice>
     </xs:complexType>
   </xs:element>
@@ -76,7 +84,7 @@
 
     </xs:sequence>
 
-    <xs:attribute name="uri" type="xs:namespaceList">
+    <xs:attribute name="uri" type="xb:namespaceList">
       <xs:annotation>
         <xs:documentation>
           A list of any number of namespace URIs or ##local for the no-namespace,
@@ -120,5 +128,100 @@
      </xs:simpleType>
     </xs:union>
    </xs:simpleType>
-  
+
+    <xs:complexType name="extensionconfig">
+       <xs:sequence>
+          <xs:element name="interface" minOccurs="0" maxOccurs="unbounded" >
+              <xs:annotation>
+                  <xs:documentation>
+                      The extension interface (it has to be on the classpath).
+                      All the generated types in this domain will implement this interface,
+                      the calls will be redirected to the handler.
+                  </xs:documentation>
+              </xs:annotation>
+               <xs:complexType>
+                   <xs:choice>
+                       <xs:element name="staticHandler" type="xs:string">
+                           <xs:annotation>
+                               <xs:documentation>
+                                   The name of the handler class for this extension interface.
+                                   The handler must contain public static methods for each method
+                                   in the interface, and they have to have the following signature.
+                                   Example:
+                                   - method in the extension interface:
+                                         public String foo(String s)
+                                   - method in the handler:
+                                         public static String foo(XmlObject xo, String s)
+                               </xs:documentation>
+                           </xs:annotation>
+                        </xs:element>
+                       <!--xs:element name="implementationClass" type="xs:string" /-->
+                   </xs:choice>
+                   <xs:attribute name="name" type="xs:string">
+                       <xs:annotation>
+                           <xs:documentation>
+                               The extension interface name (it has to be on the classpath).
+                           </xs:documentation>
+                       </xs:annotation>
+                   </xs:attribute>
+               </xs:complexType>
+           </xs:element>
+           <xs:element name="prePostSet" minOccurs="0" maxOccurs="1" >
+               <xs:annotation>
+                   <xs:documentation>
+                       preSet and postSet calls will get generated in the implementation classes. (Only for setter methods).
+                   </xs:documentation>
+               </xs:annotation>
+               <xs:complexType>
+                   <xs:sequence>
+                       <xs:element name="staticHandler" type="xs:string">
+                           <xs:annotation>
+                               <xs:documentation>
+                                   The name of the handler class for preSet and postSet methods.
+                                   The handler must contain the following public static methods.
+                                   public static boolean preSet(int opType, XmlObject xo, QName prop, boolean isAttr, int index)
+                                   {
+                                       ...
+                                       return true; // true to execute store implementation code, false to skip it
+                                   }
+
+                                   public static void postSet(int opType, XmlObject xo, QName prop, boolean isAttr, int index)
+                                   {...}
+                               </xs:documentation>
+                           </xs:annotation>
+                        </xs:element>
+                   </xs:sequence>
+               </xs:complexType>
+           </xs:element>
+       </xs:sequence>
+       <xs:attribute name="for" type="xb:javaNameList">
+         <xs:annotation>
+            <xs:documentation>
+                '*' or a list of generated java types (interfaces) that reprezents this extension domain.
+            </xs:documentation>
+         </xs:annotation>
+       </xs:attribute>
+    </xs:complexType>
+
+     <xs:simpleType name="javaNameList">
+         <xs:annotation>
+             <xs:documentation>
+                 A list of generated java interface names or '*' for all interfaces.
+             </xs:documentation>
+         </xs:annotation>
+         <xs:union>
+             <xs:simpleType>
+                 <xs:restriction base="xs:token">
+                     <xs:enumeration value="*" />
+                 </xs:restriction>
+             </xs:simpleType>
+             <xs:simpleType>
+                 <xs:list itemType="xb:javaName" />
+             </xs:simpleType>
+         </xs:union>
+     </xs:simpleType>
+
+     <xs:simpleType name="javaName">
+         <xs:restriction base="xs:token" />
+     </xs:simpleType>
 </xs:schema>

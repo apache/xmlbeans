@@ -19,9 +19,14 @@ import java.io.Writer;
 import java.io.IOException;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.common.NameUtil;
+import org.apache.xmlbeans.impl.config.ExtensionHolder;
+import org.apache.xmlbeans.impl.config.InterfaceExtension;
+import org.apache.xmlbeans.impl.config.PrePostExtension;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaProperty;
@@ -548,10 +553,39 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
         */
 
-        emit("public interface " + shortName + " extends " + baseInterface);
+        emit("public interface " + shortName + " extends " + baseInterface + getExtensionInterfaces(sType));
         emit("{");
         indent();
         emitSpecializedAccessors(sType);
+    }
+
+    private static String getExtensionInterfaces(SchemaType sType)
+    {
+        SchemaTypeImpl sImpl = getImpl(sType);
+        if (sImpl == null)
+            return "";
+
+        StringBuffer sb = new StringBuffer();
+
+        ExtensionHolder extHolder = sImpl.getExtensionHolder();
+        if (extHolder != null)
+        {
+            List exts = extHolder.getInterfaceExtensionsFor(sType.getFullJavaName());
+            for (Iterator i = exts.iterator(); i.hasNext();)
+            {
+                InterfaceExtension ext = (InterfaceExtension) i.next();
+                sb.append(", " + ext.getInterfaceNameForJavaSource());
+            }
+        }
+        return sb.toString();
+    }
+
+    private static SchemaTypeImpl getImpl(SchemaType sType)
+    {
+        if (sType instanceof SchemaTypeImpl)
+            return (SchemaTypeImpl) sType;
+        else
+            return null;
     }
 
     private void emitSpecializedAccessors(SchemaType sType) throws IOException
@@ -1551,16 +1585,75 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         outdent();
         emit("}");
     }
-    
+
+    void emitDeclareTarget(boolean declareTarget, String xtype)
+        throws IOException
+    {
+         if (declareTarget)
+             emit(xtype + " target = null;");
+  	}
+
     void emitAddTarget(String identifier, boolean isAttr, boolean declareTarget, String xtype)
         throws IOException
     {
-        if (declareTarget)
-            emit(xtype + " target;");
         if (isAttr)
             emit("target = (" + xtype + ")get_store().add_attribute_user(" + identifier + ");");
         else
             emit("target = (" + xtype + ")get_store().add_element_user(" + identifier + ");");
+    }
+
+    void emitPre(SchemaType sType, int opType, String identifier, boolean isAttr) throws IOException
+    {
+        emitPre(sType, opType, identifier, isAttr, "-1");
+    }
+
+    void emitPre(SchemaType sType, int opType, String identifier, boolean isAttr, String index) throws IOException
+    {
+        SchemaTypeImpl sImpl = getImpl(sType);
+        if (sImpl == null)
+            return;
+
+        ExtensionHolder extHolder = sImpl.getExtensionHolder();
+        if (extHolder == null)
+            return;
+
+        PrePostExtension ext = extHolder.getPrePostExtensionsFor(sType.getFullJavaName());
+        if (ext != null)
+        {
+            if (ext.hasPreCall())
+            {
+                emit("if ( " + ext.getPreCall(opType, identifier, isAttr, index) + " )");
+                startBlock();
+            }
+        }
+    }
+
+    void emitPost(SchemaType sType, int opType, String identifier, boolean isAttr) throws IOException
+    {
+        emitPost(sType, opType, identifier, isAttr, "-1");
+    }
+
+    void emitPost(SchemaType sType, int opType, String identifier, boolean isAttr, String index) throws IOException
+    {
+        SchemaTypeImpl sImpl = getImpl(sType);
+        if (sImpl == null)
+            return;
+
+        ExtensionHolder extHolder = sImpl.getExtensionHolder();
+        if (extHolder == null)
+            return;
+
+        PrePostExtension ext = extHolder.getPrePostExtensionsFor(sType.getFullJavaName());
+        if (ext != null)
+        {
+            if (ext.hasPreCall())
+            {
+                endBlock();
+            }
+
+            if (ext.hasPostCall())
+                emit(ext.getPostCall(opType, identifier, isAttr, index));
+        }
     }
 
     private static final int NOTHING = 1;
@@ -1594,6 +1687,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         switch (nullBehaviour)
         {
             case ADD_NEW_VALUE:
+                // target already emited, no need for emitDeclareTarget(false, xtype);
                 emitAddTarget(identifier, isAttr, false, xtype);
                 break;
 
@@ -1793,10 +1887,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printSetterImpls(QName qName, boolean isAttr,
                        String propertyName, int javaType, String type, String xtype,
-                       boolean nillable, boolean optional,
-                       boolean several, boolean singleton,
-                       boolean isunion,
-                       String identifier, String setIdentifier) throws IOException
+                       boolean nillable, boolean optional, boolean several, boolean singleton,
+                       boolean isunion, String identifier, String setIdentifier, SchemaType sType)
+        throws IOException
     {
         String safeVarName = NameUtil.nonJavaKeyword(NameUtil.lowerCamelCase(propertyName));
         if (safeVarName.equals("i"))
@@ -1819,8 +1912,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emit("public void set" + propertyName + "(" + type + " " + safeVarName + ")");
             startBlock();
             emitImplementationPreamble();
+            emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
             emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, jtargetType);
             emit(jSet + "(" + safeVarName + ");");
+            emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
             emitImplementationPostamble();
             endBlock();
 
@@ -1831,8 +1926,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public void xset" + propertyName + "(" + xtype + " " + safeVarName + ")");
                 startBlock();
                 emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, xtype);
                 emit("target.set(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emitImplementationPostamble();
                 endBlock();
 
@@ -1845,7 +1942,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public " + xtype + " addNew" + propertyName + "()");
                 startBlock();
                 emitImplementationPreamble();
+                emitDeclareTarget(true, xtype);
+  	            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emitAddTarget(identifier, isAttr, true, xtype);
+                emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emit("return target;");
                 emitImplementationPostamble();
                 endBlock();
@@ -1857,8 +1957,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public void setNil" + propertyName + "()");
                 startBlock();
                 emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emitGetTarget(setIdentifier, identifier, isAttr, "0", ADD_NEW_VALUE, xtype);
                 emit("target.setNil();");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, several ? "0" : "-1");
                 emitImplementationPostamble();
                 endBlock();
             }
@@ -1870,10 +1972,12 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emit("public void unset" + propertyName + "()");
             startBlock();
             emitImplementationPreamble();
+            emitPre(sType, PrePostExtension.OPERATION_REMOVE, identifier, isAttr, several ? "0" : "-1");
             if (isAttr)
                 emit("get_store().remove_attribute(" + identifier + ");");
             else
                 emit("get_store().remove_element(" + setIdentifier + ", 0);");
+            emitPost(sType, PrePostExtension.OPERATION_REMOVE, identifier, isAttr, several ? "0" : "-1");
             emitImplementationPostamble();
             endBlock();
         }
@@ -1887,6 +1991,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emit("public void set" + arrayName + "(" + type + "[] " + safeVarName + "Array)");
             startBlock();
             emitImplementationPreamble();
+            emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
 
             if (isobj)
             {
@@ -1902,6 +2007,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 else
                     emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ", " + setIdentifier + ");" );
             }
+
+            emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
             emitImplementationPostamble();
             endBlock();
 
@@ -1909,8 +2016,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emit("public void set" + arrayName + "(int i, " + type + " " + safeVarName + ")");
             startBlock();
             emitImplementationPreamble();
+            emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
             emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, jtargetType);
             emit(jSet + "(" + safeVarName + ");");
+            emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
             emitImplementationPostamble();
             endBlock();
 
@@ -1920,8 +2029,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public void xset" + arrayName + "(" + xtype + "[]" + safeVarName + "Array)");
                 startBlock();
                 emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
                 emit("arraySetterHelper(" + safeVarName + "Array" + ", " + identifier + ");" );
-
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr);
                 emitImplementationPostamble();
                 endBlock();
 
@@ -1929,8 +2039,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public void xset" + arrayName + "(int i, " + xtype + " " + safeVarName + ")");
                 startBlock();
                 emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, xtype);
                 emit("target.set(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emitImplementationPostamble();
                 endBlock();
             }
@@ -1941,8 +2053,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public void setNil" + arrayName + "(int i)");
                 startBlock();
                 emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emitGetTarget(setIdentifier, identifier, isAttr, "i", THROW_EXCEPTION, xtype);
                 emit("target.setNil();");
+                emitPost(sType, PrePostExtension.OPERATION_SET, identifier, isAttr, "i");
                 emitImplementationPostamble();
                 endBlock();
             }
@@ -1953,6 +2067,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public void insert" + propertyName + "(int i, " + type + " " + safeVarName + ")");
                 startBlock();
                 emitImplementationPreamble();
+                emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
                 emit(jtargetType + " target = ");
                 indent();
                 if (!isSubstGroup)
@@ -1962,6 +2077,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                             identifier + ", i);");
                 outdent();
                 emit(jSet + "(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
                 emitImplementationPostamble();
                 endBlock();
 
@@ -1969,8 +2085,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public void add" + propertyName + "(" + type + " " + safeVarName + ")");
                 startBlock();
                 emitImplementationPreamble();
+                emitDeclareTarget(true, jtargetType);
+  	            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emitAddTarget(identifier, isAttr, true, jtargetType);
                 emit(jSet + "(" + safeVarName + ");");
+                emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emitImplementationPostamble();
                 endBlock();
             }
@@ -1981,8 +2100,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public " + xtype + " insertNew" + propertyName + "(int i)");
                 startBlock();
                 emitImplementationPreamble();
-                emit(xtype + " target;");
+                emitDeclareTarget(true, xtype);
+  	            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
                 emit("target = (" + xtype + ")get_store().insert_element_user(" + identifier + ", i);");
+                emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
                 emit("return target;");
                 emitImplementationPostamble();
                 endBlock();
@@ -1991,7 +2112,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("public " + xtype + " addNew" + propertyName + "()");
                 startBlock();
                 emitImplementationPreamble();
+                emitDeclareTarget(true, xtype);
+  	            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emitAddTarget(identifier, isAttr, true, xtype);
+                emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
                 emit("return target;");
                 emitImplementationPostamble();
                 endBlock();
@@ -2001,7 +2125,9 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             emit("public void remove" + propertyName + "(int i)");
             startBlock();
             emitImplementationPreamble();
+            emitPre(sType, PrePostExtension.OPERATION_REMOVE, identifier, isAttr, "i");
             emit("get_store().remove_element(" + setIdentifier + ", i);");
+            emitPost(sType, PrePostExtension.OPERATION_REMOVE, identifier, isAttr, "i");
             emitImplementationPostamble();
             endBlock();
         }
@@ -2031,6 +2157,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         startClass(sType, isInner);
 
         printConstructor(sType, shortName);
+
+        printExtensionImplMethods(sType);
 
         if (!sType.isSimpleType())
         {
@@ -2094,7 +2222,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                         prop.extendsJavaSingleton(),
                         xmlTypeForPropertyIsUnion(prop),
                         getIdentifier(qNameMap, name),
-                        getSetIdentifier(qNameMap, name)
+                        getSetIdentifier(qNameMap, name),
+  	                    sType
                     );
                 }
             }
@@ -2104,6 +2233,32 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
         endBlock();
     }
+
+    private void printExtensionImplMethods(SchemaType sType) throws IOException
+    {
+        SchemaTypeImpl sImpl = getImpl(sType);
+        if (sImpl == null)
+            return;
+
+        ExtensionHolder extHolder = sImpl.getExtensionHolder();
+        if (extHolder == null)
+            return;
+
+        List exts = extHolder.getInterfaceExtensionsFor(sType.getFullJavaName());
+        for (Iterator i = exts.iterator(); i.hasNext();)
+        {
+            InterfaceExtension ext = (InterfaceExtension) i.next();
+            for (int j = 0; j < ext.getInterfaceMethodCount(); j++)
+            {
+                printJavaDoc("Implementation method for interface " + ext.getInterfaceNameForJavaSource());
+                emit(ext.getInterfaceMethodDecl(j));
+                startBlock();
+                emit(ext.getInterfaceMethodImpl(j));
+                endBlock();
+            }
+        }
+    }
+
     void printNestedTypeImpls(SchemaType sType, SchemaTypeSystem system) throws IOException
     {
         SchemaType[] anonTypes = sType.getAnonymousTypes();
