@@ -94,18 +94,8 @@ import weblogic.xml.stream.XMLInputStream;
 
 public final class Cursor implements XmlCursor, ChangeListener
 {
-    Cursor ( Root r, Splay s )        { assert s != null; _goober = new CursorGoober( r ); set( s ); }
-    Cursor ( Root r, Splay s, int p ) { assert s != null; _goober = new CursorGoober( r ); set( s, p ); }
-
-    protected void finalize ( )
-    {
-        Splay s = getSplay();
-        
-        if (s != null)
-        {
-            dispose();
-        }
-    }
+    Cursor ( Root r, Splay s )        { assert s != null; _data = CursorData.getOne( r ); set( s ); }
+    Cursor ( Root r, Splay s, int p ) { assert s != null; _data = CursorData.getOne( r ); set( s, p ); }
 
     //
     //
@@ -116,15 +106,15 @@ public final class Cursor implements XmlCursor, ChangeListener
         return getRoot();
     }
 
-    Root  getRoot ( ) { return _goober.getRoot(); }
+    Root  getRoot ( ) { return _data._goober.getRoot(); }
 
-    Splay getSplay ( ) { return _goober.getSplay(); }
-    int   getPos   ( ) { return _goober.getPos(); }
+    Splay getSplay ( ) { return _data._goober.getSplay(); }
+    int   getPos   ( ) { return _data._goober.getPos(); }
     
-    void set ( Splay s, int p ) { _goober.set( s, p ); }
-    void set ( Splay s        ) { _goober.set( s, 0 ); }
-    void set ( int p          ) { _goober.set( p ); }
-    void set ( Goober g       ) { _goober.set( g ); }
+    void set ( Splay s, int p ) { _data._goober.set( s, p ); }
+    void set ( Splay s        ) { _data._goober.set( s, 0 ); }
+    void set ( int p          ) { _data._goober.set( p ); }
+    void set ( Goober g       ) { _data._goober.set( g ); }
 
     int getPostCch ( )
     {
@@ -169,7 +159,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     boolean isDisposed ( )
     {
-        return getSplay() == null;
+        return _data == null;
     }
 
     //
@@ -182,12 +172,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             if (!isDisposed())
             {
-                clearSelections();
-    
-                if (_stack != null)
-                    _stack.dispose();
-    
-                set( (Splay) null );
+                _data.release();
+                _data = null;
             }
         }
     }
@@ -279,7 +265,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         if (c == null)
             return false;
 
-        set( c._goober );
+        set( c._data._goober );
 
         return true;
     }
@@ -925,7 +911,10 @@ public final class Cursor implements XmlCursor, ChangeListener
 
     public void insertProcInst ( String target, String value )
     {
-        validatePrefix( target ); // used becuase "<?xml...?> is disallowed
+        validateLocalName( target ); // used becuase "<?xml...?> is disallowed
+
+        if (Splay.beginsWithXml( target ) && target.length() == 3)
+            throw new IllegalArgumentException( "Target begins with 'xml'" );
     
         synchronized ( monitor() )
         {
@@ -1152,7 +1141,7 @@ public final class Cursor implements XmlCursor, ChangeListener
             if (a._key == null)
                 throw new IllegalArgumentException( "Annotation key is null" );
     
-            a.set( _goober );
+            a.set( _data._goober );
             annotation._currentMark = a;
         }
     }
@@ -2800,10 +2789,10 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
             
-            if (_stack == null)
-                _stack = new Selections();
+            if (_data._stack == null)
+                _data._stack = new Selections();
     
-            _stack.add( getRoot(), getSplay(), getPos() );
+            _data._stack.add( getRoot(), getSplay(), getPos() );
     
             getRoot().registerForChange( this );
         }
@@ -2815,12 +2804,12 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
             
-            if (_stack == null || _stack.size() == 0)
+            if (_data._stack == null || _data._stack.size() == 0)
                 return false;
     
-            _stack.setCursor( this, _stack.size() - 1 );
+            _data._stack.setCursor( this, _data._stack.size() - 1 );
     
-            _stack.pop();
+            _data._stack.pop();
     
             return true;
         }
@@ -2832,7 +2821,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
             
-            return _selections == null ? 0 : _selections.size();
+            return _data._selections == null ? 0 : _data._selections.size();
         }
     }
     
@@ -2842,9 +2831,9 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
     
-            if (_selections != null && i >= 0 && _selections.setCursor( this, i ))
+            if (_data._selections != null && i >= 0 && _data._selections.setCursor( this, i ))
             {
-                _currentSelection = i;
+                _data._currentSelection = i;
                 return true;
             }
     
@@ -2857,7 +2846,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         synchronized ( monitor() )
         {
             push();
-            int currentSelection = _currentSelection;
+            int currentSelection = _data._currentSelection;
     
             try
             {
@@ -2866,7 +2855,7 @@ public final class Cursor implements XmlCursor, ChangeListener
             finally
             {
                 pop();
-                _currentSelection = currentSelection;
+                _data._currentSelection = currentSelection;
             }
         }
     }
@@ -2877,18 +2866,18 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
     
-            if (_selections == null || _currentSelection < -1)
+            if (_data._selections == null || _data._currentSelection < -1)
                 return false;
     
-            int nextSelection = _currentSelection + 1;
+            int nextSelection = _data._currentSelection + 1;
     
-            if (!_selections.setCursor( this, nextSelection ))
+            if (!_data._selections.setCursor( this, nextSelection ))
             {
-                _currentSelection = -2;
+                _data._currentSelection = -2;
                 return false;
             }
     
-            _currentSelection = nextSelection;
+            _data._currentSelection = nextSelection;
     
             return true;
         }
@@ -2899,11 +2888,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         synchronized ( monitor() )
         {
             checkDisposed();
-            
-            if (_selections != null)
-                _selections.dispose();
-            
-            _currentSelection = -2;
+            _data.clearSelections();
         }
     }
 
@@ -2913,13 +2898,13 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
             
-            if (_selections == null)
-                _selections = Path.newSelections();
+            if (_data._selections == null)
+                _data._selections = Path.newSelections();
     
             // Force any selection engine to search all...
-            _selections.size();
+            _data._selections.size();
     
-            _selections.add( getRoot(), getSplay(), getPos() );
+            _data._selections.add( getRoot(), getSplay(), getPos() );
     
             getRoot().registerForChange( this );
         }
@@ -2927,14 +2912,14 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void changeNotification ( )
     {
-        if (_selections != null)
+        if (_data._selections != null)
         {
-            _selections.size();  // Force a full selection
-            _selections.cursify( getRoot() );
+            _data._selections.size();  // Force a full selection
+            _data._selections.cursify( getRoot() );
         }
 
-        if (_stack != null)
-            _stack.cursify( getRoot() );
+        if (_data._stack != null)
+            _data._stack.cursify( getRoot() );
     }
     
     public void selectPath ( String path, XmlOptions options )
@@ -2943,23 +2928,23 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             checkDisposed();
     
-            if (_selections == null)
-                _selections = Path.newSelections();
+            if (_data._selections == null)
+                _data._selections = Path.newSelections();
             else
-                _selections.dispose();
+                _data._selections.dispose();
     
-            _selections.init( 
+            _data._selections.init( 
                 Path.select( getRoot(), getSplay(), getPos(), path, options ) );
     
             push();
     
-            if (_selections.setCursor( this, 0 ))
+            if (_data._selections.setCursor( this, 0 ))
             {
                 getRoot().registerForChange( this );
-                _currentSelection = -1;
+                _data._currentSelection = -1;
             }
             else
-                _currentSelection = -2;
+                _data._currentSelection = -2;
     
             pop();
         }
@@ -3188,12 +3173,12 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     private boolean validate ( )
     {
-        assert _goober.getRoot().validate();
+        assert _data._goober.getRoot().validate();
         return true;
     }
 
-    public void dump ( ) { _goober.getRoot().dump(); }
-    public void dump ( boolean verbose ) { _goober.getRoot().dump( verbose ); }
+    public void dump ( ) { _data._goober.getRoot().dump(); }
+    public void dump ( boolean verbose ) { _data._goober.getRoot().dump( verbose ); }
 
     interface PathEngine
     {
@@ -3361,10 +3346,5 @@ public final class Cursor implements XmlCursor, ChangeListener
     //
     //
 
-    final CursorGoober _goober;
-
-    private Selections _stack;
-    
-    private Selections _selections;
-    private int        _currentSelection;
+    CursorData _data;
 }

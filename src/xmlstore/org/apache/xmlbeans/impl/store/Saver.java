@@ -84,6 +84,8 @@ import java.util.Map;
 import java.util.ConcurrentModificationException;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
@@ -4457,6 +4459,22 @@ public abstract class Saver implements NamespaceManager
     //
     //
 
+    private static ThreadLocal _threadDocumentBuilderFactory =
+        new ThreadLocal()
+        {
+            protected Object initialValue()
+            {
+                try
+                {
+                    return DocumentBuilderFactory.newInstance().newDocumentBuilder();
+                }
+                catch ( ParserConfigurationException e )
+                {
+                    throw new RuntimeException( e.getMessage(), e );
+                }
+            }
+        };
+    
     static final class DomSaver extends Saver
     {
         DomSaver ( Root r, Splay s, int p, boolean createDoc, XmlOptions options )
@@ -4471,9 +4489,7 @@ public abstract class Saver implements NamespaceManager
             // TODO - add an options which specifies a Document with which
             // to create the fragment
 
-            _doc =
-                DocumentBuilderFactory.newInstance().
-                    newDocumentBuilder().newDocument();
+            _doc = ((DocumentBuilder) _threadDocumentBuilderFactory.get()).newDocument();
 
             Node result;
 

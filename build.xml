@@ -500,7 +500,6 @@
       <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/xmlinputstream"/>
       <fileset dir="build/classes/repackage"/>
-      <fileset dir="src/license"/>
     </jar>
   </target>
 
