@@ -16,6 +16,7 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.internal.elements.PrimitiveClassImpl;
 
 import java.lang.reflect.Array;
 
@@ -288,11 +289,11 @@ public final class JavaTypeName
         int d = getArrayDepth();
         if (d == 0) {
             String s = toString();
-            Class out = org.apache.xmlbeans.impl.jam_old.internal.PrimitiveJClass.getPrimitiveClass(s);
+            Class out = PrimitiveClassImpl.getPrimitiveClass(s);
             if (out != null) return out;
             return loader.loadClass(s);
         } else {
-            Class clazz = org.apache.xmlbeans.impl.jam_old.internal.PrimitiveJClass.getPrimitiveClass(className);
+            Class clazz = PrimitiveClassImpl.getPrimitiveClass(className);
             if (clazz == null) clazz = loader.loadClass(className);
             int[] dimensions = new int[d];
             return Array.newInstance(clazz, dimensions).getClass();
@@ -320,7 +321,7 @@ public final class JavaTypeName
 
     /**
      * @deprecated
-     */
+
     public static JavaTypeName forJClass(org.apache.xmlbeans.impl.jam_old.JClass jClass)
     {
         if (jClass.isArray()) {
@@ -335,6 +336,7 @@ public final class JavaTypeName
 
         return forString(jClass.getQualifiedName());
     }
+     */
 
     /**
      * create a JavaTypeName for a String in the form return by
