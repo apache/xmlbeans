@@ -123,7 +123,10 @@ final class MarshalResult implements XMLStreamReader
             return (currentEventType = advanceToNext());
         }
         catch (XmlException e) {
-            throw new XMLStreamException(e);
+            //TODO: consider passing Location to exception ctor
+            XMLStreamException xse = new XMLStreamException(e);
+            xse.initCause(e);
+            throw xse;
         }
     }
 
