@@ -1,8 +1,8 @@
 <root xmlns:p1='1' xmlns:p2='2' xmlns:p3='3' xmlns:p4='4' xmlns:p5='5'
 	 xmlns:p6='6' xmlns:p7='7' xmlns:p8='8'>
   <string string='    this is a long string
-  ...   '>    this is a long string
-  ...   </string>
+... in attribute  '>    this is a long string
+... in text  </string>
   <int p1:int='+5' p2:int='-6' p3:int='+00000000015' p4:int='7' p5:int='2147483647'
   		p6:int='-2147483648'>
   		+<!--comments-->5

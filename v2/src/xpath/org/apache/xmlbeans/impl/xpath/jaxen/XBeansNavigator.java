@@ -147,8 +147,7 @@ public class XBeansNavigator
     public String getElementQName(Object element)
     {
         ((JaxenNode)element).toBookmark(_xc);
-        String uri = _xc.getName().getNamespaceURI();
-        String prefix = _xc.prefixForNamespace(uri);
+        String prefix = _xc.getName().getPrefix();
         return ( !"".equals(prefix) ? prefix + ":" : "" ) + _xc.getName().getLocalPart();
     }
 
