@@ -16,9 +16,16 @@ package org.apache.xmlbeans.impl.jam.annotation;
 
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.internal.elements.AnnotationValueImpl;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
+import java.util.Map;
+import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 
 /**
@@ -31,6 +38,11 @@ import java.lang.reflect.InvocationTargetException;
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
+
+  // ========================================================================
+  // Variables
+
+  private List mValues = null;
 
   // ========================================================================
   // Constructors
@@ -54,6 +66,12 @@ public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
   public void setValue(String name, Object value, JClass type) {
     if (name == null) throw new IllegalArgumentException("null name");
     if (value == null) throw new IllegalArgumentException("null value");
+    {
+      // hang onto it in case they ask for it later with getValues
+      if (mValues == null) mValues = new ArrayList();
+      mValues.add(new AnnotationValueImpl
+        ((ElementContext)mContext,name,value,type));
+    }
     Method m = getSetterFor(name,value.getClass());
     if (m == null) return;
     try {
@@ -66,24 +84,20 @@ public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
   }
 
   /**
-   * <p>Returns an untyped view of the annotation's values.  This is built
-   * by searching for accessor methods on the extending class.  JSR175-style
-   * accessors (sans 'get') and java bean getters (with 'get') are both
-   * looked for.  If a given property has a method for each style, the
-   * 175 style method wins.</p>
+   * <p>Returns an untyped view of the annotation's values.  These simply
+   * reflect the values which have been passed into it from JAM via the
+   * setValue method.  This means they will just be a direct reflection of
+   * whatever was found on 175 annotation or javadoc tag that is being
+   * proxied.</p>
    *
-   * <p>Extending classes are free to override this method if different
+   * <p>Extending classes are encouraged to override this method if different
    * behavior is required.</p>
    */
   public JAnnotationValue[] getValues() {
-    //FIXME build it up via reflection, i guess.  Or maybe we should
-    //remember what got set via setMemberValue()?  I dunno, it's kind of
-    //a weird thing for them to be asking for an untyped version of this
-    //annotation for which they've gone to the trouble of building a typed
-    //proxy.  Somebody will do it, though, so we need to think about what
-    //the right thing to do is and do it.  They can always override if
-    //they dont like it.
-    throw new UnsupportedOperationException("NYI");
+    if (mValues == null) return new JAnnotationValue[0];
+    JAnnotationValue[] out = new JAnnotationValue[mValues.size()];
+    mValues.toArray(out);
+    return out;
   }
 
   // ========================================================================
