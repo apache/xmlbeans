@@ -644,90 +644,95 @@
   </target>
 
   <target name="dist-bin" depends="xbean, docs">
-     <delete dir="build/private/xmlbeans-${version.full}"/>
-     <delete file="build/private/xmlbeans-${version.full}.zip"/>
-     <delete file="build/private/xmlbeans-${version.full}.tgz"/>
+     <delete dir="build/private/xmlbeans-${version.base}"/>
+     <delete file="build/private/xmlbeans-${version.base}.zip"/>
+     <delete file="build/private/xmlbeans-${version.base}.tgz"/>
 
-     <mkdir dir="build/private/xmlbeans-${version.full}"/>
-     <copy todir="build/private/xmlbeans-${version.full}">
+     <mkdir dir="build/private/xmlbeans-${version.base}"/>
+     <copy todir="build/private/xmlbeans-${version.base}">
         <fileset dir="xkit"/>
         <fileset dir="." includes="bin/**" />
         <fileset file="CHANGES.txt" />
      </copy>
-     <copy todir="build/private/xmlbeans-${version.full}/schemas/s4s">
+     <copy todir="build/private/xmlbeans-${version.base}/schemas/s4s">
         <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd,w3c-schema-license.html"/>
         <fileset dir="src/xmlschema/schema" includes="XML.xsd,w3c-xml-license.html"/>
      </copy>
-     <copy todir="build/private/xmlbeans-${version.full}/schemas">
+     <copy todir="build/private/xmlbeans-${version.base}/schemas">
         <fileset dir="test/src" includes="easypo/*.xsd, easypo/*.xsdconfig"/>
      </copy>
 
-     <mkdir dir="build/private/xmlbeans-${version.full}/lib"/>
-     <copy todir="build/private/xmlbeans-${version.full}/lib" file="build/ar/xbean.jar"/>
-     <copy todir="build/private/xmlbeans-${version.full}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
-     <copy todir="build/private/xmlbeans-${version.full}/lib" file="build/lib/xbean_xpath.jar"/>
+     <mkdir dir="build/private/xmlbeans-${version.base}/lib"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/ar/xbean.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/lib/xbean_xpath.jar"/>
 
-     <mkdir dir="build/private/xmlbeans-${version.full}/src/schema"/>
-     <copy todir="build/private/xmlbeans-${version.full}/src/schema">
+     <mkdir dir="build/private/xmlbeans-${version.base}/src/schema"/>
+     <copy todir="build/private/xmlbeans-${version.base}/src/schema">
         <fileset dir="src/toolschema"/>
      </copy>
 
-     <mkdir dir="build/private/xmlbeans-${version.full}/docs"/>
-     <copy todir="build/private/xmlbeans-${version.full}/docs">
+     <mkdir dir="build/private/xmlbeans-${version.base}/docs"/>
+     <copy todir="build/private/xmlbeans-${version.base}/docs">
         <fileset dir="build/docs"/>
      </copy>
 
-     <chmod dir="build/private/xmlbeans-${version.full}/bin" perm="ugo+rx" includes="**" />
+     <chmod dir="build/private/xmlbeans-${version.base}/bin" perm="ugo+rx" includes="**" />
 
-     <zip destfile="build/private/xmlbeans-${version.full}.zip"
+     <zip destfile="build/private/xmlbeans-${version.base}.zip"
           basedir="build/private"
-          includes="xmlbeans-${version.full}/**"
-          excludes="xmlbeans-${version.full}/bin/dumpxsb, 
-                    xmlbeans-${version.full}/bin/scomp, 
-                    xmlbeans-${version.full}/bin/validate">
-         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.full}/LICENSE.txt"/>
-         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.full}/NOTICE.txt"/>
-         <zipfileset dir="build/private/xmlbeans-${version.full}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.full}/bin" filemode="755"/>
+          includes="xmlbeans-${version.base}/**"
+          excludes="xmlbeans-${version.base}/bin/dumpxsb, 
+                    xmlbeans-${version.base}/bin/scomp, 
+                    xmlbeans-${version.base}/bin/validate">
+         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <zipfileset dir="build/private/xmlbeans-${version.base}/bin" includes="dumpxsb, scomp, validate"
+             prefix="xmlbeans-${version.base}/bin" filemode="755"/>
      </zip>
-     <tar destfile="build/private/xmlbeans-${version.full}.tgz"
+     <tar destfile="build/private/xmlbeans-${version.base}.tgz"
           basedir="build/private"
-          includes="xmlbeans-${version.full}/**"
-          excludes="xmlbeans-${version.full}/bin/dumpxsb, 
-                    xmlbeans-${version.full}/bin/scomp, 
-                    xmlbeans-${version.full}/bin/validate"
+          includes="xmlbeans-${version.base}/**"
+          excludes="xmlbeans-${version.base}/bin/dumpxsb, 
+                    xmlbeans-${version.base}/bin/scomp, 
+                    xmlbeans-${version.base}/bin/validate"
           compression="gzip">
-         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.full}/LICENSE.txt"/>
-         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.full}/NOTICE.txt"/>
-         <tarfileset dir="build/private/xmlbeans-${version.full}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.full}/bin" mode="755"/>
+         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <tarfileset dir="build/private/xmlbeans-${version.base}/bin" includes="dumpxsb, scomp, validate"
+             prefix="xmlbeans-${version.base}/bin" mode="755"/>
      </tar>
   </target>
 
   <target name="dist-src" depends="clean, dirs, version">
-     <delete file="build/private/xmlbeans-${version.full}-src.zip"/>
-     <delete file="build/private/xmlbeans-${version.full}-src.tgz"/>
+     <delete file="build/private/xmlbeans-${version.base}-src.zip"/>
+     <delete file="build/private/xmlbeans-${version.base}-src.tgz"/>
 
-     <zip destfile="build/private/xmlbeans-${version.full}-src.zip">
+     <zip destfile="build/private/xmlbeans-${version.base}-src.zip">
      	<zipfileset
      		dir="."
        		includes="**"
                 excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
                 test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
-       		prefix="xmlbeans-${version.full}" />
-         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.full}/LICENSE.txt"/>
-         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.full}/NOTICE.txt"/>
-         <zipfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.full}/bin" filemode="755"/>
+       		prefix="xmlbeans-${version.base}" />
+         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <zipfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" filemode="755"/>
      </zip>
-     <tar destfile="build/private/xmlbeans-${version.full}-src.tgz"
+     <tar destfile="build/private/xmlbeans-${version.base}-src.tgz"
 	 	  compression="gzip">
      	<tarfileset
      		dir="."
        		includes="**"
        		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
                 test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
-       		prefix="xmlbeans-${version.full}"/>
-         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.full}/LICENSE.txt"/>
-         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.full}/NOTICE.txt"/>
-         <tarfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.full}/bin" mode="755"/>
+       		prefix="xmlbeans-${version.base}"/>
+         <tarfileset dir="." includes="src/license/LICENSE.txt"
+             fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <tarfileset dir="." includes="src/license/NOTICE.txt"
+             fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <tarfileset dir="bin" includes="dumpxsb, scomp, validate"
+             prefix="xmlbeans-${version.base}/bin" mode="755"/>
      </tar>
   </target>
 
