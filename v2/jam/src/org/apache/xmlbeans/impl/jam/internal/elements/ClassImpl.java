@@ -517,6 +517,8 @@ public class ClassImpl extends MemberImpl implements MClass,
     if (mInnerClasses == null) mInnerClasses = new ArrayList();
     mInnerClasses.add(inner);
     return inner;
+    //FIXME we need to also register the new inner class with the classloader.
+    //the way inner classes is handled is still kinda broken.
   }
 
   public void removeInnerClass(MClass clazz) {
