@@ -99,7 +99,7 @@ public interface ExplodedTylar extends Tylar {
 
   /**
    * Jars up the exploded tylar directory into the given file and returns
-   * a handle to the JarredTylar.  The main advantage of using this method
+   * a handle to the TylarImpl.  The main advantage of using this method
    * as opposed to jarring it yourself is that you will save you the cost of
    * reparsing the binding file and the schemas in the event that you want to
    * immediately hand the tylar to the runtime.

@@ -49,36 +49,70 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2003 BEA Systems
+* originally based on software copyright (c) 2000-2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.binding.tylar;
 
-package org.apache.xmlbeans.impl.binding.compile;
-
-import org.apache.xmlbeans.SchemaTypeSystem;
-
-import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.util.Collection;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
- * @deprecated This class is being phased out.
+ * Simple implementation of Tylar.
+ *
+ * @author Patrick Calahan <pcal@bea.com>
  */
-public interface SchemaSourceSet
-{
-    /**
-     * Returns a typesystem that contains all the schema types to be
-     * converted to or bound to Java.
-     */ 
-    SchemaTypeSystem getSchemaTypeSystem();
-    
-    /**
-     * Returns the path used for resolving already-known bindings
-     */
-    TylarLoader getTylarLoader();
-    
-    /**
-     * Compiles just the schema metadata to binaries in the given directory.
-     * Any generated Java or binding code isn't included in this compile. 
-     */
-    void compileSchemaToBinaries(File classesDir);
+public class TylarImpl implements Tylar {
+
+  // ========================================================================
+  // Variables
+
+  private URI mSourceURI;
+  private BindingFile mBindingFile = null;
+  private Collection mSchemas = null;
+
+  // ========================================================================
+  // Constructors
+
+  /*package*/ TylarImpl(URI sourceUri,
+                        BindingFile bf,
+                        Collection schemas)
+  {
+    mSourceURI = sourceUri;
+    mBindingFile = bf;
+    mSchemas = schemas;
+  }
+
+  // ========================================================================
+  // Tylar implementation
+
+  public BindingFile getBindingFile() {
+    return mBindingFile;
+  }
+
+  public SchemaDocument[] getSchemas() {
+    if (mSchemas == null) return new SchemaDocument[0];
+    SchemaDocument[] out = new SchemaDocument[mSchemas.size()];
+    mSchemas.toArray(out);
+    return out;
+  }
+
+  public URI getLocation() {
+    return mSourceURI;
+  }
+
+  public ClassLoader createClassLoader(ClassLoader parent) {
+    try {
+      return new URLClassLoader(new URL[] {mSourceURI.toURL()},parent);
+    } catch(MalformedURLException mue){
+      throw new RuntimeException(mue); //FIXME this is bad
+    }
+  }
+
 }

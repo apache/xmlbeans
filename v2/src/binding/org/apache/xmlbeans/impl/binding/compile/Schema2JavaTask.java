@@ -61,6 +61,7 @@ import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.SchemaTypeSystem;
 
 import java.io.File;
 import java.io.IOException;
@@ -123,8 +124,6 @@ public class Schema2JavaTask extends BindingCompilerTask {
     mCompiler.setJavacClasspath(classpath);
   }
 
-
-
   /**
    * Set the source directories to find the source XSD files.
    */
@@ -172,14 +171,13 @@ public class Schema2JavaTask extends BindingCompilerTask {
   // BindingCompilerTask implementation
 
   /**
-   * Execute the task.
+   * Based on the parameters set for this Task object, create an instance of
+   * the Schema2Java compiler to be executed.
    */
   protected BindingCompiler createCompiler() throws BuildException {
-    //get the files
     checkParameters();
-    // scan source directories and dest directory to build up
+    // scan source directories and dest directory for schemas to use
     startScan();
-
     String[] list = mXsdPath.list();
     for (int i = 0; i < list.length; i++) {
       File srcDir = getProject().resolveFile(list[i]);
@@ -188,39 +186,26 @@ public class Schema2JavaTask extends BindingCompilerTask {
                                  + srcDir.getPath()
                                  + "\" does not exist!", getLocation());
       }
-
       DirectoryScanner ds = this.getDirectoryScanner(srcDir);
       String[] files = ds.getIncludedFiles();
-
       scanDir(srcDir, files);
     }
+    //build up a schema type system from the input schemas and give it to
+    //the compiler
     File[] xsdFiles = (File[]) mXsdFiles.toArray(new File[mXsdFiles.size()]);
-
-    TylarLoader tylarLoader = null;
-
-    /* commenting this out because it's not working correctly
-       and i'm not sure it's the right thing to do anyway
-      if (mClasspath != null) {
-        File[] classpath = namesToFiles(mClasspath.list());
-        tylarLoader = SimpleTylarLoader.forClassPath(classpath);
-      }
-      */
-
-    //build up the inputs
-    SchemaSourceSet input = null;
+    SchemaTypeSystem sts;
     try {
-      input = SimpleSourceSet.forXsdFiles(xsdFiles, tylarLoader);
-    } catch (IOException e) {
-      log(e.getMessage());
-      throw new BuildException(e);
-    } catch (XmlException e) {
-      log(e.getMessage());
-      throw new BuildException(e);
+      sts = createSchemaTypeSystem(xsdFiles);
+    } catch(IOException ioe) {
+      throw new BuildException(ioe);
+    } catch(XmlException xe) {
+      throw new BuildException(xe);
     }
-    //return the compiler
-    mCompiler.setInput(input);
+    mCompiler.setSchemaTypeSystem(sts);
     return mCompiler;
   }
+
+
 
   protected void startScan() {
     mXsdFiles = new ArrayList();

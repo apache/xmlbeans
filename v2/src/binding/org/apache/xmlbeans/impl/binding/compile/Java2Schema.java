@@ -104,28 +104,20 @@ public class Java2Schema extends BindingCompiler {
   // =========================================================================
   // Variables
 
-  private BindingFile mBindingFile;
-  private BindingLoader mLoader;
-  private SchemaDocument mSchemaDocument;
+  private BindingFile mBindingFile;  // the file we're creating
+  private BindingLoader mLoader; // the full loader: bindingFile + baseLoader
+  private SchemaDocument mSchemaDocument; // schema doc we're generating
   private SchemaDocument.Schema mSchema;
-  private JClass[] mClasses;
+  private JClass[] mClasses; // the input classes
 
   // =========================================================================
   // Constructors
 
   public Java2Schema(JClass[] classesToBind) {
+    if (classesToBind == null) {
+      throw new IllegalArgumentException("null classes");
+    }
     mClasses = classesToBind;
-  }
-
-  /**
-   * Initializes a Java2Schema instance to perform binding on the given
-   * inputs, but does not actually do any binding work.
-   *
-   * @deprecated Trying to remove JavaSourceSet
-   */
-  public Java2Schema(JavaSourceSet jtsi) {
-    if (jtsi == null) throw new IllegalArgumentException("null jtsi");
-    mClasses = jtsi.getJClasses();
   }
 
   // ========================================================================
@@ -135,11 +127,11 @@ public class Java2Schema extends BindingCompiler {
    * Does the binding work on the inputs passed to the constructor and writes
    * out the tylar.
    */
-  protected void bind(TylarWriter writer) {
+  public void bind(TylarWriter writer) {
+    super.notifyCompilationStarted();
     mBindingFile = new BindingFile();
     mLoader = PathBindingLoader.forPath
-            (new BindingLoader[] {mBindingFile,
-                                  BuiltinBindingLoader.getInstance()});
+            (new BindingLoader[] {mBindingFile, super.getBaseBindingLoader()});
     mSchemaDocument = SchemaDocument.Factory.newInstance();
     mSchema = mSchemaDocument.addNewSchema();
     if (mClasses.length > 0) {
@@ -158,10 +150,8 @@ public class Java2Schema extends BindingCompiler {
     }
   }
 
-
   // ========================================================================
   // Private methods
-
 
   /**
    * Returns a bts BindingType for the given JClass.  If such a type

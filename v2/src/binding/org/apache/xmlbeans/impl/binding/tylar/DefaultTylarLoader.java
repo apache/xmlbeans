@@ -56,10 +56,19 @@
 package org.apache.xmlbeans.impl.binding.tylar;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.jar.JarEntry;
+import java.util.jar.JarInputStream;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
  * Default implementation of TylarLoader.  Currently, only directory and jar
@@ -73,6 +82,19 @@ public class DefaultTylarLoader implements TylarLoader {
   // Constants
 
   private static final String FILE_SCHEME = "file";
+
+  private static final char[] OTHER_SEPCHARS = {'\\'};
+  private static final char SEPCHAR = '/';
+
+  private static final boolean VERBOSE = false;
+
+  private static final String BINDING_FILE_JARENTRY =
+          normalizeEntryName(TylarConstants.BINDING_FILE);
+
+  private static final String SCHEMA_DIR_JARENTRY =
+          normalizeEntryName(TylarConstants.SCHEMA_DIR);
+
+  private static final String SCHEMA_EXT = ".xsd";
 
   // ========================================================================
   // Singleton
@@ -113,16 +135,24 @@ public class DefaultTylarLoader implements TylarLoader {
    * @throws IOException if an i/o error occurs while processing
    * @throws XmlException if an error occurs parsing the contents of the tylar.
    */
-  public Tylar load(URI uri) throws IOException, XmlException {
+  public Tylar load(URI uri) throws IOException, XmlException
+  {
     if (uri == null) throw new IllegalArgumentException("null uri");
     String scheme = uri.getScheme();
     if (scheme.equals(FILE_SCHEME)) {
-      File file = new File(uri);
+      File file;
+      try {
+        file = new File(uri);
+      } catch(Exception e) {
+        //sometimes File can't deal for some reason, so as a last ditch
+        //we assume it's a jar and read the stream directly
+        return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
+      }
       if (!file.exists()) throw new FileNotFoundException(uri.toString());
       if (file.isDirectory()) {
         return ExplodedTylarImpl.load(file);
       } else {
-        return JarredTylar.load(file);
+        return loadFromJar(file);
       }
     } else {
       throw new IOException("Sorry, the '"+scheme+
@@ -130,4 +160,130 @@ public class DefaultTylarLoader implements TylarLoader {
                             "("+uri+")");
     }
   }
+
+  // ========================================================================
+  // Static utility methods
+
+  /**
+   * Loads a Tylar directly from the given jar file.  This method parses all
+   * of the tylar's binding artifacts; if it doesn't throw an exception,
+   * you can be sure that the tylars binding files and schemas are valid.
+   *
+   * @param jarFile file containing the tylar
+   * @return Handle to the tylar
+   * @throws IOException
+   */
+  public static Tylar loadFromJar(File jarFile)
+          throws IOException, XmlException
+  {
+    if (jarFile == null) throw new IllegalArgumentException("null file");
+    return loadFromJar(new FileInputStream(jarFile),jarFile.toURI());
+  }
+
+  /**
+   * Loads a Tylar directly from the stream. given jar file.  This method
+   * parses all of the tylar's binding artifacts; if it doesn't throw an
+   * exception, you can be sure that the tylars binding files and schemas are
+   * valid.
+   *
+   * @param in input stream on the jar file
+   * @param source uri from which the tylar was retrieved.  This is used
+   * for informational purposes only, but it is required.
+   * @return Handle to the tylar
+   * @throws IOException
+   */
+  public static Tylar loadFromJar(InputStream in, URI source)
+          throws IOException, XmlException
+  {
+    if (in == null) throw new IllegalArgumentException("null in");
+    if (source == null) throw new IllegalArgumentException("null uri");
+    HackJarInputStream hin = new HackJarInputStream(in);
+    JarEntry entry;
+    BindingFile bf = null;
+    Collection schemas = null;
+    while ((entry = hin.getNextJarEntry()) != null) {
+      if (entry.isDirectory()) continue;
+      String name = normalizeEntryName(entry.getName());
+      if (name.equals(BINDING_FILE_JARENTRY)) {
+        if (VERBOSE) System.out.println("parsing binding file "+name);
+        bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(hin));
+      } else if (name.startsWith(SCHEMA_DIR_JARENTRY) &&
+              name.endsWith(SCHEMA_EXT)) {
+        if (schemas == null) schemas = new ArrayList();
+        if (VERBOSE) System.out.println("parsing schema "+name);
+        schemas.add(SchemaDocument.Factory.parse(hin));
+      } else {
+        if (VERBOSE) {
+          System.out.println("ignoring unknown jar entry: "+name);
+          System.out.println("  looking for "+BINDING_FILE_JARENTRY+" or "+
+                             SCHEMA_DIR_JARENTRY);
+        }
+      }
+      hin.closeEntry();
+    }
+    if (bf == null) {
+      throw new IOException
+              ("resource at '"+source+
+               "' is not a tylar: it does not contain a binding file");
+    }
+    hin.reallyClose();
+    return new TylarImpl(source,bf,schemas);
+  }
+  // ========================================================================
+  // Private methods
+
+  /**
+   * Canonicalizes the given zip entry path so that we can look for what
+   * we want without having to worry about different slashes or
+   * leading slashes or anything else that can go wrong.
+   */
+  private static final String normalizeEntryName(String name) {
+    name = name.toLowerCase().trim();
+    for(int i=0; i<OTHER_SEPCHARS.length; i++) {
+      name = name.replace(OTHER_SEPCHARS[i],SEPCHAR);
+    }
+    if (name.charAt(0) == SEPCHAR) name = name.substring(1);
+    return name;
+  }
+
+  /**
+   * Grab the contents of the current entry and stuffs them into a string -
+   * sometimes useful for debugging.
+   */
+  /*
+  private static String getEntryContents(JarInputStream in) throws IOException {
+  StringWriter writer = new StringWriter();
+  byte[] buffer = new byte[2056];
+  int count = 0;
+  while ((count = in.read(buffer, 0, buffer.length)) != -1) {
+  writer.write(new String(buffer, 0, count));
+  }
+  if (VERBOSE) {
+  System.out.println("=== ENTRY CONTENTS ===");
+  System.out.println(writer.toString());
+  System.out.println("=== ENTRY CONTENTS ===");
+  }
+  return writer.toString();
+  }
+  */
+
+  /**
+   * This is another hack around what I believe is an xbeans bug - it
+   * closes the stream on us.  When we're reading out of a jar, we want
+   * to parse a whole bunch of files from the same stream - this class
+   * just intercepts the close call.
+   */
+  private static class HackJarInputStream extends JarInputStream {
+
+    HackJarInputStream(InputStream in) throws IOException {
+      super(in);
+    }
+
+    public void close() {}
+
+    public void reallyClose() throws IOException {
+      super.close();
+    }
+  }
+
 }
