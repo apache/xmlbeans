@@ -60,6 +60,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
 import org.apache.xmlbeans.XmlObject;
 import java.io.StringWriter;
+import java.lang.reflect.Array;
 
 /**
  * Represents a Java class name, and provides some utility methods
@@ -274,19 +275,29 @@ public final class JavaTypeName
         if (out != null) return out;
         return loader.loadClass(s);
       } else {
+        String s = toString();
+        Class clazz = PrimitiveJClass.getPrimitiveClass(s);
+        if (clazz == null) clazz = loader.loadClass(s);
+        int[] dimensions = new int[d];
+        return Array.newInstance(clazz,dimensions).getClass();
+
+        /* THIS IS COMMENTED OUT BECAUSE IT IS BROKEN ON THE CURRENT 1.5 BETA
+           SEE SUN BUG 4983838.  IT'S NOT CLEAR WHETHER OR NOT THEY'RE GOING
+           TO FIX IT.  MAYBE THE WORKAROUND IS BETTER ANYWAY, THOUGH :(
         StringWriter buff = new StringWriter();
         for(int i=0; i<d; i++) buff.write("[");
         String s = toString();
         s = s.substring(0,s.indexOf("["));
         String fd = PrimitiveJClass.getFieldDescriptor(s);
         if (fd != null) {
-          buff.write(fd);
+        buff.write(fd);
         } else {
-          buff.write("L");
-          buff.write(s);
-          buff.write(";");
+        buff.write("L");
+        buff.write(s);
+        buff.write(";");
         }
         return loader.loadClass(buff.toString());
+        */
       }
     }
 }
