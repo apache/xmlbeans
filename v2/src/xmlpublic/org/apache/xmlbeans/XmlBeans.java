@@ -47,9 +47,9 @@ public final class XmlBeans
     }
 
     /**
-     * Returns the XmlBeans title, "org.apache.xmlbeans".
-     * The value of
-     * <code>XmlBeans.class.getPackage().getImplementationTitle()</code>.
+     * Returns the XmlBeans Package title, "org.apache.xmlbeans",
+     * the value of
+     * {@link Package#getImplementationTitle() XmlBeans.class.getPackage().getImplementationTitle()}.
      */
     public static final String getTitle()
     {
@@ -57,9 +57,9 @@ public final class XmlBeans
     }
 
     /**
-     * Returns the XmlBeans vendor, "Apache Software Foundation".
-     * The value of
-     * <code>XmlBeans.class.getPackage().getImplementationVendor()</code>.
+     * Returns the XmlBeans vendor, "Apache Software Foundation",
+     * the value of
+     * {@link Package#getImplementationVendor() XmlBeans.class.getPackage().getImplementationVendor()}.
      */
     public static final String getVendor()
     {
@@ -67,9 +67,9 @@ public final class XmlBeans
     }
 
     /**
-     * Returns the XmlBeans version, "2.0.0".
-     * The value of
-     * <code>XmlBeans.class.getPackage().getImplementationVersion()</code>.
+     * Returns the XmlBeans version, "2.0.0",
+     * the value of
+     * {@link Package#getImplementationVersion() XmlBeans.class.getPackage().getImplementationVersion()}.
      */
     public static final String getVersion()
     {
