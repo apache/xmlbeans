@@ -68,6 +68,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaGlobalAttribute;
 import org.apache.xmlbeans.SchemaAttributeModel;
+import org.apache.xmlbeans.SchemaTypeElementSequencer;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.QNameSet;
@@ -436,6 +437,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public void setComplexTypeVariety(int complexTypeVariety)
         { assertResolving(); _complexTypeVariety = complexTypeVariety; }
+
+    public SchemaTypeElementSequencer getElementSequencer()
+    {
+        if (_complexTypeVariety == NOT_COMPLEX_TYPE)
+            return new SequencerImpl(null);
+
+        return new SequencerImpl(new SchemaTypeVisitorImpl(_contentModel));
+    }
 
     /** Set the abstract and final flags for a complex type */
     void setAbstractFinal(
@@ -2011,4 +2020,32 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     public SchemaComponent.Ref getComponentRef()
         { return getRef(); }
 
+    /**
+     * Gives access to the internals of element validation
+     */
+    private static class SequencerImpl implements SchemaTypeElementSequencer
+    {
+        private SchemaTypeVisitorImpl _visitor;
+
+        private SequencerImpl(SchemaTypeVisitorImpl visitor)
+        {
+            _visitor = visitor;
+        }
+
+        public boolean next(QName elementName)
+        {
+            if (_visitor == null)
+                return false;
+
+            return _visitor.visit(elementName);
+        }
+
+        public boolean peek(QName elementName)
+        {
+            if (_visitor == null)
+                return false;
+
+            return _visitor.testValid(elementName);
+        }
+    }
 }
