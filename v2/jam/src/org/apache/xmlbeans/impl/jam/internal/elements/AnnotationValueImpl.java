@@ -18,7 +18,6 @@ import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 
-import java.util.Arrays;
 
 /**
  * <p>Implementation of JAnnotationValue</p>
@@ -184,7 +183,15 @@ public class AnnotationValueImpl implements JAnnotationValue {
   public String[] asStringArray() {
     if (!mValue.getClass().isArray()) return null;
     String[] out = new String[((Object[])mValue).length];
-    for(int i=0; i<out.length; i++) out[i] = ((Object[])mValue)[i].toString();
+    for(int i=0; i<out.length; i++) {
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element on "+
+                                   getName());
+        out[i] = "";
+      } else {
+        out[i] = ((Object[])mValue)[i].toString();
+      }
+    }
     return out;
   }
 
@@ -192,7 +199,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     int[] out = new int[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      out[i] = Integer.parseInt(((Object[])mValue)[i].toString());
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = 0;
+      } else {
+        out[i] = Integer.parseInt(((Object[])mValue)[i].toString());
+      }
     }
     return out;
   }
@@ -201,7 +214,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     boolean[] out = new boolean[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      out[i] = Boolean.valueOf(((Object[])mValue)[i].toString()).booleanValue();
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = false;
+      } else {
+        out[i] = Boolean.valueOf(((Object[])mValue)[i].toString()).booleanValue();
+      }
     }
     return out;
   }
@@ -210,7 +229,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     short[] out = new short[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      out[i] = Short.parseShort(((Object[])mValue)[i].toString());
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = 0;
+      } else {
+        out[i] = Short.parseShort(((Object[])mValue)[i].toString());
+      }
     }
     return out;
   }
@@ -219,7 +244,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     long[] out = new long[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      out[i] = Long.parseLong(((Object[])mValue)[i].toString());
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = 0;
+      } else {
+        out[i] = Long.parseLong(((Object[])mValue)[i].toString());
+      }
     }
     return out;
   }
@@ -228,7 +259,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     double[] out = new double[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      out[i] = Double.parseDouble(((Object[])mValue)[i].toString());
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = 0;
+      } else {
+        out[i] = Double.parseDouble(((Object[])mValue)[i].toString());
+      }
     }
     return out;
   }
@@ -237,7 +274,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     float[] out = new float[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      out[i] = Float.parseFloat(((Object[])mValue)[i].toString());
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = 0;
+      } else {
+        out[i] = Float.parseFloat(((Object[])mValue)[i].toString());
+      }
     }
     return out;
   }
@@ -246,7 +289,13 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     byte[] out = new byte[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      out[i] = Byte.parseByte(((Object[])mValue)[i].toString());
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = 0;
+      } else {
+        out[i] = Byte.parseByte(((Object[])mValue)[i].toString());
+      }
     }
     return out;
   }
@@ -255,8 +304,14 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (!mValue.getClass().isArray()) return null;
     char[] out = new char[((Object[])mValue).length];
     for(int i=0; i<out.length; i++) {
-      //FIXME this is not right
-      out[i] = (((Object[])mValue)[i].toString()).charAt(0);
+      if (((Object[])mValue)[i] == null) {
+        mContext.getLogger().error("Null annotation value array element "+
+                                   i+" on "+getName());
+        out[i] = 0;
+      } else {
+        //FIXME this is not right
+        out[i] = (((Object[])mValue)[i].toString()).charAt(0);
+      }
     }
     return out;
   }
@@ -310,7 +365,6 @@ public class AnnotationValueImpl implements JAnnotationValue {
     } else {
       throw new IllegalStateException("Unknown array type "+o.getClass());
     }
-
    }
 
   public Object getValue() {

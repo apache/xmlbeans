@@ -28,4 +28,5 @@ public @interface EmployeeAnnotation {
     AddressAnnotation address();
     Constants.Bool active();
     int[] specialDigits();
+    String[] aka();
 }

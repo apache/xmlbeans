@@ -426,6 +426,21 @@ public abstract class JamTestBase extends TestCase {
                  "java.lang.String".equals(type.getQualifiedName()));
     }
     {
+      JAnnotationValue aka = boog.getValue("aka");
+      assertTrue("aka is null",aka != null);
+      JClass type = aka.getType();
+      assertTrue("aka type is null",type != null);
+      assertTrue("aka type is "+type.getFieldDescriptor(),
+                 String[].class.getName().equals(type.getFieldDescriptor()));
+      String[] akas = aka.asStringArray();
+      assertTrue("akas is null",akas != null);
+      assertTrue("akas length is "+akas.length, akas.length == 3);
+      for(int i=0; i<akas.length; i++) {
+        assertTrue("akas "+i+" is empty '"+akas[i]+"'",
+                   (akas[i] != null && akas[i].trim().length() > 0));
+      }
+    }
+    {
       JAnnotationValue active = boog.getValue("active");
       assertTrue("active is null",active != null);
       assertTrue("active = "+active.asString(),
