@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 * are met:
 *
 * 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer. 
+*    notice, this list of conditions and the following disclaimer.
 *
 * 2. Redistributions in binary form must reproduce the above copyright
 *    notice, this list of conditions and the following disclaimer in
@@ -18,19 +18,19 @@
 *    distribution.
 *
 * 3. The end-user documentation included with the redistribution,
-*    if any, must include the following acknowledgment:  
+*    if any, must include the following acknowledgment:
 *       "This product includes software developed by the
 *        Apache Software Foundation (http://www.apache.org/)."
 *    Alternately, this acknowledgment may appear in the software itself,
 *    if and wherever such third-party acknowledgments normally appear.
 *
-* 4. The names "Apache" and "Apache Software Foundation" must 
+* 4. The names "Apache" and "Apache Software Foundation" must
 *    not be used to endorse or promote products derived from this
-*    software without prior written permission. For written 
+*    software without prior written permission. For written
 *    permission, please contact apache@apache.org.
 *
-* 5. Products derived from this software may not be called "Apache 
-*    XMLBeans", nor may "Apache" appear in their name, without prior 
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
 *    written permission of the Apache Software Foundation.
 *
 * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -49,7 +49,7 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems 
+* originally based on software copyright (c) 2000-2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
@@ -64,6 +64,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaField;
@@ -76,10 +77,10 @@ public class QNameHelper
     {
         if (qname == null)
             return null;
-        
+
         return XMLNameHelper.forLNS( qname.getLocalPart(), qname.getNamespaceURI() );
     }
-    
+
     public static QName forLNS(String localname, String uri)
     {
         if (uri == null)
@@ -107,7 +108,7 @@ public class QNameHelper
 
         if (name.getNamespaceURI() == null || name.getNamespaceURI().length() == 0)
             return name.getLocalPart();
-        
+
         return name.getLocalPart() + "@" + name.getNamespaceURI();
     }
 
@@ -142,9 +143,9 @@ public class QNameHelper
     //
     // The reason for the "shortening" is to avoid filenames longer than about
     // 256 characters, which are prohibited on Windows NT.
-   
+
     public static final int MAX_NAME_LENGTH = 64;
-    
+
     public static String hexsafe(String s)
     {
         StringBuffer result = new StringBuffer();
@@ -157,25 +158,44 @@ public class QNameHelper
             }
             else
             {
-                byte[] utf8 = s.substring(i, i + 1).getBytes();
-                for (int j = 0; j < utf8.length; j++)
+                byte[] utf8 = null;
+                try
                 {
-                    result.append('_');
-                    result.append(hexdigits[(utf8[j] >> 4) & 0xF]);
-                    result.append(hexdigits[utf8[j] & 0xF]);
+                    utf8 = s.substring(i, i + 1).getBytes("UTF-8");
+                    for (int j = 0; j < utf8.length; j++)
+                    {
+                        result.append('_');
+                        result.append(hexdigits[(utf8[j] >> 4) & 0xF]);
+                        result.append(hexdigits[utf8[j] & 0xF]);
+                    }
+                }
+                catch(UnsupportedEncodingException uee)
+                {
+                    // should never happen - UTF-8 i always supported
+                    result.append("_BAD_UTF8_CHAR");
                 }
             }
         }
-        
+
         // short enough? Done!
         if (result.length() <= MAX_NAME_LENGTH)
             return result.toString();
-        
+
         // too long? use SHA1
         try
         {
             MessageDigest md = MessageDigest.getInstance("SHA");
-            byte[] digest = md.digest(s.getBytes());
+            byte[] inputBytes = null;
+            try
+            {
+                inputBytes = s.getBytes("UTF-8");
+            }
+            catch(UnsupportedEncodingException uee)
+            {
+                // should never happen - UTF-8 is always supported
+                inputBytes = new byte[0];
+            }
+            byte[] digest = md.digest(inputBytes);
             assert(digest.length == 20); // SHA1 160 bits == 20 bytes
             result = new StringBuffer("URI_SHA_1_");
             for (int j = 0; j < digest.length; j++)
@@ -221,25 +241,25 @@ public class QNameHelper
         {
             return readable(sType.getName(), nsPrefix);
         }
-        
+
         if (sType.isAttributeType())
         {
             return "attribute type " + readable(sType.getAttributeTypeAttributeName(), nsPrefix);
         }
-        
+
         if (sType.isDocumentType())
         {
             return "document type " + readable(sType.getDocumentElementName(), nsPrefix);
         }
-        
+
         if (sType.isNoType() || sType.getOuterType() == null)
         {
             return "invalid type";
         }
-        
+
         SchemaType outerType = sType.getOuterType();
         SchemaField container = sType.getContainerField();
-        
+
         if (outerType.isAttributeType())
         {
             return "type of attribute " + readable(container.getName(), nsPrefix);
@@ -248,7 +268,7 @@ public class QNameHelper
         {
             return "type of element " + readable(container.getName(), nsPrefix);
         }
-            
+
         if (container != null)
         {
             if (container.isAttribute())
@@ -260,7 +280,7 @@ public class QNameHelper
                 return "type of " + container.getName().getLocalPart() + " element in " + readable(outerType, nsPrefix);
             }
         }
-        
+
         if (outerType.getBaseType() == sType)
             return "base type of " + readable(outerType, nsPrefix);
         else if (outerType.getSimpleVariety() == SchemaType.LIST)
@@ -268,9 +288,9 @@ public class QNameHelper
         else if (outerType.getSimpleVariety() == SchemaType.UNION)
             return "member type " + sType.getAnonymousUnionMemberOrdinal() + " of " + readable(outerType, nsPrefix);
         else
-            return "inner type in " + readable(outerType, nsPrefix); 
+            return "inner type in " + readable(outerType, nsPrefix);
     }
-    
+
     public static String readable(QName name)
     {
         return readable(name, WELL_KNOWN_PREFIXES);
@@ -285,13 +305,13 @@ public class QNameHelper
             return prefix + ":" + name.getLocalPart();
         return name.getLocalPart() + " in namespace " + name.getNamespaceURI();
     }
-    
+
     public static String suggestPrefix(String namespace)
     {
         String result = (String)WELL_KNOWN_PREFIXES.get(namespace);
         if (result != null)
             return result;
-        
+
         int len = namespace.length();
         int i = namespace.lastIndexOf('/');
         if (i > 0 && i == namespace.length() - 1)
@@ -299,21 +319,21 @@ public class QNameHelper
             len = i;
             i = namespace.lastIndexOf('/', i - 1);
         }
-        
+
         i += 1; // skip '/', also covers -1 case.
-        
+
         if (namespace.startsWith("www.", i))
         {
             i += 4; // "www.".length()
         }
-        
+
         while (i < len)
         {
             if (XMLChar.isNCNameStart(namespace.charAt(i)))
                 break;
             i += 1;
         }
-        
+
         for (int end = i + 1; end < len; end += 1)
         {
             if (!XMLChar.isNCName(namespace.charAt(end)) || !Character.isLetterOrDigit(namespace.charAt(end)))
@@ -322,7 +342,7 @@ public class QNameHelper
                 break;
             }
         }
-        
+
         // prefixes starting with "xml" are forbidden, so change "xmls" -> "xs"
         if (namespace.length() >= i + 3 && startsWithXml(namespace, i))
         {
@@ -330,7 +350,7 @@ public class QNameHelper
                 return "x" + Character.toLowerCase(namespace.charAt(i + 3));
             return "ns";
         }
-        
+
         if (len - i > 4) // four or less? leave it.
         {
             if (isVowel(namespace.charAt(i + 2)) && !isVowel(namespace.charAt(i + 3)))
@@ -338,30 +358,30 @@ public class QNameHelper
             else
                 len = i + 3; // more than four? truncate to 3.
         }
-        
+
         int n;
-        
+
         if (len - i == 0)
             return "ns";
-        
+
         return namespace.substring(i, len).toLowerCase();
     }
-    
+
     private static boolean startsWithXml(String s, int i)
     {
         if (s.length() < i + 3)
             return false;
-        
+
         if (s.charAt(i) != 'X' && s.charAt(i) != 'x')
             return false;
         if (s.charAt(i + 1) != 'M' && s.charAt(i + 1) != 'm')
             return false;
         if (s.charAt(i + 2) != 'L' && s.charAt(i + 2) != 'l')
             return false;
-        
+
         return true;
     }
-    
+
     private static boolean isVowel(char ch)
     {
         switch (ch)
@@ -381,7 +401,7 @@ public class QNameHelper
                 return false;
         }
     }
-    
+
     public static String namespace(SchemaType sType)
     {
         while (sType != null)

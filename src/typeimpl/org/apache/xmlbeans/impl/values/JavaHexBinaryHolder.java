@@ -68,6 +68,7 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import java.security.NoSuchAlgorithmException;
 import java.security.MessageDigest;
 import java.util.Arrays;
+import java.io.UnsupportedEncodingException;
 
 public abstract class JavaHexBinaryHolder extends XmlObjectBase
 {
@@ -99,7 +100,16 @@ public abstract class JavaHexBinaryHolder extends XmlObjectBase
 
     public static byte[] lex(String v, ValidationContext context)
     {
-        byte[] bytes = HexBin.decode(v.getBytes());
+        byte[] vBytes = null;
+        try
+        {
+            vBytes = v.getBytes("UTF-8");
+        }
+        catch(UnsupportedEncodingException uee)
+        {
+            // should never happen - UTF-8 is always supported
+        }
+        byte[] bytes = HexBin.decode(vBytes);
 
         if (bytes == null)
         {
