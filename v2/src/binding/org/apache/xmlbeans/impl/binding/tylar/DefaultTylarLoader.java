@@ -118,7 +118,11 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
   {
     if (uri == null) throw new IllegalArgumentException("null uri");
     String scheme = uri.getScheme();
-    if (scheme.equals(FILE_SCHEME)) {
+    //yuck even more hackery.  ripping this all out soon
+    if (scheme.equals("jar")) {
+      return load(new URL[]{ new URL(uri.toString()) });
+     
+    } else if (scheme.equals(FILE_SCHEME)) {
       File file = null;
       try {
         file = new File(uri);
