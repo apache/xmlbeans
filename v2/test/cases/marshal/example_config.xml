@@ -87,6 +87,35 @@
                 </bin:setter>
                 <bin:qname>java:SomeBool</bin:qname>
             </bin:qname-property>
+
+
+            <bin:qname-property>
+                <bin:xmlcomponent>t=QName@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>javax.xml.namespace.QName</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getQn</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setQn</bin:method-name>
+                    <bin:param-type>javax.xml.namespace.QName</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:qn</bin:qname>
+                <bin:attribute>true</bin:attribute>
+            </bin:qname-property>
+
+            <bin:qname-property>
+                <bin:xmlcomponent>t=QName@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>javax.xml.namespace.QName</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getQn2</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setQn2</bin:method-name>
+                    <bin:param-type>javax.xml.namespace.QName</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:qn2</bin:qname>
+            </bin:qname-property>
+
             <bin:qname-property>
                 <bin:xmlcomponent>t=boolean@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
                 <bin:javatype>boolean</bin:javatype>

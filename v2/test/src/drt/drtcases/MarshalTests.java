@@ -106,6 +106,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal(new Double(1231.444), "double");
         testSimpleTypeMarshal("some text here", "string");
         testSimpleTypeMarshal("       ", "string");
+
+        testSimpleTypeMarshal(new QName("someuri", "somelname"), "QName");
     }
 
 
@@ -183,6 +185,13 @@ public class MarshalTests extends TestCase
 
         System.out.println("==================OBJ: " + orig);
         dumpReader(reader);
+
+        if (!errors.isEmpty()) {
+            for (Iterator itr = errors.iterator(); itr.hasNext();) {
+                Object err = itr.next();
+                System.out.println("Error: " + err);
+            }
+        }
 
         Assert.assertTrue(errors.isEmpty());
     }

@@ -452,7 +452,12 @@ final class UnmarshallerImpl
 
     QName getQNameValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getQNameValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
     String getAttributeStringValue()
@@ -598,7 +603,12 @@ final class UnmarshallerImpl
 
     QName getAttributeQNameValue()
     {
-        throw new AssertionError("unimp");
+        try {
+            return baseReader.getAttributeQNameValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
 
