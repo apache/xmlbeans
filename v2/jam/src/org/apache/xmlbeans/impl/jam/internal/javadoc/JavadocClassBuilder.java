@@ -21,6 +21,7 @@ import org.apache.xmlbeans.impl.jam.internal.elements.PrimitiveClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 
 import java.io.*;
 import java.util.StringTokenizer;
@@ -36,18 +37,15 @@ public class JavadocClassBuilder extends JamClassBuilder {
   public static final String ARGS_PROPERTY = "javadoc.args";
   public static final String PARSETAGS_PROPERTY = "javadoc.parsetags";
 
-  private static boolean VERBOSE = false;
-
   private static final String JAVA15_EXTRACTOR =
     "org.apache.xmlbeans.impl.jam.internal.java15.Javadoc15AnnotationExtractor";
-
-  private static final String PREFIX = "[JavadocClassBuilder] ";
 
   // ========================================================================
   // Variables
 
   private RootDoc mRootDoc = null;
   private JamServiceContext mServiceContext;
+  private JamLogger mLogger;
   private JavadocAnnotationExtractor mExtractor = null;
 
   private boolean mParseTags = true;//FIXME
@@ -58,22 +56,23 @@ public class JavadocClassBuilder extends JamClassBuilder {
   public JavadocClassBuilder(JamServiceContext ctx) {
     if (ctx == null) throw new IllegalArgumentException("null context");
     mServiceContext = ctx;
+    mLogger = ctx.getLogger();
     try {
       mExtractor = (JavadocAnnotationExtractor)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
     } catch (ClassNotFoundException e) {
-      mServiceContext.error(e);
+      mLogger.error(e);
     } catch (IllegalAccessException e) {
-      mServiceContext.verbose(e);
+      mLogger.verbose(e);
     } catch (InstantiationException e) {
-      mServiceContext.verbose(e);
+      mLogger.verbose(e);
       //if this fails, we'll assume it's because we're not under 1.5
       ctx.verbose(e);
     }
     String pct = ctx.getProperty(PARSETAGS_PROPERTY);
     if (pct != null) {
       mParseTags = Boolean.valueOf(pct).booleanValue();
-      ctx.verbose(PREFIX+ "mParseTags="+mParseTags);
+      mLogger.verbose("mParseTags="+mParseTags,this);
     }
   }
 
@@ -82,12 +81,12 @@ public class JavadocClassBuilder extends JamClassBuilder {
 
   public void init(ElementContext ctx) {
     super.init(ctx);
-    if (mServiceContext.isVerbose()) mServiceContext.verbose(PREFIX+ " init()");
+    mServiceContext.getLogger().verbose("init()",this);
     File[] files;
     try {
       files = mServiceContext.getSourceFiles();
     } catch(IOException ioe) {
-      ctx.error(ioe);
+      mLogger.error(ioe);
       return;
     }
     if (files == null || files.length == 0) {
@@ -97,54 +96,54 @@ public class JavadocClassBuilder extends JamClassBuilder {
       mServiceContext.getInputSourcepath().toString();
     String classPath = (mServiceContext.getInputClasspath() == null) ? null :
       mServiceContext.getInputClasspath().toString();
-    if (mServiceContext.isVerbose()) {
-      mServiceContext.verbose(PREFIX+ "sourcePath="+sourcePath);
-      mServiceContext.verbose(PREFIX+ "classPath ="+classPath);
+    if (mLogger.isVerbose(this)) {
+      mLogger.verbose("sourcePath="+sourcePath);
+      mLogger.verbose("classPath ="+classPath);
       for(int i=0; i<files.length; i++) {
-        mServiceContext.verbose(PREFIX+ "including '"+files[i]+"'");
+        mLogger.verbose("including '"+files[i]+"'");
       }
     }
     JavadocRunner jdr = new JavadocRunner();
     try {
       PrintWriter out = null;
-      if (mServiceContext.isVerbose()) {
+      if (mLogger.isVerbose(this)) {
         out = new PrintWriter(System.out);
       }
       mRootDoc = jdr.run(files,
                          out,
                          sourcePath,
                          classPath,
-                         getJavadocArgs(mServiceContext));
+                         getJavadocArgs(mServiceContext),
+                         mLogger);
       if (mRootDoc == null) {
-        mServiceContext.error("Javadoc returned a null root");//FIXME error
+        mLogger.error("Javadoc returned a null root");//FIXME error
       } else {
-        if (mServiceContext.isVerbose()) {
-          mServiceContext.verbose(PREFIX+ " received "+mRootDoc.classes().length+
-                                  " ClassDocs from javadoc: ");
+        if (mLogger.isVerbose(this)) {
+          mLogger.verbose(" received "+mRootDoc.classes().length+
+                          " ClassDocs from javadoc: ");
         }
         ClassDoc[] classes = mRootDoc.classes();
         // go through and explicitly add all of the class names.  we need to
         // do this in case they passed any 'unstructured' classes.  to the
         // params.  this could use a little TLC.
         for(int i=0; i<classes.length; i++) {
-          if (mServiceContext.isVerbose()) {
-            mServiceContext.verbose(PREFIX+ "..."+classes[i].qualifiedName());
+          if (mLogger.isVerbose(this)) {
+            mLogger.verbose("..."+classes[i].qualifiedName());
           }
           ((JamServiceContextImpl)mServiceContext).
             includeClass(classes[i].qualifiedName());
         }
       }
     } catch (FileNotFoundException e) {
-      ctx.error(e);
+      mLogger.error(e);
     } catch (IOException e) {
-      ctx.error(e);
+      mLogger.error(e);
     }
   }
 
   public MClass build(String packageName, String className) {
-    if (VERBOSE) {
-      System.out.println("[JavadocClassBuilder] building '"+
-                         packageName+"' '"+className+"'");
+    if (getLogger().isVerbose(this)) {
+      getLogger().verbose("trying to build '"+packageName+"' '"+className+"'");
     }
     String cn = packageName.trim();
     if (cn.length() == 0) {
@@ -153,17 +152,19 @@ public class JavadocClassBuilder extends JamClassBuilder {
       cn = packageName + "." +className;
     }
     ClassDoc cd = mRootDoc.classNamed(cn);
-    if (cd == null) return null;
+    if (cd == null) {
+      if (getLogger().isVerbose(this)) {
+        mServiceContext.getLogger().verbose("no ClassDoc for "+cn);
+      }
+      return null;
+    }
     MClass out = createClassToBuild(packageName, className, null);
-    populate(out,cd);
+    out.setArtifact(cd);
     return out;
   }
 
-  // ========================================================================
-  // Private methods
-
-  private void populate(MClass dest, ClassDoc src) {
-    dest.setArtifact(src);
+  public void populate(MClass dest) {
+    ClassDoc src = (ClassDoc)dest.getArtifact();
     dest.setModifiers(src.modifierSpecifier());
     dest.setIsInterface(src.isInterface());
     // set the superclass
@@ -284,14 +285,12 @@ public class JavadocClassBuilder extends JamClassBuilder {
       String comments = src.commentText();
       if (comments != null) dest.createComment().setText(comments);
       Tag[] tags = src.tags();
-      if (mServiceContext.isVerbose()) {
-        mServiceContext.verbose(PREFIX+ "processing "+tags.length+
-                                " javadoc tags on "+dest.getQualifiedName());
-      }
+      //if (mLogger.isVerbose(this)) {
+      //  mLogger.verbose("processing "+tags.length+" javadoc tags on "+dest);
+      //}
       for(int i=0; i<tags.length; i++) {
-        if (mServiceContext.isVerbose()) {
-          mServiceContext.verbose(PREFIX+ "...'"+
-                                  tags[i].name()+"' ' "+tags[i].text());
+        if (mLogger.isVerbose(this)) {
+          mLogger.verbose("...'"+tags[i].name()+"' ' "+tags[i].text());
         }
         //note: name() returns the '@', so we strip it
         dest.addAnnotationForTag(tags[i].name().substring(1),tags[i].text());

@@ -79,18 +79,16 @@ public class ReflectClassBuilder extends JamClassBuilder {
     try {
       rclass = mLoader.loadClass(packageName+"."+className);
     } catch(ClassNotFoundException cnfe) {
-//      getLogger().debug(cnfe);
+     getLogger().verbose(cnfe,this);
       return null;
     }
     MClass out = createClassToBuild(packageName, className, null);
-    populate(out,rclass);
+    out.setArtifact(rclass);
     return out;
   }
 
-  // ========================================================================
-  // Private methods
-
-  private void populate(MClass dest, Class src) {
+  public void populate(MClass dest) {
+    Class src = (Class)dest.getArtifact();
     dest.setModifiers(src.getModifiers());
     dest.setIsInterface(src.isInterface());
     // set the superclass

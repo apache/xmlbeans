@@ -81,9 +81,7 @@ public class ClassesJamTest extends JamTestBase {
   protected JamService getResultToTest() throws IOException {
     JamServiceFactory jsf = JamServiceFactory.getInstance();
     JamServiceParams params = jsf.createServiceParams();
-//include
     params.includeClassPattern(getDummyclassesClassPath(),"**/*.class");
-    params.setVerbose(true);
     return jsf.createService(params);
   }
 

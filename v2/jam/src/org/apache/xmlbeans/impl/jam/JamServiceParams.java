@@ -193,12 +193,10 @@ public interface JamServiceParams {
 //  public void setLogger(PrintWriter out);
 
   /**
-   * Sets whether the JamService should send verbose output to the logger.
-   * Has no effect if setLogger() is never called.
-   *
-   * @param v whether or not boolean output is enabled.
+   * </p>Enables verbose debugging output from all instances of the given
+   * class.</p>
    */
-  public void setVerbose(boolean v);
+  public void setVerbose(Class c);
 
   /**
    * Sets the parent JamClassLoader of the service JamClassLoader.
@@ -324,7 +322,6 @@ public interface JamServiceParams {
    */
   public void setDefaultAnnotationProxyClass(Class c);
 
-
   /**
    * <p>Specifies whether the JAM Service should load classes from the system
    * classpath.  The default for this is true, and you shouldn't set it to
@@ -336,6 +333,13 @@ public interface JamServiceParams {
    * <p>Sets an implementation-specific property.</p>
    */
   public void setProperty(String name, String value);
+
+  /**
+   * @deprecated use setVerbose(Class).  This is the same as
+   * setVerbose(Object.class).
+   */
+  public void setVerbose(boolean v);
+
 
 
 }

@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MElement;
 import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
@@ -140,4 +142,11 @@ public abstract class ElementImpl implements MElement {
   // Other public methods
 
   public ElementContext getContext() { return mContext; }
+
+  // ========================================================================
+  // Protected methods
+
+  protected JamLogger getLogger() {
+    return ((JamServiceContextImpl)mContext).getLogger();
+  }
 }

@@ -26,6 +26,8 @@ import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.JInvokable;
 import org.apache.xmlbeans.impl.jam.JSourcePosition;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
+import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 
 import javax.xml.stream.XMLStreamWriter;
 import javax.xml.stream.XMLStreamException;
@@ -35,7 +37,7 @@ import java.io.Writer;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class JamXmlWriter {
+public class JamXmlWriter extends JVisitor {
 
   // ========================================================================
   // Constants
@@ -86,6 +88,14 @@ public class JamXmlWriter {
 
   // ========================================================================
   // Public methods
+
+  public void write(JElement element) throws XMLStreamException {
+    try {
+      element.accept(this);
+    } catch(TunnelledException te) {
+      throw te.getXMLStreamException();
+    }
+  }
 
   public void write(JPackage pkg) throws XMLStreamException {
     mOut.writeStartElement(PACKAGE_ELEMENT);
@@ -140,6 +150,73 @@ public class JamXmlWriter {
     writeValueElement(TYPE_ELEMENT,field.getType().getQualifiedName());
     writeAnnotatedElement(field);
     mOut.writeEndElement();
+  }
+
+  // ========================================================================
+  // JVistitor implementation
+
+  public void visit(JPackage foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
+  }
+
+  public void visit(JClass foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
+  }
+
+  public void visit(JConstructor foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
+  }
+
+  public void visit(JField foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
+  }
+
+  public void visit(JMethod foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
+  }
+
+  public void visit(JParameter foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
+  }
+
+  public void visit(JAnnotation foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
+  }
+
+  public void visit(JComment foo) {
+    try {
+      write(foo);
+    } catch(XMLStreamException xse) {
+      throw new TunnelledException(xse);
+    }
   }
 
   // ========================================================================

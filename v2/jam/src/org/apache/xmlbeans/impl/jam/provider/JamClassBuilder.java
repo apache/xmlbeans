@@ -97,4 +97,6 @@ public abstract class JamClassBuilder {
    * @return
    */ 
   public abstract MClass build(String packageName, String className);
+
+  public abstract void populate(MClass c);
 }

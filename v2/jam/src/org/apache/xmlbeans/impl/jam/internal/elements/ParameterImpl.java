@@ -52,7 +52,7 @@ public class ParameterImpl extends MemberImpl implements MParameter {
   // JElement implementation
 
   public String getQualifiedName() {
-    return getContainingClass().getQualifiedName();//FIXME
+    return getSimpleName();//FIXME
   }
 
   // ========================================================================

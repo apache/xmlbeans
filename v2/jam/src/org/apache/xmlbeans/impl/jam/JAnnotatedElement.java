@@ -57,4 +57,15 @@ public abstract interface JAnnotatedElement extends JElement {
    */
   public JComment getComment();
 
+
+  /**
+   * Use of this method is discouraged. DOCME
+   */
+  public JAnnotation[] getAllJavadocTags();
+
+  /**
+   * Use of this method is discouraged. DOCME
+   */
+  public JAnnotation[] getAllJavadocTags(String tagname);
+
 }

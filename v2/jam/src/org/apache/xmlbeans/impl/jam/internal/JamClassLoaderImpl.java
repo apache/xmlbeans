@@ -91,10 +91,12 @@ public class JamClassLoaderImpl implements JamClassLoader {
       mFd2ClassCache.put(fd,out);
       return out;
     }
+    mFd2ClassCache.put(fd,out);
+    ((ClassImpl)out).setState(ClassImpl.POPULATING);
+    mBuilder.populate(out);
     if (mInitializer == null) {
       ((ClassImpl)out).setState(ClassImpl.LOADED);
     } else {
-      mFd2ClassCache.put(fd,out);
       ((ClassImpl)out).setState(ClassImpl.INITIALIZING);
       // see comments below about this.  we need to document this more openly,
       // since it affects people writing initializers.

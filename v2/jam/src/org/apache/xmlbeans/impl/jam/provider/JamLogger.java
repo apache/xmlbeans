@@ -19,15 +19,27 @@ package org.apache.xmlbeans.impl.jam.provider;
  */
 public interface JamLogger {
 
-  public boolean isVerbose();
+  public void setVerbose(Class c);
+
+  public boolean isVerbose(Object o);
 
   /**
-   * <p>Outputs a debug message as appropriate.</p>
+   * <p>Outputs a debug message if appropriate for the given object.</p>
+   */
+  public void verbose(String msg, Object ifThisIsVerbose);
+
+  /**
+   * <p>Outputs a debug message if appropriate for the given object.</p>
+   */
+  public void verbose(Throwable t, Object ifThisIsVerbose);
+
+  /**
+   * <p>Outputs a debug message no matter what.</p>
    */
   public void verbose(String msg);
 
   /**
-   * <p>Outputs a debug message as appropriate.</p>
+   * <p>Outputs a debug message no matter what.</p>
    */
   public void verbose(Throwable t);
 
@@ -51,4 +63,12 @@ public interface JamLogger {
    */
   public void error(String msg);
 
+
+  /**
+   * @deprecated
+   *
+   * @return
+   */
+  public boolean isVerbose();
+  
 }

@@ -42,8 +42,9 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public static final int NEW = 0;
   public static final int BUILDING = 1;
-  public static final int INITIALIZING = 2;
-  public static final int LOADED = 3;
+  public static final int POPULATING = 2;
+  public static final int INITIALIZING = 3;
+  public static final int LOADED = 4;
   //public static final int UNRESOLVED = 4;
 
   // ========================================================================

@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+
 
 /**
  * <p>This class does its best to encapsulate and make threadsafe the
@@ -48,7 +50,8 @@ public class JavadocRunner extends Doclet {
                                        PrintWriter out,
                                        String sourcePath,
                                        String classPath,
-                                       String[] javadocArgs)
+                                       String[] javadocArgs,
+                                       JamLogger logger)
           throws IOException, FileNotFoundException
   {
     if (files == null || files.length == 0) {
@@ -87,6 +90,17 @@ public class JavadocRunner extends Doclet {
     ClassLoader originalCCL = Thread.currentThread().getContextClassLoader();
     try {
       JavadocResults.prepare();
+      if (logger.isVerbose(this)) {
+        logger.verbose("Invoking javadoc.  Command line equivalent is: ");
+        StringWriter sw = new StringWriter();
+        sw.write("javadoc ");
+        for(int i=0; i<args.length; i++) {
+          sw.write("'");
+          sw.write(args[i]);
+          sw.write("' ");
+        }
+        logger.verbose("  "+sw.toString());
+      }
       int result = com.sun.tools.javadoc.Main.execute("JAM",
                                                       spewWriter,
                                                       spewWriter,
