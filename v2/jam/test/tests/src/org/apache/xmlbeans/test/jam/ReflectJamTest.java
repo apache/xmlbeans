@@ -69,7 +69,7 @@ import org.apache.xmlbeans.test.jam.cases.annogen.BugAnnotation;
 import org.apache.xmlbeans.test.jam.cases.annogen.impl.BugAnnotationImpl;
 import org.apache.xmlbeans.test.jam.cases.Baz;
 import org.apache.xmlbeans.test.jam.cases.annotated.Igloo;
-import org.apache.xmlbeans.test.jam.cases.annotated.QuansuHut;
+import org.apache.xmlbeans.test.jam.cases.annotated.QuansaHut;
 
 import java.io.IOException;
 import java.io.File;
@@ -172,7 +172,7 @@ public class ReflectJamTest extends JamTestBase {
     AnnoServiceRoot asr = asf.createServiceRoot(asp);
     ReflectAnnoService ras = asr.getReflectService();
     Method annotatedMethod = Igloo.class.getMethod(ANNOTATED_METHOD,null);
-    Method notAnnotatedMethod = QuansuHut.class.getMethod(ANNOTATED_METHOD,null);
+    Method notAnnotatedMethod = QuansaHut.class.getMethod(ANNOTATED_METHOD,null);
     // ok now do the tests
     {
       // make sure an annotation was synthesized where it should have been
