@@ -37,6 +37,12 @@ final class JaxrpcEnumRuntimeBindingType
         jaxrpcEnumType = type;
     }
 
+    void accept(RuntimeTypeVisitor visitor)
+        throws XmlException
+    {
+        visitor.visit(this);
+    }
+
     public void initialize(RuntimeBindingTypeTable typeTable,
                            BindingLoader bindingLoader
                            )
@@ -44,6 +50,11 @@ final class JaxrpcEnumRuntimeBindingType
     {
         itemInfo = new ItemInfo(jaxrpcEnumType, getJavaType(), typeTable,
                                 bindingLoader);
+    }
+
+    boolean hasElementChildren()
+    {
+        return false;
     }
 
     CharSequence print(Object value,

@@ -75,6 +75,11 @@ abstract class RuntimeBindingType
         marshaller = m;
     }
 
+
+    abstract void accept(RuntimeTypeVisitor visitor)
+        throws XmlException;
+
+
     Object getObjectFromIntermediate(Object inter)
     {
         return inter;
@@ -208,6 +213,20 @@ abstract class RuntimeBindingType
             "}";
     }
 
+    protected void checkInstance(Object obj)
+        throws XmlException
+    {
+        final Class java_type = getJavaType();
+        if (obj != null &&
+            !isJavaPrimitive() &&
+            !java_type.isInstance(obj)) {
+            String m = "instance type: " + obj.getClass() +
+                " not an instance of expected type: " + java_type;
+            throw new XmlException(m);
+        }
+    }
+
+    abstract boolean hasElementChildren();
 
     protected abstract static class BeanRuntimeProperty
         extends RuntimeBindingProperty

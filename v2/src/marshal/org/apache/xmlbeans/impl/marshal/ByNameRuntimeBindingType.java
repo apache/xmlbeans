@@ -63,6 +63,12 @@ final class ByNameRuntimeBindingType
     }
 
 
+    void accept(RuntimeTypeVisitor visitor)
+        throws XmlException
+    {
+        visitor.visit(this);
+    }
+
     Object getObjectFromIntermediate(Object inter)
     {
         if (hasMulti()) {
@@ -71,6 +77,11 @@ final class ByNameRuntimeBindingType
         } else {
             return inter;
         }
+    }
+
+    boolean hasElementChildren()
+    {
+        return true;
     }
 
 

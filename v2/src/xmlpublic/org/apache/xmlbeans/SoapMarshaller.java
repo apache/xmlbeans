@@ -17,6 +17,7 @@ package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import java.util.Iterator;
 
 /**
  * A SoapMarshaller object is used to convert Java objects to SOAP encoded XML documents.
@@ -61,8 +62,9 @@ public interface SoapMarshaller
     /**
      * Get the multiply referenced objects, usually written after the other parts.
      *
-     * Note that the returned reader is not a full xml document,
-     * but rather a forest of parts.
+     * Returns an Iterator of XMLStreamReader objects, each reader 
+     * represting an object that has been referred to more than once.
+     *
      *
      * <ul>
      * <li>A collection instance that should be used as an error listener during
@@ -73,7 +75,7 @@ public interface SoapMarshaller
      * @return
      * @throws XmlException
      */
-    XMLStreamReader marshalReferenced(XmlOptions options)
+    Iterator marshalReferenced(XmlOptions options)
         throws XmlException;
 
 

@@ -40,6 +40,12 @@ final class WrappedArrayRuntimeBindingType
         wrappedArrayType = binding_type;
     }
 
+    void accept(RuntimeTypeVisitor visitor)
+        throws XmlException
+    {
+        visitor.visit(this);
+    }
+
     public void initialize(RuntimeBindingTypeTable typeTable,
                            BindingLoader bindingLoader)
         throws XmlException
@@ -63,6 +69,11 @@ final class WrappedArrayRuntimeBindingType
                            wrappedArrayType.isItemNillable());
 
 
+    }
+
+    boolean hasElementChildren()
+    {
+        return true;
     }
 
     RuntimeBindingProperty getElementProperty()

@@ -16,37 +16,32 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 
-class SimpleRuntimeBindingType
-    extends RuntimeBindingType
+import javax.xml.namespace.QName;
+
+class Soap11RefdObjectVisitor
+    extends RefdObjectVisitor
 {
-    private final SimpleBindingType simpleBindingType;
 
-    public SimpleRuntimeBindingType(SimpleBindingType type)
+    private static final QName HREF_NAME = new QName("href");
+    private static final String REF_PREFIX = '#' + SoapMarshalResult.ID_PREFIX;
+
+    public Soap11RefdObjectVisitor(RuntimeBindingProperty property,
+                             Object obj,
+                             MarshalResult result,
+                             int id)
         throws XmlException
     {
-        super(type);
-        simpleBindingType = type;
+        super(property, obj, result, id);
     }
 
-    void accept(RuntimeTypeVisitor visitor)
-        throws XmlException
+    protected QName getRefQName()
     {
-        visitor.visit(this);
+        return HREF_NAME;
     }
 
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader
-                           )
-        throws XmlException
+    protected String getRefValue()
     {
+        return REF_PREFIX + Integer.toString(id);
     }
-
-    boolean hasElementChildren()
-    {
-        return false;
-    }
-
 }
