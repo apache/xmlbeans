@@ -46,7 +46,7 @@ public class ParserClassBuilder extends JamClassBuilder implements JamClassPopul
 
   private ResourcePath mSourcePath;
   private boolean mVerbose = VERBOSE;
-  private PrintWriter mOut;
+  private PrintWriter mOut = new PrintWriter(System.out);
 
   // ========================================================================
   // Constructors
@@ -83,21 +83,29 @@ public class ParserClassBuilder extends JamClassBuilder implements JamClassPopul
     }
     Reader rin = new InputStreamReader(in);
     try {
+      /*
       MClass[] clazz = null;//FIXME parse(rin,loader);
       if (clazz.length > 1) {
         System.out.println("WARNING: multiple classes per package are not "+
                            "handled correctly at the moment.  FIXME");
       }
       return clazz[0]; //FIXME deal properly with multiple classes
+      */
     } catch(Throwable t) {
       t.printStackTrace();
+    } finally {
+      try {
+      rin.close();
+      } catch(IOException ohwell) {
+        ohwell.printStackTrace();
+      }
     }
     return null;
   }
 
   // ========================================================================
   // JamClassPopulator implementation
-  
+
   public void populate(MClass m) {
     throw new IllegalStateException("NYI");
   }

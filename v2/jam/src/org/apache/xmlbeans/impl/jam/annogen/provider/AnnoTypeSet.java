@@ -12,9 +12,17 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.test.jam;
+package org.apache.xmlbeans.impl.jam.annogen.provider;
 
 /**
- * @deprecated remove me
+ * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class TestProxyPopulator {}
+public interface AnnoTypeSet {
+
+  public boolean contains(AnnoType annoType);
+
+  public void add(AnnoType annoType);
+
+  public boolean remove(AnnoType annoType);
+
+}

@@ -14,31 +14,21 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyTypeMapping;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
+import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.Reader;
+import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface AnnotationServiceParams {
+public interface AnnoServiceRoot {
 
-  // ========================================================================
-  // Public methods
+  public JavadocAnnoService getJavadocService();
 
-  public void addXmlOverrides(File file) throws FileNotFoundException;
-
-  public void addXmlOverrides(Reader in);
-
-  public void insertPopulator(ProxyPopulator pop);
-
-  public void appendPopulator(ProxyPopulator pop);
-
-  public void setProxyMapping(ProxyTypeMapping pm);
-
-
+  public ReflectAnnoService getReflectService();
 
 }

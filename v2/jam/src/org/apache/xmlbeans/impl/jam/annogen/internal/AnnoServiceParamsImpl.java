@@ -14,11 +14,10 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyTypeMapping;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
-import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceParams;
-import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceFactory;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnoModifier;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProviderContext;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnoTypeRegistry;
+import org.apache.xmlbeans.impl.jam.annogen.AnnoServiceParams;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.internal.JamLoggerImpl;
 
@@ -31,29 +30,32 @@ import java.util.LinkedList;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class AnnotationServiceParamsImpl implements
-  AnnotationServiceParams, ProxyContext {
+public class AnnoServiceParamsImpl implements
+  AnnoServiceParams, ProviderContext {
 
   // ========================================================================
   // Variables
 
   private LinkedList mPopulators = new LinkedList();
-  private ProxyTypeMapping mProxyMapping = null;
   private JamLogger mLogger = new JamLoggerImpl();
+  private AnnoTypeRegistry mAnnoTypeRegistry;
 
   // ========================================================================
   // Constructors
 
-  public AnnotationServiceParamsImpl() {
+  public AnnoServiceParamsImpl() {
 /*
     ProxyPopulator reflectProxy =
       AnnotationServiceFactory.getInstance().getReflectingPopulator();
     if (reflectProxy != null) mPopulators.add(reflectProxy);
-*/
     ProxyPopulator javadocProxy =
       AnnotationServiceFactory.getInstance().getJavadocPopulator();
     if (javadocProxy != null) mPopulators.add(javadocProxy);
+*/
 
+    //REVIEW this is just hardwired for now.  We'll put a switch on it someday
+    //if we need to.
+    mAnnoTypeRegistry = new DefaultAnnoTypeRegistry();
   }
 
   // ========================================================================
@@ -68,40 +70,31 @@ public class AnnotationServiceParamsImpl implements
     // addNewPopulator(new XmlPopulator(in));
   }
 
-  public void insertPopulator(ProxyPopulator pop) {
+  public void insertPopulator(AnnoModifier pop) {
     mPopulators.addFirst(pop);
   }
 
-  public void appendPopulator(ProxyPopulator pop) {
+  public void appendPopulator(AnnoModifier pop) {
     mPopulators.addLast(pop);
-  }
-
-  public void setProxyMapping(ProxyTypeMapping pm) {
-    mProxyMapping = pm;
-    pm.init(this);
   }
 
   // ========================================================================
   // Internal use only
 
-  public ProxyPopulator[] getPopulators() {
-    ProxyPopulator[] out = new ProxyPopulator[mPopulators.size()];
+  public AnnoModifier[] getPopulators() {
+    AnnoModifier[] out = new AnnoModifier[mPopulators.size()];
     mPopulators.toArray(out);
     return out;
   }
-
-  public ProxyTypeMapping getProxyMapping() {
-    if (mProxyMapping == null) setProxyMapping(new DefaultProxyMapping());
-    return mProxyMapping;
-  }
-
 
   // ========================================================================
   // Provider context implementation
 
   public JamLogger getLogger() { return mLogger; }
 
-  public ProxyTypeMapping getProxyTypeMapping() { return mProxyMapping; }
+  public AnnoTypeRegistry getAnnoTypeRegistry() {
+    return mAnnoTypeRegistry;
+  }
 
   public ClassLoader getClassLoader() {
     return ClassLoader.getSystemClassLoader(); //FIXME

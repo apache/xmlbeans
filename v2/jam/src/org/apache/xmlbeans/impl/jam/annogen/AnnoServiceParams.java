@@ -12,41 +12,27 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.annogen.provider;
+package org.apache.xmlbeans.impl.jam.annogen;
+
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnoModifier;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.Reader;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ElementId {
-
-  // ========================================================================
-  // Constants
-
-  public static final int PACKAGE_TYPE = 0;
-  public static final int CLASS_TYPE = 1;
-  public static final int FIELD_TYPE = 2;
-  public static final int METHOD_TYPE = 3;
-  public static final int CONSTRUCTOR_TYPE = 4;
-  public static final int PARAMETER_TYPE = 5;
-  public static final int ANNOTATION_TYPE = 6;
-
-  public static final int NO_PARAMETER = -1;
+public interface AnnoServiceParams {
 
   // ========================================================================
   // Public methods
 
-  //public ElementId getEnclosingElement();
+  public void addXmlOverrides(File file) throws FileNotFoundException;
 
-  public int getType();
+  public void addXmlOverrides(Reader in);
 
-  public String getName();
+  public void insertPopulator(AnnoModifier pop);
 
-  public String getContainingClass();
-
-  public String getContainingPackage();
-
-  public String[] getSignature();
-
-  public int getParameterNumber();
-
+  public void appendPopulator(AnnoModifier pop);
 }

@@ -6,6 +6,9 @@
   <property name="product.version" value="1.0.0"/>
   <property name="jam_root" value="jam"/>
 
+  <!-- needs to be the same as 'classes_dir' in jam/build.xml -->
+  <property name="jam_classes_dir" value="${jam_root}/build/classes"/>
+
   <target name="usage">
     <echo message="The following ant targets are defined:"/>
     <echo message="usage    - this help text"/>
@@ -312,7 +315,7 @@
       <fileset dir="build/classes/xmlinputstream"/>
       <fileset dir="build/classes/marshal"/>
       <fileset dir="build/classes/repackage"/>
-      <fileset dir="build/classes/jam"/>
+      <fileset dir="${jam_classes_dir}"/>
       <fileset dir="build/classes/piccolo"/>
       <fileset dir="build/classes/tools"/>
       <fileset dir="src/license"/>
@@ -404,7 +407,7 @@
         <pathelement location="build/classes/xmlconfig"/>
         <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/xsdschema"/>
-        <pathelement location="build/classes/jam"/>
+        <pathelement location="${jam_classes_dir}"/>
         <pathelement location="build/lib/jsr173_api.jar"/>
       </classpath>
 
@@ -449,9 +452,7 @@
   <!-- jam target =================================================== -->
 
   <target name='jam'>
-    <ant dir='${jam_root}' target='all' inheritAll='false'>
-      <property name="classes_dir" value="../build/classes/jam"/>
-    </ant>
+    <ant dir='${jam_root}' target='all' inheritAll='false'/>
   </target>
 
   <!-- marshal target =============================================== -->

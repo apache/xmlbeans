@@ -114,7 +114,7 @@ public class ReflectJamTest_150 extends JamTestBase_150 {
     return false;
   }
 
-  protected File getMasterDir() { return new File("masters/reflect"); }
+  protected File getMasterDir() { return new File(TEST_DIR,"masters/reflect"); }
 
   // ========================================================================
   // Reflection-specific test methods
@@ -124,10 +124,8 @@ public class ReflectJamTest_150 extends JamTestBase_150 {
 
 //FIXME please move this up into base class
 
-  private static final String EXTJAR_JAR = "../../build/jam/test/extjar.jar";
-
   public void testClassLoaderWrapper() throws MalformedURLException {
-    File aJarNotInTheClasspath = new File(EXTJAR_JAR);
+    File aJarNotInTheClasspath = EXTJAR_JAR;
     assertTrue(aJarNotInTheClasspath.getAbsolutePath()+" does not exist",
                aJarNotInTheClasspath.exists());
     URL url = aJarNotInTheClasspath.toURL();

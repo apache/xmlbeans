@@ -85,6 +85,13 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
+  //FIXME make these settable from ant
+  protected static final File JAM_BUILD_DIR = new File("../build");
+  protected static final File TEST_BUILD_DIR = new File(JAM_BUILD_DIR,"test");
+  protected static final File TEST_DIR = new File(".");
+  protected static final File EXTJAR_JAR = new File(TEST_BUILD_DIR,"extjar.jar");
+
+
   private static final boolean CONTINUE_ON_COMPARE_FAIL = true;
   private static final boolean WRITE_RESULT_ON_FAIL = true;
 
@@ -116,6 +123,10 @@ public abstract class JamTestBase extends TestCase {
     "org.apache.xmlbeans.test.jam.cases.annogen.EmployeeAnnotation",
     "org.apache.xmlbeans.test.jam.cases.annogen.impl.BugAnnotationImpl",
     "org.apache.xmlbeans.test.jam.cases.annogen.impl.EmployeeAnnotationImpl",
+
+    "org.apache.xmlbeans.test.jam.cases.annotated.QuansuHut",
+    "org.apache.xmlbeans.test.jam.cases.annotated.Igloo",
+
 
     DUMMY+".Base",
     DUMMY+".Baz",
@@ -171,7 +182,6 @@ public abstract class JamTestBase extends TestCase {
    *
    * lines.
    */
-
   private static final boolean VERBOSE = false;
 
   // ========================================================================
@@ -186,12 +196,12 @@ public abstract class JamTestBase extends TestCase {
 
   public JamTestBase() {
     super("JamTestBase");
-    System.out.println("constructed JamTestBase");
+//    System.out.println("constructed JamTestBase");
   }
 
   public JamTestBase(String casename) {
     super(casename);
-    System.out.println("constructed JamTestBase "+casename);    
+//    System.out.println("constructed JamTestBase "+casename);
   }
 
   // ========================================================================
@@ -232,8 +242,8 @@ public abstract class JamTestBase extends TestCase {
    * Returns the directory in which the sources for the cases live.
    */
   protected File[] getCasesSourcepath() {
-    return new File[] {new File("../../build/jam/test/annogen"),
-                       new File("cases/src")
+    return new File[] {new File(TEST_BUILD_DIR,"annogen"),
+                       new File(TEST_DIR,"cases/src")
                        };
   }
 
@@ -241,7 +251,7 @@ public abstract class JamTestBase extends TestCase {
    * Returns the directory into which the cases have been compiled.
    */
   protected File[] getCasesClassPath() {
-    return new File[] {new File("../../build/jam/test/cases")};
+    return new File[] {new File(TEST_BUILD_DIR,"cases")};
   }
 
   // ========================================================================
@@ -254,20 +264,6 @@ public abstract class JamTestBase extends TestCase {
 
   // ========================================================================
   // Test methods
-
-/*
-  public void testAnnogen() {
-    AnnotationServiceFactory asf = AnnotationServiceFactory.getInstance();
-    AnnotationServiceParams asp = asf.createServiceParams();
-    asp.appendPopulator(new TestProxyPopulator());
-    AnnotationService as = asf.createService(asp);
-    JClass c = mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass");
-    assertTrue(c.getQualifiedName()+" is unresolved",!c.isUnresolvedType());
-    RFEAnnotationImpl ra = (RFEAnnotationImpl)
-      as.getAnnotation(RFEAnnotationImpl.class,c);
-    assertTrue("ra.id() == "+ra.id(),ra.id() == 4561413 + 1);
-  }
-*/
 
 
 

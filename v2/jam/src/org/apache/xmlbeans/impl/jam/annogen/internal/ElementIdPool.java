@@ -15,57 +15,68 @@
 package org.apache.xmlbeans.impl.jam.annogen.internal;
 
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
-import org.apache.xmlbeans.impl.jam.annogen.internal.ReflectElementId;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 
+import com.sun.javadoc.ProgramElementDoc;
+import com.sun.javadoc.ExecutableMemberDoc;
+
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ReflectElementIdFactory {
+public class ElementIdPool { //REVIEW rename to ElementIdPool
 
   // ========================================================================
   // Singleton
 
-  public static ReflectElementIdFactory getInstance() { return INSTANCE; }
+  public static ElementIdPool getInstance() { return INSTANCE; }
 
-  private static final ReflectElementIdFactory INSTANCE
-    = new ReflectElementIdFactory();
+  private static final ElementIdPool INSTANCE
+    = new ElementIdPool();
 
-  private ReflectElementIdFactory() {}
+  private ElementIdPool() {}
 
   // ========================================================================
   // Public methods
 
   //FIXME do some caching here, please
 
-  public ElementId create(Package pakkage) {
+  public ElementId getIdFor(ProgramElementDoc ped) {
+    return new JavadocElementId(ped);
+  }
+
+  public ElementId getIdFor(ExecutableMemberDoc ped, int paramNum) {
+    return new JavadocElementId(ped,paramNum);
+  }
+
+
+  public ElementId getIdFor(Package pakkage) {
     return new ReflectElementId(pakkage);
   }
 
-  public ElementId create(Class clazz) {
+  public ElementId getIdFor(Class clazz) {
     return new ReflectElementId(clazz);
   }
 
-  public ElementId create(Field field) {
+  public ElementId getIdFor(Field field) {
     return new ReflectElementId(field);
   }
 
-  public ElementId create(Method method) {
+  public ElementId getIdFor(Method method) {
     return new ReflectElementId(method);
   }
 
-  public ElementId create(Constructor constructor) {
+  public ElementId getIdFor(Constructor constructor) {
     return new ReflectElementId(constructor);
   }
 
-  public ElementId create(Method method, int parameter) {
+  public ElementId getIdFor(Method method, int parameter) {
     return null;
   }
 
-  public ElementId create(Constructor ctor, int parameter) {
+  public ElementId getIdFor(Constructor ctor, int parameter) {
     return null;
   }
 

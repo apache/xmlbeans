@@ -14,25 +14,22 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
-import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
+import org.apache.xmlbeans.impl.jam.annogen.provider.*;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class CompositeProxyPopulator implements ProxyPopulator {
+public class CompositeAnnoModifier implements AnnoModifier {
 
   // ========================================================================
   // Variables
 
-  private ProxyPopulator[] mPops;
+  private AnnoModifier[] mPops;
 
   // ========================================================================
   // Constructors
 
-  public CompositeProxyPopulator(ProxyPopulator[] pops) {
+  public CompositeAnnoModifier(AnnoModifier[] pops) {
     if (pops == null) throw new IllegalArgumentException("null pops");
     mPops = pops;
   }
@@ -40,24 +37,12 @@ public class CompositeProxyPopulator implements ProxyPopulator {
   // ========================================================================
   // Annoatation populator implementation
 
-  public boolean hasAnnotation(ElementId id, Class annoType) {
-    for(int i=0; i<mPops.length; i++) {
-      if (mPops[i].hasAnnotation(id,annoType)) return true;
-    }
-    return false;
-  }
-
-  public void populateProxy(ElementId id,
-                            Class annoType,
-                            AnnotationProxy proxy) {
-    for(int i=0; i<mPops.length; i++) mPops[i].populateProxy(id,annoType,proxy);
-  }
-
-  // ========================================================================
-  // Public methods - internal use only
-
-  public void init(ProxyContext pc) {
+  public void init(ProviderContext pc) {
     for(int i=0; i<mPops.length; i++) mPops[i].init(pc);
+  }
+
+  public void modifyAnnos(ElementId id, AnnoProxySet currentAnnos) {
+    for(int i=0; i<mPops.length; i++) mPops[i].modifyAnnos(id,currentAnnos);
   }
 
 }

@@ -60,12 +60,23 @@ import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.JamService;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.annogen.AnnoServiceFactory;
+import org.apache.xmlbeans.impl.jam.annogen.AnnoServiceParams;
+import org.apache.xmlbeans.impl.jam.annogen.AnnoServiceRoot;
+import org.apache.xmlbeans.impl.jam.annogen.ReflectAnnoService;
+import org.apache.xmlbeans.impl.jam.annogen.provider.*;
+import org.apache.xmlbeans.test.jam.cases.annogen.BugAnnotation;
+import org.apache.xmlbeans.test.jam.cases.annogen.impl.BugAnnotationImpl;
+import org.apache.xmlbeans.test.jam.cases.Baz;
+import org.apache.xmlbeans.test.jam.cases.annotated.Igloo;
+import org.apache.xmlbeans.test.jam.cases.annotated.QuansuHut;
 
 import java.io.IOException;
 import java.io.File;
 import java.net.URLClassLoader;
 import java.net.URL;
 import java.net.MalformedURLException;
+import java.lang.reflect.Method;
 
 /**
  * Runs the JamTestBase cases by loading the types from source.
@@ -99,7 +110,6 @@ public class ReflectJamTest extends JamTestBase {
 
   protected boolean isImportsAvailable() { return false; }  
 
-
   //kind of a quick hack for now, should remove this and make sure that
   //even the classes case make the annotations available using a special
   //JStore
@@ -118,10 +128,10 @@ public class ReflectJamTest extends JamTestBase {
   // ========================================================================
   // Reflection-specific test methods
 
-  private static final String EXTJAR_JAR = "../../build/jam/test/extjar.jar";
+
 
   public void testClassLoaderWrapper() throws MalformedURLException {
-    File aJarNotInTheClasspath = new File(EXTJAR_JAR);
+    File aJarNotInTheClasspath = EXTJAR_JAR;
     assertTrue(aJarNotInTheClasspath.getAbsolutePath()+" does not exist",
                aJarNotInTheClasspath.exists());
     URL url = aJarNotInTheClasspath.toURL();
@@ -136,6 +146,54 @@ public class ReflectJamTest extends JamTestBase {
     JClass aFailedClass = sjcl.loadClass(aClassName);
     assertTrue(aFailedClass.getQualifiedName()+" expected to be unresolved",
                aFailedClass.isUnresolvedType());
+  }
 
+  public void testAnnogen() throws ClassNotFoundException, NoSuchMethodException {
+    AnnoServiceFactory asf = AnnoServiceFactory.getInstance();
+    AnnoServiceParams asp = asf.createServiceParams();
+
+    final int FAKEID = 343432;
+    final String ANNOTATED_METHOD = "getDoorCount";
+    // create a specialized ProxyPopulator just for this test
+    asp.appendPopulator(new AnnoModifier() {
+      public void init(ProviderContext pc) {}
+
+      public void modifyAnnos(ElementId id, AnnoProxySet currentAnnos) {
+        if (id.getType() == ElementId.METHOD_TYPE &&
+            id.getContainingClass().equals(Igloo.class.getName()) &&
+            id.getName().equals(ANNOTATED_METHOD)) {
+          AnnoProxy p = currentAnnos.findOrCreateProxyFor(Igloo.class);
+          assertTrue("error encountered setting 'id'",
+                     p.setValue("id",new Integer(FAKEID)));
+        }
+      }
+    });
+    // some setup stuff
+    AnnoServiceRoot asr = asf.createServiceRoot(asp);
+    ReflectAnnoService ras = asr.getReflectService();
+    Method annotatedMethod = Igloo.class.getMethod(ANNOTATED_METHOD,null);
+    Method notAnnotatedMethod = QuansuHut.class.getMethod(ANNOTATED_METHOD,null);
+    // ok now do the tests
+    {
+      // make sure an annotation was synthesized where it should have been
+      BugAnnotationImpl bug = (BugAnnotationImpl)
+          ras.getAnnotation(BugAnnotationImpl.class,annotatedMethod);
+      assertTrue("expected BugAnnotation on "+annotatedMethod,bug != null);
+      assertTrue("expected BugAnnotation.id() to be "+FAKEID,(bug.id() == FAKEID));
+
+    }
+    {
+      // make sure an annotation was not synthesized where it should not have been
+      BugAnnotationImpl bug = (BugAnnotationImpl)
+          ras.getAnnotation(BugAnnotationImpl.class,notAnnotatedMethod);
+      assertTrue("unexpected BugAnnotation on "+annotatedMethod,bug == null);
+    }
+    {
+      // negative test to make sure we get an IAE when annogen was run 1.4-safe
+      try {
+        ras.getAnnotation(BugAnnotation.class,annotatedMethod);
+        assertTrue("did not get expectd IllegalArgumentException",false);
+      } catch(IllegalArgumentException expected) {}
+    }
   }
 }

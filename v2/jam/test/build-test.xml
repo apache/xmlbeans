@@ -14,10 +14,13 @@
 
   <property name='src-jamtest' value='.' />
   <property name='jamroot' value='../' />
+  <property name='external' value='${jamroot}/external' />
 
-  <property name='jam_build_dir' value='${jamroot}/../build/jam'/> <!--FIXME-->
+  <property name='jam_build_dir' value='${jamroot}/build'/>
 
-  <property name='test_build_dir'   value='${jam_build_dir}/test'/> <!--FIXME-->
+  <property name='classes_dir'      value='${jam_build_dir}/classes'/>
+
+  <property name='test_build_dir'   value='${jam_build_dir}/test'/>
   <property name='tests_build_dir'  value='${test_build_dir}/tests'/>
   <property name='cases_build_dir'  value='${test_build_dir}/cases'/>
   <property name='annogen_build_dir' value='${test_build_dir}/annogen'/>
@@ -25,9 +28,9 @@
   <property name='extjar_build_dir' value='${test_build_dir}/extjar'/>
   <property name='extjar_jar'       value='${test_build_dir}/extjar.jar'/>
 
-  <property name='junit_jar'         value='${jamroot}/external/lib/junit.jar' />
-  <property name='stax_api_jar'      value='${jamroot}/external/stax/stax-api.jar'/>
-  <property name='stax_impl_jar'     value='${jamroot}/external/stax/stax-impl.jar'/>
+  <property name='junit_jar'         value='${external}/lib/junit.jar' />
+  <property name='stax_api_jar'      value='${external}/stax/stax-api.jar'/>
+  <property name='stax_impl_jar'     value='${external}/stax/stax-impl.jar'/>
 
   <property name='cases_src_dir'     value='cases/src'/>
   <property name='cases_src_150_dir' value='cases/src_150'/>
@@ -43,7 +46,7 @@
   <path id='classpath' >
 
  <!-- use build/classes instead of xbean.jar for develpment convenience -->
-    <pathelement path='${jam_build_dir}/classes' />
+    <pathelement path='${classes_dir}' />
     <pathelement path='${cases_build_dir}' />
 
     <pathelement location='${tests_build_dir}' />
@@ -65,6 +68,7 @@
   </target>
 
   <target name='all' depends='compile,test' />
+
 
 
   <target name='compile' depends='compile14, do15compile.check, compile15, build_external_jar'/>
@@ -113,8 +117,9 @@
 
   <target name="test" depends='do15compile.check'>
 
+    <echo message='${classpath-value}'/>
 
-    <!-- make sure you copy junit.jar into ANT_HOME/lib -->
+    <!-- If this fails, make sure you've copied junit.jar into ANT_HOME/lib -->
     <taskdef name="junit"
              classname="org.apache.tools.ant.taskdefs.optional.junit.JUnitTask"
              classpathref='classpath'/>
@@ -130,12 +135,31 @@
 <!-- why do these have to be separate?  something gets
      very confused if they're not
  -->
+    <echo message=''/>
+    <echo message=''/>
+    <echo message='================= beginning reflection tests ======== '/>
+
+
+    <junit maxmemory="256m"     fork='yes' forkmode='once'
+           dir='.'
+           haltonerror='yes'
+           haltonfailure='yes'
+           showoutput='yes'
+           printsummary='yes'>
+      <classpath>
+        <pathelement path='${classpath-value}'/> <!--ref no workie-->
+      </classpath>
+      <formatter type='plain' usefile='false'/>
+      <test name='${reflect_test}'/>
+      <!--parser work is on hold for the moment-->
+      <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
+    </junit>
 
     <echo message=''/>
     <echo message=''/>
     <echo message='================= beginning javadoc tests ======== '/>
 
-    <junit maxmemory="256m"     fork='true'
+    <junit maxmemory="256m"     fork='yes' forkmode='perTest'
            dir='.'
            haltonerror='yes'
            haltonfailure='yes'
@@ -151,25 +175,6 @@
       <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
     </junit>
 
-    <echo message=''/>
-    <echo message=''/>
-    <echo message='================= beginning reflection tests ======== '/>
-
-
-    <junit maxmemory="256m"     fork='true'
-           dir='.'
-           haltonerror='yes'
-           haltonfailure='yes'
-           showoutput='yes'
-           printsummary='yes'>
-      <classpath>
-        <pathelement path='${classpath-value}'/> <!--ref no workie-->
-      </classpath>
-      <formatter type='plain' usefile='false'/>
-      <test name='${reflect_test}'/>
-      <!--parser work is on hold for the moment-->
-      <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
-    </junit>
 
   </target>
 

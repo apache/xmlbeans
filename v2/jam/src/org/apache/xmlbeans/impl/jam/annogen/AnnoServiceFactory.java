@@ -14,15 +14,14 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen;
 
-import org.apache.xmlbeans.impl.jam.annogen.internal.AnnotationServiceParamsImpl;
-import org.apache.xmlbeans.impl.jam.annogen.internal.BaseAnnotationService;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.internal.AnnoServiceParamsImpl;
+import org.apache.xmlbeans.impl.jam.annogen.internal.AnnoServiceRootImpl;
 
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class AnnotationServiceFactory {
+public class AnnoServiceFactory {
 
   // ========================================================================
   // Singleton
@@ -30,12 +29,12 @@ public class AnnotationServiceFactory {
   /**
    * Return the default factory singleton for this VM.
    */
-  public static AnnotationServiceFactory getInstance() { return DEFAULT; }
+  public static AnnoServiceFactory getInstance() { return DEFAULT; }
 
   // ========================================================================
   // Constants
 
-  private static final AnnotationServiceFactory DEFAULT = new AnnotationServiceFactory();
+  private static final AnnoServiceFactory DEFAULT = new AnnoServiceFactory();
 
 
   private static final String REFLECTING_POPULATOR =
@@ -47,47 +46,43 @@ public class AnnotationServiceFactory {
   // ========================================================================
   // Constructors
 
-  protected AnnotationServiceFactory() {}
+  protected AnnoServiceFactory() {}
 
   // ========================================================================
   // Public methods
 
   /**
    * Create a new AnnoServiceParams.  The params can be populated and
-   * then given to the createService method to create a new AnnoService.
+   * then given to the createServiceRoot method to create a new AnnoService.
    */
-  public AnnotationServiceParams createServiceParams() {
-    return new AnnotationServiceParamsImpl();
-
+  public AnnoServiceParams createServiceParams() {
+    return new AnnoServiceParamsImpl();
   }
 
   /**
    * <p>Create a new AnnoService using the given parameters.</p>
    */
-  public AnnotationService createService(AnnotationServiceParams params) {
-    if (!(params instanceof AnnotationServiceParamsImpl)) {
+  public AnnoServiceRoot createServiceRoot(AnnoServiceParams params) {
+    if (!(params instanceof AnnoServiceParamsImpl)) {
       throw new IllegalArgumentException("not valid service params");
     }
-    return new BaseAnnotationService((AnnotationServiceParamsImpl)params);
+    return new AnnoServiceRootImpl((AnnoServiceParamsImpl)params);
   }
-
 
   /**
    * <p>Creates a default AnnoService which is only returns standard 175
    * annotations (i.e. you get the same thing you get using the standard
    * annotation APIs in java.lang.reflect).</p>
    */
-  public AnnotationService createDefaultService() {
-    return new BaseAnnotationService(new AnnotationServiceParamsImpl());
+  public AnnoServiceRoot createDefaultService() {
+    return new AnnoServiceRootImpl(new AnnoServiceParamsImpl());
   }
-
 
   // ========================================================================
   // Private methods
 
-
+  /*
   public ProxyPopulator getReflectingPopulator() {
-
     try {
       // class for name this because it's 1.5-specific.  if it fails, we
       // don't want to use the extractor
@@ -136,5 +131,6 @@ public class AnnotationServiceFactory {
     }
     return null;
   }
+  */
 
 }

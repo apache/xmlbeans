@@ -140,6 +140,13 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     // add the methods
     MethodDoc[] methods = src.methods();
     for(int i=0; i<methods.length; i++) populate(dest.addNewMethod(),methods[i]);
+
+    // add the 'annotation elements' separately.  javadoc used to return them
+    // as methods but this has changed recently.
+    if (mDelegate != null) {
+      mDelegate.populateAnnotationTypeIfNecessary(src,dest,this);
+    }
+
     // add the annotations
     addAnnotations(dest, src);
     // add the source position
@@ -153,6 +160,14 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
         populate(inner);
       }
     }
+  }
+
+  // this is a gross little callback hook for Javadoc15DelegateImpl.
+  // kinda hacky but we have little choice
+  public MMethod addMethod(MClass dest, MethodDoc doc) {
+    MMethod out = dest.addNewMethod();
+    populate(out,doc);
+    return out;
   }
 
   // ========================================================================

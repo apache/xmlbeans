@@ -17,13 +17,15 @@ package org.apache.xmlbeans.impl.jam.annogen.provider;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ProxyTypeMapping {
+public interface AnnoTypeRegistry {
 
-  //is this method really needed?
-  public String getDeclaredTypeNameForProxyType(Class proxyType);
-
-  public Class getProxyTypeForDeclaredTypeName(String annotationTypeName)
+  public AnnoType getAnnoTypeForRequestedClass(Class requestedClass)
     throws ClassNotFoundException;
 
-  public void init(ProxyContext pc);
+  public AnnoType getAnnoTypeForDeclaredType(Class declaredType)
+    throws ClassNotFoundException;
+
+  public AnnoType getAnnoTypeForProxyType(Class declaredType)
+    throws ClassNotFoundException;
+
 }

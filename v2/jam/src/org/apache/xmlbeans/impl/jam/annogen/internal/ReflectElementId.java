@@ -115,7 +115,9 @@ public class ReflectElementId implements ElementId {
   }
 
   public int getType() {
-    if (mElement instanceof Field) {
+    if (mParameterNumber > -1) {
+      return PARAMETER_TYPE;
+    } else if (mElement instanceof Field) {
       return FIELD_TYPE;
     } else if (mElement instanceof Method) {
       return METHOD_TYPE;

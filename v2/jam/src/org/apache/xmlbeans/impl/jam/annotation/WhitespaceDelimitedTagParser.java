@@ -145,7 +145,7 @@ public class WhitespaceDelimitedTagParser extends JavadocTagParser {
    * This method contributed by Cedric Beust
    */
   private String removeComments(String value) {
-    String result = new String();
+    String result = "";
     int size = value.length();
     String current = value;
 

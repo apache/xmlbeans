@@ -14,28 +14,15 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal.java15;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
-import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
-import org.apache.xmlbeans.impl.jam.annogen.internal.JElementId;
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
-
-import com.sun.javadoc.AnnotationDesc;
-import com.sun.javadoc.SourcePosition;
-import com.sun.javadoc.Type;
-import com.sun.javadoc.AnnotationValue;
-import com.sun.javadoc.AnnotationTypeDoc;
-import com.sun.javadoc.AnnotationTypeElementDoc;
-import com.sun.javadoc.FieldDoc;
-import com.sun.javadoc.ClassDoc;
-import com.sun.javadoc.ProgramElementDoc;
 
 /**
+ * @deprecated remove this please
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class Javadoc175ProxyPopulator implements ProxyPopulator {
+public class Javadoc175ProxyPopulator {
+  /*
+
+    implements ProxyPopulator {
 
   // ========================================================================
   // Variables
@@ -148,7 +135,7 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
       String tn = JavadocClassBuilder.getFdFor(returnType);
       try {
         Class type = mContext.getClassLoader().loadClass(tn);
-        dest.setSimpleValue(memberName,valueObj,type);
+        dest.setValue(memberName,valueObj,type);
       } catch(ClassNotFoundException cnfe) {
         mContext.getLogger().error(cnfe);
       }
@@ -158,7 +145,7 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
       try {
         Class type = mContext.getClassLoader().loadClass(tn);
         String val = ((FieldDoc)valueObj).name(); //REVIEW is this right?
-        dest.setSimpleValue(memberName,val,type);
+        dest.setValue(memberName,val,type);
       } catch(ClassNotFoundException cnfe) {
         mContext.getLogger().error(cnfe);
       }
@@ -166,7 +153,7 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
       String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
       try {
         Class clazz = mContext.getClassLoader().loadClass(tn);
-        dest.setSimpleValue(memberName,clazz,Class.class);
+        dest.setValue(memberName,clazz,Class.class);
       } catch(ClassNotFoundException cnfe) {
         mContext.getLogger().error(cnfe);
       }
@@ -176,7 +163,7 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
         //javadoc gives us the quotes, which seems kinda dumb.  just deal.
         valueObj = v.substring(1,v.length()-1);
       }
-      dest.setSimpleValue(memberName,valueObj,String.class);
+      dest.setValue(memberName,valueObj,String.class);
     } else if (valueObj instanceof AnnotationValue[]) {
       populateArrayMember(dest,memberName,returnType,(AnnotationValue[])valueObj,sp);
     } else {
@@ -213,7 +200,7 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
    *
    * <p>So, this method does a bunch of work so that JAM does the unwrapping
    * for the user.</p>
-   */
+
   private void populateArrayMember(AnnotationProxy dest,
                                    String memberName,
                                    Type returnType,
@@ -228,7 +215,7 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
       //FIXME this is a little bit busted - we should try to give them
       //more type information than this.  it's just a little bit harder
       //to figure it out from the javadoc objects
-      dest.setSimpleValue(memberName,value,loadClass(returnType));
+      dest.setValue(memberName,value,loadClass(returnType));
       return;
     }
     // unpack the AnnotationValue values into a single array.
@@ -262,7 +249,7 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
       }
     } else if (valueArray[0] instanceof Number || valueArray[0] instanceof Boolean) {
       JClass type = loadClass(returnType);
-      dest.setSimpleValue(memberName,annValueArray,type);
+      dest.setValue(memberName,annValueArray,type);
     } else if (valueArray[0] instanceof FieldDoc) {
       // this means it's an array of an enum constants
       String enumTypeName = JavadocClassBuilder.getFdFor(
@@ -272,13 +259,13 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
       for(int i=0; i<valueArray.length; i++) {
         value[i] = ((FieldDoc)valueArray[i]).name(); //REVIEW is this right?
       }
-      dest.setSimpleValue(memberName,value,memberType);
+      dest.setValue(memberName,value,memberType);
     } else if (valueArray[0] instanceof ClassDoc) {
       JClass[] value = new JClass[valueArray.length];
       for(int i=0; i<value.length; i++) {
         value[i] = loadClass(((ClassDoc)valueArray[0]));
       }
-      dest.setSimpleValue(memberName,value,loadClass(JClass[].class));
+      dest.setValue(memberName,value,loadClass(JClass[].class));
     } else if (valueArray[0] instanceof String) {
       String[] value = new String[valueArray.length];
       for(int i=0; i<value.length; i++) {
@@ -289,17 +276,17 @@ public class Javadoc175ProxyPopulator implements ProxyPopulator {
         }
         value[i] = v;
       }
-      dest.setSimpleValue(memberName,value,loadClass(String[].class));
+      dest.setValue(memberName,value,loadClass(String[].class));
     } else {
       getLogger().error("Value of array annotation member "+
                                  memberName+" is of an unexpected type: "+
                                  valueArray[0].getClass()+"   ["+
                                  valueArray[0]+"]");
-    } */
+    }
   }
 
   private String getFdFor(Type t) { return JavadocClassBuilder.getFdFor(t); }
-
+  */
 
 }
 

@@ -118,7 +118,7 @@ public abstract class JamTestBase_150 extends JamTestBase {
     AnnotationServiceFactory asf = AnnotationServiceFactory.getInstance();
     AnnotationServiceParams asp = asf.createServiceParams();
     asp.appendPopulator(new TestProxyPopulator());
-    AnnotationService as = asf.createService(asp);
+    AnnotationService as = asf.createServiceRoot(asp);
     JClass c = mLoader.loadClass(DUMMY+".jsr175.AnnotatedClass");
     assertTrue(c.getQualifiedName()+" is unresolved",!c.isUnresolvedType());
     RFEAnnotationImpl ra = (RFEAnnotationImpl)
@@ -289,7 +289,7 @@ public abstract class JamTestBase_150 extends JamTestBase {
     File[] path = super.getCasesSourcepath();
     File[] out = new File[path.length+1];
     for(int i=0; i<path.length; i++) out[i] = path[i];
-    out[out.length-1] = new File("cases/src_150");
+    out[out.length-1] = new File(TEST_DIR,"cases/src_150");
     return out;
   }
 

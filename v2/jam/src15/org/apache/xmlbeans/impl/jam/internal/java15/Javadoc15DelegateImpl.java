@@ -16,11 +16,15 @@ package org.apache.xmlbeans.impl.jam.internal.java15;
 
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.Javadoc15Delegate;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnoProxySet;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnoProxy;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import com.sun.javadoc.ProgramElementDoc;
 import com.sun.javadoc.AnnotationDesc;
 import com.sun.javadoc.Parameter;
@@ -55,7 +59,12 @@ private final boolean useAnnotationDefaults() {
   // ========================================================================
   // Variables
 
+  /**
+   * @deprecated
+   */
   private ElementContext mContext = null;
+
+  private JamLogger mLogger = null;
 
   // ========================================================================
   // Javadoc15Delegate implementation
@@ -65,7 +74,110 @@ private final boolean useAnnotationDefaults() {
       throw new IllegalStateException("init called more than once");
     }
     mContext = ctx;
+    mLogger = ctx.getLogger();
   }
+
+  public void init(JamLogger logger) {
+    mLogger = logger;
+  }
+
+  //AnnotationType... are 1.5-specific, so we have to hide this little
+  //chunk of code away down here
+  public void populateAnnotationTypeIfNecessary(ClassDoc cd,
+                                     MClass clazz,
+                                     JavadocClassBuilder builder) {
+    if (cd instanceof AnnotationTypeDoc) {
+      clazz.setIsAnnotationType(true);
+      AnnotationTypeElementDoc[] elements = ((AnnotationTypeDoc)cd).elements();
+      for(int i=0; i<elements.length; i++) {
+        builder.addMethod(clazz,elements[i]);
+        //FIXME deal with defaults here
+      }
+    }
+  }
+
+  public void extractAnnotations(AnnoProxySet out, ProgramElementDoc src) {
+    throw new IllegalStateException("nyi");
+  }
+
+  public void extractAnnotations(AnnoProxySet out,
+                                 ExecutableMemberDoc method, int paramNum) {
+    throw new IllegalStateException("nyi");
+  }
+
+
+
+
+  /*
+
+
+  private void setAnnotationValue(String memberName,
+                                  Type returnType,
+                                  AnnotationValue aval,
+                                  AnnoProxy dest,
+                                  SourcePosition sp) {
+    String typeName = getFdFor(returnType);
+    Object valueObj;
+    try {
+      valueObj = aval.value();
+    } catch(NullPointerException npe) {
+      //FIXME temporary workaround for sun bug
+      mLogger.warning
+        ("Encountered a known javadoc bug which usually \n"+
+         "indicates a syntax error in an annotation value declaration.\n"+
+         "The value is being ignored.\n"+
+         "[file="+sp.file()+", line="+sp.line()+"]");
+      return;
+    }
+    if (mLogger.isVerbose(this)) {
+      mLogger.verbose(memberName+" is a "+typeName+" with valueObj "+
+                                   valueObj+", class is "+valueObj.getClass());
+    }
+    // ok, take a look at how what it really is and translate it into an
+    // appropriate represenatation
+    if (valueObj instanceof AnnotationDesc) {
+      MAnnotation nested = dest.createNestedValue(memberName,typeName);
+      populateAnnotation(nested,(AnnotationDesc)valueObj,sp);
+    } else if (valueObj instanceof Number || valueObj instanceof Boolean) {
+      String tn = JavadocClassBuilder.getFdFor(returnType);
+      JClass type = mContext.getClassLoader().loadClass(tn);
+      dest.setSimpleValue(memberName,valueObj,type);
+    } else if (valueObj instanceof FieldDoc) {
+      String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
+      // this means it's an enum constant
+      JClass type = mContext.getClassLoader().loadClass(tn);
+      String val = ((FieldDoc)valueObj).name(); //REVIEW is this right?
+      dest.setSimpleValue(memberName,val,type);
+    } else if (valueObj instanceof ClassDoc) {
+      String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
+       JClass clazz = mContext.getClassLoader().loadClass(tn);
+      dest.setSimpleValue(memberName,clazz,loadClass(JClass.class));
+    } else if (valueObj instanceof String) {
+      String v = ((String)valueObj).trim();
+      if (v.startsWith("\"") && v.endsWith("\"")) {
+        //javadoc gives us the quotes, which seems kinda dumb.  just deal.
+        valueObj = v.substring(1,v.length()-1);
+      }
+      dest.setSimpleValue(memberName,valueObj,loadClass(String.class));
+    } else if (valueObj instanceof AnnotationValue[]) {
+      populateArrayMember(dest,memberName,returnType,(AnnotationValue[])valueObj,sp);
+    } else {
+      mLogger.error("Value of annotation member "+memberName+" is " +
+                                 "of an unexpected type: "+
+                                 valueObj.getClass()+"   ["+valueObj+"]");
+    }
+  }
+  */
+
+
+
+
+
+
+
+  // ========================================================================
+  // OLD STUFF remove someday
+
 
   public void extractAnnotations(MAnnotatedElement dest,
                                  ProgramElementDoc src) {
@@ -144,15 +256,15 @@ if (!useAnnotationDefaults()) return;
       valueObj = aval.value();
     } catch(NullPointerException npe) {
       //FIXME temporary workaround for sun bug
-      mContext.getLogger().warning
+      mLogger.warning
         ("Encountered a known javadoc bug which usually \n"+
          "indicates a syntax error in an annotation value declaration.\n"+
          "The value is being ignored.\n"+
          "[file="+sp.file()+", line="+sp.line()+"]");
       return;
     }
-    if (mContext.getLogger().isVerbose(this)) {
-      mContext.getLogger().verbose(memberName+" is a "+typeName+" with valueObj "+
+    if (mLogger.isVerbose(this)) {
+      mLogger.verbose(memberName+" is a "+typeName+" with valueObj "+
                                    valueObj+", class is "+valueObj.getClass());
     }
     // ok, take a look at how what it really is and translate it into an
@@ -184,7 +296,7 @@ if (!useAnnotationDefaults()) return;
     } else if (valueObj instanceof AnnotationValue[]) {
       populateArrayMember(dest,memberName,returnType,(AnnotationValue[])valueObj,sp);
     } else {
-      mContext.getLogger().error("Value of annotation member "+memberName+" is " +
+      mLogger.error("Value of annotation member "+memberName+" is " +
                                  "of an unexpected type: "+
                                  valueObj.getClass()+"   ["+valueObj+"]");
     }
@@ -239,14 +351,14 @@ if (!useAnnotationDefaults()) return;
       try {
         valueArray[i] = annValueArray[i].value();
         if (valueArray[i] == null) {
-          mContext.getLogger().error
+          mLogger.error
             ("Javadoc provided an array annotation member value which contains "+
              "[file="+sp.file()+", line="+sp.line()+"]");
           return;
         }
       } catch(NullPointerException npe) {
         //FIXME temporary workaround for sun bug
-        mContext.getLogger().warning
+        mLogger.warning
           ("Encountered a known javadoc bug which usually \n"+
            "indicates a syntax error in an annotation value declaration.\n"+
            "The value is being ignored.\n"+
@@ -293,7 +405,7 @@ if (!useAnnotationDefaults()) return;
       }
       dest.setSimpleValue(memberName,value,loadClass(String[].class));
     } else {
-      mContext.getLogger().error("Value of array annotation member "+
+      mLogger.error("Value of array annotation member "+
                                  memberName+" is of an unexpected type: "+
                                  valueArray[0].getClass()+"   ["+
                                  valueArray[0]+"]");

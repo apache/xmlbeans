@@ -14,39 +14,21 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.provider;
 
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ElementId {
-
-  // ========================================================================
-  // Constants
-
-  public static final int PACKAGE_TYPE = 0;
-  public static final int CLASS_TYPE = 1;
-  public static final int FIELD_TYPE = 2;
-  public static final int METHOD_TYPE = 3;
-  public static final int CONSTRUCTOR_TYPE = 4;
-  public static final int PARAMETER_TYPE = 5;
-  public static final int ANNOTATION_TYPE = 6;
-
-  public static final int NO_PARAMETER = -1;
+public interface ProviderContext {
 
   // ========================================================================
   // Public methods
 
-  //public ElementId getEnclosingElement();
+  public JamLogger getLogger();
 
-  public int getType();
+  public AnnoTypeRegistry getAnnoTypeRegistry();
 
-  public String getName();
+  public ClassLoader getClassLoader();
 
-  public String getContainingClass();
-
-  public String getContainingPackage();
-
-  public String[] getSignature();
-
-  public int getParameterNumber();
 
 }

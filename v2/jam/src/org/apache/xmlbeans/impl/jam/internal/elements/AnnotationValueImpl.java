@@ -19,7 +19,6 @@ import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
-import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRefContext;
 
 
 /**
@@ -36,7 +35,6 @@ public class AnnotationValueImpl implements JAnnotationValue {
   private JClassRef mType = null;
   private String mName;
   private ElementContext mContext;
-  private boolean mIsDefaultUsed = false;
 
   // ========================================================================
   // Constructors
@@ -332,7 +330,7 @@ public class AnnotationValueImpl implements JAnnotationValue {
     } else if (o instanceof boolean[]) {
       int dims = ((boolean[])o).length;
       Boolean[] out = new Boolean[dims];
-      for(int i=0; i<dims; i++) out[i] = new Boolean(((boolean[])o)[i]);
+      for(int i=0; i<dims; i++) out[i] = Boolean.valueOf(((boolean[])o)[i]);
       return out;
     } else if (o instanceof byte[]) {
       int dims = ((byte[])o).length;
