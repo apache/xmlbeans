@@ -64,6 +64,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collections;
+import java.io.UnsupportedEncodingException;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaField;
@@ -157,12 +158,21 @@ public class QNameHelper
             }
             else
             {
-                byte[] utf8 = s.substring(i, i + 1).getBytes();
+                byte[] utf8 = null;
+                try
+                {
+                    utf8 = s.substring(i, i + 1).getBytes("UTF-8");
                 for (int j = 0; j < utf8.length; j++)
                 {
                     result.append('_');
                     result.append(hexdigits[(utf8[j] >> 4) & 0xF]);
                     result.append(hexdigits[utf8[j] & 0xF]);
+                }
+            }
+                catch(UnsupportedEncodingException uee)
+                {
+                    // should never happen - UTF-8 i always supported
+                    result.append("_BAD_UTF8_CHAR");
                 }
             }
         }
@@ -175,7 +185,17 @@ public class QNameHelper
         try
         {
             MessageDigest md = MessageDigest.getInstance("SHA");
-            byte[] digest = md.digest(s.getBytes());
+            byte[] inputBytes = null;
+            try
+            {
+                inputBytes = s.getBytes("UTF-8");
+            }
+            catch(UnsupportedEncodingException uee)
+            {
+                // should never happen - UTF-8 is always supported
+                inputBytes = new byte[0];
+            }
+            byte[] digest = md.digest(inputBytes);
             assert(digest.length == 20); // SHA1 160 bits == 20 bytes
             result = new StringBuffer("URI_SHA_1_");
             for (int j = 0; j < digest.length; j++)

@@ -68,6 +68,7 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
+import java.io.UnsupportedEncodingException;
 
 public abstract class JavaBase64Holder extends XmlObjectBase
 {
@@ -99,7 +100,16 @@ public abstract class JavaBase64Holder extends XmlObjectBase
 
     public static byte[] lex(String v, ValidationContext c)
     {
-        final byte[] bytes = Base64.decode(v.getBytes());
+        byte[] vBytes = null;
+        try
+        {
+            vBytes = v.getBytes("UTF-8");
+        }
+        catch(UnsupportedEncodingException uee)
+        {
+            // should never happen - UTF-8 is always supported
+        }
+        final byte[] bytes = Base64.decode(vBytes);
 
         if (bytes == null)
         {
