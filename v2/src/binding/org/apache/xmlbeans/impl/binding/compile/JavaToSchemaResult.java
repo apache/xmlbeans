@@ -60,4 +60,5 @@ public interface JavaToSchemaResult
 {
     BindingFileGenerator getBindingFileGenerator();
     SchemaGenerator getSchemaGenerator();
+    JavaToSchemaInput getJavaSourceSet();
 }

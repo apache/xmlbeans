@@ -118,11 +118,12 @@ public class Java2Schema {
    * Does the binding work and returns the result.
    */
   public JavaToSchemaResult bind() {
-    final JavaToSchemaResultImpl out = new JavaToSchemaResultImpl();
+    final JavaToSchemaResultImpl out = new JavaToSchemaResultImpl(mInput);
     bind(mInput.getJClasses(),out);
     return new JavaToSchemaResult() {
       public BindingFileGenerator getBindingFileGenerator() { return out; }
       public SchemaGenerator getSchemaGenerator() { return out; }
+      public JavaToSchemaInput getJavaSourceSet() { return out.getJavaSourceSet(); }
     };
   }
 
@@ -175,7 +176,10 @@ public class Java2Schema {
     mBindingFile.addBindingType(bindType,true,true);
     String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
     if (rootName != null) {
-      SimpleDocumentBinding sdb = new SimpleDocumentBinding(btname,rootName);
+      QName rootQName = new QName(tns, rootName);
+      BindingTypeName docBtName = BindingTypeName.forPair(getJavaName(clazz), XmlName.forGlobalName(XmlName.ELEMENT, rootQName));
+      SimpleDocumentBinding sdb = new SimpleDocumentBinding(docBtName);
+      sdb.setTypeOfElement(btname.getXmlName());
       mBindingFile.addBindingType(sdb,true,true);
     }
     // run through the class' properties to populate the binding and xsdtypes

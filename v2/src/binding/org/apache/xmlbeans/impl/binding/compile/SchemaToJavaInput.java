@@ -58,7 +58,9 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.SchemaTypeSystem;
 
-public interface SchemaToJavaInput
+import java.io.File;
+
+public interface SchemaToJavaInput // WARNING: this class will be renamed to "SchemaSourceSet"
 {
     /**
      * Returns a typesystem that contains all the schema types to be
@@ -70,4 +72,10 @@ public interface SchemaToJavaInput
      * Returns the path used for resolving already-known bindings
      */
     TylarLoader getTylarLoader();
+    
+    /**
+     * Compiles just the schema metadata to binaries in the given directory.
+     * Any generated Java or binding code isn't included in this compile. 
+     */
+    void compileSchemaToBinaries(File classesDir);
 }

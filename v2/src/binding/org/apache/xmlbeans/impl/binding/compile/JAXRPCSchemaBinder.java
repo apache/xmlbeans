@@ -65,6 +65,7 @@ import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.compile.BindingFileGenerator;
 import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
 import org.apache.xmlbeans.impl.binding.compile.JavaCodePrinter;
@@ -110,22 +111,24 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
     private BindingLoader path;
     private int structureCount;
     private BindingFile bindingFile = new BindingFile();
+    private SchemaToJavaInput sourceSet;
 
-    private JAXRPCSchemaBinder(SchemaTypeSystem sts, BindingLoader path)
+    private JAXRPCSchemaBinder(SchemaToJavaInput input)
     {
-        this.sts = sts;
-        this.path = path;
+        this.sourceSet = input;
+        this.sts = input.getSchemaTypeSystem();
+        this.path = input.getTylarLoader().getBindingLoader();
     }
     
     /**
      * Generates a binding for the given set of schema types.
      * 
-     * Defer to any previously defined bindings on the BindingLoader path
+     * Defer to any previously defined bindings on the TylarLoader path
      * supplied.
      */
-    public static SchemaToJavaResult bind(SchemaTypeSystem sts, BindingLoader path)
+    public static SchemaToJavaResult bind(SchemaToJavaInput input)
     {
-        JAXRPCSchemaBinder binder = new JAXRPCSchemaBinder(sts, path);
+        JAXRPCSchemaBinder binder = new JAXRPCSchemaBinder(input);
         binder.bind();
         return binder;
     }
@@ -311,13 +314,19 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         switch (scratch.getCategory())
         {
             case Scratch.ATOMIC_TYPE:
-            case Scratch.ELEMENT:
             case Scratch.SOAPARRAY_REF:
             case Scratch.ATTRIBUTE:
                 SimpleBindingType simpleResult = new SimpleBindingType(btName);
                 simpleResult.setAsIfXmlType(scratch.getAsIf());
                 scratch.setBindingType(simpleResult);
                 bindingFile.addBindingType(simpleResult, shouldBeFromJavaDefault(btName), true);
+                break;
+                
+            case Scratch.ELEMENT:
+                SimpleDocumentBinding docResult = new SimpleDocumentBinding(btName);
+                docResult.setTypeOfElement(scratch.getAsIf());
+                scratch.setBindingType(docResult);
+                bindingFile.addBindingType(docResult, shouldBeFromJavaDefault(btName), true);
                 break;
                 
             case Scratch.STRUCT_TYPE:
@@ -995,7 +1004,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
                     baseJavaname = null;
             }
             
-            line("package " + packageName);
+            line("package " + packageName + ";");
             line();
             javadoc("Generated from schema type " + scratch.getXmlName());
             line("class " + shortClassName + (baseJavaname != null ? " extends " + baseJavaname : ""));
@@ -1063,6 +1072,11 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             seenNames.add(fieldName);
             return fieldName;
         }
+    }
+
+    public SchemaToJavaInput getSchemaSourceSet()
+    {
+        return sourceSet;
     }
 
     /**

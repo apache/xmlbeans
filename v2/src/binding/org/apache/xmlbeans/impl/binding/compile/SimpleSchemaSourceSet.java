@@ -56,26 +56,78 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.Collection;
 
-public interface JavaToSchemaInput  // WARNING: this class will be renamed to "JavaSourceSet"
+public class SimpleSchemaSourceSet implements SchemaToJavaInput
 {
-    /**
-     * Returns the JClasses to be processed for binding.
-     */
-    JClass[] getJClasses();
+    private TylarLoader tylarLoader;
+    private SchemaTypeSystem schemaTypeSystem;
 
-    /**
-     * Returns the path used for resolving already-known bindings
-     */
-    TylarLoader getTylarLoader();
+    public SchemaTypeSystem getSchemaTypeSystem()
+    {
+        return schemaTypeSystem;
+    }
+
+    public TylarLoader getTylarLoader()
+    {
+        return tylarLoader;
+    }
+
+    public void compileSchemaToBinaries(File classesDir)
+    {
+        SchemaTypeSystemImpl impl = (SchemaTypeSystemImpl)schemaTypeSystem;
+        impl.saveToDirectory(classesDir);
+    }
+
+    private SimpleSchemaSourceSet(SchemaTypeSystem schemaTypeSystem, TylarLoader tylarLoader)
+    {
+        this.tylarLoader = tylarLoader;
+        this.schemaTypeSystem = schemaTypeSystem;
+    }
+
+    public static SchemaToJavaInput forFile(File xsdFilename) throws IOException, XmlException
+    {
+        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[] { SchemaDocument.Factory.parse(xsdFilename) }, XmlBeans.getBuiltinTypeSystem(), null);
+        return new SimpleSchemaSourceSet(sts, SimpleTylarLoader.forBuiltins());
+    }
     
-    /**
-     * Compiles just the java code to binaries in the given directory.
-     * Any generated schema or binding code isn't included in this compile. 
-     */
-    void compileJavaToBinaries(File classesDir);
-    
+    public static SchemaToJavaInput forSchemaGenerator(SchemaGenerator generator, TylarLoader tylarLoader)
+    {
+        try
+        {
+            String[] namespaces = generator.getTargetNamespaces();
+            Collection schemas = new ArrayList();
+            for (int i = 0; i < namespaces.length; i++)
+            {
+                ByteArrayOutputStream inMemoryBuffer = new ByteArrayOutputStream();
+                generator.printSchema(namespaces[i], inMemoryBuffer);
+                inMemoryBuffer.close();
+                ByteArrayInputStream input = new ByteArrayInputStream(inMemoryBuffer.toByteArray());
+                schemas.add(SchemaDocument.Factory.parse(input));
+            }
+            XmlObject [] sources = (XmlObject[])schemas.toArray(new XmlObject[schemas.size()]);
+            SchemaTypeSystem sts = XmlBeans.compileXsd(sources, tylarLoader.getSchemaTypeLoader(), null);
+            return new SimpleSchemaSourceSet(sts, tylarLoader);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+        catch (XmlException e)
+        {
+            throw (IllegalStateException)new IllegalStateException().initCause(e);
+        }
+    }
 }

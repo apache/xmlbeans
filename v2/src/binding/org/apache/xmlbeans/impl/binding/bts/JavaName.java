@@ -69,7 +69,7 @@
  * 
  * "x=org.apache.xmlbeans.XmlInt"
  */
-public final class JavaName
+public final class JavaName  // WARNING: this class will be renamed to "JavaTypeName"
 {
     private final String className;
     private final String arrayString;

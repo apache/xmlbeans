@@ -56,18 +56,7 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.binding.compile.BindingFileGenerator;
-import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
-
-/**
- * The result of a Schema->Java binding.
- * 
- * The result contains: (1) a binding file, and (2) a set of
- * generated Java classes.
- */
-public interface SchemaToJavaResult
+public class SimpleJavaToSchemaResultCompiler
 {
-    BindingFileGenerator getBindingFileGenerator();
-    JavaCodeGenerator getJavaCodeGenerator();
-    SchemaToJavaInput getSchemaSourceSet();
+    
 }
