@@ -66,6 +66,8 @@
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
         <pathelement location="build/private/lib/numerals.jar"/>
+        <pathelement location="build/private/lib/xbean_xpath.jar"/>
+        <pathelement location="build/lib/jaxen.jar"/>
       </classpath>
       <formatter type="plain"/>
       <test name="drtcases.SmokeTests" outfile="build/test/output/drt-product" />
@@ -138,7 +140,9 @@
     <pathelement location="build/private/lib/schemas.jar"/>
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
+    <pathelement location="build/private/lib/xbean_xpath.jar"/>
     <pathelement location="build/private/lib/numerals.jar"/>
+    <pathelement location="build/lib/jaxen.jar"/>
     <pathelement location="build/classes/xmlinputstream"/>
   </path>
 
@@ -150,7 +154,7 @@
   <!-- builddrt target ============================================== -->
 
   <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar,
-  	  xstypes.jar, enumtest.jar, numerals.jar">
+  	  xstypes.jar, enumtest.jar, xbean_xpath.jar, numerals.jar">
     <mkdir dir="build/private/classes/drt"/>
     <javac
        srcdir="test/src/drt"
@@ -484,7 +488,7 @@
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
-                 xmlstore.classes,
+                 xmlstore.classes, 
                  oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
@@ -866,5 +870,71 @@
         <mkdir dir="build/classes/repackage"/>
         <javac srcdir="src/repackage" destdir="build/classes/repackage" source="1.4" debug="on"/>
     </target>
+
+   <target name="check.jaxen.jar">
+     <condition property="jaxen.jar.exists">
+         <available file="build/lib/jaxen.jar"/>
+     </condition>
+   </target>
+
+   <target name="jaxen.jar" depends="check.jaxen.jar, dirs" unless="jaxen.jar.exists">
+     <get dest="build/lib/jaxen.jar"
+          src="http://www.ibiblio.org/maven/jaxen/jars/jaxen-1.1-beta-2.jar"
+          verbose="true" usetimestamp="true" ignoreerrors="true"/>
+   </target>
+
+  <!-- xpath target ============================================= -->
+
+  <target name="xpath.classes" depends="dirs, xmlpublic.jar, jaxen.jar">
+    <mkdir dir="build/private/classes/xpath"/>
+    <javac
+       srcdir="src/xpath"
+       destdir="build/private/classes/xpath"
+       classpathref="xpath.compile.path"
+       source="1.4"
+       debug="on">
+      <classpath id="xpath.compile.path">
+          <pathelement location="build/lib/xbean.jar"/>
+          <pathelement location="build/lib/jaxen.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="xbean_xpath.jar" depends="xpath.classes">
+    <jar jarfile="build/private/lib/xbean_xpath.jar" basedir="build/private/classes/xpath"/>
+  </target>
+
+  <!-- test xpath target ============================================= -->
+
+  <target name="test_xpath.classes" depends="dirs, xmlpublic.jar, jaxen.jar, xbean_xpath.jar">
+    <mkdir dir="build/private/classes/testxpath"/>
+    <javac
+       srcdir="test/src/xpath"
+       destdir="build/private/classes/testxpath"
+       classpathref="testxpath.compile.path"
+       source="1.4"
+       debug="on">
+      <classpath id="testxpath.compile.path">
+          <pathelement location="build/lib/xmlpublic.jar"/>
+          <pathelement location="build/lib/jaxen.jar"/>
+          <pathelement location="build/private/lib/xbean_xpath.jar"/>
+          <pathelement location="build/classes/xmlinputstream"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="run_test_xpath" depends="test_xpath.classes, xbean">
+    <java classname="org.apache.xmlbeans.impl.xpath.jaxen.XBeansDemo" fork="true" failonerror="true">
+      <classpath>
+          <pathelement location="build/lib/xbean.jar"/>
+          <pathelement location="build/lib/jaxen.jar"/>
+          <pathelement location="build/private/lib/xbean_xpath.jar"/>
+          <pathelement location="build/private/classes/testxpath"/>
+      </classpath>
+      <jvmarg value="-da"/>
+      <arg line='test/cases/xpath/much_ado.xml "PLAY/ACT/SCENE/SPEECH/SPEAKER"'/>
+    </java>
+  </target>
+
 
 </project>

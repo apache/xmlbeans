@@ -54,39 +54,80 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package drtcases;
+package org.apache.xmlbeans.impl.store;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
+import java.lang.reflect.Constructor;
+import java.util.List;
 
-public class SmokeTests extends TestCase
+/**
+ * Author: Cezar Andrei (cezar.andrei at bea.com)
+ * Date: Nov 6, 2003
+ *
+ * Help class to decouple from xbean_xpath.jar and jaxen.jar (version v1.1 beta2)
+ */
+public final class JaxenXBeansDelegate
 {
-    SmokeTests(String name) { super(name); }
+    private JaxenXBeansDelegate()
+    {}
 
-    public static Test suite()
+    static SelectPathInterface createInstance(String xpath)
     {
-        TestSuite suite = new TestSuite(SmokeTests.class.getName());
-        suite.addTest(AssortedTests.suite());
-        suite.addTest(IntTests.suite());
-        suite.addTest(RuntimeSchemaLoaderTest.suite());
-        suite.addTest(StoreTests.suite());
-        suite.addTest(QNameTests.suite());
-        suite.addTest(ValidationTests.suite());
-        suite.addTest(CompilationTests.suite());
-        suite.addTest(AnnotationsTests.suite());
-        suite.addTest(EasyPoTests.suite());
-        suite.addTest(NameworldTest.suite());
-        suite.addTest(SchemaTypesTests.suite());
-        suite.addTest(EnumTests.suite());
-        suite.addTest(CreationTests.suite());
-        suite.addTest(ThreadingTest.suite());
-        suite.addTest(SerializationTests.suite());
-        suite.addTest(DomTests.suite());
-        suite.addTest(GDateTests.suite());
-        suite.addTest(SubstGroupTests.suite());
-        suite.addTest(JaxenXPathTests.suite());
-        suite.addTest(NumeralsTests.suite());
-        return suite;
+        if (_constructor==null)
+            return null;
+
+        try
+        {
+            return (JaxenXBeansDelegate.SelectPathInterface)_constructor.newInstance(new Object[] {xpath});
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
+
+
+    // Loose coupling functionality with xqrl.jar
+
+    private static Constructor _constructor;
+
+    static
+    {
+        boolean hasTheJars = false;
+        Class jaxenXPathImpl = null;
+        try
+        {
+            // from jaxen.jar
+            Class.forName( "org.jaxen.BaseXPath" );
+            // from xbean_xpath.jar
+            jaxenXPathImpl = Class.forName( "org.apache.xmlbeans.impl.xpath.jaxen.XBeansXPathAdv" );
+
+            hasTheJars = true;
+        }
+        catch ( ClassNotFoundException e )
+        {
+            hasTheJars = false;
+        }
+        catch ( NoClassDefFoundError e )
+        {
+            hasTheJars = false;
+        }
+
+        if (hasTheJars)
+        {
+            try
+            {
+                _constructor =
+                    jaxenXPathImpl.getConstructor( new Class[] { String.class } );
+            }
+            catch ( Exception e )
+            {
+                throw new RuntimeException( e );
+            }
+        }
+    }
+
+    public static interface SelectPathInterface
+    {
+        public List selectPath(Object node);
     }
 }
