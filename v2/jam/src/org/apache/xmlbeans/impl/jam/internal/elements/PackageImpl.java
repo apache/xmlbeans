@@ -16,8 +16,10 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MPackage;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -53,20 +55,24 @@ public class PackageImpl extends AnnotatedElementImpl implements MPackage {
 
   public String getQualifiedName() { return mName; }
 
-  public void accept(MElementVisitor visitor) {
-    visitor.visit(this);
-  }
+  public void accept(MVisitor visitor) { visitor.visit(this); }
 
-  public void acceptAndWalk(MElementVisitor visitor) {
-    accept(visitor);
-    acceptAndWalkAll(visitor,getClasses());
-  }
+  public void accept(JVisitor visitor) { visitor.visit(this); }
 
   // ========================================================================
   // JPackage implementation
 
   public JClass[] getClasses() {
     JClass[] out = new JClass[mRootClasses.size()];
+    mRootClasses.toArray(out);
+    return out;
+  }
+
+  // ========================================================================
+  // MPackage implementation
+
+  public MClass[] getMutableClasses() {
+    MClass[] out = new MClass[mRootClasses.size()];
     mRootClasses.toArray(out);
     return out;
   }

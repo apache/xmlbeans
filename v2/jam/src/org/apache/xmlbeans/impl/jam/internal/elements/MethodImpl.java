@@ -16,7 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MMethod;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
@@ -97,10 +98,10 @@ public final class MethodImpl extends InvokableImpl implements MMethod {
   }
 
   // ========================================================================
-  // JElement implementation
+  // Element implementation
 
-  public void accept(MElementVisitor visitor) {
-    visitor.visit(this);
-  }
+  public void accept(MVisitor visitor) { visitor.visit(this); }
+
+  public void accept(JVisitor visitor) { visitor.visit(this); }
 
 }

@@ -28,7 +28,7 @@ import org.apache.xmlbeans.impl.jam.mutable.MParameter;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public abstract class MElementVisitor {
+public abstract class MVisitor {
 
   public void visit(MPackage pkg) {}
 

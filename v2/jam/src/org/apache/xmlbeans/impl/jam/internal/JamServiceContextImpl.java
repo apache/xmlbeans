@@ -63,8 +63,8 @@ public class JamServiceContextImpl implements JamServiceContext,
   private PrintWriter mOut = new PrintWriter(System.out);
   private boolean mUseSystemClasspath = true;
   private boolean mVerbose = false;
-  private MElementVisitor mCommentInitializer = null;
-  private MElementVisitor mPropertyInitializer = null;
+  private MVisitor mCommentInitializer = null;
+  private MVisitor mPropertyInitializer = null;
   private List mOtherInitializers = null;
 
   private JamClassLoader mLoader = null;
@@ -205,7 +205,7 @@ public class JamServiceContextImpl implements JamServiceContext,
   }
 
 
-  public MElementVisitor getInitializer() {
+  public MVisitor getInitializer() {
     List initers = new ArrayList();
     initers.add((mCommentInitializer != null) ? mCommentInitializer :
                 new CommentInitializer());
@@ -216,9 +216,9 @@ public class JamServiceContextImpl implements JamServiceContext,
 
     if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
     // now go
-    MElementVisitor[] inits = new MElementVisitor[initers.size()];
+    MVisitor[] inits = new MVisitor[initers.size()];
     initers.toArray(inits);
-    return new CompositeMElementVisitor(inits);
+    return new CompositeMVisitor(inits);
   }
 
   // ========================================================================
@@ -227,17 +227,17 @@ public class JamServiceContextImpl implements JamServiceContext,
 
 
   //DOCME
-  public void setCommentInitializer(MElementVisitor initializer) {
+  public void setCommentInitializer(MVisitor initializer) {
     mCommentInitializer = initializer;
   }
 
   //DOCME
-  public void setPropertyInitializer(MElementVisitor initializer) {
+  public void setPropertyInitializer(MVisitor initializer) {
     mPropertyInitializer = initializer;
   }
 
   //DOCME
-  public void addInitializer(MElementVisitor initializer) {
+  public void addInitializer(MVisitor initializer) {
     if (mOtherInitializers == null) mOtherInitializers = new ArrayList();
     mOtherInitializers.add(initializer);
   }

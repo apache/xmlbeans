@@ -14,67 +14,69 @@
  */
 package org.apache.xmlbeans.impl.jam.visitor;
 
-import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JComment;
-import org.apache.xmlbeans.impl.jam.JConstructor;
-import org.apache.xmlbeans.impl.jam.JField;
-import org.apache.xmlbeans.impl.jam.JMethod;
-import org.apache.xmlbeans.impl.jam.JPackage;
-import org.apache.xmlbeans.impl.jam.JParameter;
+import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
+import org.apache.xmlbeans.impl.jam.mutable.MComment;
+import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
+import org.apache.xmlbeans.impl.jam.mutable.MField;
+import org.apache.xmlbeans.impl.jam.mutable.MMethod;
+import org.apache.xmlbeans.impl.jam.mutable.MPackage;
+import org.apache.xmlbeans.impl.jam.mutable.MParameter;
 
 /**
- * <p>Composite implementation of JElementVisitor.</p>
+ * <p>Composite implementation of MVisitor.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class CompositeJElementVisitor extends JElementVisitor {
+public class CompositeMVisitor extends MVisitor {
 
   // ========================================================================
   // Variables
 
-  private JElementVisitor[] mVisitors;
+  private MVisitor[] mVisitors;
 
   // ========================================================================
   // Constructors
 
-  public CompositeJElementVisitor(JElementVisitor[] visitors) {
+  public CompositeMVisitor(MVisitor[] visitors) {
     if (visitors == null) throw new IllegalArgumentException("null visitors");
     mVisitors = visitors;
   }
 
   // ========================================================================
-  // JElementVisitor implementation
+  // MVisitor implementation
 
-  public void visit(JPackage pkg) {
+  public void visit(MPackage pkg) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(pkg);
   }
 
-  public void visit(JClass clazz) {
+  public void visit(MClass clazz) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(clazz);
   }
 
-  public void visit(JConstructor ctor) {
+  public void visit(MConstructor ctor) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(ctor);
   }
 
-  public void visit(JField field) {
+  public void visit(MField field) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(field);
   }
 
-  public void visit(JMethod method) {
+  public void visit(MMethod method) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(method);
   }
 
-  public void visit(JParameter param) {
+  public void visit(MParameter param) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(param);
   }
 
-  public void visit(JAnnotation ann) {
+  public void visit(MAnnotation ann) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(ann);
   }
 
-  public void visit(JComment comment) {
+  public void visit(MComment comment) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(comment);
   }
+
+
 }

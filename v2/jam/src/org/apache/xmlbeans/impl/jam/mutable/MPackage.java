@@ -22,4 +22,6 @@ import org.apache.xmlbeans.impl.jam.JPackage;
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface MPackage extends  JPackage, MAnnotatedElement {
+
+  public MClass[] getMutableClasses();
 }

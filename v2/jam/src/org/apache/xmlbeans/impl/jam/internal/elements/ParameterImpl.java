@@ -16,7 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MParameter;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
@@ -84,12 +85,8 @@ public class ParameterImpl extends MemberImpl implements MParameter {
   // ========================================================================
   // JElement implementation
 
-  public void accept(MElementVisitor visitor) {
-    visitor.visit(this);
-  }
+  public void accept(MVisitor visitor) { visitor.visit(this); }
 
-  public void acceptAndWalk(MElementVisitor visitor) {
-    accept(visitor);
-    visitAnnotations(visitor);
-  }
+  public void accept(JVisitor visitor) { visitor.visit(this); }
+
 }

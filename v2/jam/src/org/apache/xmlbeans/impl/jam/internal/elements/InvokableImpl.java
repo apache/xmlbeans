@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.JParameter;
 import org.apache.xmlbeans.impl.jam.mutable.MInvokable;
 import org.apache.xmlbeans.impl.jam.mutable.MParameter;
@@ -98,7 +98,7 @@ public abstract class InvokableImpl extends MemberImpl implements MInvokable {
     if (mParameters != null) mParameters.remove(parameter);
   }
 
-  public MParameter[] getEditableParameters() {
+  public MParameter[] getMutableParameters() {
     if (mParameters == null || mParameters.size() == 0) {
     return new MParameter[0];
     } else {
@@ -112,7 +112,7 @@ public abstract class InvokableImpl extends MemberImpl implements MInvokable {
   // JInvokable implementation
 
   public JParameter[] getParameters() {
-    return getEditableParameters();
+    return getMutableParameters();
   }
 
   public JClass[] getExceptionTypes() {
@@ -140,15 +140,6 @@ public abstract class InvokableImpl extends MemberImpl implements MInvokable {
     }
     out.write(')');
     return out.toString();
-  }
-
-  // ========================================================================
-  // JElement implementation
-
-  public void acceptAndWalk(MElementVisitor visitor) {
-    accept(visitor);
-    acceptAndWalkAll(visitor,getEditableParameters());
-    visitAnnotations(visitor);
   }
 
   // ========================================================================

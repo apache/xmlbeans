@@ -85,9 +85,7 @@
     <jar jarfile='${javadoc_zip}' basedir='${javadocbuild_dir}'/>
     <jar jarfile='${jamsrc_zip}' basedir='.' 
          excludes='build/**,src/**,test/**'/>
-<echo message='jarring ${src_dir}'/>
-    <jar jarfile='${jamsrc_zip}' basedir='.' update='true'
-         includes='${src_dir}/**/*'/>
+    <jar jarfile='${jamsrc_zip}' basedir='${src_dir}' update='true'/>
   </target>
 
   <target name='website' depends='all,javadocs,jars'>
@@ -101,14 +99,24 @@
   </target>
 
 
-  <target name='repackage'>
+  <target name='repackage' depends='clean,repackage_check,repackage_do'/>
+
+  <target name='repackage_check' unless='newpackage'>
+    <echo message='Please specify -Dnewpackage=[destination package]'/>
+    <echo message='on the ant command line.'/>
+  </target>
+
+
+  <target name='repackage_do' if='newpackage'>
+    <echo message='Building repackaged JAM under ${newpackage}...'/>
+    <echo message=''/>
 
     <property name='repackage_spec' 
-              value='org.apache.xmlbeans.impl.jam:foo.bar.baz'/>
+              value='org.apache.xmlbeans.impl.jam:${newpackage}'/>
     <property name='repackaged_src' value='build/repackaged_src'/>
-   
-    <delete dir='${repackaged_src}'/>
+
     <mkdir dir='${repackaged_src}'/>
+    <mkdir dir='${classes_dir}'/>
 
     <javac srcdir='${src_dir}' destdir='${classes_dir}' 
            includes='**/tools/*.java'/>
@@ -121,6 +129,9 @@
        <arg line='-repackage ${repackage_spec} -f src -t ${repackaged_src}'/>
 <!--       <arg line='-repackage ${repackage_spec} -f test -t ${repackaged_src}'/>-->
     </java>
+
+    <delete dir='${classes_dir}'/> <!-- don't need repackager any more -->
+
     <ant dir='.' target='website' inheritAll='false' >
       <property name='src_dir' value='${repackaged_src}'/>
     </ant>

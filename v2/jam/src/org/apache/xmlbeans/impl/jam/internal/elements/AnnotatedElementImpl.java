@@ -3,7 +3,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JComment;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
-import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
@@ -40,15 +40,15 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   // JAnnotatedElement implementation
 
   public JAnnotation[] getAnnotations() {
-    return getEditableAnnotations();
+    return getMutableAnnotations();
   }
 
   public JAnnotation getAnnotation(Class proxyClass) {
-    return getEditableAnnotation(proxyClass);
+    return getMutableAnnotation(proxyClass);
   }
 
   public JAnnotation getAnnotation(String named) {
-    return getEditableAnnotation(named);
+    return getMutableAnnotation(named);
   }
 
   public JAnnotationValue getAnnotationValue(String valueName) {
@@ -66,14 +66,14 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return getEditableProxy(proxyClass);
   }
 
-  public JComment getComment() { return getEditableComment(); }
+  public JComment getComment() { return getMutableComment(); }
 
   // ========================================================================
   // MAnnotatedElement implementation
 
   public AnnotationProxy getEditableProxy(Class proxyClass) {
     if (mName2Annotation == null) return null;
-    MAnnotation out = getEditableAnnotation(proxyClass.getName());
+    MAnnotation out = getMutableAnnotation(proxyClass.getName());
     return (out == null) ? null : (AnnotationProxy)out.getProxy();
   }
 
@@ -81,25 +81,25 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     if (mName2Annotation != null) mName2Annotation.values().remove(ann);
   }
 
-  public MAnnotation[] getEditableAnnotations() {
+  public MAnnotation[] getMutableAnnotations() {
     if (mName2Annotation == null) return new MAnnotation[0];
     MAnnotation[] out = new MAnnotation[mName2Annotation.values().size()];
     mName2Annotation.values().toArray(out);
     return out;
   }
 
-  public MAnnotation getEditableAnnotation(String named) {
+  public MAnnotation getMutableAnnotation(String named) {
     if (mName2Annotation == null) return null;
     return (MAnnotation)mName2Annotation.get(named);
   }
 
-  public MAnnotation getEditableAnnotation(Class proxyClass) {
+  public MAnnotation getMutableAnnotation(Class proxyClass) {
     if (mName2Annotation == null) return null;
     return (MAnnotation)mName2Annotation.get(proxyClass.getName());
   }
 
   public MAnnotation addAnnotationForTag(String tagName) {
-    MAnnotation out = getEditableAnnotation(tagName);
+    MAnnotation out = getMutableAnnotation(tagName);
     if (out != null) {
       //REVIEW this is a weird case.  we'll just go with it for now.
     } else {
@@ -112,11 +112,11 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
   public MAnnotation addAnnotationForTag(String tagName, String tagContents) {
-    MAnnotation out = getEditableAnnotation(tagName);
+    MAnnotation out = getMutableAnnotation(tagName);
     if (out != null) {
       //REVIEW this is a weird case where they add the same thing twice.
       // we'll just go with it for now.
-      out.getEditableProxy().initFromJavadocTag(tagContents);
+      out.getMutableProxy().initFromJavadocTag(tagContents);
     } else {
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       proxy.initFromJavadocTag(tagContents);
@@ -132,7 +132,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
       throw new IllegalArgumentException("null instance");
     }
     String typename = getAnnotationTypeFor(jsr175annotationInstance);
-    MAnnotation ann = getEditableAnnotation(typename);
+    MAnnotation ann = getMutableAnnotation(typename);
     if (ann != null) {
       //REVIEW this is an extremely weird case where they add another instance
       // of the same annotation type.  We'll just go with it for now,
@@ -150,7 +150,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
 
   public MAnnotation addAnnotationForType(String jsr175annotationClassname) {
     ClassImpl.validateClassName(jsr175annotationClassname);
-    MAnnotation ann = getEditableAnnotation(jsr175annotationClassname);
+    MAnnotation ann = getMutableAnnotation(jsr175annotationClassname);
     if (ann != null) return ann; //REVIEW weird case again
     AnnotationProxy proxy = getContext().
       createProxyForAnnotationType(jsr175annotationClassname);
@@ -162,7 +162,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   public MAnnotation addAnnotationForProxy(AnnotationProxy proxy) {
     if (proxy == null) throw new IllegalArgumentException("null proxy");
     String name = proxy.getClass().getName();
-    MAnnotation ann = getEditableAnnotation(name);
+    MAnnotation ann = getMutableAnnotation(name);
     if (ann != null) return ann; //REVIEW weird case yet again
     ann = new AnnotationImpl(getContext(),proxy,name);
     getName2Annotation().put(name,ann);
@@ -170,7 +170,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
 
-  public MComment getEditableComment() { return mComment; }
+  public MComment getMutableComment() { return mComment; }
 
   public MComment createComment() { return mComment = new CommentImpl(this); }
 
@@ -179,8 +179,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   // ========================================================================
   // Protect methods
 
-  protected void visitAnnotations(MElementVisitor visitor) {
-    MAnnotation[] anns = getEditableAnnotations();
+  protected void visitAnnotations(MVisitor visitor) {
+    MAnnotation[] anns = getMutableAnnotations();
     for(int i=0; i<anns.length; i++) visitor.visit(anns[i]);
     if (mComment != null) visitor.visit(mComment);
   }
