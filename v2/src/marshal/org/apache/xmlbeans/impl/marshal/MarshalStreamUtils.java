@@ -76,110 +76,6 @@ final class MarshalStreamUtils
     static final QName XSI_NIL_QNAME = new QName(XSI_NS, XSI_NIL_ATTR);
 
 
-    //more efficient (hopefully) version of XmlStreamReader.getElementText()
-    //TODO: plenty of room for optimizations here...
-    static CharSequence getContent(XMLStreamReader reader, Collection errors)
-        throws XMLStreamException
-    {
-        assert reader.isStartElement();
-
-        reader.next(); //move past start element
-
-        String content = null;
-        StringBuffer buf = null;
-
-        FOL:
-        for (int state = reader.getEventType(); ; state = reader.next()) {
-            switch (state) {
-                case XMLStreamReader.END_DOCUMENT:
-                    throw new XmlRuntimeException("unexpected end of XML");
-                case XMLStreamReader.END_ELEMENT:
-                    if (content == null) {
-                        content = "";
-                    }
-                    reader.next(); // eat the matching end elem
-                    break FOL;
-                case XMLStreamReader.START_ELEMENT:
-                    //TODO: better error handling
-                    errors.add("skipping unexpected child element");
-                    skipElement(reader);
-                    break;
-                case XMLStreamReader.CHARACTERS:
-                    if (content == null) {
-                        content = reader.getText();
-                    } else {
-                        if (buf == null) {
-                            buf = new StringBuffer(content);
-                        }
-                        buf.append(reader.getText());
-                    }
-                    break;
-                case XMLStreamReader.PROCESSING_INSTRUCTION:
-                case XMLStreamReader.COMMENT:
-                    break;
-                default:
-                    throw new AssertionError("unexpected xml state " + state);
-            }
-
-            if (!reader.hasNext()) {
-                throw new XmlRuntimeException("unexpected end of xml stream");
-            }
-
-        }
-
-        if (buf == null) {
-            assert (content != null) ;
-            return content;
-        } else {
-            return buf.toString();
-        }
-    }
-
-
-    static void getContent(TransientCharSequence cs,
-                           XMLStreamReader reader, Collection errors)
-        throws XMLStreamException
-    {
-        assert reader.isStartElement();
-
-        assert reader.hasNext();
-        reader.next(); //move past start element
-
-        cs.clear();
-
-        FOL:
-        for (int state = reader.getEventType(); ; state = reader.next()) {
-            switch (state) {
-                case XMLStreamReader.END_DOCUMENT:
-                    throw new XmlRuntimeException("unexpected end of XML");
-                case XMLStreamReader.END_ELEMENT:
-                    reader.next(); // eat the matching end elem
-                    break FOL;
-                case XMLStreamReader.START_ELEMENT:
-                    //TODO: better error handling
-                    errors.add("skipping unexpected child element");
-                    skipElement(reader);
-                    break;
-                case XMLStreamReader.CHARACTERS:
-                    cs.append(reader.getTextCharacters(),
-                              reader.getTextStart(),
-                              reader.getTextLength());
-                    break;
-                case XMLStreamReader.PROCESSING_INSTRUCTION:
-                case XMLStreamReader.COMMENT:
-                    break;
-                default:
-                    throw new AssertionError("unexpected xml state " + state);
-            }
-
-            if (!reader.hasNext()) {
-                throw new XmlRuntimeException("unexpected end of xml stream");
-            }
-
-        }
-    }
-
-
     static void getXsiAttributes(XsiAttributeHolder holder,
                                  XMLStreamReader reader,
                                  Collection errors)
@@ -344,6 +240,47 @@ final class MarshalStreamUtils
             if (isXsiNilTrue(reader, i, errors)) return true;
         }
         return false;
+    }
+
+    static void advanceToFirstItemOfInterest(XMLStreamReader rdr)
+    {
+        try {
+            for (int state = rdr.getEventType(); rdr.hasNext(); state = rdr.next()) {
+                switch (state) {
+
+                    //these are things we can handle...
+                    case XMLStreamReader.START_ELEMENT:
+                        return;
+
+                        //eventually we'll handle these...
+                    case XMLStreamReader.ATTRIBUTE:
+                    case XMLStreamReader.CHARACTERS:
+                        throw new AssertionError("UNIMPLEMENTED TYPE: " + state);
+
+                        //bad news in the xml stream
+                    case XMLStreamReader.END_DOCUMENT:
+                        throw new XmlRuntimeException("unexpected end of XML");
+                    case XMLStreamReader.END_ELEMENT:
+                        throw new XmlRuntimeException("unexpected end of XML");
+
+                        //skip these and keep going
+                    case XMLStreamReader.PROCESSING_INSTRUCTION:
+                    case XMLStreamReader.COMMENT:
+                    case XMLStreamReader.START_DOCUMENT:
+                    case XMLStreamReader.SPACE:
+                        break;
+
+                    default:
+                        //this case pretty much means malformed xml or a bug
+                        throw new XmlRuntimeException("unexpected xml state:" + state +
+                                                      "in" + rdr);
+                }
+            }
+            throw new XmlRuntimeException("unexpected end of xml stream");
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
 

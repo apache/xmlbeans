@@ -67,11 +67,9 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 /**
  * A Unmarshaller knows how to convert xml to java objects.
@@ -94,10 +92,10 @@ class UnmarshallerImpl
     public Object unmarshal(XMLStreamReader reader)
         throws XmlException
     {
+        MarshalStreamUtils.advanceToFirstItemOfInterest(reader);
+
         UnmarshalContextImpl context = createUnmarshallContext(reader,
                                                                new ArrayList());
-
-        advanceToFirstItemOfInterest(reader);
 
         final BindingType bindingType = determineRootType(context);
 
@@ -108,7 +106,7 @@ class UnmarshallerImpl
                                         UnmarshalContext context)
         throws XmlException
     {
-        TypeUnmarshaller um =
+        final TypeUnmarshaller um =
             typeTable.getTypeUnmarshaller(bindingType);
 
         if (um == null) {
@@ -120,18 +118,10 @@ class UnmarshallerImpl
             throw new XmlException("UnmarshalContext must have a" +
                                    " non null XMLStreamReader");
         }
-        Object type_instance = um.unmarshal(our_context);
 
-        final Collection errors = our_context.getErrorCollection();
-        if (!errors.isEmpty()) {
-            //TODO: review this ctor
-            System.out.println("errors = " + errors);
-            String msg = errorsToMsg(errors);
-            throw new XmlException(msg, null,
-                                   Collections.unmodifiableCollection(errors));
-        }
+        our_context.updateAttributeState();
 
-        return type_instance;
+        return um.unmarshal(our_context);
     }
 
     public Object unmarshallType(QName schemaType,
@@ -156,60 +146,6 @@ class UnmarshallerImpl
         return bindingLoader.getBindingType(btname);
     }
 
-    private static String errorsToMsg(final Collection errors)
-    {
-        final int sz = errors.size();
-        assert sz > 0;
-
-        if (sz == 1) {
-            return "unmarshalling error: " + errors.iterator().next();
-        } else {
-            return "unmarshalling errors (" + sz + ")";
-        }
-    }
-
-    private void advanceToFirstItemOfInterest(XMLStreamReader rdr)
-        throws XmlException
-    {
-        try {
-            for (int state = rdr.getEventType(); rdr.hasNext(); state = rdr.next()) {
-                switch (state) {
-
-                    //these are things we can handle...
-                    case XMLStreamReader.START_ELEMENT:
-                        return;
-
-                        //eventually we'll handle these...
-                    case XMLStreamReader.ATTRIBUTE:
-                    case XMLStreamReader.CHARACTERS:
-                        throw new AssertionError("UNIMPLEMENTED TYPE: " + state);
-
-                        //bad news in the xml stream
-                    case XMLStreamReader.END_DOCUMENT:
-                        throw new XmlException("unexpected end of XML");
-                    case XMLStreamReader.END_ELEMENT:
-                        throw new XmlException("unexpected end of XML");
-
-                        //skip these and keep going
-                    case XMLStreamReader.PROCESSING_INSTRUCTION:
-                    case XMLStreamReader.COMMENT:
-                    case XMLStreamReader.START_DOCUMENT:
-                    case XMLStreamReader.SPACE:
-                        break;
-
-                    default:
-                        //this case pretty much means malformed xml or a bug
-                        throw new XmlException("unexpected xml state:" + state +
-                                               "in" + rdr);
-                }
-            }
-            throw new XmlException("unexpected end of xml stream");
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
-    }
-
     private BindingType determineRootType(UnmarshalContextImpl context)
         throws XmlException
     {
@@ -218,7 +154,8 @@ class UnmarshallerImpl
         if (xsi_type == null) {
             QName root_elem_qname = new QName(context.getNamespaceURI(),
                                               context.getLocalName());
-            final XmlTypeName type_name = XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, root_elem_qname);
+            final XmlTypeName type_name =
+                XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, root_elem_qname);
             final BindingType doc_binding_type = getPojoBindingType(type_name);
             SimpleDocumentBinding sd = (SimpleDocumentBinding)doc_binding_type;
             return getPojoBindingType(sd.getTypeOfElement());

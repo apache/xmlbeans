@@ -73,8 +73,7 @@ final class NullUnmarshaller
         return null;
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
     {
         throw new UnsupportedOperationException();
     }

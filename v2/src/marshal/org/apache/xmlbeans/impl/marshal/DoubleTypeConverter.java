@@ -54,28 +54,31 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal.builtin;
+package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.common.XsTypeConverter;
-import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
 
-import java.util.Collection;
-
-public final class FloatLexerPrinter
-    implements AtomicLexerPrinter
+final class DoubleTypeConverter
+    extends BaseSimpleTypeConverter
 {
-
-    public Object lex(CharSequence value, Collection errors)
+    public Object unmarshal(UnmarshalContextImpl context)
     {
-        float f = XsTypeConverter.lexFloat(value, errors);
-        return new Float(f);
+        double val = context.getDoubleValue();
+        assert context.isEndElement();
+        context.next();
+        return new Double(val);
     }
 
-    public CharSequence print(Object value, Collection errors)
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
     {
-        Float fobj = (Float)value;
-        return XsTypeConverter.printFloat(fobj.floatValue());
+        double val = context.getAttributeDoubleValue();
+        return new Double(val);
     }
 
-
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContextImpl context)
+    {
+        Double val = (Double)value;
+        return XsTypeConverter.printDouble(val.doubleValue());
+    }
 }

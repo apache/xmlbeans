@@ -56,48 +56,29 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
 
-/**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
- */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+final class ShortTypeConverter
+    extends BaseSimpleTypeConverter
 {
-    private final AtomicLexerPrinter lexerPrinter;
-
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
-    {
-        this.lexerPrinter = lexerPrinter;
-    }
-
     public Object unmarshal(UnmarshalContextImpl context)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        short val = context.getShortValue();
+        assert context.isEndElement();
+        context.next();
+        return new Short(val);
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
-    }
-
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
-    {
+        short val = context.getAttributeShortValue();
+        return new Short(val);
     }
 
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalContextImpl context)
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        Short val = (Short)value;
+        return XsTypeConverter.printShort(val.shortValue());
     }
-
-
 }

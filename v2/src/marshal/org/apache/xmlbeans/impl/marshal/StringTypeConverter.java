@@ -54,29 +54,30 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal.builtin;
+package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.common.XsTypeConverter;
-import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
 
-import java.util.Collection;
-
-
-public final class ShortLexerPrinter
-    implements AtomicLexerPrinter
+final class StringTypeConverter
+    extends BaseSimpleTypeConverter
 {
-
-    public Object lex(CharSequence value, Collection errors)
+    public Object unmarshal(UnmarshalContextImpl context)
     {
-        short f = XsTypeConverter.lexShort(value, errors);
-        return new Short(f);
+        String val = context.getStringValue();
+        assert context.isEndElement();
+        context.next();
+        return val;
     }
 
-    public CharSequence print(Object value, Collection errors)
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
     {
-        Short fobj = (Short)value;
-        return XsTypeConverter.printShort(fobj.shortValue());
+        return context.getAttributeStringValue();
     }
 
-
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContextImpl context)
+    {
+        String val = (String)value;
+        return XsTypeConverter.printString(val);
+    }
 }

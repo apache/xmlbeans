@@ -54,28 +54,21 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal.builtin;
+package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
-import org.apache.xmlbeans.impl.marshal.AtomicLexerPrinter;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-import java.util.Collection;
-
-
-public final class BooleanLexerPrinter
-    implements AtomicLexerPrinter
+/**
+ * Basic XmlStreamReader based impl that can handle converting
+ * simple types of the form <a>4.54</a>.
+ */
+abstract class BaseSimpleTypeConverter
+    implements TypeConverter
 {
-    public Object lex(CharSequence value, Collection errors)
-    {
-        boolean f = XsTypeConverter.lexBoolean(value, errors);
-        return Boolean.valueOf(f);
-    }
 
-    public CharSequence print(Object value, Collection errors)
+    public void initialize(RuntimeBindingTypeTable typeTable,
+                           BindingLoader bindingLoader)
     {
-        Boolean fobj = (Boolean)value;
-        return XsTypeConverter.printBoolean(fobj.booleanValue());
     }
-
 
 }

@@ -57,16 +57,25 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.GDate;
+import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.UnmarshalContext;
+import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
+import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import java.io.InputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Date;
 
 /**
  * An UnmarshalContext holds the mutable state using by an Unmarshaller
@@ -80,25 +89,33 @@ import java.util.Collection;
 final class UnmarshalContextImpl
     implements UnmarshalContext
 {
-    private XMLStreamReader baseReader;
+    private XMLStreamReaderExt baseReader;
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
     private final Collection errors;
     private final XsiAttributeHolder xsiAttributeHolder =
         new XsiAttributeHolder();
-    private boolean gotXsiAttributes;
-    private final TransientCharSequence transientCharSequence =
-        new TransientCharSequence();
 
-    UnmarshalContextImpl(XMLStreamReader baseReader,
+    private static final int INVALID = -1;
+
+    private boolean gotXsiAttributes;
+    private int currentAttributeIndex = INVALID;
+    private int currentAttributeCount = INVALID;
+
+
+    UnmarshalContextImpl(XMLStreamReader reader,
                          BindingLoader bindingLoader,
                          RuntimeBindingTypeTable typeTable,
                          Collection errors)
     {
-        this.baseReader = baseReader;
+        this.baseReader = createExtendedReader(reader);
         this.bindingLoader = bindingLoader;
         this.errors = errors;
         this.typeTable = typeTable;
+
+        if (reader != null) {
+            updateAttributeState();
+        }
     }
 
 
@@ -106,23 +123,33 @@ final class UnmarshalContextImpl
                          RuntimeBindingTypeTable typeTable,
                          Collection errors)
     {
-        this.bindingLoader = bindingLoader;
-        this.errors = errors;
-        this.typeTable = typeTable;
+        this(null, bindingLoader, typeTable, errors);
     }
 
 
     public void setXmlStream(XMLStreamReader reader)
     {
-        baseReader = reader;
-        xsiAttributeHolder.reset();
+        assert reader != null;
+
+        baseReader = createExtendedReader(reader);
+        updateAttributeState();
+    }
+
+    private static XMLStreamReaderExt createExtendedReader(XMLStreamReader reader)
+    {
+        if (reader instanceof XMLStreamReaderExt) {
+            return (XMLStreamReaderExt)reader;
+        } else {
+            return new XMLStreamReaderExtImpl(reader);
+        }
     }
 
     /**
      *
      * @return  true if we have a non null XMLStreamReader
      */
-    boolean hasXmlStream() {
+    boolean hasXmlStream()
+    {
         return (baseReader != null);
     }
 
@@ -166,16 +193,274 @@ final class UnmarshalContextImpl
 
     // ======================= xml access methods =======================
 
-    CharSequence getElementText()
+    String getStringValue()
     {
         try {
-            MarshalStreamUtils.getContent(transientCharSequence,
-                                          baseReader, errors);
-            return transientCharSequence;
+            return baseReader.getStringValue();
         }
         catch (XMLStreamException e) {
             throw new XmlRuntimeException(e);
         }
+    }
+
+    boolean getBooleanValue()
+    {
+        try {
+            return baseReader.getBooleanValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public byte getByteValue()
+    {
+        try {
+            return baseReader.getByteValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public short getShortValue()
+    {
+        try {
+            return baseReader.getShortValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public int getIntValue()
+    {
+        try {
+            return baseReader.getIntValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public long getLongValue()
+    {
+        try {
+            return baseReader.getLongValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public BigInteger getBigIntegerValue()
+    {
+        try {
+            return baseReader.getBigIntegerValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public BigDecimal getBigDecimalValue()
+    {
+        try {
+            return baseReader.getBigDecimalValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public float getFloatValue()
+    {
+        try {
+            return baseReader.getFloatValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public double getDoubleValue()
+    {
+        try {
+            return baseReader.getDoubleValue();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    InputStream getHexBinaryValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    InputStream getBase64Value()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    XmlCalendar getCalendarValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    Date getDateValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    GDate getGDateValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    GDuration getGDurationValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    QName getQNameValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    String getAttributeStringValue()
+    {
+        try {
+            return baseReader.getAttributeStringValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    boolean getAttributeBooleanValue()
+    {
+        try {
+            return baseReader.getAttributeBooleanValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public byte getAttributeByteValue()
+    {
+        try {
+            return baseReader.getAttributeByteValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public short getAttributeShortValue()
+    {
+        try {
+            return baseReader.getAttributeShortValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public int getAttributeIntValue()
+    {
+        try {
+            return baseReader.getAttributeIntValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public long getAttributeLongValue()
+    {
+        try {
+            return baseReader.getAttributeLongValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public BigInteger getAttributeBigIntegerValue()
+    {
+        try {
+            return baseReader.getAttributeBigIntegerValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public BigDecimal getAttributeBigDecimalValue()
+    {
+        try {
+            return baseReader.getAttributeBigDecimalValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public float getAttributeFloatValue()
+    {
+        try {
+            return baseReader.getAttributeFloatValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    public double getAttributeDoubleValue()
+    {
+        try {
+            return baseReader.getAttributeDoubleValue(currentAttributeIndex);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    InputStream getAttributeHexBinaryValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    InputStream getAttributeBase64Value()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    XmlCalendar getAttributeCalendarValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    Date getAttributeDateValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    GDate getAttributeGDateValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    GDuration getAttributeGDurationValue()
+    {
+        throw new AssertionError("unimp");
+    }
+
+    QName getAttributeQNameValue()
+    {
+        throw new AssertionError("unimp");
     }
 
 
@@ -214,10 +499,48 @@ final class UnmarshalContextImpl
      */
     boolean advanceToNextStartElement()
     {
+        boolean ret = MarshalStreamUtils.advanceToNextStartElement(baseReader);
+        updateAttributeState();
+        return ret;
+    }
+
+
+    int next()
+    {
+        try {
+            final int new_state = baseReader.next();
+            updateAttributeState();
+            return new_state;
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    boolean hasNext()
+    {
+        try {
+            return baseReader.hasNext();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+
+    void updateAttributeState()
+    {
         xsiAttributeHolder.reset();
         gotXsiAttributes = false;
-        return MarshalStreamUtils.advanceToNextStartElement(baseReader);
+        if (baseReader.isStartElement()) {
+            currentAttributeCount = baseReader.getAttributeCount();
+            currentAttributeIndex = 0;
+        } else {
+            currentAttributeIndex = INVALID;
+            currentAttributeCount = INVALID;
+        }
     }
+
 
     boolean isStartElement()
     {
@@ -246,45 +569,48 @@ final class UnmarshalContextImpl
         return baseReader.getNamespaceURI();
     }
 
-    String getAttributeNamespaceURI(int att_idx)
-    {
-        return baseReader.getAttributeNamespace(att_idx);
-    }
-
-    String getAttributeLocalName(int att_idx)
-    {
-        return baseReader.getAttributeLocalName(att_idx);
-    }
-
-    String getAttributeValue(int att_idx)
-    {
-        return baseReader.getAttributeValue(att_idx);
-    }
-
     void skipElement()
     {
         MarshalStreamUtils.skipElement(baseReader);
+        updateAttributeState();
     }
 
-    int next()
+
+    void advanceAttribute()
     {
-        xsiAttributeHolder.reset();
-        try {
-            return baseReader.next();
-        }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
+        assert hasMoreAttributes();
+        assert currentAttributeCount != INVALID;
+        assert currentAttributeIndex != INVALID;
+
+        currentAttributeIndex++;
+
+        assert currentAttributeIndex <= currentAttributeCount;
     }
 
-    boolean hasNext()
+    boolean hasMoreAttributes()
     {
-        try {
-            return baseReader.hasNext();
-        }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
+        assert baseReader.isStartElement();
+
+        assert currentAttributeCount != INVALID;
+        assert currentAttributeIndex != INVALID;
+
+        return (currentAttributeIndex < currentAttributeCount);
+    }
+
+    String getCurrentAttributeNamespaceURI()
+    {
+        assert currentAttributeCount != INVALID;
+        assert currentAttributeIndex != INVALID;
+
+        return baseReader.getAttributeNamespace(currentAttributeIndex);
+    }
+
+    String getCurrentAttributeLocalName()
+    {
+        assert currentAttributeCount != INVALID;
+        assert currentAttributeIndex != INVALID;
+
+        return baseReader.getAttributeLocalName(currentAttributeIndex);
     }
 
 }

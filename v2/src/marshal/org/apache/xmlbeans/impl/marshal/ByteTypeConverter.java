@@ -56,17 +56,29 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import java.util.Collection;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
 
-/**
- * An AtomicLexerPrinter knows how to lex and print a xml schema atomic
- * simple type.  No validation is implied, though it is not prohibited.
- */
-public interface AtomicLexerPrinter
+final class ByteTypeConverter
+    extends BaseSimpleTypeConverter
 {
-    //we'll special case qnames
-    Object lex(CharSequence value, Collection errors);
+    public Object unmarshal(UnmarshalContextImpl context)
+    {
+        byte val = context.getByteValue();
+        assert context.isEndElement();
+        context.next();
+        return new Byte(val);
+    }
 
-    //we'll special case qnames
-    CharSequence print(Object value, Collection errors);
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    {
+        byte val = context.getAttributeByteValue();
+        return new Byte(val);
+    }
+
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContextImpl context)
+    {
+        Byte val = (Byte)value;
+        return XsTypeConverter.printByte(val.byteValue());
+    }
 }
