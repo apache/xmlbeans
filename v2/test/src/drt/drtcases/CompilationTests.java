@@ -57,7 +57,16 @@ public class CompilationTests extends TestCase
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
-        Assert.assertTrue("Build failed", SchemaCompiler.compile(params));
+        List errors = new ArrayList();
+        params.setErrorListener(errors);
+        boolean result = SchemaCompiler.compile(params);
+        if (!result)
+        {
+            // Display the first error
+            if (errors.size() > 0)
+                System.out.println("Error: " + errors.get(0).toString());
+        }
+        Assert.assertTrue("Build failed", result);
         Assert.assertTrue("Cannout find " + outputjar, outputjar.exists());
     }
 
