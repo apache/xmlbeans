@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
 
@@ -26,6 +27,8 @@ abstract class NamedXmlTypeVisitor
 {
     private final QName name;
     private final RuntimeBindingType actualRuntimeBindingType;
+    protected static final String NIL_ATT_VAL =
+        XsTypeConverter.printBoolean(true).intern();
 
     NamedXmlTypeVisitor(Object parentObject,
                         RuntimeBindingProperty property,

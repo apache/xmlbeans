@@ -108,6 +108,7 @@ public abstract class BindingType {
   static {
     registerClassAndType(JaxbBean.class, org.apache.xml.xmlbeans.bindingConfig.JaxbBean.type);
     registerClassAndType(ByNameBean.class, org.apache.xml.xmlbeans.bindingConfig.ByNameBean.type);
+    registerClassAndType(WrappedArrayType.class, org.apache.xml.xmlbeans.bindingConfig.WrappedArray.type);
     registerClassAndType(SimpleBindingType.class, org.apache.xml.xmlbeans.bindingConfig.SimpleType.type);
     registerClassAndType(SimpleDocumentBinding.class, org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding.type);
   }

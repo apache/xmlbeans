@@ -25,6 +25,7 @@ import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
@@ -87,7 +88,7 @@ final class RuntimeBindingTypeTable
                                                     BindingLoader loader)
         throws XmlException
     {
-        TypeUnmarshaller type_um;
+        final TypeUnmarshaller type_um;
         //TODO: cleanup this nasty instanceof stuff (Visitor?)
 
         if (type instanceof SimpleBindingType) {
@@ -102,6 +103,11 @@ final class RuntimeBindingTypeTable
             ByNameRuntimeBindingType runtimeType =
                 (ByNameRuntimeBindingType)runtimeTypeFactory.createRuntimeType(type, this, loader);
             type_um = new ByNameUnmarshaller(runtimeType);
+        } else if (type instanceof WrappedArrayType) {
+            WrappedArrayType wat = (WrappedArrayType)type;
+            WrappedArrayRuntimeBindingType runtimeType =
+                (WrappedArrayRuntimeBindingType)runtimeTypeFactory.createRuntimeType(type, this, loader);
+            type_um = new WrappedArrayUnmarshaller(runtimeType);
         } else {
             throw new AssertionError("UNIMPLEMENTED TYPE: " + type);
         }
@@ -309,6 +315,83 @@ final class RuntimeBindingTypeTable
         String msg = "unable to get simple type unmarshaller for " + stype +
             " resolved to " + resolved;
         throw new AssertionError(msg);
+    }
+
+    TypeUnmarshaller lookupUnmarshaller(BindingTypeName type_name,
+                                        BindingLoader loader)
+        throws XmlException
+    {
+        assert type_name != null;
+
+        final BindingType binding_type = loader.getBindingType(type_name);
+        if (binding_type == null) {
+            throw new XmlException("failed to load type: " + type_name);
+        }
+
+        return lookupUnmarshaller(binding_type, loader);
+    }
+
+    TypeUnmarshaller lookupUnmarshaller(BindingType binding_type,
+                                        BindingLoader loader)
+        throws XmlException
+    {
+        TypeUnmarshaller um =
+            this.getOrCreateTypeUnmarshaller(binding_type, loader);
+        if (um == null) {
+            throw new AssertionError("failed to get unmarshaller for " +
+                                     binding_type);
+        }
+        return um;
+    }
+
+    /**
+     *
+     * find marshaller for given type.  Can return null if not found
+     *
+     * @param type_name
+     * @param loader
+     * @return marshaller or null if not found.
+     * @throws XmlException
+     */
+    TypeMarshaller lookupMarshaller(BindingTypeName type_name,
+                                    BindingLoader loader)
+        throws XmlException
+    {
+        final BindingType binding_type = loader.getBindingType(type_name);
+        if (binding_type == null) {
+            final String msg = "unable to load type for " + type_name;
+            throw new XmlException(msg);
+        }
+
+        return lookupMarshaller(binding_type, loader);
+    }
+
+    /**
+     * find marshaller for given type.  Can return null if not found
+     *
+     * @param binding_type
+     * @param loader
+     * @return  marshaller or null if not found.
+     * @throws XmlException
+     */
+    TypeMarshaller lookupMarshaller(BindingType binding_type,
+                                    BindingLoader loader)
+        throws XmlException
+    {
+        TypeMarshaller m = this.getTypeMarshaller(binding_type);
+        if (m != null) return m;
+
+        if (binding_type instanceof SimpleBindingType) {
+            SimpleBindingType stype = (SimpleBindingType)binding_type;
+
+            final BindingTypeName asif_name = stype.getAsIfBindingTypeName();
+            if (asif_name == null)
+                throw new XmlException("no asif for " + stype);
+
+            return lookupMarshaller(asif_name, loader);
+        }
+
+        return null;
     }
 
 }

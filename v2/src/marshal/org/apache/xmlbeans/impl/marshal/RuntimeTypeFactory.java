@@ -18,9 +18,10 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
+import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 
 import java.util.HashMap;
@@ -76,6 +77,8 @@ final class RuntimeTypeFactory
             return new BuiltinRuntimeBindingType((BuiltinBindingType)type);
         } else if (type instanceof SimpleBindingType) {
             return new SimpleRuntimeBindingType((SimpleBindingType)type);
+        } else if (type instanceof WrappedArrayType) {
+            return new WrappedArrayRuntimeBindingType((WrappedArrayType)type);
         }
 
         throw new AssertionError("unknown type: " + type);

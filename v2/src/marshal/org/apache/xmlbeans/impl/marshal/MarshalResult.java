@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
@@ -57,6 +58,8 @@ final class MarshalResult implements XMLStreamReader
     private boolean initedAttributes = false;
     private int prefixCnt = 0;
 
+    //used for some array types
+    private int currIndex;
 
     private static final String ATTRIBUTE_XML_TYPE = "CDATA";
     private static final String NSPREFIX = "n";
@@ -92,15 +95,17 @@ final class MarshalResult implements XMLStreamReader
     {
         assert property != null;
 
-        BindingType btype = property.getType();
+        BindingType btype = property.getRuntimeBindingType().getBindingType();
 
-        //TODO: cleanup instanceof
+        //TODO: cleanup instanceof -- Visitor?
         if (btype instanceof ByNameBean) {
             return new ByNameTypeVisitor(property, obj, result);
         } else if (btype instanceof SimpleBindingType) {
             return new SimpleTypeVisitor(property, obj, result);
         } else if (btype instanceof BuiltinBindingType) {
             return new SimpleTypeVisitor(property, obj, result);
+        } else if (btype instanceof WrappedArrayType) {
+            return new WrappedArrayTypeVisitor(property, obj, result);
         }
 
         throw new AssertionError("UNIMP TYPE: " + btype);
@@ -613,5 +618,15 @@ final class MarshalResult implements XMLStreamReader
         return result.createRuntimeBindingType(btype, property_value);
     }
 
+
+    int getCurrIndex()
+    {
+        return currIndex;
+    }
+
+    void setCurrIndex(int currIndex)
+    {
+        this.currIndex = currIndex;
+    }
 
 }

@@ -16,15 +16,12 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 import javax.xml.namespace.QName;
 
 
 interface RuntimeBindingProperty
 {
-    BindingType getType();
-
     RuntimeBindingType getRuntimeBindingType();
 
     RuntimeBindingType getActualRuntimeType(Object property_value,
@@ -39,7 +36,7 @@ interface RuntimeBindingProperty
     void fill(Object inter, Object prop_obj)
         throws XmlException;
 
-    //non simple type props can throw some runtime exception.
+    //non simple type props can throw an exception
     CharSequence getLexical(Object parent, MarshalResult result)
         throws XmlException;
 

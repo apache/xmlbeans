@@ -16,7 +16,6 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
@@ -44,11 +43,8 @@ final class ByNameTypeVisitor
         throws XmlException
     {
         super(obj, property, result);
-        final BindingType pt = property.getType();
 
         type = (ByNameRuntimeBindingType)getActualRuntimeBindingType();
-
-
         maxElementPropCount = obj == null ? 0 : type.getElementPropertyCount();
         maxAttributePropCount = obj == null ? 0 : type.getAttributePropertyCount();
     }
@@ -170,8 +166,6 @@ final class ByNameTypeVisitor
     protected int getAttributeCount()
         throws XmlException
     {
-        if (attributeValues == null) initAttributes();
-
         assert attributeNames.size() == attributeValues.size();
 
         return attributeValues.size();

@@ -500,6 +500,8 @@ public class MarshalTests extends TestCase
             myelt.setAttrib(rnd.nextFloat());
             myelt.setMyFloat(rnd.nextFloat());
             myelt.setBooleanArray(bools);
+            myelt.setWrappedArrayOne(new String[]{"W1"+rnd.nextInt(), "W2" + rnd.nextInt()});
+            myelt.setWrappedArrayTwo(null);
             final com.mytest.MyClass my_c = new com.mytest.MyClass();
             myelt.setMyClass(my_c);
             curr.setMyelt(myelt);
@@ -547,7 +549,7 @@ public class MarshalTests extends TestCase
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
-//        inform(" perf_out_obj = " + top_obj);
+        inform(" perf_out_obj = " + top_obj);
         Assert.assertTrue(errors.isEmpty());
         Assert.assertEquals(top_obj, out_obj);
         inform("milliseconds: " + diff + " trials: " + trials);
