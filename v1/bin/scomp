@@ -1,0 +1,9 @@
+#!/bin/sh
+
+#Schema compiler
+#Builds XBean types from xsd files.
+
+cp=
+cp=$cp:$XMLBEANS_HOME/build/arbxbean.jar
+
+java -classpath $cp ort.apache.xmlbeanseimpl.toolmSchemaCompiler $*
