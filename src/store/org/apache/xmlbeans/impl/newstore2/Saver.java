@@ -534,11 +534,6 @@ abstract class Saver
                 if (mappingPrefix().equals( prefix ))
                     return;
 
-            // Also make sure that the prefix declaration is not redundant
-
-            if (uri.equals( getNamespaceForPrefix( prefix )))
-                return;
-
             addMapping( prefix, uri );
         }
     }

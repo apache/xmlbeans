@@ -397,7 +397,7 @@
         depends="dirs, version, xmlpublic.classes,
                  typeholder.template, typestore.classes, common.classes,
                  typeimpl.classes, xmlcomp.classes,
-                 newstore2.classes, saaj_api.classes,
+                 store.classes, saaj_api.classes,
                  marshal.classes, xpath.classes, oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes, resolver.jar, xbean_xpath.jar,
                  piccolo.classes, tools.classes, jamsupport.classes">
@@ -412,7 +412,7 @@
             <fileset dir="build/classes/toolschema"/>
             <fileset dir="build/classes/xsdschema"/>
             <fileset dir="build/classes/xmlschema"/>
-            <fileset dir="build/classes/newstore2"/>
+            <fileset dir="build/classes/store"/>
             <fileset dir="build/classes/saaj_api"/>
             <fileset dir="build/classes/xmlinputstream"/>
             <fileset dir="build/classes/marshal"/>
@@ -538,13 +538,13 @@
 
     <!-- typeimpl target ============================================== -->
 
-    <target name="typeimpl.classes" depends="dirs, newstore2.classes,
+    <target name="typeimpl.classes" depends="dirs, store.classes,
         repackage.classes, xmlpublic.classes, typeholder.template, typestore.classes, xsdschema.classes,
         configschema.classes, toolschema.classes, jsr173_api.jar, jam.classes">
         <mkdir dir="build/classes/typeimpl"/>
         <javac destdir="build/classes/typeimpl" source="${javac.source}" target="${javac.target}" debug="on">
             <classpath>
-                <pathelement location="build/classes/newstore2"/>
+                <pathelement location="build/classes/store"/>
                 <pathelement location="build/classes/xmlinputstream"/>
                 <pathelement location="build/classes/common"/>
                 <pathelement location="build/classes/repackage"/>
@@ -609,7 +609,7 @@
                 <pathelement location="build/classes/xmlpublic"/>
                 <pathelement location="build/classes/common"/>
                 <pathelement location="build/classes/typeimpl"/>
-                <pathelement location="build/classes/newstore2"/>
+                <pathelement location="build/classes/store"/>
             </classpath>
         </javac>
     </target>
@@ -636,13 +636,13 @@
 
     </target>
 
-    <!-- newstore2 target ============================================== -->
+    <!-- store target ============================================== -->
 
-    <target name="newstore2.classes"
+    <target name="store.classes"
         depends="dirs, common.classes, xmlpublic.classes, typestore.classes, saaj_api.classes, piccolo.classes">
-        <mkdir dir="build/classes/newstore2"/>
-        <javac srcdir="src/newstore2" destdir="build/classes/newstore2" source="${javac.source}" target="${javac.target}" debug="on">
-            <classpath id="newstore2.compile.path">
+        <mkdir dir="build/classes/store"/>
+        <javac srcdir="src/store" destdir="build/classes/store" source="${javac.source}" target="${javac.target}" debug="on">
+            <classpath id="store.compile.path">
                 <pathelement location="build/classes/typestore"/>
                 <pathelement location="build/lib/jsr173_api.jar"/>
                 <pathelement location="build/classes/xmlinputstream"/>
@@ -876,7 +876,7 @@
 
     <!-- xpath target ============================================= -->
 
-    <target name="xpath.classes" depends="dirs, xmlpublic.jar, newstore2.classes, saxon8.jar">
+    <target name="xpath.classes" depends="dirs, xmlpublic.jar, store.classes, saxon8.jar">
         <mkdir dir="build/classes/xpath_xquery"/>
         <javac
             destdir="build/classes/xpath_xquery"
@@ -886,7 +886,7 @@
             <src path="src/xpath_xquery"/>
             <classpath id="xpath.compile.path">
                 <pathelement location="build/classes/xmlpublic"/>
-                <pathelement location="build/classes/newstore2"/>
+                <pathelement location="build/classes/store"/>
                 <pathelement location="${saxon_jar}"/>
             </classpath>
         </javac>
