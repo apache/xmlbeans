@@ -54,91 +54,80 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.xpath.jaxen;
+package org.apache.xmlbeans.impl.store;
 
-import org.jaxen.BaseXPath;
-import org.jaxen.JaxenException;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
-
+import java.lang.reflect.Constructor;
 import java.util.List;
-import java.util.AbstractList;
 
 /**
  * Author: Cezar Andrei (cezar.andrei at bea.com)
- * Date: Oct 10, 2003
+ * Date: Nov 6, 2003
+ *
+ * Help class to decouple from xbean_xpath.jar and jaxen.jar (version v1.1 beta2)
  */
-public class XBeansXPath extends BaseXPath
+public final class JaxenXBeansDelegate
 {
-    /** Construct given an XPath expression string.
-     *
-     *  @param xpathExpr The XPath expression.
-     *
-     *  @throws org.jaxen.JaxenException if there is a syntax error while
-     *          parsing the expression.
-     */
-    public XBeansXPath(String xpathExpr) throws JaxenException
+    private JaxenXBeansDelegate()
+    {}
+
+    static SelectPathInterface createInstance(String xpath)
     {
-        super( xpathExpr, XBeansNavigator.getInstance() );
+        if (_constructor==null)
+            return null;
+
+        try
+        {
+            return (JaxenXBeansDelegate.SelectPathInterface)_constructor.newInstance(new Object[] {xpath});
+        }
+        catch (Exception e)
+        {
+            throw new RuntimeException(e);
+        }
     }
 
-    /** Select all nodes that are selectable by this XPath
-     *  expression. If multiple nodes match, multiple nodes
-     *  will be returned.
-     *
-     *  <p>
-     *  <b>NOTE:</b> In most cases, nodes will be returned
-     *  in document-order, as defined by the XML Canonicalization
-     *  specification.  The exception occurs when using XPath
-     *  expressions involving the <code>union</code> operator
-     *  (denoted with the pipe '|' character).
-     *  </p>
-     *
-     *  @param node The node, nodeset or Context object for evaluation. This value can be null.
-     *
-     *  @return The <code>node-set</code> of all items selected
-     *          by this XPath expression.
-     *
-     *  @see #selectSingleNode
-     */
-    public List selectNodes(Object node) throws JaxenException
-    {
-        XmlCursor xc;
-        if (node instanceof XmlObject)
-        {
-            xc = ((XmlObject)node).newCursor();
-        }
-        else if (node instanceof XmlCursor)
-        {
-            xc = ((XmlCursor)node).newCursor();
-        }
-        else
-            throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor, found: " + node.getClass());
 
-        ((XBeansNavigator)getNavigator()).setCursor(xc);
-        return new ListImpl(super.selectNodes( XBeansNavigator.getBookmarkInThisPlace(xc) ));
+    // Loose coupling functionality with xqrl.jar
+
+    private static Constructor _constructor;
+
+    static
+    {
+        boolean hasTheJars = false;
+        Class jaxenXPathImpl = null;
+        try
+        {
+            // from jaxen.jar
+            Class.forName( "org.jaxen.BaseXPath" );
+            // from xbean_xpath.jar
+            jaxenXPathImpl = Class.forName( "org.apache.xmlbeans.impl.xpath.jaxen.XBeansXPathAdv" );
+
+            hasTheJars = true;
+        }
+        catch ( ClassNotFoundException e )
+        {
+            hasTheJars = false;
+        }
+        catch ( NoClassDefFoundError e )
+        {
+            hasTheJars = false;
+        }
+
+        if (hasTheJars)
+        {
+            try
+            {
+                _constructor =
+                    jaxenXPathImpl.getConstructor( new Class[] { String.class } );
+            }
+            catch ( Exception e )
+            {
+                throw new RuntimeException( e );
+            }
+        }
     }
 
-    private static class ListImpl extends AbstractList
+    public static interface SelectPathInterface
     {
-        private List _results;
-
-        private ListImpl(List results)
-        {
-            _results = results;
-        }
-
-        public Object get(int index)
-        {
-            if (_results==null)
-                return null;
-
-            return ((XBeansNavigator.JaxenNode)_results.get(index)).createCursor();
-        }
-
-        public int size()
-        {
-            return (_results==null ? 0 : _results.size());
-        }
+        public List selectPath(Object node);
     }
 }

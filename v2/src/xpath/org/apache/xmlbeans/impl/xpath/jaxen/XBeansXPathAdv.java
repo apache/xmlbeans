@@ -59,16 +59,17 @@ package org.apache.xmlbeans.impl.xpath.jaxen;
 import org.jaxen.BaseXPath;
 import org.jaxen.JaxenException;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.store.JaxenXBeansDelegate;
 
 import java.util.List;
-import java.util.AbstractList;
 
 /**
  * Author: Cezar Andrei (cezar.andrei at bea.com)
  * Date: Oct 10, 2003
  */
-public class XBeansXPath extends BaseXPath
+public class XBeansXPathAdv
+    extends BaseXPath
+    implements JaxenXBeansDelegate.SelectPathInterface
 {
     /** Construct given an XPath expression string.
      *
@@ -77,7 +78,7 @@ public class XBeansXPath extends BaseXPath
      *  @throws org.jaxen.JaxenException if there is a syntax error while
      *          parsing the expression.
      */
-    public XBeansXPath(String xpathExpr) throws JaxenException
+    public XBeansXPathAdv(String xpathExpr) throws JaxenException
     {
         super( xpathExpr, XBeansNavigator.getInstance() );
     }
@@ -94,6 +95,12 @@ public class XBeansXPath extends BaseXPath
      *  (denoted with the pipe '|' character).
      *  </p>
      *
+     *  <p>
+     *  <b>NOTE:</b> Param node must be an XmlCursor, which will be used during the xpath
+     *  execution and iteration through the results. A call of node.dispose() must be done
+     *  after reading all results.
+     *  </p>
+     *
      *  @param node The node, nodeset or Context object for evaluation. This value can be null.
      *
      *  @return The <code>node-set</code> of all items selected
@@ -104,41 +111,21 @@ public class XBeansXPath extends BaseXPath
     public List selectNodes(Object node) throws JaxenException
     {
         XmlCursor xc;
-        if (node instanceof XmlObject)
-        {
-            xc = ((XmlObject)node).newCursor();
-        }
-        else if (node instanceof XmlCursor)
-        {
-            xc = ((XmlCursor)node).newCursor();
-        }
-        else
-            throw new IllegalArgumentException("node must be an XmlObject or an XmlCursor, found: " + node.getClass());
+        xc = ((XmlCursor)node);
 
         ((XBeansNavigator)getNavigator()).setCursor(xc);
-        return new ListImpl(super.selectNodes( XBeansNavigator.getBookmarkInThisPlace(xc) ));
+        return super.selectNodes( XBeansNavigator.getBookmarkInThisPlace(xc) );
     }
 
-    private static class ListImpl extends AbstractList
+    public List selectPath(Object node)
     {
-        private List _results;
-
-        private ListImpl(List results)
+        try
         {
-            _results = results;
+            return selectNodes(node);
         }
-
-        public Object get(int index)
+        catch (JaxenException e)
         {
-            if (_results==null)
-                return null;
-
-            return ((XBeansNavigator.JaxenNode)_results.get(index)).createCursor();
-        }
-
-        public int size()
-        {
-            return (_results==null ? 0 : _results.size());
+            throw new RuntimeException(e);
         }
     }
 }
