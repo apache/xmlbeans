@@ -95,7 +95,8 @@ public class WrappedArrayUnmarshaller
             assert context.isStartElement();
 
             if (matchesItemElement(context)) {
-                UnmarshalResult.fillElementProp(type.getElementProperty(), context, inter);
+                UnmarshalResult.fillElementProp(type.getElementProperty(),
+                                                context, inter);
             }
         }
 
@@ -122,7 +123,7 @@ public class WrappedArrayUnmarshaller
     public Object unmarshalAttribute(UnmarshalResult result)
         throws XmlException
     {
-        throw new AssertionError("UNIMP");
+        throw new UnsupportedOperationException("not used");
     }
 
     public void initialize(RuntimeBindingTypeTable typeTable,

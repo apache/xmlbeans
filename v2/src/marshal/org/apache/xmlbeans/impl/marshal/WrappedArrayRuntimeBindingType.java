@@ -101,7 +101,10 @@ final class WrappedArrayRuntimeBindingType
 
         elementProperty =
             new WAProperty(wrappedArrayType.getItemName(), item_rtt,
-                           typeTable, bindingLoader);
+                           typeTable, bindingLoader,
+                           wrappedArrayType.isNillable());
+
+
     }
 
     RuntimeBindingProperty getElementProperty()
@@ -130,11 +133,13 @@ final class WrappedArrayRuntimeBindingType
         private final RuntimeBindingType itemType;
         private final TypeMarshaller marshaller; // used only for simple types
         private final TypeUnmarshaller unmarshaller;
+        private final boolean nillable;
 
         public WAProperty(QName item_name,
                           RuntimeBindingType item_type,
                           RuntimeBindingTypeTable type_table,
-                          BindingLoader loader)
+                          BindingLoader loader,
+                          boolean nillable)
             throws XmlException
         {
             itemName = item_name;
@@ -145,6 +150,7 @@ final class WrappedArrayRuntimeBindingType
                 type_table.lookupMarshaller(binding_type, loader);
             unmarshaller =
                 type_table.lookupUnmarshaller(binding_type, loader);
+            this.nillable = nillable;
 
         }
 
@@ -175,7 +181,7 @@ final class WrappedArrayRuntimeBindingType
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
             throws XmlException
         {
-            return unmarshaller;
+            return context.determineTypeUnmarshaller(unmarshaller);
         }
 
         public void fill(Object inter, Object prop_obj)
@@ -205,20 +211,22 @@ final class WrappedArrayRuntimeBindingType
         public boolean isSet(Object parentObject, MarshalResult result)
             throws XmlException
         {
+            if (nillable) return true;
             if (itemType.isJavaPrimitive()) return true;
 
-            //TODO: call isSet?  check nillable??
+            //TODO: consider isSet for array elements?
+
             return getValue(parentObject, result) != null;
         }
 
         public boolean isMultiple()
         {
-            throw new UnsupportedOperationException();
+            return true;
         }
 
         public boolean isNillable()
         {
-            throw new UnsupportedOperationException();
+            return nillable;
         }
 
         public String getLexicalDefault()

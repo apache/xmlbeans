@@ -381,20 +381,7 @@ final class ByNameRuntimeBindingType
             //don't need any xsi stuff for attributes.
             if (bindingProperty.isAttribute()) return unmarshaller;
 
-            final QName xsi_type = context.getXsiType();
-
-            if (xsi_type != null) {
-                TypeUnmarshaller typed_um = context.getTypeUnmarshaller(xsi_type);
-                if (typed_um != null)
-                    return typed_um;
-                //reaching here means some problem with extracting the
-                //marshaller for the xsi type, so just use the expected one
-            }
-
-            if (context.hasXsiNil())
-                return NullUnmarshaller.getInstance();
-
-            return unmarshaller;
+            return context.determineTypeUnmarshaller(unmarshaller);
         }
 
         public void fill(final Object inter, final Object prop_obj)
