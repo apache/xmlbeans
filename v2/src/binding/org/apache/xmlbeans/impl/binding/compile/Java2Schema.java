@@ -59,11 +59,13 @@ import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
+import org.apache.xmlbeans.impl.common.XMLChar;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.IOException;
+import java.io.StringWriter;
 
 
 /**
@@ -97,6 +99,10 @@ public class Java2Schema extends BindingCompiler {
 
   public static final String TAG_AT               = "xsdgen:attribute";
   public static final String TAG_AT_NAME          = TAG_AT+".name";
+
+  // this is the character that replaces invalid characters when creating new
+  // xml names.
+  private static final char SAFE_CHAR = '_';
 
   // =========================================================================
   // Variables
@@ -233,7 +239,7 @@ public class Java2Schema extends BindingCompiler {
     JAnnotation[] anns = clazz.getAnnotations(TAG_CT_ROOT);
     for(int i=0; i<anns.length; i++) {
       TopLevelElement root = mSchema.addNewElement();
-      root.setName(anns[i].getStringValue());
+      root.setName(makeNcNameSafe(anns[i].getStringValue()));
       root.setType(qname);
       // FIXME still not entirely clear to me what we should do about
       // the binding file here
@@ -374,6 +380,36 @@ public class Java2Schema extends BindingCompiler {
   }
 
 
+
+  /**
+   * Checks the given XML name to ensure that it is a valid XMLName according
+   * to the XML 1.0 Recommendation.  If it is not, the name is mangled so
+   * as to make it a valid name.  This should be called before setting the
+   * name on every schema fragment we create.
+   */
+  private static String makeNcNameSafe(String name) {
+    // it's probably pretty rare that a name isn't valid, so let's just do
+    // an optimistic check first without writing out a new string.
+    if (name == null || XMLChar.isValidNCName(name) || name.length() == 0) {
+      return name;
+    }
+    // ok, we have to mangle it
+    StringWriter out = new StringWriter();
+    char ch = name.charAt(0);
+    if(!XMLChar.isNCNameStart(ch)) {
+      out.write(SAFE_CHAR);
+    } else {
+      out.write(ch);
+    }
+    for (int i=1; i < name.length(); i++ ) {
+      ch = name.charAt(i);
+       if (!XMLChar.isNCName(ch)) {
+         out.write(ch);
+       }
+    }
+    return out.toString();
+  }
+
   /*
 
   private static boolean isXmlObj(JClass clazz) {
@@ -480,6 +516,7 @@ public class Java2Schema extends BindingCompiler {
      * generated schema.
      */
     public void setSchemaName(String name) {
+      name = makeNcNameSafe(name);
       if (mXsElement != null) {
         mXsElement.setName(name);
       } else if (mXsAttribute != null) {
@@ -588,5 +625,6 @@ public class Java2Schema extends BindingCompiler {
       mBtsProp = new QNameProperty();
     }
   }
+
 
 }
