@@ -870,7 +870,10 @@ public final class Cursor implements XmlCursor, ChangeListener
 
     public void insertProcInst ( String target, String value )
     {
-        validatePrefix( target ); // used becuase "<?xml...?> is disallowed
+        validateLocalName( target ); // used becuase "<?xml...?> is disallowed
+
+        if (Splay.beginsWithXml( target ) && target.length() == 3)
+            throw new IllegalArgumentException( "Target begins with 'xml'" );
     
         synchronized ( monitor() )
         {
