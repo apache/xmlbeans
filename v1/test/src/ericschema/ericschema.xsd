@@ -1,0 +1,36 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+    <xs:element name="foo" type="foo"/>
+    <xs:element name="bar" type="bar"/>
+    <xs:element name="foos" type="foos"/>
+    <xs:element name="bars" type="bars"/>
+
+    <xs:complexType name="foo"> 
+        <xs:sequence> 
+            <xs:element name="a" type="xs:int"/> 
+        </xs:sequence> 
+    </xs:complexType>
+
+    <xs:complexType name="foos">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element ref="foo"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="bars">
+        <xs:sequence maxOccurs="unbounded">
+            <xs:element ref="bar"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="bar"> 
+        <xs:complexContent> 
+            <xs:extension base="foo"> 
+                <xs:sequence> 
+                    <xs:element name="b" type="xs:int"/> 
+                </xs:sequence> 
+            </xs:extension> 
+        </xs:complexContent> 
+    </xs:complexType>
+
+</xs:schema> 
