@@ -30,6 +30,7 @@ import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.SourcePosition;
 import com.sun.javadoc.AnnotationTypeElementDoc;
 import com.sun.javadoc.ExecutableMemberDoc;
+import com.sun.javadoc.AnnotationTypeDoc;
 
 
 
@@ -87,68 +88,89 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     }
   }
 
-  private void populateAnnotation(MAnnotation dest, 
-                                  AnnotationDesc src, 
+  private void populateAnnotation(MAnnotation dest,
+                                  AnnotationDesc src,
                                   SourcePosition sp) {
     if (sp != null) JavadocClassBuilder.addSourcePosition(dest,sp);
-    AnnotationDesc.ElementValuePair[] mvps = src.elementValues();
-    for(int i=0; i<mvps.length; i++) {
-      Type jmt = mvps[i].element().returnType();
-      String typeName = getFdFor(jmt);
-      String name = mvps[i].element().name();
-      AnnotationValue aval = mvps[i].value();
-      Object valueObj;
-      try {
-        valueObj = aval.value();
-      } catch(NullPointerException npe) {
-        //FIXME temporary workaround for sun bug
-        mContext.getLogger().warning
-          ("Encountered a known javadoc bug which usually \n"+
-           "indicates a syntax error in an annotation value declaration.\n"+
-           "The value is being ignored.\n"+
-           "[file="+sp.file()+", line="+sp.line()+"]");
-        continue;
-
+    {
+      AnnotationDesc.ElementValuePair[] mvps = src.elementValues();
+      for(int i=0; i<mvps.length; i++) {
+        Type jmt = mvps[i].element().returnType();
+        String name = mvps[i].element().name();
+        AnnotationValue aval = mvps[i].value();
+        setAnnotationValue(name,jmt,aval,dest,sp);
       }
-      if (mContext.getLogger().isVerbose(this)) {
-        mContext.getLogger().verbose(name+" is a "+typeName+" with valueObj "+
-                                     valueObj+", class is "+valueObj.getClass());
-      }
-      // ok, take a look at how what it really is and translate it into an
-      // appropriate represenatation
-      if (valueObj instanceof AnnotationDesc) {
-        MAnnotation nested = dest.createNestedValue(name,typeName);
-        populateAnnotation(nested,(AnnotationDesc)valueObj,sp);
-      } else if (valueObj instanceof Number || valueObj instanceof Boolean) {
-        String tn = JavadocClassBuilder.getFdFor(jmt);
-        JClass type = mContext.getClassLoader().loadClass(tn);
-        dest.setSimpleValue(name,valueObj,type);
-      } else if (valueObj instanceof FieldDoc) {
-        String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
-        // this means it's an enum constant
-        JClass type = mContext.getClassLoader().loadClass(tn);
-        String val = ((FieldDoc)valueObj).name(); //REVIEW is this right?
-        dest.setSimpleValue(name,val,type);
-      } else if (valueObj instanceof ClassDoc) {
-        String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
-         JClass clazz = mContext.getClassLoader().loadClass(tn);
-        dest.setSimpleValue(name,clazz,loadClass(JClass.class));
-      } else if (valueObj instanceof String) {
-        String v = ((String)valueObj).trim();
-        if (v.startsWith("\"") && v.endsWith("\"")) {
-          //javadoc gives us the quotes, which seems kinda dumb.  just deal.
-          valueObj = v.substring(1,v.length()-1);
+    }
+    { // also set values for the type's defaults
+      AnnotationTypeDoc atd = src.annotationType();
+      AnnotationTypeElementDoc[] elements = atd.elements();
+      for(int i=0; i<elements.length; i++) {
+        AnnotationValue value = elements[i].defaultValue();
+        if (value != null) {
+          String name = elements[i].name();
+          if (dest.getValue(name) == null) {
+            setAnnotationValue(name,elements[i].returnType(),
+                               value,dest,sp);
+          }
         }
-        dest.setSimpleValue(name,valueObj,loadClass(String.class));
-      } else if (valueObj instanceof AnnotationValue[]) {
-        // this is another big chunk of work, just factored into a new
-        // method to keep things cleaner
-        populateArrayMember(dest,mvps[i].element(),(AnnotationValue[])valueObj,sp);
-      } else {
-        mContext.getLogger().error("Value of annotation member "+name+" is " +
-                                   "of an unexpected type: "+
-                                   valueObj.getClass()+"   ["+valueObj+"]");
       }
+    }
+  }
+
+  private void setAnnotationValue(String memberName,
+                                  Type returnType,
+                                  AnnotationValue aval,
+                                  MAnnotation dest,
+                                  SourcePosition sp) {
+    String typeName = getFdFor(returnType);
+    Object valueObj;
+    try {
+      valueObj = aval.value();
+    } catch(NullPointerException npe) {
+      //FIXME temporary workaround for sun bug
+      mContext.getLogger().warning
+        ("Encountered a known javadoc bug which usually \n"+
+         "indicates a syntax error in an annotation value declaration.\n"+
+         "The value is being ignored.\n"+
+         "[file="+sp.file()+", line="+sp.line()+"]");
+      return;
+    }
+    if (mContext.getLogger().isVerbose(this)) {
+      mContext.getLogger().verbose(memberName+" is a "+typeName+" with valueObj "+
+                                   valueObj+", class is "+valueObj.getClass());
+    }
+    // ok, take a look at how what it really is and translate it into an
+    // appropriate represenatation
+    if (valueObj instanceof AnnotationDesc) {
+      MAnnotation nested = dest.createNestedValue(memberName,typeName);
+      populateAnnotation(nested,(AnnotationDesc)valueObj,sp);
+    } else if (valueObj instanceof Number || valueObj instanceof Boolean) {
+      String tn = JavadocClassBuilder.getFdFor(returnType);
+      JClass type = mContext.getClassLoader().loadClass(tn);
+      dest.setSimpleValue(memberName,valueObj,type);
+    } else if (valueObj instanceof FieldDoc) {
+      String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
+      // this means it's an enum constant
+      JClass type = mContext.getClassLoader().loadClass(tn);
+      String val = ((FieldDoc)valueObj).name(); //REVIEW is this right?
+      dest.setSimpleValue(memberName,val,type);
+    } else if (valueObj instanceof ClassDoc) {
+      String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
+       JClass clazz = mContext.getClassLoader().loadClass(tn);
+      dest.setSimpleValue(memberName,clazz,loadClass(JClass.class));
+    } else if (valueObj instanceof String) {
+      String v = ((String)valueObj).trim();
+      if (v.startsWith("\"") && v.endsWith("\"")) {
+        //javadoc gives us the quotes, which seems kinda dumb.  just deal.
+        valueObj = v.substring(1,v.length()-1);
+      }
+      dest.setSimpleValue(memberName,valueObj,loadClass(String.class));
+    } else if (valueObj instanceof AnnotationValue[]) {
+      populateArrayMember(dest,memberName,returnType,(AnnotationValue[])valueObj,sp);
+    } else {
+      mContext.getLogger().error("Value of annotation member "+memberName+" is " +
+                                 "of an unexpected type: "+
+                                 valueObj.getClass()+"   ["+valueObj+"]");
     }
   }
 
@@ -172,7 +194,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
    *
    * <p>It seems quite broken to me that in the array case, it returns an array
    * of AnnotationValues.  It would be a lot easier to deal with the API
-   * if that last line instead read "or an array of any of the above."                                           
+   * if that last line instead read "or an array of any of the above."
    * As it is, it's imposible to get the doclet API to give you a simple
    * array of ints, for example.  It's not at all clear what the extra
    * wrapping buys you.</p>
@@ -181,13 +203,12 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
    * for the user.</p>
    */
   private void populateArrayMember(MAnnotation dest,
-                                   AnnotationTypeElementDoc memberDoc,
+                                   String memberName,
+                                   Type returnType,
                                    AnnotationValue[] annValueArray,
                                    SourcePosition sp)
   {
     if (sp != null) JavadocClassBuilder.addSourcePosition(dest,sp);
-    String memberName = memberDoc.name();
-    Type returnType = memberDoc.returnType();
     if (annValueArray.length == 0) {
       Object[] value = new Object[0];
       //FIXME this is a little bit busted - we should try to give them
@@ -263,13 +284,9 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     }
   }
 
-  private String getFdFor(Type t) {
-    return JavadocClassBuilder.getFdFor(t);
-  }
+  private String getFdFor(Type t) { return JavadocClassBuilder.getFdFor(t); }
 
-  private JClass loadClass(Type type) {
-    return loadClass(getFdFor(type));
-  }
+  private JClass loadClass(Type type) { return loadClass(getFdFor(type)); }
 
   //maybe we should put this on JamClassLoader?
   private JClass loadClass(Class clazz) {

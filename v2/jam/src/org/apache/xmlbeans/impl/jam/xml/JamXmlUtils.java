@@ -55,7 +55,7 @@ public class JamXmlUtils {
     JamServiceParams params = jsf.createServiceParams();
     CachedClassBuilder cache = new CachedClassBuilder();
     // finish initalizing the params and create the service
-    ((JamServiceContextImpl)params).addBaseBuilder(cache);
+    params.addClassBuilder(cache);
     JamService out = jsf.createService(params);
     // now go read the xml.  we have to do this afterwards so that the
     // classloader has been created and is available for linking.

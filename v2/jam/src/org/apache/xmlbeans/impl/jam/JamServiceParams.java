@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.jam;
 
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.JavadocTagParser;
+import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -303,6 +304,16 @@ public interface JamServiceParams {
    * false unless you really know what you are doing.</p>
    */
   public void setUseSystemClasspath(boolean use);
+
+  /**
+   * <p>Adds a custom JamClassBuilder which will be consulted by the
+   * JamClassLoader when constructing representation of java types.  The given
+   * class builder will have priority over priority over JAM's default
+   * source- and reflection-based ClassBuilders.  If this method id
+   * called more than once, the extra class builders will be prioritized
+   * in the order in which they were added.</p>
+   */
+  public void addClassBuilder(JamClassBuilder cb);
 
   /**
    * DOCME

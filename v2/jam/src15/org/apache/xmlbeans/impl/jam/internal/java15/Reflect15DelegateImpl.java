@@ -150,6 +150,7 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
       destAnn.setAnnotationInstance(anns[i]);
       populateAnnotation(destAnn,anns[i]);
     }
+    //FIXME also overlay default values once they're working in the JDK
   }
 
   private void populateAnnotation(MAnnotation dest, Annotation src) {

@@ -137,7 +137,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     if (mName2Annotation == null) {
       mName2Annotation = new HashMap();
     }
-    mName2Annotation.put(ann.getSimpleName(),ann);
+    mName2Annotation.put(ann.getQualifiedName(),ann);
     return ann;
   }
 
@@ -174,10 +174,10 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   protected void addAnnotation(JAnnotation ann) {
     if (mName2Annotation == null) {
       mName2Annotation = new HashMap();
-      mName2Annotation.put(ann.getSimpleName(),ann);
+      mName2Annotation.put(ann.getQualifiedName(),ann);
     } else {
-      if (mName2Annotation.get(ann.getSimpleName()) == null) {
-        mName2Annotation.put(ann.getSimpleName(),ann);
+      if (mName2Annotation.get(ann.getQualifiedName()) == null) {
+        mName2Annotation.put(ann.getQualifiedName(),ann);
       }
     }
     if (mAllAnnotations == null) mAllAnnotations = new ArrayList();
@@ -204,7 +204,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     if (mName2Annotation == null) {
       mName2Annotation = new HashMap();
     }
-    mName2Annotation.put(ann.getSimpleName(),ann);
+    mName2Annotation.put(ann.getQualifiedName(),ann);
     return ann;
   }
 }
