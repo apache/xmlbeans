@@ -25,6 +25,7 @@ import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Node;
 import org.w3c.dom.Document;
 
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
@@ -52,17 +53,19 @@ import org.apache.xmlbeans.QNameSet;
 
 public final class Public2
 {
+    public static final String SAAJ_IMPL = "SAAJ_IMPL";
+    
     private static Locale newLocale ( Saaj saaj )
     {
-        Locale l = new Locale();
-
+        XmlOptions options = null;
+        
         if (saaj != null)
         {
-            l._saaj = saaj;
-            saaj.setCallback( l );
+            options = new XmlOptions();
+            options.put( SAAJ_IMPL, saaj );
         }
-
-        return l;
+        
+        return Locale.getLocale( null, options );
     }
 
     public static void setSync ( Document doc, boolean sync )
@@ -280,89 +283,19 @@ public final class Public2
     public static void dump ( Node n )      { dump( System.out, n ); }
     public static void dump ( XmlCursor c ) { dump( System.out, c ); }
 
-    static class MyTypeStoreUser implements org.apache.xmlbeans.impl.values.TypeStoreUser
-    {
-        MyTypeStoreUser ( Cur c )
-        {
-            c.setRootType( this );
-
-            assert _store != null;
-        }
-        
-        void setValue ( String newValue )
-        {
-            assert newValue != null;
-            
-            _store.invalidate_text();
-            _value = newValue;
-        }
-
-        String getValue ( )
-        {
-            if (_value == null)
-                _value = _store.fetch_text( TypeStore.WS_UNSPECIFIED );
-            
-            assert _value != null;
-
-            return _value;
-        }
-        
-        public void attach_store ( TypeStore store )
-        {
-            _store = store;
-        }
-        
-        public TypeStore get_store ( )
-        {
-            return _store;
-        }
-        
-        public String build_text ( NamespaceManager nsm )
-        {
-            assert _value != null;
-            return _value;
-        }
-        
-        public void invalidate_value()
-        {
-            _value = null;
-        }
-        
-        public SchemaType get_schema_type() { throw new RuntimeException( "Not impl" ); }
-        public boolean uses_invalidate_value() { throw new RuntimeException( "Not impl" ); }
-        public boolean build_nil() { throw new RuntimeException( "Not impl" ); }
-        public void invalidate_nilvalue() { throw new RuntimeException( "Not impl" ); }
-        public void invalidate_element_order() { throw new RuntimeException( "Not impl" ); }
-        public void validate_now() { throw new RuntimeException( "Not impl" ); }
-        public void disconnect_store() { throw new RuntimeException( "Not impl" ); }
-        public TypeStoreUser create_element_user(QName eltName, QName xsiType) { throw new RuntimeException( "Not impl" ); }
-        public TypeStoreUser create_attribute_user(QName attrName) { throw new RuntimeException( "Not impl" ); }
-        public SchemaType get_element_type(QName eltName, QName xsiType) { throw new RuntimeException( "Not impl" ); }
-        public SchemaType get_attribute_type(QName attrName) { throw new RuntimeException( "Not impl" ); }
-        public String get_default_element_text(QName eltName) { throw new RuntimeException( "Not impl" ); }
-        public String get_default_attribute_text(QName attrName) { throw new RuntimeException( "Not impl" ); }
-        public int get_elementflags(QName eltName) { throw new RuntimeException( "Not impl" ); }
-        public int get_attributeflags(QName attrName) { throw new RuntimeException( "Not impl" ); }
-        public SchemaField get_attribute_field(QName attrName) { throw new RuntimeException( "Not impl" ); }
-        public boolean is_child_element_order_sensitive() { throw new RuntimeException( "Not impl" ); }
-        public QNameSet get_element_ending_delimiters(QName eltname) { throw new RuntimeException( "Not impl" ); }
-        public TypeStoreVisitor new_visitor() { throw new RuntimeException( "Not impl" ); }
-
-        private TypeStore _store;
-        private String    _value;
-    }
-
-    public static void test ( Node n )
+    public static void test ( Node n ) throws Exception
     {
         Dom d = (Dom) n;
-        
-        Locale l = d.locale();
 
+        Locale l = d.locale();
+        
+//        Locale l = Locale.getLocale( XmlBeans.getContextTypeLoader(), null );
+        
         l.enter();
 
         try
         {
-            doTest( d );
+            doTest( l, d );
         }
         finally
         {
@@ -370,24 +303,8 @@ public final class Public2
         }
     }
         
-    public static void doTest ( Dom d )
+    public static void doTest ( Locale l, Dom d )
     {
-        Cur c = d.locale().tempCur();
-
-        c.moveToDom( d );
-
-        MyTypeStoreUser user = new MyTypeStoreUser( c );
-
-        c.next();
-
-        user.setValue( "abc" );
-
-        c.insertChars( "123", 0, 3 );
-        
-        c.release();
-
-        System.out.println( user.getValue() );
-        
-        user.setValue( "abc" );
+        DomImpl.impl_saajCallback_setSaajData( d, new Object() );
     }
 }

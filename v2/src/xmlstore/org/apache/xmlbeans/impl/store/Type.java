@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.store;
 
 import org.apache.xmlbeans.impl.common.ValidatorListener;
+import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.store.Splay.Attr;
 import org.apache.xmlbeans.impl.store.Splay.Begin;
 import org.apache.xmlbeans.impl.store.Splay.Container;
@@ -1011,14 +1012,16 @@ public final class Type extends Goober implements TypeStore
     //
     //
     
-    /**
-     * Returns the monitor object, used for synchronizing access to the doc.
-     */
     public Object get_root_object()
     {
         return getRoot();
     }
 
+    public XmlLocale get_locale ( )
+    {
+        throw new RuntimeException( "Old store does not support xml locale semantics" );
+    }
+            
     private final TypeStoreUser _user;
     private int _inhibitUserInvalidate;
 }

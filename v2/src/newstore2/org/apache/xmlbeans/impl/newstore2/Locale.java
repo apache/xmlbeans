@@ -40,6 +40,12 @@ import javax.xml.parsers.SAXParserFactory;
 import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
+import java.io.IOException;
+
+import javax.xml.stream.XMLStreamReader;
+
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -49,6 +55,8 @@ import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 
 import org.apache.xmlbeans.impl.newstore2.Saaj.SaajCallback;
@@ -61,6 +69,14 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
 import org.apache.xmlbeans.impl.newstore2.Cur.Locations;
 
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlSaxHandler;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlTokenSource;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.QNameCache;
@@ -72,8 +88,10 @@ import org.apache.xmlbeans.XmlDocumentProperties;
 import javax.xml.namespace.QName;
 
 import org.apache.xmlbeans.impl.values.TypeStore;
+import org.apache.xmlbeans.impl.values.TypeStoreUser;
+import org.apache.xmlbeans.impl.values.TypeStoreUserFactory;
 
-final class Locale implements DOMImplementation, SaajCallback
+public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 {
     static final int ROOT     = Cur.ROOT;
     static final int ELEM     = Cur.ELEM;
@@ -98,9 +116,502 @@ final class Locale implements DOMImplementation, SaajCallback
     static final QName _openuriFragment = new QName( _openFragUri, "fragment" );
     static final QName _xmlFragment     = new QName( "xml-fragment" );
 
+    private Locale ( SchemaTypeLoader stl, XmlOptions options )
+    {
+        options = XmlOptions.maskNull( options );
+
+        //
+        //
+        //
+
+        // TODO - add option for no=sync, or make it all thread safe
+        
+        _noSync = true;
+        
+        _tempFrames = new Cur [ _numTempFramesLeft = 8 ];
+        
+        _charUtil = CharUtil.getThreadLocalCharUtil();
+        
+        _qnameFactory = new DefaultQNameFactory();
+        
+        _locations = new Locations();
+
+        _schemaTypeLoader = stl;
+
+        _validateOnSet = options.hasOption( XmlOptions.VALIDATE_ON_SET );
+        
+        //
+        // Check for Saaj implementation request
+        //
+        
+        Object saajObj = options.get( Public2.SAAJ_IMPL );
+
+        if (saajObj != null)
+        {
+            if (!(saajObj instanceof Saaj))
+                throw new IllegalStateException( "Saaj impl not correct type: " + saajObj );
+
+            _saaj = (Saaj) saajObj;
+            
+            _saaj.setCallback( this );
+        }
+    }
+
+    //
+    //
+    //
+
+    public static final String USE_SAME_LOCALE = "USE_SAME_LOCALE";
+    
+    static Locale getLocale ( SchemaTypeLoader stl, XmlOptions options )
+    {
+        if (stl == null)
+            stl = XmlBeans.getContextTypeLoader();
+        
+        options = XmlOptions.maskNull( options );
+        
+        Locale l = null;
+        
+        if (options.hasOption( USE_SAME_LOCALE ))
+        {
+            Object source = options.get( USE_SAME_LOCALE );
+
+            if (source instanceof Locale)
+                l = (Locale) source;
+            else if (source instanceof XmlTokenSource)
+                l = (Locale) ((XmlTokenSource) source).monitor();
+            else
+                throw new IllegalArgumentException( "Source locale not understood: " + source );
+
+            if (l._schemaTypeLoader != stl)
+                throw new IllegalArgumentException( "Source locale does not support same schema type loader" );
+            
+            if (l._saaj != null && l._saaj != options.get( Public2.SAAJ_IMPL ))
+                throw new IllegalArgumentException( "Source locale does not support same saaj" );
+
+            if (l._validateOnSet && !options.hasOption( XmlOptions.VALIDATE_ON_SET ))
+                throw new IllegalArgumentException( "Source locale does not support same validate on set" );
+
+            // TODO - other things to check?
+        }
+        else
+            l = new Locale( stl, options );
+
+        return l;
+    }
+
+    void setType ( Cur c, SchemaType type )
+    {
+        assert type != null;
+
+        TypeStoreUser user = c.peekUser();
+
+        if (user != null && user.get_schema_type() == type)
+            return;
+
+        if (c.isRoot())
+        {
+            c.setStableUser( ((TypeStoreUserFactory) type).createTypeStoreUser() );
+            return;
+        }
+        
+        throw new RuntimeException( "Not impl" );
+
+        // more to do here
+        // more to do here
+        // more to do here
+    }
+
+    //
+    //
+    //
+    
+    private void autoTypeDocument ( Cur c, SchemaType requestedType, XmlOptions options )
+        throws XmlException
+    {
+        assert c.isRoot();
+
+        // The type in the options overrides all sniffing
+
+        options = XmlOptions.maskNull( options );
+        
+        SchemaType optionType = (SchemaType) options.get( XmlOptions.DOCUMENT_TYPE );
+
+        if (optionType != null)
+        {
+            setType( c, optionType );
+            return;
+        }
+
+        SchemaType type = null;
+
+        // An xsi:type can be used to pick a type out of the loader, or used to refine
+        // a type with a name.
+
+        if (requestedType == null || requestedType.getName() != null)
+        {
+            QName xsiTypeName = c.getXsiTypeName();
+
+            SchemaType xsiSchemaType =
+                xsiTypeName == null ? null : _schemaTypeLoader.findType( xsiTypeName );
+
+            if (requestedType == null || requestedType.isAssignableFrom( xsiSchemaType ))
+                type = xsiSchemaType;
+        }
+
+        if (type == null && (requestedType == null || requestedType.isDocumentType()))
+        {
+            c.push();
+
+            QName docElemName =
+                Locale.toFirstChildElement( c ) && !Locale.toNextSiblingElement( c )
+                    ? c.getName() : null;
+
+            c.pop();
+
+            if (docElemName != null)
+            {
+                type = _schemaTypeLoader.findDocumentType( docElemName );
+
+                if (type != null && requestedType != null)
+                {
+                    QName requesteddocElemNameName = requestedType.getDocumentElementName();
+                    
+                    if (!requesteddocElemNameName.equals( docElemName ) &&
+                            !requestedType.isValidSubstitution( docElemName ))
+                    {
+                        throw
+                            new XmlException(
+                                "Element " + QNameHelper.pretty( docElemName ) +
+                                " is not a valid " + QNameHelper.pretty( requesteddocElemNameName ) +
+                                " document or a valid substitution.");
+                    }
+                }
+            }
+        }
+        
+        if (type == null && requestedType == null)
+        {
+            c.push();
+
+            type =
+                Locale.toFirstNormalAttr( c ) && !Locale.toNextNormalAttr( c )
+                  ? _schemaTypeLoader.findAttributeType( c.getName() ) : null;
+
+            c.pop();
+        }
+
+        if (type == null)
+            type = requestedType;
+
+        if (type == null)
+            type = XmlBeans.NO_TYPE;
+
+        setType( c, type );
+
+        if (requestedType != null)
+        {
+            if (type.isDocumentType())
+                verifyDocumentType( c, type.getDocumentElementName() );
+            else if (type.isAttributeType())
+                verifyAttributeType( c, type.getAttributeTypeAttributeName() );
+        }
+    }
+    
+    private boolean namespacesSame ( QName n1, QName n2 )
+    {
+        if (n1 == n2)
+            return true;
+
+        if (n1 == null || n2 == null)
+            return false;
+
+        if (n1.getNamespaceURI() == n2.getNamespaceURI())
+            return true;
+
+        if (n1.getNamespaceURI() == null || n2.getNamespaceURI() == null)
+            return false;
+
+        return n1.getNamespaceURI().equals( n2.getNamespaceURI() );
+    }
+
+    private void addNamespace ( StringBuffer sb, QName name )
+    {
+        if (name.getNamespaceURI() == null)
+            sb.append( "<no namespace>" );
+        else
+        {
+            sb.append( "\"" );
+            sb.append( name.getNamespaceURI() );
+            sb.append( "\"" );
+        }
+    }
+
+    private void verifyDocumentType ( Cur c, QName docElemName ) throws XmlException
+    {
+        assert c.isRoot();
+        
+        c.push();
+
+        try
+        {
+            StringBuffer sb = null;
+
+            if (!Locale.toFirstChildElement( c ) || Locale.toNextSiblingElement( c ))
+            {
+                sb = new StringBuffer();
+
+                sb.append( "The document is not a " );
+                sb.append( QNameHelper.pretty( docElemName ) );
+                sb.append( c.isRoot() ? ": no document element" : ": multiple document elements" );
+            }
+            else
+            {
+                QName name = c.getName();
+
+                if (!name.equals( docElemName ))
+                {
+                    sb = new StringBuffer();
+
+                    sb.append( "The document is not a " );
+                    sb.append( QNameHelper.pretty( docElemName ) );
+
+                    if (docElemName.getLocalPart().equals( name.getLocalPart() ))
+                    {
+                        sb.append( ": document element namespace mismatch " );
+                        sb.append( "expected " );
+                        addNamespace( sb, docElemName );
+                        sb.append( " got " );
+                        addNamespace(sb,  name );
+                    }
+                    else if (namespacesSame( docElemName, name ))
+                    {
+                        sb.append( ": document element local name mismatch " );
+                        sb.append( "expected " + docElemName.getLocalPart() );
+                        sb.append( " got " + name.getLocalPart() );
+                    }
+                    else
+                    {
+                        sb.append( ": document element mismatch " );
+                        sb.append( "got " );
+                        sb.append( QNameHelper.pretty( name ) );
+                    }
+                }
+            }
+
+            if (sb != null)
+            {
+                XmlError err = XmlError.forCursor( sb.toString(), new Cursor( c ) );
+                throw new XmlException( err.toString(), null, err );
+            }
+        }
+        finally
+        {
+            c.pop();
+        }
+    }
+
+    private void verifyAttributeType ( Cur c, QName attrName ) throws XmlException
+    {
+        assert c.isRoot();
+
+        c.push();
+
+        try
+        {
+            StringBuffer sb = null;
+
+            if (!Locale.toFirstNormalAttr( c ) || Locale.toNextNormalAttr( c ))
+            {
+                sb = new StringBuffer();
+
+                sb.append( "The document is not a " );
+                sb.append( QNameHelper.pretty( attrName ) );
+                sb.append( c.isRoot() ? ": no attributes" : ": multiple attributes" );
+            }
+            else
+            {
+                QName name = c.getName();
+
+                if (!name.equals( attrName ))
+                {
+                    sb = new StringBuffer();
+
+                    sb.append( "The document is not a " );
+                    sb.append( QNameHelper.pretty( attrName ) );
+
+                    if (attrName.getLocalPart().equals( name.getLocalPart() ))
+                    {
+                        sb.append( ": attribute namespace mismatch " );
+                        sb.append( "expected " );
+                        addNamespace( sb, attrName );
+                        sb.append( " got " );
+                        addNamespace(sb,  name );
+                    }
+                    else if (namespacesSame( attrName, name ))
+                    {
+                        sb.append( ": attribute local name mismatch " );
+                        sb.append( "expected " + attrName.getLocalPart() );
+                        sb.append( " got " + name.getLocalPart() );
+                    }
+                    else
+                    {
+                        sb.append( ": attribute element mismatch " );
+                        sb.append( "got " );
+                        sb.append( QNameHelper.pretty( name ) );
+                    }
+                }
+            }
+
+            if (sb != null)
+            {
+                XmlError err = XmlError.forCursor( sb.toString(), new Cursor( c ) );
+                throw new XmlException( err.toString(), null, err );
+            }
+        }
+        finally
+        {
+            c.pop();
+        }
+    }
+
+    //
+    //
+    //
+    
+    public static XmlObject newInstance (
+        SchemaTypeLoader stl, SchemaType type, XmlOptions options )
+    {
+        Locale l = getLocale( stl, options );
+
+        if (l.noSync())         { l.enter(); try { return l.newInstance( type, options ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l.newInstance( type, options ); } finally { l.exit(); } }
+    }
+
+    private XmlObject newInstance ( SchemaType type, XmlOptions options )
+    {
+        options = XmlOptions.maskNull( options );
+        
+        Cur c = tempCur();
+
+        c.createRoot();
+
+        SchemaType sType = (SchemaType) options.get( XmlOptions.DOCUMENT_TYPE );
+
+        if (sType == null)
+            sType = type == null ? XmlObject.type : type;
+
+        setType( c, sType );
+
+        XmlObject x = (XmlObject) c.getUser();
+
+        c.release();
+
+        return x;
+    }
+                                   
+    //
+    //
+    //
+    
+    public static XmlObject parseToXmlObject (
+        SchemaTypeLoader stl, String xmlText, SchemaType type, XmlOptions options )
+            throws XmlException
+    {
+        Locale l = getLocale( stl, options );
+
+        if (l.noSync())         { l.enter(); try { return l.parseToXmlObject( xmlText, type, options ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l.parseToXmlObject( xmlText, type, options ); } finally { l.exit(); } }
+    }
+
+    private XmlObject parseToXmlObject ( String xmlText, SchemaType type, XmlOptions options )
+        throws XmlException
+    {
+        Cur c = parse( xmlText, type, options );
+
+        XmlObject x = (XmlObject) c.getUser();
+
+        c.release();
+
+        return x;
+    }
+    
+    private Cur parse ( String xmlText, SchemaType type, XmlOptions options )
+        throws XmlException
+    {
+        Cur c =
+            getSaxLoader( options ).
+                load( this, new InputSource( new StringReader( xmlText ) ), options );
+
+        autoTypeDocument( c, type, options );
+
+        return c;
+    }
+    
+    //
+    //
+    //
+            
+    public static XmlObject parseToXmlObject (
+        SchemaTypeLoader stl, XMLInputStream xis, SchemaType type, XmlOptions options )
+            throws XmlException, XMLStreamException
+    {
+        throw new RuntimeException( "Not impl" );
+//        Root r = new Root( stl, null, options );
+//        r.loadXml( xis, type, options );
+//        return r.getObject();
+    }
+
+    public static XmlObject parseToXmlObject (
+        SchemaTypeLoader stl, XMLStreamReader xsr, SchemaType type, XmlOptions options )
+            throws XmlException
+    {
+        throw new RuntimeException( "Not impl" );
+//        Root r = new Root( stl, null, options );
+//        r.loadXml( xsr, type, options );
+//        return r.getObject();
+    }
+
+    public static XmlObject parseToXmlObject (
+        SchemaTypeLoader stl, InputStream is, SchemaType type, XmlOptions options )
+            throws XmlException, IOException
+    {
+        throw new RuntimeException( "Not impl" );
+//        Root r = new Root( stl, null, options );
+//        r.loadXml( is, type, options );
+//        return r.getObject();
+    }
+
+    public static XmlObject parseToXmlObject (
+        SchemaTypeLoader stl, Reader reader, SchemaType type, XmlOptions options )
+            throws XmlException, IOException
+    {
+        throw new RuntimeException( "Not impl" );
+//        Root r = new Root( stl, null, options );
+//        r.loadXml( reader, type, options );
+//        return r.getObject();
+    }
+
+    public static XmlObject parseToXmlObject (
+        SchemaTypeLoader stl, Node node, SchemaType type, XmlOptions options )
+            throws XmlException
+    {
+        throw new RuntimeException( "Not impl" );
+//        Root r = new Root( stl, null, options );
+//        r.loadXml( node, type, options );
+//        return r.getObject();
+    }
+
+    public static XmlSaxHandler newSaxHandler (
+        SchemaTypeLoader stl, SchemaType type, XmlOptions options )
+    {
+        throw new RuntimeException( "Not impl" );
+//        return new Root( stl, null, options ).newSaxHandler( type, options );
+    }
+
     // TODO (ericvas ) - have a qname factory here so that the same factory may be
     // used by the parser.  This factory would probably come from my
-    // high speed parser.  Otherwise, use a thread local one
+    // high speed parser.  Otherwise, use a thread local on
     
     QName makeQName ( String uri, String localPart )
     {
@@ -225,34 +736,171 @@ final class Locale implements DOMImplementation, SaajCallback
     // Cursor helpers
     //
 
-    static String getTextValue ( Cur c, int wsRule )
+    static String getTextValue ( Cur c, int wsr )
     {
         assert c.isNode();
-        
-        if (!c.hasChildren() && wsRule == WS_UNSPECIFIED || wsRule == WS_PRESERVE)
-            return c.getValueString();
 
-        int scrubState = START_STATE;
-        StringBuffer sb = new StringBuffer();
+        if (!c.hasChildren())
+            return c.getValueAsString( wsr );
+
+        ScrubBuffer sb = getScrubBuffer( wsr );
 
         c.push();
 
         for ( c.next() ; !c.isAtEndOfLastPush() ; c.next() )
             if (c.isText())
-                scrubState = scrubText( c.getChars( -1 ), c._offSrc, c._cchSrc, wsRule, sb );
+                sb.scrub( c.getChars( -1 ), c._offSrc, c._cchSrc );
 
         c.pop();
                 
-        return sb.toString();
+        return sb.getResultAsString();
     }
 
-    private static final int START_STATE = 0;
-    private static final int SPACE_SEEN_STATE = 1;
-    private static final int NOSPACE_STATE = 2;
-
-    private static final int scrubText(
-        Object src, int off, int cch, int wsRule, StringBuffer sb )
+    static String applyWhiteSpaceRule ( String s, int wsr )
     {
+        int l = s.length();
+
+        if (l == 0)
+            return s;
+        
+        char ch;
+
+        if (wsr == Locale.WS_REPLACE)
+        {
+            for ( int i = 0 ; i < l ; i++ )
+                if ((ch = s.charAt( i )) == '\n' || ch == '\r' || ch == '\t')
+                    return processWhiteSpaceRule( s, wsr );
+        }
+        else if (wsr == Locale.WS_COLLAPSE)
+        {
+            if (CharUtil.isWhiteSpace( s.charAt( 0 ) ) || CharUtil.isWhiteSpace( s.charAt( l - 1 )))
+                return processWhiteSpaceRule( s, wsr );
+            
+            boolean lastWasWhite = false;
+            
+            for ( int i = 1 ; i < l ; i++ )
+            {
+                boolean isWhite = CharUtil.isWhiteSpace( s.charAt( i ) );
+                
+                if (isWhite && lastWasWhite)
+                    return processWhiteSpaceRule( s, wsr );
+
+                lastWasWhite = isWhite;
+            }
+        }
+
+        return s;
+    }
+
+    static String processWhiteSpaceRule ( String s, int wsr )
+    {
+        ScrubBuffer sb = getScrubBuffer( wsr );
+        
+        sb.scrub( s, 0, s.length() );
+
+        return sb.getResultAsString();
+    }
+
+    private static final class ScrubBuffer
+    {
+        void init ( int wsr )
+        {
+            assert wsr == Locale.WS_REPLACE || wsr == Locale.WS_COLLAPSE;
+
+            _dstOff = 0;
+            _replace = wsr == Locale.WS_REPLACE;
+        }
+
+        void scrub ( Object src, int off, int cch )
+        {
+            char[] chars;
+
+            if (cch == 0)
+                return;
+
+            if (src instanceof char[])
+                chars = (char[]) src;
+            else if (cch < _srcBuf.length)
+                chars = _srcBuf;
+            else if (cch < 16384)
+                chars = _srcBuf = new char [ 16384 ];
+            else
+                chars = new char [ cch ];
+
+            if (src != chars)
+            {
+                CharUtil.getChars( chars, 0, src, off, cch );
+                off = 0;
+            }
+
+            char ch;
+            
+            while ( cch > 0 && CharUtil.isWhiteSpace( chars[ off ] ) )
+                { off++; cch--; }
+
+            while ( cch > 0 && CharUtil.isWhiteSpace( chars[ off + cch - 1 ] ) )
+                cch--;
+
+            boolean lastWasWhite = _dstOff > 0 && CharUtil.isWhiteSpace( _dstBuf[ _dstOff ] );
+            
+            while ( cch-- > 0 )
+            {
+                ch = chars[ off++ ];
+
+                if (CharUtil.isWhiteSpace( ch ))
+                {
+                    if (_replace || !lastWasWhite)
+                        _dstBuf[ _dstOff++ ] = ' ';
+
+                    lastWasWhite = true;
+                }
+                else
+                {
+                    _dstBuf[ _dstOff++ ] = ch;
+                    lastWasWhite = false;
+                }
+            }
+        }
+
+        String getResultAsString ( )
+        {
+            return new String( _dstBuf, 0, _dstOff );
+        }
+        
+        private static final int START_STATE = 0;
+        private static final int SPACE_SEEN_STATE = 1;
+        private static final int NOSPACE_STATE = 2;
+
+        private boolean _replace;
+
+        private char[] _srcBuf = new char [ 1024 ];
+        private char[] _dstBuf = new char [ 1024 ];
+        private int    _dstOff;
+    }
+
+    private static ThreadLocal tl_scrubBuffer =
+        new ThreadLocal ( ) { protected Object initialValue ( ) { return new ScrubBuffer(); } };
+
+    static ScrubBuffer getScrubBuffer ( int wsr )
+    {
+        ScrubBuffer sb = (ScrubBuffer) tl_scrubBuffer.get();
+        sb.init( wsr );
+        return sb;
+    }
+
+    static final int scrubText(
+        Object src, int off, int cch, int wsRule, StringBuffer sb, int state )
+    {
+        char[] chars = cch < 1024 ? (char[]) tl_scrubBuffer.get() : new char [ cch ];
+
+        if (chars.length > 1024 && cch < 16384)
+            tl_scrubBuffer.set( chars );
+
+        CharUtil.getChars( chars, 0, src, off, cch );
+        
+
+
+        
         throw new RuntimeException( "Not impl" );
         
 //        assert text != null;
@@ -336,6 +984,46 @@ final class Locale implements DOMImplementation, SaajCallback
         }
     }
 
+    static boolean toFirstNormalAttr ( Cur c )
+    {
+        c.push();
+
+        if (c.toFirstAttr())
+        {
+            do
+            {
+                if (!c.isXmlns())
+                {
+                    c.popButStay();
+                    return true;
+                }
+            }
+            while ( c.toNextAttr() );
+        }
+
+        c.pop();
+
+        return false;
+    }
+
+    static boolean toNextNormalAttr ( Cur c )
+    {
+        c.push();
+
+        while ( c.toNextAttr() )
+        {
+            if (!c.isXmlns())
+            {
+                c.popButStay();
+                return true;
+            }
+        }
+        
+        c.pop();
+
+        return false;
+    }
+
     static boolean toFirstChildElement ( Cur c )
     {
         if (!pushToContainer( c ))
@@ -369,15 +1057,23 @@ final class Locale implements DOMImplementation, SaajCallback
             c.next();
         }
 
-        while ( (k = c.kind()) > 0 && k != ELEM )
+        while ( (k = c.kind()) > 0 )
+        {
+            if (k == ELEM)
+            {
+                c.popButStay();
+                return true;
+            }
+
+            if (k > 0)
+                c.toEnd();
+
             c.next();
+        }
 
-        if (k == ELEM)
-            c.popButStay();
-        else
-            c.pop();
+        c.pop();
 
-        return k == ELEM;
+        return false;
     }
 
     static boolean toChild ( Cur c, String uri, String local, int i )
@@ -545,15 +1241,6 @@ final class Locale implements DOMImplementation, SaajCallback
     // 
     //
 
-    Locale ( )
-    {
-        _noSync = true;
-        _tempFrames = new Cur [ _numTempFramesLeft = 8 ];
-        _charUtil = CharUtil.getThreadLocalCharUtil();
-        _qnameFactory = new DefaultQNameFactory();
-        _locations = new Locations();
-    }
-
     long version ( )
     {
         return _versionAll;
@@ -570,9 +1257,9 @@ final class Locale implements DOMImplementation, SaajCallback
         
         Cur c = getCur( Cur.WEAK );
         
-        assert c._obj == null;
+        assert c._value == null;
 
-        c._obj = new Ref( c, o );
+        c._value = new Ref( c, o );
         
         return c;
     }
@@ -641,7 +1328,7 @@ final class Locale implements DOMImplementation, SaajCallback
         assert c._state == Cur.UNREGISTERED;
         assert c._prev == null && c._next == null;
         assert !c.isPositioned();
-        assert c._obj == null;
+        assert c._value == null;
                 
         c._curKind = curKind;
 
@@ -663,7 +1350,7 @@ final class Locale implements DOMImplementation, SaajCallback
         return _tempFrames.length - _numTempFramesLeft > 0;
     }
 
-    void enter ( )
+    public void enter ( )
     {
         assert _numTempFramesLeft >= 0;
         
@@ -693,7 +1380,7 @@ final class Locale implements DOMImplementation, SaajCallback
         }
     }
     
-    void exit ( )
+    public void exit ( )
     {
         assert _numTempFramesLeft >= 0;
 
@@ -722,31 +1409,22 @@ final class Locale implements DOMImplementation, SaajCallback
     //
     //
 
-    boolean noSync ( )
+    public boolean noSync ( )
     {
         return _noSync;
     }
     
-    static final boolean isWhiteSpace ( char ch )
+    public boolean sync ( )
     {
-        switch ( ch )
-        {
-            case ' ':
-            case '\t':
-            case '\n':
-            case '\r':
-                return true;
-            default:
-                return false;
-        }
+        return !_noSync;
     }
-
+    
     static final boolean isWhiteSpace ( String s )
     {
         int l = s.length();
 
         while ( l-- > 0)
-            if (!isWhiteSpace( s.charAt( l )))
+            if (!CharUtil.isWhiteSpace( s.charAt( l )))
                   return false;
 
         return true;
@@ -757,7 +1435,7 @@ final class Locale implements DOMImplementation, SaajCallback
         int l = sb.length();
 
         while ( l-- > 0)
-            if (!isWhiteSpace( sb.charAt( l )))
+            if (!CharUtil.isWhiteSpace( sb.charAt( l )))
                   return false;
 
         return true;
@@ -833,14 +1511,12 @@ final class Locale implements DOMImplementation, SaajCallback
     
     private static SaxLoader getSaxLoader ( XmlOptions options )
     {
-        //
         // XMLReader.setEntityResolver() cannot be passed null.
         // Because of this, I cannot reset the entity resolver to be
         // that which was default.  Thus, I need to cache two
         // SaxLoaders.  One which uses the default entity resolver and
         // one which I can change the resolve to whatever I want for a
         // given parse.
-        //
 
         options = XmlOptions.maskNull( options );
 
@@ -970,10 +1646,10 @@ final class Locale implements DOMImplementation, SaajCallback
             _xr.setEntityResolver( er );
         }
 
-        public Cur load ( Locale l, InputSource is )
+        public Cur load ( Locale l, InputSource is, XmlOptions options )
         {
             _locale = l;
-            _context = new Cur.CurLoadContext( _locale );
+            _context = new Cur.CurLoadContext( _locale, options );
 
             try
             {
@@ -1173,7 +1849,7 @@ final class Locale implements DOMImplementation, SaajCallback
 
     private Dom load ( InputSource is, XmlOptions options )
     {
-        return getSaxLoader( options ).load( this, is ).getDom();
+        return getSaxLoader( options ).load( this, is, options ).getDom();
     }
 
     public Dom load ( Reader r )
@@ -1303,6 +1979,8 @@ final class Locale implements DOMImplementation, SaajCallback
     //
 
     boolean _noSync;
+
+    SchemaTypeLoader _schemaTypeLoader;
 
     private ReferenceQueue _refQueue;
     private int            _entryCount;

@@ -23,7 +23,6 @@ import org.apache.xmlbeans.impl.common.XMLNameHelper;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.store.Splay.Finish;
 import org.apache.xmlbeans.impl.values.NamespaceManager;
-import org.apache.xmlbeans.impl.values.XmlStore;
 import org.apache.xmlbeans.QNameCache;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaType;
@@ -61,6 +60,7 @@ import org.apache.xmlbeans.xml.stream.StartElement;
 import org.apache.xmlbeans.xml.stream.XMLEvent;
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.namespace.QName;
@@ -78,7 +78,7 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
-public final class Root extends Finish implements XmlStore
+public final class Root extends Finish
 {
     public Root ( SchemaTypeLoader stl, SchemaType type, XmlOptions options )
     {
@@ -118,9 +118,70 @@ public final class Root extends Finish implements XmlStore
         _doc.setType( this, sType );
     }
 
-    public static XmlStore newStore ( SchemaTypeLoader stl, SchemaType type, XmlOptions options )
+    public static XmlObject newInstance (
+        SchemaTypeLoader stl, SchemaType type, XmlOptions options )
     {
-        return new Root( stl, type, options );
+        return new Root( stl, type, options ).getObject();
+    }
+
+    public static XmlObject parse (
+        SchemaTypeLoader stl, String xmlText, SchemaType type, XmlOptions options )
+            throws XmlException
+    {
+        Root r = new Root( stl, null, options );
+        r.loadXml( xmlText, type, options );
+        return r.getObject();
+    }
+
+    public static XmlObject parse (
+        SchemaTypeLoader stl, XMLInputStream xis, SchemaType type, XmlOptions options )
+            throws XmlException, XMLStreamException
+    {
+        Root r = new Root( stl, null, options );
+        r.loadXml( xis, type, options );
+        return r.getObject();
+    }
+
+    public static XmlObject parse (
+        SchemaTypeLoader stl, XMLStreamReader xsr, SchemaType type, XmlOptions options )
+            throws XmlException
+    {
+        Root r = new Root( stl, null, options );
+        r.loadXml( xsr, type, options );
+        return r.getObject();
+    }
+
+    public static XmlObject parse (
+        SchemaTypeLoader stl, InputStream is, SchemaType type, XmlOptions options )
+            throws XmlException, IOException
+    {
+        Root r = new Root( stl, null, options );
+        r.loadXml( is, type, options );
+        return r.getObject();
+    }
+
+    public static XmlObject parse (
+        SchemaTypeLoader stl, Reader reader, SchemaType type, XmlOptions options )
+            throws XmlException, IOException
+    {
+        Root r = new Root( stl, null, options );
+        r.loadXml( reader, type, options );
+        return r.getObject();
+    }
+
+    public static XmlObject parse (
+        SchemaTypeLoader stl, Node node, SchemaType type, XmlOptions options )
+            throws XmlException
+    {
+        Root r = new Root( stl, null, options );
+        r.loadXml( node, type, options );
+        return r.getObject();
+    }
+
+    public static XmlSaxHandler newSaxHandler (
+        SchemaTypeLoader stl, SchemaType type, XmlOptions options )
+    {
+        return new Root( stl, null, options ).newSaxHandler( type, options );
     }
 
     public XmlDocumentProperties documentProperties ( )

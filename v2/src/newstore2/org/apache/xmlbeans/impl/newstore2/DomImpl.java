@@ -2308,7 +2308,7 @@ final class DomImpl
         case COMMENT :
         {
             Cur c = n.tempCur();
-            s = c.getValueString();
+            s = c.getValueAsString();
             c.release();
 
             break;
@@ -3164,9 +3164,7 @@ final class DomImpl
         if (oldAttr == null)
         {
             c.moveToDom( e );
-
             c.next();
-
             ac.moveNode( c );
         }
         else

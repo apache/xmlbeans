@@ -114,6 +114,8 @@ abstract class Saver
         
         if (options.hasOption( XmlOptions.SAVE_SUGGESTED_PREFIXES ))
             _suggestedPrefixes = (Map) options.get( XmlOptions.SAVE_SUGGESTED_PREFIXES);
+        
+        _ancestorNamespaces = _cur.getAncestorNamespaces();
     }
 
     private static SaveCur createSaveCur ( Cur c, XmlOptions options )
@@ -563,18 +565,18 @@ abstract class Saver
 
         c.pop();
 
-        List an = _cur.getAncestorNamespaces();
-
-        if (c.isRoot() && an != null)
+        if (_ancestorNamespaces != null)
         {
-            for ( int i = 0 ; i < an.size() ; i += 2 )
+            for ( int i = 0 ; i < _ancestorNamespaces.size() ; i += 2 )
             {
-                String prefix = (String) an.get( i );
-                String uri    = (String) an.get( i + 1 );
+                String prefix = (String) _ancestorNamespaces.get( i );
+                String uri    = (String) _ancestorNamespaces.get( i + 1 );
                 
                 if (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)
                     addNewFrameMapping( prefix, uri );
             }
+
+            _ancestorNamespaces = null;
         }
         
         if (ensureDefaultEmpty)
@@ -721,12 +723,52 @@ abstract class Saver
         }
     }
     
+    private final void dumpMappings ( )
+    {
+        for ( int i = _namespaceStack.size() ; i > 0 ; )
+        {
+            if (_namespaceStack.get( i - 1 ) == null)
+            {
+                System.out.println( "----------------" );
+                i--;
+                continue;
+            }
+
+            System.out.print( "Mapping: " );
+            System.out.print( _namespaceStack.get( i - 2 ) );
+            System.out.print( " -> " );
+            System.out.print( _namespaceStack.get( i - 1 ) );
+            System.out.println();
+
+            System.out.print( "Prefix Undo: " );
+            System.out.print( _namespaceStack.get( i - 4 ) );
+            System.out.print( " -> " );
+            System.out.print( _namespaceStack.get( i - 3 ) );
+            System.out.println();
+
+            System.out.print( "Uri Rename: " );
+            System.out.print( _namespaceStack.get( i - 5 ) );
+            System.out.print( " -> " );
+            System.out.print( _namespaceStack.get( i - 6 ) );
+            System.out.println();
+
+            System.out.print( "UriUndo: " );
+            System.out.print( _namespaceStack.get( i - 7 ) );
+            System.out.print( " -> " );
+            System.out.print( _namespaceStack.get( i - 8 ) );
+            System.out.println();
+
+            System.out.println();
+
+            i -= 8;
+        }
+    }
+
     private final String ensureMapping (
         String uri, String candidatePrefix,
         boolean considerCreatingDefault, boolean mustHavePrefix )
     {
         assert uri != null;
-        assert uri.length() > 0 || !mustHavePrefix;
 
         // Can be called for no-namespaced things
 
@@ -1622,7 +1664,7 @@ abstract class Saver
         {
             options = XmlOptions.maskNull( options );
             
-            _byteBuffer = new OutputStreamImpl();
+            _outStreamImpl = new OutputStreamImpl();
 
             String encoding = null;
 
@@ -1652,7 +1694,7 @@ abstract class Saver
 
             try
             {
-                _converter = new OutputStreamWriter( _byteBuffer, javaEncoding );
+                _converter = new OutputStreamWriter( _outStreamImpl, javaEncoding );
             }
             catch ( UnsupportedEncodingException e )
             {
@@ -1664,12 +1706,12 @@ abstract class Saver
 
         public int read ( )
         {
-            return _byteBuffer.read();
+            return _outStreamImpl.read();
         }
 
         public int read ( byte[] bbuf, int off, int len )
         {
-            return _byteBuffer.read ( bbuf, off, len );
+            return _outStreamImpl.read ( bbuf, off, len );
         }
 
         private int ensure ( int cbyte )
@@ -1681,16 +1723,16 @@ abstract class Saver
             if (cbyte <= 0)
                 cbyte = 1;
 
-            int bytesAvailable = _byteBuffer.getAvailable();
+            int bytesAvailable = _outStreamImpl.getAvailable();
 
             for ( ; bytesAvailable < cbyte ;
-                  bytesAvailable = _byteBuffer.getAvailable() )
+                  bytesAvailable = _outStreamImpl.getAvailable() )
             {
                 if (_textSaver.write( _converter, 2048 ) < 2048)
                     break;
             }
 
-            bytesAvailable = _byteBuffer.getAvailable();
+            bytesAvailable = _outStreamImpl.getAvailable();
 
             if (bytesAvailable == 0)
                 return 0;
@@ -1860,7 +1902,7 @@ abstract class Saver
             byte[] _buf;
         }
 
-        private OutputStreamImpl   _byteBuffer;
+        private OutputStreamImpl   _outStreamImpl;
         private TextSaver          _textSaver;
         private OutputStreamWriter _converter;
     }
@@ -1882,15 +1924,15 @@ abstract class Saver
 
     private static abstract class SaveCur
     {
-        boolean isRoot       ( ) { return kind() == ROOT;     }
-        boolean isElem       ( ) { return kind() == ELEM;     }
-        boolean isAttr       ( ) { return kind() == ATTR;     }
-        boolean isText       ( ) { return kind() == TEXT;     }
-        boolean isComment    ( ) { return kind() == COMMENT;  }
-        boolean isProcinst   ( ) { return kind() == PROCINST; }
-        boolean isFinish     ( ) { return Cur.kindIsFinish( kind() ); }
-        boolean isContainer  ( ) { return Cur.kindIsContainer( kind() ); }
-        boolean isNormalAttr ( ) { return kind() == ATTR && !isXmlns(); }
+        final boolean isRoot       ( ) { return kind() == ROOT;     }
+        final boolean isElem       ( ) { return kind() == ELEM;     }
+        final boolean isAttr       ( ) { return kind() == ATTR;     }
+        final boolean isText       ( ) { return kind() == TEXT;     }
+        final boolean isComment    ( ) { return kind() == COMMENT;  }
+        final boolean isProcinst   ( ) { return kind() == PROCINST; }
+        final boolean isFinish     ( ) { return Cur.kindIsFinish( kind() ); }
+        final boolean isContainer  ( ) { return Cur.kindIsContainer( kind() ); }
+        final boolean isNormalAttr ( ) { return kind() == ATTR && !isXmlns(); }
 
         abstract void release ( );
         
@@ -1952,7 +1994,7 @@ abstract class Saver
         
         boolean toFirstAttr   ( ) { return _cur.toFirstAttr(); }
         boolean toNextAttr    ( ) { return _cur.toNextAttr();  }
-        String  getAttrValue  ( ) { assert _cur.isAttr(); return _cur.getValueString(); }
+        String  getAttrValue  ( ) { assert _cur.isAttr(); return _cur.getValueAsString(); }
         
         void    toEnd         ( ) { _cur.toEnd();              }
         boolean next          ( ) { return _cur.next();        }
@@ -2315,7 +2357,7 @@ abstract class Saver
         String getAttrValue ( )
         {
             assert _state == CUR && _cur.isAttr();
-            return _cur.getValueString();
+            return _cur.getValueAsString();
         }
 
         void push ( )
@@ -2521,13 +2563,13 @@ abstract class Saver
             int i;
 
             for ( i = 0 ; i < sb.length() ; i++ )
-                if (!Locale.isWhiteSpace( sb.charAt( i ) ))
+                if (!CharUtil.isWhiteSpace( sb.charAt( i ) ))
                     break;
 
             sb.delete( 0, i );
 
             for ( i = sb.length() ; i > 0 ; i-- )
-                if (!Locale.isWhiteSpace( sb.charAt( i - 1 ) ))
+                if (!CharUtil.isWhiteSpace( sb.charAt( i - 1 ) ))
                     break;
 
             sb.delete( i, sb.length() );
@@ -2560,6 +2602,7 @@ abstract class Saver
     private boolean _done;
     private boolean _skipContainer;
 
+    private List    _ancestorNamespaces;
     private Map     _suggestedPrefixes;
     private boolean _useDefaultNamespace;
     private Map     _preComputedNamespaces;

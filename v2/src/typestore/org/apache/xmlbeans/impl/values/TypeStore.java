@@ -26,6 +26,7 @@ import org.apache.xmlbeans.QNameSet;
 import java.util.List;
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.common.ValidatorListener;
+import org.apache.xmlbeans.impl.common.XmlLocale;
 
 public interface TypeStore extends NamespaceManager
 {
@@ -334,4 +335,10 @@ public interface TypeStore extends NamespaceManager
      * Returns the monitor object, used for synchronizing access to the doc.
      */ 
     Object get_root_object();
+
+    /**
+     * Returns the locale object which is used to manage thread safty and the
+     * gateway requirements for calls into the xml store
+     */
+    XmlLocale get_locale ( );
 }

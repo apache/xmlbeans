@@ -44,6 +44,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.ArrayList;
 
+import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.GlobalLock;
@@ -232,11 +233,22 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         if ((_flags & FLAG_STORE) == 0)
             throw new IllegalStateException("XML Value Objects cannot create cursors");
 
+        check_orphaned();
+        
+// NEWSTORE START
+//        // Note that new_cursor does not really need sync ....
+//        
+//        XmlLocale l = getXmlLocale();
+//        
+//        if (l.noSync())         { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
+//        else synchronized ( l ) { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
+//
         synchronized (monitor())
         {
             check_orphaned();
             return get_store().new_cursor();
         }
+// NEWSTORE END
     }
 
     public abstract SchemaType schemaType();
@@ -767,6 +779,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         return (TypeStore)_textsource;
     }
 
+    public final XmlLocale getXmlLocale ( )
+    {
+        return get_store().get_locale();
+    }
+            
     protected final boolean has_store()
     {
         return (_flags & FLAG_STORE) != 0;
