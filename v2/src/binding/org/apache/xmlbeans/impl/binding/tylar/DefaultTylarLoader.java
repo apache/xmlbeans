@@ -104,19 +104,14 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
     if (uri == null) throw new IllegalArgumentException("null uri");
     String scheme = uri.getScheme();
     if (scheme.equals(FILE_SCHEME)) {
-      File file;
+      File file = null;
       try {
         file = new File(uri);
-      } catch(Exception e) {
-        //sometimes File can't deal for some reason, so as a last ditch
-        //we assume it's a jar and read the stream directly
-        return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
-      }
-      if (!file.exists()) throw new FileNotFoundException(uri.toString());
-      if (file.isDirectory()) {
+      } catch(Exception ignore) {}
+      if (file != null && file.exists() && file.isDirectory()) {
         return ExplodedTylarImpl.load(file);
       } else {
-        return loadFromJar(new JarInputStream(new FileInputStream(file)),uri);
+        return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
       }
     } else {
       throw new IOException("Sorry, the '"+scheme+
