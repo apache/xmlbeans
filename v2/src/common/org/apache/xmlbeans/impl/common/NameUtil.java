@@ -493,7 +493,7 @@ public class NameUtil
         StringBuffer buf = new StringBuffer();
         for (Iterator it = result.iterator(); it.hasNext(); )
         {
-            buf.append(nonJavaKeyword(lowerCamelCase((String)it.next(), useJaxRpcRules)));
+            buf.append(nonJavaKeyword(lowerCamelCase((String)it.next(), useJaxRpcRules, true)));
             buf.append('.');
         }
         return buf.substring(0, buf.length() - 1); // chop off extra dot
@@ -585,13 +585,14 @@ public class NameUtil
      */
     public static String lowerCamelCase(String xml_name)
     {
-        return lowerCamelCase(xml_name, false);
+        return lowerCamelCase(xml_name, false, true);
     }
 
     /**
      * Returns a camel-cased string using the JAXB or JAX-RPC rules
      */
-    public static String lowerCamelCase(String xml_name, boolean useJaxRpcRules)
+    public static String lowerCamelCase(String xml_name, boolean useJaxRpcRules,
+                                        boolean fixGeneratedName)
     {
         StringBuffer buf = new StringBuffer();
         List words = splitWords(xml_name, useJaxRpcRules);
@@ -600,7 +601,7 @@ public class NameUtil
         {
             String first = ((String)words.get(0)).toLowerCase();
             char f = first.charAt(0);
-            if (!Character.isJavaIdentifierStart(f))
+            if (!Character.isJavaIdentifierStart(f) && fixGeneratedName)
                 buf.append("x");
             buf.append(first);
 

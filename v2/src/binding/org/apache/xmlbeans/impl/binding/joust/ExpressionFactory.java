@@ -47,4 +47,9 @@ public interface ExpressionFactory {
    */
   public Expression createNull();
 
+  /**
+   * Returns an expresion whose text representation is the given string.
+   */
+  public Expression createVerbatim(String value);
+
 }

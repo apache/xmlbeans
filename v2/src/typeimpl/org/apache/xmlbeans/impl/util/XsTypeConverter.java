@@ -511,7 +511,12 @@ public final class XsTypeConverter
 
     public static String printDateTime(Calendar c)
     {
-        GDate value = getGDateValue(c, SchemaType.BTC_DATE_TIME);
+        return printDateTime(c, SchemaType.BTC_DATE_TIME);
+    }
+
+    public static String printDateTime(Calendar c, int type_code)
+    {
+        GDate value = getGDateValue(c, type_code);
         return value.canonicalString();
     }
 

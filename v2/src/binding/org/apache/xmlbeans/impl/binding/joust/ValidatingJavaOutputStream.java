@@ -29,12 +29,12 @@ import java.io.IOException;
  * <pre>
  *   +<-----endClass<-----+ +<-------------------------------+
  *   |                    | |                                |
- * BEGIN-->startClass--->CLASS-------->writeImport---------->+
+ * BEGIN-->startClass--->CLASS---->writeImportStatement----->+
  *                         |                                 |
  *                         +------->writeMemberVariable----->+
  *                         |                                 |
  *                         +--->startMethod--->METHOD--->endMethod
- *                               (or ctor)      | ^      (or ctor)
+ *                          (or ctor or static)   | ^   (or ctor or static)
  *                                              V |
  *                                       write...Statement
  * </pre>
@@ -90,6 +90,10 @@ public class ValidatingJavaOutputStream implements JavaOutputStream {
     return mDest.writeField(modifiers, typeName, fieldName, defaultValue);
   }
 
+  public void startStaticInitializer() throws IOException {
+    mDest.startStaticInitializer();
+  }
+
   public Variable[] startConstructor(int modifiers,
                                      String[] paramTypeNames,
                                      String[] paramNames,
@@ -110,6 +114,10 @@ public class ValidatingJavaOutputStream implements JavaOutputStream {
                              paramTypeNames, paramNames, exceptionClassNames);
   }
 
+  public void writeEmptyLine() throws IOException {
+    mDest.writeEmptyLine();
+  }
+
   public void writeComment(String comment) throws IOException {
     mDest.writeComment(comment);
   }
@@ -120,6 +128,14 @@ public class ValidatingJavaOutputStream implements JavaOutputStream {
 
   public Annotation createAnnotation(String type) {
     return mDest.createAnnotation(type);
+  }
+
+  public void writeImportStatement(String className) throws IOException {
+    mDest.writeImportStatement(className);
+  }
+
+  public void writeStatement(String statement) throws IOException {
+    mDest.writeStatement(statement);
   }
 
   public void writeReturnStatement(Expression expression) throws IOException {
