@@ -29,15 +29,6 @@ public interface JAnnotationValue {
   public JClass getType();
 
 
-  /**
-   * <p>Returns the value of this annotation as an Object.  If the value
-   * is primitive, an instance of one of the java.lang wrappers (e.g. Integer)
-   * will be returned.</p>
-   *
-   * <p>Note that for javadoc tags, this method always returns a String.</p>
-   */
-  //public Object getValue();
-
 
   /**
    * <p>If this member is complex (i.e. an instance of another annotation
@@ -270,4 +261,14 @@ public interface JAnnotationValue {
   //return the 175 type accessor method?
   //public JMethod getAccessor();
 
+  /**
+   * @deprecated DO NOT CALL THIS METHOD.  IT WILL BE REMOVED SOON.  This
+   * method is a bad thing because it forces/allows the caller to make
+   * assumptions about how the annotation value is actually represented
+   * in the underlying implementation.  Please use a combination
+   * of getType() and the various as...() methods instead.
+   */
+  public Object getValue();
+
+  
 }

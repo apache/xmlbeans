@@ -69,7 +69,7 @@ public class AnnotationValueImpl implements JAnnotationValue {
 
   public JClass getType() { return mType; }
 
-//  public Object getValue() { return mValue; }
+
 
   public JAnnotation asAnnotation() {
     if (mValue instanceof JAnnotation) {
@@ -311,6 +311,9 @@ public class AnnotationValueImpl implements JAnnotationValue {
       throw new IllegalStateException("Unknown array type "+o.getClass());
     }
 
-  }
+   }
 
+  public Object getValue() {
+    throw new IllegalStateException("Please do not call JAnnotionValue.getValue()");
+  }
 }
