@@ -136,11 +136,11 @@ public class TestXPath
     {
         for (int i=0; i<xpathes.length; i++)
         {
-            runXpath(doc, xpathes[i], i);
+            runXpath2(doc, xpathes[i], i);
         }
     }
 
-    private static void runXpath(XmlObject doc, String xpathStr, int i)
+    private static void runXpath1(XmlObject doc, String xpathStr, int i)
         throws JaxenException
     {
         System.out.println("\n>>>================= " + i + " " + xpathStr + " ========================<<<");
@@ -155,7 +155,25 @@ public class TestXPath
         int j = 0;
         while ( resultIter.hasNext() )
         {
-            xc = (XmlCursor)resultIter.next();  //it's the same object as previous xc
+            xc = (XmlCursor)resultIter.next();
+            System.out.println("> " + (j++) + " >--------------------------------------< " + xc.currentTokenType());
+            System.out.println( xc );
+        }
+        System.out.println("\n>>>Results: " + j + "    " + xpathStr + " ==========================<<<");
+		xc.dispose();
+    }
+
+    private static void runXpath2(XmlObject doc, String xpathStr, int i)
+    {
+        System.out.println("\n>>>================= " + i + " " + xpathStr + " ========================<<<");
+
+        XmlCursor xc = doc.newCursor();
+		xc.selectPath(xpathStr);
+
+        //System.out.println("Document :: \n" + doc );
+        int j = 0;
+        while ( xc.toNextSelection() )
+        {
             System.out.println("> " + (j++) + " >--------------------------------------< " + xc.currentTokenType());
             System.out.println( xc );
         }

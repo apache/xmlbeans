@@ -94,8 +94,9 @@ public class XPathPerf
             }
 
             //test1(xpathStr, file);
-            test2(xpathStr, file);
+            //test2(xpathStr, file);
 
+            test3t(xpathStr, file);
             test3(xpathStr, file);
             test4(file);
         }
@@ -211,11 +212,43 @@ public class XPathPerf
 
                     count += (speaker == null ? 0 : 1);
                 }
-                //System.out.println((j*100) + "                \t" + (System.currentTimeMillis()-start2));
+                System.out.println((j*100) + "                \t" + (System.currentTimeMillis()-start2));
             }
 
             long end = System.currentTimeMillis();
             System.out.println(">>> " + count + " selections in " + (end - start) + " ms");
+        }
+        catch (XmlException e)
+        {
+            e.printStackTrace();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static void test3t(String xpathStr, File file)
+    {
+        System.out.println("\n ----- test3:   XmlCursor.selectPath(cpath)  -----");
+
+        try
+        {
+            String cpath = XmlBeans.compilePath( xpathStr );
+            XmlObject doc = XmlObject.Factory.parse(file);
+            XmlCursor speaker = doc.newCursor();
+
+            int count = 0;
+            speaker.toStartDoc();
+            speaker.selectPath(cpath);
+            //speaker.getSelectionCount();
+            while ( speaker.toNextSelection() )
+            {
+                System.out.println(speaker);
+                count += (speaker == null ? 0 : 1);
+            }
+
+            System.out.println(">>> " + count + " selections");
         }
         catch (XmlException e)
         {

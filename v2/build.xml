@@ -1019,7 +1019,7 @@
        source="1.4"
        debug="on">
       <classpath id="xpath.compile.path">
-          <pathelement location="build/lib/xmlpublic.jar"/>
+          <pathelement location="build/lib/xbean.jar"/>
           <pathelement location="build/lib/jaxen.jar"/>
       </classpath>
     </javac>

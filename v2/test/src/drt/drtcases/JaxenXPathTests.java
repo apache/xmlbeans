@@ -63,13 +63,13 @@ import junit.framework.Assert;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.xpath.jaxen.XBeansXPath;
-import org.jaxen.XPathSyntaxException;
-import org.jaxen.JaxenException;
-import org.jaxen.XPath;
-
-import java.util.List;
-import java.util.Iterator;
+//import org.apache.xmlbeans.impl.xpath.jaxen.XBeansXPath;
+//import org.jaxen.XPathSyntaxException;
+//import org.jaxen.JaxenException;
+//import org.jaxen.XPath;
+//
+//import java.util.List;
+//import java.util.Iterator;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -118,42 +118,60 @@ public class JaxenXPathTests extends TestCase
 
             runAll(doc, xpath);
         }
-        catch (XPathSyntaxException e)
-        {
-            System.err.println( e.getMultilineMessage() );
-            throw new RuntimeException(e);
-        }
-        catch (JaxenException e)
-        {
-            throw new RuntimeException(e);
-        }
         catch (Exception e)
         {
             throw new RuntimeException(e);
         }
     }
 
-    private static void runAll(XmlObject doc, String[] xpathes) throws JaxenException
+    private static void runAll(XmlObject doc, String[] xpathes)
     {
         for (int i=0; i<xpathes.length; i++)
         {
-            runXpath(doc, xpathes[i], i);
+            runXpath2(doc, xpathes[i], i);
         }
     }
 
-    private static void runXpath(XmlObject doc, String xpathStr, int i)
-        throws JaxenException
-    {
-        XPath xpath = new XBeansXPath(xpathStr);
-        XmlCursor xc = doc.newCursor();
-		List results = xpath.selectNodes( xc );
+//    private static void runXpath(XmlObject doc, String xpathStr, int i)
+//    {
+//        try
+//        {
+//            XmlCursor xc = doc.newCursor();
+//            XPath xpath = new XBeansXPath(xpathStr);
+//            List results = xpath.selectNodes( xc );
+//
+//            Iterator resultIter = results.iterator();
+//
+//            int j = 0;
+//            while ( resultIter.hasNext() )
+//            {
+//                xc = (XmlCursor)resultIter.next();  //it's the same object as previous xc
+//                // generateExpected(i, j, xc.toString());
+//                check(i, j, xc);
+//                j++;
+//            }
+//
+//            xc.dispose();
+//        }
+//        catch (XPathSyntaxException e)
+//        {
+//            System.err.println( e.getMultilineMessage() );
+//            throw new RuntimeException(e);
+//        }
+//        catch (JaxenException e)
+//        {
+//            throw new RuntimeException(e);
+//        }
+//    }
 
-        Iterator resultIter = results.iterator();
+    private static void runXpath2(XmlObject doc, String xpathStr, int i)
+    {
+        XmlCursor xc = doc.newCursor();
+		xc.selectPath( xpathStr );
 
         int j = 0;
-        while ( resultIter.hasNext() )
+        while ( xc.toNextSelection() )
         {
-            xc = (XmlCursor)resultIter.next();  //it's the same object as previous xc
             // generateExpected(i, j, xc.toString());
             check(i, j, xc);
             j++;
