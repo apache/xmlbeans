@@ -25,7 +25,9 @@ import org.apache.xmlbeans.impl.jam.*;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class BaseJAnnotation extends BaseJElement implements JAnnotation {
+public class BaseJAnnotation extends BaseJElement
+        implements JAnnotation, JAnnotationMember
+ {
 
   // ========================================================================
   // Constants
@@ -81,6 +83,14 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
     return mName;
   }
 
+  public Object getValue() {
+    return null;
+  }
+
+  public boolean isDefaultValueUsed() {
+    return false;
+  }
+
   public String getSimpleName() {
     return mName;
   } //FIXME
@@ -101,6 +111,10 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
   }
 
   public JAnnotationDeclaration getDeclaration() {
+    return null;
+  }
+
+  public Object getAnnotationObject() {
     return null;
   }
 
@@ -163,6 +177,109 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
     } catch (NumberFormatException nfe) {
       return 0;
     }
+  }
+
+  public JAnnotationMember getSingleMember() {
+    return this;
+  }
+
+  // ========================================================================
+  // JAnnotationMember implementation
+
+  public JAnnotationMemberDeclaration getMemberDeclaration() {
+    return null;
+  }
+
+  public JAnnotation getValueAsAnnotation() {
+    return null;
+  }
+
+  public JClass getValueAsClass() {
+    return null;
+  }
+
+  public String getValueAsString() {
+    return getStringValue();
+  }
+
+  public int getValueAsInt() {
+    return getIntValue();
+  }
+
+  public boolean getValueAsBoolean() {
+    return getBooleanValue();
+  }
+
+  public long getValueAsLong() {
+    return getLongValue();
+  }
+
+  public short getValueAsShort() {
+    return getShortValue();
+  }
+
+  public double getValueAsDouble() {
+    return getDoubleValue();
+  }
+
+  public float getValueAsFloat() throws NumberFormatException {
+    return 0;
+  }
+
+  public byte getValueAsByte() {
+    return getByteValue();
+  }
+
+  public char getValueAsChar() throws IllegalArgumentException {
+    return 0;
+  }
+
+  public Object[] getValueAsArray() {
+    return null;
+  }
+
+  public JClass[] getValueAsClassArray() {
+    return null;
+  }
+
+  public JClass[] getValueAsAnnotationArray() {
+    return null;
+  }
+
+  public String[] getValueAsStringArray() {
+    return null;
+  }
+
+  public int[] getValueAsIntArray() throws NumberFormatException {
+    return null;
+  }
+
+  public boolean[] getValueAsBooleanArray() throws IllegalArgumentException {
+    return null;
+  }
+
+  public short[] getValueAsShortArray() throws NumberFormatException {
+    return null;
+  }
+
+  public long[] getValueAsLongArray() throws NumberFormatException {
+    return null;
+  }
+
+  public double[] getValueAsDoubleArray() throws NumberFormatException {
+    return null;
+  }
+
+  public float[] getValueAsFloatArray() throws NumberFormatException {
+    return null;
+  }
+
+  public byte[] getValueAsByteArray() throws NumberFormatException {
+    return null;
+  }
+
+  public char[] getValueAsCharArray() throws IllegalArgumentException {
+    return null;
   }
 
   // ========================================================================

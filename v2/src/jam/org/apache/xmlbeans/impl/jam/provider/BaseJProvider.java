@@ -24,7 +24,7 @@ import org.apache.xmlbeans.impl.jam.internal.RootJClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.JServiceImpl;
 import org.apache.xmlbeans.impl.jam.internal.JServiceParamsImpl;
 import org.apache.xmlbeans.impl.jam.internal.reflect.RClassBuilder;
-import org.apache.xmlbeans.impl.jam.provider.JClassBuilderParams;
+import org.apache.xmlbeans.impl.jam.provider.JInitializerParams;
 import org.apache.xmlbeans.impl.jam.provider.JClassBuilder;
 
 import java.io.IOException;
@@ -73,7 +73,7 @@ public abstract class BaseJProvider implements JProvider
    * Subclasses just need to override this to provide use with a
    * JClassBuilder; we'll take care of the rest.
    */
-  public abstract JClassBuilder createJClassBuilder(JClassBuilderParams jcb)
+  public abstract JClassBuilder createJClassBuilder(JInitializerParams jcb)
           throws IOException;
 
   // ========================================================================

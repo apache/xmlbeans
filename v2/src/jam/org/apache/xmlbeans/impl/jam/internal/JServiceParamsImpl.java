@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.jam.internal;
 import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JServiceParams;
-import org.apache.xmlbeans.impl.jam.provider.JClassBuilderParams;
+import org.apache.xmlbeans.impl.jam.provider.JInitializerParams;
 import org.apache.xmlbeans.impl.jam.provider.JPath;
 
 import java.util.*;
@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JServiceParamsImpl implements JServiceParams, JClassBuilderParams
+public class JServiceParamsImpl implements JServiceParams, JInitializerParams
 {
   // ========================================================================
   // Variables
@@ -191,7 +191,7 @@ public class JServiceParamsImpl implements JServiceParams, JClassBuilderParams
   }
 
   // ========================================================================
-  // JClassBuilderParams implementation
+  // JInitializerParams implementation
 
   public JPath getInputClasspath() {
     return createJPath(mClasspath);

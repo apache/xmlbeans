@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.jam.editable.EClass;
  * to build a new JClass, it will try each builder on the list until
  * one of them is able to build the class.
  *
+ * @deprecated this is being replaced by JInitializer.
  * @author Patrick Calahan <pcal@bea.com>
  */
 public class CompositeJClassBuilder implements JClassBuilder {

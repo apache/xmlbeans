@@ -47,7 +47,7 @@ public class DefaultJProvider extends BaseJProvider {
   // ========================================================================
   // BaseJProvider implementation
 
-  public JClassBuilder createJClassBuilder(JClassBuilderParams params)
+  public JClassBuilder createJClassBuilder(JInitializerParams params)
           throws IOException
   {
     List builderList = new ArrayList();
@@ -65,7 +65,7 @@ public class DefaultJProvider extends BaseJProvider {
   // ========================================================================
   // Public methods
 
-  public JClassBuilder createSourceService(JClassBuilderParams jp)
+  public JClassBuilder createSourceService(JInitializerParams jp)
           throws IOException
   {
     //FIXME someday should make the name of the service class to use here
@@ -73,7 +73,7 @@ public class DefaultJProvider extends BaseJProvider {
     return JDClassBuilder.create((JServiceParamsImpl)jp);
   }
 
-  public JClassBuilder createClassService(JClassBuilderParams jp)
+  public JClassBuilder createClassService(JInitializerParams jp)
           throws IOException
   {
     //FIXME someday should make the name of the service class to use here
