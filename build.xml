@@ -273,6 +273,7 @@
             <fileset dir="xkit"/>
             <fileset dir="." includes="bin/**"/>
             <fileset file="src/license/LICENSE.txt"/>
+            <fileset file="src/license/NOTICE.txt"/>
         </copy>
         <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
             <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd"/>

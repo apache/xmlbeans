@@ -1,4 +1,19 @@
-XMLBeans Development Kit
+/*  Copyright 2004 The Apache Software Foundation
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
+XMLBeans Development Kit Version 2.0.0-beta1
 
 
 Welcome to XMLBeans!
@@ -12,6 +27,7 @@ Kit contents:
 
 (2) License information for XML Beans and included libraries
     ./LICENSE.txt
+    ./NOTICE.txt
 
 (3) One folder full of command-line scripts, pointing to the
     useful main() functions in the JAR.
@@ -77,6 +93,20 @@ Where to start?
 
        The "mysrcdir" will contain all the .java source code
        for the generated XMLBeans.
+
+
+    3. You can also use the XMLBean Ant task to compile your schemas
+       during your build process:
+
+       <taskdef name="xmlbean"
+           classname="org.apache.xmlbeans.impl.tool.XMLBean"
+           classpath="path/to/xbean.jar:path/to/jsr173_api.jar" />
+
+       <xmlbean schemas="easypo.xsd" destfile="myeasypo.jar"
+           classpath="path/to/xbean.jar:path/to/jsr173_api.jar" />
+
+       For more information, see docs/guide/antXmlbean.html.
+
 
 (3) Try using your compiled XMLBeans
 
@@ -177,3 +207,4 @@ Where to start?
        a great example of how to combine the XmlCursor and
        SchemaType APIs to create a full [sub]document
        that includes required children, default values etc.
+
