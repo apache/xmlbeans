@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.impl.common.NameUtil;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.config.ExtensionHolder;
 import org.apache.xmlbeans.impl.config.InterfaceExtension;
 import org.apache.xmlbeans.QNameSetBuilder;
@@ -578,12 +579,16 @@ public class StscJavaizer
         if (!sType.isSimpleType())
             return SchemaProperty.XML_OBJECT;
 
+        SchemaType unionType = null;
         if (sType.getSimpleVariety() == SchemaType.UNION)
         {
             // see if we can find an interesting common base type, e.g., for string enums
             SchemaType baseType = sType.getUnionCommonBaseType();
             if (baseType != null && !baseType.isURType())
+            {
+                unionType = sType;
                 sType = baseType;
+            }
             else
                 return javaTypeCodeInCommon(sType.getUnionConstituentTypes());
         }
@@ -644,7 +649,20 @@ public class StscJavaizer
 
             case SchemaType.BTC_STRING:
                 if (isStringType(sType.getBaseEnumType()))
+                {
+                    if (unionType != null)
+                    {
+                        // REVISIT: enum of union of string enum case
+                        // set base enum type of unionType if it exists
+                        // but only if unionType doesn't already have a base enum type.
+                        // if the unionType does have a base enum type, treat as JAVA_STRING
+                        if (unionType.getBaseEnumType() == null)
+                            ((SchemaTypeImpl)unionType).setBaseEnumTypeRef(sType.getRef());
+                        else
+                            return SchemaProperty.JAVA_STRING;
+                    }
                     return SchemaProperty.JAVA_ENUM;
+                }
                 return SchemaProperty.JAVA_STRING;
 
             case SchemaType.BTC_DURATION:
