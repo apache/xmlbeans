@@ -32,7 +32,7 @@
   <target name="jsr173.jar" depends="check.jsr173.jar, dirs" unless="jsr173.jar.exists">
     <get dest="build/lib/jsr173.jar"
          src="http://workshop.bea.com/xmlbeans/jsr173/jsr173.jar"
-         verbose="true" usetimestamp="true" ignoreerrors="true"/> 
+         verbose="true" usetimestamp="true" ignoreerrors="true"/>
   </target>
 
   <target name="check.jsr173_07_api.jar">
@@ -49,6 +49,17 @@
     </unjar>
   </target>
 
+  <target name="check.jaxen.jar">
+    <condition property="jaxen.jar.exists">
+        <available file="build/lib/jaxen.jar"/>
+    </condition>
+  </target>
+
+  <target name="jaxen.jar" depends="check.jaxen.jar, dirs" unless="jaxen.jar.exists">
+    <get dest="build/lib/jaxen.jar"
+         src="http://www.ibiblio.org/maven/jaxen/jars/jaxen-1.1-beta-2.jar"
+         verbose="true" usetimestamp="true" ignoreerrors="true"/>
+  </target>
 
   <target name="xbean" depends="xbean.jar">
     <copy file="build/lib/xbean.jar" tofile="build/ar/xbean.jar"/>
@@ -881,4 +892,58 @@
         <javac srcdir="src/repackage" destdir="build/classes/repackage" source="1.4" debug="on"/>
     </target>
 
+  <!-- xpath target ============================================= -->
+
+  <target name="xpath.classes" depends="dirs, xmlpublic.jar, jaxen.jar">
+    <mkdir dir="build/private/classes/xpath"/>
+    <javac
+       srcdir="src/xpath"
+       destdir="build/private/classes/xpath"
+       classpathref="xpath.compile.path"
+       source="1.4"
+       debug="on">
+      <classpath id="xpath.compile.path">
+          <pathelement location="build/lib/xmlpublic.jar"/>
+          <pathelement location="build/lib/jaxen.jar"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="xbean_xpath.jar" depends="xpath.classes">
+    <jar jarfile="build/private/lib/xbean_xpath.jar" basedir="build/private/classes/xpath"/>
+  </target>
+
+  <!-- test xpath target ============================================= -->
+
+  <target name="test_xpath.classes" depends="dirs, xmlpublic.jar, jsr173_07_api.jar, jaxen.jar, xbean_xpath.jar">
+    <mkdir dir="build/private/classes/testxpath"/>
+    <javac
+       srcdir="test/src/xpath"
+       destdir="build/private/classes/testxpath"
+       classpathref="testxpath.compile.path"
+       source="1.4"
+       debug="on">
+      <classpath id="testxpath.compile.path">
+          <pathelement location="build/lib/xmlpublic.jar"/>
+          <pathelement location="build/lib/jsr173_07_api.jar"/>
+          <pathelement location="build/lib/jaxen.jar"/>
+          <pathelement location="build/private/lib/xbean_xpath.jar"/>
+          <pathelement location="build/classes/xmlinputstream"/>
+      </classpath>
+    </javac>
+  </target>
+
+  <target name="run_test_xpath" depends="test_xpath.classes, xbean">
+    <java classname="org.apache.xmlbeans.impl.xpath.jaxen.XBeansDemo" fork="true" failonerror="true">
+      <classpath>
+          <pathelement location="build/lib/xbean.jar"/>
+          <pathelement location="build/lib/jsr173_07_api.jar"/>
+          <pathelement location="build/lib/jaxen.jar"/>
+          <pathelement location="build/private/lib/xbean_xpath.jar"/>
+          <pathelement location="build/private/classes/testxpath"/>
+      </classpath>
+      <jvmarg value="-ea"/>
+      <arg line='test/cases/xpath/much_ado.xml "PLAY/ACT/SCENE/SPEECH/SPEAKER"'/>
+    </java>
+  </target>
 </project>
