@@ -87,14 +87,14 @@ public class FacetRestrictionTest extends BaseCase {
            assertTrue(compareErrorCodes(errExpected));
            clearErrors();
 
-           doc.setMinMaxExclusiveElt(2);
+           doc.setMinMaxExclusiveElt(4);
            try {
                assertTrue(doc.validate(validateOptions));
            } catch (Throwable t) {
                showErrors();
                throw t;
            }
-           doc.setMinMaxExclusiveElt(10);
+           doc.setMinMaxExclusiveElt(8);
            try {
                assertTrue(doc.validate(validateOptions));
            } catch (Throwable t) {
@@ -112,7 +112,7 @@ public class FacetRestrictionTest extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         assertTrue(compareErrorCodes(errExpected));
           clearErrors();
-        c = new GregorianCalendar(2003, 11, 25);
+        c = new GregorianCalendar(2003, 11, 23);
         doc.setMinMaxExclusiveDateElt(c);
         try {
             assertTrue(doc.validate(validateOptions));

@@ -138,7 +138,7 @@ public abstract class Path
                 if (path != null)
                     _xqrlPathCache.put(path._pathKey, path);
             }
-            //XQRL is not on the path either; this has to be XQRL
+            //XQRL is not on the path either; this has to be Saxon
             if (path == null) {
                 int offset =
                         namespaces.get(XPath._NS_BOUNDARY) == null ?
