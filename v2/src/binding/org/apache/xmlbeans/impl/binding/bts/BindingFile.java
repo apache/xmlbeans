@@ -56,6 +56,8 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -142,8 +144,18 @@ public class BindingFile extends BaseBindingLoader
      */
     public org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument write() throws IOException
     {
+        // Here we should use the BindingConfigDocument classloader
+        // rather than the thread context classloader.  This is
+        // because in some situations (such as when being invoked by ant)
+        // the context classloader is potentially weird (because
+        // of the design of ant).
+
+        SchemaTypeLoader loader = XmlBeans.typeLoaderForClassLoader(
+                org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument.class.getClassLoader());
+
         org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument doc =
-                org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument.Factory.newInstance();
+                (org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument)
+                loader.newInstance(org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument.type, null);
         write(doc);
         return doc;
     }
