@@ -69,10 +69,11 @@ public abstract class JavaBooleanHolderEx extends JavaBooleanHolder
     public SchemaType schemaType()
         { return _schemaType; }
 
-    public static void validateLexical(String v, SchemaType sType, ValidationContext context)
+    public static boolean validateLexical(String v, SchemaType sType, ValidationContext context)
     {
-        JavaBooleanHolder.validateLexical(v, context);
+        boolean b = JavaBooleanHolder.validateLexical(v, context);
         validatePattern(v, sType, context);
+        return b;
     }
     
     public static void validatePattern(String v, SchemaType sType, ValidationContext context)

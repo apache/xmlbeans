@@ -1071,7 +1071,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public SchemaType[] getUnionMemberTypes()
     {
-        SchemaType[] result = new SchemaType[_unionMemberTyperefs.length];
+        SchemaType[] result = new SchemaType[_unionMemberTyperefs ==null ? 0 : _unionMemberTyperefs.length];
         for (int i = 0; i < result.length; i++)
             result[i] = _unionMemberTyperefs[i].get();
         return result;
