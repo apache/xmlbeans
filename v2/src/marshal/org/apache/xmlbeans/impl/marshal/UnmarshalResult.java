@@ -87,6 +87,18 @@ final class UnmarshalResult
     }
 
 
+    RuntimeTypeFactory getRuntimeTypeFactory()
+    {
+        return typeTable.getRuntimeTypeFactory();
+    }
+
+    RuntimeBindingType getRuntimeType(BindingType type) throws XmlException
+    {
+        return typeTable.getRuntimeTypeFactory().createRuntimeType(type,
+                                                                   typeTable,
+                                                                   bindingLoader);
+    }
+
     private void enrichXmlStream(XMLStreamReader reader)
     {
         assert reader != null;
@@ -106,15 +118,9 @@ final class UnmarshalResult
     }
 
     //returns null and updates errors if there was a problem.
-    private TypeUnmarshaller getTypeUnmarshaller(QName xsi_type)
+    TypeUnmarshaller getTypeUnmarshaller(BindingType binding_type)
     {
-        XmlTypeName xname = XmlTypeName.forTypeNamed(xsi_type);
-        BindingType binding_type =
-            bindingLoader.getBindingType(bindingLoader.lookupPojoFor(xname));
-        if (binding_type == null) {
-            addError("unknown type: " + xsi_type);
-            return null;
-        }
+
         TypeUnmarshaller um =
             typeTable.getTypeUnmarshaller(binding_type);
         if (um == null) {
@@ -124,6 +130,12 @@ final class UnmarshalResult
             return null;
         }
         return um;
+    }
+
+    BindingType lookupBindingType(QName xsi_type)
+    {
+        XmlTypeName xname = XmlTypeName.forTypeNamed(xsi_type);
+        return bindingLoader.getBindingType(bindingLoader.lookupPojoFor(xname));
     }
 
     private void addError(String msg)
@@ -672,7 +684,8 @@ final class UnmarshalResult
      * return the QName value found for xsi:type
      * or null if neither one was found
      */
-    private QName getXsiType() throws XmlException
+    QName getXsiType()
+        throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -853,7 +866,7 @@ final class UnmarshalResult
         return defaultAttributeBits.get(att_idx);
     }
 
-    private void setNextElementDefault(String lexical_default)
+    void setNextElementDefault(String lexical_default)
         throws XmlException
     {
         try {
@@ -861,48 +874,6 @@ final class UnmarshalResult
         }
         catch (XMLStreamException e) {
             throw new XmlException(e);
-        }
-    }
-
-    static void fillElementProp(RuntimeBindingProperty prop,
-                                UnmarshalResult context,
-                                Object inter)
-        throws XmlException
-    {
-        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
-        assert um != null;
-
-        try {
-            final String lexical_default = prop.getLexicalDefault();
-            if (lexical_default != null) {
-                context.setNextElementDefault(lexical_default);
-            }
-            final Object prop_val = um.unmarshal(context);
-            prop.fill(inter, prop_val);
-        }
-        catch (InvalidLexicalValueException ilve) {
-            //unlike attributes, the error has been added to the context
-            //already via BaseSimpleTypeConveter...
-        }
-    }
-
-    static void fillAttributeProp(RuntimeBindingProperty prop,
-                                  UnmarshalResult context,
-                                  Object inter)
-        throws XmlException
-    {
-        final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
-        assert um != null;
-
-        try {
-            final Object prop_val = um.unmarshalAttribute(context);
-            prop.fill(inter, prop_val);
-        }
-        catch (InvalidLexicalValueException ilve) {
-            //TODO: review error messages
-            String msg = "invalid value for " + prop.getName() +
-                ": " + ilve.getMessage();
-            context.addError(msg, ilve.getLocation());
         }
     }
 
@@ -930,11 +901,16 @@ final class UnmarshalResult
         final QName xsi_type = getXsiType();
 
         if (xsi_type != null) {
-            TypeUnmarshaller typed_um = getTypeUnmarshaller(xsi_type);
-            if (typed_um != null)
-                return typed_um;
+            final BindingType binding_type = lookupBindingType(xsi_type);
+            if (binding_type != null) {
+                TypeUnmarshaller typed_um = getTypeUnmarshaller(binding_type);
+                if (typed_um != null)
+                    return typed_um;
+            } else {
+                addError("unknown type: " + xsi_type);
+            }
             //reaching here means some problem with extracting the
-            //marshaller for the xsi type, so just use the expected one
+            //unmarshaller for the xsi type, so just use the expected one
         }
 
         if (hasXsiNil())

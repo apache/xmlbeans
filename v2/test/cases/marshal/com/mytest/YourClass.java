@@ -38,11 +38,11 @@ public class YourClass
     private long[] longArray;// = {RND.nextLong(), RND.nextLong()};
 
     private boolean[] booleanArray;// = {true, false, true};
-    private String[] stringArray = {"ONE:"+RND.nextInt(), "TWO:"+RND.nextInt()};
+    private String[] stringArray = {"ONE:" + RND.nextInt(), "TWO:" + RND.nextInt()};
     private MyClass[] myClassArray;//{new MyClass(), new MyClass()};
 
-    private QName qn = new QName("URI" + RND.nextInt(), "LNAME"+RND.nextInt());
-    private QName qn2 = new QName("URI" + RND.nextInt(), "LNAME"+RND.nextInt());
+    private QName qn = new QName("URI" + RND.nextInt(), "LNAME" + RND.nextInt());
+    private QName qn2 = new QName("URI" + RND.nextInt(), "LNAME" + RND.nextInt());
 
 
     private String[] wrappedArrayOne = {"W1", "W2"};
@@ -78,6 +78,25 @@ public class YourClass
 //        l.add(Boolean.TRUE);
 //        l.add(Boolean.FALSE);
         return l;
+    }
+
+
+    //generic factory
+    public Object createObject(Class type)
+    {
+        if (type == null) throw new IllegalArgumentException("null type");
+
+        if (type.equals(MyClass.class)) {
+            return new MyClass();
+        } else if (type.equals(MySubClass.class)) {
+            return new MySubClass();
+        } else if (type.equals(MySubSubClass.class)) {
+            return new MySubSubClass();
+        } else if (type.equals(YourClass.class)) {
+            return new YourClass();
+        } else {
+            throw new AssertionError("unknown type: " + type);
+        }
     }
 
     public float getMyFloat()
@@ -294,7 +313,6 @@ public class YourClass
         final YourClass yourClass = (YourClass)o;
 
 
-
         if (attrib != yourClass.attrib) return false;
         if (myFloat != yourClass.myFloat) return false;
         if (someBool != yourClass.someBool) return false;
@@ -335,8 +353,6 @@ public class YourClass
     }
 
 
-
-
     public String toString()
     {
         return "com.mytest.YourClass{" +
@@ -359,7 +375,6 @@ public class YourClass
             ", myClassArray=" + ArrayUtils.arrayToString(myClassArray) +
             "}";
     }
-
 
 
 }

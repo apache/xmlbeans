@@ -74,7 +74,7 @@ final class WrappedArrayRuntimeBindingType
 
     private WAProperty elementProperty;
 
-    public WrappedArrayRuntimeBindingType(WrappedArrayType binding_type)
+    WrappedArrayRuntimeBindingType(WrappedArrayType binding_type)
         throws XmlException
     {
         super(binding_type);
@@ -100,8 +100,8 @@ final class WrappedArrayRuntimeBindingType
             rttFactory.createRuntimeType(item_type, typeTable, bindingLoader);
 
         elementProperty =
-            new WAProperty(wrappedArrayType.getItemName(), item_rtt,
-                           typeTable, bindingLoader,
+            new WAProperty(this, wrappedArrayType.getItemName(),
+                           item_rtt, typeTable, bindingLoader,
                            wrappedArrayType.isItemNillable());
 
 
@@ -113,21 +113,21 @@ final class WrappedArrayRuntimeBindingType
         return elementProperty;
     }
 
-    Object createIntermediary(Object context)
+    Object createIntermediary()
     {
         return AccumulatorFactory.createAccumulator(getJavaType(),
                                                     elementProperty.getElementClass());
 
     }
 
-    Object getFinalObjectFromIntermediary(Object inter, Object context)
+    static Object getFinalObjectFromIntermediary(Object inter)
     {
         Accumulator acc = (Accumulator)inter;
         return acc.getFinalArray();
     }
 
     private static final class WAProperty
-        implements RuntimeBindingProperty
+        extends RuntimeBindingProperty
     {
         private final QName itemName;
         private final RuntimeBindingType itemType;
@@ -135,13 +135,16 @@ final class WrappedArrayRuntimeBindingType
         private final TypeUnmarshaller unmarshaller;
         private final boolean nillable;
 
-        public WAProperty(QName item_name,
-                          RuntimeBindingType item_type,
-                          RuntimeBindingTypeTable type_table,
-                          BindingLoader loader,
-                          boolean nillable)
+        WAProperty(RuntimeBindingType containing_type,
+                   QName item_name,
+                   RuntimeBindingType item_type,
+                   RuntimeBindingTypeTable type_table,
+                   BindingLoader loader,
+                   boolean nillable)
             throws XmlException
         {
+            super(containing_type);
+
             itemName = item_name;
             itemType = item_type;
 
@@ -159,13 +162,13 @@ final class WrappedArrayRuntimeBindingType
             return itemType.getJavaType();
         }
 
-        public RuntimeBindingType getRuntimeBindingType()
+        RuntimeBindingType getRuntimeBindingType()
         {
             return itemType;
         }
 
-        public RuntimeBindingType getActualRuntimeType(Object property_value,
-                                                       MarshalResult result)
+        RuntimeBindingType getActualRuntimeType(Object property_value,
+                                                MarshalResult result)
             throws XmlException
         {
             return MarshalResult.findActualRuntimeType(property_value,
@@ -173,7 +176,7 @@ final class WrappedArrayRuntimeBindingType
                                                        result);
         }
 
-        public QName getName()
+        QName getName()
         {
             return itemName;
         }
@@ -192,7 +195,7 @@ final class WrappedArrayRuntimeBindingType
         }
 
         //non simple type props can throw some runtime exception.
-        public CharSequence getLexical(Object value, MarshalResult result)
+        CharSequence getLexical(Object value, MarshalResult result)
             throws XmlException
         {
             assert value != null;
@@ -202,13 +205,13 @@ final class WrappedArrayRuntimeBindingType
             return marshaller.print(value, result);
         }
 
-        public Object getValue(Object parentObject, MarshalResult result)
+        Object getValue(Object parentObject, MarshalResult result)
             throws XmlException
         {
             return Array.get(parentObject, result.getCurrIndex());
         }
 
-        public boolean isSet(Object parentObject, MarshalResult result)
+        boolean isSet(Object parentObject, MarshalResult result)
             throws XmlException
         {
             if (nillable) return true;
@@ -219,17 +222,17 @@ final class WrappedArrayRuntimeBindingType
             return getValue(parentObject, result) != null;
         }
 
-        public boolean isMultiple()
+        boolean isMultiple()
         {
             return true;
         }
 
-        public boolean isNillable()
+        boolean isNillable()
         {
             return nillable;
         }
 
-        public String getLexicalDefault()
+        String getLexicalDefault()
         {
             return null;
         }

@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 
-public class SimpleContentUnmarshaller
+public final class SimpleContentUnmarshaller
     extends AttributeUnmarshaller
 {
 
@@ -30,14 +30,13 @@ public class SimpleContentUnmarshaller
     }
 
 
-    //TODO: cleanup this code.  We are doing extra work for assertion checking
     protected void deserializeContents(Object inter,
                                        UnmarshalResult context)
         throws XmlException
     {
         RuntimeBindingProperty scprop =
             simpleContentRuntimeBindingType.getSimpleContentProperty();
-        UnmarshalResult.fillElementProp(scprop, context, inter);
+        scprop.extractAndFillElementProp(context, inter);
     }
 
 

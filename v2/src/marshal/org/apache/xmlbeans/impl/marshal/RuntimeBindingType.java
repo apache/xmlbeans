@@ -63,6 +63,10 @@ abstract class RuntimeBindingType
         javaFinal = ReflectionUtils.isClassFinal(javaClass);
     }
 
+    Object getObjectFromIntermediate(Object inter)
+    {
+        return inter;
+    }
 
     final BindingType getBindingType()
     {
@@ -156,11 +160,11 @@ abstract class RuntimeBindingType
     }
 
 
-    protected abstract static class RuntimePropertyBase
-        implements RuntimeBindingProperty
+    protected abstract static class BeanRuntimeProperty
+        extends RuntimeBindingProperty
     {
         protected final Class beanClass;
-        protected final IntermediateResolver intermediateResolver;
+        protected final RuntimeBindingType containingType;
         protected final Method getMethod;
         protected final Method setMethod;
         protected final Method issetMethod;
@@ -171,16 +175,17 @@ abstract class RuntimeBindingType
         protected final TypeMarshaller marshaller; // used only for simple types
 
 
-        RuntimePropertyBase(Class beanClass,
+        BeanRuntimeProperty(Class beanClass,
                             BindingProperty prop,
-                            IntermediateResolver intermediateResolver,
+                            RuntimeBindingType containingType,
                             RuntimeBindingTypeTable typeTable,
                             BindingLoader loader,
                             RuntimeTypeFactory rttFactory)
             throws XmlException
         {
+            super(prop, containingType);
             this.beanClass = beanClass;
-            this.intermediateResolver = intermediateResolver;
+            this.containingType = containingType;
             final BindingTypeName type_name = prop.getTypeName();
             this.unmarshaller = typeTable.lookupUnmarshaller(type_name, loader);
             this.marshaller = typeTable.lookupMarshaller(type_name, loader);
@@ -210,17 +215,18 @@ abstract class RuntimeBindingType
                 String e = "no setter found for " + prop + " on " + beanClass;
                 throw new XmlException(e);
             }
+
         }
 
 
         public void fill(final Object inter, final Object prop_obj)
             throws XmlException
         {
-            Object inst = intermediateResolver.getObjectFromIntermediate(inter);
+            Object inst = containingType.getObjectFromIntermediate(inter);
             ReflectionUtils.invokeMethod(inst, setMethod, new Object[]{prop_obj});
         }
 
-        public final Object getValue(Object parentObject, MarshalResult result)
+        final Object getValue(Object parentObject, MarshalResult result)
             throws XmlException
         {
             assert parentObject != null;
@@ -274,13 +280,13 @@ abstract class RuntimeBindingType
             }
         }
 
-        public final RuntimeBindingType getRuntimeBindingType()
+        final RuntimeBindingType getRuntimeBindingType()
         {
             return runtimeBindingType;
         }
 
-        public final RuntimeBindingType getActualRuntimeType(Object property_value,
-                                                             MarshalResult result)
+        final RuntimeBindingType getActualRuntimeType(Object property_value,
+                                                      MarshalResult result)
             throws XmlException
         {
             return MarshalResult.findActualRuntimeType(property_value,
@@ -295,9 +301,11 @@ abstract class RuntimeBindingType
             return context.determineTypeUnmarshaller(unmarshaller);
         }
 
-        public final boolean isSet(Object parentObject, MarshalResult result)
+        final boolean isSet(Object parentObject, MarshalResult result)
             throws XmlException
         {
+            //TODO: can we just return true if this property is not optional?
+
             if (issetMethod == null)
                 return isSetFallback(parentObject, result);
 
@@ -310,15 +318,14 @@ abstract class RuntimeBindingType
             throws XmlException
         {
             //REVIEW: nillable is winning over minOccurs="0".  Is this correct?
-            if (isNillable())
-                return true;
+            if (isNillable()) return true;
 
             Object val = getValue(parentObject, result);
             return (val != null);
         }
 
-        public final CharSequence getLexical(Object value,
-                                             MarshalResult result)
+        final CharSequence getLexical(Object value,
+                                      MarshalResult result)
             throws XmlException
         {
             assert value != null :

@@ -23,113 +23,131 @@ import javax.xml.namespace.QName;
  * A property that addresses an XML element or attribute by name
  * rather than by position.
  */
-public class QNameProperty extends BindingProperty {
+public class QNameProperty extends BindingProperty
+{
 
-  // ========================================================================
-  // Variables
+    // ========================================================================
+    // Variables
 
-  private QName theName;
-  private boolean isAttribute;
-  private boolean isMultiple;
-  private boolean isOptional;
-  private boolean isNillable;
-  private String defaultValue;
+    private QName theName;
+    private boolean isAttribute;
+    private boolean isMultiple;
+    private boolean isOptional;
+    private boolean isNillable;
+    private String defaultValue;
 
-  // ========================================================================
-  // Constructors
 
-  public QNameProperty() {
-    super();
-  }
+    // ========================================================================
+    // Constructors
 
-  public QNameProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node) {
-    super(node);
-    org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode =
-            (org.apache.xml.xmlbeans.bindingConfig.QnameProperty) node;
-    theName = qpNode.getQname();
-    isAttribute = qpNode.getAttribute();
-    isMultiple = qpNode.getMultiple();
-    isNillable = qpNode.getNillable();
-    isOptional = qpNode.getOptional();
-    defaultValue = qpNode.getDefault();
-  }
+    public QNameProperty()
+    {
+        super();
+    }
 
-  // ========================================================================
-  // Public methods
+    public QNameProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
+    {
+        super(node);
+        org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode =
+            (org.apache.xml.xmlbeans.bindingConfig.QnameProperty)node;
+        theName = qpNode.getQname();
+        isAttribute = qpNode.getAttribute();
+        isMultiple = qpNode.getMultiple();
+        isNillable = qpNode.getNillable();
+        isOptional = qpNode.getOptional();
+        defaultValue = qpNode.getDefault();
+    }
 
-  public QName getQName() {
-    return theName;
-  }
+    // ========================================================================
+    // Public methods
 
-  public void setQName(QName theName) {
-    this.theName = theName;
-  }
+    public QName getQName()
+    {
+        return theName;
+    }
 
-  public boolean isAttribute() {
-    return isAttribute;
-  }
+    public void setQName(QName theName)
+    {
+        this.theName = theName;
+    }
 
-  public void setAttribute(boolean attribute) {
-    isAttribute = attribute;
-  }
+    public boolean isAttribute()
+    {
+        return isAttribute;
+    }
 
-  public boolean isMultiple() {
-    return isMultiple;
-  }
+    public void setAttribute(boolean attribute)
+    {
+        isAttribute = attribute;
+    }
 
-  public void setMultiple(boolean multiple) {
-    isMultiple = multiple;
-  }
+    public boolean isMultiple()
+    {
+        return isMultiple;
+    }
 
-  public boolean isOptional() {
-    return isOptional;
-  }
+    public void setMultiple(boolean multiple)
+    {
+        isMultiple = multiple;
+    }
 
-  public void setOptional(boolean optional) {
-    isOptional = optional;
-  }
+    public boolean isOptional()
+    {
+        return isOptional;
+    }
 
-  public boolean isNillable() {
-    return isNillable;
-  }
+    public void setOptional(boolean optional)
+    {
+        isOptional = optional;
+    }
 
-  public void setNillable(boolean nillable) {
-    isNillable = nillable;
-  }
+    public boolean isNillable()
+    {
+        return isNillable;
+    }
 
-  public String getDefault() {
-    return defaultValue;
-  }
+    public void setNillable(boolean nillable)
+    {
+        isNillable = nillable;
+    }
 
-  public void setDefault(String default_value) {
-    defaultValue = default_value;
-  }
+    public String getDefault()
+    {
+        return defaultValue;
+    }
 
-  // ========================================================================
-  // BindingType implementation
+    public void setDefault(String default_value)
+    {
+        defaultValue = default_value;
+    }
 
-  /**
-   * This function copies an instance back out to the relevant part of the XML file.
-   *
-   * Subclasses should override and call super.write first.
-   */
-  protected org.apache.xml.xmlbeans.bindingConfig.BindingProperty write(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node) {
-    node = super.write(node);
+    // ========================================================================
+    // BindingType implementation
 
-    org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode =
-            (org.apache.xml.xmlbeans.bindingConfig.QnameProperty) node;
+    /**
+     * This function copies an instance back out to the relevant part of the XML file.
+     *
+     * Subclasses should override and call super.write first.
+     */
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingProperty write(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
+    {
+        node = super.write(node);
 
-    qpNode.setQname(theName);
-    if (isAttribute)
-      qpNode.setAttribute(true);
-    if (isMultiple)
-      qpNode.setMultiple(true);
-    if (isOptional)
-      qpNode.setOptional(true);
-    if (isNillable)
-      qpNode.setNillable(true);
-    return qpNode;
-  }
+        org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode =
+            (org.apache.xml.xmlbeans.bindingConfig.QnameProperty)node;
+
+        qpNode.setQname(theName);
+        if (isAttribute)
+            qpNode.setAttribute(true);
+        if (isMultiple)
+            qpNode.setMultiple(true);
+        if (isOptional)
+            qpNode.setOptional(true);
+        if (isNillable)
+            qpNode.setNillable(true);
+
+        return qpNode;
+    }
 
 
 }

@@ -18,7 +18,8 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-abstract class AttributeUnmarshaller implements TypeUnmarshaller
+abstract class AttributeUnmarshaller
+    implements TypeUnmarshaller
 {
     private final AttributeRuntimeBindingType type;
 
@@ -36,7 +37,26 @@ abstract class AttributeUnmarshaller implements TypeUnmarshaller
         return type.getFinalObjectFromIntermediary(inter, context);
     }
 
+    public void unmarshal(Object object, UnmarshalResult context)
+        throws XmlException
+    {
+        final Object inter = type.createIntermediary(context, object);
+        deserializeAttributes(inter, context);
+        deserializeContents(inter, context);
+
+        //this is needed to fill in all the array props
+        type.getFinalObjectFromIntermediary(inter, context);
+    }
+
     public Object unmarshalAttribute(UnmarshalResult context)
+    {
+        throw new UnsupportedOperationException("not an attribute: " +
+                                                type.getSchemaTypeName());
+    }
+
+
+    public void unmarshalAttribute(Object object, UnmarshalResult result)
+        throws XmlException
     {
         throw new UnsupportedOperationException("not an attribute: " +
                                                 type.getSchemaTypeName());
@@ -54,7 +74,7 @@ abstract class AttributeUnmarshaller implements TypeUnmarshaller
             RuntimeBindingProperty prop = findMatchingAttributeProperty(context);
 
             if (prop != null) {
-                UnmarshalResult.fillAttributeProp(prop, context, inter);
+                prop.extractAndFillAttributeProp(context, inter);
             }
 
             context.advanceAttribute();

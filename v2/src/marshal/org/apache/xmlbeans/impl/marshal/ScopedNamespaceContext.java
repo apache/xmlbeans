@@ -205,7 +205,7 @@ final class ScopedNamespaceContext
         }
     }
 
-    private static class LLNamespaceContext
+    private static final class LLNamespaceContext
     {
         private final String prefix;
         private final String namespace;

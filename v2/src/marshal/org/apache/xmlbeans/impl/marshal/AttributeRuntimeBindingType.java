@@ -30,7 +30,6 @@ import java.util.Iterator;
  */
 abstract class AttributeRuntimeBindingType
     extends RuntimeBindingType
-    implements IntermediateResolver
 {
     private final AttributeQNameProperty[] attributeProperties;
     private final boolean hasDefaultAttributes;  //has any attributes with defaults
@@ -65,15 +64,11 @@ abstract class AttributeRuntimeBindingType
         hasDefaultAttributes = has_attribute_defaults;
     }
 
-    public Object getObjectFromIntermediate(Object inter)
-    {
-        return inter;
-    }
 
     //prepare internal data structures for use
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader loader,
-                           RuntimeTypeFactory rttFactory)
+    void initialize(RuntimeBindingTypeTable typeTable,
+                    BindingLoader loader,
+                    RuntimeTypeFactory rttFactory)
         throws XmlException
     {
         int att_idx = 0;
@@ -115,6 +110,13 @@ abstract class AttributeRuntimeBindingType
 
     protected abstract Object createIntermediary(UnmarshalResult context);
 
+    //some subclass will certainly need to override this
+    protected Object createIntermediary(UnmarshalResult context,
+                                        Object actual_object)
+    {
+        return actual_object;
+    }
+
     protected abstract Object getFinalObjectFromIntermediary(Object retval,
                                                              UnmarshalResult context)
         throws XmlException;
@@ -131,7 +133,7 @@ abstract class AttributeRuntimeBindingType
                                                               UnmarshalResult context)
     {
         for (int i = 0, len = attributeProperties.length; i < len; i++) {
-            final QNamePropertyBase prop = attributeProperties[i];
+            final QNameRuntimeProperty prop = attributeProperties[i];
 
             if (doesPropMatch(uri, localname, prop)) {
                 if (hasDefaultAttributes && (prop.typedDefaultValue != null)) {
@@ -145,7 +147,7 @@ abstract class AttributeRuntimeBindingType
 
     private static boolean doesPropMatch(String uri,
                                          String localname,
-                                         QNamePropertyBase prop)
+                                         QNameRuntimeProperty prop)
     {
         assert localname != null;
 
@@ -154,21 +156,21 @@ abstract class AttributeRuntimeBindingType
         return UnmarshalResult.doesElementMatch(qn, localname, uri);
     }
 
-    public abstract int getElementPropertyCount();
+    abstract int getElementPropertyCount();
 
-    public final int getAttributePropertyCount()
+    final int getAttributePropertyCount()
     {
         return attributeProperties.length;
     }
 
-    public final void fillDefaultAttributes(Object inter,
-                                            UnmarshalResult context)
+    final void fillDefaultAttributes(Object inter,
+                                     UnmarshalResult context)
         throws XmlException
     {
         if (!hasDefaultAttributes) return;
 
         for (int aidx = 0, alen = attributeProperties.length; aidx < alen; aidx++) {
-            final QNamePropertyBase p = attributeProperties[aidx];
+            final QNameRuntimeProperty p = attributeProperties[aidx];
 
             if (p.typedDefaultValue == null) continue;
             if (context.isAttributePresent(aidx)) continue;
@@ -180,19 +182,19 @@ abstract class AttributeRuntimeBindingType
     protected abstract boolean hasMulti();
 
     protected static final class AttributeQNameProperty
-        extends QNamePropertyBase
+        extends QNameRuntimeProperty
     {
         AttributeQNameProperty(Class beanClass,
                                boolean bean_has_multis,
                                QNameProperty prop,
-                               IntermediateResolver intermediateResolver,
+                               RuntimeBindingType containing_type,
                                RuntimeBindingTypeTable typeTable,
                                BindingLoader loader,
                                RuntimeTypeFactory rttFactory)
             throws XmlException
         {
             super(beanClass, bean_has_multis,
-                  prop, intermediateResolver, typeTable, loader, rttFactory);
+                  prop, containing_type, typeTable, loader, rttFactory);
             assert prop.isAttribute();
         }
 
@@ -207,24 +209,24 @@ abstract class AttributeRuntimeBindingType
     }
 
 
-    protected static abstract class QNamePropertyBase
-        extends RuntimePropertyBase
+    protected static abstract class QNameRuntimeProperty
+        extends BeanRuntimeProperty
     {
         protected final boolean beanHasMulti;          //consider a subclass
         protected final QNameProperty bindingProperty;
         protected final String lexicalDefaultValue;
         protected final Object typedDefaultValue;
 
-        QNamePropertyBase(Class beanClass,
-                          boolean bean_has_multis,
-                          QNameProperty prop,
-                          IntermediateResolver intermediateResolver,
-                          RuntimeBindingTypeTable typeTable,
-                          BindingLoader loader,
-                          RuntimeTypeFactory rttFactory)
+        QNameRuntimeProperty(Class beanClass,
+                             boolean bean_has_multis,
+                             QNameProperty prop,
+                             RuntimeBindingType containing_type,
+                             RuntimeBindingTypeTable typeTable,
+                             BindingLoader loader,
+                             RuntimeTypeFactory rttFactory)
             throws XmlException
         {
-            super(beanClass, prop, intermediateResolver, typeTable, loader, rttFactory);
+            super(beanClass, prop, containing_type, typeTable, loader, rttFactory);
 
             if (prop.getQName() == null) {
                 final String msg = "property " + prop + " of " +
@@ -243,16 +245,17 @@ abstract class AttributeRuntimeBindingType
             } else {
                 typedDefaultValue = null;
             }
+
         }
 
 
-        public final QName getName()
+        final QName getName()
         {
             return bindingProperty.getQName();
         }
 
 
-        public final void fillDefaultValue(Object inter)
+        final void fillDefaultValue(Object inter)
             throws XmlException
         {
             assert (typedDefaultValue != null);
@@ -260,25 +263,25 @@ abstract class AttributeRuntimeBindingType
             this.fill(inter, typedDefaultValue);
         }
 
-        public final void fillCollection(final Object inter,
-                                         final Object prop_obj)
+        final void fillCollection(final Object inter,
+                                  final Object prop_obj)
             throws XmlException
         {
             assert isMultiple();
             ReflectionUtils.invokeMethod(inter, setMethod, new Object[]{prop_obj});
         }
 
-        public final boolean isMultiple()
+        final boolean isMultiple()
         {
             return bindingProperty.isMultiple();
         }
 
-        public final boolean isNillable()
+        final boolean isNillable()
         {
             return bindingProperty.isNillable();
         }
 
-        public final String getLexicalDefault()
+        final String getLexicalDefault()
         {
             return lexicalDefaultValue;
         }

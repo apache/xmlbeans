@@ -25,21 +25,21 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleContentProperty;
 import javax.xml.namespace.QName;
 import java.util.Collection;
 
-public class SimpleContentRuntimeBindingType
+class SimpleContentRuntimeBindingType
     extends AttributeRuntimeBindingType
 {
     private SimpleContentRuntimeProperty simpleTypeProperty;
 
-    public SimpleContentRuntimeBindingType(SimpleContentBean simpleContentBean)
+    SimpleContentRuntimeBindingType(SimpleContentBean simpleContentBean)
         throws XmlException
     {
         super(simpleContentBean);
     }
 
     //prepare internal data structures for use
-    public final void initialize(RuntimeBindingTypeTable typeTable,
-                                 BindingLoader loader,
-                                 RuntimeTypeFactory rttFactory)
+    final void initialize(RuntimeBindingTypeTable typeTable,
+                          BindingLoader loader,
+                          RuntimeTypeFactory rttFactory)
         throws XmlException
     {
         super.initialize(typeTable, loader, rttFactory);
@@ -85,7 +85,7 @@ public class SimpleContentRuntimeBindingType
         return retval;
     }
 
-    public int getElementPropertyCount()
+    int getElementPropertyCount()
     {
         return 0;
     }
@@ -95,43 +95,42 @@ public class SimpleContentRuntimeBindingType
         return false;
     }
 
-    public RuntimeBindingProperty getSimpleContentProperty()
+    RuntimeBindingProperty getSimpleContentProperty()
     {
         return simpleTypeProperty;
     }
 
     private static final class SimpleContentRuntimeProperty
-        extends RuntimePropertyBase
+        extends BeanRuntimeProperty
     {
 
         SimpleContentRuntimeProperty(Class beanClass,
                                      BindingProperty prop,
-                                     IntermediateResolver intermediateResolver,
+                                     RuntimeBindingType containing_type,
                                      RuntimeBindingTypeTable typeTable,
                                      BindingLoader loader,
                                      RuntimeTypeFactory rttFactory)
             throws XmlException
         {
-            super(beanClass, prop, intermediateResolver, typeTable, loader, rttFactory);
-
+            super(beanClass, prop, containing_type, typeTable, loader, rttFactory);
         }
 
-        public QName getName()
+        QName getName()
         {
             throw new AssertionError("prop has no name by design");
         }
 
-        public boolean isMultiple()
+        boolean isMultiple()
         {
             return false;
         }
 
-        public boolean isNillable()
+        boolean isNillable()
         {
             return false;
         }
 
-        public String getLexicalDefault()
+        String getLexicalDefault()
         {
             return null;
         }

@@ -215,7 +215,7 @@ final class MarshallerImpl
         }
     }
 
-    private XMLStreamWriter createXmlStreamWriter(OutputStream out,
+    private static XMLStreamWriter createXmlStreamWriter(OutputStream out,
                                                   final String encoding)
         throws XMLStreamException
     {

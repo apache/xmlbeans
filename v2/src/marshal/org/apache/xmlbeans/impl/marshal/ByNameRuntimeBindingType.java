@@ -63,7 +63,7 @@ final class ByNameRuntimeBindingType
     }
 
 
-    public Object getObjectFromIntermediate(Object inter)
+    Object getObjectFromIntermediate(Object inter)
     {
         if (hasMulti()) {
             UResultHolder res = (UResultHolder)inter;
@@ -102,6 +102,17 @@ final class ByNameRuntimeBindingType
         }
     }
 
+    //some subclass will certainly need to override this
+    protected Object createIntermediary(UnmarshalResult context,
+                                        Object actual_object)
+    {
+        if (hasMulti) {
+            return new UResultHolder(this, actual_object);
+        } else {
+            return actual_object;
+        }
+    }
+
     protected Object getFinalObjectFromIntermediary(Object retval,
                                                     UnmarshalResult context)
         throws XmlException
@@ -113,6 +124,7 @@ final class ByNameRuntimeBindingType
             return retval;
         }
     }
+
 
     RuntimeBindingProperty getElementProperty(int index)
     {
@@ -135,7 +147,7 @@ final class ByNameRuntimeBindingType
 
     private static boolean doesPropMatch(String uri,
                                          String localname,
-                                         QNamePropertyBase prop)
+                                         QNameRuntimeProperty prop)
     {
         assert localname != null;
 
@@ -156,7 +168,7 @@ final class ByNameRuntimeBindingType
 
 
     protected static final class ElementQNameProperty
-        extends QNamePropertyBase
+        extends QNameRuntimeProperty
     {
         protected final int propertyIndex;
 
@@ -164,14 +176,14 @@ final class ByNameRuntimeBindingType
                              Class beanClass,
                              boolean bean_has_multis,
                              QNameProperty prop,
-                             IntermediateResolver intermediateResolver,
+                             RuntimeBindingType containing_type,
                              RuntimeBindingTypeTable typeTable,
                              BindingLoader loader,
                              RuntimeTypeFactory rttFactory)
             throws XmlException
         {
             super(beanClass, bean_has_multis,
-                  prop, intermediateResolver, typeTable, loader, rttFactory);
+                  prop, containing_type, typeTable, loader, rttFactory);
             propertyIndex = property_index;
             assert !prop.isAttribute();
         }
@@ -193,10 +205,11 @@ final class ByNameRuntimeBindingType
                     rh.addItem(propertyIndex, prop_obj);
                 } else {
                     ReflectionUtils.invokeMethod(rh.getValue(), setMethod,
-                                 new Object[]{prop_obj});
+                                                 new Object[]{prop_obj});
                 }
             } else {
-                ReflectionUtils.invokeMethod(inter, setMethod, new Object[]{prop_obj});
+                ReflectionUtils.invokeMethod(inter, setMethod,
+                                             new Object[]{prop_obj});
             }
         }
 
@@ -211,19 +224,25 @@ final class ByNameRuntimeBindingType
 
         UResultHolder(ByNameRuntimeBindingType type)
         {
+            this(type, ClassLoadingUtils.newInstance(type.getJavaType()));
+        }
+
+        UResultHolder(ByNameRuntimeBindingType type, Object actual_obj)
+        {
             runtimeBindingType = type;
-            value = ClassLoadingUtils.newInstance(type.getJavaType());
+            value = actual_obj;
         }
 
 
         Object getFinalValue() throws XmlException
         {
             if (accumulators != null) {
-                final QNamePropertyBase[] props = runtimeBindingType.elementProperties;
+                final QNameRuntimeProperty[] props =
+                    runtimeBindingType.elementProperties;
                 for (int i = 0, len = accumulators.length; i < len; i++) {
                     final Accumulator accum = accumulators[i];
                     if (accum != null) {
-                        final QNamePropertyBase prop = props[i];
+                        final QNameRuntimeProperty prop = props[i];
                         prop.fillCollection(value, accum.getFinalArray());
                     }
                 }
@@ -245,16 +264,22 @@ final class ByNameRuntimeBindingType
                 accumulators = accs;
             }
             if (accs[elem_idx] == null) {
-                final QNamePropertyBase p = runtimeBindingType.elementProperties[elem_idx];
+                final QNameRuntimeProperty p =
+                    runtimeBindingType.elementProperties[elem_idx];
                 accs[elem_idx] =
                     AccumulatorFactory.createAccumulator(p.propertyClass,
                                                          p.collectionElementClass);
             }
         }
 
-        public Object getValue()
+        Object getValue()
         {
             return value;
+        }
+
+        public Object getActualObject()
+        {
+            return null;
         }
 
     }

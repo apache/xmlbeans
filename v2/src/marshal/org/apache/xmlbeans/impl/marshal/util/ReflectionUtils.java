@@ -33,6 +33,12 @@ public final class ReflectionUtils
                                       Object[] params)
         throws XmlException
     {
+//        final Class decl = method.getDeclaringClass();
+//        final Class got = target.getClass();
+//
+//        assert decl.isAssignableFrom(got) : "DECL=" + decl + " GOT:" + got;
+
+
         try {
             return method.invoke(target, params);
         }
@@ -105,7 +111,7 @@ public final class ReflectionUtils
         throws XmlException
     {
         if (method_name == null) return null;
-        
+
         try {
             return method_name.getMethodOn(clazz);
         }
@@ -120,7 +126,8 @@ public final class ReflectionUtils
         }
     }
 
-    public static boolean isMethodStatic(Method m) {
+    public static boolean isMethodStatic(Method m)
+    {
         return Modifier.isStatic(m.getModifiers());
     }
 

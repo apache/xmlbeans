@@ -45,7 +45,7 @@ final class ByNameUnmarshaller
                 context.skipElement();
             } else {
                 //TODO: implement first one wins?, this is last one wins
-                UnmarshalResult.fillElementProp(prop, context, inter);
+                prop.extractAndFillElementProp(context, inter);
             }
         }
 
@@ -67,7 +67,6 @@ final class ByNameUnmarshaller
         String lname = context.getLocalName();
         return byNameType.getMatchingElementProperty(uri, lname);
     }
-
 
 
 }

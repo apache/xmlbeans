@@ -75,9 +75,15 @@ public class WrappedArrayUnmarshaller
     public Object unmarshal(UnmarshalResult result)
         throws XmlException
     {
-        final Object inter = type.createIntermediary(result);
+        final Object inter = type.createIntermediary();
         deserializeContents(inter, result);
-        return type.getFinalObjectFromIntermediary(inter, result);
+        return type.getFinalObjectFromIntermediary(inter);
+    }
+
+    public void unmarshal(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
     //TODO: cleanup this code.  We are doing extra work for assertion checking
@@ -95,8 +101,7 @@ public class WrappedArrayUnmarshaller
             assert context.isStartElement();
 
             if (matchesItemElement(context)) {
-                UnmarshalResult.fillElementProp(type.getElementProperty(),
-                                                context, inter);
+                type.getElementProperty().extractAndFillElementProp(context, inter);
             }
         }
 
@@ -123,7 +128,13 @@ public class WrappedArrayUnmarshaller
     public Object unmarshalAttribute(UnmarshalResult result)
         throws XmlException
     {
-        throw new UnsupportedOperationException("not used");
+        throw new AssertionError("not used");
+    }
+
+    public void unmarshalAttribute(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new AssertionError("not used");
     }
 
     public void initialize(RuntimeBindingTypeTable typeTable,
