@@ -79,7 +79,8 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
 
     public Object unmarshalAttribute(UnmarshallerImpl context)
     {
-        throw new UnsupportedOperationException();
+        throw new UnsupportedOperationException("not an attribute: " +
+                                                type.getSchemaTypeName());
     }
 
     //TODO: cleanup this code.  We are doing extra work for assertion checking

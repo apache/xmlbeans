@@ -385,6 +385,9 @@ final class ByNameRuntimeBindingType
 
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshallerImpl context)
         {
+            //don't need any xsi stuff for attributes.
+            if (bindingProperty.isAttribute()) return unmarshaller;
+
             final QName xsi_type = context.getXsiType();
 
             if (xsi_type != null) {
