@@ -1,5 +1,6 @@
 Changes since v1.0.3:
 
+- bug fix: XMLBEANS-105: NPE while initializing a type system w/ a type that extends an a complex type from a different type system (Kevin Krouse)
 - bug fix: Fix for http://issues.apache.org/jira/browse/XMLBEANS-35 (Radu Preotiuc)
 - updated ant docs (Kevin Krouse)
 - bug fix: throw BuildException if exception happens and failonerror=true (Kevin Krouse)
