@@ -127,12 +127,6 @@ final class WrappedArrayRuntimeBindingType
             return itemName;
         }
 
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
-            throws XmlException
-        {
-            return context.determineTypeUnmarshaller(itemType.getUnmarshaller());
-        }
-
         public void fill(Object inter, Object prop_obj)
             throws XmlException
         {

@@ -337,13 +337,6 @@ abstract class RuntimeBindingType
             return result.determineRuntimeBindingType(runtimeBindingType, property_value);
         }
 
-
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
-            throws XmlException
-        {
-            return context.determineTypeUnmarshaller(runtimeBindingType.getUnmarshaller());
-        }
-
         final boolean isSet(Object parentObject, MarshalResult result)
             throws XmlException
         {

@@ -99,7 +99,8 @@ final class ListArrayConverter
         final Class list_java_type = listType.getJavaType();
         final Class item_java_type = item_prop.getRuntimeBindingType().getJavaType();
 
-        final TypeUnmarshaller item_um = item_prop.getTypeUnmarshaller(context);
+        final TypeUnmarshaller item_um =
+            item_prop.getRuntimeBindingType().getUnmarshaller();
 
         return unmarshalListString(str, list_java_type, item_java_type,
                                    item_um, context);
