@@ -20,64 +20,104 @@ import javax.xml.namespace.QName;
 /**
  * Represents builtin bindings.
  */
-public abstract class BuiltinBindingLoader extends BaseBindingLoader {
+public abstract class BuiltinBindingLoader extends BaseBindingLoader
+{
 
-  // ========================================================================
-  // Constants
+    // ========================================================================
+    // Constants
 
-  private static final String xsns = "http://www.w3.org/2001/XMLSchema";
+    private static final String XSNS = "http://www.w3.org/2001/XMLSchema";
+    private static final String SOAPENC = "http://schemas.xmlsoap.org/soap/encoding/";
 
-  // ========================================================================
-  // Static methods
+    // ========================================================================
+    // Static methods
 
-  public static BindingLoader getInstance() {
-    return getBuiltinBindingLoader(false);
-  }
-
-  public static BindingLoader getBuiltinBindingLoader(boolean jaxRpc) {
-    if (jaxRpc)
-      return JaxRpcBuiltinBindingLoader.getInstance();
-    else
-      return DefaultBuiltinBindingLoader.getInstance();
-  }
-
-  // ========================================================================
-  // Private methods
-
-  private void addMapping(String xmlType, String javaName, boolean fromJavaDefault, boolean fromXmlDefault) {
-    XmlTypeName xn = XmlTypeName.forTypeNamed(new QName(xsns, xmlType));
-    JavaTypeName jn = JavaTypeName.forString(javaName);
-    BindingTypeName btName = BindingTypeName.forPair(jn, xn);
-    BindingType bType = new BuiltinBindingType(btName);
-
-    addBindingType(bType);
-    if (fromJavaDefault) {
-      if (bType.getName().getXmlName().getComponentType() == XmlTypeName.ELEMENT)
-        addElementFor(bType.getName().getJavaName(), bType.getName());
-      else
-        addTypeFor(bType.getName().getJavaName(), bType.getName());
+    public static BindingLoader getInstance()
+    {
+        return getBuiltinBindingLoader(false);
     }
-    if (fromXmlDefault) {
-      if (bType.getName().getJavaName().isXmlObject())
-        addXmlObjectFor(bType.getName().getXmlName(), bType.getName());
-      else
-        addPojoFor(bType.getName().getXmlName(), bType.getName());
+
+    public static BindingLoader getBuiltinBindingLoader(boolean jaxRpc)
+    {
+        if (jaxRpc)
+            return JaxRpcBuiltinBindingLoader.getInstance();
+        else
+            return DefaultBuiltinBindingLoader.getInstance();
     }
-  }
 
-  protected void addPojoTwoWay(String xmlType, String javaName) {
-    addMapping(xmlType, javaName, true, true);
-  }
+    // ========================================================================
+    // Private methods
+    private void addMapping(String xmlType,
+                            String javaName,
+                            boolean fromJavaDefault,
+                            boolean fromXmlDefault)
+    {
+        final QName xml_name = new QName(XSNS, xmlType);
+        addMapping(xml_name, javaName, fromJavaDefault, fromXmlDefault);
+    }
 
-  protected void addPojoXml(String xmlType, String javaName) {
-    addMapping(xmlType, javaName, false, true);
-  }
+    private void addSoapMapping(String xmlType,
+                                String javaName,
+                                boolean fromJavaDefault,
+                                boolean fromXmlDefault)
+    {
+        final QName xml_name = new QName(SOAPENC, xmlType);
+        addMapping(xml_name, javaName, fromJavaDefault, fromXmlDefault);
+    }
 
-  protected void addPojoJava(String xmlType, String javaName) {
-    addMapping(xmlType, javaName, true, false);
-  }
+    private void addMapping(QName xml_name,
+                            String javaName,
+                            boolean fromJavaDefault,
+                            boolean fromXmlDefault)
+    {
+        XmlTypeName xn = XmlTypeName.forTypeNamed(xml_name);
+        JavaTypeName jn = JavaTypeName.forString(javaName);
+        BindingTypeName btName = BindingTypeName.forPair(jn, xn);
+        BindingType bType = new BuiltinBindingType(btName);
 
-  protected void addPojo(String xmlType, String javaName) {
-    addMapping(xmlType, javaName, false, false);
-  }
+        addBindingType(bType);
+        if (fromJavaDefault) {
+            if (bType.getName().getXmlName().getComponentType() == XmlTypeName.ELEMENT)
+                addElementFor(bType.getName().getJavaName(), bType.getName());
+            else
+                addTypeFor(bType.getName().getJavaName(), bType.getName());
+        }
+        if (fromXmlDefault) {
+            if (bType.getName().getJavaName().isXmlObject())
+                addXmlObjectFor(bType.getName().getXmlName(), bType.getName());
+            else
+                addPojoFor(bType.getName().getXmlName(), bType.getName());
+        }
+    }
+
+    protected void addPojoTwoWay(String xmlType, String javaName)
+    {
+        addMapping(xmlType, javaName, true, true);
+    }
+
+    protected void addPojoXml(String xmlType, String javaName)
+    {
+        addMapping(xmlType, javaName, false, true);
+    }
+
+    protected void addPojoJava(String xmlType, String javaName)
+    {
+        addMapping(xmlType, javaName, true, false);
+    }
+
+    protected void addPojo(String xmlType, String javaName)
+    {
+        addMapping(xmlType, javaName, false, false);
+    }
+
+
+    protected void addSoapPojoXml(String xmlType, String javaName)
+    {
+        addSoapMapping(xmlType, javaName, false, true);
+    }
+
+    protected void addSoapPojo(String xmlType, String javaName)
+    {
+        addSoapMapping(xmlType, javaName, false, false);
+    }
 }
