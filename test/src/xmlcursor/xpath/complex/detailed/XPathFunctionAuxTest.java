@@ -13,11 +13,12 @@
  *  limitations under the License.
  */
 
-package xmlcursor.xpath.common;
+package xmlcursor.xpath.detailed;
 
 import xmlcursor.common.BasicCursorTestCase;
 
 import xmlcursor.common.Common;
+import xmlcursor.xpath.common.XPathCommon;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.framework.Assert;
@@ -32,6 +33,8 @@ import java.io.IOException;
 /**
  * Verifies XPath using functions
  * http://www.w3schools.com/xpath/xpath_functions.asp
+ *
+ * @status inactive
  */
 
 public class XPathFunctionAuxTest
@@ -77,7 +80,7 @@ public class XPathFunctionAuxTest
             "<price at=\"val1\">2</price></bar><bar1>3.00</bar1></foo>";
         m_xc = XmlObject.Factory.parse(sXml).newCursor();
 
-        String sXPath = "concat(name(/bar[position()=1]/*[position()=last()])," +
+        String sXPath = "concat(name(//bar[position()=1]/*[position()=last()])," +
             "//price[position()=1]/text())";
         String sExpected = Common.wrapInXmlFrag("price3.00");
         m_xc.selectPath(fixPath(sXPath));
