@@ -389,7 +389,12 @@ public class NameUtil
             return -1;
         if (uri.charAt(i) != ':')
             return -1;
-        return i;
+        // consume consecutive colons
+        for (; i < len; i++)
+            if (uri.charAt(i) != ':')
+                break;
+        // for the "scheme:::" case, return len-1
+        return i-1;
     }
 
     private static String jls77String(String name)
@@ -465,9 +470,16 @@ public class NameUtil
         int i = findSchemeColon(uri);
         List result = null;
 
-        if ( i >= 0 && uri.substring(0, i).equals("java"))
+        if (i == len-1)
+        {
+            // XMLBEANS-57: colon is at end so just use scheme as the package name
+            result = new ArrayList();
+            result.add(uri.substring(0, i));
+        }
+        else if (i >= 0 && uri.substring(0, i).equals("java"))
+        {
             result =  Arrays.asList(uri.substring(i + 1).split("\\."));
-
+        }
         else {
             result = new ArrayList();
             outer: for (i = i + 1; i < len; )
@@ -494,9 +506,15 @@ public class NameUtil
         StringBuffer buf = new StringBuffer();
         for (Iterator it = result.iterator(); it.hasNext(); )
         {
-            buf.append(nonJavaKeyword(lowerCamelCase((String)it.next(), useJaxRpcRules, true)));
-            buf.append('.');
+            String part = nonJavaKeyword(lowerCamelCase((String)it.next(), useJaxRpcRules, true));
+            if (part.length() > 0)
+            {
+                buf.append(part);
+                buf.append('.');
+            }
         }
+        if (buf.length() == 0)
+            return "noNamespace";
         return buf.substring(0, buf.length() - 1); // chop off extra dot
     }
 
