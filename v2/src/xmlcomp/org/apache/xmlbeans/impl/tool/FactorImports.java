@@ -49,9 +49,43 @@ import javax.xml.namespace.QName;
  */ 
 public class FactorImports
 {
+    public static void printUsage()
+    {
+        System.out.println("Refactors a directory of .xsd files to remove name conflicts");
+        System.out.println("Usage:");
+        System.out.println("sfactor [-import common.xsd] [-out outputdir] inputdir");
+        System.out.println(" where inputdir is a directory containing .xsd files");
+        System.out.println(" and outputdir is a directory into which new xsd files,");
+        System.out.println(" plus a commonly imported common.xsd, is placed.");
+        System.out.println(" -license prints license information");
+    }
+
     public static void main(String[] args) throws Exception
     {
-        CommandLine cl = new CommandLine(args, Arrays.asList(new String[] {"import", "out"}));
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+
+        CommandLine cl = new CommandLine(args, flags, Arrays.asList(new String[] {"import", "out"}));
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
@@ -62,13 +96,6 @@ public class FactorImports
         args = cl.args();
         if (args.length != 1)
         {
-            System.out.println("Refactors a directory of .xsd files to remove name conflicts");
-            System.out.println("Usage:");
-            System.out.println("sfactor [-import common.xsd] [-out outputdir] inputdir");
-            System.out.println(" where inputdir is a directory containing .xsd files");
-            System.out.println(" and outputdir is a directory into which new xsd files,");
-            System.out.println(" plus a commonly imported common.xsd, is placed.");
-            System.out.println(" -license prints license information");
             System.exit(0);
             return;
         }

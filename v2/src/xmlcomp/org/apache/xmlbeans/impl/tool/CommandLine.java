@@ -29,9 +29,13 @@ import java.util.Map;
 
 public class CommandLine
 {
-    public CommandLine(String[] args, Collection scheme)
+    public CommandLine(String[] args, Collection flags, Collection scheme)
     {
+        if (flags == null || scheme == null)
+            throw new IllegalArgumentException("collection required (use Collections.EMPTY_SET if no options)");
+
         _options = new LinkedHashMap();
+        ArrayList badopts = new ArrayList();
         ArrayList endargs = new ArrayList();
 
         for (int i = 0; i < args.length; i++)
@@ -40,10 +44,18 @@ public class CommandLine
             {
                 String opt = args[i].substring(1);
                 String val = null;
-                if (scheme != null && scheme.contains(opt) && i+1 < args.length)
-                    val = args[++i];
-                else
+
+                if (flags.contains(opt))
                     val = "";
+                else if (scheme.contains(opt))
+                {
+                    if (i+1 < args.length)
+                        val = args[++i];
+                    else
+                        val = "";
+                }
+                else
+                    badopts.add(args[i]);
 
                 _options.put(opt, val);
             }
@@ -53,6 +65,7 @@ public class CommandLine
             }
         }
 
+        _badopts = (String[])badopts.toArray(new String[badopts.size()]);
         _args = (String[])endargs.toArray(new String[endargs.size()]);
     }
 
@@ -69,6 +82,7 @@ public class CommandLine
     }
 
     private Map _options;
+    private String[] _badopts;
     private String[] _args;
 
     public String[] args()
@@ -76,6 +90,11 @@ public class CommandLine
         String[] result = new String[_args.length];
         System.arraycopy(_args, 0, result, 0, _args.length);
         return result;
+    }
+
+    public String[] getBadOpts()
+    {
+        return _badopts;
     }
 
     public String getOpt(String opt)

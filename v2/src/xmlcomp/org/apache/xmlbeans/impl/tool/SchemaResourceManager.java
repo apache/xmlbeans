@@ -32,27 +32,58 @@ import java.util.Set;
 
 public class SchemaResourceManager extends BaseSchemaResourceManager
 {
+    public static void printUsage()
+    {
+        System.out.println("Maintains \"xsdownload.xml\", an index of locally downloaded .xsd files");
+        System.out.println("usage: sdownload [-dir directory] [-refresh] [-recurse] [-sync] [url/file...]");
+        System.out.println("");
+        System.out.println("URLs that are specified are downloaded if they aren't already cached.");
+        System.out.println("In addition:");
+        System.out.println("  -dir specifies the directory for the xsdownload.xml file (default .).");
+        System.out.println("  -sync synchronizes the index to any local .xsd files in the tree.");
+        System.out.println("  -recurse recursively downloads imported and included .xsd files.");
+        System.out.println("  -refresh redownloads all indexed .xsd files.");
+        System.out.println("If no files or URLs are specified, all indexed files are relevant.");
+    }
+
     public static void main(String[] args) throws IOException
     {
         if (args.length == 0)
         {
-            System.out.println("Maintains \"xsdownload.xml\", an index of locally downloaded .xsd files");
-            System.out.println("usage: sdownload [-dir directory] [-refresh] [-recurse] [-sync] [url/file...]");
-            System.out.println("");
-            System.out.println("URLs that are specified are downloaded if they aren't already cached.");
-            System.out.println("In addition:");
-            System.out.println("  -dir specifies the directory for the xsdownload.xml file (default .).");
-            System.out.println("  -sync synchronizes the index to any local .xsd files in the tree.");
-            System.out.println("  -recurse recursively downloads imported and included .xsd files.");
-            System.out.println("  -refresh redownloads all indexed .xsd files.");
-            System.out.println("If no files or URLs are specified, all indexed files are relevant.");
+            printUsage();
             System.exit(0);
             return;
         }
 
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+        flags.add("sync");
+        flags.add("refresh");
+        flags.add("recurse");
+
         Set opts = new HashSet();
         opts.add("dir");
-        CommandLine cl = new CommandLine(args, opts);
+        CommandLine cl = new CommandLine(args, flags, opts);
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();

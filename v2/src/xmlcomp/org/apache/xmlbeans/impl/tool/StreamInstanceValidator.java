@@ -34,27 +34,60 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.HashSet;
 
 public class StreamInstanceValidator
 {
     private static final XMLInputFactory XML_INPUT_FACTORY = XMLInputFactory.newInstance();
 
+    public static void printUsage()
+    {
+        System.out.println("Validates a schema defintion and instances within the schema.");
+        System.out.println("Usage: validate [switches] schema.xsd instance.xml");
+        System.out.println("Switches:");
+        System.out.println("    -dl    enable network downloads for imports and includes");
+        System.out.println("    -nopvr disable particle valid (restriction) rule");
+        System.out.println("    -noupa diable unique particle attributeion rule");
+        System.out.println("    -license prints license information");
+    }
+
     public static void main(String[] args)
     {
-        CommandLine cl = new CommandLine(args, Collections.EMPTY_SET);
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+        flags.add("dl");
+        flags.add("noupr");
+        flags.add("noupa");
+
+        CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
         if (cl.getOpt("license") != null) {
             CommandLine.printLicense();
             System.exit(0);
             return;
         }
         if (cl.args().length == 0) {
-            System.out.println("Validates a schema defintion and instances within the schema.");
-            System.out.println("Usage: validate [switches] schema.xsd instance.xml");
-            System.out.println("Switches:");
-            System.out.println("    -dl    enable network downloads for imports and includes");
-            System.out.println("    -nopvr disable particle valid (restriction) rule");
-            System.out.println("    -noupa diable unique particle attributeion rule");
-            System.out.println("    -license prints license information");
+            printUsage();
             return;
         }
 

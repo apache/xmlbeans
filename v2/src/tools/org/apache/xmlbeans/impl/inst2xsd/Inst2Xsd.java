@@ -53,6 +53,14 @@ public class Inst2Xsd
             return;
         }
 
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+        flags.add("verbose");
+        flags.add("validate");
+
         Set opts = new HashSet();
         opts.add("design");
         opts.add("simple-content-types");
@@ -60,7 +68,7 @@ public class Inst2Xsd
         opts.add("outDir");
         opts.add("outPrefix");
 
-        CommandLine cl = new CommandLine(args, opts);
+        CommandLine cl = new CommandLine(args, flags, opts);
         Inst2XsdOptions inst2XsdOptions = new Inst2XsdOptions();
 
         if (cl.getOpt("license") != null)
@@ -70,8 +78,18 @@ public class Inst2Xsd
             return;
         }
 
-        if (cl.getOpt("help") != null)
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
         {
+            printHelp();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
             printHelp();
             System.exit(0);
             return;

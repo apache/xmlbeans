@@ -31,15 +31,49 @@ import java.util.Iterator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Arrays;
+import java.util.Set;
+import java.util.HashSet;
 import java.io.File;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 public class TypeHierarchyPrinter
 {
+    public static void printUsage()
+    {
+        System.out.println("Prints inheritance hierarchy of types defined in a schema.");
+        System.out.println("Usage: xsdtree [-noanon] [-nopvr] [-noupa] [-license] file1.xsd file2.xsd ...");
+    }
+
     public static void main(String[] args) throws Exception
     {
-        CommandLine cl = new CommandLine(args, Collections.EMPTY_SET);
+        Set flags = new HashSet();
+        flags.add("h");
+        flags.add("help");
+        flags.add("usage");
+        flags.add("license");
+        flags.add("noanon");
+        flags.add("noupr");
+        flags.add("noupa");
+
+        CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
+        String[] badopts = cl.getBadOpts();
+        if (badopts.length > 0)
+        {
+            for (int i = 0; i < badopts.length; i++)
+                System.out.println("Unrecognized option: " + badopts[i]);
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
@@ -48,8 +82,7 @@ public class TypeHierarchyPrinter
         }
         if (cl.args().length == 0)
         {
-            System.out.println("Prints inheritance hierarchy of types defined in a schema.");
-            System.out.println("Usage: xsdtree [-noanon] [-nopvr] [-noupa] [-license] file1.xsd file2.xsd ...");
+            printUsage();
             return;
         }
         
