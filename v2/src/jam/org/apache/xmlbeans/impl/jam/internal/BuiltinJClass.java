@@ -162,6 +162,8 @@ public abstract class BuiltinJClass implements JClass {
 
   public boolean isPrimitive() { return false; }
 
+  public Class getPrimitiveClass() { return null; }
+
   public boolean isObject() { return false; }
 
   public boolean isVoid() { return false; }

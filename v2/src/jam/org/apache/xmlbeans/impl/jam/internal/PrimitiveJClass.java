@@ -198,4 +198,8 @@ public final class PrimitiveJClass extends BuiltinJClass {
   public boolean isPrimitive() {
     return true;
   }
+
+  public Class getPrimitiveClass() {
+    return mClass;
+  }
 }

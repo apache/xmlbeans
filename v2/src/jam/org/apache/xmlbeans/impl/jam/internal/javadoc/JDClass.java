@@ -186,6 +186,10 @@ public class JDClass extends JDMember implements JClass {
 
   public boolean isPrimitive() { return false; }
 
+  public Class getPrimitiveClass() {
+    return null;
+  }
+
   public boolean isVoid() { return false; }
 
   public boolean isObject() { return false; }

@@ -197,7 +197,13 @@ public class RClass extends BaseJElement implements JClass {
   }
 
   public boolean isPrimitive() {
-    return (PrimitiveJClass.getPrimitiveClass(mClass) != null);
+    return false;
+    //it's always false now, right?
+    //(PrimitiveJClass.getPrimitiveClass(mClass) != null);
+  }
+
+  public Class getPrimitiveClass() {
+    return null;
   }
 
   public boolean isVoid() {
