@@ -108,18 +108,24 @@ public class Java2Schema extends BindingCompiler {
   private BindingLoader mLoader;
   private SchemaDocument mSchemaDocument;
   private SchemaDocument.Schema mSchema;
-  private JavaSourceSet mInput;
+  private JClass[] mClasses;
 
   // =========================================================================
   // Constructors
 
+  public Java2Schema(JClass[] classesToBind) {
+    mClasses = classesToBind;
+  }
+
   /**
    * Initializes a Java2Schema instance to perform binding on the given
    * inputs, but does not actually do any binding work.
+   *
+   * @deprecated Trying to remove JavaSourceSet
    */
   public Java2Schema(JavaSourceSet jtsi) {
     if (jtsi == null) throw new IllegalArgumentException("null jtsi");
-    mInput = jtsi;
+    mClasses = jtsi.getJClasses();
   }
 
   // ========================================================================
@@ -130,20 +136,19 @@ public class Java2Schema extends BindingCompiler {
    * out the tylar.
    */
   protected void bind(TylarWriter writer) {
-    JClass[] classes = mInput.getJClasses();
     mBindingFile = new BindingFile();
     mLoader = PathBindingLoader.forPath
             (new BindingLoader[] {mBindingFile,
                                   BuiltinBindingLoader.getInstance()});
     mSchemaDocument = SchemaDocument.Factory.newInstance();
     mSchema = mSchemaDocument.addNewSchema();
-    if (classes.length > 0) {
+    if (mClasses.length > 0) {
       //FIXME how should we determine the targetnamespace for the schema?
       //here we just derive it from the first class in the list
-      mSchema.setTargetNamespace(getTargetNamespace(classes[0]));
+      mSchema.setTargetNamespace(getTargetNamespace(mClasses[0]));
     }
     //This does the binding
-    for(int i=0; i<classes.length; i++) getBindingTypeFor(classes[i]);
+    for(int i=0; i<mClasses.length; i++) getBindingTypeFor(mClasses[i]);
     //
     try {
       writer.writeBindingFile(mBindingFile);
