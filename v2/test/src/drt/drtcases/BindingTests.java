@@ -38,22 +38,28 @@ public class BindingTests extends TestCase
     public BindingTests(String name) { super(name); }
     public static Test suite() { return new TestSuite(BindingTests.class); }
     
+    public static boolean verbose = false;
+    
     public void testJAXRPCBinding() throws Exception
     {
         File typesonlyfile = TestEnv.xbeanCase("schema/typesonly/typesonly.xsd");
         SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[] { SchemaDocument.Factory.parse(typesonlyfile) }, XmlBeans.getBuiltinTypeSystem(), null);
         SchemaToJavaResult result = JAXRPCSchemaBinder.bind(sts, BuiltinBindingLoader.getInstance());
-        result.getBindingFileGenerator().printBindingFile(System.out);
+        if (verbose)
+            result.getBindingFileGenerator().printBindingFile(System.out);
         JavaCodeGenerator javacode = result.getJavaCodeGenerator();
         for (Iterator i = javacode.getToplevelClasses().iterator(); i.hasNext(); )
         {
             String javaclass = (String)i.next();
-            System.out.println("=======================");
-            System.out.println(javaclass);
-            System.out.println("=======================");
-            javacode.printSourceCode(javaclass, System.out);
+            if (verbose)
+            {
+                System.out.println("=======================");
+                System.out.println(javaclass);
+                System.out.println("=======================");
+                javacode.printSourceCode(javaclass, System.out);
+                System.out.flush();
+            }
         }
-        System.out.flush();
     }
 
     public void testBindingFile() throws Exception
@@ -116,7 +122,8 @@ public class BindingTests extends TestCase
 
         // now serialize
         BindingConfigDocument doc = bf.write();
-        System.out.println(doc.toString());
+        if (verbose)
+            System.out.println(doc.toString());
 
         // now load
         BindingFile bfc = BindingFile.forDoc(doc);

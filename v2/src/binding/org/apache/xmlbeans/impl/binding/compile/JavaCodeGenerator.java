@@ -62,7 +62,9 @@ import java.io.IOException;
 
 public interface JavaCodeGenerator
 {
-    // returns a collection of fully-qualified Java class name strings
+    /**
+     * Returns a collection of fully-qualified Java class name strings
+     */
     Collection getToplevelClasses();
     
     /**

@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 * are met:
 *
 * 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer. 
+*    notice, this list of conditions and the following disclaimer.
 *
 * 2. Redistributions in binary form must reproduce the above copyright
 *    notice, this list of conditions and the following disclaimer in
@@ -18,19 +18,19 @@
 *    distribution.
 *
 * 3. The end-user documentation included with the redistribution,
-*    if any, must include the following acknowledgment:  
+*    if any, must include the following acknowledgment:
 *       "This product includes software developed by the
 *        Apache Software Foundation (http://www.apache.org/)."
 *    Alternately, this acknowledgment may appear in the software itself,
 *    if and wherever such third-party acknowledgments normally appear.
 *
-* 4. The names "Apache" and "Apache Software Foundation" must 
+* 4. The names "Apache" and "Apache Software Foundation" must
 *    not be used to endorse or promote products derived from this
-*    software without prior written permission. For written 
+*    software without prior written permission. For written
 *    permission, please contact apache@apache.org.
 *
-* 5. Products derived from this software may not be called "Apache 
-*    XMLBeans", nor may "Apache" appear in their name, without prior 
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
 *    written permission of the Apache Software Foundation.
 *
 * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -49,43 +49,24 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems 
+* originally based on software copyright (c) 2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package drtcases;
+package org.apache.xmlbeans.impl.binding.compile;
 
-import junit.framework.Test;
-import junit.framework.TestSuite;
-import junit.framework.TestCase;
-
-public class SmokeTests extends TestCase
+public interface JavaToSchemaInput
 {
-    SmokeTests(String name) { super(name); }
-
-    public static Test suite()
-    {
-        TestSuite suite = new TestSuite(SmokeTests.class.getName());
-        suite.addTest(AssortedTests.suite());
-        suite.addTest(IntTests.suite());
-        suite.addTest(RuntimeSchemaLoaderTest.suite());
-        suite.addTest(StoreTests.suite());
-        suite.addTest(QNameTests.suite());
-        suite.addTest(ValidationTests.suite());
-        suite.addTest(CompilationTests.suite());
-        suite.addTest(AnnotationsTests.suite());
-        suite.addTest(EasyPoTests.suite());
-        suite.addTest(NameworldTest.suite());
-        suite.addTest(SchemaTypesTests.suite());
-        suite.addTest(EnumTests.suite());
-        suite.addTest(CreationTests.suite());
-        suite.addTest(ThreadingTest.suite());
-        suite.addTest(SerializationTests.suite());
-        suite.addTest(DomTests.suite());
-        suite.addTest(GDateTests.suite());
-        suite.addTest(SubstGroupTests.suite());
-        suite.addTest(BindingTests.suite());
-        return suite;
-    }
+    /**
+     * Returns a something that represents a set of JClasses that
+     * are to be processed for binding. (??)
+     */ 
+    // JClassSet getJClassSet();
+    
+    /**
+     * Returns the path used for resolving already-known bindings
+     */
+    TylarLoader getTylarLoader();
+    
 }

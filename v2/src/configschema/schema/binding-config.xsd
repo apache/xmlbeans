@@ -40,7 +40,6 @@
     <xs:sequence>
       <xs:element name="xmlcomponent" type="tns:xml-signature"/>
       <xs:element name="javatype" type="tns:java-class-name"/>
-      <xs:element name="xmlobj" type="xs:boolean"/>
       <!-- todo: maybe more java info, e.g., instanceType, is-interface, is-xmlobj etc? -->
     </xs:sequence>
   </xs:complexType>
