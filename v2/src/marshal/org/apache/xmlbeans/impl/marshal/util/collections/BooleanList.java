@@ -54,50 +54,110 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
-
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
 /**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
+ minimal, simplisitic typesafe version of ArrayList for booleans.
+ wraps an boolean[]
+
+ not syncronized.
  */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+
+
+public final class BooleanList
+    implements Accumulator
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private boolean[] store;
+    private int size = 0;
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+
+    public BooleanList()
     {
-        this.lexerPrinter = lexerPrinter;
+        this(Accumulator.DEFAULT_INITIAL_CAPACITY);
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public BooleanList(int initial_capacity)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        store = new boolean[initial_capacity];
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    /**
+     get array used as backing store.  do not modify this array.
+     effeciency wins here vs. safety.
+     */
+    public boolean[] getStore()
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
+        return store;
     }
 
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
+    /**
+     get a new array just large enough to hold the items
+     */
+    public boolean[] getMinSizedArray()
     {
+        boolean[] new_a = new boolean[size];
+        System.arraycopy(store, 0, new_a, 0, size);
+        return new_a;
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public Object getFinalArray()
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        return getMinSizedArray();
     }
 
+    public int getCapacity()
+    {
+        return store.length;
+    }
+
+    public int getSize()
+    {
+        return size;
+    }
+
+    public void append(Object o)
+    {
+        assert (o instanceof Boolean);
+        add(((Boolean)o).booleanValue());
+    }
+
+    /**
+     * Appends the specified element to the end of this list.
+     *
+     * @param i element to be appended to this list.
+     */
+    public void add(boolean i)
+    {
+        ensureCapacity(size + 1);
+        store[size++] = i;
+    }
+
+    public boolean get(int idx)
+    {
+        //let array do range checking.
+        return store[idx];
+    }
+
+
+    /**
+     * Increases the capacity of this <tt>BooleanList</tt> instance, if
+     * necessary, to ensure  that it can hold at least the number of elements
+     * specified by the minimum capacity argument.
+     *
+     * @param   minCapacity   the desired minimum capacity.
+     */
+    public void ensureCapacity(int minCapacity)
+    {
+        int oldCapacity = store.length;
+        if (minCapacity > oldCapacity) {
+            boolean oldData[] = store;
+            int newCapacity = (oldCapacity * 3) / 2 + 1;
+            if (newCapacity < minCapacity)
+                newCapacity = minCapacity;
+            store = new boolean[newCapacity];
+            System.arraycopy(oldData, 0, store, 0, size);
+        }
+    }
 
 }
+

@@ -54,50 +54,40 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-/**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
- */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+import java.util.Collection;
+
+
+public final class GenericCollectionObjectAccumulator
+    extends ObjectAccumulator
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private final Class containerType;
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+    public GenericCollectionObjectAccumulator(Class container_type,
+                                              Class component_type,
+                                              int initial_capacity,
+                                              boolean return_collection)
     {
-        this.lexerPrinter = lexerPrinter;
+        super(component_type, initial_capacity, return_collection);
+        containerType = container_type;
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+
+    protected Collection createNewStore(int capacity)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
-    }
-
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
-    {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
-    }
-
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
-    {
-    }
-
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
-    {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        try {
+            return (Collection)containerType.newInstance();
+        }
+        catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
+        catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 
 }
+

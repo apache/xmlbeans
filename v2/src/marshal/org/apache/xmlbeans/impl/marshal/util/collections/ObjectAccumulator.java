@@ -54,50 +54,72 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-/**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
- */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+import java.lang.reflect.Array;
+import java.util.Collection;
+
+
+public abstract class ObjectAccumulator
+    implements Accumulator
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private final Class componentType;
+    private final boolean returnCollectionForArray;
+    protected final Collection store;
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+
+    public ObjectAccumulator(Class component_type,
+                             int initial_capacity,
+                             boolean return_collection)
     {
-        this.lexerPrinter = lexerPrinter;
+        assert (!component_type.isPrimitive());
+
+        componentType = component_type;
+        returnCollectionForArray = return_collection;
+
+        store = createNewStore(initial_capacity);
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public ObjectAccumulator(Class component_type,
+                             int initial_capacity)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        this(component_type, initial_capacity, false);
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    protected abstract Collection createNewStore(int capacity);
+
+    public ObjectAccumulator(Class component_type)
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
+        this(component_type, Accumulator.DEFAULT_INITIAL_CAPACITY);
     }
 
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
+    public void append(Object o)
     {
+        if (o != null && !componentType.isAssignableFrom(o.getClass())) {
+            String msg = "Invalid type: " + o.getClass().getName() +
+                " expecting: " + componentType.getName();
+            throw new IllegalArgumentException(msg);
+        }
+
+        store.add(o);
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public final Object getFinalArray()
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        if (returnCollectionForArray) {
+            return store;
+        } else {
+            Object[] out = (Object[])Array.newInstance(componentType, store.size());
+            return store.toArray(out);
+        }
     }
 
+    // use with caution
+    public final Collection getStore()
+    {
+        return store;
+    }
 
 }
+

@@ -54,50 +54,55 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import java.lang.reflect.Array;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
+ * @author   Copyright (c) 2003 by BEA Systems, Inc. All Rights Reserved.
  */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+public class ReflectiveArrayIterator
+    implements Iterator
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private final Object array;
+    private final int maxIndex;
+    private int index;
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+    public ReflectiveArrayIterator(Object a)
     {
-        this.lexerPrinter = lexerPrinter;
+        this(a, 0, Array.getLength((a)));
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public ReflectiveArrayIterator(Object a, int off, int len)
     {
-        final CharSequence content = context.getElementText();
+        if (!a.getClass().isArray()) {
+            throw new IllegalArgumentException();
+        }
+        final int asize = Array.getLength(a);
+        if (off < 0) throw new IllegalArgumentException();
+        if (off > asize) throw new IllegalArgumentException();
+        if (len > asize - off) throw new IllegalArgumentException();
 
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        array = a;
+        index = off;
+        maxIndex = len + off;
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    public boolean hasNext()
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
+        return index < maxIndex;
     }
 
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
+    public Object next()
     {
+        if (index >= maxIndex) throw new NoSuchElementException();
+        return Array.get(array, index++);
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public void remove()
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        throw new UnsupportedOperationException();
     }
-
-
 }

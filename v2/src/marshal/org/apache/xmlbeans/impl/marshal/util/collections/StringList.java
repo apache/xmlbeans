@@ -54,50 +54,112 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
-
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+package org.apache.xmlbeans.impl.marshal.util.collections;
 
 /**
- * Basic XmlStreamReader based impl that can handle converting
- * simple types of the form <a>4.54</a>.
+ minimal, simplisitic typesafe version of ArrayList for Strings
+ wraps String[]
+
+ not syncronized.
  */
-class AtomicSimpleTypeConverter
-    implements TypeConverter
+
+
+public final class StringList
+    implements Accumulator
 {
-    private final AtomicLexerPrinter lexerPrinter;
+    private String[] store;
+    private int size = 0;
 
-    AtomicSimpleTypeConverter(AtomicLexerPrinter lexerPrinter)
+
+    public StringList()
     {
-        this.lexerPrinter = lexerPrinter;
+        this(Accumulator.DEFAULT_INITIAL_CAPACITY);
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public StringList(int initial_capacity)
     {
-        final CharSequence content = context.getElementText();
-
-        assert (content != null);
-
-        return lexerPrinter.lex(content, context.getErrorCollection());
+        store = new String[initial_capacity];
     }
 
-    public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContextImpl context)
+    /**
+     get array used as backing store.  do not modify this array.
+     effeciency wins here vs. safety.
+     */
+    public String[] getStore()
     {
-        return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
+        return store;
     }
 
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader)
+    public Object getFinalArray()
     {
+        return getMinSizedArray();
     }
 
-    //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    /**
+     get a new array just large enough to hold the items
+     */
+    public String[] getMinSizedArray()
     {
-        assert value != null;
-        return lexerPrinter.print(value, context.getErrorCollection());
+        String[] new_a = new String[size];
+        System.arraycopy(store, 0, new_a, 0, size);
+        //if (DEBUG) Debug.say("getMinSizedArray size="+size);
+        return new_a;
+    }
+
+    public int getCapacity()
+    {
+        return store.length;
+    }
+
+    public int getSize()
+    {
+        return size;
+    }
+
+    public void append(Object o)
+    {
+        assert (o instanceof String);
+        add((String)o);
+    }
+
+    /**
+     * Appends the specified element to the end of this list.
+     *
+     * @param i element to be appended to this list.
+     */
+    public void add(String i)
+    {
+        ensureCapacity(size + 1);
+        store[size++] = i;
+    }
+
+    public String get(int idx)
+    {
+        //let array do range checking.
+        return store[idx];
+    }
+
+
+    /**
+     * Increases the capacity of this <tt>StringList</tt> instance, if
+     * necessary, to ensure  that it can hold at least the number of elements
+     * specified by the minimum capacity argument.
+     *
+     * @param   minCapacity   the desired minimum capacity.
+     */
+    public void ensureCapacity(int minCapacity)
+    {
+        int oldCapacity = store.length;
+        if (minCapacity > oldCapacity) {
+            String oldData[] = store;
+            int newCapacity = (oldCapacity * 3) / 2 + 1;
+            if (newCapacity < minCapacity)
+                newCapacity = minCapacity;
+            store = new String[newCapacity];
+            System.arraycopy(oldData, 0, store, 0, size);
+        }
     }
 
 
 }
+

@@ -80,4 +80,8 @@ interface RuntimeBindingProperty
 
     boolean isSet(Object parentObject, MarshalContextImpl context);
 
+    boolean isMultiple();
+
+    boolean isNillable();
+
 }

@@ -58,15 +58,20 @@ package org.apache.xmlbeans.impl.marshal;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
-class ByNameTypeVisitor extends NamedXmlTypeVisitor
+final class ByNameTypeVisitor extends NamedXmlTypeVisitor
 {
     private final ByNameRuntimeBindingType type;
     private final int maxPropCount;
     private int propIdx = -1;
     private List attributeNames;
     private List attributeValues;
+    private Iterator currMultipleIterator;
+    private Object currMultipleItem;
+    private boolean haveMultipleItem;
 
 
     ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
@@ -91,25 +96,92 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
     protected int advance()
     {
         assert propIdx < maxPropCount; //ensure we don't go past the end
-        ++propIdx;
 
-        if (propIdx == maxPropCount)
-            return END;
+        do {
+            boolean hit_end = advanceToNextItem();
+            if (hit_end) return END;
+        }
+        while (!currentPropHasMore());
 
+        assert propIdx >= 0;
+
+        return getState();
+    }
+
+    private boolean advanceToNextItem()
+    {
+        if (haveMultipleItem && currMultipleIterator.hasNext()) {
+            currMultipleItem = currMultipleIterator.next();
+            haveMultipleItem = true;
+            return false;
+        } else {
+            return (advanceToNextProperty());
+        }
+    }
+
+    //return true if we hit the end of our properties
+    private boolean advanceToNextProperty()
+    {
+        propIdx++;
+        currMultipleIterator = null;
+        haveMultipleItem = false;
+
+        if (propIdx >= maxPropCount) return true;
+
+        updateCurrIterator();
+
+        return false;
+    }
+
+    private void updateCurrIterator()
+    {
+        final RuntimeBindingProperty property = getCurrentProperty();
+        if (property.isMultiple()) {
+            Object prop_obj = property.getValue(getParentObject(), marshalContext);
+            final Iterator itr = MarshalResult.getCollectionIterator(prop_obj);
+            currMultipleIterator = itr;
+            if (itr.hasNext()) {
+                currMultipleItem = itr.next();
+                haveMultipleItem = true;
+            } else {
+                haveMultipleItem = false;
+            }
+        }
+    }
+
+    private boolean currentPropHasMore()
+    {
+        if (propIdx < 0) return false;
+
+        if (haveMultipleItem) {
+            if (currMultipleItem != null) return true;
+            //skip null items in a collection if this element is not nillable
+            return (getCurrentProperty().isNillable()); 
+        }
+        if (currMultipleIterator != null) return false;  //an empty collection
 
         final RuntimeBindingProperty property = getCurrentProperty();
 
-        if (property.isAttribute() || !property.isSet(getParentObject(), marshalContext))
-            return advance();
+        if (property.isAttribute()) return false;
 
-        return getState();
+        final boolean set = property.isSet(getParentObject(), marshalContext);
+        return set;
     }
 
     public XmlTypeVisitor getCurrentChild()
     {
         final RuntimeBindingProperty property = getCurrentProperty();
-        Object prop_obj = property.getValue(getParentObject(), marshalContext);
-        return MarshalResult.createVisitor(property, prop_obj, marshalContext);
+
+        if (haveMultipleItem) {
+            return MarshalResult.createVisitor(property, currMultipleItem,
+                                               marshalContext);
+        } else {
+            Object prop_obj = property.getValue(getParentObject(), marshalContext);
+            if (prop_obj instanceof Collection) {
+                throw new AssertionError("not good: " + prop_obj);
+            }
+            return MarshalResult.createVisitor(property, prop_obj, marshalContext);
+        }
     }
 
     private RuntimeBindingProperty getCurrentProperty()
