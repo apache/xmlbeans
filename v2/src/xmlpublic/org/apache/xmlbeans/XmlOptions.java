@@ -16,6 +16,7 @@
 package org.apache.xmlbeans;
 
 import org.xml.sax.EntityResolver;
+import org.xml.sax.XMLReader;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -435,6 +436,18 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * By default, XmlBeans uses an internal Piccolo parser,
+     * other parsers can be used by providing an XMLReader.
+     * For using the default JDK's SAX parser use:
+     * xmlOptions.setLoadUseXMLReader( SAXParserFactory.newInstance().newSAXParser().getXMLReader() );
+     *
+     * @see XmlObject.Factory#parse(java.io.File, XmlOptions)
+     */
+    public XmlOptions setLoadUseXMLReader (XMLReader xmlReader) {
+        return set( LOAD_USE_XMLREADER, xmlReader );
+    }
+
+    /**
      * If this option is set, then schema validation will be performed during
      * unmarshalling.  Errors will be added to error collection supplied
      * in this options instance
@@ -655,6 +668,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String LOAD_MESSAGE_DIGEST             =  "LOAD_MESSAGE_DIGEST";
     /** @exclude */
     public static final String LOAD_USE_DEFAULT_RESOLVER       =  "LOAD_USE_DEFAULT_RESOLVER";
+    /** @exclude */
+    public static final String LOAD_USE_XMLREADER              =  "LOAD_USE_XMLREADER";
 
     /** @exclude */
     public static final String UNMARSHAL_VALIDATE              =  "UNMARSHAL_VALIDATE";
