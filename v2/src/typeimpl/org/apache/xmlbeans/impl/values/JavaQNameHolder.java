@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -93,7 +94,7 @@ public class JavaQNameHolder extends XmlObjectBase
         }
         catch ( XmlValueOutOfRangeException e )
         {
-            context.invalid(e.getMessage());
+            context.invalid(XmlErrorCodes.QNAME, new Object[] { e.getMessage() });
             name = null;
         }
 
@@ -134,7 +135,7 @@ public class JavaQNameHolder extends XmlObjectBase
         if (uri == null)
         {
             if (prefix.length() > 0)
-                throw new XmlValueOutOfRangeException("Can't resolve prefix: " + prefix);
+                throw new XmlValueOutOfRangeException(XmlErrorCodes.QNAME, new Object[] { "Can't resolve prefix '" + prefix + "'"});
                         
             uri = "";
         }

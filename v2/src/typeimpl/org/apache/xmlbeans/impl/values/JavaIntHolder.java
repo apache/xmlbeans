@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SimpleValue;
 
 import java.math.BigDecimal;
@@ -39,7 +40,7 @@ public abstract class JavaIntHolder extends XmlObjectBase
     protected void set_text(String s)
     {
         try { set_int(XsTypeConverter.lexInt(s)); }
-        catch (Exception e) { throw new XmlValueOutOfRangeException("invalid int: " + s); }
+        catch (Exception e) { throw new XmlValueOutOfRangeException(XmlErrorCodes.INT, new Object[] { s }); }
     }
     protected void set_nil()
     {

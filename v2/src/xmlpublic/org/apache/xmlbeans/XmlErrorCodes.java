@@ -214,6 +214,12 @@ public abstract class XmlErrorCodes
     public static final String DATATYPE_VALID$PATTERN_VALID = "cvc-datatype-valid.1.1";
 
     /**
+     * cvc-datatype-valid.1.1b: See clause 1.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-datatype-valid">XMLSchema Datatypes 1.0: Datatype Valid</a>
+     */
+    public static final String DATATYPE_VALID$PATTERN_VALID$NO_VALUE = "cvc-datatype-valid.1.1b";
+
+    /**
      * cvc-datatype-valid.1.2.3: See clause 1.2.3 of
      * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-datatype-valid">XMLSchema Datatypes 1.0: Datatype Valid</a>
      */
@@ -304,6 +310,12 @@ public abstract class XmlErrorCodes
     public static final String DATATYPE_ENUM_VALID = "cvc-enumeration-valid";
 
     /**
+     * cvc-enumeration-valid.b: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-enumeration-valid">XMLSchema Datatypes 1.0: enumeration valid</a>
+     */
+    public static final String DATATYPE_ENUM_VALID$NO_VALUE = "cvc-enumeration-valid.b";
+
+    /**
      * cvc-facet-valid: See
      * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-facet-valid">XMLSchema Datatypes 1.0: Facet Valid</a>
      */
@@ -328,10 +340,34 @@ public abstract class XmlErrorCodes
     public static final String IDENTITY_CONSTRAINT_VALID = "cvc-identity-constraint";
 
     /**
+     * cvc-identity-constraint.4.1: See clause 4.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-identity-constraint">XMLSchema Structures 1.0: Identity-constraint Satisfied</a>
+     */
+    public static final String IDENTITY_CONSTRAINT_VALID$DUPLICATE_UNIQUE = "cvc-identity-constraint.4.1";
+
+    /**
+     * cvc-identity-constraint.4.2.2: See clause 4.2.2
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-identity-constraint">XMLSchema Structures 1.0: Identity-constraint Satisfied</a>
+     */
+    public static final String IDENTITY_CONSTRAINT_VALID$DUPLICATE_KEY = "cvc-identity-constraint.4.2.2";
+
+    /**
      * cvc-length-valid: See
      * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-length-valid">XMLSchema Datatypes 1.0: Length Valid</a>
      */
     public static final String DATATYPE_LENGTH_VALID = "cvc-length-valid";
+
+    /**
+     * cvc-length-valid.1.1: See clause 1.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-length-valid">XMLSchema Datatypes 1.0: Length Valid</a>
+     */
+    public static final String DATATYPE_LENGTH_VALID$STRING = "cvc-length-valid.1.1";
+
+    /**
+     * cvc-length-valid.1.2: See clause 1.2 of
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-length-valid">XMLSchema Datatypes 1.0: Length Valid</a>
+     */
+    public static final String DATATYPE_LENGTH_VALID$BINARY = "cvc-length-valid.1.2";
 
     /**
      * cvc-length-valid.2: See clause 2 of
@@ -358,6 +394,18 @@ public abstract class XmlErrorCodes
     public static final String DATATYPE_MAX_LENGTH_VALID = "cvc-maxLength-valid";
 
     /**
+     * cvc-maxLength-valid.1.1: See clause 1.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-maxLength-valid">XMLSchema Datatypes 1.0: maxLength Valid</a>
+     */
+    public static final String DATATYPE_MAX_LENGTH_VALID$STRING = "cvc-maxLength-valid.1.1";
+
+    /**
+     * cvc-maxLength-valid.1.2: See clause 1.2 of
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-maxLength-valid">XMLSchema Datatypes 1.0: maxLength Valid</a>
+     */
+    public static final String DATATYPE_MAX_LENGTH_VALID$BINARY = "cvc-maxLength-valid.1.2";
+
+    /**
      * cvc-maxLength-valid.2: See clause 2 of
      * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-maxLength-valid">XMLSchema Datatypes 1.0: maxLength Valid</a>
      */
@@ -380,6 +428,18 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-minLength-valid">XMLSchema Datatypes 1.0: minLength Valid</a>
      */
     public static final String DATATYPE_MIN_LENGTH_VALID = "cvc-minLength-valid";
+
+    /**
+     * cvc-minLength-valid.1.1: See clause 1.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-minLength-valid">XMLSchema Datatypes 1.0: minLength Valid</a>
+     */
+    public static final String DATATYPE_MIN_LENGTH_VALID$STRING = "cvc-minLength-valid.1.1";
+
+    /**
+     * cvc-minLength-valid.1.2: See clause 1.2 of
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#cvc-minLength-valid">XMLSchema Datatypes 1.0: minLength Valid</a>
+     */
+    public static final String DATATYPE_MIN_LENGTH_VALID$BINARY = "cvc-minLength-valid.1.2";
 
     /**
      * cvc-minLength-valid.2: See clause 2 of
@@ -691,7 +751,7 @@ public abstract class XmlErrorCodes
      * src-resolve: See
      * <a href="http://www.w3c.org/TR/xmlschema-1/#src-resolve">XMLSchema Structures 1.0: QName resolution (Schema Document)</a>
      */
-    public static final String SCHEMA_QNAME_RESOLVE$HELP = "src-resolve.help";
+    public static final String SCHEMA_QNAME_RESOLVE$HELP = "src-resolve.a";
 
     /**
      * src-restriction-base-or-simpleType: See
@@ -1580,6 +1640,112 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-2/#whiteSpace-valid-restriction">XMLSchema Datatypes 1.0: whiteSpace valid restriction</a>
      */
     public static final String DATATYPE_WHITESPACE_RESTRICTION = "whiteSpace-valid-restriction";
+
+    //
+    // datatypes
+    //
+
+    /**
+     * anyURI: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#anyURI">XMLSchema Datatypes 1.0: anyURI</a>
+     */
+    public static final String ANYURI = "anyURI";
+
+    /**
+     * base64Binary: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#base64Binary">XMLSchema Datatypes 1.0: base64Binary</a>
+     */
+    public static final String BASE64BINARY = "base64Binary";
+
+    /**
+     * boolean: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#boolean">XMLSchema Datatypes 1.0: boolean</a>
+     */
+    public static final String BOOLEAN = "boolean";
+
+    /**
+     * date: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#date">XMLSchema Datatypes 1.0: date</a>
+     */
+    public static final String DATE = "date";
+
+    /**
+     * decimal: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#decimal">XMLSchema Datatypes 1.0: decimal</a>
+     */
+    public static final String DECIMAL = "decimal";
+
+    /**
+     * double: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#double">XMLSchema Datatypes 1.0: double</a>
+     */
+    public static final String DOUBLE = "double";
+
+    /**
+     * duration: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#duration">XMLSchema Datatypes 1.0: duration</a>
+     */
+    public static final String DURATION = "duration";
+
+    /**
+     * float: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#float">XMLSchema Datatypes 1.0: float</a>
+     */
+    public static final String FLOAT = "float";
+
+    /**
+     * hexBinary: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#hexBinary">XMLSchema Datatypes 1.0: hexBinary</a>
+     */
+    public static final String HEXBINARY = "hexBinary";
+
+    /**
+     * int: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#int">XMLSchema Datatypes 1.0: int</a>
+     */
+    public static final String INT = "int";
+
+    /**
+     * integer: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#integer">XMLSchema Datatypes 1.0: integer</a>
+     */
+    public static final String INTEGER = "integer";
+
+    /**
+     * list: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#list-datatypes">XMLSchema Datatypes 1.0: list</a>
+     */
+    public static final String LIST = "list";
+
+    /**
+     * long: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#long">XMLSchema Datatypes 1.0: long</a>
+     */
+    public static final String LONG = "long";
+
+    /**
+     * NCName: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#NCName">XMLSchema Datatypes 1.0: NCName</a>
+     */
+    public static final String NCNAME = "NCName";
+
+    /**
+     * NMTOKEN: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#NMTOKEN">XMLSchema Datatypes 1.0: NMTOKEN</a>
+     */
+    public static final String NMTOKEN = "NMTOKEN";
+
+    /**
+     * QName: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#QName">XMLSchema Datatypes 1.0: QName</a>
+     */
+    public static final String QNAME = "QName";
+
+    /**
+     * union: See
+     * <a href="http://www.w3c.org/TR/xmlschema-2/#union-datatypes">XMLSchema Datatypes 1.0: union</a>
+     */
+    public static final String UNION = "union";
 
     //
     // following error codes aren't defined by the XMLSchema spec

@@ -19,6 +19,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
@@ -44,7 +45,7 @@ public class JavaDecimalHolder extends XmlObjectBase
         }
         catch (NumberFormatException e)
         {
-            _voorVc.invalid("Invalid Decimal");
+            _voorVc.invalid(XmlErrorCodes.DECIMAL, new Object[] { s });
         }
     }
     protected void set_nil()
@@ -83,7 +84,8 @@ public class JavaDecimalHolder extends XmlObjectBase
             {
                 if (sawDot)
                 {
-                    context.invalid("Illegal decimal, saw '.' more than once");
+                    context.invalid(XmlErrorCodes.DECIMAL,
+                        new Object[] { "saw '.' more than once: " + v });
                     return;
                 }
 
@@ -96,14 +98,16 @@ public class JavaDecimalHolder extends XmlObjectBase
             else
             {
                 // TODO - may need to escape error char
-                context.invalid("Illegal decimal, unexpected char: " + ch);
+                context.invalid(XmlErrorCodes.DECIMAL,
+                    new Object[] { "unexpected char '" + ch + "'" });
                 return;
             }
         }
 
         if (!sawDigit)
         {
-            context.invalid("Illegal decimal, expected at least one digit");
+            context.invalid(XmlErrorCodes.DECIMAL,
+                new Object[] { "expected at least one digit" });
             return;
         }
     }

@@ -282,7 +282,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
         public void invalid(String code, Object[] args)
         {
-            throw new XmlValueOutOfRangeException( XmlError.formattedMessage(code, args) );
+            throw new XmlValueOutOfRangeException( code, args );
         }
     }
 

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -58,8 +59,7 @@ public abstract class JavaStringHolderEx extends JavaStringHolder
         // check against pattern
         if (!sType.matchPatternFacet(v))
         {
-            // KHK: cvc-datatype-valid.1.1
-            context.invalid( "String: '" + v + "' does not match pattern for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID, new Object[] { "string", v, QNameHelper.readable(sType) });
             return;
         }
 
@@ -70,10 +70,8 @@ public abstract class JavaStringHolderEx extends JavaStringHolder
             int m = ((XmlObjectBase)len).bigIntegerValue().intValue();
             if (v.length() != m)
             {
-                // KHK: cvc-length-valid.1.1
-                context.invalid(
-                    "String length (" + v.length() + ") does not match " +
-                        "length facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING,
+                    new Object[] { "string", new Integer(v.length()), new Integer(m), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -85,10 +83,8 @@ public abstract class JavaStringHolderEx extends JavaStringHolder
             int m = ((XmlObjectBase)min).bigIntegerValue().intValue();
             if (v.length() < m)
             {
-                // KHK: cvc-minLength-valid.1.1
-                context.invalid(
-                    "String length (" + v.length() + ") is less than " +
-                        "min length facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING,
+                    new Object[] { "string", new Integer(v.length()), new Integer(m), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -100,10 +96,8 @@ public abstract class JavaStringHolderEx extends JavaStringHolder
             int m = ((XmlObjectBase)max).bigIntegerValue().intValue();
             if (v.length() > m)
             {
-                // KHK: cvc-maxLength-valid.1.1
-                context.invalid(
-                    "String length (" + v.length() + ") is greater than " +
-                        "max length facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
+                    new Object[] { "string", new Integer(v.length()), new Integer(m), QNameHelper.readable(sType) });
                 return;
             }
         }

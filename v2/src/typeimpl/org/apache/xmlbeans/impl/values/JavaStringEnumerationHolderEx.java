@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.StringEnumAbstractBase;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -35,8 +36,8 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
     {
         StringEnumAbstractBase se = schemaType().enumForString(s);
         if (se == null)
-            // KHK: cvc-enumeration-valid
-            throw new XmlValueOutOfRangeException("String '" + s + "' is not a valid enumerated value for " + schemaType());
+            throw new XmlValueOutOfRangeException(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "string", s, QNameHelper.readable(schemaType()) });
 
         super.set_text(s);
         _val = se;
@@ -52,8 +53,8 @@ public abstract class JavaStringEnumerationHolderEx extends JavaStringHolderEx
             {
                 if (context != null)
                 {
-                    // KHK: cvc-enumeration-valid
-                    context.invalid("String '" + v + "' is not a valid enumerated value for " + QNameHelper.readable(sType));
+                    context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                        new Object[] { "string", v, QNameHelper.readable(sType) });
                 }
             }
         }

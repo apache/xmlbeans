@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.values;
 
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlNCName;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -31,7 +32,7 @@ public class XmlNCNameImpl extends JavaStringHolderEx implements XmlNCName
     {
         if ( !XMLChar.isValidNCName(v) )
         {
-            context.invalid("Value '" + v + "' it's not a valid NCName.");
+            context.invalid(XmlErrorCodes.NCNAME, new Object[] { v });
             return;
         }
     }

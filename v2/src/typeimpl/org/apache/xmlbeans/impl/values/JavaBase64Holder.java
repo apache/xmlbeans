@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
 import org.apache.xmlbeans.impl.util.Base64;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlBase64Binary;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -73,7 +74,7 @@ public abstract class JavaBase64Holder extends XmlObjectBase
         if (bytes == null)
         {
             // TODO - get a decent error with line numbers and such here
-            c.invalid("Base 64 encoded data not encoded properly");
+            c.invalid(XmlErrorCodes.BASE64BINARY, new Object[] { "not encoded properly" });
         }
 
         return bytes;
@@ -86,7 +87,8 @@ public abstract class JavaBase64Holder extends XmlObjectBase
         
         if (!sType.matchPatternFacet(v))
         {
-            context.invalid( "Base 64 encoded data does not match pattern for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID$NO_VALUE,
+                new Object[] { "base 64", QNameHelper.readable(sType) });
             return null;
         }
 

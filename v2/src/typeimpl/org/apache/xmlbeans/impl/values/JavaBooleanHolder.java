@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlBoolean;
@@ -44,7 +45,7 @@ public abstract class JavaBooleanHolder extends XmlObjectBase
         if (v.equals("false") || v.equals("0"))
             return false;
 
-        context.invalid("Invalid value for boolean: " + v);
+        context.invalid(XmlErrorCodes.BOOLEAN, new Object[]{ v });
 
         return false;
     }

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.XmlNMTOKEN;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.XMLChar;
 
@@ -32,7 +33,7 @@ public class XmlNmTokenImpl extends JavaStringHolderEx implements XmlNMTOKEN
     {
         if ( !XMLChar.isValidNmtoken(v) )
         {
-            context.invalid("Value '" + v + "' it's not a valid NMTOKEN.");
+            context.invalid(XmlErrorCodes.NMTOKEN, new Object[] { v });
             return;
         }
     }

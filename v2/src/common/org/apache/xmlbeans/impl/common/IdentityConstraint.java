@@ -113,6 +113,41 @@ public class IdentityConstraint {
             buildIdStates();
     }
 
+    private void emitError ( Event event, String code, Object[] args )
+    {
+        _invalid = true;
+
+        if (_errorListener != null)
+        {
+            assert event != null;
+            
+            _errorListener.add(errorForEvent(code, args, XmlError.SEVERITY_ERROR, event));
+        }
+    }
+
+    public static XmlError errorForEvent(String code, Object[] args, int severity, Event event)
+    {
+        XmlCursor loc = event.getLocationAsCursor();
+        XmlError error;
+        if (loc!=null)
+            error = XmlError.forCursor(code, args, severity, loc);
+        else
+        {
+            Location location = event.getLocation();
+            if (location!=null)
+            {
+                error = XmlError.forLocation(code, args, severity,
+                    location.getSystemId(), location.getLineNumber(),
+                    location.getColumnNumber(), location.getCharacterOffset());
+            }
+            else
+            {
+                error = XmlError.forMessage(code, args, severity);
+            }
+        }
+        return error;
+    }
+
     private void emitError ( Event event, String msg )
     {
         _invalid = true;
@@ -228,9 +263,15 @@ public class IdentityConstraint {
         {
             if (_constraint.getConstraintCategory() == SchemaIdentityConstraint.CC_KEYREF)
                 _values.add(fields);
-            else if (_values.contains(fields)) 
-                // KHK: cvc-identity-constraint.4.1 or .4.2.2
-                emitError(e, "Duplicate key '" + fields + "' for key or unique constraint " + QNameHelper.pretty(_constraint.getName()));
+            else if (_values.contains(fields))
+            {
+                if (_constraint.getConstraintCategory() == SchemaIdentityConstraint.CC_UNIQUE)
+                    emitError(e, XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_UNIQUE,
+                        new Object[] { fields, QNameHelper.pretty(_constraint.getName()) });
+                else
+                    emitError(e, XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_KEY,
+                        new Object[] { fields, QNameHelper.pretty(_constraint.getName()) });
+            }
             else
                 _values.add(fields);
         }

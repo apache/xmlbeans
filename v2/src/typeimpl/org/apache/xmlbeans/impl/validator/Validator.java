@@ -1560,9 +1560,10 @@ public final class Validator
 
         _listTypes.add(type);
 
-        if ( type.getPrimitiveType()==null)
+        if (type.getPrimitiveType() == null)
         {
-            // instance has an error so there is no primitive type, an error should have been added
+            // instance has an error for this value so there is no primitive type.
+            // an error should already have been produced.
             _listValue.add(null);
             return;
         }

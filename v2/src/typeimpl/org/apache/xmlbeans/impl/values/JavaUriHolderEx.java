@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 
@@ -78,7 +79,8 @@ public class JavaUriHolderEx extends JavaUriHolder
             }
             
             if (i >= vals.length)
-                context.invalid("anyURI '" + v + "' is not a valid enumerated value for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                    new Object[] { "anyURI", v, QNameHelper.readable(sType) });
         }
         
         // check pattern
@@ -87,23 +89,28 @@ public class JavaUriHolderEx extends JavaUriHolder
             if (!sType.matchPatternFacet(v))
             {
                 // TODO - describe string and pattern here in error
-                context.invalid("anyURI value '" + v + "' does not match pattern for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                    new Object[] { "anyURI", v, QNameHelper.readable(sType) });
             }
         }
 
         XmlObject x;
+        int i;
 
         if ((x = sType.getFacet(SchemaType.FACET_LENGTH)) != null)
-            if ((((SimpleValue)x).getBigIntegerValue().intValue()) != v.length())
-                context.invalid("anyURI value '" + v + "' does not match length facet (" + ((SimpleValue)x).getBigIntegerValue() + ") for " + QNameHelper.readable(sType));
+            if ((i = ((SimpleValue)x).getBigIntegerValue().intValue()) != v.length())
+                context.invalid(XmlErrorCodes.DATATYPE_LENGTH_VALID$STRING,
+                    new Object[] { "anyURI", v, new Integer(i), QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MIN_LENGTH)) != null)
-            if ((((SimpleValue)x).getBigIntegerValue().intValue()) > v.length())
-                context.invalid("anyURI value '" + v + "' does not match min length facet (" + ((SimpleValue)x).getBigIntegerValue() + ") for " + QNameHelper.readable(sType));
+            if ((i = ((SimpleValue)x).getBigIntegerValue().intValue()) > v.length())
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_LENGTH_VALID$STRING,
+                    new Object[] { "anyURI", v, new Integer(i), QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MAX_LENGTH)) != null)
-            if ((((SimpleValue)x).getBigIntegerValue().intValue()) < v.length())
-                context.invalid("anyURI value '" + v + "' does not match max length facet (" + ((SimpleValue)x).getBigIntegerValue() + ") for " + QNameHelper.readable(sType));
+            if ((i = ((SimpleValue)x).getBigIntegerValue().intValue()) < v.length())
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_LENGTH_VALID$STRING,
+                    new Object[] { "anyURI", v, new Integer(i), QNameHelper.readable(sType) });
     }
     
     private static boolean check(String v, SchemaType sType)

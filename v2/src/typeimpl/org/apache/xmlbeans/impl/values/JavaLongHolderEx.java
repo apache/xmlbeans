@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -65,7 +66,8 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
         {
             if (!sType.matchPatternFacet(v))
             {
-                context.invalid("Integer (" + v + ") does not match pattern for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                    new Object[] { "long", v, QNameHelper.readable(sType) });
             }
         }
     }
@@ -83,9 +85,8 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
                 len -= 1;
             if (len > m)
             {
-                context.invalid(
-                    "Integer total digits (" + temp + ") is greater than " +
-                        "total digits facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID,
+                    new Object[] { temp, new Long(m), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -97,9 +98,8 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
             long m = getLongValue(mine);
             if (!(v > m))
             {
-                context.invalid(
-                    "Integer (" + v + ") is less than or equal to " +
-                        "min exclusive facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
+                    new Object[] { "long", new Long(v), new Long(m), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -111,9 +111,8 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
             long m = getLongValue(mini);
             if (!(v >= m))
             {
-                context.invalid(
-                    "Integer (" + v + ") is less than or equal to " +
-                        "min exclusive facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
+                    new Object[] { "long", new Long(v), new Long(m), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -125,9 +124,8 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
             long m = getLongValue(maxi);
             if (!(v <= m))
             {
-                context.invalid(
-                    "Integer (" + v + ") is less than " +
-                        "min inclusive facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
+                    new Object[] { "long", new Long(v), new Long(m), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -139,9 +137,8 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
             long m = getLongValue(maxe);
             if (!(v < m))
             {
-                context.invalid(
-                    "Integer (" + v + ") is greater than or equal to " +
-                        "max exclusive facet (" + m + ") for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
+                    new Object[] { "long", new Long(v), new Long(m), QNameHelper.readable(sType) });
                 return;
             }
         }
@@ -155,7 +152,8 @@ public abstract class JavaLongHolderEx extends JavaLongHolder
                 if (v == getLongValue(vals[i]))
                     return;
             }
-            context.invalid("Integer (" + v + ") does not match any enumeration values for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "long", new Long(v), QNameHelper.readable(sType) });
         }
     }
 

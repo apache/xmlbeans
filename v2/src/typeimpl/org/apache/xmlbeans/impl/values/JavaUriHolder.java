@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.values;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlAnyURI;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
@@ -44,7 +45,7 @@ public abstract class JavaUriHolder extends XmlObjectBase
         // Enough validation to get schema for schema working
 
         if (v.startsWith( "##" ))
-            context.invalid("XmlAnyURI is malformed: " + v );
+            context.invalid(XmlErrorCodes.ANYURI, new Object[] { v });
 
     }
     

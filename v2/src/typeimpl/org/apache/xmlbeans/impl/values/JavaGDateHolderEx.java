@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.values;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDateSpecification;
 import org.apache.xmlbeans.GDateBuilder;
@@ -70,19 +71,19 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
         }
         catch (Exception e)
         {
-            context.invalid("Date value is malformed: "+v);
+            context.invalid(XmlErrorCodes.DATE, new Object[] { v });
         }
 
         if (date != null)
         {
             if (date.getBuiltinTypeCode() != sType.getPrimitiveType().getBuiltinTypeCode())
             {
-                context.invalid("Date value is of wrong type: " + v);
+                context.invalid(XmlErrorCodes.DATE, new Object[] { "wrong type: " + v });
                 date = null;
             }
             else if (!date.isValid())
             {
-                context.invalid("Date value is invalid: " + v);
+                context.invalid(XmlErrorCodes.DATE, new Object[] { v });
                 date = null;
             }
         }
@@ -97,7 +98,8 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
 
         if (date != null && sType.hasPatternFacet())
             if (!sType.matchPatternFacet(v))
-                context.invalid("Date (' + v + ') does not match pattern for " + QNameHelper.readable(sType));
+                context.invalid(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                    new Object[] { "date", v, QNameHelper.readable(sType) });
         
         return date;
     }
@@ -108,23 +110,27 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
         GDate g;
         
         if (v.getBuiltinTypeCode() != sType.getPrimitiveType().getBuiltinTypeCode())
-            context.invalid("Date (" + v + ") does not have the set of fields required for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATE, new Object[] { "Date (" + v + ") does not have the set of fields required for " + QNameHelper.readable(sType) });
 
         if ((x = sType.getFacet(SchemaType.FACET_MIN_EXCLUSIVE)) != null)
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) <= 0)
-                context.invalid("Date (" + v + ") is less than or equal to min exclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID,
+                    new Object[] { "date", v, g, QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MIN_INCLUSIVE)) != null)
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) < 0)
-                context.invalid("Date (" + v + ") is less than min inclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MIN_INCLUSIVE_VALID,
+                    new Object[] { "date", v, g, QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MAX_EXCLUSIVE)) != null)
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) >= 0)
-                context.invalid("Date (" + v + ") is greater than or equal to max exclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_EXCLUSIVE_VALID,
+                    new Object[] { "date", v, g, QNameHelper.readable(sType) });
         
         if ((x = sType.getFacet(SchemaType.FACET_MAX_INCLUSIVE)) != null)
             if (v.compareToGDate(g = ((XmlObjectBase)x).gDateValue()) > 0)
-                context.invalid("Date (" + v + ") is greater than max inclusive facet (" + g + ") for " + QNameHelper.readable(sType) );
+                context.invalid(XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID,
+                    new Object[] { "date", v, g, QNameHelper.readable(sType) });
         
         XmlObject[] vals = sType.getEnumerationValues();
         if (vals != null)
@@ -132,7 +138,8 @@ public abstract class JavaGDateHolderEx extends XmlObjectBase
             for (int i = 0; i < vals.length; i++)
                 if (v.compareToGDate(((XmlObjectBase)vals[i]).gDateValue()) == 0)
                     return;
-            context.invalid("Date (" + v + ") is not a valid enumeration value for " + QNameHelper.readable(sType));
+            context.invalid(XmlErrorCodes.DATATYPE_ENUM_VALID,
+                new Object[] { "date", v, QNameHelper.readable(sType) });
         }
     }
 

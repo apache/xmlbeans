@@ -19,6 +19,7 @@ import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlHexBinary;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
@@ -73,7 +74,7 @@ public abstract class JavaHexBinaryHolder extends XmlObjectBase
         if (bytes == null)
         {
             // TODO - get a decent error with line numbers and such here
-            context.invalid("Hex encoded data not encoded properly");
+            context.invalid(XmlErrorCodes.HEXBINARY, new Object[] { "not encoded properly" });
         }
 
         return bytes;
