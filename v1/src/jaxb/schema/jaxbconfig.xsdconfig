@@ -1,4 +1,4 @@
-<xb:config xmlns:xb="http://www.bea.com/2002/09/xbean/config">
+<xb:config xmlns:xb="http://xml.apache.org/xmlbeans/2004/02/xbean/config">
   <xb:namespace uri="http://www.bea.com/2003/08/jaxb/config">
     <xb:package>org.apache.xmlbeans.impl.jaxb.config</xb:package>
   </xb:namespace>
