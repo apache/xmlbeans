@@ -413,6 +413,44 @@ public class MarshalTests extends TestCase
     }
 
 
+    public void testWrappedArray()
+        throws Exception
+    {
+        String[] strs = new String[]{"aa", null, "bb", "cc"};
+        final String java_type = strs.getClass().getName();
+        strs = null;  // testing...
+
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+
+        final XmlOptions options = new XmlOptions();
+        Collection errors = new LinkedList();
+        options.setErrorListener(errors);
+
+        Marshaller ctx =
+            bindingContext.createMarshaller();
+
+        Assert.assertNotNull(ctx);
+
+        final QName element_name = new QName("java:com.mytest", "string-array");
+        final QName schema_type = new QName("java:com.mytest", "ArrayOfString");
+        final XMLStreamReader reader =
+            ctx.marshalType(strs, element_name, schema_type, java_type, options);
+
+        inform("=======WRAPPED-ARRAY-OBJ: " + strs);
+
+//        dumpReader(reader);
+        Assert.assertTrue(errors.isEmpty());
+
+        final Unmarshaller um = bindingContext.createUnmarshaller();
+        Object retval = um.unmarshalType(reader, schema_type, java_type, options);
+        Assert.assertTrue(errors.isEmpty());
+
+        Assert.assertTrue("expected " + ArrayUtils.arrayToString(strs) +
+                          " got " + ArrayUtils.arrayToString(retval),
+                          ArrayUtils.arrayEquals(strs, retval));
+    }
+
+
     public void testByNameMarshalViaWriter()
         throws Exception
     {

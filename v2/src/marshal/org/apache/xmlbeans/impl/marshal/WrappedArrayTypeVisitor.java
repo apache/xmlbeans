@@ -84,6 +84,8 @@ public class WrappedArrayTypeVisitor extends NamedXmlTypeVisitor
 
     private static int getArrayLength(Object obj)
     {
+        if (obj == null) return 0;
+
         return Array.getLength(obj);
     }
 
