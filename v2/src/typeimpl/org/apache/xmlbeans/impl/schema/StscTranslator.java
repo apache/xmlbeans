@@ -1036,6 +1036,7 @@ public class StscTranslator
 
         boolean isFixed = false;
         String deftext = null;
+        String fmrfixedtext = null;
         QName qname;
         SchemaLocalAttributeImpl sAttr;
         SchemaType sType = null;
@@ -1084,6 +1085,8 @@ public class StscTranslator
             if (deftext != null)
             {
                 isFixed = referenced.isFixed();
+                if (isFixed)
+                    fmrfixedtext = deftext;
             }
         }
         else
@@ -1180,6 +1183,14 @@ public class StscTranslator
                 isFixed = false;
             }
             deftext = isFixed ? xsdAttr.getFixed() : xsdAttr.getDefault();
+            // BUGBUG(radup) this is not good, since they should be compared by value
+            // in StscChecker; but there we don't have yet access to the referred attr
+            if (fmrfixedtext != null && !fmrfixedtext.equals(deftext))
+            {
+                state.error(XmlErrorCodes.SCHEMA_ATTR$FIXED_NOT_MATCH, null, xsdAttr.xgetFixed());
+                // recovery: reset fixed to the original value
+                deftext = fmrfixedtext;
+            }
         }
 
         if (!local)

@@ -550,6 +550,12 @@ public abstract class XmlErrorCodes
     public static final String SCHEMA_ATTR$DEFAULT_OR_FIXED = "src-attribute.1";
 
     /**
+     * au-value_constraint: See description for
+     * <a href="http://www.w3.org/TR/xmlschema-1/#au-value_constraint">XMLSchema Structures 1.0: The Attribute Use Schema Component</a>
+     */
+    public static final String SCHEMA_ATTR$FIXED_NOT_MATCH = "au-value_constraint";
+
+    /**
      * src-attribute.2: See clause 2 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#src-attribute">XMLSchema Structures 1.0: Attribute Declaration Representation OK</a>
      */
