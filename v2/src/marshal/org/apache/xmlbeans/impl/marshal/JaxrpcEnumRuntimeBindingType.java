@@ -20,8 +20,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
-import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import java.lang.reflect.Method;
 

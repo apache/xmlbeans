@@ -72,6 +72,25 @@ public final class StringList
         add((String)o);
     }
 
+    public void appendDefault()
+    {
+        append(null);
+    }
+
+    public void set(int index, Object value)
+    {
+        set(index, (String)value);
+    }
+
+    public void set(final int index, String value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
+    }
+
     public void clear()
     {
         Arrays.fill(store, null);

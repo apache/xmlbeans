@@ -71,6 +71,27 @@ public final class ShortList
         add(((Number)o).shortValue());
     }
 
+    public void appendDefault()
+    {
+        add((short)0);
+    }
+
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Number)value).shortValue());
+    }
+
+
+    public void set(int index, short value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
+    }
+
     /**
      * Appends the specified element to the end of this list.
      *

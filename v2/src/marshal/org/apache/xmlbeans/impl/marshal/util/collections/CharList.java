@@ -50,8 +50,13 @@ public final class CharList
      */
     public char[] getMinSizedArray()
     {
+        if (size == store.length) {
+            return store;
+        }
+
         char[] new_a = new char[size];
         System.arraycopy(store, 0, new_a, 0, size);
+        store = new_a;
         return new_a;
     }
 
@@ -69,6 +74,26 @@ public final class CharList
     {
         assert (o instanceof Character);
         add(((Character)o).charValue());
+    }
+
+    public void appendDefault()
+    {
+        add((char)0);
+    }
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Character)value).charValue());
+    }
+
+
+    public void set(int index, char value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
     }
 
     /**

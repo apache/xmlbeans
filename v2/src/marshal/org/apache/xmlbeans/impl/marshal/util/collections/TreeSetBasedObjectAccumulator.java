@@ -41,5 +41,10 @@ public final class TreeSetBasedObjectAccumulator
         return (TreeSet)store;
     }
 
+    public void set(int index, Object value)
+    {
+        throw new UnsupportedOperationException("no indexed access");
+    }
+
 }
 

@@ -23,7 +23,6 @@ import org.apache.xmlbeans.impl.binding.bts.ListArrayType;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 
 import javax.xml.namespace.QName;
-import java.lang.reflect.Array;
 
 final class ListArrayRuntimeBindingType
     extends RuntimeBindingType

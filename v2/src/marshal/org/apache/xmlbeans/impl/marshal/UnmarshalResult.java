@@ -128,7 +128,7 @@ abstract class UnmarshalResult
         return baseReader.getNamespaceContext();
     }
 
-    void addError(String msg)
+    private void addError(String msg)
     {
         addError(msg, baseReader.getLocation());
     }
@@ -143,7 +143,7 @@ abstract class UnmarshalResult
     }
 
 
-    void addError(String msg, Location location)
+    final void addError(String msg, Location location)
     {
         assert location != null;
         MarshalStreamUtils.addError(errors, msg, location);
@@ -154,7 +154,7 @@ abstract class UnmarshalResult
         return errors;
     }
 
-    Object unmarshalDocument(XMLStreamReader reader)
+    final Object unmarshalDocument(XMLStreamReader reader)
         throws XmlException
     {
         enrichXmlStream(getValidatingStream(reader));
@@ -164,7 +164,7 @@ abstract class UnmarshalResult
     }
 
 
-    protected Object unmarshalBindingType(BindingType bindingType)
+    private Object unmarshalBindingType(BindingType bindingType)
         throws XmlException
     {
         updateAttributeState();
@@ -183,8 +183,9 @@ abstract class UnmarshalResult
             } else {
                 final Object initial_obj = of.createObject(rtt.getJavaType());
                 um = rtt.getUnmarshaller();
-                um.unmarshal(initial_obj, this);
-                return initial_obj;
+                final Object inter = rtt.createIntermediary(this, initial_obj);
+                um.unmarshalIntoIntermediary(inter, this);
+                return rtt.getFinalObjectFromIntermediary(inter, this);
             }
         }
         catch (InvalidLexicalValueException ilve) {
@@ -194,7 +195,7 @@ abstract class UnmarshalResult
         }
     }
 
-    protected ObjectFactory extractObjectFactory()
+    private ObjectFactory extractObjectFactory()
     {
         if (options == null) return null;
 
@@ -202,9 +203,9 @@ abstract class UnmarshalResult
             (ObjectFactory)options.get(XmlOptions.UNMARSHAL_INITIAL_OBJECT_FACTORY);
     }
 
-    Object unmarshalType(XMLStreamReader reader,
-                         QName schemaType,
-                         String javaType)
+    final Object unmarshalType(XMLStreamReader reader,
+                               QName schemaType,
+                               String javaType)
         throws XmlException
     {
         doctorStream(schemaType, reader);
@@ -245,9 +246,9 @@ abstract class UnmarshalResult
         throws XmlException;
 
 
-    Object unmarshalElement(XMLStreamReader reader,
-                            QName globalElement,
-                            String javaType)
+    final Object unmarshalElement(XMLStreamReader reader,
+                                  QName globalElement,
+                                  String javaType)
         throws XmlException
     {
         final BindingType binding_type =
@@ -768,7 +769,7 @@ abstract class UnmarshalResult
         return xsiAttributeHolder.xsiType;
     }
 
-    boolean hasXsiNil() throws XmlException
+    private boolean hasXsiNil() throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -793,11 +794,11 @@ abstract class UnmarshalResult
      *
      * @return  false if we hit an end element (any end element at all)
      */
-    boolean advanceToNextStartElement()
+    final boolean advanceToNextStartElement()
         throws XmlException
     {
-        final boolean ret;
-        ret = MarshalStreamUtils.advanceToNextStartElement(baseReader);
+        final boolean ret =
+            MarshalStreamUtils.advanceToNextStartElement(baseReader);
         updateAttributeState();
         return ret;
     }
@@ -835,7 +836,7 @@ abstract class UnmarshalResult
     }
 
 
-    protected void updateAttributeState()
+    protected final void updateAttributeState()
     {
         xsiAttributeHolder.reset();
         gotXsiAttributes = false;
@@ -879,7 +880,7 @@ abstract class UnmarshalResult
         return baseReader.getNamespaceURI();
     }
 
-    void skipElement()
+    final void skipElement()
         throws XmlException
     {
         MarshalStreamUtils.skipElement(baseReader);
@@ -887,7 +888,7 @@ abstract class UnmarshalResult
     }
 
 
-    void advanceAttribute()
+    final void advanceAttribute()
     {
         assert hasMoreAttributes();
         assert currentAttributeCount != INVALID;
@@ -924,7 +925,7 @@ abstract class UnmarshalResult
         return baseReader.getAttributeLocalName(currentAttributeIndex);
     }
 
-    void attributePresent(int att_idx)
+    final void attributePresent(int att_idx)
     {
         if (defaultAttributeBits == null) {
             int bits_size = getAttributeCount();
@@ -971,7 +972,7 @@ abstract class UnmarshalResult
         return false;
     }
 
-    RuntimeBindingType determineActualRuntimeType(RuntimeBindingType expected)
+    final RuntimeBindingType determineActualRuntimeType(RuntimeBindingType expected)
         throws XmlException
     {
         final QName xsi_type = getXsiType();

@@ -48,5 +48,12 @@ public final class ArrayListBasedObjectAccumulator
         return (ArrayList)store;
     }
 
+    public void set(int index, Object value)
+    {
+        ArrayList l = (ArrayList)store;
+        l.set(index, value);
+        lastArray = null;
+    }
+
 }
 

@@ -88,12 +88,34 @@ abstract class RuntimeBindingType
 
     protected Object createIntermediary(UnmarshalResult context)
     {
+        //TODO: make this abstract
         throw new UnsupportedOperationException("this=" + this);
     }
+
+
+    //some subclass will certainly need to override this
+    protected Object createIntermediary(UnmarshalResult context,
+                                        Object actual_object)
+    {
+        return actual_object;
+    }
+
 
     Object getObjectFromIntermediate(Object inter)
     {
         return inter;
+    }
+
+    protected Object getFinalObjectFromIntermediary(Object inter,
+                                                    UnmarshalResult context)
+        throws XmlException
+    {
+        return inter;
+    }
+
+    boolean isObjectFromIntermediateIdempotent()
+    {
+        return true;
     }
 
     final BindingType getBindingType()
@@ -324,6 +346,9 @@ abstract class RuntimeBindingType
         protected void setValue(final Object target, final Object prop_obj)
             throws XmlException
         {
+            assert prop_obj == null || propertyClass.isPrimitive() || propertyClass.isInstance(prop_obj) :
+                " wrong property type: " + prop_obj.getClass() + " expected " + propertyClass;
+
             if (field == null) {
                 ReflectionUtils.invokeMethod(target, setMethod,
                                              new Object[]{prop_obj});

@@ -48,8 +48,13 @@ public final class DoubleList
      */
     public double[] getMinSizedArray()
     {
+        if (size == store.length) {
+            return store;
+        }
+
         double[] new_a = new double[size];
         System.arraycopy(store, 0, new_a, 0, size);
+        store = new_a;
         return new_a;
     }
 
@@ -69,6 +74,27 @@ public final class DoubleList
         assert (o instanceof Number);
         add(((Number)o).doubleValue());
     }
+
+    public void appendDefault()
+    {
+        add(0);
+    }
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Number)value).doubleValue());
+    }
+
+
+    public void set(int index, double value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
+    }
+
 
     /**
      * Appends the specified element to the end of this list.

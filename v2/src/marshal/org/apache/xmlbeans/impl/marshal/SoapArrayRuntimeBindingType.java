@@ -95,6 +95,11 @@ final class SoapArrayRuntimeBindingType
         return acc.getFinalArray();
     }
 
+    boolean isObjectFromIntermediateIdempotent()
+    {
+        return false;
+    }
+
     static final class ItemProperty
         extends RuntimeBindingProperty
     {

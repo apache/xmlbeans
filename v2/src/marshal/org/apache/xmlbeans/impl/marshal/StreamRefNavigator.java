@@ -13,31 +13,21 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.marshal.util.collections;
+package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 
-public interface Accumulator
+import javax.xml.stream.XMLStreamReader;
+
+public interface StreamRefNavigator
 {
 
-    int DEFAULT_INITIAL_CAPACITY = 16;
-
-    void append(Object elem);
-
     /**
-     * append default value for this type
-     * (null of Objects, normal java defaults for primtive types)
-     */
-    void appendDefault();
-
-    void set(int index, Object value);
-
-
-    /**
-     * This method must be idempotent between calls to add or set.
      *
-     * @return
+     * @param ref
+     * @return  null if unable to locate reference, else reader at target node
+     * @throws XmlException
      */
-    Object getFinalArray();
-
+    XMLStreamReader lookupRef(String ref)
+        throws XmlException;
 }
-

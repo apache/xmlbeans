@@ -39,5 +39,12 @@ public final class VectorBasedObjectAccumulator
         return (Vector)store;
     }
 
+    public void set(int index, Object value)
+    {
+        Vector v = (Vector)store;
+        v.set(index, value);
+        lastArray = null;
+    }
+
 }
 

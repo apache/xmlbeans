@@ -63,4 +63,9 @@ public interface SoapUnmarshaller
                          XmlOptions options)
         throws XmlException;
 
+
+    public interface StreamDeferer {
+        XMLStreamReader lookupRef(String ref);
+    }
+
 }

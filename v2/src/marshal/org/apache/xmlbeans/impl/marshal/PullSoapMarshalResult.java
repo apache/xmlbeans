@@ -65,7 +65,7 @@ abstract class PullSoapMarshalResult
             int id = objectRefTable.getId(top_lvl_obj);
             if (id >= 0) {
                 fillAndAddAttribute(getIdAttributeName(),
-                                    Soap11Constants.constructRefValueFromId(id));
+                                    Soap11Constants.constructIdValueFromId(id));
             }
         }
 

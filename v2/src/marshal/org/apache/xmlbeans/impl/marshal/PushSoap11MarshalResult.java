@@ -15,9 +15,9 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamWriter;
@@ -52,6 +52,6 @@ final class PushSoap11MarshalResult
 
     protected String getIdValue(int id)
     {
-        return Soap11Constants.constructRefValueFromId(id);
+        return Soap11Constants.constructIdValueFromId(id);
     }
 }

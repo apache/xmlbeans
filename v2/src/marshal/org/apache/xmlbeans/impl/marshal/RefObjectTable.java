@@ -15,8 +15,8 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 final class RefObjectTable
 {
@@ -24,11 +24,55 @@ final class RefObjectTable
 
     Object getObjectForRef(String ref)
     {
-        return refTable.get(ref);
+        RefEntry e = getEntryForRef(ref);
+        if (e == null) return null;
+        return e.final_obj;
+    }
+
+    Object getInterForRef(String ref)
+    {
+        RefEntry e = getEntryForRef(ref);
+        if (e == null) return null;
+        return e.inter;
+    }
+
+    RefEntry getEntryForRef(String ref)
+    {
+        return (RefEntry)refTable.get(ref);
+    }
+
+    void putForRef(String ref, Object inter, Object actual_obj)
+    {
+        refTable.put(ref, new RefEntry(inter, actual_obj));
     }
 
     void putObjectForRef(String ref, Object val)
     {
-        refTable.put(ref, val);
+        RefEntry e = (RefEntry)refTable.get(ref);
+        assert e != null;
+        assert e.inter != null;
+        e.final_obj = val;
+    }
+
+    void putIntermediateForRef(String ref, Object inter)
+    {
+        refTable.put(ref, new RefEntry(inter));
+    }
+
+    final static class RefEntry
+    {
+        RefEntry(Object inter, Object final_obj)
+        {
+            this.inter = inter;
+            this.final_obj = final_obj;
+        }
+
+        RefEntry(Object inter)
+        {
+            this.inter = inter;
+        }
+
+        Object inter;
+        Object final_obj;
     }
 }

@@ -15,8 +15,6 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.marshal.RuntimeBindingProperty;
-
 import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;

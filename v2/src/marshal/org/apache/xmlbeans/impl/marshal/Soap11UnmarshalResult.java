@@ -28,9 +28,10 @@ final class Soap11UnmarshalResult
     Soap11UnmarshalResult(BindingLoader loader,
                           RuntimeBindingTypeTable typeTable,
                           RefObjectTable refObjectTable,
-                          XmlOptions options)
+                          StreamRefNavigator refNavigator,
+                          XmlOptions opts)
     {
-        super(loader, typeTable, refObjectTable, options);
+        super(loader, typeTable, refObjectTable, refNavigator, opts);
     }
 
     protected String getReferencedIdFromAttributeValue(String attval)

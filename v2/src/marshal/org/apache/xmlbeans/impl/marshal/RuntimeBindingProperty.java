@@ -88,6 +88,20 @@ abstract class RuntimeBindingProperty
     abstract QName getName();
 
 
+    protected final Object createIntermediary(Object parent_inter,
+                                              RuntimeBindingType actual_rtt,
+                                              UnmarshalResult context)
+        throws XmlException
+    {
+        if (hasFactory()) {
+            final Object obj = createObjectViaFactory(parent_inter, actual_rtt);
+            return actual_rtt.createIntermediary(context, obj);
+        } else {
+            return actual_rtt.createIntermediary(context);
+        }
+    }
+
+
     //non simple type props can throw an exception
     final CharSequence getLexical(Object value,
                                   MarshalResult result)
@@ -151,17 +165,16 @@ abstract class RuntimeBindingProperty
     }
 
 
-    //these methods should be used only by this type and subclasses
     protected abstract void fill(Object inter, Object prop_obj)
         throws XmlException;
 
-    protected boolean hasFactory()
+    protected final boolean hasFactory()
     {
         return parentFactoryMethod != null;
     }
 
-    Object createObjectViaFactory(Object inter,
-                                  final RuntimeBindingType actual_rtt)
+    private Object createObjectViaFactory(Object inter,
+                                          final RuntimeBindingType actual_rtt)
         throws XmlException
     {
         final Object actual_obj =
@@ -183,5 +196,14 @@ abstract class RuntimeBindingProperty
                                             params);
 
     }
+
+    public String toString()
+    {
+        return "RuntimeBindingProperty{" +
+            "bindingType=" + this.getRuntimeBindingType().getBindingType() +
+            "containingType=" + containingType +
+            "}";
+    }
+
 
 }

@@ -82,17 +82,32 @@ final class WrappedArrayRuntimeBindingType
         return elementProperty;
     }
 
-    Object createIntermediary()
+    protected Object createIntermediary(UnmarshalResult context)
     {
         return AccumulatorFactory.createAccumulator(getJavaType(),
                                                     elementProperty.getElementClass());
-
     }
 
-    static Object getFinalObjectFromIntermediary(Object inter)
+    protected Object createIntermediary(UnmarshalResult context,
+                                        Object actual_object)
+    {
+        //cannot modify the length of an array once it is created...
+        final String e = "factories not supported for array types: " +
+            getBindingType();
+        throw new UnsupportedOperationException(e);
+    }
+
+    protected Object getFinalObjectFromIntermediary(Object inter,
+                                                    UnmarshalResult context)
+        throws XmlException
     {
         Accumulator acc = (Accumulator)inter;
         return acc.getFinalArray();
+    }
+
+    boolean isObjectFromIntermediateIdempotent()
+    {
+        return false;
     }
 
     static final class ItemProperty

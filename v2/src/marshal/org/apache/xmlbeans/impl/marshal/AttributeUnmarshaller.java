@@ -39,22 +39,12 @@ abstract class AttributeUnmarshaller
         return type.getFinalObjectFromIntermediary(inter, context);
     }
 
-    public void unmarshal(Object object, UnmarshalResult context)
-        throws XmlException
-    {
-        final Object inter = type.createIntermediary(context, object);
-        deserializeAttributes(inter, context);
-        deserializeContents(inter, context);
-
-        //this is needed to fill in all the array props
-        type.getFinalObjectFromIntermediary(inter, context);
-    }
-
     public void unmarshalIntoIntermediary(Object intermediary,
                                           UnmarshalResult result)
         throws XmlException
     {
-        throw new AssertionError("UNIMP!!!");
+        deserializeAttributes(intermediary, result);
+        deserializeContents(intermediary, result);
     }
 
     public Object unmarshalAttribute(UnmarshalResult context)

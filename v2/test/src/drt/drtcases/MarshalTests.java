@@ -43,15 +43,15 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
+import org.apache.xmlbeans.impl.newstore2.Public2;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
-import org.apache.xmlbeans.impl.newstore2.Jsr173;
 import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.w3c.dom.Document;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
@@ -585,9 +585,11 @@ public class MarshalTests extends TestCase
     }
 
 
-    public void DISABLED_testByNameSoapUnmarshal()
+    public void testByNameSoapUnmarshal()
         throws Exception
     {
+        final boolean verbose = false;
+
         final Collection errors = new LinkedList();
         final String xmldoc = createSoapExampleXmlString(errors);
         reportErrors(errors, "byname-marshal-soap-writer");
@@ -596,11 +598,21 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext =
             getBindingContext(getBindingConfigDocument());
 
-        final SoapUnmarshaller um =
-            bindingContext.createSoapUnmarshaller(EncodingStyle.SOAP11);
 
-        final XmlObject xmlObject = XmlObject.Factory.parse(xmldoc);
-        final XMLStreamReader xrdr = xmlObject.newXMLStreamReader();
+        XmlOptions opts = new XmlOptions();
+        opts.setLoadLineNumbers();
+        final Document document = Public2.parse(xmldoc, opts);
+
+        if (verbose) {
+            final XMLStreamReader tmp_stream = Public2.getStream(document);
+            dumpReader(tmp_stream, true);
+            tmp_stream.close();
+        }
+
+        final SoapUnmarshaller um =
+            bindingContext.createSoapUnmarshaller(EncodingStyle.SOAP11, document);
+
+        final XMLStreamReader xrdr = Public2.getStream(document);
 
         while (!xrdr.isStartElement()) {
             xrdr.next();
@@ -615,10 +627,10 @@ public class MarshalTests extends TestCase
                      DFLT_ELEM_NAME.getNamespaceURI(),
                      DFLT_ELEM_NAME.getLocalPart());
 
-        final Object obj =
-            um.unmarshalType(xrdr, MYCLASS_NAME, MyClass.class.getName(), null);
 
-        inform("GOT OBJ" + obj, true);
+        final Object obj = um.unmarshalType(xrdr, MYCLASS_NAME, MyClass.class.getName(), null);
+
+        inform("GOT OBJ" + obj.getClass(), verbose);
 
         xrdr.close();
     }
@@ -636,7 +648,7 @@ public class MarshalTests extends TestCase
         myelt.setQn(qn);
         myelt.setQn2(qn);
 
-        myelt.setWrappedArrayOne(new String[]{"a", "a", "b"});
+        myelt.setWrappedArrayOne(new String[]{"a", "a", "b4", "b4", "a"});
 
         MySubClass sub = new MySubClass();
         sub.setBigInt(new BigInteger("23522352235223522352"));
@@ -656,7 +668,7 @@ public class MarshalTests extends TestCase
 
         mc.setMyelt(myelt);
 
-        myelt.setStringArray(new String[]{"a", "b", "c"});
+        myelt.setStringArray(new String[]{"a", "b", "c", "a", "a", "b"});
 
         myelt.setMyClassArray(new MyClass[]{sub, new MyClass(),
                                             sub});
@@ -764,8 +776,8 @@ public class MarshalTests extends TestCase
         final long before_millis = System.currentTimeMillis();
         for (int i = 0; i < trials; i++) {
 
-            bindingContext = ((BindingContextFactoryImpl)context_factory).
-                                    createBindingContextFromConfig(conf);
+            bindingContext =
+                ((BindingContextFactoryImpl)context_factory).createBindingContextFromConfig(conf);
 
             if (bindingContext == null) {
                 throw new Exception("bad news");
