@@ -28,8 +28,7 @@ import com.sun.javadoc.AnnotationValue;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.SourcePosition;
-// import com.sun.javadoc.AnnotationTypeElementDoc;
-import com.sun.javadoc.AnnotationTypeMemberDoc;
+import com.sun.javadoc.AnnotationTypeElementDoc;
 import com.sun.javadoc.ExecutableMemberDoc;
 
 
@@ -98,14 +97,11 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
                                   AnnotationDesc src, 
                                   SourcePosition sp) {
     if (sp != null) JavadocClassBuilder.addSourcePosition(dest,sp);
-//    AnnotationDesc.ElementValuePair[] mvps = src.elementValues();
-    AnnotationDesc.MemberValuePair[] mvps = src.memberValues();
+    AnnotationDesc.ElementValuePair[] mvps = src.elementValues();
     for(int i=0; i<mvps.length; i++) {
-//      Type jmt = mvps[i].element().returnType();
-      Type jmt = mvps[i].member().returnType();
+      Type jmt = mvps[i].element().returnType();
       String typeName = jmt.qualifiedTypeName();
-//      String name = mvps[i].element().name();
-      String name = mvps[i].member().name();
+      String name = mvps[i].element().name();
       AnnotationValue aval = mvps[i].value();
       Object valueObj;
       try {
@@ -152,8 +148,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
       } else if (valueObj instanceof AnnotationValue[]) {
         // this is another big chunk of work, just factored into a new
         // method to keep things cleaner
-//        populateArrayMember(dest,mvps[i].element(),(AnnotationValue[])valueObj,sp);
-        populateArrayMember(dest,mvps[i].member(),(AnnotationValue[])valueObj,sp);
+        populateArrayMember(dest,mvps[i].element(),(AnnotationValue[])valueObj,sp);
       } else {
         mContext.getLogger().error("Value of annotation member "+name+" is " +
                                    "of an unexpected type: "+
@@ -191,8 +186,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
    * for the user.</p>
    */
   private void populateArrayMember(MAnnotation dest,
-//                                   AnnotationTypeElementDoc memberDoc,
-                                   AnnotationTypeMemberDoc memberDoc,
+                                   AnnotationTypeElementDoc memberDoc,
                                    AnnotationValue[] annValueArray,
                                    SourcePosition sp)
   {
