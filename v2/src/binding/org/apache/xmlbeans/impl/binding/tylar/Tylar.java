@@ -85,4 +85,9 @@ public interface Tylar {
    * This method may return null.
    */
   public URL[] getLocations();
+
+  /**
+   * @deprecated
+   */ 
+  public URL getLocation();
 }
