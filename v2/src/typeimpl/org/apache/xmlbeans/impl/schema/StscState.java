@@ -39,6 +39,7 @@ import org.apache.xmlbeans.impl.util.HexBin;
 import java.util.*;
 import java.net.URISyntaxException;
 import java.net.URI;
+import java.net.URL;
 import java.io.File;
 
 
@@ -364,10 +365,21 @@ public class StscState
     {
         XmlError err =
             XmlError.forLocation(
+                code,
+                args,
+                XmlError.SEVERITY_ERROR,
+                location.toURI().toString(), 0, 0, 0);
+        errorListener.add(err);
+    }
+
+    public static void addError(Collection errorListener, String code, Object[] args, URL location)
+    {
+        XmlError err =
+            XmlError.forLocation(
               code,
               args,
               XmlError.SEVERITY_ERROR,
-              location.toURI().toString(), 0, 0, 0);
+              location.toString(), 0, 0, 0);
         errorListener.add(err);
     }
 
@@ -1389,7 +1401,18 @@ public class StscState
 
         int lastslash = uri.lastIndexOf('/');
         String dir = QNameHelper.hexsafe(lastslash == -1 ? "" : uri.substring(0, lastslash));
-        return dir + "/" + uri.substring(lastslash + 1);
+
+        int question = uri.indexOf('?', lastslash + 1);
+        if (question == -1)
+            return dir + "/" + uri.substring(lastslash + 1);
+
+        String query = QNameHelper.hexsafe(question == -1 ? "" : uri.substring(question));
+
+        // if encoded query part is longer than 64 characters, just drop it
+        if (query.startsWith(QNameHelper.URI_SHA1_PREFIX))
+            return dir + "/" + uri.substring(lastslash + 1, question);
+        else
+            return dir + "/" + uri.substring(lastslash + 1, question) + query;
     }
 
     /**

@@ -104,7 +104,8 @@ public class QNameHelper
     // 256 characters, which are prohibited on Windows NT.
    
     public static final int MAX_NAME_LENGTH = 64;
-    
+    public static final String URI_SHA1_PREFIX = "URI_SHA_1_";
+
     public static String hexsafe(String s)
     {
         StringBuffer result = new StringBuffer();
@@ -156,7 +157,7 @@ public class QNameHelper
             }
             byte[] digest = md.digest(inputBytes);
             assert(digest.length == 20); // SHA1 160 bits == 20 bytes
-            result = new StringBuffer("URI_SHA_1_");
+            result = new StringBuffer(URI_SHA1_PREFIX);
             for (int j = 0; j < digest.length; j++)
             {
                 result.append(hexdigits[(digest[j] >> 4) & 0xF]);

@@ -19,6 +19,8 @@ import org.apache.xmlbeans.impl.common.IOUtil;
 
 import java.io.File;
 import java.net.URI;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -121,8 +123,10 @@ public class CommandLine
     }
 
     private List _files;
+    private List _urls;
     private File _baseDir;
     private static final File[] EMPTY_FILEARRAY = new File[0];
+    private static final URL[] EMPTY_URLARRAY = new URL[0];
 
     private List getFileList()
     {
@@ -158,6 +162,44 @@ public class CommandLine
         return _files;
     }
 
+    private List getUrlList()
+    {
+        if (_urls == null)
+        {
+            String[] args = args();
+            List urls = new ArrayList();
+
+            for (int i = 0; i < args.length; i++)
+            {
+                if (looksLikeURL(args[i]))
+                {
+                    try
+                    {
+                        urls.add(new URL(args[i]));
+                    }
+                    catch (MalformedURLException mfEx)
+                    {
+                        System.err.println("ignoring invalid url: " + args[i] + ": " + mfEx.getMessage());
+                    }
+                }
+            }
+
+            _urls = Collections.unmodifiableList(urls);
+        }
+
+        return _urls;
+    }
+
+    private static boolean looksLikeURL(String str)
+    {
+        return str.startsWith("http:") || str.startsWith("https:") || str.startsWith("ftp:") || str.startsWith("file:");
+    }
+
+    public URL[] getURLs()
+    {
+        return (URL[]) getUrlList().toArray(EMPTY_URLARRAY);
+    }
+
     public File[] getFiles()
     {
         return (File[])getFileList().toArray(EMPTY_FILEARRAY);
@@ -174,7 +216,7 @@ public class CommandLine
         for (Iterator i = getFileList().iterator(); i.hasNext(); )
         {
             File f = (File)i.next();
-            if (f.getName().endsWith(ext))
+            if (f.getName().endsWith(ext) && !looksLikeURL(f.getPath()))
                 result.add(f);
         }
         return (File[])result.toArray(EMPTY_FILEARRAY);
