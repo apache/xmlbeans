@@ -27,6 +27,7 @@ import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.SchemaAttributeModel;
 import org.apache.xmlbeans.SchemaComponent;
+import org.apache.xmlbeans.Filer;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
@@ -475,6 +476,14 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
      * Saves this type to a directory.
      */
     public void saveToDirectory(File classDir)
+    {
+        throw new UnsupportedOperationException("The builtin schema type system cannot be saved.");
+    }
+
+    /**
+     * Saves this type system using a Filer
+     */
+    public void save(Filer filer)
     {
         throw new UnsupportedOperationException("The builtin schema type system cannot be saved.");
     }

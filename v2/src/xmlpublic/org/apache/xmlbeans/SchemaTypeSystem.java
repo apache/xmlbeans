@@ -197,7 +197,12 @@ public interface SchemaTypeSystem extends SchemaTypeLoader
     public ClassLoader getClassLoader();
 
     /**
-     * Saves this type to a directory.
+     * Saves this type system to a directory.
      */
     public void saveToDirectory(File classDir);
+
+    /**
+     * Saves this type system using a Filer
+     */
+    public void save(Filer filer);
 }

@@ -288,7 +288,7 @@ public class CodeGenUtil
         assert (jar.exists()) : "jar not found " + jar;
         args.add(jar.getAbsolutePath());
 
-        args.add("cf" + (verbose ? "v" : ""));
+        args.add("cf");
         args.add(quoteNoEscapeFilename(outfile.getAbsolutePath()));
 
         args.add("-C");

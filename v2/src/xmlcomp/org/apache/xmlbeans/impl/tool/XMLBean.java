@@ -212,7 +212,6 @@ public class XMLBean extends MatchingTask
             params.setJavaFiles(javaArray);
             params.setConfigFiles(xsdconfigArray);
             params.setClasspath(cp);
-            //params.setOutputJar(destfile); // always use the jar task below
             params.setName(typesystemname);
             params.setSrcDir(srcgendir);
             params.setClassesDir(classgendir);

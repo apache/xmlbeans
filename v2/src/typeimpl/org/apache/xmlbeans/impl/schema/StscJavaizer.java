@@ -16,8 +16,6 @@
 package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.impl.common.NameUtil;
-import org.apache.xmlbeans.impl.config.ExtensionHolder;
-import org.apache.xmlbeans.impl.config.InterfaceExtension;
 import org.apache.xmlbeans.QNameSetBuilder;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaType;
@@ -28,6 +26,10 @@ import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
 import org.apache.xmlbeans.XmlByte;
 import org.apache.xmlbeans.XmlShort;
+import org.apache.xmlbeans.InterfaceExtension;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.PrePostExtension;
+import org.apache.xmlbeans.BindingConfig;
 
 import java.util.*;
 import java.math.BigInteger;
@@ -92,7 +94,26 @@ public class StscJavaizer
 
     private static void verifyInterfaceNameCollisions(Set usedNames, StscState state)
     {
-        state.getExtensionHolder().verifyInterfaceNameCollisions(usedNames);
+        BindingConfig config = state.getBindingConfig();
+
+        InterfaceExtension[] exts = config.getInterfaceExtensions();
+        for (int i = 0; i < exts.length; i++)
+        {
+            if (usedNames.contains(exts[i].getInterface().toLowerCase()))
+                state.error("InterfaceExtension interface '" + exts[i].getInterface() + "' creates a name collision with one of the generated interfaces or classes.", XmlError.SEVERITY_ERROR, null);
+
+            String handler = exts[i].getStaticHandler();
+            if (handler != null && usedNames.contains(handler.toLowerCase()))
+                state.error("InterfaceExtension handler class '" + handler + "' creates a name collision with one of the generated interfaces or classes.", XmlError.SEVERITY_ERROR, null);
+        }
+
+        PrePostExtension[] prepost = config.getPrePostExtensions();
+        for (int i = 0; i < prepost.length; i++)
+        {
+            String handler = prepost[i].getStaticHandler();
+            if (handler != null && usedNames.contains(handler.toLowerCase()))
+                state.error("PrePostExtension handler class '" + handler + "' creates a name collision with one of the generated interfaces or classes.", XmlError.SEVERITY_ERROR, null);
+        }
     }
 
     private static void setExtensions(SchemaTypeImpl sImpl, StscState state)
@@ -101,7 +122,8 @@ public class StscJavaizer
 
         if (javaName != null)
         {
-            sImpl.setExtensionHolder(state.getExtensionHolder(javaName));
+            sImpl.setInterfaceExtensions(state.getBindingConfig().getInterfaceExtensions(javaName));
+            sImpl.setPrePostExtension(state.getBindingConfig().getPrePostExtension(javaName));
         }
     }
 
@@ -249,23 +271,19 @@ public class StscJavaizer
 
     private static void avoidExtensionMethods(Set usedPropNames, SchemaTypeImpl sImpl)
     {
-        ExtensionHolder extHolder = sImpl.getExtensionHolder();
-        if (extHolder != null)
+        InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
+        for (int i = 0; i < exts.length; i++)
         {
-            List exts = extHolder.getInterfaceExtensionsFor(sImpl.getFullJavaName());
-            for (int i = 0; i < exts.size(); i++)
+            InterfaceExtension ext = exts[i];
+            InterfaceExtension.MethodSignature[] methods = ext.getMethods();
+            for (int j = 0; j < methods.length; j++)
             {
-                InterfaceExtension ext = (InterfaceExtension) exts.get(i);
-                int methodCount = ext.getInterfaceMethodCount();
-                for (int j = 0; j < methodCount; j++)
+                String methodName = methods[j].getName();
+                for (int k = 0; k < PREFIXES.length; k++)
                 {
-                    String methodName = ext.getInterfaceMethodName(j);
-                    for (int k = 0; k < PREFIXES.length; k++)
-                    {
-                        String prefix = PREFIXES[k];
-                        if (methodName.startsWith(prefix))
-                            usedPropNames.add(methodName.substring(prefix.length()));
-                    }
+                    String prefix = PREFIXES[k];
+                    if (methodName.startsWith(prefix))
+                        usedPropNames.add(methodName.substring(prefix.length()));
                 }
             }
         }

@@ -21,30 +21,30 @@ import org.apache.xmlbeans.impl.schema.ResourceLoader;
 import org.apache.xmlbeans.impl.schema.StscState;
 import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
+import org.apache.xmlbeans.impl.schema.FilerImpl;
 import org.apache.xmlbeans.impl.common.XmlErrorPrinter;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.common.JarHelper;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
+import org.apache.xmlbeans.impl.config.BindingConfigImpl;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaCodePrinter;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.FileOutputStream;
 import java.util.*;
 import java.net.URI;
 import java.net.URL;
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.xml.sax.EntityResolver;
@@ -67,7 +67,6 @@ public class SchemaCompiler
         System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
         System.out.println("    -noann - ignore annotations");
         System.out.println("    -compiler - path to external java compiler");
-        System.out.println("    -jar - path to jar utility");
         System.out.println("    -ms - initial memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_START + "')");
         System.out.println("    -mx - maximum memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_MAX + "')");
         System.out.println("    -debug - compile with debug symbols");
@@ -118,7 +117,7 @@ public class SchemaCompiler
         opts.add("d");
         opts.add("cp");
         opts.add("compiler");
-        opts.add("jar");
+        opts.add("jar"); // deprecated
         opts.add("ms");
         opts.add("mx");
         opts.add("repackage");
@@ -165,6 +164,9 @@ public class SchemaCompiler
         boolean quiet = (cl.getOpt("quiet") != null);
         if (verbose)
             quiet = false;
+
+        if (verbose)
+            CommandLine.printVersion();
 
         String outputfilename = cl.getOpt("out");
 
@@ -292,6 +294,8 @@ public class SchemaCompiler
 
         String compiler = cl.getOpt("compiler");
         String jar = cl.getOpt("jar");
+        if (verbose && jar != null)
+            System.out.println("The 'jar' option is no longer supported.");
 
         String memoryInitialSize = cl.getOpt("ms");
         String memoryMaximumSize = cl.getOpt("mx");
@@ -327,7 +331,6 @@ public class SchemaCompiler
         params.setSrcDir(src);
         params.setClassesDir(classes);
         params.setCompiler(compiler);
-        params.setJar(jar);
         params.setMemoryInitialSize(memoryInitialSize);
         params.setMemoryMaximumSize(memoryMaximumSize);
         params.setNojavac(nojavac);
@@ -372,7 +375,6 @@ public class SchemaCompiler
         private String memoryInitialSize;
         private String memoryMaximumSize;
         private String compiler;
-        private String jar;
         private boolean nojavac;
         private boolean quiet;
         private boolean verbose;
@@ -619,14 +621,16 @@ public class SchemaCompiler
             this.compiler = compiler;
         }
 
+        /** @deprecated */
         public String getJar()
         {
-            return jar;
+            return null;
         }
 
+        /** @deprecated */
         public void setJar(String jar)
         {
-            this.jar = jar;
+            // no op
         }
 
         public Collection getErrorListener()
@@ -883,8 +887,7 @@ public class SchemaCompiler
         SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
         params.setName(name);
         params.setSchemas(sdocs);
-        params.setConfigs(cdocs);
-        params.setJavaFiles(javaFiles);
+        params.setConfig(BindingConfigImpl.forConfigDocuments(cdocs, javaFiles, classpath));
         params.setLinkTo(linkTo);
         params.setOptions(opts);
         params.setErrorListener(errorListener);
@@ -892,7 +895,6 @@ public class SchemaCompiler
         params.setBaseURI(baseURI);
         params.setSourcesToCopyMap(sourcesToCopyMap);
         params.setSchemasDir(schemasDir);
-        params.setClasspath(classpath);
         return SchemaTypeSystemCompiler.compile(params);
     }
 
@@ -949,7 +951,6 @@ public class SchemaCompiler
         File srcDir = params.getSrcDir();
         File classesDir = params.getClassesDir();
         String compiler = params.getCompiler();
-        String jar = params.getJar();
         String memoryInitialSize = params.getMemoryInitialSize();
         String memoryMaximumSize = params.getMemoryMaximumSize();
         boolean nojavac = params.isNojavac();
@@ -1019,12 +1020,20 @@ public class SchemaCompiler
         {
             start = System.currentTimeMillis();
 
-            // generate source and .xsb
-            List sourcefiles = new ArrayList();
-            result &= SchemaCodeGenerator.compileTypeSystem(system, srcDir, javaFiles, sourcesToCopyMap,
-                classpath, classesDir, outputJar, nojavac, errorListener, repackage, codePrinter, verbose,
-                sourcefiles, schemasDir, incrSrcGen);
-            result &= !errorListener.hasError();
+            // filer implementation writes binary .xsd and generated source to disk
+            Repackager repackager = (repackage == null ? null : new Repackager(repackage));
+            FilerImpl filer = new FilerImpl(classesDir, srcDir, repackager, verbose, incrSrcGen);
+
+            // currently just for schemaCodePrinter
+            XmlOptions options = new XmlOptions();
+            if (codePrinter != null)
+                options.setSchemaCodePrinter(codePrinter);
+
+            // save .xsb files
+            result &= SchemaTypeSystemCompiler.saveTypeSystem(system, filer, options);
+
+            // gen source files
+            result &= SchemaTypeSystemCompiler.generateTypes(system, filer, options);
 
             if (result)
             {
@@ -1038,6 +1047,8 @@ public class SchemaCompiler
             {
                 start = System.currentTimeMillis();
 
+                List sourcefiles = filer.getSourceFiles();
+
                 if (javaFiles != null)
                     sourcefiles.addAll(java.util.Arrays.asList(javaFiles));
                 if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, memoryInitialSize, memoryMaximumSize, quiet, verbose))
@@ -1050,8 +1061,15 @@ public class SchemaCompiler
                 // jar classes and .xsb
                 if (result && outputJar != null)
                 {
-                    if (!CodeGenUtil.externalJar(classesDir, outputJar, jar, quiet, verbose))
+                    try
+                    {
+                        new JarHelper().jarDir(classesDir, outputJar);
+                    }
+                    catch (IOException e)
+                    {
+                        System.err.println("IO Error " + e);
                         result = false;
+                    }
 
                     if (result && !params.isQuiet())
                         System.out.println("Compiled types to: " + outputJar);

@@ -29,6 +29,7 @@ import java.io.OutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Writer;
 import java.util.*;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipEntry;
@@ -62,6 +63,7 @@ import org.apache.xmlbeans.SchemaIdentityConstraint;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.SchemaTypeLoaderException;
 import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.Filer;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
@@ -168,50 +170,6 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _resourceLoader = new ClassLoaderResourceLoader(_classloader);
         initFromHeader();
         XBeanDebug.trace(XBeanDebug.TRACE_SCHEMA_LOADING, "Finished loading type system " + _name, -1);
-    }
-
-    private static final Schema[] EMPTY_SCHEMA_ARRAY = new Schema[0];
-    private static final Config[] EMPTY_CONFIG_ARRAY = new Config[0];
-
-    public static SchemaTypeSystemImpl forSchemaXml(SchemaTypeSystem existingSTS,
-        XmlObject[] input, SchemaTypeLoader linkTo, XmlOptions options)
-            throws XmlException
-    {
-        options = XmlOptions.maskNull(options);
-        ArrayList schemas = new ArrayList();
-        ArrayList configs = new ArrayList();
-
-        for (int i = 0; i < input.length; i++)
-        {
-            if (input[i] instanceof Schema)
-                schemas.add(input[i]);
-            else if (input[i] instanceof SchemaDocument && ((SchemaDocument)input[i]).getSchema() != null)
-                schemas.add(((SchemaDocument)input[i]).getSchema());
-            else if (input[i] instanceof Config)
-                configs.add(input[i]);
-            else if (input[i] instanceof ConfigDocument && ((ConfigDocument)input[i]).getConfig() != null)
-                configs.add(((ConfigDocument)input[i]).getConfig());
-            else
-                throw new XmlException("Thread " + Thread.currentThread().getName() +  ": The " + i + "th supplied input is not a schema or a config document: its type is " + input[i].schemaType());
-        }
-
-
-
-        Collection userErrors = (Collection)options.get(XmlOptions.ERROR_LISTENER);
-        XmlErrorWatcher errorWatcher = new XmlErrorWatcher(userErrors);
-
-        SchemaTypeSystemImpl stsi =
-            SchemaTypeSystemCompiler.compileImpl(existingSTS,
-                null, (Schema[])schemas.toArray(EMPTY_SCHEMA_ARRAY),
-                (Config[])configs.toArray(EMPTY_CONFIG_ARRAY), null, 
-                linkTo, options, errorWatcher, false, null, null, null, null);
-
-        if (errorWatcher.hasError())
-        {
-            throw new XmlException(errorWatcher.firstError());
-        }
-
-        return stsi;
     }
 
     public static boolean fileContainsTypeSystem(File file, String name)
@@ -1100,7 +1058,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     SchemaTypeLoader _linker;
 
     private HandlePool _localHandles;
-    private File _baseSaveDir;
+    private Filer _filer;
 
     // top-level annotations
     private List _annotations;
@@ -1136,7 +1094,12 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
     public void saveToDirectory(File classDir)
     {
-        _baseSaveDir = classDir;
+        save(new FilerImpl(classDir, null, null, false, false));
+    }
+
+    public void save(Filer filer)
+    {
+        _filer = filer;
 
         _localHandles.startWriteMode();
         saveTypesRecursively(globalTypes());
@@ -2018,11 +1981,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         OutputStream getSaverStream(String name)
         {
-            File targetFile = new File(_baseSaveDir, name);
             try
             {
-                targetFile.getParentFile().mkdirs();
-                return new FileOutputStream(targetFile);
+                return _filer.createBinaryFile(name);
             }
             catch (IOException e)
             {

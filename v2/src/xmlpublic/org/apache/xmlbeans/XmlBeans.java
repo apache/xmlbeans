@@ -219,8 +219,8 @@ public final class XmlBeans
     {
         return
             buildMethod(
-                "org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl", "forSchemaXml",
-                new Class[] { SchemaTypeSystem.class, XmlObject[].class, SchemaTypeLoader.class, XmlOptions.class } );
+                "org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler", "compile",
+                new Class[] { String.class, SchemaTypeSystem.class, XmlObject[].class, BindingConfig.class, SchemaTypeLoader.class, Filer.class, XmlOptions.class } );
     }
 
     private static final Method buildNodeToCursorMethod()
@@ -430,7 +430,7 @@ public final class XmlBeans
      * Returns the SchemaTypeSystem that results from compiling the XML
      * schema definitions passed.
      * <p>
-     * Just like compileTypeSystem, but uses the context type loader for
+     * Just like compileXsd, but uses the context type loader for
      * linking, and returns a unioned typeloader that is suitable for
      * creating instances.
      */
@@ -443,7 +443,7 @@ public final class XmlBeans
      * <p>Returns the SchemaTypeSystem that results from compiling the XML
      * schema definitions passed in <em>schemas</em>.</p>
      * 
-     * <p>This is just like compileTypeSystem, but uses the context type loader for
+     * <p>This is just like compileXsd, but uses the context type loader for
      * linking, and returns a unioned typeloader that is suitable for
      * creating instances.</p>
      * 
@@ -466,7 +466,7 @@ public final class XmlBeans
             SchemaTypeSystem sts =
                 (SchemaTypeSystem)
                     _compilationMethod.invoke(
-                         null, new Object[] { null, schemas, getContextTypeLoader(), options });
+                        null, new Object[] { null, null, schemas, null, getContextTypeLoader(), null, options });
 
             if (sts == null)
                 return null;
@@ -488,51 +488,37 @@ public final class XmlBeans
     /**
      * <p>Returns the SchemaTypeSystem that results from compiling the XML
      * schema definitions passed.</p>
-     * 
+     *
      * <p>The XmlObjects passed in should be w3c &lt;schema&gt; elements whose type
      * is org.w3c.x2001.xmlSchema.Schema. (That is, schema elements in
      * the XML namespace http://www.w3c.org/2001/XMLSchema.)  Also
      * org.w3c.x2001.xmlSchema.SchemaDocument is permitted.</p>
-     * 
+     *
      * <p>The optional second argument is a SchemaTypeLoader which will be
      * consulted for already-compiled schema types which may be linked
      * while processing the given schemas.</p>
-     * 
+     *
      * <p>The SchemaTypeSystem that is returned should be combined
      * (via {@link #typeLoaderUnion}) with the typepath typeloader in order
      * to create a typeloader that can be used for creating and validating
      * instances.</p>
-     * 
+     *
      * <p>Use the <em>options</em> parameter to specify the following:</p>
-     * 
+     *
      * <ul>
      * <li>A collection instance that should be used as an error listener during
      * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
      * <li>Whether validation should not be done when building the SchemaTypeSystem,
      * as described in {@link XmlOptions#setCompileNoValidation}.</li>
      * </ul>
-     * 
+     *
      * @param schemas The schema definitions from which to build the schema type system.
      * @param typepath The path to already-compiled schema types for linking while processing.
      * @param options Options specifying an error listener and/or validation behavior.
      */
     public static SchemaTypeSystem compileXsd(XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
     {
-        if (typepath == null)
-            throw new IllegalArgumentException("Must supply a SchemaTypeLoader for compiletime linking");
-
-        try
-        {
-            return (SchemaTypeSystem)_compilationMethod.invoke(null, new Object[] { null, schemas, typepath, options });
-        }
-        catch (IllegalAccessException e)
-        {
-            throw new IllegalStateException("No access to SchemaTypeLoaderImpl.forSchemaXml(): verify that version of xbean.jar is correct");
-        }
-        catch (InvocationTargetException e)
-        {
-            throw wrappedException(e.getCause());
-        }
+        return compileXmlBeans(null, null, schemas, null, typepath, null, options);
     }
 
     /**
@@ -550,7 +536,7 @@ public final class XmlBeans
      * construct the Schema definitions using other methods than parsing an
      * XML document, they should make sure that the names returned by that
      * method are consistent with the caller's intent (add/modify).</p>
-     * 
+     *
      * <p>The XmlObjects passed in should be w3c &lt;schema&gt; elements whose type
      * is org.w3c.x2001.xmlSchema.Schema. (That is, schema elements in
      * the XML namespace http://www.w3c.org/2001/XMLSchema.)  Also
@@ -573,20 +559,81 @@ public final class XmlBeans
      * <li>Whether validation should not be done when building the SchemaTypeSystem,
      * as described in {@link XmlOptions#setCompileNoValidation}.</li>
      * </ul>
-     *
-     * @param system A pre-existing SchemaTypeSystem.
+     * 
      * @param schemas The schema definitions from which to build the schema type system.
      * @param typepath The path to already-compiled schema types for linking while processing.
      * @param options Options specifying an error listener and/or validation behavior.
      */
-    public static SchemaTypeSystem compileXsd(SchemaTypeSystem system, XmlObject[]schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
+    public static SchemaTypeSystem compileXsd(SchemaTypeSystem system, XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
+    {
+        return compileXmlBeans(null, system, schemas, null, typepath, null, options);
+    }
+
+    /**
+     * <p>Returns the SchemaTypeSystem that results from augumenting the
+     * SchemaTypeSystem passed in by incrementally adding the given XML
+     * schema definitions.</p>
+     *
+     * <p>These could be new definitions (if the Schema document is not recorded into
+     * the existing SchemaTypeSystem), modifications to the already existing
+     * definitions (if the Schema document is already recorded in the existing
+     * SchemaTypeSystem), or deletions (if the Schema document is already recorded
+     * in the existing SchemaTypeSystem and the new definitions are empty).
+     * The identity of documents is established using
+     * {@link XmlDocumentProperties#getSourceName}, so if the caller choses to
+     * construct the Schema definitions using other methods than parsing an
+     * XML document, they should make sure that the names returned by that
+     * method are consistent with the caller's intent (add/modify).</p>
+     *
+     * <p>The XmlObjects passed in should be w3c &lt;schema&gt; elements whose type
+     * is org.w3c.x2001.xmlSchema.Schema. (That is, schema elements in
+     * the XML namespace http://www.w3c.org/2001/XMLSchema.)  Also
+     * org.w3c.x2001.xmlSchema.SchemaDocument is permitted.</p>
+     *
+     * <p>The optional name argument is used to name the compiled schema type system.
+     * A randomly generated name will be used if the name is null.</p>
+     *
+     * <p>The optional {@link BindingConfig} argument is used to control the shape
+     * of the generated code.</p>
+     *
+     * <p>The optional SchemaTypeLoader argument will be
+     * consulted for already-compiled schema types which may be linked
+     * while processing the given schemas.</p>
+     *
+     * <p>The optional {@link Filer} argument is used to create new binary or source
+     * files which are the product of the compilation.  If the Filer is null, the
+     * schema binaries (.xsb) files and source files won't be generated.</p>
+     *
+     * <p>The SchemaTypeSystem that is returned should be combined
+     * (via {@link #typeLoaderUnion}) with the typepath typeloader in order
+     * to create a typeloader that can be used for creating and validating
+     * instances.</p>
+     *
+     * <p>Use the <em>options</em> parameter to specify the following:</p>
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * <li>Whether validation should not be done when building the SchemaTypeSystem,
+     * as described in {@link XmlOptions#setCompileNoValidation}.</li>
+     * </ul>
+     *
+     * @param name The type system name or null to use a randomly generated name.
+     * @param system A pre-existing SchemaTypeSystem used in incremental compilation.
+     * @param schemas The schema definitions from which to build the schema type system.
+     * @param config The configuration controls the code generation shape.
+     * @param typepath The path to already-compiled schema types for linking while processing.
+     * @param filer The Filer instance used to create binary binding files and source text files.
+     * @param options Options specifying an error listener and/or validation behavior.
+     */
+    public static SchemaTypeSystem compileXmlBeans(String name, SchemaTypeSystem system, XmlObject[] schemas, BindingConfig config, SchemaTypeLoader typepath, Filer filer, XmlOptions options) throws XmlException
     {
         if (typepath == null)
             throw new IllegalArgumentException("Must supply a SchemaTypeLoader for compiletime linking");
 
         try
         {
-            return (SchemaTypeSystem)_compilationMethod.invoke(null, new Object[] { system, schemas, typepath, options });
+            return (SchemaTypeSystem)_compilationMethod.invoke(null, new Object[] { name, system, schemas, config, typepath, filer, options });
         }
         catch (IllegalAccessException e)
         {

@@ -21,6 +21,9 @@ import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.Filer;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.BindingConfig;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -33,13 +36,13 @@ import java.net.URI;
 
 import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 import org.w3.x2001.xmlSchema.SchemaDocument;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
-import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-import org.apache.xmlbeans.impl.config.SchemaConfig;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.io.File;
+import java.io.IOException;
+import java.io.Writer;
 
 public class SchemaTypeSystemCompiler
 {
@@ -48,8 +51,7 @@ public class SchemaTypeSystemCompiler
         private SchemaTypeSystem existingSystem;
         private String name;
         private Schema[] schemas;
-        private Config[] configs;
-        private File[] javaFiles;
+        private BindingConfig config;
         private SchemaTypeLoader linkTo;
         private XmlOptions options;
         private Collection errorListener;
@@ -57,7 +59,6 @@ public class SchemaTypeSystemCompiler
         private URI baseURI;
         private Map sourcesToCopyMap;
         private File schemasDir;
-        private File[] classpath;
 
         public SchemaTypeSystem getExistingTypeSystem()
         {
@@ -89,24 +90,14 @@ public class SchemaTypeSystemCompiler
             this.schemas = schemas;
         }
 
-        public ConfigDocument.Config[] getConfigs()
+        public BindingConfig getConfig()
         {
-            return configs;
+            return config;
         }
 
-        public void setConfigs(ConfigDocument.Config[] configs)
+        public void setConfig(BindingConfig config)
         {
-            this.configs = configs;
-        }
-
-        public File[] getJavaFiles()
-        {
-            return javaFiles;
-        }
-
-        public void setJavaFiles(File[] javaFiles)
-        {
-            this.javaFiles = javaFiles;
+            this.config = config;
         }
 
         public SchemaTypeLoader getLinkTo()
@@ -179,29 +170,72 @@ public class SchemaTypeSystemCompiler
             this.schemasDir = schemasDir;
         }
 
-        public File[] getClasspath()
-        {
-            return classpath;
-        }
-
-        public void setClasspath(File[] classpath)
-        {
-            this.classpath = classpath;
-        }
     }
 
+    /**
+     * Compiles a SchemaTypeSystem.  Use XmlBeans.compileXmlBeans() if you can.
+     */
     public static SchemaTypeSystem compile(Parameters params)
     {
         return compileImpl(params.getExistingTypeSystem(), params.getName(),
-            params.getSchemas(), params.getConfigs(), params.getJavaFiles(), params.getLinkTo(),
+            params.getSchemas(), params.getConfig(), params.getLinkTo(),
             params.getOptions(), params.getErrorListener(), params.isJavaize(),
-            params.getBaseURI(), params.getSourcesToCopyMap(), params.getSchemasDir(), params.getClasspath());
+            params.getBaseURI(), params.getSourcesToCopyMap(), params.getSchemasDir());
     }
-    
+
+    /**
+     * Please do not invoke this method directly as the signature could change unexpectedly.
+     * Use one of
+     * {@link org.apache.xmlbeans.XmlBeans#loadXsd(org.apache.xmlbeans.XmlObject[])},
+     * {@link org.apache.xmlbeans.XmlBeans#compileXsd(org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.XmlOptions)},
+     * or
+     * {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans(String, org.apache.xmlbeans.SchemaTypeSystem, org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.BindingConfig, org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.Filer, org.apache.xmlbeans.XmlOptions)}
+     */
+    public static SchemaTypeSystemImpl compile(String name, SchemaTypeSystem existingSTS,
+        XmlObject[] input, BindingConfig config, SchemaTypeLoader linkTo, Filer filer, XmlOptions options)
+        throws XmlException
+    {
+        options = XmlOptions.maskNull(options);
+        ArrayList schemas = new ArrayList();
+
+        for (int i = 0; i < input.length; i++)
+        {
+            if (input[i] instanceof Schema)
+                schemas.add(input[i]);
+            else if (input[i] instanceof SchemaDocument && ((SchemaDocument)input[i]).getSchema() != null)
+                schemas.add(((SchemaDocument)input[i]).getSchema());
+            else
+                throw new XmlException("Thread " + Thread.currentThread().getName() +  ": The " + i + "th supplied input is not a schema or a config document: its type is " + input[i].schemaType());
+        }
+
+        Collection userErrors = (Collection)options.get(XmlOptions.ERROR_LISTENER);
+        XmlErrorWatcher errorWatcher = new XmlErrorWatcher(userErrors);
+
+        SchemaTypeSystemImpl stsi = compileImpl(existingSTS, name,
+            (Schema[])schemas.toArray(new Schema[schemas.size()]),
+            config, linkTo, options, errorWatcher, filer!=null, null, null, null);
+
+        if (errorWatcher.hasError())
+        {
+            throw new XmlException(errorWatcher.firstError());
+        }
+
+        if (stsi != null && filer != null)
+        {
+            saveTypeSystem(stsi, filer, options);
+            generateTypes(stsi, filer, options);
+        }
+
+        return stsi;
+    }
+
+    //
+    // Compiles a SchemaTypeSystem
+    //
     /* package */ static SchemaTypeSystemImpl compileImpl( SchemaTypeSystem system, String name,
-        Schema[] schemas, Config[] configs, File[] javaFiles, SchemaTypeLoader linkTo,
+        Schema[] schemas, BindingConfig config, SchemaTypeLoader linkTo,
         XmlOptions options, Collection outsideErrors, boolean javaize,
-        URI baseURI, Map sourcesToCopyMap, File schemasDir, File[] classpath)
+        URI baseURI, Map sourcesToCopyMap, File schemasDir)
     {
         if (linkTo == null)
             throw new IllegalArgumentException("Must supply linkTo");
@@ -215,7 +249,7 @@ public class SchemaTypeSystemCompiler
         try
         {
             state.setErrorListener(errorWatcher);
-            state.setSchemaConfig(SchemaConfig.forConfigDocuments(configs, javaFiles, classpath));
+            state.setBindingConfig(config);
             state.setOptions(options);
             state.setGivenTypeSystemName(name);
             state.setSchemasDir(schemasDir);
@@ -360,5 +394,107 @@ public class SchemaTypeSystemCompiler
         return (Schema[]) result.toArray(new Schema[result.size()]);
     }
 
+
+    /**
+     * Saves a SchemaTypeSystem as .xsb files using Filer.
+     * Please do not invoke this method directly as the signature could change unexpectedly.
+     * Use {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans(String, org.apache.xmlbeans.SchemaTypeSystem, org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.BindingConfig, org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.Filer, org.apache.xmlbeans.XmlOptions)} instead.
+     *
+     * @param system the SchemaTypeSystem to save
+     * @param filer to create the binary .xsb files
+     * @param options See {@link XmlOptions#setSchemaCodePrinter(org.apache.xmlbeans.SchemaCodePrinter)}
+     */
+    // KHK: generate TypeSystemHolder bytecode directly in SchemaTypeSystemImpl.save()
+    // KHK: then remove this method and remove SchemaCodeGenerator.saveTypeSystem()
+    public static boolean saveTypeSystem(SchemaTypeSystem system, Filer filer, XmlOptions options)
+    {
+        system.save(filer);
+        options = XmlOptions.maskNull(options);
+
+        // Now generate the holder class
+        String index = SchemaTypeCodePrinter.indexClassForSystem(system);
+        try
+        {
+            Writer writer = filer.createSourceFile(index);
+
+            SchemaTypeCodePrinter.printLoader(writer, system, options);
+
+            writer.close();
+        }
+        catch (IOException e)
+        {
+            System.err.println("IO Error " + e);
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Generate java source files for a SchemaTypeSystem.
+     * Please do not invoke this method directly as the signature could change unexpectedly.
+     * Use {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans(String, org.apache.xmlbeans.SchemaTypeSystem, org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.BindingConfig, org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.Filer, org.apache.xmlbeans.XmlOptions)} instead.
+     *
+     * @param system the SchemaTypeSystem to generated java source for
+     * @param filer to create the java source files
+     * @param options See {@link XmlOptions#setSchemaCodePrinter(org.apache.xmlbeans.SchemaCodePrinter)}
+     * @return true if saving the generated source succeeded.
+     */
+    public static boolean generateTypes(SchemaTypeSystem system, Filer filer, XmlOptions options)
+    {
+        boolean success = true;
+
+        List types = new ArrayList();
+        types.addAll(Arrays.asList(system.globalTypes()));
+        types.addAll(Arrays.asList(system.documentTypes()));
+        types.addAll(Arrays.asList(system.attributeTypes()));
+
+        for (Iterator i = types.iterator(); i.hasNext(); )
+        {
+            SchemaType type = (SchemaType)i.next();
+            if (type.isBuiltinType())
+                continue;
+            if (type.getFullJavaName() == null)
+                continue;
+
+            String fjn = type.getFullJavaName();
+
+            Writer writer = null;
+
+            try
+            {
+                // Generate interface class
+                writer = filer.createSourceFile(fjn);
+                SchemaTypeCodePrinter.printType(writer, type, options);
+            }
+            catch (IOException e)
+            {
+                System.err.println("IO Error " + e);
+                success = false;
+            }
+            finally {
+                try { if (writer != null) writer.close(); } catch (IOException e) {}
+            }
+
+            try
+            {
+                // Generate Implementation class
+                fjn = type.getFullJavaImplName();
+                writer = filer.createSourceFile(fjn);
+
+                SchemaTypeCodePrinter.printTypeImpl(writer, type, options);
+            }
+            catch (IOException e)
+            {
+                System.err.println("IO Error " + e);
+                success = false;
+            }
+            finally {
+                try { if (writer != null) writer.close(); } catch (IOException e) {}
+            }
+        }
+
+        return success;
+    }
 
 }

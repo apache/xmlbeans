@@ -19,8 +19,11 @@ import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Nsconfig;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Qnameconfig;
-import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.BindingConfig;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.InterfaceExtension;
+import org.apache.xmlbeans.PrePostExtension;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamService;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
@@ -32,7 +35,10 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
-public class SchemaConfig
+/**
+ * An implementation of BindingConfig
+ */
+public class BindingConfigImpl extends BindingConfig
 {
     private Map _packageMap;
     private Map _prefixMap;
@@ -41,9 +47,11 @@ public class SchemaConfig
     private Map _prefixMapByUriPrefix;  // uri prefix -> name prefix
     private Map _suffixMapByUriPrefix;  // uri prefix -> name suffix
     private Map _qnameMap;
-    private ExtensionHolder _extensionHolder;
 
-    private SchemaConfig()
+    private List _interfaceExtensions;
+    private List _prePostExtensions;
+
+    private BindingConfigImpl()
     {
         _packageMap = Collections.EMPTY_MAP;
         _prefixMap = Collections.EMPTY_MAP;
@@ -52,15 +60,16 @@ public class SchemaConfig
         _prefixMapByUriPrefix = Collections.EMPTY_MAP;
         _suffixMapByUriPrefix = Collections.EMPTY_MAP;
         _qnameMap = Collections.EMPTY_MAP;
-        _extensionHolder = null;
+        _interfaceExtensions = new ArrayList();
+        _prePostExtensions = new ArrayList();
     }
 
-    public static SchemaConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath)
+    public static BindingConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath)
     {
-        return new SchemaConfig(configs, javaFiles, classpath);
+        return new BindingConfigImpl(configs, javaFiles, classpath);
     }
 
-    private SchemaConfig(Config[] configs, File[] javaFiles, File[] classpath)
+    private BindingConfigImpl(Config[] configs, File[] javaFiles, File[] classpath)
     {
         JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
 
@@ -71,7 +80,8 @@ public class SchemaConfig
         _prefixMapByUriPrefix = new LinkedHashMap();
         _suffixMapByUriPrefix = new LinkedHashMap();
         _qnameMap = new LinkedHashMap();
-        _extensionHolder = new ExtensionHolder();
+        _interfaceExtensions = new ArrayList();
+        _prePostExtensions = new ArrayList();
 
         for (int i = 0; i < configs.length; i++)
         {
@@ -100,8 +110,67 @@ public class SchemaConfig
             }
         }
 
-        _extensionHolder.secondPhaseValidation();
-        //todo _extensionHolder.normalize();
+        secondPhaseValidation();
+        //todo normalize();
+    }
+
+    void addInterfaceExtension(InterfaceExtensionImpl ext)
+    {
+        if (ext==null)
+            return;
+
+        _interfaceExtensions.add(ext);
+    }
+
+    void addPrePostExtension(PrePostExtensionImpl ext)
+    {
+        if (ext==null)
+            return;
+
+        _prePostExtensions.add(ext);
+    }
+
+    void secondPhaseValidation()
+    {
+        // validate interface methods collisions
+        Map methodSignatures = new HashMap();
+
+        for (int i = 0; i < _interfaceExtensions.size(); i++)
+        {
+            InterfaceExtensionImpl interfaceExtension = (InterfaceExtensionImpl) _interfaceExtensions.get(i);
+
+            InterfaceExtensionImpl.MethodSignatureImpl[] methods = (InterfaceExtensionImpl.MethodSignatureImpl[])interfaceExtension.getMethods();
+            for (int j = 0; j < methods.length; j++)
+            {
+                InterfaceExtensionImpl.MethodSignatureImpl ms = methods[j];
+
+                if (methodSignatures.containsKey(methods[j]))
+                {
+
+                    InterfaceExtensionImpl.MethodSignatureImpl ms2 = (InterfaceExtensionImpl.MethodSignatureImpl) methodSignatures.get(methods[j]);
+                    BindingConfigImpl.error("Colliding methods '" + ms.getSignature() + "' in interfaces " +
+                        ms.getInterfaceName() + " and " + ms2.getInterfaceName() + ".", null);
+
+                    return;
+                }
+
+                // store it into hashmap
+                methodSignatures.put(methods[j], methods[j]);
+            }
+        }
+
+        // validate that PrePostExtension-s do not intersect
+        for (int i = 0; i < _prePostExtensions.size() - 1; i++)
+        {
+            PrePostExtensionImpl a = (PrePostExtensionImpl) _prePostExtensions.get(i);
+            for (int j = 1; j < _prePostExtensions.size(); j++)
+            {
+                PrePostExtensionImpl b = (PrePostExtensionImpl) _prePostExtensions.get(j);
+                if (a.hasNameSetIntersection(b))
+                    BindingConfigImpl.error("The applicable domain for handler '" + a.getHandlerNameForJavaSource() +
+                        "' intersects with the one for '" + b.getHandlerNameForJavaSource() + "'.", null);
+            }
+        }
     }
 
     private static void recordNamespaceSetting(Object key, String value, Map result)
@@ -162,10 +231,10 @@ public class SchemaConfig
 
         for (int i = 0; i < intfXO.length; i++)
         {
-            _extensionHolder.addInterfaceExtension(InterfaceExtension.newInstance(jamLoader, xbeanSet, intfXO[i]));
+            addInterfaceExtension(InterfaceExtensionImpl.newInstance(jamLoader, xbeanSet, intfXO[i]));
         }
 
-        _extensionHolder.addPrePostExtension(PrePostExtension.newInstance(jamLoader, xbeanSet, ext.getPrePostSet()));
+        addPrePostExtension(PrePostExtensionImpl.newInstance(jamLoader, xbeanSet, ext.getPrePostSet()));
     }
 
 
@@ -221,6 +290,7 @@ public class SchemaConfig
     }
 
     //public methods
+
     public String lookupPackageForNamespace(String uri)
     {
         return lookup(_packageMap, _packageMapByUriPrefix, uri);
@@ -241,21 +311,45 @@ public class SchemaConfig
         return (String)_qnameMap.get(qname);
     }
 
-    public ExtensionHolder extensionHolderFor(String fullJavaName)
+    public InterfaceExtension[] getInterfaceExtensions()
     {
-        return _extensionHolder.extensionHolderFor(fullJavaName);
+        return (InterfaceExtension[])_interfaceExtensions.toArray(new InterfaceExtension[_interfaceExtensions.size()]);
     }
 
-    public ExtensionHolder getExtensionHolder()
+    public InterfaceExtension[] getInterfaceExtensions(String fullJavaName)
     {
-        return _extensionHolder;
+        List result = new ArrayList();
+        for (int i = 0; i < _interfaceExtensions.size(); i++)
+        {
+            InterfaceExtensionImpl intfExt = (InterfaceExtensionImpl) _interfaceExtensions.get(i);
+            if (intfExt.contains(fullJavaName))
+                result.add(intfExt);
+        }
+
+        return (InterfaceExtension[])result.toArray(new InterfaceExtension[result.size()]);
+    }
+
+    public PrePostExtension[] getPrePostExtensions()
+    {
+        return (PrePostExtension[])_prePostExtensions.toArray(new PrePostExtension[_prePostExtensions.size()]);
+    }
+
+    public PrePostExtension getPrePostExtension(String fullJavaName)
+    {
+        for (int i = 0; i < _prePostExtensions.size(); i++)
+        {
+            PrePostExtensionImpl prePostExt = (PrePostExtensionImpl) _prePostExtensions.get(i);
+            if (prePostExt.contains(fullJavaName))
+                return prePostExt;
+        }
+        return null;
     }
 
     private JamClassLoader getJamLoader(File[] javaFiles, File[] classpath)
     {
         JamServiceFactory jf = JamServiceFactory.getInstance();
         JamServiceParams params = jf.createServiceParams();
-		params.set14WarningsEnabled(false);
+        params.set14WarningsEnabled(false);
 
         // process the included sources
         if (javaFiles!=null)

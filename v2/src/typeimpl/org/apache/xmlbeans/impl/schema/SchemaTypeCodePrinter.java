@@ -27,9 +27,8 @@ import java.util.Iterator;
 
 import javax.xml.namespace.QName;
 import org.apache.xmlbeans.impl.common.NameUtil;
-import org.apache.xmlbeans.impl.config.ExtensionHolder;
-import org.apache.xmlbeans.impl.config.InterfaceExtension;
-import org.apache.xmlbeans.impl.config.PrePostExtension;
+import org.apache.xmlbeans.PrePostExtension;
+import org.apache.xmlbeans.InterfaceExtension;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaProperty;
@@ -302,7 +301,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         printInnerTypeJavaDoc(sType);
 
         startInterface(sType);
-        
+
         printStaticTypeDeclaration(sType, system);
 
         if (sType.isSimpleType())
@@ -349,7 +348,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             }
 
         }
-        
+
         printNestedInnerTypes(sType, system);
 
         printFactory(sType);
@@ -592,16 +591,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
         StringBuffer sb = new StringBuffer();
 
-        ExtensionHolder extHolder = sImpl.getExtensionHolder();
-        if (extHolder != null)
-        {
-            List exts = extHolder.getInterfaceExtensionsFor(sType.getFullJavaName());
-            for (Iterator i = exts.iterator(); i.hasNext();)
-            {
-                InterfaceExtension ext = (InterfaceExtension) i.next();
-                sb.append(", " + ext.getInterfaceNameForJavaSource());
-            }
-        }
+        InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
+        for (int i = 0; i < exts.length; i++)
+            sb.append(", " + exts[i].getInterface());
+
         return sb.toString();
     }
 
@@ -1030,7 +1023,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 printJavaDoc((several ? "Sets (as xml) first " : "Sets (as xml) the ") + propdesc);
                 emit("void xset" + propertyName + "(" + xtype + " " + safeVarName + ");");
             }
-            
+
             if (xmltype && !several)
             {
                 printJavaDoc("Appends and returns a new empty " + propdesc);
@@ -1088,7 +1081,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             {
                 printJavaDoc("Inserts and returns a new empty value (as xml) as the ith " + propdesc);
                 emit(xtype + " insertNew" + propertyName + "(int i);");
-    
+
                 printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
                 emit(xtype + " addNew" + propertyName + "();");
             }
@@ -1294,7 +1287,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
                 emit("    result[i] = (" + type + ")((org.apache.xmlbeans.SimpleValue)targetList.get(i)).getEnumValue();");
                 break;
-                
+
             case SchemaProperty.JAVA_BOOLEAN:
                 emit("boolean[] result = new boolean[targetList.size()];");
                 emit("for (int i = 0, len = targetList.size() ; i < len ; i++)");
@@ -1604,7 +1597,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         indent();
         emit("check_orphaned();");
     }
-    
+
     void emitImplementationPostamble() throws IOException
     {
         outdent();
@@ -1638,16 +1631,12 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         if (sImpl == null)
             return;
 
-        ExtensionHolder extHolder = sImpl.getExtensionHolder();
-        if (extHolder == null)
-            return;
-
-        PrePostExtension ext = extHolder.getPrePostExtensionsFor(sType.getFullJavaName());
+        PrePostExtension ext = sImpl.getPrePostExtension();
         if (ext != null)
         {
             if (ext.hasPreCall())
             {
-                emit("if ( " + ext.getPreCall(opType, identifier, isAttr, index) + " )");
+                emit("if ( " + ext.getStaticHandler() + ".preSet(" + prePostOpString(opType) + ", this, " + identifier + ", " + isAttr + ", " + index + "))");
                 startBlock();
             }
         }
@@ -1664,11 +1653,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         if (sImpl == null)
             return;
 
-        ExtensionHolder extHolder = sImpl.getExtensionHolder();
-        if (extHolder == null)
-            return;
-
-        PrePostExtension ext = extHolder.getPrePostExtensionsFor(sType.getFullJavaName());
+        PrePostExtension ext = sImpl.getPrePostExtension();
         if (ext != null)
         {
             if (ext.hasPreCall())
@@ -1677,7 +1662,25 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             }
 
             if (ext.hasPostCall())
-                emit(ext.getPostCall(opType, identifier, isAttr, index));
+                emit(ext.getStaticHandler() + ".postSet(" + prePostOpString(opType) + ", this, " + identifier + ", " + isAttr + ", " + index + ");");
+        }
+    }
+
+    String prePostOpString(int opType)
+    {
+        switch (opType)
+        {
+            default:
+                assert false;
+
+            case PrePostExtension.OPERATION_SET:
+                return "org.apache.xmlbeans.PrePostExtension.OPERATION_SET";
+
+            case PrePostExtension.OPERATION_INSERT:
+                return "org.apache.xmlbeans.PrePostExtension.OPERATION_INSERT";
+
+            case PrePostExtension.OPERATION_REMOVE:
+                return "org.apache.xmlbeans.PrePostExtension.OPERATION_REMOVE";
         }
     }
 
@@ -1685,10 +1688,10 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
     private static final int ADD_NEW_VALUE = 3;
     private static final int THROW_EXCEPTION = 4;
 
-    void emitGetTarget(String setIdentifier, 
+    void emitGetTarget(String setIdentifier,
                        String identifier,
-                       boolean isAttr, 
-                       String index, 
+                       boolean isAttr,
+                       String index,
                        int nullBehaviour,
                        String xtype)
         throws IOException
@@ -1767,7 +1770,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
 
             printJGetValue(javaType, type);
-            
+
             emitImplementationPostamble();
 
             endBlock();
@@ -1959,7 +1962,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 endBlock();
 
             }
-            
+
             if (xmltype && !several)
             {
                 // Value addNewProp()
@@ -2132,7 +2135,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("return target;");
                 emitImplementationPostamble();
                 endBlock();
-    
+
                 printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
                 emit("public " + xtype + " addNew" + propertyName + "()");
                 startBlock();
@@ -2188,24 +2191,24 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         if (!sType.isSimpleType())
         {
             SchemaProperty[] properties;
-            
+
             if (sType.getContentType() == SchemaType.SIMPLE_CONTENT)
             {
                 // simple content types impls derive directly from "holder" impls
                 // in order to handle the case (for ints or string enums e.g.) where
                 // there is a simple type restriction.  So property getters need to
                 // be implemented "from scratch" for each derived complex type
-                
+
                 properties = sType.getProperties();
             }
             else
             {
                 // complex content type implementations derive from base type impls
                 // so derived property impls can be reused
-                
+
                 properties = getDerivedProperties(sType);
             }
-            
+
             Map qNameMap = printStaticFields(properties);
 
             for (int i = 0; i < properties.length; i++)
@@ -2214,7 +2217,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
                 QName name = prop.getName();
                 String xmlType = xmlTypeForProperty( prop );
-                
+
                 printGetterImpls(
                     prop,
                     name,
@@ -2294,23 +2297,64 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         if (sImpl == null)
             return;
 
-        ExtensionHolder extHolder = sImpl.getExtensionHolder();
-        if (extHolder == null)
-            return;
-
-        List exts = extHolder.getInterfaceExtensionsFor(sType.getFullJavaName());
-        for (Iterator i = exts.iterator(); i.hasNext();)
+        InterfaceExtension[] exts = sImpl.getInterfaceExtensions();
+        for (int i = 0; i < exts.length; i++)
         {
-            InterfaceExtension ext = (InterfaceExtension) i.next();
-            for (int j = 0; j < ext.getInterfaceMethodCount(); j++)
+            InterfaceExtension.MethodSignature[] methods = exts[i].getMethods();
+            if (methods != null)
             {
-                printJavaDoc("Implementation method for interface " + ext.getInterfaceNameForJavaSource());
-                emit(ext.getInterfaceMethodDecl(j));
-                startBlock();
-                emit(ext.getInterfaceMethodImpl(j));
-                endBlock();
+                for (int j = 0; j < methods.length; j++)
+                {
+                    printJavaDoc("Implementation method for interface " + exts[i].getStaticHandler());
+                    printInterfaceMethodDecl(methods[j]);
+                    startBlock();
+                    printInterfaceMethodImpl(exts[i].getStaticHandler(), methods[j]);
+                    endBlock();
+                }
             }
         }
+    }
+
+    void printInterfaceMethodDecl(InterfaceExtension.MethodSignature method) throws IOException
+    {
+        StringBuffer decl = new StringBuffer(60);
+
+        decl.append("public ").append(method.getReturnType());
+        decl.append(" ").append(method.getName()).append("(");
+
+        String[] paramTypes = method.getParameterTypes();
+        for (int i = 0; i < paramTypes.length; i++)
+        {
+            if (i != 0)
+                decl.append(", ");
+            decl.append(paramTypes[i]).append(" p").append(i);
+        }
+
+        decl.append(")");
+
+        String[] exceptions = method.getExceptionTypes();
+        for (int i = 0; i < exceptions.length; i++)
+            decl.append((i == 0 ? " throws " : ", ") + exceptions[i]);
+
+        emit(decl.toString());
+    }
+
+    void printInterfaceMethodImpl(String handler, InterfaceExtension.MethodSignature method) throws IOException
+    {
+        StringBuffer impl = new StringBuffer(60);
+
+        if (!method.getReturnType().equals("void"))
+            impl.append("return ");
+
+        impl.append(handler).append(".").append(method.getName()).append("(this");
+
+        String[] params = method.getParameterTypes();
+        for (int i = 0; i < params.length; i++)
+            impl.append(", p" + i);
+
+        impl.append(");");
+
+        emit(impl.toString());
     }
 
     void printNestedTypeImpls(SchemaType sType, SchemaTypeSystem system) throws IOException

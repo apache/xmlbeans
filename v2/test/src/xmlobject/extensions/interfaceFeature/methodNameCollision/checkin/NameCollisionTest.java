@@ -19,6 +19,7 @@ import interfaceFeature.xbean.methodNameCollision.company.CompanyDocument;
 import interfaceFeature.xbean.methodNameCollision.company.CompanyType;
 import interfaceFeature.xbean.methodNameCollision.company.DepartmentType;
 import interfaceFeature.xbean.methodNameCollision.company.ConsultantType;
+import xmlobject.extensions.interfaceFeature.methodNameCollision.existing.IFoo;
 
 import org.apache.xmlbeans.XmlString;
 
@@ -53,11 +54,20 @@ public class NameCollisionTest extends TestCase{
 
             sExpected.append("</departments></com:company>");
 
+            int[][] ints = new int[2][3];
+            for (int i = 0; i < ints.length; i++)
+                for (int j = 0; j < ints[i].length; j++)
+                    ints[i][j] = (i+1) * (j+1);
+
+            IFoo.Inner inner = new IFoo.Inner() {
+                public String getValue() { return "inner value"; }
+            };
+
              assertEquals( sExpected.toString(), poDoc.xmlText());
              assertTrue( poDoc.validate() );
              assertEquals("Name0", it[0].getName());
-             assertEquals("Name2",it[0].getName2());
-             assertEquals("Name3",it[0].getName3());
+             assertEquals("Name2: [1, 2, 3, ], [2, 4, 6, ], ",it[0].getName2(ints));
+             assertEquals("Name3: inner value",it[0].getName3(inner));
             assertEquals("BEAN Name0",it[0].getName4());
 
 

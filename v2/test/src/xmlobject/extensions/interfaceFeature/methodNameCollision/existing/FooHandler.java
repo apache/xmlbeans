@@ -16,16 +16,33 @@
 package xmlobject.extensions.interfaceFeature.methodNameCollision.existing;
 
 import org.apache.xmlbeans.XmlObject;
-
+import xmlobject.extensions.interfaceFeature.methodNameCollision.existing.IFoo;
 
 public class FooHandler {
-  public static String getName(XmlObject xo){
-      return "Name0";
-  }
-     public static String getName2(XmlObject xo){
-           return "Name2";
+    public static String getName(XmlObject xo){
+        return "Name0";
+    }
+
+    public static String getName2(XmlObject xo, int[][] ints){
+        StringBuffer buf = new StringBuffer();
+        buf.append("Name2: ");
+        for (int i = 0; i < ints.length; i++)
+        {
+            buf.append("[");
+            for (int j = 0; j < ints[i].length; j++)
+            {
+                buf.append(ints[i][j]);
+                if (j != ints[i].length)
+                    buf.append(", ");
+            }
+            buf.append("]");
+            if (i != ints.length)
+                buf.append(", ");
+        }
+        return buf.toString();
      }
-     public static  String getName3(XmlObject xo){
-         return "Name3";
+
+     public static  String getName3(XmlObject xo, IFoo.Inner inner){
+         return "Name3: " + inner.getValue();
      }
 }
