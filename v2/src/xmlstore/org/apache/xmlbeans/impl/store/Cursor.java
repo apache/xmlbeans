@@ -3013,6 +3013,11 @@ public final class Cursor implements XmlCursor, ChangeListener
         return newDomNode( null );
     }
 
+    public Node getDomNode ( )
+    {
+        throw new IllegalStateException( "Live DOM nodes not supported in XmlBeans V1" );
+    }
+
     public Node newDomNode ( XmlOptions options )
     {
         try

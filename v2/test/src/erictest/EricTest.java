@@ -118,6 +118,8 @@ public class EricTest
 
         c.toStartDoc();
 
+        System.out.println( Public2.save( c.getDomNode() ) );
+
         System.out.println( "\"" + Public2.save( c, pp ) + "\"" );
     }
 }

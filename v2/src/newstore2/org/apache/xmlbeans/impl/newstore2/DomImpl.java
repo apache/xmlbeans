@@ -1184,50 +1184,50 @@ final class DomImpl
         // into a DOM fragment.
         //
 
-        if (c != null && c.isNonDomRoot())
-        {
-            c.next();
-            
-            assert c.kind() > 0;
-
-            if (c.isText())
-                c.next();
-            else
-            {
-                c.toEnd();
-                c.next();
-            }
-            
-            if (c.isFinish())
-            {
-                c.release();
-                c = null;
-            }
-            else
-            {
-                Cur frag = n.locale().tempCur();
-                
-                frag.createDomDocFragRoot();
-
-                frag.next();
-
-                c.toParent();
-                c.next();
-
-                while ( !c.isFinish() )
-                {
-                    if (c.isText())
-                        c.moveChars( frag, -1 );
-                    else
-                        c.moveNode( frag );
-                }
-
-                c.moveToCur( frag );
-                c.toParent();
-
-                frag.release();
-            }
-        }
+//        if (c != null && c.isNonDomRoot())
+//        {
+//            c.next();
+//            
+//            assert c.kind() > 0;
+//
+//            if (c.isText())
+//                c.next();
+//            else
+//            {
+//                c.toEnd();
+//                c.next();
+//            }
+//            
+//            if (c.isFinish())
+//            {
+//                c.release();
+//                c = null;
+//            }
+//            else
+//            {
+//                Cur frag = n.locale().tempCur();
+//                
+//                frag.createDomDocFragRoot();
+//
+//                frag.next();
+//
+//                c.toParent();
+//                c.next();
+//
+//                while ( !c.isFinish() )
+//                {
+//                    if (c.isText())
+//                        c.moveChars( frag, -1 );
+//                    else
+//                        c.moveNode( frag );
+//                }
+//
+//                c.moveToCur( frag );
+//                c.toParent();
+//
+//                frag.release();
+//            }
+//        }
 
         if (c == null)
             return null;
