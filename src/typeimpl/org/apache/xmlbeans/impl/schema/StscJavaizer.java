@@ -248,7 +248,9 @@ public class StscJavaizer
         }
 
         // assign java type names to anonymous types
-        assignJavaAnonymousTypeNames(sImpl);
+        // for redefined types, we can't do this step
+        if (sImpl.getFullJavaName() != null || sImpl.getOuterType() != null)
+            assignJavaAnonymousTypeNames(sImpl);
 
         sImpl.finishJavaizing();
     }
