@@ -744,7 +744,7 @@ final class Locale implements DOMImplementation, SaajCallback
     
     CharUtil _charUtil;
     
-    static Saaj _saaj;
+    Saaj _saaj;
     
     Dom _ownerDoc;
 }

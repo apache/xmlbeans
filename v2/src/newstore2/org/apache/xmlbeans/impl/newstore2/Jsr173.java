@@ -217,7 +217,7 @@ public class Jsr173
 
         private static boolean matchAttr ( Cur c, String uri, String local )
         {
-            assert c.kind() == Cur.ATTR;
+            assert c.isNormalAttr();
 
             QName name = c.getName();
 
@@ -240,7 +240,7 @@ public class Jsr173
                 {
                     do
                     {
-                        if (ca.kind() == Cur.ATTR && matchAttr( ca, uri, local ))
+                        if (ca.isNormalAttr() && matchAttr( ca, uri, local ))
                         {
                             match = true;
                             break;
@@ -249,7 +249,7 @@ public class Jsr173
                     while ( ca.toNextSibling() );
                 }
             }
-            else if (c.kind() == Cur.ATTR)
+            else if (c.isNormalAttr())
                 match = matchAttr( c, uri, local );
             else
                 throw new IllegalStateException();
@@ -292,7 +292,7 @@ public class Jsr173
                 {
                     do
                     {
-                        if (ca.kind() == Cur.ATTR && i-- == 0)
+                        if (ca.isNormalAttr() && i-- == 0)
                         {
                             match = true;
                             break;
@@ -301,7 +301,7 @@ public class Jsr173
                     while ( ca.toNextSibling() );
                 }
             }
-            else if (c.kind() == Cur.ATTR)
+            else if (c.isNormalAttr())
                 match = i == 0;
             else
                 throw new IllegalStateException();
@@ -327,7 +327,7 @@ public class Jsr173
                 {
                     do
                     {
-                        if (ca.kind() == Cur.ATTR)
+                        if (ca.isNormalAttr())
                             n++;
                     }
                     while ( ca.toNextSibling() );
@@ -335,7 +335,7 @@ public class Jsr173
 
                 ca.release();
             }
-            else if (_cur.kind() == Cur.ATTR)
+            else if (_cur.isNormalAttr())
                 n++;
             else
                 throw new IllegalStateException();
@@ -412,7 +412,7 @@ public class Jsr173
 
                 ca.release();
             }
-            else if (_cur.kind() == Cur.ATTR)
+            else if (_cur.isXmlns())
                 n++;
             else
                 throw new IllegalStateException();

@@ -2046,20 +2046,41 @@ final class DomImpl
                 break;
             }
                 
+            case ATTR :
+            {
+                NodeList children = ((Node) n).getChildNodes();
+
+                while ( children.getLength() > 1 )
+                    node_removeChild( n, (Dom) children.item( 1 ) );
+                
+                if (children.getLength() == 0)
+                {
+                    TextNode tn = n.locale().createTextNode();
+                    tn._src = nodeValue;
+                    tn._off = 0;
+                    tn._cch = nodeValue.length();
+                    
+                    node_insertBefore( n, tn, null );
+                }
+                else
+                {
+                    assert children.getLength() == 1;
+                    children.item( 0 ).setNodeValue( nodeValue );
+                }
+
+                break;
+            }
+            
             case PROCINST :
             case COMMENT :
-            case ATTR :
             {
                 Cur c = n.tempCur();
                 c.next();
-                // What should I do with existing text nodes?
-                //  - leave them there and lay the text over them?
-                //  - orphan them iwth a copy of the text?
-                //  - orphan them with no text?
-                //  - text nodes suck
+                
                 c.getChars( -1 );
                 c.moveChars( null, c._cchSrc );
                 c.insertChars( nodeValue, 0, nodeValue.length() );
+                
                 c.release();
 
                 break;
@@ -2398,19 +2419,17 @@ final class DomImpl
     {
         QName name = e.locale().makeQualifiedQName( uri, qName );
         String local = name.getLocalPart();
+        String prefix = validatePrefix( name.getPrefix(), uri, local, true );
 
         Dom a = attributes_getNamedItemNS( e, uri, local );
 
         if (a == null)
         {
-            String prefix = validatePrefix( name.getPrefix(), uri, local, true );
-
             a = document_createAttributeNS( node_getOwnerDocument( e ), uri, local );
-            node_setPrefix( a, prefix );
-            
             attributes_setNamedItemNS( e, a );
         }
 
+        node_setPrefix( a, prefix );
         node_setNodeValue( a, value );
     }
 
@@ -3242,12 +3261,10 @@ final class DomImpl
             if (nodes == node)
                 nodes = node._next;
             else
-            {
                 node._prev._next = node._next;
 
-                if (node._next != null)
-                    node._next = node._next._prev;
-            }
+            if (node._next != null)
+                node._next._prev = node._prev;
 
             node._prev = node._next = null;
 

@@ -109,11 +109,20 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<a><?moo foo?><!--comment--></a>" );;
+        XmlOptions options = new XmlOptions();
+        options.setSavePrettyPrint();
+
+
+
+        
+        Document doc = Public2.parse( "<a><?moo foo?>\r\n<!--comment--></a>" );;
+
+        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "a:b", "value" );
+        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "xxx:b", "kjkj" );
 
         Public2.dump( doc );
 
-        System.out.println( Public2.save( doc ) );
+        System.out.println( Public2.save( doc, options ) );
     }
 }
 
