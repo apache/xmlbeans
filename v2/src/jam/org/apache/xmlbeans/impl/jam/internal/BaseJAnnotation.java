@@ -58,9 +58,8 @@ package org.apache.xmlbeans.impl.jam.internal;
 
 import java.util.Collection;
 import java.util.StringTokenizer;
-import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.impl.jam.JSourcePosition;
+
+import org.apache.xmlbeans.impl.jam.*;
 
 /**
  * Javadoc-backed implementation of org.apache.xmlbeans.impl.jam.Annotation
@@ -135,6 +134,18 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
 
   // ========================================================================
   // JAnnotation implementation
+
+  public JAnnotationMember[] getMembers() {
+    return new JAnnotationMember[0];
+  }
+
+  public JAnnotationMember getMember(String named) {
+    return null;
+  }
+
+  public JAnnotationDeclaration getDeclaration() {
+    return null;
+  }
 
   public JSourcePosition getSourcePosition() {
     return mSourcePosition;

@@ -76,48 +76,72 @@ public interface JAnnotation extends JElement {
    * Returns the name of this annotation.  Note that in the case of
    * javadoc-style annotations, this name will NOT include the leading
    * '@'.
+   *
+   * REVIEW this is a little weird - it's going to be the same as
+   * getDeclaration().getSimpleName();  it really is type information,
+   * which I thought we didn't want to expose here.  However,
+   * I think name is still needed here simply because we may not always
+   * have a declaration (i.e. in the javadoc case), but we will still
+   * have a name.
    */
   public String getName();
 
   /**
-   * Returns the String value of the annotation.  Returns an empty string
-   * by default.
+   * Returns an array containing this annotation's members.  Returns an
+   * empty array if the annotation has no members.
+   */
+  public JAnnotationMember[] getMembers();
+
+  /**
+   * Returns the member of this annotation which has the given name,
+   * or null if no such member exists.
+   *
+   * @return The named member or null.
+   * @throws IllegalArgumentException if the parameter is null.
+   */
+  public JAnnotationMember getMember(String named);
+
+  /**
+   * Returns a representation of this annotation's type declaration.
+   */
+  public JAnnotationDeclaration getDeclaration();
+
+
+  // ========================================================================
+  // These methods will all be deprecated soon
+
+  /**
+   * @deprecated
    */
   public String getStringValue();
 
   /**
-   * Returns the value as an int.  Returns 0 by default if the value
-   * cannot be understood as an int.
+   * @deprecated
    */
   public int getIntValue();
 
   /**
-   * Returns the value as a boolean.  Returns false by default if the
-   * annotation value cannot be understood as a boolean.
+   * @deprecated
    */
   public boolean getBooleanValue();
 
   /**
-   * Returns the value as a long.  Returns 0 by default if the
-   * annotation value cannot be understood as a long.
+   * @deprecated
    */
   public long getLongValue();
 
   /**
-   * Returns the value as a short.  Returns 0 by default if the
-   * annotation value cannot be understood as a short.
+   * @deprecated
    */
   public short getShortValue();
 
   /**
-   * Returns the value as a double.  Returns 0 by default if the
-   * annotation value cannot be understood as a double.
+   * @deprecated
    */
   public double getDoubleValue();
 
   /**
-   * Returns the value as a byte.  Returns 0 by default if the
-   * annotation value cannot be understood as a byte.
+   * @deprecated
    */
   public byte getByteValue();
 }

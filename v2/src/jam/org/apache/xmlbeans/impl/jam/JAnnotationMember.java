@@ -55,42 +55,97 @@
 */
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.JService;
-import org.apache.xmlbeans.impl.jam.JServiceParams;
-
-import java.io.IOException;
-
 /**
- * Interface through which custom JAM implementations may be exposed.
- * Typical users should not be concerned with this interface - use
- * JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JProvider {
-
-  // ========================================================================
-  // Public methods
+public interface JAnnotationMember {
 
   /**
-   * Creates a new JAM service based on the given parameters.
+   * Returns the name of this annotation member.
    *
-   * @param params Parameters for the new service.
-   * @return a new service
-   * @throws IOException if an IO error occurrs while creating the service.
-   * @throws IllegalArgumentException is params is null or not an instance
-   * returned by JServiceFactory.createServiceParams().
+   * REVIEW this is a little weird - it's going to be the same as
+   * getDeclaration().getSimpleName();  it really is type information,
+   * which I thought we didn't want to expose here.  However,
+   * I think name is still needed here simply because we may not always
+   * have a declaration (i.e. in the javadoc case), but we will still
+   * have a name.
    */
-  public JService createService(JServiceParams params) throws IOException;
+  public String getName();
 
   /**
-   * Returns a brief description of this JAM provider.
+   * Returns the value of this annotation as an Object.  If the value
+   * is primitive, one of the
    */
-  public String getDescription();
+  public Object getValue();
 
-  //may want to add something like this to let them interrogate the
-  //provider about it's capabilities
-  //
-  //public JProviderFeatures getFeatures();
+  /**
+   * <p>Returns true if the member's value was not explicitly set in the
+   * annotation instance but was instead taken from the member declaration
+   * default.</p>
+   *
+   * <p>Note that not all JAM implementations may be able to distinguish
+   * the case where the value is explicitly declared to be the same value
+   * as the member's default from the case where the value is not declared
+   * and the value is implicitly default.  In this event, this method
+   * will return true if and only if the effective value of the annotation
+   * is the same as the default value (regardless of how that value was
+   * declared).</p>
+   */
+  public boolean isDefaultValueUsed();
+
+  /**
+   * Returns the a representation of the declaration of this member in its
+   * annotation type declaration.
+   */
+  public JAnnotationMemberDeclaration getDeclaration();
+
+  /**
+   * Returns the String value of the annotation.  Returns an empty string
+   * by default.
+   */
+  public JAnnotation getValueAsAnnotation();
+
+  /**
+   * Returns the String value of the annotation.  Returns an empty string
+   * by default.
+   */
+  public String getValueAsString();
+
+  /**
+   * Returns the value as an int.  Returns 0 by default if the value
+   * cannot be understood as an int.
+   */
+  public int getValueAsInt();
+
+  /**
+   * Returns the value as a boolean.  Returns false by default if the
+   * annotation value cannot be understood as a boolean.
+   */
+  public boolean getValueAsBoolean();
+
+  /**
+   * Returns the value as a long.  Returns 0 by default if the
+   * annotation value cannot be understood as a long.
+   */
+  public long getValueAsLong();
+
+  /**
+   * Returns the value as a short.  Returns 0 by default if the
+   * annotation value cannot be understood as a short.
+   */
+  public short getValueAsShort();
+
+  /**
+   * Returns the value as a double.  Returns 0 by default if the
+   * annotation value cannot be understood as a double.
+   */
+  public double getValueAsDouble();
+
+  /**
+   * Returns the value as a byte.  Returns 0 by default if the
+   * annotation value cannot be understood as a byte.
+   */
+  public byte getValueAsByte();
 
 }

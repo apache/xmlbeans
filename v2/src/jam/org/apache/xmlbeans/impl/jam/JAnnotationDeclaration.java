@@ -55,42 +55,25 @@
 */
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.JService;
-import org.apache.xmlbeans.impl.jam.JServiceParams;
-
-import java.io.IOException;
-
 /**
- * Interface through which custom JAM implementations may be exposed.
- * Typical users should not be concerned with this interface - use
- * JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JProvider {
+public interface JAnnotationDeclaration extends JClass {
 
-  // ========================================================================
-  // Public methods
+/**
+ *
+ * REVIEW is JAnnotationTypeDeclaration a better name?  That's what they
+ * call it in the spec, but seems kinda wordy here.  Advantage of current
+ * naming is that suggests the analagous relationship between
+ * Annotation/AnnotationDeclaration and
+ * AnnotationMember/AnnotationMemberDeclaration more clearly.  We can't
+ * call it AnnotationMemberTypeDeclaration because that is inaccurate -
+ * MemberType is just the type of the member, which is a subset of what
+ * AnnotationMemberDeclaration expresses.
+ */
 
-  /**
-   * Creates a new JAM service based on the given parameters.
-   *
-   * @param params Parameters for the new service.
-   * @return a new service
-   * @throws IOException if an IO error occurrs while creating the service.
-   * @throws IllegalArgumentException is params is null or not an instance
-   * returned by JServiceFactory.createServiceParams().
-   */
-  public JService createService(JServiceParams params) throws IOException;
+//NOTE the delcarations are also returned as JMethods
 
-  /**
-   * Returns a brief description of this JAM provider.
-   */
-  public String getDescription();
-
-  //may want to add something like this to let them interrogate the
-  //provider about it's capabilities
-  //
-  //public JProviderFeatures getFeatures();
-
+  public JAnnotationMemberDeclaration[] getMemberDeclarations();
 }
