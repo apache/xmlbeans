@@ -91,7 +91,6 @@ public class JamClassLoaderImpl implements JamClassLoader {
       return out;
     }
     cachePut(out);
-    ((ClassImpl)out).setState(ClassImpl.UNPOPULATED);
     return out;
   }
 
