@@ -130,31 +130,30 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
         return binder;
     }
     
-    // build up four lists:
-    // 1. types <-> java classes
-    // 2. elements -> java classes
-    // 3. attributes -> java classes
-    // 4. java classes -> elements (may not be unique)
-    
-    // each complex type turns into a by-name-strucutre
-    // each simple type turns into a simple-type-mapping
-    // each element turns into a delegated-element-binding
-    // each attribute turns into a delegated-attribute-binding
-    
-    // javaclass -> element entered only if unique, otherwise warning
-    
-    // each entry is:
-    // 1. created
-    // 2. resolved (properties figured out etc)
-    // creation can happen at any time
-    // resolution must occur after the base type is resolved
-    
+    /**
+     * Computes the binding.
+     */ 
     private void bind()
     {
-        // create a scratch area for every type AND SOAP Array
+        // Every type or global element or global attribute is dropped into
+        // one of a number of categories.  (See Scratch constants.)
+        //
+        // Based on the category, a java class is either defined or found
+        // that maches with the schema type.
+        //
+        // The phases work as follows:
+        //
+        // 1. categorize and allocate Scratches
+        // 2. write or find java names for each xml type
+        // 3. allocate binding types for each scratch (done in the same pass as 2)
+        // 4. fill in the java getter/setter structure of any complex types
+        
+        
+        // 1. categorize and allocate Scratches
         createScratchArea();
         
-        // resolve or generate all names of java classes
+        // 2. write or find java names for each xml type
+        // 3. allocate binding types for each scratch (done in the same pass as 2)
         for (Iterator i = scratchIterator(); i.hasNext(); )
         {
             Scratch scratch = (Scratch)i.next(); 
@@ -162,7 +161,7 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
             createBindingType(scratch);
         }
         
-        // resolve or generate all java structure
+        // 4. fill in the java getter/setter structure of any complex types
         for (Iterator i = scratchIterator(); i.hasNext(); )
         {
             resolveJavaStructure((Scratch)i.next());
@@ -362,8 +361,9 @@ public class JAXRPCSchemaBinder implements JavaCodeGenerator, BindingFileGenerat
 
     /**
      * Now we resolve the structural aspects (property names) for each
-     * scratch.  Notice that we only process
-     * @param scratch
+     * scratch.
+     * 
+     * todo: understand how we want inheritance to work
      */ 
     private void resolveJavaStructure(Scratch scratch)
     {
