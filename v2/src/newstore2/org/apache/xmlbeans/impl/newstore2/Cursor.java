@@ -40,6 +40,7 @@ import java.io.Reader;
 import java.io.Writer;
 import java.io.File;
 import java.io.IOException;
+import java.io.FileOutputStream;
 
 import org.w3c.dom.Node;
 
@@ -204,6 +205,17 @@ public final class Cursor implements XmlCursor
     // change from a phantom ref to a soft/weak ref so I can know what
     // to do when I dequeue from the old q.
     
+    public void _dispose ( )
+    {
+        _cur.release();
+        _cur = null;
+    }
+    
+    public XmlCursor _newCursor ( )
+    {
+        return new Cursor( _cur );
+    }
+
     public QName _getName ( )
     {
         // TODO - consider taking this out of the gateway
@@ -348,11 +360,6 @@ public final class Cursor implements XmlCursor
         return _currentTokenType();
     }
     
-    public XmlCursor _newCursor ( )
-    {
-        return new Cursor( _cur );
-    }
-
     public Object _monitor ( )
     {
         // TODO - some of these methods need not be protected by a
@@ -377,21 +384,25 @@ public final class Cursor implements XmlCursor
 
     public XmlDocumentProperties _documentProperties ( )
     {
-        throw new RuntimeException( "Not implemented" );
-//        _cur.
+        return Locale.getDocProps( _cur, true );
     }
     
     public XMLStreamReader _newXMLStreamReader ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _newXMLStreamReader( null );
     }
     
     public XMLStreamReader _newXMLStreamReader ( XmlOptions options )
     {
-        throw new RuntimeException( "Not implemented" );
+        return Jsr173.newXmlStreamReader( _cur, options );
     }
 
     public XMLInputStream _newXMLInputStream ( )
+    {
+        return _newXMLInputStream( null );
+    }
+    
+    public XMLInputStream _newXMLInputStream ( XmlOptions options )
     {
         throw new RuntimeException( "Not implemented" );
     }
@@ -408,9 +419,14 @@ public final class Cursor implements XmlCursor
         return new TextSaver( _cur, options, null ).saveToString();
     }
     
+    public InputStream _newInputStream ( XmlOptions options )
+    {
+        return new Saver.InputStreamSaver( _cur, options );
+    }
+    
     public InputStream _newInputStream ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _newInputStream( null );
     }
     
     public Reader _newReader ( )
@@ -425,32 +441,90 @@ public final class Cursor implements XmlCursor
     
     public void _save ( ContentHandler ch, LexicalHandler lh ) throws SAXException
     {
-        throw new RuntimeException( "Not implemented" );
+        _save( ch, lh, null );
     }
     
     public void _save ( File file ) throws IOException
     {
-        throw new RuntimeException( "Not implemented" );
+        _save( file, null );
     }
     
     public void _save ( OutputStream os ) throws IOException
     {
-        throw new RuntimeException( "Not implemented" );
+        _save( os, null );
     }
     
     public void _save ( Writer w ) throws IOException
     {
-        throw new RuntimeException( "Not implemented" );
+        _save( w, null );
     }
     
-    public XMLInputStream _newXMLInputStream ( XmlOptions options )
+    public void _save ( ContentHandler ch, LexicalHandler lh, XmlOptions options ) throws SAXException
     {
         throw new RuntimeException( "Not implemented" );
+//        new Saver.SaxSaver( _cur, options, ch, lh );
     }
     
-    public InputStream _newInputStream ( XmlOptions options )
+    public void _save ( File file, XmlOptions options ) throws IOException
     {
-        throw new RuntimeException( "Not implemented" );
+        OutputStream os = new FileOutputStream( file );
+
+        try
+        {
+            save( os, options );
+        }
+        finally
+        {
+            os.close();
+        }
+    }
+    
+    public void _save ( OutputStream os, XmlOptions options ) throws IOException
+    {
+        InputStream is = newInputStream( options );
+
+        try
+        {
+            byte[] bytes = new byte[ 8192 ];
+
+            for ( ; ; )
+            {
+                int n = is.read( bytes );
+
+                if (n < 0)
+                    break;
+
+                os.write( bytes, 0, n );
+            }
+        }
+        finally
+        {
+            is.close();
+        }
+    }
+    
+    public void _save ( Writer w, XmlOptions options ) throws IOException
+    {
+        Reader r = newReader( options );
+
+        try
+        {
+            char[] chars = new char[ 8192 ];
+
+            for ( ; ; )
+            {
+                int n = r.read( chars );
+
+                if (n < 0)
+                    break;
+
+                w.write( chars, 0, n );
+            }
+        }
+        finally
+        {
+            r.close();
+        }
     }
     
     public Reader _newReader( XmlOptions options )
@@ -466,31 +540,6 @@ public final class Cursor implements XmlCursor
     public Node _getDomNode ( )
     {
         return (Node) _cur.getDom();
-    }
-    
-    public void _save ( ContentHandler ch, LexicalHandler lh, XmlOptions options ) throws SAXException
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _save ( File file, XmlOptions options ) throws IOException
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _save ( OutputStream os, XmlOptions options ) throws IOException
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _save ( Writer w, XmlOptions options ) throws IOException
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _dispose ( )
-    {
-        throw new RuntimeException( "Not implemented" );
     }
     
     public boolean _toCursor ( XmlCursor moveTo )
@@ -1033,142 +1082,149 @@ public final class Cursor implements XmlCursor
     //
     //
 
-    public boolean toCursor ( XmlCursor moveTo ) { if (_locale.noSync()) { _locale.enter(); try { return _toCursor( moveTo ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toCursor( moveTo ); } finally { _locale.exit(); } } }
-    public boolean isInSameDocument ( XmlCursor cursor ) { if (_locale.noSync()) { _locale.enter(); try { return _isInSameDocument( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isInSameDocument( cursor ); } finally { _locale.exit(); } } }
-    
-    public Object monitor ( ) { if (_locale.noSync()) { _locale.enter(); try { return _monitor(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _monitor(); } finally { _locale.exit(); } } }
-    public XmlDocumentProperties documentProperties ( ) { if (_locale.noSync()) { _locale.enter(); try { return _documentProperties(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _documentProperties(); } finally { _locale.exit(); } } }
-    public XmlCursor newCursor ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newCursor(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newCursor(); } finally { _locale.exit(); } } }
-    public XMLStreamReader newXMLStreamReader ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newXMLStreamReader(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLStreamReader(); } finally { _locale.exit(); } } }
-    public XMLStreamReader newXMLStreamReader ( XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { return _newXMLStreamReader( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLStreamReader( options ); } finally { _locale.exit(); } } }
-    public XMLInputStream newXMLInputStream ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newXMLInputStream(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLInputStream(); } finally { _locale.exit(); } } }
-    public String xmlText ( ) { if (_locale.noSync()) { _locale.enter(); try { return _xmlText(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _xmlText(); } finally { _locale.exit(); } } }
-    public InputStream newInputStream ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newInputStream(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newInputStream(); } finally { _locale.exit(); } } }
-    public Reader newReader ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newReader(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newReader(); } finally { _locale.exit(); } } }
-    public Node newDomNode ( ) { if (_locale.noSync()) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } }
-    public Node getDomNode ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getDomNode(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } }
-    public void save ( ContentHandler ch, LexicalHandler lh ) throws SAXException { if (_locale.noSync()) { _locale.enter(); try { _save( ch, lh ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( ch, lh ); } finally { _locale.exit(); } } }
-    public void save ( File file ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( file ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( file ); } finally { _locale.exit(); } } }
-    public void save ( OutputStream os ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( os ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( os ); } finally { _locale.exit(); } } }
-    public void save ( Writer w ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( w ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( w ); } finally { _locale.exit(); } } }
-    public XMLInputStream newXMLInputStream ( XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { return _newXMLInputStream( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLInputStream( options ); } finally { _locale.exit(); } } }
-    public String xmlText ( XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { return _xmlText( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _xmlText( options ); } finally { _locale.exit(); } } }
-    public InputStream newInputStream ( XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { return _newInputStream( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newInputStream( options ); } finally { _locale.exit(); } } }
-    public Reader newReader( XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { return _newReader( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newReader( options ); } finally { _locale.exit(); } } }
-    public Node newDomNode ( XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { return _newDomNode( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode( options ); } finally { _locale.exit(); } } }
-    public void save ( ContentHandler ch, LexicalHandler lh, XmlOptions options ) throws SAXException { if (_locale.noSync()) { _locale.enter(); try { _save( ch, lh, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( ch, lh, options ); } finally { _locale.exit(); } } }
-    public void save ( File file, XmlOptions options ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( file, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( file, options ); } finally { _locale.exit(); } } }
-    public void save ( OutputStream os, XmlOptions options ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( os, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( os, options ); } finally { _locale.exit(); } } }
-    public void save ( Writer w, XmlOptions options ) throws IOException { if (_locale.noSync()) { _locale.enter(); try { _save( w, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( w, options ); } finally { _locale.exit(); } } }
-    public void dispose ( ) { if (_locale.noSync()) { _locale.enter(); try { _dispose(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _dispose(); } finally { _locale.exit(); } } }
-    public void push ( ) { if (_locale.noSync()) { _locale.enter(); try { _push(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _push(); } finally { _locale.exit(); } } }
-    public boolean pop ( ) { if (_locale.noSync()) { _locale.enter(); try { return _pop(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _pop(); } finally { _locale.exit(); } } }
-    public void selectPath ( String path ) { if (_locale.noSync()) { _locale.enter(); try { _selectPath( path ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _selectPath( path ); } finally { _locale.exit(); } } }
-    public void selectPath ( String path, XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { _selectPath( path, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _selectPath( path, options ); } finally { _locale.exit(); } } }
-    public boolean hasNextSelection ( ) { if (_locale.noSync()) { _locale.enter(); try { return _hasNextSelection(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _hasNextSelection(); } finally { _locale.exit(); } } }
-    public boolean toNextSelection ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextSelection(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSelection(); } finally { _locale.exit(); } } }
-    public boolean toSelection ( int i ) { if (_locale.noSync()) { _locale.enter(); try { return _toSelection( i ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toSelection( i ); } finally { _locale.exit(); } } }
-    public int getSelectionCount ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getSelectionCount(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getSelectionCount(); } finally { _locale.exit(); } } }
-    public void addToSelection ( ) { if (_locale.noSync()) { _locale.enter(); try { _addToSelection(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _addToSelection(); } finally { _locale.exit(); } } }
-    public void clearSelections ( ) { if (_locale.noSync()) { _locale.enter(); try { _clearSelections(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _clearSelections(); } finally { _locale.exit(); } } }
-    public boolean toBookmark ( XmlBookmark bookmark ) { if (_locale.noSync()) { _locale.enter(); try { return _toBookmark( bookmark ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toBookmark( bookmark ); } finally { _locale.exit(); } } }
-    public XmlBookmark toNextBookmark ( Object key ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextBookmark( key ); } finally { _locale.exit(); } } }
-    public XmlBookmark toPrevBookmark ( Object key ) { if (_locale.noSync()) { _locale.enter(); try { return _toPrevBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevBookmark( key ); } finally { _locale.exit(); } } }
-    public QName getName ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getName(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getName(); } finally { _locale.exit(); } } }
-    public void setName ( QName name ) { if (_locale.noSync()) { _locale.enter(); try { _setName( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setName( name ); } finally { _locale.exit(); } } }
-    public String namespaceForPrefix ( String prefix ) { if (_locale.noSync()) { _locale.enter(); try { return _namespaceForPrefix( prefix ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _namespaceForPrefix( prefix ); } finally { _locale.exit(); } } }
-    public String prefixForNamespace ( String namespaceURI ) { if (_locale.noSync()) { _locale.enter(); try { return _prefixForNamespace( namespaceURI ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _prefixForNamespace( namespaceURI ); } finally { _locale.exit(); } } }
-    public void getAllNamespaces ( Map addToThis ) { if (_locale.noSync()) { _locale.enter(); try { _getAllNamespaces( addToThis ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _getAllNamespaces( addToThis ); } finally { _locale.exit(); } } }
-    public XmlObject getObject ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getObject(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getObject(); } finally { _locale.exit(); } } }
-    public TokenType currentTokenType ( ) { if (_locale.noSync()) { _locale.enter(); try { return _currentTokenType(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _currentTokenType(); } finally { _locale.exit(); } } }
-    public boolean isStartdoc ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isStartdoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isStartdoc(); } finally { _locale.exit(); } } }
-    public boolean isEnddoc ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isEnddoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isEnddoc(); } finally { _locale.exit(); } } }
-    public boolean isStart ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isStart(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isStart(); } finally { _locale.exit(); } } }
-    public boolean isEnd ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isEnd(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isEnd(); } finally { _locale.exit(); } } }
-    public boolean isText ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isText(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isText(); } finally { _locale.exit(); } } }
-    public boolean isAttr ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isAttr(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isAttr(); } finally { _locale.exit(); } } }
-    public boolean isNamespace ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isNamespace(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isNamespace(); } finally { _locale.exit(); } } }
-    public boolean isComment ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isComment(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isComment(); } finally { _locale.exit(); } } }
-    public boolean isProcinst ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isProcinst(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isProcinst(); } finally { _locale.exit(); } } }
-    public boolean isContainer ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isContainer(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isContainer(); } finally { _locale.exit(); } } }
-    public boolean isFinish ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isFinish(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isFinish(); } finally { _locale.exit(); } } }
-    public boolean isAnyAttr ( ) { if (_locale.noSync()) { _locale.enter(); try { return _isAnyAttr(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isAnyAttr(); } finally { _locale.exit(); } } }
-    public TokenType prevTokenType ( ) { if (_locale.noSync()) { _locale.enter(); try { return _prevTokenType(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _prevTokenType(); } finally { _locale.exit(); } } }
-    public boolean hasNextToken ( ) { if (_locale.noSync()) { _locale.enter(); try { return _hasNextToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _hasNextToken(); } finally { _locale.exit(); } } }
-    public boolean hasPrevToken ( ) { if (_locale.noSync()) { _locale.enter(); try { return _hasPrevToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _hasPrevToken(); } finally { _locale.exit(); } } }
-    public TokenType toNextToken ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextToken(); } finally { _locale.exit(); } } }
-    public TokenType toPrevToken ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toPrevToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevToken(); } finally { _locale.exit(); } } }
-    public TokenType toFirstContentToken ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toFirstContentToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toFirstContentToken(); } finally { _locale.exit(); } } }
-    public TokenType toEndToken ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toEndToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toEndToken(); } finally { _locale.exit(); } } }
-    public int toNextChar ( int maxCharacterCount ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextChar( maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextChar( maxCharacterCount ); } finally { _locale.exit(); } } }
-    public int toPrevChar ( int maxCharacterCount ) { if (_locale.noSync()) { _locale.enter(); try { return _toPrevChar( maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevChar( maxCharacterCount ); } finally { _locale.exit(); } } }
-    public boolean toNextSibling ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextSibling(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling(); } finally { _locale.exit(); } } }
-    public boolean toPrevSibling ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toPrevSibling(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevSibling(); } finally { _locale.exit(); } } }
-    public boolean toParent ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toParent(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toParent(); } finally { _locale.exit(); } } }
-    public boolean toFirstChild ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toFirstChild(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toFirstChild(); } finally { _locale.exit(); } } }
-    public boolean toLastChild ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toLastChild(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toLastChild(); } finally { _locale.exit(); } } }
-    public boolean toChild ( String name ) { if (_locale.noSync()) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } }
-    public boolean toChild ( String namespace, String name ) { if (_locale.noSync()) { _locale.enter(); try { return _toChild( namespace, name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( namespace, name ); } finally { _locale.exit(); } } }
-    public boolean toChild ( QName name ) { if (_locale.noSync()) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } }
-    public boolean toChild ( int index ) { if (_locale.noSync()) { _locale.enter(); try { return _toChild( index ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( index ); } finally { _locale.exit(); } } }
-    public boolean toChild ( QName name, int index ) { if (_locale.noSync()) { _locale.enter(); try { return _toChild( name, index ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( name, index ); } finally { _locale.exit(); } } }
-    public boolean toNextSibling ( String name ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } }
-    public boolean toNextSibling ( String namespace, String name ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextSibling( namespace, name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling( namespace, name ); } finally { _locale.exit(); } } }
-    public boolean toNextSibling ( QName name ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } }
-    public boolean toFirstAttribute ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toFirstAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toFirstAttribute(); } finally { _locale.exit(); } } }
-    public boolean toLastAttribute ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toLastAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toLastAttribute(); } finally { _locale.exit(); } } }
-    public boolean toNextAttribute ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toNextAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextAttribute(); } finally { _locale.exit(); } } }
-    public boolean toPrevAttribute ( ) { if (_locale.noSync()) { _locale.enter(); try { return _toPrevAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevAttribute(); } finally { _locale.exit(); } } }
-    public String getAttributeText ( QName attrName ) { if (_locale.noSync()) { _locale.enter(); try { return _getAttributeText( attrName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getAttributeText( attrName ); } finally { _locale.exit(); } } }
-    public boolean setAttributeText ( QName attrName, String value ) { if (_locale.noSync()) { _locale.enter(); try { return _setAttributeText( attrName, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _setAttributeText( attrName, value ); } finally { _locale.exit(); } } }
-    public boolean removeAttribute ( QName attrName ) { if (_locale.noSync()) { _locale.enter(); try { return _removeAttribute( attrName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeAttribute( attrName ); } finally { _locale.exit(); } } }
-    public String getTextValue ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getTextValue(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getTextValue(); } finally { _locale.exit(); } } }
-    public int getTextValue ( char[] returnedChars, int offset, int maxCharacterCount ) { if (_locale.noSync()) { _locale.enter(); try { return _getTextValue( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getTextValue( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } }
-    public void setTextValue ( String text ) { if (_locale.noSync()) { _locale.enter(); try { _setTextValue( text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setTextValue( text ); } finally { _locale.exit(); } } }
-    public void setTextValue ( char[] sourceChars, int offset, int length ) { if (_locale.noSync()) { _locale.enter(); try { _setTextValue( sourceChars, offset, length ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setTextValue( sourceChars, offset, length ); } finally { _locale.exit(); } } }
-    public String getChars ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getChars(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getChars(); } finally { _locale.exit(); } } }
-    public int getChars ( char[] returnedChars, int offset, int maxCharacterCount ) { if (_locale.noSync()) { _locale.enter(); try { return _getChars( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getChars( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } }
-    public void toStartDoc ( ) { if (_locale.noSync()) { _locale.enter(); try { _toStartDoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _toStartDoc(); } finally { _locale.exit(); } } }
-    public void toEndDoc ( ) { if (_locale.noSync()) { _locale.enter(); try { _toEndDoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _toEndDoc(); } finally { _locale.exit(); } } }
-    public int comparePosition ( XmlCursor cursor ) { if (_locale.noSync()) { _locale.enter(); try { return _comparePosition( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _comparePosition( cursor ); } finally { _locale.exit(); } } }
-    public boolean isLeftOf ( XmlCursor cursor ) { if (_locale.noSync()) { _locale.enter(); try { return _isLeftOf( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isLeftOf( cursor ); } finally { _locale.exit(); } } }
-    public boolean isAtSamePositionAs ( XmlCursor cursor ) { if (_locale.noSync()) { _locale.enter(); try { return _isAtSamePositionAs( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isAtSamePositionAs( cursor ); } finally { _locale.exit(); } } }
-    public boolean isRightOf ( XmlCursor cursor ) { if (_locale.noSync()) { _locale.enter(); try { return _isRightOf( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isRightOf( cursor ); } finally { _locale.exit(); } } }
-    public XmlCursor execQuery ( String query ) { if (_locale.noSync()) { _locale.enter(); try { return _execQuery( query ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _execQuery( query ); } finally { _locale.exit(); } } }
-    public XmlCursor execQuery ( String query, XmlOptions options ) { if (_locale.noSync()) { _locale.enter(); try { return _execQuery( query, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _execQuery( query, options ); } finally { _locale.exit(); } } }
-    public ChangeStamp getDocChangeStamp ( ) { if (_locale.noSync()) { _locale.enter(); try { return _getDocChangeStamp(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getDocChangeStamp(); } finally { _locale.exit(); } } }
-    public void setBookmark ( XmlBookmark bookmark ) { if (_locale.noSync()) { _locale.enter(); try { _setBookmark( bookmark ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setBookmark( bookmark ); } finally { _locale.exit(); } } }
-    public XmlBookmark getBookmark ( Object key ) { if (_locale.noSync()) { _locale.enter(); try { return _getBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getBookmark( key ); } finally { _locale.exit(); } } }
-    public void clearBookmark ( Object key ) { if (_locale.noSync()) { _locale.enter(); try { _clearBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _clearBookmark( key ); } finally { _locale.exit(); } } }
-    public void getAllBookmarkRefs ( Collection listToFill ) { if (_locale.noSync()) { _locale.enter(); try { _getAllBookmarkRefs( listToFill ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _getAllBookmarkRefs( listToFill ); } finally { _locale.exit(); } } }
-    public boolean removeXml ( ) { if (_locale.noSync()) { _locale.enter(); try { return _removeXml(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeXml(); } finally { _locale.exit(); } } }
-    public boolean moveXml ( XmlCursor toHere ) { if (_locale.noSync()) { _locale.enter(); try { return _moveXml( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _moveXml( toHere ); } finally { _locale.exit(); } } }
-    public boolean copyXml ( XmlCursor toHere ) { if (_locale.noSync()) { _locale.enter(); try { return _copyXml( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _copyXml( toHere ); } finally { _locale.exit(); } } }
-    public boolean removeXmlContents ( ) { if (_locale.noSync()) { _locale.enter(); try { return _removeXmlContents(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeXmlContents(); } finally { _locale.exit(); } } }
-    public boolean moveXmlContents ( XmlCursor toHere ) { if (_locale.noSync()) { _locale.enter(); try { return _moveXmlContents( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _moveXmlContents( toHere ); } finally { _locale.exit(); } } }
-    public boolean copyXmlContents ( XmlCursor toHere ) { if (_locale.noSync()) { _locale.enter(); try { return _copyXmlContents( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _copyXmlContents( toHere ); } finally { _locale.exit(); } } }
-    public int removeChars ( int maxCharacterCount ) { if (_locale.noSync()) { _locale.enter(); try { return _removeChars( maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeChars( maxCharacterCount ); } finally { _locale.exit(); } } }
-    public int moveChars ( int maxCharacterCount, XmlCursor toHere ) { if (_locale.noSync()) { _locale.enter(); try { return _moveChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _moveChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } }
-    public int copyChars ( int maxCharacterCount, XmlCursor toHere ) { if (_locale.noSync()) { _locale.enter(); try { return _copyChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _copyChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } }
-    public void insertChars ( String text ) { if (_locale.noSync()) { _locale.enter(); try { _insertChars( text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertChars( text ); } finally { _locale.exit(); } } }
-    public void insertElement ( QName name ) { if (_locale.noSync()) { _locale.enter(); try { _insertElement( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElement( name ); } finally { _locale.exit(); } } }
-    public void insertElement ( String localName ) { if (_locale.noSync()) { _locale.enter(); try { _insertElement( localName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElement( localName ); } finally { _locale.exit(); } } }
-    public void insertElement ( String localName, String uri ) { if (_locale.noSync()) { _locale.enter(); try { _insertElement( localName, uri ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElement( localName, uri ); } finally { _locale.exit(); } } }
-    public void beginElement ( QName name ) { if (_locale.noSync()) { _locale.enter(); try { _beginElement( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _beginElement( name ); } finally { _locale.exit(); } } }
-    public void beginElement ( String localName ) { if (_locale.noSync()) { _locale.enter(); try { _beginElement( localName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _beginElement( localName ); } finally { _locale.exit(); } } }
-    public void beginElement ( String localName, String uri ) { if (_locale.noSync()) { _locale.enter(); try { _beginElement( localName, uri ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _beginElement( localName, uri ); } finally { _locale.exit(); } } }
-    public void insertElementWithText ( QName name, String text ) { if (_locale.noSync()) { _locale.enter(); try { _insertElementWithText( name, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElementWithText( name, text ); } finally { _locale.exit(); } } }
-    public void insertElementWithText ( String localName, String text ) { if (_locale.noSync()) { _locale.enter(); try { _insertElementWithText( localName, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElementWithText( localName, text ); } finally { _locale.exit(); } } }
-    public void insertElementWithText ( String localName, String uri, String text ) { if (_locale.noSync()) { _locale.enter(); try { _insertElementWithText( localName, uri, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElementWithText( localName, uri, text ); } finally { _locale.exit(); } } }
-    public void insertAttribute ( String localName ) { if (_locale.noSync()) { _locale.enter(); try { _insertAttribute( localName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttribute( localName ); } finally { _locale.exit(); } } }
-    public void insertAttribute ( String localName, String uri ) { if (_locale.noSync()) { _locale.enter(); try { _insertAttribute( localName, uri ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttribute( localName, uri ); } finally { _locale.exit(); } } }
-    public void insertAttribute ( QName name ) { if (_locale.noSync()) { _locale.enter(); try { _insertAttribute( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttribute( name ); } finally { _locale.exit(); } } }
-    public void insertAttributeWithValue ( String Name, String value ) { if (_locale.noSync()) { _locale.enter(); try { _insertAttributeWithValue( Name, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttributeWithValue( Name, value ); } finally { _locale.exit(); } } }
-    public void insertAttributeWithValue ( String name, String uri, String value ) { if (_locale.noSync()) { _locale.enter(); try { _insertAttributeWithValue( name, uri, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttributeWithValue( name, uri, value ); } finally { _locale.exit(); } } }
-    public void insertAttributeWithValue ( QName name, String value ) { if (_locale.noSync()) { _locale.enter(); try { _insertAttributeWithValue( name, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttributeWithValue( name, value ); } finally { _locale.exit(); } } }
-    public void insertNamespace ( String prefix, String namespace ) { if (_locale.noSync()) { _locale.enter(); try { _insertNamespace( prefix, namespace ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertNamespace( prefix, namespace ); } finally { _locale.exit(); } } }
-    public void insertComment ( String text ) { if (_locale.noSync()) { _locale.enter(); try { _insertComment( text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertComment( text ); } finally { _locale.exit(); } } }
-    public void insertProcInst ( String target, String text ) { if (_locale.noSync()) { _locale.enter(); try { _insertProcInst( target, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertProcInst( target, text ); } finally { _locale.exit(); } } }
+    private boolean preCheck ( )
+    {
+        if (_cur == null)
+            throw new IllegalStateException( "Cursor has been disposed" );
+
+        return _locale.noSync();
+    }
+
+    public boolean toCursor ( XmlCursor moveTo ) { if (preCheck()) { _locale.enter(); try { return _toCursor( moveTo ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toCursor( moveTo ); } finally { _locale.exit(); } } }
+    public boolean isInSameDocument ( XmlCursor cursor ) { if (preCheck()) { _locale.enter(); try { return _isInSameDocument( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isInSameDocument( cursor ); } finally { _locale.exit(); } } }
+    public Object monitor ( ) { if (preCheck()) { _locale.enter(); try { return _monitor(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _monitor(); } finally { _locale.exit(); } } }
+    public XmlDocumentProperties documentProperties ( ) { if (preCheck()) { _locale.enter(); try { return _documentProperties(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _documentProperties(); } finally { _locale.exit(); } } }
+    public XmlCursor newCursor ( ) { if (preCheck()) { _locale.enter(); try { return _newCursor(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newCursor(); } finally { _locale.exit(); } } }
+    public XMLStreamReader newXMLStreamReader ( ) { if (preCheck()) { _locale.enter(); try { return _newXMLStreamReader(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLStreamReader(); } finally { _locale.exit(); } } }
+    public XMLStreamReader newXMLStreamReader ( XmlOptions options ) { if (preCheck()) { _locale.enter(); try { return _newXMLStreamReader( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLStreamReader( options ); } finally { _locale.exit(); } } }
+    public XMLInputStream newXMLInputStream ( ) { if (preCheck()) { _locale.enter(); try { return _newXMLInputStream(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLInputStream(); } finally { _locale.exit(); } } }
+    public String xmlText ( ) { if (preCheck()) { _locale.enter(); try { return _xmlText(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _xmlText(); } finally { _locale.exit(); } } }
+    public InputStream newInputStream ( ) { if (preCheck()) { _locale.enter(); try { return _newInputStream(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newInputStream(); } finally { _locale.exit(); } } }
+    public Reader newReader ( ) { if (preCheck()) { _locale.enter(); try { return _newReader(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newReader(); } finally { _locale.exit(); } } }
+    public Node newDomNode ( ) { if (preCheck()) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } }
+    public Node getDomNode ( ) { if (preCheck()) { _locale.enter(); try { return _getDomNode(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode(); } finally { _locale.exit(); } } }
+    public void save ( ContentHandler ch, LexicalHandler lh ) throws SAXException { if (preCheck()) { _locale.enter(); try { _save( ch, lh ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( ch, lh ); } finally { _locale.exit(); } } }
+    public void save ( File file ) throws IOException { if (preCheck()) { _locale.enter(); try { _save( file ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( file ); } finally { _locale.exit(); } } }
+    public void save ( OutputStream os ) throws IOException { if (preCheck()) { _locale.enter(); try { _save( os ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( os ); } finally { _locale.exit(); } } }
+    public void save ( Writer w ) throws IOException { if (preCheck()) { _locale.enter(); try { _save( w ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( w ); } finally { _locale.exit(); } } }
+    public XMLInputStream newXMLInputStream ( XmlOptions options ) { if (preCheck()) { _locale.enter(); try { return _newXMLInputStream( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newXMLInputStream( options ); } finally { _locale.exit(); } } }
+    public String xmlText ( XmlOptions options ) { if (preCheck()) { _locale.enter(); try { return _xmlText( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _xmlText( options ); } finally { _locale.exit(); } } }
+    public InputStream newInputStream ( XmlOptions options ) { if (preCheck()) { _locale.enter(); try { return _newInputStream( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newInputStream( options ); } finally { _locale.exit(); } } }
+    public Reader newReader( XmlOptions options ) { if (preCheck()) { _locale.enter(); try { return _newReader( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newReader( options ); } finally { _locale.exit(); } } }
+    public Node newDomNode ( XmlOptions options ) { if (preCheck()) { _locale.enter(); try { return _newDomNode( options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _newDomNode( options ); } finally { _locale.exit(); } } }
+    public void save ( ContentHandler ch, LexicalHandler lh, XmlOptions options ) throws SAXException { if (preCheck()) { _locale.enter(); try { _save( ch, lh, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( ch, lh, options ); } finally { _locale.exit(); } } }
+    public void save ( File file, XmlOptions options ) throws IOException { if (preCheck()) { _locale.enter(); try { _save( file, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( file, options ); } finally { _locale.exit(); } } }
+    public void save ( OutputStream os, XmlOptions options ) throws IOException { if (preCheck()) { _locale.enter(); try { _save( os, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( os, options ); } finally { _locale.exit(); } } }
+    public void save ( Writer w, XmlOptions options ) throws IOException { if (preCheck()) { _locale.enter(); try { _save( w, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _save( w, options ); } finally { _locale.exit(); } } }
+    public void dispose ( ) { if (preCheck()) { _locale.enter(); try { _dispose(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _dispose(); } finally { _locale.exit(); } } }
+    public void push ( ) { if (preCheck()) { _locale.enter(); try { _push(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _push(); } finally { _locale.exit(); } } }
+    public boolean pop ( ) { if (preCheck()) { _locale.enter(); try { return _pop(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _pop(); } finally { _locale.exit(); } } }
+    public void selectPath ( String path ) { if (preCheck()) { _locale.enter(); try { _selectPath( path ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _selectPath( path ); } finally { _locale.exit(); } } }
+    public void selectPath ( String path, XmlOptions options ) { if (preCheck()) { _locale.enter(); try { _selectPath( path, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _selectPath( path, options ); } finally { _locale.exit(); } } }
+    public boolean hasNextSelection ( ) { if (preCheck()) { _locale.enter(); try { return _hasNextSelection(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _hasNextSelection(); } finally { _locale.exit(); } } }
+    public boolean toNextSelection ( ) { if (preCheck()) { _locale.enter(); try { return _toNextSelection(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSelection(); } finally { _locale.exit(); } } }
+    public boolean toSelection ( int i ) { if (preCheck()) { _locale.enter(); try { return _toSelection( i ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toSelection( i ); } finally { _locale.exit(); } } }
+    public int getSelectionCount ( ) { if (preCheck()) { _locale.enter(); try { return _getSelectionCount(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getSelectionCount(); } finally { _locale.exit(); } } }
+    public void addToSelection ( ) { if (preCheck()) { _locale.enter(); try { _addToSelection(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _addToSelection(); } finally { _locale.exit(); } } }
+    public void clearSelections ( ) { if (preCheck()) { _locale.enter(); try { _clearSelections(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _clearSelections(); } finally { _locale.exit(); } } }
+    public boolean toBookmark ( XmlBookmark bookmark ) { if (preCheck()) { _locale.enter(); try { return _toBookmark( bookmark ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toBookmark( bookmark ); } finally { _locale.exit(); } } }
+    public XmlBookmark toNextBookmark ( Object key ) { if (preCheck()) { _locale.enter(); try { return _toNextBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextBookmark( key ); } finally { _locale.exit(); } } }
+    public XmlBookmark toPrevBookmark ( Object key ) { if (preCheck()) { _locale.enter(); try { return _toPrevBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevBookmark( key ); } finally { _locale.exit(); } } }
+    public QName getName ( ) { if (preCheck()) { _locale.enter(); try { return _getName(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getName(); } finally { _locale.exit(); } } }
+    public void setName ( QName name ) { if (preCheck()) { _locale.enter(); try { _setName( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setName( name ); } finally { _locale.exit(); } } }
+    public String namespaceForPrefix ( String prefix ) { if (preCheck()) { _locale.enter(); try { return _namespaceForPrefix( prefix ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _namespaceForPrefix( prefix ); } finally { _locale.exit(); } } }
+    public String prefixForNamespace ( String namespaceURI ) { if (preCheck()) { _locale.enter(); try { return _prefixForNamespace( namespaceURI ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _prefixForNamespace( namespaceURI ); } finally { _locale.exit(); } } }
+    public void getAllNamespaces ( Map addToThis ) { if (preCheck()) { _locale.enter(); try { _getAllNamespaces( addToThis ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _getAllNamespaces( addToThis ); } finally { _locale.exit(); } } }
+    public XmlObject getObject ( ) { if (preCheck()) { _locale.enter(); try { return _getObject(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getObject(); } finally { _locale.exit(); } } }
+    public TokenType currentTokenType ( ) { if (preCheck()) { _locale.enter(); try { return _currentTokenType(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _currentTokenType(); } finally { _locale.exit(); } } }
+    public boolean isStartdoc ( ) { if (preCheck()) { _locale.enter(); try { return _isStartdoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isStartdoc(); } finally { _locale.exit(); } } }
+    public boolean isEnddoc ( ) { if (preCheck()) { _locale.enter(); try { return _isEnddoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isEnddoc(); } finally { _locale.exit(); } } }
+    public boolean isStart ( ) { if (preCheck()) { _locale.enter(); try { return _isStart(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isStart(); } finally { _locale.exit(); } } }
+    public boolean isEnd ( ) { if (preCheck()) { _locale.enter(); try { return _isEnd(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isEnd(); } finally { _locale.exit(); } } }
+    public boolean isText ( ) { if (preCheck()) { _locale.enter(); try { return _isText(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isText(); } finally { _locale.exit(); } } }
+    public boolean isAttr ( ) { if (preCheck()) { _locale.enter(); try { return _isAttr(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isAttr(); } finally { _locale.exit(); } } }
+    public boolean isNamespace ( ) { if (preCheck()) { _locale.enter(); try { return _isNamespace(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isNamespace(); } finally { _locale.exit(); } } }
+    public boolean isComment ( ) { if (preCheck()) { _locale.enter(); try { return _isComment(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isComment(); } finally { _locale.exit(); } } }
+    public boolean isProcinst ( ) { if (preCheck()) { _locale.enter(); try { return _isProcinst(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isProcinst(); } finally { _locale.exit(); } } }
+    public boolean isContainer ( ) { if (preCheck()) { _locale.enter(); try { return _isContainer(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isContainer(); } finally { _locale.exit(); } } }
+    public boolean isFinish ( ) { if (preCheck()) { _locale.enter(); try { return _isFinish(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isFinish(); } finally { _locale.exit(); } } }
+    public boolean isAnyAttr ( ) { if (preCheck()) { _locale.enter(); try { return _isAnyAttr(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isAnyAttr(); } finally { _locale.exit(); } } }
+    public TokenType prevTokenType ( ) { if (preCheck()) { _locale.enter(); try { return _prevTokenType(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _prevTokenType(); } finally { _locale.exit(); } } }
+    public boolean hasNextToken ( ) { if (preCheck()) { _locale.enter(); try { return _hasNextToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _hasNextToken(); } finally { _locale.exit(); } } }
+    public boolean hasPrevToken ( ) { if (preCheck()) { _locale.enter(); try { return _hasPrevToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _hasPrevToken(); } finally { _locale.exit(); } } }
+    public TokenType toNextToken ( ) { if (preCheck()) { _locale.enter(); try { return _toNextToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextToken(); } finally { _locale.exit(); } } }
+    public TokenType toPrevToken ( ) { if (preCheck()) { _locale.enter(); try { return _toPrevToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevToken(); } finally { _locale.exit(); } } }
+    public TokenType toFirstContentToken ( ) { if (preCheck()) { _locale.enter(); try { return _toFirstContentToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toFirstContentToken(); } finally { _locale.exit(); } } }
+    public TokenType toEndToken ( ) { if (preCheck()) { _locale.enter(); try { return _toEndToken(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toEndToken(); } finally { _locale.exit(); } } }
+    public int toNextChar ( int maxCharacterCount ) { if (preCheck()) { _locale.enter(); try { return _toNextChar( maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextChar( maxCharacterCount ); } finally { _locale.exit(); } } }
+    public int toPrevChar ( int maxCharacterCount ) { if (preCheck()) { _locale.enter(); try { return _toPrevChar( maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevChar( maxCharacterCount ); } finally { _locale.exit(); } } }
+    public boolean toNextSibling ( ) { if (preCheck()) { _locale.enter(); try { return _toNextSibling(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling(); } finally { _locale.exit(); } } }
+    public boolean toPrevSibling ( ) { if (preCheck()) { _locale.enter(); try { return _toPrevSibling(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevSibling(); } finally { _locale.exit(); } } }
+    public boolean toParent ( ) { if (preCheck()) { _locale.enter(); try { return _toParent(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toParent(); } finally { _locale.exit(); } } }
+    public boolean toFirstChild ( ) { if (preCheck()) { _locale.enter(); try { return _toFirstChild(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toFirstChild(); } finally { _locale.exit(); } } }
+    public boolean toLastChild ( ) { if (preCheck()) { _locale.enter(); try { return _toLastChild(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toLastChild(); } finally { _locale.exit(); } } }
+    public boolean toChild ( String name ) { if (preCheck()) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } }
+    public boolean toChild ( String namespace, String name ) { if (preCheck()) { _locale.enter(); try { return _toChild( namespace, name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( namespace, name ); } finally { _locale.exit(); } } }
+    public boolean toChild ( QName name ) { if (preCheck()) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( name ); } finally { _locale.exit(); } } }
+    public boolean toChild ( int index ) { if (preCheck()) { _locale.enter(); try { return _toChild( index ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( index ); } finally { _locale.exit(); } } }
+    public boolean toChild ( QName name, int index ) { if (preCheck()) { _locale.enter(); try { return _toChild( name, index ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toChild( name, index ); } finally { _locale.exit(); } } }
+    public boolean toNextSibling ( String name ) { if (preCheck()) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } }
+    public boolean toNextSibling ( String namespace, String name ) { if (preCheck()) { _locale.enter(); try { return _toNextSibling( namespace, name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling( namespace, name ); } finally { _locale.exit(); } } }
+    public boolean toNextSibling ( QName name ) { if (preCheck()) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextSibling( name ); } finally { _locale.exit(); } } }
+    public boolean toFirstAttribute ( ) { if (preCheck()) { _locale.enter(); try { return _toFirstAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toFirstAttribute(); } finally { _locale.exit(); } } }
+    public boolean toLastAttribute ( ) { if (preCheck()) { _locale.enter(); try { return _toLastAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toLastAttribute(); } finally { _locale.exit(); } } }
+    public boolean toNextAttribute ( ) { if (preCheck()) { _locale.enter(); try { return _toNextAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toNextAttribute(); } finally { _locale.exit(); } } }
+    public boolean toPrevAttribute ( ) { if (preCheck()) { _locale.enter(); try { return _toPrevAttribute(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _toPrevAttribute(); } finally { _locale.exit(); } } }
+    public String getAttributeText ( QName attrName ) { if (preCheck()) { _locale.enter(); try { return _getAttributeText( attrName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getAttributeText( attrName ); } finally { _locale.exit(); } } }
+    public boolean setAttributeText ( QName attrName, String value ) { if (preCheck()) { _locale.enter(); try { return _setAttributeText( attrName, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _setAttributeText( attrName, value ); } finally { _locale.exit(); } } }
+    public boolean removeAttribute ( QName attrName ) { if (preCheck()) { _locale.enter(); try { return _removeAttribute( attrName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeAttribute( attrName ); } finally { _locale.exit(); } } }
+    public String getTextValue ( ) { if (preCheck()) { _locale.enter(); try { return _getTextValue(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getTextValue(); } finally { _locale.exit(); } } }
+    public int getTextValue ( char[] returnedChars, int offset, int maxCharacterCount ) { if (preCheck()) { _locale.enter(); try { return _getTextValue( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getTextValue( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } }
+    public void setTextValue ( String text ) { if (preCheck()) { _locale.enter(); try { _setTextValue( text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setTextValue( text ); } finally { _locale.exit(); } } }
+    public void setTextValue ( char[] sourceChars, int offset, int length ) { if (preCheck()) { _locale.enter(); try { _setTextValue( sourceChars, offset, length ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setTextValue( sourceChars, offset, length ); } finally { _locale.exit(); } } }
+    public String getChars ( ) { if (preCheck()) { _locale.enter(); try { return _getChars(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getChars(); } finally { _locale.exit(); } } }
+    public int getChars ( char[] returnedChars, int offset, int maxCharacterCount ) { if (preCheck()) { _locale.enter(); try { return _getChars( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getChars( returnedChars, offset, maxCharacterCount ); } finally { _locale.exit(); } } }
+    public void toStartDoc ( ) { if (preCheck()) { _locale.enter(); try { _toStartDoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _toStartDoc(); } finally { _locale.exit(); } } }
+    public void toEndDoc ( ) { if (preCheck()) { _locale.enter(); try { _toEndDoc(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _toEndDoc(); } finally { _locale.exit(); } } }
+    public int comparePosition ( XmlCursor cursor ) { if (preCheck()) { _locale.enter(); try { return _comparePosition( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _comparePosition( cursor ); } finally { _locale.exit(); } } }
+    public boolean isLeftOf ( XmlCursor cursor ) { if (preCheck()) { _locale.enter(); try { return _isLeftOf( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isLeftOf( cursor ); } finally { _locale.exit(); } } }
+    public boolean isAtSamePositionAs ( XmlCursor cursor ) { if (preCheck()) { _locale.enter(); try { return _isAtSamePositionAs( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isAtSamePositionAs( cursor ); } finally { _locale.exit(); } } }
+    public boolean isRightOf ( XmlCursor cursor ) { if (preCheck()) { _locale.enter(); try { return _isRightOf( cursor ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _isRightOf( cursor ); } finally { _locale.exit(); } } }
+    public XmlCursor execQuery ( String query ) { if (preCheck()) { _locale.enter(); try { return _execQuery( query ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _execQuery( query ); } finally { _locale.exit(); } } }
+    public XmlCursor execQuery ( String query, XmlOptions options ) { if (preCheck()) { _locale.enter(); try { return _execQuery( query, options ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _execQuery( query, options ); } finally { _locale.exit(); } } }
+    public ChangeStamp getDocChangeStamp ( ) { if (preCheck()) { _locale.enter(); try { return _getDocChangeStamp(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getDocChangeStamp(); } finally { _locale.exit(); } } }
+    public void setBookmark ( XmlBookmark bookmark ) { if (preCheck()) { _locale.enter(); try { _setBookmark( bookmark ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _setBookmark( bookmark ); } finally { _locale.exit(); } } }
+    public XmlBookmark getBookmark ( Object key ) { if (preCheck()) { _locale.enter(); try { return _getBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _getBookmark( key ); } finally { _locale.exit(); } } }
+    public void clearBookmark ( Object key ) { if (preCheck()) { _locale.enter(); try { _clearBookmark( key ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _clearBookmark( key ); } finally { _locale.exit(); } } }
+    public void getAllBookmarkRefs ( Collection listToFill ) { if (preCheck()) { _locale.enter(); try { _getAllBookmarkRefs( listToFill ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _getAllBookmarkRefs( listToFill ); } finally { _locale.exit(); } } }
+    public boolean removeXml ( ) { if (preCheck()) { _locale.enter(); try { return _removeXml(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeXml(); } finally { _locale.exit(); } } }
+    public boolean moveXml ( XmlCursor toHere ) { if (preCheck()) { _locale.enter(); try { return _moveXml( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _moveXml( toHere ); } finally { _locale.exit(); } } }
+    public boolean copyXml ( XmlCursor toHere ) { if (preCheck()) { _locale.enter(); try { return _copyXml( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _copyXml( toHere ); } finally { _locale.exit(); } } }
+    public boolean removeXmlContents ( ) { if (preCheck()) { _locale.enter(); try { return _removeXmlContents(); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeXmlContents(); } finally { _locale.exit(); } } }
+    public boolean moveXmlContents ( XmlCursor toHere ) { if (preCheck()) { _locale.enter(); try { return _moveXmlContents( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _moveXmlContents( toHere ); } finally { _locale.exit(); } } }
+    public boolean copyXmlContents ( XmlCursor toHere ) { if (preCheck()) { _locale.enter(); try { return _copyXmlContents( toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _copyXmlContents( toHere ); } finally { _locale.exit(); } } }
+    public int removeChars ( int maxCharacterCount ) { if (preCheck()) { _locale.enter(); try { return _removeChars( maxCharacterCount ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _removeChars( maxCharacterCount ); } finally { _locale.exit(); } } }
+    public int moveChars ( int maxCharacterCount, XmlCursor toHere ) { if (preCheck()) { _locale.enter(); try { return _moveChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _moveChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } }
+    public int copyChars ( int maxCharacterCount, XmlCursor toHere ) { if (preCheck()) { _locale.enter(); try { return _copyChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { return _copyChars( maxCharacterCount, toHere ); } finally { _locale.exit(); } } }
+    public void insertChars ( String text ) { if (preCheck()) { _locale.enter(); try { _insertChars( text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertChars( text ); } finally { _locale.exit(); } } }
+    public void insertElement ( QName name ) { if (preCheck()) { _locale.enter(); try { _insertElement( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElement( name ); } finally { _locale.exit(); } } }
+    public void insertElement ( String localName ) { if (preCheck()) { _locale.enter(); try { _insertElement( localName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElement( localName ); } finally { _locale.exit(); } } }
+    public void insertElement ( String localName, String uri ) { if (preCheck()) { _locale.enter(); try { _insertElement( localName, uri ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElement( localName, uri ); } finally { _locale.exit(); } } }
+    public void beginElement ( QName name ) { if (preCheck()) { _locale.enter(); try { _beginElement( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _beginElement( name ); } finally { _locale.exit(); } } }
+    public void beginElement ( String localName ) { if (preCheck()) { _locale.enter(); try { _beginElement( localName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _beginElement( localName ); } finally { _locale.exit(); } } }
+    public void beginElement ( String localName, String uri ) { if (preCheck()) { _locale.enter(); try { _beginElement( localName, uri ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _beginElement( localName, uri ); } finally { _locale.exit(); } } }
+    public void insertElementWithText ( QName name, String text ) { if (preCheck()) { _locale.enter(); try { _insertElementWithText( name, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElementWithText( name, text ); } finally { _locale.exit(); } } }
+    public void insertElementWithText ( String localName, String text ) { if (preCheck()) { _locale.enter(); try { _insertElementWithText( localName, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElementWithText( localName, text ); } finally { _locale.exit(); } } }
+    public void insertElementWithText ( String localName, String uri, String text ) { if (preCheck()) { _locale.enter(); try { _insertElementWithText( localName, uri, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertElementWithText( localName, uri, text ); } finally { _locale.exit(); } } }
+    public void insertAttribute ( String localName ) { if (preCheck()) { _locale.enter(); try { _insertAttribute( localName ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttribute( localName ); } finally { _locale.exit(); } } }
+    public void insertAttribute ( String localName, String uri ) { if (preCheck()) { _locale.enter(); try { _insertAttribute( localName, uri ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttribute( localName, uri ); } finally { _locale.exit(); } } }
+    public void insertAttribute ( QName name ) { if (preCheck()) { _locale.enter(); try { _insertAttribute( name ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttribute( name ); } finally { _locale.exit(); } } }
+    public void insertAttributeWithValue ( String Name, String value ) { if (preCheck()) { _locale.enter(); try { _insertAttributeWithValue( Name, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttributeWithValue( Name, value ); } finally { _locale.exit(); } } }
+    public void insertAttributeWithValue ( String name, String uri, String value ) { if (preCheck()) { _locale.enter(); try { _insertAttributeWithValue( name, uri, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttributeWithValue( name, uri, value ); } finally { _locale.exit(); } } }
+    public void insertAttributeWithValue ( QName name, String value ) { if (preCheck()) { _locale.enter(); try { _insertAttributeWithValue( name, value ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertAttributeWithValue( name, value ); } finally { _locale.exit(); } } }
+    public void insertNamespace ( String prefix, String namespace ) { if (preCheck()) { _locale.enter(); try { _insertNamespace( prefix, namespace ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertNamespace( prefix, namespace ); } finally { _locale.exit(); } } }
+    public void insertComment ( String text ) { if (preCheck()) { _locale.enter(); try { _insertComment( text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertComment( text ); } finally { _locale.exit(); } } }
+    public void insertProcInst ( String target, String text ) { if (preCheck()) { _locale.enter(); try { _insertProcInst( target, text ); } finally { _locale.exit(); } } else synchronized ( _locale ) { _locale.enter(); try { _insertProcInst( target, text ); } finally { _locale.exit(); } } }
     
     //
     //

@@ -28,6 +28,8 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.Location;
 
+import org.apache.xmlbeans.XmlOptions;
+
 public class Jsr173
 {
     public static XMLStreamReader newXmlStreamReader ( Cur c, Object src, int off, int cch )
@@ -40,16 +42,34 @@ public class Jsr173
             return new SyncedJsr173( c._locale, xs );
     }
     
-    public static XMLStreamReader newXmlStreamReader ( Cur c )
+    public static XMLStreamReader newXmlStreamReader ( Cur c, XmlOptions options )
     {
+        options = XmlOptions.maskNull( options );
+        
+        boolean inner = 
+            options.hasOption( XmlOptions.SAVE_INNER ) &&
+                !options.hasOption( XmlOptions.SAVE_OUTER );
+
         XMLStreamReaderBase xs;
 
         int k = c.kind();
         
         if (k == Cur.TEXT)
+        {
             xs = new XMLStreamReaderForString( c, c.getChars( -1 ), c._offSrc, c._cchSrc );
+        }
+        else if (inner)
+        {
+            if (!c.hasAttrs() && !c.hasChildren())
+                xs = new XMLStreamReaderForString( c, c.getValueChars(), c._offSrc, c._cchSrc );
+            else
+            {
+                assert c.isContainer();
+                xs = new XMLStreamReaderForNode( c, true );
+            }
+        }
         else
-            xs = new XMLStreamReaderForNode( c );
+            xs = new XMLStreamReaderForNode( c, false );
         
         if (c._locale.noSync())
             return new UnsyncedJsr173( c._locale, xs );
@@ -63,17 +83,56 @@ public class Jsr173
     
     private static final class XMLStreamReaderForNode extends XMLStreamReaderBase
     {
-        public XMLStreamReaderForNode ( Cur c )
+        public XMLStreamReaderForNode ( Cur c, boolean inner )
         {
             super( c );
 
-            assert c.kind() != Cur.TEXT;
+            assert c.isContainer() || c.isComment() || c.isProcinst() || c.isAttr();
 
-            _cur = c.weakCur( this );
-            _last = c.weakCur( this );
+            // Iterate over everything *between* _cur and _end.  Do
+            // not iterate the thing to the right of _end
+
+            if (inner)
+            {
+                assert c.isContainer();
+                
+                _cur = c.weakCur( this );
+
+                if (!_cur.toFirstAttr())
+                    _cur.next();
             
-            if (_cur.isContainer())
-                _last.toEnd();
+                _end = c.weakCur( this );
+                _end.toEnd();
+            }
+            else
+            {
+                _cur = c.weakCur( this );
+
+                if (c.isRoot())
+                    _wholeDoc = true;
+                else
+                {
+                    _end = c.weakCur( this );
+
+                    if (c.isAttr())
+                    {
+                        if (!_end.toNextAttr())
+                        {
+                            _end.toParent();
+                            _end.next();
+                        }
+                    }
+                    else
+                    {
+                        _end.toEnd();
+                        _end.next();
+                    }
+                }
+            }
+
+            assert _wholeDoc || !_cur.isSamePos( _end );
+
+            _done = false;
         }
 
         protected Cur getCur ( )
@@ -89,7 +148,7 @@ public class Jsr173
         {
             checkChanged();
 
-            return !_cur.isSamePos( _last );
+            return !_done;
         }
 
         public int getEventType ( )
@@ -116,15 +175,36 @@ public class Jsr173
                 throw new IllegalStateException();
 
             int kind = _cur.kind();
-            
-            if (kind == Cur.COMMENT || kind == Cur.PROCINST)
-                _cur.toEnd();
 
-            _cur.next();
+            if (kind == -Cur.ROOT)
+            {
+                assert _wholeDoc;
+                _done = true;
+            }
+            else
+            {
+                if (kind == Cur.ATTR)
+                {
+                    if (!_cur.toNextAttr())
+                    {
+                        _cur.toParent();
+                        _cur.next();
+                    }
+                }
+                else if (kind == Cur.COMMENT || kind == Cur.PROCINST)
+                {
+                    _cur.toEnd();
+                    _cur.next();
+                }
+                else
+                    _cur.next();
+
+                _done = _end != null && _cur.isSamePos( _end );
+            }
 
             _textFetched = false;
             _srcFetched = false;
-            
+
             return getEventType();
         }
 
@@ -635,8 +715,11 @@ public class Jsr173
         //
         //
 
+        private boolean _wholeDoc;
+        private boolean _done;
+                
         private Cur _cur;
-        private Cur _last;
+        private Cur _end;
 
         private boolean _srcFetched;
         private Object  _src;

@@ -21,10 +21,15 @@ import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlOptions;
 
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.EncodingMap;
 
 import java.io.Writer;
 import java.io.Reader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 
 import java.util.Iterator;
 import java.util.ArrayList;
@@ -1603,6 +1608,266 @@ abstract class Saver
 
         private TextSaver _textSaver;
     }
+    
+    static final class InputStreamSaver extends InputStream
+    {
+        InputStreamSaver ( Cur c, XmlOptions options )
+        {
+            options = XmlOptions.maskNull( options );
+            
+            _byteBuffer = new OutputStreamImpl();
+
+            String encoding = null;
+
+            XmlDocumentProperties props = Locale.getDocProps( c, false );
+            
+            if (props != null && props.getEncoding() != null)
+                encoding = EncodingMap.getIANA2JavaMapping( props.getEncoding() );
+
+            if (options.hasOption( XmlOptions.CHARACTER_ENCODING ))
+                encoding = (String) options.get( XmlOptions.CHARACTER_ENCODING );
+
+            if (encoding != null)
+            {
+                String ianaEncoding = EncodingMap.getJava2IANAMapping( encoding );
+
+                if (ianaEncoding != null)
+                    encoding = ianaEncoding;
+            }
+
+            if (encoding == null)
+                encoding = EncodingMap.getJava2IANAMapping( "UTF8" );
+
+            String javaEncoding = EncodingMap.getIANA2JavaMapping( encoding );
+
+            if (javaEncoding == null)
+                throw new IllegalStateException( "Unknown encoding: " + encoding );
+
+            try
+            {
+                _converter = new OutputStreamWriter( _byteBuffer, javaEncoding );
+            }
+            catch ( UnsupportedEncodingException e )
+            {
+                throw new RuntimeException( e );
+            }
+
+            _textSaver = new TextSaver( c, options, encoding );
+        }
+
+        public int read ( )
+        {
+            return _byteBuffer.read();
+        }
+
+        public int read ( byte[] bbuf, int off, int len )
+        {
+            return _byteBuffer.read ( bbuf, off, len );
+        }
+
+        private int ensure ( int cbyte )
+        {
+            // Even if we're asked to ensure nothing, still try to ensure
+            // atleast one byte so we can determine if we're at the
+            // end of the stream.
+
+            if (cbyte <= 0)
+                cbyte = 1;
+
+            int bytesAvailable = _byteBuffer.getAvailable();
+
+            for ( ; bytesAvailable < cbyte ;
+                  bytesAvailable = _byteBuffer.getAvailable() )
+            {
+                if (_textSaver.write( _converter, 2048 ) < 2048)
+                    break;
+            }
+
+            bytesAvailable = _byteBuffer.getAvailable();
+
+            if (bytesAvailable == 0)
+                return 0;
+
+            return bytesAvailable;
+        }
+
+        private final class OutputStreamImpl extends OutputStream
+        {
+            int read ( )
+            {
+                if (InputStreamSaver.this.ensure( 1 ) == 0)
+                    return -1;
+
+                assert getAvailable() > 0;
+
+                int bite = _buf[ _out ];
+
+                _out = (_out + 1) % _buf.length;
+                _free++;
+
+                return bite;
+            }
+
+            int read ( byte[] bbuf, int off, int len )
+            {
+                // Check for end of stream even if there is no way to return
+                // characters because the Reader doc says to return -1 at end of
+                // stream.
+
+                int n;
+
+                if ((n = ensure( len )) == 0)
+                    return -1;
+
+                if (bbuf == null || len <= 0)
+                    return 0;
+
+                if (n < len)
+                    len = n;
+
+                if (_out < _in)
+                {
+                    System.arraycopy( _buf, _out, bbuf, off, len );
+                }
+                else
+                {
+                    int chunk = _buf.length - _out;
+
+                    if (chunk >= len)
+                        System.arraycopy( _buf, _out, bbuf, off, len );
+                    else
+                    {
+                        System.arraycopy( _buf, _out, bbuf, off, chunk );
+
+                        System.arraycopy(
+                            _buf, 0, bbuf, off + chunk, len - chunk );
+                    }
+                }
+
+                _out = (_out + len) % _buf.length;
+                _free += len;
+
+                return len;
+            }
+
+            int getAvailable ( )
+            {
+                return _buf == null ? 0 : _buf.length - _free;
+            }
+
+            public void write ( int bite )
+            {
+                if (_free == 0)
+                    resize( 1 );
+
+                assert _free > 0;
+
+                _buf[ _in ] = (byte) bite;
+
+                _in = (_in + 1) % _buf.length;
+                _free--;
+            }
+
+            public void write ( byte[] buf, int off, int cbyte )
+            {
+                assert cbyte >= 0;
+
+                if (cbyte == 0)
+                    return;
+
+                if (_free < cbyte)
+                    resize( cbyte );
+
+                if (_in == _out)
+                {
+                    assert getAvailable() == 0;
+                    assert _free == _buf.length - getAvailable();
+                    _in = _out = 0;
+                }
+
+                int chunk;
+
+                if (_in <= _out || cbyte < (chunk = _buf.length - _in))
+                {
+                    System.arraycopy( buf, off, _buf, _in, cbyte );
+                    _in += cbyte;
+                }
+                else
+                {
+                    System.arraycopy( buf, off, _buf, _in, chunk );
+
+                    System.arraycopy(
+                        buf, off + chunk, _buf, 0, cbyte - chunk );
+
+                    _in = (_in + cbyte) % _buf.length;
+                }
+
+                _free -= cbyte;
+            }
+
+            void resize ( int cbyte )
+            {
+                assert cbyte > _free;
+
+                int newLen = _buf == null ? _initialBufSize : _buf.length * 2;
+                int used = getAvailable();
+
+                while ( newLen - used < cbyte )
+                    newLen *= 2;
+
+                byte[] newBuf = new byte [ newLen ];
+
+                if (used > 0)
+                {
+                    if (_out == _in)
+                        System.arraycopy( _buf, 0, newBuf, 0, used );
+                    else if (_in > _out)
+                        System.arraycopy( _buf, _out, newBuf, 0, used );
+                    else
+                    {
+                        System.arraycopy(
+                            _buf, _out, newBuf, 0, used - _in );
+
+                        System.arraycopy(
+                            _buf, 0, newBuf, used - _in, _in );
+                    }
+
+                    _out = 0;
+                    _in = used;
+                    _free += newBuf.length - _buf.length;
+                }
+                else
+                {
+                    _free += newBuf.length;
+                    assert _in == 0 && _out == 0;
+                }
+
+                _buf = newBuf;
+            }
+
+            private static final int _initialBufSize = 4096;
+
+            int    _free;
+            int    _in;
+            int    _out;
+            byte[] _buf;
+        }
+
+        private OutputStreamImpl   _byteBuffer;
+        private TextSaver          _textSaver;
+        private OutputStreamWriter _converter;
+    }
+
+//    static final class SaxSaver extends Saver
+//    {
+//        SaxSaver (
+//            Root r, Splay s, int p, XmlOptions options,
+//            ContentHandler contentHandler, LexicalHandler lexicalhandler )
+//                throws SAXException
+//        {
+//            super( r, s, p, options );
+//        }
+//    }
     
     //
     //
