@@ -497,7 +497,7 @@
      		dir="."
        		includes="**"
             excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**"
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
        		prefix="xmlbeans-${product.version}" />
          <zipfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
@@ -508,7 +508,7 @@
      		dir="."
        		includes="**"
        		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**"
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
        		prefix="xmlbeans-${product.version}"/>
          <tarfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
          <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
@@ -913,7 +913,7 @@
      <!--get dest="build/lib/jaxen.jar"
           src="http://www.ibiblio.org/maven/jaxen/jars/jaxen-1.1-beta-2.jar"
           verbose="true" usetimestamp="true" ignoreerrors="true"/ -->
-     <copy file="external/lib/jaxen-1.1-beta-2.jar" tofile="build/lib/jaxen.jar" />  
+     <copy file="external/lib/jaxen-1.1-beta-2.jar" tofile="build/lib/jaxen.jar" />
    </target>
 
   <!-- xpath target ============================================= -->
