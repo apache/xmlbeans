@@ -295,7 +295,7 @@
                  xmlstore.classes, newstore2.classes,
                  saaj_api.classes, binding.classes, marshal.classes, xpath.classes,
                  oldxbean.jar, xsdschema.classes,
-                 xmlinputstream.classes, resolver.jar">
+                 xmlinputstream.classes, resolver.jar, xbean_xpath.jar">
     <jar jarfile="build/lib/xbean.jar" index="true">
       <fileset dir="build/classes/xmlpublic"/>
       <fileset dir="build/classes/typestore"/>
@@ -830,11 +830,11 @@
   <target name="detailed">
     <ant antfile="${testbuild.file}" target="detailed"/>
   </target>
-  
-  
- 
+
+
+
  <!-- test marshal target ============================================= -->
-      
+
    <target name="test_marshal.classes" depends="marshal.classes">
           <mkdir dir="build/private/classes/marshal"/>
           <javac
@@ -855,18 +855,18 @@
               </classpath>
           </javac>
    </target>
-   
+
    <path id="test.compile.path">
    	<pathelement location="build/classes/binding"/>
 	<pathelement location="build/classes/marshal"/>
-	<pathelement location="build/classes/common"/>           
+	<pathelement location="build/classes/common"/>
        <pathelement location="external/lib/junit.jar"/>
        <pathelement location="build/ar/xbean.jar"/>
        <pathelement location="build/lib/jsr173_api.jar"/>
        <pathelement location="build/private/classes/marshal"/>
        <pathelement location="build/classes/xmlinputstream"/>
      </path>
-   
+
      <path id="test.run.path">
        <pathelement location="build/ar/xbean.jar"/>
        <pathelement location="external/lib/junit.jar"/>
@@ -874,7 +874,7 @@
 
 
    <target name="marshal-drt" depends="drt.jar, runmarshal-drt"/>
-   
+
      <target name="runmarshal-drt" >
 
    	<junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
@@ -926,13 +926,13 @@
           source="${javac.source}" target="${javac.target}"
           debug="on"/>
      </target>
-   
+
      <target name="drt.jar" depends="drt.classes">
        <jar jarfile="build/private/lib/drt.jar" basedir="build/private/classes/drt"/>
   </target>
-  
-  
-  
+
+
+
   <!-- =================================================================== -->
   <!--
   <target name="drt" depends="builddrt, rundrt, drtxpath"/>
