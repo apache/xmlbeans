@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
-import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -57,7 +57,7 @@ public class PropertyImpl implements JProperty {
     mName = name;
     mGetter = getter;
     mSetter = setter;
-    mTypeRef = UnqualifiedJClassRef.create
+    mTypeRef = QualifiedJClassRef.create
       (qualifiedTypeName,((ClassImpl)getter.getContainingClass()));
   }
 

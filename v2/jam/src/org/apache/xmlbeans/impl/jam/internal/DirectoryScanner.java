@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -33,6 +35,7 @@ public class DirectoryScanner {
 
   private boolean mCaseSensitive = true;
   private File mRoot;
+  private JamLogger mLogger;
   private List mIncludeList = null;
   private List mExcludeList = null;
   private String[] mIncludes;
@@ -42,10 +45,13 @@ public class DirectoryScanner {
   private boolean mIsDirty = false;
   private String[] mIncludedFilesCache = null;
 
+
   // ========================================================================
   // Constructors
 
-  public DirectoryScanner(File dirToScan) {
+  public DirectoryScanner(File dirToScan, JamLogger logger) {
+    if (logger == null) throw new IllegalArgumentException("null logger");
+    mLogger = logger;
     mRoot = dirToScan;
   }
 
@@ -210,6 +216,9 @@ public class DirectoryScanner {
    */
   private void scandir(File dir, String vpath, boolean fast)
           throws IOException {
+    if (mLogger.isVerbose()) {
+      mLogger.verbose("[DirectoryScanner] scanning dir "+dir+" for '"+vpath+"'");
+    }
     String[] newfiles = dir.list();
     if (newfiles == null) {
       /*
@@ -265,6 +274,13 @@ public class DirectoryScanner {
         if (isIncluded(name)) {
           if (!isExcluded(name)) {
             mFilesIncluded.addElement(name);
+            if (mLogger.isVerbose()) {
+              mLogger.verbose("[DirectoryScanner] including "+name+" under '"+dir);
+            }
+          } else {
+            if (mLogger.isVerbose()) {
+              mLogger.verbose("[DirectoryScanner] EXCLUDING "+name+" under '"+dir);
+            }
           }
         }
       }

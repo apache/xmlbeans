@@ -16,6 +16,9 @@ package org.apache.xmlbeans.impl.jam.internal.reflect;
 
 import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
+import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -36,8 +39,8 @@ public class ReflectClassBuilder extends JamClassBuilder {
   // ========================================================================
   // Public static utilities
 
-  public static JamClassBuilder getSystemClassBuilder() {
-    return new ReflectClassBuilder(ClassLoader.getSystemClassLoader());
+  public static JamClassBuilder getSystemClassBuilder(JamServiceContext ctx) {
+    return new ReflectClassBuilder(ClassLoader.getSystemClassLoader(),ctx);
   }
 
   // ========================================================================
@@ -45,24 +48,25 @@ public class ReflectClassBuilder extends JamClassBuilder {
 
   private ClassLoader mLoader;
   private ReflectAnnotationExtractor mExtractor = null;
+  private JamLogger mLogger = null;
 
   // ========================================================================
   // Constructors
 
-  public ReflectClassBuilder(ClassLoader rcl) {
+  public ReflectClassBuilder(ClassLoader rcl, JamServiceContext ctx) {
     if (rcl == null) throw new IllegalArgumentException("null rcl");
+    if (ctx == null) throw new IllegalArgumentException("null ctx");
+    mLogger = ctx;
     mLoader = rcl;
     try {
       mExtractor = (ReflectAnnotationExtractor)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
     } catch (ClassNotFoundException e) {
-      //      ctx.error(e);
+      mLogger.error(e);
     } catch (IllegalAccessException e) {
-      //if this fails, we'll assume it's because we're not under 1.5
-      //    ctx.debug(e);
+      mLogger.verbose(e);
     } catch (InstantiationException e) {
-      //if this fails, we'll assume it's because we're not under 1.5
-      //  ctx.debug(e);
+      mLogger.verbose(e);
     }
   }
 
