@@ -421,8 +421,22 @@ public class StscJavaizer
     {
         StscState state = StscState.get();
 
+        // We have to special case the document types. The reason is that a
+        // document type can inherit from another document type without
+        // containing all of the base type's properties (which is impossible
+        // for normal types)
+        if (baseType.isDocumentType() && !doInherited)
+        {
+            SchemaProperty s = baseType.getElementProperties()[0];
+            usedNames.add(s.getJavaPropertyName());
+        }
+
         // two passes: first deal with inherited properties, then with new ones.
         // this ensures that we match up with base class definitions cleanly
+        // BUGBUG(radup) We have to look for particles that have been removed
+        // in the derivation tree for this type using derivation by restriction,
+        // because they have not been removed in Java and may collide with 
+        // this type's properties.
 
         for (int i = 0; i < props.length; i++)
         {
