@@ -424,7 +424,7 @@
             optimize="on"
             verbose="false"
             failonerror="true">
-            <compilerarg line="-Xlint:deprecation"/>
+            <!--compilerarg line="-Xlint:deprecation"/--><!--ruins Java1.4 compat-->
         </javac>
 
         <jar destfile="${build.dir.test.lib}/testtools.jar"
