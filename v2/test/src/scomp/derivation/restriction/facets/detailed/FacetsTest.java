@@ -190,11 +190,11 @@ public class FacetsTest extends BaseCase {
         String[] errExpected = new String[]{
             XmlErrorCodes.DATATYPE_TOTAL_DIGITS_VALID};
 
-        doc.setDigitsElt(new BigDecimal("234.5"));
+        doc.setDigitsElt(new BigDecimal("234.25"));
         assertTrue(!doc.validate(validateOptions));
         assertTrue(compareErrorCodes(errExpected));
 
-        doc.setDigitsElt(new BigDecimal("12.3"));
+        doc.setDigitsElt(new BigDecimal("12.13"));
         try {
             assertTrue(doc.validate(validateOptions));
         } catch (Throwable t) {
@@ -204,7 +204,7 @@ public class FacetsTest extends BaseCase {
         clearErrors();
         errExpected = new String[]{
             XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID};
-        doc.setDigitsElt(new BigDecimal(".45"));
+        doc.setDigitsElt(new BigDecimal(".145"));
         assertTrue(!doc.validate(validateOptions));
         assertTrue(compareErrorCodes(errExpected));
 
