@@ -272,8 +272,6 @@ final class MarshalStreamUtils
         try {
             for (int state = rdr.getEventType(); rdr.hasNext(); state = rdr.next()) {
                 switch (state) {
-
-
                     case XMLStreamReader.START_ELEMENT:
                         return;
                     case XMLStreamReader.END_ELEMENT:
@@ -305,7 +303,6 @@ final class MarshalStreamUtils
                         break;
 
                     default:
-                        //this case pretty much means malformed xml or a bug
                         throw new XmlRuntimeException("unexpected xml state:" + state +
                                                       "in" + rdr);
                 }
@@ -322,11 +319,16 @@ final class MarshalStreamUtils
                          Location location,
                          String sourceName)
     {
-        final XmlError err = XmlError.forLocation(msg,
-                                                  sourceName,
-                                                  location.getLineNumber(),
-                                                  location.getColumnNumber(),
-                                                  location.getCharacterOffset());
+        final XmlError err;
+        if (location != null) {
+            err = XmlError.forLocation(msg,
+                                       sourceName,
+                                       location.getLineNumber(),
+                                       location.getColumnNumber(),
+                                       location.getCharacterOffset());
+        } else {
+            err = XmlError.forSource(msg, sourceName);
+        }
         errors.add(err);
     }
 
