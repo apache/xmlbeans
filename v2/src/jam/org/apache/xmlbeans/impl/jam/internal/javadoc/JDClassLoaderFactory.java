@@ -60,6 +60,8 @@ import com.sun.javadoc.RootDoc;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Arrays;
+
 import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JFileSet;
@@ -94,10 +96,14 @@ public class JDClassLoaderFactory extends Doclet {
                                            JAnnotationLoader annLoader,
                                            PrintWriter out,
                                            String sourcePath,
-                                           String classPath)
+                                           String classPath,
+                                           String[] javadocArgs)
           throws IOException, FileNotFoundException
   {
     List argList = new ArrayList();
+    if (javadocArgs != null) {
+      argList.addAll(Arrays.asList(javadocArgs));
+    }
     argList.add("-private");
     File[] files = fileset.getFiles();
     if (files.length == 0) {

@@ -68,7 +68,7 @@ import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassLoaderFactory;
 import org.apache.xmlbeans.impl.jam.internal.reflect.RClassLoader;
 
 /**
- * Start here! Entry point into the JAM subsystem.  JFactory is a singleton 
+ * Start here! Entry point into the JAM subsystem.  JFactory is a singleton
  * builds everything you need to get started with a JAM.
  *
  * Here is a simple usage example which parses all of the source files
@@ -104,7 +104,7 @@ public class JFactory {
   // ========================================================================
   // Constants
 
-  private JClassLoader SYSTEM_CL = 
+  private JClassLoader SYSTEM_CL =
     new RClassLoader(ClassLoader.getSystemClassLoader());
   // REVIEW i think this needs to be even more special
 
@@ -116,13 +116,13 @@ public class JFactory {
    * files to be parsed.  Once created, patterns of files to be
    * included or excluded can be specified on the JFileSet.  See
    * @link JFileSet for more information.
-   * 
+   *
    * @param rootDir The root directory of the fileset.  All include and
    * exclude patterns are relative to this directory.  This File must
    * exist and must be a directory.
    */
-  public JFileSet createFileSet(File rootDir) { 
-    return new JFileSetImpl(rootDir); 
+  public JFileSet createFileSet(File rootDir) {
+    return new JFileSetImpl(rootDir);
   }
 
   /**
@@ -131,12 +131,12 @@ public class JFactory {
    *
    * @throws FileNotFoundException If no java source files could be
    * located in the given fileset.
-   * @throws IOException If an IO error occurred while reading the 
+   * @throws IOException If an IO error occurred while reading the
    * source files.
    */
-  public JClass[] loadSources(JFileSet fs) 
-        throws IOException, FileNotFoundException 
-  { 
+  public JClass[] loadSources(JFileSet fs)
+          throws IOException, FileNotFoundException
+  {
     return loadSources(fs,null,null,new PrintWriter(System.out));
   }
 
@@ -146,14 +146,14 @@ public class JFactory {
    *
    * @throws FileNotFoundException If no java source files could be
    * located in the given fileset.
-   * @throws IOException If an IO error occurred while reading the 
+   * @throws IOException If an IO error occurred while reading the
    * source files.
    */
   public JClass[] loadSources(JFileSet fs,
-			      JClassLoader parentLoader,
-			      JAnnotationLoader annLoader,
-			      PrintWriter log) 
-    throws IOException, FileNotFoundException 
+                              JClassLoader parentLoader,
+                              JAnnotationLoader annLoader,
+                              PrintWriter log)
+    throws IOException, FileNotFoundException
   {
     return loadSources(fs,parentLoader,annLoader,log,null);
   }
@@ -169,17 +169,17 @@ public class JFactory {
    *
    * @throws FileNotFoundException If no java source files could be
    * located in the given fileset.
-   * @throws IOException If an IO error occurred while reading the 
+   * @throws IOException If an IO error occurred while reading the
    * source files.
    */
   public JClass[] loadSources(JFileSet fs,
 			      JClassLoader parentLoader,
 			      JAnnotationLoader annLoader,
 			      PrintWriter log,
-			      String sourcePath) 
-    throws IOException, FileNotFoundException 
+			      String sourcePath)
+    throws IOException, FileNotFoundException
   {
-    return loadSources(fs,parentLoader,annLoader,log,sourcePath,null);
+    return loadSources(fs,parentLoader,annLoader,log,sourcePath,null,null);
   }
 
 
@@ -193,36 +193,71 @@ public class JFactory {
    *
    * @throws FileNotFoundException If no java source files could be
    * located in the given fileset.
-   * @throws IOException If an IO error occurred while reading the 
+   * @throws IOException If an IO error occurred while reading the
    * source files.
    */
   public JClass[] loadSources(JFileSet fs,
-			      JClassLoader parentLoader,
-			      JAnnotationLoader annLoader,
-			      PrintWriter log,
-			      String sourcePath,
-			      String classPath) 
-    throws IOException, FileNotFoundException 
+                              JClassLoader parentLoader,
+                              JAnnotationLoader annLoader,
+                              PrintWriter log,
+                              String sourcePath,
+                              String classPath)
+    throws IOException, FileNotFoundException
+  {
+    return loadSources(fs,parentLoader,annLoader,log,sourcePath,classPath,null);
+  }
+
+  /**
+   * Note that this method is guaranteed to return a non-empty array;
+   * FileNotFoundException is thrown if no classes are found to parse.
+   *
+   * @param fs the source file set to use
+   * @param parentLoader a parent JClassLoader for the loaded JClasses (optional)
+   * @param annLoader external annotation loader (optional)
+   * @param log Writer to receive logging output (optional)
+   * @param sourcePath A semicolon-separated path on which
+   * sources will be located for resolving types that are not included
+   * in the filest.  (optional)
+   * @param classPath A semicolon-separated path on which runtime classes
+   * (e.g. javadoc and doclets) will be found. (optional)
+   * @param extraJavadocArgs An array of parameter that are passed directly
+   * to javadoc.  This is the last parameter in
+   * com.com.sun.tools.javadoc.Main.execute.  (optional)
+   *
+   * @throws FileNotFoundException If no java source files could be
+   * located in the given fileset.
+   * @throws IOException If an IO error occurred while reading the
+   * source files.
+   */
+  public JClass[] loadSources(JFileSet fs,
+                              JClassLoader parentLoader,
+                              JAnnotationLoader annLoader,
+                              PrintWriter log,
+                              String sourcePath,
+                              String classPath,
+                              String[] extraJavadocArgs)
+    throws IOException, FileNotFoundException
   {
     JDClassLoader loader = JDClassLoaderFactory.getInstance().
-      create(fs,parentLoader,annLoader,log,sourcePath,classPath);
+      create(fs,parentLoader,annLoader,log,sourcePath,classPath,extraJavadocArgs);
     Collection classes = loader.getResolvedClasses();
     JClass[] out = new JClass[classes.size()];
     classes.toArray(out);
     return out;
   }
 
+
   /**
    * @param parent Optional parameter which specifies a parent
    * JClassLoader for the created JClassLoader.  If null, the parent
    * is the System JClassLoader.
    *
-   * @param annLoader Optional loader for supplemental annotations for 
+   * @param annLoader Optional loader for supplemental annotations for
    * classes loaded by the created classloader.
    */
-  public JClassLoader createClassLoader(ClassLoader cl, 
-					JClassLoader parent,
-					JAnnotationLoader annLoader) {
+  public JClassLoader createClassLoader(ClassLoader cl,
+                                        JClassLoader parent,
+                                        JAnnotationLoader annLoader) {
     return new RClassLoader(cl,parent);//FIXME
   }
 
@@ -237,7 +272,7 @@ public class JFactory {
    *
    * @deprecated
    */
-  public void toXML(Writer out, JClass[] classes) throws IOException 
+  public void toXML(Writer out, JClass[] classes) throws IOException
   {
     throw new RuntimeException("Temporarily not implemented.");
     /*    XClassLoader xc = XClassLoader.create(classes,null);
@@ -254,8 +289,8 @@ public class JFactory {
    *
    * @deprecated
    */
-  public JClass[] fromXML(Reader in, JClassLoader parent) 
-    throws IOException 
+  public JClass[] fromXML(Reader in, JClassLoader parent)
+    throws IOException
   {
     throw new RuntimeException("Temporarily not implemented.");
     /*

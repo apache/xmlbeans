@@ -55,11 +55,7 @@
 */
 package org.apache.xmlbeans.impl.binding.tylar;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -147,13 +143,13 @@ public class DefaultTylarLoader implements TylarLoader {
       } catch(Exception e) {
         //sometimes File can't deal for some reason, so as a last ditch
         //we assume it's a jar and read the stream directly
-        return loadFromJar(uri.toURL().openStream(),uri);
+        return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
       }
       if (!file.exists()) throw new FileNotFoundException(uri.toString());
       if (file.isDirectory()) {
         return ExplodedTylarImpl.load(file);
       } else {
-        return loadFromJar(file);
+        return loadFromJar(new JarInputStream(new FileInputStream(file)),uri);
       }
     } else {
       throw new IOException("Sorry, the '"+scheme+
@@ -170,24 +166,13 @@ public class DefaultTylarLoader implements TylarLoader {
     return new CompositeTylar(tylars);
   }
 
-  // ========================================================================
-  // Static utility methods
-
-  /**
-   * Loads a Tylar directly from the given jar file.  This method parses all
-   * of the tylar's binding artifacts; if it doesn't throw an exception,
-   * you can be sure that the tylars binding files and schemas are valid.
-   *
-   * @param jarFile file containing the tylar
-   * @return Handle to the tylar
-   * @throws IOException
-   */
-  public static Tylar loadFromJar(File jarFile)
-          throws IOException, XmlException
-  {
-    if (jarFile == null) throw new IllegalArgumentException("null file");
-    return loadFromJar(new FileInputStream(jarFile),jarFile.toURI());
+  public Tylar load(JarInputStream jar) throws IOException, XmlException {
+    if (jar == null) throw new IllegalArgumentException("null stream");
+    return loadFromJar(jar,null);
   }
+
+  // ========================================================================
+  // Private methods
 
   /**
    * Loads a Tylar directly from the stream. given jar file.  This method
@@ -195,37 +180,35 @@ public class DefaultTylarLoader implements TylarLoader {
    * exception, you can be sure that the tylars binding files and schemas are
    * valid.
    *
-   * @param in input stream on the jar file.  This should NOT be a
+   * @param jin input stream on the jar file.  This should NOT be a
    * JarInputStream
    * @param source uri from which the tylar was retrieved.  This is used
-   * for informational purposes only, but it is required.
+   * for informational purposes only and is not required.
    * @return Handle to the tylar
    * @throws IOException
    */
-  public static Tylar loadFromJar(InputStream in, URI source)
+  private static Tylar loadFromJar(JarInputStream jin, URI source)
           throws IOException, XmlException
   {
-    // FIXME this will be broken if the InputStream is already a
-    // JarInputStream (or some InputStream in front of a JIS).
-    // Gotta sort this out. pcal 12/18/03
-    if (in == null) throw new IllegalArgumentException("null in");
-    if (source == null) throw new IllegalArgumentException("null uri");
-    HackJarInputStream hin = new HackJarInputStream(in);
+    if (jin == null) throw new IllegalArgumentException("null stream");
+    //FIXME in the case where sourceURI is null, we could look in the
+    //manifest or someplace to try to get at least some useful information
     JarEntry entry;
     BindingFile bf = null;
     Collection schemas = null;
+    StubbornInputStream stubborn = new StubbornInputStream(jin);
     if (VERBOSE) System.out.println("Reading jar entries");
-    while ((entry = hin.getNextJarEntry()) != null) {
+    while ((entry = jin.getNextJarEntry()) != null) {
       if (entry.isDirectory()) continue;
       String name = normalizeEntryName(entry.getName());
       if (name.equals(BINDING_FILE_JARENTRY)) {
         if (VERBOSE) System.out.println("parsing binding file "+name);
-        bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(hin));
+        bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(stubborn));
       } else if (name.startsWith(SCHEMA_DIR_JARENTRY) &&
               name.endsWith(SCHEMA_EXT)) {
         if (schemas == null) schemas = new ArrayList();
         if (VERBOSE) System.out.println("parsing schema "+name);
-        schemas.add(SchemaDocument.Factory.parse(hin));
+        schemas.add(SchemaDocument.Factory.parse(stubborn));
       } else {
         if (VERBOSE) {
           System.out.println("ignoring unknown jar entry: "+name);
@@ -233,7 +216,7 @@ public class DefaultTylarLoader implements TylarLoader {
                              SCHEMA_DIR_JARENTRY);
         }
       }
-      hin.closeEntry();
+      jin.closeEntry();
     }
     if (VERBOSE) System.out.println("Done reading jar entries");
     if (bf == null) {
@@ -241,7 +224,7 @@ public class DefaultTylarLoader implements TylarLoader {
               ("resource at '"+source+
                "' is not a tylar: it does not contain a binding file");
     }
-    hin.reallyClose();
+    jin.close();
     return new TylarImpl(source,bf,schemas);
   }
   // ========================================================================
@@ -259,6 +242,28 @@ public class DefaultTylarLoader implements TylarLoader {
     }
     if (name.charAt(0) == SEPCHAR) name = name.substring(1);
     return name;
+  }
+
+
+  /**
+   * This is another hack around what I believe is an xbeans bug - it
+   * closes the stream on us.  When we're reading out of a jar, we want
+   * to parse a whole bunch of files from the same stream - this class
+   * just intercepts the close() call and ignores it until we call
+   * reallyClose().
+   */
+  private static class StubbornInputStream extends FilterInputStream {
+
+    StubbornInputStream(InputStream in) { super(in); }
+
+    public void close() {
+      System.out.println("Hey, somebody closed the stream!");
+      Thread.dumpStack();
+    }
+
+    public void reallyClose() throws IOException {
+      super.close();
+    }
   }
 
   /**
@@ -281,24 +286,5 @@ public class DefaultTylarLoader implements TylarLoader {
   return writer.toString();
   }
   */
-
-  /**
-   * This is another hack around what I believe is an xbeans bug - it
-   * closes the stream on us.  When we're reading out of a jar, we want
-   * to parse a whole bunch of files from the same stream - this class
-   * just intercepts the close call.
-   */
-  private static class HackJarInputStream extends JarInputStream {
-
-    HackJarInputStream(InputStream in) throws IOException {
-      super(in);
-    }
-
-    public void close() {}
-
-    public void reallyClose() throws IOException {
-      super.close();
-    }
-  }
 
 }

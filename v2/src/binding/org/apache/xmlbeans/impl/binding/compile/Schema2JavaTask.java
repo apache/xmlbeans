@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
+import org.apache.tools.ant.Project;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.XmlException;
@@ -179,8 +180,9 @@ public class Schema2JavaTask extends BindingCompilerTask {
     // scan source directories and dest directory for schemas to use
     startScan();
     String[] list = mXsdPath.list();
+    Project p = getProject();
     for (int i = 0; i < list.length; i++) {
-      File srcDir = getProject().resolveFile(list[i]);
+      File srcDir = (p == null) ? new File(list[i]) : p.resolveFile(list[i]);
       if (!srcDir.exists()) {
         throw new BuildException("srcdir \""
                                  + srcDir.getPath()

@@ -85,6 +85,11 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
 
   public TylarImpl() {}
 
+  /**
+   * @param sourceUri source uri or null
+   * @param bf the binding file
+   * @param schemas the schemas
+   */
   public TylarImpl(URI sourceUri,
                    BindingFile bf,
                    Collection schemas)

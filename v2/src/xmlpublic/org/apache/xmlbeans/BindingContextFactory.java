@@ -57,10 +57,9 @@
 package org.apache.xmlbeans;
 
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URI;
+import java.util.jar.JarInputStream;
 
 /**
  * BindingContextFactory is used to create BindingContext objects
@@ -68,19 +67,26 @@ import java.net.URI;
  */
 public abstract class BindingContextFactory
 {
-    /**
-     * Creates a BindingContext from a set of tylars located at the given URI.
-     * The order in which tylars appear in the array determines their precedence
-     * for loading types.
-     *
-     * @param tylarUris An array of URIs which identify the tylars to be used
-     * in the BindingContext.
-     * @return The BindingContext
-     * @throws IOException if a problem occurs while opening or parsing the
-     * contents of the tylars.
-     */
-    public abstract BindingContext createBindingContext(URI[] tylarUris)
-        throws IOException, XmlException;
+  /**
+   * Create a BindingContext that only knows about builtin types
+   *
+   * @return a BindingContext object for builtin types
+   */
+  public abstract BindingContext createBindingContext();
+
+  /**
+   * Creates a BindingContext from a set of tylars located at the given URI.
+   * The order in which tylars appear in the array determines their precedence
+   * for loading types.
+   *
+   * @param tylarUris An array of URIs which identify the tylars to be used
+   * in the BindingContext.
+   * @return The BindingContext
+   * @throws IOException if a problem occurs while opening or parsing the
+   * contents of the tylars.
+   */
+  public abstract BindingContext createBindingContext(URI[] tylarUris)
+          throws IOException, XmlException;
 
   /**
    * Creates a BindingContext from a tylar located at the given URI.
@@ -93,65 +99,42 @@ public abstract class BindingContextFactory
    * contents of the tylars.
    */
   public abstract BindingContext createBindingContext(URI tylarUri)
-      throws IOException, XmlException;
+          throws IOException, XmlException;
+
+  /**
+   * Creates a BindingContext given an input stream on a type library.
+   *
+   * @param jar Input stream on the type library jar.
+   * @return
+   * @throws IOException If an error occurs reading the stream.
+   * @throws XmlException If an error occurs parsing the contents of the
+   * type library.
+   */
+  public abstract BindingContext createBindingContext(JarInputStream jar)
+          throws IOException, XmlException;
 
 
-    /**
-     * Create a BindingContext that only knows about builtin types
-     *
-     * @return a BindingContext object for builtin types
-     */
-    public abstract BindingContext createBindingContext();
 
-    /**
-     * Create a BindingContext from a binding config xml file
-     *
-     * @param bindingConfig
-     * @return
-     * @throws IOException
-     * @throws XmlException
-     *
-     * @deprecated we are not exposing the binding file directly anymore.
-     * use one of the uri-based methods above.
-     */
-//    public abstract BindingContext createBindingContext(InputStream bindingConfig)
-//        throws IOException, XmlException;
+  protected final static String DEFAULT_IMPL =
+          "org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl";
 
-    /**
-     * Create a BindingContext from a binding config xml file
-     *
-     * @param bindingConfig
-     * @return
-     * @throws IOException
-     * @throws XmlException
-     *
-     * @deprecated we are not exposing the binding file directly anymore.
-     * use one of the tylar-based methods above.
-     */
-    public abstract BindingContext createBindingContextFromConfig(File bindingConfig)
-        throws IOException, XmlException;
-
-
-    protected final static String DEFAULT_IMPL =
-        "org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl";
-
-    public static BindingContextFactory newInstance()
-    {
-        try {
-            Class default_impl = Class.forName(DEFAULT_IMPL);
-            final BindingContextFactory factory =
-                (BindingContextFactory)default_impl.newInstance();
-            return factory;
-        }
-        catch (ClassNotFoundException e) {
-            throw new XmlRuntimeException(e);
-        }
-        catch (InstantiationException e) {
-            throw new XmlRuntimeException(e);
-        }
-        catch (IllegalAccessException e) {
-            throw new XmlRuntimeException(e);
-        }
+  public static BindingContextFactory newInstance()
+  {
+    try {
+      Class default_impl = Class.forName(DEFAULT_IMPL);
+      final BindingContextFactory factory =
+              (BindingContextFactory)default_impl.newInstance();
+      return factory;
     }
+    catch (ClassNotFoundException e) {
+      throw new XmlRuntimeException(e);
+    }
+    catch (InstantiationException e) {
+      throw new XmlRuntimeException(e);
+    }
+    catch (IllegalAccessException e) {
+      throw new XmlRuntimeException(e);
+    }
+  }
 
 }

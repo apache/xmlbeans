@@ -178,7 +178,7 @@ package org.apache.xmlbeans.impl.jam;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JElement {
+public abstract interface JElement {
 
   /**
    * <p>Returns the metadata JAnnotations that are associated with
