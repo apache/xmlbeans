@@ -60,6 +60,7 @@ import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
 import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
+import org.apache.xmlbeans.impl.binding.tylar.DebugTylarWriter;
 import org.apache.xmlbeans.impl.binding.joust.Variable;
 import org.apache.xmlbeans.impl.binding.joust.CompilingJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
@@ -67,6 +68,7 @@ import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.soap.SchemaWSDLArrayType;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -118,9 +120,12 @@ public class Schema2Java extends BindingCompiler {
    * If you use this, you absolutely have to call setInput later.  This is
    * here just as a convenience for Schema2JavaTask.
    */
-  /*package*/ Schema2Java() {}
+  /*package*/
+  Schema2Java() {
+  }
 
-  /*package*/ void setSchemaTypeSystem(SchemaTypeSystem s) {
+  /*package*/
+  void setSchemaTypeSystem(SchemaTypeSystem s) {
     if (s == null) throw new IllegalArgumentException("null sts");
     sts = s;
   }
@@ -169,7 +174,7 @@ public class Schema2Java extends BindingCompiler {
   public void setKeepGeneratedJava(boolean b) {
     assertCompilationStarted(false);
     getDefaultJoust().setKeepGenerated(b);
- }
+  }
 
   // ========================================================================
   // BindingCompiler implementation
@@ -179,13 +184,12 @@ public class Schema2Java extends BindingCompiler {
    * the defaultJoust.
    */
   protected ExplodedTylarImpl createDefaultExplodedTylarImpl(File tylarDestDir)
-          throws IOException
-  {
+          throws IOException {
     CompilingJavaOutputStream joust = getDefaultJoust();
-    joust.setSourceDir(new File(tylarDestDir,TylarConstants.SRC_ROOT));
+    joust.setSourceDir(new File(tylarDestDir, TylarConstants.SRC_ROOT));
     joust.setCompilationDir(tylarDestDir);
     mJoust = joust;
-    return ExplodedTylarImpl.create(tylarDestDir,mJoust);
+    return ExplodedTylarImpl.create(tylarDestDir, mJoust);
   }
 
   /**
@@ -199,8 +203,8 @@ public class Schema2Java extends BindingCompiler {
     if ((mJoust = writer.getJavaOutputStream()) == null) {
       //sanity check
       throw new IllegalArgumentException("The specified TylarWriter does not " +
-              "provide a JavaOutputStream, and so it cannot be used with "+
-              "schema2java.");
+                                         "provide a JavaOutputStream, and so it cannot be used with " +
+                                         "schema2java.");
     }
     bind();
     try {
@@ -267,8 +271,11 @@ public class Schema2Java extends BindingCompiler {
    * a schema type, and a category.
    */
   private void createScratchArea() {
+    logVerbose("creating scratch area...");
     for (Iterator i = allTypeIterator(); i.hasNext();) {
       SchemaType sType = (SchemaType) i.next();
+      logVerbose("processing schema type "+sType);
+
       XmlTypeName xmlName = XmlTypeName.forSchemaType(sType);
       Scratch scratch;
 
@@ -299,7 +306,7 @@ public class Schema2Java extends BindingCompiler {
 
       scratchFromXmlName.put(xmlName, scratch);
       scratchFromSchemaType.put(sType, scratch);
-
+      logVerbose("registered scratch "+scratch.getXmlName()+" for "+sType);
     }
   }
 
@@ -310,6 +317,8 @@ public class Schema2Java extends BindingCompiler {
    * process that occurs in dependency order.
    */
   private void resolveJavaName(Scratch scratch) {
+    if (scratch == null) throw new IllegalArgumentException("null scratch");
+    logVerbose("Resolving " + scratch.getXmlName());
     // already resolved (we recurse to do in dependency order)
     if (scratch.getJavaName() != null)
       return;
@@ -362,12 +371,25 @@ public class Schema2Java extends BindingCompiler {
       case Scratch.ELEMENT:
       case Scratch.ATTRIBUTE:
         {
+          logVerbose("processing element "+scratch.getXmlName());
           SchemaType contentType = scratch.getSchemaType().getProperties()[0].getType();
-          Scratch contentScratch = scratchForSchemaType(contentType);
-          resolveJavaName(contentScratch);
-          scratch.setJavaName(contentScratch.getJavaName());
-          scratch.setAsIf(contentScratch.getXmlName());
-          return;
+          logVerbose("content type is "+contentType.getName());
+          if (contentType.isPrimitiveType()) {
+            //REVIEW this is a quick bug fix for the case where an element
+            //is of a primitive type.  I'm not completely sure it is the right
+            //thing to do.  pcal
+            XmlTypeName xtn = XmlTypeName.forSchemaType(contentType);
+            scratch.setJavaName(mLoader.lookupPojoFor(xtn).getJavaName());
+            scratch.setAsIf(xtn);
+            return;
+          } else {
+            Scratch contentScratch = scratchForSchemaType(contentType);
+            logVerbose("content scratch is "+contentScratch);
+            resolveJavaName(contentScratch);
+            scratch.setJavaName(contentScratch.getJavaName());
+            scratch.setAsIf(contentScratch.getXmlName());
+            return;
+          }
         }
 
       default:
@@ -380,7 +402,7 @@ public class Schema2Java extends BindingCompiler {
    */
   private void createBindingType(Scratch scratch) {
     assert(scratch.getBindingType() == null);
-
+    logVerbose("createBindingType for "+scratch);
     BindingTypeName btName = BindingTypeName.forPair(scratch.getJavaName(), scratch.getXmlName());
 
     switch (scratch.getCategory()) {
@@ -503,9 +525,9 @@ public class Schema2Java extends BindingCompiler {
         prop = new QNameProperty();
         prop.setQName(props[i].getName());
         prop.setAttribute(props[i].isAttribute());
-        prop.setSetterName(MethodName.create("set"+propName,
+        prop.setSetterName(MethodName.create("set" + propName,
                                              bType.getName().getJavaName()));
-        prop.setGetterName(MethodName.create("get"+propName));
+        prop.setGetterName(MethodName.create("get" + propName));
         prop.setCollectionClass(collection);
         prop.setBindingType(bType);
         prop.setNillable(props[i].hasNillable() != SchemaProperty.NEVER);
@@ -682,7 +704,7 @@ public class Schema2Java extends BindingCompiler {
    */
   private void resolveSimpleScratch(Scratch scratch) {
     assert(scratch.getCategory() == Scratch.ATOMIC_TYPE);
-
+    logVerbose("resolveSimpleScratch "+scratch.getXmlName());
     if (scratch.getJavaName() != null)
       return;
 
@@ -867,6 +889,10 @@ public class Schema2Java extends BindingCompiler {
     public void setStructureResolved(boolean isStructureResolved) {
       this.isStructureResolved = isStructureResolved;
     }
+
+    public String toString() {
+      return getJavaName()+"<->"+getXmlName();
+    }
   }
 
   /**
@@ -889,6 +915,7 @@ public class Schema2Java extends BindingCompiler {
         allSeenTypes.addAll(Arrays.asList(sts.documentTypes()));
         allSeenTypes.addAll(Arrays.asList(sts.attributeTypes()));
         allSeenTypes.addAll(Arrays.asList(sts.globalTypes()));
+//        allSeenTypes.addAll(Arrays.asList(XmlBeans.getBuiltinTypeSystem().globalTypes()));
         index = 0;
       }
 
@@ -942,6 +969,7 @@ public class Schema2Java extends BindingCompiler {
     public void remove() {
       throw new UnsupportedOperationException();
     }
+
   }
 
   // ========================================================================
@@ -1010,9 +1038,9 @@ public class Schema2Java extends BindingCompiler {
         baseJavaname = null;
     }
     // begin writing class
-    mJoust.startFile(packageName,shortClassName);
+    mJoust.startFile(packageName, shortClassName);
     mJoust.writeComment("Generated from schema type " + scratch.getXmlName());
-    mJoust.startClass(Modifier.PUBLIC,baseJavaname, null);
+    mJoust.startClass(Modifier.PUBLIC, baseJavaname, null);
     Collection props = scratch.getQNameProperties();
     Map fieldNames = new HashMap();
     Set seenFieldNames = new HashSet();
@@ -1074,5 +1102,32 @@ public class Schema2Java extends BindingCompiler {
     seenNames.add(fieldName);
     return fieldName;
   }
-}
 
+
+  // ========================================================================
+  // main method - for quick debugging
+
+  public static void main(String[] schemas) {
+    try {
+      File[] schemaFiles = new File[schemas.length];
+      for (int i = 0; i < schemas.length; i++) schemaFiles[i] = new File(schemas[i]);
+      XmlObject[] xsds = new XmlObject[schemas.length];
+      for (int i = 0; i < xsds.length; i++) {
+        xsds[i] = SchemaDocument.Factory.parse(new File(schemas[i]));
+      }
+      SchemaTypeSystem sts =
+              XmlBeans.compileXsd(xsds,
+                                  XmlBeans.getBuiltinTypeSystem(),
+                                  null);
+      Schema2Java s2j = new Schema2Java(sts);
+      s2j.setVerbose(true);
+      TylarWriter tw = new DebugTylarWriter();
+      s2j.bind(tw);
+      tw.close();
+    } catch (Exception e) {
+      e.printStackTrace();
+    }
+    System.err.flush();
+    System.out.flush();
+  }
+}

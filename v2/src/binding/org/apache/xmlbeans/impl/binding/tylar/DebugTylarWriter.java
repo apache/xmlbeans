@@ -53,92 +53,72 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.binding.tylar;
 
-package org.apache.xmlbeans.impl.jam.internal.javadoc;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
+import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
+import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
+import org.apache.xmlbeans.XmlOptions;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
-
-import com.sun.javadoc.ExecutableMemberDoc;
-import com.sun.javadoc.ParamTag;
-import com.sun.javadoc.Parameter;
-import com.sun.javadoc.Tag;
-import java.util.Collection;
-import org.apache.xmlbeans.impl.jam.*;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 
 /**
- * Abstract base class for JDConstructor and JDMethod.
+ * Implementation of TylarWriter which simply dumps everything it gets to some
+ * Writer.  This can be useful for quick debugging.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public abstract class JDExecutableMember extends JDMember {
+public class DebugTylarWriter implements TylarWriter, WriterFactory {
 
   // ========================================================================
   // Variables
 
-  private ExecutableMemberDoc mMember;
-  private JParameter[] mParameters = null;
+  private PrintWriter mOut;
+  private JavaOutputStream mJoust;
+  private XmlOptions mOptions;
 
   // ========================================================================
   // Constructors
 
-  /**
-   *
-   */
-  protected JDExecutableMember(ExecutableMemberDoc m, JClassLoader loader) {
-    super(m,loader);
-    mMember = m;
+  public DebugTylarWriter() {
+    this(new PrintWriter(System.out,true));
+  }
+
+  public DebugTylarWriter(PrintWriter out) {
+    mJoust = new SourceJavaOutputStream(this);
+    mOut = out;
+    mOptions = new XmlOptions();
+    mOptions.setSavePrettyPrint();
   }
 
   // ========================================================================
-  // JElement implementation
+  // TylarWriter implementation
 
-  public JElement[] getChildren() { return getParameters(); }
+  public void writeBindingFile(BindingFile bf) throws IOException {
+    bf.write().save(mOut,mOptions);
+  }
 
-  /**
-   * Override this so that we can exclude @param tags - these get hund
-   * on the JParameters.
-   */
-  protected void getLocalAnnotations(Collection out) {
-    com.sun.javadoc.Tag[] tags = mMember.tags();
-    if (tags == null || tags.length == 0) return;
-    for(int i=0; i<tags.length; i++) {
-      if (!(tags[i] instanceof ParamTag)) {
-          Tag t = tags[i];
-          JSourcePosition sp = JDFactory.getInstance().createSourcePosition(mMember.position());
-          out.add(JDFactory.getInstance().createAnnotation(this, t.name(), t.text(), sp));
-      }
-    }
+  public void writeSchema(SchemaDocument xsd, String fp) throws IOException {
+    xsd.save(mOut,mOptions);
+  }
+
+  public JavaOutputStream getJavaOutputStream() {
+    return mJoust;
+  }
+
+  public void close() {
+    mOut.flush();
   }
 
   // ========================================================================
-  // JExecutableMember implementation
+  // WriterFactory implementation
 
-  public JParameter[] getParameters() {
-    ParamTag[] tags = mMember.paramTags();
-    if (mParameters == null) {
-      Parameter[] params = mMember.parameters();
-      if (params == null || params.length == 0) {
-	mParameters = NO_PARAMETER;
-      } else {
-	mParameters = new JDParameter[params.length];
-	for(int i=0; i<params.length; i++) {
-	  mParameters[i] = JDFactory.getInstance().createParameter(params[i],
-					   this,
-					   mLoader);
-	}
-      }
-    }
-    return mParameters;
+  public Writer createWriter(String packageName, String className)
+          throws IOException {
+    return mOut;
   }
-
-  public JClass[] getExceptionTypes() {
-    return JDClass.getClasses(mMember.thrownExceptions(),mLoader);
-  }
-
-  // ========================================================================
-  // Package methods
-
-  // this is here for the benefit of JDParameter.getLocalAnnotations()
-  // as well as subclasses.
-  public ExecutableMemberDoc getMember() { return mMember; }
-
 }

@@ -197,11 +197,13 @@ public interface JClass extends JMember {
 
 
   /**
-   * Returns a .
-
-   * as detailed in section 8.3 of the Java Beans specification,
-   * 'Design Patterns for Properties.'  Note that according to this
-   * pattern, public fields are never considered properties.
+   * Returns a representation of a java bean property as detailed in section
+   * 8.3 of the Java Beans specification, 'Design Patterns for Properties.'
+   * A JProperty can be thought of as a union of a getter method and
+   * corresponding setter method, although only one of these is required
+   * (read-only and write-only properties are returned).  Note that
+   * public fields are never considered properties, as deetailed in
+   * the specification.
    */
   public JProperty[] getProperties();
 
@@ -341,9 +343,7 @@ public interface JClass extends JMember {
 
 
   /**
-   * <p>Returns the JClassLoader which loaded this class.</p> REVIEW
-   * should the clasloader be the parent?  should we ditch/reformulate
-   * JPackage?
+   * <p>Returns the JClassLoader which loaded this class.</p>
    */
   public JClassLoader getClassLoader();
 
@@ -353,9 +353,10 @@ public interface JClass extends JMember {
   public JClass forName(String name);
 
   /**
-   * Returns a list of classes that were imported by this class.  This
-   * includes packages imported via the '*' import notation as well as
-   * the packages which contain explicitly imported classes.
+   * Returns the minmal set of JPackages which contain all of the clases
+   * imported by this class.  This includes packages imported via the '*'
+   * import notation as well as the packages which contain explicitly
+   * imported classes.
    *
    * Note that this is an optional operation; if the source for the
    * class is not available (i.e. this JClass is backed by a

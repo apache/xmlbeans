@@ -223,6 +223,9 @@ public class XmlTypeName
      */ 
     public static XmlTypeName forString(String signature)
     {
+        if (signature == null) {
+          throw new IllegalArgumentException("null signature");
+        }
         String path;
         String namespace;
         int atSign = signature.indexOf('@');
@@ -244,6 +247,7 @@ public class XmlTypeName
      */ 
     public static XmlTypeName forTypeNamed(QName name)
     {
+        if (name == null) throw new IllegalArgumentException("null qname");
         return forPathAndNamespace(TYPE + "=" + name.getLocalPart(), name.getNamespaceURI());
     }
     
@@ -252,6 +256,7 @@ public class XmlTypeName
      */ 
     public static XmlTypeName forGlobalName(char kind, QName name)
     {
+        if (name == null) throw new IllegalArgumentException("null qname");
         return forPathAndNamespace(kind + "=" + name.getLocalPart(), name.getNamespaceURI());
     }
     
@@ -260,6 +265,8 @@ public class XmlTypeName
      */
     public static XmlTypeName forNestedName(char kind, String localName, boolean qualified, XmlTypeName outer)
     {
+        if (localName == null) throw new IllegalArgumentException("null localName");
+        if (outer == null) throw new IllegalArgumentException("null outer");
         return forPathAndNamespace(kind + (qualified ? "=" : "-") + localName + "|" + outer.path, outer.namespace);
     }
     
@@ -268,6 +275,7 @@ public class XmlTypeName
      */
     public static XmlTypeName forNestedNumber(char kind, int n, XmlTypeName outer)
     {
+        if (outer == null) throw new IllegalArgumentException("null outer");
         return forPathAndNamespace(kind + "." + n + "|" + outer.path, outer.namespace);
     }
 
@@ -276,6 +284,7 @@ public class XmlTypeName
      */
     public static XmlTypeName forNestedAnonymous(char kind, XmlTypeName outer)
     {
+        if (outer == null) throw new IllegalArgumentException("null outer");
         return forPathAndNamespace(kind + "|" + outer.path, outer.namespace);
     }
 
@@ -284,6 +293,7 @@ public class XmlTypeName
      */
     public static XmlTypeName forSchemaType(SchemaType sType)
     {
+        if (sType == null) throw new IllegalArgumentException("null sType");
         if (sType.getName() != null)
             return forTypeNamed(sType.getName());
 
@@ -318,6 +328,7 @@ public class XmlTypeName
      */
     public static XmlTypeName forSoapArrayType(SOAPArrayType sType)
     {
+        if (sType == null) throw new IllegalArgumentException("null sType");
         StringBuffer sb = new StringBuffer();
         sb.append(SOAP_ARRAY + "." + sType.getDimensions().length);
         int[] ranks = sType.getRanks();

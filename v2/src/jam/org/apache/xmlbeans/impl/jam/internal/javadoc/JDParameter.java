@@ -83,9 +83,9 @@ public class JDParameter extends BaseJElement implements JParameter
   // ========================================================================
   // Constructors
   
-  public JDParameter(Parameter p, 
-		     JDExecutableMember parent, 
-		     JClassLoader loader) {
+  public JDParameter(Parameter p,
+                     JDExecutableMember parent,
+                     JClassLoader loader) {
     mParameter = p;
     mParent = parent;
     mLoader = loader;
