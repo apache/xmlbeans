@@ -587,7 +587,7 @@ public final class SchemaTypeCodePrinter
                 if (bits == SchemaType.SIZE_BIG_INTEGER)
                 {
                     emit("java.math.BigInteger getBigIntegerValue();");
-                    emit("setBigIntegerValue(java.math.BigInteger bi);");
+                    emit("void setBigIntegerValue(java.math.BigInteger bi);");
                     emit("/** @deprecated */");
                     emit("java.math.BigInteger bigIntegerValue();");
                     emit("/** @deprecated */");
