@@ -670,7 +670,7 @@ public final class XsTypeConverter
             if (v < 0)
                 throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
 
-            if (result <= limit && v > limit2)
+            if (result < limit || (result==limit && v > limit2))
                 throw new NumberFormatException("For input string: \"" + ch.toString() + "\"");
 
             result = result * 10 - v;

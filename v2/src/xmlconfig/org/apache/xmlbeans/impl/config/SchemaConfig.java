@@ -55,12 +55,12 @@ public class SchemaConfig
         _qnameMap = Collections.EMPTY_MAP;
         _extensionHolder = null;
     }
-    
+
     public static SchemaConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath)
     {
         return new SchemaConfig(configs, javaFiles, classpath);
     }
-    
+
     private SchemaConfig(Config[] configs, File[] javaFiles, File[] classpath)
     {
         JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
@@ -81,7 +81,7 @@ public class SchemaConfig
                 recordNamespaceSetting(nsa[j].getUri(), nsa[j].getPrefix(), _prefixMap);
                 recordNamespaceSetting(nsa[j].getUri(), nsa[j].getSuffix(), _suffixMap);
             }
-            
+
             Qnameconfig[] qnc = config.getQnameArray();
             for (int j = 0; j < qnc.length; j++)
             {
@@ -206,6 +206,7 @@ public class SchemaConfig
     {
         JamServiceFactory jf = JamServiceFactory.getInstance();
         JamServiceParams params = jf.createServiceParams();
+		params.set14WarningsEnabled(false);
 
         // process the included sources
         if (javaFiles!=null)
