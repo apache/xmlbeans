@@ -779,8 +779,8 @@ public class Jsr173
         {
             checkChanged();
 
-            throw new RuntimeException( "Not implemented" );
-            
+            // TODO - implement this properly
+            return "utf-8";
 //            XmlDocumentProperties props = getCursor().documentProperties();
 //
 //            return props == null ? null : props.getEncoding();
@@ -789,16 +789,15 @@ public class Jsr173
         public String getEncoding ( )
         {
             checkChanged();
-
-            throw new RuntimeException( "Not implemented" );
+            // TODO - implement this properly
+            return "utf-8";
         }
 
         public String getVersion ( )
         {
             checkChanged();
-
-            throw new RuntimeException( "Not implemented" );
-            
+            // TODO - implement this properly
+            return "1.0";
 //            XmlDocumentProperties props = getCursor().documentProperties();
 //
 //            return props == null ? null : props.getVersion();
