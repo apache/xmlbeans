@@ -3,7 +3,12 @@
 #Prints the contents of an xsb file in human-readmble form
 
 cp=
-cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar
+
+if [ -e $XMLBEANS_HOME/build/ar/xbean.jar ]; then
+    cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar;
+elif [ -e $XMLBEANS_HOME/lib/xbean.jar ]; then
+    cp=$cp:$XMLBEANS_HOME/lib/xbean.jar;
+fi
 
 case "`uname`" in
     CYGWIN*)
