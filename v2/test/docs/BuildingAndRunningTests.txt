@@ -5,16 +5,22 @@ Requirements:
 * Ant version 1.6 or higher
 * Ensure  JAVA_HOME and ANT_HOME (Requires Ant 1.6 or higher) are set up in your environment
 
-BUILDING TESTS:
-* Change to xml-xmlbeans\v2 in the CVS download location.
-* To build tests run
-  ant testbuild
 
 BUILING AND RUNNING CHECKIN TESTS:
 (NOTE: does not perform a checkin, just runs tests)
+It is recommended that you call at least clean.tests before a checkintest run.
+
 * Change to xml-xmlbeans\v2 in the CVS download location.
-* build xml-beans
+* build xml-beans (optional, the step below will do it for you if you don't)
 * run "ant checkintest"
+
+TEST RESULTS:
+Summary statistics are printed to the console. 
+For details on the run, see the output files:
+
+  build/test/reports/TestReport.xml OR
+  build/test/reports/TestReport.html (human-readable format)
+
 
 
 Additional build sub-targets
@@ -28,54 +34,50 @@ Additional build sub-targets
 * clean.tests       - Cleans only the built test classes and jars
 
 ==========================================
-RUNNING TESTS:
-The following targets are to be executed from the same directory as the build targets.
-* This uses a custom task and Junit runner to run the tests. No additional files
-  are required/generated. To run tests
+BUILDING AND RUNNING SUBSETS OF TESTS:
 
-  ant run.junit [-Dtests.spec=...] [-Dshowoutput=true]
+From xml-xmlbeans\v2 in the CVS download location:
 
-  tests.spec is a wildcard expression that specifies the test to run
-  - "**/checkin/**"    - Runs all checkin tests (This is the default if tests.spec
-                         is not specified)
-  - "**/detailed/**"   - Runs all detailed tests
+* ant checkintest -- builds and runs the checkin tests(these should all pass before you commit your code)
+* ant detailed    -- builds and runs detailed tests (these tests might have failures)
 
-  - "**/AREA/**"       - all tests that have AREA in their path
+To build and run a particular test area (areas correspond to top-level folders in test/src)
 
-  NOTE: Always include the double-quotes around the wildcard expression. Its
-        best to have the leading **/ in the expression.
-        To run a single test try "**/test/package/TestClass"
+* ant testbuild run.junit -Dtest.area="AREA"
+  e.g. To build and run dom and xmlcursor tests
+  
+  ant testbuild run.junit -Dtest.area="dom,xmlcursor" 
 
- Example: Run all dom tests
-      ant run.junit -Dtests.spec="**/dom/**" -Dshowoutput=true
+To build and run on a smaller granularity:
 
-  showoutput controls if the output from the tests is displayed on the console.
-  This is dependent on the Result formatter used by the JUnitX runner. The Xml
-  Formatter thats comes with the JUnitX runner captures output and records it in
-  the log file (build/test/report/Testlog.xml). Setting showoutput=true when using the Xml
-  formatter will print output to the console and also capture it.
+You can not build on a smaller granularity than a test area. You can, however, run a smaller subset after a build:
+E.g.
+  * ant testbuild -Dtest.area="dom" 
+  * ant junit.run -Dtest.spec="**/dom/checkin/**" 
+Will build all dom tests and run the dom checkin tests.
 
-  After the tests have finished the task generates a HTML report in
-  build/test/reports/TestReport.html.
-
-==============================================
-SPECIAL TARGETS:
+(Alternatively, you can chain the targets like this:
+       ant testbuild run.junit -Dtest.area=dom -Dtest.spec="**/dom/checkin/**" )
 
 
-* checkin    - this target will try to build the minimum set of schemas and tests
-               required for running checkin tests and run them
+Parameters:
+  - test.area:   specifies an area to build and run
+  - test.spec:   this option is valid at runtime only, 
+                 and is used to allow the user to specify a fileset of their liking.
+                 It should be used <b>INSTEAD</b> of test.area
+                 ***If you provide both, -Dtest.spec will take precedence, and the area will be disregarded.
 
-Incremental Build:
-* For iterative dev mode, its faster to compile and run tests for just one area.
-  To do this:
+  - showoutput: controls whether the output from the tests is displayed on the console.
+                Default is false.
+                This is dependent on the Result formatter used by the JUnitX runner. The Xml
+                Formatter that comes with the JUnitX runner captures output and records it in
+                the log file (build/test/report/Testlog.xml). Setting showoutput=true when using the Xml
+                formatter will print output to the console and also capture it.
 
-  ant clean.tests                       // Removes any built test files.
-  ant testbuild -Dbuild.area=<area>     // Build only that area.
-  ant run.junit [-Dtests.spec="..."]    // Run the tests
-
-  Example: Build all dom tests
-      ant testbuild -Dbuild.area=dom
-
-  All the targets can be chained together in one command
-  ant clean.tests testbuild -Dbuild.area=... run.junit [-Dtests.spec=...]
+  NOTE: Always include the double-quotes around the area or wildcard expression. 
+       
+        
+ Example: Run all dom tests (the following expressions are equivalent)
+      ant run.junit -Dtest.area="dom" -Dshowoutput=true
+      ant run.junit -Dtest.spec="**/dom/**" -Dshowoutput=true
 

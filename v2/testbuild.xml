@@ -30,13 +30,15 @@
     <property name="build.dir.test.lib" value="${build.dir.test}/lib"/>
     <property name="build.dir.test.schemas" value="${build.dir.test}/schemas"/>
     <property name="build.dir.test.schemas.lib" value="${build.dir.test.lib}/schemajars"/>
-    <property name="build.dir.test.schemas.src" value="${build.dir.test}/src/schemas"/>
-    <property name="build.dir.test.src" value="${build.dir.test}/src/tests"/>
+    <property name="build.dir.test.schemas.src" value="${build.dir.test.schemas}/src"/>
+    <property name="build.dir.test.src" value="${build.dir.test}/classes"/>
     <property name="build.dir.test.tools" value="${build.dir.test}/tools"/>
     <property name="xbeans.test.tools" value="${xbeans.test.root}/tools"/>
     <property name="xbeans.test.tools.lib" value="${xbeans.test.tools}/lib"/>
     <property name="xbeans.test.tools.src" value="${xbeans.test.tools}/src"/>
     <property name="build.dir.test.marshalling" value="${build.dir.test}/classes/marshal"/>
+
+    <property name="asserts" value="off"/>
 
     <!-- End of testenv.properties -->
 
@@ -252,42 +254,43 @@
     <target name="build.schemas" depends="init, copy.schemas, uncompress"
         description="Build test schemas.">
         <echo message="basedir: ${basedir}"/>
-        <!--compile checkin schemas only for checkin -->
+          <!-- scomp on Schema.dirs -->
         <if>
-            <or>
-                <not>
-                    <isset property="tests.spec"/>
-                </not>
-                <equals arg1="${tests.spec}" arg2="**/checkin/**"/>
-            </or>
+            <isset property="this.schema.dirs"/>
             <then>
-                <foreach list="${checkin.schema.dirs}"
+                <foreach list="${this.schema.dirs}"
                     target="scomp.dir"
-                    param="schemasrc" trim="true"/>
-                <foreach list="${checkin.schema.standalone.files}"
-                    target="scomp.single"
-                    param="schemasrc" trim="true"/>
+                    param="schemasrc" trim="true"
+                    inheritall="true" inheritrefs="true"/>
             </then>
             <else>
                 <foreach list="${schema.dirs}"
                     target="scomp.dir"
-                    param="schemasrc" trim="true"/>
-                <foreach list="${schema.standalone.files}"
-                    target="scomp.single"
-                    param="schemasrc" trim="true"/>
+                    param="schemasrc" trim="true"
+                    inheritall="true" inheritrefs="true"/>
             </else>
+
         </if>
 
-
-        <jar destfile="${build.dir.test.lib}/xmlcases.jar"
-            basedir="${build.dir.test.schemas}" update="false"
-            includes="**/*.*"
-            excludes="**/*.xsd, xstc/**"/>
-
-        <jar destfile="${build.dir.test.lib}/xsdcases.jar"
-            basedir="${build.dir.test.schemas}" update="false"
-            includes="**/*.xsd"
-            excludes="xstc/**"/>
+        <!-- Check if uncompress is required -->
+        <if>
+            <isset property="this.schema.standalone.dirs"/>
+            <then>
+                <antcall target="uncompress"/>
+                <foreach list="${this.schema.standalone.dirs}"
+                    target="scomp.single"
+                    param="schemasrc" trim="true"
+                    inheritall="true" inheritrefs="true"/>
+            </then>
+            <else>
+                <foreach list="${schema.standalone.files}"
+                    target="scomp.single"
+                    param="schemasrc" trim="true"
+                    inheritall="true" inheritrefs="true"/>
+            </else>
+        </if>
+        <ant target="build.xmlcases"/>
+        <ant target="build.xsdcases"/>
     </target>
 
     <target name="copy.schemas">
@@ -427,35 +430,46 @@
 
     <!-- =============================================================== -->
     <!-- START: Tests and Tools build                                    -->
-    <!-- Should now be building xbean.jar using wls/build-xmlbeans.xml -->
-    <target name="build">
-        <!--
-        TODO:
-        Check if XmlBeans has been built.. if not call the xmlbeans build
-        targets first or just end the build
-        -->
+     <target name="check.xbean.jar">
+       <if>
+       <not>
+       <available file="${build.lib}/xbean.jar"/>
+       </not>
+       <then>
+       <ant target="default"/>
+       </then>
+       </if>
+     </target>
+    <target name="build" depends="check.xbean.jar" description="Build the tests. Params: -Dtest.area">
         <!-- Lets test conditional compile -->
         <if>
+            <or>
             <isset property="build.area"/>
+            <isset property="test.area"/>
+            </or>
             <then>
                 <echo message="build.area is set"/>
                 <foreachloop list="${area.names}" param="curval">
                     <loop>
+                        <foreachloop list="${test.area}" param="test.area.curval">
+                        <loop>
                         <if>
-                            <equals arg1="${build.area}" arg2="${curval}" trim="true"/>
+                            <equals arg1="${test.area.curval}" arg2="${curval}" trim="true"/>
                             <then>
-                                <echo message="MATCH: ${curval} == ${build.area}"/>
+                                <echo message="MATCH: ${curval} == ${test.area.curval}"/>
                                 <property name="matchfound" value="true"/>
-                                <antcall target="build.area.${build.area}"/>
+                                <antcall target="build.area.${test.area.curval}"/>
                             </then>
                         </if>
+                          </loop>
+                </foreachloop>
                     </loop>
                 </foreachloop>
                 <fail unless="matchfound"
                     message="build.area did not match any area from: ${area.names}"/>
             </then>
             <else>
-                <echo message="build.area is not set"/>
+                <echo message="test.area is not set"/>
 
                 <antcall target="build.schemas"/>
                 <antcall target="build.tests"/>
@@ -508,27 +522,8 @@
     
     <target name="build.tests" depends="init, build.test.tools, build.xpath,extensions.build"
         description="Build the tests">
-         <if>
-            <or>
-                <not>
-                    <isset property="tests.spec"/>
-                </not>
-                <equals arg1="${tests.spec}" arg2="**/checkin/**"/>
-            </or>
-            <then>
-                 <javac srcdir="${xbeans.test.src}"
-            excludes="**/detailed/**,**/drt/**"
-            destdir="${build.dir.test.src}"
-            classpathref="test.run.classpath"
-            debug="on"
-            source="1.4"
-            optimize="on"
-            verbose="false"
-            failonerror="true">
-        </javac>
-            </then>
-        <else>
-        <javac srcdir="${xbeans.test.src}"
+      
+         <javac srcdir="${xbeans.test.src}"
             excludes="**/drt/**"
             destdir="${build.dir.test.src}"
             classpathref="test.run.classpath"
@@ -538,8 +533,6 @@
             verbose="false"
             failonerror="true">
         </javac>
-        </else>
-        </if>
         <jar destfile="${build.dir.test.lib}/testcases.jar"
             basedir="${build.dir.test.src}" update="true"
             excludes="**/*.java"/>
@@ -551,9 +544,13 @@
     <!-- =============================================================== -->
     <!-- START: Incremental build targets                                -->
 
-    <property name="area.names" value="xmlobject, dom, xpath, xmlcursor,
-                            ValidatingXSRTests, checkin"/>
+    <property name="area.names" value="compile, dom, misc, random, 
+                                       ValidatingXSRTests,xmlcursor, xmlobject,
+                                       xmltokensource, checkin"/>
 
+    <target name="list.areas" description="List areas for -Dtest.area param">
+    <echo message="${area.names}"/>   
+    </target>
     <target name="unit.build" depends="init, copy.schemas, build.test.tools">
         <!--
         Properties that need to be set for this target to work
@@ -599,7 +596,7 @@
         </if>
         <antcall target="build.xmlcases"/>
         <antcall target="build.xsdcases"/>
-        <echo message="***EXCLUDE : ${excludes.from.compile}"/>
+     
         <javac srcdir="${xbeans.test.src}"
             destdir="${build.dir.test.src}"
             includes="${includes.for.compile}"
@@ -673,12 +670,38 @@
 
         <property name="includes.for.compile"
             value="**/xmlobject/**/*.java"/>
-       <!-- <property name="excludes.from.compile"
-            value="**/extensions/**"/> -->
-      
+     
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
 
+    </target>
+
+
+      <target name="build.area.misc">
+        <property name="this.schema.dirs"
+            value="${build.dir.test.schemas}/xbean/misc"/>
+        <property name="includes.for.compile"
+            value="**/misc/**/*.java"/>
+        <property name="testcasejar.update" value="true"/>
+        <antcall target="unit.build"/>
+    </target>
+
+     <target name="build.area.compile">
+        <property name="this.schema.dirs"
+            value="${build.dir.test.schemas}/xbean/compile"/>
+        <property name="includes.for.compile"
+            value="**/compile/**/*.java"/>
+        <property name="testcasejar.update" value="true"/>
+        <antcall target="unit.build"/>
+    </target>
+
+     <target name="build.area.xmltokensource">
+        <property name="this.schema.dirs"
+            value="${build.dir.test.schemas}/xbean/xmltokensource"/>
+        <property name="includes.for.compile"
+            value="**/xmltokensource/**/*.java"/>
+        <property name="testcasejar.update" value="true"/>
+        <antcall target="unit.build"/>
     </target>
 
     <target name="build.area.xmlcursor">
@@ -723,11 +746,12 @@
         <antcall target="unit.build"/>
     </target>
 
-    <!--TODO: need to compile a subset of the schemas; figure out what and set a separate var-->
+  
     <!-- FREQ Target -->
     <target name="build.area.checkin" depends="clean.tests,extensions.build">
         <property name="includes.for.compile"
-            value="**/checkin/**/*.java, **/common/**/*.java"/>
+            value="**/checkin/**/*.java, 
+                   **/common/**/*.java"/>
         <!--<property name="excludes.from.compile"
             value="**/extensions/**"/>-->
         <property name="this.schema.dirs"
@@ -745,22 +769,48 @@
     <!-- =============================================================== -->
     <!-- START: JUNIT Tests                                              -->
     <target name="checkin">
-        <property name="build.area" value="checkin"/>
+        <property name="test.area" value="checkin"/>
         <antcall target="build"/>
       
         <antcall target="run.junit"/>
     </target>
 
     <target name="detailed">
-        <property name="tests.spec" value="**/detailed/**"/>
+        <property name="test.area" value="**/detailed/**"/>
         <antcall target="build"/>
         <antcall target="run.junit"/>
     </target>
 
-    <target name="run.junit" depends="clean.reports">
+     <target name="check.asserts">
+        <echo message="${asserts}"/>
+        <if>
+           <not><equals arg1="${asserts}" arg2="on"/></not>
+           <then>
+                <echo message=
+               "********************************************************"/>
+                <echo message=
+                "*Running w/ asserts off"/>
+                  <echo message=
+                "********************************************************"/>
+               <property name="asserts.value" value=""/>
+           </then>
+           <else>
+               <echo message=
+               "********************************************************"/>
+                <echo message=
+                "*Running w/ asserts on. To disable pass -Dasserts='off'"/>
+                  <echo message=
+                "********************************************************"/>
+               <property name="asserts.value" value="-ea"/>
+           </else>
+        </if>
+
+    </target>
+
+    <target name="run.junit" depends="clean.reports, check.asserts" description="Run the tests. Parameters: -Dtest.area, -Dtest.spec">
         <!-- The default test spec. To run a different set of tests
-             set the property "tests.spec" before calling this target
-             or by specifying on the command line -Dtests.spec -->
+             set the property "test.area" before calling this target
+             or by specifying on the command line -Dtest.area -->
         <taskdef name="junitX" classname="tools.JUnit.JUnitXTask"
             classpathref="test.run.classpath"/>
 
@@ -769,8 +819,25 @@
         <property name="report.file" value="${report.dir}/TestReport.html"/>
 
         <mkdir dir="${report.dir}"/>
-
-        <property name="tests.spec" value="**/checkin/**"/>
+         <if>
+          <isset property="test.spec"/>
+          <then> 
+           <property name="test.area.run" value="${test.spec}"/>
+          </then>  
+           <else> 
+            <if>
+               <isset property="test.area"/>
+               <then>
+               <expandfileset list="${test.area}" param="curval"/>
+               <property name="test.area.run" value="${curval}"/>
+               </then>
+              <else>   
+                   <property name="test.area.run" value="**/checkin/**"/>
+                 </else> 
+           </if>
+          </else>
+          </if> 
+        <echo message="Running ${test.area.run} "/>  
         <property name="showoutput" value="false"/>
         <junitX classpathref="test.run.classpath"
             formatter="tools.JUnit.XmlResultFormatterImpl"
@@ -791,8 +858,10 @@
 
             <!-- This will pick up all files that match and end in .java
                  and try to run the corresponding test class -->
+           
             <fileset dir="${build.dir.test.src}"
-                includes="${tests.spec}"/>
+                includes="${test.area.run}"
+                  excludes="**/common/**"/>
         </junitX>
         <antcall target="generate.html.report"/>
         <echo message="${junit.failcount}"/>
