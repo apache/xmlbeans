@@ -14,6 +14,11 @@
  */
 package org.apache.xmlbeans.impl.inst2xsd.util;
 
+import org.apache.xmlbeans.XmlQName;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.impl.common.PrefixResolver;
+import org.apache.xmlbeans.impl.values.XmlQNameImpl;
+
 import javax.xml.namespace.QName;
 import java.util.List;
 import java.util.ArrayList;
@@ -45,6 +50,9 @@ public class Type
 
     private List _enumerationValues;
     private boolean _acceptsEnumerationValue = true;
+    private List _enumerationQNames;                    // This is a special case where the lexical representation
+                                                        // is not enough for a value, the QNames need to be remembered
+                                                        // in case the _extensionType is QName
 
     private Type()
     {}
@@ -216,25 +224,53 @@ public class Type
         return _enumerationValues;
     }
 
-    public void addEnumerationValue(String enumerationValue)
+    public List getEnumerationQNames()
+    {
+        ensureEnumerationValues();
+        return _enumerationQNames;
+    }
+
+    public void addEnumerationValue(String enumerationValue, final XmlCursor xc)
     {
         assert _kind==SIMPLE_TYPE_SIMPLE_CONTENT || _kind==COMPLEX_TYPE_SIMPLE_CONTENT : "Enumerations possible only on simple content";
         ensureEnumerationValues();
         if (_acceptsEnumerationValue && !_enumerationValues.contains(enumerationValue))
         {
             _enumerationValues.add(enumerationValue);
+            if (_name.equals(XmlQName.type.getName()))
+            {
+                // check for QName
+                PrefixResolver prefixResolver = new PrefixResolver()
+                {
+                    public String getNamespaceForPrefix(String prefix)
+                    {  return xc.namespaceForPrefix(prefix); }
+                };
+
+                QName qname = XmlQNameImpl.validateLexical(enumerationValue, null, prefixResolver);
+
+                assert qname!=null : "The check for QName should allready have happened.";
+                _enumerationQNames.add(qname);
+            }
         }
     }
 
     private void ensureEnumerationValues()
     {
         if (_enumerationValues==null)
+        {
             _enumerationValues = new ArrayList();
+            _enumerationQNames = new ArrayList();
+        }
     }
 
     public boolean isEnumeration()
     {
         return _acceptsEnumerationValue && _enumerationValues!=null && _enumerationValues.size()>1;
+    }
+
+    public boolean isQNameEnumeration()
+    {
+        return isEnumeration() && _name.equals(XmlQName.type.getName()) && _enumerationQNames!=null && _enumerationQNames.size()>1;
     }
 
     public void closeEnumeration()
@@ -251,5 +287,36 @@ public class Type
             ", _elements = " + _elements +
             ", _attributes = " + _attributes +
             "}";
+    }
+
+    public void addAllEnumerationsFrom(Type from)
+    {
+        assert _kind==SIMPLE_TYPE_SIMPLE_CONTENT || _kind==COMPLEX_TYPE_SIMPLE_CONTENT : "Enumerations possible only on simple content";
+        ensureEnumerationValues();
+
+        if (_name.equals(XmlQName.type.getName()) && from._name.equals(XmlQName.type.getName()))
+        {
+            for (int i = 0; i < from.getEnumerationValues().size(); i++)
+            {
+                String enumValue = (String) from.getEnumerationValues().get(i);
+                QName enumQNameValue = (QName) from.getEnumerationQNames().get(i);
+                if (_acceptsEnumerationValue && !_enumerationQNames.contains(enumQNameValue))
+                {
+                        _enumerationValues.add(enumValue);
+                        _enumerationQNames.add(enumQNameValue);
+                }
+            }
+        }
+        else
+        {
+            for (int i = 0; i < from.getEnumerationValues().size(); i++)
+            {
+                String enumValue = (String) from.getEnumerationValues().get(i);
+                if (_acceptsEnumerationValue && !_enumerationValues.contains(enumValue))
+                {
+                    _enumerationValues.add(enumValue);
+                }
+            }
+        }
     }
 }

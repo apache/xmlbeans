@@ -16,6 +16,8 @@ package org.apache.xmlbeans.impl.inst2xsd.util;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlQName;
+import org.apache.xmlbeans.XmlCursor;
 
 import javax.xml.namespace.QName;
 import java.math.BigInteger;
@@ -226,10 +228,30 @@ public class TypeSystemHolder
         assert type.isEnumeration() && !type.isComplexType() : "Enumerations must be on simple types only.";
         org.w3.x2001.xmlSchema.RestrictionDocument.Restriction restriction = parentSElement.addNewSimpleType().addNewRestriction();
         restriction.setBase(type.getName());
-        for (int i = 0; i < type.getEnumerationValues().size(); i++)
+        if (type.isQNameEnumeration())
         {
-            String value = (String) type.getEnumerationValues().get(i);
-            restriction.addNewEnumeration().setValue(XmlString.Factory.newValue(value));
+            for (int i = 0; i < type.getEnumerationQNames().size(); i++)
+            {
+                QName value = (QName) type.getEnumerationQNames().get(i);
+                XmlQName xqname = XmlQName.Factory.newValue(value);
+
+                org.w3.x2001.xmlSchema.NoFixedFacet enumSElem = restriction.addNewEnumeration();
+                XmlCursor xc  = enumSElem.newCursor();
+
+                String newPrefix = xc.prefixForNamespace(value.getNamespaceURI());
+                xc.dispose();
+
+                enumSElem.setValue( XmlQName.Factory.newValue(
+                    new QName(value.getNamespaceURI(), value.getLocalPart(), newPrefix)));
+            }
+        }
+        else
+        {
+            for (int i = 0; i < type.getEnumerationValues().size(); i++)
+            {
+                String value = (String) type.getEnumerationValues().get(i);
+                restriction.addNewEnumeration().setValue(XmlString.Factory.newValue(value));
+            }
         }
     }
 

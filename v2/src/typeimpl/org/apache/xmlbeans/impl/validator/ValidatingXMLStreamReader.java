@@ -26,6 +26,7 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.Location;
 import javax.xml.stream.events.XMLEvent;
 import javax.xml.stream.util.StreamReaderDelegate;
 import java.util.ArrayList;
@@ -505,8 +506,7 @@ public class ValidatingXMLStreamReader
             {
                 if (_contentType==null)
                 {
-                    _errorListener.add(XmlError.forMessage("No content type provided for validation of a content model.",
-                        XmlError.SEVERITY_ERROR));
+                    addError("No content type provided for validation of a content model.");
                     _state = STATE_ERROR;
                     break;
                 }
@@ -553,8 +553,8 @@ public class ValidatingXMLStreamReader
                 }
                 else
                 {
-                    _errorListener.add(XmlError.forMessage("Specified type '" + _contentType +
-                        "' not compatible with found xsi:type '" + _xsiType + "'.", XmlError.SEVERITY_ERROR));
+                    addError("Specified type '" + _contentType +
+                        "' not compatible with found xsi:type '" + _xsiType + "'.");
                     _state = STATE_ERROR;
                     return;
                 }
@@ -573,8 +573,8 @@ public class ValidatingXMLStreamReader
                 validationType = _stl.findAttributeType((QName)_attNamesList.get(0));
                 if (validationType==null)
                 {
-                    _errorListener.add(XmlError.forMessage("A schema global element with name '" + _attNamesList.get(0) +
-                        "' could not be found in the current schema type loader.", XmlError.SEVERITY_ERROR));
+                    addError("A schema global element with name '" + _attNamesList.get(0) +
+                        "' could not be found in the current schema type loader.");
                     _state = STATE_ERROR;
                     return;
                 }
@@ -582,15 +582,14 @@ public class ValidatingXMLStreamReader
             }
             else
             {
-                _errorListener.add(XmlError.forMessage("No content type provided for validation of a content model.",
-                    XmlError.SEVERITY_ERROR));
+                addError("No content type provided for validation of a content model.");
                 _state = STATE_ERROR;
                 return;
             }
         }
 
         // here validationType is the right type, start pushing all acumulated attributes
-        _validator = new Validator(validationType, null, _stl, _options, _errorListener);
+        initValidator(validationType);
         _validator.nextEvent(Validator.BEGIN, _simpleEvent);
 
         for (int i=0; i<_attNamesList.size(); i++)
@@ -633,11 +632,25 @@ public class ValidatingXMLStreamReader
 
         if (docType==null)
         {
-            _errorListener.add(XmlError.forMessage("Schema document type not found for element '" + qname + "'.",
-                XmlError.SEVERITY_ERROR));
+            addError("Schema document type not found for element '" + qname + "'.");
             _state = STATE_ERROR;
         }
         return docType;
+    }
+
+    private void addError(String msg)
+    {
+        String source = null;
+        Location location = getLocation();
+
+        if (location!=null)
+        {
+            source = location.getPublicId();
+            if (source==null)
+                source = location.getSystemId();
+        }
+
+        _errorListener.add(XmlError.forLocation(msg, source, getLocation()));
     }
 
     /**
