@@ -97,8 +97,8 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
-  private static final boolean CONTINUE_ON_COMPARE_FAIL = true;
-  private static final boolean WRITE_RESULT_ON_FAIL = true;
+  private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
+  private static final boolean WRITE_RESULT_ON_FAIL = false;
 
   private static final String WRITE_RESULT_PREFIX = "result-";
 
@@ -360,7 +360,6 @@ public abstract class JamTestBase extends TestCase {
     JamXmlUtils jxu = JamXmlUtils.getInstance();
     //JClass[] classes = mResult.getAllClasses();
     File source = new File(getMasterDir(),SOURCE);
-
     JClass[] classes = jxu.createService(new FileInputStream(source)).
       getAllClasses();
     StringWriter xml = new StringWriter();

@@ -238,11 +238,14 @@ import java.io.Writer;
     mOut.writeStartElement(ANNOTATIONVALUE);
     writeValueElement(NAME,val.getName());
     writeValueElement(TYPE,val.getType().getQualifiedName());
-    writeValueElement(VALUE,val.asString());
     if (val.getType().isArrayType()) {
+      System.out.println("[JAM] WARNING - arrays not yet implemented for XML serialization!!");
       //FIXME
       //throw new IllegalStateException("Serializing annotation members of an "+
     //                                  "array type is not yet supported");
+      writeValueElement(VALUE,"SORRY, ARRAYS ARE NYI");
+    } else {
+      writeValueElement(VALUE,val.asString());
     }
 
     mOut.writeEndElement();

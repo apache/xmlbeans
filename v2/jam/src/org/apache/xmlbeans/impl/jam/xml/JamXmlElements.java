@@ -33,7 +33,7 @@ public interface JamXmlElements {
   public static final String SUPERCLASS = "superclass";
   public static final String MODIFIERS = "modifiers";
   public static final String PARAMETER = "parameter";
-  public static final String TYPE = "parameter";
+  public static final String TYPE = "type";
   public static final String CONSTRUCTOR = "constructor";
   public static final String METHOD = "method";
   public static final String FIELD = "field";
