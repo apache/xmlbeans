@@ -18,15 +18,17 @@ package org.apache.xmlbeans.impl.binding.tylar;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.util.Collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.io.IOException;
 
 /**
- * Implementation of Tylar which is a composition of other Tylars.
+ * @deprecated I think we'd like to eliminate this class if possible.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
@@ -80,7 +82,7 @@ public class CompositeTylar extends BaseTylarImpl {
     return "CompositeTylar containing "+mTylars.length+" tylars";
   }
 
-  public BindingFile[] getBindingFiles() {
+  public BindingFile[] getBindingFiles() throws IOException, XmlException {
     //REVIEW consider caching
     Collection all = new ArrayList();
     for(int i=0; i<mTylars.length; i++) {
@@ -91,7 +93,7 @@ public class CompositeTylar extends BaseTylarImpl {
     return out;
   }
 
-  public SchemaDocument[] getSchemas() {
+  public SchemaDocument[] getSchemas() throws IOException, XmlException {
     //REVIEW consider caching
     Collection all = new ArrayList();
     for(int i=0; i<mTylars.length; i++) {
@@ -102,7 +104,7 @@ public class CompositeTylar extends BaseTylarImpl {
     return out;
   }
 
-  public SchemaTypeLoader getSchemaTypeLoader() {
+  public SchemaTypeLoader getSchemaTypeLoader() throws IOException, XmlException {
     if (mTylars.length == 0) return XmlBeans.getBuiltinTypeSystem();
     if (mTylars.length == 1) return mTylars[0].getSchemaTypeLoader();
     SchemaTypeLoader[] sts = new SchemaTypeLoader[mTylars.length];
@@ -110,13 +112,5 @@ public class CompositeTylar extends BaseTylarImpl {
     return XmlBeans.typeLoaderUnion(sts);
 
 
-  }
-
-  public ClassLoader createClassLoader(ClassLoader cl) {
-    //REVIEW consider caching
-    for(int i=0; i<mTylars.length; i++) {
-      cl = mTylars[i].createClassLoader(cl);
-    }
-    return cl;
   }
 }

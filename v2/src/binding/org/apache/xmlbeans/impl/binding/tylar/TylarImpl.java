@@ -21,15 +21,17 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.ArrayList;
+import java.io.IOException;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
- * Simple implementation of Tylar.
+ * @deprecated phasing this out in favor of RuntimeTylar and BuildtimeTylar.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
@@ -38,7 +40,7 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
   // ========================================================================
   // Variables
 
-  private URI mSourceURI;
+  private URL[] mLocations;
   private BindingFile mBindingFile = null;
   private Collection mSchemas = null;
   private SchemaTypeSystem mSts = null;
@@ -50,17 +52,17 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
 
 
   /**
-   * @param sourceUri source uri or null
+   * @param locations source uri or null
    * @param bf the binding file
    * @param schemas the schemas
    * @param sts schema type system (or null)
    */
-  public TylarImpl(URI sourceUri,
+  public TylarImpl(URL[] locations,
                    BindingFile bf,
                    Collection schemas,
                    SchemaTypeSystem sts)
   {
-    mSourceURI = sourceUri;
+    mLocations = locations;
     mBindingFile = bf;
     mSchemas = schemas;
     mSts = sts;
@@ -80,23 +82,15 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
     return out;
   }
 
-  public SchemaTypeLoader getSchemaTypeLoader() {
+  public SchemaTypeLoader getSchemaTypeLoader() throws IOException, XmlException {
     if (mSts == null) {
       mSts = getDefaultSchemaTypeSystem();
     }
     return mSts;
   }
 
-  public URI getLocation() {
-    return mSourceURI;
-  }
-
-  public ClassLoader createClassLoader(ClassLoader parent) {
-    try {
-      return new URLClassLoader(new URL[] {mSourceURI.toURL()},parent);
-    } catch(MalformedURLException mue){
-      throw new RuntimeException(mue); //FIXME this is bad
-    }
+  public URL[] getLocations() {
+    return mLocations;
   }
 
   // ========================================================================
@@ -131,11 +125,11 @@ public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
   /**
    * @deprecated
    */
-  public TylarImpl(URI sourceUri,
+  public TylarImpl(URL[] sourceUrls,
                    BindingFile bf,
                    Collection schemas)
   {
-    this(sourceUri,bf,schemas,null);
+    this(sourceUrls,bf,schemas,null);
   }
 
 }

@@ -263,17 +263,17 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     }
     Parameter[] params = src.parameters();
     for(int i=0; i<params.length; i++) {
-      populate(dest.addNewParameter(),params[i]);
+      populate(dest.addNewParameter(),src,params[i]);
     }
     addAnnotations(dest, src);
     addSourcePosition(dest,src);
   }
 
-  private void populate(MParameter dest, Parameter src) {
+  private void populate(MParameter dest, ExecutableMemberDoc method, Parameter src) {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
     dest.setType(getFdFor(src.type()));
-    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,method,src);
   }
 
 

@@ -123,7 +123,7 @@ public abstract class BindingCompilerTask extends MatchingTask {
       throw new BuildException("fatal errors encountered, "+
                                "see log for details.");
     }
-    log("binding task complete, output at "+tylar.getLocation());
+    log("binding task complete, output at "+tylar.getLocations());
   }
 
   // ========================================================================

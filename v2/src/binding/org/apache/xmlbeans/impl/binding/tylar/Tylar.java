@@ -16,10 +16,14 @@
 package org.apache.xmlbeans.impl.binding.tylar;
 
 import java.net.URI;
+import java.net.URL;
+import java.io.IOException;
+
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlException;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
@@ -35,33 +39,24 @@ public interface Tylar {
   // Public methods
 
   /**
-   * Returns a short textual description of this tylar.  This is primarily
-   * useful for logging and debugging.
-   */
-  public String getDescription();
-
-  /**
-   * Returns a URI describing the location of the physical store from
-   * which this Tylar was loaded.  This is useful for logging purposes.
-   */
-  public URI getLocation();
-
-  /**
    * Returns the binding files contained in this Tylar.
    */
-  public BindingFile[] getBindingFiles();
+  public BindingFile[] getBindingFiles() throws IOException, XmlException;
 
   /**
-   * Returns the schema documents contained in this Tylar.
+   * Returns the schema documents contained in this Tylar.  Note that this
+   * is an optional operation; Tylars used at runtime (i.e. created by
+   * a TylarLoader) will typically throw UnsupportedOperationException
+   * in the implementation of this method.
    */
-  public SchemaDocument[] getSchemas();
+  public SchemaDocument[] getSchemas() throws IOException, XmlException;
 
   /**
    * Returns a BindingLoader for the bindings in this tylar.  This is really
    * just a convenience method; it simply returns a composite of the binding
    * files returned by getBindingFiles() plus the BuiltinBindingLoader.
    */
-  public BindingLoader getBindingLoader();
+  public BindingLoader getBindingLoader() throws IOException, XmlException;
 
   /**
    * Returns a BindingLoader for the bindings in this tylar.  This is really
@@ -69,7 +64,7 @@ public interface Tylar {
    * that results from compiling all of the schemas returned by getSchemas()
    * plus the BuiltinSchemaTypeSystem.
    */
-  public SchemaTypeLoader getSchemaTypeLoader();
+  public SchemaTypeLoader getSchemaTypeLoader() throws IOException, XmlException;
 
 
   /**
@@ -78,13 +73,17 @@ public interface Tylar {
    */
   public JamClassLoader getJamClassLoader();
 
+
   /**
-   * Returns a new ClassLoader that can load any class files contained in
-   * this tylar.  Returns null if this tylar contains no class resources.
-   *
-   * REVIEW are we sure this method is needed?
-   *
-   * @param parent The parent for new classloader.
+   * Returns a short textual description of this tylar.  This is primarily
+   * useful for logging and debugging.
    */
-  public ClassLoader createClassLoader(ClassLoader parent);
+  public String getDescription();
+
+  /**
+   * Returns an array of URLs describing where the tylar resources are being
+   * loaded from.  This is generally only useful for debugging purposes.
+   * This method may return null.
+   */
+  public URL[] getLocations();
 }

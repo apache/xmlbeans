@@ -12,33 +12,13 @@ import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 public interface MAnnotatedElement extends MElement, JAnnotatedElement {
 
   /**
-   * <p>Creates an annotation to expose the metadata in a javadoc tag.
-   * You should subsequently call <code>setMemberValue()</code> on
-   * the returned object to populate the annotation's values.</p>
-   *
-   * @param tagName name of the javadoc tag to be represented.
-   * @return
+   * Returns the annotation having the given name, creating it if it doesn't
+   * exist.
    */
-  public MAnnotation addAnnotationForTag(String tagName);
-
-  /**
-   * <p>Creates an annotation to expose the metadata in a javadoc tag.</p>
-   *
-   * @param tagName
-   * @param tagContents
-   * @return
-   */
-  public MAnnotation addAnnotationForTag(String tagName, String tagContents);
+  public MAnnotation findOrCreateAnnotation(String annotationName);
 
   //DOCME
-  //public MAnnotation addAnnotationForInstance(Class annotationType,
-  //                                          /*Annotation*/ Object jsr175annotationInstance);
-
-  //DOCME
-  public MAnnotation addAnnotationForType(String jsr175annotationClassname);
-
-  //DOCME actually not entirely clear we ever want to be able to do this
-  public MAnnotation addAnnotationForProxy(AnnotationProxy proxy);
+  public MAnnotation addAnnotation(String annotationName);
 
 
   public MAnnotation[] getMutableAnnotations();
@@ -58,4 +38,15 @@ public interface MAnnotatedElement extends MElement, JAnnotatedElement {
 
   //DOCME
   public void removeComment();
+
+
+
+
+  /**
+   * @deprecated
+   */
+  public MAnnotation addAnnotationForTag(String tagName, String tagContents);
+
+
+
 }

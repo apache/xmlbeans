@@ -40,16 +40,14 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
 
   // ========================================================================
   // Constants
-
-  private static final String FILE_SCHEME = "file";
-
+/*
   private static final char[] OTHER_SEPCHARS = {'\\'};
 
   private static final char SEPCHAR = '/';
 
   private static final boolean VERBOSE = false;
 
-  private static final String BINDING_FILE_JARENTRY =
+ private static final String BINDING_FILE_JARENTRY =
           normalizeEntryName(TylarConstants.BINDING_FILE).toLowerCase();
 
   private static final String SCHEMA_DIR_JARENTRY =
@@ -58,6 +56,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
   private static final String SCHEMA_EXT = ".xsd";
 
   private static final String STS_PREFIX = "schema"+SEPCHAR+"system"+SEPCHAR;
+  */
 
   // ========================================================================
   // Singleton
@@ -91,43 +90,17 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
   // ========================================================================
   // Public methods
 
+  public Tylar load(URL[] urls) throws IOException, XmlException {
+    if (urls == null) throw new IllegalArgumentException("null urls");
+    return new RuntimeTylar(new URLClassLoader(urls),urls);
+  }
+
   /**
-   * Loads the tylar from the given uri.
    *
-   * @param uri uri of where the tylar is stored.
-   * @return
-   * @throws IOException if an i/o error occurs while processing
-   * @throws XmlException if an error occurs parsing the contents of the tylar.
    */
-  public Tylar load(URI uri) throws IOException, XmlException
-  {
-    if (uri == null) throw new IllegalArgumentException("null uri");
-    //String scheme = uri.getScheme();
-    File file = null;
-    try {
-      file = new File(uri);
-    } catch(Exception ignore) {}
-    if (file != null && file.exists() && file.isDirectory()) {
-      return ExplodedTylarImpl.load(file);
-    } else {
-      return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
-    }
-  }
-
-  public Tylar load(URI[] uris) throws IOException, XmlException {
-    Tylar[] tylars = new Tylar[uris.length];
-    for(int i=0; i<tylars.length; i++) {
-      tylars[i] = load(uris[i]);
-    }
-    return new CompositeTylar(tylars);
-  }
-
-  /**
-   * @deprecated
-   */
-  public Tylar load(JarInputStream jar) throws IOException, XmlException {
-    if (jar == null) throw new IllegalArgumentException("null stream");
-    return loadFromJar(jar,null);
+  public Tylar load(ClassLoader cl) throws IOException, XmlException {
+    if (cl == null) throw new IllegalArgumentException("null stream");
+    return new RuntimeTylar(cl);
   }
 
   // ========================================================================
@@ -145,7 +118,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
    * for informational purposes only and is not required.
    * @return Handle to the tylar
    * @throws IOException
-   */
+
   protected static Tylar loadFromJar(JarInputStream jin, URI source)
           throws IOException, XmlException
   {
@@ -210,14 +183,44 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
     }
     return new TylarImpl(source,bf,schemas,sts);
   }
+   */
+
   // ========================================================================
   // Private methods
+/*
+  private static Tylar load(ClassLoader loader,
+                            String stsName,
+                            String[] xsds,
+                            URI source)
+    throws XmlException, IOException
+  {
+    SchemaTypeSystem sts = null;
+    BindingFile bf = null;
+    {
+      InputStream in = loader.getResourceAsStream(BINDING_FILE_JARENTRY);
+      bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(in));
+    }
+    if (stsName != null) {
+      try {
+      sts = SchemaTypeSystemImpl.forName(stsName,loader);
+      } catch(Exception e) {
+        ExplodedTylarImpl.showXsbError(e,source,"read",TylarConstants.SHOW_XSB_ERRORS);
+      }
+    }
+    if (sts == null) {
+
+    }
+
+
+
+  }
+  */
 
   /**
    * Canonicalizes the given zip entry path so that we can look for what
    * we want without having to worry about different slashes or
    * leading slashes or anything else that can go wrong.
-   */
+
   private static final String normalizeEntryName(String name) {
     name = name.trim();
     for(int i=0; i<OTHER_SEPCHARS.length; i++) {
@@ -226,7 +229,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
     if (name.charAt(0) == SEPCHAR) name = name.substring(1);
     return name;
   }
-
+   */
 
   /**
    * This is another hack around what I believe is an xbeans bug - it
@@ -234,7 +237,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
    * to parse a whole bunch of files from the same stream - this class
    * just intercepts the close() call and ignores it until we call
    * reallyClose().
-   */
+
   private static class StubbornInputStream extends FilterInputStream {
 
     StubbornInputStream(InputStream in) { super(in); }
@@ -245,7 +248,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
       super.close();
     }
   }
-
+   */
   /**
    * Grab the contents of the current entry and stuffs them into a string -
    * sometimes useful for debugging.

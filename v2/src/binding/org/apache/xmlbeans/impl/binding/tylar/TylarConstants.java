@@ -29,7 +29,7 @@ public interface TylarConstants {
   // ========================================================================
   // Constants
 
-  public static final char SEP = File.separatorChar;
+  public static final char SEP = '/';
 
   public static final String SRC_ROOT     = "META-INF"+SEP+"src";
   public static final String BINDING_FILE = "META-INF"+SEP+"binding-file.xml";

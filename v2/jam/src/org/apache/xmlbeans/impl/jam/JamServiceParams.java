@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam;
 
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import org.apache.xmlbeans.impl.jam.annotation.TagParser;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -313,6 +314,9 @@ public interface JamServiceParams {
 
   //DOCME
   public void addInitializer(MVisitor initializer);
+
+  //DOCME
+  public void setTagParser(TagParser tp);
 
 
   /**

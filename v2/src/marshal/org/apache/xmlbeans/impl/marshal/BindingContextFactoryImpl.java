@@ -30,6 +30,7 @@ import org.apache.xmlbeans.impl.binding.tylar.TylarLoader;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.util.jar.JarInputStream;
 
 /**
@@ -38,30 +39,22 @@ import java.util.jar.JarInputStream;
 public final class BindingContextFactoryImpl extends BindingContextFactory
 {
 
-    public BindingContext createBindingContext(URI tylarUri)
-        throws IOException, XmlException
-    {
-        return createBindingContext(new URI[]{tylarUri});
-    }
+  public BindingContext createBindingContext(ClassLoader cl) throws IOException, XmlException {
+    if (cl == null) throw new IllegalArgumentException("null uris");
+    //FIXME loader class needs to be pluggable
+    TylarLoader loader = DefaultTylarLoader.getInstance();
+    if (loader == null) throw new IllegalStateException("null loader");
+    return createBindingContext(loader.load(cl));
+  }
 
-    public BindingContext createBindingContext(URI[] tylarUris)
+  public BindingContext createBindingContext(URL[] tylarUrls)
         throws IOException, XmlException
     {
-        if (tylarUris == null) throw new IllegalArgumentException("null uris");
+        if (tylarUrls == null) throw new IllegalArgumentException("null uris");
         //FIXME loader class needs to be pluggable
         TylarLoader loader = DefaultTylarLoader.getInstance();
         if (loader == null) throw new IllegalStateException("null loader");
-        return createBindingContext(loader.load(tylarUris));
-    }
-
-    public BindingContext createBindingContext(JarInputStream jar)
-        throws IOException, XmlException
-    {
-        if (jar == null) throw new IllegalArgumentException("null InputStream");
-        //FIXME loader class needs to be pluggable
-        TylarLoader loader = DefaultTylarLoader.getInstance();
-        if (loader == null) throw new IllegalStateException("null TylarLoader");
-        return createBindingContext(loader.load(jar));
+        return createBindingContext(loader.load(tylarUrls));
     }
 
     // REVIEW It's unfortunate that we can't expose this method to the public
@@ -70,6 +63,7 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
     // Of course, exposing it means we expose Tylar to the public as well,
     // and this should be done with caution.
     public BindingContext createBindingContext(Tylar tylar)
+      throws IOException, XmlException
     {
         // build the loader chain - this is the binding files plus
         // the builtin loader
@@ -120,6 +114,5 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
             UnusedSchemaTypeLoaderProvider.getInstance();
         return createBindingContext(bf, provider);
     }
-
 
 }

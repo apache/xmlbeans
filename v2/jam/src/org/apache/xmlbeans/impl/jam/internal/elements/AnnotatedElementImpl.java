@@ -128,7 +128,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return (MAnnotation)mName2Annotation.get(proxyClass.getName());
   }
 
-  public MAnnotation addAnnotationForTag(String tagName) {
+  public MAnnotation addAnnotation(String tagName) {
     if (tagName == null) throw new IllegalArgumentException("null tagname");
     tagName = tagName.trim();
     {
@@ -176,24 +176,13 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
 
-
-  public MAnnotation addAnnotationForType(String jsr175annotationClassname) {
-    ClassImpl.validateClassName(jsr175annotationClassname);
-    MAnnotation ann = getMutableAnnotation(jsr175annotationClassname);
+  public MAnnotation findOrCreateAnnotation(String annotationName) {
+    ClassImpl.validateClassName(annotationName);
+    MAnnotation ann = getMutableAnnotation(annotationName);
     if (ann != null) return ann; //REVIEW weird case again
     AnnotationProxy proxy = getContext().
-      createProxyForAnnotationType(jsr175annotationClassname);
-    ann = new AnnotationImpl(getContext(),proxy,jsr175annotationClassname);
-    addAnnotation(ann);
-    return ann;
-  }
-
-  public MAnnotation addAnnotationForProxy(AnnotationProxy proxy) {
-    if (proxy == null) throw new IllegalArgumentException("null proxy");
-    String name = proxy.getClass().getName();
-    MAnnotation ann = getMutableAnnotation(name);
-    if (ann != null) return ann; //REVIEW weird case yet again
-    ann = new AnnotationImpl(getContext(),proxy,name);
+      createProxyForAnnotationType(annotationName);
+    ann = new AnnotationImpl(getContext(),proxy,annotationName);
     addAnnotation(ann);
     return ann;
   }
