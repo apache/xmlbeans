@@ -35,20 +35,6 @@ public abstract class BindingContextFactory
   public abstract BindingContext createBindingContext();
 
   /**
-   * Creates a BindingContext from a set of tylars located at the given URI.
-   * The order in which tylars appear in the array determines their precedence
-   * for loading types.
-   *
-   * @param tylarUrls An array of URLs which identify the tylars to be used
-   * in the BindingContext.
-   * @return The BindingContext
-   * @throws IOException if a problem occurs while opening or parsing the
-   * contents of the tylars.
-   */
-  public abstract BindingContext createBindingContext(URL[] tylarUrls)
-          throws IOException, XmlException;
-
-  /**
    * Creates a BindingContext which loads tylar resources out of the
    * given ClassLoader.
    *

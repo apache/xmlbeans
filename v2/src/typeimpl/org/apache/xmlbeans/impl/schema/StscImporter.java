@@ -142,7 +142,6 @@ public class StscImporter
     private static String baseURLForDoc(XmlObject obj)
     {
         String path = obj.documentProperties().getSourceName();
-      System.out.println("path = "+path);
 
         if (path == null)
             return null;

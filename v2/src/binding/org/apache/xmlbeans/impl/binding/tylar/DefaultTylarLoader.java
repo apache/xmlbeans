@@ -70,11 +70,6 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
   // ========================================================================
   // Public methods
 
-  public Tylar load(URL[] urls) throws IOException, XmlException {
-    if (urls == null) throw new IllegalArgumentException("null urls");
-    return new RuntimeTylar(new URLClassLoader(urls),urls);
-  }
-
   /**
    *
    */

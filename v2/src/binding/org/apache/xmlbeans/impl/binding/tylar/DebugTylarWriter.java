@@ -29,6 +29,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.io.File;
 import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
  * Implementation of TylarWriter which simply dumps everything it gets to some
@@ -131,7 +132,7 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
   public static void main(String[] args) {
     try {
       TylarLoader loader = DefaultTylarLoader.getInstance();
-      Tylar tylar = loader.load(new URL[]{new File(args[0]).toURL()});
+      Tylar tylar = loader.load(new URLClassLoader(new URL[]{new File(args[0]).toURL()}));
       new DebugTylarWriter().write(tylar);
     } catch(Exception e) {
       e.printStackTrace();

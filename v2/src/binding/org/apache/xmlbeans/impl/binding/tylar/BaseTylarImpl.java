@@ -82,12 +82,12 @@ try {
     XmlObject[] xxds = new XmlObject[xsds.length];
     for(int i=0; i<xsds.length; i++) xxds[i] = xsds[i].getSchema();
     try {
-      return XmlBeans.compileXsd(xxds,XmlBeans.getBuiltinTypeSystem(),null);
+      XmlOptions opts = new XmlOptions();
+      opts.setCompileDownloadUrls();
+      opts.setLoadUseDefaultResolver();
+      return XmlBeans.compileXsd(xxds,XmlBeans.getBuiltinTypeSystem(),opts);
     } catch(XmlException xe) {
-      // REVIEW we need to enforce an invariant that a tylar with invalid
-      // schemas can never be instantiated.
-      xe.printStackTrace();
-      throw new IllegalStateException(xe.getMessage());
+      throw (IOException)new IOException().initCause(xe);
     }
   }
 

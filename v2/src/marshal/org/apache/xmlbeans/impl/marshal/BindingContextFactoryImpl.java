@@ -38,7 +38,6 @@ import java.util.jar.JarInputStream;
  */
 public final class BindingContextFactoryImpl extends BindingContextFactory
 {
-
     public BindingContext createBindingContext(ClassLoader cl) throws IOException, XmlException
     {
         if (cl == null) throw new IllegalArgumentException("null uris");
@@ -46,16 +45,6 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
         TylarLoader loader = DefaultTylarLoader.getInstance();
         if (loader == null) throw new IllegalStateException("null loader");
         return createBindingContext(loader.load(cl));
-    }
-
-    public BindingContext createBindingContext(URL[] tylarUrls)
-        throws IOException, XmlException
-    {
-        if (tylarUrls == null) throw new IllegalArgumentException("null uris");
-        //FIXME loader class needs to be pluggable
-        TylarLoader loader = DefaultTylarLoader.getInstance();
-        if (loader == null) throw new IllegalStateException("null loader");
-        return createBindingContext(loader.load(tylarUrls));
     }
 
     // REVIEW It's unfortunate that we can't expose this method to the public
