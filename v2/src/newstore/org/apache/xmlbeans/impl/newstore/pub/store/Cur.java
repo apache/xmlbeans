@@ -337,7 +337,6 @@ public abstract class Cur
 
         _obj = null;
         _curKind = -1;
-        _tempCurFrame = -1;
 
         assert _state == UNEMBEDDED;
 

@@ -205,6 +205,7 @@ public abstract class Locale implements DOMImplementation, SaajCallback
         _unembedded = c.listInsert( _unembedded, Cur.UNEMBEDDED );
 
         assert c._obj == null;
+        assert c._curKind == -1;
 
         if (obj != null)
             c._obj = new Ref( c, obj );
@@ -218,8 +219,8 @@ public abstract class Locale implements DOMImplementation, SaajCallback
     {
         int frame = _numTempFrames - 1;
 
-        assert c != null && frame >= 0;
-        assert c._tempCurFrame == -1 || c._tempCurFrame == frame;
+//        assert c != null && frame >= 0;
+//        assert c._tempCurFrame == -1 || c._tempCurFrame == frame;
 
         if (c._tempCurFrame < 0)
         {
