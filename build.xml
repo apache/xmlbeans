@@ -43,7 +43,7 @@
     </target>
 
     <property environment="env"/>
-    <target name="saxon.find1">
+    <target name="saxon.find1" if="env.XMLBEANS_EXTERNALS">
       <property name="saxon_jar" value="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
     </target>
     <target name="saxon.find2">
