@@ -70,6 +70,7 @@ public class Java2Schema extends BindingCompiler {
   private BindingFile mBindingFile;  // the file we're creating
   private BindingLoader mLoader; // the full loader: bindingFile + baseLoader
   private SchemaDocument mSchemaDocument; // schema doc we're generating
+  //private Map mTns2Schema = new HashMap();
   private SchemaDocument.Schema mSchema;
   private JClass[] mClasses; // the input classes
   private JAnnotationLoader mAnnotationLoader = null;
