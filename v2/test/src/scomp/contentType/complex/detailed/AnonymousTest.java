@@ -50,7 +50,7 @@ public class AnonymousTest extends BaseCase {
 
         testElt.xsetChild2(
                 XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
-        ival.setBigIntegerValue(BigInteger.TEN);
+        ival.setBigIntegerValue(new BigInteger("10"));
         testElt.xsetChild1(ival);
         assertEquals("<xml-fragment><child1>10</child1><child2>3</child2>" +
                 "<child3>1</child3></xml-fragment>",

@@ -35,7 +35,7 @@ public class MixedContentExtension extends BaseCase {
                 Factory.newInstance();
         ExtendedMixedT elt = doc.addNewExtendedMixedElt();
         elt.setExtendedAttr("FOOBAR_val");
-        elt.setChild1(BigInteger.TEN);
+        elt.setChild1(new BigInteger("10"));
         XmlCursor cur = elt.newCursor();
         cur.toFirstContentToken();
         cur.beginElement("Child2");
@@ -57,7 +57,7 @@ public class MixedContentExtension extends BaseCase {
                 Factory.newInstance();
         ExtendedMixedT elt = doc.addNewExtendedMixedElt();
         elt.setExtendedAttr("FOOBAR_val");
-        elt.setChild1(BigInteger.TEN);
+        elt.setChild1(new BigInteger("10"));
         XmlCursor cur = elt.newCursor();
         cur.toEndToken();
         cur.beginElement("child2");

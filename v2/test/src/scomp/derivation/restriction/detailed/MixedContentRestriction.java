@@ -32,7 +32,7 @@ public class MixedContentRestriction extends BaseCase{
         MixedEltDocument doc=MixedEltDocument.Factory.newInstance();
         RestrictedMixedT elt=doc.addNewMixedElt();
         assertTrue( !elt.isSetChild1());
-        elt.setChild1(BigInteger.TEN);
+        elt.setChild1(new BigInteger("10"));
         elt.setChild2(BigInteger.ZERO);
         //insert text b/n the 2 elements
         XmlCursor cur=elt.newCursor();
@@ -56,7 +56,7 @@ public class MixedContentRestriction extends BaseCase{
        ElementOnlyEltDocument doc=ElementOnlyEltDocument.Factory.newInstance();
         RestrictedEltT elt=doc.addNewElementOnlyElt();
         assertTrue( !elt.isSetChild1());
-        elt.setChild1(BigInteger.TEN);
+        elt.setChild1(new BigInteger("10"));
         elt.setChild2(BigInteger.ZERO);
         //insert text b/n the 2 elements
         XmlCursor cur=elt.newCursor();
@@ -91,7 +91,7 @@ public class MixedContentRestriction extends BaseCase{
          Mixed2EmptyEltDocument doc=Mixed2EmptyEltDocument.Factory.newInstance();
          Mixed2EmptyT elt=doc.addNewMixed2EmptyElt();
         assertEquals(null,elt.xgetChild1());
-        elt.setChild1(BigInteger.TEN);
+        elt.setChild1(new BigInteger("10"));
          assertTrue( !doc.validate(validateOptions));
         showErrors();
         elt.unsetChild1();

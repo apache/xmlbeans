@@ -99,7 +99,7 @@ public class Abstract extends BaseCase {
         bs.setName("Oxford Shirt");
         bs.setNumber("SKU35");
         bs.setColor("blue");
-        bs.setSize(BigInteger.TEN);
+        bs.setSize(new BigInteger("10"));
        ItemType it= doc.addNewItems();
        BeachUmbrellaT um=BeachUmbrellaT.Factory.newInstance();
         um.setDiameter(1.5f);

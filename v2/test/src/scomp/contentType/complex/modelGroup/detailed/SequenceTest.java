@@ -49,7 +49,7 @@ public class SequenceTest extends BaseCase {
         elt.xsetChild2Array(new XmlString[]{});
         elt.setChild3Array(new BigInteger[]{valueInt});
         elt.addChild3(valueInt);
-        elt.setChild3Array(1,BigInteger.TEN);
+        elt.setChild3Array(1,new BigInteger("10"));
             assertEquals("<xml-fragment><child3>-3</child3>" +
                     "<child3>10</child3></xml-fragment>",elt.xmlText());
         assertTrue( !elt.validate(validateOptions) );

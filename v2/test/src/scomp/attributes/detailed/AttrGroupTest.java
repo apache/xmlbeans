@@ -22,6 +22,7 @@ import org.apache.xmlbeans.*;
 
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * @owner: ykadiysk
@@ -39,8 +40,8 @@ public class AttrGroupTest extends BaseCase {
         XmlDecimal val = XmlDecimal.Factory.newInstance();
         elt.xsetGlobalAttr(val);
 
-        elt.setVersion(BigDecimal.TEN);
-        elt.setGlobalAttr(BigDecimal.ONE);
+        elt.setVersion(new BigDecimal(new BigInteger("10")));
+        elt.setGlobalAttr(new BigDecimal(BigInteger.ONE));
         //add a wildcard attr: ##other, lax
         XmlCursor cur = elt.newCursor();
         //move to document element

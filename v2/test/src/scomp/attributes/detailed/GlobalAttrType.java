@@ -94,8 +94,10 @@ public class GlobalAttrType extends BaseCase {
 
         testDoc.setAttAnyType(ival);
 
-        assertEquals(BigInteger.ZERO,
-                testDoc.getAttAnyType().changeType(XmlInteger.type));
+       // assertEquals(BigInteger.ZERO,testDoc.getAttAnyType().changeType(XmlInteger.type));
+assertEquals(BigInteger.ZERO.toString(),
+        testDoc.getAttAnyType().getStringValue());
+
         try {
             assertTrue(testDoc.validate(validateOptions));
         }
@@ -106,7 +108,7 @@ public class GlobalAttrType extends BaseCase {
         XmlString sval = XmlString.Factory.newInstance();
         sval.setStringValue("foobar");
         testDoc.setAttAnyType(sval);
-        assertEquals("foobar", testDoc.getAttAnyType());
+        assertEquals("foobar", testDoc.getAttAnyType().getStringValue());
         try {
             assertTrue(testDoc.validate(validateOptions));
         }
@@ -118,7 +120,7 @@ public class GlobalAttrType extends BaseCase {
         XmlDouble fval = XmlDouble.Factory.newInstance();
         fval.setDoubleValue(-0.01);
         testDoc.setAttAnyType(fval);
-        assertEquals("-.01", testDoc.getAttAnyType().getStringValue());
+        assertEquals("-0.01", testDoc.getAttAnyType().getStringValue());
         try {
             assertTrue(testDoc.validate(validateOptions));
         }

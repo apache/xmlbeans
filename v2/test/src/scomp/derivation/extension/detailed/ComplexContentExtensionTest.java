@@ -67,13 +67,13 @@ public class ComplexContentExtensionTest extends BaseCase {
         ChoiceExtensionEltDocument doc = ChoiceExtensionEltDocument.Factory
                 .newInstance();
         ChoiceExtensionT elt = doc.addNewChoiceExtensionElt();
-        elt.setChild1(BigInteger.TEN);
+        elt.setChild1(new BigInteger("10"));
         elt.addChild2("foobar");
         elt.setChild3Array(new BigInteger[]{BigInteger.ONE, BigInteger.ZERO});
         elt.addExtraEltInt(3);
         elt.setExtraEltStrArray(new String[]{"extra1", "extra2"});
         assertTrue(!doc.validate());
-        assertEquals(BigInteger.TEN, elt.getChild1());
+        assertEquals(new BigInteger("10"), elt.getChild1());
         assertEquals("foobar", elt.getChild2Array()[0]);
         elt.unsetChild1();
         elt.removeChild2(0);

@@ -124,7 +124,7 @@ public class Deep extends BaseCase {
         BusinessCasualShirtType bShirt = BusinessCasualShirtType.Factory.newInstance();
         bShirt.setName("Funny Shirt");
         bShirt.setNumber("SKU84");
-        bShirt.setSize(BigInteger.TEN);
+        bShirt.setSize(new BigInteger("10"));
         bShirt.setPokadotColor("yellow");
         bShirt.setColor("blue");
 /*   This doesn't work
@@ -136,7 +136,7 @@ ShirtType shirt = (ShirtType) elt.addNewProduct();
         shirt.setName("Funny Shirt");
         shirt.setNumber("SKU54");
         shirt.setColor("green");
-        shirt.setSize(BigInteger.TEN);
+        shirt.setSize(new BigInteger("10"));
         ProductType genericProd = ProductType.Factory.newInstance();
         genericProd.setName("Pants");
         genericProd.setNumber("32");

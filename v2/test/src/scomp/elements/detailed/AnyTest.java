@@ -23,7 +23,7 @@ public class AnyTest extends BaseCase {
         bst.setName("shirt");
         bst.setNumber("SkU034");
         bst.setColor("white");
-        bst.setSize(BigInteger.TEN);
+        bst.setSize(new BigInteger("10"));
         doc.setAnyElt(bst);
         try {
             assertTrue(doc.validate(validateOptions));
