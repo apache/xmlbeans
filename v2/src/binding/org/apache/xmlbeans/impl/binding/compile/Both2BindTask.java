@@ -21,6 +21,9 @@ import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JamServiceFactory;
+import org.apache.xmlbeans.impl.jam.JamServiceParams;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,11 +91,10 @@ public class Both2BindTask extends BindingCompilerTask {
 
     // bind
     try {
-      String cp = (mClasspath == null) ? null : mClasspath.toString();
       //FIXME when we allow them to set up a base tylar, we need to take
       //those loaders into account here
       mCompiler.setSchemaTypesToMatch(createSchemaTypeSystem(xsdFiles));
-      mCompiler.setJavaTypesToMatch(loadJClasses(javaFiles,cp));
+      mCompiler.setJavaTypesToMatch(loadJClasses(javaFiles));
     } catch (IOException e) {
       log(e.getMessage());
       throw new BuildException(e);
@@ -219,4 +221,22 @@ public class Both2BindTask extends BindingCompilerTask {
       result[i] = new File(names[i]);
     return result;
   }
+
+  // ========================================================================
+  // Private methods
+
+  private JClass[] loadJClasses(final File[] javaFiles) throws IOException
+  {
+    JamServiceFactory factory = JamServiceFactory.getInstance();
+    JamServiceParams params = factory.createServiceParams();
+    for(int i=0; i<javaFiles.length; i++) {
+      params.includeSourceFile(javaFiles[i]);
+    }
+    if (mClasspath != null) {
+      String[] parts = mClasspath.list();
+      for(int i=0; i<parts.length; i++) params.addClasspath(new File(parts[i]));
+    }
+    return factory.createService(params).getAllClasses();
+  }
+
 }

@@ -28,6 +28,7 @@ import com.sun.javadoc.AnnotationValue;
 import com.sun.javadoc.FieldDoc;
 import com.sun.javadoc.ClassDoc;
 import com.sun.javadoc.AnnotationTypeMemberDoc;
+import com.sun.javadoc.SourcePosition;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -53,7 +54,8 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
                                  ProgramElementDoc src) {
     if (mContext == null) throw new IllegalStateException("init not called");
     if (dest == null) throw new IllegalArgumentException("null dest");
-    extractAnnotations(dest,src.annotations());
+    if (src == null) throw new IllegalArgumentException("null src");
+    extractAnnotations(dest,src.annotations(),src.position());
   }
 
   public void extractAnnotations(MAnnotatedElement dest, Parameter src) {
@@ -71,24 +73,39 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
   // Private methods
 
   private void extractAnnotations(MAnnotatedElement dest,
-                                  AnnotationDesc[] anns)
+                                  AnnotationDesc[] anns,
+                                  SourcePosition sp)
   {
     if (anns == null) return; //?
     for(int i=0; i<anns.length; i++) {
       MAnnotation destAnn = dest.addAnnotationForType
         (anns[i].annotationType().asClassDoc().qualifiedName());
-      populateAnnotation(destAnn,anns[i]);
+      populateAnnotation(destAnn,anns[i],sp);
     }
   }
 
-  private void populateAnnotation(MAnnotation dest, AnnotationDesc src) {
+  private void populateAnnotation(MAnnotation dest, 
+                                  AnnotationDesc src, 
+                                  SourcePosition sp) {
     AnnotationDesc.MemberValuePair[] mvps = src.memberValues();
     for(int i=0; i<mvps.length; i++) {
       Type jmt = mvps[i].member().returnType();
       String typeName = jmt.qualifiedTypeName();
       String name = mvps[i].member().name();
       AnnotationValue aval = mvps[i].value();
-      Object valueObj = aval.value();
+      Object valueObj;
+      try {
+        valueObj = aval.value();
+      } catch(NullPointerException npe) {
+        //FIXME temporary workaround for sun bug
+        mContext.getLogger().warning
+          ("Encountered a known javadoc bug which usually \n"+
+           "indicates a syntax error in an annotation value declaration.\n"+
+           "The value is being ignored.\n"+
+           "[file="+sp.file()+", line="+sp.line()+"]");
+        continue;
+
+      }
       if (mContext.getLogger().isVerbose(this)) {
         mContext.getLogger().verbose(name+" is a "+typeName+" with valueObj "+
                                      valueObj+", class is "+valueObj.getClass());
@@ -97,7 +114,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
       // appropriate represenatation
       if (valueObj instanceof AnnotationDesc) {
         MAnnotation nested = dest.createNestedValue(name,typeName);
-        populateAnnotation(nested,(AnnotationDesc)valueObj);
+        populateAnnotation(nested,(AnnotationDesc)valueObj,sp);
       } else if (valueObj instanceof Number || valueObj instanceof Boolean) {
         JClass type = mContext.getClassLoader().loadClass(jmt.typeName());
         dest.setSimpleValue(name,valueObj,type);
@@ -121,7 +138,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
       } else if (valueObj instanceof AnnotationValue[]) {
         // this is another big chunk of work, just factored into a new
         // method to keep things cleaner
-        populateArrayMember(dest,mvps[i].member(),(AnnotationValue[])valueObj);
+        populateArrayMember(dest,mvps[i].member(),(AnnotationValue[])valueObj,sp);
       } else {
         mContext.getLogger().error("Value of annotation member "+name+" is " +
                                    "of an unexpected type: "+
@@ -160,7 +177,8 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
    */
   private void populateArrayMember(MAnnotation dest,
                                    AnnotationTypeMemberDoc memberDoc,
-                                   AnnotationValue[] annValueArray)
+                                   AnnotationValue[] annValueArray,
+                                   SourcePosition sp)
   {
     String memberName = memberDoc.name();
     Type returnType = memberDoc.returnType();
@@ -176,7 +194,23 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     // unpack the AnnotationValue values into a single array.
     Object[] valueArray = new Object[annValueArray.length];
     for(int i=0; i<valueArray.length; i++) {
-      valueArray[i] = annValueArray[i].value();
+      try {
+        valueArray[i] = annValueArray[i].value();
+        if (valueArray[i] == null) {
+          mContext.getLogger().error
+            ("Javadoc provided an array annotation member value which contains "+
+             "[file="+sp.file()+", line="+sp.line()+"]");
+          return;
+        }
+      } catch(NullPointerException npe) {
+        //FIXME temporary workaround for sun bug
+        mContext.getLogger().warning
+          ("Encountered a known javadoc bug which usually \n"+
+           "indicates a syntax error in an annotation value declaration.\n"+
+           "The value is being ignored.\n"+
+           "[file="+sp.file()+", line="+sp.line()+"]");
+        return;
+      }
     }
     // now go do something with them
     if (valueArray[0] instanceof AnnotationDesc) {
@@ -185,7 +219,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
       MAnnotation[] anns = dest.createNestedValueArray
         (memberName, annType, valueArray.length);
       for(int i=0; i<anns.length; i++) {
-        populateAnnotation(anns[i],(AnnotationDesc)valueArray[i]);
+        populateAnnotation(anns[i],(AnnotationDesc)valueArray[i],sp);
       }
     } else if (valueArray[0] instanceof Number || valueArray[0] instanceof Boolean) {
       JClass type = loadClass(JavadocClassBuilder.getFdFor(returnType));
@@ -212,8 +246,9 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
         String v = ((String)valueArray[i]).trim();
         if (v.startsWith("\"") && v.endsWith("\"")) {
           //javadoc gives us the quotes, which seems kinda dumb.  just deal.
-          value[i] = v.substring(1,v.length()-1);
+          v = v.substring(1,v.length()-1);
         }
+        value[i] = v;
       }
       dest.setSimpleValue(memberName,value,loadClass(String[].class));
     } else {

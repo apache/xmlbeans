@@ -16,13 +16,14 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.binding.logger.MessageSink;
 import org.apache.xmlbeans.impl.binding.logger.SimpleMessageSink;
-import org.apache.xmlbeans.impl.jam_old.JFactory;
-import org.apache.xmlbeans.impl.jam_old.JFileSet;
-import org.apache.xmlbeans.impl.jam_old.JClass;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JamServiceFactory;
+import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -147,26 +148,6 @@ public abstract class BindingCompilerTask extends MatchingTask {
     SchemaTypeLoader soapencLoader = org.apache.xmlbeans.impl.schema.SoapEncSchemaTypeSystem.get();
     SchemaTypeLoader xsdLoader = XmlBeans.getBuiltinTypeSystem();
     return XmlBeans.compileXsd(xsds, XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {xsdLoader, soapencLoader}), null);
-  }
-
-  protected JClass[] loadJClasses(final File[] javaFiles, String classpath)
-          throws IOException
-  {
-    JFileSet fs = new JFileSet() {
-      public void include(String pattern) {}
-      public void exclude(String pattern) {}
-      public void setClasspath(String cp) {}
-      public void setCaseSensitive(boolean b) {}
-      public File[] getFiles() { return javaFiles; }
-    };
-    /*
-    String classpathString = null;
-    if (mClasspath != null) {
-      //this will be removed after jam_old factory is refactored
-      fs.setClasspath(classpathString = mClasspath.toString());
-    }
-    */
-    return JFactory.getInstance().loadSources(fs,null,null,null,null,classpath);
   }
 
 

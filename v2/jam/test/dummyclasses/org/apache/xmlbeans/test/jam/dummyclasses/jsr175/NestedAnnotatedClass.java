@@ -22,14 +22,17 @@ package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
     lastName        = "Powell",
     address = @AddressAnnotation(street="123 shady lane", city="Cooperstown",zip=123456),
     specialDigits={8,6,7,5,3,0,9},
-    active=Constants.Bool.TRUE),
+    active=Constants.Bool.TRUE,
+    aka={"larry","joe","booooooooooog"}),
+
 
   @EmployeeAnnotation(
     firstName       = "Takako",
     lastName        = "Minekawa",
     address = @AddressAnnotation(street="456 Shinjuku", city="Tokyo",zip=5478),
     specialDigits={8,6,7,5,3,0,9},
-    active=Constants.Bool.FALSE)
+    active=Constants.Bool.FALSE,
+    aka={"destron","fantastic"})
 
   }
 )

@@ -21,8 +21,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xmlbeans.impl.jam_old.JClass;
-import org.apache.xmlbeans.impl.jam_old.JProperty;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JProperty;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;
@@ -227,6 +227,8 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
     }
   }
 
+
+
   private static XmlTypeName normalizedXmlTypeName(SchemaType sType) {
     if (sType.isDocumentType())
       return XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, sType.getDocumentElementName());
@@ -303,10 +305,10 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
         scratchFromXmlName.put(scratch.getXmlName(), scratch);
       else {
         skip = true;
-        _logError("Both " + scratch.getJavaName() + " and " +
-                ((Scratch) scratchFromXmlName.get(scratch.getXmlName())).getJavaName() +
-                " match Schema " + scratch.getXmlName(),
-                scratch.getJClass(),scratch.getSchemaType());
+        logError("Both " + scratch.getJavaName() + " and " +
+                 ((Scratch) scratchFromXmlName.get(scratch.getXmlName())).getJavaName() +
+                 " match Schema " + scratch.getXmlName(),
+                 scratch.getJClass(),scratch.getSchemaType());
       }
       // only non-document types are uniquified
       if (!scratch.getSchemaType().isDocumentType()) {
@@ -314,11 +316,11 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
           scratchFromJavaName.put(scratch.getJavaName(), scratch);
         else {
           skip = true;
-          _logError("Both " + scratch.getXmlName() + " and " +
-                  ((Scratch) scratchFromJavaName.get(scratch.getJavaName())).getXmlName()+
-                  " match Java " + scratch.getJavaName(),
-                  scratch.getJClass(),
-                  scratch.getSchemaType());
+          logError("Both " + scratch.getXmlName() + " and " +
+                   ((Scratch) scratchFromJavaName.get(scratch.getJavaName())).getXmlName()+
+                   " match Java " + scratch.getJavaName(),
+                   scratch.getJClass(),
+                   scratch.getSchemaType());
         }
       }
       if (!skip) queueToResolve(scratch);
@@ -527,11 +529,11 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
   private void resolveStructure(Scratch scratch) {
 
     if (scratch.getSchemaType().isSimpleType() || scratch.getSchemaType() == XmlObject.type) {
-      _logError("Java class " + scratch.getJavaName() +
-              " does not match Schema type " +
-              scratch.getXmlName(),
-              scratch.getJClass(),
-              scratch.getSchemaType());
+      logError("Java class " + scratch.getJavaName() +
+               " does not match Schema type " +
+               scratch.getXmlName(),
+               scratch.getJClass(),
+               scratch.getSchemaType());
       return;
     }
 
@@ -564,11 +566,11 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
       boolean multiple = isMultiple(sProp);
       JavaTypeName collection = null;
       if (multiple) {
-        if (!jPropType.isArray()) {
-          _logError("Property " + jProp + " in " + scratch.getJClass() +
-                  " is an array, but " + sProp.getName() + " in " +
-                  scratch.getSchemaType() + " is a singleton.",
-                  jProp,sProp);
+        if (!jPropType.isArrayType()) {
+          logError("Property " + jProp + " in " + scratch.getJClass() +
+                   " is an array, but " + sProp.getName() + " in " +
+                   scratch.getSchemaType() + " is a singleton.",
+                   jProp,sProp);
         } else {
           collection = JavaTypeName.forJClass(jPropType);
           jPropType = jPropType.getArrayComponentType();
@@ -614,16 +616,16 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
         }
       }
       if (scratch.getOnBehalfOf() == null) {
-        _logError("Java class " + scratch.getJavaName() +
-                " does not match schema type " +
-                scratch.getXmlName() + " (" + reason + ")",
-                scratch.getJClass(),scratch.getSchemaType());
+        logError("Java class " + scratch.getJavaName() +
+                 " does not match schema type " +
+                 scratch.getXmlName() + " (" + reason + ")",
+                 scratch.getJClass(),scratch.getSchemaType());
       } else {
-        _logError("Java class " + scratch.getJavaName() +
-                " does not match schema type " +
-                scratch.getXmlName() + " (" + reason + ")",
-                scratch.getOnBehalfOf().getJProperty(),
-                scratch.getOnBehalfOf().getSProperty());
+        logError("Java class " + scratch.getJavaName() +
+                 " does not match schema type " +
+                 scratch.getXmlName() + " (" + reason + ")",
+                 scratch.getOnBehalfOf().getJProperty(),
+                 scratch.getOnBehalfOf().getSProperty());
       }
     }
   }
