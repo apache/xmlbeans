@@ -1019,7 +1019,33 @@ abstract class Xobj implements TypeStore
             Object src = getFirstChars();
 
             if (wsr == Locale.WS_PRESERVE)
-                return CharUtil.getString( src, offSrc(), cchSrc() );
+            {
+                String s = CharUtil.getString( src, offSrc(), cchSrc() );
+
+                // Cache string to be able to use it later again
+
+                int cch = s.length();
+
+                if (cch > 0)
+                {
+                    Xobj lastAttr = lastAttr();
+
+                    assert (lastAttr == null ? _cchValue : lastAttr._cchAfter) == cch;
+
+                    if (lastAttr != null)
+                    {
+                        lastAttr._srcAfter = s;
+                        lastAttr._offAfter = 0;
+                    }
+                    else
+                    {
+                        _srcValue = s;
+                        _offValue = 0;
+                    }
+                }
+
+                return s;
+            }
 
             Locale.ScrubBuffer scrub = Locale.getScrubBuffer( wsr );
 
