@@ -126,6 +126,12 @@ public class StreamInstanceValidator
                 final FileInputStream fis = new FileInputStream(file);
                 final XMLStreamReader rdr =
                     XML_INPUT_FACTORY.createXMLStreamReader(path, fis);
+
+                //advance to first start element.
+//                while(!rdr.isStartElement()) {
+//                    rdr.next();
+//                }
+
                 vsr.init(rdr, null, sLoader, options, errors);
                 while (vsr.hasNext()) {
                     vsr.next();
