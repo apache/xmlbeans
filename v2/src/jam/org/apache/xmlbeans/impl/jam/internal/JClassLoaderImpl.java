@@ -14,7 +14,14 @@
  */
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JPackage;
+import org.apache.xmlbeans.impl.jam.editable.impl.EClassImpl;
+import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.provider.EClassBuilder;
+import org.apache.xmlbeans.impl.jam.provider.EClassInitializer;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JDFactory;
 
 import java.util.Map;
@@ -23,53 +30,75 @@ import java.util.Collection;
 import java.util.Collections;
 
 /**
- * @deprecated to be replaced by JClassLoaderImpl
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public abstract class BaseJClassLoader implements JClassLoader {
+public class JClassLoaderImpl implements JClassLoader {
+
+
   // ========================================================================
   // Variables
 
+  private boolean mVerbose = true;
   private Map mName2Package = new HashMap();
-  private Map mFd2Class = new HashMap();
+  private Map mFd2ClassCache = new HashMap();
   private JAnnotationLoader mAnnotationLoader = null;//FIXME
-  private JClassLoader mParentLoader;
+  private EClassBuilder mBuilder;
+  private EClassInitializer mInitializer = null;
+
+  private static final JClassLoader ROOT = new RootJClassLoader();
 
   // ========================================================================
   // Constructor
 
-  public BaseJClassLoader(JClassLoader parent) {
-    mParentLoader = parent;
+  public JClassLoaderImpl(EClassBuilder builder,
+                          EClassInitializer initializer) {
+    if (builder == null) throw new IllegalArgumentException("null builder");
+    mBuilder = builder;
+    mInitializer = initializer;
   }
-
-  // ========================================================================
-  // Abstract methods
-
-  protected abstract JClass createClass(String qcname);
 
   // ========================================================================
   // JClassLoader implementation
 
-  public final JClassLoader getParent() { return mParentLoader; }
-
   public final JClass loadClass(String fd)
   {
     fd = fd.trim();//REVIEW is this paranoid?
-    JClass out = (JClass)mFd2Class.get(fd);
+    JClass out = (JClass)mFd2ClassCache.get(fd);
     if (out != null) return out;
     if (fd.startsWith("[")) {
       return ArrayJClass.createClassFor(fd,this);
     } else {
-      if (fd.equals("java.lang.Object")) return mParentLoader.loadClass(fd);
+      if (fd.equals("java.lang.Object")) return ObjectJClass.getInstance();
+      if (fd.equals("void")) return VoidJClass.getInstance();
     }
-    out = createClass(fd);
-    if (out != null) {
-      mFd2Class.put(fd,out);
-      return out;
+    // parse out the package and class names - kinda broken
+    int dot = fd.lastIndexOf('.');
+    String pkg;
+    String name;
+    if (dot == -1) {
+      //System.out.println("==== "+fd);
+      pkg = "";
+      name = fd;
     } else {
-      return mParentLoader.loadClass(fd);
+      pkg  = fd.substring(0,dot);
+      name = fd.substring(dot+1);
     }
+    out = mBuilder.build(pkg,name,this);
+    if (out == null) {
+      out = ROOT.loadClass(fd);
+    }
+    if (out == null) {
+      out = new EClassImpl(pkg,name,this);
+      ((EClassImpl)out).setIsUnresolved(true);
+      if (mVerbose) System.out.println("[JClassLoaderImpl] unresolve class '"+
+                                       pkg+" "+name+"'!!");
+    }
+    if (out instanceof EClassImpl) {
+      if (mInitializer != null) mInitializer.initialize((EClassImpl)out);
+    }
+    mFd2ClassCache.put(fd,out);
+    return out;
   }
 
   public JAnnotationLoader getAnnotationLoader() {
@@ -94,6 +123,7 @@ public abstract class BaseJClassLoader implements JClassLoader {
    * have been resolved by this JClassLoader.
    */
   public Collection getResolvedClasses() {
-    return Collections.unmodifiableCollection(mFd2Class.values());
+    return Collections.unmodifiableCollection(mFd2ClassCache.values());
   }
+
 }

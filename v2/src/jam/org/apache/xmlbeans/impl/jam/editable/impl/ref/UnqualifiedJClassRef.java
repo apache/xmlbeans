@@ -22,7 +22,12 @@ import org.apache.xmlbeans.impl.jam.JClass;
  */
 public class UnqualifiedJClassRef implements JClassRef {
 
-    // ========================================================================
+  // ========================================================================
+  // Constants
+
+  private static final boolean VERBOSE = true;
+
+  // ========================================================================
   // Variables
 
   private String mUnqualifiedClassname;
@@ -43,11 +48,12 @@ public class UnqualifiedJClassRef implements JClassRef {
   // ========================================================================
   // Constructors
 
-  private UnqualifiedJClassRef(String qualifiedClassname,
+  private UnqualifiedJClassRef(String unqualifiedClassname,
                                JClassRefContext ctx)
   {
     mContext = ctx;
-    mUnqualifiedClassname = qualifiedClassname;
+    mUnqualifiedClassname = unqualifiedClassname;
+    if (VERBOSE) System.out.println("[UnqualifiedJClassRef] "+unqualifiedClassname);
   }
 
   // ========================================================================
@@ -60,12 +66,16 @@ public class UnqualifiedJClassRef implements JClassRef {
 
   public String getQualifiedName() {
     if (mQualifiedClassname != null) return mQualifiedClassname;
-    mQualifiedClassname = getAlreadyQualified();
+    mQualifiedClassname = checkExplicitImport();
     if (mQualifiedClassname != null) return mQualifiedClassname;
-    mQualifiedClassname = getExplicitImport();
+    mQualifiedClassname = checkSamePackage();
+    if (mQualifiedClassname != null) return mQualifiedClassname;
+    mQualifiedClassname = checkAlreadyQualified();
     if (mQualifiedClassname != null) return mQualifiedClassname;
     //FIXME '*' imports!
-    return "void";  //FIXME uh oh
+    throw new IllegalStateException("unable to handle unqualified java type "+
+                                    "reference '"+mUnqualifiedClassname+"'. "+
+                                    "This is still partially NYI.");
   }
 
   // ========================================================================
@@ -74,11 +84,21 @@ public class UnqualifiedJClassRef implements JClassRef {
   /**
    * Check to see if the unqualified name actually is already qualified.
    */
-  private String getAlreadyQualified() {
+  private String checkSamePackage() {
+    String name = mContext.getPackageName()+"."+mUnqualifiedClassname;
+    JClass clazz = mContext.getClassLoader().loadClass(name);
+    if (VERBOSE) System.out.println("checkSamePackage '"+name+"'  "+
+                                    clazz.isUnresolved()+"  "+mContext.getClassLoader().getClass());
+    return (clazz.isUnresolved()) ? null : clazz.getQualifiedName();
+  }
+
+  /**
+   * Check to see if the unqualified name actually is already qualified.
+   */
+  private String checkAlreadyQualified() {
     JClass clazz =
             mContext.getClassLoader().loadClass(mUnqualifiedClassname);
-    if (clazz != null) return clazz.getQualifiedName();
-    return null;
+    return (clazz.isUnresolved()) ? null : clazz.getQualifiedName();
   }
 
 
@@ -86,7 +106,7 @@ public class UnqualifiedJClassRef implements JClassRef {
    * Run through the list of import specs and see if the class was explicitly
    * (i.e. without '*') imported.
    */
-  private String getExplicitImport() {
+  private String checkExplicitImport() {
     String[] imports = mContext.getImportSpecs();
     for(int i=0; i<imports.length; i++) {
       //FIXME this does not cover inner classes

@@ -12,33 +12,26 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.xmlbeans.impl.jam.provider;
 
-package org.apache.xmlbeans.impl.jam.editable;
-
-import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.JAnnotationDefinition;
+import org.apache.xmlbeans.impl.jam.editable.EClass;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EAnnotation extends JAnnotation, EElement {
+public interface EClassInitializer {
 
-  public EAnnotationMember addNewMember();
-
-  public EAnnotationMember[] getEditableMembers();
-
-  public EAnnotationMember getEditableMember(String named);
-
-  public void setDefinition(JAnnotationDefinition jad);
-
-  public void setDefinition(String qualifiedClassName);
-
-  public void setDefinitionUnqualified(String unqualifiedClassName);
-
-  public void setAnnotationObject(Object o);
-
-  public void setJavadocText(String text);
-
+  /**
+   * <p>Initializes the given EClass.  Returns true if the implementation
+   * was able to resolve the java type represented by the clazz parameter
+   * and do something to initialize it.</p>
+   *
+   * <p>Note that the type to be initialized will never be an array type,
+   * a primitive, 'void', or 'java.lang.Object'.</p>
+   *
+   * @return
+   */
+  public boolean initialize(EClass clazz);
 
 }

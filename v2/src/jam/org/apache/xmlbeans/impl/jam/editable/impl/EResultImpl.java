@@ -39,6 +39,8 @@ public class EResultImpl implements EResult, JClassLoader {
   // Constructors
 
   public EResultImpl(EResultParamsImpl params) {
+    System.out.println("\n\n\n\n============= NEW ERESULTIMPL");
+    Thread.dumpStack();
     mBaseClassLoader = params.getParentClassLoader();
     mAnnotationLoader = params.getAnnotationLoader();
   }
@@ -48,6 +50,7 @@ public class EResultImpl implements EResult, JClassLoader {
 
   public EClass addNewClass(String packageName, String className) {
     EClassImpl out = new EClassImpl(packageName,className,this);
+    System.out.println("---= adding '"+out.getQualifiedName()+"'");
     mClasses.put(out.getQualifiedName(),out);
     return out;
   }
@@ -83,8 +86,16 @@ public class EResultImpl implements EResult, JClassLoader {
   // JClassLoader implementation
 
   public JClass loadClass(String classname) {
+    System.out.println("@@@@@@ loading '"+classname+"'");
+    System.out.flush();
+    Thread.dumpStack();
     JClass out = (JClass)mClasses.get(classname);
-    if (out != null) return out;
+
+    if (out != null) {
+      System.out.println("FOUND IT");
+      return out;
+    }
+    System.out.println("NOPE");
     return mBaseClassLoader.loadClass(classname);
   }
 

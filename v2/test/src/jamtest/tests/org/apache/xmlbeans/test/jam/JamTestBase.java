@@ -60,9 +60,7 @@ import org.apache.xmlbeans.impl.jam.*;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * <p>Abstract base class for basic jam test cases.  These test cases work
@@ -93,17 +91,18 @@ public abstract class JamTestBase extends TestCase {
 
   // this needs to correspond to the methods on the FooImpl dummyclass
   private static final String[][] FOOIMPL_METHODS = {
-    {"public",                       "int",      "getId",  null},
-    {"public",                       "void",     "setId",  "int id"},
-    {"private final static",         "void",     "setId2",  "double id"},
-    {"protected synchronized ", "void",  "setId3",  "double id, double id2"},
-    {"protected abstract",           "void",     "setId4",  "double id, double id2, double id3"},
+    {"public",                   "int",      "getId",  null},
+    {"public",                   "void",     "setId",  "int id"},
+    {"private final static",     "void",     "setId2",  "double id"},
+    {"protected synchronized ",  "void",     "setId3",  "double id, double id2"},
+    {"protected abstract",       "void",     "setId4",  "double id, double id2, double id3"},
+    {"",             "java.lang.String[][]", "methodDealingWithArrays",  "int[] foo, java.lang.Object[] bar"}
   };
-
 
   protected static final String
           DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
 
+  private static final boolean VERBOSE = false;
 
 
   // ========================================================================
@@ -173,14 +172,18 @@ public abstract class JamTestBase extends TestCase {
     JClass[] classes = mResult.getAllClasses();
     List classNames = new ArrayList(classes.length);
     for(int i=0; i<classes.length; i++) {
+      resolved(classes[i]);
       classNames.add(classes[i].getQualifiedName());
     }
     List expected = Arrays.asList(ALL_CLASSES);
     assertTrue("result does not contain all expected classes",
                classNames.containsAll(expected));
-
     assertTrue("result contains more than expected classes",
                expected.containsAll(classNames));
+  }
+
+  public void testRecursiveResolve() {
+    resolveCheckRecursively(mResult.getAllClasses(),new HashSet());
   }
 
   /**
@@ -188,15 +191,16 @@ public abstract class JamTestBase extends TestCase {
    * number of parameters and correct return types.
    */
   public void testFooImplMethods() {
-    JClass fooImpl = mLoader.loadClass(DUMMY+".FooImpl");
+    JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
     GoldenMethod[] methods = GoldenMethod.createArray(FOOIMPL_METHODS);
-    GoldenMethod.doComparison(fooImpl.getDeclaredMethods(),methods,isParameterNamesKnown(),this);
+    GoldenMethod.doComparison(fooImpl.getDeclaredMethods(),
+                              methods,isParameterNamesKnown(),this);
   }
 
   public void testInterfaceIsAssignableFrom()
   {
-    JClass fooImpl = mLoader.loadClass(DUMMY+".FooImpl");
-    JClass foo = mLoader.loadClass(DUMMY+".Foo");
+    JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
+    JClass foo = resolved(mLoader.loadClass(DUMMY+".Foo"));
     assertTrue("Foo should be assignableFrom FooImpl",
                foo.isAssignableFrom(fooImpl));
     assertTrue("FooImpl should not be assignableFrom Foo",
@@ -205,8 +209,8 @@ public abstract class JamTestBase extends TestCase {
 
   public void testClassIsAssignableFrom() 
   {
-    JClass fooImpl = mLoader.loadClass(DUMMY+".FooImpl");
-    JClass base = mLoader.loadClass(DUMMY+".Base");
+    JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
+    JClass base = resolved(mLoader.loadClass(DUMMY+".Base"));
     assertTrue("Base should be assignableFrom FooImpl",
                base.isAssignableFrom(fooImpl));
     assertTrue("FooImpl should not be assignableFrom Base",
@@ -215,8 +219,8 @@ public abstract class JamTestBase extends TestCase {
 
   public void testClassIsAssignableFromDifferentClassLoaders() 
   {
-    JClass baz = mLoader.loadClass(DUMMY+".Baz");
-    JClass runnable = mLoader.loadClass("java.lang.Runnable");
+    JClass baz = resolved(mLoader.loadClass(DUMMY+".Baz"));
+    JClass runnable = resolved(mLoader.loadClass("java.lang.Runnable"));
     assertTrue("Runnable should be assignableFrom Baz",
                runnable.isAssignableFrom(baz));
     assertTrue("Baz should not be assignableFrom Runnable",
@@ -226,8 +230,8 @@ public abstract class JamTestBase extends TestCase {
 
   public void testAnnotationsAndInheritance()
   {
-    JClass ejb = mLoader.loadClass(DUMMY+".ejb.TraderEJB");
-    JClass ienv = ejb.getInterfaces()[0];
+    JClass ejb = resolved(mLoader.loadClass(DUMMY+".ejb.TraderEJB"));
+    JClass ienv = resolved(ejb.getInterfaces()[0]);
     JMethod ejbBuy = ejb.getMethods()[0];
     JMethod ienvBuy = ienv.getMethods()[0];
     String INTER_ANN = "ejbgen:remote-method@transaction-attribute";
@@ -250,6 +254,57 @@ public abstract class JamTestBase extends TestCase {
 
   // ========================================================================
   // Private methods
+
+  private void resolveCheckRecursively(JClass[] clazzes, Set resolved) {
+    for(int i=0; i<clazzes.length; i++) {
+      resolveCheckRecursively(clazzes[i],resolved);
+    }
+  }
+
+  private void resolveCheckRecursively(JClass clazz, Set set) {
+    if (clazz == null || set.contains(clazz)) return;
+    assertTrue(clazz.getQualifiedName()+" is not resolved",
+               !clazz.isUnresolved());
+    if (VERBOSE) System.out.println("checking "+clazz.getQualifiedName());
+    set.add(clazz);
+    resolveCheckRecursively(clazz.getSuperclass(),set);
+    resolveCheckRecursively(clazz.getInterfaces(),set);
+    {
+      //check methods
+      JMethod[] methods = clazz.getDeclaredMethods();
+      for(int i=0; i<methods.length; i++) {
+        resolveCheckRecursively(methods[i].getReturnType(),set);
+        JParameter[] params = methods[i].getParameters();
+        for(int j=0; j<params.length; j++) {
+          resolveCheckRecursively(params[j].getType(),set);
+        }
+      }
+    }
+    {
+      //check constructors
+      JConstructor[] ctors = clazz.getConstructors();
+      for(int i=0; i<ctors.length; i++) {
+        JParameter[] params = ctors[i].getParameters();
+        for(int j=0; j<params.length; j++) {
+          resolveCheckRecursively(params[j].getType(),set);
+        }
+      }
+    }
+    {
+      //check fields
+      JField[] fields = clazz.getFields();
+      for(int i=0; i<fields.length; i++) {
+        resolveCheckRecursively(fields[i].getType(),set);
+      }
+    }
+  }
+
+
+  private JClass resolved(JClass c) {
+    assertTrue("class "+c.getQualifiedName()+" is not resolved",
+               !c.isUnresolved());
+    return c;
+  }
 
   private void verifyAnnotation(JElement j, String ann, String val) {
     JAnnotation a = j.getAnnotation(ann);

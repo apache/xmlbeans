@@ -222,7 +222,7 @@ public class JResultParamsImpl implements JResultParams, JStoreParams
   }
 
   public PrintWriter getOut() {
-    return null;
+    return new PrintWriter(System.out,true);
   }
 
   public Properties getProperties() {

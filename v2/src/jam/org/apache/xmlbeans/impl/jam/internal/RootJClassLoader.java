@@ -33,11 +33,6 @@ import java.util.HashMap;
 public class RootJClassLoader implements JClassLoader {
 
   // ========================================================================
-  // Variables
-
-  private JAnnotationLoader mAnnotationLoader;
-
-  // ========================================================================
   // Static initializer
 
   private static final Map mFd2Class = new HashMap();
@@ -55,13 +50,7 @@ public class RootJClassLoader implements JClassLoader {
   // ========================================================================
   // Constructors
 
-  public RootJClassLoader() {
-    mAnnotationLoader = null;
-  }
-
-  public RootJClassLoader(JAnnotationLoader loader) {
-    mAnnotationLoader = loader;
-  }
+  public RootJClassLoader() {}
 
   // ========================================================================
   // JClassLoader implementation
@@ -79,9 +68,7 @@ public class RootJClassLoader implements JClassLoader {
     return new JPackageImpl(name);
   }
 
-  public JAnnotationLoader getAnnotationLoader() {
-    return mAnnotationLoader;
-  }
+  public JAnnotationLoader getAnnotationLoader() { return null; }
 
   public JClassLoader getParent() {
     return null;

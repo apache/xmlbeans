@@ -46,7 +46,6 @@ public class EAnnotationImpl extends EMemberImpl implements EAnnotation {
   // ========================================================================
   // EAnnotation implementation
 
-
   public EAnnotationMember addNewMember() {
     if (mMembers == null) mMembers = new ArrayList();
     EAnnotationMemberImpl out =
@@ -71,6 +70,15 @@ public class EAnnotationImpl extends EMemberImpl implements EAnnotation {
       if (named.equals(out.getName())) return out;
     }
     return null;
+  }
+
+  public void setDefinition(JAnnotationDefinition jad) {
+  }
+
+  public void setDefinition(String qualifiedClassName) {
+  }
+
+  public void setDefinitionUnqualified(String unqualifiedClassName) {
   }
 
   public void setAnnotationObject(Object o) {

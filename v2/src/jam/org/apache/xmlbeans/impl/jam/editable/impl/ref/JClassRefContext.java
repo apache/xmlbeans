@@ -25,6 +25,8 @@ import org.apache.xmlbeans.impl.jam.JClassLoader;
  */
 public interface JClassRefContext {
 
+  public String getPackageName();
+
   public String[] getImportSpecs();
 
   public JClassLoader getClassLoader();

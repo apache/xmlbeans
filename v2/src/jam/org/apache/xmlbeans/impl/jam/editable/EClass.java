@@ -28,6 +28,8 @@ public interface EClass extends EMember, JClass {
 
   public void setIsInterface(boolean b);
 
+  public void setIsUnresolved(boolean b);
+
   /**
    * Sets the class which this class extends.  The class name must be fully-
    * qualified.  Pass null to make the class extend nothing.

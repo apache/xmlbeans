@@ -12,33 +12,18 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.xmlbeans.impl.jam.provider;
 
-package org.apache.xmlbeans.impl.jam.editable;
-
-import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.JAnnotationDefinition;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.editable.EClass;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EAnnotation extends JAnnotation, EElement {
+public interface EClassBuilder {
 
-  public EAnnotationMember addNewMember();
-
-  public EAnnotationMember[] getEditableMembers();
-
-  public EAnnotationMember getEditableMember(String named);
-
-  public void setDefinition(JAnnotationDefinition jad);
-
-  public void setDefinition(String qualifiedClassName);
-
-  public void setDefinitionUnqualified(String unqualifiedClassName);
-
-  public void setAnnotationObject(Object o);
-
-  public void setJavadocText(String text);
-
-
+  public EClass build(String packageName,
+                      String className,
+                      JClassLoader loader);
 }

@@ -19,7 +19,6 @@ import org.apache.xmlbeans.impl.jam.JResultParams;
 import org.apache.xmlbeans.impl.jam.JResult;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.RootJClassLoader;
-import org.apache.xmlbeans.impl.jam.internal.reflect.RClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassLoaderFactory;
 
 import java.io.IOException;
@@ -78,7 +77,7 @@ public class DefaultJResultFactory extends JResultFactory {
 
   /**
    * <p>Creates the main classloader to be used given the input params.
-   * This is usually a composite of the a source classloader and a
+   * This is usually a composite of the source classloader and a
    * classfile classloader.  Subclasses may override to change the behavior.
    * </p>
    */
@@ -89,11 +88,12 @@ public class DefaultJResultFactory extends JResultFactory {
     // used as a parent of the next.
     //
     // The root classloader deals with Object, void, primitives, arrays...
-    JClassLoader loader = new RootJClassLoader(params.getAnnotationLoader());
+    JClassLoader loader = new RootJClassLoader();
     // Usually they will also want the system classloader in there, but this
     // is optional
     if (params.isUseSystemClasspath()) {
-      loader = new RClassLoader(ClassLoader.getSystemClassLoader(),loader);
+      loader = ReflectionClassBuilder.createRClassLoader
+              (ClassLoader.getSystemClassLoader());
     }
     // Now create a loader for any classfile loading they specified
     JClassLoader classfileLoader = createClassfileLoader(params,loader);
@@ -144,6 +144,7 @@ public class DefaultJResultFactory extends JResultFactory {
                                                JClassLoader parent)
           throws IOException
   {
+
     //FIXME someday should make the name of the service class to use here
     //settable via a system property
     JPath cp = jp.getInputClasspath();
@@ -151,7 +152,9 @@ public class DefaultJResultFactory extends JResultFactory {
       return null;
     } else {
       URL[] urls = cp.toUrlPath();
-      return new RClassLoader(new URLClassLoader(urls),parent);
+      ClassLoader cl = new URLClassLoader(urls);
+      return ReflectionClassBuilder.createRClassLoader(cl);
+    //  return new RClassLoader(,parent);
     }
   }
 }
