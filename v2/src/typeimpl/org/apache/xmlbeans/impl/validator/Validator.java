@@ -1001,7 +1001,7 @@ public final class Validator
     // Simple Type Validation
     //
     // emptyContent means that you can't use the event to get text: there is
-    // not text, but you can use the event to do prefix resolution (in the case
+    // no text, but you can use the event to do prefix resolution (in the case
     // where the default is a qname)
     //
 
@@ -1026,8 +1026,6 @@ public final class Validator
             emitError(event, "Invalid type.");
             return null;
         }
-
-
 
         // Get the value as a string (as normalized by the white space rule
         // TODO - will want to optimize this later
@@ -1624,7 +1622,11 @@ public final class Validator
         if (_localElement != null)
             return _localElement;
 
-        //try getting it from the stack (this should happen after END)  
+        // it means the element is to be skiped and it doesn't have a known SchemaLocalElement
+        if (_eatContent>0)
+            return null;
+
+        //try getting it from the stack (this should happen after END)
         if (_stateStack!=null && _stateStack._field instanceof SchemaLocalElement )
             return (SchemaLocalElement)_stateStack._field;
 
