@@ -191,7 +191,8 @@ final class MarshalStreamUtils
     }
 
 
-    static void advanceToFirstItemOfInterest(XMLStreamReader rdr) throws XmlException
+    static void advanceToFirstItemOfInterest(XMLStreamReader rdr)
+        throws XmlException
     {
         try {
             for (int state = rdr.getEventType(); rdr.hasNext(); state = rdr.next()) {
@@ -205,7 +206,14 @@ final class MarshalStreamUtils
                         break;
                     case XMLStreamReader.CHARACTERS:
                         if (rdr.isWhiteSpace()) break;
-                        throw new AssertionError("NAKED CHARDATA UNIMPLEMENTED");
+                        {
+                            final String text = rdr.getText();
+                            final Location loc = rdr.getLocation();
+                            String msg = "unexpected character data: " + text +
+                                " at line " + loc.getLineNumber() +
+                                " column " + loc.getColumnNumber();
+                            throw new XmlException(msg);
+                        }
                     case XMLStreamReader.COMMENT:
                     case XMLStreamReader.SPACE:
                     case XMLStreamReader.START_DOCUMENT:
