@@ -41,7 +41,7 @@ public class SampleRunner
         proj.setName("Samples Task Tests");
         XMLBEANS_HOME = proj.getBaseDir().getAbsolutePath();
         samples = new ArrayList();
-        runSampleTest = new SamplesBuildFileTest("S2J Ant Task Wrapper");
+        runSampleTest = new SamplesBuildFileTest("Sample Ant Task Wrapper");
     }
 
     public void testSamples()

@@ -25,7 +25,7 @@
     <xsd:include schemaLocation="namespaces2.xsd" />
     -->
 
-    <xsd:include schemaLocation="file:///D:/SVNNEW/xmlbeans/trunk/test/cases/xbean/compile/som/namespaces2.xsd" />
+    <xsd:include schemaLocation="namespaces2.xsd_" />
 
     <xsd:element name="NamespaceInclRootElem">
         <xsd:complexType>

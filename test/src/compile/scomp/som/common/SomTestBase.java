@@ -505,7 +505,13 @@ public class SomTestBase extends CompileTestBase
             File xsdModified = getTestCaseFile(xsdFileName);
             XmlObject xsdModifiedObj = XmlObject.Factory.parse(xsdModified);
             System.out.println("Source Name for STS: " + xsdModifiedObj.documentProperties().getSourceName());
-            xsdModifiedObj.documentProperties().setSourceName(sBaseSourceName);
+
+            // If null is passed for the basename, the basename is not set. Modified for namespace testcases.
+            // If a source name is specified, deferencing of location for schemaLocation attribute gets messed up.
+            if(sBaseSourceName != null)
+            {
+                xsdModifiedObj.documentProperties().setSourceName(sBaseSourceName);
+            }
             Assert.assertNotNull("Xml Object creation failed", xsdModifiedObj);
             XmlObject[] xobjArr = new XmlObject[]{xsdModifiedObj};
 
