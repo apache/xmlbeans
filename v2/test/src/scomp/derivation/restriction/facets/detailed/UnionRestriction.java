@@ -39,16 +39,14 @@ public class UnionRestriction extends BaseCase {
         doc.setUnionPatternElt("small");
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
         doc.setUnionPatternElt(new Integer(1));
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -57,48 +55,49 @@ public class UnionRestriction extends BaseCase {
         doc.xsetUnionPatternElt(elt);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
         doc.setUnionPatternElt(new Integer(-1));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
     public void testEnumRestriction() throws Throwable {
-        UnionEnumEltDocument doc=UnionEnumEltDocument.Factory.newInstance();
+        UnionEnumEltDocument doc = UnionEnumEltDocument.Factory.newInstance();
         doc.setUnionEnumElt("small");
-             try {
-                 assertTrue(doc.validate(validateOptions));
-             }
-             catch (Throwable t) {
-                 showErrors();
-                 throw t;
-             }
-             doc.setUnionEnumElt(new Integer(1));
-             try {
-                 assertTrue(doc.validate(validateOptions));
-             }
-             catch (Throwable t) {
-                 showErrors();
-                 throw t;
-             }
-             SmallEnumUnion elt = SmallEnumUnion.Factory.newInstance();
-             elt.setObjectValue(new Integer(-1));
-             doc.xsetUnionEnumElt(elt);
-             try {
-                 assertTrue(doc.validate(validateOptions));
-             }
-             catch (Throwable t) {
-                 showErrors();
-                 throw t;
-             }
-             doc.setUnionEnumElt(new Integer(2));
-             assertTrue(!doc.validate(validateOptions));
-             showErrors();
+        try {
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
+        doc.setUnionEnumElt(new Integer(1));
+        try {
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
+        SmallEnumUnion elt = SmallEnumUnion.Factory.newInstance();
+        elt.setObjectValue(new Integer(-1));
+        doc.xsetUnionEnumElt(elt);
+        try {
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
+        doc.setUnionEnumElt(new Integer(2));
+        assertTrue(!doc.validate(validateOptions));
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
 
     }

@@ -45,8 +45,7 @@ public class BuiltInType extends BaseCase {
             "Lead tab,A string on 2 lines with 2  spaces",
             "2 Lead spaces,A string on 2 lines with 2  spaces"
         };
-        StringEltDocument doc = StringEltDocument.Factory.parse(
-                buildString("StringElt", false));
+        StringEltDocument doc = StringEltDocument.Factory.parse(buildString("StringElt", false));
         assertTrue(doc.validate(validateOptions));
         assertEquals("<StringElt" +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
@@ -60,24 +59,21 @@ public class BuiltInType extends BaseCase {
                 "</StringElt>"
                 , doc.xmlText());
 
-        NormalizedStringEltDocument doc1 = NormalizedStringEltDocument.Factory.parse(
-                buildString("NormalizedStringElt", false));
+        NormalizedStringEltDocument doc1 = NormalizedStringEltDocument.Factory.parse(buildString("NormalizedStringElt", false));
         assertTrue(doc.validate(validateOptions));
         assertEquals("<NormalizedStringElt" +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
                 exp[2] +
                 "</NormalizedStringElt>", doc1.xmlText());
         doc1 =
-                NormalizedStringEltDocument.Factory.parse(
-                        buildString(" NormalizedStringElt", true));
+                NormalizedStringEltDocument.Factory.parse(buildString(" NormalizedStringElt", true));
         assertTrue(doc1.validate(validateOptions));
         assertEquals("<NormalizedStringElt" +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
                 exp[3] +
                 "</NormalizedStringElt>", doc1.xmlText());
 
-        TokenEltDocument doc2 = TokenEltDocument.Factory.parse(
-                buildString("TokenElt", false));
+        TokenEltDocument doc2 = TokenEltDocument.Factory.parse(buildString("TokenElt", false));
         assertTrue(doc2.validate(validateOptions));
         assertEquals("<TokenElt" +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +
@@ -105,13 +101,19 @@ public class BuiltInType extends BaseCase {
         XmlName str = XmlName.Factory.newInstance();
         str.setStringValue("-eltName");
         nameDoc.xsetNameElt(str);
-        assertTrue(! nameDoc.validate(validateOptions));
+        assertTrue(!nameDoc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
         NCNameEltDocument ncNameDoc = NCNameEltDocument.Factory.newInstance();
         ncNameDoc.setNCNameElt(":eltName");
         assertTrue(!ncNameDoc.validate(validateOptions));
         showErrors();
+        errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
         XmlNCName ncn = XmlNCName.Factory.newInstance();
         ncn.setStringValue("_elt.Name");
         ncNameDoc.xsetNCNameElt(ncn);
@@ -125,8 +127,10 @@ public class BuiltInType extends BaseCase {
         assertTrue(langDoc.validate(validateOptions));
 
         langDoc.setLanguageElt("english");
-        assertTrue( ! langDoc.validate(validateOptions) );
+        assertTrue(!langDoc.validate(validateOptions));
         showErrors();
+        errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
 
     }
@@ -166,7 +170,7 @@ public class BuiltInType extends BaseCase {
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">12.34</DecimalElt>");
         assertTrue(decDoc.validate(validateOptions));
-        BigDecimal bdval=new BigDecimal(new BigInteger("10"));
+        BigDecimal bdval = new BigDecimal(new BigInteger("10"));
         decDoc.setDecimalElt(bdval);
         assertTrue(bdval == decDoc.getDecimalElt());
 
@@ -204,6 +208,8 @@ public class BuiltInType extends BaseCase {
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">32768</ShortElt>");
         assertTrue(!shDoc.validate(validateOptions));
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
 
         ByteEltDocument byteDoc = ByteEltDocument.Factory.newInstance();
@@ -214,6 +220,8 @@ public class BuiltInType extends BaseCase {
                 ">128</ByteElt>");
         assertTrue(!byteDoc.validate(validateOptions));
         showErrors();
+        errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
         NonPosIntEltDocument nonposIntDoc =
                 NonPosIntEltDocument.Factory.parse("<NonPosIntElt " +
@@ -256,7 +264,7 @@ public class BuiltInType extends BaseCase {
                 UnsignedShortEltDocument.Factory.parse("<UnsignedShortElt " +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">65535</UnsignedShortElt>");
-          
+
         assertTrue(uShort.validate(validateOptions));
 
         UnsignedByteEltDocument uByte =
@@ -311,6 +319,9 @@ public class BuiltInType extends BaseCase {
                 "32</gDayElt>");
         assertTrue(!day.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
         day.setGDayElt(c);
         assertTrue(day.validate(validateOptions));
 

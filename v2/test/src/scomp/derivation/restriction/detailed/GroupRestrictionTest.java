@@ -35,16 +35,17 @@ public class GroupRestrictionTest extends BaseCase {
         elt.addChild3(new BigInteger("10"));
         elt.addChild3(new BigInteger("10"));
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
         elt.addChild3(BigInteger.ONE);
         assertTrue(!doc.validate());
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -54,14 +55,15 @@ public class GroupRestrictionTest extends BaseCase {
         RestrictedChoiceT elt = doc.addNewRestrictedChoiceElt();
         elt.addChild2("foobar");
         elt.addChild3(BigInteger.ZERO);
-        assertTrue(!doc.validate());
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
         elt.removeChild2(0);
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -74,14 +76,15 @@ public class GroupRestrictionTest extends BaseCase {
         RestrictedAllT elt = doc.addNewRestrictedAllElt();
         elt.setChild2("foobar");
         //child3 can't be missing
-        assertTrue(!doc.validate());
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
         elt.setChild3(new BigInteger("10"));
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -93,17 +96,18 @@ public class GroupRestrictionTest extends BaseCase {
         elt.setA("foo");
         elt.setC(3);
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
         //b not part of restricted type
         elt.setB("bar");
-        assertTrue(!doc.validate());
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testChoiceToSequence() throws Throwable {
@@ -112,16 +116,17 @@ public class GroupRestrictionTest extends BaseCase {
         elt.addA("foo");
         elt.addC(3);
         try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
         //b not part of restricted type
         elt.addB("bar");
-        assertTrue(!doc.validate());
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 }

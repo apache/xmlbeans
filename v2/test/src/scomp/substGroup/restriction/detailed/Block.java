@@ -63,6 +63,9 @@ public class Block extends BaseCase {
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+             assertTrue(compareErrorCodes(errExpected));
+
 
         System.out.println("***********************");
         BusinessShirtDocument bs_doc = BusinessShirtDocument.Factory.newInstance();
@@ -152,6 +155,10 @@ public class Block extends BaseCase {
         items.setProductArray(new ProductType[]{bu});
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+             assertTrue(compareErrorCodes(errExpected));
+
+
         doc = ItemsDocument.Factory.parse("<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Block\"" +
                 "  xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
                 "<pre:beachumbrella>" +
@@ -160,6 +167,7 @@ public class Block extends BaseCase {
                 "</pre:beachumbrella>" +
                 "</base:items>");
         try {
+            clearErrors();
             assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {

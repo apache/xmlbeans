@@ -35,10 +35,9 @@ public class EmptyContentExtension extends BaseCase{
         child.setSubCh2(1.3f);
 
         try{
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
            throw t;
         }

@@ -54,9 +54,8 @@ public class GlobalAttrFixed extends BaseCase {
                 "pre:testattributeStr=\"XBeanAttrStr\" " +
                 "pre:testattributeInt=\" 1 \"/>").getGlobalAttrFixedDoc();
         try {
-            assertTrue(testDoc.validate());
-        }
-        catch (Throwable t) {
+            assertTrue(testDoc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -66,28 +65,35 @@ public class GlobalAttrFixed extends BaseCase {
     }
 
     /**
-     *
+     * value does not match fixed
      */
     public void testStringInvalidSpace() throws Exception {
         GlobalAttrFixedT testAtt =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
                 "pre:testattributeStr=\" XBeanAttrStr \"/>").getGlobalAttrFixedDoc();
+        String[] errExpected = new String[]{"cvc-attr"};
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
+        assertTrue(compareErrorCodes(errExpected));
+
 
         //catch XmlExceptionHere;
     }
 
     public void testStringInvalidValue() throws Exception {
-        GlobalAttrFixedT  testAtt =
+        GlobalAttrFixedT testAtt =
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
                 "pre:testattributeStr=\" foobar \" />").getGlobalAttrFixedDoc();
+        String[] errExpected = new String[]{"cvc-attribute"};
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
+        assertTrue(compareErrorCodes(errExpected));
+
+
     }
 
     /**
@@ -98,10 +104,14 @@ public class GlobalAttrFixed extends BaseCase {
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
                 "pre:testattributeInt=\" foo \"/>").getGlobalAttrFixedDoc();
+
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
-        //catch XmlExceptionHere;
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
+
     }
 
     public void testIntInvalidValue() throws XmlException {
@@ -112,7 +122,9 @@ public class GlobalAttrFixed extends BaseCase {
         assertTrue(!testAtt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
-        //catch XmlExceptionHere;
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
     public void testIntValidValue() throws Throwable {
@@ -120,9 +132,9 @@ public class GlobalAttrFixed extends BaseCase {
                 GlobalAttrFixedDocDocument.Factory.parse("<pre:GlobalAttrFixedDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrFixed\" " +
                 "pre:testattributeInt=\" +01 \"/>").getGlobalAttrFixedDoc();
-        try{
+        try {
             assertTrue(testAtt.validate(validateOptions));
-        }catch(Throwable t){
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -133,13 +145,16 @@ public class GlobalAttrFixed extends BaseCase {
     public void testSetValue() throws XmlException {
         GlobalAttrFixedDocDocument testAtt =
                 GlobalAttrFixedDocDocument.Factory.newInstance();
-        GlobalAttrFixedT testDoc=testAtt.addNewGlobalAttrFixedDoc();
+        GlobalAttrFixedT testDoc = testAtt.addNewGlobalAttrFixedDoc();
         testDoc.setTestattributeInt(new BigInteger("5"));
         //shouldn't this fail?
         assertEquals(5, testDoc.getTestattributeInt().intValue());
         assertTrue(!testDoc.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
 }

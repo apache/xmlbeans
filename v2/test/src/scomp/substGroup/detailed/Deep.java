@@ -45,6 +45,9 @@ public class Deep extends BaseCase {
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+             assertTrue(compareErrorCodes(errExpected));
+        
     }
 
 
@@ -109,13 +112,11 @@ public class Deep extends BaseCase {
                 "</casualBShirt>" +
                 "</items>";
         ItemsDocument doc = ItemsDocument.Factory.parse(input);
-        try {
+
             assertTrue(!doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
             showErrors();
-            throw t;
-        }
+            String[] expErrors=new String[]{"cvc-elt"};
+            assertTrue(compareErrorCodes(expErrors));
     }
 
     public void testValidSubstBuild() throws Throwable {

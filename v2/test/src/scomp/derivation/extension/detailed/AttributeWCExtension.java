@@ -40,6 +40,7 @@ public class AttributeWCExtension extends BaseCase {
         BaseNoWCDocument doc = BaseNoWCDocument.Factory.parse(input);
         if ( !doc.validate(validateOptions) )
             showErrors();
+
         assertTrue(doc.validate(validateOptions));
 
     }

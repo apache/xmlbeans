@@ -24,30 +24,38 @@ import scomp.common.BaseCase;
  * Date: Jul 21, 2004
  * Time: 10:14:25 AM
  */
-public class SimpleTypeExtensionTest extends BaseCase{
-    public void testExtension() throws Throwable{
-        SimpleExtensionEltDocument doc=SimpleExtensionEltDocument.Factory.newInstance();
-        SimpleExtensionT elt=doc.addNewSimpleExtensionElt();
-        try {
-            assertTrue(! doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
-            showErrors();
-           // throw t;
-        }
-         elt.setStringValue("1");
-        assertTrue ( elt.validate() );
+public class SimpleTypeExtensionTest extends BaseCase {
+
+    public void testExtension() throws Throwable {
+        SimpleExtensionEltDocument doc = SimpleExtensionEltDocument.Factory.newInstance();
+        SimpleExtensionT elt = doc.addNewSimpleExtensionElt();
+
+        assertTrue(!doc.validate(validateOptions));
+
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
+        elt.setStringValue("1");
+        assertTrue(elt.validate());
         elt.setAttribute("ATTR_VAL");
-        assertTrue( doc.validate() );
-        assertEquals("ATTR_VAL", elt.getAttribute() ) ;
+        try{
+        assertTrue(doc.validate());
+        }catch(Throwable t){
+            showErrors();
+            throw t;
+        }
+        assertEquals("ATTR_VAL", elt.getAttribute());
         elt.unsetAttribute();
-         assertEquals(null, elt.getAttribute() ) ;
-        assertTrue( !elt.isSetAttribute());
+        assertEquals(null, elt.getAttribute());
+        assertTrue(!elt.isSetAttribute());
 
         //why does type mismatch show up as XmlValueOutOfRangeException 
         elt.setStringValue("foobar");
-        assertTrue ( !elt.validate() );
+        assertTrue(!elt.validate(validateOptions));
+
+         errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
     }
 

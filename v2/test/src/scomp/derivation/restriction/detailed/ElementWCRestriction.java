@@ -39,10 +39,9 @@ public class ElementWCRestriction extends BaseCase {
         OtherLaxDocument doc =
                 OtherLaxDocument.Factory.parse(input);
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -62,6 +61,9 @@ public class ElementWCRestriction extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
 
         //Only valid NS should be Other
         input =
@@ -70,9 +72,12 @@ public class ElementWCRestriction extends BaseCase {
                 "<testElt>foo</testElt></OtherLax>";
         doc =
                 OtherLaxDocument.Factory.parse(input);
-
+        clearErrors();
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
 
     }
 
@@ -89,10 +94,9 @@ public class ElementWCRestriction extends BaseCase {
         UriSkipDocument doc =
                 UriSkipDocument.Factory.parse(input);
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -107,6 +111,9 @@ public class ElementWCRestriction extends BaseCase {
                 UriSkipDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
     }
 
     //WC replaced by elt
@@ -120,10 +127,9 @@ public class ElementWCRestriction extends BaseCase {
         ConcreteEltDocument doc =
                 ConcreteEltDocument.Factory.parse(input);
         try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -147,6 +153,9 @@ public class ElementWCRestriction extends BaseCase {
                 "<testElt>foo</testElt></ConcreteElt>";
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+                     assertTrue(compareErrorCodes(errExpected));
+
     }
 
 }

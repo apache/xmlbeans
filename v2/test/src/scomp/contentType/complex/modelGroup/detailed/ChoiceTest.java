@@ -24,6 +24,7 @@ import scomp.common.BaseCase;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlCursor;
+
 /**
  * @owner: ykadiysk
  * Date: Jul 16, 2004
@@ -32,52 +33,52 @@ import org.apache.xmlbeans.XmlCursor;
 
 //TODO: assert that order of elements in a choice group doesn't matter
 public class ChoiceTest extends BaseCase {
-    public void testValidCase() throws Throwable{
-        ChoiceEltDocument doc=ChoiceEltDocument.Factory.newInstance();
-        ChoiceT elt=doc.addNewChoiceElt();
-         elt.addChild3(new BigInteger("10"));
-         elt.addChild3(BigInteger.ZERO);
-           try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+    public void testValidCase() throws Throwable {
+        ChoiceEltDocument doc = ChoiceEltDocument.Factory.newInstance();
+        ChoiceT elt = doc.addNewChoiceElt();
+        elt.addChild3(new BigInteger("10"));
+        elt.addChild3(BigInteger.ZERO);
+        try {
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
     }
+
     //more than 1 from choice group
     //TODO: test should pass but error message not good
-     public void testChoiceViolation() throws Throwable{
-        ChoiceEltDocument doc=ChoiceEltDocument.Factory.newInstance();
-        ChoiceT elt=doc.addNewChoiceElt();
+    public void testChoiceViolation() throws Throwable {
+        ChoiceEltDocument doc = ChoiceEltDocument.Factory.newInstance();
+        ChoiceT elt = doc.addNewChoiceElt();
         elt.addChild2("foobar");
         elt.addChild3(new BigInteger("10"));
         elt.addChild3(BigInteger.ZERO);
 
-            assertTrue( !doc.validate(validateOptions));
-            showErrors();
-       }
+        assertTrue(!doc.validate(validateOptions));
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
-    public void testMixedChoice()throws Throwable{
-        MixedChoiceEltDocument doc=MixedChoiceEltDocument.Factory.newInstance();
-        MixedChoiceT elt=doc.addNewMixedChoiceElt();
-        assertTrue ( !elt.isSetChild1() );
+    }
+
+    public void testMixedChoice() throws Throwable {
+        MixedChoiceEltDocument doc = MixedChoiceEltDocument.Factory.newInstance();
+        MixedChoiceT elt = doc.addNewMixedChoiceElt();
+        assertTrue(!elt.isSetChild1());
         elt.setChild1(new BigInteger("10"));
-        XmlCursor cur=elt.newCursor();
-        assertEquals(XmlCursor.TokenType.START,cur.toFirstContentToken());
+        XmlCursor cur = elt.newCursor();
+        assertEquals(XmlCursor.TokenType.START, cur.toFirstContentToken());
         cur.toEndToken(); //past child one
         cur.toNextToken();
         cur.insertChars("foobar");
-           try {
-            assertTrue(doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+        try {
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
-        assertEquals("<xml-fragment><child1>10</child1>foobar</xml-fragment>", elt.xmlText() );
+        assertEquals("<xml-fragment><child1>10</child1>foobar</xml-fragment>", elt.xmlText());
     }
 
 }

@@ -42,8 +42,7 @@ public class KeyKeyref extends BaseCase {
         ProductListDocument doc = ProductListDocument.Factory.parse(input);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -79,6 +78,8 @@ public class KeyKeyref extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"c-props-correct"};
+        assertTrue(compareErrorCodes(errExpected));
 
 
     }
@@ -123,12 +124,10 @@ public class KeyKeyref extends BaseCase {
                 "</product>" +
                 "</KeyProductList>";
 
-        KeyProductListDocument doc = KeyProductListDocument.Factory.parse(
-                input);
+        KeyProductListDocument doc = KeyProductListDocument.Factory.parse(input);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -151,11 +150,13 @@ public class KeyKeyref extends BaseCase {
                 "</product>" +
                 "</KeyProductList>";
 
-        KeyProductListDocument doc = KeyProductListDocument.Factory.parse(
-                input);
+        KeyProductListDocument doc = KeyProductListDocument.Factory.parse(input);
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
     }
 
 
@@ -176,22 +177,20 @@ public class KeyKeyref extends BaseCase {
                 "   <customerName>Bozo</customerName>" +
                 "   <item deptId=\"7345\">" +
                 "   <SKU>FooBarChart</SKU>" +
-                 "  </item>" +
+                "  </item>" +
                 "</order>" +
                 "<order>" +
                 "   <customerName>Bozo</customerName>" +
                 "   <item deptId=\"7345\">" +
                 "        <SKU>FooBarChart</SKU>" +
-                 "  </item>" +
+                "  </item>" +
                 "</order>" +
                 "</CompanyDB>";
 
-        CompanyDBDocument doc = CompanyDBDocument.Factory.parse(
-                input);
+        CompanyDBDocument doc = CompanyDBDocument.Factory.parse(input);
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
@@ -218,7 +217,7 @@ public class KeyKeyref extends BaseCase {
                 "   <customerName>Bozo</customerName>" +
                 "   <item deptId=\"7345\">" +
                 "   <SKU>FooBarChart</SKU>" +
-                 "  </item>" +
+                "  </item>" +
                 "</order>" +
                 "<order>" +
                 "   <customerName>Marketing</customerName>" +
@@ -228,10 +227,11 @@ public class KeyKeyref extends BaseCase {
                 "</order>" +
                 "</CompanyDB>";
 
-        CompanyDBDocument doc = CompanyDBDocument.Factory.parse(
-                input);
-        assertTrue( !doc.validate(validateOptions) );
+        CompanyDBDocument doc = CompanyDBDocument.Factory.parse(input);
+        assertTrue(!doc.validate(validateOptions));
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
 
     }

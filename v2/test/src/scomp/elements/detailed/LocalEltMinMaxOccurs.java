@@ -59,6 +59,9 @@ public class LocalEltMinMaxOccurs extends BaseCase {
         assertTrue(!testDoc.validate(validateOptions));
         assertEquals(1,errorList.size());
         showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+             assertTrue(compareErrorCodes(errExpected));
+
     }
 
     // maxOccursOne occurs 2ce
@@ -75,6 +78,9 @@ public class LocalEltMinMaxOccurs extends BaseCase {
         assertEquals(0,errorList.size());
           assertTrue(!testDoc.validate(validateOptions));
           assertEquals(1,errorList.size());
+        String[] errExpected = new String[]{"cvc-attribute"};
+             assertTrue(compareErrorCodes(errExpected));
+
          fail("Error is incorrect: the dev infers the cause... incorrectly");
                 showErrors();
     }

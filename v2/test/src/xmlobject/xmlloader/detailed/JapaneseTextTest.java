@@ -49,10 +49,15 @@ public class JapaneseTextTest extends TestCase {
          loadFile("weekly-utf-16.xml");
      }
 
+     public void testPrefixLocalName()throws Exception{
+         loadFile("prefix_test.xml");
+     }
+
 
     public void loadFile(String file) throws Exception{
 
-        XmlObject.Factory.parse(JarUtil.getResourceFromJarasStream("xbean/xmlobject/japanese/"+file));
+        XmlObject.Factory.parse(JarUtil.
+                getResourceFromJarasStream("xbean/xmlobject/japanese/"+file));
 
     }
 

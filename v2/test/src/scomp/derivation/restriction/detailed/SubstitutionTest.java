@@ -38,10 +38,9 @@ public class SubstitutionTest extends BaseCase
                  "</foo:ChoiceElt>"
                 );
                 try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }
@@ -59,10 +58,9 @@ public class SubstitutionTest extends BaseCase
                  "</foo:PantSizeElt>"
                 );
                 try {
-            assertTrue(doc.validate());
+            assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
-            doc.validate(validateOptions);
             showErrors();
             throw t;
         }

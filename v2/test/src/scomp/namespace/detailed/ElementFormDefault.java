@@ -54,6 +54,8 @@ public class ElementFormDefault extends BaseCase {
 
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-
+        String[] errExpected = new String[]{"cvc-attribute"};
+             assertTrue(compareErrorCodes(errExpected));
+                
     }
 }

@@ -23,30 +23,30 @@ import scomp.common.BaseCase;
  * Date: Jul 21, 2004
  * Time: 10:17:02 AM
  */
-public class SimpleContentRestrictionTest extends BaseCase{
-    public void testLegalValues() throws Throwable{
-        SimpleRestrictionEltDocument doc=SimpleRestrictionEltDocument.Factory.newInstance();
-        SimpleRestrictionT elt=doc.addNewSimpleRestrictionElt();
+public class SimpleContentRestrictionTest extends BaseCase {
+    public void testLegalValues() throws Throwable {
+        SimpleRestrictionEltDocument doc = SimpleRestrictionEltDocument.Factory.newInstance();
+        SimpleRestrictionT elt = doc.addNewSimpleRestrictionElt();
         elt.setIntValue(3);
-          try {
-            assertTrue( doc.validate());
-        }
-        catch (Throwable t) {
-            doc.validate(validateOptions);
+        try {
+            assertTrue(doc.validate(validateOptions));
+        } catch (Throwable t) {
             showErrors();
-           throw t;
+            throw t;
         }
 
     }
-     public void testIllegalValues() throws Throwable{
-        SimpleRestrictionEltDocument doc=SimpleRestrictionEltDocument.Factory.newInstance();
-        SimpleRestrictionT elt=doc.addNewSimpleRestrictionElt();
+
+    public void testIllegalValues() throws Throwable {
+        SimpleRestrictionEltDocument doc = SimpleRestrictionEltDocument.Factory.newInstance();
+        SimpleRestrictionT elt = doc.addNewSimpleRestrictionElt();
         elt.setIntValue(5);
 
-            assertTrue( !doc.validate());
+        assertTrue(!doc.validate(validateOptions));
 
-            doc.validate(validateOptions);
-            showErrors();
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
 
     }

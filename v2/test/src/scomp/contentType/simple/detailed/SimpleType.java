@@ -22,22 +22,27 @@ import xbean.scomp.contentType.simpleType.PantSizeEltDocument;
  * Date: Jul 16, 2004
  * Time: 3:30:02 PM
  */
-public class SimpleType extends BaseCase{
-      public void testPattern() throws Throwable{
-          PantSizeEltDocument size= PantSizeEltDocument.Factory.newInstance();
-          size.setPantSizeElt(16);
-          //size> max inclusive
-          assertTrue (! size.validate(validateOptions) );
-          showErrors();
-          size.setPantSizeElt(-1);
-          showErrors();
-          assertTrue (! size.validate(validateOptions) );
+public class SimpleType extends BaseCase {
+    public void testPattern() throws Throwable {
+        PantSizeEltDocument size = PantSizeEltDocument.Factory.newInstance();
+        size.setPantSizeElt(16);
+        //size> max inclusive
+        assertTrue(!size.validate(validateOptions));
+        showErrors();
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
 
-           size.setPantSizeElt(14);
-             try {
+        size.setPantSizeElt(-1);
+        showErrors();
+        assertTrue(!size.validate(validateOptions));
+        errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
+
+        size.setPantSizeElt(14);
+        try {
             assertTrue(size.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }

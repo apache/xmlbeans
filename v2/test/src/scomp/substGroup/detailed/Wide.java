@@ -28,10 +28,10 @@ import java.math.BigInteger;
  * Date: Jul 29, 2004
  * Time: 3:31:59 PM
  */
-public class Wide extends BaseCase{
+public class Wide extends BaseCase {
 
-      public void testValidSubstParse() throws Throwable {
-        String input=
+    public void testValidSubstParse() throws Throwable {
+        String input =
                 "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Wide\"" +
                 " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
                 "<pre:businessshirt>" +
@@ -41,71 +41,70 @@ public class Wide extends BaseCase{
                 " <color>white</color>" +
                 "</pre:businessshirt>" +
                 "<base:product>" +
-                  " <number>SKU45</number>" +
+                " <number>SKU45</number>" +
                 "   <name>Accessory</name>" +
                 "</base:product>" +
                 "<pre:beachumbrella diameter=\"1.43\">" +
-                   " <number>SKU15</number>" +
+                " <number>SKU15</number>" +
                 "   <name>Umbrella</name>" +
                 "</pre:beachumbrella>" +
                 "</base:items>";
-          ItemsDocument doc = ItemsDocument.Factory.parse(input);
-         try {
+        ItemsDocument doc = ItemsDocument.Factory.parse(input);
+        try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
 
     }
+
     /**
      * Test error message. 1 product too many
+     *
      * @throws Throwable
      */
-     public void testValidSubstParseInvalid() throws Throwable {
-         String input=
+    public void testValidSubstParseInvalid() throws Throwable {
+        String input =
                 "<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Wide\"" +
                 " xmlns:base=\"http://xbean/scomp/substGroup/Deep\">" +
-                  "<pre:businessshirt>" +
+                "<pre:businessshirt>" +
                 " <number>SKU25</number>" +
                 " <name>Oxford Shirt</name>" +
                 " <size>12</size>" +
                 " <color>blue</color>" +
                 "</pre:businessshirt>" +
                 "<base:product>" +
-                  " <number>SKU45</number>" +
+                " <number>SKU45</number>" +
                 "   <name>Accessory</name>" +
                 "</base:product>" +
                 "<pre:beachumbrella diameter=\"1.43\">" +
-                   " <number>SKU15</number>" +
+                " <number>SKU15</number>" +
                 "   <name>Umbrella</name>" +
                 "</pre:beachumbrella>" +
-                   "<pre:baseballhat TeamName=\"Mariners\">" +
-                   " <number>SKU15</number>" +
+                "<pre:baseballhat TeamName=\"Mariners\">" +
+                " <number>SKU15</number>" +
                 "   <name>Umbrella</name>" +
                 "</pre:baseballhat>" +
                 "</base:items>";
-          ItemsDocument doc = ItemsDocument.Factory.parse(input);
-         try {
-            assertTrue( !doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
-            showErrors();
-            throw t;
-        }
-     }
+        ItemsDocument doc = ItemsDocument.Factory.parse(input);
+
+        assertTrue(!doc.validate(validateOptions));
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
+    }
 
     public void testValidSubstBuild() throws Throwable {
         ItemsDocument doc = ItemsDocument.Factory.newInstance();
         ItemType items = doc.addNewItems();
-        BusinessShirtType bShirt=BusinessShirtType.Factory.newInstance();
+        BusinessShirtType bShirt = BusinessShirtType.Factory.newInstance();
         bShirt.setName("Funny Shirt");
         bShirt.setNumber("SKU84");
         bShirt.setSize(new BigInteger("10"));
         bShirt.setColor("blue");
 
-        BeachUmbrellaT  bu=BeachUmbrellaT.Factory.newInstance();
+        BeachUmbrellaT bu = BeachUmbrellaT.Factory.newInstance();
         bu.setName("Beach umbrella");
         bu.setNumber("SKU-BU");
         bu.setDiameter(1.4f);
@@ -113,17 +112,19 @@ public class Wide extends BaseCase{
         ProductType genericProd = ProductType.Factory.newInstance();
         genericProd.setName("Pants");
         genericProd.setNumber("32");
-        items.setProductArray(new ProductType[]{bShirt,bu,genericProd});
+        items.setProductArray(new ProductType[]{bShirt, bu, genericProd});
         //shirt must be white
-         assertTrue(!doc.validate());
+        assertTrue(!doc.validate(validateOptions));
+        String[] errExpected = new String[]{"cvc-attribute"};
+        assertTrue(compareErrorCodes(errExpected));
+
 
         //TODO: is the object being copied? Should this change the color?
-         bShirt.setColor("white");
+        bShirt.setColor("white");
 
         try {
             assertTrue(doc.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
