@@ -695,7 +695,7 @@
                  common.classes, typeimpl.classes, xmlcomp.classes,
                  xmlstore.classes,
                  oldxbean.jar, xsdschema.classes,
-                 xmlinputstream.classes">
+                 xmlinputstream.classes, xbean_xpath.jar">
     <jar jarfile="build/lib/xbean.jar" index="true">
       <fileset dir="build/classes/xmlpublic"/>
       <fileset dir="build/classes/typestore"/>
