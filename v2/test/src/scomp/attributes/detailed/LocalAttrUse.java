@@ -183,7 +183,9 @@ public class LocalAttrUse extends BaseCase {
         assertTrue(!elt.validate(validateOptions));
         showErrors();
         //does Kevin have the right code here? doesn't seem so to me?
-        String[] errExpected = new String[]{"WHAT TO EXPECT???"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 

@@ -98,11 +98,14 @@ public class ComplexContentExtensionTest extends BaseCase {
         assertEquals(new BigInteger("10"), elt.getChild1());
         assertEquals("foobar", elt.getChild2Array()[0]);
         elt.unsetChild1();
+        elt.removeExtraEltInt(0);
         elt.removeChild2(0);
+        clearErrors();
         try {
             assertTrue(doc.validate(validateOptions));
         }
         catch (Throwable t) {
+            System.out.println(" test failed :");
             showErrors();
             throw t;
         }

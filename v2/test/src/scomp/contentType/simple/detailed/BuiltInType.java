@@ -59,7 +59,8 @@ public class BuiltInType extends BaseCase {
                 "</StringElt>"
                 , doc.xmlText());
 
-        NormalizedStringEltDocument doc1 = NormalizedStringEltDocument.Factory.parse(buildString("NormalizedStringElt", false));
+        NormalizedStringEltDocument doc1 = NormalizedStringEltDocument.Factory
+                .parse(buildString("NormalizedStringElt", false));
         assertTrue(doc.validate(validateOptions));
         assertEquals("<NormalizedStringElt" +
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/String\">" +

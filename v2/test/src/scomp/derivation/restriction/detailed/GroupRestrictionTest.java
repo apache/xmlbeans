@@ -46,7 +46,8 @@ public class GroupRestrictionTest extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
-            "cvc-attribute"};
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -111,7 +112,9 @@ public class GroupRestrictionTest extends BaseCase {
         elt.setB("bar");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -131,7 +134,9 @@ public class GroupRestrictionTest extends BaseCase {
         elt.addB("bar");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }

@@ -4,6 +4,7 @@
     targetNamespace="http://xbean/scomp/derivation/AttributeWCExtension"
     xmlns:base="http://xbean/scomp/namespace/AttributeWC"
     xmlns:simple="http://xbean/scomp/attribute/GlobalAttrDefault"
+    attributeFormDefault="qualified"
     >
 
     <xsd:import namespace="http://xbean/scomp/attribute/GlobalAttrDefault"
@@ -12,7 +13,7 @@
     <xsd:complexType name="BaseNoWCT">
         <xsd:complexContent>
             <xsd:extension base="simple:GlobalAttrDefaultT">
-                <xsd:anyAttribute namespace="##local" processContents="strict"/>
+                <xsd:anyAttribute namespace="##targetNamespace" processContents="strict"/>
             </xsd:extension>
         </xsd:complexContent>
     </xsd:complexType>

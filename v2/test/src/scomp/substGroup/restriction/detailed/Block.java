@@ -155,7 +155,10 @@ public class Block extends BaseCase {
         }
     }
 
-    //should not be able to use Beach umbrella instead of umbrella
+    /*
+    * even though umbrella has subst. blocked, beachumbrella
+    * is a valid product substitution
+    */
     public void testBlockSubst() throws Throwable {
         ItemsDocument doc = ItemsDocument.Factory.newInstance();
         ItemType items = doc.addNewItems();
@@ -164,11 +167,14 @@ public class Block extends BaseCase {
         bu.setNumber("324");
         bu.setName("Beach umbrella");
         items.setProductArray(new ProductType[]{bu});
-        System.out.println(doc.xmlText());
-        assertTrue(!doc.validate(validateOptions));
-        showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
-        assertTrue(compareErrorCodes(errExpected));
+         try {
+            clearErrors();
+            assertTrue(doc.validate(validateOptions));
+        }
+        catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
 
 
         doc = ItemsDocument.Factory.parse("<base:items xmlns:pre=\"http://xbean/scomp/substGroup/Block\"" +

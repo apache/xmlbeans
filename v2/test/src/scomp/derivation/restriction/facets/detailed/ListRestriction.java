@@ -170,6 +170,7 @@ public class ListRestriction extends BaseCase {
         vals.add(new Integer(154));
         vals.add(new Integer(156));
         vals.add(new Integer(918));
+
         vals.add(new Integer(342));
         doc.setPatternElt(vals);
         try {

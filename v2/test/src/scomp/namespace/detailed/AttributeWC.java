@@ -88,7 +88,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
-             XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID
         };
         assertTrue(compareErrorCodes(errExpected));
 
@@ -99,7 +99,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         errExpected = new String[]{
-             XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID
         };
         assertTrue(compareErrorCodes(errExpected));
 
@@ -168,7 +168,7 @@ public class AttributeWC extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
-            XmlErrorCodes.ASSESS_ATTR_SCHEMA_VALID$NOT_RESOLVED
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID
         };
         assertTrue(compareErrorCodes(errExpected));
 
@@ -359,7 +359,7 @@ public class AttributeWC extends BaseCase {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/AttributeWC\"" +
-                " foo:LocalAttr=\"2\"/>");
+                " NoNSAttr=\"2\"/>");
         if (!doc.validate(validateOptions)) {
             showErrors();
             fail("test failed");

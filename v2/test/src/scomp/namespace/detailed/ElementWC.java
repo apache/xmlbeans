@@ -20,9 +20,7 @@ import xbean.scomp.namespace.elementWC.*;
 
 import javax.xml.namespace.QName;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.*;
 
 /**
  * @owner: ykadiysk
@@ -248,17 +246,18 @@ public class ElementWC extends BaseCase {
 
     }
 
-    //replacement elements MAY be in the current target NS, not *must*
+    //replacement elements MUST be in the
+    //  current target NS
     public void testTargetLaxLegal() throws Throwable {
         TargetLaxDocument doc = TargetLaxDocument.Factory
                 .parse("<foo:TargetLax" +
                 " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                "<child/></foo:TargetLax>");
+                "<foo:LocalElt>2</foo:LocalElt></foo:TargetLax>");
         if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
-        XmlObject[] arr=doc.getTargetLax().selectChildren("","child");
-        assertEquals(arr[0].schemaType(),XmlObject.type);
+        XmlObject[] arr=doc.getTargetLax().selectChildren("http://xbean/scomp/namespace/ElementWC","LocalElt");
+        assertEquals(arr[0].schemaType(),XmlInt.type);
     }
 
     //no such element in the NS
@@ -396,7 +395,7 @@ public class ElementWC extends BaseCase {
         LocalStrictDocument doc = LocalStrictDocument.Factory
                 .parse("<foo:LocalStrict " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                "<LocalElt>2</LocalElt></foo:LocalStrict>");
+                "<NoNSElt>2</NoNSElt></foo:LocalStrict>");
         if (!doc.validate(validateOptions)) {
             showErrors();
             fail("test failed");
