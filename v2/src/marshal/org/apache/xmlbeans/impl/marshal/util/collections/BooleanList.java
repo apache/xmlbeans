@@ -41,15 +41,6 @@ public final class BooleanList
     }
 
     /**
-     get array used as backing store.  do not modify this array.
-     effeciency wins here vs. safety.
-     */
-    public boolean[] getStore()
-    {
-        return store;
-    }
-
-    /**
      get a new array just large enough to hold the items
      */
     public boolean[] getMinSizedArray()

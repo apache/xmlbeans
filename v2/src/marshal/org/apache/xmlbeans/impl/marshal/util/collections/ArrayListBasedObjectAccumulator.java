@@ -31,16 +31,10 @@ public final class ArrayListBasedObjectAccumulator
         super(component_type, initial_capacity, return_collection);
     }
 
-
     public ArrayListBasedObjectAccumulator(Class component_type,
                                            int initial_capacity)
     {
-        super(component_type, initial_capacity);
-    }
-
-    public ArrayListBasedObjectAccumulator(Class component_type)
-    {
-        super(component_type);
+        this(component_type, initial_capacity, true);
     }
 
     protected Collection createNewStore(int capacity)

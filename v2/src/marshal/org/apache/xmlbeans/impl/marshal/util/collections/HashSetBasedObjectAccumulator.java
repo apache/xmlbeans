@@ -23,25 +23,11 @@ import java.util.HashSet;
 public final class HashSetBasedObjectAccumulator
     extends ObjectAccumulator
 {
-    private static final boolean ASSERT = false;
-
-
-    public HashSetBasedObjectAccumulator(Class component_type,
-                                         int initial_capacity,
-                                         boolean return_collection)
-    {
-        super(component_type, initial_capacity, return_collection);
-    }
 
     public HashSetBasedObjectAccumulator(Class component_type,
                                          int initial_capacity)
     {
-        super(component_type, initial_capacity);
-    }
-
-    public HashSetBasedObjectAccumulator(Class component_type)
-    {
-        super(component_type);
+        super(component_type, initial_capacity, true);
     }
 
     protected Collection createNewStore(int capacity)

@@ -97,6 +97,9 @@ public abstract class BindingProperty
         if (getSetterName() != null) {
             getSetterName().write(node.addNewSetter());
         }
+        if (getIssetterName() != null) {
+            getIssetterName().write(node.addNewIssetter());
+        }
         if (getCollectionClass() != null)
             node.setCollection(getCollectionClass().toString());
 

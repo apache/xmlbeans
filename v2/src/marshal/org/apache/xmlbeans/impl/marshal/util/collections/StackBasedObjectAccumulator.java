@@ -24,22 +24,9 @@ public final class StackBasedObjectAccumulator
     extends ObjectAccumulator
 {
     public StackBasedObjectAccumulator(Class component_type,
-                                       int initial_capacity,
-                                       boolean return_collection)
-    {
-        super(component_type, initial_capacity, return_collection);
-    }
-
-
-    public StackBasedObjectAccumulator(Class component_type,
                                        int initial_capacity)
     {
-        super(component_type, initial_capacity);
-    }
-
-    public StackBasedObjectAccumulator(Class component_type)
-    {
-        super(component_type);
+        super(component_type, initial_capacity, true);
     }
 
     protected Collection createNewStore(int capacity)

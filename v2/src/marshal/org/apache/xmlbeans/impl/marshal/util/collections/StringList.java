@@ -42,15 +42,6 @@ public final class StringList
         store = new String[initial_capacity];
     }
 
-    /**
-     get array used as backing store.  do not modify this array.
-     effeciency wins here vs. safety.
-     */
-    public String[] getStore()
-    {
-        return store;
-    }
-
     public Object getFinalArray()
     {
         return getMinSizedArray();
@@ -81,7 +72,8 @@ public final class StringList
         add((String)o);
     }
 
-    public void clear() {
+    public void clear()
+    {
         Arrays.fill(store, null);
         size = 0;
     }

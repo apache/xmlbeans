@@ -40,15 +40,6 @@ public final class FloatList
         store = new float[initial_capacity];
     }
 
-    /**
-     get array used as backing store.  do not modify this array.
-     effeciency wins here vs. safety.
-     */
-    public float[] getStore()
-    {
-        return store;
-    }
-
     public Object getFinalArray()
     {
         return getMinSizedArray();

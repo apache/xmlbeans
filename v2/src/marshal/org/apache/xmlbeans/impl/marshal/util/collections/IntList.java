@@ -38,20 +38,10 @@ public final class IntList
         store = new int[initial_capacity];
     }
 
-    /**
-     get array used as backing store.  do not modify this array.
-     effeciency wins here vs. safety.
-     */
-    public int[] getStore()
-    {
-        return store;
-    }
-
     public Object getFinalArray()
     {
         return getMinSizedArray();
     }
-
 
     /**
      get a new array just large enough to hold the items

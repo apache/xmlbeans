@@ -23,22 +23,11 @@ import java.util.TreeSet;
 public final class TreeSetBasedObjectAccumulator
     extends ObjectAccumulator
 {
-    public TreeSetBasedObjectAccumulator(Class component_type,
-                                         int initial_capacity,
-                                         boolean return_collection)
-    {
-        super(component_type, initial_capacity, return_collection);
-    }
 
     public TreeSetBasedObjectAccumulator(Class component_type,
                                          int initial_capacity)
     {
-        super(component_type, initial_capacity);
-    }
-
-    public TreeSetBasedObjectAccumulator(Class component_type)
-    {
-        super(component_type);
+        super(component_type, initial_capacity, true);
     }
 
     protected Collection createNewStore(int capacity)
