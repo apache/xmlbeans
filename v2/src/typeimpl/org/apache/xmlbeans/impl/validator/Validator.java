@@ -1516,7 +1516,8 @@ public final class Validator
 
     private void addToList(SchemaType type)
     {
-        if (type.getSimpleVariety() != SchemaType.ATOMIC)
+        if (type.getSimpleVariety() != SchemaType.ATOMIC &&
+            type.getSimpleVariety() != SchemaType.UNION)
             return;
 
         if (type.getUnionMemberTypes().length>0 && getUnionType()!=null)
@@ -1672,6 +1673,27 @@ public final class Validator
         _localAttribute = null;
     }
 
+    /**
+     * @return Returns the SchemaType of the current element.
+     * This can be different than getCurrentElement().getType() if xsi:type attribute is used.
+     * Null is returned if no schema type is available.
+     * For attribute types use {@link #getCurrentAttribute()}.getType().
+     * Warning: the returned SchemaType can be an {@link org.apache.xmlbeans.XmlBeans#NO_TYPE},
+     * see {@link SchemaType#isNoType}. Or can be the parent type, for unrecognized elements
+     * that are part of wildcards.
+     */
+    public SchemaType getCurrentElementSchemaType ( )
+    {
+        State state = topState();
+        if (state!=null)
+            return state._type;
+
+        return null;
+    }
+
+    /**
+     * @return Returns the curent local element, null if one is not available, see {@link #getCurrentWildcardElement()}.
+     */
     public SchemaLocalElement getCurrentElement ( )
     {
         if (_localElement != null)
@@ -1690,16 +1712,27 @@ public final class Validator
         return null;
     }
 
+    /**
+     * @return Returns the current particle, if this is a wildcard particle {@link SchemaParticle#WILDCARD}
+     * method {@link #getCurrentElement()} might return null if wildcard's processContents is skip or lax.
+     */
     public SchemaParticle getCurrentWildcardElement()
     {
         return _wildcardElement;
     }
 
+    /**
+     * @return Returns the curent local attribute, global attribute if the current attribute is part of an
+     * attribute wildcard, or null if none is available.
+     */
     public SchemaLocalAttribute getCurrentAttribute()
     {
         return _localAttribute;
     }
 
+    /**
+     * @return Returns the attribute model for attributes if available, else null is returned.
+     */
     public SchemaAttributeModel getCurrentWildcardAttribute()
     {
         return _wildcardAttribute;
