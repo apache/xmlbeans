@@ -1,0 +1,58 @@
+<project name='jam' default='all' >
+
+<!-- Build file to build and run JAM tests -->
+
+  <property name='src-jamtest' value='.' />
+  <property name='xbean-build-dir' value='../../../build'/>
+  <property name='build-dir' value='${xbean-build-dir}/test/jamtest'/>
+  <property name='junit-jar' value='../../../external/lib/junit.jar' />
+
+  <path id='classpath' >
+
+ <!-- prefer build/classes to jar just for develpment convenience -->
+    <pathelement path='../../../build/classes' />
+
+    <pathelement path='../../../build/lib/xbean.jar' />
+    <pathelement location='${build-dir}' />
+    <pathelement location='${junit-jar}'/>
+    <pathelement path='${java.class.path}' />
+  </path>
+
+  <property name='classpath-value' refid='classpath'/>
+
+  <target name='all' depends='build,run' />
+  
+  <target name='build' >
+    <mkdir dir='${build-dir}'/>
+    <javac
+       srcdir='tests'
+       destdir='${build-dir}'
+       classpathref='classpath'
+       includes='**/*.java'
+     />
+  </target>
+
+  <target name='run'>
+
+<!--
+    <java fork='yes' classname='junit.textui.TestRunner' classpathref='extra-classpath'>
+      <arg line='jamtest.SimpleTest' />
+    </java>
+-->
+
+    <junit fork='yes'
+           dir='.'
+           haltonerror='yes'
+           haltonfailure='yes'
+           showoutput='yes'
+           printsummary='yes'>
+      <classpath>
+        <pathelement path='${classpath-value}'/> <!--ref no workie-->
+      </classpath>
+      <formatter type='plain' usefile='false'/>
+      <test name='org.apache.xmlbeans.test.jam.JamTests'/>
+    </junit>
+  </target>
+
+</project>
+

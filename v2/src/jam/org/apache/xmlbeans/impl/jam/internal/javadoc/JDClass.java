@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.internal.JClassHelper;
 import org.apache.xmlbeans.impl.jam.internal.JPropertyImpl;
+import org.apache.xmlbeans.impl.jam.internal.ObjectJClass;
 
 /**
  * javadoc-backed implementation of JClass.
@@ -88,7 +89,12 @@ public class JDClass extends JDMember implements JClass {
     if (isObject() || isInterface() || isPrimitive()) {
       return null;
     } else {
-      return JDClassLoader.getClassFor(mClass.superclass(),mLoader);
+      ClassDoc sclass = mClass.superclass();
+      if (sclass == null) {
+        return ObjectJClass.getInstance();
+      } else {
+        return JDClassLoader.getClassFor(sclass,mLoader);
+      }
     }
   }
 
