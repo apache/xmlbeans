@@ -19,7 +19,7 @@
             <xs:element name="time" type="xs:long" minOccurs="0" maxOccurs="1"/>
             <xs:element name="memory" type="xs:long" minOccurs="0" maxOccurs="1"/>
             <xs:element name="hash" type="xs:int" maxOccurs="1"/>
-            <xs:element name="note" type="xs:string"/>
+            <xs:element name="note" type="xs:string" minOccurs="0" maxOccurs="1"/>
 						<xs:element name="custom" type="perf:custom" maxOccurs="unbounded"/>
         </xs:sequence>
     </xs:complexType>
@@ -37,6 +37,7 @@
             <xs:element name="os" type="xs:string"/>
             <xs:element name="jvm" type="xs:string"/>
 						<xs:element name="date" type="xs:dateTime"/>
+						<xs:element name="note" type="xs:string" minOccurs="0" maxOccurs="1"/>
         </xs:sequence>
     </xs:complexType>
 

@@ -106,7 +106,7 @@ public class Constants
   
   // memory scenario values
   public static final int MEM_INTERVAL = 100000;
-  public static final int MEM_INITIALSIZE = 4000000;
+  public static final int MEM_INITIALSIZE = 2000000;
   
   // netui config xsd for real-world example
   public static final String NETUI_CONFIG_INSTANCE = XSD_DIR+P+"netui-config.xml";

@@ -59,7 +59,7 @@ call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor wide-text
 call v1.bat MaxMemUntypedBisLoadV1 memory 128 flavor wide-text
 call v1.bat MaxMemUntypedBisLoadV1 memory 256 flavor wide-text
 call v1.bat MaxMemUntypedBisLoadV1 memory 512 flavor wide-text
-call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor wide-text
+call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor wide-elements
 call v1.bat MaxMemUntypedBisLoadV1 memory 128 flavor wide-elements
 call v1.bat MaxMemUntypedBisLoadV1 memory 256 flavor wide-elements
 call v1.bat MaxMemUntypedBisLoadV1 memory 512 flavor wide-elements
