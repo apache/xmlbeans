@@ -712,20 +712,6 @@ final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static CDATASection _document_createCDATASection ( Dom d, String data )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public static Dom document_createCDATASection ( Dom d, String data )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-    //////////////////////////////////////////////////////////////////////////////////////
-
     public static Comment _document_createComment ( Dom d, String data )
     {
         Locale l = d.locale();
@@ -796,6 +782,29 @@ final class DomImpl
         c.release();
 
         return pi;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public static CDATASection _document_createCDATASection ( Dom d, String data )
+    {
+        return (CDATASection) document_createCDATASection( d, data );
+    }
+    
+    public static Dom document_createCDATASection ( Dom d, String data )
+    {
+        TextNode t = d.locale().createCdataNode();
+
+        if (data == null)
+            data = "";
+
+        t._src = data;
+        t._off = 0;
+        t._cch = data.length();
+
+        return t;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2928,7 +2937,7 @@ final class DomImpl
 
     public static String _processingInstruction_getData ( Dom p )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _node_getNodeValue( p );
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2937,7 +2946,7 @@ final class DomImpl
 
     public static String _processingInstruction_getTarget ( Dom p )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _node_getNodeName( p );
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -2946,7 +2955,7 @@ final class DomImpl
 
     public static void _processingInstruction_setData ( Dom p, String data )
     {
-        throw new RuntimeException( "Not implemented" );
+        _node_setNodeValue( p, data );
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
