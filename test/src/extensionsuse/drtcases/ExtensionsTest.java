@@ -17,15 +17,8 @@ package drtcases;
 import junit.framework.TestCase;
 import junit.framework.Test;
 import junit.framework.TestSuite;
-import junit.framework.Assert;
-import xsd.company.CompanyDocument;
-import xsd.company.CompanyType;
-import myPackage.Foo;
-import myPackage.Bar;
-import myPackage.FooHandler;
-import myPackage.FooHandler.PreBookmark;
-import myPackage.FooHandler.PostBookmark;
-import org.apache.xmlbeans.XmlCursor;
+import drtcases.prePostFeature.readOnlyBean.ReadOnlyTest;
+import drtcases.prePostFeature.ValueRestriction.ValueRestrictionTest;
 
 /**
  * Author: Cezar Andrei ( cezar.andrei at bea.com )
@@ -33,108 +26,22 @@ import org.apache.xmlbeans.XmlCursor;
  */
 public class ExtensionsTest extends TestCase
 {
-    public ExtensionsTest(String name) { super(name); }
-    public static Test suite() { return new TestSuite(ExtensionsTest.class); }
-
-    public void testInterfaces()
+    public ExtensionsTest(String name)
     {
-		String expected;
-		String actual;
-
-        CompanyDocument cDoc = CompanyDocument.Factory.newInstance();
-
-        CompanyType co = cDoc.addNewCompany();
-        co.setName2("xbean name");
-
-        expected = "xbean name";
-        actual = co.getName2();
-        Assert.assertTrue("Expected: " + expected + "\n  actual: " + actual, expected.equals(actual));
-
-        expected = "{name in FooHandler}";
-        actual = co.getName();
-        Assert.assertTrue("Expected: " + expected + "\n  actual: " + actual, expected.equals(actual));
-
-        Foo foo = cDoc;
-
-        expected = "{in FooHandler.handleFoo(s: param)}";
-        actual = foo.foo("param");
-        Assert.assertTrue("Expected: '" + expected + "'\n  actual: '" + actual +"'", expected.equals(actual));
-
-
-        Bar bar = null;
-
-        try
-        {
-            bar = cDoc;
-            byte[] ba = bar.bar("param for bar");
-
-			expected = "{in BarHandler.handleBar(s: param for bar)}";
-			actual = new String(bar.bar("param for bar"));
-			Assert.assertTrue("Expected: " + expected + "\n  actual: " + actual, expected.equals(actual));
-        }
-        catch (Bar.MyException e)
-        {
-            Assert.assertTrue(false);
-        }
-
-        try
-        {
-            bar.bar(null);
-            Assert.assertTrue(false);
-        }
-        catch( Bar.MyException e)
-        {
-            Assert.assertTrue(true);
-        }
+        super(name);
     }
 
-    public void testPrePost()
+    public static Test suite()
     {
-        String expected;
-        String actual;
-        XmlCursor xc;
+        TestSuite suite = new TestSuite();
 
-        CompanyDocument cDoc = CompanyDocument.Factory.newInstance();
+        suite.addTest(SimpleTest.suite());
+        suite.addTest(AverageCaseTest.suite());
+        suite.addTest(FixedAttrTest.suite());
+        suite.addTest(MultInterfacesTest.suite());
+        suite.addTest(ReadOnlyTest.suite());
+        suite.addTest(ValueRestrictionTest.suite());
 
-        // add new
-        CompanyType co = cDoc.addNewCompany();
-
-        xc = cDoc.newCursor();
-        PreBookmark prebk = (PreBookmark)xc.getBookmark(PreBookmark.class);
-
-        expected = "{preSet in FooHandler: 2, <xml-fragment></xml-fragment>, {company.xsd}company, false, -1}";
-        actual = prebk.getMsg();
-        Assert.assertTrue("Expected: " + expected + "\n  actual: " + actual, expected.equals(actual));
-
-
-
-        PostBookmark postbk = (PostBookmark)xc.getBookmark(PostBookmark.class);
-
-        expected = "{postSet in FooHandler: 2, " + cDoc + ", {company.xsd}company, false, -1}";
-        actual = postbk.getMsg();
-        Assert.assertTrue("Expected: " + expected + "\n  actual: " + actual, expected.equals(actual));
-
-        xc.dispose();
-
-
-        // set
-        co.setName2("xbean name");
-
-        xc = co.newCursor();
-        prebk = (PreBookmark)xc.getBookmark(PreBookmark.class);
-
-        expected = "{preSet in FooHandler: 1, <xml-fragment/>, name, true, -1}";
-        actual = prebk.getMsg();
-        Assert.assertTrue("Expected: " + expected + "\n  actual: " + actual, expected.equals(actual));
-
-
-
-        postbk = (PostBookmark)xc.getBookmark(PostBookmark.class);
-
-        expected = "{postSet in FooHandler: 1, " + co + ", name, true, -1}";
-        actual = postbk.getMsg();
-        Assert.assertTrue("Expected: " + expected + "\n  actual: " + actual, expected.equals(actual));
-
-        xc.dispose();
+        return suite;
     }
 }
