@@ -32,6 +32,8 @@ import java.util.Map;
  */
 public class ByNameBean extends BindingType
 {
+  private static final long serialVersionUID = 1L;
+
 
   // ========================================================================
   // Variables
@@ -130,6 +132,14 @@ public class ByNameBean extends BindingType
   {
     visitor.visit(this);
   }
+
+    public String toString()
+    {
+        return "org.apache.xmlbeans.impl.binding.bts.ByNameBean{" +
+            super.toString() + "-" +
+            "props=" + (props == null ? null : "size:" + props.size() + props) +
+            "}";
+    }
 
 
 }

@@ -22,6 +22,7 @@ import org.apache.xmlbeans.XmlException;
  */
 public class SimpleDocumentBinding extends BindingType
 {
+  private static final long serialVersionUID = 1L;
 
   // ========================================================================
   // Variables
