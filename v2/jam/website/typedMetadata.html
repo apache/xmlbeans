@@ -64,14 +64,15 @@ will remain a problem.
 </p>
 
 <p>
-The problem is that these new, wonderful strongly-typed annotation 
-structures are interfaces, as opposed concrete classes.  
+The root of this problem is that these new, wonderful 
+strongly-typed annotation structures are interfaces, as opposed
+concrete classes.  
 </p>
 
 <h3>Divergent APIs</h3>
 
 <p>
-Why is this a problem?  To answer that, a quick perusal of the 1.5
+Why is that a problem?  To answer that, a quick perusal of the 1.5
 JDK documentation is informative.  Notice <code>java.lang.Class</code>, 
 you can get instances of <code>java.lang.annotation.Annotation</code>.  
 However, if you look at the 1.5 Javadoc Doclet API, you will see that
@@ -163,7 +164,6 @@ annotation which would probably look something like this:
 
 <pre>
   package com.special;
-<!--
   /**
    * This class is defined by the author to act as a proxy to instances
    * ot the SpecialId annotation.  Though the author is largely free
@@ -183,7 +183,6 @@ annotation which would probably look something like this:
    * firm requirement if you're willing to do a little extra work - see
    * the TypedAnnotationProxyBase javadocs for details).
    */
--->
   public class SpecialIdProxy extends TypedAnnotationProxyBase {
     public SpecialIdProxy() {}              // a public no-arg constructor is required
     public int id() { return mId;}          // just like the 175 annotation method
@@ -300,9 +299,9 @@ package com.random.user;
 import com.special.SpecialId;
 
 /**
- * This is some random user code.
- * @SpecialId(id = 42)
+ * This is some random user code compiled with 1.5 javac.
  */
+@SpecialId(id = 42)
 protected abstract class RandomUserCode {}
 </pre>  
 
@@ -399,7 +398,7 @@ source file:
 package com.stubborn.user;
 
 /**
- * This is code from someone who simply will not upgrade to 1.4.
+ * This is code from someone who simply will not upgrade to 1.5.
  *
  * @special id=79
  */
@@ -414,8 +413,8 @@ everything together in our code so that the behavior is the same.  Right?
 </p>
 
 <p>
-Wrong - fortunately, JAM can be a big help in this case as well.  To support
-this use case, we only need to add one new line (in bold) to our
+Wrong, fortunately.  JAM can be a big help in this case as well.  To support
+this javadoc tag, we only need to add one new line (in bold) to our
 SpecialIdViewer tool:
 </p>
 
@@ -428,10 +427,10 @@ public class SpecialIdViewer {
   {
 ...
     // Establish a mapping between the 175 annotation type and our proxy
-    params.mapAnnotationProxy(SpecialIdProxy.class, "com.special.SpecialId");
+    params.register175AnnotationProxy(SpecialIdProxy.class, "com.special.SpecialId");
 
-    // Also establish a mapping between the 'special tag and our proxy
-    <b>params.mapJavadocTagProxy(SpecialIdProxy.class, "special");</b>
+    // Also establish a mapping between the '@special' javadoc tag and our proxy
+    <b>params.registerJavadocTagProxymapJavadocTagProxy(SpecialIdProxy.class, "special");</b>
 ...
   }
 </pre>
@@ -463,7 +462,9 @@ the same code works in all of the different scenarios we have seen: with
 source files, with class files, with 175-style annotations, or with javadoc
 annotations.  You don't have to waste time worrying about how your 
 metadata and type information is going to get represented or parsed.
-If you write against JAM, it just works.
+JAM lets you hide all of this away so you can focus on the real problems
+your your application is trying to solve.
+
 </p>
 
 

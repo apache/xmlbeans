@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.binding.tylar;
 import java.net.URI;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam_old.JClassLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 

@@ -3,7 +3,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JComment;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
@@ -179,7 +179,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   // ========================================================================
   // Protect methods
 
-  protected void visitAnnotations(ElementVisitor visitor) {
+  protected void visitAnnotations(MElementVisitor visitor) {
     MAnnotation[] anns = getEditableAnnotations();
     for(int i=0; i<anns.length; i++) visitor.visit(anns[i]);
     if (mComment != null) visitor.visit(mComment);

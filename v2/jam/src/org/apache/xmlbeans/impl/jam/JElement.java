@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam;
 
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 
 /**
  * <p>Interface implemented by JAM abstractions which can have
@@ -79,7 +79,7 @@ public abstract interface JElement {
   /**
    * <p>Accepts the given visitor.</p>
    */
-  public void accept(ElementVisitor visitor);
+  public void accept(MElementVisitor visitor);
 
   /**
    * <p>Calls accept() with the given visitor, and then recursively calls
@@ -106,7 +106,7 @@ public abstract interface JElement {
    *
    * </p>
    */
-  public void acceptAndWalk(ElementVisitor visitor);
+  public void acceptAndWalk(MElementVisitor visitor);
 
   /**
    * <p>This is not something you want to mess with.  It's here only for the

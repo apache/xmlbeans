@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRefContext;
@@ -177,11 +177,11 @@ public class ClassImpl extends MemberImpl implements MClass,
     return new JClass[0];//FIXME
   }
 
-  public void accept(ElementVisitor visitor) {
+  public void accept(MElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(ElementVisitor visitor) {
+  public void acceptAndWalk(MElementVisitor visitor) {
     accept(visitor);
     acceptAndWalkAll(visitor,getEditableFields());
     acceptAndWalkAll(visitor,getEditableConstructors());

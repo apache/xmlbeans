@@ -15,12 +15,12 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JServiceFactory;
-import org.apache.xmlbeans.impl.jam.JService;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JServiceParams;
-import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
+import org.apache.xmlbeans.impl.jam_old.JClass;
+import org.apache.xmlbeans.impl.jam_old.JServiceFactory;
+import org.apache.xmlbeans.impl.jam_old.JService;
+import org.apache.xmlbeans.impl.jam_old.JClassLoader;
+import org.apache.xmlbeans.impl.jam_old.JServiceParams;
+import org.apache.xmlbeans.impl.jam_old.internal.PrimitiveJClass;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlRuntimeException;
 

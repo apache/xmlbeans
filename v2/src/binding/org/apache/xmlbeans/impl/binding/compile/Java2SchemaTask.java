@@ -18,9 +18,9 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JFactory;
-import org.apache.xmlbeans.impl.jam.JFileSet;
+import org.apache.xmlbeans.impl.jam_old.JClass;
+import org.apache.xmlbeans.impl.jam_old.JFactory;
+import org.apache.xmlbeans.impl.jam_old.JFileSet;
 
 import java.io.File;
 import java.io.IOException;
@@ -123,7 +123,7 @@ public class Java2SchemaTask extends BindingCompilerTask {
     while(st.hasMoreTokens()) fs.include(st.nextToken().trim());
     String classpathString = null;
     if (mClasspath != null) {
-      //this will be removed after jam factory is refactored
+      //this will be removed after jam_old factory is refactored
       fs.setClasspath(classpathString = mClasspath.toString());
     }
     final JClass[] classes;

@@ -15,8 +15,8 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.jam.JMethod;
-import org.apache.xmlbeans.impl.jam.JParameter;
+import org.apache.xmlbeans.impl.jam_old.JMethod;
+import org.apache.xmlbeans.impl.jam_old.JParameter;
 import org.apache.xml.xmlbeans.bindingConfig.JavaMethodName;
 
 import java.lang.reflect.Method;

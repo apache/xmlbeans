@@ -16,8 +16,6 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.jam.JMethod;
-import org.apache.xml.xmlbeans.bindingConfig.JavaMethodName;
 
 /**
  * Represents a property.  Every property corresponds to a

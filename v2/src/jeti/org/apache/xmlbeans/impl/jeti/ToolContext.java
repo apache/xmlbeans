@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jeti;
 
-import org.apache.xmlbeans.impl.jam.JServiceFactory;
+import org.apache.xmlbeans.impl.jam_old.JServiceFactory;
 import org.apache.xmlbeans.impl.jeti.parameter.ParameterService;
 import org.apache.xmlbeans.impl.jeti.output.OutputService;
 import org.apache.xmlbeans.impl.jeti.logging.LoggingService;

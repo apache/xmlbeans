@@ -20,8 +20,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
 import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JFactory;
+import org.apache.xmlbeans.impl.jam_old.JClassLoader;
+import org.apache.xmlbeans.impl.jam_old.JFactory;
 import org.apache.xmlbeans.*;
 
 import java.io.File;
@@ -203,7 +203,7 @@ public abstract class BindingCompiler extends BindingLogger
         BuiltinBindingLoader.getInstance();
     if (mBaseTylar == null) return builtin;
     BindingLoader[] loaders = new BindingLoader[]
-    { mBaseTylar.getBindingLoader(), mBuiltinBindingLoader };
+    { mBaseTylar.getBindingLoader(), builtin };
     return CompositeBindingLoader.forPath(loaders);
   }
 

@@ -17,8 +17,8 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
+import org.apache.xmlbeans.impl.jam_old.*;
+import org.apache.xmlbeans.impl.jam_old.internal.BaseJElement;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
@@ -98,7 +98,7 @@ public class Java2Schema extends BindingCompiler {
     if (jal == null) throw new IllegalArgumentException("null jal");
     mAnnotationLoader = jal;
     //FIXME this is a gross quick hack to get the external annotations
-    //working.  long term, we need to extend jam to allow a jam facade to be
+    //working.  long term, we need to extend jam_old to allow a jam_old facade to be
     //created that imposes the annotations without actually modifying the
     //input JClasses like we do here.
     for(int i=0; i<mClasses.length; i++) {
@@ -299,7 +299,7 @@ public class Java2Schema extends BindingCompiler {
   /**
    * Returns the string value of a named annotation, or the provided default
    * if the annotation is not present.
-   * REVIEW seems like having this functionality in jam would be nice
+   * REVIEW seems like having this functionality in jam_old would be nice
    */
   private String getAnnotation(JElement elem, String annName, String dflt) {
     JAnnotation ann = elem.getAnnotation(annName);
@@ -309,7 +309,7 @@ public class Java2Schema extends BindingCompiler {
   /**
    * Returns the boolean value of a named annotation, or the provided default
    * if the annotation is not present.
-   * REVIEW seems like having this functionality in jam would be nice
+   * REVIEW seems like having this functionality in jam_old would be nice
    */
   private boolean getAnnotation(JElement elem, String annName, boolean dflt) {
     JAnnotation ann = elem.getAnnotation(annName);

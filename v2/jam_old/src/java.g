@@ -14,12 +14,12 @@
 
 header {
 
-package org.apache.xmlbeans.impl.jam.internal.parser.generated;
+package org.apache.xmlbeans.impl.jam_old.internal.parser.generated;
 
-import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.parser.ParamStructPool;
-import org.apache.xmlbeans.impl.jam.editable.*;
-import org.apache.xmlbeans.impl.jam.editable.impl.*;
+import org.apache.xmlbeans.impl.jam_old.*;
+import org.apache.xmlbeans.impl.jam_old.internal.parser.ParamStructPool;
+import org.apache.xmlbeans.impl.jam_old.editable.*;
+import org.apache.xmlbeans.impl.jam_old.editable.impl.*;
 import java.util.*;
 import java.io.StringWriter;
 import java.lang.reflect.Modifier;

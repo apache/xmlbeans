@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
@@ -64,11 +64,11 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
     return mProxy.getClass().getName(); //FIXME
   }
 
-  public void accept(ElementVisitor visitor) {
+  public void accept(MElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(ElementVisitor visitor) {
+  public void acceptAndWalk(MElementVisitor visitor) {
     visitor.visit(this);
   }
 
