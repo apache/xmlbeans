@@ -236,9 +236,9 @@ final class MarshalStreamUtils
     }
 
 
-    public static boolean isXsiNilTrue(XMLStreamReader reader,
-                                       int att_idx,
-                                       Collection errors)
+    private static boolean isXsiNilTrue(XMLStreamReader reader,
+                                        int att_idx,
+                                        Collection errors)
     {
         final String lname = reader.getAttributeLocalName(att_idx);
         if (!XSI_NIL_ATTR.equals(lname))

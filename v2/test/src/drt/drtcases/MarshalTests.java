@@ -171,9 +171,9 @@ public class MarshalTests extends TestCase
         options.setErrorListener(errors);
 
         Unmarshaller umctx =
-            bindingContext.createUnmarshaller(options);
+            bindingContext.createUnmarshaller();
 
-        Object obj = umctx.unmarshal(xrdr);
+        Object obj = umctx.unmarshal(xrdr, options);
 
 
         //special case date/time tests.
@@ -354,8 +354,8 @@ public class MarshalTests extends TestCase
         StringReader sr = new StringReader(sw.getBuffer().toString());
         XMLStreamReader rdr =
             XMLInputFactory.newInstance().createXMLStreamReader(sr);
-        Unmarshaller umctx = bindingContext.createUnmarshaller((new XmlOptions()));
-        Object out_obj = umctx.unmarshal(rdr);
+        Unmarshaller umctx = bindingContext.createUnmarshaller();
+        Object out_obj = umctx.unmarshal(rdr, options);
         Assert.assertEquals(mc, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }
@@ -395,9 +395,9 @@ public class MarshalTests extends TestCase
         inform("16Doc=" + new String(buf, encoding));
 
         //now unmarshall from String and compare objects...
-        Unmarshaller umctx = bindingContext.createUnmarshaller((new XmlOptions()));
+        Unmarshaller umctx = bindingContext.createUnmarshaller();
         final ByteArrayInputStream bais = new ByteArrayInputStream(buf);
-        Object out_obj = umctx.unmarshal(bais);
+        Object out_obj = umctx.unmarshal(bais, options);
         Assert.assertEquals(mc, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }
@@ -468,8 +468,8 @@ public class MarshalTests extends TestCase
 //                return;
 //            }
 
-            Unmarshaller umctx = bindingContext.createUnmarshaller(options);
-            out_obj = umctx.unmarshalType(reader, schemaType, javaType);
+            Unmarshaller umctx = bindingContext.createUnmarshaller();
+            out_obj = umctx.unmarshalType(reader, schemaType, javaType, options);
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
@@ -478,6 +478,165 @@ public class MarshalTests extends TestCase
         Assert.assertEquals(top_obj, out_obj);
         inform("milliseconds: " + diff + " trials: " + trials);
         inform("milliseconds PER trial: " + (diff / (double)trials));
+    }
+
+
+    public void testThreadedRoundtripPerf()
+        throws Exception
+    {
+        //crank up these numbers to see real perf testing
+        //the test still has some value aside from perf
+        //in that it can test large stack depths.
+        final int trials = 20;
+        final int depth = 3;
+        final int thread_cnt = 5;
+        final int boolean_array_size = 3;
+
+        Random rnd = new Random();
+
+        com.mytest.MyClass top_obj = new com.mytest.MyClass();
+
+        com.mytest.MyClass curr = top_obj;
+
+        boolean[] bools = createRandomBooleanArray(rnd, boolean_array_size);
+
+        for (int i = 0; i < depth; i++) {
+            com.mytest.YourClass myelt = new com.mytest.YourClass();
+            myelt.setAttrib(rnd.nextFloat());
+            myelt.setMyFloat(rnd.nextFloat());
+            myelt.setBooleanArray(bools);
+            final com.mytest.MyClass my_c = new com.mytest.MyClass();
+            myelt.setMyClass(my_c);
+            curr.setMyelt(myelt);
+            curr.setMyatt("STR" + rnd.nextInt());
+            curr = my_c;
+        }
+
+        //inform("top_obj = " + top_obj);
+
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+
+        final String javaType = "com.mytest.MyClass";
+        final QName schemaType = new QName("java:com.mytest", "MyClass");
+        final QName elem_name = new QName("java:com.mytest", "load");
+        final String class_name = top_obj.getClass().getName();
+
+        final Marshaller msh = bindingContext.createMarshaller();
+        Assert.assertNotNull(msh);
+        final Unmarshaller umsh = bindingContext.createUnmarshaller();
+        Assert.assertNotNull(umsh);
+
+        Object out_obj = null;
+        final XmlOptions options = new XmlOptions();
+        final LinkedList errors = new LinkedList();
+        options.setErrorListener(errors);
+
+        final long before_millis = System.currentTimeMillis();
+
+        RoundTripRunner[] runners = new RoundTripRunner[thread_cnt];
+        for(int i = 0 ; i < thread_cnt ; i++) {
+            runners[i] = new RoundTripRunner(top_obj, msh, umsh, elem_name,
+                                             schemaType, class_name, javaType, options, trials);
+        }
+
+        inform("starting " + thread_cnt + " threads...");
+
+        for(int i = 0 ; i < thread_cnt ; i++) {
+            runners[i].start();
+        }
+
+        inform("joining " + thread_cnt + " threads...");
+
+        for(int i = 0 ; i < thread_cnt ; i++) {
+            runners[i].join();
+        }
+
+        inform("joined " + thread_cnt + " threads.");
+
+
+
+        final long after_millis = System.currentTimeMillis();
+        final long diff = (after_millis - before_millis);
+//        inform(" perf_out_obj = " + top_obj);
+        Assert.assertTrue(errors.isEmpty());
+        //Assert.assertEquals(top_obj, out_obj);
+        inform("milliseconds: " + diff + " trials: " + trials +
+               " threads=" + thread_cnt);
+        inform("milliseconds PER trial: " + (diff / (double)trials));
+        inform("milliseconds PER roundtrip: " + (diff / ((double)trials*thread_cnt)));
+    }
+
+    private static Object doRoundTrip(MyClass top_obj,
+                                      final Marshaller msh,
+                                      final Unmarshaller umsh,
+                                      final QName elem_name,
+                                      final QName schemaType,
+                                      final String class_name,
+                                      final String javaType,
+                                      final XmlOptions options)
+        throws XmlException
+    {
+        Object out_obj;
+        final XMLStreamReader reader =
+            msh.marshalType(top_obj, elem_name,
+                            schemaType,
+                            class_name, options);
+
+        out_obj = umsh.unmarshalType(reader, schemaType, javaType);
+        return out_obj;
+    }
+
+    private static class RoundTripRunner extends Thread
+    {
+        private final MyClass top_obj;
+        private final Marshaller msh;
+        private final Unmarshaller umsh;
+        private final QName elem_name;
+        private final QName schemaType;
+        private final String class_name;
+        private final String javaType;
+        private final XmlOptions options;
+        private final int trials;
+
+
+        public RoundTripRunner(MyClass top_obj,
+                               Marshaller msh,
+                               Unmarshaller umsh,
+                               QName elem_name,
+                               QName schemaType,
+                               String class_name,
+                               String javaType,
+                               XmlOptions options,
+                               int trials)
+        {
+            this.top_obj = top_obj;
+            this.msh = msh;
+            this.umsh = umsh;
+            this.elem_name = elem_name;
+            this.schemaType = schemaType;
+            this.class_name = class_name;
+            this.javaType = javaType;
+            this.options = options;
+            this.trials = trials;
+        }
+
+        public void run()
+        {
+            final int t = trials;
+            try {
+                Object out_obj = null;
+                for (int i = 0; i < t; i++) {
+                    out_obj = doRoundTrip(top_obj, msh,
+                                                 umsh, elem_name,
+                                                 schemaType, class_name,
+                                                 javaType, options);
+                }
+                Assert.assertEquals(top_obj, out_obj);
+            }
+            catch (XmlException xe) {
+                throw new AssertionError(xe);
+            }
+        }
     }
 
     private boolean[] createRandomBooleanArray(Random rnd, int size)
@@ -536,8 +695,8 @@ public class MarshalTests extends TestCase
                             class_name, options);
 
         Unmarshaller umctx =
-            bindingContext.createUnmarshaller(options);
-        out_obj = umctx.unmarshalType(reader, schemaType, javaType);
+            bindingContext.createUnmarshaller();
+        out_obj = umctx.unmarshalType(reader, schemaType, javaType, options);
         inform(" out_obj = " + top_obj);
         Assert.assertEquals(top_obj, out_obj);
         Assert.assertTrue(errors.isEmpty());
@@ -594,8 +753,8 @@ public class MarshalTests extends TestCase
         options.setErrorListener(errors);
 
         Unmarshaller um_ctx =
-            bindingContext.createUnmarshaller(options);
-        Object obj = um_ctx.unmarshal(xrdr);
+            bindingContext.createUnmarshaller();
+        Object obj = um_ctx.unmarshal(xrdr, options);
 
         inform("doc2-obj = " + obj);
 
@@ -620,8 +779,8 @@ public class MarshalTests extends TestCase
         options.setErrorListener(errors);
 
         Unmarshaller um_ctx =
-            bindingContext.createUnmarshaller(options);
-        Object obj = um_ctx.unmarshal(new FileInputStream(doc));
+            bindingContext.createUnmarshaller();
+        Object obj = um_ctx.unmarshal(new FileInputStream(doc), options);
 
         inform("doc2-obj = " + obj);
 
@@ -651,14 +810,14 @@ public class MarshalTests extends TestCase
         final XmlOptions xmlOptions = new XmlOptions();
         Collection errors = new LinkedList();
         xmlOptions.setErrorListener(errors);
-        Unmarshaller ctx = bindingContext.createUnmarshaller(xmlOptions);
+        Unmarshaller ctx = bindingContext.createUnmarshaller();
 
         //this is not very safe but it should work...
         while (!xrdr.isStartElement()) {
             xrdr.next();
         }
 
-        Object obj = ctx.unmarshalType(xrdr, schemaType, javaType);
+        Object obj = ctx.unmarshalType(xrdr, schemaType, javaType, xmlOptions);
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
             inform("ERROR: " + itr.next());
         }
@@ -698,9 +857,9 @@ public class MarshalTests extends TestCase
             XMLStreamReader xrdr =
                 xmlInputFactory.createXMLStreamReader(cr);
             Unmarshaller umctx =
-                bindingContext.createUnmarshaller(xmlOptions);
+                bindingContext.createUnmarshaller();
 
-            Object obj = umctx.unmarshal(xrdr);
+            Object obj = umctx.unmarshal(xrdr, xmlOptions);
 
             if ((i % 1000) == 0) {
                 String s = obj.toString().substring(0, 70);

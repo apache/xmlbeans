@@ -143,8 +143,8 @@ final class ClassLoadingUtils
     //TODO: make sure we don't have a another version of this method somewhere
     //compname holds return value
     //return int is number of dimensions of array
-    public static int getArrayComponentNameFromDecl(StringBuffer compname,
-                                                    String aname)
+    private static int getArrayComponentNameFromDecl(StringBuffer compname,
+                                                     String aname)
     {
         compname.setLength(0);
 

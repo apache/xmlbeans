@@ -83,10 +83,7 @@ final class MarshallerImpl
     //per binding context constants
     private final BindingLoader loader;
     private final RuntimeBindingTypeTable typeTable;
-
-    //TODO: this needs to be moved into the binding context
-    private final RuntimeTypeFactory runtimeTypeFactory =
-        new RuntimeTypeFactory();
+    private final RuntimeTypeFactory runtimeTypeFactory;
 
     //REVIEW: can this be static?
     private final XMLOutputFactory xmlOutputFactory =
@@ -94,11 +91,13 @@ final class MarshallerImpl
 
     private static final String XML_VERSION = "1.0";
 
-    MarshallerImpl(BindingLoader loader,
-                   RuntimeBindingTypeTable typeTable)
+    public MarshallerImpl(BindingLoader loader,
+                          RuntimeBindingTypeTable typeTable,
+                          RuntimeTypeFactory runtimeTypeFactory)
     {
         this.loader = loader;
         this.typeTable = typeTable;
+        this.runtimeTypeFactory = runtimeTypeFactory;
     }
 
     public XMLStreamReader marshal(Object obj,

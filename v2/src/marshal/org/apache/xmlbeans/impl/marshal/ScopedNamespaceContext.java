@@ -271,7 +271,7 @@ final class ScopedNamespaceContext
             return prefix;
         }
 
-        protected final LLNamespaceContext getPredecessor()
+        final LLNamespaceContext getPredecessor()
         {
             return predecessor;
         }
@@ -298,8 +298,8 @@ final class ScopedNamespaceContext
             return result.iterator();
         }
 
-        protected static final Set getPrefixSet(String namespace,
-                                                LLNamespaceContext context)
+        static final Set getPrefixSet(String namespace,
+                                      LLNamespaceContext context)
         {
             final Stack reversed = new Stack();
             LLNamespaceContext current = context;

@@ -89,6 +89,7 @@ final class ByNameRuntimeBindingType
     private final boolean isSubType;
 
 
+    //DO NOT CALL THIS CONSTRUCTOR, use the RuntimeTypeFactory
     ByNameRuntimeBindingType(ByNameBean btype)
     {
         byNameBean = btype;
@@ -333,20 +334,20 @@ final class ByNameRuntimeBindingType
         }
 
         private TypeUnmarshaller lookupUnmarshaller(BindingProperty prop,
-                                                    RuntimeBindingTypeTable typeTable,
-                                                    BindingLoader bindingLoader)
+                                                    RuntimeBindingTypeTable table,
+                                                    BindingLoader loader)
         {
             assert prop != null;
             final BindingTypeName type_name = prop.getTypeName();
             assert type_name != null;
-            final BindingType binding_type =
-                bindingLoader.getBindingType(type_name);
+            final BindingType binding_type = loader.getBindingType(type_name);
             if (binding_type == null) {
                 throw new XmlRuntimeException("failed to load type: " +
                                               type_name);
             }
 
-            TypeUnmarshaller um = typeTable.getTypeUnmarshaller(binding_type);
+            TypeUnmarshaller um =
+                table.getOrCreateTypeUnmarshaller(binding_type, loader);
             if (um == null) {
                 throw new AssertionError("failed to get unmarshaller for " +
                                          type_name);
@@ -414,7 +415,7 @@ final class ByNameRuntimeBindingType
         {
             //means xsi:nil was true but we're a primtive.
             //schema should have nillable="false" so this
-            //is a validation problems
+            //is a validation problem
             if (prop_obj == null && javaPrimitive)
                 return;
 
@@ -459,29 +460,17 @@ final class ByNameRuntimeBindingType
             }
         }
 
-        //non simple type props can throw some runtime exception.
         public CharSequence getLexical(Object value, MarshalResult result)
         {
+            assert value != null :
+                "null value for " + bindingProperty + " class=" + beanClass;
 
-            //TODO: after marshalling table is refactored
-            //turn these into assertions   zieg Dec 19 2003.
+            assert  result != null :
+                "null value for " + bindingProperty + " class=" + beanClass;
 
-            if (value == null) {
-                throw new AssertionError("null value for " + bindingProperty +
-                                         " class=" + beanClass);
-            }
-
-            if (result == null) {
-                throw new AssertionError("null value for " + bindingProperty +
-                                         " class=" + beanClass);
-            }
-
-            if (marshaller == null) {
-                String msg = "null marshaller for prop=" + bindingProperty +
-                    " class=" + beanClass + " propType=" +
-                    bindingProperty.getTypeName();
-                throw new AssertionError(msg);
-            }
+            assert marshaller != null :
+                "null marshaller for prop=" + bindingProperty + " class=" +
+                beanClass + " propType=" + bindingProperty.getTypeName();
 
             return marshaller.print(value, result);
         }

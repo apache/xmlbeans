@@ -191,22 +191,14 @@ final class UnmarshalResult
 
 
     private Object unmarshalBindingType(BindingType bindingType)
-        throws XmlException
     {
-        final TypeUnmarshaller um =
-            typeTable.getTypeUnmarshaller(bindingType);
-
-        if (um == null) {
-            throw new XmlException("failed to lookup unmarshaller for " + bindingType);
-        }
-
-        assert (baseReader != null);
+        TypeUnmarshaller um =
+            typeTable.getOrCreateTypeUnmarshaller(bindingType, bindingLoader);
 
         this.updateAttributeState();
 
         return um.unmarshal(this);
     }
-
 
     Object unmarshalType(XMLStreamReader reader,
                          QName schemaType,
