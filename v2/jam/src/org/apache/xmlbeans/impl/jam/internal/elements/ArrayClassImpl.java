@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JProperty;
 
 import java.io.StringWriter;
+import java.util.StringTokenizer;
 
 
 /**
@@ -74,6 +75,36 @@ public final class ArrayClassImpl extends BuiltinClassImpl {
       return new ArrayClassImpl(primType,dims);
     }
   }
+
+  /**
+   * Returns the normal form for a given array name.  This is a trimmed,
+   * unspaced field descriptor, e.g. '[[[Ljava.lang.String;' for a three
+   * dimensional array of strings.  This method will also normalize
+   * understands declaration-style array names, e.g. 'java.lang.String[][][]'.
+   */
+  public static String normalizeArrayName(String declaration) {
+    //REVIEW should we worry about internal spaces?
+    if (declaration.startsWith("[")) return declaration;
+    if (declaration.endsWith("]")) {
+      int bracket = declaration.indexOf('[');
+      if (bracket != -1) {
+        String typeName = declaration.substring(0,bracket);
+        String fd = PrimitiveClassImpl.getPrimitiveClassForName(typeName);
+        if (fd == null) fd = 'L'+typeName+';';
+        StringWriter out = new StringWriter();
+        do {
+          out.write('[');
+          bracket = declaration.indexOf('[',bracket+1);
+        } while(bracket != -1);
+        out.write(fd);
+        return out.toString();
+      }
+    }
+    throw new IllegalArgumentException("'"+declaration+
+                                       "' does not name an array");
+  }
+
+
 
   // ========================================================================
   // Constructors - use factory method
