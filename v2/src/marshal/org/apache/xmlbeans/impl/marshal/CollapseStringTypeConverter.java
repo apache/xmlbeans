@@ -34,6 +34,13 @@ final class CollapseStringTypeConverter
     {
     }
 
+
+    public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
+    {
+        return context.getAttributeStringValue(XmlWhitespace.WS_COLLAPSE);
+    }
+
     protected Object getObject(UnmarshalResult context)
         throws XmlException
     {

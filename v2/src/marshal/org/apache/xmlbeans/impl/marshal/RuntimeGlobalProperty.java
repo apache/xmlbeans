@@ -60,11 +60,6 @@ final class RuntimeGlobalProperty
         return rootElement;
     }
 
-    public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
-    {
-        throw new UnsupportedOperationException();
-    }
-
     public void fill(Object inter, Object prop_obj)
         throws XmlException
     {

@@ -198,14 +198,6 @@ abstract class AttributeRuntimeBindingType
             assert prop.isAttribute();
         }
 
-
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
-            throws XmlException
-        {
-            assert bindingProperty.isAttribute();
-            //don't need any xsi stuff for attributes.
-            return runtimeBindingType.getUnmarshaller();
-        }
     }
 
 

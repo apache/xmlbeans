@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.JavaInstanceFactory;
 import org.apache.xmlbeans.impl.binding.bts.MethodName;
 import org.apache.xmlbeans.impl.binding.bts.ParentInstanceFactory;
@@ -113,7 +112,8 @@ abstract class RuntimeBindingProperty
                                            Object inter)
         throws XmlException
     {
-        final TypeUnmarshaller um = this.getTypeUnmarshaller(context);
+        final RuntimeBindingType rtt = getRuntimeBindingType();
+        final TypeUnmarshaller um = rtt.getUnmarshaller();
         assert um != null;
 
         try {
@@ -124,7 +124,7 @@ abstract class RuntimeBindingProperty
                 if (parentFactoryMethodTakesClassArg) {
                     this_val =
                         createObjectViaFactory(actual_obj,
-                                               getRuntimeBindingType().getJavaType());
+                                               rtt.getJavaType());
                 } else {
                     this_val = createObjectViaFactory(actual_obj);
                 }
@@ -150,48 +150,27 @@ abstract class RuntimeBindingProperty
             if (lexical_default != null) {
                 context.setNextElementDefault(lexical_default);
             }
+            final RuntimeBindingType actual_rtt =
+                context.determineActualRuntimeType(getRuntimeBindingType());
             final Object this_val;
             if (hasFactory()) {
-                final TypeUnmarshaller um;
-                final Class actual_prop_class;
-                final QName xsi_type = context.getXsiType();
-                if (xsi_type == null) {
-                    //REVIEW: we're doing a little extra work here
-                    um = this.getTypeUnmarshaller(context);
-                    actual_prop_class =
-                        this.getRuntimeBindingType().getJavaType();
-                } else {
-                    final BindingType actual_binding_type =
-                        context.lookupBindingType(xsi_type);
-                    if (actual_binding_type != null) {
-                        um = context.getTypeUnmarshaller(actual_binding_type);
-                        actual_prop_class =
-                            context.getRuntimeType(actual_binding_type).getJavaType();
-                    } else {
-                        um = this.getTypeUnmarshaller(context);
-                        actual_prop_class =
-                            this.getRuntimeBindingType().getJavaType();
-                    }
-                }
-                if (um == null) {
-                    //there was a big problem looking up the type,
-                    //so just skip this element
-                    context.skipElement();
-                    return;
-                }
                 final Object actual_obj =
                     containingType.getObjectFromIntermediate(inter);
                 if (parentFactoryMethodTakesClassArg) {
                     this_val = createObjectViaFactory(actual_obj,
-                                                      actual_prop_class);
+                                                      actual_rtt.getJavaType());
                 } else {
-                    //TODO: avoid some of the lookups if we know we have this kind
-                    //of factory
                     this_val = createObjectViaFactory(actual_obj);
                 }
-                um.unmarshal(this_val, context);
+                actual_rtt.getUnmarshaller().unmarshal(this_val, context);
             } else {
-                this_val = this.getTypeUnmarshaller(context).unmarshal(context);
+                final TypeUnmarshaller um;
+                if (context.hasXsiNil()) {
+                    um = NullUnmarshaller.getInstance();
+                } else {
+                    um = actual_rtt.getUnmarshaller();
+                }
+                this_val = um.unmarshal(context);
             }
             fill(inter, this_val);
         }
@@ -229,10 +208,6 @@ abstract class RuntimeBindingProperty
     //these methods should be used only by this type and subclasses
     protected abstract void fill(Object inter, Object prop_obj)
         throws XmlException;
-
-    protected abstract TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
-        throws XmlException;
-
 
     protected boolean hasFactory()
     {

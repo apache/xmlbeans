@@ -34,6 +34,12 @@ final class PreserveStringTypeConverter
     {
     }
 
+    public Object unmarshalAttribute(UnmarshalResult context)
+        throws XmlException
+    {
+        return context.getAttributeStringValue(XmlWhitespace.WS_PRESERVE);
+    }
+
     protected Object getObject(UnmarshalResult context) throws XmlException
     {
         return context.getStringValue(XmlWhitespace.WS_PRESERVE);

@@ -105,11 +105,6 @@ final class ListArrayRuntimeBindingType
             throw new UnsupportedOperationException("no name");
         }
 
-        public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
-            throws XmlException
-        {
-            return itemType.getUnmarshaller();
-        }
 
         public void fill(Object inter, Object prop_obj)
             throws XmlException

@@ -88,7 +88,7 @@ final class UnmarshalResult
         this.errors = BindingContextImpl.extractErrorHandler(options);
     }
 
-    RuntimeBindingType getRuntimeType(BindingType type)
+    private RuntimeBindingType getRuntimeType(BindingType type)
         throws XmlException
     {
         return typeTable.createRuntimeType(type, bindingLoader);
@@ -112,28 +112,19 @@ final class UnmarshalResult
         }
     }
 
-    //returns null and updates errors if there was a problem.
-    TypeUnmarshaller getTypeUnmarshaller(BindingType binding_type)
-        throws XmlException
-    {
-
-        final RuntimeBindingType rtt =
-            typeTable.createRuntimeType(binding_type, bindingLoader);
-        final TypeUnmarshaller um = rtt.getUnmarshaller();
-
-        if (um == null) {
-            String msg = "unable to locate unmarshaller for " +
-                binding_type.getName();
-            addError(msg);
-            return null;
-        }
-        return um;
-    }
-
-    BindingType lookupBindingType(QName xsi_type)
+    private BindingType lookupBindingType(QName xsi_type)
     {
         XmlTypeName xname = XmlTypeName.forTypeNamed(xsi_type);
-        return bindingLoader.getBindingType(bindingLoader.lookupPojoFor(xname));
+        final BindingTypeName btname = bindingLoader.lookupPojoFor(xname);
+        if (btname == null) {
+            addError("unknown type: " + xsi_type);
+            return null;
+        }
+        final BindingType binding_type = bindingLoader.getBindingType(btname);
+        if (binding_type == null) {
+            addError("unknown binding type: " + binding_type);
+        }
+        return binding_type;
     }
 
     private void addError(String msg)
@@ -778,7 +769,7 @@ final class UnmarshalResult
      * return the QName value found for xsi:type
      * or null if neither one was found
      */
-    QName getXsiType()
+    private QName getXsiType()
         throws XmlException
     {
         if (!gotXsiAttributes) {
@@ -788,7 +779,7 @@ final class UnmarshalResult
         return xsiAttributeHolder.xsiType;
     }
 
-    private boolean hasXsiNil() throws XmlException
+    boolean hasXsiNil() throws XmlException
     {
         if (!gotXsiAttributes) {
             getXsiAttributes();
@@ -989,29 +980,23 @@ final class UnmarshalResult
         return false;
     }
 
-    TypeUnmarshaller determineTypeUnmarshaller(TypeUnmarshaller base)
+    RuntimeBindingType determineActualRuntimeType(RuntimeBindingType expected)
         throws XmlException
     {
-        if (hasXsiNil())
-            return NullUnmarshaller.getInstance();
-
         final QName xsi_type = getXsiType();
 
         if (xsi_type != null) {
             final BindingType binding_type = lookupBindingType(xsi_type);
             if (binding_type != null) {
-                TypeUnmarshaller typed_um = getTypeUnmarshaller(binding_type);
-                if (typed_um != null)
-                    return typed_um;
-            } else {
-                addError("unknown type: " + xsi_type);
+                return typeTable.createRuntimeType(binding_type, bindingLoader);
             }
             //reaching here means some problem with extracting the
-            //unmarshaller for the xsi type, so just use the expected one
+            //BindingType for the xsi type, so just use the expected one
         }
 
-        return base;
+        return expected;
     }
+
 
     NamespaceContext getNamespaceContext()
     {
