@@ -278,16 +278,35 @@ public final class XsTypeConverter
     // ======================== boolean ========================
     public static boolean lexBoolean(CharSequence v, Collection errors)
     {
-        String val = v.toString();
-        if ("true".equals(val) || "1".equals(val)) {
-            return true;
-        } else if ("false".equals(val) || "0".equals(val)) {
-            return false;
-        } else {
-            String msg = "invalid boolean: " + val;
-            errors.add(XmlError.forMessage(msg));
-            return false;
+        switch (v.length()) {
+            case 1:  // "0" or "1"
+                final char c = v.charAt(0);
+                if ('0' == c) return false;
+                if ('1' == c) return true;
+                break;
+            case 4:  //"true"
+                if ('t' == v.charAt(0) &&
+                    'r' == v.charAt(1) &&
+                    'u' == v.charAt(2) &&
+                    'e' == v.charAt(3)) {
+                    return true;
+                }
+                break;
+            case 5:  //"false"
+                if ('f' == v.charAt(0) &&
+                    'a' == v.charAt(1) &&
+                    'l' == v.charAt(2) &&
+                    's' == v.charAt(3) &&
+                    'e' == v.charAt(4)) {
+                    return false;
+                }
+                break;
         }
+
+        //reaching here means an invalid boolean lexical
+        String msg = "invalid boolean: " + v;
+        errors.add(XmlError.forMessage(msg));
+        return false;
     }
 
     public static String printBoolean(boolean value)

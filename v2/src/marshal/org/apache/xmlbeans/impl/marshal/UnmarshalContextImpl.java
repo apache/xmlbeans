@@ -87,6 +87,8 @@ final class UnmarshalContextImpl
     private final XsiAttributeHolder xsiAttributeHolder =
         new XsiAttributeHolder();
     private boolean gotXsiAttributes;
+    private final TransientCharSequence transientCharSequence =
+        new TransientCharSequence();
 
     UnmarshalContextImpl(XMLStreamReader baseReader,
                          BindingLoader bindingLoader,
@@ -167,7 +169,9 @@ final class UnmarshalContextImpl
     CharSequence getElementText()
     {
         try {
-            return MarshalStreamUtils.getContent(baseReader, errors);
+            MarshalStreamUtils.getContent(transientCharSequence,
+                                          baseReader, errors);
+            return transientCharSequence;
         }
         catch (XMLStreamException e) {
             throw new XmlRuntimeException(e);

@@ -54,90 +54,81 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package com.mytest;
+package org.apache.xmlbeans.impl.marshal;
 
-public class YourClass
+final class TransientCharSequence
+    implements CharSequence
 {
-    private MyClass myClass;
-    private float myFloat;
-    private float attrib;
-    private boolean someBool;
+    private char[] chars;
+    private int count;
+    private static final int DEFAULT_BUFFER_SIZE = 1024;
 
-    public float getMyFloat()
+    //max buffer size we will reuse.
+    private static final int MAX_BUFFER_SIZE = 256 * 1024;
+
+    TransientCharSequence()
     {
-        return myFloat;
+        chars = new char[DEFAULT_BUFFER_SIZE];
     }
 
-    public void setMyFloat(float myFloat)
+    public int length()
     {
-        this.myFloat = myFloat;
+        return count;
     }
 
-    public MyClass getMyClass()
+    public char charAt(int index)
     {
-        return myClass;
+        assert index < count;
+        assert chars != null;
+        return chars[index];
     }
 
-    public void setMyClass(MyClass myClass)
+    public CharSequence subSequence(int start, int end)
     {
-        this.myClass = myClass;
-    }
-
-    public boolean isSomeBool()
-    {
-        return someBool;
-    }
-
-    public void setSomeBool(boolean someBool)
-    {
-        this.someBool = someBool;
-    }
-
-    /**
-     *  @xsdgen:attribute.name Attrib
-     */
-    public float getAttrib()
-    {
-        return attrib;
-    }
-
-    public void setAttrib(float attrib)
-    {
-        this.attrib = attrib;
-    }
-
-    public boolean equals(Object o)
-    {
-        if (this == o) return true;
-        if (!(o instanceof YourClass)) return false;
-
-        final YourClass yourClass = (YourClass)o;
-
-        if (attrib != yourClass.attrib) return false;
-        if (myFloat != yourClass.myFloat) return false;
-        if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
-
-        return true;
-    }
-
-    public int hashCode()
-    {
-        int result;
-        result = (myClass != null ? myClass.hashCode() : 0);
-        result = 29 * result + Float.floatToIntBits(myFloat);
-        result = 29 * result + Float.floatToIntBits(attrib);
-        return result;
+        assert end < count;
+        assert chars != null;
+        //we can optimize this later if this method is actually used.
+        return new String(chars, 0, count);
     }
 
     public String toString()
     {
-        return "com.mytest.YourClass{" +
-            "myClass=" + myClass +
-            ", myFloat=" + myFloat +
-            ", someBool=" + someBool +
-            ", attrib=" + attrib +
-            "}";
+        assert chars != null;
+        return new String(chars, 0, count);
     }
 
+    public void append(char[] src, int src_offset, int src_length)
+    {
+        assert chars != null;
+        final int new_len = count + src_length;
+        ensureCapacity(new_len);
+        System.arraycopy(src, src_offset, chars, count, src_length);
+        count = new_len;
+    }
+
+    public void clear()
+    {
+        count = 0;
+        if (chars.length > MAX_BUFFER_SIZE) {
+            chars = new char[DEFAULT_BUFFER_SIZE];
+        }
+    }
+
+
+    private void ensureCapacity(int requested)
+    {
+        assert requested >= 0;
+        
+        if (requested < chars.length) return;
+
+        int new_capacity = ((chars.length * 3) + 1) / 2;
+        if (requested > new_capacity) {
+            new_capacity = requested;
+        }
+
+        char new_chars[] = new char[new_capacity];
+        System.arraycopy(chars, 0, new_chars, 0, count);
+        chars = new_chars;
+    }
 
 }

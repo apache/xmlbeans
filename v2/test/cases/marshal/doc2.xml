@@ -12,9 +12,16 @@
         <n1:junk><a><b>fda</b></a></n1:junk>
         <n1:MyClass>
 <!--            <n1:Myelt></n1:Myelt>-->
-            <n1:Myatt>whatever</n1:Myatt>
+            <n1:Myatt>TheVeryImportant<!--            <n1:Myelt></n1:Myelt>-->Value</n1:Myatt>
         </n1:MyClass>
         <n1:MyFloat>5555.4443</n1:MyFloat>
+
+        <n1:SomeBool>fal<!-- ok -->se</n1:SomeBool>
+        <n1:SomeBool>false</n1:SomeBool>
+        <n1:SomeBool>true</n1:SomeBool>
+        <n1:SomeBool>0</n1:SomeBool>
+        <n1:SomeBool>1</n1:SomeBool>
+
     </n1:Myelt>
 
     <n1:Myatt>attval</n1:Myatt>
