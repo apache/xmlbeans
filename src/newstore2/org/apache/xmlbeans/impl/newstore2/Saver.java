@@ -2118,7 +2118,7 @@ abstract class Saver
 
                     while ( c._cchSrc > 0 )
                     {
-                        int cch = java.lang.Math.max( _buf.length, c._cchSrc );
+                        int cch = java.lang.Math.min( _buf.length, c._cchSrc );
 
                         CharUtil.getChars( _buf, 0, src, c._offSrc, cch );
 
