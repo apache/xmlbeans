@@ -187,10 +187,6 @@
     </junit>
   </target>
 
-  <target name="drtjam">
-    <ant dir='test/src/jamtest' target='all' inheritAll='false' />
-  </target>
-
   <target name="builddrt" depends="drt.jar, random.jar, eric"/>
 
   <target name="eric" depends="erictest.jar"/>
@@ -523,30 +519,6 @@
     </copy>
   </target>
 
-  <target name="jamdocs" depends="xbean">
-    <property name="docs.dir" value="build/docs" />
-    <delete dir="${docs.dir}" />
-    <mkdir dir="${docs.dir}" />
-    <javadoc packagenames="*" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="1.4" stylesheetfile="docs/stylesheet.css">
-      <fileset dir="src" includes="**/jam/*.java,**/jeti/**/*.java" casesensitive="yes">
-        <exclude name="**/*Test*" />
-      </fileset>
-      <link href="http://e-docs.bea.com/wls/docs81/javadocs/" />
-      <link href="http://java.sun.com/j2se/1.4.2/docs/api/" />
-      <link href="http://java.sun.com/j2ee/1.4/docs/api/" />
-      <link href="http://xml.apache.org/xerces-j/apiDocs/" />
-      <classpath>
-        <pathelement location="build/ar/xbean.jar" />
-      </classpath>
-    </javadoc>
-    <copy file="docs/xmlbeans.css" tofile="${docs.dir}/xmlbeans.css" />
-    <copy todir="${docs.dir}/guide">
-      <fileset dir="docs/guide" />
-    </copy>
-    <copy todir="${docs.dir}/images">
-      <fileset dir="docs/images" />
-    </copy>
-  </target>
 
   <!-- stream conformance tests ======================================= -->
 
@@ -780,63 +752,6 @@
     </javac>
 
   </target>
-
-  <!-- jam target =============================================== -->
-
-  <target name='jam' depends='jam.parser,jam.compile'/>
-
-  <property name='jam_gendir' value='build/generatedsrc'/>
-
-  <target name='jam.clean'>
-    <delete dir='build/classes/jam'/>
-    <delete dir='build/generatedsrc'/>
-  </target>
-
-  <target name="jam.parser.check">
-    <uptodate property="jam.parser.notRequired" targetfile="${jam_gendir}/JavaParser.java">
-      <srcfiles dir="src/jam" includes="java.g"/>
-    </uptodate>
-  </target>
-
-  <target name='jam.parser' depends="jam.parser.check" unless="jam.parser.notRequired">
-    <delete dir='${jam_gendir}'/>
-    <mkdir dir='${jam_gendir}'/>
-
-    <antlr outputdirectory='${jam_gendir}' target='src/jam/java.g'
-           debug='false'>
-       <classpath>
-         <pathelement location='external/lib/antlr.jar'/>
-         <pathelement path='${java.class.path}'/>
-         <pathelement path='build/classes'/>
-       </classpath>
-    </antlr>
-  </target>
-
-  <target name="jam.compile.check">
-     <uptodate property="jam.compile.notRequired" targetfile="build/classes/jam/.flagfile">
-        <srcfiles dir="${jam_gendir}" includes="**/*"/>
-        <srcfiles dir="src/jam" includes="**/*"/>
-     </uptodate>
-  </target>
-
-  <target name='jam.compile' depends='dirs, jam.parser, jam.compile.check'
-  	  unless="jam.compile.notRequired" >
-
-    <mkdir dir='build/classes/jam'/>
-
-    <javac srcdir='src/jam' destdir='build/classes/jam' source='1.4' debug='on'>
-      <src path='src/jam'/>
-      <src path='${jam_gendir}'/>
-      <classpath>
-        <pathelement location='external/lib/antlr.jar'/>
-        <pathelement path='${java.class.path}'/>
-        <pathelement path='build/classes'/>
-      </classpath>
-    </javac>
-
-    <touch file="build/classes/jam/.flagfile" />
-  </target>
-
   <!-- binding target =============================================== -->
 
   <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, xmlcomp.classes, jam, jsr173.jar">
@@ -1241,5 +1156,95 @@
     -->
 
 
+
+  <!-- jam targets ============================================== -->
+
+  <target name='jam' depends='jam.parser,jam.compile'/>
+
+  <property name='jam_gendir' value='build/generatedsrc'/>
+
+  <target name='jam.clean'>
+    <delete dir='build/classes/jam'/>
+    <delete dir='build/generatedsrc'/>
+  </target>
+
+  <target name="jam.parser.check">
+    <uptodate property="jam.parser.notRequired" targetfile="${jam_gendir}/JavaParser.java">
+      <srcfiles dir="src/jam" includes="java.g"/>
+    </uptodate>
+  </target>
+
+  <target name='jam.parser' depends="jam.parser.check" unless="jam.parser.notRequired">
+    <delete dir='${jam_gendir}'/>
+    <mkdir dir='${jam_gendir}'/>
+
+    <antlr outputdirectory='${jam_gendir}' target='src/jam/java.g'
+           debug='false'>
+       <classpath>
+         <pathelement location='external/lib/antlr.jar'/>
+         <pathelement path='${java.class.path}'/>
+         <pathelement path='build/classes'/>
+       </classpath>
+    </antlr>
+  </target>
+
+  <target name="jam.compile.check">
+     <uptodate property="jam.compile.notRequired" targetfile="build/classes/jam/.flagfile">
+        <srcfiles dir="${jam_gendir}" includes="**/*"/>
+        <srcfiles dir="src/jam" includes="**/*"/>
+     </uptodate>
+  </target>
+
+  <target name='jam.compile' depends='dirs, jam.parser, jam.compile.check'
+  	  unless="jam.compile.notRequired" >
+
+    <mkdir dir='build/classes/jam'/>
+
+    <javac srcdir='src/jam' destdir='build/classes/jam' source='1.4' debug='on'>
+      <src path='src/jam'/>
+      <src path='${jam_gendir}'/>
+      <classpath>
+        <pathelement location='external/lib/antlr.jar'/>
+        <pathelement path='${java.class.path}'/>
+        <pathelement path='build/classes'/>
+      </classpath>
+    </javac>
+
+    <touch file="build/classes/jam/.flagfile" />
+  </target>
+
+  <target name="drtjam">
+    <ant dir='test/src/jamtest' target='all' inheritAll='false' />
+  </target>
+
+  <target name="jamdocs" depends="xbean">
+    <property name="docs.dir" value="build/docs" />
+    <delete dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}" />
+    <javadoc packagenames="*" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="1.4" stylesheetfile="docs/stylesheet.css">
+      <fileset dir="src" includes="**/jam/*.java,**/jeti/**/*.java" casesensitive="yes">
+        <exclude name="**/*Test*" />
+      </fileset>
+      <link href="http://e-docs.bea.com/wls/docs81/javadocs/" />
+      <link href="http://java.sun.com/j2se/1.4.2/docs/api/" />
+      <link href="http://java.sun.com/j2ee/1.4/docs/api/" />
+      <link href="http://xml.apache.org/xerces-j/apiDocs/" />
+      <classpath>
+        <pathelement location="build/ar/xbean.jar" />
+      </classpath>
+    </javadoc>
+    <copy file="docs/xmlbeans.css" tofile="${docs.dir}/xmlbeans.css" />
+    <copy todir="${docs.dir}/guide">
+      <fileset dir="docs/guide" />
+    </copy>
+    <copy todir="${docs.dir}/images">
+      <fileset dir="docs/images" />
+    </copy>
+  </target>
+
+  <target name='jam.jars' depends='jam'>
+    <jar jarfile="build/jam.jar"    basedir="build/classes/jam"/>
+    <jar jarfile="build/jamsrc.jar" basedir="src/jam"/>
+  </target>
 
 </project>

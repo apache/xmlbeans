@@ -119,26 +119,16 @@ public abstract class BaseJElement implements JElement {
     return out;
   }
 
-  public final JComment[] getComments() {
-    if (mComments == null) {
-      List list = getTempList();
-      getLocalComments(list);
-      /*      if (mContext.getExtraMarkupStore() != null) {
-      mContext.getExtraMarkupStore().getComments(this,list);
-      }*/
-      if (list.size() == 0) {
-        mComments = NO_COMMENT;
-      } else {
-        mComments = new JComment[list.size()];
-        list.toArray(mComments);
-      }
-    }
-    return mComments; // FIXME do we need to return a copy?
-  }
 
   public final JAnnotation getAnnotation(String named) {
     JAnnotation[] anns = getAnnotations(named);
     return (anns.length == 0) ? null : anns[0];
+  }
+
+  public JComment getComment() {
+    JComment[] out = getComments();
+    if (out.length == 0) return null;
+    return out[0];
   }
 
   // ========================================================================
@@ -204,5 +194,26 @@ public abstract class BaseJElement implements JElement {
   public int hashCode() {
     return getQualifiedName().hashCode();
   }
+
+  // ========================================================================
+  // Deprecated method impls
+
+  public final JComment[] getComments() {
+    if (mComments == null) {
+      List list = getTempList();
+      getLocalComments(list);
+      /*      if (mContext.getExtraMarkupStore() != null) {
+      mContext.getExtraMarkupStore().getComments(this,list);
+      }*/
+      if (list.size() == 0) {
+        mComments = NO_COMMENT;
+      } else {
+        mComments = new JComment[list.size()];
+        list.toArray(mComments);
+      }
+    }
+    return mComments; // FIXME do we need to return a copy?
+  }
+
 
 }

@@ -137,7 +137,6 @@ public abstract class JamTestBase extends TestCase {
 
   private static final boolean VERBOSE = false;
 
-
   // ========================================================================
   // Variables
 

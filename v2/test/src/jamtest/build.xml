@@ -57,9 +57,7 @@
       </classpath>
       <formatter type='plain' usefile='false'/>
 
-
       <test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>
-
       <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
       <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
 
@@ -72,9 +70,14 @@
 
   <target name='tiger' depends='tiger.build,tiger.run'/>
 
+  <target name='tiger.clean' >
+    <delete dir='${dummy-dir}'/>
+  </target>
+
   <target name='tiger.build' >
     <mkdir dir='${dummy-dir}'/>
     <javac
+       source='1.5'
        srcdir='dummy15classes'
        destdir='${dummy-dir}'
        classpathref='classpath'

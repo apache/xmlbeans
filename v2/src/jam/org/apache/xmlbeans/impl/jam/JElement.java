@@ -97,10 +97,10 @@ public abstract interface JElement {
   public JElement getParent();
 
   /**
-   * <p>Returns the comments associated with this abstraction.
-   * Returns an empty array if there are no comments.</p>
+   * <p>Returns the comment associated with this abstraction.
+   * Returns null if it has no comment.</p>
    */
-  public JComment[] getComments();
+  public JComment getComment();
 
   /**
    * <p>Returns a simple name of this abstraction.  The exact format
@@ -138,5 +138,14 @@ public abstract interface JElement {
    * we get to 175-land.
    */
   public JAnnotation[] getAnnotations(String named);
+
+  /**
+   * @deprecated multiple comments per element are no longer supported.
+   * This always returns an array of length 1 containing the comment
+   * returned by getComment(), or an empty array if there is no comment.
+   * This method will soon be removed.
+   */
+  public JComment[] getComments();
+
 
 }

@@ -56,35 +56,81 @@ public class DefaultCommentProcessor
   // Protected methods
 
   protected void visit(EElement element) {
-    EComment[] comments = element.getEditableComments();
-    if (comments == null || comments.length == 0) return;
-    for(int i=0; i<comments.length; i++) {
-      String text = comments[i].getText().trim();
-      if (!text.startsWith("/*")) {
-        element.removeComment(comments[i]);
-      } else {
-        StringWriter out = new StringWriter();
-        BufferedReader in = new BufferedReader(new StringReader(text));
-        String line;
-        boolean addBreak = false;
-        try {
-          while((line = in.readLine()) != null) {
-            line = line.trim();
-            if (line.equals("*/")) continue;
-            int offset = line.indexOf('*');
-            do {
-              offset++;
-            }  while(offset < line.length() && line.charAt(offset) == '*');
-            if (addBreak) out.write('\n');
-            if (offset >= line.length()) continue;
-            out.write(line.substring(offset+1).trim());
-            addBreak = true;
+    EComment comment = element.getEditableComment();
+    if (comment == null) return;
+    String text = comment.getText().trim();
+    if (!text.startsWith("/*")) {
+      element.removeComment();
+      return;
+    }
+    BufferedReader in = new BufferedReader(new StringReader(text));
+    StringWriter commentText = new StringWriter();
+    String nextLine = eatDocChunk(in,commentText);
+    processComment(element,commentText.toString());
+    while(nextLine != null) {
+      StringWriter tagText = new StringWriter();
+      tagText.write(nextLine);
+      tagText.write('\n');
+      nextLine = eatDocChunk(in,tagText);
+      processJavadocTag(element,tagText.toString());
+    }
+  }
+
+  protected void processJavadocTag(EElement element, String tagline) {
+
+  }
+
+  protected void processComment(EElement commentedElement,
+                                String trimmedComment) {
+    commentedElement.getEditableComment().setText(trimmedComment);
+  }
+
+  // ========================================================================
+  // Private methods
+
+  /**
+   * <p>Writes the trimmed contents of the comment text provided by the
+   * BufferedReader in the given BufferedWriter, until either a javadoc
+   * tag is encountered (line starting with '@') or the end of the comment
+   * section is encountered.</p>
+   *
+   * @return The next line read off of the input buffer which starts
+   * a new section (starting with '@'), or null if the end of the comment
+   * was reached.
+   */
+  private String eatDocChunk(BufferedReader in, Writer out) {
+    String line;
+    boolean firstLineYet = false;
+    int breaksToAdd = 0;
+    try {
+      while((line = in.readLine()) != null) {
+        line = getTrimmedLine(line);
+        if (line.startsWith("@")) {  // are we starting a javadoc tag?
+          return line;
+        } else {
+          if (firstLineYet) breaksToAdd++;
+          if (line.length() > 0) {
+            firstLineYet = true;
+            for(int i=0; i<breaksToAdd; i++) out.write('\n');
+            breaksToAdd = 0;
+            out.write(line);
           }
-          comments[i].setText(out.toString());
-        } catch(IOException veryUnexpected) {
-          veryUnexpected.printStackTrace();
         }
       }
+    } catch(IOException veryUnexpected) {
+      veryUnexpected.printStackTrace();
     }
+    return null;
+  }
+
+  private String getTrimmedLine(String rawLine) {
+    rawLine = rawLine.trim();
+    int offset = rawLine.indexOf('*');
+    if (offset == -1) return rawLine;
+    do {
+      offset++;
+    }  while(offset < rawLine.length() && rawLine.charAt(offset) == '*');
+    if (offset >= rawLine.length()) return "";
+    return rawLine.substring(offset+1).trim();
   }
 }
