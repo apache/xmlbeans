@@ -482,6 +482,17 @@ public class GDateTests extends TestCase
         Assert.assertEquals(2, new GDate("23:59:59").compareToGDate(new GDate("00:00:00-10:00")));
         Assert.assertEquals(1, new GDate("23:59:59").compareToGDate(new GDate("00:00:00+14:00")));
     }
+    
+    public static void testAPI() throws Exception
+    {
+        GDateBuilder builder = new GDateBuilder("1970-12-20T04:14:22Z");
+        builder.setTimeZone(615);
+        Assert.assertEquals("1970-12-20T04:14:22+10:15", builder.toString());
+        builder.setTimeZone(-345);
+        Assert.assertEquals("1970-12-20T04:14:22-05:45", builder.toString());
+        builder.normalizeToTimeZone(-300);
+        Assert.assertEquals("1970-12-20T04:59:22-05:00", builder.toString());
+    }
 
 
     public static void testFailure() throws Exception
