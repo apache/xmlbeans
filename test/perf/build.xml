@@ -34,7 +34,6 @@
 
 	<!-- root properties used for finding everything -->
 	<property name="xmlbeans.perf.root" value="${basedir}"/>
-	<!-- TODO: CVS point to relative v2 build -->
 	<property name="v2.xmlbeans.root" value="${env.XMLBEANS_HOME}"/>
 
 	<property name="src.dir" value="${xmlbeans.perf.root}/src"/>
@@ -47,8 +46,7 @@
 
 	<!-- benchmark directories -->
 	<property name="v2.dir" value="${v2.xmlbeans.root}"/>
-	<!-- TODO: CVS - point to relative v1 line -->
-    <property name="v1.dir" value="${3rdparty.dir}/v1"/>
+  <property name="v1.dir" value="${3rdparty.dir}/v1"/>
 	<property name="castor.dir" value="${3rdparty.dir}/castor"/>
 	<property name="jibx.dir" value="${3rdparty.dir}/jibx"/>
 	<property name="xerces.dir" value="${3rdparty.dir}/xerces"/>
@@ -56,7 +54,6 @@
 	<property name="jaxb.dir" value="${env.JAXB_LIBDIR}"/>
 
 	<!-- castor -->
-	<!-- TODO: CVS - crack castor jar and turn off validation -->
 	<property name="castor.jar" value="${castor.dir}/castor-0.9.5.4.jar"/>
 	<property name="castor.url" value="ftp://ftp.exolab.org/pub/castor/castor_0.9.5.4/castor-0.9.5.4.jar"/>
 
@@ -104,6 +101,7 @@
 		<pathelement path="${v2-purchase-order.jar}"/>
 		<pathelement path="${v2-primitives.jar}"/>
 		<pathelement path="${v2-non-primitives.jar}"/>
+		<pathelement path="${v2-netui-config.jar}"/>
 		<pathelement path="${build.dir}"/>
 		<pathelement path="${perf-results.jar}"/>
 	</path>
@@ -373,7 +371,6 @@ endorsed/xsltc.jar
 					output="${temp.dir}/scomp_output.txt">
 			<env key="XMLBEANS_HOME" value="${v2.xmlbeans.root}"/>
 			<arg line="-out ${jar.name}"/>
-			<arg line="-d ${temp.dir}"/>
 			<arg line="${test.case.dir}/xsd/${xsd.name}"/>
 		</exec>
 		<copy file="${temp.dir}/${jar.name}" todir="${schema.jar.build.dir}"/>
