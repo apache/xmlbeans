@@ -90,7 +90,7 @@ public class RussianDollStrategy
         Element element = new Element();
         element.setName(xc.getName());
         element.setGlobal(false);
-        
+
         Type elemType = Type.createUnnamedType(Type.SIMPLE_TYPE_SIMPLE_CONTENT); //assume simple, set later
         element.setType(elemType);
 
@@ -297,13 +297,19 @@ public class RussianDollStrategy
     protected Attribute processAttribute(XmlCursor xc, Inst2XsdOptions options, String parentNamespace,
                                               TypeSystemHolder typeSystemHolder)
     {
+        assert xc.isAttr() : "xc not on attribute";
         Attribute attribute = new Attribute();
         QName attName = xc.getName();
 
         attribute.setName(attName);
 
+        XmlCursor parent = xc.newCursor();
+        parent.toParent();
+
         Type simpleContentType = Type.createNamedType(
-            processSimpleContentType(xc.getTextValue(), options, xc), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
+            processSimpleContentType(xc.getTextValue(), options, parent), Type.SIMPLE_TYPE_SIMPLE_CONTENT);
+
+        parent.dispose();
 
         attribute.setType(simpleContentType);
 
@@ -474,7 +480,7 @@ public class RussianDollStrategy
                 {  return xc.namespaceForPrefix(prefix); }
             };
 
-            XmlQNameImpl.validateLexical(lexicalValue, _validationContext, prefixResolver);
+            QName qname = XmlQNameImpl.validateLexical(lexicalValue, _validationContext, prefixResolver);
             if (_validationContext.isValid())
                 return XmlQName.type.getName();
             _validationContext.resetToValid();
@@ -679,57 +685,136 @@ public class RussianDollStrategy
 
     protected void combineElementsOfTypes(Type into, Type from, boolean makeElementsOptional, Inst2XsdOptions options)
     {
-        // loop through elements: add fromElem if they don't exist, combine them if they exist
-        outterLoop:
-        for (int i = 0; i < from.getElements().size(); i++)
+        boolean needsUnboundedChoice = false;
+
+        if (into.getTopParticleForComplexOrMixedContent()!=Type.PARTICLE_SEQUENCE ||
+            from.getTopParticleForComplexOrMixedContent()!=Type.PARTICLE_SEQUENCE)
+            needsUnboundedChoice = true;
+
+        List res = new ArrayList();
+
+        int fromStartingIndex = 0;
+        int fromMatchedIndex = -1;
+        int intoMatchedIndex = -1;
+
+        // for each element in into
+        for (int i = 0; !needsUnboundedChoice && i < into.getElements().size(); i++)
         {
-            Element fromElem = (Element)from.getElements().get(i);
-            for (int j = 0; j < into.getElements().size(); j++)
+            // try to find one with same name in from
+            Element intoElement = (Element) into.getElements().get(i);
+            for (int j = fromStartingIndex; j < from.getElements().size(); j++)
             {
-                Element intoElem = (Element)into.getElements().get(j);
-
-                if (intoElem==fromElem)
-                    continue outterLoop;
-
-                if (intoElem.getName().equals(fromElem.getName()))
+                Element fromElement = (Element) from.getElements().get(j);
+                if (intoElement.getName().equals(fromElement.getName()))
                 {
-                    combineTypes(intoElem.getType(), fromElem.getType(), options);
-                    combineElementComments(intoElem, fromElem);
-                    if (fromElem.getMaxOccurs()==Element.UNBOUNDED)
-                        intoElem.setMaxOccurs(Element.UNBOUNDED);
-                    combineElementComments(intoElem, fromElem);
-                    continue outterLoop;
+                    fromMatchedIndex = j;
+                    break;
                 }
             }
-            // fromElem doesn't exist in into type, will add it right now
-            into.addElement(fromElem);
-            fromElem.setMinOccurs(0);
-            fromElem.setMaxOccurs(Element.UNBOUNDED);
-        }
 
-        // for all the elements that are in into and not in from they need to be optional
-        outterLoop:
-        for (int i = 0; i < into.getElements().size(); i++)
-        {
-            Element intoElem = (Element)into.getElements().get(i);
-
-            if (makeElementsOptional)
+            // if not found, it's safe to add this one to result 'res' (as optional) and continue
+            if ( fromMatchedIndex < fromStartingIndex )
             {
-                intoElem.setMinOccurs(0);
+                res.add(intoElement);
+                intoElement.setMinOccurs(0);
                 continue;
             }
 
-            for (int j = 0; j < from.getElements().size(); j++)
+            // else try out all from elemens between fromStartingIndex to fromMatchedIndex
+            // to see if they match one of the into elements
+            intoMatchingLoop:
+            for (int j2 = fromStartingIndex; j2 < fromMatchedIndex; j2++)
             {
-                Element fromElem = (Element)from.getElements().get(j);
-                if (intoElem.getName().equals(fromElem.getName()))
+                Element fromCandidate = (Element) from.getElements().get(j2);
+
+                for (int i2 = i+1; i2 < into.getElements().size(); i2++)
                 {
-                    continue outterLoop;
+                    Element intoCandidate = (Element) into.getElements().get(i2);
+                    if (fromCandidate.getName().equals(intoCandidate.getName()))
+                    {
+                        intoMatchedIndex = i2;
+                        break intoMatchingLoop;
+                    }
                 }
             }
-            // intoElem doesn't exist in from type, make it optional
-            intoElem.setMinOccurs(0);
-            //intoElem.setMaxOccurs(Element.UNBOUNDED);
+
+            if (intoMatchedIndex<i)
+            {
+                // if none matched they are safe to be added to res as optional
+                for (int j3 = fromStartingIndex; j3 < fromMatchedIndex; j3++)
+                {
+                    Element fromCandidate = (Element) from.getElements().get(j3);
+                    res.add(fromCandidate);
+                    fromCandidate.setMinOccurs(0);
+                }
+                // also since into[i] == from[fromMatchedIndex] add it only once
+                res.add(intoElement);
+                Element fromMatchedElement = (Element)from.getElements().get(fromMatchedIndex);
+
+                if (fromMatchedElement.getMinOccurs()<=0)
+                    intoElement.setMinOccurs(0);
+                if (fromMatchedElement.getMaxOccurs()==Element.UNBOUNDED)
+                    intoElement.setMaxOccurs(Element.UNBOUNDED);
+
+                combineTypes(intoElement.getType(), fromMatchedElement.getType(), options);
+                combineElementComments(intoElement, fromMatchedElement);
+
+                fromStartingIndex = fromMatchedIndex + 1;
+                continue;
+            }
+            else
+            {
+                // if matched it means into type will transform into a choice unbounded type
+                needsUnboundedChoice = true;
+            }
+        }
+
+        for (int j = fromStartingIndex; j < from.getElements().size(); j++)
+        {
+            Element remainingFromElement = (Element) from.getElements().get(j);
+            res.add(remainingFromElement);
+            remainingFromElement.setMinOccurs(0);
+        }
+
+        // if choice was detected
+        if (needsUnboundedChoice)
+        {
+            into.setTopParticleForComplexOrMixedContent(Type.PARTICLE_CHOICE_UNBOUNDED);
+
+            outterLoop:
+            for (int j = 0; j < from.getElements().size(); j++)
+            {
+                Element fromElem = (Element) from.getElements().get(j);
+                for (int i = 0; i < into.getElements().size(); i++)
+                {
+                    Element intoElem = (Element)into.getElements().get(i);
+                    intoElem.setMinOccurs(1);
+                    intoElem.setMaxOccurs(1);
+
+                    if (intoElem==fromElem)
+                        continue outterLoop;
+
+                    if (intoElem.getName().equals(fromElem.getName()))
+                    {
+                        combineTypes(intoElem.getType(), fromElem.getType(), options);
+                        combineElementComments(intoElem, fromElem);
+
+                        continue outterLoop;
+                    }
+                }
+
+                // fromElem doesn't exist in into type, will add it right now
+                into.addElement(fromElem);
+                fromElem.setMinOccurs(1);
+                fromElem.setMaxOccurs(1);
+            }
+            return;
+        }
+        else
+        {
+            // into remains sequence but will contain the new list of elements res
+            into.setElements(res);
+            return;
         }
     }
 

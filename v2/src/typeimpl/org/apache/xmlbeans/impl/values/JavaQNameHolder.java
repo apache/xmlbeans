@@ -123,7 +123,11 @@ public class JavaQNameHolder extends XmlObjectBase
             prefix = "";
             localname = v.substring(start, end);
         }
-        
+
+        for (int i=start+1; i<end; i++)
+            if (XMLChar.isSpace(v.charAt(i)))
+                throw new XmlValueOutOfRangeException("XML space found in QName value: '" + v + "'");
+
         String uri =
             resolver == null ? null : resolver.getNamespaceForPrefix(prefix);
         

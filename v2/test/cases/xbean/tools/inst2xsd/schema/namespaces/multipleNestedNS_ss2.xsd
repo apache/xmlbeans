@@ -3,13 +3,13 @@
   <xs:element name="a">
     <xs:complexType mixed="true">
       <xs:sequence>
-        <xs:element ref="a:b" maxOccurs="unbounded" minOccurs="0" xmlns:a="http://xmlbeans.apache.org/a"/>
-        <xs:element ref="b:c" maxOccurs="unbounded" minOccurs="0" xmlns:b="http://xmlbeans.apache.org/b"/>
-        <xs:element ref="ins:a" maxOccurs="unbounded" minOccurs="0" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
-        <xs:element ref="a:d" maxOccurs="unbounded" minOccurs="0" xmlns:a="http://xmlbeans.apache.org/a"/>
-        <xs:element ref="b:e" maxOccurs="unbounded" minOccurs="0" xmlns:b="http://xmlbeans.apache.org/b"/>
-        <xs:element ref="c:d" maxOccurs="unbounded" minOccurs="0" xmlns:c="http://xmlbeans.apache.org/c"/>
-        <xs:element ref="ins:e" maxOccurs="unbounded" minOccurs="0" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
+        <xs:element ref="a:b" minOccurs="0" xmlns:a="http://xmlbeans.apache.org/a"/>
+        <xs:element ref="b:c" minOccurs="0" xmlns:b="http://xmlbeans.apache.org/b"/>
+        <xs:element ref="ins:a" minOccurs="0" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
+        <xs:element ref="a:d" minOccurs="0" xmlns:a="http://xmlbeans.apache.org/a"/>
+        <xs:element ref="b:e" minOccurs="0" xmlns:b="http://xmlbeans.apache.org/b"/>
+        <xs:element ref="c:d" minOccurs="0" xmlns:c="http://xmlbeans.apache.org/c"/>
+        <xs:element ref="ins:e" minOccurs="0" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
