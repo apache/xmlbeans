@@ -994,9 +994,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                     }
                     sghead = sghead.substitutionGroup();
                 }
+                */
                 if (type == null)
                     type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
-                    */
             }
 
             if (xsiType != null)
