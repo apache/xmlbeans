@@ -41,6 +41,7 @@ See http://xml.apache.org/forrest/linking.html for more info
         <samplesList label="Samples List" description="View the list of available samples.">
             <sample label="MixedContent" href="samples/MixedContent.html" tab="samples"/>
             <sample label="SchemaEnum" href="samples/SchemaEnum.html" tab="samples"/>
+            <sample label="SubstitutionGroup" href="samples/SubstitutionGroup.html" tab="samples"/>
             <sample label="SampleTemplate" href="samples/SampleTemplate.html" tab="samples"/>
         </samplesList>  
     </samples-tab>
