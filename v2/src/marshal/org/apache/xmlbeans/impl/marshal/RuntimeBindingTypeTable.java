@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
@@ -24,20 +25,19 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.binding.bts.ListArrayType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
-import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.Calendar;
 import java.util.Map;
 
 /**
@@ -167,14 +167,18 @@ final class RuntimeBindingTypeTable
                                JavaTypeName jName,
                                TypeConverter converter)
     {
-        // todo(radup) save the "jaxRpc" setting in the binding file and
-        // load it from there
-        final BindingLoader bindingLoader = BuiltinBindingLoader.getBuiltinBindingLoader(false);
+        final BindingLoader default_builtin_loader =
+            BuiltinBindingLoader.getBuiltinBindingLoader(false);
 
         QName xml_type = new QName(XSD_NS, xsdType);
         XmlTypeName xName = XmlTypeName.forTypeNamed(xml_type);
-        BindingType btype =
-            bindingLoader.getBindingType(BindingTypeName.forPair(jName, xName));
+        final BindingTypeName btname = BindingTypeName.forPair(jName, xName);
+        BindingType btype = default_builtin_loader.getBindingType(btname);
+        if (btype == null) {
+            final BindingLoader jaxrpc_builtin_loader =
+                BuiltinBindingLoader.getBuiltinBindingLoader(true);
+            btype = jaxrpc_builtin_loader.getBindingType(btname);
+        }
         if (btype == null) {
             throw new AssertionError("failed to find builtin for java:" + jName +
                                      " - xsd:" + xName);
@@ -255,6 +259,12 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("IDREF", str, string_conv);
         addXsdBuiltin("ENTITY", str, string_conv);
 
+        addXsdBuiltin("gDay", str, string_conv);
+        addXsdBuiltin("gMonth", str, string_conv);
+        addXsdBuiltin("gMonthDay", str, string_conv);
+        addXsdBuiltin("gYear", str, string_conv);
+        addXsdBuiltin("gYearMonth", str, string_conv);
+
         addXsdBuiltin("anyURI",
                       str,
                       new AnyUriToStringTypeConverter());
@@ -267,9 +277,58 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("NMTOKENS", str_array,
                       new StringListArrayConverter());
 
+
         addXsdBuiltin("dateTime",
-                      Calendar.class,
-                      new DateTimeTypeConverter());
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_DATE_TIME));
+
+        addXsdBuiltin("dateTime",
+                      java.util.Date.class,
+                      new JavaDateTypeConverter(SchemaType.BTC_DATE_TIME));
+
+        addXsdBuiltin("time",
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_TIME));
+
+        addXsdBuiltin("date",
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_DATE));
+
+        addXsdBuiltin("date",
+                      java.util.Date.class,
+                      new JavaDateTypeConverter(SchemaType.BTC_DATE));
+
+        addXsdBuiltin("gDay",
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_G_DAY));
+
+        addXsdBuiltin("gMonth",
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH));
+
+        addXsdBuiltin("gMonthDay",
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH_DAY));
+
+        addXsdBuiltin("gYear",
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR));
+
+        addXsdBuiltin("gYearMonth",
+                      java.util.Calendar.class,
+                      new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR_MONTH));
+
+
+        addXsdBuiltin("gDay",
+                      int.class,
+                      new IntDateTypeConverter(SchemaType.BTC_G_DAY));
+        addXsdBuiltin("gMonth",
+                      int.class,
+                      new IntDateTypeConverter(SchemaType.BTC_G_MONTH));
+        addXsdBuiltin("gYear",
+                      int.class,
+                      new IntDateTypeConverter(SchemaType.BTC_G_YEAR));
+
 
         addXsdBuiltin("QName",
                       QName.class,
