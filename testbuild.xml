@@ -208,7 +208,8 @@
         <pathelement path="${build.dir.test.lib}/testcases.jar"/>
         <pathelement path="${build.dir.test.lib}/testtools.jar"/>
         <pathelement path="${build.lib}/xbean_xpath.jar"/>
-
+        <pathelement path="${build.lib}/saxon8.jar"/>
+        <pathelement path="${ENV.XMLBEANS_EXTERNALS}/saxon8.jar"/>
         <path refid="build.classpath"/>
         <fileset refid="test.build.jars"/>
 
