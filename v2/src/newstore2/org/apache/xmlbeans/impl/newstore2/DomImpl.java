@@ -1647,6 +1647,8 @@ final class DomImpl
 
                         cn = CharNode.remove( cn, cn._next );
                     }
+
+                    cn._cch = Integer.MAX_VALUE;
                 }
 
                 c.setCharNodes( cn );

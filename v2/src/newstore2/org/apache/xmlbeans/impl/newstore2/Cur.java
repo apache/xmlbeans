@@ -698,15 +698,17 @@ final class Cur
     {
         int k = kind();
 
-        if (k == ROOT || k == ELEM)
+        if (kindIsContainer( k ))
         {
             if (toFirstAttr())
                 return true;
         }
-        else if (k == ATTR)
+        else if (k == -ATTR)
         {
-            if (toNextAttr())
+            if (next())
                 return true;
+            
+            toParent();
             
             if (!toParentRaw())
                 return false;
