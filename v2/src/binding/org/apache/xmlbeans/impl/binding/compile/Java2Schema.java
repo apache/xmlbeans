@@ -83,6 +83,7 @@ public class Java2Schema {
 
   private static final String TAG_EL               = "xsdgen:element";
   private static final String TAG_EL_NAME          = TAG_EL+".name";
+  private static final String TAG_EL_NILLABLE      = TAG_EL+".nillable";
 
   private static final String TAG_AT               = "xsdgen:attribute";
   private static final String TAG_AT_NAME          = TAG_AT+".name";
@@ -200,6 +201,18 @@ public class Java2Schema {
       qprop.setQName(new QName(tns,propName));
       qprop.setGetterName(props[i].getGetter().getSimpleName());
       qprop.setSetterName(props[i].getSetter().getSimpleName());
+      {
+        //nillable tag
+        JAnnotation a = props[i].getAnnotation(TAG_EL_NILLABLE);
+        if (a != null) {
+          // if the tag is there but empty, set it to true.  is that weird?
+          if (a.getStringValue().trim().length() == 0) {
+            qprop.setNillable(true);
+          } else {
+            qprop.setNillable(a.getBooleanValue());
+          }
+        }
+      }
       bindType.addProperty(qprop);
       // also populate the schema type
       if (!isAttribute) {
@@ -231,6 +244,13 @@ public class Java2Schema {
   private static String getAnnotation(JElement elem, String annName, String dflt) {
     JAnnotation ann = elem.getAnnotation(annName);
     return (ann == null) ? dflt : ann.getStringValue();
+  }
+
+  //REVIEW seems like having this functionality in jam (getters w/defaults)
+  //would be a good thing to add to JAM
+  private static boolean getAnnotation(JElement elem, String annName, boolean dflt) {
+    JAnnotation ann = elem.getAnnotation(annName);
+    return (ann == null) ? dflt : ann.getBooleanValue();
   }
 
   private QName getBuiltinTypeNameFor(JClass clazz) {
