@@ -65,7 +65,7 @@ public interface SchemaGenerator
     /**
      * Returns a collection of targetNamespace URIs as Strings.
      */
-    Collection getTargetNamespaces();
+    String[] getTargetNamespaces();
     
     /**
      * Prints the .xsd source code for the given target namespace.

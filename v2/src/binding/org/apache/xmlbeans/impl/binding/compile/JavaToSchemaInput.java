@@ -56,14 +56,15 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
+import org.apache.xmlbeans.impl.jam.JClass;
+
 public interface JavaToSchemaInput
 {
     /**
-     * Returns a something that represents a set of JClasses that
-     * are to be processed for binding. (??)
-     */ 
-    // JClassSet getJClassSet();
-    
+     * Returns the JClasses to be processed for binding.
+     */
+    JClass[] getJClasses();
+
     /**
      * Returns the path used for resolving already-known bindings
      */
