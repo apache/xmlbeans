@@ -15,8 +15,12 @@
 package org.apache.xmlbeans.impl.jam.annogen.internal;
 
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyTypeMapping;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
 import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceParams;
 import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceFactory;
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.internal.JamLoggerImpl;
 
 import java.io.Reader;
 import java.io.File;
@@ -27,12 +31,15 @@ import java.util.LinkedList;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class AnnotationServiceParamsImpl implements AnnotationServiceParams {
+public class AnnotationServiceParamsImpl implements
+  AnnotationServiceParams, ProxyContext {
 
   // ========================================================================
   // Variables
 
   private LinkedList mPopulators = new LinkedList();
+  private ProxyTypeMapping mProxyMapping = null;
+  private JamLogger mLogger = new JamLoggerImpl();
 
   // ========================================================================
   // Constructors
@@ -45,7 +52,6 @@ public class AnnotationServiceParamsImpl implements AnnotationServiceParams {
 
   // ========================================================================
   // Public methods
-
 
   public void addXmlOverrides(File file) throws FileNotFoundException {
     addXmlOverrides(new FileReader(file));
@@ -64,6 +70,11 @@ public class AnnotationServiceParamsImpl implements AnnotationServiceParams {
     mPopulators.addLast(pop);
   }
 
+  public void setProxyMapping(ProxyTypeMapping pm) {
+    mProxyMapping = pm;
+    pm.init(this);
+  }
+
   // ========================================================================
   // Internal use only
 
@@ -71,5 +82,22 @@ public class AnnotationServiceParamsImpl implements AnnotationServiceParams {
     ProxyPopulator[] out = new ProxyPopulator[mPopulators.size()];
     mPopulators.toArray(out);
     return out;
+  }
+
+  public ProxyTypeMapping getProxyMapping() {
+    if (mProxyMapping == null) setProxyMapping(new DefaultProxyMapping());
+    return mProxyMapping;
+  }
+
+
+  // ========================================================================
+  // Provider context implementation
+
+  public JamLogger getLogger() { return mLogger; }
+
+  public ProxyTypeMapping getProxyTypeMapping() { return mProxyMapping; }
+
+  public ClassLoader getClassLoader() {
+    return ClassLoader.getSystemClassLoader(); //FIXME
   }
 }

@@ -216,10 +216,12 @@ public interface JamServiceParams {
   public void setParentClassLoader(JamClassLoader loader);
 
   /**
-   * Adds an elements to the tool classpath.  This is the classpath that
+   * <p>Adds an elements to the tool classpath.  This is the classpath that
    * will be used by the JamService implementation to find any libraries
-   * on which it depends.  This classpath distinct from the service classpath
-   * set by addClasspath().
+   * on which it depends.  This classpath is distinct from the service
+   * classpath set by addClasspath() in that it has no affect on the input
+   * class set - it's only used for finding classes on which JAM
+   * itself depends.</p>
    *
    * @param classpathElement elements of the classpath
    * @throws IllegalArgumentException if the argument is null

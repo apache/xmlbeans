@@ -12,7 +12,12 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.annogen.provider;
+package org.apache.xmlbeans.impl.jam.annogen.internal;
+
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -47,4 +52,12 @@ public class CompositeProxyPopulator implements ProxyPopulator {
                             AnnotationProxy proxy) {
     for(int i=0; i<mPops.length; i++) mPops[i].populateProxy(id,annoType,proxy);
   }
+
+  // ========================================================================
+  // Public methods - internal use only
+
+  public void init(ProxyContext pc) {
+    for(int i=0; i<mPops.length; i++) mPops[i].init(pc);
+  }
+
 }

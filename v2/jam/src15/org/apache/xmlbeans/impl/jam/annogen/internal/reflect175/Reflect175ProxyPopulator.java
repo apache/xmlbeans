@@ -17,8 +17,8 @@ package org.apache.xmlbeans.impl.jam.annogen.internal.reflect175;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
 import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
 import org.apache.xmlbeans.impl.jam.annogen.internal.ReflectElementId;
-import org.apache.xmlbeans.impl.jam.annogen.tools.Annogen;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -33,10 +33,10 @@ public class Reflect175ProxyPopulator implements ProxyPopulator {
   // ========================================================================
   // Variables
 
-  private ClassLoader mClassLoader = ClassLoader.getSystemClassLoader();
+  private ProxyContext mContext = null;
 
   // ========================================================================
-  // AnnotationPopulator implementation
+  // ProxyPopulator implementation
 
   public boolean hasAnnotation(ElementId id, Class annoType) {
     if (!(id instanceof ReflectElementId)) {
@@ -66,14 +66,14 @@ public class Reflect175ProxyPopulator implements ProxyPopulator {
       if (methods[i].getParameterTypes().length > 0) continue;
       try {
         Object value = methods[i].invoke(ann,(Object[])null);
-        targetInstance.setValue(methods[i].getName(),value);
+        targetInstance.setSimpleValue(methods[i].getName(),value,returnType);
       } catch(IllegalAccessException iae) {
         iae.printStackTrace();//FIXME log this
       } catch(InvocationTargetException ite) {
         ite.printStackTrace();//FIXME log this
-      } catch(NoSuchMethodException nsme) {
-        nsme.printStackTrace();//FIXME log this
       }
     }
   }
+
+  public void init(ProxyContext pc) { mContext = null; }
 }

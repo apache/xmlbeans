@@ -22,13 +22,17 @@
   <property name='jsr173api_jar' value='../../build/lib/jsr173_api.jar'/>
   <property name='jsr173ri_jar' value='../../build/lib/jsr173_ri.jar'/>
   <property name='tidy_jar' value='../external/lib/tidy.jar'/>
+  <property name='tools_jar' value=' e:/java/jdk150/jre/../lib/tools.jar'/>
 
 
   <path id='classpath' >
 
+    <pathelement path='${tools_jar}' />
+
  <!-- use build/classes instead of xbean.jar for develpment convenience -->
     <pathelement path='${build_dir}/classes' />
     <pathelement path='${dummy_dir}' />
+
     <pathelement location='${test_build_dir}' />
     <pathelement location='${junit_jar}'/>
     <pathelement path='${java.class.path}' />
@@ -50,7 +54,7 @@
 
   <target name='all' depends='compile,test' />
 
-  <target name='compile' >
+  <target name='compile' depends='annogen'>
     <mkdir dir='${dummy_dir}'/>
     <javac
        source='1.5' target='1.5'
@@ -66,7 +70,31 @@
        classpathref='classpath'
        includes='**/*.java'
      />
+    <javac
+       srcdir='${test_build_dir}'
+       destdir='${test_build_dir}'
+       classpathref='classpath'
+       includes='org/apache/xmlbeans/test/jam/dummyclasses/jsr175/impl/*.java'
+     />
   </target>
+
+
+  <target name='annogen'>
+<!--
+commented out, just checked in the generated code for now because
+of JDK versioning problems when running in ant
+
+    <taskdef name='annogen'
+             classname='org.apache.xmlbeans.impl.jam.annogen.tools.AnnogenTask'
+             classpathref='classpath'/>
+
+    <annogen outputdir='${test_build_dir}' srcdir='dummyclasses'
+             includes='org/apache/xmlbeans/test/jam/dummyclasses/jsr175/RFEAnnotation.java'
+             classpathref='classpath'
+             pre15CompatibilityMode='true'/>
+-->
+  </target>
+
 
 
   <target name="test">

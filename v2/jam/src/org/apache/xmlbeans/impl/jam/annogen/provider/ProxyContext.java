@@ -12,19 +12,23 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
+package org.apache.xmlbeans.impl.jam.annogen.provider;
+
+import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 
 /**
- *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class RFEAnnotationImpl implements RFEAnnotation {
+public interface ProxyContext {
 
-  public int    id() { return 0;}
-  public String synopsis() { return null;}
-  public String engineer() { return null; }
-  public String date() { return null;}
+  // ========================================================================
+  // Public methods
 
-  public java.lang.Class annotationType() { return getClass(); }
+  public JamLogger getLogger();
+
+  public ProxyTypeMapping getProxyTypeMapping();
+
+  public ClassLoader getClassLoader();
+
 
 }

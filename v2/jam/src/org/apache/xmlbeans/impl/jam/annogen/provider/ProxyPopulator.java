@@ -14,15 +14,22 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.provider;
 
-
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public interface ProxyPopulator {
 
-  public boolean hasAnnotation(ElementId id, Class annoType);
+  // ========================================================================
+  // Public methods
 
-  public void populateProxy(ElementId id,
-                            Class annotationType,
-                            AnnotationProxy targetProxy);
+  //REVIEW i think this 'has' model is broken.  a better model would be to
+  // simply ask the populator once about the annotation types it can find
+  // on a given element.
+  public abstract boolean hasAnnotation(ElementId id, Class annoType);
+
+  public abstract void populateProxy(ElementId id,
+                                     Class annotationType,
+                                     AnnotationProxy targetProxy);
+
+  public void init(ProxyContext pc);
 }
