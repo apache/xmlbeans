@@ -167,6 +167,10 @@ public interface MClass extends MMember, JClass {
 
   public void removeDeclaredProperty(JProperty prop);
 
+  public MClass addNewInnerClass(String name);
+
+  public void removeInnerClass(MClass clazz);
+
 
 
 

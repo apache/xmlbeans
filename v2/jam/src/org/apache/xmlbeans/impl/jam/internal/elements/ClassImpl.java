@@ -71,6 +71,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   private ArrayList mConstructors = null;
   private ArrayList mProperties = null;
   private ArrayList mDeclaredProperties = null;
+  private ArrayList mInnerClasses = null;
 
   private String[] mImports = null;
 
@@ -491,6 +492,21 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public void removeDeclaredProperty(JProperty p) {
     if (mDeclaredProperties != null) mDeclaredProperties.remove(p);
+  }
+
+  public MClass addNewInnerClass(String name) {
+    MClass inner = new ClassImpl(mPackageName,
+                                 name,
+                                 getContext(),
+                                 getImportSpecs());
+    if (mInnerClasses == null) mInnerClasses = new ArrayList();
+    mInnerClasses.add(inner);
+    return inner;
+  }
+
+  public void removeInnerClass(MClass clazz) {
+    if (mInnerClasses == null) return;
+    mInnerClasses.remove(clazz);
   }
 
   public void setIsInterface(boolean b) { mIsInterface = b; }

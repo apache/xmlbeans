@@ -25,6 +25,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import com.sun.javadoc.ClassDoc;
+
 /**
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -146,6 +148,19 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
     for(int i=0; i<ctors.length; i++) populate(dest.addNewConstructor(),ctors[i]);
     // add the annotations
     if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
+
+    // add any inner classes
+    Class[] inners = src.getDeclaredClasses();
+    if (inners != null) {
+      for(int i=0; i<inners.length; i++) {
+        String simpleName = inners[i].getName();
+        int lastDot = simpleName.lastIndexOf('.');
+        simpleName = simpleName.substring(lastDot+1);
+        MClass inner = dest.addNewInnerClass(simpleName);
+        inner.setArtifact(inners[i]);
+        populate(inner);
+      }
+    }
   }
 
   private void populate(MField dest, Field src) {

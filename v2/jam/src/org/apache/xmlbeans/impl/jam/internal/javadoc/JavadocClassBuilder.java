@@ -239,7 +239,17 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     for(int i=0; i<methods.length; i++) populate(dest.addNewMethod(),methods[i]);
     // add the annotations
     addAnnotations(dest, src);
+    // add the source position
     addSourcePosition(dest,src);
+    // add any inner classes
+    ClassDoc[] inners = src.innerClasses();
+    if (inners != null) {
+      for(int i=0; i<inners.length; i++) {
+        MClass inner = dest.addNewInnerClass(inners[i].typeName());
+        inner.setArtifact(inners[i]);
+        populate(inner);
+      }
+    }
   }
 
   private void populate(MField dest, FieldDoc src) {
