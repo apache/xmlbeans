@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.binding.tylar.*;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
 import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JFactory;
@@ -51,6 +52,7 @@ public abstract class BindingCompiler extends BindingLogger
 
   private Tylar mBaseTylar = null;
   private boolean mIsCompilationStarted = false;
+  private BindingLoader mBuiltinBindingLoader = null;
 
   // ========================================================================
   // Constructors
@@ -196,11 +198,13 @@ public abstract class BindingCompiler extends BindingLogger
    */
   public BindingLoader getBaseBindingLoader() {
     assertCompilationStarted(true);
-    if (mBaseTylar == null) {
-      return BuiltinBindingLoader.getInstance();
-    } else {
-      return mBaseTylar.getBindingLoader();
-    }
+    BindingLoader builtin =
+      (mBuiltinBindingLoader != null) ? mBuiltinBindingLoader :
+        BuiltinBindingLoader.getInstance();
+    if (mBaseTylar == null) return builtin;
+    BindingLoader[] loaders = new BindingLoader[]
+    { mBaseTylar.getBindingLoader(), mBuiltinBindingLoader };
+    return CompositeBindingLoader.forPath(loaders);
   }
 
   /**
@@ -261,6 +265,20 @@ public abstract class BindingCompiler extends BindingLogger
                "binding compilation has begun");
     }
   }
+
+  /**
+   * <p>Sets the builtin binding loader to use.  By default, this is
+   * simply BuiltinBindingLoader.getInstance().  This method should
+   * remain protected - user code should not be setting this directly,
+   * though they may set it indirectly via, for example, a 'binding style'
+   * switch.</p>
+   * @param bl
+   */
+  protected void setBuiltinBindingLoader(BindingLoader bl) {
+    mBuiltinBindingLoader = bl;
+  }
+
+
 
   // ========================================================================
   // Private methods
