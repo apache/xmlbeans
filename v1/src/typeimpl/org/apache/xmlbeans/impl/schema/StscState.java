@@ -83,6 +83,7 @@ import java.io.File;
 import javax.xml.namespace.QName;
 
 import org.w3.x2001.xmlSchema.SchemaDocument;
+import org.xml.sax.EntityResolver;
 
 /**
  * This class represents the state of the SchemaTypeSystemCompiler as it's
@@ -120,7 +121,8 @@ public class StscState
     private boolean _noUpa;
     private boolean _noPvr;
     private Set _mdefNamespaces     = buildDefaultMdefNamespaces();
-    
+    private EntityResolver _entityResolver;
+
     private static Set buildDefaultMdefNamespaces()
     {
         // namespaces which are known to appear in WSDLs redundantly
@@ -269,13 +271,6 @@ public class StscState
     }
 
     /**
-     * Whether to allow downloads or not.
-     */
-    public void setDoingDownloads(boolean doingDownloads)
-    {
-    }
-
-    /**
      * True if the given URI is a local file
      */
     public boolean shouldDownloadURI(String uriString)
@@ -314,8 +309,20 @@ public class StscState
                 !"true".equals(System.getProperty("xmlbean.particlerestriction", "true"));
         _doingDownloads = options.hasOption(XmlOptions.COMPILE_DOWNLOAD_URLS) ? true :
                 "true".equals(System.getProperty("xmlbean.downloadurls", "false"));
+        _entityResolver = (EntityResolver)options.get(XmlOptions.ENTITY_RESOLVER);
+        if (_entityResolver != null)
+            _doingDownloads = true;
+        
         if (options.hasOption(XmlOptions.COMPILE_MDEF_NAMESPACES))
             _mdefNamespaces.addAll((Collection)options.get(XmlOptions.COMPILE_MDEF_NAMESPACES));
+    }
+    
+    /**
+     * May return null if there is no custom entity resolver.
+     */ 
+    public EntityResolver getEntityResolver()
+    {
+        return _entityResolver;
     }
     
     /**
