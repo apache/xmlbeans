@@ -123,7 +123,7 @@
     <mkdir dir="build/private/lib"/>
   </target>
 
-  <target name="drt" depends="builddrt, rundrt"/>
+  <target name="drt" depends="builddrt, rundrt, jamdrt"/>
 
   <target name="rundrt" >
       <echo message="Running random tester"/>
@@ -182,6 +182,9 @@
     <echo message="___ XML Catalog Test :    PASSED" />
   </target>
 
+  <target name='jamdrt'>
+    <ant dir='test/src/jamtest' target='all' inheritAll='false' />
+  </target>
 
   <target name="builddrt" depends="drt.jar, random.jar, eric"/>
 

@@ -115,6 +115,8 @@ public class JDClassLoader implements JClassLoader
   // Static utilities
 
   public static JClass getClassFor(Type t, JClassLoader loader) {
+    if (t == null) throw new IllegalArgumentException("null type");
+    if (loader == null) throw new IllegalArgumentException("null loader");
     return loader.loadClass(getFieldDescriptorFor(t));
   }
 
@@ -125,6 +127,7 @@ public class JDClassLoader implements JClassLoader
    * JClass.forName().
    */
   public static String getFieldDescriptorFor(Type t) {
+    if (t == null) throw new IllegalArgumentException("null type");
     String dim = t.dimension();
     if (dim == null || dim.length() == 0) {
       return t.qualifiedTypeName();
