@@ -56,7 +56,6 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.impl.jam.JClass;
@@ -164,11 +163,6 @@ public class Java2SchemaTask extends BindingCompilerTask {
       ioe.printStackTrace();
       throw new BuildException(ioe);
     }
-    JavaSourceSet input = new JavaSourceSet() {
-      public JClass[] getJClasses() { return classes; }
-      public TylarLoader getTylarLoader() { return null; }
-      public void compileJavaToBinaries(File classesDir) {}
-    };
-    return new Java2Schema(input);
+    return new Java2Schema(classes);
   }
 }

@@ -13,6 +13,7 @@ import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.binding.compile.SchemaSourceSet;
 import org.apache.xmlbeans.impl.binding.compile.SimpleSourceSet;
+import org.apache.xmlbeans.impl.binding.compile.BindingCompilerTask;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
@@ -35,9 +36,9 @@ public class BindingTests extends TestCase
     {
         // bind
         File typesonlyfile = TestEnv.xbeanCase("schema/typesonly/typesonly.xsd");
-        SchemaSourceSet input = SimpleSourceSet.forXsdFile(typesonlyfile, null);
-        Schema2Java compiler = new Schema2Java(input);
-
+        File[] xsds = new File[] {typesonlyfile};
+        Schema2Java compiler = new Schema2Java(
+                BindingCompilerTask.createSchemaTypeSystem(xsds));
         final JavaOutputStream joust = createJoust();
         BindingFile bindingFile = null;
         TylarWriter twriter = new TylarWriter() {

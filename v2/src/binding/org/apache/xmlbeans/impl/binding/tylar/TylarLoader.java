@@ -55,8 +55,8 @@
 */
 package org.apache.xmlbeans.impl.binding.tylar;
 
-import java.net.URI;
 import java.io.IOException;
+import java.net.URI;
 import org.apache.xmlbeans.XmlException;
 
 /**

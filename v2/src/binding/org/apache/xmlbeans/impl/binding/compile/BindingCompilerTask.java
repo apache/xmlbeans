@@ -58,7 +58,15 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 import java.io.File;
+import java.io.IOException;
 import java.util.logging.Level;
 
 /**
@@ -69,6 +77,14 @@ import java.util.logging.Level;
  * @author Patrick Calahan <pcal@bea.com>
  */
 public abstract class BindingCompilerTask extends MatchingTask {
+
+  // ========================================================================
+  // Constants
+
+  //used by createSchemaTypeSystem
+  private static final SchemaTypeLoader SCHEMA_LOADER =
+          XmlBeans.typeLoaderForClassLoader
+          (SchemaDocument.class.getClassLoader());
 
   // ========================================================================
   // Variables
@@ -126,7 +142,7 @@ public abstract class BindingCompilerTask extends MatchingTask {
     Tylar tylar = null;
     try {
       BindingCompiler bc = createCompiler();
-      bc.setIgnoreSeverErrors(mIgnoreErrors);
+      bc.setIgnoreSevereErrors(mIgnoreErrors);
       bc.setLogger(createLogger());
       bc.setVerbose(mVerbose);
       if (mDestDir != null) {
@@ -149,7 +165,35 @@ public abstract class BindingCompilerTask extends MatchingTask {
   }
 
   // ========================================================================
+  // Protected methods
+
+  /**
+   * Utility method for creating a SchemaTypeSystem from a set of
+   * xsd files.
+   */
+  public static SchemaTypeSystem createSchemaTypeSystem(File[] xsdFiles)
+          throws IOException, XmlException
+  {
+    XmlObject[] xsds = new XmlObject[xsdFiles.length];
+    for (int i = 0; i < xsdFiles.length; i++) {
+        xsds[i] = parseSchemaFile(xsdFiles[i]);
+    }
+    return XmlBeans.compileXsd(xsds, XmlBeans.getBuiltinTypeSystem(), null);
+  }
+
+
+  // ========================================================================
   // Private methods
+
+  private static SchemaDocument parseSchemaFile(File file)
+          throws IOException, XmlException
+  {
+      XmlOptions options = new XmlOptions();
+      options.setLoadLineNumbers();
+      options.setLoadMessageDigest();
+      return (SchemaDocument)SCHEMA_LOADER.parse
+              (file, SchemaDocument.type, options);
+  }
 
   private  BindingLogger createLogger() {
     //FIXME this should be an AntBindingLogger

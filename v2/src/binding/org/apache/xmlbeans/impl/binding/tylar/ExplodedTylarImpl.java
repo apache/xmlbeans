@@ -55,18 +55,25 @@
 */
 package org.apache.xmlbeans.impl.binding.tylar;
 
-import java.io.*;
-import java.net.URI;
-import java.net.URLClassLoader;
-import java.net.URL;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Collection;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.impl.binding.joust.*;
+import org.apache.xmlbeans.impl.binding.joust.FileWriterFactory;
+import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
+import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
+import org.apache.xmlbeans.impl.binding.joust.ValidatingJavaOutputStream;
 import org.apache.xmlbeans.impl.common.JarHelper;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
@@ -231,7 +238,7 @@ public class ExplodedTylarImpl
   public Tylar toJar(File jarfile) throws IOException {
     JarHelper j = new JarHelper();
     j.jarDir(mRootDir,jarfile);
-    return new JarredTylar(jarfile,mBindingFile,mSchemaDocuments);
+    return new TylarImpl(jarfile.toURI(),mBindingFile,mSchemaDocuments);
   }
 
   public File getSourceDir() {

@@ -91,26 +91,34 @@ public class Schema2Java extends BindingCompiler {
   // Variables
 
   private Set usedNames = new HashSet();
-  private SchemaTypeSystem sts;
+  private SchemaTypeSystem sts = null;
   private Map scratchFromXmlName = new LinkedHashMap();
   private Map scratchFromSchemaType = new HashMap(); // for convenience
   private Map scratchFromJavaNameString = new HashMap(); // for printing
-  private BindingLoader path;
+  private BindingLoader mLoader;
   private int structureCount;
   private BindingFile bindingFile = new BindingFile();
-  private SchemaSourceSet sourceSet;
   private JavaOutputStream mJoust = null;
 
   // ========================================================================
   // Constructors
 
+  /**
+   * Consturcts a Schema2Java to bind the types in the given type system.
+   */
+  public Schema2Java(SchemaTypeSystem s) {
+    setSchemaTypeSystem(s);
+  }
 
   /**
-   * Consturcts a Schema2Java to work on the given inputs and using the given
-   * logger.
+   * If you use this, you absolutely have to call setInput later.  This is
+   * here just as a convenience for Schema2JavaTask.
    */
-  public Schema2Java(SchemaSourceSet input) {
-    setInput(input);
+  /*package*/ Schema2Java() {}
+
+  /*package*/ void setSchemaTypeSystem(SchemaTypeSystem s) {
+    if (s == null) throw new IllegalArgumentException("null sts");
+    sts = s;
   }
 
   // ========================================================================
@@ -120,7 +128,8 @@ public class Schema2Java extends BindingCompiler {
    * Computes the binding.
    */
   public void bind(TylarWriter writer) {
-    if (sourceSet == null) throw new IllegalStateException("input never set");
+    if (sts == null) throw new IllegalStateException("SchemaTypeSystem not set");
+    super.notifyCompilationStarted();
     mJoust = writer.getJavaOutputStream();
     if (mJoust == null) throw new IllegalStateException("joust is null");
     bind();
@@ -131,32 +140,19 @@ public class Schema2Java extends BindingCompiler {
     }
     //FIXME also write the input schemas
     try {
-      writeJavaFiles(writer.getJavaOutputStream());
+      writeJavaFiles();
     } catch(IOException ioe) {
       if (!logError(ioe)) return;
     }
   }
 
   // ========================================================================
-  // Package methods
-
-  /**
-   * If you use this, you absolutely have to call setInput later.  This is
-   * here just as a convenience for Schema2JavaTask.
-   */
-  /*package*/ Schema2Java() {}
-
-  /*package*/ void setInput(SchemaSourceSet input) {
-    if (input == null) throw new IllegalArgumentException("null input");
-    this.sourceSet = input;
-    this.sts = input.getSchemaTypeSystem();
-    this.path = input.getTylarLoader().getBindingLoader();
-  }
-
-  // ========================================================================
   // Private methods
 
   private void bind() {
+
+    mLoader = super.getBaseBindingLoader();
+
     // Every type or global element or global attribute is dropped into
     // one of a number of categories.  (See Scratch constants.)
     //
@@ -355,11 +351,11 @@ public class Schema2Java extends BindingCompiler {
     XmlTypeName xName = btName.getXmlName();
     if (xName.isSchemaType()) {
       return (bindingFile.lookupTypeFor(jName) == null &&
-              path.lookupTypeFor(jName) == null);
+              mLoader.lookupTypeFor(jName) == null);
     }
     if (xName.getComponentType() == XmlTypeName.ELEMENT) {
       return (bindingFile.lookupElementFor(jName) == null &&
-              path.lookupElementFor(jName) == null);
+              mLoader.lookupElementFor(jName) == null);
     }
     return false;
   }
@@ -481,7 +477,7 @@ public class Schema2Java extends BindingCompiler {
 
   /**
    * Returns a collection of QNameProperties for a given schema type that
-   * may either be on the path or the current scratch area.
+   * may either be on the mLoader or the current scratch area.
    */
   private Collection extractProperties(SchemaType sType) {
     // case 1: it's in the current area
@@ -491,8 +487,8 @@ public class Schema2Java extends BindingCompiler {
       return scratch.getQNameProperties();
     }
 
-    // case 2: it's in the path
-    BindingType bType = path.getBindingType(path.lookupPojoFor(XmlTypeName.forSchemaType(sType)));
+    // case 2: it's in the mLoader
+    BindingType bType = mLoader.getBindingType(mLoader.lookupPojoFor(XmlTypeName.forSchemaType(sType)));
     if (!(bType instanceof ByNameBean)) {
       return null;
     }
@@ -627,9 +623,9 @@ public class Schema2Java extends BindingCompiler {
         return;
       }
 
-      // or if not within this type system, find the base type on the path
+      // or if not within this type system, find the base type on the mLoader
       XmlTypeName treatAs = XmlTypeName.forSchemaType(baseType);
-      BindingType basedOnBinding = path.getBindingType(path.lookupPojoFor(treatAs));
+      BindingType basedOnBinding = mLoader.getBindingType(mLoader.lookupPojoFor(treatAs));
       if (basedOnBinding != null) {
         scratch.setJavaName(basedOnBinding.getName().getJavaName());
         scratch.setAsIf(treatAs);
@@ -641,11 +637,11 @@ public class Schema2Java extends BindingCompiler {
     }
 
     // builtin at least should give us xs:anyType
-    throw new IllegalStateException("Builtin binding type loader is not on path.");
+    throw new IllegalStateException("Builtin binding type loader is not on mLoader.");
   }
 
   /**
-   * Looks on both the path and in the current scratch area for
+   * Looks on both the mLoader and in the current scratch area for
    * the binding type corresponding to the given schema type.  Must
    * be called after all the binding types have been created.
    */
@@ -653,7 +649,7 @@ public class Schema2Java extends BindingCompiler {
     Scratch scratch = scratchForSchemaType(sType);
     if (scratch != null)
       return scratch.getBindingType();
-    return path.getBindingType(path.lookupPojoFor(XmlTypeName.forSchemaType(sType)));
+    return mLoader.getBindingType(mLoader.lookupPojoFor(XmlTypeName.forSchemaType(sType)));
   }
 
   /**
@@ -880,11 +876,11 @@ public class Schema2Java extends BindingCompiler {
   // class someday.  Somebody conceivably might want to plug in here (at their
   // own risk, of course).   pcal 12/12/03
 
-  private void writeJavaFiles(JavaOutputStream joust) throws IOException {
+  private void writeJavaFiles() throws IOException {
     Collection classnames = getToplevelClasses();
     for (Iterator i = classnames.iterator(); i.hasNext();) {
       String className = (String) i.next();
-      printSourceCode(className, joust);
+      printSourceCode(className);
     }
   }
 
@@ -907,7 +903,7 @@ public class Schema2Java extends BindingCompiler {
   /**
    * Prints the Java source code for the given generated java class name.
    */
-  private void printSourceCode(String topLevelClassName, JavaOutputStream out) {
+  private void printSourceCode(String topLevelClassName) {
     Scratch scratch = scratchForJavaNameString(topLevelClassName);
     if (scratch == null) {
       logError("Could not find scratch for " + topLevelClassName); //?
