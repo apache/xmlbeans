@@ -508,8 +508,6 @@ public class Schema2Java extends BindingCompiler {
       case Scratch.ENUM_TYPE:
         JaxrpcEnumType enumResult = new JaxrpcEnumType(btName);
         enumResult.setGetValueMethod(JaxrpcEnumType.DEFAULT_GET_VALUE);
-        enumResult.setFromValueMethod(MethodName.create(JaxrpcEnumType.DEFAULT_FROM_VALUE_NAME,
-                scratch.getJavaName()));
         enumResult.setFromStringMethod(JaxrpcEnumType.DEFAULT_FROM_STRING);
         enumResult.setToXMLMethod(JaxrpcEnumType.DEFAULT_TO_XML);
         scratch.setBindingType(enumResult);
@@ -810,7 +808,10 @@ public class Schema2Java extends BindingCompiler {
     assert bType != null : "Binding type for schema type \"" + baseType +
       "\" not found on the mLoader";
 
-    ((JaxrpcEnumType) scratch.getBindingType()).setBaseType(bType);
+    JaxrpcEnumType enumType = (JaxrpcEnumType) scratch.getBindingType();
+    enumType.setFromValueMethod(MethodName.create(JaxrpcEnumType.DEFAULT_FROM_VALUE_NAME,
+            bType.getName().getJavaName()));
+    enumType.setBaseType(bType);
   }
 
   /**
