@@ -336,17 +336,15 @@ public class Inst2Xsd
 
         for (int i = 0; i < instances.length; i++)
         {
-            String instance = instances[i].toString();
-
             XmlObject xobj;
 
             try
             {
-                xobj = sLoader.parse( instance, null, new XmlOptions().setLoadLineNumbers() );
+                xobj = sLoader.parse( instances[i].newXMLStreamReader(), null, new XmlOptions().setLoadLineNumbers() );
             }
             catch (XmlException e)
             {
-                System.out.println("Error:\n" + instance + " not loadable: " + e);
+                System.out.println("Error:\n" + instances[i].documentProperties().getSourceName() + " not loadable: " + e);
                 e.printStackTrace(System.out);
                 result = false;
                 continue;
@@ -356,7 +354,7 @@ public class Inst2Xsd
 
             if (xobj.schemaType() == XmlObject.type)
             {
-                System.out.println(instance + " NOT valid.  ");
+                System.out.println(instances[i].documentProperties().getSourceName() + " NOT valid.  ");
                 System.out.println("  Document type not found." );
                 result = false;
             }

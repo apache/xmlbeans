@@ -2046,9 +2046,9 @@ abstract class Saver
                 }
 
                 if (prefix == null || prefix.length() == 0)
-                    _attributes.addAttribute( "", "", "xmlns", "CDATA", uri );
+                    _attributes.addAttribute( "http://www.w3.org/2000/xmlns/", "", "xmlns", "CDATA", uri );
                 else
-                    _attributes.addAttribute( "", "", "xmlns:" + prefix, "CDATA", uri );
+                    _attributes.addAttribute( "http://www.w3.org/2000/xmlns/", "", "xmlns:" + prefix, "CDATA", uri );
             }
         }
             
