@@ -15,8 +15,6 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-
 import javax.xml.namespace.QName;
 
 /**

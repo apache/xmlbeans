@@ -15,40 +15,60 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlCalendar;
+import org.apache.xmlbeans.GDateSpecification;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
-import java.util.Calendar;
+import java.util.Date;
 
 
-final class DateTimeTypeConverter
+/**
+ * convert between schema date/time types and java.util.Date
+ */
+final class JavaDateTypeConverter
     extends BaseSimpleTypeConverter
 {
+    private final int schemaType;
+
+    /**
+     *
+     * @param schemaType  use codes from SchemaType
+     */
+    JavaDateTypeConverter(int schemaType)
+    {
+        this.schemaType = schemaType;
+    }
 
     protected Object getObject(UnmarshalResult context) throws XmlException
     {
-        XmlCalendar val = context.getCalendarValue();
-        return val;
+        return context.getDateValue();
     }
 
     public Object unmarshalAttribute(UnmarshalResult context) throws XmlException
     {
-        return context.getAttributeCalendarValue();
+        return context.getAttributeDateValue();
     }
 
     public Object unmarshalAttribute(CharSequence lexical_value,
                                      UnmarshalResult result)
         throws XmlException
     {
-        final XmlCalendar xml_cal =
-            XsTypeConverter.lexDateTime(lexical_value);
-        return xml_cal;
+        try {
+            GDateSpecification gd =
+                XsTypeConverter.getGDateValue(lexical_value, schemaType);
+            return gd.getDate();
+        }
+        catch (IllegalArgumentException e) {
+            throw new InvalidLexicalValueException(e, result.getLocation());
+        }
+
     }
 
     public CharSequence print(Object value, MarshalResult result)
     {
-        Calendar c = (Calendar)value;
-        return XsTypeConverter.printDateTime(c);
+        Date d = (Date)value;
+        GDateSpecification gd = XsTypeConverter.getGDateValue(d, schemaType);
+        return gd.toString();
     }
 }

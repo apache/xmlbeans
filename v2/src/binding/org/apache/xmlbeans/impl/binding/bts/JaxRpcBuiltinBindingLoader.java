@@ -15,9 +15,7 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
-import javax.xml.namespace.QName;
 
 /**
  * Represents builtin bindings in JAX-RPC style
@@ -26,9 +24,7 @@ public class JaxRpcBuiltinBindingLoader extends BuiltinBindingLoader {
 
   // ========================================================================
   // Constants
-
-  private static final String xsns = "http://www.w3.org/2001/XMLSchema";
-  private static final BuiltinBindingLoader INSTANCE = new JaxRpcBuiltinBindingLoader();
+    private static final BuiltinBindingLoader INSTANCE = new JaxRpcBuiltinBindingLoader();
 
   // ========================================================================
   // Factory

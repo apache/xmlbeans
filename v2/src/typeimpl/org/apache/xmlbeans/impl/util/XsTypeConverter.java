@@ -20,6 +20,7 @@ import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDateBuilder;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.GDateSpecification;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import javax.xml.namespace.QName;
@@ -510,7 +511,7 @@ public final class XsTypeConverter
     // ======================== dateTime ========================
     public static XmlCalendar lexDateTime(CharSequence v)
     {
-        GDate value = getGDateValue(v, SchemaType.BTC_DATE_TIME);
+        GDateSpecification value = getGDateValue(v, SchemaType.BTC_DATE_TIME);
         return value.getCalendar();
     }
 
@@ -520,16 +521,32 @@ public final class XsTypeConverter
         return printDateTime(c, SchemaType.BTC_DATE_TIME);
     }
 
+    public static String printTime(Calendar c)
+    {
+        return printDateTime(c, SchemaType.BTC_TIME);
+    }
+
+    public static String printDate(Calendar c)
+    {
+        return printDateTime(c, SchemaType.BTC_DATE);
+    }
+
+    public static String printDate(Date d)
+    {
+        GDateSpecification value = getGDateValue(d, SchemaType.BTC_DATE);
+        return value.toString();
+    }
+
     public static String printDateTime(Calendar c, int type_code)
     {
-        GDate value = getGDateValue(c, type_code);
-        return value.canonicalString();
+        GDateSpecification value = getGDateValue(c, type_code);
+        return value.toString();
     }
 
     public static String printDateTime(Date c)
     {
-        GDate value = getGDateValue(c, SchemaType.BTC_DATE_TIME);
-        return value.canonicalString();
+        GDateSpecification value = getGDateValue(c, SchemaType.BTC_DATE_TIME);
+        return value.toString();
     }
 
 
@@ -548,17 +565,9 @@ public final class XsTypeConverter
     }
 
 
-
-    // private utils
-    private static GDate getGDateValue(Calendar c, int builtin_type_code)
-    {
-        GDateBuilder gDateBuilder = new GDateBuilder(c);
-        gDateBuilder.setBuiltinTypeCode(builtin_type_code);
-        GDate value = gDateBuilder.toGDate();
-        return value;
-    }
-
-    private static GDate getGDateValue(Date d, int builtin_type_code)
+    // date utils
+    public static GDateSpecification getGDateValue(Date d,
+                                                   int builtin_type_code)
     {
         GDateBuilder gDateBuilder = new GDateBuilder(d);
         gDateBuilder.setBuiltinTypeCode(builtin_type_code);
@@ -566,7 +575,18 @@ public final class XsTypeConverter
         return value;
     }
 
-    private static GDate getGDateValue(CharSequence v, int builtin_type_code)
+
+    public static GDateSpecification getGDateValue(Calendar c,
+                                                   int builtin_type_code)
+    {
+        GDateBuilder gDateBuilder = new GDateBuilder(c);
+        gDateBuilder.setBuiltinTypeCode(builtin_type_code);
+        GDate value = gDateBuilder.toGDate();
+        return value;
+    }
+
+    public static GDateSpecification getGDateValue(CharSequence v,
+                                                   int builtin_type_code)
     {
         GDateBuilder gDateBuilder = new GDateBuilder(v);
         gDateBuilder.setBuiltinTypeCode(builtin_type_code);
