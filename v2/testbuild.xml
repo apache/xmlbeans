@@ -38,7 +38,7 @@
     <property name="xbeans.test.tools.src" value="${xbeans.test.tools}/src"/>
     <property name="build.dir.test.marshalling" value="${build.dir.test}/classes/marshal"/>
 
-    <property name="asserts" value="off"/>
+    <property name="asserts" value="on"/>
 
     <!-- End of testenv.properties -->
 
