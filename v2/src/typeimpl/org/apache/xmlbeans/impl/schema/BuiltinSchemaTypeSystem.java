@@ -321,7 +321,7 @@ public class BuiltinSchemaTypeSystem extends SchemaTypeLoaderBase implements Sch
         // derived strings
         setupBuiltin(SchemaType.BTC_NORMALIZED_STRING, "normalizedString", "org.apache.xmlbeans.XmlNormalizedString");
         setupBuiltin(SchemaType.BTC_TOKEN, "token", "org.apache.xmlbeans.XmlToken");
-        setupBuiltin(SchemaType.BTC_NAME, "Name", "org.apache.xmlbeans.XmlTypeName");
+        setupBuiltin(SchemaType.BTC_NAME, "Name", "org.apache.xmlbeans.XmlName");
         setupBuiltin(SchemaType.BTC_NCNAME, "NCName", "org.apache.xmlbeans.XmlNCName");
         setupBuiltin(SchemaType.BTC_LANGUAGE, "language", "org.apache.xmlbeans.XmlLanguage");
         setupBuiltin(SchemaType.BTC_ID, "ID", "org.apache.xmlbeans.XmlID");

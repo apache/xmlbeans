@@ -225,6 +225,8 @@ public class PathBindingLoader implements BindingLoader
         {
             for (int i = 0; i < jarsOrDirs.length; i++)
             {
+                if (!jarsOrDirs[i].exists())
+                    continue; // skip parts of the claspath which do not exist
                 FileResourceLoader rl = new FileResourceLoader(jarsOrDirs[i]);
                 InputStream resource = rl.getResourceAsStream(STANDARD_PATH);
                 files.add(BindingFile.forDoc(BindingConfigDocument.Factory.parse(resource)));

@@ -62,6 +62,7 @@ import org.apache.tools.ant.types.Reference;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
 
 import java.io.File;
 import java.io.IOException;
@@ -79,6 +80,7 @@ public class Both2BindTask extends MatchingTask
     private Path mClasspath = null;
     private List mXsdFiles = null;
     private List mJavaFiles = null;
+    private String mTypeMatcherClass = null;
 
     // =========================================================================
     // Task attributes
@@ -99,6 +101,15 @@ public class Both2BindTask extends MatchingTask
         else {
             mSrc.append(srcDir);
         }
+    }
+    
+    /**
+     * Sets the typematcher class name.  Must be a fully-qualified
+     * class name for a class that implements the TypeMatcher interface.
+     */
+    public void setTypeMatcher(String typeMatcher)
+    {
+        mTypeMatcherClass = typeMatcher;
     }
 
     /**
@@ -219,7 +230,14 @@ public class Both2BindTask extends MatchingTask
         }
         
         TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);
-        BindingFileResult result = Both2Bind.bind(input, null);
+        XmlOptions opts = null;
+        if (mTypeMatcherClass != null)
+        {
+            opts = new XmlOptions();
+            opts.put(Both2Bind.TYPE_MATCHER, mTypeMatcherClass);
+            System.out.println("Got matcher class " + mTypeMatcherClass);
+        }
+        BindingFileResult result = Both2Bind.bind(input, opts);
 
         try {
             tb.buildTylar(result);
