@@ -71,7 +71,8 @@ class UnmarshallerImpl implements Unmarshaller
 {
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
-    private final XMLInputFactory xmlInputFactory =
+
+    private static final XMLInputFactory XML_INPUT_FACTORY =
         XMLInputFactory.newInstance();
 
     public UnmarshallerImpl(BindingLoader loader,
@@ -112,7 +113,7 @@ class UnmarshallerImpl implements Unmarshaller
 
         try {
             final XMLStreamReader reader =
-                xmlInputFactory.createXMLStreamReader(doc);
+                XML_INPUT_FACTORY.createXMLStreamReader(doc);
             return unmarshal(reader, options);
         }
         catch (XMLStreamException e) {
@@ -146,6 +147,6 @@ class UnmarshallerImpl implements Unmarshaller
 
     XMLInputFactory getXmlInputFactory()
     {
-        return xmlInputFactory;
+        return XML_INPUT_FACTORY;
     }
 }

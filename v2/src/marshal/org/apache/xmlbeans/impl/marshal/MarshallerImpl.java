@@ -86,7 +86,7 @@ final class MarshallerImpl
     private final RuntimeTypeFactory runtimeTypeFactory;
 
     //REVIEW: can this be static?
-    private final XMLOutputFactory xmlOutputFactory =
+    private static final XMLOutputFactory XML_OUTPUT_FACTORY =
         XMLOutputFactory.newInstance();
 
     private static final String XML_VERSION = "1.0";
@@ -184,7 +184,7 @@ final class MarshallerImpl
         throws XmlException
     {
         try {
-            XMLStreamWriter writer = xmlOutputFactory.createXMLStreamWriter(out);
+            XMLStreamWriter writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out);
             XMLStreamReader rdr = marshal(obj, writer.getNamespaceContext());
             XmlReaderToWriter.writeAll(rdr, writer);
         }
@@ -250,9 +250,9 @@ final class MarshallerImpl
     {
         XMLStreamWriter writer;
         if (encoding != null) {
-            writer = xmlOutputFactory.createXMLStreamWriter(out, encoding);
+            writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out, encoding);
         } else {
-            writer = xmlOutputFactory.createXMLStreamWriter(out);
+            writer = XML_OUTPUT_FACTORY.createXMLStreamWriter(out);
         }
         return writer;
     }

@@ -97,6 +97,7 @@ public class LoadSaveUtils
     public static void xmlStreamReader2XmlText(XMLStreamReader xsr, OutputStream os)
             throws XMLStreamException
     {
+        //REVIEW (zieg): I think we can cache this factory
         XMLStreamWriter xsw = XMLOutputFactory.newInstance().createXMLStreamWriter(os);
 
         while (xsr.hasNext())
