@@ -1003,4 +1003,29 @@
       <arg line='test/cases/xpath/much_ado.xml "PLAY/ACT/SCENE/SPEECH/SPEAKER"'/>
     </java>
   </target>
+
+    <!-- test marshal target ============================================= -->
+    <target name="test_marshal.classes" depends="marshal.classes">
+        <mkdir dir="build/private/classes/marshal"/>
+        <javac
+            srcdir="test/cases/marshal"
+            destdir="build/private/classes/marshal"
+            classpathref="testmarshal.compile.path"
+            source="1.4"
+            debug="on">
+            <classpath id="testmarshal.compile.path">
+                <pathelement location="build/classes/binding"/>
+                <pathelement location="build/classes/marshal"/>
+                <pathelement location="build/classes/common"/>
+                <pathelement location="build/classes/configschema"/>
+                <pathelement location="build/classes/typeimpl"/>
+                <pathelement location="build/classes/xmlinputstream"/>
+                <pathelement location="build/classes/xmlpublic"/>
+                <pathelement location="build/lib/jsr173_07_api.jar"/>
+                <pathelement location="build/lib/xmlpublic.jar"/>
+            </classpath>
+        </javac>
+    </target>
+
+
 </project>

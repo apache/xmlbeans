@@ -97,8 +97,8 @@ public class BindingContextFactory
     {
         BindingFile bf = BindingFile.forDoc(doc);
 
-        RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bf);
         BindingLoader bindingLoader = buildBindingLoader(bf);
+        RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bf, bindingLoader);
 
         return new BindingContext(bindingLoader, tbl);
     }
@@ -110,47 +110,60 @@ public class BindingContextFactory
     }
 
 
-    private static RuntimeBindingTypeTable buildUnmarshallingTypeTable(BindingFile bf)
+    private static RuntimeBindingTypeTable buildUnmarshallingTypeTable(BindingFile bf,
+                                                                       BindingLoader loader)
     {
         RuntimeBindingTypeTable tbl = new RuntimeBindingTypeTable();
 
         for (Iterator itr = bf.getBindingTypes().iterator(); itr.hasNext();) {
-            BindingType type = (BindingType) itr.next();
+            BindingType type = (BindingType)itr.next();
 
-            TypeUnmarshaller um = createTypeUnmarshaller(type);
+            TypeUnmarshaller um = createTypeUnmarshaller(type, loader, tbl);
             tbl.putTypeUnmarshaller(type, um);
-
         }
+
+        tbl.initUnmarshallers(loader);
 
         return tbl;
     }
 
-    private static TypeUnmarshaller createTypeUnmarshaller(BindingType type)
+    private static TypeUnmarshaller createTypeUnmarshaller(BindingType type,
+                                                           BindingLoader loader,
+                                                           RuntimeBindingTypeTable table)
     {
         //TODO: cleanup this nasty instanceof stuff (Visitor?)
 
-        if (type instanceof ByNameBean) {
-            return createByNameUnmarshaller((ByNameBean) type);
-        } else if (type instanceof SimpleBindingType) {
+        if (type instanceof SimpleBindingType) {
             //note this could return a static for builtin types
-            return createSimpleTypeUnmarshaller((SimpleBindingType) type);
+            return createSimpleTypeUnmarshaller((SimpleBindingType)type, loader, table);
+        } else if (type instanceof ByNameBean) {
+            return new ByNameUnmarshaller((ByNameBean)type);
         }
-        throw new AssertionError("UNIMPLEMENTED TYPE: " + type.getClass());
+
+        throw new AssertionError("UNIMPLEMENTED TYPE: " + type);
     }
 
-    private static TypeUnmarshaller createSimpleTypeUnmarshaller(SimpleBindingType stype)
+    private static TypeUnmarshaller createSimpleTypeUnmarshaller(SimpleBindingType stype,
+                                                                 BindingLoader loader,
+                                                                 RuntimeBindingTypeTable table)
     {
-        //TODO: take this into account!
-        //XmlName asIfXmlType = stype.getAsIfXmlType();
+        TypeUnmarshaller um = table.getTypeUnmarshaller(stype);
 
-        RuntimeBindingTypeTable builtin = BuiltinRuntimeTypeTable.getBuiltinTable();
-        TypeUnmarshaller um = builtin.getTypeUnmarshaller(stype);
-        assert um != null;
+        if (um == null) {
+            //let's try using the as if type
+            BindingType asif = stype.getAsIfBindingType(loader);
+            if (asif == null) {
+                throw new AssertionError("unable to get asif type for " + stype);
+            }
+            um = table.getTypeUnmarshaller(asif);
+        }
+
+        if (um == null) {
+            String msg = "unable to get simple type unmarshaller for " + stype;
+            throw new AssertionError(msg);
+        }
+
         return um;
     }
 
-    private static TypeUnmarshaller createByNameUnmarshaller(ByNameBean byNameBean)
-    {
-        throw new UnsupportedOperationException("UNIMP");
-    }
 }

@@ -56,21 +56,48 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+
 /**
- * A TypeUnmarshaller knows how to unmarshall an xml
+ * A TypeUnmarshaller knows how to unmarshal an xml
  * instance of a given BindingType
  */
 interface TypeUnmarshaller
 {
     /**
      * Unmarshalls the current node in the xml into a java object.
-     * The UnmarshallContext must be pointing at the start element of the node
+     * The UnmarshalContext must be pointing at the start element of the node
      * to be unmarshalled (such that XmlStreamReader.isStarteElement()
-     * returns true).  The unmarshall method must consume the entire contents 
+     * returns true).  The unmarshal method must consume the entire contents
      * of that node including the matching end element.
      *
-     * @param context  contains that state of the document unmarshall process
+     * @param context  contains that state of the document unmarshal process
      * @return  Object representing the converted xml
      */
-    Object unmarshall(UnmarshallContext context);
+    Object unmarshal(UnmarshalContext context);
+
+    /**
+     * unmarshal the lexical value of an instance of xsd:anySimpleType.
+     * This could be called on an attribute value or on element content.
+     *
+     * @param lexicalValue
+     * @param context
+     * @return Object representing java value of lexical
+     *
+     * @exception UnsupportedOperationException if the
+     *            <tt>unmarshalSimpleType</tt> operation is not supported
+     *            by this TypeUnmarshaller.
+     */
+    Object unmarshalSimpleType(CharSequence lexicalValue,
+                               UnmarshalContext context);
+
+
+    /**
+     * called once per object before first use.
+     *
+     * @param typeTable
+     * @param bindingLoader
+     */
+    void initialize(RuntimeBindingTypeTable typeTable,
+                    BindingLoader bindingLoader);
 }

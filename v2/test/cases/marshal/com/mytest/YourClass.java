@@ -54,12 +54,75 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package com.mytest;
 
-
-interface RuntimeBindingProperty
+public class YourClass
 {
-    TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context);
+    private MyClass myClass;
+    private float myFloat;
+    private float attrib;
 
-    void fill(Object inter, Object prop_obj);
+    public float getMyFloat()
+    {
+        return myFloat;
+    }
+
+    public void setMyFloat(float myFloat)
+    {
+        this.myFloat = myFloat;
+    }
+
+    public MyClass getMyClass()
+    {
+        return myClass;
+    }
+
+    public void setMyClass(MyClass myClass)
+    {
+        this.myClass = myClass;
+    }
+
+    public float getAttrib()
+    {
+        return attrib;
+    }
+
+    public void setAttrib(float attrib)
+    {
+        this.attrib = attrib;
+    }
+
+    public boolean equals(Object o)
+    {
+        if (this == o) return true;
+        if (!(o instanceof YourClass)) return false;
+
+        final YourClass yourClass = (YourClass)o;
+
+        if (attrib != yourClass.attrib) return false;
+        if (myFloat != yourClass.myFloat) return false;
+        if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
+
+        return true;
+    }
+
+    public int hashCode()
+    {
+        int result;
+        result = (myClass != null ? myClass.hashCode() : 0);
+        result = 29 * result + Float.floatToIntBits(myFloat);
+        result = 29 * result + Float.floatToIntBits(attrib);
+        return result;
+    }
+
+    public String toString()
+    {
+        return "com.mytest.YourClass{" +
+            "myClass=" + myClass +
+            ", myFloat=" + myFloat +
+            ", attrib=" + attrib +
+            "}";
+    }
+
+
 }

@@ -79,6 +79,6 @@ public class BindingContext
 
     public Unmarshaller createUnmarshaller()
     {
-        return new Unmarshaller(bindingLoader, typeTable);
+        return new UnmarshallerImpl(bindingLoader, typeTable);
     }
 }

@@ -56,18 +56,27 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-
-public class RuntimeBindingType
+/**
+ * what we need to know about a binding type at runtime.
+ * No marshalling state should be stored here.
+ * This object will be shared by many threads
+ */
+interface RuntimeBindingType
 {
-    private BindingType bindingType;
+    /**
+     * prepare internal data structures for use
+     *
+     * @param typeTable
+     * @param bindingLoader
+     */
+    void initialize(RuntimeBindingTypeTable typeTable,
+                    BindingLoader bindingLoader);
 
-    private RuntimeBindingProperty[] properties;
+    Object createIntermediary(UnmarshalContext context);
 
-    public BindingType getBindingType()
-    {
-        throw new UnsupportedOperationException();
-    }
+    Object getFinalObjectFromIntermediary(Object retval,
+                                          UnmarshalContext context);
 
 }
