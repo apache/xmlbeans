@@ -441,7 +441,7 @@
                  common.classes, typeimpl.classes, xmlcomp.classes,
                  xmlstore.classes,
                  oldxbean.jar, xsdschema.classes,
-                 xmlinputstream.classes, jax-qname.classes">
+                 xmlinputstream.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
       <fileset dir="build/classes/xmlpublic"/>
       <fileset dir="build/classes/typestore"/>
@@ -454,7 +454,6 @@
       <fileset dir="build/classes/xmlschema"/>
       <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/xmlinputstream"/>
-      <fileset dir="build/classes/jax-qname"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="src/license"/>
     </jar>
@@ -464,7 +463,6 @@
 
   <path id="jaxb.compile.path">
     <pathelement location="external/lib/jaxb-1.0/jaxb-api.jar"/>
-    <pathelement location="external/lib/jax-qname.jar"/>
     <pathelement location="build/classes/xmlpublic"/>
     <pathelement location="build/classes/typeimpl"/>
     <pathelement location="build/classes/common"/>
@@ -500,18 +498,6 @@
         </javac>
     </target>
 
-  <!-- jax-qname target ============================================== -->
-
-  <target name="jax-qname.classes">
-    <mkdir dir="build/classes/jax-qname"/>
-    <unjar src="external/lib/jax-qname.jar" dest="build/classes/jax-qname">
-      <patternset>
-          <include name="javax/xml/namespace/QName.class"/>
-      </patternset>
-    </unjar>
-  </target>
-
-
   <!-- build XMLInputStream interface ============================================= -->
 
   <target name="xmlinputstream.classes" depends="dirs">
@@ -527,7 +513,6 @@
     <mkdir dir="build/classes/xmlpublic"/>
     <javac srcdir="src/xmlpublic" destdir="build/classes/xmlpublic" source="1.4" debug="on">
       <classpath>
-        <pathelement location="external/lib/jax-qname.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
       </classpath>
     </javac>
@@ -548,7 +533,6 @@
     <mkdir dir="build/classes/typestore"/>
     <javac srcdir="src/typestore" destdir="build/classes/typestore" source="1.4" debug="on">
       <classpath>
-        <pathelement location="external/lib/jax-qname.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/common"/>
@@ -563,7 +547,6 @@
     <mkdir dir="build/classes/common"/>
     <javac srcdir="src/common" destdir="build/classes/common" source="1.4" debug="on">
       <classpath>
-        <pathelement location="external/lib/jax-qname.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/lib/xmlpublic.jar"/>
       </classpath>
@@ -577,7 +560,6 @@
     <mkdir dir="build/classes/typeimpl"/>
     <javac destdir="build/classes/typeimpl" source="1.4" debug="on">
       <classpath>
-        <pathelement location="external/lib/jax-qname.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/repackage"/>
@@ -611,7 +593,6 @@
     <mkdir dir="build/classes/xmlcomp"/>
     <javac srcdir="src/xmlcomp" destdir="build/classes/xmlcomp" source="1.4" debug="on">
       <classpath>
-        <pathelement location="external/lib/jax-qname.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/common"/>
@@ -633,7 +614,6 @@
     <mkdir dir="build/classes/xmlstore"/>
     <javac srcdir="src/xmlstore" destdir="build/classes/xmlstore" source="1.4" debug="on">
       <classpath id="xmlstore.compile.path">
-        <pathelement location="external/lib/jax-qname.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/typestore"/>
         <pathelement location="build/classes/xmlpublic"/>
