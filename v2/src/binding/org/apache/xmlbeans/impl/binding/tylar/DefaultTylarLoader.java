@@ -106,6 +106,7 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
 
   private static final String STS_PREFIX = "schema"+SEPCHAR+"system"+SEPCHAR;
 
+
   /**
    * Loads the tylar from the given uri.
    *
@@ -117,25 +118,15 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
   public Tylar load(URI uri) throws IOException, XmlException
   {
     if (uri == null) throw new IllegalArgumentException("null uri");
-    String scheme = uri.getScheme();
-    //yuck even more hackery.  ripping this all out soon
-    if (scheme.equals("jar")) {
-      return load(new URL[]{ new URL(uri.toString()) });
-     
-    } else if (scheme.equals(FILE_SCHEME)) {
-      File file = null;
-      try {
-        file = new File(uri);
-      } catch(Exception ignore) {}
-      if (file != null && file.exists() && file.isDirectory()) {
-        return ExplodedTylarImpl.load(file);
-      } else {
-        return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
-      }
+    //String scheme = uri.getScheme();
+    File file = null;
+    try {
+      file = new File(uri);
+    } catch(Exception ignore) {}
+    if (file != null && file.exists() && file.isDirectory()) {
+      return ExplodedTylarImpl.load(file);
     } else {
-      throw new IOException("Sorry, the '"+scheme+
-                            "' scheme is not supported for loading tylars" +
-                            "("+uri+")");
+      return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
     }
   }
 
