@@ -41,6 +41,7 @@ public class Java2SchemaTask extends BindingCompilerTask {
   private Path mClasspath = null;
   private String mIncludes = null;
   private Path mSrcDir = null;
+  private boolean mOrderPropertiesBySource = false;
 
   // =========================================================================
   // Task attributes
@@ -99,6 +100,18 @@ public class Java2SchemaTask extends BindingCompilerTask {
     mIncludes = includes;
   }
 
+  /**
+   * <p>Sets whether elements within generated schema types should be ordered
+   * according to the source order of their corresponding java properties.
+   * The default is false, meaning that they will instead be ordered
+   * alphabetically.</p>
+   *
+   * @param b
+   */
+  public void setOrderPropertiesBySource(boolean b) {
+    mOrderPropertiesBySource = b;
+  }
+
   public void setCompileSources(boolean ignoredRightNow) {}
 
   public void setCopySources(boolean ignoredRightNow) {}
@@ -148,7 +161,9 @@ public class Java2SchemaTask extends BindingCompilerTask {
     } catch(IOException ioe) {
       throw new BuildException(ioe);
     }
-    return new Java2Schema(service.getAllClasses());
+    Java2Schema out = new Java2Schema(service.getAllClasses());
+    out.setOrderPropertiesBySource(mOrderPropertiesBySource);
+    return out;
   }
 
   // ========================================================================

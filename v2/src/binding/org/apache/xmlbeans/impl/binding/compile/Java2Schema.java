@@ -38,6 +38,7 @@ import java.util.Comparator;
 import java.util.Arrays;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.math.BigInteger;
 
 
 /**
@@ -64,6 +65,7 @@ public class Java2Schema extends BindingCompiler {
   private static final String TAG_EL               = "xsdgen:element";
 
   public static final String TAG_EL_NAME          = TAG_EL+".name";
+  public static final String TAG_EL_REQUIRED      = TAG_EL+".required";
   public static final String TAG_EL_NILLABLE      = TAG_EL+".nillable";
   public static final String TAG_EL_EXCLUDE       = TAG_EL+".exclude";
   public static final String TAG_EL_ASTYPE        = TAG_EL+".astype";
@@ -107,6 +109,13 @@ public class Java2Schema extends BindingCompiler {
     if (classesToBind == null) {
       throw new IllegalArgumentException("null classes");
     }
+    /*
+    for(int i=0; i<classesToBind.length; i++) {
+      if (classesToBind[i].isUnresolvedType()) {
+        throw new IllegalArgumentException(classesToBind[i].getQualifiedName()+
+                                           " is unresolved.");
+      }
+    } */
     mClasses = classesToBind;
   }
 
@@ -432,6 +441,19 @@ public class Java2Schema extends BindingCompiler {
           }
         }
       }
+      { // determine if the property is required
+        JAnnotation a = props[i].getAnnotation(TAG_EL_REQUIRED);
+        if (a != null) {
+          // if the tag is there but empty, set it to true.  is that weird?
+          JAnnotationValue val = a.getValue(JAnnotation.SINGLE_VALUE_NAME);
+          if (val == null || val.asString().trim().length() == 0) {
+            facade.setRequired(true);
+          } else {
+            facade.setRequired(val.asBoolean());
+          }
+        }
+      }
+
     }
   }
 
@@ -487,20 +509,6 @@ public class Java2Schema extends BindingCompiler {
     }
     return out.toString();
   }
-
-  /*
-
-  private static boolean isXmlObj(JClass clazz) {
-    try {
-      JClass xmlObj = clazz.forName("org.apache.xmlbeans.XmlObject");
-      return xmlObj.isAssignableFrom(clazz);
-    } catch(Exception e) {
-      e.printStackTrace(); //FIXME
-      return false;
-    }
-  }
-  */
-
 
 
   /**
@@ -681,6 +689,19 @@ public class Java2Schema extends BindingCompiler {
         mBtsProp.setNillable(b);
       } else if (mXsAttribute != null) {
         logError("Attributes cannot be nillable:",mSrcContext);
+      } else {
+        throw new IllegalStateException();
+      }
+    }
+
+    /**
+     * Sets whether the property should be bound as nillable.
+     */
+    public void setRequired(boolean b) {
+      if (mXsElement != null) {
+        mXsElement.setMinOccurs(BigInteger.valueOf(b ? 1 : 0));
+      } else if (mXsAttribute != null) {
+        mXsAttribute.setUse(b ? Attribute.Use.REQUIRED : Attribute.Use.OPTIONAL);
       } else {
         throw new IllegalStateException();
       }
