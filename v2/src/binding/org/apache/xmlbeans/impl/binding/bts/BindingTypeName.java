@@ -18,7 +18,11 @@ package org.apache.xmlbeans.impl.binding.bts;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.jam.JClass;
 
-public final class BindingTypeName {
+import java.io.Serializable;
+
+public final class BindingTypeName
+    implements Serializable
+{
 
   // ========================================================================
   // Variables
@@ -26,6 +30,9 @@ public final class BindingTypeName {
   private final JavaTypeName jName;
   private final XmlTypeName xName;
 
+  private static final long serialVersionUID = 1L;
+
+  
   // ========================================================================
   // Factories
 

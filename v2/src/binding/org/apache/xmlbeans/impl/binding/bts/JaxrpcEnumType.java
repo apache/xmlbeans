@@ -24,143 +24,108 @@ import org.apache.xmlbeans.XmlException;
 public class JaxrpcEnumType extends BindingType
 {
 
-    // ========================================================================
-    // Variables
+  // ========================================================================
+  // Variables
 
-    private BindingTypeName baseType;
-    private MethodName getValueMethod;
-    private MethodName fromValueMethod;
-    private MethodName fromStringMethod;
-    private MethodName toXMLMethod;
+  private BindingTypeName baseType;
+  private MethodName getValueMethod;
+  private MethodName fromValueMethod;
+  private MethodName fromStringMethod;
+  private MethodName toXMLMethod;
 
-    // ========================================================================
-    // Constants
+  // ========================================================================
+  // Constants
 
-    public final static MethodName DEFAULT_GET_VALUE = MethodName.create("getValue");
-    public final static String     DEFAULT_FROM_VALUE_NAME = "fromValue";
-    public final static MethodName DEFAULT_FROM_STRING = MethodName.create("fromString",
-        JavaTypeName.forString("java.lang.String"));
-    public final static MethodName DEFAULT_TO_XML = MethodName.create("toXML");
+  public final static MethodName DEFAULT_GET_VALUE = MethodName.create("getValue");
+  public final static String DEFAULT_FROM_VALUE_NAME = "fromValue";
+  public final static MethodName DEFAULT_FROM_STRING = MethodName.create("fromString",
+                                                                         JavaTypeName.forString("java.lang.String"));
+  public final static MethodName DEFAULT_TO_XML = MethodName.create("toXML");
 
-    // ========================================================================
-    // Constructors
-
-    public JaxrpcEnumType(BindingTypeName btName)
-    {
-        super(btName);
-    }
-
-    public JaxrpcEnumType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this((org.apache.xml.xmlbeans.bindingConfig.JaxrpcEnumType)node);
-    }
-
-    public JaxrpcEnumType(org.apache.xml.xmlbeans.bindingConfig.JaxrpcEnumType node)
-    {
-        super(node);
-
-        this.baseType = BindingTypeName.forPair(
-            JavaTypeName.forString(node.getBaseJavatype()),
-            XmlTypeName.forString(node.getBaseXmlcomponent()));
-
-        this.getValueMethod = MethodName.create(node.getGetValueMethod());
-        this.fromValueMethod = MethodName.create(node.getFromValueMethod());
-        this.fromStringMethod = MethodName.create(node.getFromStringMethod());
-
-        org.apache.xml.xmlbeans.bindingConfig.JavaMethodName toxml_method =
-            node.getToXMLMethod();
-        if (toxml_method != null) {
-            this.toXMLMethod = MethodName.create(toxml_method);
-        }
-    }
+  private static final long serialVersionUID = 1L;
 
 
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        org.apache.xml.xmlbeans.bindingConfig.JaxrpcEnumType jnode =
-            (org.apache.xml.xmlbeans.bindingConfig.JaxrpcEnumType)super.write(node);
 
-        if (baseType != null) {
-            jnode.setBaseJavatype(baseType.getJavaName().toString());
-            jnode.setBaseXmlcomponent(baseType.getXmlName().toString());
-        }
+  // ========================================================================
+  // Constructors
 
-        if (getValueMethod != null) {
-            getValueMethod.write(jnode.addNewGetValueMethod());
-        }
+  public JaxrpcEnumType()
+  {
+  }
 
-        if (fromValueMethod != null) {
-            fromValueMethod.write(jnode.addNewFromValueMethod());
-        }
-
-        if (toXMLMethod != null) {
-            toXMLMethod.write(jnode.addNewToXMLMethod());
-        }
-
-        if (fromStringMethod != null) {
-            fromStringMethod.write(jnode.addNewFromStringMethod());
-        }
-
-        return jnode;
-    }
-
-    public void accept(BindingTypeVisitor visitor) throws XmlException
-    {
-        visitor.visit(this);
-    }
+  public JaxrpcEnumType(BindingTypeName btName)
+  {
+    super(btName);
+  }
 
 
-    // ========================================================================
-    // Public methods
+  public void accept(BindingTypeVisitor visitor) throws XmlException
+  {
+    visitor.visit(this);
+  }
 
-    public BindingTypeName getBaseTypeName()
-    {
-        return baseType;
-    }
 
-    public void setBaseType(BindingType bType)
-    {
-        baseType = bType.getName();
-    }
+  // ========================================================================
+  // Public methods
 
-    public MethodName getGetValueMethod()
-    {
-        return getValueMethod;
-    }
+  public BindingTypeName getBaseTypeName()
+  {
+    return getBaseType();
+  }
 
-    public void setGetValueMethod(MethodName getValueMethod)
-    {
-        this.getValueMethod = getValueMethod;
-    }
+  public void setBaseType(BindingType bType)
+  {
+    setBaseType(bType.getName());
+  }
 
-    public MethodName getFromValueMethod()
-    {
-        return fromValueMethod;
-    }
+  public MethodName getGetValueMethod()
+  {
+    return getValueMethod;
+  }
 
-    public void setFromValueMethod(MethodName fromValueMethod)
-    {
-        this.fromValueMethod = fromValueMethod;
-    }
+  public void setGetValueMethod(MethodName getValueMethod)
+  {
+    this.getValueMethod = getValueMethod;
+  }
 
-    public MethodName getFromStringMethod()
-    {
-        return fromStringMethod;
-    }
+  public MethodName getFromValueMethod()
+  {
+    return fromValueMethod;
+  }
 
-    public void setFromStringMethod(MethodName fromStringMethod)
-    {
-        this.fromStringMethod = fromStringMethod;
-    }
+  public void setFromValueMethod(MethodName fromValueMethod)
+  {
+    this.fromValueMethod = fromValueMethod;
+  }
 
-    public MethodName getToXMLMethod()
-    {
-        return toXMLMethod;
-    }
+  public MethodName getFromStringMethod()
+  {
+    return fromStringMethod;
+  }
 
-    public void setToXMLMethod(MethodName toXMLMethod)
-    {
-        this.toXMLMethod = toXMLMethod;
-    }
+  public void setFromStringMethod(MethodName fromStringMethod)
+  {
+    this.fromStringMethod = fromStringMethod;
+  }
+
+  public MethodName getToXMLMethod()
+  {
+    return toXMLMethod;
+  }
+
+  public void setToXMLMethod(MethodName toXMLMethod)
+  {
+    this.toXMLMethod = toXMLMethod;
+  }
+
+  public BindingTypeName getBaseType()
+  {
+    return baseType;
+  }
+
+  public void setBaseType(BindingTypeName baseType)
+  {
+    this.baseType = baseType;
+  }
 
 }

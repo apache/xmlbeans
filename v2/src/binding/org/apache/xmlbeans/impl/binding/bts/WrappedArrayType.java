@@ -26,94 +26,65 @@ import javax.xml.namespace.QName;
 public class WrappedArrayType extends BindingType
 {
 
-    // ========================================================================
-    // Variables
+  // ========================================================================
+  // Variables
 
-    private QName itemName;
-    private BindingTypeName itemType;
-    private boolean itemNillable;
+  private QName itemName;
+  private BindingTypeName itemType;
+  private boolean itemNillable;
 
-    // ========================================================================
-    // Constructors
-
-    public WrappedArrayType(BindingTypeName btName)
-    {
-        super(btName);
-    }
-
-    public WrappedArrayType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this((org.apache.xml.xmlbeans.bindingConfig.WrappedArray)node);
-    }
-
-    public WrappedArrayType(org.apache.xml.xmlbeans.bindingConfig.WrappedArray node)
-    {
-        super(node);
-        this.itemName = node.getItemName();
-
-        final org.apache.xml.xmlbeans.bindingConfig.Mapping itype =
-            node.getItemType();
-        final JavaTypeName jName = JavaTypeName.forString(itype.getJavatype());
-        final XmlTypeName xName = XmlTypeName.forString(itype.getXmlcomponent());
-        this.itemType = BindingTypeName.forPair(jName, xName);
-
-        itemNillable = node.getItemNillable();
-    }
+  private static final long serialVersionUID = 1L;
 
 
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        final org.apache.xml.xmlbeans.bindingConfig.WrappedArray wa =
-            (org.apache.xml.xmlbeans.bindingConfig.WrappedArray)super.write(node);
 
-        wa.setItemName(itemName);
+  // ========================================================================
+  // Constructors
 
-        final org.apache.xml.xmlbeans.bindingConfig.Mapping mapping =
-            wa.addNewItemType();
-        mapping.setJavatype(itemType.getJavaName().toString());
-        mapping.setXmlcomponent(itemType.getXmlName().toString());
+  public WrappedArrayType()
+  {
+  }
 
-        wa.setItemNillable(itemNillable);
-        
-        return wa;
-    }
+  public WrappedArrayType(BindingTypeName btName)
+  {
+    super(btName);
+  }
 
-    public void accept(BindingTypeVisitor visitor) throws XmlException
-    {
-        visitor.visit(this);
-    }
+  public void accept(BindingTypeVisitor visitor) throws XmlException
+  {
+    visitor.visit(this);
+  }
 
 
-    // ========================================================================
-    // Public methods
-    public QName getItemName()
-    {
-        return itemName;
-    }
+  // ========================================================================
+  // Public methods
+  public QName getItemName()
+  {
+    return itemName;
+  }
 
-    public void setItemName(QName itemName)
-    {
-        this.itemName = itemName;
-    }
+  public void setItemName(QName itemName)
+  {
+    this.itemName = itemName;
+  }
 
-    public BindingTypeName getItemType()
-    {
-        return itemType;
-    }
+  public BindingTypeName getItemType()
+  {
+    return itemType;
+  }
 
-    public void setItemType(BindingTypeName itemType)
-    {
-        this.itemType = itemType;
-    }
+  public void setItemType(BindingTypeName itemType)
+  {
+    this.itemType = itemType;
+  }
 
-    public boolean isItemNillable()
-    {
-        return itemNillable;
-    }
+  public boolean isItemNillable()
+  {
+    return itemNillable;
+  }
 
-    public void setItemNillable(boolean nillable)
-    {
-        this.itemNillable = nillable;
-    }
+  public void setItemNillable(boolean nillable)
+  {
+    this.itemNillable = nillable;
+  }
 
 }

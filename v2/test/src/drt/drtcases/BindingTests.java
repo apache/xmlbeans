@@ -33,6 +33,7 @@ import org.apache.xmlbeans.impl.binding.bts.MethodName;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.binding.bts.BindingFileUtils;
 import org.apache.xmlbeans.impl.binding.compile.BindingCompilerTask;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
@@ -68,7 +69,7 @@ public class BindingTests extends TestCase
         TylarWriter twriter = new TylarWriter() {
           public JavaOutputStream getJavaOutputStream() { return joust; }
           public void writeBindingFile(BindingFile bf) throws IOException {
-            if (verbose) bf.write().save(System.out);
+            if (verbose) BindingFileUtils.write(bf).save(System.out);
           }
           public void writeSchema(SchemaDocument xsd, String filepath) {}
           public void writeSchemaTypeSystem(SchemaTypeSystem sts) {}
@@ -204,12 +205,12 @@ public class BindingTests extends TestCase
         sbt.setAsIfXmlType(XmlTypeName.forString("t=string@http://www.w3.org/2001/XMLSchema"));
 
         // now serialize
-        BindingConfigDocument doc = bf.write();
+        BindingConfigDocument doc = BindingFileUtils.write(bf);
         if (verbose)
             System.out.println(doc.toString());
 
         // now load
-        BindingFile bfc = BindingFile.forDoc(doc);
+        BindingFile bfc = BindingFileUtils.forDoc(doc);
         BindingLoader lc = CompositeBindingLoader.forPath(new BindingLoader[] {builtins, bfc});
         ByNameBean bnbc = (ByNameBean)bfc.getBindingType(BindingTypeName.forPair(JavaTypeName.forString("com.mytest.MyClass"), XmlTypeName.forString("t=my-type@http://www.mytest.com/")));
         ByNameBean bnb2c = (ByNameBean)bfc.getBindingType(BindingTypeName.forPair(JavaTypeName.forString("com.mytest.YourClass"), XmlTypeName.forString("t=your-type@http://www.mytest.com/")));

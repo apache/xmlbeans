@@ -18,129 +18,85 @@ package org.apache.xmlbeans.impl.binding.bts;
 import org.apache.xmlbeans.XmlException;
 
 import javax.xml.namespace.QName;
-import java.util.Arrays;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * A binding of a simple user-defined type that operates by
- * delegating to another well-known (e.g., builtin) binding.
+ * A binding of a type derived from soapenc:Array
  */
-public class SoapArrayType extends BindingType
+public class SoapArrayType
+  extends BindingType
 {
 
-    // ========================================================================
-    // Variables
+  // ========================================================================
+  // Variables
 
-    private QName itemName;
-    private BindingTypeName itemType;
-    private boolean itemNillable;
-    private int ranks;
+  private QName itemName;
+  private BindingTypeName itemType;
+  private boolean itemNillable;
+  private int ranks;
 
-    // ========================================================================
-    // Constructors
-
-    public SoapArrayType(BindingTypeName btName)
-    {
-        super(btName);
-    }
-
-    public SoapArrayType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this((org.apache.xml.xmlbeans.bindingConfig.SoapArray)node);
-    }
-
-    public SoapArrayType(org.apache.xml.xmlbeans.bindingConfig.SoapArray node)
-    {
-        super(node);
-        this.itemName = node.getItemName();
-
-        final org.apache.xml.xmlbeans.bindingConfig.Mapping itype =
-            node.getItemType();
-        final JavaTypeName jName = JavaTypeName.forString(itype.getJavatype());
-        final XmlTypeName xName = XmlTypeName.forString(itype.getXmlcomponent());
-        this.itemType = BindingTypeName.forPair(jName, xName);
-
-        itemNillable = node.getItemNillable();
+  private static final long serialVersionUID = 1L;
 
 
-        if (node.isSetRanks())
-            ranks = node.getRanks();
-        else
-            ranks = -1;
-    }
+
+  // ========================================================================
+  // Constructors
+
+  public SoapArrayType()
+  {
+  }
+
+  public SoapArrayType(BindingTypeName btName)
+  {
+    super(btName);
+  }
 
 
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        final org.apache.xml.xmlbeans.bindingConfig.SoapArray wa =
-            (org.apache.xml.xmlbeans.bindingConfig.SoapArray)super.write(node);
-
-        if (itemName != null)
-            wa.setItemName(itemName);
-
-        if (itemType != null) {
-            final org.apache.xml.xmlbeans.bindingConfig.Mapping mapping =
-                wa.addNewItemType();
-
-            mapping.setJavatype(itemType.getJavaName().toString());
-            mapping.setXmlcomponent(itemType.getXmlName().toString());
-        }
-
-        wa.setItemNillable(itemNillable);
-
-        if (ranks >= 0)
-            wa.setRanks(ranks);
-
-        return wa;
-    }
-
-    public void accept(BindingTypeVisitor visitor) throws XmlException
-    {
-        visitor.visit(this);
-    }
+  public void accept(BindingTypeVisitor visitor) throws XmlException
+  {
+    visitor.visit(this);
+  }
 
 
-    // ========================================================================
-    // Public methods
-    public QName getItemName()
-    {
-        return itemName;
-    }
+  // ========================================================================
+  // Public methods
+  public QName getItemName()
+  {
+    return itemName;
+  }
 
-    public void setItemName(QName itemName)
-    {
-        this.itemName = itemName;
-    }
+  public void setItemName(QName itemName)
+  {
+    this.itemName = itemName;
+  }
 
-    public BindingTypeName getItemType()
-    {
-        return itemType;
-    }
+  public BindingTypeName getItemType()
+  {
+    return itemType;
+  }
 
-    public void setItemType(BindingTypeName itemType)
-    {
-        this.itemType = itemType;
-    }
+  public void setItemType(BindingTypeName itemType)
+  {
+    this.itemType = itemType;
+  }
 
-    public boolean isItemNillable()
-    {
-        return itemNillable;
-    }
+  public boolean isItemNillable()
+  {
+    return itemNillable;
+  }
 
-    public void setItemNillable(boolean nillable)
-    {
-        this.itemNillable = nillable;
-    }
+  public void setItemNillable(boolean nillable)
+  {
+    this.itemNillable = nillable;
+  }
 
-    public int getRanks()
-    {
-        return ranks;
-    }
+  public int getRanks()
+  {
+    return ranks;
+  }
 
-    public void setRanks(int ranks)
-    {
-        this.ranks = ranks;
-    }
+  public void setRanks(int ranks)
+  {
+    this.ranks = ranks;
+  }
 
 }

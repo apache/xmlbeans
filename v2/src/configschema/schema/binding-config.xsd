@@ -154,17 +154,6 @@
     </xs:complexContent>
   </xs:complexType>
 
-  <xs:complexType name="jaxb-bean">
-    <xs:complexContent>
-      <xs:extension base="tns:binding-type">
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="particle-property" type="tns:particle-property"/>
-          <xs:element name="qname-property" type="tns:qname-property"/>
-        </xs:choice>
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-
   <xs:complexType name="binding-property" abstract="true">
     <xs:sequence>
       <xs:element name="xmlcomponent" type="tns:xml-signature"/>
@@ -239,15 +228,6 @@
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
-
-  <xs:complexType name="particle-property">
-    <xs:complexContent>
-      <!-- implicit restriction: xmlcomponent must be a particle -->
-      <xs:extension base="tns:binding-property">
-      </xs:extension>
-    </xs:complexContent>
-  </xs:complexType>
-
 
   <xs:simpleType name="java-class-name">
     <xs:restriction base="xs:token">

@@ -15,13 +15,14 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 
 import javax.xml.namespace.QName;
+import java.io.Serializable;
 
 /**
  * An XmlTypeName is a way of uniquely identifying any
@@ -96,7 +97,9 @@ import javax.xml.namespace.QName;
  * Has the following signature:
  *     y.3|y.2|y.4|t=drg@foobar
  */
-public class XmlTypeName {
+public class XmlTypeName
+    implements Serializable
+{
 
   // ========================================================================
   // Constants
@@ -119,6 +122,10 @@ public class XmlTypeName {
   public static final char MEMBER = 'm';
   public static final char SOAP_ARRAY = 'y';
   public static final char NO_TYPE = 'z';
+
+  private static final long serialVersionUID = 1L;
+
+
 
   // ========================================================================
   // Variables

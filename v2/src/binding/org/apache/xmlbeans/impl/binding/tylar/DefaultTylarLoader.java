@@ -27,6 +27,7 @@ import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.binding.bts.BindingFileUtils;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
@@ -203,9 +204,10 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
         continue;
       }
       name = name.toLowerCase();
+      //TODO: prefer loading binary version of bts
       if (name.equals(BINDING_FILE_JARENTRY)) {
         if (VERBOSE) System.out.println("parsing binding file "+name);
-        bf = BindingFile.forDoc(BindingConfigDocument.Factory.parse(stubborn));
+        bf = BindingFileUtils.forDoc(BindingConfigDocument.Factory.parse(stubborn));
       } else if (name.startsWith(SCHEMA_DIR_JARENTRY) &&
               name.endsWith(SCHEMA_EXT)) {
         if (schemas == null) schemas = new ArrayList();

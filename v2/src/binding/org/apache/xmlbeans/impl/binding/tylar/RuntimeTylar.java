@@ -18,12 +18,14 @@ import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingFileUtils;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
@@ -112,28 +114,32 @@ try {
 } catch(Exception e) { throw new RuntimeException(e); }
   }
 
-  public BindingFile[] getBindingFiles() /*throws IOException, XmlException*/ {
-try {
-    if (mBindingFiles == null) {
-      List list = new ArrayList();
-      Enumeration urls = mClassLoader.getResources(BINDING_FILE);
-      while(urls.hasMoreElements()) {
-        URL next = (URL)urls.nextElement();
-        InputStream in = null;
-        try {
-          in = next.openStream();
-          list.add(BindingFile.forDoc(BindingConfigDocument.Factory.parse(in)));
-        } catch(IOException ioe) {
-          throw ioe;
-        } finally {
-          if (in != null) in.close();
+  public BindingFile[] getBindingFiles() /*throws IOException, XmlException*/
+  {
+    try {
+      if (mBindingFiles == null) {
+        List list = new ArrayList();
+        Enumeration urls = mClassLoader.getResources(BINDING_SER);
+        while (urls.hasMoreElements()) {
+          URL next = (URL)urls.nextElement();
+          InputStream in = null;
+          try {
+            in = next.openStream();
+            list.add(BindingFile.forSer(in));
+          } catch (IOException ioe) {
+            throw ioe;
+          } finally {
+            if (in != null) in.close();
+          }
         }
+        mBindingFiles = new BindingFile[list.size()];
+        list.toArray(mBindingFiles);
       }
-      mBindingFiles = new BindingFile[list.size()];
-      list.toArray(mBindingFiles);
+      return mBindingFiles;
+    } catch (Exception e) {
+      //FIXME
+      throw new XmlRuntimeException(e);
     }
-    return mBindingFiles;
-} catch(Exception e) { throw new RuntimeException(e); } //FIXME
   }
 
   public SchemaDocument[] getSchemas() {
@@ -167,11 +173,11 @@ try {
   // Private
 
   private static void sanityCheck(ClassLoader cl) throws IOException {
-    Enumeration urls = cl.getResources(BINDING_FILE);
+    Enumeration urls = cl.getResources(BINDING_SER);
     if (urls == null || !urls.hasMoreElements()) {
       StringWriter msg = new StringWriter();
       msg.write("The given classloader does not contain any xbean binding\n" +
-                "files ("+BINDING_FILE+"\n");
+                "files ("+ BINDING_SER +"\n");
       if (cl instanceof URLClassLoader) {
         msg.write("URLClassLoader path:");
         URL[] cl_urls = ((URLClassLoader)cl).getURLs();

@@ -20,6 +20,9 @@ package org.apache.xmlbeans.impl.binding.bts;
  */
 public class GenericXmlProperty extends BindingProperty {
 
+  private static final long serialVersionUID = 1L;
+
+
   // ========================================================================
   // Constructors
 
@@ -27,7 +30,4 @@ public class GenericXmlProperty extends BindingProperty {
     super();
   }
 
-  public GenericXmlProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node) {
-    super(node);
-  }
 }

@@ -17,8 +17,6 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.XmlException;
 
-import javax.xml.namespace.QName;
-
 /**
  * A binding of a simple user-defined type that operates by
  * delegating to another well-known (e.g., builtin) binding.
@@ -26,65 +24,45 @@ import javax.xml.namespace.QName;
 public class ListArrayType extends BindingType
 {
 
-    // ========================================================================
-    // Variables
+  // ========================================================================
+  // Variables
 
-    private BindingTypeName itemType;
+  private BindingTypeName itemType;
 
-    // ========================================================================
-    // Constructors
-
-    public ListArrayType(BindingTypeName btName)
-    {
-        super(btName);
-    }
-
-    public ListArrayType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this((org.apache.xml.xmlbeans.bindingConfig.ListArray)node);
-    }
-
-    public ListArrayType(org.apache.xml.xmlbeans.bindingConfig.ListArray node)
-    {
-        super(node);
-
-        final org.apache.xml.xmlbeans.bindingConfig.Mapping itype =
-            node.getItemType();
-        final JavaTypeName jName = JavaTypeName.forString(itype.getJavatype());
-        final XmlTypeName xName = XmlTypeName.forString(itype.getXmlcomponent());
-        this.itemType = BindingTypeName.forPair(jName, xName);
-    }
+  private static final long serialVersionUID = 1L;
 
 
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        final org.apache.xml.xmlbeans.bindingConfig.ListArray wa =
-            (org.apache.xml.xmlbeans.bindingConfig.ListArray)super.write(node);
 
-        final org.apache.xml.xmlbeans.bindingConfig.Mapping mapping =
-            wa.addNewItemType();
-        mapping.setJavatype(itemType.getJavaName().toString());
-        mapping.setXmlcomponent(itemType.getXmlName().toString());
-        
-        return wa;
-    }
+  // ========================================================================
+  // Constructors
 
-    public void accept(BindingTypeVisitor visitor) throws XmlException
-    {
-        visitor.visit(this);
-    }
+  public ListArrayType()
+  {
+  }
+
+  public ListArrayType(BindingTypeName btName)
+  {
+    super(btName);
+  }
 
 
-    // ========================================================================
-    // Public methods
+  public void accept(BindingTypeVisitor visitor)
+    throws XmlException
+  {
+    visitor.visit(this);
+  }
 
-    public BindingTypeName getItemType()
-    {
-        return itemType;
-    }
 
-    public void setItemType(BindingTypeName itemType)
-    {
-        this.itemType = itemType;
-    }
+  // ========================================================================
+  // Public methods
+
+  public BindingTypeName getItemType()
+  {
+    return itemType;
+  }
+
+  public void setItemType(BindingTypeName itemType)
+  {
+    this.itemType = itemType;
+  }
 }

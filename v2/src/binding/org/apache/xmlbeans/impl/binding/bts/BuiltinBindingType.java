@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.XmlException;
 
 /**
@@ -24,19 +23,24 @@ import org.apache.xmlbeans.XmlException;
  * has builtin knowledge of how to make it happen.  Instances should
  * only be created by BuiltinBindingLoader.
  */
-public class BuiltinBindingType extends BindingType {
+public class BuiltinBindingType extends BindingType
+{
+
+  private static final long serialVersionUID = 1L;
+
 
   // ========================================================================
   // Constructors
 
   // note: only this one constructor; builtin binding types can't be loaded
-  public BuiltinBindingType(BindingTypeName btName) {
+  public BuiltinBindingType(BindingTypeName btName)
+  {
     super(btName);
   }
 
-    public void accept(BindingTypeVisitor visitor)
-        throws XmlException
-    {
-        visitor.visit(this);
-    }
+  public void accept(BindingTypeVisitor visitor)
+    throws XmlException
+  {
+    visitor.visit(this);
+  }
 }

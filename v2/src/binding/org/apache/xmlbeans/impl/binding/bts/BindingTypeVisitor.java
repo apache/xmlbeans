@@ -43,6 +43,6 @@ public interface BindingTypeVisitor
     void visit(SoapArrayType soapArrayType)
         throws XmlException;
 
-    void visit(ListArrayType wrappedArrayType)
+    void visit(ListArrayType listArrayType)
         throws XmlException;
 }
