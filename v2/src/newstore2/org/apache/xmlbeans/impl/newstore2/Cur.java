@@ -724,10 +724,24 @@ final class Cur
         return true;
     }
 
-//    int nextChars ( int cch )
-//    {
-//        
-//    }
+    int nextChars ( int cch )
+    {
+        int cchRight = cchRight();
+
+        if (cchRight == 0)
+            return 0;
+
+        if (cch < 0 || cch >= cchRight)
+        {
+            // Use next to not skip over children
+            next();
+            return cchRight;
+        }
+
+        set( _xobj, _pos + cch );
+        
+        return cch;
+    }
 
     void setCharNodes ( CharNode nodes )
     {

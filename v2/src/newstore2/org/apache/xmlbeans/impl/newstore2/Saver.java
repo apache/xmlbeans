@@ -283,8 +283,8 @@ abstract class Saver
             
             start.next();
         }
-        
-        return !start.isSamePos( end );
+
+        return numDocElems != 1;
     }
 
     protected boolean saveNamespacesFirst ( )
@@ -2134,22 +2134,29 @@ abstract class Saver
         boolean toNextAttr    ( ) { assert _txt == null; return _cur.toNextAttr(); }
         String  getAttrValue  ( ) { assert _txt == null; return _cur.getAttrValue(); }
         
-        void toEnd ( ) { assert _txt == null; _cur.toEnd(); }
+        void toEnd ( )
+        {
+            assert _txt == null;
+            _cur.toEnd();
+            
+            if (_cur.kind() == -ELEM)
+                _depth--;
+        }
         
         boolean next ( )
         {
-            int k = kind();
+            int k;
             
             if (_txt != null)
             {
                 assert _txt.length() > 0;
                 assert !_cur.isText();
                 _txt = null;
-                k = kind();
+                k = _cur.kind();
             }
             else
             {
-                int prevKind = k;
+                int prevKind = k = _cur.kind();
 
                 if (!_cur.next())
                     return false;
@@ -2158,6 +2165,7 @@ abstract class Saver
 
                 assert _txt == null;
 
+                // place any text encountered in the buffer
                 if (_cur.isText())
                 {
                     CharUtil.getString( _sb, _cur.getChars(), _cur._offSrc, _cur._cchSrc );
@@ -2165,31 +2173,28 @@ abstract class Saver
                     trim( _sb );
                 }
 
-                k = kind();
+                k = _cur.kind();
 
-                boolean isLeaf =
-                    prevKind == COMMENT || prevKind == PROCINST ||
-                        (prevKind == ELEM && k == -ELEM);
-
-                if (_sb.length() > 0 && !isLeaf)
+                // Check for non leaf
+                if (prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
                 {
-                    _sb.insert( 0, _newLine );
-                    spaces( _sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth );
-                }
-
-                if (!isLeaf)
-                {
+                    if (_sb.length() > 0)
+                    {
+                        _sb.insert( 0, _newLine );
+                        spaces( _sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth );
+                    }
+                    
                     if (prevKind != ROOT)
                         _sb.append( _newLine );
                     
                     int d = k < 0 ? _depth - 1 : _depth;
                     spaces( _sb, _sb.length(), _prettyOffset + _prettyIndent * d );
                 }
-                
+
                 if (_sb.length() > 0)
                 {
                     _txt = _sb.toString();
-                    k = kind();
+                    k = TEXT;
                 }
             }
 

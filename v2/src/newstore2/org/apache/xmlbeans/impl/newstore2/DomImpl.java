@@ -791,7 +791,7 @@ final class DomImpl
     {
         validateName( target );
         
-        if (Locale.beginsWithXml( target ))
+        if (Locale.beginsWithXml( target ) && target.length() == 3)
             throw new NamespaceErr( "Invalid target - is 'xml'" );
         
         Locale l = d.locale();
