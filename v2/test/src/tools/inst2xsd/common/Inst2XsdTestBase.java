@@ -47,7 +47,7 @@ public class Inst2XsdTestBase extends TestCase {
 
     public static final String test_getRootFilePath() throws IllegalStateException {
         String root = System.getProperty("xbean.rootdir");
-        log("xbean.rootdir: "+root);
+        log("xbean.rootdir: " + root);
         if (root == null)
             throw new IllegalStateException("xbean.rootdir system property not found");
 
@@ -71,17 +71,7 @@ public class Inst2XsdTestBase extends TestCase {
         return attr_base_start + val + attr_base_end;
     }
 
-    public String getExpTypeXml(String type) {
-        return "<xs:schema attributeFormDefault=\"unqualified\" " +
-                "elementFormDefault=\"qualified\" targetNamespace=\"typeTests\"" +
-                " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >" +
-                "<xs:element name=\"a\" type=\"xs:" + type + "\"" +
-                " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" />" +
-                "</xs:schema>";
-    }
-
-
-
+    //attribute testing methods
     public String getAttrTypeXmlVenetian(String primType, String derType) {
         return "<schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
                 "targetNamespace=\"attrTests\" xmlns=\"http://www.w3.org/2001/XMLSchema\">" +
@@ -100,13 +90,13 @@ public class Inst2XsdTestBase extends TestCase {
                 "<element name=\"a\" type=\"att:aType\" xmlns:att=\"attrTests\"/>" +
                 "<complexType name=\"aType\">" +
                 "<simpleContent>" +
-                "<extension base=\"xs:" + type + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
+                "<extension base=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
                 "<attribute type=\"xs:" + type + "\" name=\"a\"/>" +
                 "</extension>" +
                 "</simpleContent></complexType></schema>";
     }
 
-    public String getAttrTypeXmlRDandSS(String primType, String derType ) {
+    public String getAttrTypeXmlRDandSS(String primType, String derType) {
         return "<schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
                 "targetNamespace=\"attrTests\" xmlns=\"http://www.w3.org/2001/XMLSchema\">" +
                 "<element name=\"a\">" +
@@ -118,13 +108,14 @@ public class Inst2XsdTestBase extends TestCase {
                 "</simpleContent>" +
                 "</complexType></element></schema>";
     }
+
     public String getAttrTypeXmlRDandSS(String type) {
         return "<schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
                 "targetNamespace=\"attrTests\" xmlns=\"http://www.w3.org/2001/XMLSchema\">" +
                 "<element name=\"a\">" +
                 "<complexType>" +
                 "<simpleContent>" +
-                "<extension base=\"xs:" + type + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
+                "<extension base=\"xs:string\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">" +
                 "<attribute type=\"xs:" + type + "\" name=\"a\"/>" +
                 "</extension>" +
                 "</simpleContent>" +
@@ -161,7 +152,7 @@ public class Inst2XsdTestBase extends TestCase {
 
         if (opt.getDesign() == Inst2XsdOptions.DESIGN_RUSSIAN_DOLL ||
                 opt.getDesign() == Inst2XsdOptions.DESIGN_SALAMI_SLICE)
-            compare(venetian[0], XmlObject.Factory.parse(getAttrTypeXmlRDandSS(primType,derType)));
+            compare(venetian[0], XmlObject.Factory.parse(getAttrTypeXmlRDandSS(primType, derType)));
         else if (opt.getDesign() == Inst2XsdOptions.DESIGN_VENETIAN_BLIND)
             compare(venetian[0], XmlObject.Factory.parse(getAttrTypeXmlVenetian(primType, derType)));
         else
@@ -187,6 +178,7 @@ public class Inst2XsdTestBase extends TestCase {
 
     }
 
+    //element value test methods
     public void runTypeChecking(XmlObject act, String expType) throws Exception {
         log("=== Venetian options ===");
         runTypeChecking(act, expType, common.getVenetianOptions());
@@ -208,10 +200,120 @@ public class Inst2XsdTestBase extends TestCase {
         compare(venetian[0], XmlObject.Factory.parse(getExpTypeXml(expType)));
     }
 
+    public String getExpTypeXml(String type) {
+        return "<xs:schema attributeFormDefault=\"unqualified\" " +
+                "elementFormDefault=\"qualified\" targetNamespace=\"typeTests\"" +
+                " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >" +
+                "<xs:element name=\"a\" type=\"xs:" + type + "\"" +
+                " xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" />" +
+                "</xs:schema>";
+    }
+
+    //type coercion/LCD test methods
+    public void runLCDTypeCheckTest(String val1, String val2, String expType) throws Exception {
+        log("=== Venetian options ===");
+        runLCDTypeChecking(val1, val2, expType, common.getVenetianOptions());
+        log("=== Russian options ===");
+        runLCDTypeChecking(val1, val2, expType, common.getRussianOptions());
+        log("=== Salami options ===");
+        runLCDTypeChecking(val1, val2, expType, common.getSalamiOptions());
+        log("=== Default options ===");
+        runLCDTypeChecking(val1, val2, expType, common.getDefaultInstOptions());
+    }
+
+    private void runLCDTypeChecking(String val1, String val2, String expType, Inst2XsdOptions opt) throws Exception {
+        XmlObject act = getTypeCoerceXml(val1, val2);
+        SchemaDocument[] venetian = (SchemaDocument[]) runInst2Xsd(act, opt);
+        checkLength(venetian, 1);
+        log("instance: " + act);
+        log("expType: " + expType);
+        checkInstance(venetian, new XmlObject[]{act});
+
+        if (opt.getDesign() == opt.DESIGN_VENETIAN_BLIND)
+            compare(venetian[0], getExpLCDXml_vb(expType));
+        else if (opt.getDesign() == opt.DESIGN_SALAMI_SLICE)
+            compare(venetian[0], getExpLCDXml_ss(expType));
+        else if (opt.getDesign() == opt.DESIGN_RUSSIAN_DOLL)
+            compare(venetian[0], getExpLCDXml_rd(expType));
+        else
+            compare(venetian[0], getExpLCDXml_vb(expType));
+    }
+
+    public String getTypeCoerceXmlString(String val1, String val2) {
+        return "<a xmlns=\"typeCoercion\">" +
+                "    <b c=\"" + val1 + "\">" + val1 + "</b>" +
+                "    <b c=\"" + val2 + "\">" + val2 + "</b>" +
+                "</a>";
+    }
+
+    public XmlObject getTypeCoerceXml(String val1, String val2) throws XmlException {
+        return XmlObject.Factory.parse(getTypeCoerceXmlString(val1, val2));
+    }
+
+
+    public XmlObject getExpLCDXml_vb(String type) throws XmlException {
+        return XmlObject.Factory.parse("<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"typeCoercion\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "  <xs:element name=\"a\" type=\"typ:aType\" xmlns:typ=\"typeCoercion\"/>\n" +
+                "  <xs:complexType name=\"aType\">\n" +
+                "    <xs:sequence>\n" +
+                "      <xs:element type=\"typ:bType\" name=\"b\" maxOccurs=\"unbounded\" minOccurs=\"0\" xmlns:typ=\"typeCoercion\"/>\n" +
+                "    </xs:sequence>\n" +
+                "  </xs:complexType>\n" +
+                "  <xs:complexType name=\"bType\">\n" +
+                "    <xs:simpleContent>\n" +
+                "      <xs:extension base=\"xs:" + type + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "        <xs:attribute type=\"xs:" + type + "\" name=\"c\" use=\"optional\"/>\n" +
+                "      </xs:extension>\n" +
+                "    </xs:simpleContent>\n" +
+                "  </xs:complexType>\n" +
+                "</xs:schema>");
+    }
+
+    public XmlObject getExpLCDXml_ss(String type) throws XmlException {
+        return XmlObject.Factory.parse("<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"typeCoercion\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "  <xs:element name=\"b\">\n" +
+                "    <xs:complexType>\n" +
+                "      <xs:simpleContent>\n" +
+                "        <xs:extension base=\"xs:"+type+"\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "          <xs:attribute type=\"xs:"+type+"\" name=\"c\" use=\"optional\"/>\n" +
+                "        </xs:extension>\n" +
+                "      </xs:simpleContent>\n" +
+                "    </xs:complexType>\n" +
+                "  </xs:element>\n" +
+                "  <xs:element name=\"a\">\n" +
+                "    <xs:complexType>\n" +
+                "      <xs:sequence>\n" +
+                "        <xs:element ref=\"typ:b\" maxOccurs=\"unbounded\" minOccurs=\"0\" xmlns:typ=\"typeCoercion\"/>\n" +
+                "      </xs:sequence>\n" +
+                "    </xs:complexType>\n" +
+                "  </xs:element>\n" +
+                "</xs:schema>");
+    }
+
+    public XmlObject getExpLCDXml_rd(String type) throws XmlException {
+        return XmlObject.Factory.parse("<xs:schema attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" targetNamespace=\"typeCoercion\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "  <xs:element name=\"a\">\n" +
+                "    <xs:complexType>\n" +
+                "      <xs:sequence>\n" +
+                "        <xs:element name=\"b\" maxOccurs=\"unbounded\" minOccurs=\"0\">\n" +
+                "          <xs:complexType>\n" +
+                "            <xs:simpleContent>\n" +
+                "              <xs:extension base=\"xs:" + type + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "                <xs:attribute type=\"xs:" + type + "\" name=\"c\" use=\"optional\"/>\n" +
+                "              </xs:extension>\n" +
+                "            </xs:simpleContent>\n" +
+                "          </xs:complexType>\n" +
+                "        </xs:element>\n" +
+                "      </xs:sequence>\n" +
+                "    </xs:complexType>\n" +
+                "  </xs:element>\n" +
+                "</xs:schema>");
+    }
+
+
     public static XmlObject[] runInst2Xsd(String inst) throws XmlException {
         return runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(inst, common.getXmlOptions())},
                 common.getDefaultInstOptions());
-
     }
 
     public static XmlObject[] runInst2Xsd(XmlObject inst) {
@@ -369,10 +471,6 @@ public class Inst2XsdTestBase extends TestCase {
         if (validateInstances(sDocs, inst)) {
             return true;
         } else {
-            //log("-= SCHEMAS =-");
-            //log(sDocs);
-            //log("-= INSTANCES =-");
-            //log(inst);
             throw new Exception("Instance Failed to validate");
         }
     }
@@ -385,6 +483,7 @@ public class Inst2XsdTestBase extends TestCase {
      * @return
      */
     public static boolean validateInstances(SchemaDocument[] sDocs, XmlObject[] instances) {
+
         SchemaTypeLoader sLoader;
         Collection compErrors = new ArrayList();
         XmlOptions schemaOptions = new XmlOptions();

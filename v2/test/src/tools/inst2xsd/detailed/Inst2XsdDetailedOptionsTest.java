@@ -17,6 +17,10 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
  */
 public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
 
+    public static final String BASEXML = OPTION_CASES_DIR + "base.xml";
+    public static final String EXPBASEXML = OPTION_CASES_DIR + "base0.xsd";
+
+
     public Inst2XsdDetailedOptionsTest(String name) {
         super(name);
     }
@@ -24,38 +28,131 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
     public void test_simpleContentString_Russian() throws Exception {
         Inst2XsdOptions opt = common.getRussianOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "rd",
+                                   "-simple-content-types", "string",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_rd_scs0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
+
     }
 
     public void test_simpleContentString_Salami() throws Exception {
         Inst2XsdOptions opt = common.getSalamiOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "ss",
+                                   "-simple-content-types", "string",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_ss_scs0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentString_Venetian() throws Exception {
         Inst2XsdOptions opt = common.getVenetianOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "vb",
+                                   "-simple-content-types", "string",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_vb_scs0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
 
     public void test_simpleContentSmart_Russian() throws Exception {
         Inst2XsdOptions opt = common.getRussianOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_SMART);
-        this.runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "rd",
+                                   "-simple-content-types", "smart",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_rd0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentSmart_Salami() throws Exception {
         Inst2XsdOptions opt = common.getSalamiOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_SMART);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "ss",
+                                   "-simple-content-types", "smart",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_ss0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentSmart_Venetian() throws Exception {
         Inst2XsdOptions opt = common.getVenetianOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_SMART);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "vb",
+                                   "-simple-content-types", "smart",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_vb0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
 
@@ -63,42 +160,138 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
         Inst2XsdOptions opt = common.getRussianOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_SMART);
         opt.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "rd",
+                                   "-enumerations", "never",
+                                   "-simple-content-types", "smart",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_rd_eN0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentSmart_NeverEnum_Salami() throws Exception {
         Inst2XsdOptions opt = common.getSalamiOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_SMART);
         opt.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "ss",
+                                   "-enumerations", "never",
+                                   "-simple-content-types", "smart",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_ss_eN0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentSmart_NeverEnum_Venetian() throws Exception {
         Inst2XsdOptions opt = common.getVenetianOptions();
         opt.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_SMART);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "vb",
+                                   "-enumerations", "never",
+                                   "-simple-content-types", "smart",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_vb_eN0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentString_NeverEnum_Russian() throws Exception {
         Inst2XsdOptions opt = common.getRussianOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
         opt.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "rd",
+                                   "-enumerations", "never",
+                                   "-simple-content-types", "string",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_rd_scs_eN0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentString_NeverEnum_Salami() throws Exception {
         Inst2XsdOptions opt = common.getSalamiOptions();
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
         opt.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "ss",
+                                   "-enumerations", "never",
+                                   "-simple-content-types", "string",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_ss_scs_eN0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
     public void test_simpleContentString_NeverEnum_Venetian() throws Exception {
         Inst2XsdOptions opt = common.getVenetianOptions();
         opt.setUseEnumerations(Inst2XsdOptions.ENUMERATION_NEVER);
         opt.setSimpleContentTypes(Inst2XsdOptions.SIMPLE_CONTENT_TYPES_STRING);
-        runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        XmlObject[] api = runInst2Xsd(new XmlObject[]{XmlObject.Factory.parse(common.base)}, opt);
+        checkLength(api, 1);
+        log(api);
+
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "vb",
+                                   "-enumerations", "never",
+                                   "-simple-content-types", "string",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        log("Compare: Command Line to API");
+        compare(api[0], cmdLine);
+        XmlObject exp = XmlObject.Factory.parse(new File(OPTION_CASES_DIR + "base_vb_scs_eN0.xsd"));
+        log("Compare: Expected to API");
+        compare(api[0], exp);
     }
 
 
@@ -110,7 +303,16 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
 
         checkLength(sDoc, 1);
         XmlObject exp = XmlObject.Factory.parse(common.base_expected_venetian, common.getXmlOptions());
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-simple-content-types", "smart",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
         compare(sDoc[0], exp);
+        compare(cmdLine, exp);
+
+
     }
 
     //TODO: move to checkin - cursor issue
@@ -120,7 +322,15 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
         SchemaDocument[] sDoc = getSchemaDoc(runInst2Xsd(XmlObject.Factory.parse(common.base), opt));
         checkLength(sDoc, 1);
         XmlObject exp = XmlObject.Factory.parse(common.base_expected_venetian, common.getXmlOptions());
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-enumerations", "never",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
         compare(sDoc[0], exp);
+        compare(cmdLine, exp);
+
     }
 
     //TODO: move to checkin - cursor issue
@@ -143,6 +353,15 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
                 "</xs:schema>";
         XmlObject exp = XmlObject.Factory.parse(stringContent, common.getXmlOptions());
         compare(sDoc[0], exp);
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-simple-content-types", "string",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
+        compare(sDoc[0], exp);
+        compare(cmdLine, exp);
+
     }
 
     //TODO: move to checkin - cursor issue
@@ -152,7 +371,15 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
         checkLength(sDoc, 1);
 
         XmlObject exp = XmlObject.Factory.parse(common.base_expected_russian, common.getXmlOptions());
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "rd",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
         compare(sDoc[0], exp);
+        compare(cmdLine, exp);
+
     }
 
     //TODO: move to checkin - cursor issue
@@ -163,8 +390,14 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
         checkLength(sDoc, 1);
 
         XmlObject exp = XmlObject.Factory.parse(common.base_expected_salami, common.getXmlOptions());
-
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "rd",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
         compare(sDoc[0], exp);
+        compare(cmdLine, exp);
     }
 
     //TODO: move to checkin - cursor issue
@@ -173,6 +406,13 @@ public class Inst2XsdDetailedOptionsTest extends Inst2XsdTestBase {
                 common.getVenetianOptions()));
         checkLength(sDoc, 1);
         XmlObject exp = XmlObject.Factory.parse(common.base_expected_venetian, common.getXmlOptions());
+        Inst2Xsd.main(new String[]{"-validate", "-verbose",
+                                   "-design", "vb",
+                                   "-outDir", OPTION_CASES_DIR,
+                                   "-outPrefix", "base",
+                                   BASEXML});
+        XmlObject cmdLine = XmlObject.Factory.parse(new File(EXPBASEXML));
         compare(sDoc[0], exp);
+        compare(cmdLine, exp);
     }
 }
