@@ -118,7 +118,7 @@ public class StscResolver
                 sImpl.getChameleonNamespace(), sImpl.getTargetNamespace());
 
             if (substitutionGroup == null)
-                StscState.get().notFoundError(elt.getSubstitutionGroup(), SchemaType.ELEMENT, elt.xgetSubstitutionGroup());
+                StscState.get().notFoundError(elt.getSubstitutionGroup(), SchemaType.ELEMENT, elt.xgetSubstitutionGroup(), true);
                 // recovery - ignore substitution group
             else if (! resolveSubstitutionGroup(substitutionGroup) )
                 substitutionGroup = null;
@@ -282,7 +282,7 @@ public class StscResolver
                 key = state.findIdConstraint(keyName, idcs[i].getChameleonNamespace(), idcs[i].getTargetNamespace());
                 if (key == null)
                 {
-                    state.notFoundError(keyName, SchemaType.IDENTITY_CONSTRAINT, xsdkr);
+                    state.notFoundError(keyName, SchemaType.IDENTITY_CONSTRAINT, xsdkr, true);
                 }
                 else 
                 {

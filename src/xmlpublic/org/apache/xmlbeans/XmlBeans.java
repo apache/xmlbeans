@@ -586,7 +586,8 @@ public final class XmlBeans
      * A randomly generated name will be used if the name is null.</p>
      *
      * <p>The optional {@link BindingConfig} argument is used to control the shape
-     * of the generated code.</p>
+     * of the generated code. A <code>BindingConfig</code> isn't used if <code>Filer</code>
+     * is null.</p>
      *
      * <p>The optional SchemaTypeLoader argument will be
      * consulted for already-compiled schema types which may be linked

@@ -643,7 +643,7 @@ public class StscTranslator
             SchemaGlobalElement referenced = state.findGlobalElement(ref, chameleon ? targetNamespace : null, targetNamespace);
             if (referenced == null)
             {
-                state.notFoundError(ref, SchemaType.ELEMENT, xsdElt.xgetRef());
+                state.notFoundError(ref, SchemaType.ELEMENT, xsdElt.xgetRef(), true);
                 // recovery: ignore this element
                 return null;
             }
@@ -731,7 +731,7 @@ public class StscTranslator
         {
             sType = state.findGlobalType(xsdElt.getType(), chameleon ? targetNamespace : null, targetNamespace );
             if (sType == null)
-                state.notFoundError(xsdElt.getType(), SchemaType.TYPE, xsdElt.xgetType());
+                state.notFoundError(xsdElt.getType(), SchemaType.TYPE, xsdElt.xgetType(), true);
         }
 
         boolean simpleTypedef = false;
@@ -1080,7 +1080,7 @@ public class StscTranslator
             SchemaGlobalAttribute referenced = state.findGlobalAttribute(ref, chameleon ? targetNamespace : null, targetNamespace);
             if (referenced == null)
             {
-                state.notFoundError(ref, SchemaType.ATTRIBUTE, xsdAttr.xgetRef());
+                state.notFoundError(ref, SchemaType.ATTRIBUTE, xsdAttr.xgetRef(), true);
                 // recovery: ignore this element
                 return null;
             }
@@ -1117,7 +1117,7 @@ public class StscTranslator
             {
                 sType = state.findGlobalType(xsdAttr.getType(), chameleon ? targetNamespace : null, targetNamespace );
                 if (sType == null)
-                    state.notFoundError(xsdAttr.getType(), SchemaType.TYPE, xsdAttr.xgetType());
+                    state.notFoundError(xsdAttr.getType(), SchemaType.TYPE, xsdAttr.xgetType(), true);
             }
 
             if (qname.getNamespaceURI().equals("http://www.w3.org/2001/XMLSchema-instance"))

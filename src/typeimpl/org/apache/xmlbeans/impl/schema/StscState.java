@@ -61,6 +61,10 @@ public class StscState
     private boolean _doingDownloads;
     private byte[] _digest = null;
     private boolean _noDigest = false;
+    
+    // EXPERIMENTAL: recovery from compilation errors and partial type systems
+    private boolean _allowPartial = false;
+    private int _recoveredErrors = 0;
 
     private SchemaTypeLoader _importingLoader;
 
@@ -292,20 +296,26 @@ public class StscState
         { _errorListener = errorListener; }
 
     /**
-     * Passes an error on to the current XmlErrorCodes.
+     * Passes an error on to the current error listener.
      * KHK: remove this
      */
     public void error(String message, int code, XmlObject loc)
         { addError(_errorListener, message, code, loc); }
 
     /**
-     * Passes an error on to the current XmlErrorCodes.
+     * Passes an error on to the current error listener.
      */
     public void error(String code, Object[] args, XmlObject loc)
-    { addError(_errorListener, code, args, loc); }
-
+        { addError(_errorListener, code, args, loc); }
+    
     /**
-     * Passes an error on to the current XmlErrorCodes.
+     * Passes a recovered error on to the current error listener.
+     */
+    public void recover(String code, Object[] args, XmlObject loc)
+        { addError(_errorListener, code, args, loc); _recoveredErrors++; }
+    
+    /**
+     * Passes an error on to the current error listener.
      */
     public void warning(String message, int code, XmlObject loc)
     {
@@ -313,7 +323,7 @@ public class StscState
     }
 
     /**
-     * Passes an error on to the current XmlErrorCodes.
+     * Passes an error on to the current error listener.
      */
     public void warning(String code, Object[] args, XmlObject loc)
     {
@@ -327,13 +337,13 @@ public class StscState
     }
 
     /**
-     * Passes a warning on to the current XmlErrorCodes.
+     * Passes a warning on to the current error listener.
      */
     public void info(String message)
         { addInfo(_errorListener, message); }
 
     /**
-     * Passes a warning on to the current XmlErrorCodes.
+     * Passes a warning on to the current error listener.
      */
     public void info(String code, Object[] args)
         { addInfo(_errorListener, code, args); }
@@ -359,7 +369,7 @@ public class StscState
               location);
         errorListener.add(err);
     }
-
+    
     public static void addError(Collection errorListener, String code, Object[] args, File location)
     {
         XmlError err =
@@ -497,6 +507,8 @@ public class StscState
             return; // defaults are all false.
         }
 
+        _allowPartial = options.hasOption("COMPILE_PARTIAL_TYPESYSTEM");
+        
         _compatMap = (Map)options.get(XmlOptions.COMPILE_SUBSTITUTE_NAMES);
         _noUpa = options.hasOption(XmlOptions.COMPILE_NO_UPA_RULE) ? true :
                 !"true".equals(System.getProperty("xmlbean.uniqueparticleattribution", "true"));
@@ -513,7 +525,7 @@ public class StscState
 
         if (_entityResolver != null)
             _doingDownloads = true;
-
+        
         if (options.hasOption(XmlOptions.COMPILE_MDEF_NAMESPACES))
         {
             _mdefNamespaces.addAll((Collection)options.get(XmlOptions.COMPILE_MDEF_NAMESPACES));
@@ -559,7 +571,25 @@ public class StscState
     {
         return _noAnn;
     }
-
+    
+    /**
+     * True if a partial SchemaTypeSystem should be produced
+     */
+    // EXPERIMENTAL
+    public boolean allowPartial()
+    {
+        return _allowPartial;
+    }
+    
+    /**
+     * Get count of recovered errors. Not for public.
+     */ 
+    // EXPERIMENTAL
+    public int getRecovered()
+    {
+        return _recoveredErrors;
+    }
+    
     /**
      * Intercepts XML names and translates them
      * through the compat map, if any.
@@ -1220,13 +1250,16 @@ public class StscState
         }
     }
 
-    public void notFoundError(QName itemName, int code, XmlObject loc)
+    public void notFoundError(QName itemName, int code, XmlObject loc, boolean recovered)
     {
         String expected;
         String expectedName = QNameHelper.pretty(itemName);
         String found = null;
         String foundName = null;
         String sourceName = null;
+        
+        if (recovered)
+            _recoveredErrors++;
 
         switch (code)
         {

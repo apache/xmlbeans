@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.schema;
 
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlErrorCodes;
@@ -186,10 +187,10 @@ public class SchemaTypeSystemCompiler
     /**
      * Please do not invoke this method directly as the signature could change unexpectedly.
      * Use one of
-     * {@link org.apache.xmlbeans.XmlBeans#loadXsd(org.apache.xmlbeans.XmlObject[])},
-     * {@link org.apache.xmlbeans.XmlBeans#compileXsd(org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.XmlOptions)},
+     * {@link XmlBeans#loadXsd(XmlObject[])},
+     * {@link XmlBeans#compileXsd(XmlObject[], SchemaTypeLoader, XmlOptions)},
      * or
-     * {@link org.apache.xmlbeans.XmlBeans#compileXmlBeans(String, org.apache.xmlbeans.SchemaTypeSystem, org.apache.xmlbeans.XmlObject[], org.apache.xmlbeans.BindingConfig, org.apache.xmlbeans.SchemaTypeLoader, org.apache.xmlbeans.Filer, org.apache.xmlbeans.XmlOptions)}
+     * {@link XmlBeans#compileXmlBeans(String, SchemaTypeSystem, XmlObject[], BindingConfig, SchemaTypeLoader, Filer, XmlOptions)}
      */
     public static SchemaTypeSystemImpl compile(String name, SchemaTypeSystem existingSTS,
         XmlObject[] input, BindingConfig config, SchemaTypeLoader linkTo, Filer filer, XmlOptions options)
@@ -207,7 +208,7 @@ public class SchemaTypeSystemCompiler
                 else if (input[i] instanceof SchemaDocument && ((SchemaDocument)input[i]).getSchema() != null)
                     schemas.add(((SchemaDocument)input[i]).getSchema());
                 else
-                    throw new XmlException("Thread " + Thread.currentThread().getName() +  ": The " + i + "th supplied input is not a schema or a config document: its type is " + input[i].schemaType());
+                    throw new XmlException("Thread " + Thread.currentThread().getName() +  ": The " + i + "th supplied input is not a schema document: its type is " + input[i].schemaType());
             }
         }
 
@@ -218,12 +219,13 @@ public class SchemaTypeSystemCompiler
             (Schema[])schemas.toArray(new Schema[schemas.size()]),
             config, linkTo, options, errorWatcher, filer!=null, null, null, null);
 
-        if (errorWatcher.hasError())
+        // if there is an error and compile didn't recover (stsi==null), throw exception
+        if (errorWatcher.hasError() && stsi == null)
         {
             throw new XmlException(errorWatcher.firstError());
         }
 
-        if (stsi != null && filer != null)
+        if (stsi != null && !stsi.isPartial() && filer != null)
         {
             stsi.save(filer);
             generateTypes(stsi, filer, options);
@@ -314,9 +316,20 @@ public class SchemaTypeSystemCompiler
             if (sourcesToCopyMap != null)
                 sourcesToCopyMap.putAll(state.sourceCopyMap());
 
-            // if any errors, return null
             if (errorWatcher.hasError())
-                return null;
+            {
+                // EXPERIMENTAL: recovery from compilation errors and partial type system
+                if (state.allowPartial() && state.getRecovered() == errorWatcher.size())
+                {
+                    // if partial type system allowed and all errors were recovered
+                    state.get().sts().setPartial(true);
+                }
+                else
+                {
+                    // if any non-recoverable errors, return null
+                    return null;
+                }
+            }
 
             return state.get().sts();
         }
@@ -410,6 +423,10 @@ public class SchemaTypeSystemCompiler
      */
     public static boolean generateTypes(SchemaTypeSystem system, Filer filer, XmlOptions options)
     {
+        // partial type systems not allowed to be saved
+        if (system instanceof SchemaTypeSystemImpl && ((SchemaTypeSystemImpl)system).isPartial())
+            return false;
+        
         boolean success = true;
 
         List types = new ArrayList();

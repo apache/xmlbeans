@@ -40,6 +40,7 @@ public class InstanceValidator
         System.out.println("    -dl    enable network downloads for imports and includes");
         System.out.println("    -nopvr disable particle valid (restriction) rule");
         System.out.println("    -noupa diable unique particle attributeion rule");
+        System.out.println("    -partial allow partial schema type system");
         System.out.println("    -license prints license information");
     }
 
@@ -54,6 +55,7 @@ public class InstanceValidator
         flags.add("dl");
         flags.add("noupa");
         flags.add("nopvr");
+        flags.add("partial");
 
         CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
 
@@ -96,6 +98,7 @@ public class InstanceValidator
         boolean dl = (cl.getOpt("dl") != null);
         boolean nopvr = (cl.getOpt("nopvr") != null);
         boolean noupa = (cl.getOpt("noupa") != null);
+        boolean partial = (cl.getOpt("partial") != null);
         
         File[] schemaFiles = cl.filesEndingWith(".xsd");
         File[] instanceFiles = cl.filesEndingWith(".xml");
@@ -129,6 +132,8 @@ public class InstanceValidator
             schemaOptions.setCompileNoPvrRule();
         if (noupa)
             schemaOptions.setCompileNoUpaRule();
+        if (partial)
+            schemaOptions.put("COMPILE_PARTIAL_TYPESYSTEM");
         
         try
         {
@@ -140,10 +145,18 @@ public class InstanceValidator
             {
                 e.printStackTrace(System.err);
             }
-            System.out.println("Schema invalid");
+            System.out.println("Schema invalid:" + (partial ? " couldn't recover from errors" : ""));
             for (Iterator i = compErrors.iterator(); i.hasNext(); )
                 System.out.println(i.next());
             return;
+        }
+        
+        // recovered from errors, print out errors
+        if (partial && !compErrors.isEmpty())
+        {
+            System.out.println("Schema invalid: partial schema type system recovered");
+            for (Iterator i = compErrors.iterator(); i.hasNext(); )
+                System.out.println(i.next());
         }
         
         for (int i = 0; i < instanceFiles.length; i++)
