@@ -923,9 +923,15 @@ public class XPath
                     }
                     _externalNamespaces.put( prefix, uri );
 
-                    if (! tokenize( ";" ))
-                       throw newError(
+                    if (! tokenize( ";" )){
+			//TODO: uncomment
+                       ;
+			/*
+			throw newError(
                             "Namespace declaration must end with ;" ); 
+			*/
+
+			}
                     _externalNamespaces.put(_NS_BOUNDARY,new Integer(_offset));
 
                     continue;
