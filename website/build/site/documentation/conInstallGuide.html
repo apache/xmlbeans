@@ -228,80 +228,117 @@
           PDF</a></td>
 </tr>
 </table>
+
 		
 <a name="N1000C"></a><a name="Requirements"></a>
 <h3>Requirements</h3>
 <div style="margin-left: 0 ; border: 2px">
 <p>
+
         Before installing XMLBeans, you will need to have JDK 1.4 installed
+
         and <a href="http://ant.apache.org/">Ant</a>.  Once you have
+
         those, continue with the steps below.
+
       </p>
 </div>
+
 		
 <a name="N1001A"></a><a name="Download+XMLBeans"></a>
 <h3>Download XMLBeans</h3>
 <div style="margin-left: 0 ; border: 2px">
 <p>To start out, you'll need the XMLBeans binaries. You can get these in one of two ways:</p>
 <ul>
+
 			
 <li>To get started more quickly, you can 
+
 			<a href="../sourceAndBinaries/index.html#XMLBeans+Binary+and+Development+Kit">Download the
+
 			XMLBeans release.</a>
 </li>
+
 			
 <li>If you're interested, you can also <a href="../sourceAndBinaries/index.html#XMLBeans+Source">build 
+
 			from the source</a>.</li>
+
 			
 </ul>
 </div>
+
 		
 <a name="N10034"></a><a name="Set+Environment+Variables"></a>
 <h3>Set Environment Variables</h3>
 <div style="margin-left: 0 ; border: 2px">
 <p>After downloading and unzipping XMLBeans, you'll need to add environment variables that allow you to 
+
 			use the XMLBeans tools and binaries.</p>
 <p>The following instructions assume you're using the XMLBeans release, whose directory structure looks 
+
 			like this:</p>
 <pre class="code">&lt;xmlbeans-version&gt;
+
     bin (location of tools)
+
     docs
+
     lib (location of xbean.jar)
+
     ...</pre>
 <p>If you're building from source, paths will differ slightly (note the location of xbean.jar). You should account for this when setting up your environment.</p>
 <pre class="code">&lt;xmlbeans-version&gt;
+
     bin (location of tools)
+
     build
+
         ...
+
         lib (location of xbean.jar)
+
         ...</pre>
 <a name="N1004D"></a><a name="Windows+Setup"></a>
 <h4>Windows Setup</h4>
 <div style="margin-left: 0 ; border: 2px">
 <p>On Windows, do the following:</p>
 <ol>
+
 				
 <li>Right-click <strong>My Computer</strong>, then click <strong>Properties</strong>.</li>
+
 				
 <li>On the <strong>Advanced</strong> tab, click <strong>Environment Variables</strong>.</li>
+
 				
 <li>Add an <span class="codefrag">XMLBEANS_HOME</span> variable whose value is the XMLBeans location. 
+
 				<p>For example, if you downloaded the XMLBeans release to the root of your C drive, this might 
+
 				be <span class="codefrag">c:\xmlbeans-1.0.2.</span>
 </p>
 </li>
+
 				
 <li>Edit the <span class="codefrag">PATH</span> variable so that it includes the bin directory of your XMLBeans 
+
 				installation. For the XMLBeans release, you could add <span class="codefrag">%XMLBEANS_HOME%\bin</span>.</li>
+
 				
 <li>Edit the <span class="codefrag">CLASSPATH</span> variable to include the xbean.jar included with XMLBeans. 
+
 				<p>This is located in the lib directory. If you built XMLBeans from source, you can also use the 
+
 				JAR file in the build/ar or build/lib directories.</p>
 </li>
+
 			
 </ol>
 <p>Note that you may also need to edit your PATH variable so that the JDK is earlier in the path. For more 
+
 			information, see the <a target="_top" href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq#scompFindingJavac">XMLBeans 
+
 			FAQ</a>.</p>
 </div>
 <a name="N1008E"></a><a name="UNIX%2FLinux+Setup"></a>
@@ -309,25 +346,32 @@
 <div style="margin-left: 0 ; border: 2px">
 <p>On UNIX/Linux, update your environment as follows:</p>
 <ol>
+
 				
 <li>
 <span class="codefrag">export XMLBEANS_HOME=&lt;location of XMLBeans root&gt;</span>
 </li>
+
 				
 <li>
 <span class="codefrag">export PATH=$PATH:$XMLBEANS_HOME/bin</span>
 </li>
+
 			
 </ol>
 <p>Your updates might look like this:</p>
 <pre class="code">export XMLBEANS_HOME=/Users/me/xmlstuff/xmlbeans-1.0.2
+
 export PATH=$PATH:$XMLBEANS_HOME/bin</pre>
 </div>
 <p>Once you've updated your environment paths, you should be set up to use the tools that come with XMLBeans. 
+
 				These include a schema compiler, an instance validator, and more.</p>
 <p>To get started understanding and using XMLBeans, 
+
 				see <a href="../docs/guide/conGettingStartedwithXMLBeans.html">Getting Started with XMLBeans</a>.</p>
 </div>
+
 	
 <div class="attribution"></div>
 </div>
