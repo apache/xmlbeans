@@ -115,7 +115,7 @@ public class BindingContextFactory
     {
         RuntimeBindingTypeTable tbl = new RuntimeBindingTypeTable();
 
-        for (Iterator itr = bf.getBindingTypes().iterator(); itr.hasNext();) {
+        for (Iterator itr = bf.bindingTypes().iterator(); itr.hasNext();) {
             BindingType type = (BindingType)itr.next();
 
             TypeUnmarshaller um = createTypeUnmarshaller(type, loader, tbl);
@@ -151,7 +151,7 @@ public class BindingContextFactory
 
         if (um == null) {
             //let's try using the as if type
-            BindingType asif = stype.getAsIfBindingType(loader);
+            BindingType asif = loader.getBindingType(stype.getAsIfBindingTypeName());
             if (asif == null) {
                 throw new AssertionError("unable to get asif type for " + stype);
             }

@@ -190,7 +190,7 @@ class UnmarshallerImpl
         XmlName type_name = XmlName.forTypeNamed(xsi_type);
 
         BindingType bt =
-            bindingLoader.getBindingTypeForXmlPojo(type_name);
+            bindingLoader.getBindingType(bindingLoader.lookupPojoFor(type_name));
 
         if (bt == null) {
             throw new XmlException("failed to load BindingType for XmlName: " +

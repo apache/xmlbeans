@@ -66,8 +66,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 public class BuiltinBindingType extends BindingType
 {
     // note: only this one constructor; builtin binding types can't be loaded
-    public BuiltinBindingType(JavaName jName, XmlName xName, boolean isXmlObj)
+    public BuiltinBindingType(BindingTypeName btName)
     {
-        super(jName, xName, isXmlObj);
+        super(btName);
     }
 }

@@ -110,7 +110,7 @@ final class UnmarshalContext
     {
         XmlName xname = XmlName.forTypeNamed(xsi_type);
         BindingType binding_type =
-            bindingLoader.getBindingTypeForXmlPojo(xname);
+            bindingLoader.getBindingType(bindingLoader.lookupPojoFor(xname));
         if (binding_type == null) {
             String msg = "unable to locate binding type for " + xsi_type;
             throw new XmlRuntimeException(msg);

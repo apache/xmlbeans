@@ -55,9 +55,7 @@
 */
 package org.apache.xmlbeans.impl.binding.bts;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
 
 /**
  * A binding of a simple user-defined type that operates by
@@ -65,9 +63,9 @@ import org.apache.xmlbeans.impl.binding.bts.JavaName;
  */ 
 public class SimpleBindingType extends BindingType
 {
-    public SimpleBindingType(JavaName jName, XmlName xName, boolean isXmlObj)
+    public SimpleBindingType(BindingTypeName btName)
     {
-        super(jName, xName, isXmlObj);
+        super(btName);
     }
 
     public SimpleBindingType(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
@@ -99,8 +97,8 @@ public class SimpleBindingType extends BindingType
     
     // question: do we want an "as if Java type" as well?
     
-    public BindingType getAsIfBindingType(BindingLoader loader)
+    public BindingTypeName getAsIfBindingTypeName()
     {
-        return loader.getBindingType(getJavaName(), asIfXmlType);
+        return BindingTypeName.forPair(getName().getJavaName(), asIfXmlType);
     }
 }

@@ -115,48 +115,60 @@ public class PathBindingLoader implements BindingLoader
         loaderPath = Collections.unmodifiableList(path);
     }
     
-    public BindingType getBindingType(JavaName jName, XmlName xName)
+    public BindingType getBindingType(BindingTypeName btName)
     {
         BindingType result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )
         {
-            result = ((BindingLoader)i.next()).getBindingType(jName, xName);
+            result = ((BindingLoader)i.next()).getBindingType(btName);
             if (result != null)
                 return result;
         }
         return null;
     }
 
-    public BindingType getBindingTypeForXmlPojo(XmlName xName)
+    public BindingTypeName lookupPojoFor(XmlName xName)
     {
-        BindingType result = null;
+        BindingTypeName result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )
         {
-            result = ((BindingLoader)i.next()).getBindingTypeForXmlPojo(xName);
+            result = ((BindingLoader)i.next()).lookupPojoFor(xName);
             if (result != null)
                 return result;
         }
         return null;
     }
 
-    public BindingType getBindingTypeForXmlObj(XmlName xName)
+    public BindingTypeName lookupXmlObjectFor(XmlName xName)
     {
-        BindingType result = null;
+        BindingTypeName result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )
         {
-            result = ((BindingLoader)i.next()).getBindingTypeForXmlObj(xName);
+            result = ((BindingLoader)i.next()).lookupXmlObjectFor(xName);
             if (result != null)
                 return result;
         }
         return null;
     }
 
-    public BindingType getBindingTypeForJava(JavaName jName)
+    public BindingTypeName lookupTypeFor(JavaName jName)
     {
-        BindingType result = null;
+        BindingTypeName result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )
         {
-            result = ((BindingLoader)i.next()).getBindingTypeForJava(jName);
+            result = ((BindingLoader)i.next()).lookupTypeFor(jName);
+            if (result != null)
+                return result;
+        }
+        return null;
+    }
+
+    public BindingTypeName lookupElementFor(JavaName jName)
+    {
+        BindingTypeName result = null;
+        for (Iterator i = loaderPath.iterator(); i.hasNext(); )
+        {
+            result = ((BindingLoader)i.next()).lookupElementFor(jName);
             if (result != null)
                 return result;
         }

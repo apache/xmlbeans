@@ -57,7 +57,6 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 /**
  * Represents a property.  Every property corresponds to a
@@ -67,8 +66,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
  */ 
 public abstract class BindingProperty
 {
-    private JavaName tJava;
-    protected XmlName tXml;
+    private BindingTypeName btName;
     private String getter;
     private String setter;
     private String field;
@@ -90,8 +88,9 @@ public abstract class BindingProperty
      */ 
     protected BindingProperty(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
     {
-        this.tJava = JavaName.forString(node.getJavatype());
-        this.tXml = XmlName.forString(node.getXmlcomponent());
+        this.btName = BindingTypeName.forPair(
+                        JavaName.forString(node.getJavatype()),
+                        XmlName.forString(node.getXmlcomponent()));
         this.getter = node.getGetter();
         this.setter = node.getSetter();
         this.field = node.getField();
@@ -109,8 +108,8 @@ public abstract class BindingProperty
     {
         node = (org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty)node.changeType(kinds.typeForClass(this.getClass()));
         
-        node.setJavatype(tJava.toString());
-        node.setXmlcomponent(tXml.toString());
+        node.setJavatype(btName.getJavaName().toString());
+        node.setXmlcomponent(btName.getXmlName().toString());
         if (getFieldName() != null)
             node.setField(getFieldName());
         if (getGetterName() != null)
@@ -127,25 +126,14 @@ public abstract class BindingProperty
         return field != null;
     }
     
-    public BindingType getBindingType(BindingLoader loader)
+    public BindingTypeName getTypeName()
     {
-        return loader.getBindingType(tJava, tXml);
-    }
-    
-    public JavaName getJavaTypeName()
-    {
-        return tJava;
-    }
-    
-    public XmlName getXmlTypeName()
-    {
-        return tXml;
+        return btName;
     }
     
     public void setBindingType(BindingType bType)
     {
-        this.tJava = bType.getJavaName();
-        this.tXml = bType.getXmlName();
+        btName = bType.getName();
     }
     
     public String getGetterName()

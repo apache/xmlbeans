@@ -61,6 +61,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;
@@ -159,7 +160,7 @@ class RuntimeBindingTypeTable
         QName xml_type = new QName(XSD_NS, xsdType);
         JavaName jName = JavaName.forString(javaType);
         XmlName xName = XmlName.forTypeNamed(xml_type);
-        BindingType btype = bindingLoader.getBindingType(jName, xName);
+        BindingType btype = bindingLoader.getBindingType(BindingTypeName.forPair(jName, xName));
         if (btype == null) {
             throw new AssertionError("failed to find builtin for java:" + jName +
                                      " - xsd:" + xName);

@@ -124,7 +124,7 @@ public class Java2Schema {
   }
 
   private BindingType getBindingTypeFor(JClass clazz) {
-    BindingType out = mLoader.getBindingTypeForJava(getJavaName(clazz));
+    BindingType out = mLoader.getBindingType(mLoader.lookupTypeFor(getJavaName(clazz)));
     if (out == null) {
       out = createBindingTypeFor(clazz);
     }
@@ -142,9 +142,7 @@ public class Java2Schema {
     QName qname = new QName(tns,xsdName);
     xsdType.setName(xsdName);
     // create a binding type
-    ByNameBean bindType = new ByNameBean(getJavaName(clazz),
-                                         XmlName.forTypeNamed(qname),
-                                         isXmlObj(clazz));
+    ByNameBean bindType = new ByNameBean(BindingTypeName.forPair(getJavaName(clazz), XmlName.forTypeNamed(qname)));
     mBindingFile.addBindingType(bindType,true,true);
     // run through the class' properties to populate the binding and xsdtypes
     //FIXME this is going to have to change to take inheritance into account
@@ -202,8 +200,8 @@ public class Java2Schema {
 
   private QName getBuiltinTypeNameFor(JClass clazz) {
     BindingType bt =
-            mLoader.getBindingTypeForJava(JavaName.forString(clazz.getQualifiedName()));
-    if (bt != null) return bt.getXmlName().getQName();
+            mLoader.getBindingType(mLoader.lookupTypeFor(JavaName.forString(clazz.getQualifiedName())));
+    if (bt != null) return bt.getName().getXmlName().getQName();
     System.out.println("no type found for "+clazz.getQualifiedName());
     return null; //FIXME
   }

@@ -58,11 +58,9 @@ package org.apache.xmlbeans.impl.binding.bts;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 import javax.xml.namespace.QName;
-import java.util.Map;
-import java.util.LinkedHashMap;
 
 /**
- * 
+ * Represents builtin bindings. 
  */ 
 public class BuiltinBindingLoader extends BaseBindingLoader
 {
@@ -75,42 +73,48 @@ public class BuiltinBindingLoader extends BaseBindingLoader
 
     private static final BuiltinBindingLoader INSTANCE = new BuiltinBindingLoader();
     
-    private void addMapping(String xmlType, String javaName, boolean pojo, boolean defaultForJava, boolean defaultForXml)
+    private void addMapping(String xmlType, String javaName, boolean fromJavaDefault, boolean fromXmlDefault)
     {
         XmlName xn = XmlName.forTypeNamed(new QName(xsns, xmlType));
         JavaName jn = JavaName.forString(javaName);
-        BindingType bt = new BuiltinBindingType(jn, xn, !pojo);
-        NamePair pair = pair(jn, xn);
-        bindingTypes.put(pair, bt);
-        if (defaultForJava)
-            xmlFromJava.put(jn, pair);
-        if (defaultForXml)
+        BindingTypeName btName = BindingTypeName.forPair(jn, xn);
+        BindingType bType = new BuiltinBindingType(btName);
+        
+        addBindingType(bType);
+        if (fromJavaDefault)
         {
-            if (pojo)
-                javaFromXmlPojo.put(xn, pair);
+            if (bType.getName().getXmlName().getComponentType() == XmlName.ELEMENT)
+                addElementFor(bType.getName().getJavaName(), bType.getName());
             else
-                javaFromXmlObj.put(xn, pair);
+                addTypeFor(bType.getName().getJavaName(), bType.getName());
+        }
+        if (fromXmlDefault)
+        {
+            if (bType.getName().getJavaName().isXmlObject())
+                addXmlObjectFor(bType.getName().getXmlName(), bType.getName());
+            else
+                addPojoFor(bType.getName().getXmlName(), bType.getName());
         }
     }
     
     private void addPojoTwoWay(String xmlType, String javaName)
     {
-        addMapping(xmlType, javaName, true, true, true);
+        addMapping(xmlType, javaName, true, true);
     }
 
     private void addPojoXml(String xmlType, String javaName)
     {
-        addMapping(xmlType, javaName, true, false, true);
+        addMapping(xmlType, javaName, false, true);
     }
     
     private void addPojoJava(String xmlType, String javaName)
     {
-        addMapping(xmlType, javaName, true, true, false);
+        addMapping(xmlType, javaName, true, false);
     }
     
     private void addPojo(String xmlType, String javaName)
     {
-        addMapping(xmlType, javaName, true, true, false);
+        addMapping(xmlType, javaName, true, false);
     }
 
     private BuiltinBindingLoader()
