@@ -23,11 +23,11 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.compile.JAXRPCSchemaBinder;
 import org.apache.xmlbeans.impl.binding.compile.SchemaToJavaResult;
 import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
+import org.apache.xmlbeans.impl.binding.compile.SchemaToJavaInput;
+import org.apache.xmlbeans.impl.binding.compile.SimpleSchemaSourceSet;
+import org.apache.xmlbeans.impl.binding.compile.SimpleSchemaToJavaResultCompiler;
+import org.apache.xmlbeans.impl.binding.compile.TylarLoader;
 import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
 import java.io.File;
@@ -42,17 +42,17 @@ public class BindingTests extends TestCase
     
     public void testJAXRPCBinding() throws Exception
     {
+        // bind
         File typesonlyfile = TestEnv.xbeanCase("schema/typesonly/typesonly.xsd");
-        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[] { SchemaDocument.Factory.parse(typesonlyfile) }, XmlBeans.getBuiltinTypeSystem(), null);
-        SchemaToJavaResult result = JAXRPCSchemaBinder.bind(sts, BuiltinBindingLoader.getInstance());
+        SchemaToJavaInput input = SimpleSchemaSourceSet.forFile(typesonlyfile);
+        SchemaToJavaResult result = JAXRPCSchemaBinder.bind(input);
         if (verbose)
-            result.getBindingFileGenerator().printBindingFile(System.out);
-        JavaCodeGenerator javacode = result.getJavaCodeGenerator();
-        for (Iterator i = javacode.getToplevelClasses().iterator(); i.hasNext(); )
         {
-            String javaclass = (String)i.next();
-            if (verbose)
+            result.getBindingFileGenerator().printBindingFile(System.out);
+            JavaCodeGenerator javacode = result.getJavaCodeGenerator();
+            for (Iterator i = javacode.getToplevelClasses().iterator(); i.hasNext(); )
             {
+                String javaclass = (String)i.next();
                 System.out.println("=======================");
                 System.out.println(javaclass);
                 System.out.println("=======================");
@@ -60,6 +60,12 @@ public class BindingTests extends TestCase
                 System.out.flush();
             }
         }
+        
+        // now compile
+        SimpleSchemaToJavaResultCompiler.Params params = new SimpleSchemaToJavaResultCompiler.Params();
+        File theJar = TestEnv.xbeanOutput("schema/binding/typesonly.jar");
+        params.setOutputJar(theJar);
+        SimpleSchemaToJavaResultCompiler.compile(result, params);
     }
 
     public void testBindingFile() throws Exception

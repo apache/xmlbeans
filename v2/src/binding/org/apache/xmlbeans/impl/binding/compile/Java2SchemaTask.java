@@ -173,6 +173,7 @@ public class Java2SchemaTask extends Task {
     JavaToSchemaInput input = new JavaToSchemaInput() {
       public JClass[] getJClasses() { return classes; }
       public TylarLoader getTylarLoader() { return null; }
+      public void compileJavaToBinaries(File classesDir) {}
     };
     Java2Schema j2b = new Java2Schema(input);
     TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);

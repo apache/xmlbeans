@@ -56,18 +56,70 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.binding.compile.BindingFileGenerator;
-import org.apache.xmlbeans.impl.binding.compile.JavaCodeGenerator;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
+import org.apache.xmlbeans.impl.schema.PathResourceLoader;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
 
-/**
- * The result of a Schema->Java binding.
- * 
- * The result contains: (1) a binding file, and (2) a set of
- * generated Java classes.
- */
-public interface SchemaToJavaResult
+import java.io.File;
+
+public class SimpleTylarLoader implements TylarLoader
 {
-    BindingFileGenerator getBindingFileGenerator();
-    JavaCodeGenerator getJavaCodeGenerator();
-    SchemaToJavaInput getSchemaSourceSet();
+    private BindingLoader bindingLoader;
+    private SchemaTypeLoader schemaTypeLoader;
+    private JClassLoader jClassLoader;
+
+    public SimpleTylarLoader(BindingLoader bindingLoader, JClassLoader jClassLoader, SchemaTypeLoader schemaTypeLoader)
+    {
+        this.bindingLoader = bindingLoader;
+        this.schemaTypeLoader = schemaTypeLoader;
+        this.jClassLoader = jClassLoader;
+    }
+
+    public BindingLoader getBindingLoader()
+    {
+        return this.bindingLoader;
+    }
+
+    public JClassLoader getJClassLoader()
+    {
+        return this.jClassLoader;
+    }
+
+    public SchemaTypeLoader getSchemaTypeLoader()
+    {
+        return this.schemaTypeLoader;
+    }
+            
+            
+    public static TylarLoader forClassLoader(ClassLoader loader)
+    {
+        BindingLoader bindingLoader = PathBindingLoader.forClassLoader(loader);
+        JClassLoader jClassLoader = null; // todo by pcal
+        SchemaTypeLoader sTypeLoader = XmlBeans.typeLoaderForClassLoader(loader);
+        
+        return new SimpleTylarLoader(bindingLoader, jClassLoader, sTypeLoader);
+    }
+    
+    public static TylarLoader forClassPath(File[] classpath)
+    {
+        BindingLoader bindingLoader = PathBindingLoader.forClasspath(classpath);
+        JClassLoader jClassLoader = null; // todo by pcal
+        SchemaTypeLoader sTypeLoader = SchemaTypeLoaderImpl.build(null, new PathResourceLoader(classpath), null);
+        
+        return new SimpleTylarLoader(bindingLoader, jClassLoader, sTypeLoader);
+    }
+    
+    public static TylarLoader forBuiltins()
+    {
+        BindingLoader bindingLoader = BuiltinBindingLoader.getInstance();
+        JClassLoader jClassLoader = null; // todo by pcal
+        SchemaTypeLoader sTypeLoader = XmlBeans.getBuiltinTypeSystem();
+        
+        return new SimpleTylarLoader(bindingLoader, jClassLoader, sTypeLoader);
+    }
 }

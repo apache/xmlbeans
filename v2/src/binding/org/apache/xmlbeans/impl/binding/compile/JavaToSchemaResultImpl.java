@@ -84,6 +84,11 @@ import java.util.*;
 
   private Map mTNS2Schema = new HashMap();
   private List mBindingFiles = new ArrayList();
+  private JavaToSchemaInput javaSourceSet;
+    
+  JavaToSchemaResultImpl(JavaToSchemaInput javaSourceSet) {
+    this.javaSourceSet = javaSourceSet;
+  }
 
   // ========================================================================
   // Package methods - called by Java2Schema
@@ -96,6 +101,10 @@ import java.util.*;
 
   // REVIEW is there really any reason to allow more than one?
   /*package*/ void addBindingFile(BindingFile bf) { mBindingFiles.add(bf); }
+    
+  JavaToSchemaInput getJavaSourceSet() {
+    return javaSourceSet;
+  }
 
   // ========================================================================
   // SchemaGenerator implementation

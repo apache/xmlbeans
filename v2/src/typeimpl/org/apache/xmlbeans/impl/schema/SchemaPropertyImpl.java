@@ -136,7 +136,7 @@ public class SchemaPropertyImpl implements SchemaProperty
         { mutate(); _typeref = typeref; }
 
     public SchemaType javaBasedOnType()
-        { return _javaBasedOnTypeRef.get(); }
+        { return _javaBasedOnTypeRef == null ? null : _javaBasedOnTypeRef.get(); }
 
     public boolean extendsJavaSingleton()
         { return _extendsSingleton; }

@@ -58,7 +58,7 @@
     <xs:complexContent>
       <xs:extension base="tns:binding-type">
         <xs:sequence>
-          <xs:element name="element-name" type="xs:NCName"/>
+          <xs:element name="type-of-element" type="tns:xml-signature"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>

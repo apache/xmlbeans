@@ -58,6 +58,8 @@ package org.apache.xmlbeans.impl.binding.bts;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.schema.FileResourceLoader;
+import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +68,11 @@ import java.util.IdentityHashMap;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.Arrays;
+import java.util.Enumeration;
+import java.io.IOException;
+import java.io.File;
+import java.io.InputStream;
+import java.net.URL;
 
 /**
  * A binding loader impl with the ability to chain together a path
@@ -174,5 +181,62 @@ public class PathBindingLoader implements BindingLoader
         }
         return null;
     }
+    
+    public static final String STANDARD_PATH = "org/apache/xmlbeans/binding-config.xml";
+    
+    public static BindingLoader forClassLoader(ClassLoader loader)
+    {
+        Enumeration i;
+
+        try
+        {
+            i = loader.getResources(STANDARD_PATH);
+        }
+        catch (IOException e)
+        {
+            throw (IllegalStateException)(new IllegalStateException().initCause(e));
+        }
+
+        URL resource = null;
+
+        List files = new ArrayList();
+        
+        try
+        {
+            while (i.hasMoreElements())
+            {
+                resource = (URL)i.nextElement();
+                files.add(BindingFile.forDoc(BindingConfigDocument.Factory.parse(resource)));
+            }
+        }
+        catch (Exception e)
+        {
+            throw (IllegalStateException)(new IllegalStateException("Problem resolving " + resource).initCause(e));
+        }
+        
+        return forPath(files);
+    }
+    
+    public static BindingLoader forClasspath(File[] jarsOrDirs)
+    {
+        List files = new ArrayList();
+        
+        try
+        {
+            for (int i = 0; i < jarsOrDirs.length; i++)
+            {
+                FileResourceLoader rl = new FileResourceLoader(jarsOrDirs[i]);
+                InputStream resource = rl.getResourceAsStream(STANDARD_PATH);
+                files.add(BindingFile.forDoc(BindingConfigDocument.Factory.parse(resource)));
+            }
+        }
+        catch (Exception e)
+        {
+            throw (IllegalStateException)(new IllegalStateException("Problem resolving files").initCause(e));
+        }
+        
+        return forPath(files);
+    }
+        
 }
 

@@ -55,42 +55,44 @@
 */
 package org.apache.xmlbeans.impl.binding.bts;
 
-import java.util.*;
-import javax.xml.namespace.QName;
-
 /**
  * BindingType for root elements.
  */
 public class SimpleDocumentBinding extends BindingType
 {
-  private String mElementName = "";
+    private XmlName typeOfElement;
 
-  public SimpleDocumentBinding(BindingTypeName btname, String elementName) {
-    super(btname);
-    System.out.println("++"+elementName);
-    mElementName = elementName;
-  }
+    public SimpleDocumentBinding(BindingTypeName btname)
+    {
+        super(btname);
+    }
 
-  public SimpleDocumentBinding(org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding node)
-  {
-    super(node);
-    mElementName = node.getElementName();
-  }
+    public SimpleDocumentBinding(org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding node)
+    {
+        super(node);
+        typeOfElement = XmlName.forString(node.getTypeOfElement());
+    }
 
-  /**
-   * This function copies an instance back out to the relevant part of the XML file.
-   *
-   * Subclasses should override and call super.write first.
-   */
-  protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
-  {
-    org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding sdbNode =
-            (org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding)super.write(node);
-    sdbNode.setElementName(mElementName);
-    return sdbNode;
-  }
+    /**
+     * This function copies an instance back out to the relevant part of the XML file.
+     *
+     * Subclasses should override and call super.write first.
+     */
+    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    {
+        org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding sdbNode =
+                (org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleDocumentBinding) super.write(node);
+        sdbNode.setTypeOfElement(typeOfElement.toString());
+        return sdbNode;
+    }
 
-  public String getElementName() { return mElementName; }
+    public XmlName getTypeOfElement()
+    {
+        return typeOfElement;
+    }
 
-  public void setElementName(String name) { mElementName = name; }
+    public void setTypeOfElement(XmlName typeOfElement)
+    {
+        this.typeOfElement = typeOfElement;
+    }
 }

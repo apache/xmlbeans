@@ -694,7 +694,7 @@
 
   <!-- binding target =============================================== -->
 
-  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, jam.classes">
+  <target name="binding.classes" depends="dirs, repackage.classes, typeimpl.classes, xmlpublic.classes, typestore.classes, configschema.classes, xmlcomp.classes, jam.classes">
     <mkdir dir="build/classes/binding"/>
     <javac srcdir="src/binding" destdir="build/classes/binding" source="1.4" debug="on">
       <classpath>
@@ -709,6 +709,7 @@
         <pathelement location="build/classes/toolschema"/>
         <pathelement location="build/classes/xsdschema"/>
         <pathelement location="build/classes/jam"/>
+        <pathelement location="build/classes/xmlcomp"/>
       </classpath>
     </javac>
 

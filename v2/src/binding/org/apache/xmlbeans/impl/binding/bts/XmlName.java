@@ -86,7 +86,7 @@ import javax.xml.namespace.QName;
  * Has the following signature:
  *     y.3|y.2|y.4|t=drg@foobar
  */
-public class XmlName
+public class XmlName // WARNING: this class will be renamed to "XmlTypeName"
 {
     private String namespace;
     private String path;
