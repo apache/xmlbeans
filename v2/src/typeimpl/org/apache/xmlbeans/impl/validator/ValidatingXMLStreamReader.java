@@ -655,8 +655,8 @@ public class ValidatingXMLStreamReader
     private void addError(String msg)
     {
         String source = null;
-        Location location = null;
-//        Location location = getLocation();
+//        Location location = null;
+        Location location = getLocation();
 
         if (location != null)
         {
