@@ -34,6 +34,7 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.GDateBuilder;
+import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlError;
@@ -102,25 +103,30 @@ import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.xmlbeans.impl.newstore2.Public2;
 
+import noNamespace.*;
+import noNamespace.ElemDocument.Elem;
+
 public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        XmlOptions pp = new XmlOptions();
-        pp.setSavePrettyPrint();
+        XmlOptions options = new XmlOptions();
+        options.setValidateOnSet();
+
+        Elem e = Elem.Factory.newInstance();
+
+        System.out.println( e.getField() );
+
+        try
+        {
+            e.setField( null );
+        }
+        catch ( Throwable ee )
+        {
+            ee.printStackTrace( System.out );
+        }
         
-        XmlCursor c = Public2.newStore();
-
-        c.toNextToken();
-        c.beginElement( "a" );
-        c.insertChars( "xyz" );
-        c.beginElement( "b" );
-
-        c.toStartDoc();
-
-        System.out.println( Public2.save( c.getDomNode() ) );
-
-        System.out.println( "\"" + Public2.save( c, pp ) + "\"" );
+        System.out.println( e.getField() );
     }
 }
 
