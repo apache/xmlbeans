@@ -92,6 +92,8 @@ public class MarshalTests extends TestCase
     private static final BigInteger DEFAULT_BIG_INT =
         new BigInteger("876587658765876587658765876587658765");
     private static final String XSD_URI = "http://www.w3.org/2001/XMLSchema";
+    private static final String SOAPENC_URI = "http://schemas.xmlsoap.org/soap/encoding/";
+
 
     public MarshalTests(String name)
     {
@@ -213,6 +215,8 @@ public class MarshalTests extends TestCase
         testSimpleTypeUnmarshal(strs, "foo bar", "IDREFS");
         testSimpleTypeUnmarshal(strs, "foo bar", "NMTOKENS");
 
+        testSimpleTypeUnmarshal("basic", "basic", SOAPENC_URI, "string");
+        testSimpleTypeUnmarshal(new Integer("123"), "123", SOAPENC_URI, "int");
     }
 
     private void testStringTypeUnmarshal(String xsd_type)
@@ -268,11 +272,22 @@ public class MarshalTests extends TestCase
                                         String xsd_type)
         throws Exception
     {
+        testSimpleTypeUnmarshal(expected, lexval, XSD_URI, xsd_type);
+    }
+
+    public void testSimpleTypeUnmarshal(Object expected,
+                                        String lexval,
+                                        String type_uri,
+                                        String xsd_type)
+        throws Exception
+    {
         BindingContext bindingContext = getBuiltinBindingContext();
 
         String xmldoc = "<a" +
             " xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
-            " xmlns:xs='http://www.w3.org/2001/XMLSchema' xsi:type='xs:" +
+            " xmlns:xs='" +
+            type_uri +
+            "' xsi:type='xs:" +
             xsd_type + "' >" + lexval + "</a>";
 
         StringReader stringReader = new StringReader(xmldoc);

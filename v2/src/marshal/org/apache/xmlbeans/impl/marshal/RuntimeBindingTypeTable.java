@@ -59,6 +59,8 @@ final class RuntimeBindingTypeTable
 
 
     private static final String XSD_NS = "http://www.w3.org/2001/XMLSchema";
+    private static final String SOAPENC_NS = "http://schemas.xmlsoap.org/soap/encoding/";
+
 
     private static final ConcurrentReaderHashMap BUILTIN_TYPE_MAP;
 
@@ -187,10 +189,25 @@ final class RuntimeBindingTypeTable
                                 JavaTypeName jName,
                                 TypeConverter converter)
     {
+        QName xml_type = new QName(XSD_NS, xsdType);
+        addBuiltinType(xml_type, jName, converter);
+    }
+
+    private void addBuiltinSoapType(String xsdType,
+                                    JavaTypeName jName,
+                                    TypeConverter converter)
+    {
+        QName xml_type = new QName(SOAPENC_NS, xsdType);
+        addBuiltinType(xml_type, jName, converter);
+    }
+
+    private void addBuiltinType(QName xml_type,
+                                JavaTypeName jName,
+                                TypeConverter converter)
+    {
         final BindingLoader default_builtin_loader =
             BuiltinBindingLoader.getBuiltinBindingLoader(false);
 
-        QName xml_type = new QName(XSD_NS, xsdType);
         XmlTypeName xName = XmlTypeName.forTypeNamed(xml_type);
         final BindingTypeName btname = BindingTypeName.forPair(jName, xName);
         BindingType btype = default_builtin_loader.getBindingType(btname);
@@ -217,6 +234,14 @@ final class RuntimeBindingTypeTable
         initedTypeMap.put(btype, builtin);
     }
 
+
+    private void addBuiltinSoapType(String xsdType,
+                                    Class javaClass,
+                                    TypeConverter converter)
+    {
+        final JavaTypeName jName = JavaTypeName.forClassName(javaClass.getName());
+        addBuiltinSoapType(xsdType, jName, converter);
+    }
 
     private void addBuiltinType(String xsdType,
                                 Class javaClass,
@@ -255,8 +280,8 @@ final class RuntimeBindingTypeTable
         addBuiltinType("positiveInteger", int.class, i2iconv);
         addBuiltinType("unsignedLong", int.class, i2iconv);
 
-        addBuiltinType("decimal", BigDecimal.class,
-                       new DecimalTypeConverter());
+        final DecimalTypeConverter decimal_conv = new DecimalTypeConverter();
+        addBuiltinType("decimal", BigDecimal.class, decimal_conv);
 
         final LongTypeConverter long_conv = new LongTypeConverter();
         addBuiltinType("long", long.class, long_conv);
@@ -284,9 +309,9 @@ final class RuntimeBindingTypeTable
         addBuiltinType("boolean", boolean.class, boolean_conv);
         addBuiltinType("boolean", Boolean.class, boolean_conv);
 
-        addBuiltinType("anyURI",
-                       java.net.URI.class,
-                       new AnyUriToUriTypeConverter());
+        final AnyUriToUriTypeConverter uri_uri_conv =
+            new AnyUriToUriTypeConverter();
+        addBuiltinType("anyURI", java.net.URI.class, uri_uri_conv);
 
         final Class str = String.class;
         addBuiltinType("anySimpleType", str, new AnySimpleTypeConverter());
@@ -313,9 +338,9 @@ final class RuntimeBindingTypeTable
         addBuiltinType("gYear", str, collapsing_string_conv);
         addBuiltinType("gYearMonth", str, collapsing_string_conv);
 
-        addBuiltinType("anyURI",
-                       str,
-                       new AnyUriToStringTypeConverter());
+        final AnyUriToStringTypeConverter uri_conv =
+            new AnyUriToStringTypeConverter();
+        addBuiltinType("anyURI", str, uri_conv);
 
         final Class str_array = (new String[0]).getClass();
         final StringListArrayConverter string_list_array_conv =
@@ -327,50 +352,50 @@ final class RuntimeBindingTypeTable
         addBuiltinType("NMTOKENS", str_array,
                        string_list_array_conv);
 
-        addBuiltinType("duration",
-                       GDuration.class,
-                       new DurationTypeConverter());
+        final DurationTypeConverter gduration_conv =
+            new DurationTypeConverter();
+        addBuiltinType("duration", GDuration.class, gduration_conv);
 
         final Class calendar_class = java.util.Calendar.class;
-        addBuiltinType("dateTime",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_DATE_TIME));
+        final JavaCalendarTypeConverter date_time_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_DATE_TIME);
+        addBuiltinType("dateTime", calendar_class, date_time_conv);
 
-        addBuiltinType("dateTime",
-                       java.util.Date.class,
-                       new JavaDateTypeConverter(SchemaType.BTC_DATE_TIME));
+        final JavaDateTypeConverter date_datetime_conv =
+            new JavaDateTypeConverter(SchemaType.BTC_DATE_TIME);
+        addBuiltinType("dateTime", java.util.Date.class, date_datetime_conv);
 
-        addBuiltinType("time",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_TIME));
+        final JavaCalendarTypeConverter time_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_TIME);
+        addBuiltinType("time", calendar_class, time_conv);
 
-        addBuiltinType("date",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_DATE));
+        final JavaCalendarTypeConverter date_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_DATE);
+        addBuiltinType("date", calendar_class, date_conv);
 
-        addBuiltinType("date",
-                       java.util.Date.class,
-                       new JavaDateTypeConverter(SchemaType.BTC_DATE));
+        final JavaDateTypeConverter date_date_conv =
+            new JavaDateTypeConverter(SchemaType.BTC_DATE);
+        addBuiltinType("date", java.util.Date.class, date_date_conv);
 
-        addBuiltinType("gDay",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_G_DAY));
+        final JavaCalendarTypeConverter gday_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_G_DAY);
+        addBuiltinType("gDay", calendar_class, gday_conv);
 
-        addBuiltinType("gMonth",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH));
+        final JavaCalendarTypeConverter gmonth_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH);
+        addBuiltinType("gMonth", calendar_class, gmonth_conv);
 
-        addBuiltinType("gMonthDay",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH_DAY));
+        final JavaCalendarTypeConverter gmonth_day_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_G_MONTH_DAY);
+        addBuiltinType("gMonthDay", calendar_class, gmonth_day_conv);
 
-        addBuiltinType("gYear",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR));
+        final JavaCalendarTypeConverter gyear_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR);
+        addBuiltinType("gYear", calendar_class, gyear_conv);
 
-        addBuiltinType("gYearMonth",
-                       calendar_class,
-                       new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR_MONTH));
+        final JavaCalendarTypeConverter gyearmonth_conv =
+            new JavaCalendarTypeConverter(SchemaType.BTC_G_YEAR_MONTH);
+        addBuiltinType("gYearMonth", calendar_class, gyearmonth_conv);
 
 
         addBuiltinType("gDay",
@@ -384,22 +409,85 @@ final class RuntimeBindingTypeTable
                        new IntDateTypeConverter(SchemaType.BTC_G_YEAR));
 
 
-        addBuiltinType("QName",
-                       QName.class,
-                       new QNameTypeConverter());
+        final QNameTypeConverter qname_conv = new QNameTypeConverter();
+        addBuiltinType("QName", QName.class, qname_conv);
 
         final JavaTypeName byte_array_jname =
             JavaTypeName.forArray(JavaTypeName.forString("byte"), 1);
 
-        addBuiltinType("base64Binary",
-                       byte_array_jname,
-                       new Base64BinaryTypeConverter());
+        final Base64BinaryTypeConverter base64_conv =
+            new Base64BinaryTypeConverter();
+        addBuiltinType("base64Binary", byte_array_jname, base64_conv);
 
-        addBuiltinType("hexBinary",
-                       byte_array_jname,
-                       new HexBinaryTypeConverter());
+        final HexBinaryTypeConverter hexbin_conv = new HexBinaryTypeConverter();
+        addBuiltinType("hexBinary", byte_array_jname, hexbin_conv);
 
         //TODO: InputStream based hexBinary and base64Binary converters
+
+        //SOAPENC additions...
+        addBuiltinSoapType("float", Float.class, float_conv);
+        addBuiltinSoapType("double", Double.class, double_conv);
+        addBuiltinSoapType("integer", bigint, integer_conv);
+        addBuiltinSoapType("nonPositiveInteger", bigint, integer_conv);
+        addBuiltinSoapType("negativeInteger", bigint, integer_conv);
+        addBuiltinSoapType("nonNegativeInteger", bigint, integer_conv);
+        addBuiltinSoapType("positiveInteger", bigint, integer_conv);
+        addBuiltinSoapType("unsignedLong", bigint, integer_conv);
+        addBuiltinSoapType("decimal", BigDecimal.class,
+                           decimal_conv);
+        addBuiltinSoapType("long", Long.class, long_conv);
+        addBuiltinSoapType("unsignedInt", Long.class, long_conv);
+        addBuiltinSoapType("int", Integer.class, int_conv);
+        addBuiltinSoapType("unsignedShort", Integer.class, int_conv);
+        addBuiltinSoapType("short", Short.class, short_conv);
+        addBuiltinSoapType("unsignedByte", Short.class, short_conv);
+        addBuiltinSoapType("byte", Byte.class, byte_conv);
+        addBuiltinSoapType("boolean", Boolean.class, boolean_conv);
+
+        addBuiltinSoapType("anyURI", java.net.URI.class, uri_uri_conv);
+
+        addBuiltinSoapType("string", str, string_conv);
+        addBuiltinSoapType("normalizedString", str, string_conv);
+        addBuiltinSoapType("token", str, string_conv);
+        addBuiltinSoapType("language", str, string_conv);
+        addBuiltinSoapType("Name", str, string_conv);
+        addBuiltinSoapType("NCName", str, string_conv);
+        addBuiltinSoapType("NMTOKEN", str, string_conv);
+        addBuiltinSoapType("ID", str, string_conv);
+        addBuiltinSoapType("IDREF", str, string_conv);
+        addBuiltinSoapType("ENTITY", str, string_conv);
+
+        addBuiltinSoapType("NOTATION", str, collapsing_string_conv);
+        addBuiltinSoapType("duration", str, collapsing_string_conv);
+        addBuiltinSoapType("gDay", str, collapsing_string_conv);
+        addBuiltinSoapType("gMonth", str, collapsing_string_conv);
+        addBuiltinSoapType("gMonthDay", str, collapsing_string_conv);
+        addBuiltinSoapType("gYear", str, collapsing_string_conv);
+        addBuiltinSoapType("gYearMonth", str, collapsing_string_conv);
+
+        addBuiltinSoapType("anyURI", str, uri_conv);
+
+        addBuiltinSoapType("ENTITIES", str_array, string_list_array_conv);
+        addBuiltinSoapType("IDREFS", str_array, string_list_array_conv);
+        addBuiltinSoapType("NMTOKENS", str_array, string_list_array_conv);
+
+        addBuiltinSoapType("duration", GDuration.class, gduration_conv);
+        addBuiltinSoapType("dateTime", calendar_class, date_time_conv);
+        addBuiltinSoapType("dateTime", java.util.Date.class, date_datetime_conv);
+        addBuiltinSoapType("time", calendar_class, time_conv);
+        addBuiltinSoapType("date", calendar_class, date_conv);
+        addBuiltinSoapType("date", java.util.Date.class, date_date_conv);
+        addBuiltinSoapType("gDay", calendar_class, gday_conv);
+        addBuiltinSoapType("gMonth", calendar_class, gmonth_conv);
+        addBuiltinSoapType("gMonthDay", calendar_class, gmonth_day_conv);
+        addBuiltinSoapType("gYear", calendar_class, gyear_conv);
+        addBuiltinSoapType("gYearMonth", calendar_class, gyearmonth_conv);
+
+        addBuiltinSoapType("QName", QName.class, qname_conv);
+
+        addBuiltinSoapType("base64Binary", byte_array_jname, base64_conv);
+        addBuiltinSoapType("hexBinary", byte_array_jname, hexbin_conv);
+
     }
 
     private static TypeUnmarshaller createSimpleTypeUnmarshaller(SimpleBindingType stype,
@@ -511,7 +599,7 @@ final class RuntimeBindingTypeTable
     {
         final TypeMarshaller m;
 
-        //REVIEW: consider using vistor
+        //REVIEW: consider using visitor
 
         if (binding_type instanceof SimpleContentBean) {
             SimpleContentBean scb = (SimpleContentBean)binding_type;
