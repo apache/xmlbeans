@@ -118,7 +118,7 @@ public class ByNameBean extends BindingType {
    * Adds a new property
    */
   public void addProperty(QNameProperty newProp) {
-    if (newProp.isAttribute() ? attProps.containsKey(newProp.getQName()) : eltProps.containsKey(newProp.getQName()))
+    if (hasProperty(newProp))
       throw new IllegalArgumentException("duplicate property: " + newProp.getQName() + " in type " + this);
 
     props.add(newProp);
@@ -128,7 +128,14 @@ public class ByNameBean extends BindingType {
       eltProps.put(newProp.getQName(), newProp);
   }
 
-  // ========================================================================
+    public boolean hasProperty(QNameProperty newProp)
+    {
+        final QName prop_qname = newProp.getQName();
+        return newProp.isAttribute() ? attProps.containsKey(prop_qname) :
+            eltProps.containsKey(prop_qname);
+    }
+
+    // ========================================================================
   // BindingType implementation
 
   /**

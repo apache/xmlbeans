@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Collection;
+import java.util.Iterator;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -209,10 +210,11 @@ public class Java2Schema extends BindingCompiler {
     // unfortunate that the SchemaDocument model does not allow us to deal
     // with this kind of thing in a more elegant and polymorphic way.
     ExtensionType extType = null;
+    BindingType superBindingType = null;
     if (superclass != null && !superclass.isObjectType() &&
       !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
       // FIXME we're ignoring interfaces at the moment
-      BindingType superBindingType = getBindingTypeFor(superclass);
+      superBindingType = getBindingTypeFor(superclass);
       ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
       extType = ccd.addNewExtension();
       extType.setBase(superBindingType.getName().getXmlName().getQName());
@@ -227,6 +229,21 @@ public class Java2Schema extends BindingCompiler {
       logError("Unexpected simple type",clazz);
       return bindType;
     }
+
+    //add super's props first
+    if (superBindingType != null) {
+      //REVIEW: will it ever be possible to have another type as the super type?
+      //REVIEW: is copy by ref safe here?
+      //TODO: deal with java->schema name collisions across inherited types
+      ByNameBean super_type = (ByNameBean)superBindingType;
+      for(Iterator itr = super_type.getProperties().iterator() ; itr.hasNext() ; ) {
+        final QNameProperty prop = (QNameProperty)itr.next();
+        bindType.addProperty(prop);
+      }
+      bindType.setAnyAttributeProperty(super_type.getAnyAttributeProperty());
+      bindType.setAnyElementProperty(super_type.getAnyElementProperty());
+    }
+
     String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
     if (rootName != null) {
       QName rootQName = new QName(tns, rootName);
@@ -719,7 +736,8 @@ public class Java2Schema extends BindingCompiler {
      * initially).
      */
     private void addBtsProperty() {
-      if (mBtsProp != null) mBtsType.addProperty(mBtsProp);
+      if (mBtsProp != null && !mBtsType.hasProperty(mBtsProp))
+          mBtsType.addProperty(mBtsProp);
     }
 
     /**
