@@ -936,7 +936,8 @@ public class SchemaCompiler
     {
         StscState.addInfo(errorListener, "Loading schema file " + name);
         XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
-        opts.setValidateTreatLaxAsSkip();
+        if (noVDoc)
+            opts.setValidateTreatLaxAsSkip();
         if (schemadoc.validate(opts))
             scontentlist.add((schemadoc).getSchema());
     }
@@ -949,6 +950,7 @@ public class SchemaCompiler
             StscState.addWarning(errorListener, "The WSDL " + name + " uses SOAP encoding. SOAP encoding is not compatible with literal XML Schema.", XmlErrorCodes.GENERIC_ERROR, wsdldoc);
         StscState.addInfo(errorListener, "Loading wsdl file " + name);
         XmlOptions opts = new XmlOptions().setErrorListener(errorListener);
+        if (noVDoc)
         opts.setValidateTreatLaxAsSkip();
         XmlObject[] types = wsdldoc.getDefinitions().getTypesArray();
         int count = 0;

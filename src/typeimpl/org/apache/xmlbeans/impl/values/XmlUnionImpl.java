@@ -85,8 +85,10 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
     protected void set_text(String s)
     {
         // first check against any patterns...
-        if (!_schemaType.matchPatternFacet(s))
-            throw new XmlValueOutOfRangeException();
+        if (!_schemaType.matchPatternFacet(s) && _validateOnSet())
+            throw new XmlValueOutOfRangeException(XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID,
+                new Object[] { "string", s, QNameHelper.readable(_schemaType) });
+
 
         // save state for rollback
         String original = _textvalue;
@@ -105,6 +107,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
         }
         try
         {
+            for (boolean validate = true; !_validateOnSet(); validate = false)
+            {
             for (int i = 0; i < members.length; i++)
             {
                 // From the point of view of the following call, "this" is a generic
@@ -112,7 +116,7 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
                 // (Note that "this" is not wrapped in the proxy object.)
                 try
                 {
-                    XmlAnySimpleType newval = ((SchemaTypeImpl)members[i]).newValidatingValue(s);
+                    XmlAnySimpleType newval = ((SchemaTypeImpl)members[i]).newValue(s, validate);
 
                     // now we need to check against (enuemration) restrictions
                     if (!check(newval, _schemaType))
@@ -133,6 +137,9 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
                     // continue;
                 }
             }
+            if (!validate)
+                break;
+            }
         }
         finally
         {
@@ -144,7 +151,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
 
         // doesn't match any of the members; rollback and throw
         _textvalue = original;
-        throw new XmlValueOutOfRangeException();
+        throw new XmlValueOutOfRangeException(XmlErrorCodes.DATATYPE_VALID$UNION,
+            new Object[] { s, QNameHelper.readable(_schemaType) });
     }
 
     protected void set_nil()
@@ -440,6 +448,8 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
         }
         try
         {
+            for (boolean validate = true; !_validateOnSet(); validate = false)
+            {
             outer: for (int i = 0; i < members.length; i++)
             {
                 // candidates must be a logical match for the desired typecode
@@ -449,7 +459,7 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
 
                     try
                     {
-                        newval = members[i].newValue(val);
+                        newval = ((SchemaTypeImpl) members[i]).newValue(val, validate);
                     }
                     catch (XmlValueOutOfRangeException e)
                     {
@@ -509,12 +519,19 @@ public class XmlUnionImpl extends XmlObjectBase implements XmlAnySimpleType
                     return;
                 }
             }
+            if (!validate)
+                break;
+            }
         }
         finally
         {
             if (pushed)
                 NamespaceContext.pop();
         }
+
+        // doesn't match any of the members; throw
+        throw new XmlValueOutOfRangeException(XmlErrorCodes.DATATYPE_VALID$UNION,
+            new Object[] { val.toString(), QNameHelper.readable(_schemaType) });
     }
 
     // here are the setters

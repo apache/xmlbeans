@@ -1090,7 +1090,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
      */
     protected void update_from_complex_content()
     {
-        throw new XmlValueOutOfRangeException();
+        throw new XmlValueNotSupportedException("Complex content");
     }
 
     /**
@@ -1350,7 +1350,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     public double doubleValue()
         { BigDecimal bd = bigDecimalValue(); return bd == null ? 0.0 : bd.doubleValue(); }
     public BigDecimal bigDecimalValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
 
     // numerics: integral
     public BigInteger bigIntegerValue()
@@ -1453,7 +1453,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     // enums
     public StringEnumAbstractBase enumValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
 
     // various
     public String stringValue()
@@ -1553,23 +1553,23 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         { objectSet(obj); }
 
     public byte[] byteArrayValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public boolean booleanValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public GDate gDateValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public Date dateValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public Calendar calendarValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public GDuration gDurationValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public QName qNameValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public List listValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public List xlistValue()
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     public Object objectValue()
         { return java_value(this); }
 
@@ -1660,7 +1660,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         else
         {
             throw
-                new XmlValueOutOfRangeException(
+                new XmlValueNotSupportedException(
                     "Can't set union object of class : " +
                         o.getClass().getName() );
         }
@@ -1946,9 +1946,9 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     }
 
     protected void set_list(List list)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_boolean(boolean v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_byte(byte v)
         { set_int((int) v); }
     protected void set_short(short v)
@@ -1965,10 +1965,10 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         { set_BigDecimal(new BigDecimal(v)); }
 
     protected void set_enum(StringEnumAbstractBase e)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
 
     protected void set_ByteArray(byte[] b)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_b64(byte[] b)
         { set_ByteArray(b); }
     protected void set_hex(byte[] b)
@@ -1976,22 +1976,22 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
     protected void set_BigInteger(BigInteger v)
         { set(new BigDecimal(v)); }
     protected void set_BigDecimal(BigDecimal v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_Date(Date v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_Calendar(Calendar v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_GDate(GDateSpecification v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_GDuration(GDurationSpecification v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_ComplexXml(XmlObject v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
     protected void set_QName(QName v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
 
     protected void set_notation(String v)
-        { throw new XmlValueOutOfRangeException(); }
+        { throw new XmlValueNotSupportedException(); }
 
     protected void set_xmlanysimple(XmlAnySimpleType v)
         { set_String(v.getStringValue()); }
