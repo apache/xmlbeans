@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDuration;
+import org.apache.xmlbeans.ObjectFactory;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCalendar;
@@ -28,7 +29,6 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
-import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
@@ -92,7 +92,8 @@ final class UnmarshalResult
         return typeTable.getRuntimeTypeFactory();
     }
 
-    RuntimeBindingType getRuntimeType(BindingType type) throws XmlException
+    RuntimeBindingType getRuntimeType(BindingType type)
+        throws XmlException
     {
         return typeTable.getRuntimeTypeFactory().createRuntimeType(type,
                                                                    typeTable,
@@ -178,7 +179,23 @@ final class UnmarshalResult
 
         this.updateAttributeState();
 
-        return um.unmarshal(this);
+        ObjectFactory of = extractObjectFactory();
+        if (of == null) {
+            return um.unmarshal(this);
+        } else {
+            final RuntimeBindingType rtt = getRuntimeType(bindingType);
+            final Object initial_obj = of.createObject(rtt.getJavaType());
+            um.unmarshal(initial_obj, this);
+            return initial_obj;
+        }
+    }
+
+    private ObjectFactory extractObjectFactory()
+    {
+        if (options == null) return null;
+
+        return
+            (ObjectFactory)options.get(XmlOptions.UNMARSHAL_INITIAL_OBJECT_FACTORY);
     }
 
     Object unmarshalType(XMLStreamReader reader,

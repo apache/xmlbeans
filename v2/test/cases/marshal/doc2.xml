@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <n1:load xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:type="n1:MyClass"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
     xmlns:n1="java:com.mytest">
 

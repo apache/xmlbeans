@@ -432,6 +432,15 @@ public class XmlOptions implements java.io.Serializable
         return set( UNMARSHAL_VALIDATE );
     }
 
+
+    /**
+     * Provide a factory to be used for the creation of the top level object
+     * returned by the unmarshal methods.
+     */
+    public XmlOptions setUnmarshalInitialObjectFactory(ObjectFactory factory) {
+        return set( UNMARSHAL_INITIAL_OBJECT_FACTORY, factory );
+    }
+
     /**
      * Sets the name of the variable that represents
      * the current node in a query expression.
@@ -636,6 +645,9 @@ public class XmlOptions implements java.io.Serializable
 
     /** @exclude */
     public static final String UNMARSHAL_VALIDATE              =  "UNMARSHAL_VALIDATE";
+
+    /** @exclude */
+    public static final String UNMARSHAL_INITIAL_OBJECT_FACTORY=  "UNMARSHAL_INITIAL_OBJECT_FACTORY";
 
     /** @exclude */
     public static final String XQUERY_CURRENT_NODE_VAR         =  "XQUERY_CURRENT_NODE_VAR";
