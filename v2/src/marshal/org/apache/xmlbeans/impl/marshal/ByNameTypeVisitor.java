@@ -59,12 +59,17 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 
 import javax.xml.namespace.QName;
+import java.util.List;
+import java.util.ArrayList;
 
 class ByNameTypeVisitor extends NamedXmlTypeVisitor
 {
     private final ByNameRuntimeBindingType type;
-    private final int propCount;
+    private final int maxPropCount;
     private int propIdx = -1;
+    private List attributeNames;
+    private List attributeValues;
+
 
     ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
                       MarshalContext context)
@@ -75,53 +80,119 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
         type = new ByNameRuntimeBindingType(bean_type);
         type.initialize(context.getTypeTable(), context.getLoader());
 
-        //TODO: FIXME: proper null handling
-        propCount = obj == null ? 0 : type.getPropertyCount();
+        maxPropCount = obj == null ? 0 : type.getPropertyCount();
     }
 
     protected int getState()
     {
+        assert propIdx <= maxPropCount; //ensure we don't go past the end
+
         if (propIdx < 0) return START;
 
-        if (propIdx >= propCount) return END;
+        if (propIdx >= maxPropCount) return END;
 
         return CONTENT;
     }
 
     protected int advance()
     {
-        assert propIdx < propCount; //ensure we don't go past the end
+        assert propIdx < maxPropCount; //ensure we don't go past the end
         ++propIdx;
+
+        if (propIdx == maxPropCount)
+            return END;
+
+
+        final RuntimeBindingProperty property = getCurrentProperty();
+
+        if (property.isAttribute() || !property.isSet(parentObject, marshalContext))
+            return advance();
+
         return getState();
     }
 
     public XmlTypeVisitor getCurrentChild()
     {
-        final RuntimeBindingProperty property = type.getProperty(propIdx);
-        assert property != null;
+        final RuntimeBindingProperty property = getCurrentProperty();
         Object prop_obj = property.getValue(parentObject, marshalContext);
         return MarshalResult.createVisitor(property, prop_obj, marshalContext);
     }
 
+    private RuntimeBindingProperty getCurrentProperty()
+    {
+        final RuntimeBindingProperty property = type.getProperty(propIdx);
+        assert property != null;
+        return property;
+    }
+
     protected int getAttributeCount()
     {
-        //TODO: FIXME use real values
-        return 0;
+        if (attributeValues == null) initAttributes();
+
+        assert attributeNames.size() == attributeValues.size();
+
+        return attributeValues.size();
+    }
+
+    protected void initAttributes()
+    {
+        assert attributeNames == null;
+        assert attributeValues == null;
+
+        final List vals = new ArrayList();
+        final List names = new ArrayList();
+
+        if (parentObject == null) {
+            QName nil_qn = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
+            names.add(nil_qn);
+            vals.add("true");
+        } else {
+            //TODO: xsi:type for polymorphism
+
+            for (int i = 0, len = maxPropCount; i < len; i++) {
+                final RuntimeBindingProperty prop = type.getProperty(i);
+
+                if (!prop.isAttribute()) continue;
+                if (!prop.isSet(parentObject, marshalContext)) continue;
+
+                final Object value = prop.getValue(parentObject, marshalContext);
+
+                final CharSequence val = prop.getLexical(value,
+                                                         marshalContext);
+
+                if (val == null) continue;
+
+                vals.add(val);
+                names.add(fillPrefix(prop.getName()));
+            }
+        }
+
+        attributeNames = names;
+        attributeValues = vals;
+
+        assert attributeNames.size() == attributeValues.size();
     }
 
     protected String getAttributeValue(int idx)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        CharSequence val = (CharSequence)attributeValues.get(idx);
+        return val.toString();
     }
 
     protected QName getAttributeName(int idx)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        QName an = (QName)attributeNames.get(idx);
+
+        //make sure we have a valid prefix
+        assert ((an.getPrefix().length() == 0) ==
+            (an.getNamespaceURI().length() == 0));
+
+        return an;
     }
 
     protected CharSequence getCharData()
     {
-        throw new IllegalStateException("not text");
+        throw new IllegalStateException("not text: " + this);
     }
 
 }

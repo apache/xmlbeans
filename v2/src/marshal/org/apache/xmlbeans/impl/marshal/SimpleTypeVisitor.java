@@ -61,6 +61,8 @@ import javax.xml.namespace.QName;
 final class SimpleTypeVisitor extends NamedXmlTypeVisitor
 {
     private int state = START;
+    private QName attributeName;
+    private static final String NIL_ATT_VAL = "true";
 
     public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
                              MarshalContext context)
@@ -96,25 +98,34 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
         return new CharacterVisitor(bindingProperty, parentObject, marshalContext);
     }
 
+    protected void initAttributes() {
+        if (parentObject == null) {
+            attributeName = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
+        }
+    }
+
     protected int getAttributeCount()
     {
-        //TODO: xsi type considerations
-        return 0;
+        //TODO: xsi:type for polymorphism
+        return attributeName == null ? 0 : 1;
     }
 
     protected String getAttributeValue(int idx)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        assert attributeName != null;
+        return NIL_ATT_VAL;
     }
 
     protected QName getAttributeName(int idx)
     {
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        assert attributeName != null;
+        return attributeName;
     }
 
     protected CharSequence getCharData()
     {
         throw new AssertionError("not text");
     }
+
 
 }

@@ -4,7 +4,7 @@ public class MyClass {
 
 
     private YourClass myelt;
-    private String myatt;
+    private String myatt = "DEFAULT:"+System.currentTimeMillis();
 
 
     public YourClass getMyelt()

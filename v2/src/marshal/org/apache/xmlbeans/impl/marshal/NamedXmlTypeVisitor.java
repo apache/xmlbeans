@@ -62,19 +62,25 @@ import javax.xml.stream.XMLStreamReader;
 abstract class NamedXmlTypeVisitor
     extends XmlTypeVisitor
 {
-    private String prefix;
+    private final QName name;
 
     NamedXmlTypeVisitor(Object parentObject,
                         RuntimeBindingProperty property,
                         MarshalContext context)
     {
         super(parentObject, property, context);
+
+        //TODO: optimize to avoid object creation
+        name = addPrefixToName(bindingProperty.getName());
     }
 
     protected QName getName()
     {
-        //TODO: optimize this method (and related)
-        final QName pname = bindingProperty.getName();
+        return name;
+    }
+
+    private QName addPrefixToName(final QName pname)
+    {
         final String uri = pname.getNamespaceURI();
 
         assert uri != null;  //QName's should use "" for no namespace
@@ -82,14 +88,9 @@ abstract class NamedXmlTypeVisitor
         if (uri.length() == 0) {
             return new QName(pname.getLocalPart());
         } else {
-
-            if (prefix == null) {
-                prefix = marshalContext.ensurePrefix(uri);
-            }
-
+            String prefix = marshalContext.ensurePrefix(uri);
             return new QName(uri, pname.getLocalPart(), prefix);
         }
     }
-
 
 }

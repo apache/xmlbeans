@@ -65,8 +65,8 @@ final class CharacterVisitor
 
 
     CharacterVisitor(RuntimeBindingProperty property,
-                            Object parentObject,
-                            MarshalContext context)
+                     Object parentObject,
+                     MarshalContext context)
     {
         super(parentObject, property, context);
     }

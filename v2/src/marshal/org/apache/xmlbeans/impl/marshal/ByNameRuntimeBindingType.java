@@ -174,9 +174,11 @@ final class ByNameRuntimeBindingType
 
     private static final class Property implements RuntimeBindingProperty
     {
+        private final Class beanClass;
         private final QNameProperty bindingProperty;
         private final BindingType bindingType;
         private final TypeUnmarshaller unmarshaller;
+        private final TypeMarshaller marshaller; // used only for simple types
         private final Class propertyClass;
         private final Method getMethod;
         private final Method setMethod;
@@ -189,8 +191,10 @@ final class ByNameRuntimeBindingType
                  RuntimeBindingTypeTable typeTable,
                  BindingLoader loader)
         {
+            this.beanClass = beanClass;
             this.bindingProperty = prop;
             this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
+            this.marshaller = lookupMarshaller(prop, typeTable, loader);
             this.bindingType = loader.getBindingType(prop.getTypeName());
             try {
                 this.propertyClass = getJavaClass(bindingType, getClass().getClassLoader());
@@ -229,6 +233,16 @@ final class ByNameRuntimeBindingType
             return um;
         }
 
+        private TypeMarshaller lookupMarshaller(BindingProperty prop,
+                                                RuntimeBindingTypeTable typeTable,
+                                                BindingLoader bindingLoader)
+        {
+            final BindingType bindingType =
+                bindingLoader.getBindingType(prop.getTypeName());
+            TypeMarshaller m = typeTable.getTypeMarshaller(bindingType);
+            return m;
+        }
+
 
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context)
         {
@@ -265,20 +279,17 @@ final class ByNameRuntimeBindingType
         }
 
         //non simple type props can throw some runtime exception.
-        public CharSequence getLexical(Object parent, MarshalContext context)
+        public CharSequence getLexical(Object value, MarshalContext context)
         {
-            //TODO: FIXME: this is not correct!
-
-            if (parent instanceof CharSequence) {
-                return (CharSequence)parent;
-            } else {
-                return String.valueOf(parent);
-            }
+            assert marshaller != null : "no marhsaller for " + bindingProperty;
+            return marshaller.print(value, context);
         }
 
         public Object getValue(Object parentObject, MarshalContext context)
         {
             assert parentObject != null;
+            assert beanClass.isAssignableFrom(parentObject.getClass()) :
+                parentObject.getClass() + " is not a " + beanClass;
             try {
                 return getMethod.invoke(parentObject, EMPTY_OBJECT_ARRAY);
             }
@@ -291,6 +302,16 @@ final class ByNameRuntimeBindingType
             catch (InvocationTargetException e) {
                 throw new XmlRuntimeException(e);
             }
+        }
+
+        //TODO: check isSet methods
+        public boolean isSet(Object parentObject, MarshalContext context)
+        {
+            if (bindingProperty.isNillable())
+                return true;
+
+            Object val = getValue(parentObject, context);
+            return (val != null);
         }
 
         private static Method getSetterMethod(QNameProperty binding_prop,
@@ -330,7 +351,7 @@ final class ByNameRuntimeBindingType
         }
 
 
-        boolean isAttribute()
+        public boolean isAttribute()
         {
             return bindingProperty.isAttribute();
         }
