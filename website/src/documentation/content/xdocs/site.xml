@@ -41,17 +41,29 @@ See http://xml.apache.org/forrest/linking.html for more info
     </community-tab>
     <project-tab label="Project" href="projectManagement/" tab="project">
         <index href="index.html"/>
+        <!--
         <incubation label="Incubation Exit Criteria" href="index.html#Incubation+Exit+Criteria" description="Exiting from incubation"/>
+        -->
         <version1 label="About Version 1" href="index.html#XMLBeans+Version+1+Project+Management" description="Read a note on the progress of XMLBeans Version 1"/>
         <version2 label="About Version 2 Plans"
             href="index.html#XMLBeans+Version+2+Project+Management" description="Read information on the progress of XMLBeans Version 2"/>
         <bugs label="Bug Tracking" href="index.html#XMLBeans+Bug+Lists" description="Find or log XMLBeans bugs"/>
+        <!--
         <todo label="To Do" href="http://nagoya.apache.org/wiki/apachewiki.cgi?XMLBeansToDo" description="Read action items, mostly regarding incubation exit criteria"/>
+        -->
+        <!--
         <proposal label="Initial Proposal"
             href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansProposal" description="Read the original XMLBeans project proposal"/>
+        -->
         <roadmap label="XMLBeans Road Map"
             href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansRoadMap" description="Read ideas for future evolution"/>
     </project-tab>
+    <resources-tab label="Resources" href="resources/" tab="resources" >
+    	<index href="index.html" />
+    	<tools label="Tools" href="index.html#tools" description="Tools for working with XMLBeans."/>
+        <articles label="Articles" href="index.html#articles" description="Articles about or related to XMLBeans." />
+        <books label="Books" href="index.html#books" description="Books about XMLBeans" />
+    </resources-tab>
     <home label="Home" href="" tab="home">
         <index href="index.html"/>
         <learn label="Learn About XMLBeans">
