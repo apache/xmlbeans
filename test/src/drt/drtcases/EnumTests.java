@@ -20,11 +20,11 @@ import junit.framework.TestSuite;
 import junit.framework.Assert;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlObject;
-import org.openuri.enumtest.StatusreportDocument;
-import org.openuri.enumtest.SalesreportDocument;
-import org.openuri.enumtest.SalesreportDocument.Salesreport.Unit;
-import org.openuri.enumtest.Quantity;
-import org.openuri.enumtest.Data;
+import com.enumtest.StatusreportDocument;
+import com.enumtest.SalesreportDocument;
+import com.enumtest.SalesreportDocument.Salesreport.Unit;
+import com.enumtest.Quantity;
+import com.enumtest.Data;
 
 public class EnumTests extends TestCase
 {
