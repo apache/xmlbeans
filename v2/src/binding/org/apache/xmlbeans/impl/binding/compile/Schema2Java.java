@@ -317,6 +317,10 @@ public class Schema2Java extends BindingCompiler {
    * process that occurs in dependency order.
    */
   private void resolveJavaName(Scratch scratch) {
+    if (scratch == null) {
+      logVerbose("FIXME null scratch, ignoring for now");
+      return;
+    }
     if (scratch == null) throw new IllegalArgumentException("null scratch");
     logVerbose("Resolving " + scratch.getXmlName());
     // already resolved (we recurse to do in dependency order)
@@ -374,7 +378,9 @@ public class Schema2Java extends BindingCompiler {
           logVerbose("processing element "+scratch.getXmlName());
           SchemaType contentType = scratch.getSchemaType().getProperties()[0].getType();
           logVerbose("content type is "+contentType.getName());
-          if (contentType.isPrimitiveType()) {
+          if (contentType.isPrimitiveType() ||
+                  //FIXME why is this not a primitive? gross hack to make things work for now
+                  contentType.getName().toString().equals("{http://www.w3.org/2001/XMLSchema}int")) {
             //REVIEW this is a quick bug fix for the case where an element
             //is of a primitive type.  I'm not completely sure it is the right
             //thing to do.  pcal

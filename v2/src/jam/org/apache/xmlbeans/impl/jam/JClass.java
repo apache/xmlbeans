@@ -220,6 +220,16 @@ public interface JClass extends JMember {
   public boolean isPrimitive();
 
   /**
+   * If this JClass represents a primitive (isPrimitive() returns true),
+   * this method returns the java.lang.Class representing the class of
+   * the primitive.  For example, JClass representing an integer returns
+   * the equivalent of 'int.class' or 'java.lang.Integer.type.'
+   *
+   * @return The primitive class, or null if this is JClass is not primitive.
+   */
+  public Class getPrimitiveClass();
+
+  /**
    * Return true if this class is final.
    */
   public boolean isFinal();
