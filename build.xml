@@ -694,8 +694,8 @@
 
      <mkdir dir="build/private/xmlbeans-${version.base}/lib"/>
      <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/ar/xbean.jar"/>
-     <copy todir="build/private/xmlbeans-${version.base}/lib" file="external/lib/xml-apis.jar"/>
-     <copy todir="build/private/xmlbeans-${version.base}/lib" file="external/lib/xercesImpl.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/lib/xml-apis.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/lib/xercesImpl.jar"/>
      <copy todir="build/private/xmlbeans-${version.base}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
      <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/lib/xbean_xpath.jar"/>
 
