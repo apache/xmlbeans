@@ -102,7 +102,7 @@ public class Wide extends BaseCase{
         BusinessShirtType bShirt=BusinessShirtType.Factory.newInstance();
         bShirt.setName("Funny Shirt");
         bShirt.setNumber("SKU84");
-        bShirt.setSize(BigInteger.TEN);
+        bShirt.setSize(new BigInteger("10"));
         bShirt.setColor("blue");
 
         BeachUmbrellaT  bu=BeachUmbrellaT.Factory.newInstance();

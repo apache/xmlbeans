@@ -35,7 +35,7 @@ public class ChoiceTest extends BaseCase {
     public void testValidCase() throws Throwable{
         ChoiceEltDocument doc=ChoiceEltDocument.Factory.newInstance();
         ChoiceT elt=doc.addNewChoiceElt();
-         elt.addChild3(BigInteger.TEN);
+         elt.addChild3(new BigInteger("10"));
          elt.addChild3(BigInteger.ZERO);
            try {
             assertTrue(doc.validate());
@@ -52,7 +52,7 @@ public class ChoiceTest extends BaseCase {
         ChoiceEltDocument doc=ChoiceEltDocument.Factory.newInstance();
         ChoiceT elt=doc.addNewChoiceElt();
         elt.addChild2("foobar");
-        elt.addChild3(BigInteger.TEN);
+        elt.addChild3(new BigInteger("10"));
         elt.addChild3(BigInteger.ZERO);
 
             assertTrue( !doc.validate(validateOptions));
@@ -63,7 +63,7 @@ public class ChoiceTest extends BaseCase {
         MixedChoiceEltDocument doc=MixedChoiceEltDocument.Factory.newInstance();
         MixedChoiceT elt=doc.addNewMixedChoiceElt();
         assertTrue ( !elt.isSetChild1() );
-        elt.setChild1(BigInteger.TEN);
+        elt.setChild1(new BigInteger("10"));
         XmlCursor cur=elt.newCursor();
         assertEquals(XmlCursor.TokenType.START,cur.toFirstContentToken());
         cur.toEndToken(); //past child one

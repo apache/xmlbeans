@@ -109,7 +109,7 @@ public class OneLevel extends BaseCase {
         HatType hat=HatType.Factory.newInstance();
         hat.setName("Funny Hat");
         hat.setNumber("SKU84");
-        hat.setSize(BigInteger.TEN);
+        hat.setSize(new BigInteger("10"));
 
         /*   This doesn't work
         ProductType hat = elt.addNewProduct();
@@ -120,7 +120,7 @@ public class OneLevel extends BaseCase {
           shirt.setName("Funny Shirt");
         shirt.setNumber("SKU54");
         shirt.setColor("blue");
-        shirt.setSize(BigInteger.TEN);
+        shirt.setSize(new BigInteger("10"));
         ProductType genericProd = ProductType.Factory.newInstance();
         genericProd.setName("Pants");
         genericProd.setNumber("32");

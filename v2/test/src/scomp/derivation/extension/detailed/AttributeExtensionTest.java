@@ -44,7 +44,7 @@ public class AttributeExtensionTest extends BaseCase{
         }
         elt.setTestattribute("foo");
         elt.setTestattribute2("bar");
-        elt.setTestattributeInt(BigInteger.TEN);
+        elt.setTestattributeInt(new BigInteger("10"));
           try{
             assertTrue(doc.validate());
         }
@@ -54,8 +54,8 @@ public class AttributeExtensionTest extends BaseCase{
            throw t;
         }
         //make sure attr w/ value foo is in the imported NS
-       assertEquals("<att:ExtendedElement glob:testattributeInt=\"10\" " +
-               "testattribute=\"bar\" glob:testattribute=\"foo\" " +
+       assertEquals("<att:ExtendedElement glob:testattribute=\"foo\" " +
+               "testattribute=\"bar\" glob:testattributeInt=\"10\" " +
                "xmlns:att=\"http://xbean/scomp/derivation/AttributeExtension\" " +
                "xmlns:glob=\"http://xbean/scomp/attribute/GlobalAttrDefault\"/>"
                ,doc.xmlText());

@@ -25,14 +25,18 @@ import xbean.scomp.derivation.attributeWCExtension.*;
 public class AttributeWCExtension extends BaseCase {
 
    /**
-    * Strict wildcard any
+    * Strict wildcard ##local
+    * Base type didn't have wildcards
     * @throws Throwable
     */
 
     public void testRestrictBaseWOWC() throws Throwable {
-        String input = "<foo:BaseNoWC " +
-                " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
-                " testAttr=\"val1\"/>";
+        String input = "<pre:BaseNoWC " +
+                " xmlns:pre=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
+                  " xmlns:base=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
+                " base:testattribute=\"val\"" +
+                " base:testattributeInt=\"3\"" +
+                " pre:testAttr=\"val1\"/>";
         BaseNoWCDocument doc = BaseNoWCDocument.Factory.parse(input);
         if ( !doc.validate(validateOptions) )
             showErrors();
@@ -46,6 +50,7 @@ public class AttributeWCExtension extends BaseCase {
     public void testAnyStrict() throws Throwable {
         String input = "<foo:AnyStrict " +
                 " xmlns:foo=\"http://xbean/scomp/derivation/AttributeWCExtension\"" +
+
                 " testAttr=\"val1\"/>";
         AnyStrictDocument doc = AnyStrictDocument.Factory.parse(input);
          if ( !doc.validate(validateOptions) )

@@ -21,6 +21,7 @@ import xbean.scomp.element.namedModelGroup.ManagerDocument;
 
 import java.util.GregorianCalendar;
 import java.math.BigDecimal;
+import java.math.BigInteger;
 
 /**
  * @owner: ykadiysk
@@ -38,7 +39,7 @@ public class NamedModelGroupsTest extends BaseCase{
 
          elt.setComment("Horrible performance by employee Potatohead");
          elt.setDate(new GregorianCalendar(2004,8,12));
-         elt.setGrade(BigDecimal.ONE);
+         elt.setGrade(new BigDecimal(new BigInteger("10")));
          elt.setManager(m);
           try {
             assertTrue( doc.validate(validateOptions)) ;

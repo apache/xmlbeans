@@ -44,6 +44,7 @@ public class BaseCase extends TestCase {
                 XmlError error = (XmlError) errorList.get(i);
                 System.out.println("\n");
                 System.out.println("Message: " + error.getMessage() + "\n");
+                if ( error.getCursorLocation() != null)
                 System.out.println("Location of invalid XML: " +
                         error.getCursorLocation().xmlText() + "\n");
             }

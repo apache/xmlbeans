@@ -146,7 +146,7 @@ public class LocalAttrUse extends BaseCase {
                 AttrProhibitedEltDocument.Factory.newInstance();
         AttrUseProhibited elt = doc.addNewAttrProhibitedElt();
         elt.setAttRequiredFixed("XBeanFix");
-        elt.setAttRequired(BigInteger.TEN);
+        elt.setAttRequired(new BigInteger("10"));
         elt.setAttRequiredDefault("boo");
         try {
             assertTrue(elt.validate(validateOptions));

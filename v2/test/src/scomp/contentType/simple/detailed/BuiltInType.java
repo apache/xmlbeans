@@ -166,8 +166,9 @@ public class BuiltInType extends BaseCase {
                 " xmlns=\"http://xbean/scomp/contentType/builtIn/Number\"" +
                 ">12.34</DecimalElt>");
         assertTrue(decDoc.validate(validateOptions));
-        decDoc.setDecimalElt(BigDecimal.TEN);
-        assertTrue(BigDecimal.TEN == decDoc.getDecimalElt());
+        BigDecimal bdval=new BigDecimal(new BigInteger("10"));
+        decDoc.setDecimalElt(bdval);
+        assertTrue(bdval == decDoc.getDecimalElt());
 
         IntegerEltDocument integerDoc =
                 IntegerEltDocument.Factory.parse("<IntegerElt " +

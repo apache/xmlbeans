@@ -70,7 +70,7 @@ public class Block extends BaseCase {
         bs.setName("Bus Shirt");
         bs.setNumber("SKU35");
         bs.setColor("blue");
-        bs.setSize(BigInteger.TEN);
+        bs.setSize(new BigInteger("10"));
 
       /**  //Why is this set not working???
         doc.getItems().setProductArray(0, bs);
@@ -130,7 +130,7 @@ public class Block extends BaseCase {
         bs.setName("Oxford Shirt");
         bs.setNumber("SKU35");
         bs.setColor("blue");
-        bs.setSize(BigInteger.TEN);
+        bs.setSize(new BigInteger("10"));
        ItemType it= doc.addNewItems();
        it.setProductArray(new ProductType[]{bs});
 

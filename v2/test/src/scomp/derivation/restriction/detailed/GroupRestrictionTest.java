@@ -32,8 +32,8 @@ public class GroupRestrictionTest extends BaseCase {
         RestrictedSequenceT elt = doc.addNewRestrictedSequenceElt();
         elt.setChild1(BigInteger.ONE);
         elt.addChild2("foobar");
-        elt.addChild3(BigInteger.TEN);
-        elt.addChild3(BigInteger.TEN);
+        elt.addChild3(new BigInteger("10"));
+        elt.addChild3(new BigInteger("10"));
         try {
             assertTrue(doc.validate());
         }
@@ -76,7 +76,7 @@ public class GroupRestrictionTest extends BaseCase {
         //child3 can't be missing
         assertTrue(!doc.validate());
         showErrors();
-        elt.setChild3(BigInteger.TEN);
+        elt.setChild3(new BigInteger("10"));
         try {
             assertTrue(doc.validate());
         }

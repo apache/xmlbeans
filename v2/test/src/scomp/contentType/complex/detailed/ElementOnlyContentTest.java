@@ -47,7 +47,7 @@ public class ElementOnlyContentTest extends BaseCase {
         testElt = doc.addNewEltType();
         assertEquals(null, testElt.getChild1());
         assertEquals(null, testElt.xgetChild1());
-        testElt.setChild1(BigInteger.TEN);
+        testElt.setChild1(new BigInteger("10"));
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment><child1>10</child1><child2>5</child2>" +
@@ -79,7 +79,7 @@ public class ElementOnlyContentTest extends BaseCase {
         testElt = doc.addNewEltType();
         assertEquals(null, testElt.getChild1());
         assertEquals(null, testElt.xgetChild1());
-        testElt.setChild1(BigInteger.TEN);
+        testElt.setChild1(new BigInteger("10"));
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         assertTrue(testElt.validate());
