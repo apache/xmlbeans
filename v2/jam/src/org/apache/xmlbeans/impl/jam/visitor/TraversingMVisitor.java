@@ -26,15 +26,12 @@ import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.mutable.MPackage;
 
 /**
- * <p>Calls accept() with the given visitor, and then recursively calls
- * acceptAndWalk for each of our component elements2, if any.  Calling this
- * on an MClass will cause the MClass to accept the visitor, and then
- * all of it's declared fields constructors, and methods.  The parameter
- * for each constructor and method will also in turn be accepted.
- * Any annotations for each of these elements types will also be visited
- * after their other children have been visited.  Note that inherited
- * members are never visited, nor are referenced classes (e.g. referenced
- * via inheritance or member types).  </p>
+ * <p>An adaptor which helps another MVisitor visit a JElement and its
+ * children, recursively.  Note that inherited class or annotations members
+ * are never visited, nor are referenced classes (e.g. referenced via member
+ * types).  The following table lists each element and the child types
+ * which are traversed.</p>
+
  *
  * <table border='1'>
  * <tr><td><b>Element</b></td><td><b>Sub-elements traversal</b></td></tr>

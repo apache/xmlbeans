@@ -19,14 +19,7 @@ import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 
 /**
- * <p>Interface implemented by JAM abstractions which can have
- * associated annotations (i.e. metadata).  This abstraction is
- * primarily useful in the case where annotation inheritance is
- * desired; the getParent() call can be used to climb the tree of
- * annoted objects until a desired annotation is found.  Note that
- * JAnnotations are themselves JElement, which is used to annotation
- * nesting (as expressed by JSR175 nested structs or javadoc'ed
- * name-value pairs).</p>
+ * <p>The root of the java type object model.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
