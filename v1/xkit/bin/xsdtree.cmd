@@ -3,4 +3,4 @@
 set cp=
 set cp=%cp%;%XMLBEANDIR%\xbean.jar
 
-java -classpath %cp% com.bea.xbean.tool.TypeHierarchyPrinter %*
+java -classpath %cp% xml.apache.org.tool.TypeHierarchyPrinter %*

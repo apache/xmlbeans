@@ -1,4 +1,4 @@
-XMLBeans survival kit
+XMLBeans Development Kit
 
 
 Welcome to XMLBeans!
@@ -21,25 +21,14 @@ Kit contents:
     ./anttask.html
 
 (5) A copy of the plain javadoc tree for com.bea.xml.*
-    ./javadoc
+    ./docs/reference
 
 (6) A preliminary collection of nicely formatted user-level
     documentation HTML (includes reformatted and nicely
     organized javadoc as well)
-    ./doc
+    ./docs/guide
 
-(7) A copy of the XMLBean source code.  We've done nothing
-    to make sure it's buildable here; the code is just there
-    for your reference and debugging.
-    ./src
-
-(8) A copy of the Piccolo source code.  XMLBeans uses a
-    bugfixed distribution of Yuval Oren's fast Piccolo parser,
-    which is licensed under LGPL (and so which gives you the
-    right to remodify and redistribute Piccolo).
-    ./srcdist/Piccolo.zip.
-
-(9) A few sample schemas
+(7) A few sample schemas
     ./schemas
 
 
@@ -91,7 +80,7 @@ Where to start?
     Now, armed with the XMLBeans source code and the basic
     docs, you're ready to program.  Things you need to know:
 
-    * The com.bea.xml package has all the public classes
+    * The org.apache.xmlbeans package has all the public classes
       for XMLBeans.  Programs should not need to call anything
       else in xbean.jar directly.
 
@@ -130,7 +119,7 @@ Where to start?
       systems.
 
     With that, you're ready to navigate the javadoc and play
-    with the code.  Also, try reading some of our preliminary
+    with the code.  Also, try reading some of our 
     docs that are included in ./docs
 
 (3) Try some of the other utilities; you can also see a few
@@ -139,7 +128,7 @@ Where to start?
     1. "xpretty instance.xml" pretty-prints an XML instance
        document.
 
-       The code is in com.bea.xbean.tool.PrettyPrinter and is
+       The code is in xml.apache.org.tool.PrettyPrinter and is
        a reasonable example of how to load and save out an
        arbitrary XML document.  XmlOptions are used to produce
        the pretty-printing.
@@ -148,7 +137,7 @@ Where to start?
        instance against the schema.  XMLBeans is intended to
        be a very accurate XML schema validator.
 
-       The code is in com.bea.xbean.tool.InstanceValidator.
+       The code is in xml.apache.org.tool.InstanceValidator.
        It is an excellent example of how to load a schema
        type system dynamically at runtime, load and validate
        an instance within that type system, and how to obtain
@@ -157,7 +146,7 @@ Where to start?
     3. "xsdtree easypo" will show the inheritance hierarchy
        of the schema types in that directory.
 
-       The code is in com.bea.xbean.tool.TypeHierarchyPrinter
+       The code is in xml.apache.org.tool.TypeHierarchyPrinter
        and is a good introduction to how to traverse the
        metadata in a schema type system.
 

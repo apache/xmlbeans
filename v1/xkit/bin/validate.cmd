@@ -7,6 +7,6 @@
 set cp=
 set cp=%cp%;%XMLBEANDIR%\xbean.jar
 
-java -classpath %cp% com.bea.xbean.tool.InstanceValidator %*
+java -classpath %cp% xml.apache.org.tool.InstanceValidator %*
 
 :done
