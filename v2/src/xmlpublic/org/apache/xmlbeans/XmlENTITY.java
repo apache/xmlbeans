@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans;
 
+import javax.xml.stream.XMLStreamReader;
+
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#ENTITY">xs:ENTITY</a> type.
@@ -140,6 +143,14 @@ public interface XmlENTITY extends XmlNCName
         /** Parses a {@link XmlENTITY} fragment from an XMLInputStream. */
         public static XmlENTITY parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return (XmlENTITY) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
+        
+        /** Parses a {@link XmlENTITY} fragment from an XMLStreamReader. */
+        public static XmlENTITY parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
+          return (XmlENTITY) XmlBeans.getContextTypeLoader().parse( xsr, type, null ); }
+        
+        /** Parses a {@link XmlENTITY} fragment from an XMLStreamReader. */
+        public static XmlENTITY parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
+          return (XmlENTITY) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
         
         /** Returns a validating XMLInputStream. */
         public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {

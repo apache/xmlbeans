@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans;
 
+import javax.xml.stream.XMLStreamReader;
+
+
 /**
  * Corresponds to the XML Schema
  * <a target="_blank" href="http://www.w3.org/TR/xmlschema-2/#language">xs:language</a> type.
@@ -142,6 +145,14 @@ public interface XmlLanguage extends XmlToken
         /** Parses a {@link XmlLanguage} fragment from an XMLInputStream. */
         public static XmlLanguage parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return (XmlLanguage) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
+        
+        /** Parses a {@link XmlLanguage} fragment from an XMLStreamReader. */
+        public static XmlLanguage parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
+          return (XmlLanguage) XmlBeans.getContextTypeLoader().parse( xsr, type, null ); }
+        
+        /** Parses a {@link XmlLanguage} fragment from an XMLStreamReader. */
+        public static XmlLanguage parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
+          return (XmlLanguage) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
         
         /** Returns a validating XMLInputStream. */
         public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {

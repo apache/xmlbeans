@@ -69,6 +69,8 @@ import org.apache.xmlbeans.impl.store.Splay.Goober;
 import org.apache.xmlbeans.impl.store.Splay.Procinst;
 import org.apache.xmlbeans.impl.store.Splay.Xmlns;
 import org.apache.xmlbeans.XmlCursor.ChangeStamp;
+import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlLineNumber;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
@@ -83,9 +85,16 @@ import java.io.File;
 import java.io.Writer;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.HashMap;
 import java.util.Map;
 import javax.xml.namespace.QName;
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.Location;
 import org.w3c.dom.Node;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
@@ -299,6 +308,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         synchronized ( monitor() )
         {
             checkDisposed();
+            
             return new Cursor( getRoot(), getSplay(), getPos() );
         }
     }
@@ -2228,6 +2238,11 @@ public final class Cursor implements XmlCursor, ChangeListener
         }
     }
     
+    public XMLInputStream newXMLInputStream ( )
+    {
+        return newXMLInputStream( null );
+    }
+    
     public XMLInputStream newXMLInputStream ( XmlOptions options )
     {
         synchronized ( monitor() )
@@ -2239,11 +2254,60 @@ public final class Cursor implements XmlCursor, ChangeListener
         }
     }
     
-    public XMLInputStream newXMLInputStream ( )
+    public XMLStreamReader newXMLStreamReader ( )
     {
-        return newXMLInputStream( null );
+        return newXMLStreamReader( null );
     }
     
+    public XMLStreamReader newXMLStreamReader ( XmlOptions options )
+    {
+        synchronized ( monitor() )
+        {
+            checkDisposed();
+
+            boolean inner = XmlOptions.maskNull( options ).hasOption( XmlOptions.SAVE_INNER );
+
+            if (inner)
+            {
+                if (isNamespace())
+                    return new XMLStreamReaderForString( newCursor(), getName().getNamespaceURI() );
+                
+                if (isAttr() || isComment() || isProcinst())
+                    return new XMLStreamReaderForString( newCursor(), getTextValue() );
+            }
+
+            if (isText())
+                return new XMLStreamReaderForString( newCursor(), getChars() );
+
+            if (isFinish())
+                return new XMLStreamReaderForString( newCursor(), "" );
+            
+            assert !isText() && !isFinish();
+            assert !inner || isContainer();
+            
+            XmlCursor start = newCursor();
+            XmlCursor last = newCursor();
+            
+            if (inner)
+            {
+                start.toNextToken();
+                last.toEndToken();
+
+                if (start.isAtSamePositionAs( last ))
+                    return new XMLStreamReaderForString( start, "" );
+
+                last.toPrevToken();
+            }
+            else
+            {
+                if (isContainer())
+                    last.toEndToken();
+            }
+            
+            return new XMLStreamReaderImpl( start, last );
+        }
+    }
+            
     private static final XmlOptions _toStringOptions =
         buildPrettyOptions();
 
@@ -3355,6 +3419,913 @@ public final class Cursor implements XmlCursor, ChangeListener
         private ArrayList _cursors;
 
         private PathEngine _pathEngine;
+    }
+    
+    //
+    // XMLStreamReader
+    //
+
+    private static abstract class XMLStreamReaderBase
+        implements XMLStreamReader, NamespaceContext, Location
+    {
+        XMLStreamReaderBase ( XmlCursor c )
+        {
+            _changeStamp = c.getDocChangeStamp();
+        }
+
+        protected void checkChanged ( )
+        {
+            if (_changeStamp.hasChanged())
+                throw new ConcurrentModificationException( "Document changed while streaming" );
+        }
+
+        //
+        // XMLStreamReader methods
+        //
+        
+        public void close ( )
+        {
+            checkChanged();
+        }
+        
+        public Location getLocation ( )
+        {
+            checkChanged();
+            
+            XmlCursor c = getCursor();
+
+            XmlLineNumber ln = (XmlLineNumber) c.getBookmark( XmlLineNumber.class );
+
+            // BUGBUG - put source name here 
+            _uri = null;
+            
+            if (ln != null)
+            {
+                _line = ln.getLine();
+                _column = ln.getColumn();
+                _offset = ln.getOffset();
+            }
+            else
+            {
+                _line = -1;
+                _column = -1;
+                _offset = -1;
+            }
+
+            return this;
+        }
+        
+        public NamespaceContext getNamespaceContext ( )
+        {
+            checkChanged();
+            
+            return this;
+        }
+
+        public Object getProperty ( String name )
+        {
+            checkChanged();
+            
+            throw new RuntimeException( "Not implemented" );
+        }
+        
+        public String getCharacterEncodingScheme ( )
+        {
+            checkChanged();
+            
+            XmlDocumentProperties props = getCursor().documentProperties();
+
+            return props == null ? null : props.getEncoding();
+        }
+
+        public String getEncoding ( )
+        {
+            checkChanged();
+            
+            return null;
+        }
+
+        public String getVersion ( )
+        {
+            checkChanged();
+            
+            XmlDocumentProperties props = getCursor().documentProperties();
+
+            return props == null ? null : props.getVersion();
+        }
+        
+        public boolean isStandalone ( )
+        {
+            checkChanged();
+            
+            return false;
+        }
+        
+        public boolean standaloneSet ( )
+        {
+            checkChanged();
+            
+            return false;
+        }
+
+        public void require ( int type, String namespaceURI, String localName )
+            throws XMLStreamException
+        {
+            checkChanged();
+            
+            if (type != getEventType())
+                throw new XMLStreamException();
+
+            if (namespaceURI != null && !getNamespaceURI().equals( namespaceURI ))
+                throw new XMLStreamException();
+            
+            if (localName != null && !getLocalName().equals( localName ))
+                throw new XMLStreamException();
+        }
+        
+        //
+        // Location and NamespaceContext methods
+        //
+
+        public int    getCharacterOffset ( ) { return _offset; }
+        public int    getColumnNumber    ( ) { return _column; }
+        public int    getLineNumber      ( ) { return _line;   }
+        public String getLocationURI     ( ) { return _uri;    }
+        
+        public String getNamespaceURI ( String prefix )
+        {
+            checkChanged();
+            
+            XmlCursor c = getCursor();
+
+            boolean pop = false;
+
+            if (!c.isContainer())
+            {
+                c.push();
+                c.toParent();
+                pop = true;
+            }
+
+            String ns = c.namespaceForPrefix( prefix );
+
+            if (pop)
+                c.pop();
+
+            return ns;
+        }
+
+        public String getPrefix ( String namespaceURI )
+        {
+            checkChanged();
+            
+            XmlCursor c = getCursor();
+
+            boolean pop = false;
+
+            if (!c.isContainer())
+            {
+                c.push();
+                c.toParent();
+                pop = true;
+            }
+
+            HashMap map = new HashMap();
+
+            c.getAllNamespaces( map );
+
+            String prefix = (String) map.get( namespaceURI );
+
+            if (pop)
+                c.pop();
+
+            return prefix;
+        }
+
+        public Iterator getPrefixes ( String namespaceURI )
+        {
+            checkChanged();
+            
+            // BUGBUG - get only one for now ...
+            
+            HashMap map = new HashMap();
+
+            map.put( namespaceURI, getPrefix( namespaceURI ) );
+
+            return map.values().iterator();
+        }
+
+        //
+        //
+        //
+
+        protected abstract XmlCursor getCursor ( );
+
+        //
+        //
+        //
+
+        private ChangeStamp _changeStamp;
+        String _uri;
+        int _line, _column, _offset;
+    }
+        
+    
+    private static final class XMLStreamReaderForString extends XMLStreamReaderBase
+    {
+        XMLStreamReaderForString ( XmlCursor c, String s )
+        {
+            super( c );
+            
+            _cursor = c;
+            
+            _string = s == null ? "" : s;
+        }
+
+        protected XmlCursor getCursor ( )
+        {
+            return _cursor;
+        }
+        
+        //
+        // Legal stream methods
+        //
+        
+        public int     getEventType      ( ) { checkChanged(); return CHARACTERS;            }
+        public String  getText           ( ) { checkChanged(); return _string;               }
+        public char[]  getTextCharacters ( ) { checkChanged(); return _string.toCharArray(); }
+        public int     getTextStart      ( ) { checkChanged(); return 0;                     }
+        public int     getTextLength     ( ) { checkChanged(); return _string.length();      }
+        public boolean hasName           ( ) { checkChanged(); return false;                 }
+        public boolean hasNext           ( ) { checkChanged(); return false;                 }
+        public boolean hasText           ( ) { checkChanged(); return true;                  }
+        public boolean isCharacters      ( ) { checkChanged(); return true;                  }
+        public boolean isEndElement      ( ) { checkChanged(); return false;                 }
+        public boolean isStartElement    ( ) { checkChanged(); return false;                 }
+        
+        public int getTextCharacters ( int sourceStart, char[] target, int targetStart, int length )
+        {
+            checkChanged();
+            
+            int sourceEnd = sourceStart + length;
+
+            if (sourceEnd >= _string.length())
+                sourceEnd = _string.length();
+            
+            _string.getChars( sourceStart, sourceEnd, target, targetStart );
+
+            return sourceEnd - sourceStart;
+        }
+        
+        public boolean isWhiteSpace ( )
+        {
+            checkChanged();
+            
+            for ( int i = 0 ; i < _string.length() ; i++ )
+            {
+                if (!Splay.isWhiteSpace( _string.charAt( i ) ))
+                    return false;
+            }
+
+            return true;
+        }
+        
+        //
+        // Illegal stream methods
+        //
+        
+        public int     getAttributeCount ( ) { throw new IllegalStateException(); }
+        public String  getAttributeLocalName ( int index ) { throw new IllegalStateException(); }
+        public QName   getAttributeName ( int index ) { throw new IllegalStateException(); }
+        public String  getAttributeNamespace ( int index ) { throw new IllegalStateException(); }
+        public String  getAttributePrefix ( int index ) { throw new IllegalStateException(); }
+        public String  getAttributeType ( int index ) { throw new IllegalStateException(); }
+        public String  getAttributeValue ( int index ) { throw new IllegalStateException(); }
+        public String  getAttributeValue ( String namespaceURI, String localName ) { throw new IllegalStateException(); }
+        public String  getElementText ( ) { throw new IllegalStateException(); }
+        public String  getLocalName ( ) { throw new IllegalStateException(); }
+        public QName   getName ( ) { throw new IllegalStateException(); }
+        public int     getNamespaceCount ( ) { throw new IllegalStateException(); }
+        public String  getNamespacePrefix ( int index ) { throw new IllegalStateException(); }
+        public String  getNamespaceURI ( int index ) { throw new IllegalStateException(); }
+        public String  getNamespaceURI ( ) { throw new IllegalStateException(); }
+        public String  getPIData ( ) { throw new IllegalStateException(); }
+        public String  getPITarget ( ) { throw new IllegalStateException(); }
+        public String  getPrefix ( ) { throw new IllegalStateException(); }
+        public boolean isAttributeSpecified ( int index ) { throw new IllegalStateException(); }
+        public int     next ( ) { throw new IllegalStateException(); }
+        public int     nextTag ( ) { throw new IllegalStateException(); }
+        
+        private XmlCursor _cursor;
+        private String    _string;
+    }
+    
+    private static final class XMLStreamReaderImpl extends XMLStreamReaderBase
+    {
+        XMLStreamReaderImpl ( XmlCursor start, XmlCursor last )
+        {
+            super( start );
+
+            assert ! start.isAtSamePositionAs( last );
+
+            _cursor = start;
+            _last = last;
+            _didLast = false;
+        }
+
+        protected XmlCursor getCursor ( )
+        {
+            return _cursor;
+        }
+        
+        //
+        //
+        //
+        
+        public boolean hasNext ( )
+        {
+            checkChanged();
+            
+            return !_didLast;
+        }
+        
+        public int next ( )
+        {
+            checkChanged();
+            
+            if (_didLast)
+                throw new IllegalStateException();
+
+            if (_cursor.isStart())
+                _cursor.toFirstContentToken();
+            else
+                _cursor.toNextToken();
+
+            if (_cursor.isAtSamePositionAs( _last ))
+                _didLast = true;
+            
+            return getEventType();
+        }
+        
+        public int getEventType ( )
+        {
+            checkChanged();
+            
+            switch ( _cursor.currentTokenType().intValue() )
+            {
+            case TokenType.INT_STARTDOC  : return START_DOCUMENT;
+            case TokenType.INT_ENDDOC    : return END_DOCUMENT;
+            case TokenType.INT_START     : return START_ELEMENT;
+            case TokenType.INT_END       : return END_ELEMENT;
+            case TokenType.INT_TEXT      : return CHARACTERS;
+            case TokenType.INT_ATTR      : return ATTRIBUTE;
+            case TokenType.INT_NAMESPACE : return NAMESPACE;
+            case TokenType.INT_COMMENT   : return COMMENT;
+            case TokenType.INT_PROCINST  : return PROCESSING_INSTRUCTION;
+                                           
+            default                      : throw new IllegalStateException();
+            }
+        }
+        
+        public int getAttributeCount ( )
+        {
+            checkChanged();
+            
+            int count = 0;
+            
+            if (_cursor.isAttr())
+                count = 1;
+            else if (_cursor.isStart())
+            {
+                _cursor.push();
+
+                for ( _cursor.toNextToken() ; _cursor.isAnyAttr() ; _cursor.toNextToken() )
+                    if (_cursor.isAttr())
+                        count++;
+                
+                _cursor.pop();
+            }
+            else
+                throw new IllegalStateException();
+
+            return count;
+        }
+        
+        public int getNamespaceCount ( )
+        {
+            checkChanged();
+            
+            int count = 0;
+            
+            if (_cursor.isNamespace())
+                count = 1;
+            else if (_cursor.isStart())
+            {
+                _cursor.push();
+
+                for ( _cursor.toNextToken() ; _cursor.isAnyAttr() ; _cursor.toNextToken() )
+                    if (_cursor.isNamespace())
+                        count++;
+                
+                _cursor.pop();
+            }
+            else
+                throw new IllegalStateException();
+
+            return count;
+        }
+
+        private void toAttr ( int index )
+        {
+            if (index < 0)
+                throw new IllegalArgumentException();
+
+            if (_cursor.isAttr())
+            {
+                if (index > 0)
+                    throw new IllegalArgumentException();
+            }
+            else if (_cursor.isStart())
+            {
+                for ( _cursor.toNextToken() ; _cursor.isAnyAttr() ; _cursor.toNextToken() )
+                    if (_cursor.isAttr() && index-- == 0)
+                        return;
+                
+                throw new IllegalArgumentException();
+            }
+            else
+                throw new IllegalStateException();
+        }
+
+        private void toNamespace ( int index )
+        {
+            if (index < 0)
+                throw new IllegalArgumentException();
+
+            if (_cursor.isNamespace())
+            {
+                if (index > 0)
+                    throw new IllegalArgumentException();
+            }
+            else if (_cursor.isStart())
+            {
+                for ( _cursor.toNextToken() ; _cursor.isAnyAttr() ; _cursor.toNextToken() )
+                    if (_cursor.isNamespace() && index-- == 0)
+                        return;
+                
+                throw new IllegalArgumentException();
+            }
+            else
+                throw new IllegalStateException();
+        }
+
+        private boolean toAttr ( String namespaceURI, String localName )
+        {
+            if (namespaceURI == null || localName == null || localName.length() == 0)
+                throw new IllegalArgumentException();
+
+            QName qn = new QName( namespaceURI, localName );
+
+            if (_cursor.isAttr())
+            {
+                return _cursor.getName().equals( qn );
+            }
+            else if (_cursor.isStart())
+            {
+                _cursor.toNextToken();
+
+                while ( _cursor.isAnyAttr() )
+                {
+                    if (_cursor.isAttr() && _cursor.getName().equals( qn ))
+                        return true;
+                }
+
+                return false;
+            }
+            else
+                throw new IllegalStateException();
+        }
+        
+        public String getAttributeLocalName ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toAttr( index );
+
+                return _cursor.getName().getLocalPart();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public QName getAttributeName ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toAttr( index );
+
+                return _cursor.getName();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getAttributeNamespace ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toAttr( index );
+
+                return _cursor.getName().getNamespaceURI();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getAttributePrefix ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toAttr( index );
+
+                return getPrefix( _cursor.getName().getNamespaceURI() );
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getAttributeType ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toAttr( index );
+
+                return "CDATA";
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getAttributeValue ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toAttr( index );
+
+                return _cursor.getTextValue();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getAttributeValue ( String namespaceURI, String localName )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                if (!toAttr( namespaceURI, localName ))
+                    return null;
+
+                return _cursor.getTextValue();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getNamespacePrefix ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toNamespace( index );
+
+                return _cursor.getName().getLocalPart();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getNamespaceURI ( int index )
+        {
+            checkChanged();
+            
+            _cursor.push();
+
+            try
+            {
+                toNamespace( index );
+
+                return _cursor.getName().getNamespaceURI();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public String getElementText ( ) throws XMLStreamException
+        {
+            checkChanged();
+            
+            if (!isStartElement())
+                throw new IllegalStateException();
+
+            StringBuffer sb = new StringBuffer();
+
+            for ( int depth = 1 ; depth > 0 ; )
+            {
+                if (!hasNext())
+                    throw new XMLStreamException();
+
+                int e = next();
+
+                if (e == END_ELEMENT)
+                {
+                    depth--;
+                    continue;
+                }
+                
+                if (e == START_ELEMENT)
+                    depth++;
+                
+                if (e != CHARACTERS)
+                    throw new XMLStreamException();
+
+                sb.append( getText() );
+            }
+
+            return sb.toString();
+        }
+
+        private QName getElemName ( )
+        {
+            _cursor.push();
+            
+            try
+            {
+                if (_cursor.isEnd())
+                    _cursor.toParent();
+                else if (!_cursor.isStart())
+                    throw new IllegalStateException();
+
+                return _cursor.getName();
+            }
+            finally
+            {
+                _cursor.pop();
+            }
+        }
+        
+        public QName getName ( )
+        {
+            checkChanged();
+            
+            return getElemName();
+        }
+        
+        public String getLocalName ( )
+        {
+            checkChanged();
+            
+            return getElemName().getLocalPart();
+        }
+        
+        public String getNamespaceURI ( )
+        {
+            checkChanged();
+            
+            return getElemName().getNamespaceURI();
+        }
+        
+        public String getPIData ( )
+        {
+            checkChanged();
+            
+            if (!_cursor.isProcinst())
+                throw new IllegalStateException();
+
+            return _cursor.getTextValue();
+        }
+        
+        public String getPITarget ( )
+        {
+            checkChanged();
+            
+            if (!_cursor.isProcinst())
+                throw new IllegalStateException();
+
+            return _cursor.getName().getLocalPart();
+        }
+        
+        public String getPrefix ( )
+        {
+            checkChanged();
+            
+            return getPrefix( getNamespaceURI() );
+        }
+        
+        public String getText ( )
+        {
+            checkChanged();
+            
+            if (_cursor.isComment())
+                return _cursor.getTextValue();
+
+            if (_cursor.isText())
+                return _cursor.getChars();
+
+            throw new IllegalStateException();
+        }
+        
+        public char[] getTextCharacters ( )
+        {
+            checkChanged();
+            
+            return getText().toCharArray();
+        }
+        
+        public int getTextCharacters ( int sourceStart, char[] target, int targetStart, int length )
+        {
+            checkChanged();
+            
+            if (length < 0)
+                throw new IllegalStateException();
+            
+            char[] chars = getTextCharacters();
+
+            if (length > chars.length)
+                length = chars.length;
+
+            System.arraycopy( chars, 0, target, targetStart, length );
+
+            return length;
+        }
+        
+        public int getTextLength ( )
+        {
+            checkChanged();
+            
+            return getText().length();
+        }
+        
+        public int getTextStart ( )
+        {
+            checkChanged();
+            
+            return 0;
+        }
+        
+        public boolean hasName ( )
+        {
+            checkChanged();
+            
+            try
+            {
+                getName();
+                
+                return true;
+            }
+            catch ( IllegalStateException e )
+            {
+                return false;
+            }
+        }
+        
+        public boolean hasText ( )
+        {
+            checkChanged();
+            
+            try
+            {
+                getText();
+                
+                return true;
+            }
+            catch ( IllegalStateException e )
+            {
+                return false;
+            }
+        }
+        
+        public boolean isAttributeSpecified ( int index )
+        {
+            checkChanged();
+            
+            return false;
+        }
+        
+        public boolean isCharacters ( )
+        {
+            checkChanged();
+            
+            return _cursor.isText();
+        }
+        
+        public boolean isEndElement ( )
+        {
+            checkChanged();
+            
+            return _cursor.isEnd();
+        }
+        
+        public boolean isStartElement ( )
+        {
+            checkChanged();
+            
+            return _cursor.isStart();
+        }
+        
+        public boolean isWhiteSpace ( )
+        {
+            checkChanged();
+            
+            try
+            {
+                String s = getText();
+
+                for ( int i = 0 ; i < s.length() ; i++ )
+                {
+                    if (!Splay.isWhiteSpace( s.charAt( i ) ))
+                        return false;
+                }
+
+                return true;
+            }
+            catch ( IllegalStateException e )
+            {
+                return false;
+            }
+        }
+        
+        public int nextTag ( ) throws XMLStreamException
+        {
+            checkChanged();
+            
+            for ( ; ; )
+            {
+                if (isStartElement() || isEndElement())
+                    return getEventType();
+
+                if (!isWhiteSpace())
+                    throw new XMLStreamException();
+
+                if (!hasNext())
+                    throw new XMLStreamException();
+
+                next();
+            }
+        }
+        
+        XmlCursor _cursor;
+        XmlCursor _last;
+        
+        boolean   _didLast;
     }
     
     //

@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans;
 
+import javax.xml.stream.XMLStreamReader;
+
+
 import java.util.List;
 
 
@@ -171,6 +174,14 @@ public interface XmlIDREFS extends XmlAnySimpleType
         /** Parses a {@link XmlIDREFS} fragment from an XMLInputStream. */
         public static XmlIDREFS parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
+        
+        /** Parses a {@link XmlIDREFS} fragment from an XMLStreamReader. */
+        public static XmlIDREFS parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
+          return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse( xsr, type, null ); }
+        
+        /** Parses a {@link XmlIDREFS} fragment from an XMLStreamReader. */
+        public static XmlIDREFS parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
+          return (XmlIDREFS) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
         
         /** Returns a validating XMLInputStream. */
         public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {

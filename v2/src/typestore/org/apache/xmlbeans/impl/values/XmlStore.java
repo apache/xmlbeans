@@ -62,6 +62,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.util.Map;
+import javax.xml.stream.XMLStreamReader;
 import weblogic.xml.stream.XMLInputStream;
 import weblogic.xml.stream.XMLStreamException;
 import org.apache.xmlbeans.XmlObject;
@@ -80,11 +81,12 @@ public interface XmlStore
     //
     //
 
-    XmlObject loadXml ( String s,           SchemaType type, XmlOptions options ) throws XmlException;
-    XmlObject loadXml ( InputStream in,     SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    XmlObject loadXml ( Reader r,           SchemaType type, XmlOptions options ) throws XmlException, IOException;
-    XmlObject loadXml ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
-    XmlObject loadXml ( Node node,          SchemaType type, XmlOptions options ) throws XmlException;
+    XmlObject loadXml ( String s,            SchemaType type, XmlOptions options ) throws XmlException;
+    XmlObject loadXml ( InputStream in,      SchemaType type, XmlOptions options ) throws XmlException, IOException;
+    XmlObject loadXml ( XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException;
+    XmlObject loadXml ( Reader r,            SchemaType type, XmlOptions options ) throws XmlException, IOException;
+    XmlObject loadXml ( XMLInputStream xis,  SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
+    XmlObject loadXml ( Node node,           SchemaType type, XmlOptions options ) throws XmlException;
     
     XmlSaxHandler newSaxHandler ( SchemaType type, XmlOptions options );
 

@@ -65,6 +65,8 @@ import java.io.Writer;
 import java.io.File;
 import java.io.IOException;
 
+import javax.xml.stream.XMLStreamReader;
+
 import org.w3c.dom.Node;
 
 import org.xml.sax.ContentHandler;
@@ -126,6 +128,18 @@ public interface XmlTokenSource
      * an attribute).
      */
     XMLInputStream newXMLInputStream();
+    
+    /**
+     * Returns a new XMLStreamReader.
+     *
+     * The stream starts at the current begin-tag or begin-document
+     * position and ends at the matching end-tag or end-document.
+     *
+     * This is a fail-fast stream, so if the underlying data is changed
+     * while the stream is being read, the stream throws a
+     * ConcurrentModificationException.
+     */
+    XMLStreamReader newXMLStreamReader();
     
     /**
      * Returns standard XML text.
@@ -305,6 +319,13 @@ public interface XmlTokenSource
      */
     XMLInputStream newXMLInputStream(XmlOptions options);
 
+    /**
+     * Just like newXMLInputStream() but with options.
+     * Options map may be null.
+     * @see XmlOptions
+     */
+    XMLStreamReader newXMLStreamReader(XmlOptions options);
+    
     /**
      * Just like xmlText() but with options.
      * Options map may be null.

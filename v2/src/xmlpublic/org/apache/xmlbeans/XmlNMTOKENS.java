@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans;
 
+import javax.xml.stream.XMLStreamReader;
+
+
 import java.util.List;
 
 
@@ -168,6 +171,14 @@ public interface XmlNMTOKENS extends XmlAnySimpleType
         /** Parses a {@link XmlNMTOKENS} fragment from an XMLInputStream. */
         public static XmlNMTOKENS parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return (XmlNMTOKENS) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
+        
+        /** Parses a {@link XmlNMTOKENS} fragment from an XMLStreamReader. */
+        public static XmlNMTOKENS parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
+          return (XmlNMTOKENS) XmlBeans.getContextTypeLoader().parse( xsr, type, null ); }
+        
+        /** Parses a {@link XmlNMTOKENS} fragment from an XMLStreamReader. */
+        public static XmlNMTOKENS parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
+          return (XmlNMTOKENS) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
         
         /** Returns a validating XMLInputStream. */
         public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {

@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans;
 
+import javax.xml.stream.XMLStreamReader;
+
+
 import javax.xml.namespace.QName;
 
 
@@ -166,6 +169,14 @@ public interface XmlQName extends XmlAnySimpleType
         /** Parses a {@link XmlQName} fragment from an XMLInputStream. */
         public static XmlQName parse(weblogic.xml.stream.XMLInputStream xis, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {
           return (XmlQName) XmlBeans.getContextTypeLoader().parse( xis, type, options ); }
+        
+        /** Parses a {@link XmlQName} fragment from an XMLStreamReader. */
+        public static XmlQName parse(javax.xml.stream.XMLStreamReader xsr) throws org.apache.xmlbeans.XmlException {
+          return (XmlQName) XmlBeans.getContextTypeLoader().parse( xsr, type, null ); }
+        
+        /** Parses a {@link XmlQName} fragment from an XMLStreamReader. */
+        public static XmlQName parse(javax.xml.stream.XMLStreamReader xsr, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException{
+          return (XmlQName) XmlBeans.getContextTypeLoader().parse( xsr, type, options ); }
         
         /** Returns a validating XMLInputStream. */
         public static weblogic.xml.stream.XMLInputStream newValidatingXMLInputStream(weblogic.xml.stream.XMLInputStream xis) throws org.apache.xmlbeans.XmlException, weblogic.xml.stream.XMLStreamException {

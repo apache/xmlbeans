@@ -57,6 +57,8 @@
 package org.apache.xmlbeans.impl.values;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
+
 import weblogic.xml.stream.XMLInputStream;
 
 import java.math.BigInteger;
@@ -157,6 +159,12 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
     public XMLInputStream newXMLInputStream(XmlOptions options)
         { XmlCursor cur = newCursorForce(); try { return cur.newXMLInputStream(makeInnerOptions(options)); } finally { cur.dispose(); } }
+
+    public XMLStreamReader newXMLStreamReader()
+        { return newXMLStreamReader(null); }
+    
+    public XMLStreamReader newXMLStreamReader(XmlOptions options)
+        { XmlCursor cur = newCursorForce(); try { return cur.newXMLStreamReader(makeInnerOptions(options)); } finally { cur.dispose(); } }
 
     public InputStream newInputStream()
         { return newInputStream(null); }

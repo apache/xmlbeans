@@ -59,6 +59,8 @@ package org.apache.xmlbeans;
 import weblogic.xml.stream.XMLInputStream;
 import weblogic.xml.stream.XMLStreamException;
 
+import javax.xml.stream.XMLStreamReader;
+
 import org.w3c.dom.Node;
 
 import java.io.InputStream;
@@ -626,6 +628,12 @@ public interface XmlObject extends XmlTokenSource
           return XmlBeans.getContextTypeLoader().parse( is, null, null ); }
         
         /**
+         * Decodes and parses the given {@link XMLStreamReader} as XML.
+         */ 
+        public static XmlObject parse ( XMLStreamReader xsr ) throws XmlException {
+          return XmlBeans.getContextTypeLoader().parse( xsr, null, null ); }
+        
+        /**
          * Decodes and parses the given {@link InputStream} as XML.
          * 
          * Use the <em>options</em> parameter to specify the following:</p>
@@ -677,6 +685,12 @@ public interface XmlObject extends XmlTokenSource
          */ 
         public static XmlObject parse ( InputStream is, XmlOptions options ) throws XmlException, IOException {
           return XmlBeans.getContextTypeLoader().parse( is, null, options ); }
+        
+        /**
+         * Parses the given {@link XMLStreamReader} as XML.
+         */ 
+        public static XmlObject parse ( XMLStreamReader xsr, XmlOptions options ) throws XmlException {
+          return XmlBeans.getContextTypeLoader().parse( xsr, null, options ); }
         
         /**
          * Parses the given {@link Reader} as XML.
