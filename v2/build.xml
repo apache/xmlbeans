@@ -1054,15 +1054,6 @@
             <param name="replacement" value="${new_schema_compiler}"/>
         </antcall>
 
-        <!-- Note: because of this line, JDK1.5 is required for repackaging.
-             Those dependencies are isolated from the normal build, but
-             there isn't much that can be done to isolate them in the
-             repackaged build; the repackaged classes, including those
-             which have dependencies on 1.5 have to get re-compiled 
-             with the new packages.
-        -->
-        <ant dir="${rp_target_dir}/jam" target="java15jar" inheritAll="false"/>
-
         <ant dir="${rp_target_dir}" target="xbean" inheritAll="false"/>
 
 

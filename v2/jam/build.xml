@@ -1,8 +1,5 @@
 <project name='jam' default='all' basedir='.'>
 
-  <property name='build.compiler' value='javac1.4'/>
-  <property name='product.version' value='1.0.0'/>
-
   <property name='build_dir'   value='../build/jam'/>
 
   <property name='src_dir'     value='src'/>
@@ -16,10 +13,6 @@
   <property name='gen_dir'     value='${build_dir}/generatedsrc'/>
   <property name='classes_dir' value='${build_dir}/classes'/>
   <property name='antlr_jar'   value='external/lib/antlr.jar'/>
-
-  <property name="java15_src"   value='org/apache/xmlbeans/impl/jam/internal/java15'/>
-  <property name="java15_jar"   value='${src_dir}/${java15_src}/java15jam.jar'/>
-  <property name='java15_builddir'  value='${build_dir}/java15'/>
 
   <!--FIXME need to do get the jar ourselves -->
   <property name='staxapi_jar'   value='../build/lib/jsr173_api.jar'/>
@@ -52,12 +45,12 @@
     -->
   </target>
 
-  <target name='compile' depends='parser,unpack_java15jar'>
+  
 
+  <target name='compile' depends='exclude15,parser'>
     <mkdir dir='${classes_dir}'/>
-
     <javac srcdir='${src_dir}' destdir='${classes_dir}'
-           source='1.4' debug='on' excludes='${java15_src}/**/*.java'>
+           debug='on' excludes='${exclude15}'>
       <src path='${src_dir}'/>
       <src path='${gen_dir}'/>
       <classpath>
@@ -80,13 +73,8 @@
     <javadoc packagenames='*'
              destdir='${javadocbuild_dir}'
              windowtitle='JAM Documentation'
-             source='1.4'
              stylesheetfile='${site_dir}/stylesheet.css'>
       <fileset dir='${src_dir}' includes='**/jam/**/*.java' excludes='**/internal/**/*.java' />
-      <link href='http://e-docs.bea.com/wls/docs81/javadocs/' />
-      <link href='http://java.sun.com/j2se/1.4.2/docs/api/' />
-      <link href='http://java.sun.com/j2ee/1.4/docs/api/' />
-      <link href='http://xml.apache.org/xerces-j/apiDocs/' />
       <classpath>
         <pathelement location='${classes_dir}' />
       </classpath>
@@ -113,26 +101,6 @@
     </copy>
 -->
   </target>
-
-
-  <!-- recompiles java15_jar.  THIS ONLY WILL RUN WITH JDK1.5!! -->
-  <target name='java15jar'>
-    <mkdir dir='${java15_builddir}'/>
-    <javac srcdir='${src_dir}' destdir='${java15_builddir}' sourcepath='${src_dir}'
-           source='1.5' target='1.5' debug='on' includes='${java15_src}/**/*.java'>
-      <classpath>
-        <pathelement path='${classes_dir}'/>
-        <pathelement path='${java.class.path}'/>
-      </classpath>
-    </javac>
-    <jar jarfile='${java15_jar}' basedir='${java15_builddir}' update='false'/>
-  </target>
-
-  <target name='unpack_java15jar' unless='skip_java15jar'>
-    <mkdir dir='${classes_dir}'/>
-    <unjar src='${java15_jar}' dest='${classes_dir}'/>
-  </target>
-
 
   <target name='repackage' depends='clean,repackage_check,repackage_do'/>
 
@@ -169,10 +137,30 @@
 
     <ant dir='.' target='website' inheritAll='false' >
       <property name='src_dir' value='${repackaged_src}'/>
-      <property name='skip_java15jar' value='true'/>
     </ant>
   </target>
-  
-  
+
+  <target name='exclude15' depends='exclude15.check,exclude15.warn'/>
+
+  <target name='exclude15.check'>
+    <condition property='exclude15'>
+      <contains string='${java.version}' substring='1.5'/>
+    </condition>
+  </target>
+
+  <target name='exclude15.warn' unless='exclude15'>
+    <echo message='======================================================'/>
+    <echo message='W A R N I N G:  You are building JAM without JDK 1.5.'/>
+    <echo message='The resulting build of JAM will not support any'/>
+    <echo message='1.5-specific functionality (such as JSR175),'/>
+    <echo message='even if 1.5 is available at runtime.  For this'/>
+    <echo message='reason, it is recommended that you always build'/>
+    <echo message='JAM under 1.5.'/>
+    <echo message='======================================================'/>
+
+    <!-- not clear why, but setting this value on the condition element
+         above doesn't seem to work.  so, just do it here -->
+    <property name='exclude15' value='**/internal/java15/**/*.java'/>
+  </target>
 
 </project>
