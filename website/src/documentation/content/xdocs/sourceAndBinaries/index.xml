@@ -31,9 +31,9 @@ password: anoncvs
 				<title>Building XMLBeans Version 1.0</title>
 				<section>
 					<title>Windows</title>
-					<p>From the xml-xmlbeans directory:</p>
+					<p>After the steps above you should see an xml-xmlbeans directory:</p>
 					<source>
-cd v1
+cd xml-xmlbeans\v1
 xbeanenv
 ant
 					</source>
