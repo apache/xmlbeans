@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 
@@ -49,19 +48,10 @@ abstract class PushMarshalResult
     }
 
 
-    final void marshalType(final Object obj,
-                           final RuntimeBindingProperty prop)
-        throws XmlException
-    {
-        final RuntimeBindingType actual_rtt =
-            prop.getActualRuntimeType(obj, this);
-        marshalType(obj, prop, actual_rtt);
-    }
-
     //this method can be called recursively
-    private void marshalType(final Object obj,
-                             final RuntimeBindingProperty prop,
-                             final RuntimeBindingType actual_rtt)
+    final void marshalType(final Object obj,
+                           final RuntimeBindingProperty prop,
+                           final RuntimeBindingType actual_rtt)
         throws XmlException
     {
         marshalTypeWithName(obj, prop, actual_rtt, prop.getName());
@@ -211,21 +201,9 @@ abstract class PushMarshalResult
             return;
         }
 
-        final RuntimeBindingType actual_rtt =
-            determineRuntimeBindingType(builtinRuntimeBindingType, curr_obj);
-
-        if (actual_rtt == builtinRuntimeBindingType) {
-            final String msg = "unknown java type: " + curr_obj.getClass();
-            addError(msg);
-            return;  // skip this one...
-        }
-
-        if (actual_rtt.hasElementChildren()) {
-            //TODO: write a test case that trigger this and then fix it
-            throw new AssertionError("FIXME.  actual_rtt = " + actual_rtt);
-        } else {
-            writeCharData();
-        }
+        final String msg = "unknown java type: " + curr_obj.getClass();
+        addError(msg);
+        return;  // skip this one...
     }
 
     public void visit(ByNameRuntimeBindingType byNameRuntimeBindingType)

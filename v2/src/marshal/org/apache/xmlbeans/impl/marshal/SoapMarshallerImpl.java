@@ -73,10 +73,10 @@ final class SoapMarshallerImpl
         final PushSoapMarshalResult result =
             createPushSoapResult(writer, options);
 
-        addObjectGraphToRefTable(obj, prop.getRuntimeBindingType(),
-                                 prop, result);
+        RuntimeBindingType actual_rtt = prop.getActualRuntimeType(obj, result);
+        addObjectGraphToRefTable(obj, prop, actual_rtt, result);
 
-        result.marshalType(obj, prop);
+        result.marshalType(obj, prop, actual_rtt);
 
     }
 
@@ -148,8 +148,9 @@ final class SoapMarshallerImpl
         final PullSoapMarshalResult retval =
             createPullMarshalResult(nscontext, prop, obj, options, false);
 
-        addObjectGraphToRefTable(obj, prop.getRuntimeBindingType(),
-                                 prop, retval);
+        addObjectGraphToRefTable(obj, prop,
+                                 prop.getActualRuntimeType(obj, retval),
+                                 retval);
 
         return retval;
     }
@@ -176,8 +177,8 @@ final class SoapMarshallerImpl
     }
 
     private void addObjectGraphToRefTable(Object obj,
-                                          RuntimeBindingType runtime_type,
                                           RuntimeBindingProperty prop,
+                                          RuntimeBindingType actual_rtt,
                                           MarshalResult result)
         throws XmlException
     {
@@ -186,7 +187,7 @@ final class SoapMarshallerImpl
         //traverse graph...
         instanceVisitor.setCurrObject(obj, prop);
         instanceVisitor.setMarshalResult(result);
-        runtime_type.accept(instanceVisitor);
+        actual_rtt.accept(instanceVisitor);
     }
 
     public Iterator marshalReferenced(XmlOptions options)
@@ -250,6 +251,9 @@ final class SoapMarshallerImpl
     }
 
 
+    //NOTE that each call into a visit method should be done with
+    //the actual runtime type
+
     private final class InstanceVisitor
         implements RuntimeTypeVisitor
     {
@@ -272,7 +276,7 @@ final class SoapMarshallerImpl
         public void visit(BuiltinRuntimeBindingType builtinRuntimeBindingType)
             throws XmlException
         {
-            initialVisit(currObject, currProp);
+            firstVisit(currObject, currProp, builtinRuntimeBindingType);
             //no element children so we are finished.
         }
 
@@ -282,25 +286,11 @@ final class SoapMarshallerImpl
             if (currObject == null)
                 return;
 
-            final RuntimeBindingType actual_rtt =
-                currProp.getActualRuntimeType(currObject, marshalResult);
-
-            if (actual_rtt == currProp.getRuntimeBindingType()) {
-                //we didn't find anything better than the any type
-                final String msg = "unknown type: " + currObject.getClass() +
-                    " for property " + currProp;
-                marshalResult.addError(msg);
-                return;
-            }
-
-            if (initialVisit(currObject, currProp, actual_rtt)) {
-                return;
-            }
-
-            if (currObject != null && actual_rtt.hasElementChildren()) {
-                //TODO: write a test that triggers this then fix it
-                throw new AssertionError("NYI - polymorphic visit");
-            }
+            //we didn't find anything better than the any type
+            final String msg = "unknown type: " + currObject.getClass() +
+                " for property " + currProp;
+            marshalResult.addError(msg);
+            return;
         }
 
         public void visit(ByNameRuntimeBindingType byNameRuntimeBindingType)
@@ -309,7 +299,7 @@ final class SoapMarshallerImpl
             final Object curr_obj = currObject;
             final RuntimeBindingProperty curr_prop = currProp;
 
-            if (initialVisit(curr_obj, curr_prop)) {
+            if (firstVisit(curr_obj, curr_prop, byNameRuntimeBindingType)) {
                 return;
             }
 
@@ -355,21 +345,21 @@ final class SoapMarshallerImpl
         public void visit(SimpleContentRuntimeBindingType simpleContentRuntimeBindingType)
             throws XmlException
         {
-            initialVisit(currObject, currProp);
+            firstVisit(currObject, currProp, simpleContentRuntimeBindingType);
             //no element children so we are finished.
         }
 
         public void visit(SimpleRuntimeBindingType simpleRuntimeBindingType)
             throws XmlException
         {
-            initialVisit(currObject, currProp);
+            firstVisit(currObject, currProp, simpleRuntimeBindingType);
             //no element children so we are finished.
         }
 
         public void visit(JaxrpcEnumRuntimeBindingType jaxrpcEnumRuntimeBindingType)
             throws XmlException
         {
-            initialVisit(currObject, currProp);
+            firstVisit(currObject, currProp, jaxrpcEnumRuntimeBindingType);
             //no element children so we are finished.
         }
 
@@ -379,7 +369,7 @@ final class SoapMarshallerImpl
             final Object curr_obj = currObject;
             final RuntimeBindingProperty curr_prop = currProp;
 
-            if (initialVisit(curr_obj, curr_prop)) {
+            if (firstVisit(curr_obj, curr_prop, wrappedArrayRuntimeBindingType)) {
                 return;
             }
 
@@ -405,7 +395,7 @@ final class SoapMarshallerImpl
             final Object curr_obj = currObject;
             final RuntimeBindingProperty curr_prop = currProp;
 
-            if (initialVisit(curr_obj, curr_prop)) {
+            if (firstVisit(curr_obj, curr_prop, soapArrayRuntimeBindingType)) {
                 return;
             }
 
@@ -415,37 +405,36 @@ final class SoapMarshallerImpl
             if (elem_prop.getRuntimeBindingType().isJavaPrimitive()) return;
 
 
-            //REVIEW: consider direct array access
-            final Iterator itr = ArrayUtils.getCollectionIterator(curr_obj);
-            while (itr.hasNext()) {
-                final Object item = itr.next();
-                setCurrObject(item, elem_prop);
-                elem_prop.getActualRuntimeType(item, marshalResult).accept(this);
-            }
-            setCurrObject(curr_obj, curr_prop);
+            throw new AssertionError("UNIMP");
+
+
+//
+//            //REVIEW: consider direct array access
+//            final Iterator itr = ArrayUtils.getCollectionIterator(curr_obj);
+//            while (itr.hasNext()) {
+//                final Object item = itr.next();
+//                setCurrObject(item, elem_prop);
+//                elem_prop.getActualRuntimeType(item, marshalResult).accept(this);
+//            }
+//
+//
+
+
+            //setCurrObject(curr_obj, curr_prop);
         }
 
         public void visit(ListArrayRuntimeBindingType listArrayRuntimeBindingType)
             throws XmlException
         {
-            initialVisit(currObject, currProp);
+            firstVisit(currObject, currProp, listArrayRuntimeBindingType);
             //no element children so we are finished.
         }
 
         //return true if we should stop processing!
-        private boolean initialVisit(Object obj,
-                                     RuntimeBindingProperty property)
-            throws XmlException
-        {
-            final RuntimeBindingType actual_rtt =
-                property.getActualRuntimeType(obj, marshalResult);
+        private boolean firstVisit(Object obj,
+                                   RuntimeBindingProperty property,
+                                   final RuntimeBindingType actual_rtt)
 
-            return initialVisit(obj, property, actual_rtt);
-        }
-
-        private boolean initialVisit(Object obj,
-                                     RuntimeBindingProperty property,
-                                     final RuntimeBindingType actual_rtt)
         {
             final boolean needs_xsi_type =
                 (actual_rtt != property.getRuntimeBindingType());
@@ -455,6 +444,7 @@ final class SoapMarshallerImpl
 
             return objectRefTable.incrementRefCount(obj, property, needs_xsi_type) > 1;
         }
+
     }
 
 }

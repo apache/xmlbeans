@@ -1,10 +1,16 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
     targetNamespace="http://nosuch.domain.name"
+    xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/"
     xmlns:tns="http://nosuch.domain.name"
     elementFormDefault="qualified">
 
+<!--    <xs:import namespace="http://schemas.xmlsoap.org/soap/encoding/"-->
+<!--        schemaLocation="http://schemas.xmlsoap.org/soap/encoding/"/>-->
+
+
     <xs:element name="address" type="tns:USAddress"/>
-    
+
     <xs:element name="ListOfAddresses">
         <xs:complexType>
             <xs:sequence>
@@ -49,5 +55,63 @@
             </xs:element>
         </xs:sequence>
     </xs:complexType>
+
+<!---->
+<!--    <xs:complexType name="ArrayOfString">-->
+<!--        <xs:complexContent>-->
+<!--            <xs:restriction base="soapenc:Array">-->
+<!--                <xs:attribute ref="soapenc:arrayType" wsdl:arrayType="xs:string[,][,]"/>-->
+<!--            </xs:restriction>-->
+<!--        </xs:complexContent>-->
+<!--    </xs:complexType>-->
+<!---->
+<!--    <xs:complexType name="OtherArrayOfString">-->
+<!--        <xs:complexContent>-->
+<!--            <xs:restriction base="soapenc:Array">-->
+<!--                <xs:attribute ref="soapenc:arrayType" wsdl:arrayType="xs:string[,][,]"/>-->
+<!--            </xs:restriction>-->
+<!--        </xs:complexContent>-->
+<!--    </xs:complexType>-->
+<!---->
+<!---->
+<!--    <xs:complexType name="ArrayOfStringOne">-->
+<!--        <xs:complexContent>-->
+<!--            <xs:restriction base="soapenc:Array">-->
+<!--                <xs:attribute ref="soapenc:arrayType" wsdl:arrayType="xs:string[]"/>-->
+<!--            </xs:restriction>-->
+<!--        </xs:complexContent>-->
+<!--    </xs:complexType>-->
+<!---->
+<!--    <xs:complexType name="ArrayOfStringTwo">-->
+<!--        <xs:complexContent>-->
+<!--            <xs:restriction base="soapenc:Array">-->
+<!--                <xs:sequence>-->
+<!--                    <xs:element name="unit" type="xs:string" maxOccurs="unbounded"/>-->
+<!--                </xs:sequence>-->
+<!--            </xs:restriction>-->
+<!--        </xs:complexContent>-->
+<!--    </xs:complexType>-->
+<!---->
+<!---->
+<!--    <xs:complexType name="TripleArrayOfString">-->
+<!--        <xs:complexContent>-->
+<!--            <xs:restriction base="soapenc:Array">-->
+<!--                <xs:attribute ref="soapenc:arrayType"-->
+<!--                    wsdl:arrayType="xs:string[][][]"-->
+<!--                    xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/">-->
+<!---->
+<!--                </xs:attribute>-->
+<!--            </xs:restriction>-->
+<!--        </xs:complexContent>-->
+<!--    </xs:complexType>-->
+<!---->
+<!--    <xs:complexType name="ztwo">-->
+<!--        <xs:sequence>-->
+<!--            <xs:element name="name" type="xs:string"/>-->
+<!--            <xs:element name="aos" type="tns:ArrayOfString"/>-->
+<!--            <xs:element name="triple" type="tns:TripleArrayOfString"/>-->
+<!--        </xs:sequence>-->
+<!--    </xs:complexType>-->
+
 
 </xs:schema>

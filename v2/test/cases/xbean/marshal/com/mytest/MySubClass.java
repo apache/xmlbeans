@@ -49,7 +49,7 @@ public class MySubClass
 //    public String[][][][] quadStringArray = newQuadStringArray();
     public String[][][][] quadStringArray = null;
 
-    private String[][][][] newQuadStringArray()
+    public static String[][][][] newQuadStringArray()
     {
         String[][][][] qs = new String[2][3][4][5];
         qs[1][1][1][1] = "1-1-1-1";

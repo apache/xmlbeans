@@ -76,12 +76,16 @@ public class SoapArrayType extends BindingType
         final org.apache.xml.xmlbeans.bindingConfig.SoapArray wa =
             (org.apache.xml.xmlbeans.bindingConfig.SoapArray)super.write(node);
 
-        wa.setItemName(itemName);
+        if (itemName != null)
+            wa.setItemName(itemName);
 
-        final org.apache.xml.xmlbeans.bindingConfig.Mapping mapping =
-            wa.addNewItemType();
-        mapping.setJavatype(itemType.getJavaName().toString());
-        mapping.setXmlcomponent(itemType.getXmlName().toString());
+        if (itemType != null) {
+            final org.apache.xml.xmlbeans.bindingConfig.Mapping mapping =
+                wa.addNewItemType();
+
+            mapping.setJavatype(itemType.getJavaName().toString());
+            mapping.setXmlcomponent(itemType.getXmlName().toString());
+        }
 
         wa.setItemNillable(itemNillable);
 

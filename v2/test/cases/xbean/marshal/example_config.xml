@@ -633,14 +633,14 @@
                 <bin:nillable>true</bin:nillable>
                 <bin:default>876587658765876587658765876587658765</bin:default>
             </bin:qname-property>
-
-            <bin:qname-property>
-                <bin:xmlcomponent>t=SoapQuadStringArray@java:com.mytest</bin:xmlcomponent>
-                <bin:javatype>java.lang.String[][][][]</bin:javatype>
-                <bin:field>quadStringArray</bin:field>
-                <bin:qname>java:quadStringArray</bin:qname>
-                <bin:nillable>true</bin:nillable>
-            </bin:qname-property>
+<!---->
+<!--            <bin:qname-property>-->
+<!--                <bin:xmlcomponent>t=SoapQuadStringArray@java:com.mytest</bin:xmlcomponent>-->
+<!--                <bin:javatype>java.lang.String[][][][]</bin:javatype>-->
+<!--                <bin:field>quadStringArray</bin:field>-->
+<!--                <bin:qname>java:quadStringArray</bin:qname>-->
+<!--                <bin:nillable>true</bin:nillable>-->
+<!--            </bin:qname-property>-->
 
         </bin:binding-type>
 

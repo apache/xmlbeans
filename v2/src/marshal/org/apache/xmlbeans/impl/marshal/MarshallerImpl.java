@@ -304,7 +304,7 @@ final class MarshallerImpl
 
     private void marshalBindingType(XMLStreamWriter writer,
                                     final BindingType btype,
-                                    Object obj,
+                                    final Object obj,
                                     QName elementName)
         throws XmlException
     {
@@ -313,13 +313,15 @@ final class MarshallerImpl
 
         runtime_type.checkInstance(obj);
 
-        RuntimeGlobalProperty prop =
+        final RuntimeGlobalProperty prop =
             new RuntimeGlobalProperty(elementName, runtime_type);
 
         final PushMarshalResult pmr =
             new LiteralPushMarshalResult(loader, typeTable, writer, null);
 
-        pmr.marshalType(obj, prop);
+        final RuntimeBindingType actual_rtt =
+            prop.getActualRuntimeType(obj, pmr);
+        pmr.marshalType(obj, prop, actual_rtt);
     }
 
     public void marshalElement(XMLStreamWriter writer,
