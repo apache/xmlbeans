@@ -41,6 +41,8 @@ public class ByNameBean extends BindingType {
   private List props = new ArrayList(); // of QNameProperties
   private Map eltProps = new HashMap(); // QName -> prop (elts)
   private Map attProps = new HashMap(); // QName -> prop (attrs)
+  private GenericXmlProperty anyElement;
+  private GenericXmlProperty anyAttribute;
 
   // ========================================================================
   // Constructors
@@ -52,8 +54,20 @@ public class ByNameBean extends BindingType {
   public ByNameBean(org.apache.xml.xmlbeans.bindingConfig.BindingType node) {
     super(node);
 
+    org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
+            (org.apache.xml.xmlbeans.bindingConfig.ByNameBean) node; 
+
+    org.apache.xml.xmlbeans.bindingConfig.GenericXmlProperty gxp =
+            bnNode.getAnyProperty();
+    if (gxp != null)
+      setAnyElementProperty((GenericXmlProperty) BindingProperty.forNode(gxp));
+
+    gxp = bnNode.getAnyAttributeProperty();
+    if (gxp != null)
+      setAnyAttributeProperty((GenericXmlProperty) BindingProperty.forNode(gxp));
+
     org.apache.xml.xmlbeans.bindingConfig.QnameProperty[] propArray =
-            ((org.apache.xml.xmlbeans.bindingConfig.ByNameBean) node).getQnamePropertyArray();
+            bnNode.getQnamePropertyArray();
 
     for (int i = 0; i < propArray.length; i++) {
       addProperty((QNameProperty) BindingProperty.forNode(propArray[i]));
@@ -63,6 +77,22 @@ public class ByNameBean extends BindingType {
   // ========================================================================
   // Public methods
 
+  public GenericXmlProperty getAnyElementProperty() {
+    return anyElement;
+  }
+
+  public void setAnyElementProperty(GenericXmlProperty prop) {
+    anyElement = prop;
+  }
+
+  public GenericXmlProperty getAnyAttributeProperty() {
+    return anyAttribute;
+  }
+
+  public void setAnyAttributeProperty(GenericXmlProperty prop) {
+    anyAttribute = prop;
+  }
+    
   /**
    * Returns an unmodifiable collection of QNameProperty objects.
    */
@@ -110,6 +140,10 @@ public class ByNameBean extends BindingType {
     org.apache.xml.xmlbeans.bindingConfig.ByNameBean bnNode =
             (org.apache.xml.xmlbeans.bindingConfig.ByNameBean) super.write(node);
 
+    if (anyElement != null)
+      anyElement.write(bnNode.addNewAnyProperty());
+    if (anyAttribute != null)
+      anyAttribute.write(bnNode.addNewAnyAttributeProperty());
     for (Iterator i = props.iterator(); i.hasNext();) {
       QNameProperty qProp = (QNameProperty) i.next();
       org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode = bnNode.addNewQnameProperty();

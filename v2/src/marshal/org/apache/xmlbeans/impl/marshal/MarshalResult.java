@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.binding.bts.ListArrayType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
@@ -712,6 +713,11 @@ final class MarshalResult implements XMLStreamReader
             xmlTypeVisitor = new WrappedArrayTypeVisitor(runtimeBindingProperty,
                                                          parentObject,
                                                          marshalResult);
+        }
+
+        public void visit(ListArrayType listArrayType)
+        {
+            // todo: implement
         }
 
     }

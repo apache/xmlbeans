@@ -161,9 +161,9 @@ public class CompilingJavaOutputStream extends SourceJavaOutputStream
         mLogger.logVerbose(PREFIX+i.next().toString());
       }
       boolean verbose = mLogger.isVerbose();
-      boolean result = CodeGenUtil.externalCompile
-              (mSourceFiles,mCompileDir,mJavacClasspath,
-               verbose,mJavacPath,null,null,!verbose,verbose);
+      boolean result = mSourceFiles.size() > 0 ? CodeGenUtil.
+              externalCompile(mSourceFiles,mCompileDir,mJavacClasspath,
+                  verbose,mJavacPath,null,null,!verbose,verbose) : true;
       mLogger.logVerbose(PREFIX+" compilation result: "+result);
       if (!result) {
         throw new IOException("Compilation of sources failed, " +

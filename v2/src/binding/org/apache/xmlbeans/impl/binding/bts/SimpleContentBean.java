@@ -36,6 +36,7 @@ public class SimpleContentBean extends BindingType
     // Variables
 
     private SimpleContentProperty simpleContentProperty;
+    private GenericXmlProperty anyAttributeProperty;
     private Map attProps = new LinkedHashMap(); // QName -> prop (attrs)
 
     // ========================================================================
@@ -65,6 +66,12 @@ public class SimpleContentBean extends BindingType
         final SimpleContentProperty bprop =
             (SimpleContentProperty)SimpleContentProperty.forNode(scp);
         setSimpleContentProperty(bprop);
+
+        final org.apache.xml.xmlbeans.bindingConfig.GenericXmlProperty gxp =
+            simpleContentBean.getAnyAttributeProperty();
+
+        if (gxp != null)
+            setAnyAttributeProperty((GenericXmlProperty) GenericXmlProperty.forNode(gxp));
     }
 
     // ========================================================================
@@ -92,6 +99,17 @@ public class SimpleContentBean extends BindingType
     {
         this.simpleContentProperty = simpleContentProperty;
     }
+
+    public GenericXmlProperty getAnyAttributeProperty()
+    {
+        return anyAttributeProperty;
+    }
+
+    public void setAnyAttributeProperty(GenericXmlProperty prop)
+    {
+        anyAttributeProperty = prop;
+    }
+        
 
 
     /**
@@ -130,6 +148,13 @@ public class SimpleContentBean extends BindingType
         final org.apache.xml.xmlbeans.bindingConfig.SimpleContentProperty sc_prop =
             bnNode.addNewSimpleContentProperty();
         simpleContentProperty.write(sc_prop);
+
+        if (anyAttributeProperty != null)
+        {
+            final org.apache.xml.xmlbeans.bindingConfig.GenericXmlProperty gx_prop =
+                bnNode.addNewAnyAttributeProperty();
+            anyAttributeProperty.write(gx_prop);
+        }
 
         for (Iterator i = attProps.entrySet().iterator(); i.hasNext();) {
             Map.Entry e = (Map.Entry)i.next();

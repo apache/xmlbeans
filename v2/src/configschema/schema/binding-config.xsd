@@ -95,9 +95,13 @@
   <xs:complexType name="by-name-bean">
     <xs:complexContent>
       <xs:extension base="tns:binding-type">
-        <xs:choice minOccurs="0" maxOccurs="unbounded">
-          <xs:element name="qname-property" type="tns:qname-property"/>
-        </xs:choice>
+        <xs:sequence>
+          <xs:element name="any-property" type="tns:generic-xml-property" minOccurs="0"/>
+          <xs:element name="anyAttribute-property" type="tns:generic-xml-property" minOccurs="0"/>
+          <xs:choice minOccurs="0" maxOccurs="unbounded">
+            <xs:element name="qname-property" type="tns:qname-property"/>
+          </xs:choice>
+        </xs:sequence>
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>
@@ -106,6 +110,7 @@
     <xs:complexContent>
       <xs:extension base="tns:binding-type">
         <xs:sequence>
+          <xs:element name="anyAttribute-property" type="tns:generic-xml-property" minOccurs="0"/>
           <xs:element name="simple-content-property" type="tns:simple-content-property"/>
           <xs:element name="attribute-property" type="tns:qname-property"
             minOccurs="0" maxOccurs="unbounded"/>
@@ -121,6 +126,16 @@
           <xs:element name="item-name" type="xs:QName"/>
           <xs:element name="item-type" type="tns:mapping"/>
           <xs:element name="item-nillable" type="xs:boolean" default="false" minOccurs="0"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="list-array">
+    <xs:complexContent>
+      <xs:extension base="tns:binding-type">
+        <xs:sequence>
+          <xs:element name="item-type" type="tns:mapping"/>
         </xs:sequence>
       </xs:extension>
     </xs:complexContent>
@@ -201,6 +216,13 @@
           <xs:element name="optional" type="xs:boolean" default="false" minOccurs="0"/>
           <xs:element name="default" type="xs:string" minOccurs="0"/>
         </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="generic-xml-property">
+    <xs:complexContent>
+      <xs:extension base="tns:binding-property">
       </xs:extension>
     </xs:complexContent>
   </xs:complexType>

@@ -225,6 +225,7 @@ public abstract class BindingProperty
         registerClassAndType(QNameProperty.class, org.apache.xml.xmlbeans.bindingConfig.QnameProperty.type);
         registerClassAndType(SimpleContentProperty.class, org.apache.xml.xmlbeans.bindingConfig.SimpleContentProperty.type);
         registerClassAndType(ParticleProperty.class, org.apache.xml.xmlbeans.bindingConfig.ParticleProperty.type);
+        registerClassAndType(GenericXmlProperty.class, org.apache.xml.xmlbeans.bindingConfig.GenericXmlProperty.type);
     }
 
     public String toString()

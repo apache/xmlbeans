@@ -39,4 +39,7 @@ public interface BindingTypeVisitor
 
     void visit(WrappedArrayType wrappedArrayType)
         throws XmlException;
+
+    void visit(ListArrayType wrappedArrayType)
+        throws XmlException;
 }
