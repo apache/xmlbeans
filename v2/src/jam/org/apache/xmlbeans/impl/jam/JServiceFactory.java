@@ -23,26 +23,26 @@ import java.io.File;
 import java.io.PrintWriter;
 
 /**
- * This is the normal entry point into the JAM subsystem.  JResultFactory
- * is a singleton factory which can create a new JResultParams and
+ * This is the normal entry point into the JAM subsystem.  JServiceFactory
+ * is a singleton factory which can create a new JServiceParams and
  * JServices.  Here is a code sample that demonstrates how to use
- * JResultFactory.
+ * JServiceFactory.
  *
  * <pre>
- * JResultFactory factory = JResultFactory.getInstance();
- * JResultParams params = factory.createServiceParams();
+ * JServiceFactory factory = JServiceFactory.getInstance();
+ * JServiceParams params = factory.createServiceParams();
  * params.includeSources(new File("c:/myproject/src","mypackage/*.java"));
- * JResult service = factory.createService(params);
+ * JService service = factory.createService(params);
  * </pre>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public abstract class JResultFactory {
+public abstract class JServiceFactory {
 
   // ========================================================================
   // Constants
 
-  private static final JResultFactory DEFAULT = new DefaultJResultFactory();
+  private static final JServiceFactory DEFAULT = new DefaultJResultFactory();
 
   // ========================================================================
   // Singleton
@@ -50,41 +50,41 @@ public abstract class JResultFactory {
   /**
    * Return the default factory singleton for this VM.
    */
-  public static JResultFactory getInstance() { return DEFAULT; }
+  public static JServiceFactory getInstance() { return DEFAULT; }
 
   // ========================================================================
   // Constructors
 
-  protected JResultFactory() {}
+  protected JServiceFactory() {}
 
   // ========================================================================
   // Public methods
 
   /**
-   * Create a new JResultParams instance.  The params can be populated
-   * and then given to the createService method to create a new JResult.
+   * Create a new JServiceParams instance.  The params can be populated
+   * and then given to the createService method to create a new JService.
    */
-  public abstract JResultParams createResultParams();
+  public abstract JServiceParams createResultParams();
 
   /**
-   * Create a new JResult from the given parameters.
+   * Create a new JService from the given parameters.
    *
    * @throws IOException if an IO error occurred while creating the service
    * @throws IllegalArgumentException if the params is null or not
    * an instance returned by createServiceParams().
    */
-  public abstract JResult createResult(JResultParams params) throws IOException;
+  public abstract JService createResult(JServiceParams params) throws IOException;
 
   // ========================================================================
   // main() method
 
   public static void main(String[] args) {
     try {
-      JResultParams sp = getInstance().createResultParams();
+      JServiceParams sp = getInstance().createResultParams();
       for(int i=0; i<args.length; i++) {
         sp.includeSourceFiles(new File("."),args[i]);
       }
-      JResult service = getInstance().createResult(sp);
+      JService service = getInstance().createResult(sp);
       JamPrinter jp = JamPrinter.newInstance();
       PrintWriter out = new PrintWriter(System.out);
       for(JClassIterator i = service.getClasses(); i.hasNext(); ) {

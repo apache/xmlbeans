@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JResultParams;
+import org.apache.xmlbeans.impl.jam.JServiceParams;
 import org.apache.xmlbeans.impl.jam.internal.DirectoryScanner;
 import org.apache.xmlbeans.impl.jam.provider.JStoreParams;
 import org.apache.xmlbeans.impl.jam.provider.JPath;
@@ -31,7 +31,7 @@ import java.io.IOException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JResultParamsImpl implements JResultParams, JStoreParams
+public class JServiceParamsImpl implements JServiceParams, JStoreParams
 {
   // ========================================================================
   // Variables
@@ -55,7 +55,7 @@ public class JResultParamsImpl implements JResultParams, JStoreParams
   // ========================================================================
   // Constructors
 
-  public JResultParamsImpl() {}
+  public JServiceParamsImpl() {}
 
   // ========================================================================
   // Public methods - used by BaseJProvider
@@ -120,7 +120,7 @@ public class JResultParamsImpl implements JResultParams, JStoreParams
   }
 
   // ========================================================================
-  // JResultFactory implementation
+  // JServiceFactory implementation
 
   public void includeSourceFiles(File srcRoot, String pattern) {
     addSourcepath(srcRoot);

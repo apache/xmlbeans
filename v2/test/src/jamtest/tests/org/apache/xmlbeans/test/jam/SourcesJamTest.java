@@ -55,9 +55,9 @@
 */
 package org.apache.xmlbeans.test.jam;
 
-import org.apache.xmlbeans.impl.jam.JResultFactory;
-import org.apache.xmlbeans.impl.jam.JResultParams;
-import org.apache.xmlbeans.impl.jam.JResult;
+import org.apache.xmlbeans.impl.jam.JServiceFactory;
+import org.apache.xmlbeans.impl.jam.JServiceParams;
+import org.apache.xmlbeans.impl.jam.JService;
 
 import java.io.IOException;
 
@@ -78,9 +78,9 @@ public class SourcesJamTest extends JamTestBase {
   // ========================================================================
   // JamTestBase implementation
 
-  protected JResult getResultToTest() throws IOException {
-    JResultFactory jsf = JResultFactory.getInstance();
-    JResultParams params = jsf.createResultParams();
+  protected JService getResultToTest() throws IOException {
+    JServiceFactory jsf = JServiceFactory.getInstance();
+    JServiceParams params = jsf.createResultParams();
     params.includeSourceFiles(getDummyclassesSourceRoot(),"**/*.java");
     return jsf.createResult(params);
   }

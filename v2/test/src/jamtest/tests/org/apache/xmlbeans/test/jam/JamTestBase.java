@@ -64,7 +64,7 @@ import java.util.*;
 
 /**
  * <p>Abstract base class for basic jam test cases.  These test cases work
- * against an abstract JResult - they don't care how the java types
+ * against an abstract JService - they don't care how the java types
  * were loaded.  Extending classes are responsible for implementing the
  * getService() method which should create the service from sources, or
  * classes, or whatever is appropriate.</p>
@@ -108,7 +108,7 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Variables
 
-  private JResult mResult = null;
+  private JService mResult = null;
   private JClassLoader mLoader = null;
 
   // ========================================================================
@@ -126,9 +126,9 @@ public abstract class JamTestBase extends TestCase {
   // Abstract methods
 
   /**
-   * Called during setup() to get the JResult object to test against.
+   * Called during setup() to get the JService object to test against.
    */
-  protected abstract JResult getResultToTest() throws Exception;
+  protected abstract JService getResultToTest() throws Exception;
 
   //kind of a quick hack for now, should remove this and make sure that
   //even the classes case make the annotations available using a special

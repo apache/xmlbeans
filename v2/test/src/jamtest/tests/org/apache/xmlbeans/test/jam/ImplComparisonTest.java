@@ -28,8 +28,8 @@ public class ImplComparisonTest {
   // ========================================================================
   // Variables
 
-  private JResult mService1;
-  private JResult mService2;
+  private JService mService1;
+  private JService mService2;
   private boolean mCompareAnnotations = false;
   private boolean mCompareComments = false;
   private PrintWriter mOut = new PrintWriter(System.out);
@@ -39,7 +39,7 @@ public class ImplComparisonTest {
   // ========================================================================
   // Public methods
 
-  public void compare(JResult service1, JResult service2) {
+  public void compare(JService service1, JService service2) {
     List list1 = getSortedClassList(service1);
     //FIXME should also compare that the same classes are in each service
     //  List list2 = getSortedClassList(service2);
@@ -118,7 +118,7 @@ public class ImplComparisonTest {
     return out;
   }
 
-  private List getSortedClassList(JResult service) {
+  private List getSortedClassList(JService service) {
     JClass[] classes = service.getAllClasses();
     Arrays.sort(classes,JElementComparator.getInstance());
     return Arrays.asList(classes);

@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jeti;
 
-import org.apache.xmlbeans.impl.jam.JResultFactory;
+import org.apache.xmlbeans.impl.jam.JServiceFactory;
 import org.apache.xmlbeans.impl.jeti.parameter.ParameterService;
 import org.apache.xmlbeans.impl.jeti.output.OutputService;
 import org.apache.xmlbeans.impl.jeti.logging.LoggingService;
@@ -49,7 +49,7 @@ public interface ToolContext {
    * <p>Returns an entry point into the JAM service, which provides a model
    * of java type information.</p>
    */
-  public JResultFactory getJavaTypeService();
+  public JServiceFactory getJavaTypeService();
 
   /**
    * <p>Returns a service which exposes user-specified parameters for

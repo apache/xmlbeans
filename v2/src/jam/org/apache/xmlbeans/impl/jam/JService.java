@@ -17,17 +17,17 @@ package org.apache.xmlbeans.impl.jam;
 
 /**
  * <p>Encapsulates the a set of java classes which were which met a set of
- * criteria described in a JResultParams object.  A JResult exposes both a
+ * criteria described in a JServiceParams object.  A JService exposes both a
  * particular set of JClasses, as well as a JClassLoader which can be used
  * to load related classes.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JResult {
+public interface JService {
 
   /**
    * Returns a JClassLoader which can be used to load JClasses from class-
-   * and source-file locations specified in the JResultParams with which
+   * and source-file locations specified in the JServiceParams with which
    * this service was instantiated.  Note that it is possible to use this
    * mechanism to load JClasses that are not returned by getClasses().
    */
@@ -35,7 +35,7 @@ public interface JResult {
 
   /**
    * Returns the names of the classes that were described in the
-   * JResultParams object used to create this service.  Note that this
+   * JServiceParams object used to create this service.  Note that this
    * list will never change for a given service; though it is possible
    * to use the service's JClassLoader to load other types, this method will
    * always return the initial set of classes.

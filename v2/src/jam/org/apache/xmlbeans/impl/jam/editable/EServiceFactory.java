@@ -15,10 +15,10 @@
 
 package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JResult;
+import org.apache.xmlbeans.impl.jam.JService;
 import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
-import org.apache.xmlbeans.impl.jam.editable.impl.EResultParamsImpl;
-import org.apache.xmlbeans.impl.jam.editable.impl.EResultImpl;
+import org.apache.xmlbeans.impl.jam.editable.impl.EServiceParamsImpl;
+import org.apache.xmlbeans.impl.jam.editable.impl.EServiceImpl;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -27,12 +27,12 @@ import java.io.PrintWriter;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class EResultFactory {
+public class EServiceFactory {
 
   // ========================================================================
   // Constants
 
-  private static final EResultFactory INSTANCE = new EResultFactory();
+  private static final EServiceFactory INSTANCE = new EServiceFactory();
 
   // ========================================================================
   // Singleton
@@ -40,38 +40,38 @@ public class EResultFactory {
   /**
    * Return the factory singleton.
    */
-  public static EResultFactory getInstance() { return INSTANCE; }
+  public static EServiceFactory getInstance() { return INSTANCE; }
 
-  private EResultFactory() {}
+  private EServiceFactory() {}
 
   // ========================================================================
   // Public methods
 
   /**
-   * Create a new JResultParams instance.  The params can be populated
-   * and then given to the createService method to create a new JResult.
+   * Create a new JServiceParams instance.  The params can be populated
+   * and then given to the createService method to create a new JService.
    */
-  public EResultParams createServiceParams() {
-    return new EResultParamsImpl();
+  public EServiceParams createServiceParams() {
+    return new EServiceParamsImpl();
   }
 
   /**
-   * Create a new JResult from the given parameters.
+   * Create a new JService from the given parameters.
    *
    * @throws IllegalArgumentException if the params is null or not
    * an instance returned by createServiceParams().
    */
-  public EResult createService(EResultParams params) {
-    return new EResultImpl((EResultParamsImpl)params);
+  public EService createService(EServiceParams params) {
+    return new EServiceImpl((EServiceParamsImpl)params);
   }
 
   public static void main(String[] args) {
     PrintWriter out = new PrintWriter(System.out);
     out.println("Running EServiceTest");
     try {
-      EResultFactory factory = EResultFactory.getInstance();
-      EResultParams params = factory.createServiceParams();
-      EResult service = factory.createService(params);
+      EServiceFactory factory = EServiceFactory.getInstance();
+      EServiceParams params = factory.createServiceParams();
+      EService service = factory.createService(params);
       //
       //dumb test code
       //

@@ -24,14 +24,14 @@ import java.io.IOException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class NewJResultFactory extends DefaultJResultFactory {
+public class NewJServiceFactory extends DefaultJResultFactory {
 
   /**
    * <p>Creates the sourcefile classloader to be used given the input params.
    * Returns null if no source files are specified in the params.  Subclasses
    * may override to change the way in which java sources are loaded.</p>
    */
-  protected JClassLoader createSourceLoader(JResultParamsImpl params,
+  protected JClassLoader createSourceLoader(JServiceParamsImpl params,
                                             JClassLoader parent)
           throws IOException
   {

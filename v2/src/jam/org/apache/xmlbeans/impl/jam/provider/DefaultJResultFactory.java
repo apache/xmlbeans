@@ -14,9 +14,9 @@
  */
 package org.apache.xmlbeans.impl.jam.provider;
 
-import org.apache.xmlbeans.impl.jam.JResultFactory;
-import org.apache.xmlbeans.impl.jam.JResultParams;
-import org.apache.xmlbeans.impl.jam.JResult;
+import org.apache.xmlbeans.impl.jam.JServiceFactory;
+import org.apache.xmlbeans.impl.jam.JServiceParams;
+import org.apache.xmlbeans.impl.jam.JService;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.RootJClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassLoaderFactory;
@@ -27,7 +27,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 
 /**
- * <p>Default implementation of JResultFactory.  It currently uses javadoc
+ * <p>Default implementation of JServiceFactory.  It currently uses javadoc
  * for inspecting sources and reflection for inspecting classes.</p>
  *
  * <p>Note that this class can be used as a base class for custom factories.
@@ -35,7 +35,7 @@ import java.net.URLClassLoader;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class DefaultJResultFactory extends JResultFactory {
+public class DefaultJResultFactory extends JServiceFactory {
 
   // ========================================================================
   // Constructors
@@ -43,33 +43,33 @@ public class DefaultJResultFactory extends JResultFactory {
   public DefaultJResultFactory() {}
 
   // ========================================================================
-  // JResultFactory implementation
+  // JServiceFactory implementation
 
-  public JResultParams createResultParams() {
-    return new JResultParamsImpl();
+  public JServiceParams createResultParams() {
+    return new JServiceParamsImpl();
   }
 
-  public JResult createResult(JResultParams jsps) throws IOException {
-    //assert that they aren't implementing JResultParams themselves or
+  public JService createResult(JServiceParams jsps) throws IOException {
+    //assert that they aren't implementing JServiceParams themselves or
     //getting them from somewhere else
-    if (!(jsps instanceof JResultParamsImpl)) {
+    if (!(jsps instanceof JServiceParamsImpl)) {
       throw new IllegalArgumentException
-              ("JResultParams must be instantiated by this JResultFactory.");
+              ("JServiceParams must be instantiated by this JServiceFactory.");
     }
     //create and return the service
-    return new JResultImpl(createClassLoader((JResultParamsImpl)jsps),
-                           getSpecifiedClasses((JResultParamsImpl)jsps));
+    return new JServiceImpl(createClassLoader((JServiceParamsImpl)jsps),
+                           getSpecifiedClasses((JServiceParamsImpl)jsps));
   }
 
   // ========================================================================
   // Protected methods - override at your own risk
 
   /**
-   * <p>Returns the set of classes to be included in a JResult to be
+   * <p>Returns the set of classes to be included in a JService to be
    * created by the given params.  You should not override this
    * unless you really know what you're doing.</p>
    */
-  protected String[] getSpecifiedClasses(JResultParamsImpl params)
+  protected String[] getSpecifiedClasses(JServiceParamsImpl params)
           throws IOException
   {
     return params.getAllClassnames();
@@ -81,7 +81,7 @@ public class DefaultJResultFactory extends JResultFactory {
    * classfile classloader.  Subclasses may override to change the behavior.
    * </p>
    */
-  protected JClassLoader createClassLoader(JResultParamsImpl params)
+  protected JClassLoader createClassLoader(JServiceParamsImpl params)
           throws IOException
   {
     // Build up the clasloader chain.  Note that each loader we create is
@@ -111,7 +111,7 @@ public class DefaultJResultFactory extends JResultFactory {
    * Returns null if no source files are specified in the params.  Subclasses
    * may override to change the way in which java sources are loaded.</p>
    */
-  protected JClassLoader createSourceLoader(JResultParamsImpl params,
+  protected JClassLoader createSourceLoader(JServiceParamsImpl params,
                                             JClassLoader parent)
           throws IOException
   {
