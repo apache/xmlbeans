@@ -441,7 +441,7 @@
                  common.classes, typeimpl.classes, xmlcomp.classes,
                  xmlstore.classes,
                  oldxbean.jar, xsdschema.classes,
-                 xmlinputstream.classes, jax-qname.classes, jaxb.classes">
+                 xmlinputstream.classes, jax-qname.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
       <fileset dir="build/classes/xmlpublic"/>
       <fileset dir="build/classes/typestore"/>
@@ -455,7 +455,6 @@
       <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/xmlinputstream"/>
       <fileset dir="build/classes/jax-qname"/>
-      <fileset dir="build/classes/jaxb"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="src/license"/>
     </jar>
