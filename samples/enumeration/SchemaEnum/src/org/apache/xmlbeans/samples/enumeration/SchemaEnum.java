@@ -113,7 +113,7 @@ public class SchemaEnum
         // add them to the <price> element whose threshold is 20.00.
 
         // There don't happen to be any under 10.00, but handle this case anyway.
-        LineItem items = po.getLineItemArray();
+        LineItem[] items = po.getLineItemArray();
         for (int i = 0; i < items.length; i++)
         {
             LineItem item = items[i];
