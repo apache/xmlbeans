@@ -14,14 +14,13 @@
 <project name="Xbean" default="default" basedir=".">
 
   <property name="build.compiler" value="javac1.3"/>
-  <property name="product.version" value="1.0.4-jdk1.3-rc1"/>
+  <property name="version.base" value="1.0.4-jdk1.3"/>
 
   <!-- manifest entries -->
   <property name="manifest.name" value="org/apache/xmlbeans/"/>
   <property name="manifest.title" value="org.apache.xmlbeans"/>
   <property name="manifest.vendor" value="Apache Software Foundation"/>
   <property name="manifest.url" value="http://xmlbeans.apache.org/"/>
-  <property name="manifest.comment" value="Apache XmlBeans version ${product.version}"/>
 
   <target name="usage">
     <echo message="The following ant targets are defined:"/>
@@ -56,6 +55,28 @@
     <mkdir dir="build/private"/>
     <mkdir dir="build/private/classes"/>
     <mkdir dir="build/private/lib"/>
+  </target>
+
+  <target name="version">
+    <!-- svn must be on the path -->
+    <exec executable="svn" output="build/private/svninfo.properties">
+      <arg line="info ${basedir}"/>
+    </exec>
+    <replaceregexp file="build/private/svninfo.properties"
+        match="Last Changed Rev: (.*)"
+        replace="svn.last.rev=r\1"
+        byline="true"/>
+    <property file="build/private/svninfo.properties"/>
+
+    <!-- just in case svn info or regexp failed -->
+    <condition property="svn.last.rev" value="unknown">
+      <not><isset property="svn.last.rev"/></not>
+    </condition>
+
+    <property name="version.full" value="${version.base}-${svn.last.rev}"/>
+    <property name="manifest.comment" value="Apache XmlBeans version ${version.full}"/>
+
+    <echo message="${manifest.comment}"/>
   </target>
 
   <target name="drt" >
@@ -597,7 +618,9 @@
     <property name="docs.dir" value="build/docs"/>
     <delete dir="${docs.dir}"/>
     <mkdir dir="${docs.dir}"/>
-    <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="1.3" stylesheetfile="docs/stylesheet.css">
+    <javadoc packagenames="*" sourcepath="src/xmlpublic"
+        classpath="${javadoc.path}" destdir="${docs.dir}/reference"
+        windowtitle="XMLBeans ${version.base} Documentation" source="1.3" stylesheetfile="docs/stylesheet.css">
       <link href="http://xml.apache.org/xmlbeans/docs/reference/index.html"/>
       <link href="http://java.sun.com/j2se/1.3.1/docs/api/"/>
       <link href="http://java.sun.com/j2ee/1.3/docs/api/"/>
@@ -651,99 +674,99 @@
   </target>
 
   <target name="dist-bin" depends="xbean, docs">
-     <delete dir="build/private/xmlbeans-${product.version}"/>
-     <delete file="build/private/xmlbeans-${product.version}.zip"/>
-     <delete file="build/private/xmlbeans-${product.version}.tgz"/>
+     <delete dir="build/private/xmlbeans-${version.base}"/>
+     <delete file="build/private/xmlbeans-${version.base}.zip"/>
+     <delete file="build/private/xmlbeans-${version.base}.tgz"/>
 
-     <mkdir dir="build/private/xmlbeans-${product.version}"/>
-     <copy todir="build/private/xmlbeans-${product.version}">
+     <mkdir dir="build/private/xmlbeans-${version.base}"/>
+     <copy todir="build/private/xmlbeans-${version.base}">
         <fileset dir="xkit"/>
         <fileset dir="." includes="bin/**" />
         <fileset file="CHANGES.txt" />
      </copy>
-     <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
+     <copy todir="build/private/xmlbeans-${version.base}/schemas/s4s">
         <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd,w3c-schema-license.html"/>
         <fileset dir="src/xmlschema/schema" includes="XML.xsd,w3c-xml-license.html"/>
      </copy>
-     <copy todir="build/private/xmlbeans-${product.version}/schemas">
+     <copy todir="build/private/xmlbeans-${version.base}/schemas">
         <fileset dir="test/src" includes="easypo/*.xsd, easypo/*.xsdconfig"/>
      </copy>
 
-     <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
-     <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/ar/xbean.jar"/>
-     <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/xml-apis.jar"/>
-     <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/xercesImpl.jar"/>
-     <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
-     <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/lib/xbean_xpath.jar"/>
+     <mkdir dir="build/private/xmlbeans-${version.base}/lib"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/ar/xbean.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="external/lib/xml-apis.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="external/lib/xercesImpl.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
+     <copy todir="build/private/xmlbeans-${version.base}/lib" file="build/lib/xbean_xpath.jar"/>
 
-     <mkdir dir="build/private/xmlbeans-${product.version}/src/schema"/>
-     <copy todir="build/private/xmlbeans-${product.version}/src/schema">
+     <mkdir dir="build/private/xmlbeans-${version.base}/src/schema"/>
+     <copy todir="build/private/xmlbeans-${version.base}/src/schema">
         <fileset dir="src/toolschema"/>
      </copy>
 
-     <mkdir dir="build/private/xmlbeans-${product.version}/docs"/>
-     <copy todir="build/private/xmlbeans-${product.version}/docs">
+     <mkdir dir="build/private/xmlbeans-${version.base}/docs"/>
+     <copy todir="build/private/xmlbeans-${version.base}/docs">
         <fileset dir="build/docs"/>
      </copy>
 
-     <chmod dir="build/private/xmlbeans-${product.version}/bin" perm="ugo+rx" includes="**" />
+     <chmod dir="build/private/xmlbeans-${version.base}/bin" perm="ugo+rx" includes="**" />
 
-     <zip destfile="build/private/xmlbeans-${product.version}.zip"
+     <zip destfile="build/private/xmlbeans-${version.base}.zip"
           basedir="build/private"
-          includes="xmlbeans-${product.version}/**"
-          excludes="xmlbeans-${product.version}/bin/dumpxsb, 
-                    xmlbeans-${product.version}/bin/scomp, 
-                    xmlbeans-${product.version}/bin/validate">
-         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
-         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
-         <zipfileset dir="build/private/xmlbeans-${product.version}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" filemode="755"/>
+          includes="xmlbeans-${version.base}/**"
+          excludes="xmlbeans-${version.base}/bin/dumpxsb, 
+                    xmlbeans-${version.base}/bin/scomp, 
+                    xmlbeans-${version.base}/bin/validate">
+         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <zipfileset dir="build/private/xmlbeans-${version.base}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" filemode="755"/>
      </zip>
-     <tar destfile="build/private/xmlbeans-${product.version}.tgz"
+     <tar destfile="build/private/xmlbeans-${version.base}.tgz"
           basedir="build/private"
-          includes="xmlbeans-${product.version}/**"
-          excludes="xmlbeans-${product.version}/bin/dumpxsb, 
-                    xmlbeans-${product.version}/bin/scomp, 
-                    xmlbeans-${product.version}/bin/validate"
+          includes="xmlbeans-${version.base}/**"
+          excludes="xmlbeans-${version.base}/bin/dumpxsb, 
+                    xmlbeans-${version.base}/bin/scomp, 
+                    xmlbeans-${version.base}/bin/validate"
           compression="gzip">
-         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
-         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
-         <tarfileset dir="build/private/xmlbeans-${product.version}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" mode="755"/>
+         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <tarfileset dir="build/private/xmlbeans-${version.base}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" mode="755"/>
      </tar>
   </target>
 
-  <target name="dist-src" depends="clean, dirs">
-     <delete file="build/private/xmlbeans-${product.version}-src.zip"/>
-     <delete file="build/private/xmlbeans-${product.version}-src.tgz"/>
+  <target name="dist-src" depends="version, clean, dirs">
+     <delete file="build/private/xmlbeans-${version.base}-src.zip"/>
+     <delete file="build/private/xmlbeans-${version.base}-src.tgz"/>
 
-     <zip destfile="build/private/xmlbeans-${product.version}-src.zip">
+     <zip destfile="build/private/xmlbeans-${version.base}-src.zip">
      	<zipfileset
      		dir="."
        		includes="**"
                 excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
                 test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
-       		prefix="xmlbeans-${product.version}" />
-         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
-         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
-         <zipfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" filemode="755"/>
+       		prefix="xmlbeans-${version.base}" />
+         <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <zipfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" filemode="755"/>
      </zip>
-     <tar destfile="build/private/xmlbeans-${product.version}-src.tgz"
+     <tar destfile="build/private/xmlbeans-${version.base}-src.tgz"
 	 	  compression="gzip">
      	<tarfileset
      		dir="."
        		includes="**"
        		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
                 test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar, bin/dumpxsb, bin/scomp, bin/validate"
-       		prefix="xmlbeans-${product.version}"/>
-         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
-         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
-         <tarfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" mode="755"/>
+       		prefix="xmlbeans-${version.base}"/>
+         <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${version.base}/LICENSE.txt"/>
+         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${version.base}/NOTICE.txt"/>
+         <tarfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${version.base}/bin" mode="755"/>
      </tar>
   </target>
 
   <!-- previously in xbean.xml -->
 
   <target name="xbean.jar"
-        depends="dirs, xml-apis.jar, xercesImpl.jar, xmlpublic.classes, typestore.classes,
+        depends="dirs, version, xml-apis.jar, xercesImpl.jar, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
                  xmlstore.classes,
                  oldxbean.jar, xsdschema.classes,
@@ -766,7 +789,7 @@
         <section name="${manifest.name}">
           <attribute name="Comment" value="${manifest.comment}"/>
           <attribute name="Implementation-Title" value="${manifest.title}"/>
-          <attribute name="Implementation-Version" value="${product.version}"/>
+          <attribute name="Implementation-Version" value="${version.base}"/>
           <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
           <attribute name="Implementation-URL" value="${manifest.url}"/>
         </section>
@@ -795,7 +818,7 @@
 
   </target>
 
-  <target name="xmlpublic.jar" depends="dirs, xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
+  <target name="xmlpublic.jar" depends="dirs, version, xmlinputstream.classes, xmlpublic.classes, xmlschema.classes, xsdschema.classes">
     <jar jarfile="build/lib/xmlpublic.jar"  index="true">
       <fileset dir="build/classes/xmlpublic"/>
       <fileset dir="build/classes/xmlschema"/>
@@ -804,7 +827,7 @@
         <section name="${manifest.name}">
           <attribute name="Comment" value="${manifest.comment}"/>
           <attribute name="Implementation-Title" value="${manifest.title}"/>
-          <attribute name="Implementation-Version" value="${product.version}"/>
+          <attribute name="Implementation-Version" value="${version.base}"/>
           <attribute name="Implementation-Vendor" value="${manifest.vendor}"/>
           <attribute name="Implementation-URL" value="${manifest.url}"/>
         </section>
