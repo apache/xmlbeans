@@ -209,6 +209,7 @@
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
     <pathelement location="build/private/lib/xbean_xpath.jar"/>
+    <pathelement location="build/private/classes/marshal"/>
     <pathelement location="build/lib/jaxen.jar"/>
     <pathelement location="build/classes/xmlinputstream"/>
   </path>
