@@ -39,6 +39,21 @@ interface TypeUnmarshaller
     Object unmarshal(UnmarshalResult result)
         throws XmlException;
 
+
+    /**
+     * Unmarshal into an existing object (i.e. fill the object's properties).
+     *
+     * This method is optional and TypeUnmarshaller's for immutable
+     * types (e.g. java.lang.String) will throw UnsupportedOperationException
+     *
+     * @param object  Object who's properties will be filled.
+     * @param result
+     * @throws UnsupportedOperationException  if not appropriate for this type
+     * @throws XmlException
+     */
+    void unmarshal(Object object, UnmarshalResult result)
+        throws XmlException;
+
     /**
      * unmarshal the lexical value of an instance of xsd:anySimpleType.
      * This could be called on an attribute value or on element content.
@@ -51,6 +66,24 @@ interface TypeUnmarshaller
      *            by this TypeUnmarshaller.
      */
     Object unmarshalAttribute(UnmarshalResult result)
+        throws XmlException;
+
+    /**
+     * unmarshal the lexical value of an instance of xsd:anySimpleType into an
+     * existing object.  This could be called on an attribute value
+     * or on element content.
+     *
+     * This method is optional and TypeUnmarshaller's for immutable
+     * types (e.g. java.lang.String) will throw UnsupportedOperationException
+     *
+     * @param object  Object who's value will be filled.
+     * @param result
+     *
+     * @exception UnsupportedOperationException if the
+     *            <tt>unmarshalSimpleType</tt> operation is not supported
+     *            by this TypeUnmarshaller.
+     */
+    void unmarshalAttribute(Object object, UnmarshalResult result)
         throws XmlException;
 
 

@@ -21,7 +21,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import javax.xml.namespace.QName;
 
 final class RuntimeGlobalProperty
-    implements RuntimeBindingProperty
+    extends RuntimeBindingProperty
 {
     private final QName rootElement;
     private final RuntimeBindingType runtimeBindingType;
@@ -29,6 +29,10 @@ final class RuntimeGlobalProperty
     public RuntimeGlobalProperty(QName rootElement,
                                  RuntimeBindingType runtimeBindingType)
     {
+        //We can pass null becuase the global element properties never have 
+        //a parent object, so this resolve should never be needed.
+        //If it is somehow used we'll find out thanks to NPE.
+        super(null);
         this.rootElement = rootElement;
         this.runtimeBindingType = runtimeBindingType;
     }

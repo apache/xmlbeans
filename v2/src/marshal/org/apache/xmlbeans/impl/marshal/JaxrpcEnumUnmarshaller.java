@@ -78,12 +78,25 @@ final class JaxrpcEnumUnmarshaller
         return runtimeType.fromValue(itemValue);
     }
 
+    public void unmarshal(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
+    }
+
+
     public Object unmarshalAttribute(UnmarshalResult result)
         throws XmlException
     {
         final TypeUnmarshaller item_um = runtimeType.getItemUnmarshaller();
         final Object itemValue = item_um.unmarshalAttribute(result);
         return runtimeType.fromValue(itemValue);
+    }
+
+    public void unmarshalAttribute(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
     public void initialize(RuntimeBindingTypeTable typeTable,

@@ -18,11 +18,19 @@ package com.mytest;
 /**
  *  @xsdgen:complexType.rootElement load
  */
-public class MyClass {
+public class MyClass
+{
 
 
     private YourClass myelt;
-    private String myatt = "DEFAULT:"+YourClass.RND.nextInt();
+    private String myatt = "DEFAULT:" + YourClass.RND.nextInt();
+
+
+    //generic factory
+    public Object createYourClass()
+    {
+        return new YourClass();
+    }
 
 
     public YourClass getMyelt()

@@ -151,8 +151,34 @@
         <xs:element name="static" type="tns:java-field-name"/>
       </xs:choice>
       <xs:element name="collection" type="tns:java-class-name" minOccurs="0"/>
+      <xs:element name="factory" type="tns:java-instance-factory" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
+
+  <xs:complexType name="java-instance-factory" abstract="true">
+    <xs:sequence>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="parent-instance-factory">
+    <xs:complexContent>
+      <xs:extension base="tns:java-instance-factory">
+        <xs:sequence>
+          <xs:element name="create-object-method" type="tns:java-method-name">
+            <xs:annotation>
+              <xs:documentation>
+                The create method will not be static, and will be invoked on
+                the parent object.  It can optionally have one argument, which
+                will be of type java.lang.Class.  The runtime will pass the java
+                class to be created.
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
 
   <!--  type must be a simple or builtin type-->
   <xs:complexType name="simple-content-property">

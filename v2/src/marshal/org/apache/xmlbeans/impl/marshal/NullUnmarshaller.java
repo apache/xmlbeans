@@ -38,9 +38,21 @@ final class NullUnmarshaller
         return null;
     }
 
+    public void unmarshal(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
+    }
+
     public Object unmarshalAttribute(UnmarshalResult context)
     {
         throw new UnsupportedOperationException();
+    }
+
+    public void unmarshalAttribute(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
     public void initialize(RuntimeBindingTypeTable typeTable,

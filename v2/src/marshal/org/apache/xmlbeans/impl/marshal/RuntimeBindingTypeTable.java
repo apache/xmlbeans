@@ -109,6 +109,9 @@ final class RuntimeBindingTypeTable
         return type_visitor.getUnmarshaller();
     }
 
+    RuntimeTypeFactory getRuntimeTypeFactory() {
+        return runtimeTypeFactory;
+    }
 
     TypeUnmarshaller getOrCreateTypeUnmarshaller(BindingType type,
                                                  BindingLoader loader)

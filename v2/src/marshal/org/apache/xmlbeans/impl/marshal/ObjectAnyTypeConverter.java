@@ -59,7 +59,7 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-public class ObjectAnyTypeConverter
+public final class ObjectAnyTypeConverter
     implements TypeConverter
 {
     public ObjectAnyTypeConverter()
@@ -73,10 +73,22 @@ public class ObjectAnyTypeConverter
         throw new AssertionError("GENERIC XML UNIMPLEMENTED");
     }
 
+    public void unmarshal(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
+    }
+
     public Object unmarshalAttribute(UnmarshalResult result)
         throws XmlException
     {
         throw new AssertionError("unused");
+    }
+
+    public void unmarshalAttribute(Object object, UnmarshalResult result)
+        throws XmlException
+    {
+        throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
     public void initialize(RuntimeBindingTypeTable typeTable,

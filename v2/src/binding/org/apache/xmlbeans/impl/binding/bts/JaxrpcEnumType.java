@@ -18,8 +18,8 @@ package org.apache.xmlbeans.impl.binding.bts;
 import org.apache.xmlbeans.XmlException;
 
 /**
- * A binding of a simple user-defined type that operates by
- * delegating to another well-known (e.g., builtin) binding.
+ * A representation of the JAX-RPC 1.1 rules for binding a
+ * schema enumeration into java
  */
 public class JaxrpcEnumType extends BindingType
 {

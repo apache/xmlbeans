@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.marshal.util;
 
 import java.lang.reflect.Array;
 
-public class ArrayUtils
+public final class ArrayUtils
 {
 
     public static String arrayToString(Object array)

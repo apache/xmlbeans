@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 /**
  * @author   Copyright (c) 2003 by BEA Systems, Inc. All Rights Reserved.
  */
-public class ReflectiveArrayIterator
+public final class ReflectiveArrayIterator
     implements Iterator
 {
     private final Object array;

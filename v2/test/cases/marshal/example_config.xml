@@ -39,18 +39,26 @@
                 <bin:attribute>true</bin:attribute>
                 <bin:default>9.12321</bin:default>
             </bin:qname-property>
+
             <bin:qname-property>
                 <bin:xmlcomponent>t=MyClass@java:com.mytest</bin:xmlcomponent>
                 <bin:javatype>com.mytest.MyClass</bin:javatype>
                 <bin:getter>
-                   <bin:method-name>getMyClass</bin:method-name>
+                    <bin:method-name>getMyClass</bin:method-name>
                 </bin:getter>
                 <bin:setter>
-                   <bin:method-name>setMyClass</bin:method-name>
-                   <bin:param-type>com.mytest.MyClass</bin:param-type>
+                    <bin:method-name>setMyClass</bin:method-name>
+                    <bin:param-type>com.mytest.MyClass</bin:param-type>
                 </bin:setter>
+                <bin:factory xsi:type="bin:parent-instance-factory">
+                    <bin:create-object-method>
+                        <bin:method-name>createObject</bin:method-name>
+                        <bin:param-type>java.lang.Class</bin:param-type>
+                    </bin:create-object-method>
+                </bin:factory>
                 <bin:qname>java:MyClass</bin:qname>
             </bin:qname-property>
+
             <bin:qname-property>
                 <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
                 <bin:javatype>com.mytest.MySubClass</bin:javatype>
@@ -381,6 +389,12 @@
                    <bin:method-name>setMyelt</bin:method-name>
                    <bin:param-type>com.mytest.YourClass</bin:param-type>
                 </bin:setter>
+                <bin:factory xsi:type="bin:parent-instance-factory">
+                    <bin:create-object-method>
+                        <bin:method-name>createYourClass</bin:method-name>
+                        <!--                        <bin:param-type>java.lang.Class</bin:param-type>-->
+                    </bin:create-object-method>
+                </bin:factory>
                 <bin:qname>java:Myelt</bin:qname>
             </bin:qname-property>
             <bin:qname-property>

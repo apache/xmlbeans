@@ -46,11 +46,6 @@ final class EmptyLocation
         return -1;
     }
 
-    public String getLocationURI()
-    {
-        return null;
-    }
-
     public String getPublicId()
     {
         return null;
