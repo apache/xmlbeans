@@ -20,25 +20,26 @@ package org.apache.xmlbeans.impl.config;
 
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 import org.apache.xmlbeans.XmlObject;
-
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import org.apache.xmlbeans.impl.jam.JMethod;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JParameter;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
 
 public class InterfaceExtension
 {
     private NameSet _xbeanSet;
-    private Class _interface;
-    private Class _delegateToClass;
+    private JClass _interface;
+    private JClass _delegateToClass;
     private String _delegateToClassName;
-    private Method[] _interfaceMethods;
-    private Method[] _delegateToMethods;
+    private JMethod[] _interfaceMethods;
+    private JMethod[] _delegateToMethods;
 
-    static InterfaceExtension newInstance(NameSet xbeanSet, Extensionconfig.Interface intfXO)
+    static InterfaceExtension newInstance(JamClassLoader loader, NameSet xbeanSet, Extensionconfig.Interface intfXO)
     {
         InterfaceExtension result = new InterfaceExtension();
 
         result._xbeanSet = xbeanSet;
-        result._interface = validateInterface(intfXO.getName(), intfXO);
+        result._interface = validateInterface(loader, intfXO.getName(), intfXO);
 
         if (result._interface == null)
         {
@@ -47,7 +48,7 @@ public class InterfaceExtension
         }
 
         result._delegateToClassName = intfXO.getStaticHandler();
-        result._delegateToClass = validateClass(result._delegateToClassName, intfXO);
+        result._delegateToClass = validateClass(loader, result._delegateToClassName, intfXO);
 
         if ( result._delegateToClass==null ) // no HandlerClass
         {
@@ -61,41 +62,43 @@ public class InterfaceExtension
         return result;
     }
 
-    private static Class validateInterface(String intfStr, XmlObject loc)
+    private static JClass validateInterface(JamClassLoader loader, String intfStr, XmlObject loc)
     {
-        return validateJava(intfStr, true, loc);
+        return validateJava(loader, intfStr, true, loc);
     }
 
-    static Class validateClass(String clsStr, XmlObject loc)
+    static JClass validateClass(JamClassLoader loader, String clsStr, XmlObject loc)
     {
-        return validateJava(clsStr, false, loc);
+        return validateJava(loader, clsStr, false, loc);
     }
 
-    static Class validateJava(String clsStr, boolean isInterface, XmlObject loc)
+    static JClass validateJava(JamClassLoader loader, String clsStr, boolean isInterface, XmlObject loc)
     {
+        if (loader==null)
+            return null;
+
         final String ent = isInterface ? "Interface" : "Class";
-        try
-        {
-            Class cls = Class.forName(clsStr);
-            if ( (isInterface && !cls.isInterface()) ||
-                    (!isInterface && cls.isInterface()))
-            {
-                SchemaConfig.error("'" + clsStr + "' must be " +
-                    (isInterface ? "an interface" : "a class") + ".", loc);
-            }
+        JClass cls = loader.loadClass(clsStr);
 
-            if (!Modifier.isPublic(cls.getModifiers()))
-            {
-                SchemaConfig.error(ent + " '" + clsStr + "' is not public.", loc);
-            }
-
-            return cls;
-        }
-        catch (ClassNotFoundException e)
+        if (cls==null)
         {
             SchemaConfig.error(ent + " '" + clsStr + "' not found.", loc);
             return null;
         }
+
+        if ( (isInterface && !cls.isInterface()) ||
+                (!isInterface && cls.isInterface()))
+        {
+            SchemaConfig.error("'" + clsStr + "' must be " +
+                (isInterface ? "an interface" : "a class") + ".", loc);
+        }
+
+        if (!cls.isPublic())
+        {
+            SchemaConfig.error(ent + " '" + clsStr + "' is not public.", loc);
+        }
+
+        return cls;
     }
 
     private boolean validateMethods(XmlObject loc)
@@ -104,7 +107,7 @@ public class InterfaceExtension
         boolean valid = true;
 
         _interfaceMethods = _interface.getMethods();
-        _delegateToMethods = new Method[_interfaceMethods.length];
+        _delegateToMethods = new JMethod[_interfaceMethods.length];
 
         for (int i = 0; i < _interfaceMethods.length; i++)
         {
@@ -114,64 +117,56 @@ public class InterfaceExtension
         return valid;
     }
 
-    private boolean validateMethod(int index, Method method, XmlObject loc)
+    private boolean validateMethod(int index, JMethod method, XmlObject loc)
     {
-        String methodName = method.getName();
-        Class[] paramTypes = method.getParameterTypes();
-        Class returnType = method.getReturnType();
+        String methodName = method.getSimpleName();
+        JParameter[] params = method.getParameters();
+        JClass returnType = method.getReturnType();
 
-        Class[] delegateParams = new Class[paramTypes.length+1];
-        delegateParams[0] = XmlObject.class;
+        JClass[] delegateParams = new JClass[params.length+1];
+        delegateParams[0] = returnType.forName("org.apache.xmlbeans.XmlObject");
         for (int i = 1; i < delegateParams.length; i++)
         {
-            delegateParams[i] = paramTypes[i-1];
+            delegateParams[i] = params[i-1].getType();
         }
 
-        Method handlerMethod = null;
-        try
+        JMethod handlerMethod = null;
+        handlerMethod = getMethod(_delegateToClass, methodName, delegateParams);
+        if (handlerMethod==null)
         {
-            handlerMethod = _delegateToClass.getMethod(methodName, delegateParams);
+            SchemaConfig.error("Handler class '" + _delegateToClass.getQualifiedName() + "' does not contain method " + methodName + "(" + listTypes(delegateParams) + ")", loc);
+            return false;
+        }
 
-            // check for throws exceptions
-            Class[] intfExceptions = method.getExceptionTypes();
-            Class[] delegateExceptions = handlerMethod.getExceptionTypes();
-            if ( delegateExceptions.length!=intfExceptions.length )
+        // check for throws exceptions
+        JClass[] intfExceptions = method.getExceptionTypes();
+        JClass[] delegateExceptions = handlerMethod.getExceptionTypes();
+        if ( delegateExceptions.length!=intfExceptions.length )
+        {
+            SchemaConfig.error("Handler method '" + _delegateToClass.getQualifiedName() + "." + methodName + "(" + listTypes(delegateParams) +
+                ")' must declare the same exceptions as the interface method '" + _interface.getQualifiedName() + "." + methodName + "(" + listTypes(params), loc);
+            return false;
+        }
+
+        for (int i = 0; i < delegateExceptions.length; i++)
+        {
+            if ( delegateExceptions[i]!=intfExceptions[i] )
             {
-                SchemaConfig.error("Handler method '" + _delegateToClass.getName() + "." + methodName + "(" + listTypes(delegateParams) +
-                    ")' must declare the same exceptions as the interface method '" + _interface.getName() + "." + methodName + "(" + listTypes(paramTypes), loc);
+                SchemaConfig.error("Handler method '" + _delegateToClass.getQualifiedName() + "." + methodName + "(" + listTypes(delegateParams) +
+                    ")' must declare the same exceptions as the interface method '" + _interface.getQualifiedName() + "." + methodName + "(" + listTypes(params), loc);
                 return false;
             }
-
-            for (int i = 0; i < delegateExceptions.length; i++)
-            {
-                if ( delegateExceptions[i]!=intfExceptions[i] )
-                {
-                    SchemaConfig.error("Handler method '" + _delegateToClass.getName() + "." + methodName + "(" + listTypes(delegateParams) +
-                        ")' must declare the same exceptions as the interface method '" + _interface.getName() + "." + methodName + "(" + listTypes(paramTypes), loc);
-                    return false;
-                }
-            }
-        }
-        catch (NoSuchMethodException e)
-        {
-            SchemaConfig.error("Handler class '" + _delegateToClass.getName() + "' does not contain method " + methodName + "(" + listTypes(delegateParams) + ")", loc);
-            return false;
-        }
-        catch (SecurityException e)
-        {
-            SchemaConfig.error("Security violation for class '" + _interface.getName() + "' accesing method " + methodName + "(" + listTypes(delegateParams) + ")", loc);
-            return false;
         }
 
-        if (!Modifier.isPublic(handlerMethod.getModifiers()) || !Modifier.isStatic(handlerMethod.getModifiers()))
+        if (!handlerMethod.isPublic() || !handlerMethod.isStatic())
         {
-            SchemaConfig.error("Method '" + _delegateToClass.getName() + "." + methodName + "(" + listTypes(delegateParams) + ")' must be declared public and static.", loc);
+            SchemaConfig.error("Method '" + _delegateToClass.getQualifiedName() + "." + methodName + "(" + listTypes(delegateParams) + ")' must be declared public and static.", loc);
             return false;
         }
 
         if (!returnType.equals(handlerMethod.getReturnType()))
         {
-            SchemaConfig.error("Return type for method '" + handlerMethod.getReturnType() + " " + _delegateToClass.getName() +
+            SchemaConfig.error("Return type for method '" + handlerMethod.getReturnType() + " " + _delegateToClass.getQualifiedName() +
                     "." + methodName + "(" + listTypes(delegateParams) + ")' does not match the return type of the interface method :'" + returnType + "'.", loc);
             return false;
         }
@@ -181,12 +176,34 @@ public class InterfaceExtension
         return true;
     }
 
-    private static String listTypes(Class[] types)
+    static JMethod getMethod(JClass cls, String name, JClass[] paramTypes)
+    {
+        JMethod[] methods = cls.getMethods();
+        for (int i = 0; i < methods.length; i++)
+        {
+            JMethod method = methods[i];
+            if (!name.equals(method.getSimpleName()))
+                continue;
+
+            JParameter[] mParams = method.getParameters();
+            for (int j = 0; j < mParams.length; j++)
+            {
+                JParameter mParam = mParams[j];
+                if (!mParam.getType().equals(paramTypes[j]))
+                    continue;
+            }
+
+            return method;
+        }
+        return null;
+    }
+
+    private static String listTypes(JClass[] types)
     {
         StringBuffer result = new StringBuffer();
         for (int i = 0; i < types.length; i++)
         {
-            Class type = types[i];
+            JClass type = types[i];
             if (i>0)
                 result.append(", ");
             result.append(emitType(type));
@@ -194,12 +211,25 @@ public class InterfaceExtension
         return result.toString();
     }
 
-    public static String emitType(Class cls)
+    private static String listTypes(JParameter[] params)
     {
-        if (cls.isArray())
-            return emitType(cls.getComponentType()) + "[]";
+        StringBuffer result = new StringBuffer();
+        for (int i = 0; i < params.length; i++)
+        {
+            JClass type = params[i].getType();
+            if (i>0)
+                result.append(", ");
+            result.append(emitType(type));
+        }
+        return result.toString();
+    }
+
+    public static String emitType(JClass cls)
+    {
+        if (cls.isArrayType())
+            return emitType(cls.getArrayComponentType()) + "[]";
         else
-            return cls.getName().replace('$', '.');
+            return cls.getQualifiedName().replace('$', '.');
     }
 
     /* public getters */
@@ -210,7 +240,7 @@ public class InterfaceExtension
 
     public String getInterfaceName()
     {
-        return _interface.getName();
+        return _interface.getSimpleName();
     }
 
     public String getInterfaceNameForJavaSource()
@@ -234,10 +264,10 @@ public class InterfaceExtension
 
     public String getInterfaceMethodName(int methodIndex)
     {
-        return _interfaceMethods[methodIndex].getName();
+        return _interfaceMethods[methodIndex].getSimpleName();
     }
 
-    public Method getInterfaceMethod(int methodIndex)
+    public JMethod getInterfaceMethod(int methodIndex)
     {
         return _interfaceMethods[methodIndex];
     }
@@ -245,36 +275,36 @@ public class InterfaceExtension
     public String getInterfaceMethodDecl(int methodIndex)
     {
         StringBuffer sb = new StringBuffer();
-        Method m = _interfaceMethods[methodIndex];
-        Class[] paramTypes = m.getParameterTypes();
+        JMethod m = _interfaceMethods[methodIndex];
+        JParameter[] params = m.getParameters();
 
-        for (int i = 0; i < paramTypes.length; i++)
+        for (int i = 0; i < params.length; i++)
         {
-            Class paramType = paramTypes[i];
+            JClass paramType = params[i].getType();
             sb.append( i==0 ? "" : ", " );
             sb.append( emitType(paramType) + " p" + i);
         }
 
         StringBuffer exceptions = new StringBuffer();
-        Class[] excClasses = m.getExceptionTypes();
+        JClass[] excClasses = m.getExceptionTypes();
 
         for (int i=0; i<excClasses.length; i++)
             exceptions.append((i==0 ? " throws " : ", ") + emitType(excClasses[i]));
 
-        return "public " + emitType(m.getReturnType()) + " " + m.getName() + "(" + sb.toString() + ")" + exceptions.toString();
+        return "public " + emitType(m.getReturnType()) + " " + m.getSimpleName() + "(" + sb.toString() + ")" + exceptions.toString();
     }
 
     public String getInterfaceMethodImpl(int methodIndex)
     {
-	// use the methods from the interface for gen the call to the handler
+	    // use the methods from the interface for gen the call to the handler
         StringBuffer sb = new StringBuffer();
 
-        if (!void.class.equals(_interfaceMethods[methodIndex].getReturnType()))
+        if (!_interfaceMethods[methodIndex].getReturnType().forName("void").equals(_interfaceMethods[methodIndex].getReturnType()))
             sb.append("return ");
 
-        sb.append(_delegateToClassName + "." + _delegateToMethods[methodIndex].getName() + "(this");
+        sb.append(_delegateToClassName + "." + _delegateToMethods[methodIndex].getSimpleName() + "(this");
 
-        int paramCount = _interfaceMethods[methodIndex].getParameterTypes().length;
+        int paramCount = _interfaceMethods[methodIndex].getParameters().length;
         for (int i=0; i<paramCount; i++)
         {
             sb.append(", p" + i);

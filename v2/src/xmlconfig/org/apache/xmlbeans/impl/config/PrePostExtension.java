@@ -19,10 +19,11 @@
 package org.apache.xmlbeans.impl.config;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JMethod;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 
-import javax.xml.namespace.QName;
-import java.lang.reflect.Method;
 
 public class PrePostExtension
 {
@@ -30,16 +31,30 @@ public class PrePostExtension
     public static int OPERATION_INSERT = 2;
     public static int OPERATION_REMOVE = 3;
 
-    private static final Class[] PARAMTYPES_PREPOST = new Class[]{int.class, XmlObject.class, QName.class, boolean.class, int.class};
-    private static final String SIGNATURE = "(int, org.apache.xmlbeans.XmlObject, javax.xml.namespace.QName, boolean, int)";
+    private static JClass[] PARAMTYPES_PREPOST = null; //new JClass[]{int.class, XmlObject.class, QName.class, boolean.class, int.class};
+    private static final String[] PARAMTYPES_STRING = new String[] {"int", "org.apache.xmlbeans.XmlObject",
+        "javax.xml.namespace.QName", "boolean", "int"};
+    private static final String SIGNATURE;
+    static
+    {
+        String sig = "(";
+        for (int i = 0; i < PARAMTYPES_STRING.length; i++)
+        {
+            String t = PARAMTYPES_STRING[i];
+            if (i!=0)
+                sig += ", ";
+            sig += t;
+        }
+        SIGNATURE = sig + ")";
+    }
 
     private NameSet _xbeanSet;
-    private Class _delegateToClass;
+    private JClass _delegateToClass;
     private String _delegateToClassName;
-    private Method _preSet;
-    private Method _postSet;
+    private JMethod _preSet;
+    private JMethod _postSet;
 
-    static PrePostExtension newInstance(NameSet xbeanSet, Extensionconfig.PrePostSet prePostXO)
+    static PrePostExtension newInstance(JamClassLoader jamLoader, NameSet xbeanSet, Extensionconfig.PrePostSet prePostXO)
     {
         if (prePostXO==null)
             return null;
@@ -48,7 +63,7 @@ public class PrePostExtension
 
         result._xbeanSet = xbeanSet;
         result._delegateToClassName = prePostXO.getStaticHandler();
-        result._delegateToClass = InterfaceExtension.validateClass(result._delegateToClassName, prePostXO);
+        result._delegateToClass = InterfaceExtension.validateClass(jamLoader, result._delegateToClassName, prePostXO);
 
         if ( result._delegateToClass==null ) // no HandlerClass
         {
@@ -56,61 +71,61 @@ public class PrePostExtension
             return result;
         }
 
-        if (!result.lookAfterPreAndPost(prePostXO))
+        if (!result.lookAfterPreAndPost(jamLoader, prePostXO))
             return null;
 
         return result;
     }
 
-    private boolean lookAfterPreAndPost(XmlObject loc)
+    private boolean lookAfterPreAndPost(JamClassLoader jamLoader, XmlObject loc)
     {
         assert _delegateToClass!=null : "Delegate to class handler expected.";
         boolean valid = true;
 
-        try
-        {
-            _preSet = _delegateToClass.getMethod("preSet", PARAMTYPES_PREPOST);
+        initParamPrePost(jamLoader);
 
-            if (!_preSet.getReturnType().equals(boolean.class))
-            {
-		// just emit an warning and don't remember as a preSet
-                SchemaConfig.warning("Method '" + _delegateToClass.getName() +
-                    ".preSet" + SIGNATURE + "' " +
-                    "should return boolean to be considered for a preSet handler.", loc);
-                _preSet = null;
-            }
-        }
-        catch (NoSuchMethodException e)
+        _preSet = InterfaceExtension.getMethod(_delegateToClass, "preSet", PARAMTYPES_PREPOST);
+        if (_preSet==null)
         {} // not available is ok, _preSet will be null
-        catch (SecurityException e)
+
+        if (_preSet!=null && !_preSet.getReturnType().equals(jamLoader.loadClass("boolean")))
         {
-            SchemaConfig.error("Security violation for class '" + _delegateToClass.getName() +
-                "' accesing method preSet" + SIGNATURE , loc);
-            valid = false;
+            // just emit an warning and don't remember as a preSet
+            SchemaConfig.warning("Method '" + _delegateToClass.getSimpleName() +
+                ".preSet" + SIGNATURE + "' " +
+                "should return boolean to be considered for a preSet handler.", loc);
+            _preSet = null;
         }
 
-        try
-        {
-            _postSet = _delegateToClass.getMethod("postSet", PARAMTYPES_PREPOST);
-        }
-        catch (NoSuchMethodException e)
+        _postSet = InterfaceExtension.getMethod(_delegateToClass, "postSet", PARAMTYPES_PREPOST);
+        if (_postSet==null)
         {} // not available is ok, _postSet will be null
-        catch (SecurityException e)
-        {
-            SchemaConfig.error("Security violation for class '" + _delegateToClass.getName() +
-                "' accesing method postSet" + SIGNATURE, loc);
-            valid = false;
-        }
 
         if (_preSet==null && _postSet==null)
         {
-            SchemaConfig.error("prePostSet handler specified '" + _delegateToClass.getName() +
+            SchemaConfig.error("prePostSet handler specified '" + _delegateToClass.getSimpleName() +
                 "' but no preSet" + SIGNATURE + " or " +
                 "postSet" + SIGNATURE + " methods found.", loc);
             valid = false;
         }
 
         return valid;
+    }
+
+    private void initParamPrePost(JamClassLoader jamLoader)
+    {
+        if (PARAMTYPES_PREPOST==null)
+        {
+            PARAMTYPES_PREPOST = new JClass[PARAMTYPES_STRING.length];
+            for (int i = 0; i < PARAMTYPES_PREPOST.length; i++)
+            {
+                PARAMTYPES_PREPOST[i] = jamLoader.loadClass(PARAMTYPES_STRING[i]);
+                if (PARAMTYPES_PREPOST[i]==null)
+                {
+                    throw new IllegalStateException("JAM should have access to the following types " + SIGNATURE);
+                }
+            }
+        }
     }
 
     // public methods

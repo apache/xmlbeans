@@ -18,12 +18,15 @@
  */
 package org.apache.xmlbeans.impl.config;
 
+import org.apache.xmlbeans.impl.jam.JMethod;
+import org.apache.xmlbeans.impl.jam.JParameter;
+import org.apache.xmlbeans.impl.jam.JClass;
+
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
-import java.lang.reflect.Method;
 
 /**
  * This class reprezents all the extensions for all xbean sets.
@@ -61,15 +64,20 @@ public class ExtensionHolder
     private static class MethodSignature
     {
         private String _intfName;  // Stored only for error output, does not influence the equals or hashCode
-        private Method _method;
+        private JMethod _method;
+        private final int NOTINITIALIZED = -1;
+        private int _hashCode = NOTINITIALIZED;
+        private String _signature;
 
-        MethodSignature(String intfName, Method method)
+        MethodSignature(String intfName, JMethod method)
         {
             if (intfName==null || method==null)
                 throw new IllegalArgumentException("Interface: " + intfName + " method: " + method);
 
             _intfName = intfName;
             _method = method;
+            _hashCode = NOTINITIALIZED;
+            _signature = null;
         }
 
         String getInterfaceName()
@@ -79,14 +87,18 @@ public class ExtensionHolder
 
         String getSignature()
         {
+            if (_signature==null)
+                return _signature;
+
             String sig = "";
-            Class[] paramTypes = _method.getParameterTypes();
+            JParameter[] paramTypes = _method.getParameters();
             for (int i = 0; i < paramTypes.length; i++)
             {
-                Class paramType = paramTypes[i];
-                sig += ( i==0 ? "" : " ," ) + paramType.getName();
+                JClass paramType = paramTypes[i].getType();
+                sig += ( i==0 ? "" : " ," ) + paramType.getQualifiedName();
             }
-            return _method.getName() + "(" + sig + ")";
+            _signature = _method.getSimpleName() + "(" + sig + ")";
+            return _signature;
         }
 
         public boolean equals(Object o)
@@ -96,18 +108,18 @@ public class ExtensionHolder
 
             MethodSignature ms = (MethodSignature)o;
 
-            if (!ms._method.getName().equals(_method.getName()) )
+            if (!ms._method.getSimpleName().equals(_method.getSimpleName()) )
                 return false;
 
-            Class[] paramTypes = _method.getParameterTypes();
-            Class[] msParamTypes = _method.getParameterTypes();
+            JParameter[] params = _method.getParameters();
+            JParameter[] msParams = _method.getParameters();
 
-            if (msParamTypes.length != paramTypes.length )
+            if (msParams.length != params.length )
                 return false;
 
-            for (int i = 0; i < paramTypes.length; i++)
+            for (int i = 0; i < params.length; i++)
             {
-                if (msParamTypes[i] != paramTypes[i])
+                if (!msParams[i].getType().equals(params[i].getType()))
                     return false;
             }
 
@@ -116,17 +128,21 @@ public class ExtensionHolder
 
         public int hashCode()
         {
-            int hash = _method.getName().hashCode();
+            if (_hashCode!=NOTINITIALIZED)
+                return _hashCode;
 
-            Class[] paramTypes = _method.getParameterTypes();
+            int hash = _method.getSimpleName().hashCode();
 
-            for (int i = 0; i < paramTypes.length; i++)
+            JParameter[] params = _method.getParameters();
+
+            for (int i = 0; i < params.length; i++)
             {
                 hash *= 19;
-                hash += paramTypes[i].hashCode();
+                hash += params[i].getType().hashCode();
             }
 
-            return hash;
+            _hashCode = hash;
+            return _hashCode;
         }
     }
 

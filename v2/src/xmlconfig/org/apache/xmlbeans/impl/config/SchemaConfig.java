@@ -18,11 +18,12 @@ package org.apache.xmlbeans.impl.config;
 import javax.xml.namespace.QName;
 
 import java.util.Map;
-import java.util.HashMap;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Iterator;
+import java.io.File;
+import java.io.IOException;
 
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Nsconfig;
@@ -31,6 +32,12 @@ import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.impl.schema.StscState;
+import org.apache.xmlbeans.impl.jam.JamServiceFactory;
+import org.apache.xmlbeans.impl.jam.JamServiceParams;
+import org.apache.xmlbeans.impl.jam.JamService;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JMethod;
+import org.apache.xmlbeans.impl.jam.JamClassLoader;
 
 public class SchemaConfig
 {
@@ -49,13 +56,15 @@ public class SchemaConfig
         _extensionHolder = null;
     }
     
-    public static SchemaConfig forConfigDocuments(Config[] configs)
+    public static SchemaConfig forConfigDocuments(Config[] configs, File[] javaFiles, File[] classpath)
     {
-        return new SchemaConfig(configs);
+        return new SchemaConfig(configs, javaFiles, classpath);
     }
     
-    private SchemaConfig(Config[] configs)
+    private SchemaConfig(Config[] configs, File[] javaFiles, File[] classpath)
     {
+        JamClassLoader jamLoader = getJamLoader(javaFiles, classpath);
+
         _packageMap = new LinkedHashMap();
         _prefixMap = new LinkedHashMap();
         _suffixMap = new LinkedHashMap();
@@ -82,7 +91,7 @@ public class SchemaConfig
             Extensionconfig[] ext = config.getExtensionArray();
             for (int j = 0; j < ext.length; j++)
             {
-                recordExtensionSetting(ext[j]);
+                recordExtensionSetting(jamLoader, ext[j]);
             }
         }
         _extensionHolder.secondPhaseValidation();
@@ -109,7 +118,7 @@ public class SchemaConfig
         }
     }
 
-    private void recordExtensionSetting(Extensionconfig ext)
+    private void recordExtensionSetting(JamClassLoader jamLoader, Extensionconfig ext)
     {
         NameSet xbeanSet = null;
         Object key = ext.getFor();
@@ -135,10 +144,10 @@ public class SchemaConfig
 
         for (int i = 0; i < intfXO.length; i++)
         {
-            _extensionHolder.addInterfaceExtension(InterfaceExtension.newInstance(xbeanSet, intfXO[i]));
+            _extensionHolder.addInterfaceExtension(InterfaceExtension.newInstance(jamLoader, xbeanSet, intfXO[i]));
         }
 
-        _extensionHolder.addPrePostExtension(PrePostExtension.newInstance(xbeanSet, ext.getPrePostSet()));
+        _extensionHolder.addPrePostExtension(PrePostExtension.newInstance(jamLoader, xbeanSet, ext.getPrePostSet()));
     }
 
     private String lookup(Map map, String uri)
@@ -191,5 +200,51 @@ public class SchemaConfig
     public ExtensionHolder getExtensionHolder()
     {
         return _extensionHolder;
+    }
+
+    private JamClassLoader getJamLoader(File[] javaFiles, File[] classpath)
+    {
+        JamServiceFactory jf = JamServiceFactory.getInstance();
+        JamServiceParams params = jf.createServiceParams();
+
+        // process the included sources
+        if (javaFiles!=null)
+            for (int i = 0; i < javaFiles.length; i++)
+                params.includeSourceFile(javaFiles[i]);
+
+        //params.setVerbose(DirectoryScanner.class);
+
+        // add the sourcepath and classpath, if specified
+        params.addClassLoader(this.getClass().getClassLoader());
+        if (classpath != null)
+            for (int i = 0; i < classpath.length; i++)
+                params.addClasspath(classpath[i]);
+
+        // create service, get classes, return compiler
+        JamService service;
+        try
+        {
+            service = jf.createService(params);
+        }
+        catch (IOException ioe)
+        {
+            error("Error when accessing .java files.", null);
+            return null;
+        }
+
+//        JClass[] cls = service.getAllClasses();
+//        for (int i = 0; i < cls.length; i++)
+//        {
+//            JClass cl = cls[i];
+//            System.out.println("CL: " + cl + " " + cl.getQualifiedName());
+//            JMethod[] methods = cl.getMethods();
+//            for (int j = 0; j < methods.length; j++)
+//            {
+//                JMethod method = methods[j];
+//                System.out.println("    " + method.getQualifiedName());
+//            }
+//        }
+
+        return service.getClassLoader();
     }
 }
