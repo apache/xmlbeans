@@ -106,17 +106,22 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<a/>" );
-
-        XmlCursor c = Public2.getCursor( doc );
-        
-//        XmlCursor c = Public2.newStore();
-
-        System.out.println( c.xmlText() );
+        XmlCursor c = Public2.newStore();
 
         c.toNextToken();
 
         c.beginElement( "foo" );
+        c.beginElement( "bar" );
+        c.beginElement( "baz" );
+
+        c.toNextToken();
+        c.toNextToken();
+        
+        c.beginElement( "bar2" );
+
+        c.toStartDoc();
+
+        System.out.println( c.xmlText() );
 
 
 //        Document doc = Public2.parse( "<a/>" );

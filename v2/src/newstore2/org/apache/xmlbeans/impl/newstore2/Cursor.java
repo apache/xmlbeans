@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.newstore2;
 
+import java.io.PrintStream;
+
 import javax.xml.namespace.QName;
 
 import javax.xml.stream.XMLStreamReader;
@@ -26,6 +28,8 @@ import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlDocumentProperties;
+
+import org.apache.xmlbeans.impl.common.XMLChar;
 
 import java.util.Map;
 import java.util.Collection;
@@ -61,11 +65,31 @@ public final class Cursor implements XmlCursor
         _cur = c.weakCur( this );
     }
 
-    private boolean isValid ( )
+    private static boolean isValid ( Cur c )
     {
-        // TODO - make sure we're not in attr/pi/comment, etc ...
+        int k = c.kind();
+        
+        if (k == TEXT || k < 0)
+        {
+            c.push();
+            
+            if (c.toParentRaw())
+            {
+                int pk = c.kind();
+
+                if (pk == COMMENT || pk == PROCINST || pk == ATTR)
+                    return false;
+            }
+                
+            c.pop();
+        }
         
         return true;
+    }
+    
+    private boolean isValid ( )
+    {
+        return isValid( _cur );
     }
 
     Locale locale ( )
@@ -78,11 +102,94 @@ public final class Cursor implements XmlCursor
         return _cur.tempCur();
     }
 
+    public void dump ( PrintStream o )
+    {
+        _cur.dump( o );
+    }
+    
     public void dump ( )
     {
-        _cur.dump();
+        dump( System.out );
     }
 
+    static void validateLocalName ( QName name )
+    {
+        if (name == null)
+            throw new IllegalArgumentException( "QName is null" );
+
+        validateLocalName( name.getLocalPart() );
+    }
+
+    static void validateLocalName ( String name )
+    {
+        if (name == null)
+            throw new IllegalArgumentException( "Name is null" );
+
+        if (name.length() == 0)
+            throw new IllegalArgumentException( "Name is empty" );
+
+        if (!XMLChar.isValidNCName( name ))
+            throw new IllegalArgumentException( "Name is not valid" );
+    }
+
+    static void validatePrefix ( String name )
+    {
+        if (name == null)
+            throw new IllegalArgumentException( "Prefix is null" );
+
+        if (name.length() == 0)
+            throw new IllegalArgumentException( "Prefix is empty" );
+
+        if (Locale.beginsWithXml( name ))
+            throw new IllegalArgumentException( "Prefix begins with 'xml'" );
+
+        if (!XMLChar.isValidNCName( name ))
+            throw new IllegalArgumentException( "Prefix is not valid" );
+    }
+
+    private static void complain ( String msg )
+    {
+        throw new IllegalArgumentException( msg );
+    }
+
+    static void insert ( Cur thisStuff, Cur there )
+    {
+        assert isValid( thisStuff );
+        assert isValid( there );
+
+        int thisKind = thisStuff.kind();
+
+        if (thisKind < 0)
+            complain( "Can't move/copy/insert an end token." );
+
+        if (thisKind == ROOT)
+            complain( "Can't move/copy/insert a whole document." );
+
+        int thereKind = there.kind();
+
+        if (thereKind == ROOT)
+            complain( "Can't insert before the start of the document." );
+
+        if (thereKind == ATTR && thisKind != TEXT)
+            complain( "Can only insert attributes before other attributes." );
+
+        if (thisKind == ATTR)
+        {
+            there.push();
+            there.prev();
+            int prevKind = there.kind();
+            there.pop();
+
+            if (prevKind != -ELEM || prevKind != -ROOT || prevKind != -ATTR)
+                complain( "Can only insert attributes before other attributes." );
+        }
+
+        if (thisKind == TEXT)
+            thisStuff.moveChars( there, -1 );
+        else
+            thisStuff.moveNode( there );
+    }
+    
     //
     //
     //
@@ -148,13 +255,39 @@ public final class Cursor implements XmlCursor
         }
         
         default :
-            _cur.next();
+        {
+            if (!_cur.next())
+                return TokenType.NONE;
+                        
             break;
+        }
         }
 
         return _currentTokenType();
     }
 
+    public TokenType _toPrevToken ( )
+    {
+        assert isValid();
+
+        if (!_cur.prev())
+        {
+            if (_cur.kind() == ATTR)
+                _cur.toParent();
+            else
+                return TokenType.NONE;
+        }
+
+        int k = _cur.kind();
+
+        if (k == -COMMENT || k == -PROCINST)
+            _cur.toParent();
+        else if (_cur.isContainer())
+            _cur.toLastAttr();
+        
+        return _currentTokenType();
+    }
+    
     public XmlCursor _newCursor ( )
     {
         return new Cursor( _cur );
@@ -491,11 +624,6 @@ public final class Cursor implements XmlCursor
         throw new RuntimeException( "Not implemented" );
     }
     
-    public TokenType _toPrevToken ( )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
     public TokenType _toFirstContentToken ( )
     {
         throw new RuntimeException( "Not implemented" );
@@ -638,7 +766,8 @@ public final class Cursor implements XmlCursor
     
     public void _toStartDoc ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        while ( _cur.toParent() )
+            ;
     }
     
     public void _toEndDoc ( )
@@ -755,54 +884,43 @@ public final class Cursor implements XmlCursor
     {
         throw new RuntimeException( "Not implemented" );
     }
-    
-    public void _insertElement ( QName name )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _insertElement ( String localName )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _insertElement ( String localName, String uri )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _beginElement ( QName name )
-    {
-        assert isValid();
 
-        _insertElement( name );
-        _toPrevToken();
-    }
+    //
+    // Inserting elements
+    //
     
-    public void _beginElement ( String localName )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _beginElement ( String localName, String uri )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
+    public void _insertElement         ( String localName                          ) { _insertElementWithText( localName, null, null ); }
+    public void _insertElement         ( String localName, String uri              ) { _insertElementWithText( localName, uri, null ); }
+    public void _insertElement         ( QName  name                               ) { _insertElementWithText( name, null ); }
+    public void _beginElement          ( String localName                          ) { _insertElementWithText( localName, null, null ); _toPrevToken(); }
+    public void _beginElement          ( String localName, String uri              ) { _insertElementWithText( localName, uri ); _toPrevToken(); }
+    public void _beginElement          ( QName  name                               ) { _insertElementWithText( name, null ); _toPrevToken(); }
+    public void _insertElementWithText ( String localName, String text             ) { _insertElementWithText( localName, null, text ); }
+    public void _insertElementWithText ( String localName, String uri, String text ) { _insertElementWithText( _locale.makeQName( uri, localName ), text ); }
     
     public void _insertElementWithText ( QName name, String text )
     {
-        throw new RuntimeException( "Not implemented" );
+        validateLocalName( name.getLocalPart() );
+
+        Cur c = _locale.tempCur();
+
+        c.createElement( name );
+
+        if (text != null && text.length() > 0)
+        {
+            c.next();
+            c.insertChars( text, 0, text.length() );
+            c.toParent();
+        }
+
+        insert( c, _cur );
+
+        c.release();
     }
-    
-    public void _insertElementWithText ( String localName, String text )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _insertElementWithText ( String localName, String uri, String text )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
+
+    //
+    //
+    //
     
     public void _insertAttribute ( String localName )
     {
