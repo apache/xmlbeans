@@ -31,9 +31,11 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
 
     public DocumentFragmentTest(String s) {
         super(s);
-        sXml = "<foo at0=\"val0\" at1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\"/></foo>";
+        sXml =
+                "<foo at0=\"val0\" at1=\"val1\" at2=\"val2\" at3=\"val3\" at4=\"val4\"><bar bat0=\"val0\"/></foo>";
 
-        sXmlNS = "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" at4=\"val4\"/>";
+        sXmlNS =
+                "<foo xmlns:myns=\"uri:foo\" at0=\"val0\" myns:at0=\"val01\" at2=\"val2\" at3=\"val3\" at4=\"val4\"/>";
     }
 
     public static Test suite() {
@@ -81,6 +83,20 @@ public class DocumentFragmentTest extends NodeWithChildrenTest {
         assertEquals("foo", m_node.getLastChild().getNodeName());
     }
 
+    public void testInsertExisitingNode() {
+        Node child = m_doc.getFirstChild().getFirstChild();//some text
+        if (child == m_node)
+            child = m_doc.getLastChild();
+        super.testInsertExistingNode(child);
+    }
+
+    public void testAppendChildExisting() {
+        Node child = m_doc.getFirstChild().getFirstChild();//some text
+        if (child == m_node)
+            child = m_doc.getLastChild();
+        //if still the same, SOL
+        super.testAppendChildExisting(child);
+    }
 
     public void moveToNode() {
         m_node = m_doc.createDocumentFragment();

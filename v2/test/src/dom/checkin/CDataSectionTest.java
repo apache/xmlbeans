@@ -59,7 +59,8 @@ sXml="<script>"+
 
 
     public void testNodeValue() {
-        assertEquals("function matchwo(a,b){\"+\n\t    \"return 0   }", m_node.getNodeValue());
+        assertEquals("function matchwo(a,b){\"+\n\t    \"return 0   }",
+                m_node.getNodeValue());
     }
 
 
@@ -79,10 +80,11 @@ sXml="<script>"+
         assertEquals(m_doc.getFirstChild(), parent);
         assertEquals("script", parent.getLocalName());
     }
-   public void testSetNodeValue() {
-           m_node.setNodeValue("new CDATA");
-           assertEquals("new CDATA", m_node.getNodeValue());
-       }
+
+    public void testSetNodeValue() {
+        m_node.setNodeValue("new CDATA");
+        assertEquals("new CDATA", m_node.getNodeValue());
+    }
 
     public void moveToNode() {
         m_node = m_doc.getDocumentElement();
