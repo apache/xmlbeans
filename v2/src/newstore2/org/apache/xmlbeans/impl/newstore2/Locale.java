@@ -948,6 +948,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         boolean standAlone = false;
         
         LoadContext context = new Cur.CurLoadContext( this, options );
+        int depth = 0;
 
         events:
         for ( int eventType = xsr.getEventType() ; ; eventType = xsr.next() )
@@ -956,6 +957,8 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             {
             case XMLStreamReader.START_DOCUMENT :
             {
+                depth++;
+
                 encoding   = xsr.getCharacterEncodingScheme();
                 version    = xsr.getVersion();
                 standAlone = xsr.isStandalone();
@@ -968,6 +971,8 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             
             case XMLStreamReader.END_DOCUMENT :
             {
+                depth--;
+
                 if (lineNums)
                     lineNumber( xsr, context );
 
@@ -976,6 +981,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             
             case XMLStreamReader.START_ELEMENT :
             {
+                depth++;
                 context.startElement( xsr.getName() );
                 
                 if (lineNums)
@@ -989,6 +995,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             
             case XMLStreamReader.END_ELEMENT :
             {
+                depth--;
                 context.endElement();
                 
                 if (lineNums)
@@ -1056,7 +1063,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
                 throw new RuntimeException( "Unhandled xml event type: " + eventType );
             }
 
-            if (!xsr.hasNext())
+            if (!xsr.hasNext() || depth<=0)
                 break;
         }
         
