@@ -56,10 +56,7 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.bts.*;
-import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JProperty;
-import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.*;
 import org.w3.x2001.xmlSchema.*;
 
 import javax.xml.namespace.QName;
@@ -253,7 +250,8 @@ public class Java2Schema {
     if (clazz.isPrimitive()) {
       pkg_name = JAVA_NAMESPACE_URI;
     } else {
-      pkg_name = clazz.getContainingPackage().getQualifiedName();
+      JPackage pkg = clazz.getContainingPackage();
+      pkg_name = (pkg == null) ? "" : pkg.getQualifiedName();
       if (pkg_name.startsWith(JAVA_PACKAGE_PREFIX)) {
         pkg_name = JAVA_NAMESPACE_URI+"."+
                 pkg_name.substring(JAVA_PACKAGE_PREFIX.length());
