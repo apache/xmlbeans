@@ -152,10 +152,10 @@ public final class Cursor implements XmlCursor
         throw new IllegalArgumentException( msg );
     }
 
-    static void insert ( Cur thisStuff, Cur there )
+    private void insert ( Cur thisStuff )
     {
         assert isValid( thisStuff );
-        assert isValid( there );
+        assert isValid();
 
         int thisKind = thisStuff.kind();
 
@@ -165,29 +165,44 @@ public final class Cursor implements XmlCursor
         if (thisKind == ROOT)
             complain( "Can't move/copy/insert a whole document." );
 
-        int thereKind = there.kind();
+        int k = _cur.kind();
 
-        if (thereKind == ROOT)
+        if (k == ROOT)
             complain( "Can't insert before the start of the document." );
 
-        if (thereKind == ATTR && thisKind != TEXT)
+        if (k == ATTR && thisKind != TEXT)
             complain( "Can only insert attributes before other attributes." );
 
         if (thisKind == ATTR)
         {
-            there.push();
-            there.prev();
-            int prevKind = there.kind();
-            there.pop();
+            _cur.push();
+            _cur.prev();
+            int pk = _cur.kind();
+            _cur.pop();
 
-            if (prevKind != -ELEM || prevKind != -ROOT || prevKind != -ATTR)
-                complain( "Can only insert attributes before other attributes." );
+            if (pk != ELEM && pk != ROOT && pk != -ATTR)
+            {
+                complain(
+                    "Can only insert attributes before other attributes or after containers." );
+            }
         }
 
         if (thisKind == TEXT)
-            thisStuff.moveChars( there, -1 );
+            thisStuff.moveChars( _cur, -1 );
         else
-            thisStuff.moveNode( there );
+            thisStuff.moveNode( _cur );
+    }
+    
+    private void insertWithValue ( Cur thisStuff, String text )
+    {
+        if (text != null && text.length() > 0)
+        {
+            thisStuff.next();
+            thisStuff.insertChars( text, 0, text.length() );
+            thisStuff.toParent();
+        }
+
+        insert( thisStuff );
     }
     
     //
@@ -906,14 +921,7 @@ public final class Cursor implements XmlCursor
 
         c.createElement( name );
 
-        if (text != null && text.length() > 0)
-        {
-            c.next();
-            c.insertChars( text, 0, text.length() );
-            c.toParent();
-        }
-
-        insert( c, _cur );
+        insertWithValue( c, text );
 
         c.release();
     }
@@ -924,47 +932,77 @@ public final class Cursor implements XmlCursor
     
     public void _insertAttribute ( String localName )
     {
-        throw new RuntimeException( "Not implemented" );
+        _insertAttributeWithValue( localName, null );
     }
     
     public void _insertAttribute ( String localName, String uri )
     {
-        throw new RuntimeException( "Not implemented" );
+        _insertAttributeWithValue( localName, uri, null );
     }
     
     public void _insertAttribute ( QName name )
     {
-        throw new RuntimeException( "Not implemented" );
+        _insertAttributeWithValue( name, null );
     }
     
-    public void _insertAttributeWithValue ( String Name, String value )
+    public void _insertAttributeWithValue ( String localName, String value )
     {
-        throw new RuntimeException( "Not implemented" );
+        _insertAttributeWithValue( localName, null, value );
     }
     
-    public void _insertAttributeWithValue ( String name, String uri, String value )
+    public void _insertAttributeWithValue ( String localName, String uri, String value )
     {
-        throw new RuntimeException( "Not implemented" );
+        _insertAttributeWithValue( _locale.makeQName( uri, localName ), value );
     }
     
-    public void _insertAttributeWithValue ( QName name, String value )
+    public void _insertAttributeWithValue ( QName name, String text )
     {
-        throw new RuntimeException( "Not implemented" );
+        Cur c = _locale.tempCur();
+
+        c.createAttr( name );
+
+        insertWithValue( c, text );
+        
+        c.release();
     }
+
+    //
+    //
+    //
     
     public void _insertNamespace ( String prefix, String namespace )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (prefix == null)
+            prefix = "";
+
+        QName name =
+            prefix.length() == 0
+                ? _locale.makeQName( _locale._xmlnsUri, "xmlns", "" )
+                : _locale.makeQName( _locale._xmlnsUri, "xmlns", prefix );
+
+        _insertAttributeWithValue( name, namespace );
     }
     
     public void _insertComment ( String text )
     {
-        throw new RuntimeException( "Not implemented" );
+        Cur c = _locale.tempCur();
+
+        c.createComment();
+        
+        insertWithValue( c, text );
+        
+        c.release();
     }
     
     public void _insertProcInst ( String target, String text )
     {
-        throw new RuntimeException( "Not implemented" );
+        Cur c = _locale.tempCur();
+
+        c.createProcinst( target );
+
+        insertWithValue( c, text );
+        
+        c.release();
     }
 
     //

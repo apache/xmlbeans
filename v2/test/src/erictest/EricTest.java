@@ -111,13 +111,10 @@ public class EricTest
         c.toNextToken();
 
         c.beginElement( "foo" );
-        c.beginElement( "bar" );
-        c.beginElement( "baz" );
-
-        c.toNextToken();
-        c.toNextToken();
-        
-        c.beginElement( "bar2" );
+        c.insertAttributeWithValue( "a1", "<>><<" );
+        c.insertComment( "comment" );
+        c.insertProcInst( "target", "value" );
+        c.insertElementWithText( "gag", "text" );
 
         c.toStartDoc();
 
