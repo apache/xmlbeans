@@ -462,6 +462,7 @@
 
      <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
      <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/ar/xbean.jar"/>
+     <copy todir="build/private/xmlbeans-${product.version}/lib" file="external/lib/jaxen-1.1-beta-2.jar"/>
 
      <mkdir dir="build/private/xmlbeans-${product.version}/src/schema"/>
      <copy todir="build/private/xmlbeans-${product.version}/src/schema">
@@ -475,13 +476,15 @@
 
      <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
           basedir="build/private"
-          includes="xmlbeans-${product.version}/**">
+          includes="xmlbeans-${product.version}/**"
+          excludes="xmlbeans-${product.version}/schemas/cyclone/**, xmlbeans-${product.version}/schemas/j2ee/**">
          <zipfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
      </zip>
      <tar destfile="build/private/incubating-xmlbeans-${product.version}.tgz"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
+          excludes="xmlbeans-${product.version}/schemas/cyclone/**, xmlbeans-${product.version}/schemas/j2ee/**"
           compression="gzip">
          <tarfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
          <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
@@ -490,25 +493,27 @@
 
   <target name="dist-src" depends="clean, dirs">
      <delete file="build/private/incubating-xmlbeans-${product.version}-src.zip"/>
-	 <delete file="build/private/incubating-xmlbeans-${product.version}-src.tgz"/>
+     <delete file="build/private/incubating-xmlbeans-${product.version}-src.tgz"/>
 
-	 <zip destfile="build/private/incubating-xmlbeans-${product.version}-src.zip">
+     <zip destfile="build/private/incubating-xmlbeans-${product.version}-src.zip">
      	<zipfileset
      		dir="."
        		includes="**"
-            excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
+                excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar,
+                xkit/schemas/cyclone/**, xkit/schemas/j2ee/**"
        		prefix="xmlbeans-${product.version}" />
          <zipfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
      </zip>
-	 <tar destfile="build/private/incubating-xmlbeans-${product.version}-src.tgz"
+     <tar destfile="build/private/incubating-xmlbeans-${product.version}-src.tgz"
 	 	  compression="gzip">
      	<tarfileset
      		dir="."
        		includes="**"
        		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar,
+                xkit/schemas/cyclone/**, xkit/schemas/j2ee/**"
        		prefix="xmlbeans-${product.version}"/>
          <tarfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
          <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
