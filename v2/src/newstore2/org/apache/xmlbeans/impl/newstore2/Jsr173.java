@@ -93,7 +93,7 @@ public class Jsr173
         {
             checkChanged();
 
-            return !_cur.isSamePosition( _last );
+            return !_cur.isSamePos( _last );
         }
 
         public int getEventType ( )

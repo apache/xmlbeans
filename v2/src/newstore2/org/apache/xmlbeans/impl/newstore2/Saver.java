@@ -13,8 +13,19 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-class Saver
+abstract class Saver
 {
+    static final int NONE     = Cur.NONE;
+    static final int ROOT     = Cur.ROOT;
+    static final int ELEM     = Cur.ELEM;
+    static final int ATTR     = Cur.ATTR;
+    static final int COMMENT  = Cur.COMMENT;
+    static final int PROCINST = Cur.PROCINST;
+    static final int TEXT     = Cur.TEXT;
+
+    protected abstract void emitContainer ( Cur c, QName name );
+    protected abstract void emitFinish    ( Cur c, QName name );
+
     Saver ( Cur c, XmlOptions options )
     {
         _locale = c._locale;
@@ -27,6 +38,22 @@ class Saver
         _uriMap = new HashMap();
         _prefixMap = new HashMap();
         _firstPush = true;
+        
+        // Stops the synthesis of this namspace and make for better
+        // roundtripping 
+        addMapping( "xml", Locale._xml1998Uri );
+
+
+        // TODO - check for implicit namespaces here
+
+        
+        // If the default prefix has not been mapped, do so now
+        
+        if (getNamespaceForPrefix( "" ) == null)
+        {
+            _initialDefaultUri = new String( "" );
+            addMapping( "", _initialDefaultUri );
+        }
         
         // TODO - establish _synthName
     }
@@ -58,66 +85,58 @@ class Saver
 
             _done = false;
 
-            _end = _cur.weakCur( this );
-            _end.toEnd();
-
             _top = _cur.weakCur( this );
         }
 
-        // TODO _postPop here 
+        if (_postPop)
+        {
+            popMappings();
+            _postPop = false;
+        }
 
         if (_postProcess)
         {
-            if (_cur.isSamePosition( _end ))
+            if (_cur.isAtEndOf( _top ))
                 _done = true;
             else
             {
-                Cur prev = _cur.isContainer() ? _cur.tempCur() : null;
-
-                int k = _cur.kind();
-
-                assert
-                    k == Cur.ROOT || k == Cur.ELEM
-                        || k == Cur.COMMENT || k == Cur.PROCINST ||
-                            k == - Cur.ROOT || k == - Cur.ELEM;
-
-                switch ( k )
+                switch ( _cur.kind() )
                 {
-                case Cur.ROOT :
-                case Cur.ELEM :
+                case ROOT    : case ELEM     : _cur.nextNonAttr();        break;
+                case - ROOT  : case - ELEM   : _cur.next();               break;
+                case COMMENT : case PROCINST : _cur.toEnd(); _cur.next(); break;
+                                               
+                default : throw new RuntimeException( "Unexpected kind" );
+                }
+
+                if (_skipContainerFinish)
                 {
-                    _cur.nextNonAttr();
+                    assert _cur.isFinish();
 
-                    break;
+                    if (_cur.isAtEndOf( _top ))
+                        _done = true;
+                    else
+                        _cur.next();
+
+                    _postPop = true;
                 }
 
-                case - Cur.ROOT :
-                case - Cur.ELEM :
+                if (_cur.isText())
                 {
-                    _cur.next();
-                    break;
+                    throw new RuntimeException( "Not implemented" );
                 }
+            }
 
-                case Cur.COMMENT :
-                case Cur.PROCINST :
-                {   
-                    _cur.toEnd();
-                    _cur.next();
-                    break;
-                }
-                }
-                
-
-                // todo - deal with text after here
-                
-                Cur.release( prev );
+            if (_postPop)
+            {
+                popMappings();
+                _postPop = false;
             }
         }
         
         if (_done)
         {
             _cur.release();      _cur = null;
-            Cur.release( _end ); _end = null;
             Cur.release( _top ); _top = null;
             
             return false;
@@ -127,38 +146,14 @@ class Saver
 
         _skipContainerFinish = false;
 
-        int k = _cur.kind();
-        
-        assert
-            k == Cur.ROOT || k == Cur.ELEM
-                || k == Cur.COMMENT || k == Cur.PROCINST ||
-                    k == - Cur.ROOT || k == - Cur.ELEM;
-                
-        switch ( k )
+        switch ( _cur.kind() )
         {
-            case Cur.ROOT :
-            case Cur.ELEM :
-            {
-                processContainer();
-                break;
-            }
-            
-            case - Cur.ROOT :
-            case - Cur.ELEM :
-            {
-                processFinish();
-                break;
-            }
-            
-            case Cur.COMMENT :
-            {
-                throw new RuntimeException( "Not implemented" );
-            }
-            
-            case Cur.PROCINST :
-            {
-                throw new RuntimeException( "Not implemented" );
-            }
+            case  ROOT   : case  ELEM : { processContainer();               break; }
+            case - ROOT : case - ELEM : { processFinish(); _postPop = true; break; }
+            case COMMENT              : { throw new RuntimeException( "Not implemented" ); }
+            case PROCINST             : { throw new RuntimeException( "Not implemented" ); }
+
+            default : throw new RuntimeException( "Unexpected kind" );
         }
 
         _postProcess = true;
@@ -171,8 +166,7 @@ class Saver
         assert _cur.isContainer();
         assert !_cur.isRoot() || _cur.getName() == null;
         
-        QName name =
-            _synthElem != null && _cur.isSamePosition( _top ) ? _synthElem : _cur.getName();
+        QName name = _synthElem != null && _cur.isSamePos( _top ) ? _synthElem : _cur.getName();
 
         String nameUri = name == null ? null : name.getNamespaceURI();
         
@@ -187,11 +181,19 @@ class Saver
         boolean ensureDefaultEmpty = name != null && nameUri.length() == 0;
 
         pushMappings( _cur, ensureDefaultEmpty );
+
+        // todo - do _wantFragTest thingy here ...
     }
 
     private final void processFinish ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        QName name = _synthElem != null && _cur.isAtEndOf( _top ) ? _synthElem : _cur.getName();
+        
+        // todo - do _wantFragTest thingy here ...
+        
+        emitFinish( _cur, name );
+        
+        _postPop = true;
     }
 
     //
@@ -379,6 +381,61 @@ class Saver
             _uriMap.put( renameUri, renamePrefix );
     }
     
+    private final void popMappings ( )
+    {
+        for ( ; ; )
+        {
+            int i = _namespaceStack.size();
+
+            if (i == 0)
+                break;
+
+            if (_namespaceStack.get( i - 1 ) == null)
+            {
+                _namespaceStack.remove( i - 1 );
+                break;
+            }
+
+            Object oldUri = _namespaceStack.get( i - 7 ); 
+            Object oldPrefix = _namespaceStack.get( i - 8 ); 
+
+            if (oldPrefix == null) 
+                _uriMap.remove( oldUri ); 
+            else 
+                _uriMap.put( oldUri, oldPrefix ); 
+
+            oldPrefix = _namespaceStack.get( i - 4 ); 
+            oldUri = _namespaceStack.get( i - 3 ); 
+
+            if (oldUri == null) 
+                _prefixMap.remove( oldPrefix ); 
+            else 
+                _prefixMap.put( oldPrefix, oldUri ); 
+
+            String uri = (String) _namespaceStack.get( i - 5 );
+
+            if (uri != null)
+                _uriMap.put( uri, _namespaceStack.get( i - 6 ) );
+
+            // Hahahahahaha -- :-(
+            _namespaceStack.remove( i - 1 );
+            _namespaceStack.remove( i - 2 );
+            _namespaceStack.remove( i - 3 );
+            _namespaceStack.remove( i - 4 );
+            _namespaceStack.remove( i - 5 );
+            _namespaceStack.remove( i - 6 );
+            _namespaceStack.remove( i - 7 );
+            _namespaceStack.remove( i - 8 );
+        }
+    }
+    
+    public final String getNamespaceForPrefix ( String prefix )
+    {
+        assert !prefix.equals( "xml" ) || _prefixMap.get( prefix ).equals( Locale._xml1998Uri );
+        
+        return (String) _prefixMap.get( prefix );
+    }
+
     //
     //
     //
@@ -392,6 +449,16 @@ class Saver
             // TODO - do something with encoding here
         }
         
+        protected void emitContainer ( Cur c, QName name )
+        {
+            throw new RuntimeException( "Not implemented" );
+        }
+        
+        protected void emitFinish ( Cur c, QName name )
+        {
+            throw new RuntimeException( "Not implemented" );
+        }
+
         private int ensure ( int cch )
         {
             // Even if we're asked to ensure nothing, still try to ensure
@@ -629,11 +696,11 @@ class Saver
     private final long   _version;
     
     private Cur _cur;
-    private Cur _end;
     private Cur _top;
 
     private boolean _preProcess;
     private boolean _postProcess;
+    private boolean _postPop;
     private boolean _done;
     private boolean _skipContainerFinish;
 
@@ -644,4 +711,5 @@ class Saver
     private boolean   _firstPush;
     private HashMap   _uriMap;
     private HashMap   _prefixMap;
+    private String    _initialDefaultUri;
 }

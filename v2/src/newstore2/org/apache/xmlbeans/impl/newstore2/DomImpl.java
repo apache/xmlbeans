@@ -287,6 +287,40 @@ final class DomImpl
         }
     }
 
+    private static String validatePrefixWrtUri (
+        String prefix, String uri, String local, boolean isAttr )
+    {
+        validateNcName( prefix );
+        
+        if (prefix == null)
+            prefix = "";
+
+        if (uri == null)
+            uri = "";
+
+        if (prefix.length() > 0 && uri.length() == 0)
+            throw new NamespaceErr( "Attempt to give a prefix for no namespace" );
+
+        if (prefix.equals( "xml" ) && !uri.equals( Locale._xml1998Uri ))
+            throw new NamespaceErr( "Invalid prefix - begins with 'xml'" );
+
+        if (isAttr)
+        {
+            if (local.equals( "xmlns" ))
+                throw new NamespaceErr( "Invalid namespace - attr is default namespace already" );
+
+            if (Locale.beginsWithXml( local ))
+                throw new NamespaceErr( "Invalid namespace - attr prefix begins with 'xml'" );
+
+            if (prefix.equals( "xmlns" ) && !uri.equals( Locale._xmlnsUri ))
+                throw new NamespaceErr( "Invalid namespace - uri is not '" + Locale._xmlnsUri+";" );
+        }
+        else if (Locale.beginsWithXml( prefix ))
+            throw new NamespaceErr( "Invalid prefix - begins with 'xml'" );
+
+        return prefix;
+    }
+    
     private static void validateNcName ( String prefix )
     {
         if (prefix != null && prefix.length() > 0 && !XMLChar.isValidNCName( prefix ))
@@ -295,6 +329,8 @@ final class DomImpl
     
     private static void validateQualifiedName ( String name )
     {
+        assert name != null;
+        
         int i = name.indexOf( ':' );
 
         if (i < 0)
@@ -465,23 +501,6 @@ final class DomImpl
         c.release();
         
         return doc;
-        
-//        Cur c = l.tempCur();
-//        
-//        c.createRoot( Cur.DOMDOC );
-//
-//        Dom d = c.getDom();
-//        
-//        c.next();
-//        
-//        c.createElement( l.makeQualifiedQName( namespaceURI, qualifiedName ) );
-//        
-//        if (doctype != null)
-//            throw new RuntimeException( "Not impl" );
-//
-//        c.release();
-//        
-//        return (Document) d;
     }
     
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1892,8 +1911,6 @@ final class DomImpl
     
     public static void node_setPrefix ( Dom n, String prefix )
     {
-        validateNcName( prefix );
-        
         // TODO - make it possible to set the prefix of an xmlns
         // TODO - test to make use prefix: xml maps to the predefined namespace
         // if set???? hmmm ... perhaps I should not allow the setting of any
@@ -1905,9 +1922,13 @@ final class DomImpl
         {
             Cur c = n.tempCur();
             QName name = c.getName();
-            // TODO - make sure the prefix is not null, contains proper chars,
-            // etc
-            c.setName( n.locale().makeQName( name.getNamespaceURI(), name.getLocalPart(), prefix ) );
+            String uri = name.getNamespaceURI();
+            String local = name.getLocalPart();
+            
+            prefix = validatePrefixWrtUri( prefix, uri, local, n.nodeType() == ATTR );
+                                  
+            c.setName( n.locale().makeQName( uri, local, prefix ) );
+            
             c.release();
         }
     }
@@ -2346,21 +2367,28 @@ final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static void _element_setAttributeNS ( Dom e, String uri, String local, String value )
+    public static void _element_setAttributeNS ( Dom e, String uri, String qName, String value )
     {
         Locale l = e.locale();
 
-        if (l.noSync())         { l.enter(); try { element_setAttributeNS( e, uri, local, value ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { element_setAttributeNS( e, uri, local, value ); } finally { l.exit(); } }
+        if (l.noSync())         { l.enter(); try { element_setAttributeNS( e, uri, qName, value ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { element_setAttributeNS( e, uri, qName, value ); } finally { l.exit(); } }
     }
     
-    public static void element_setAttributeNS ( Dom e, String uri, String local, String value )
+    public static void element_setAttributeNS ( Dom e, String uri, String qName, String value )
     {
+        QName name = e.locale().makeQualifiedQName( uri, qName );
+        String local = name.getLocalPart();
+
         Dom a = attributes_getNamedItemNS( e, uri, local );
 
         if (a == null)
         {
-            a = document_createAttributeNS( node_getOwnerDocument( e ), uri, local);
+            String prefix = validatePrefixWrtUri( name.getPrefix(), uri, local, true );
+
+            a = document_createAttributeNS( node_getOwnerDocument( e ), uri, local );
+            node_setPrefix( a, prefix );
+            
             attributes_setNamedItemNS( e, a );
         }
 
@@ -2587,6 +2615,9 @@ final class DomImpl
     
     public static Dom attributes_getNamedItemNS ( Dom e, String uri, String local )
     {
+        if (uri == null)
+            uri = "";
+        
         Dom a = null;
 
         Cur c = e.tempCur();
@@ -2684,6 +2715,9 @@ final class DomImpl
     
     public static Dom attributes_removeNamedItemNS ( Dom e, String uri, String local )
     {
+        if (uri == null)
+            uri = "";
+        
         Dom oldAttr = null;
 
         Cur c = e.tempCur();
@@ -2745,7 +2779,12 @@ final class DomImpl
     
     public static Dom attributes_setNamedItemNS ( Dom e, Dom a )
     {
-        if (attr_getOwnerElement( a ) != null)
+        Dom owner = attr_getOwnerElement( a );
+
+        if (owner == e)
+            return a;
+        
+        if (owner != null)
             throw new InuseAttributeError();
 
         if (a.nodeType() != ATTR)
@@ -2764,7 +2803,7 @@ final class DomImpl
 
                 boolean hasNext = c.toNextSibling();
 
-                if (_node_getNodeName( aa ).equals( name ))
+                if (aa.getQName().equals( name ))
                 {
                     if (oldAttr == null)
                         oldAttr = aa;
@@ -2993,7 +3032,8 @@ final class DomImpl
         if (count > 0)
         {
             _characterData_setData(
-                c, s.substring( 0, offset ) + arg + s.substring( offset + count ) );
+                c, s.substring( 0, offset ) + (arg == null ? "" : arg)
+                    + s.substring( offset + count ) );
         }
     }
 

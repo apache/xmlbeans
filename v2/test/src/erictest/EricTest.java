@@ -114,15 +114,18 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Document doc = Public2.parse( "<a><b/><c x='y'/> </a>" );
+        Document doc = Public2.parse( "<a x='y'><b/></a>" );
 
         Public2.dump( doc );
 
-        Node p = doc.getDocumentElement();
-        Node n = p.getFirstChild().getNextSibling();
-
-        p.removeChild( n );
+        doc.getDocumentElement().setAttributeNS( "uri:foo", "a:b", "moo" );
+        doc.getDocumentElement().setAttributeNS( "http://www.w3.org/2000/xmlns/", "xmlns:ns", "uri:ns.com" );
         
+        Public2.dump( doc );
+
+        doc.getDocumentElement().getAttributes().setNamedItemNS(
+            doc.createAttributeNS( "uri:foo", "b" ) );
+
         Public2.dump( doc );
 
         System.out.println( Public2.save( doc ) );

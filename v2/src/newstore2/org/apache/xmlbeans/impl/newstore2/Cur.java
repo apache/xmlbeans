@@ -76,13 +76,16 @@ final class Cur
     }
 
     static boolean kindIsContainer ( int t ) { return t ==  ELEM || t ==  ROOT; }
+    static boolean kindIsFinish    ( int t ) { return t == -ELEM || t == -ROOT; }
     
     int kind ( ) { assert isNormal(); return _xobj == null ? NONE : _xobj.kind( _pos ); }
 
     boolean isRoot      ( ) { return kind() == ROOT; }
     boolean isElem      ( ) { return kind() == ELEM; }
     boolean isAttr      ( ) { return kind() == ATTR; }
+    boolean isText      ( ) { return kind() == TEXT; }
     boolean isContainer ( ) { return kindIsContainer( kind() ); }
+    boolean isFinish    ( ) { return kindIsFinish( kind() ); }
 
     boolean isDomDocRoot ( )
     {
@@ -259,11 +262,19 @@ final class Cur
         return _xobj != null;
     }
 
-    boolean isSamePosition ( Cur that )
+    boolean isSamePos ( Cur that )
     {
         assert isNormal() && that.isNormal();
 
         return _xobj == that._xobj && _pos == that._pos;
+    }
+    
+    boolean isAtEndOf ( Cur that )
+    {
+        assert isNormal() && that.isNormal();
+        assert _pos == 0 && that._pos == 0;
+
+        return _xobj == that._xobj && _pos == that._xobj.posEnd();
     }
 
     void moveToCur ( Cur to )
@@ -646,7 +657,10 @@ final class Cur
     {
         assert _xobj != null && _pos == 0 && !_xobj.isRoot();
         assert to == null || (to.isNormal() && !ancestorOf( to ));
-        assert to == null || (to._pos != 0 || (!to.isRoot() && !to.isAttr()));
+        assert to == null || (to._pos != 0 || !to.isRoot());
+
+        // TODO - this code may not handle targets near attributes
+        // perfectly ... 
 
         if (_xobj.cchAfter() > 0)
         {
