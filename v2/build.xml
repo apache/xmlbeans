@@ -2,6 +2,7 @@
 
   <property name="build.compiler" value="javac1.4"/>
   <property name="product.version" value="1.0.0"/>
+  <property name="jam_root" value="jam_old"/>
 
   <target name="usage">
     <echo message="The following ant targets are defined:"/>
@@ -777,10 +778,10 @@
   </target>
 
   <target name='jam'>
-    <ant dir='jam' target='clean' inheritAll='false' />
-    <ant dir='jam' target='all' inheritAll='false' />
+    <ant dir='${jam_root}' target='clean' inheritAll='false' />
+    <ant dir='${jam_root}' target='all' inheritAll='false' />
     <copy todir="build/classes/jam">
-      <fileset dir="jam/build/classes" />
+      <fileset dir="${jam_root}/build/classes" />
     </copy>
   </target>
 
