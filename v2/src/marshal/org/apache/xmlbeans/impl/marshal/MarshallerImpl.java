@@ -85,7 +85,6 @@ final class MarshallerImpl
     private final RuntimeBindingTypeTable typeTable;
     private final RuntimeTypeFactory runtimeTypeFactory;
 
-    //REVIEW: can this be static?
     private static final XMLOutputFactory XML_OUTPUT_FACTORY =
         XMLOutputFactory.newInstance();
 
