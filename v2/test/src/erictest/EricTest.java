@@ -111,33 +111,7 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        XmlCursor c = Public2.newStore();
-
-        c.toNextToken();
-        c.insertAttribute( "moo" );
-        c.toPrevToken();
-
-        Node n = c.getDomNode();
-
-        n.appendChild( n.getOwnerDocument().createTextNode( "a" ) );
-        n.appendChild( n.getOwnerDocument().createTextNode( "b" ) );
-
-//        Public2.test( n );
-
-        Public2.dump( n );
-        
-        n.normalize();
-
-        Public2.dump( n );
-        
-//        XmlCursor c = Public2.newStore();
-//
-//        c.toNextToken();
-//
-//        c.beginElement( "foo" );
-//        c.toStartDoc();
-//
-//        Public2.test( c.getDomNode() );
+        Public2.test( null );
     }
 }
 

@@ -124,8 +124,14 @@ public final class CharUtil
         {
             _cchSrc = cch;
             _offSrc = off;
-            
             return src;
+        }
+
+        if (cch == 0)
+        {
+            _cchSrc = cchInsert;
+            _offSrc = offInsert;
+            return srcInsert;
         }
 
         _cchSrc = cch + cchInsert;
@@ -148,7 +154,7 @@ public final class CharUtil
         else
         {
             _offSrc = 0;
-            
+
             if (posInsert == 0)
                 newSrc = new CharJoin( srcInsert, offInsert, cchInsert, src, off, cch );
             else if (posInsert == cch)
@@ -343,8 +349,10 @@ public final class CharUtil
 
     public static void dumpChars ( PrintStream p, Object src, int off, int cch )
     {
+        p.print( "cch=" + cch + ", off=" + off + ": " );
+        
         if (src == null)
-            p.print( "<null>" );
+            p.print( "<null-src>" );
         else if (src instanceof String)
         {
             String s = (String) src;

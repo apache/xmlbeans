@@ -257,26 +257,18 @@ public final class Public2
 
     public static void test ( Node n )
     {
-        Dom d = (Dom) n;
+        CharUtil cu = CharUtil.getThreadLocalCharUtil();
+
+        Object src = null;
+        int off = 0;
+        int cch = 0;
+
+        src = cu.insertChars( 0, src, off, cch, "1234567890123456789012345678901234567890", 0, 40 );
+        off = cu._offSrc;
+        cch = cu._cchSrc;
         
-        Cur c = d.locale().permCur();
-        c.moveToDom( d );
+        CharUtil.dumpChars( System.out, src, cu._offSrc, cu._cchSrc );
 
-        c.dump();
-
-        c.next();
-        c.next();
-        c.nextWithAttrs();
-        
-
-//        c.setType( XmlObject.type );
-
-//        TypeStore store = c.getTypeStore();
-
-//        store.invalidate_text();
-
-        c.dump();
-        
-        c.release();
+        cu.getChars( new char [ 100 ], 0, src, cu._offSrc, cu._cchSrc );
     }
 }
