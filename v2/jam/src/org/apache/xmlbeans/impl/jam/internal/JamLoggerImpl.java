@@ -29,6 +29,7 @@ public class JamLoggerImpl implements JamLogger {
   // ========================================================================
   // Variables
 
+  private boolean mShowWarnings = true;
   private Set mVerboseClasses = null;
   private PrintWriter mOut = new PrintWriter(System.out,true);
 
@@ -51,6 +52,10 @@ public class JamLoggerImpl implements JamLogger {
     mVerboseClasses.add(c);
   }
 
+  public void setShowWarnings(boolean b) {
+    mShowWarnings = b;
+  }
+  
   public void verbose(String msg, Object o) {
     if (isVerbose(o)) verbose(msg);
   }
@@ -66,22 +71,33 @@ public class JamLoggerImpl implements JamLogger {
 
 
   public void verbose(Throwable t) {
+    printVerbosePrefix();
+    mOut.println();
     t.printStackTrace(mOut);
   }
 
   public void warning(Throwable t) {
-    error(t);//FIXME
+    if (mShowWarnings) {
+      mOut.println("[JAM] Warning: unexpected exception thrown: ");
+      t.printStackTrace();
+    }
   }
 
   public void warning(String w) {
-    error(w);//FIXME
+    if (mShowWarnings) {
+
+      mOut.print("[JAM] Warning: ");
+      mOut.println(w);
+    }
   }
 
   public void error(Throwable t) {
+    mOut.println("[JAM] Error: unexpected exception thrown: ");
     t.printStackTrace(mOut);
   }
 
   public void error(String msg) {
+    mOut.print("[JAM] Error: ");
     mOut.println(msg);
   }
 
@@ -97,13 +113,14 @@ public class JamLoggerImpl implements JamLogger {
 
   private void printVerbosePrefix() {
     StackTraceElement[] st = new Exception().getStackTrace();
-    mOut.print('[');
+    mOut.println("[JAM] Verbose: ");
+    mOut.print('(');
     mOut.print(shortName(st[2].getClassName()));
     mOut.print('.');
     mOut.print(st[2].getMethodName());
     mOut.print(':');
     mOut.print(st[2].getLineNumber());
-    mOut.print("]  ");
+    mOut.print(")  ");
   }
 
   private static String shortName(String className) {

@@ -198,6 +198,13 @@ public interface JamServiceParams {
    */
   public void setVerbose(Class c);
 
+
+  /**
+   * <p>Enables or suppresses the logging of warning messages.  By default
+   * this is true.</p>
+   */
+  public void setShowWarnings(boolean b);
+
   /**
    * Sets the parent JamClassLoader of the service JamClassLoader.
    *

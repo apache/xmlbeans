@@ -25,10 +25,11 @@ import org.apache.xmlbeans.impl.jam.visitor.*;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.ResourcePath;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
+import org.apache.xmlbeans.impl.jam.provider.CompositeJamClassBuilder;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -69,6 +70,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   private List mOtherInitializers = null;
   private List mUnstructuredSourceFiles = null;
   private List mClassLoaders = null;
+  private List mBaseBuilders = null;
 
   private JamClassLoader mLoader = null;
 
@@ -77,6 +79,24 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
 
   public void setClassLoader(JamClassLoader loader) {
     mLoader = loader;
+  }
+
+  //may want to expose this in JamServiceParams
+  public void addBaseBuilder(JamClassBuilder builder) {
+    if (mBaseBuilders == null) mBaseBuilders = new ArrayList();
+    mBaseBuilders.add(builder);
+  }
+
+  public JamClassBuilder getBaseBuilder() {
+    if (mBaseBuilders == null || mBaseBuilders.size() == 0) {
+      return null;
+    }
+    if (mBaseBuilders.size() == 1) {
+      return (JamClassBuilder)mBaseBuilders.get(0);
+    }
+    JamClassBuilder[] comp = new JamClassBuilder[mBaseBuilders.size()];
+    mBaseBuilders.toArray(comp);
+    return new CompositeJamClassBuilder(comp);
   }
 
   // ========================================================================
@@ -126,15 +146,18 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   }*/
 
   public File[] getSourceFiles() throws IOException {
-
     Set set = new HashSet();
     if (mSourceRoot2Scanner != null) {
       for(Iterator i = mSourceRoot2Scanner.values().iterator(); i.hasNext(); ) {
         DirectoryScanner ds = (DirectoryScanner)i.next();
-        if (isVerbose(this)) verbose(PREFIX+ " checking scanner for dir"+ds.getRoot());
+        if (isVerbose(this)) {
+          verbose(PREFIX+ " checking scanner for dir"+ds.getRoot());
+        }
         String[] files = ds.getIncludedFiles();
         for(int j=0; j<files.length; j++) {
-          if (isVerbose(this)) verbose(PREFIX+ " ...including a source file "+files[j]);
+          if (isVerbose(this)) {
+            verbose(PREFIX+ " ...including a source file "+files[j]);
+          }
           set.add(new File(ds.getRoot(),files[j]));
         }
       }
@@ -391,13 +414,20 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
 
   public ClassLoader[] getReflectionClassLoaders() {
     if (mClassLoaders == null) {
-      return new ClassLoader[] { ClassLoader.getSystemClassLoader() };
+      if (mUseSystemClasspath) {
+        return new ClassLoader[] { ClassLoader.getSystemClassLoader() };
+      } else {
+        return new ClassLoader[0];
+      }
     } else {
-      ClassLoader[] out = new ClassLoader[mClassLoaders.size()];
-      for(int i=0; i<out.length; i++) {
+      ClassLoader[] out = new ClassLoader[mClassLoaders.size()+
+        (mUseSystemClasspath ? 1 : 0)];
+      for(int i=0; i<mClassLoaders.size(); i++) {
         out[i] = (ClassLoader)mClassLoaders.get(i);
       }
-      out[out.length-1] = ClassLoader.getSystemClassLoader();
+      if (mUseSystemClasspath) {
+        out[out.length-1] = ClassLoader.getSystemClassLoader();
+      }
       return out;
     }
   }

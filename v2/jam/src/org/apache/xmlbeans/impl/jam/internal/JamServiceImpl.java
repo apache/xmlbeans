@@ -83,10 +83,9 @@ public class JamServiceImpl implements JamService {
     return out;
   }
 
-  public MClass addNewClass(JClass copyme) {
-    throw new IllegalStateException("NYI");
-  }
-
+  // this is a back door for jamxmlutils, which can't know the class names
+  // until after it's parsed the xml file (which can't be done without
+  // a jamservice - catch 22).
   public void setClassNames(String[] names) {
     mClassNames = names;
   }

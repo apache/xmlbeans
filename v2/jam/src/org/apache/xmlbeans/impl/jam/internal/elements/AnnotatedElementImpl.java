@@ -25,19 +25,14 @@ public abstract class AnnotatedElementImpl extends ElementImpl
 
   private Map mName2Annotation = null;
   private MComment mComment = null;
-
   private List mAllJavadocTags = null;
 
   // ========================================================================
   // Constructors
 
-  protected AnnotatedElementImpl(ElementContext ctx) {
-    super(ctx);
-  }
+  protected AnnotatedElementImpl(ElementContext ctx) { super(ctx); }
 
-  protected AnnotatedElementImpl(ElementImpl parent) {
-    super(parent);
-  }
+  protected AnnotatedElementImpl(ElementImpl parent) { super(parent); }
 
   // ========================================================================
   // JAnnotatedElement implementation
@@ -180,25 +175,24 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     return out;
   }
 
-  public MAnnotation addAnnotationForInstance(/*Annotation*/ Object jsr175annotationInstance) {
-    if (jsr175annotationInstance == null) {
-      throw new IllegalArgumentException("null instance");
-    }
-    String typename = getAnnotationTypeFor(jsr175annotationInstance); //FIXME this isn't working right
-    MAnnotation ann = getMutableAnnotation(typename);
+  public MAnnotation addAnnotationForInstance(Class annType,
+                                              Object instance) {
+    if (annType == null) throw new IllegalArgumentException("null anntype");
+    if (instance == null) throw new IllegalArgumentException("null instance");
+    MAnnotation ann = getMutableAnnotation(annType);
     if (ann != null) {
-      ann.setAnnotationInstance(jsr175annotationInstance);
-      ann.getMutableProxy().initFromAnnotationInstance(jsr175annotationInstance);
+      ann.setAnnotationInstance(instance);
+      ann.getMutableProxy().initFromAnnotationInstance(annType,instance);
       //REVIEW this is a weird case where they add another instance
       // of the same annotation type.  We'll just go with it for now,
       // but we might want to throw an exception here, not sure.
     } else {
       AnnotationProxy proxy = getContext().createProxyForAnnotationType
-        (getAnnotationTypeFor(jsr175annotationInstance));
-      proxy.initFromAnnotationInstance(jsr175annotationInstance);
-      ann = new AnnotationImpl(getContext(),proxy,typename);
-      ann.setAnnotationInstance(jsr175annotationInstance);
-      setArtifact(jsr175annotationInstance);
+        (getAnnotationTypeFor(instance));
+      proxy.initFromAnnotationInstance(annType,instance);
+      ann = new AnnotationImpl(getContext(),proxy,annType.getName());
+      ann.setAnnotationInstance(instance);
+      setArtifact(instance);
       addAnnotation(ann);
     }
     return ann;

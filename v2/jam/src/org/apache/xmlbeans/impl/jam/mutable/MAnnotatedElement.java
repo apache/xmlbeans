@@ -31,7 +31,8 @@ public interface MAnnotatedElement extends MElement, JAnnotatedElement {
   public MAnnotation addAnnotationForTag(String tagName, String tagContents);
 
   //DOCME
-  public MAnnotation addAnnotationForInstance(/*Annotation*/ Object jsr175annotationInstance);
+  public MAnnotation addAnnotationForInstance(Class annotationType,
+                                              /*Annotation*/ Object jsr175annotationInstance);
 
   //DOCME
   public MAnnotation addAnnotationForType(String jsr175annotationClassname);

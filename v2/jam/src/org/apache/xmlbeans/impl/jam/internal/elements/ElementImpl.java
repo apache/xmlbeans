@@ -144,6 +144,13 @@ public abstract class ElementImpl implements MElement {
   public ElementContext getContext() { return mContext; }
 
   // ========================================================================
+  // Object implementation
+
+  public String toString() {
+    return getQualifiedName();
+  }
+  
+  // ========================================================================
   // Protected methods
 
   protected JamLogger getLogger() {

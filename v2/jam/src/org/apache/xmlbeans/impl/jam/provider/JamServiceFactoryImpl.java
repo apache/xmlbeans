@@ -18,10 +18,10 @@ import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamService;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
+import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.internal.JamClassLoaderImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceImpl;
-import org.apache.xmlbeans.impl.jam.internal.CachedClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
@@ -81,7 +81,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     ((JamServiceContextImpl)jsps).setClassLoader(clToUse);
 
     return new JamServiceImpl((ElementContext)jsps,
-      getSpecifiedClasses((JamServiceContextImpl)jsps));
+                              getSpecifiedClasses((JamServiceContextImpl)jsps));
   }
 
   public JamClassLoader createSystemJamClassLoader() {
@@ -147,23 +147,42 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     throws IOException
 
   {
+    JamLogger log = ctx.getLogger();
     List builders = new ArrayList();  // make a list of the builders we want
-    JamClassBuilder b = createSourceBuilder(ctx);
+    // add the base builder if there is one
+    JamClassBuilder b = ctx.getBaseBuilder();
+    if (b != null) builders.add(b);
+    // look for source file builder
+    b = createSourceBuilder(ctx);
+    if (log.isVerbose(this)) {
+      log.verbose("added classbuilder for sources");
+    }
     if (b != null) builders.add(b);   // prefer first source
     b = createClassfileBuilder(ctx);  // then custom classpath
+    if (log.isVerbose(this)) {
+      log.verbose("added classbuilder for custom classpath");
+    }
     if (b != null) builders.add(b);
     ClassLoader[] cls = ctx.getReflectionClassLoaders();
     for(int i=0; i<cls.length; i++) {
+      if (log.isVerbose(this)) {
+        log.verbose("added classbuilder for classloader "+cls[i].getClass());
+      }
       builders.add(new ReflectClassBuilder(cls[i],ctx));
     }
     JamClassBuilder[] barray = new JamClassBuilder[builders.size()];
     builders.toArray(barray);
     JamClassBuilder out = new CompositeJamClassBuilder(barray);
     out.init((ElementContext)ctx);
+    if (log.isVerbose(this)) {
+      log.verbose("returning a composite of "+barray.length+" class builders.");
+
+      JClass c = out.build("java.lang","Object");
+      c = out.build("javax.ejb","SessionBean");
+    }
     return out;
 
   }
-
 
   /**
    * <p>Creates the source-based classbuilder for the given context.
@@ -175,7 +194,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
   {
     File[] sources = ctx.getSourceFiles();
     if (sources == null || sources.length == 0) {
-      if (ctx.isVerbose()) {
+      if (ctx.isVerbose(this)) {
         ctx.verbose(PREFIX+ "no source files present, "+
                     "skipping source ClassBuilder");
       }
@@ -234,21 +253,6 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
   }
    */
 
-  // ========================================================================
-  // For internal use only - used by JamXmlUtils
-
-  public JamService createService(CachedClassBuilder builder)
-  {
-    JamServiceParams jsps = createServiceParams();
-    JamClassLoader cl = new JamClassLoaderImpl((ElementContext)jsps,//eww
-                                               builder,null);
-    //this is a nasty way to shoehorn it in there, should do better
-    ((JamServiceContextImpl)jsps).setClassLoader(cl);
-    builder.init((ElementContext)jsps);
-
-    return new JamServiceImpl((ElementContext)jsps,
-                              builder.getClassNames());
-  }
 
 
 }

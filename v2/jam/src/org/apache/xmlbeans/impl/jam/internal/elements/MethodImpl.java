@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JParameter;
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MMethod;
@@ -25,6 +26,9 @@ import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
 
 import java.lang.reflect.Modifier;
+import java.io.StringWriter;
+
+
 
 /**
  * <p>Standard implementation of MMethod.  It's probably bad inheritance to
@@ -104,4 +108,39 @@ public final class MethodImpl extends InvokableImpl implements MMethod {
 
   public void accept(JVisitor visitor) { visitor.visit(this); }
 
+  public String getQualifiedName() {
+    StringWriter sbuf = new StringWriter();
+    sbuf.write(Modifier.toString(getModifiers()));
+    sbuf.write(' ');
+    JClass returnJClass = getReturnType();
+    if (returnJClass == null){
+      sbuf.write("void ");  // should not happen
+    } else {
+      sbuf.write(returnJClass.getQualifiedName());
+      sbuf.write(' ');
+    }
+    sbuf.write(getSimpleName());
+    sbuf.write('(');
+    {
+    JParameter[] params = getParameters();
+    if (params != null && params.length > 0) {
+      for(int i=0; i<params.length; i++) {
+        sbuf.write(params[i].getType().getQualifiedName());
+        if (i<params.length-1) sbuf.write(',');
+      }
+    }
+    }
+    sbuf.write(')');
+    {
+      JClass[] thrown = getExceptionTypes();
+      if (thrown != null && thrown.length > 0) {
+        sbuf.write(" throws ");
+        for(int i=0; i<thrown.length; i++) {
+          sbuf.write(thrown[i].getQualifiedName());
+          if (i<thrown.length-1) sbuf.write(',');
+        }
+      }
+    }
+    return sbuf.toString();
+  }
 }

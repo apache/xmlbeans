@@ -25,6 +25,7 @@ import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
 
 import java.lang.reflect.Modifier;
+import java.io.StringWriter;
 
 /**
  * <p>Implementation of JField and MField.</p>
@@ -49,15 +50,6 @@ public final class FieldImpl extends MemberImpl implements MField {
     mTypeClassRef = QualifiedJClassRef.create
             (qualifiedTypeClassName,containingClass);
   }
-
-  // ========================================================================
-  // JElement implementation
-
-  public String getQualifiedName() {
-    //REVIEW
-    return getContainingClass().getQualifiedName()+"."+getSimpleName();
-  }
-
 
   // ========================================================================
   // MField implementation
@@ -104,9 +96,24 @@ public final class FieldImpl extends MemberImpl implements MField {
   }
 
   // ========================================================================
-  // JElement implementation
+  // M/JElement implementation
 
   public void accept(MVisitor visitor) { visitor.visit(this); }
 
   public void accept(JVisitor visitor) { visitor.visit(this); }
+
+  public String getQualifiedName() {
+    StringWriter sbuf = new StringWriter();
+    sbuf.write(Modifier.toString(getModifiers()));
+    sbuf.write(' ');
+    sbuf.write(getType().getQualifiedName());
+    sbuf.write(' ');
+    sbuf.write(getContainingClass().getQualifiedName());
+    sbuf.write('.');
+    sbuf.write(getSimpleName());
+    return sbuf.toString();
+  }
+
+
+
 }

@@ -115,6 +115,8 @@ public interface JamServiceContext extends JamLogger/*killme*/ {
 
   public JamLogger getLogger();
 
+  public JamClassBuilder getBaseBuilder();
+
   //public PrintWriter getOut();
 
 

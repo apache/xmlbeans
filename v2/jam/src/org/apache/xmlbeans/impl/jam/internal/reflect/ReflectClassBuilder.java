@@ -18,11 +18,12 @@ import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
-import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
+import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocAnnotationExtractor;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.annotation.Annotation;
 
 /**
  *
@@ -62,17 +63,33 @@ public class ReflectClassBuilder extends JamClassBuilder {
       // class for name this because it's 1.5 specific.  if it fails, we
       // don't want to use the extractor
       Class.forName("java.lang.annotation.Annotation");
+    } catch (ClassNotFoundException e) {
+      mLogger.warning("You are running under a pre-1.5 JDK.  JSR175-style "+
+                      "class annotations will not be understood");
+      if (mLogger.isVerbose(this)) {
+        mLogger.verbose(e);
+      }
+      return;
+    }
+    // ok, if we could load that, let's new up the extractor delegate
+    try {
       mExtractor = (ReflectAnnotationExtractor)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
+      // if this fails for any reason, things are in a bad state
     } catch (ClassNotFoundException e) {
-      mLogger.warning(e);
+      mLogger.error("Internal error, failed to instantiate "+
+                    JAVA15_EXTRACTOR);
+      mLogger.error(e);
     } catch (IllegalAccessException e) {
-      mLogger.verbose(e);
+      mLogger.error("Internal error, failed to instantiate "+
+                    JAVA15_EXTRACTOR);
+      mLogger.error(e);
     } catch (InstantiationException e) {
-      mLogger.verbose(e);
+      mLogger.error("Internal error, failed to instantiate "+
+                    JAVA15_EXTRACTOR);
+      mLogger.error(e);
     }
   }
-
   // ========================================================================
   // JamClassBuilder implementation
 
@@ -85,7 +102,7 @@ public class ReflectClassBuilder extends JamClassBuilder {
         className;
       rclass = mLoader.loadClass(loadme);
     } catch(ClassNotFoundException cnfe) {
-     getLogger().verbose(cnfe,this);
+      getLogger().verbose(cnfe,this);
       return null;
     }
     MClass out = createClassToBuild(packageName, className, null);

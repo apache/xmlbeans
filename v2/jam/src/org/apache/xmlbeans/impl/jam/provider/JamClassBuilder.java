@@ -40,6 +40,7 @@ public abstract class JamClassBuilder {
     if (mContext != null) {
       throw new IllegalStateException("init called more than once");
     }
+    if (ctx == null) throw new IllegalArgumentException("null ctx");
     mContext = ctx;
   }
 

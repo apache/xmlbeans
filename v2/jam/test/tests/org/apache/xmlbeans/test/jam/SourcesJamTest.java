@@ -97,6 +97,13 @@ public class SourcesJamTest extends JamTestBase {
     return true;
   }
 
+  //kind of a quick hack for now, should remove this and make sure that
+  //even the classes case make the annotations available using a special
+  //JStore
+  protected boolean is175AnnotationInstanceAvailable() {
+    return false;
+  }
+
   protected boolean isParameterNamesKnown() {
     return true;
   }
