@@ -15,15 +15,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
-
-
-/**
- * A TypeMarshaller knows how to marshal a java object into xml.
- */
-interface TypeMarshaller
+interface IntermediateResolver
 {
-    //non simple types can throw a runtime exception
-    CharSequence print(Object value, MarshalResult result)
-        throws XmlException;
+    Object getObjectFromIntermediate(Object inter);
 }

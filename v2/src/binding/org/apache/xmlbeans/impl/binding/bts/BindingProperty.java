@@ -196,6 +196,7 @@ public abstract class BindingProperty {
 
   static {
     registerClassAndType(QNameProperty.class, org.apache.xml.xmlbeans.bindingConfig.QnameProperty.type);
+    registerClassAndType(SimpleContentProperty.class, org.apache.xml.xmlbeans.bindingConfig.SimpleContentProperty.type);
     registerClassAndType(ParticleProperty.class, org.apache.xml.xmlbeans.bindingConfig.ParticleProperty.type);
   }
 

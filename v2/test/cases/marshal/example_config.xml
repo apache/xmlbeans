@@ -1,13 +1,13 @@
-<bin:binding-config xmlns:java="java:com.mytest" xmlns:bin="http://xml.apache.org/xmlbeans/binding-config">
+<bin:binding-config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:java="java:com.mytest" xmlns:bin="http://xml.apache.org/xmlbeans/binding-config">
     <bin:bindings>
 
-        <bin:binding-type xsi:type="bin:simple-type" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <bin:binding-type xsi:type="bin:simple-type">
             <bin:xmlcomponent>t=custom-string@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>java.lang.String</bin:javatype>
             <bin:as-xml whitespace="collapse">t=string@http://www.w3.org/2001/XMLSchema</bin:as-xml>
         </bin:binding-type>
 
-        <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <bin:binding-type xsi:type="bin:by-name-bean">
             <bin:xmlcomponent>t=YourClass@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.YourClass</bin:javatype>
 
@@ -199,10 +199,57 @@
                 <bin:qname>java:WrappedArrayTwo</bin:qname>
             </bin:qname-property>
 
+            <bin:qname-property>
+                <bin:xmlcomponent>t=SimpleContentExample@java:com.mytest</bin:xmlcomponent>
+                <bin:javatype>com.mytest.SimpleContentExample</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getSimpleContentExample</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setSimpleContentExample</bin:method-name>
+                    <bin:param-type>com.mytest.SimpleContentExample</bin:param-type>
+                </bin:setter>
+                <bin:qname>java:simpleContentExample</bin:qname>
+            </bin:qname-property>
+
+
+
         </bin:binding-type>
 
 
-        <bin:binding-type xsi:type="bin:wrapped-array" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <bin:binding-type xsi:type="bin:simple-content-bean">
+            <bin:xmlcomponent>t=SimpleContentExample@java:com.mytest</bin:xmlcomponent>
+            <bin:javatype>com.mytest.SimpleContentExample</bin:javatype>
+
+            <bin:simple-content-property>
+                <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>java.lang.String</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getSimpleContent</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setSimpleContent</bin:method-name>
+                    <bin:param-type>java.lang.String</bin:param-type>
+                </bin:setter>
+            </bin:simple-content-property>
+
+            <bin:attribute-property>
+                <bin:xmlcomponent>t=float@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+                <bin:javatype>float</bin:javatype>
+                <bin:getter>
+                    <bin:method-name>getFloatAttOne</bin:method-name>
+                </bin:getter>
+                <bin:setter>
+                    <bin:method-name>setFloatAttOne</bin:method-name>
+                    <bin:param-type>float</bin:param-type>
+                </bin:setter>
+                <bin:qname>someAtt</bin:qname>
+                <bin:attribute>true</bin:attribute>
+            </bin:attribute-property>
+        </bin:binding-type>
+
+
+        <bin:binding-type xsi:type="bin:wrapped-array">
             <bin:xmlcomponent>t=ArrayOfString@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>java.lang.String[]</bin:javatype>
             <bin:item-name>item</bin:item-name>
@@ -213,7 +260,7 @@
             <bin:nillable>true</bin:nillable>
         </bin:binding-type>
 
-        <bin:binding-type xsi:type="bin:wrapped-array" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <bin:binding-type xsi:type="bin:wrapped-array">
             <bin:xmlcomponent>t=ArrayOfArrayOfString@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>java.lang.String[][]</bin:javatype>
             <bin:item-name>aos</bin:item-name>
@@ -224,7 +271,7 @@
         </bin:binding-type>
 
 
-        <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <bin:binding-type xsi:type="bin:by-name-bean">
             <bin:xmlcomponent>t=MyClass@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.MyClass</bin:javatype>
             <bin:qname-property>
@@ -254,12 +301,12 @@
                 <bin:nillable>true</bin:nillable>
             </bin:qname-property>
         </bin:binding-type>
-        <bin:binding-type xsi:type="bin:simple-document-binding" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <bin:binding-type xsi:type="bin:simple-document-binding">
             <bin:xmlcomponent>e=load@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.MyClass</bin:javatype>
             <bin:type-of-element>t=MyClass@java:com.mytest</bin:type-of-element>
         </bin:binding-type>
-        <bin:binding-type xsi:type="bin:by-name-bean" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+        <bin:binding-type xsi:type="bin:by-name-bean">
             <bin:xmlcomponent>t=MySubClass@java:com.mytest</bin:xmlcomponent>
             <bin:javatype>com.mytest.MySubClass</bin:javatype>
             <bin:qname-property>

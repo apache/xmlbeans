@@ -25,9 +25,11 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.binding.bts.SimpleContentProperty;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
@@ -390,6 +392,16 @@ final class RuntimeBindingTypeTable
         TypeMarshaller m = this.getTypeMarshaller(binding_type);
         if (m != null) return m;
 
+        if (binding_type instanceof SimpleContentBean) {
+            SimpleContentBean scb = (SimpleContentBean)binding_type;
+            final SimpleContentRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(scb, this, loader);
+            m = new SimpleContentBeanMarshaller(rtt, this, loader);
+            putTypeMarshaller(scb, m);
+            return m;
+        }
+
+
         if (binding_type instanceof SimpleBindingType) {
             SimpleBindingType stype = (SimpleBindingType)binding_type;
 
@@ -439,6 +451,18 @@ final class RuntimeBindingTypeTable
                                                      loader);
 
             typeUnmarshaller = new ByNameUnmarshaller(rtt);
+        }
+
+
+        public void visit(SimpleContentBean simpleContentBean)
+            throws XmlException
+        {
+            SimpleContentRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(simpleContentBean,
+                                                     runtimeBindingTypeTable,
+                                                     loader);
+
+            typeUnmarshaller = new SimpleContentUnmarshaller(rtt);
         }
 
         public void visit(SimpleBindingType simpleBindingType)

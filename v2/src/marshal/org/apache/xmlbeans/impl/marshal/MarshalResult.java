@@ -18,12 +18,14 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
@@ -592,7 +594,7 @@ final class MarshalResult implements XMLStreamReader
         if (property_value == null)
             return expected_type;
 
-        if (expected_type.isJavaPrimitive())
+        if (expected_type.isJavaPrimitive() || expected_type.isJavaFinal())
             return expected_type;
 
         final Class instance_class = property_value.getClass();
@@ -614,6 +616,17 @@ final class MarshalResult implements XMLStreamReader
     void setCurrIndex(int currIndex)
     {
         this.currIndex = currIndex;
+    }
+
+    BindingLoader getBindingLoader()
+    {
+        return bindingLoader;
+    }
+
+    public void addWarning(String msg)
+    {
+        XmlError e = XmlError.forMessage(msg, XmlError.SEVERITY_WARNING);
+        getErrorCollection().add(e);
     }
 
     private static final class BindingTypeVisitor
@@ -660,6 +673,14 @@ final class MarshalResult implements XMLStreamReader
             xmlTypeVisitor = new ByNameTypeVisitor(runtimeBindingProperty,
                                                    parentObject,
                                                    marshalResult);
+        }
+
+        public void visit(SimpleContentBean simpleContentBean)
+            throws XmlException
+        {
+            xmlTypeVisitor = new SimpleContentTypeVisitor(runtimeBindingProperty,
+                                                          parentObject,
+                                                          marshalResult);
         }
 
         public void visit(SimpleBindingType simpleBindingType)

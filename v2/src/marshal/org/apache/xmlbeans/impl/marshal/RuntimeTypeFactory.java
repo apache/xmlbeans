@@ -18,12 +18,13 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeVisitor;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
-import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeVisitor;
+import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
+import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 
 import java.util.HashMap;
@@ -118,6 +119,16 @@ final class RuntimeTypeFactory
         return (ByNameRuntimeBindingType)rtt;
     }
 
+    public SimpleContentRuntimeBindingType createRuntimeType(SimpleContentBean type,
+                                                             RuntimeBindingTypeTable type_table,
+                                                             BindingLoader binding_loader)
+        throws XmlException
+    {
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, type_table, binding_loader);
+        return (SimpleContentRuntimeBindingType)rtt;
+    }
+
 
     //avoids a cast to deal with overloaded methods
     private RuntimeBindingType createRuntimeTypeInternal(BindingType type,
@@ -156,6 +167,12 @@ final class RuntimeTypeFactory
             throws XmlException
         {
             runtimeBindingType = new ByNameRuntimeBindingType(byNameBean);
+        }
+
+        public void visit(SimpleContentBean simpleContentBean)
+            throws XmlException
+        {
+            runtimeBindingType = new SimpleContentRuntimeBindingType(simpleContentBean);
         }
 
         public void visit(SimpleBindingType simpleBindingType)

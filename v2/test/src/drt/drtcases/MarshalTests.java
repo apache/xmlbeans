@@ -18,6 +18,7 @@ package drtcases;
 import com.mytest.MyClass;
 import com.mytest.MySubClass;
 import com.mytest.MySubSubClass;
+import com.mytest.SimpleContentExample;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -336,6 +337,12 @@ public class MarshalTests extends TestCase
 
 
         myelt.setMyClass(sub);
+
+        SimpleContentExample se = new SimpleContentExample();
+        se.setFloatAttOne(44.33f);
+        se.setSimpleContent("someSimpleContentOkay");
+        myelt.setSimpleContentExample(se);
+
         mc.setMyelt(myelt);
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
@@ -370,7 +377,7 @@ public class MarshalTests extends TestCase
 //                            new QName("java:com.mytest", "MySubClass"),
 //                            "MyClass", null);
 
-        inform("=======IN-OBJ: " + mc);
+        inform("=======IN-OBJA: " + mc);
 
         dumpReader(reader);
         Assert.assertTrue(errors.isEmpty());
@@ -514,9 +521,13 @@ public class MarshalTests extends TestCase
         com.mytest.MyClass curr = top_obj;
 
         boolean[] bools = createRandomBooleanArray(rnd, boolean_array_size);
+        SimpleContentExample sce = new SimpleContentExample();
+        sce.setFloatAttOne(-4.234f);
+        sce.setSimpleContent("simple simple simple");
 
         for (int i = 0; i < depth; i++) {
             com.mytest.YourClass myelt = new com.mytest.YourClass();
+            myelt.setSimpleContentExample(sce);
             myelt.setAttrib(rnd.nextFloat());
             myelt.setMyFloat(rnd.nextFloat());
             myelt.setBooleanArray(bools);
