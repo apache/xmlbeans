@@ -183,6 +183,11 @@ abstract class UnmarshalResult
                 return um.unmarshal(this);
             } else {
                 final Object initial_obj = of.createObject(rtt.getJavaType());
+                if (initial_obj == null) {
+                    String msg = "factory: " + of +
+                        " returned null for type " + rtt.getJavaType();
+                    throw new IllegalStateException(msg);
+                }
                 um = rtt.getUnmarshaller();
                 final Object inter = rtt.createIntermediary(this, initial_obj);
                 um.unmarshalIntoIntermediary(inter, this);
