@@ -823,7 +823,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
             SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
             if (elt == null)
-                return BuiltinSchemaTypeSystem.ST_ANY_TYPE;
+                return BuiltinSchemaTypeSystem.ST_NO_TYPE;
             type = elt.getType();
         }
 
@@ -858,7 +858,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
         SchemaGlobalAttribute attr = wildcardTypeLoader.findAttribute(attrName);
         if (attr == null)
-            return BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
+            return BuiltinSchemaTypeSystem.ST_NO_TYPE;
         return attr.getType();
     }
 
@@ -888,7 +888,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                 if (elt != null)
                     type = elt.getType();
                 else
-                    type = BuiltinSchemaTypeSystem.ST_ANY_TYPE;
+                    type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
             }
 
             if (xsiType != null)
@@ -935,7 +935,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                 if (attr != null)
                     type = (SchemaTypeImpl)attr.getType();
                 else
-                    type = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
+                    type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
             }
         }
 

@@ -982,14 +982,15 @@ public final class Root extends Finish implements XmlStore
 
         public void error ( SAXParseException e ) throws SAXException
         {
-            // As of piccolo 1.03 this is never called
-            throw new UnsupportedOperationException( "Should not be called" );
+            XmlError err =
+                XmlError.forMessage( "Error: " + e.getMessage(), XmlError.SEVERITY_ERROR );
+
+            throw new XmlRuntimeException( err.toString(), null, err );
         }
 
         public void warning ( SAXParseException e ) throws SAXException
         {
-            // As of piccolo 1.03 this is never called
-            throw new UnsupportedOperationException( "Should not be called" );
+            // Throw away warings for now
         }
 
         // Entity Resolver

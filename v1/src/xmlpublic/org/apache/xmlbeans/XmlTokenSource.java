@@ -124,6 +124,7 @@ public interface XmlTokenSource
      * Throws an IllegalStateException if the XmlTokenSource is not
      * positioned at begin-tag or begin-document (e.g., if it is at
      * an attribute).
+     * @deprecated Superceded by JSR 173
      */
     XMLInputStream newXMLInputStream();
     
@@ -302,6 +303,7 @@ public interface XmlTokenSource
      * 
      * @param options Any of the described options.
      * @return A new validating XMLInputStream.
+     * @deprecated Superceded by JSR 173
      */
     XMLInputStream newXMLInputStream(XmlOptions options);
 

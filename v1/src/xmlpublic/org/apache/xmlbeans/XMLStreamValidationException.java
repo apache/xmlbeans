@@ -62,7 +62,8 @@ import weblogic.xml.stream.XMLStreamException;
  * An exception thrown from a validating XMLInputStream.
  * 
  * @see XmlObject.Factory#newValidatingXMLInputStream
- * @see SchemaTypeLoader#newValidatingXMLInputStream 
+ * @see SchemaTypeLoader#newValidatingXMLInputStream
+ * @deprecated Superceded by JSR 173
  */
 public class XMLStreamValidationException extends XMLStreamException
 {

@@ -112,6 +112,7 @@ import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.SchemaLocalAttribute;
+import org.apache.xmlbeans.FilterXmlObject;
 
 import org.w3c.dom.Node;
 
@@ -130,6 +131,19 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             return get_store().get_root_object();
         return this;
     }
+    
+    private static XmlObjectBase underlying(XmlObject obj)
+    {
+        if (obj == null)
+            return null;
+        if (obj instanceof XmlObjectBase)
+            return (XmlObjectBase)obj;
+        while (obj instanceof FilterXmlObject)
+            obj = ((FilterXmlObject)obj).underlyingXmlObject();
+        if (obj instanceof XmlObjectBase)
+            return (XmlObjectBase)obj;
+        throw new IllegalStateException("Non-native implementations of XmlObject should extend FilterXmlObject");
+    }
 
     public final XmlObject copy()
     {
@@ -142,10 +156,14 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             check_orphaned();
 
             // copy the type
-            XmlObjectBase result = (XmlObjectBase)get_store().get_schematypeloader().newInstance(schemaType(), null);
+            XmlObject result = get_store().get_schematypeloader().newInstance(schemaType(), null);
+            
 
             // copy the data
-            return (XmlObjectBase) result.get_store().copy_contents_from(get_store());
+            XmlObjectBase target = underlying(result);
+            target.get_store().copy_contents_from(get_store());
+            
+            return result;
         }
     }
 
@@ -1018,27 +1036,6 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         return model.getAttribute(attrName);
     }
 
-    /**
-     * Used to simplify detection of default value situations.
-     */
-    private final static boolean is_XmlWhitespace(String v)
-    {
-        for (int i = 0; i < v.length(); i++)
-        {
-            switch (v.charAt(i))
-            {
-                case ' ':
-                case '\t':
-                case '\r':
-                case '\n':
-                    continue;
-                default:
-                    return false;
-            }
-        }
-        return true;
-    }
-
 
     /**
      * Setting a string preserves any noncanonical literal
@@ -1671,7 +1668,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                 synchronized (monitor())
                 {
                     set_prepare();
-                    set_list(((XmlObjectBase)v).xgetListValue());
+                    set_list(((SimpleValue)v).xgetListValue());
                     set_commit();
                     return;
                 }
@@ -1692,42 +1689,42 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
 
                     case SchemaType.BTC_BOOLEAN:
                     {
-                        boolean bool = ((XmlObjectBase)v).booleanValue();
+                        boolean bool = ((SimpleValue)v).getBooleanValue();
                         set_prepare();
                         set_boolean(bool);
                         break;
                     }
                     case SchemaType.BTC_BASE_64_BINARY:
                     {
-                        byte[] byteArr = ((XmlObjectBase)v).byteArrayValue();
+                        byte[] byteArr = ((SimpleValue)v).getByteArrayValue();
                         set_prepare();
                         set_b64(byteArr);
                         break;
                     }
                     case SchemaType.BTC_HEX_BINARY:
                     {
-                        byte[] byteArr = ((XmlObjectBase)v).byteArrayValue();
+                        byte[] byteArr = ((SimpleValue)v).getByteArrayValue();
                         set_prepare();
                         set_hex(byteArr);
                         break;
                     }
                     case SchemaType.BTC_QNAME:
                     {
-                        QName name = ((XmlObjectBase)v).qNameValue();
+                        QName name = ((SimpleValue)v).getQNameValue();
                         set_prepare();
                         set_QName(name);
                         break;
                     }
                     case SchemaType.BTC_FLOAT:
                     {
-                        float f = ((XmlObjectBase)v).floatValue();
+                        float f = ((SimpleValue)v).getFloatValue();
                         set_prepare();
                         set_float(f);
                         break;
                     }
                     case SchemaType.BTC_DOUBLE:
                     {
-                        double d = ((XmlObjectBase)v).doubleValue();
+                        double d = ((SimpleValue)v).getDoubleValue();
                         set_prepare();
                         set_double(d);
                         break;
@@ -1738,35 +1735,35 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                         {
                             case SchemaType.SIZE_BYTE:
                             {
-                                byte b = ((XmlObjectBase)v).byteValue();
+                                byte b = ((SimpleValue)v).getByteValue();
                                 set_prepare();
                                 set_byte(b);
                                 break;
                             }
                             case SchemaType.SIZE_SHORT:
                             {
-                                short s = ((XmlObjectBase)v).shortValue();
+                                short s = ((SimpleValue)v).getShortValue();
                                 set_prepare();
                                 set_short(s);
                                 break;
                             }
                             case SchemaType.SIZE_INT:
                             {
-                                int i = ((XmlObjectBase)v).intValue();
+                                int i = ((SimpleValue)v).getIntValue();
                                 set_prepare();
                                 set_int(i);
                                 break;
                             }
                             case SchemaType.SIZE_LONG:
                             {
-                                long l = ((XmlObjectBase)v).longValue();
+                                long l = ((SimpleValue)v).getLongValue();
                                 set_prepare();
                                 set_long(l);
                                 break;
                             }
                             case SchemaType.SIZE_BIG_INTEGER:
                             {
-                                BigInteger bi = ((XmlObjectBase)v).bigIntegerValue();
+                                BigInteger bi = ((SimpleValue)v).getBigIntegerValue();
                                 set_prepare();
                                 set_BigInteger(bi);
                                 break;
@@ -1778,7 +1775,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                             }
                             case SchemaType.SIZE_BIG_DECIMAL:
                             {
-                                BigDecimal bd = ((XmlObjectBase)v).bigDecimalValue();
+                                BigDecimal bd = ((SimpleValue)v).getBigDecimalValue();
                                 set_prepare();
                                 set_BigDecimal(bd);
                                 break;
@@ -1802,7 +1799,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                     }
                     case SchemaType.BTC_DURATION:
                     {
-                        GDuration gd = ((XmlObjectBase)v).gDurationValue();
+                        GDuration gd = ((SimpleValue)v).getGDurationValue();
                         set_prepare();
                         set_GDuration(gd);
                         break;
@@ -1816,7 +1813,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
                     case SchemaType.BTC_G_DAY:
                     case SchemaType.BTC_G_MONTH:
                     {
-                        GDate gd = ((XmlObjectBase)v).gDateValue();
+                        GDate gd = ((SimpleValue)v).getGDateValue();
                         set_prepare();
                         set_GDate(gd);
                         break;
@@ -1873,7 +1870,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         if (isImmutable())
             throw new IllegalStateException("Cannot set the value of an immutable XmlObject");
 
-        XmlObjectBase obj = (XmlObjectBase) src;
+        XmlObjectBase obj = underlying(src);
 
         TypeStoreUser newObj = this;
 
@@ -2016,7 +2013,7 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             return false;
 
         if (xmlobj.schemaType().getSimpleVariety() == SchemaType.UNION)
-            return ((XmlObjectBase)xmlobj).equal_to(this);
+            return (underlying(xmlobj)).equal_to(this);
 
         return equal_to(xmlobj);
     }
