@@ -466,7 +466,6 @@
      </copy>
      <copy todir="build/private/xmlbeans-${product.version}/schemas">
         <fileset dir="test/src" includes="easypo/*.xsd,easypo/*.xsdconfig"/>
-        <fileset dir="test/cases/schema" includes="cyclone/**/*.xsd,j2ee/*.xsd"/>
      </copy>
 
      <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
