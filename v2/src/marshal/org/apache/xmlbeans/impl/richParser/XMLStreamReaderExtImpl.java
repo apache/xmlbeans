@@ -46,6 +46,7 @@ public class XMLStreamReaderExtImpl
 {
     private final XMLStreamReader _xmlStream;
     private final CharSeqTrimWS _charSeq;
+    private String _defaultValue;
 
     public XMLStreamReaderExtImpl(XMLStreamReader xmlStream)
     {
@@ -53,7 +54,7 @@ public class XMLStreamReaderExtImpl
             throw new IllegalArgumentException();
 
         _xmlStream = xmlStream;
-        _charSeq = new CharSeqTrimWS(_xmlStream);
+        _charSeq = new CharSeqTrimWS(this);
     }
 
     // XMLStreamReaderExt methods
@@ -707,6 +708,11 @@ public class XMLStreamReaderExtImpl
         }
     }
 
+    public void setDefaultValue(String defaultValue) throws XMLStreamException
+    {
+        _defaultValue = defaultValue;
+    }
+
     /**
      * Only trims the XML whaitspace at edges, it should not be used for WS collapse
      * Used for int, short, byte
@@ -723,20 +729,23 @@ public class XMLStreamReaderExtImpl
         private int _nonWSStart = 0;
         private int _nonWSEnd = 0;
         private String _toStringValue;
-        private XMLStreamReader _xmlSteam;
+        private XMLStreamReaderExtImpl _xmlSteam;
         private boolean _supportForGetTextCharacters = true;
-        private Location _location;
+        private final ExtLocation _location;
+        private boolean _hasText;
 
-        CharSeqTrimWS(XMLStreamReader xmlSteam)
+        CharSeqTrimWS(XMLStreamReaderExtImpl xmlSteam)
         {
             _xmlSteam = xmlSteam;
+            _location = new ExtLocation();
         }
 
         void reload(int style)
             throws XMLStreamException
         {
             _toStringValue = null;
-            _location = null;
+            _location.reset();
+            _hasText = false;
 
             fillBuffer();
 
@@ -744,6 +753,11 @@ public class XMLStreamReaderExtImpl
             {
                 _nonWSStart = 0;
                 _nonWSEnd = _length;
+                if (!_hasText && _xmlSteam._defaultValue!=null)
+                {
+                    _length = 0;
+                    fillBufferFromString(_xmlSteam._defaultValue);
+                }
             }
             else if (style==XMLWHITESPACE_TRIM)
             {
@@ -753,7 +767,22 @@ public class XMLStreamReaderExtImpl
                 for (_nonWSEnd=_length; _nonWSEnd>_nonWSStart; _nonWSEnd--)
                     if (!XMLChar.isSpace(_buf[_nonWSEnd-1]))
                         break;
+
+                if (!_hasText && _xmlSteam._defaultValue!=null)
+                {
+                    _length = 0;
+                    fillBufferFromString(_xmlSteam._defaultValue);
+
+                    //apply whispace rule on the default value
+                    for (_nonWSStart=0; _nonWSStart<_length; _nonWSStart++)
+                        if (!XMLChar.isSpace(_buf[_nonWSStart]))
+                            break;
+                    for (_nonWSEnd=_length; _nonWSEnd>_nonWSStart; _nonWSEnd--)
+                        if (!XMLChar.isSpace(_buf[_nonWSEnd-1]))
+                            break;
+                }
             }
+            _xmlSteam._defaultValue = null;
         }
 
         private void fillBuffer()
@@ -778,8 +807,7 @@ public class XMLStreamReaderExtImpl
                 case XMLStreamReader.CDATA:
                 case XMLStreamReader.CHARACTERS:
                 case XMLStreamReader.SPACE:
-                    if (_location==null)
-                        _location = copyLocation(_xmlSteam.getLocation());
+                    _location.set(_xmlSteam.getLocation());
 
                     if (depth==0)
                         addTextToBuffer();
@@ -798,8 +826,7 @@ public class XMLStreamReaderExtImpl
                     break;
 
                 case XMLStreamReader.END_DOCUMENT:
-                    if (_location==null)
-                        _location = copyLocation(_xmlSteam.getLocation());
+                    _location.set(_xmlSteam.getLocation());
 
                     break loop;
 
@@ -810,8 +837,7 @@ public class XMLStreamReaderExtImpl
                     break;
 
                 case XMLStreamReader.ENTITY_REFERENCE:
-                    if (_location==null)
-                        _location = copyLocation(_xmlSteam.getLocation());
+                    _location.set(_xmlSteam.getLocation());
 
                     addEntityToBuffer();
                     break;
@@ -819,8 +845,7 @@ public class XMLStreamReaderExtImpl
                 case XMLStreamReader.START_ELEMENT:
                     depth++;
                     error = "Unexpected element '" + _xmlSteam.getName() + "' in text content.";
-                    if (_location==null)
-                        _location = copyLocation(_xmlSteam.getLocation());
+                    _location.set(_xmlSteam.getLocation());
 
                     break;
                 }
@@ -830,17 +855,34 @@ public class XMLStreamReaderExtImpl
                 throw new XMLStreamException(error);
         }
 
-        private void addTextToBuffer()
+        private void ensureBufferLength(int lengthToAdd)
         {
-            int textLength = _xmlSteam.getTextLength();
-
-            if (_length + textLength>_buf.length)
+            if (_length + lengthToAdd>_buf.length)
             {
-                char[] newBuf = new char[_length + textLength];
+                char[] newBuf = new char[_length + lengthToAdd];
                 if (_length>0)
                     System.arraycopy(_buf, 0, newBuf, 0, _length);
                 _buf = newBuf;
             }
+        }
+
+        private void fillBufferFromString(CharSequence value)
+        {
+            int textLength = value.length();
+            ensureBufferLength(textLength);
+
+            for (int i=0; i<textLength; i++)
+            {
+                _buf[i] = value.charAt(i);
+            }
+            _length = textLength;
+        }
+
+        private void addTextToBuffer()
+        {
+            _hasText = true;
+            int textLength = _xmlSteam.getTextLength();
+            ensureBufferLength(textLength);
 
             if (_supportForGetTextCharacters)
                 try
@@ -864,14 +906,7 @@ public class XMLStreamReaderExtImpl
             String text = _xmlSteam.getText();
 
             int textLength = text.length();
-
-            if (_length + textLength>_buf.length)
-            {
-                char[] newBuf = new char[_length + textLength];
-                if (_length>0)
-                    System.arraycopy(_buf, 0, newBuf, 0, _length);
-                _buf = newBuf;
-            }
+            ensureBufferLength(textLength);
 
             text.getChars(0, text.length(), _buf, _length);
             _length = _length + text.length();
@@ -880,8 +915,15 @@ public class XMLStreamReaderExtImpl
         CharSequence reloadAtt(int index, int style)
             throws XMLStreamException
         {
-            _location = copyLocation(_xmlSteam.getLocation());
+            _location.reset();
+            _location.set(_xmlSteam.getLocation());
             String value = _xmlSteam.getAttributeValue(index);
+
+            if (value==null && _xmlSteam._defaultValue!=null)
+                value = _xmlSteam._defaultValue;
+
+            _xmlSteam._defaultValue = null;
+
             int length = value.length();
 
             if (style==XMLWHITESPACE_PRESERVE)
@@ -909,8 +951,15 @@ public class XMLStreamReaderExtImpl
         CharSequence reloadAtt(String uri, String local, int style)
             throws XMLStreamException
         {
-            _location = copyLocation(_xmlSteam.getLocation());
+            _location.reset();
+            _location.set(_xmlSteam.getLocation());
             String value = _xmlSteam.getAttributeValue(uri, local);
+
+            if (value==null && _xmlSteam._defaultValue!=null)
+                value = _xmlSteam._defaultValue;
+
+            _xmlSteam._defaultValue = null;
+
             int length = value.length();
 
             if (style==XMLWHITESPACE_PRESERVE)
@@ -935,7 +984,9 @@ public class XMLStreamReaderExtImpl
 
         Location getLocation()
         {
-            return _location;
+            ExtLocation loc = new ExtLocation();
+            loc.set(_location);
+            return loc;
         }
 
         public int length()
@@ -973,49 +1024,70 @@ public class XMLStreamReaderExtImpl
             private int _off;
             private String _pid;
             private String _sid;
+            private boolean _isSet;
 
-            ExtLocation(int ln, int cn, int co, String pid, String sid)
+            ExtLocation()
             {
-                _line = ln;
-                _col = cn;
-                _off = co;
-                _pid = pid;
-                _sid = sid;
+                _isSet = false;
             }
 
             public int getLineNumber()
             {
-                return _line;
+                if (_isSet)
+                    return _line;
+                else
+                    throw new IllegalStateException();
             }
 
             public int getColumnNumber()
             {
-                return _col;
+                if (_isSet)
+                    return _col;
+                else
+                    throw new IllegalStateException();
             }
 
             public int getCharacterOffset()
             {
-                return _off;
+                if (_isSet)
+                    return _off;
+                else
+                    throw new IllegalStateException();
             }
 
             public String getPublicId()
             {
-                return _pid;
+                if (_isSet)
+                    return _pid;
+                else
+                    throw new IllegalStateException();
             }
 
             public String getSystemId()
             {
-                return _sid;
+                if (_isSet)
+                    return _sid;
+                else
+                    throw new IllegalStateException();
             }
-        }
 
-        private static Location copyLocation(Location loc)
-        {
-            //REVIEW zieg 2004-01-11 this extra object is hurting perf.  Can we
-            //somehow defer this until we need it, or just copy the
-            //values without creating a new object?
-            return new ExtLocation(loc.getLineNumber(), loc.getColumnNumber(), loc.getCharacterOffset(),
-                loc.getPublicId(), loc.getSystemId());
+            void set(Location loc)
+            {
+                if (_isSet)
+                    return;
+
+                _isSet = true;
+                _line = loc.getLineNumber();
+                _col = loc.getColumnNumber();
+                _off = loc.getCharacterOffset();
+                _pid = loc.getPublicId();
+                _sid = loc.getSystemId();
+            }
+
+            void reset()
+            {
+                _isSet = false;
+            }
         }
     }
 
