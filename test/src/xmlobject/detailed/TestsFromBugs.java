@@ -1,4 +1,3 @@
-
 /*   Copyright 2004 The Apache Software Foundation
  *
  *   Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +15,7 @@
 
 package xmlobject.detailed;
 
-import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.*;
 import com.mytest.Bar;
 import com.mytest.Foo;
 import com.mytest.Info;
@@ -27,23 +26,24 @@ import junit.framework.TestCase;
 import java.io.File;
 
 /**
- *  Test file that implements test cases that come from closing bugs.
- *
- *
+ * Test file that implements test cases that come from closing bugs.
  */
-public class TestsFromBugs extends TestCase {
+public class TestsFromBugs extends TestCase
+{
     File instance;
 
-    public TestsFromBugs(String name) {
+    public TestsFromBugs(String name)
+    {
         super(name);
     }
 
     /**
-     *  Radar Bug: 36156
-     *  Problem with Namespace leaking into siblings
+     * Radar Bug: 36156
+     * Problem with Namespace leaking into siblings
      */
     public void test36156()
-            throws Exception {
+            throws Exception
+    {
         String str = "<x><y xmlns=\"bar\"><z xmlns=\"foo\"/></y><a/></x>";
         XmlObject x = XmlObject.Factory.parse(str);
 
@@ -54,7 +54,8 @@ public class TestsFromBugs extends TestCase {
      * Radar Bug: 36510
      */
     public void test36510()
-            throws Exception {
+            throws Exception
+    {
         String str = "<test36510-app version='1.0' " +
                 "xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
                 " xsi:schemaLocation='http://test/xmlobject/test36510' " +
@@ -78,7 +79,8 @@ public class TestsFromBugs extends TestCase {
      * Radar Bug: 40907
      */
     public void test40907()
-            throws Exception {
+            throws Exception
+    {
         String str = "<myt:Test xmlns:myt=\"http://www.mytest.com\">" +
                 "<myt:foo>" +
                 "<myt:fooMember>this is foo member</myt:fooMember>" +
@@ -110,4 +112,86 @@ public class TestsFromBugs extends TestCase {
         assertEquals("XML instance is not as expected", doc.xmlText(), str);
 
     }
+
+    /**
+     * Simple Compilation Tests.
+     * Ensures method getSourceName is on SchemaComponent and
+     * can be called from SchemaGlobalElement and SchemaGlobalAttribute
+     * @throws Exception
+     */
+    public void test199585() throws Exception
+    {
+        String str = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
+                "    targetNamespace=\"urn:lax.Doc.Compilation\"\n" +
+                "    xmlns:tns=\"urn:lax.Doc.Compilation\"\n" +
+                "    xmlns:pre=\"noResolutionNamespace\"\n" +
+                "    elementFormDefault=\"qualified\"\n" +
+                "    attributeFormDefault=\"unqualified\">\n" +
+                "    <xs:element name=\"ItemRequest\" type=\"tns:ItemRequestType\"/>\n" +
+                "    <xs:complexType name=\"ItemRequestType\">\n" +
+                "        <xs:annotation>\n" +
+                "            <xs:documentation>\n" +
+                "                Ensure that XML content is allowed and not validated when the novdoc option is set\n" +
+                "                provided content is XHTML compliant and no elements use the schema namespaces\n" +
+                "                        <tns:ItemRequest>\n" +
+                "                            foobaz\n" +
+                "                        </tns:ItemRequest>\n" +
+                "                <xs:complexType name=\"foobar\">\n" +
+                "                    <xs:sequence>\n" +
+                "                        <xs:element name=\"foobaz\" type=\"pre:String\"/>\n" +
+                "                    </xs:sequence>\n" +
+                "                </xs:complexType>\n" +
+                "                provided content is XHTML compliant and no elements use the schema namespaces\n" +
+                "            </xs:documentation>\n" +
+                "        </xs:annotation>\n" +
+                "                <xs:sequence>\n" +
+                "                    <xs:element name=\"foobaz\" type=\"xs:string\">\n" +
+                "                        <xs:annotation>\n" +
+                "                            <xs:documentation>\n" +
+                "                   Ensure that XML content is allowed and not validated when the novdoc option is set\n" +
+                "                provided content is XHTML compliant and no elements use the schema namespaces\n" +
+                "                            </xs:documentation>\n" +
+                "                        </xs:annotation>\n" +
+                "                    </xs:element>\n" +
+                "                </xs:sequence>\n" +
+                "        <xs:attribute name=\"baz\" use=\"required\"/>\n" +
+                "    </xs:complexType>\n" +
+                "</xs:schema>";
+
+        XmlObject[] schemas = new XmlObject[]{
+            XmlObject.Factory.parse(str)};
+
+        SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null, schemas,
+                null, null, null, null);
+
+        //ensure SchemaGlobalElement has getSourceName Method
+        SchemaGlobalElement[] sge = sts.globalElements();
+        for (int i = 0; i < sge.length; i++) {
+            System.out.println("SGE SourceName: "+sge[i].getSourceName());
+
+        }
+        //ensure SchemaGlobalAttribute has getSourceName Method
+        SchemaGlobalAttribute[] sga = sts.globalAttributes();
+        for (int i = 0; i < sga.length; i++) {
+            System.out.println("SGE SourceName: " + sga[i].getSourceName());
+        }
+
+        //ensure SchemaGlobalElement is a subType of SchemaComponent
+        SchemaComponent[] sce = sts.globalElements();
+        for (int i = 0; i < sce.length; i++) {
+            System.out.println("SCE SourceName: " + sce[i].getSourceName());
+
+        }
+
+        //ensure SchemaGlobalAttribute is a subType of SchemaComponent
+        SchemaComponent[] sca = sts.globalElements();
+        for (int i = 0; i < sca.length; i++) {
+            System.out.println("SCA SourceName: " + sca[i].getSourceName());
+        }
+
+
+
+    }
+
 }

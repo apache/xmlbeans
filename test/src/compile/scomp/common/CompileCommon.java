@@ -19,6 +19,7 @@ import org.apache.xmlbeans.XmlError;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Vector;
 
 /**
  * @author jacobd
@@ -28,22 +29,30 @@ public class CompileCommon {
 
     public static final String P = File.separator;
 
-    public static File fwroot = getRootFile();
-    public static File caseroot = new File(fwroot, "test" + P + "cases");
+    public static String fwroot = getRootFile();
+    public static String caseroot = fwroot +P+"test" + P + "cases";
     //location of files under "cases folder"
-    public static String fileLocation = P + "xbean" + P + "compile" + P + "scomp" + P;
+    public static String fileLocation = caseroot+P + "xbean" + P + "compile" + P + "scomp" + P;
     public static File outputroot = new File(fwroot, "build" + P + "test" + P + "output");
 
-    public static File getRootFile() throws IllegalStateException {
-        try {
-            return new File(System.getProperty("xbean.rootdir")).getCanonicalFile();
-        } catch (IOException e) {
-            throw new IllegalStateException(e.toString());
-        }
+
+    /**
+     * If System.property for 'xbean.rootdir' == null
+     * use '.' as basePath
+     * '.' should be where the build.xml file lives
+     * @return
+     * @throws IllegalStateException
+     */
+    public static String getRootFile() throws IllegalStateException {
+            String baseDir = System.getProperty("xbean.rootdir");
+            if(baseDir == null)
+                return new File(".").getAbsolutePath();
+            else
+                return new File(baseDir).getAbsolutePath();
     }
 
     public static File xbeanCase(String str) {
-        return (new File(caseroot.getPath() + fileLocation, str));
+        return (new File(caseroot + fileLocation, str));
     }
 
     public static File xbeanOutput(String str) {
@@ -76,6 +85,29 @@ public class CompileCommon {
 
     public static boolean isJDK14() {
         return System.getProperty("java.version").startsWith("1.4");
+    }
+
+    /** compare contents of two vectors */
+    public static void comparefNameVectors(Vector act, Vector exp) throws Exception
+    {
+        if (exp == null)
+            throw new Exception("Exp was null");
+        if (act == null)
+            throw new Exception("Act was null");
+
+        if (exp.size() != act.size())
+            throw new Exception("Size was not the same");
+
+        //use Vector.equals to compare
+        if (!act.equals(exp))
+            throw new Exception("Expected FNames did Not Match");
+
+        //check sequence is as expected (not sure if vector.equals does this
+        for (int i = 0; i < exp.size(); i++) {
+            if (!exp.get(i).equals(act.get(i)))
+                throw new Exception("Item[" + i + "]-was not as expected" +
+                        "ACT[" + i + "]-" + act.get(i) + " != EXP[" + i + "]-" + exp.get(i));
+        }
     }
 
 }

@@ -40,94 +40,104 @@ import java.net.URL;
  *
  * 
  */
+public class AddToSelectionTest extends BasicCursorTestCase
+{
 
-public class AddToSelectionTest extends BasicCursorTestCase {
+    static String sXml = "<foo><b>0</b><b>1</b><b>2</b><b attr=\"a3\">3</b><b>4</b><b>5</b><b>6</b></foo>";
 
-    static  String sXml="<foo><b>0</b><b>1</b><b>2</b><b attr=\"a3\">3</b><b>4</b><b>5</b><b>6</b></foo>";
-
-    public AddToSelectionTest(String sName) {
-	super(sName);
+    public AddToSelectionTest(String sName)
+    {
+        super(sName);
     }
 
-     public static Test suite() {
+    public static Test suite()
+    {
         return new TestSuite(AddToSelectionTest.class);
     }
 
-    public void testAddToSelectionEnd(){
-
-	m_xc.toEndDoc();
-	m_xc.addToSelection();
-	assertEquals(1,m_xc.getSelectionCount());
+    public void testAddToSelectionEnd()
+    {
+        m_xc.toEndDoc();
+        m_xc.addToSelection();
+        assertEquals(1, m_xc.getSelectionCount());
     }
 
-    public void testAddToSelectionStart(){
-	m_xc.toStartDoc();
-	m_xc.addToSelection();
-	assertEquals(1,m_xc.getSelectionCount());
+    public void testAddToSelectionStart()
+    {
+        m_xc.toStartDoc();
+        m_xc.addToSelection();
+        assertEquals(1, m_xc.getSelectionCount());
     }
 
-    public void testAddToSelectionAll()throws Exception {
-	sXml = "<foo></foo>";
-	m_xc=XmlObject.Factory.parse(sXml).newCursor();
-	XmlCursor.TokenType tok;
-	m_xc.addToSelection();
-	while ((tok=m_xc.toNextToken())!=XmlCursor.TokenType.NONE){
-	    System.err.println(tok);
-	    m_xc.addToSelection();
-	}
-	assertEquals(4,m_xc.getSelectionCount());
+    public void testAddToSelectionAll() throws Exception
+    {
+        sXml = "<foo></foo>";
+        m_xc = XmlObject.Factory.parse(sXml).newCursor();
+        XmlCursor.TokenType tok;
+        m_xc.addToSelection();
+        while ((tok = m_xc.toNextToken()) != XmlCursor.TokenType.NONE) {
+            System.err.println(tok);
+            m_xc.addToSelection();
+        }
+        assertEquals(4, m_xc.getSelectionCount());
 
-	//check results
-	XmlCursor m_xc1=XmlObject.Factory.parse(sXml).newCursor();
-	m_xc.toSelection(0); //reset cursor
-	int i=m_xc.getSelectionCount();
-	while ((tok=m_xc1.toNextToken())!=XmlCursor.TokenType.NONE){
-	    //assertEquals(true,m_xc.hasNextSelection());
-	    assertEquals(m_xc.toNextToken(),tok);
-	    m_xc.toNextSelection();
-	}
-	//second cursor should be at the end of selections too...
-	assertEquals(false,m_xc.toNextSelection());
-	m_xc1.dispose();
+        //check results
+        XmlCursor m_xc1 = XmlObject.Factory.parse(sXml).newCursor();
+        m_xc.toSelection(0); //reset cursor
+        int i = m_xc.getSelectionCount();
+        while ((tok = m_xc1.toNextToken()) != XmlCursor.TokenType.NONE) {
+            //assertEquals(true,m_xc.hasNextSelection());
+            assertEquals(m_xc.toNextToken(), tok);
+            m_xc.toNextSelection();
+        }
+        //second cursor should be at the end of selections too...
+        assertEquals(false, m_xc.toNextSelection());
+        m_xc1.dispose();
     }
 
-    public void testAddToSelectionSet(){
-	//not set but bag semantics
-	int expRes=100;
+    public void testAddToSelectionSet()
+    {
+        //not set but bag semantics
+        int expRes = 100;
 
-	m_xc.clearSelections();
-	for (int i=0;i<100;i++){
-	    m_xc.toStartDoc();
-	    m_xc.addToSelection();
-	}
-	assertEquals(expRes,m_xc.getSelectionCount());
+        m_xc.clearSelections();
+        for (int i = 0; i < 100; i++) {
+            m_xc.toStartDoc();
+            m_xc.addToSelection();
+        }
+        assertEquals(expRes, m_xc.getSelectionCount());
     }
 
-     public void testAddAfterDispose(){
-
-	 m_xc.dispose();
-	 boolean error=false;
-	 try{
-	     m_xc.addToSelection();
-	 }catch(Throwable e){
-	     error=true;
-	 }
-	 assertEquals(true,error);
-
-     }
-
-
-    public void setUp()throws Exception{
-	m_xc=XmlObject.Factory.parse(sXml).newCursor();
-
-    }
-    public void tearDown(){
-	if (m_xc==null) return;
-	try{
-	    m_xc.clearSelections();
-	    super.tearDown();
-	}catch(IllegalStateException e){} //cursor disposed
+    public void testAddAfterDispose()
+    {
+        m_xc.dispose();
+        boolean error = false;
+        try {
+            m_xc.addToSelection();
+        } catch (Throwable e) {
+            error = true;
+        }
+        assertEquals(true, error);
 
     }
 
+
+    public void setUp() throws Exception
+    {
+        m_xc = XmlObject.Factory.parse(sXml).newCursor();
+        super.setUp();
+    }
+
+    public void tearDown()
+    {
+        if (m_xc == null) return;
+        try {
+            m_xc.clearSelections();
+            super.tearDown();
+        } catch (IllegalStateException e) { //cursor disposed
+        } catch (Exception e) {
+
+        }
+    }
 }
+

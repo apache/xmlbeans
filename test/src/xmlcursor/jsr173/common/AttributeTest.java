@@ -339,7 +339,9 @@ public abstract class AttributeTest extends TestCase {
 
     }
 
-    public void tearDown() throws Exception {
+    public void tearDown() throws Exception
+    {
+        super.tearDown();
         if (m_stream != null)
             m_stream.close();
     }

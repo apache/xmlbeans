@@ -73,8 +73,9 @@ public class MultipleDocsTest extends TestCase {
         }
     }
 
-    public void tearDown() throws Exception {
-
+    public void tearDown() throws Exception
+    {
+        super.tearDown();
     }
 
     private class Worker extends Thread {

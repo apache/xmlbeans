@@ -138,6 +138,7 @@
 	<xsl:template match="/test-log">
 		<html>
 			<head>
+                <!--<link rel="stylesheet" type="text/css" href="junit.css"/>-->
 				<xsl:call-template name="javascripts"/>
 			</head>
 			<body>
@@ -519,7 +520,7 @@
 		<xsl:for-each select="$errorTestResults/test-case[ 
                     generate-id() = 
                     generate-id(key('errorTestUnits', @testunit)[1])]">
-			<xsl:variable name="pos" select="position()"/>
+			<xsl:variable name="pos1" select="position()"/>
 			<xsl:variable name="errorTestUnit" select="@testunit"/>
 			<hr width="100%" size="2"/>
 			<a>
@@ -531,15 +532,15 @@
 				<!-- +++++++++++++++++++++++++++++++++ Filter Table ++++++++++++++++ -->
 				<table cellpadding="0" cellspacing="0" border="0" style="background-color: rgb(255, 255, 255);border-left: none;
      border-top: none; border-right: none; border-bottom: none">
-					<xsl:variable name="tf_enableFilter">TF_enableFilter(document.getElementById('errorDetailTable<xsl:value-of select="$pos"/>'), document.errorDetailFilter<xsl:value-of select="$pos"/>, this)</xsl:variable>
-					<xsl:variable name="tf_filterTable">TF_filterTable(document.getElementById('errorDetailTable<xsl:value-of select="$pos"/>'), document.errorDetailFilter<xsl:value-of select="$pos"/>)</xsl:variable>
-					<xsl:variable name="tf_showAll">TF_showAll(document.getElementById('errorDetailTable<xsl:value-of select="$pos"/>'))</xsl:variable>
+					<xsl:variable name="tf_enableFilter">TF_enableFilter(document.getElementById('errorDetailTable<xsl:value-of select="$pos1"/>'), document.errorDetailFilter<xsl:value-of select="$pos1"/>, this)</xsl:variable>
+					<xsl:variable name="tf_filterTable">TF_filterTable(document.getElementById('errorDetailTable<xsl:value-of select="$pos1"/>'), document.errorDetailFilter<xsl:value-of select="$pos1"/>)</xsl:variable>
+					<xsl:variable name="tf_showAll">TF_showAll(document.getElementById('errorDetailTable<xsl:value-of select="$pos1"/>'))</xsl:variable>
 					<!-- filter form elements -->
 					<tr>
 						<td cellpadding="0" cellspacing="0" border="0" style="background-color: rgb(255, 255, 255);border-left: none;
             border-top: none; border-right: none; border-bottom: none">
 							<form>
-								<xsl:attribute name="name">errorDetailFilter<xsl:value-of select="$pos"/></xsl:attribute>
+								<xsl:attribute name="name">errorDetailFilter<xsl:value-of select="$pos1"/></xsl:attribute>
 								<xsl:attribute name="onsubmit"><xsl:value-of select="$tf_filterTable"/></xsl:attribute>
 								<xsl:attribute name="onreset"><xsl:value-of select="$tf_showAll"/></xsl:attribute>
 								<!-- form element table -->
@@ -585,7 +586,7 @@
 			</xsl:if>
 			<!-- error detail table -->
 			<table border="1" class="details" cellspacing="0">
-				<xsl:attribute name="id">errorDetailTable<xsl:value-of select="$pos"/></xsl:attribute>
+				<xsl:attribute name="id">errorDetailTable<xsl:value-of select="$pos1"/></xsl:attribute>
 				<tr>
 					<th class="title" colspan="2">
 						<xsl:value-of select="@testunit"/>
