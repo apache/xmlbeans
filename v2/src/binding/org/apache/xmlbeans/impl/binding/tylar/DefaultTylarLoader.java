@@ -102,21 +102,15 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
   public Tylar load(URI uri) throws IOException, XmlException
   {
     if (uri == null) throw new IllegalArgumentException("null uri");
-    String scheme = uri.getScheme();
-    if (scheme.equals(FILE_SCHEME)) {
-      File file = null;
-      try {
-        file = new File(uri);
-      } catch(Exception ignore) {}
-      if (file != null && file.exists() && file.isDirectory()) {
-        return ExplodedTylarImpl.load(file);
-      } else {
-        return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
-      }
+    //String scheme = uri.getScheme();
+    File file = null;
+    try {
+      file = new File(uri);
+    } catch(Exception ignore) {}
+    if (file != null && file.exists() && file.isDirectory()) {
+      return ExplodedTylarImpl.load(file);
     } else {
-      throw new IOException("Sorry, the '"+scheme+
-                            "' scheme is not supported for loading tylars" +
-                            "("+uri+")");
+      return loadFromJar(new JarInputStream(uri.toURL().openStream()),uri);
     }
   }
 
@@ -128,6 +122,9 @@ public class DefaultTylarLoader implements TylarLoader, TylarConstants {
     return new CompositeTylar(tylars);
   }
 
+  /**
+   * @deprecated
+   */
   public Tylar load(JarInputStream jar) throws IOException, XmlException {
     if (jar == null) throw new IllegalArgumentException("null stream");
     return loadFromJar(jar,null);
