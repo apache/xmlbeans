@@ -126,15 +126,14 @@ abstract class Xobj implements TypeStore
     final boolean isContainer ( ) { return Cur.kindIsContainer( kind() ); }
     final boolean isUserNode  ( ) { int k = kind(); return k == ELEM || k == ROOT || (k == ATTR && !isXmlns()); }
 
-    final boolean isNormalAttr ( ) { return isAttr() && !isXmlns(); }
+    final boolean isNormalAttr ( ) { return isAttr() && !Locale.isXmlns( _name ); }
+    final boolean isXmlns      ( ) { return isAttr() &&  Locale.isXmlns( _name ); }
 
     final int cchValue ( ) { return _cchValue; }
     final int cchAfter ( ) { return _cchAfter; }
 
     final int posAfter ( ) { return 2 + _cchValue; }
     final int posMax   ( ) { return 2 + _cchValue + _cchAfter; }
-
-    final boolean isXmlns ( ) { return isAttr() ? Locale.isXmlns( _name ) : false; }
 
     final String getXmlnsPrefix ( ) { return Locale.xmlnsPrefix( _name ); }
     final String getXmlnsUri    ( ) { return getValueAsString(); }
@@ -286,7 +285,7 @@ abstract class Xobj implements TypeStore
             {
                 for ( ; ; x = x._parent )
                 {
-                    if (y == this)
+                    if (x == this)
                         return true;
 
                     if (x._parent == null)

@@ -46,17 +46,11 @@ public class AssortedTests extends TestCase
         cur.toFirstChild();
         // valid chars
         cur.setTextValue("<something or other:\u03C0\uD7FF>");
-// NEWSTORE START
         Assert.assertEquals("<test>&lt;something or other:\u03C0\uD7FF></test>", xdoc.toString());
-//        Assert.assertEquals("<test>&lt;something or other:\u03C0\uD7FF></test>" + newLine, xdoc.toString());
-// NEWSTORE END
         
         // invalid chars - control chars, unicode surrogates, FFFF/FFFE, etc
         cur.setTextValue("<something\0or\1other:\u0045\uFFFE\uD800\uDFFF\uDB80\uDC00\u03C0\uD7FF\u001F>");
-// NEWSTORE START
         Assert.assertEquals("<test>&lt;something?or?other:\u0045?????\u03C0\uD7FF?></test>", xdoc.toString());
-//        Assert.assertEquals("<test>&lt;something?or?other:\u0045?????\u03C0\uD7FF?></test>" + newLine, xdoc.toString());
-// NEWSTORE END
     }
     
     // bug 26140/26104

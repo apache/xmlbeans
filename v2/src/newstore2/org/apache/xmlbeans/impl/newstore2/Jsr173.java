@@ -79,7 +79,7 @@ public class Jsr173
 
         int k = c.kind();
         
-        if (k == Cur.TEXT)
+        if (k == Cur.TEXT || k < 0)
         {
             xs = new XMLStreamReaderForString( c, c.getChars( -1 ), c._offSrc, c._cchSrc );
         }
@@ -238,8 +238,10 @@ public class Jsr173
                 }
                 else
                     _cur.next();
+
+                assert _wholeDoc || _end != null;
                 
-                _done = _end != null && _cur.isSamePos( _end );
+                _done = _wholeDoc ? _cur.kind() == -Cur.ROOT : _cur.isSamePos( _end );
             }
 
             _textFetched = false;
@@ -295,18 +297,11 @@ public class Jsr173
                 int e = next();
 
                 if (e == END_ELEMENT)
-                {
                     depth--;
-                    continue;
-                }
-
-                if (e == START_ELEMENT)
+                else if (e == START_ELEMENT)
                     depth++;
-
-                if (e != CHARACTERS)
-                    throw new XMLStreamException();
-
-                sb.append( getText() );
+                else if (e != COMMENT && e != PROCESSING_INSTRUCTION)
+                    sb.append( getText() );
             }
 
             return sb.toString();
@@ -505,6 +500,10 @@ public class Jsr173
 
         public boolean isAttributeSpecified ( int index )
         {
+            // Go to attr to force index check
+            Cur ca = toAttr( _cur, index );
+            ca.release();
+            
             return false;
         }
 
@@ -512,9 +511,12 @@ public class Jsr173
         {
             int n = 0;
 
-            if (_cur.isElem())
+            if (_cur.isElem() || _cur.kind() == -Cur.ELEM)
             {
                 Cur ca = _cur.tempCur();
+
+                if (_cur.kind() == -Cur.ELEM)
+                    ca.toParent();
 
                 if (ca.toFirstAttr())
                 {
@@ -544,8 +546,11 @@ public class Jsr173
             Cur ca = c.tempCur();
             boolean match = false;
 
-            if (c.isElem())
+            if (c.isElem() || c.kind() == -Cur.ELEM)
             {
+                if (c.kind() == -Cur.ELEM)
+                    ca.toParent();
+                
                 if (ca.toFirstAttr())
                 {
                     do
@@ -666,6 +671,12 @@ public class Jsr173
                 throws XMLStreamException
         {
             if (length < 0)
+                throw new IndexOutOfBoundsException();
+
+            if (targetStart < 0 || targetStart >= target.length)
+                throw new IndexOutOfBoundsException();
+
+            if (targetStart + length > target.length)
                 throw new IndexOutOfBoundsException();
 
             if (!_srcFetched)

@@ -364,4 +364,13 @@ public interface XmlTokenSource
      * {@link #save(OutputStream, XmlOptions)}, {@link #save(File)} or {@link #save(File, XmlOptions)}.
      */
     void save ( Writer w, XmlOptions options ) throws IOException;
+
+    /**
+     * Prints to stdout the state of the document in which this token source is positioned.
+     * This is very implementation specific and may change at any time.  Dump can be useful
+     * for debugging purposes.  It is very different from the save methods which produce
+     * XML text which only approximates the actual state of the document.
+     */
+
+    void dump ( );
 }

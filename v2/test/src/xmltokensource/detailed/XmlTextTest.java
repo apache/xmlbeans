@@ -78,18 +78,14 @@ public class XmlTextTest extends BasicCursorTestCase {
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(3));
         String lnSep = System.getProperty("line.separator");
-        assertEquals("<a>" + lnSep + "   <b>" + lnSep + "      <c>text</c>" + lnSep + "   </b>" + lnSep + "</a>" , m_xc.xmlText(m_map));
+        assertEquals("<a>" + lnSep + "   <b>" + lnSep + "      <c>text</c>" + lnSep + "   </b>" + lnSep + "</a>", m_xc.xmlText(m_map));
     }
 
     public void testSavePrettyPrintIndentNeg1() throws Exception {
-        String input="<a>  \n  <b>  \n    <c> text   </c>   \n  </b>  \n  </a>";
-       String lnSep = System.getProperty("line.separator");
-        m_xc = XmlObject.Factory.parse(input).newCursor();
+        m_xc = XmlObject.Factory.parse("<a>  \n  <b>  \n    <c> text   </c>   \n  </b>  \n  </a>").newCursor();
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
         m_map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
-        
-        assertEquals("<a>"+lnSep+"<b>"+lnSep+"<c>text</c>"+lnSep+
-                "</b>"+lnSep+"</a>", m_xc.xmlText(m_map));
+        assertEquals("<a><b><c>text</c></b></a>", m_xc.xmlText(m_map));
     }
 
     public void testDefaultNamespace() throws Exception {

@@ -1818,22 +1818,25 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
     static boolean toChild ( Cur c, QName name, int i )
     {
-        c.push();
-
-        if (toFirstChildElement( c ))
+        if (i >= 0)
         {
-            do
-            {
-                if ((name == null || c.getName().equals( name )) && --i < 0)
-                {
-                    c.popButStay();
-                    return true;
-                }
-            }
-            while ( toNextSiblingElement( c ) );
-        }
+            c.push();
 
-        c.pop();
+            if (toFirstChildElement( c ))
+            {
+                do
+                {
+                    if ((name == null || c.getName().equals( name )) && --i < 0)
+                    {
+                        c.popButStay();
+                        return true;
+                    }
+                }
+                while ( toNextSiblingElement( c ) );
+            }
+
+            c.pop();
+        }
 
         return false;
     }

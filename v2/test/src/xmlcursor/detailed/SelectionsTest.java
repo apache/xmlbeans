@@ -90,10 +90,8 @@ public class SelectionsTest extends BasicCursorTestCase {
 	 m_xc.selectPath("$this//b");
 	 int i=0;
 	 boolean result=false;
-	 try{
-	     result=m_xc.toSelection(-1);
-	     i++;
-	 }catch(IllegalStateException e){}
+     result=m_xc.toSelection(-1);
+     assertEquals(result,false);
 
 	 try{
 	     result=m_xc.toSelection(m_xc.getSelectionCount()+1);
