@@ -27,88 +27,214 @@ final class Validate implements ValidatorListener.Event
         if (!c.isUserNode())
             throw new IllegalStateException( "Inappropriate location to validate" );
 
+        _sink = sink;
         _cur = c;
+        _textCur = c.tempCur();
+        _hasText = false;
 
-        c.push();
+        _cur.push();
 
-        sink.nextEvent( ValidatorListener.BEGIN, this );
-        
-        if (c.isAttr())
+        try
         {
-            c.next();
+            process();
+        }
+        finally
+        {
+            _cur.pop();
+            _cur = null;
+            
+            _sink = null;
+            
+            _textCur.release();
+        }
+    }
 
-            if (c.isText())
-                sink.nextEvent( ValidatorListener.TEXT, this );
+    private void process ( )
+    {
+        emitEvent( ValidatorListener.BEGIN );
+
+        if (_cur.isAttr())
+        {
+            // If validating an attr, I'm really validating the contents of that attr.  So, go to
+            // any text value and shove it thru the validator.
+            
+            _cur.next();
+
+            if (_cur.isText())
+                emitText();
         }
         else
         {
-            assert c.isContainer();
+            assert _cur.isContainer();
 
-            doAttrs( sink, c );
+            // Do the attrs of the top container
+            
+            doAttrs();
 
-            for ( c.next() ; ! c.isAtEndOfLastPush() ; c.next() )
+            for ( _cur.next() ; ! _cur.isAtEndOfLastPush() ; _cur.next() )
             {
-                switch ( c.kind() )
+                switch ( _cur.kind() )
                 {
                 case Cur.ELEM :
-                    doAttrs( sink, c );
-                    sink.nextEvent( ValidatorListener.BEGIN, this );
+                    emitEvent( ValidatorListener.BEGIN );
+                    doAttrs();
                     break;
                 
                 case - Cur.ELEM :
-                    sink.nextEvent( ValidatorListener.END, this );
+                    emitEvent( ValidatorListener.END );
                     break;
                 
                 case Cur.TEXT :
-                    sink.nextEvent( ValidatorListener.TEXT, this );
+                    emitText();
                     break;
                     
                 case Cur.COMMENT  :
                 case Cur.PROCINST :
-                    c.skip();
+                    _cur.toEnd();
                     break;
 
                 default :
-                    throw new RuntimeException( "Unexpected kind: " + c.kind() );
+                    throw new RuntimeException( "Unexpected kind: " + _cur.kind() );
                 }
             }
         }
         
-        sink.nextEvent( ValidatorListener.END, this );
-
-        c.pop();
+        emitEvent( ValidatorListener.END );
     }
 
-    private void doAttrs ( ValidatorListener sink, Cur c )
+    private void doAttrs ( )
     {
-        if (c.toFirstAttr())
+        // When processing attrs, there can be no accumulated text because there would have been
+        // a preceeding event which would have flushged the text.
+        
+        assert !_hasText;
+        
+        if (_cur.toFirstAttr())
         {
             do
             {
-                if (c.isNormalAttr() && !c.getUri().equals( Locale._xsi ))
-                    sink.nextEvent( ValidatorListener.ATTR, this );
+                if (_cur.isNormalAttr() && !_cur.getUri().equals( Locale._xsi ))
+                    _sink.nextEvent( ValidatorListener.ATTR, this );
             }
-            while ( c.toNextAttr() );
+            while ( _cur.toNextAttr() );
 
-            c.toParent();
+            _cur.toParent();
         }
         
-        sink.nextEvent( ValidatorListener.ENDATTRS, this );
+        _sink.nextEvent( ValidatorListener.ENDATTRS, this );
+    }
+
+    private void emitText ( )
+    {
+        assert _cur.isText();
+
+        if (_hasText)
+        {
+            if (_oneChunk)
+            {
+                if (_textSb == null)
+                    _textSb = new StringBuffer();
+                else
+                    _textSb.delete( 0, _textSb.length() );
+
+                assert _textCur.isText();
+
+                CharUtil.getString(
+                    _textSb, _textCur.getChars( -1 ), _textCur._offSrc, _textCur._cchSrc );
+
+                _oneChunk = false;
+            }
+            
+            assert _textSb != null && _textSb.length() > 0;
+                
+            CharUtil.getString( _textSb, _cur.getChars( -1 ), _cur._offSrc, _cur._cchSrc );
+        }
+        else
+        {
+            _hasText = true;
+            _oneChunk = true;
+            _textCur.moveToCur( _cur );
+        }
+    }
+
+    private void emitEvent ( int kind )
+    {
+        assert kind != ValidatorListener.TEXT;
+        assert kind != ValidatorListener.ATTR     || !_hasText;
+        assert kind != ValidatorListener.ENDATTRS || !_hasText;
+
+        if (_hasText)
+        {
+            _sink.nextEvent( ValidatorListener.TEXT, this );
+            _hasText = false;
+        }
+
+        _sink.nextEvent( kind, this );
+    }
+
+    public String getText ( )
+    {
+        if (_cur.isAttr())
+            return _cur.getValueAsString();
+
+        assert _hasText;
+        assert _oneChunk || (_textSb != null && _textSb.length() > 0);
+        assert !_oneChunk || _textCur.isText();
+
+        return _oneChunk ? _textCur.getCharsAsString( -1 ) : _textSb.toString();
+    }
+
+    public String getText ( int wsr )
+    {
+        if (_cur.isAttr())
+            return _cur.getValueAsString( wsr );
+
+        assert _hasText;
+        assert _oneChunk || (_textSb != null && _textSb.length() > 0);
+        assert !_oneChunk || _textCur.isText();
+
+        if (_oneChunk)
+            return _textCur.getCharsAsString( -1, wsr );
+
+        return Locale.applyWhiteSpaceRule( _textSb.toString(), wsr );
+    }
+
+    public boolean textIsWhitespace ( )
+    {
+        if (_cur.isAttr())
+        {
+            return
+                _cur._locale._charUtil.isWhiteSpace(
+                    _cur.getFirstChars(), _cur._offSrc, _cur._cchSrc );
+        }
+        
+        assert _hasText;
+
+        if (_oneChunk)
+        {
+            return
+                _cur._locale._charUtil.isWhiteSpace(
+                    _textCur.getChars( -1 ), _textCur._offSrc, _textCur._cchSrc );
+        }
+
+        String s = _textSb.toString();
+        
+        return _cur._locale._charUtil.isWhiteSpace( s, 0, s.length() );
     }
 
     public String getNamespaceForPrefix ( String prefix )
     {
-        throw new RuntimeException( "Not implemeneted" );
+        return _cur.namespaceForPrefix( prefix, true );
     }
 
     public XmlCursor getLocationAsCursor ( )
     {
-        throw new RuntimeException( "Not implemeneted" );
+        return new Cursor( _cur );
     }
 
     public Location getLocation ( )
     {
-        throw new RuntimeException( "Not implemeneted" );
+        return null;
     }
 
     public String getXsiType ( )
@@ -136,23 +262,23 @@ final class Validate implements ValidatorListener.Event
         return _cur.isAtLastPush() ? null : _cur.getName();
     }
 
-    public String getText ( )
-    {
-        return _cur.isAttr() ? _cur.getValueAsString() : _cur.getString( -1 );
-    }
+    //
+    //
+    //
 
-    public String getText ( int wsr )
-    {
-        return _cur.isAttr() ? _cur.getValueAsString( wsr ) : _cur.getString( -1, wsr );
-    }
-
-    public boolean textIsWhitespace ( )
-    {
-        return
-            CharUtil.isWhiteSpace(
-                _cur.isAttr() ? _cur.getValueChars() : _cur.getChars( -1 ),
-                _cur._offSrc, _cur._cchSrc );
-    }
+    private ValidatorListener _sink;
 
     private Cur _cur;
+
+    // Two ways to accumulate text.  First, I can have a Cur positioned at the text.  I do this
+    // instead of getting the there there because white space rules are applied at a later point.
+    // This way, when I turn the text into a String, I can cache the string.  If multiple chunks
+    // of text exists for one event, then I accumulate all the text into a string buffer and I,
+    // then, don't care about caching Strings.
+    
+    private boolean _hasText;
+    private boolean _oneChunk;
+
+    private Cur          _textCur;
+    private StringBuffer _textSb;
 }

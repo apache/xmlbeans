@@ -1764,7 +1764,7 @@ public interface XmlCursor extends XmlTokenSource
      * 
      * @param  target  The target for the processing instruction.
      * @param  text  The new processing instruction's text.
-     * @throws java.lang.IllegalArgumentException  If the insertion is not allowed
+     * @throws java.lang.IllegalStateException  If the insertion is not allowed
      * at the cursor's location.
      */
 

@@ -556,6 +556,8 @@ public class InstanceValidationTests extends TestCase
 
             File[] schemasF = { schemeFile, xmlFile };
 
+// NEWSTORE START
+//            stl = makeSchemaTypeLoader( schemasF );
             Root.disableStoreValidation();
             try
             {
@@ -565,6 +567,7 @@ public class InstanceValidationTests extends TestCase
             {
                 Root.enableStoreValidation();
             }
+// NEWSTORE END
 
             SchemaType type =
                 stl.findDocumentType(
@@ -1242,6 +1245,7 @@ public class InstanceValidationTests extends TestCase
             doTest( schemas, null, valid, invalid );
         }
 
+// NEWSTORE START
         public void testValidate4 ( )
             throws Exception
         {
@@ -1303,6 +1307,7 @@ public class InstanceValidationTests extends TestCase
 
             Assert.assertTrue( blewChunks );
         }
+// NEWSTORE END
 
         public void testValidate5 ( )
             throws Exception
@@ -2000,7 +2005,6 @@ public class InstanceValidationTests extends TestCase
                   System.err.println( "Invalid doc, expected a valid doc: " );
                   System.err.println( "Instance(" + i + "): " );
                   System.err.println( x.xmlText() );
-                  Root.dump( x );
                   System.err.println( "Errors: " );
                   for ( int j = 0 ; j < xel.size() ; j++ )
                       System.err.println( xel.get( j ) );
@@ -2033,7 +2037,6 @@ public class InstanceValidationTests extends TestCase
                       System.err.println( "Valid doc, expected a invalid doc: " );
                       System.err.println( "Instance(" + i + "): " );
                       System.err.println( x.xmlText() );
-                      Root.dump( x );
                       System.err.println();
                   }
 

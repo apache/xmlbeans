@@ -106,6 +106,7 @@ public class DomTests extends TestCase {
 
         doTestDomExport(xml);
 
+// NEWSTORE START
         try {
             xml =
                     "<xml-fragment " +
@@ -118,6 +119,7 @@ public class DomTests extends TestCase {
         }
         catch (Exception e) {
         }
+// NEWSTORE END
 
         XmlObject x = XmlObject.Factory.parse(xx);
 

@@ -16,17 +16,30 @@
 package dom.common;
 
 import org.apache.xmlbeans.impl.newstore2.Public2;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 
 
 public class NewLoader extends Loader{
 
-    public org.w3c.dom.Document load(String sXml){
-        return (org.w3c.dom.Document)Public2.parse(sXml);
+    public org.w3c.dom.Document load ( String sXml )
+    {
+        try
+        {
+            return (org.w3c.dom.Document) Public2.parse( sXml );
+        }
+        catch ( XmlException e )
+        {
+            throw new XmlRuntimeException( e );
+        }
     }
-      public org.w3c.dom.Document loadSync(String sXml){
-           org.w3c.dom.Document doc=load(sXml);
-          Public2.setSync(doc,true);
-          return doc;
-
-      }
+    
+    public org.w3c.dom.Document loadSync ( String sXml )
+    {
+        org.w3c.dom.Document doc = load( sXml );
+        
+        Public2.setSync( doc,true );
+        
+        return doc;
+    }
 }

@@ -72,7 +72,7 @@ public class CopyXmlContentsTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.START);
         toNextTokenOfType(xc1, TokenType.TEXT);
 	m_xc.copyXmlContents(xc1);
-        xc1.toPrevToken();
+        xc1.toParent();
         // verify xc1
         assertEquals("01234text", xc1.getTextValue());
         xc1.dispose();

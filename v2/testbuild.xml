@@ -610,6 +610,7 @@
             classpathref="test.run.classpath"
             optimize="on"
             source="1.4"
+            debug="on"
             verbose="false"
             failonerror="true"/>
         <jar destfile="${build.dir.test.lib}/testcases.jar"

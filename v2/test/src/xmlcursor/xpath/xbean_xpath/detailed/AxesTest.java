@@ -18,6 +18,7 @@ package xmlcursor.xpath.xbean_xpath.detailed;
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.newstore2.Public2;
 
 /**
@@ -42,7 +43,7 @@ public class AxesTest extends TestCase {
             ;
 
 
-    public void testChildAxisAbbrev() {
+    public void testChildAxisAbbrev() throws XmlException {
 
         String sQuery1 = "./foo/bar";
         String sExpected = "<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -64,7 +65,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testChildAxis() {
+    public void testChildAxis() throws XmlException {
         String sQuery1 = "./foo/child::bar";
         String sExpected = "<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
                 "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</bar>";
@@ -79,7 +80,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testChildAxisDot() {
+    public void testChildAxisDot() throws XmlException {
 
         String sQuery1 = "$this/foo/./bar";
         String sExpected = "<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -93,7 +94,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testChildAxisDNE() {
+    public void testChildAxisDNE() throws XmlException {
 
         String sQuery1 = "$this/foo/./baz";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
@@ -102,7 +103,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testDescendantAxis() {
+    public void testDescendantAxis() throws XmlException {
 
         String sQuery1 = "./descendant::foo";
         String sExpected = "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -120,7 +121,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testDescendantAxisAbbrev() {
+    public void testDescendantAxisAbbrev() throws XmlException {
 
         String sQuery1 = ".//foo";
         String sExpected = "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -137,7 +138,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testDescAxisDot() {
+    public void testDescAxisDot() throws XmlException {
 
         String sQuery1 = "$this/descendant::foo/.";
         String sExpected = "<foo at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -152,7 +153,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testDescAxisDNE() {
+    public void testDescAxisDNE() throws XmlException {
 
         String sQuery1 = "$this/descendant::baz";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -163,7 +164,7 @@ public class AxesTest extends TestCase {
     }
 
 
-    public void testChildAttribute() {
+    public void testChildAttribute() throws XmlException {
         String sExpected = "<xml-fragment at0=\"val0\"/>";
         String sQuery1 = "$this/foo/bar/attribute::at0";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
@@ -173,7 +174,7 @@ public class AxesTest extends TestCase {
         assertEquals(sExpected, c.xmlText());
     }
 
-    public void testChildAttributeAbbrev() {
+    public void testChildAttributeAbbrev() throws XmlException {
         String sExpected = "<xml-fragment at0=\"val0\"/>";
         ;
         String sQuery1 = "$this/foo/bar/@at0";
@@ -184,7 +185,7 @@ public class AxesTest extends TestCase {
         assertEquals(sExpected, c.xmlText());
     }
 
-    public void testDescAttribute() {
+    public void testDescAttribute() throws XmlException {
         String sExpected = "<xml-fragment at0=\"val0\"/>";
         String sQuery1 = "$this//attribute::at0";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
@@ -196,7 +197,7 @@ public class AxesTest extends TestCase {
     }
 
 
-    public void testDescendantOrSelfAxis() {
+    public void testDescendantOrSelfAxis() throws XmlException {
 
         String sQuery1 = "./descendant-or-self::foo";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -222,7 +223,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testDescendantOrSelfAxisDot() {
+    public void testDescendantOrSelfAxisDot() throws XmlException {
 
         String sQuery1 = "./descendant-or-self::foo";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -247,7 +248,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testDescendantOrSelfAxisDNE() {
+    public void testDescendantOrSelfAxisDNE() throws XmlException {
 
         String sQuery1 = "$this/descendant-or-self::baz";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -258,7 +259,7 @@ public class AxesTest extends TestCase {
     }
 
 
-    public void testSelfAxis() {
+    public void testSelfAxis() throws XmlException {
 
         String sQuery1 = "$this/self::foo";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -275,7 +276,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testSelfAxisAbbrev() {
+    public void testSelfAxisAbbrev() throws XmlException {
 
         String sQuery1 = ".";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -292,7 +293,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testSelfAxisDot() {
+    public void testSelfAxisDot() throws XmlException {
 
         String sQuery1 = "./self::foo";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -308,7 +309,7 @@ public class AxesTest extends TestCase {
         assertEquals(sExpected, c.xmlText());
     }
 
-    public void testSelfAxisDNE() {
+    public void testSelfAxisDNE() throws XmlException {
 
         String sQuery1 = "$this/self::baz";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -318,7 +319,7 @@ public class AxesTest extends TestCase {
 
     }
 
-    public void testNamespaceAxis() {
+    public void testNamespaceAxis() throws XmlException {
 
         String sQuery1 = "$this/namespace::http://uri.com";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -336,7 +337,7 @@ public class AxesTest extends TestCase {
         assertEquals(sExpected, c.xmlText());
     }
 
-    public void testNamespaceAxisDot() {
+    public void testNamespaceAxisDot() throws XmlException {
 
         String sQuery1 = "./*/namespace::http://uri.com";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));
@@ -352,7 +353,7 @@ public class AxesTest extends TestCase {
         assertEquals(sExpected, c.xmlText());
     }
 
-    public void testNamespaceAxisDNE() {
+    public void testNamespaceAxisDNE() throws XmlException {
 
         String sQuery1 = "$this/namespace::*";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlDesc));

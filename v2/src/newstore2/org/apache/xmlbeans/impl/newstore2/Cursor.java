@@ -63,10 +63,16 @@ public final class Cursor implements XmlCursor, ChangeListener
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT     = Cur.TEXT;
 
+    Cursor ( Xobj x, int p )
+    {
+        _cur = x._locale.weakCur( this );
+        _cur.moveTo( x, p );
+        _currentSelection = -1;
+    }
+    
     Cursor ( Cur c )
     {
-        _cur = c.weakCur( this );
-        _currentSelection = -1;
+        this( c._xobj, c._pos );
     }
 
     private static boolean isValid ( Cur c )
@@ -154,26 +160,27 @@ public final class Cursor implements XmlCursor, ChangeListener
         throw new IllegalArgumentException( msg );
     }
 
-    private void checkInsertionValidity ( Cur thisStuff )
+    private void checkInsertionValidity ( Cur that )
     {
-        int thisKind = thisStuff.kind();
+        int thatKind = that.kind();
 
-        if (thisKind < 0)
+        if (thatKind < 0)
             complain( "Can't move/copy/insert an end token." );
 
-        if (thisKind == ROOT)
+        if (thatKind == ROOT)
             complain( "Can't move/copy/insert a whole document." );
 
-        int k = _cur.kind();
+        int thisKind = _cur.kind();
 
-        if (k == ROOT)
+        if (thisKind == ROOT)
             complain( "Can't insert before the start of the document." );
 
-        if (thisKind == ATTR)
+        if (thatKind == ATTR)
         {
-            _cur.prev();
+            _cur.push();
+            _cur.prevWithAttrs();
             int pk = _cur.kind();
-            _cur.next();
+            _cur.pop();
 
             if (pk != ELEM && pk != ROOT && pk != -ATTR)
             {
@@ -181,24 +188,28 @@ public final class Cursor implements XmlCursor, ChangeListener
                     "Can only insert attributes before other attributes or after containers." );
             }
         }
+
+        if (thisKind == ATTR && thatKind != ATTR)
+            complain( "Can only insert attributes before other attributes or after containers." );
     }
     
-    private void insertNode ( Cur thisStuff, String text )
+    private void insertNode ( Cur that, String text )
     {
-        assert thisStuff.isNode();
-        assert isValid( thisStuff );
+        assert !that.isRoot();
+        assert that.isNode();
+        assert isValid( that );
         assert isValid();
 
         if (text != null && text.length() > 0)
         {
-            thisStuff.next();
-            thisStuff.insertString( text );
-            thisStuff.toParent();
+            that.next();
+            that.insertString( text );
+            that.toParent();
         }
 
-        checkInsertionValidity( thisStuff );
+        checkInsertionValidity( that );
 
-        thisStuff.moveNode( _cur );
+        that.moveNode( _cur );
 
         _cur.toEnd();
         _cur.nextWithAttrs();
@@ -227,7 +238,25 @@ public final class Cursor implements XmlCursor, ChangeListener
     public QName _getName ( )
     {
         // TODO - consider taking this out of the gateway
-        return _cur.getName();
+        
+        switch ( _cur.kind() )
+        {
+            case ATTR :
+
+                if (_cur.isXmlns())
+                {
+                    return
+                        _cur._locale.makeQNameNoCheck( _cur.getXmlnsUri(), _cur.getXmlnsPrefix() );
+                }
+
+                // Fall thru
+                
+            case ELEM :
+            case PROCINST :
+                return _cur.getName();
+        }
+
+        return null;
     }
     
     public void _setName ( QName name )
@@ -298,7 +327,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     public boolean _isContainer  ( ){ return _currentTokenType().isContainer(); }
     public boolean _isFinish     ( ){ return _currentTokenType().isFinish();    }
     public boolean _isAnyAttr    ( ){ return _currentTokenType().isAnyAttr();   }
-    
+
     public TokenType _toNextToken ( )
     {
         assert isValid();
@@ -348,20 +377,34 @@ public final class Cursor implements XmlCursor, ChangeListener
     {
         assert isValid();
 
+        // This method is different than the Cur version of prev in a few ways.  First,
+        // Cursor iterates over attrs inline with all the other content.  Cur will skip attrs, or
+        // if the Cur in in attrs, it will not jump out of attrs.  Also, if moving backwards and
+        // text is to the left and right, Cur will move to the beginning of that text, while
+        // Cursor will move further so that the token type to the right is not text.
+        
+        boolean wasText = _cur.isText();
+
         if (!_cur.prev())
         {
-            if (_cur.kind() == ATTR)
-                _cur.toParent();
-            else
+            assert _cur.isRoot() || _cur.isAttr();
+            
+            if (_cur.isRoot())
                 return TokenType.NONE;
-        }
-
-        int k = _cur.kind();
-
-        if (k == -COMMENT || k == -PROCINST)
+            
             _cur.toParent();
-        else if (_cur.isContainer())
-            _cur.toLastAttr();
+        }
+        else
+        {
+            int k = _cur.kind();
+
+            if (k < 0 && (k == -COMMENT || k == -PROCINST || k == -ATTR))
+                _cur.toParent();
+            else if (_cur.isContainer())
+                _cur.toLastAttr();
+            else if (wasText && _cur.isText())
+                return _toPrevToken();
+        }
         
         return _currentTokenType();
     }
@@ -409,37 +452,43 @@ public final class Cursor implements XmlCursor, ChangeListener
     {
         return new ChangeStampImpl( _cur._locale );
     }
+
+    //
+    // These simply delegate to the version of the method which takes XmlOptions
+    //
     
+    public XMLInputStream  _newXMLInputStream ( )  { return _newXMLInputStream( null ); }
+    public XMLStreamReader _newXMLStreamReader ( ) { return _newXMLStreamReader( null ); }
+    public Node            _newDomNode ( )         { return _newDomNode( null ); }
+    public InputStream     _newInputStream ( )     { return _newInputStream( null ); }
+    public String          _xmlText ( )            { return _xmlText( null ); }
+    public Reader          _newReader ( )          { return _newReader( null ); }
+    
+    public void _save ( File file )       throws IOException { _save( file, null ); }
+    public void _save ( OutputStream os ) throws IOException { _save( os, null ); }
+    public void _save ( Writer w )        throws IOException { _save( w, null ); }
+    
+    public void _save ( ContentHandler ch, LexicalHandler lh ) throws SAXException { _save( ch, lh, null ); }
+
+    //
+    //
+    //
+
     public XmlDocumentProperties _documentProperties ( )
     {
         return Locale.getDocProps( _cur, true );
     }
-    
-    public XMLStreamReader _newXMLStreamReader ( )
-    {
-        return _newXMLStreamReader( null );
-    }
-    
+
     public XMLStreamReader _newXMLStreamReader ( XmlOptions options )
     {
         return Jsr173.newXmlStreamReader( _cur, options );
     }
 
-    public XMLInputStream _newXMLInputStream ( )
-    {
-        return _newXMLInputStream( null );
-    }
-    
     public XMLInputStream _newXMLInputStream ( XmlOptions options )
     {
         throw new RuntimeException( "Not implemented" );
     }
-    
-    public String _xmlText ( )
-    {
-        return _xmlText( null );
-    }
-    
+
     public String _xmlText ( XmlOptions options )
     {
         assert isValid();
@@ -451,51 +500,16 @@ public final class Cursor implements XmlCursor, ChangeListener
     {
         return new Saver.InputStreamSaver( _cur, options );
     }
-    
-    public InputStream _newInputStream ( )
-    {
-        return _newInputStream( null );
-    }
-    
-    public Reader _newReader ( )
-    {
-        return _newReader( null );
-    }
-    
+
     public Reader _newReader( XmlOptions options )
     {
         return new Saver.TextReader( _cur, options );
     }
     
-    public Node _newDomNode ( )
+    public void _save ( ContentHandler ch, LexicalHandler lh, XmlOptions options )
+        throws SAXException
     {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public void _save ( ContentHandler ch, LexicalHandler lh ) throws SAXException
-    {
-        _save( ch, lh, null );
-    }
-    
-    public void _save ( File file ) throws IOException
-    {
-        _save( file, null );
-    }
-    
-    public void _save ( OutputStream os ) throws IOException
-    {
-        _save( os, null );
-    }
-    
-    public void _save ( Writer w ) throws IOException
-    {
-        _save( w, null );
-    }
-    
-    public void _save ( ContentHandler ch, LexicalHandler lh, XmlOptions options ) throws SAXException
-    {
-        throw new RuntimeException( "Not implemented" );
-//        new Saver.SaxSaver( _cur, options, ch, lh );
+        new Saver.SaxSaver( _cur, options, ch, lh );
     }
     
     public void _save ( File file, XmlOptions options ) throws IOException
@@ -560,19 +574,76 @@ public final class Cursor implements XmlCursor, ChangeListener
         }
     }
     
-    public Node _newDomNode ( XmlOptions options )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
     public Node _getDomNode ( )
     {
         return (Node) _cur.getDom();
     }
     
-    public boolean _toCursor ( XmlCursor moveTo )
+    public Node _newDomNode ( XmlOptions options )
     {
-        throw new RuntimeException( "Not implemented" );
+        boolean isFrag;
+
+        if (_cur.isRoot())
+        {
+            Cur cEnd = _cur.tempCur();
+            cEnd.toEnd();
+
+            _cur.nextWithAttrs();
+
+            isFrag = Locale.isFragment( _cur, cEnd );
+
+            cEnd.release();
+
+            _cur.toParent();
+        }
+        else
+            isFrag = true;
+
+        Locale l = Locale.getLocale( _cur._locale._schemaTypeLoader, null );
+
+        l.enter();
+
+        try
+        {
+            Cur c = l.tempCur();
+
+            if (isFrag)
+                c.createDomDocFragRoot();
+            else
+                c.createDomDocumentRoot();
+
+            c.next();
+
+            if (_cur.isText())
+                c.insertChars( _cur.getChars( -1 ), _cur._offSrc, _cur._cchSrc );
+            else if (_cur.isRoot())
+                Cur.moveNodeContents( _cur._xobj.copyNode( l ), c, true );
+            else if (_cur.kind() > 0)
+                _cur.copyNode( c );
+
+            c.toParent();
+
+            assert c.isRoot();
+
+            Node n = (Node) c.getDom();
+
+            c.release();
+
+            return n;
+        }
+        finally
+        {
+            l.exit();
+        }
+    }
+    
+    public boolean _toCursor ( Cursor other )
+    {
+        assert _cur._locale == other._cur._locale;
+
+        _cur.moveToCur( other._cur );
+
+        return true;
     }
     
     public void _push ( )
@@ -635,8 +706,16 @@ public final class Cursor implements XmlCursor, ChangeListener
     {
         while ( i >= _cur.selectionCount() )
         {
-            if (_pathEngine == null || !_pathEngine.next( _cur ))
+            if (_pathEngine == null)
                 return false;
+            
+            if (!_pathEngine.next( _cur ))
+            {
+                _pathEngine.release();
+                _pathEngine = null;
+                
+                return false;
+            }
         }
 
         _cur.moveToSelection( _currentSelection = i );
@@ -660,215 +739,218 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void _clearSelections ( )
     {
+        if (_pathEngine != null)
+        {
+            _pathEngine.release();
+            _pathEngine = null;
+        }
+        
         _cur.clearSelection();
-        _pathEngine.release();
-        _pathEngine = null;
+        
         _currentSelection = 0;
-    }
-    
-    public boolean _toBookmark ( XmlBookmark bookmark )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public XmlBookmark _toNextBookmark ( Object key )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public XmlBookmark _toPrevBookmark ( Object key )
-    {
-        // TODO - implement me!
-        return null;
     }
     
     public String _namespaceForPrefix ( String prefix )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!_cur.isContainer())
+            throw new IllegalStateException( "Not on a container" );
+
+        return _cur.namespaceForPrefix( prefix, true );
     }
     
-    public String _prefixForNamespace ( String namespaceURI )
+    public String _prefixForNamespace ( String ns )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (ns == null || ns.length() == 0)
+            throw new IllegalArgumentException( "Must specify a namespace" );
+
+// Note: I loosen this requirement in v2, can call this from anywhere
+//        if (!_cur.isContainer())
+//            throw new IllegalStateException( "Not on a container" );
+
+        return _cur.prefixForNamespace( ns, null, true );
     }
     
     public void _getAllNamespaces ( Map addToThis )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!_cur.isContainer())
+            throw new IllegalStateException( "Not on a container" );
+
+        if (addToThis != null)
+            Locale.getAllNamespaces( _cur, addToThis );
     }
     
     public XmlObject _getObject ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.getObject();
     }
     
     public TokenType _prevTokenType ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        _cur.push();
+        
+        TokenType tt = _toPrevToken();
+        
+        _cur.pop();
+
+        return tt;
     }
     
     public boolean _hasNextToken ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.kind() != -ROOT;
     }
     
     public boolean _hasPrevToken ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.kind() != ROOT;
     }
     
     public TokenType _toFirstContentToken ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!_cur.isContainer())
+            return TokenType.NONE;
+
+        _cur.next();
+        
+        return currentTokenType();
     }
     
     public TokenType _toEndToken ( )
     {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public int _toNextChar ( int maxCharacterCount )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public int _toPrevChar ( int maxCharacterCount )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public boolean _toNextSibling ( )
-    {
-        assert isValid();
+        if (!_cur.isContainer())
+            return TokenType.NONE;
+
+        _cur.toEnd();
         
-        return Locale.toNextSiblingElement( _cur );
+        return currentTokenType();
     }
     
-    public boolean _toPrevSibling ( )
-    {
-        assert isValid();
-
-        if (!_cur.hasParent())
-            return false;
-
-        Cur c = tempCur();
-
-        boolean moved = false;
-        
-        int k = c.kind();
-
-        if (k != ATTR)
-        {
-            for ( ; ; )
-            {
-                if (!c.prev())
-                    break;
-
-                k = c.kind();
-
-                if (k == ROOT || k == ELEM)
-                    break;
-
-                if (c.kind() == -ELEM)
-                {
-                    c.toParent();
-
-                    _cur.moveToCur( c );
-                    moved = true;
-
-                    break;
-                }
-            }
-        }
-
-        c.release();
-
-        return moved;
-    }
+    public boolean _toChild ( String local ) { return _toChild( null, local ); }
+    public boolean _toChild ( QName name   ) { return _toChild( name, 0 ); }
+    public boolean _toChild ( int index    ) { return _toChild( null, index ); }
     
-    public boolean _toLastChild ( )
+    public boolean _toChild ( String uri, String local )
     {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public boolean _toFirstChild ( )
-    {
-        return Locale.toFirstChildElement( _cur );
-    }
+        validateLocalName( local );
 
-    public boolean _toChild ( String local )
-    {
-        return Locale.toChild( _cur, null, local, 0 );
-    }
-    
-    public boolean _toChild ( QName name )
-    {
-        return Locale.toChild( _cur, name, 0 );
-    }
-    
-    public boolean _toChild ( String namespace, String local )
-    {
-        return Locale.toChild( _cur, namespace, local, 0 );
-    }
-    
-    public boolean _toChild ( int index )
-    {
-        return Locale.toChild( _cur, null, null, index );
+        return toChild( _cur._locale.makeQName( uri, local ), 0 );
     }
     
     public boolean _toChild ( QName name, int index )
     {
-        return Locale.toChild( _cur, name.getNamespaceURI(), name.getLocalPart(), index );
+        return Locale.toChild( _cur, name, index );
     }
     
-    public boolean _toNextSibling ( String name )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
+    public int _toNextChar ( int maxCharacterCount ) { return _cur.nextChars( maxCharacterCount ); }
+    public int _toPrevChar ( int maxCharacterCount ) { return _cur.prevChars( maxCharacterCount ); }
+    public boolean _toNextSibling ( ) { return Locale.toNextSiblingElement( _cur ); }
+    public boolean _toPrevSibling ( ) { return Locale.toPrevSiblingElement( _cur ); }
+    public boolean _toLastChild ( ) { return Locale.toLastChildElement( _cur ); }
+    public boolean _toFirstChild ( ) { return Locale.toFirstChildElement( _cur ); }
+    public boolean _toNextSibling ( String name ) { return Locale.toNextSiblingElement( _cur ); }
     
-    public boolean _toNextSibling ( String namespace, String name )
+    public boolean _toNextSibling ( String uri, String local )
     {
-        throw new RuntimeException( "Not implemented" );
+        validateLocalName( local );
+        
+        return _toNextSibling( _cur._locale._qnameFactory.getQName( uri, local ) );
     }
     
     public boolean _toNextSibling ( QName name )
     {
-        throw new RuntimeException( "Not implemented" );
+        _cur.push();
+
+        while ( _toNextSibling() )
+        {
+            if (_cur.getName().equals( name ))
+            {
+                _cur.popButStay();
+                return true;
+            }
+        }
+
+        _cur.pop();
+
+        return false;
     }
     
     public boolean _toFirstAttribute ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.isContainer() && Locale.toFirstNormalAttr( _cur );
     }
     
     public boolean _toLastAttribute ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (_cur.isContainer())
+        {
+            _cur.push();
+            _cur.push();
+
+            boolean foundAttr = false;
+
+            while ( _cur.toNextAttr() )
+            {
+                if (_cur.isNormalAttr())
+                {
+                    _cur.popButStay();
+                    _cur.push();
+                    foundAttr = true;
+                }
+            }
+
+            _cur.pop();
+            
+            if (foundAttr)
+            {
+                _cur.popButStay();
+                return true;
+            }
+
+            _cur.pop();
+        }
+
+        return false;
     }
     
     public boolean _toNextAttribute ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.isAttr() && Locale.toNextNormalAttr( _cur );
     }
     
     public boolean _toPrevAttribute ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.isAttr() && Locale.toPrevNormalAttr( _cur );
     }
     
     public String _getAttributeText ( QName attrName )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.getAttrValue( attrName );
     }
     
     public boolean _setAttributeText ( QName attrName, String value )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (attrName == null)
+            throw new IllegalArgumentException( "Attr name is null" );
+
+        validateLocalName( attrName.getLocalPart() );
+
+        if (!_cur.isContainer())
+            return false;
+
+        _cur.setAttrValue( attrName, value );
+
+        return true;
     }
     
     public boolean _removeAttribute ( QName attrName )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (attrName == null)
+            throw new IllegalArgumentException( "Attr name is null" );
+
+        if (!_cur.isContainer())
+            return false;
+
+        return _cur.removeAttr( attrName );
     }
     
     public String _getTextValue ( )
@@ -882,32 +964,93 @@ public final class Cursor implements XmlCursor, ChangeListener
                 "Can't get text value, current token can have no text value" );
         }
 
-        return Locale.getTextValue( _cur, Locale.WS_PRESERVE );
+        return _cur.hasChildren() ? Locale.getTextValue( _cur ) : _cur.getValueAsString();
     }
     
-    public int _getTextValue ( char[] returnedChars, int offset, int maxCharacterCount )
+    public int _getTextValue ( char[] chars, int offset, int max )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (_cur.isText())
+            return _getChars( chars, offset, max );
+
+        if (!_cur.isNode())
+        {
+            throw new IllegalStateException(
+                "Can't get text value, current token can have no text value" );
+        }
+
+        // If there are no children (hopefully the common case), I can get the text faster.
+
+        if (_cur.hasChildren())
+            return Locale.getTextValue( _cur, Locale.WS_PRESERVE, chars, offset, max );
+
+        // Fast way
+            
+        Object src = _cur.getFirstChars();
+
+        if (_cur._cchSrc > max)
+            _cur._cchSrc = max;
+
+        if (_cur._cchSrc <= 0)
+            return 0;
+
+        CharUtil.getChars( chars, offset, src, _cur._offSrc, _cur._cchSrc );
+
+        return _cur._cchSrc;
+    }
+    
+    private void setTextValue ( Object src, int off, int cch )
+    {
+        if (!_cur.isNode())
+        {
+            throw new IllegalStateException(
+                "Can't set text value, current token can have no text value" );
+        }
+
+        _cur.moveNodeContents( null, false );
+        _cur.next();
+        _cur.insertChars( src, off, cch );
+        _cur.toParent();
     }
     
     public void _setTextValue ( String text )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (text == null)
+            text = "";
+        
+        setTextValue( text, 0, text.length() );
     }
     
     public void _setTextValue ( char[] sourceChars, int offset, int length )
     {
-        throw new RuntimeException( "Not implemented" );
+        CharUtil cu = _cur._locale._charUtil;
+        
+        setTextValue(
+            cu.saveChars( sourceChars, offset, length, null, 0, 0 ), cu._offSrc, cu._cchSrc );
     }
     
     public String _getChars ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.getCharsAsString( -1 );
     }
     
-    public int _getChars ( char[] returnedChars, int offset, int maxCharacterCount )
+    public int _getChars ( char[] buf, int off, int cch )
     {
-        throw new RuntimeException( "Not implemented" );
+        int cchRight = _cur.cchRight();
+
+        if (cch < 0 || cch > cchRight)
+            cch = cchRight;
+        
+        if (buf == null || off >= buf.length)
+            return 0;
+
+        if (buf.length - off < cch)
+            cch = buf.length - off;
+
+        Object src = _cur.getChars( cch );
+        
+        CharUtil.getChars( buf, off, src, _cur._offSrc, _cur._cchSrc );
+
+        return _cur._cchSrc;
     }
     
     public void _toStartDoc ( )
@@ -918,27 +1061,36 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void _toEndDoc ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        _toStartDoc();
+        
+        _cur.toEnd();
     }
     
-    public int _comparePosition ( XmlCursor cursor )
+    public int _comparePosition ( Cursor other )
     {
-        throw new RuntimeException( "Not implemented" );
+        int s = _cur.comparePosition( other._cur );
+
+        if (s == 2)
+            throw new IllegalArgumentException( "Cursors not in same document" );
+
+        assert s >= -1 && s <= 1;
+
+        return s;
     }
     
-    public boolean _isLeftOf ( XmlCursor cursor )
+    public boolean _isLeftOf ( Cursor other )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _comparePosition( other ) < 0;
     }
     
-    public boolean _isAtSamePositionAs ( XmlCursor cursor )
+    public boolean _isAtSamePositionAs ( Cursor other )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _cur.isSamePos( other._cur );
     }
     
-    public boolean _isRightOf ( XmlCursor cursor )
+    public boolean _isRightOf ( Cursor other )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _comparePosition( other ) > 0;
     }
     
     public XmlCursor _execQuery ( String query )
@@ -951,6 +1103,111 @@ public final class Cursor implements XmlCursor, ChangeListener
         throw new RuntimeException( "Not implemented" );
     }
     
+    public boolean _toBookmark ( XmlBookmark bookmark )
+    {
+        if (bookmark == null || !(bookmark._currentMark instanceof Xobj.Bookmark))
+              return false;
+
+        Xobj.Bookmark m = (Xobj.Bookmark) bookmark._currentMark;
+
+        if (m._xobj == null || m._xobj._locale != _cur._locale)
+            return false;
+
+        _cur.moveTo( m._xobj, m._pos );
+
+        return true;
+    }
+    
+    public XmlBookmark _toNextBookmark ( Object key )
+    {
+        if (key == null)
+            return null;
+
+        int cch;
+
+        _cur.push();
+        
+        for ( ; ; )
+        {
+            // Move a minimal amount.  If at text, move to a potential bookmark in the text.
+            
+            if ((cch = _cur.cchRight()) > 1)
+            {
+                _cur.nextChars( 1 );
+                _cur.nextChars( (cch = _cur.firstBookmarkInChars( key, cch - 1 )) >= 0 ? cch : -1 );
+            }
+            else if (_toNextToken().isNone())
+            {
+                _cur.pop();
+                return null;
+            }
+            
+            XmlBookmark bm = getBookmark( key, _cur );
+
+            if (bm != null)
+            {
+                _cur.popButStay();
+                return bm;
+            }
+
+            if (_cur.kind() == -ROOT)
+            {
+                _cur.pop();
+                return null;
+            }
+        }
+    }
+    
+    public XmlBookmark _toPrevBookmark ( Object key )
+    {
+        if (key == null)
+            return null;
+
+        int cch;
+
+        _cur.push();
+
+        for ( ; ; )
+        {
+            // Move a minimal amount.  If at text, move to a potential bookmark in the text.
+            
+            if ((cch = _cur.cchLeft()) > 1)
+            {
+                _cur.prevChars( 1 );
+                
+                _cur.prevChars(
+                    (cch = _cur.firstBookmarkInCharsLeft( key, cch - 1 )) >= 0 ? cch : -1 );
+            }
+            else if (cch == 1)
+            {
+                // _toPrevToken will not skip to the beginning of the text, it will go further
+                // so that the token to the right is not text.  I need to simply skip to
+                // the beginning of the text ...
+                
+                _cur.prevChars( 1 );
+            }
+            else if (_toPrevToken().isNone())
+            {
+                _cur.pop();
+                return null;
+            }
+            
+            XmlBookmark bm = getBookmark( key, _cur );
+
+            if (bm != null)
+            {
+                _cur.popButStay();
+                return bm;
+            }
+
+            if (_cur.kind() == ROOT)
+            {
+                _cur.pop();
+                return null;
+            }
+        }
+    }
+    
     public void _setBookmark ( XmlBookmark bookmark )
     {
         if (bookmark != null)
@@ -958,32 +1215,61 @@ public final class Cursor implements XmlCursor, ChangeListener
             if (bookmark.getKey() == null)
                 throw new IllegalArgumentException( "Annotation key is null" );
             
-            _clearBookmark( bookmark.getKey() );
+            // TODO - I Don't do weak bookmarks yet ... perhaps I'll never do them ....
 
-            // TODO - I Don't do weak bookmarks yet ...
-            _cur.setBookmark( bookmark.getKey(), bookmark );
+            bookmark._currentMark = _cur.setBookmark( bookmark.getKey(), bookmark );
         }
+    }
+    
+    static XmlBookmark getBookmark ( Object key, Cur c )
+    {
+        // TODO - I Don't do weak bookmarks yet ...
+
+        if (key == null)
+            return null;
+
+        Object bm = c.getBookmark( key );
+
+        return bm != null && bm instanceof XmlBookmark ? (XmlBookmark) bm : null;
     }
     
     public XmlBookmark _getBookmark ( Object key )
     {
-        // TODO - I Don't do weak bookmarks yet ...
-        return key == null ? null : (XmlBookmark) _cur.getBookmark( key );
+        return key == null ? null : getBookmark( key, _cur );
     }
     
     public void _clearBookmark ( Object key )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (key != null)
+            _cur.setBookmark( key, null );
     }
     
     public void _getAllBookmarkRefs ( Collection listToFill )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (listToFill != null)
+        {
+            for ( Xobj.Bookmark b = _cur._xobj._bookmarks ; b != null ; b = b._next )
+                if (b._value instanceof XmlBookmark)
+                    listToFill.add( b._value );
+        }
     }
     
     public boolean _removeXml ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (_cur.isRoot())
+            throw new IllegalStateException( "Can't remove a whole document." );
+
+        if (_cur.isFinish())
+            return false;
+
+        assert _cur.isText() || _cur.isNode();
+            
+        if (_cur.isText())
+            _cur.moveChars( null, -1 );
+        else
+            _cur.moveNode( null );
+
+        return true;
     }
     
     public boolean _moveXml ( Cursor to )
@@ -994,55 +1280,187 @@ public final class Cursor implements XmlCursor, ChangeListener
         
         if (_cur.isText())
         {
-            if (_cur.inChars( to._cur, -1, true ))
+            int cchRight = _cur.cchRight();
+
+            if (cchRight <= 0)
+                return false;
+            
+            if (_cur.inChars( to._cur, cchRight, true ))
                 return false;
 
-            _cur.moveChars( to._cur, -1 );
+            _cur.moveChars( to._cur, cchRight );
+
+            to._cur.nextChars( cchRight );
+
+            return true;
         }
-        else if (_cur.contains( to._cur ) ||
-                    _cur.isSamePos( to._cur ) || to._cur.isJustAfterEnd( _cur ))
-        {
+
+        if (_cur.contains( to._cur ))
             return false;
-        }
+
+        // Make a cur which will float to the right of the insertion
         
+        Cur c = to.tempCur();
+
         _cur.moveNode( to._cur );
+
+        to._cur.moveToCur( c );
+
+        c.release();
 
         return true;
     }
     
-    public boolean _copyXml ( XmlCursor toHere )
+    public boolean _copyXml ( Cursor to )
     {
-        throw new RuntimeException( "Not implemented" );
+        to.checkInsertionValidity( _cur );
+
+        assert _cur.isText() || _cur.isNode();
+
+        Cur c = to.tempCur();
+
+        if (_cur.isText())
+            to._cur.insertChars( _cur.getChars( -1 ), _cur._offSrc, _cur._cchSrc );
+        else
+            _cur.copyNode( to._cur );
+
+        to._cur.moveToCur( c );
+
+        c.release();
+                
+        return true;
     }
     
     public boolean _removeXmlContents ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!_cur.isContainer())
+            return false;
+
+        _cur.moveNodeContents( null, false );
+
+        return true;
+    }
+
+    private boolean checkContentInsertionValidity ( Cursor to )
+    {
+        _cur.push();
+
+        _cur.next();
+
+        if (_cur.isFinish())
+        {
+            _cur.pop();
+            return false;
+        }
+
+        try
+        {
+            to.checkInsertionValidity( _cur );
+        }
+        catch ( IllegalArgumentException e )
+        {
+            _cur.pop();
+            throw e;
+        }
+        
+        _cur.pop();
+
+        return true;
     }
     
-    public boolean _moveXmlContents ( XmlCursor toHere )
+    public boolean _moveXmlContents ( Cursor to )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!_cur.isContainer() || _cur.contains( to._cur ))
+            return false;
+
+        if (!checkContentInsertionValidity( to ))
+            return false;
+
+        Cur c = to.tempCur();
+
+        _cur.moveNodeContents( to._cur, false );
+
+        to._cur.moveToCur( c );
+
+        c.release();
+
+        return true;
     }
     
-    public boolean _copyXmlContents ( XmlCursor toHere )
+    public boolean _copyXmlContents ( Cursor to )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!_cur.isContainer() || _cur.contains( to._cur ))
+            return false;
+        
+        if (!checkContentInsertionValidity( to ))
+            return false;
+
+        // I don't have a primitive to copy contents, make a copy of the node and them move the
+        // contents
+
+        Cur c = _cur._locale.tempCur();
+
+        _cur.copyNode( c );
+
+        Cur c2 = to._cur.tempCur();
+
+        c.moveNodeContents( to._cur, false );
+
+        c.release();
+
+        to._cur.moveToCur( c2 );
+
+        c2.release();
+        
+        return true;
     }
     
-    public int _removeChars ( int maxCharacterCount )
+    public int _removeChars ( int cch )
     {
-        throw new RuntimeException( "Not implemented" );
+        int cchRight = _cur.cchRight();
+        
+        if (cchRight == 0 || cch == 0)
+            return 0;
+        
+        if (cch < 0 || cch > cchRight)
+            cch = cchRight;
+        
+        _cur.moveChars( null, cch );
+
+        return _cur._cchSrc;
     }
     
-    public int _moveChars ( int maxCharacterCount, XmlCursor toHere )
+    public int _moveChars ( int cch, Cursor to )
     {
-        throw new RuntimeException( "Not implemented" );
+        int cchRight = _cur.cchRight();
+        
+        if (cchRight <= 0 || cch == 0)
+            return 0;
+
+        if (cch < 0 || cch > cchRight)
+            cch = cchRight;
+        
+        to.checkInsertionValidity( _cur );
+
+        _cur.moveChars( to._cur, cch );
+
+        to._cur.nextChars( _cur._cchSrc );
+
+        return _cur._cchSrc;
     }
     
-    public int _copyChars ( int maxCharacterCount, XmlCursor toHere )
+    public int _copyChars ( int cch, Cursor to )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (_cur.cchRight() <= 0 || cch <= 0)
+            return 0;
+
+        to.checkInsertionValidity( _cur );
+        
+        to._cur.insertChars( _cur.getChars( -1 ), _cur._offSrc, _cur._cchSrc );
+
+        to._cur.nextChars( _cur._cchSrc );
+        
+        return _cur._cchSrc;
     }
     
     public void _insertChars ( String text )
@@ -1052,7 +1470,11 @@ public final class Cursor implements XmlCursor, ChangeListener
         if (l > 0)
         {
             if (_cur.isRoot() || _cur.isAttr())
-                complain( "Can't insert before the document or an attribute." );
+            {
+                throw
+                    new IllegalStateException(
+                        "Can't insert before the document or an attribute." );
+            }
 
             _cur.insertChars( text, 0, l );
             _cur.nextChars( l );
@@ -1064,13 +1486,19 @@ public final class Cursor implements XmlCursor, ChangeListener
     //
     
     public void _beginElement          ( String localName                          ) { _insertElementWithText( localName, null, null ); _toPrevToken(); }
-    public void _beginElement          ( String localName, String uri              ) { _insertElementWithText( localName, uri ); _toPrevToken(); }
+    public void _beginElement          ( String localName, String uri              ) { _insertElementWithText( localName, uri, null ); _toPrevToken(); }
     public void _beginElement          ( QName  name                               ) { _insertElementWithText( name, null ); _toPrevToken(); }
     public void _insertElement         ( String localName                          ) { _insertElementWithText( localName, null, null ); }
     public void _insertElement         ( String localName, String uri              ) { _insertElementWithText( localName, uri, null ); }
     public void _insertElement         ( QName  name                               ) { _insertElementWithText( name, null ); }
     public void _insertElementWithText ( String localName, String text             ) { _insertElementWithText( localName, null, text ); }
-    public void _insertElementWithText ( String localName, String uri, String text ) { _insertElementWithText( _cur._locale.makeQName( uri, localName ), text ); }
+    
+    public void _insertElementWithText ( String localName, String uri, String text )
+    {
+        validateLocalName( localName );
+        
+        _insertElementWithText( _cur._locale.makeQName( uri, localName ), text );
+    }
     
     public void _insertElementWithText ( QName name, String text )
     {
@@ -1093,10 +1521,18 @@ public final class Cursor implements XmlCursor, ChangeListener
     public void _insertAttribute          ( String localName, String uri )               { _insertAttributeWithValue( localName, uri, null ); }
     public void _insertAttribute          ( QName name )                                 { _insertAttributeWithValue( name, null ); }
     public void _insertAttributeWithValue ( String localName, String value )             { _insertAttributeWithValue( localName, null, value ); }
-    public void _insertAttributeWithValue ( String localName, String uri, String value ) { _insertAttributeWithValue( _cur._locale.makeQName( uri, localName ), value ); }
+    
+    public void _insertAttributeWithValue ( String localName, String uri, String value )
+    {
+        validateLocalName( localName );
+        
+        _insertAttributeWithValue( _cur._locale.makeQName( uri, localName ), value );
+    }
     
     public void _insertAttributeWithValue ( QName name, String text )
     {
+        validateLocalName( name.getLocalPart() );
+
         Cur c = _cur._locale.tempCur();
 
         c.createAttr( name );
@@ -1150,43 +1586,6 @@ public final class Cursor implements XmlCursor, ChangeListener
     //
     //
 
-    public void dispose ( )
-    {
-        if (preCheck())
-        {
-            Locale l = _cur._locale;
-            
-            l.enter();
-
-            try
-            {
-                _dispose();
-            }
-            finally
-            {
-                l.exit();
-            }
-        }
-        else
-        {
-            Locale l = _cur._locale;
-            
-            synchronized ( l )
-            {
-                l.enter();
-
-                try
-                {
-                    _dispose();
-                }
-                finally
-                {
-                    l.exit();
-                }
-            }
-        }
-    }
-    
     private void checkThisCursor ( )
     {
         if (_cur == null)
@@ -1211,49 +1610,9 @@ public final class Cursor implements XmlCursor, ChangeListener
         return other;
     }
     
-    public boolean toCursor ( XmlCursor xOther )
-    {
-        throw new RuntimeException( "Not implemented" );
-        
-//        Cursor other = checkCursors( xOther );
-//
-//        if (preCheck())
-//        {
-//            _locale.enter();
-//
-//            try
-//            {
-//                return _toCursor( moveTo );
-//            }
-//            finally
-//            {
-//                _locale.exit();
-//            }
-//        }
-//        else
-//        {
-//            synchronized ( _locale )
-//            {
-//                _locale.enter();
-//
-//                try
-//                {
-//                    return _toCursor( moveTo );
-//                }
-//                finally
-//                {
-//                    _locale.exit();
-//                }
-//            }
-//        }
-    }
-    
-    public boolean isInSameDocument ( XmlCursor xOther )
-    {
-        Cursor other = checkCursors( xOther );
-        
-        throw new RuntimeException( "Not implemented" );
-    }
+    //
+    // The following operations have two cursors, and can be in different documents
+    //
 
     private static final int MOVE_XML          = 0;
     private static final int COPY_XML          = 1;
@@ -1262,7 +1621,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     private static final int MOVE_CHARS        = 4;
     private static final int COPY_CHARS        = 5;
     
-    private int twoCursorOp ( XmlCursor xOther, int op, int arg )
+    private int twoLocaleOp ( XmlCursor xOther, int op, int arg )
     {
         Cursor other = checkCursors( xOther );
 
@@ -1272,12 +1631,12 @@ public final class Cursor implements XmlCursor, ChangeListener
         if (locale == otherLocale)
         {
             if (locale.noSync())
-                return twoCursorOp( other, op, arg );
+                return twoLocaleOp( other, op, arg );
             else
             {
                 synchronized ( locale )
                 {
-                    return twoCursorOp( other, op, arg );
+                    return twoLocaleOp( other, op, arg );
                 }
             }
         }
@@ -1285,12 +1644,12 @@ public final class Cursor implements XmlCursor, ChangeListener
         if (locale.noSync())
         {
             if (otherLocale.noSync())
-                return twoCursorOp( other, op, arg );
+                return twoLocaleOp( other, op, arg );
             else
             {
                 synchronized ( otherLocale )
                 {
-                    return twoCursorOp( other, op, arg );
+                    return twoLocaleOp( other, op, arg );
                 }
             }
         }
@@ -1298,7 +1657,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             synchronized ( locale )
             {
-                return twoCursorOp( other, op, arg );
+                return twoLocaleOp( other, op, arg );
             }
         }
         
@@ -1316,7 +1675,7 @@ public final class Cursor implements XmlCursor, ChangeListener
                     GlobalLock.release();
                     acquired = false;
                     
-                    return twoCursorOp( other, op, arg );
+                    return twoLocaleOp( other, op, arg );
                 }
             }
         }
@@ -1331,7 +1690,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         }
     }
     
-    private int twoCursorOp ( Cursor other, int op, int arg )
+    private int twoLocaleOp ( Cursor other, int op, int arg )
     {
         Locale locale = _cur._locale;
         Locale otherLocale = other._cur._locale;
@@ -1360,44 +1719,92 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public boolean moveXml ( XmlCursor xTo )
     {
-        return twoCursorOp( xTo, MOVE_XML, 0 ) == 1;
+        return twoLocaleOp( xTo, MOVE_XML, 0 ) == 1;
     }
     
     public boolean copyXml ( XmlCursor xTo )
     {
-        return twoCursorOp( xTo, COPY_XML, 0 ) == 1;
+        return twoLocaleOp( xTo, COPY_XML, 0 ) == 1;
     }
     
     public boolean moveXmlContents ( XmlCursor xTo )
     {
-        return twoCursorOp( xTo, MOVE_XML_CONTENTS, 0 ) == 1;
+        return twoLocaleOp( xTo, MOVE_XML_CONTENTS, 0 ) == 1;
     }
     
     public boolean copyXmlContents ( XmlCursor xTo )
     {
-        return twoCursorOp( xTo, COPY_XML_CONTENTS, 0 ) == 1;
+        return twoLocaleOp( xTo, COPY_XML_CONTENTS, 0 ) == 1;
     }
     
-    public int moveChars ( int maxCharacterCount, XmlCursor xTo )
+    public int moveChars ( int cch, XmlCursor xTo )
     {
-        return twoCursorOp( xTo, MOVE_CHARS, maxCharacterCount );
+        return twoLocaleOp( xTo, MOVE_CHARS, cch );
     }
     
-    public int copyChars ( int maxCharacterCount, XmlCursor xTo )
+    public int copyChars ( int cch, XmlCursor xTo )
     {
-        return twoCursorOp( xTo, COPY_CHARS, maxCharacterCount );
+        return twoLocaleOp( xTo, COPY_CHARS, cch );
+    }
+
+    //
+    // Special methods involving multiple cursors which can be in different locales, but do not
+    // require sync on both locales.
+    //
+
+    public boolean toCursor ( XmlCursor xOther )
+    {
+        // One may only move cursors within the same locale
+        
+        Cursor other = checkCursors( xOther );
+
+        if (_cur._locale != other._cur._locale)
+            return false;
+
+        if (_cur._locale.noSync()) { _cur._locale.enter(); try { return _toCursor( other ); } finally { _cur._locale.exit(); } } else { synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toCursor( other ); } finally { _cur._locale.exit(); } } }
     }
     
+    public boolean isInSameDocument ( XmlCursor xOther )
+    {
+        return xOther == null ? false : _cur.isInSameTree( checkCursors( xOther )._cur );
+    }
+
+    //
+    // The following operations have two cursors, but they must be in the same document
+    //
+
+    private Cursor preCheck ( XmlCursor xOther )
+    {
+        Cursor other = checkCursors( xOther );
+
+        if (_cur._locale != other._cur._locale)
+            throw new IllegalArgumentException( "Cursors not in same document" );
+        
+        return other;
+    }
+
+    public int comparePosition ( XmlCursor xOther ) { Cursor other = preCheck( xOther ); if (_cur._locale.noSync()) { _cur._locale.enter(); try { return _comparePosition( other ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _comparePosition( other ); } finally { _cur._locale.exit(); } } }
+    public boolean isLeftOf ( XmlCursor xOther ) { Cursor other = preCheck( xOther ); if (_cur._locale.noSync()) { _cur._locale.enter(); try { return _isLeftOf( other ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _isLeftOf( other ); } finally { _cur._locale.exit(); } } }
+    public boolean isAtSamePositionAs ( XmlCursor xOther ) { Cursor other = preCheck( xOther ); if (_cur._locale.noSync()) { _cur._locale.enter(); try { return _isAtSamePositionAs( other ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _isAtSamePositionAs( other ); } finally { _cur._locale.exit(); } } }
+    public boolean isRightOf ( XmlCursor xOther ) { Cursor other = preCheck( xOther ); if (_cur._locale.noSync()) { _cur._locale.enter(); try { return _isRightOf( other ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _isRightOf( other ); } finally { _cur._locale.exit(); } } }
+    
+    //
+    // Create a cursor from an Xobj -- used for XmlBookmark.createCursor
+    //
+    
+    public static XmlCursor newCursor ( Xobj x, int p ) { Locale l = x._locale; if (l.noSync()) { l.enter(); try { return new Cursor( x, p ); } finally { l.exit(); } } else synchronized ( l ) { l.enter(); try { return new Cursor( x, p ); } finally { l.exit(); } } }
+    
+    //
+    // The following operations involve only one cursor
+    //
+
     private boolean preCheck ( )
     {
         checkThisCursor();
         return _cur._locale.noSync();
     }
 
-    // TODO - make sure _cur._locale does not change between operations ... some of these
-    // methods might actually be two Locale (or multiple Locale) operations.  In particular,
-    // clearSelection might be a multiple Locale operation
-    
+    public void dispose ( ) { if (_cur != null) { Locale l = _cur._locale; if (preCheck()) { l.enter(); try { _dispose(); } finally { l.exit(); } } else synchronized ( l ) { l.enter(); try { _dispose(); } finally { l.exit(); } } } }
     public Object monitor ( ) { if (preCheck()) { _cur._locale.enter(); try { return _monitor(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _monitor(); } finally { _cur._locale.exit(); } } }
     public XmlDocumentProperties documentProperties ( ) { if (preCheck()) { _cur._locale.enter(); try { return _documentProperties(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _documentProperties(); } finally { _cur._locale.exit(); } } }
     public XmlCursor newCursor ( ) { if (preCheck()) { _cur._locale.enter(); try { return _newCursor(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _newCursor(); } finally { _cur._locale.exit(); } } }
@@ -1461,8 +1868,8 @@ public final class Cursor implements XmlCursor, ChangeListener
     public TokenType toPrevToken ( ) { if (preCheck()) { _cur._locale.enter(); try { return _toPrevToken(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toPrevToken(); } finally { _cur._locale.exit(); } } }
     public TokenType toFirstContentToken ( ) { if (preCheck()) { _cur._locale.enter(); try { return _toFirstContentToken(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toFirstContentToken(); } finally { _cur._locale.exit(); } } }
     public TokenType toEndToken ( ) { if (preCheck()) { _cur._locale.enter(); try { return _toEndToken(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toEndToken(); } finally { _cur._locale.exit(); } } }
-    public int toNextChar ( int maxCharacterCount ) { if (preCheck()) { _cur._locale.enter(); try { return _toNextChar( maxCharacterCount ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toNextChar( maxCharacterCount ); } finally { _cur._locale.exit(); } } }
-    public int toPrevChar ( int maxCharacterCount ) { if (preCheck()) { _cur._locale.enter(); try { return _toPrevChar( maxCharacterCount ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toPrevChar( maxCharacterCount ); } finally { _cur._locale.exit(); } } }
+    public int toNextChar ( int cch ) { if (preCheck()) { _cur._locale.enter(); try { return _toNextChar( cch ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toNextChar( cch ); } finally { _cur._locale.exit(); } } }
+    public int toPrevChar ( int cch ) { if (preCheck()) { _cur._locale.enter(); try { return _toPrevChar( cch ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toPrevChar( cch ); } finally { _cur._locale.exit(); } } }
     public boolean toNextSibling ( ) { if (preCheck()) { _cur._locale.enter(); try { return _toNextSibling(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toNextSibling(); } finally { _cur._locale.exit(); } } }
     public boolean toPrevSibling ( ) { if (preCheck()) { _cur._locale.enter(); try { return _toPrevSibling(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toPrevSibling(); } finally { _cur._locale.exit(); } } }
     public boolean toParent ( ) { if (preCheck()) { _cur._locale.enter(); try { return _toParent(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _toParent(); } finally { _cur._locale.exit(); } } }
@@ -1484,19 +1891,13 @@ public final class Cursor implements XmlCursor, ChangeListener
     public boolean setAttributeText ( QName attrName, String value ) { if (preCheck()) { _cur._locale.enter(); try { return _setAttributeText( attrName, value ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _setAttributeText( attrName, value ); } finally { _cur._locale.exit(); } } }
     public boolean removeAttribute ( QName attrName ) { if (preCheck()) { _cur._locale.enter(); try { return _removeAttribute( attrName ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _removeAttribute( attrName ); } finally { _cur._locale.exit(); } } }
     public String getTextValue ( ) { if (preCheck()) { _cur._locale.enter(); try { return _getTextValue(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getTextValue(); } finally { _cur._locale.exit(); } } }
-    public int getTextValue ( char[] returnedChars, int offset, int maxCharacterCount ) { if (preCheck()) { _cur._locale.enter(); try { return _getTextValue( returnedChars, offset, maxCharacterCount ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getTextValue( returnedChars, offset, maxCharacterCount ); } finally { _cur._locale.exit(); } } }
+    public int getTextValue ( char[] chars, int offset, int cch ) { if (preCheck()) { _cur._locale.enter(); try { return _getTextValue( chars, offset, cch ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getTextValue( chars, offset, cch ); } finally { _cur._locale.exit(); } } }
     public void setTextValue ( String text ) { if (preCheck()) { _cur._locale.enter(); try { _setTextValue( text ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _setTextValue( text ); } finally { _cur._locale.exit(); } } }
     public void setTextValue ( char[] sourceChars, int offset, int length ) { if (preCheck()) { _cur._locale.enter(); try { _setTextValue( sourceChars, offset, length ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _setTextValue( sourceChars, offset, length ); } finally { _cur._locale.exit(); } } }
     public String getChars ( ) { if (preCheck()) { _cur._locale.enter(); try { return _getChars(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getChars(); } finally { _cur._locale.exit(); } } }
-    public int getChars ( char[] returnedChars, int offset, int maxCharacterCount ) { if (preCheck()) { _cur._locale.enter(); try { return _getChars( returnedChars, offset, maxCharacterCount ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getChars( returnedChars, offset, maxCharacterCount ); } finally { _cur._locale.exit(); } } }
+    public int getChars ( char[] chars, int offset, int cch ) { if (preCheck()) { _cur._locale.enter(); try { return _getChars( chars, offset, cch ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getChars( chars, offset, cch ); } finally { _cur._locale.exit(); } } }
     public void toStartDoc ( ) { if (preCheck()) { _cur._locale.enter(); try { _toStartDoc(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _toStartDoc(); } finally { _cur._locale.exit(); } } }
     public void toEndDoc ( ) { if (preCheck()) { _cur._locale.enter(); try { _toEndDoc(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _toEndDoc(); } finally { _cur._locale.exit(); } } }
-    
-    public int comparePosition ( XmlCursor cursor ) { if (preCheck()) { _cur._locale.enter(); try { return _comparePosition( cursor ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _comparePosition( cursor ); } finally { _cur._locale.exit(); } } }
-    public boolean isLeftOf ( XmlCursor cursor ) { if (preCheck()) { _cur._locale.enter(); try { return _isLeftOf( cursor ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _isLeftOf( cursor ); } finally { _cur._locale.exit(); } } }
-    public boolean isAtSamePositionAs ( XmlCursor cursor ) { if (preCheck()) { _cur._locale.enter(); try { return _isAtSamePositionAs( cursor ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _isAtSamePositionAs( cursor ); } finally { _cur._locale.exit(); } } }
-    public boolean isRightOf ( XmlCursor cursor ) { if (preCheck()) { _cur._locale.enter(); try { return _isRightOf( cursor ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _isRightOf( cursor ); } finally { _cur._locale.exit(); } } }
-    
     public XmlCursor execQuery ( String query ) { if (preCheck()) { _cur._locale.enter(); try { return _execQuery( query ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _execQuery( query ); } finally { _cur._locale.exit(); } } }
     public XmlCursor execQuery ( String query, XmlOptions options ) { if (preCheck()) { _cur._locale.enter(); try { return _execQuery( query, options ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _execQuery( query, options ); } finally { _cur._locale.exit(); } } }
     public ChangeStamp getDocChangeStamp ( ) { if (preCheck()) { _cur._locale.enter(); try { return _getDocChangeStamp(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getDocChangeStamp(); } finally { _cur._locale.exit(); } } }
@@ -1505,9 +1906,8 @@ public final class Cursor implements XmlCursor, ChangeListener
     public void clearBookmark ( Object key ) { if (preCheck()) { _cur._locale.enter(); try { _clearBookmark( key ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _clearBookmark( key ); } finally { _cur._locale.exit(); } } }
     public void getAllBookmarkRefs ( Collection listToFill ) { if (preCheck()) { _cur._locale.enter(); try { _getAllBookmarkRefs( listToFill ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _getAllBookmarkRefs( listToFill ); } finally { _cur._locale.exit(); } } }
     public boolean removeXml ( ) { if (preCheck()) { _cur._locale.enter(); try { return _removeXml(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _removeXml(); } finally { _cur._locale.exit(); } } }
-
     public boolean removeXmlContents ( ) { if (preCheck()) { _cur._locale.enter(); try { return _removeXmlContents(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _removeXmlContents(); } finally { _cur._locale.exit(); } } }
-    public int removeChars ( int maxCharacterCount ) { if (preCheck()) { _cur._locale.enter(); try { return _removeChars( maxCharacterCount ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _removeChars( maxCharacterCount ); } finally { _cur._locale.exit(); } } }
+    public int removeChars ( int cch ) { if (preCheck()) { _cur._locale.enter(); try { return _removeChars( cch ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _removeChars( cch ); } finally { _cur._locale.exit(); } } }
     public void insertChars ( String text ) { if (preCheck()) { _cur._locale.enter(); try { _insertChars( text ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _insertChars( text ); } finally { _cur._locale.exit(); } } }
     public void insertElement ( QName name ) { if (preCheck()) { _cur._locale.enter(); try { _insertElement( name ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _insertElement( name ); } finally { _cur._locale.exit(); } } }
     public void insertElement ( String localName ) { if (preCheck()) { _cur._locale.enter(); try { _insertElement( localName ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _insertElement( localName ); } finally { _cur._locale.exit(); } } }

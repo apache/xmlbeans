@@ -17,6 +17,7 @@ package xmlcursor.xpath.xbean_xpath.detailed;
 
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.newstore2.Public2;
 
 /**
@@ -46,7 +47,7 @@ public class NodeTest extends TestCase {
             "<pre:baz xmlns:baz='http://uri' baz:at0='val1'/>txt child</bar>" +
             "</foo>";
     String sXmlPI= "<foo><?xml-stylesheet target=\"http://someuri\"?></foo>";
-    public void testNameTestStar() {
+    public void testNameTestStar() throws XmlException {
         String sQuery1 = "./*";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected = c.xmlText();
@@ -57,7 +58,7 @@ public class NodeTest extends TestCase {
 
     }
 
-    public void testNameTestNCName() {
+    public void testNameTestNCName() throws XmlException {
         String sQuery1 = "$this//*";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>";
@@ -69,7 +70,7 @@ public class NodeTest extends TestCase {
 
     }
 
-     public void testNameTestQName_1() {
+     public void testNameTestQName_1() throws XmlException {
         String sQuery1 = "declare namespace pre=\"http://uri\" $this//pre:*";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<pre:baz pre:at0=\"val1\" xmlns:pre=\"http://uri\"/>";
@@ -81,7 +82,7 @@ public class NodeTest extends TestCase {
 
     }
 
-     public void testNameTestQName_2() {
+     public void testNameTestQName_2() throws XmlException {
         String sQuery1 = "declare namespace pre=\"http://uri\" $this//pre:baz";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<pre:baz pre:at0=\"val1\" xmlns:pre=\"http://uri\"/>";
@@ -93,7 +94,7 @@ public class NodeTest extends TestCase {
 
     }
 
-     public void testNameTestQName_3() {
+     public void testNameTestQName_3() throws XmlException {
         String sQuery1 = "$this//bar";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -110,7 +111,7 @@ public class NodeTest extends TestCase {
 
      }
 
-    public void testNodeTypeNode() {
+    public void testNodeTypeNode() throws XmlException {
             String sQuery1 = "$this/foo/node()";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -120,7 +121,7 @@ public class NodeTest extends TestCase {
         c.toNextSelection();
         assertEquals(sExpected, c.xmlText());
      }
-      public void testNodeTypeNodeAbbrev() {
+      public void testNodeTypeNodeAbbrev() throws XmlException {
              String sQuery1 = "$this/foo/*";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
@@ -130,7 +131,7 @@ public class NodeTest extends TestCase {
         c.toNextSelection();
         assertEquals(sExpected, c.xmlText());
      }
-     public void testNodeTypePI() {
+     public void testNodeTypePI() throws XmlException {
 
            XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<foo><?xml-stylesheet target=\"http://someuri\"?></foo>";
@@ -142,7 +143,7 @@ public class NodeTest extends TestCase {
 
      }
 
-     public void testNodeTypeText() {
+     public void testNodeTypeText() throws XmlException {
            String sQuery1 = "$this//text()";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected =" ";
@@ -153,7 +154,7 @@ public class NodeTest extends TestCase {
         assertEquals(sExpected, c.xmlText());
      }
 
-      public void testPI() {
+      public void testPI() throws XmlException {
 
            XmlCursor c = Public2.getCursor(Public2.parse(sXmlPI));
         String sExpected ="<?xml-stylesheet target=\"http://someuri\"?>";
@@ -165,7 +166,7 @@ public class NodeTest extends TestCase {
 
      }
 
-    public void testPIDNE() {
+    public void testPIDNE() throws XmlException {
 
            XmlCursor c = Public2.getCursor(Public2.parse(sXmlPI));
         String sQuery="./foo/processing-instruction('stylesheet')";

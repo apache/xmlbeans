@@ -72,6 +72,16 @@ public abstract class XmlDocumentProperties
     public String getVersion ( ) { return (String) get( VERSION ); }
     
     /**
+     * Sets the standalone property.
+     * @param standalone whether standalone is true or not
+     */ 
+    public void setStandalone ( boolean standalone ) { put( STANDALONE, standalone ? "true" : null ); }
+    /**
+     * Returns the standalone property
+     */
+    public boolean getStandalone ( ) { return get( STANDALONE ) != null; }
+
+    /**
      * Sets the DOCTYPE name use in the &lt&#33;DOCTYPE&gt; declaration.
      * @param doctypename the doctypename
      */ 
@@ -135,6 +145,11 @@ public abstract class XmlDocumentProperties
      * Document version
      */
     public static final Object VERSION = new Object();
+    
+    /**
+     * Document standlone
+     */
+    public static final Object STANDALONE = new Object();
     
     /**
      * Doc type name

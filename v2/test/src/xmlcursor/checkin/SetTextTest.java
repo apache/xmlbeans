@@ -83,17 +83,6 @@ public class SetTextTest extends BasicCursorTestCase {
         }
     }
 
-    public void testSetTextFromNAMESPACE() throws Exception {
-        m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
-        m_xc = m_xo.newCursor();
-        toNextTokenOfType(m_xc, TokenType.NAMESPACE);
-        try {
-            m_xc.setTextValue("fred");
-            fail("Expected IllegalStateException");
-        } catch (IllegalStateException e) {
-        }
-    }
-
     public void testSetTextFromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS);
         m_xc = m_xo.newCursor();

@@ -75,14 +75,16 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlLineNumber;
 import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 
 import org.apache.xmlbeans.impl.values.TypeStore;
 import org.apache.xmlbeans.impl.values.TypeStoreUser;
@@ -133,7 +135,6 @@ final class Cur
 
     static boolean kindIsContainer ( int k ) { return k ==  ELEM || k ==  ROOT; }
     static boolean kindIsFinish    ( int k ) { return k == -ELEM || k == -ROOT; }
-    static boolean kindIsUserNode  ( int k ) { return k ==  ELEM || k ==  ATTR || k == ROOT; }
     
     int kind ( )
     {
@@ -151,7 +152,7 @@ final class Cur
     boolean isNode      ( ) { assert isPositioned(); return _pos == 0; }
     boolean isContainer ( ) { assert isPositioned(); return _pos == 0       && kindIsContainer( _xobj.kind() ); }
     boolean isFinish    ( ) { assert isPositioned(); return _pos == END_POS && kindIsContainer( _xobj.kind() ); }
-    boolean isUserNode  ( ) { assert isPositioned(); return _pos == 0       && kindIsUserNode ( _xobj.kind() ); }
+    boolean isUserNode  ( ) { assert isPositioned(); int k = kind(); return k == ELEM || k == ROOT || (k == ATTR && !isXmlns()); }
     
     boolean isNormalAttr ( ) { assert isNode(); return _xobj.isNormalAttr(); }
     boolean isXmlns      ( ) { assert isNode(); return _xobj.isXmlns(); }
@@ -166,8 +167,8 @@ final class Cur
     boolean isDomDocRoot  ( ) { return isRoot() && _xobj.getDom() instanceof Document; }
     boolean isDomFragRoot ( ) { return isRoot() && _xobj.getDom() instanceof DocumentFragment; }
 
-    private int cchRight ( ) { assert isPositioned(); return _xobj.cchRight( _pos ); }
-    private int cchLeft  ( ) { assert isPositioned(); return _xobj.cchLeft ( _pos ); }
+    int cchRight ( ) { assert isPositioned(); return _xobj.cchRight( _pos ); }
+    int cchLeft  ( ) { assert isPositioned(); return _xobj.cchLeft ( _pos ); }
     
     //
     // Creation methods
@@ -297,6 +298,102 @@ final class Cur
         return _xobj == that._xobj && _pos == END_POS;
     }
 
+    boolean isInSameTree ( Cur that )
+    {
+        assert isPositioned() && that.isPositioned();
+
+        return _xobj.isInSameTree( that._xobj );
+    }
+
+    // Retunr -1, 0 or 1 for relative cursor positions.  Return 2 is not in sames trees.
+
+    int comparePosition ( Cur that )
+    {
+        assert isPositioned() && that.isPositioned();
+
+        // If in differnet locales, then can't comapre
+        
+        if (_locale != that._locale)
+            return 2;
+
+        // No need to denormalize, but I want positions which I can compare (no END_POS)
+
+        Xobj xThis = _xobj;
+        int  pThis = _pos == END_POS ? xThis.posAfter() - 1 : _pos;
+        
+        Xobj xThat = that._xobj;
+        int  pThat = that._pos == END_POS ? xThat.posAfter() - 1 : that._pos;
+
+        // There are several cases:
+        //
+        // 1. Cursors are on the same xobj
+        // 2. One cursor is a child of the other
+        // 3. Cursors share a common parent
+        // 4. Cursors are not in the same trees
+        //
+        // Check for the first, trivial, case.  Then, compute the depths of the nodes the
+        // cursors are on, checkin for case 2
+        //
+
+        if (xThis == xThat)
+            return pThis < pThat ? -1 : pThis == pThat ? 0 : 1;
+
+        // Compute the depth of xThis.  See if I hit xThat (case 2)
+
+        int dThis = 0;
+
+        for ( Xobj x = xThis._parent ; x != null ; x = x._parent )
+        {
+            dThis++;
+
+            if (x == xThat)
+                return pThat < xThat.posAfter() - 1 ? 1 : -1;
+        }
+
+        // Compute the depth of xThat.  See if I hit xThis (case 2)
+
+        int dThat = 0;
+
+        for ( Xobj x = xThat._parent ; x != null ; x = x._parent )
+        {
+            dThat++;
+
+            if (x == xThis)
+                return pThis < xThis.posAfter() - 1 ? -1 : 1;
+        }
+
+        // Must be case 3 or 4 now.  Find a common parent.  If none, then it's case 4
+
+        while ( dThis > dThat ) { dThis--; xThis = xThis._parent; }
+        while ( dThat > dThis ) { dThat--; xThat = xThat._parent; }
+
+        assert dThat == dThis && dThis != 0;
+        assert xThis._parent != null && xThat._parent != null;
+
+        while ( xThis._parent != xThat._parent )
+        {
+            if ((xThis = xThis._parent) == null)
+                return 2;
+                
+            xThat = xThat._parent;
+        }
+
+        // Now, see where xThis and XThat are relative to eachother in the childlist.  Apply
+        // some quick common checks before iterating.
+
+        if (xThis._prevSibling == null || xThat._nextSibling == null)
+            return -1;
+
+        if (xThis._nextSibling == null || xThat._prevSibling == null)
+            return 1;
+
+        while ( xThis != null )
+            if ((xThis = xThis._prevSibling) == xThat)
+                return 1;
+
+        return -1;
+    }
+            
     void setName ( QName newName )
     {
         assert isNode() && newName != null;
@@ -372,9 +469,7 @@ final class Cur
             _nextN = new int  [ _initialSize ];
             _prevN = new int  [ _initialSize ];
 
-            _next [ _initialSize - 1 ] = NULL;
-
-            for ( int i = _initialSize - 2 ; i >= 0 ; i-- )
+            for ( int i = _initialSize - 1 ; i >= 0 ; i-- )
             {
                 assert _xobjs[ i ] == null;
                 _poses [ i ] = NO_POS;
@@ -383,6 +478,8 @@ final class Cur
                 _nextN [ i ] = NULL;
                 _prevN [ i ] = NULL;
             }
+
+            _next [ _initialSize - 1 ] = NULL;
 
             _free = 0;
             _naked = NULL;
@@ -398,7 +495,8 @@ final class Cur
         
         boolean isAtEndOf ( int i, Cur c )
         {
-            assert _poses[ i ] == 0;
+            assert _curs[ i ] != null || _poses[ i ] == 0;
+            assert _curs[ i ] == null || _curs[ i ].isNode();
             
             if (_curs[ i ] == null)
                 return c._xobj == _xobjs[ i ] && c._pos == END_POS;
@@ -584,9 +682,7 @@ final class Cur
             System.arraycopy( oldNextN, 0, _nextN, 0, l );
             System.arraycopy( oldPrevN, 0, _prevN, 0, l );
 
-            _next [ l * 2 - 1 ] = NULL;
-
-            for ( int i = l * 2 - 2 ; i >= l ; i-- )
+            for ( int i = l * 2 - 1 ; i >= l ; i-- )
             {
                 _next  [ i ] = i + 1;
                 _prev  [ i ] = NULL;
@@ -594,6 +690,8 @@ final class Cur
                 _prevN [ i ] = NULL;
                 _poses [ i ] = NO_POS;
             }
+
+            _next [ l * 2 - 1 ] = NULL;
 
             _free = l;
         }
@@ -622,6 +720,14 @@ final class Cur
         _stackTop = _locale._locations.insert( _stackTop, _stackTop, i );
     }
 
+    void pop ( boolean stay )
+    {
+        if (stay)
+            popButStay();
+        else
+            pop();
+    }
+    
     void popButStay ( )
     {
         if (_stackTop != Locations.NULL)
@@ -873,20 +979,6 @@ final class Cur
         return false;
     }
 
-    String getAttrValue ( QName name )
-    {
-        String s = null;
-        
-        push();
-
-        if (toAttr( name ))
-            s = getValueAsString();
-        
-        pop();
-
-        return s;
-    }
-
     void setValueAsQName ( QName qname )
     {
         assert isNode();
@@ -939,21 +1031,44 @@ final class Cur
         pop();
     }
 
-    void setAttrAsQName ( QName name, QName value )
+    String getAttrValue ( QName name )
+    {
+        String s = null;
+        
+        push();
+
+        if (toAttr( name ))
+            s = getValueAsString();
+        
+        pop();
+
+        return s;
+    }
+
+    void setAttrValueAsQName ( QName name, QName value )
     {
         assert isContainer();
 
-        if (toAttr( name ))
-            removeFollowingAttrs();
+        if (value == null)
+        {
+            _xobj.removeAttr( name );
+        }
         else
         {
-            next();
-            createAttr( name );
-        }
+            if (toAttr( name ))
+            {
+                removeFollowingAttrs();
+            }
+            else
+            {
+                next();
+                createAttr( name );
+            }
         
-        setValueAsQName( value );
+            setValueAsQName( value );
 
-        toParent();
+            toParent();
+        }
     }
     
     boolean removeAttr ( QName name )
@@ -963,7 +1078,7 @@ final class Cur
         return _xobj.removeAttr( name );
     }
 
-    void setAttr ( QName name, String value )
+    void setAttrValue ( QName name, String value )
     {
         assert isContainer();
 
@@ -1013,7 +1128,7 @@ final class Cur
     
     boolean toNextAttr ( )
     {
-        assert isAttr();
+        assert isAttr() || isContainer();
 
         Xobj nextAttr = _xobj.nextAttr();
 
@@ -1027,16 +1142,46 @@ final class Cur
     
     boolean toPrevAttr ( )
     {
-        assert isAttr();
-        
-        if (_xobj._prevSibling == null || !_xobj._prevSibling.isAttr())
-            return false;
-        
-        moveTo( _xobj._prevSibling );
+        if (isAttr())
+        {
+            if (_xobj._prevSibling == null)
+                moveTo( _xobj.ensureParent() );
+            else
+                moveTo( _xobj._prevSibling );
 
-        return true;
+            return true;
+        }
+
+        prev();
+
+        if (!isContainer())
+        {
+            next();
+            return false;
+        }
+
+        return toLastAttr();
     }
 
+    boolean skipWithAttrs ( )
+    {
+        assert isNode();
+
+        if (skip())
+            return true;
+        
+        if (_xobj.isRoot())
+            return false;
+
+        assert _xobj.isAttr();
+
+        toParent();
+
+        next();
+                
+        return true;
+    }
+    
     boolean skip ( )
     {
         assert isNode();
@@ -1100,12 +1245,28 @@ final class Cur
 
         assert false;
     }
+
+    boolean prevWithAttrs ( )
+    {
+        if (prev())
+            return true;
+
+        if (!isAttr())
+            return false;
+
+        toParent();
+
+        return true;
+    }
     
     boolean prev ( )
     {
         assert isPositioned();
 
         if (_xobj.isRoot() && _pos == 0)
+            return false;
+
+        if (_xobj.isAttr() && _pos == 0 && _xobj._prevSibling == null)
             return false;
         
         Xobj x = getDenormal();
@@ -1263,10 +1424,10 @@ final class Cur
         if (cch < 0 || cch > cchLeft)
             cch = cchLeft;
 
-        if (cch == 0)
-            return 0;
-
-        _pos -= cch;
+        // Dang, I love this stmt :-)
+        
+        if (cch != 0)
+            moveTo( getNormal( getDenormal(), _posTemp - cch ), _posTemp );
 
         return cch;
     }
@@ -1390,6 +1551,13 @@ final class Cur
 
         return _xobj.getXsiTypeName();
     }
+
+    final void setXsiType ( QName value )
+    {
+        assert isContainer();
+
+        setAttrValueAsQName( Locale._xsiType, value );
+    }
     
     final QName valueAsQName ( )
     {
@@ -1398,100 +1566,14 @@ final class Cur
     
     final String namespaceForPrefix ( String prefix, boolean defaultAlwaysMapped )
     {
-        assert isContainer();
-
         return _xobj.namespaceForPrefix( prefix, defaultAlwaysMapped );
     }
 
     final String prefixForNamespace ( String ns, String suggestion, boolean createIfMissing )
     {
-        if (ns == null)
-            ns = "";
-
-        // special cases
-        
-        if (ns.equals( Locale._xml1998Uri ))
-            return "xml";
-        
-        if (ns.equals( Locale._xmlnsUri ))
-            return "xmlns";
-
-        // Get the closest container for the spot we're on
-
-        Xobj base = isContainer() ? _xobj : getParent();
-
-        // Special handling for the no-namespace case
-        
-        if (ns.length() == 0)
-        {
-            // Search for a namespace decl which defines the default namespace
-
-            Xobj a = base.findXmlnsForPrefix( "" );
-
-            // If I did not find a default decl or the decl maps to the no namespace, then
-            // the default namespace is mapped to ""
-            
-            if (a == null || a.getXmlnsUri().length() == 0)
-                return "";
-
-            // At this point, I've found a default namespace which is *not* the no-namespace.
-            // If I can't modify the document to mape the desired no-namespace, I must fail.
-            
-            if (!createIfMissing)
-                return null;
-
-            // Ok, I need to make the default namespace on the nearest container map to ""
-
-            base.setAttr( _locale.createXmlns( null ), "" );
-            
-            return "";
-        }
-
-        // Look for an exisiting mapping for the desired uri which has a visible prefix 
-
-        for ( Xobj c = base ; c != null ; c = c._parent )
-            for ( Xobj a = c.firstAttr() ; a != null ; a = a.nextAttr() )
-                if (a.isXmlns() && a.getXmlnsUri().equals( ns ))
-                    if (base.findXmlnsForPrefix( a.getXmlnsPrefix() ) == a)
-                        return a.getXmlnsPrefix();
-
-        // No exisiting xmlns I can use, need to create one.  See if I can first
-
-        if (!createIfMissing)
-            return null;
-
-        // Sanitize the suggestion.
-
-        if (suggestion != null &&
-              (suggestion.length() == 0 || suggestion.toLowerCase().startsWith( "xml" ) ||
-                    base.findXmlnsForPrefix( suggestion ) != null))
-        {
-            suggestion = null;
-        }
-
-        // If no suggestion, make one up
-
-        if (suggestion == null)
-        {
-            String prefixBase = QNameHelper.suggestPrefix( ns );
-            
-            suggestion = prefixBase;
-            
-            for ( int i = 1 ; ; suggestion = prefixBase + i++ )
-                if (base.findXmlnsForPrefix( suggestion ) == null)
-                    break;
-        }
-
-        // Add a new namespace decl at the top elem if one exists, otherwise at root
-
-        Xobj c = base;
-
-        while ( !c.isRoot() && !c.ensureParent().isRoot() )
-            c = c._parent;
-        
-        base.setAttr( _locale.createXmlns( suggestion ), ns );
-
-        return suggestion;
+        return 
+            (isContainer() ? _xobj : getParent()).
+                prefixForNamespace( ns, suggestion, createIfMissing );
     }
 
     // Does the node at this cursor properly contain the position specified by the argument
@@ -1506,7 +1588,8 @@ final class Cur
 
     void insertString ( String s )
     {
-        insertChars( s, 0, s.length() );
+        if (s != null)
+            insertChars( s, 0, s.length() );
     }
     
     void insertChars ( Object src, int off, int cch )
@@ -1646,13 +1729,8 @@ final class Cur
 
         _locale.notifyChange();
 
-        // Create a cursor to be where "this" will be after the move.  I need to do this because
-        // the removal of the chars can confuse where "this" is.  Consider the case where chars
-        // are being removed from just before the end of a tag.  In this case, the pos will be
-        // just before the end of the tag after the move and normalizing this position will result
-        // in teh cur going to just before the end tag.  However, if there were children, this
-        // needs to move there.
-
+        //
+        
         if (to == null)
             _xobj.removeCharsHelper( _pos, cchMove, null, NO_POS, false, true );
         else
@@ -1801,7 +1879,7 @@ final class Cur
 
         x._locale.embedCurs();
 
-        for ( Xobj y = x ; y != null ; y = y.walk( x ) )
+        for ( Xobj y = x ; y != null ; y = y.walk( x, true ) )
         {
             while ( y._embedded != null )
                 y._embedded.moveTo( x.getNormal( x.posAfter() ) );
@@ -1865,7 +1943,7 @@ final class Cur
         moveNodeContents( _xobj, to, moveAttrs );
     }
 
-    private static void moveNodeContents ( Xobj x, Cur to, boolean moveAttrs )
+    static void moveNodeContents ( Xobj x, Cur to, boolean moveAttrs )
     {
         // TODO - should assert that is an attr is being moved, it is ok there
         
@@ -1924,16 +2002,23 @@ final class Cur
 
             // Here I need to see if to is at the left edge.  I push to's current position and
             // then navigate it to the left edge then compare it to the pushed position...
+            // Note: gotta be careful to make sure to and x are not in different locales, curs
+            // may not go to a different locale.
 
-            to.push();
-            to.moveTo( x );
-            to.next( moveAttrs && hasAttrs );
-            boolean isSame = to.isAtLastPush();
-            to.pop();
+            boolean isAtLeftEdge = false;
+
+            if (to._locale == x._locale)
+            {
+                to.push();
+                to.moveTo( x );
+                to.next( moveAttrs && hasAttrs );
+                isAtLeftEdge = to.isAtLastPush();
+                to.pop();
+            }
             
             // TODO - shuffle interior curs?
             
-            if (isSame)
+            if (isAtLeftEdge)
                 return;
 
             // Now, after dealing with the edge condition, I can assert that to is not inside x
@@ -1972,10 +2057,10 @@ final class Cur
 
         x._locale.embedCurs();
         
-        Xobj firstToMove = x.walk( x );
+        Xobj firstToMove = x.walk( x, true );
         boolean sawBookmark = false;
 
-        for ( Xobj y = firstToMove ; y != null ; y = y.walk( x ) )
+        for ( Xobj y = firstToMove ; y != null ; y = y.walk( x, true ) )
         {
             if (y._parent == x && y.isAttr())
             {
@@ -2039,81 +2124,84 @@ final class Cur
 
         x.removeXobjs( firstToMove, lastToMove );
 
-        // To know where I should insert/append the contents to move, I need to see where "to"
-        // would be if there were no text after it.  
-
-        Xobj here = to._xobj;
-        boolean append = to._pos != 0;
-
-        int cchRight = to.cchRight();
-
-        if (cchRight > 0)
+        if (to != null)
         {
-            to.push();
-            to.next();
-            here = to._xobj;
-            append = to._pos != 0;
-            to.pop();
-        }
+            // To know where I should insert/append the contents to move, I need to see where "to"
+            // would be if there were no text after it.  
 
-        // Now, I have to shuffle the text around "to" in special ways.  A complication is
-        // the insertion of attributes.  First, if I'm inserting attrs here then, logically,
-        // there can be no text to the left because attrs can only live after another attr
-        // or just inside a container.  So, If attrs are being inserted and there is value
-        // text on the target container, I will need to move this value text to be after
-        // the lew last attribute.  Note that this value text may already live on a current
-        // last attr (before the inserting).  Also, I need to figure this all out before I
-        // move the text after "to" because this text may end up being sent to the same place
-        // as the containers value text when the last new node being inserted is an attr!
-        // Whew!
+            Xobj here = to._xobj;
+            boolean append = to._pos != 0;
 
-        if (firstToMove.isAttr())
-        {
-            Xobj lastNewAttr = firstToMove;
-
-            while ( lastNewAttr._nextSibling != null && lastNewAttr._nextSibling.isAttr() )
-                lastNewAttr = lastNewAttr._nextSibling;
-
-            // Get to's parnet now before I potentially move him with the next transfer
-
-            Xobj y = to.getParent();
+            int cchRight = to.cchRight();
 
             if (cchRight > 0)
-                transferChars( to._xobj, to._pos, lastNewAttr, lastNewAttr.posMax(), cchRight );
-
-            if (y.hasTextNoEnsureOccupancy())
             {
-                int p, cch;
-
-                if (y._cchValue > 0)
-                {
-                    p = 1;
-                    cch = y._cchValue;
-                }
-                else
-                {
-                    y = y.lastAttr();
-                    p = y.posAfter();
-                    cch = y._cchAfter;
-                }
-
-                transferChars( y, p, lastNewAttr, lastNewAttr.posAfter(), cch );
+                to.push();
+                to.next();
+                here = to._xobj;
+                append = to._pos != 0;
+                to.pop();
             }
+
+            // Now, I have to shuffle the text around "to" in special ways.  A complication is
+            // the insertion of attributes.  First, if I'm inserting attrs here then, logically,
+            // there can be no text to the left because attrs can only live after another attr
+            // or just inside a container.  So, If attrs are being inserted and there is value
+            // text on the target container, I will need to move this value text to be after
+            // the lew last attribute.  Note that this value text may already live on a current
+            // last attr (before the inserting).  Also, I need to figure this all out before I
+            // move the text after "to" because this text may end up being sent to the same place
+            // as the containers value text when the last new node being inserted is an attr!
+            // Whew!
+
+            if (firstToMove.isAttr())
+            {
+                Xobj lastNewAttr = firstToMove;
+
+                while ( lastNewAttr._nextSibling != null && lastNewAttr._nextSibling.isAttr() )
+                    lastNewAttr = lastNewAttr._nextSibling;
+
+                // Get to's parnet now before I potentially move him with the next transfer
+
+                Xobj y = to.getParent();
+
+                if (cchRight > 0)
+                    transferChars( to._xobj, to._pos, lastNewAttr, lastNewAttr.posMax(), cchRight );
+
+                if (y.hasTextNoEnsureOccupancy())
+                {
+                    int p, cch;
+
+                    if (y._cchValue > 0)
+                    {
+                        p = 1;
+                        cch = y._cchValue;
+                    }
+                    else
+                    {
+                        y = y.lastAttr();
+                        p = y.posAfter();
+                        cch = y._cchAfter;
+                    }
+
+                    transferChars( y, p, lastNewAttr, lastNewAttr.posAfter(), cch );
+                }
+            }
+            else if (cchRight > 0)
+                transferChars( to._xobj, to._pos, lastToMove, lastToMove.posMax(), cchRight );
+
+            // After mucking with the text, splice the new tree in
+
+            if (append)
+                here.appendXobjs( firstToMove, lastToMove );
+            else
+                here.insertXobjs( firstToMove, lastToMove );
+
+            // Position "to" to be at the beginning of the newly inserted contents
+
+            to.moveTo( firstToMove );
+            to.prevChars( valueMovedCch );
         }
-        else if (cchRight > 0)
-            transferChars( to._xobj, to._pos, lastToMove, lastToMove.posMax(), cchRight );
-
-        // After mucking with the text, splice the new tree in
-
-        if (append)
-            here.appendXobjs( firstToMove, lastToMove );
-        else
-            here.insertXobjs( firstToMove, lastToMove );
-
-        // Position "to" to be at the beginning of the newly inserted contents
-
-        to.moveTo( firstToMove );
-        to.prevChars( valueMovedCch );
 
         // If I consed up a to, release it here
 
@@ -2121,35 +2209,15 @@ final class Cur
             surragateTo.release();
     }
     
-    protected final void setBookmark ( Object key, Object value )
+    protected final Bookmark setBookmark ( Object key, Object value )
     {
         assert isNormal();
         assert key != null;
 
-        for ( Bookmark b = _xobj._bookmarks ; b != null ; b = b._next )
-        {
-            if (_pos == b._pos && key == b._key)
-            {
-                if (value == null)
-                    _xobj._bookmarks = b.listRemove( _xobj._bookmarks );
-                else
-                    b._value = value;
-
-                return;
-            }
-        }
-
-        Bookmark b = new Bookmark();
-
-        b._xobj  = _xobj;
-        b._pos   = _pos;
-        b._key   = key;
-        b._value = value;
-
-        _xobj._bookmarks = b.listInsert( _xobj._bookmarks );
+        return _xobj.setBookmark( _pos, key, value );
     }
     
-    final Object getBookmark ( Object key )
+    Object getBookmark ( Object key )
     {
         assert isNormal();
         assert key != null;
@@ -2160,36 +2228,87 @@ final class Cur
         
         return null;
     }
-    
-    String getString ( int cch )
-    {
-        assert isNormal() && _xobj != null;
 
-        return _xobj.getString( _pos, cch, Locale.WS_PRESERVE );
+    int firstBookmarkInChars ( Object key, int cch )
+    {
+        assert isNormal();
+        assert key != null;
+        assert cch > 0;
+        assert cch <= cchRight();
+
+        int d = -1;
+
+        if (isText())
+        {
+            for ( Bookmark b = _xobj._bookmarks ; b != null ; b = b._next )
+                if (b._key == key && inChars( b, cch, false ))
+                    d = (d == -1 || b._pos - _pos < d) ? b._pos - _pos : d;
+        }
+        
+        return d;
     }
 
-    String getString ( int cch, int wsr )
+    int firstBookmarkInCharsLeft ( Object key, int cch )
+    {
+        assert isNormal();
+        assert key != null;
+        assert cch > 0;
+        assert cch <= cchLeft();
+
+        int d = -1;
+        
+        if (cchLeft() > 0)
+        {
+            Xobj x = getDenormal();
+            int  p = _posTemp - cch;
+            
+            for ( Bookmark b = x._bookmarks ; b != null ; b = b._next )
+                if (b._key == key && x.inChars( p, b._xobj, b._pos, cch, false ))
+                    d = (d == -1 || b._pos - p < d) ? b._pos - p : d;
+        }
+        
+        return d;
+    }
+    
+    String getCharsAsString ( int cch )
     {
         assert isNormal() && _xobj != null;
 
-        return _xobj.getString( _pos, cch, wsr );
+        return getCharsAsString( cch, Locale.WS_PRESERVE );
+    }
+
+    String getCharsAsString ( int cch, int wsr )
+    {
+        return _xobj.getCharsAsString( _pos, cch, wsr );
+//        assert isNormal() && _xobj != null;
+//
+//        String s = _xobj.getString( _pos, cch );
+//
+//        return Locale.applyWhiteSpaceRule( s, wsr );
     }
 
     String getValueAsString ( int wsr )
     {
         assert isNode();
 
-        // TODO - make sure there are no children (ok for an element to have
-        // attrs)
-
-        assert ! hasChildren();
-
-        return _xobj.getValue( wsr );
+        return _xobj.getValueAsString( wsr );
+//
+//        // TODO - make sure there are no children (ok for an element to have
+//        // attrs)
+//
+//        assert ! hasChildren();
+//
+//        String s = _xobj.getValueAsString();
+//        
+//        return Locale.applyWhiteSpaceRule( s, wsr );
     }
     
     String getValueAsString ( )
     {
-        return getValueAsString( Locale.WS_PRESERVE );
+        assert isNode();
+        assert ! hasChildren();
+        
+        return _xobj.getValueAsString();
     }
 
     Object getChars ( int cch )
@@ -2199,13 +2318,16 @@ final class Cur
         return _xobj.getChars( _pos, cch, this );
     }
     
-    Object getValueChars ( )
+    Object getFirstChars ( )
     {
         assert isNode();
-        
-        _xobj.ensureOccupancy();
-        
-        return _xobj.getChars( 1, -1, this );
+
+        Object src = _xobj.getFirstChars();
+
+        _offSrc = _xobj.offSrc();
+        _cchSrc = _xobj.cchSrc();
+
+        return src;
     }
     
     void copyNode ( Cur to )
@@ -2213,57 +2335,12 @@ final class Cur
         assert to != null;
         assert isNode();
 
-        Xobj newParent = null;
-        Xobj copy = null;
-            
-        walk:
-        for ( Xobj x = _xobj ; ; )
-        {
-            x.ensureOccupancy();
-            
-            Xobj newX = x.newNode( to._locale );
+        Xobj copy = _xobj.copyNode( to._locale );
 
-            newX._srcValue = x._srcValue;
-            newX._offValue = x._offValue;
-            newX._cchValue = x._cchValue;
-            
-            newX._srcAfter = x._srcAfter;
-            newX._offAfter = x._offAfter;
-            newX._cchAfter = x._cchAfter;
-
-            // TODO - strange to have charNode stuff inside here .....
-            newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX );
-            newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX );
-
-            if (newParent == null)
-                copy = newX;
-            else
-                newParent.appendXobj( newX );
-
-            // Walk to the next in-order xobj.  Record the current (y) to compute newParent
-
-            Xobj y = x;
-
-            if ((x = x.walk( _xobj )) == null)
-                break;
-
-            if (y == x._parent)
-                newParent = newX;
-            else
-                for ( ; y._parent != x._parent ; y = y._parent )
-                    newParent = newParent._parent;
-        }
-
-        copy._srcAfter = null;
-        copy._offAfter = 0;
-        copy._cchAfter = 0;
+        // TODO - in the moveNode case, I would not have to walk the tree for cursors ... optimize
 
         if (to.isPositioned())
-        {
-            Cur from = to._locale.tempCur();
-            from.moveNode( to );
-            from.release();
-        }
+            Cur.moveNode( copy, to );
         else
             to.moveTo( copy );
     }
@@ -2405,7 +2482,7 @@ final class Cur
         if (parentUser.get_element_type( getName(), typeName ) != type)
             throw new IllegalArgumentException( "Can't set type of element, invalid type" );
 
-        setAttrAsQName( Locale._xsiType, typeName );
+        setAttrValueAsQName( Locale._xsiType, typeName );
     }
 
     TypeStoreUser peekUser ( )
@@ -2413,6 +2490,11 @@ final class Cur
         assert isUserNode();
         
         return _xobj._user;
+    }
+    
+    XmlObject getObject ( )
+    {
+        return isUserNode() ? (XmlObject) getUser() : null;
     }
     
     TypeStoreUser getUser ( )
@@ -2570,7 +2652,7 @@ final class Cur
 // locales charUtil, let the Locales _charUtil be specific to it because
 // it is not thread safe to share a thread local charUtil between Locales
             
-            options = options = XmlOptions.maskNull( options );
+            options = XmlOptions.maskNull( options );
 
             if (options.hasOption( XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT ))
             {
@@ -2588,7 +2670,10 @@ final class Cur
             _locale = l;
             _frontier = createDomDocumentRootXobj( l );
             _after = false;
-            
+
+            _lastXobj = _frontier;
+            _lastPos  = 0;
+
             _locale._versionAll++;
             _locale._versionSansText++;
         }
@@ -2609,6 +2694,9 @@ final class Cur
 
             _frontier.appendXobj( xo );
             _frontier = xo;
+            
+            _lastXobj = xo;
+            _lastPos  = 0;
         }
         
         private void end ( )
@@ -2623,6 +2711,9 @@ final class Cur
                 _frontier = _frontier._parent;
             else
                 _after = true;
+            
+            _lastXobj = _frontier;
+            _lastPos  = END_POS;
         }
 
         private QName checkName ( QName name, boolean local )
@@ -2649,51 +2740,98 @@ final class Cur
         protected void endElement ( )
         {
             assert (_after ? _frontier._parent : _frontier).isElem();
+            
             end();
         }
         
         protected void xmlns ( String prefix, String uri )
         {
-            assert prefix == null || prefix.length() > 0;
             assert (_after ? _frontier._parent : _frontier).isContainer();
 
-            start( new Xobj.AttrXobj( _locale, checkName( _locale.createXmlns( prefix ), true ) ) );
+            // Namespace attrs are different than regular attrs -- I don't change their name,
+            // I change their value!
+
+            if (_substituteNamespaces != null)
+            {
+                String substituteUri = (String) _substituteNamespaces.get( uri );
+
+                if (substituteUri != null)
+                    uri = substituteUri;
+            }
+
+            Xobj x = new Xobj.AttrXobj( _locale, _locale.createXmlns( prefix ) );
+            
+            start( x );
 
             text( uri, 0, uri.length() );
             
             end();
+            
+            _lastXobj = x;
+            _lastPos  = 0;
+        }
+        
+        protected void attr ( QName name, String value )
+        {
+            assert (_after ? _frontier._parent : _frontier).isContainer();
+            
+            Xobj x = new Xobj.AttrXobj( _locale, checkName( name, true ) );
+            
+            start( x );
+            
+            text( value, 0, value.length() );
+            
+            end();
+            
+            _lastXobj = x;
+            _lastPos  = 0;
         }
         
         protected void attr ( String local, String uri, String prefix, String value )
         {
-            assert (_after ? _frontier._parent : _frontier).isContainer();
-            
-            start(
-                new Xobj.AttrXobj(
-                    _locale, checkName( _locale.makeQName( uri, local, prefix ), true ) ) );
-            
-            text( value, 0, value.length() );
-            end();
+            attr( _locale.makeQName( uri, local, prefix ), value );
         }
         
         protected void procInst ( String target, String value )
         {
             if (!_stripProcinsts)
             {
-                start( new Xobj.ProcInstXobj( _locale, target ) );
+                Xobj x = new Xobj.ProcInstXobj( _locale, target );
+                
+                start( x );
                 text( value, 0, value.length() );
                 end();
+                
+                _lastXobj = x;
+                _lastPos  = 0;
             }
         }
         
-        protected void comment ( char[] buf, int off, int cch )
+        protected void comment ( String comment )
+        {
+            if (!_stripComments)
+                comment( comment, 0, comment.length() );
+        }
+        
+        protected void comment ( char[] chars, int off, int cch )
         {
             if (!_stripComments)
             {
-                start( new Xobj.CommentXobj( _locale ) );
-                text( (Object) buf, off, cch );
-                end();
+                CharUtil cu = _locale._charUtil;
+                comment( cu.saveChars( chars, off, cch, null, 0, 0 ), cu._offSrc, cu._cchSrc );
             }
+        }
+
+        private void comment ( Object src, int off, int cch )
+        {
+            Xobj x = new Xobj.CommentXobj( _locale );
+
+            start( x );
+            text( src, off, cch );
+            end();
+
+            _lastXobj = x;
+            _lastPos  = 0;
         }
 
         private void stripLeadingWhitespace ( )
@@ -2725,8 +2863,13 @@ final class Cur
 
             CharUtil cu = _locale._charUtil;
 
+            _lastXobj = _frontier;
+            _lastPos  = _frontier._cchValue + 1;
+            
             if (_after)
             {
+                _lastPos += _frontier._cchAfter + 1;
+                
                 _frontier._srcAfter =
                     cu.saveChars(
                         src, off, cch,
@@ -2734,6 +2877,7 @@ final class Cur
 
                 _frontier._offAfter = cu._offSrc;
                 _frontier._cchAfter = cu._cchSrc;
+                
             }
             else
             {
@@ -2745,6 +2889,11 @@ final class Cur
                 _frontier._offValue = cu._offSrc;
                 _frontier._cchValue = cu._cchSrc;
             }
+        }
+        
+        protected void text ( String s )
+        {
+            text( s, 0, s.length() );
         }
         
         protected void text ( char[] src, int off, int cch )
@@ -2761,6 +2910,27 @@ final class Cur
             text( srcObj, off, cch );
         }
         
+        protected void bookmark ( XmlBookmark bm )
+        {
+            _lastXobj.setBookmark( _lastPos, bm.getKey(), bm );
+        }
+        
+        protected void lineNumber ( int line, int column, int offset )
+        {
+            _lastXobj.setBookmark(
+                _lastPos,
+                XmlLineNumber.class,
+                new XmlLineNumber( line, column, offset ) );
+        }
+        
+        protected void abort ( )
+        {
+            while ( !(_after ? _frontier._parent : _frontier).isRoot() )
+                end();
+            
+            finish().release();
+        }
+        
         protected Cur finish ( )
         {
             if (_stripWhitespace)
@@ -2772,7 +2942,9 @@ final class Cur
             assert _frontier != null && _frontier._parent == null && _frontier.isRoot();
 
             Cur c = _frontier.tempCur();
-            Locale.toFirstChildElement( c );
+            
+            if (!Locale.toFirstChildElement( c ))
+                return c;
 
             // See if the document element is a fragment
 
@@ -2808,8 +2980,14 @@ final class Cur
                     c.next();
 
                     assert c.isElem();
+
+                    Cur c2 = c.tempCur();
                     
                     c.moveNodeContents( c, true );
+
+                    c.moveToCur( c2 );
+
+                    c2.release();
                     
                     c.moveNode( null );
                 }
@@ -2842,33 +3020,8 @@ final class Cur
             if (_additionalNamespaces != null)
             {
                 c.moveTo( _frontier );
-                
                 Locale.toFirstChildElement( c );
-
-                java.util.Iterator i = _additionalNamespaces.keySet().iterator();
-                
-                while ( i.hasNext() )
-                {
-                    String prefix = (String) i.next();
-
-                    // Usually, this is the predefined xml namespace
-                    if (!prefix.toLowerCase().startsWith( "xml" ))
-                    {
-                        if (c.namespaceForPrefix( prefix, false ) == null)
-                        {
-                            c.push();
-                            
-                            c.next();
-                            c.createAttr( _locale.createXmlns( prefix ) );
-                            c.next();
-                            
-                            String namespace = (String) _additionalNamespaces.get( prefix );
-                            c.insertString( namespace );
-                                          
-                            c.pop();
-                        }
-                    }
-                }
+                Locale.applyNamespaces( c, _additionalNamespaces );
             }
             
             c.moveTo( _frontier );
@@ -2886,6 +3039,10 @@ final class Cur
         private Locale  _locale;
         private Xobj    _frontier;
         private boolean _after;
+
+        private Xobj    _lastXobj;
+        private int     _lastPos;
+        
         private boolean _discardDocElem;
         private QName   _replaceDocElem;
         private boolean _stripWhitespace;
@@ -2996,8 +3153,14 @@ final class Cur
             
             if (ref == b)
                 o.print( "*:" );
-            
-            o.print( "<mark>" + "[" + b._pos + "]" );
+
+            if (b._value instanceof XmlLineNumber)
+            {
+                XmlLineNumber l = (XmlLineNumber) b._value;
+                o.print( "<line:" + l.getLine() + ">" + "[" + b._pos + "]" );
+            }
+            else
+                o.print( "<mark>" + "[" + b._pos + "]" );
         }
     }
     
@@ -3012,6 +3175,41 @@ final class Cur
             
             o.print( (n instanceof TextNode ? "TEXT" : "CDATA") + "[" + n._cch + "]" );
         }
+    }
+
+    private static void dumpChars ( PrintStream o, Object src, int off, int cch )
+    {
+//        CharUtil.dumpChars( o, src, off, cch );
+        
+        o.print( "\"" );
+        
+        String s = CharUtil.getString( src, off, cch );
+
+        for ( int i = 0 ; i < s.length() ; i++ )
+        {
+            if (i== 36)
+            {
+                o.print( "..." );
+                break;
+            }
+            
+            char ch = s.charAt( i );
+
+            if (ch >= 32 && ch < 127)
+                o.print( ch );
+            else if (ch == '\n')
+                o.print( "\\n" );
+            else if (ch == '\r')
+                o.print( "\\r" );
+            else if (ch == '\t')
+                o.print( "\\t" );
+            else if (ch == '\"')
+                o.print( "\\\"" );
+            else
+                o.print( "<#" + ((int) ch) + ">" );
+        }
+        
+        o.print( "\"" );
     }
     
     private static void dumpXobj ( PrintStream o, Xobj xo, int level, Object ref )
@@ -3045,11 +3243,13 @@ final class Cur
         if (xo._srcValue != null || xo._charNodesValue != null)
         {
             o.print( " Value( " );
-            o.print( "\"" + CharUtil.getString( xo._srcValue, xo._offValue, xo._cchValue ) + "\"" );
-//            CharUtil.dumpChars( o, xo._srcValue, xo._offValue, xo._cchValue );
+            dumpChars( o, xo._srcValue, xo._offValue, xo._cchValue );
             dumpCharNodes( o, xo._charNodesValue, ref );
             o.print( " )" );
         }
+
+        if (xo._user != null)
+            o.print( " (USER)" );
 
         if (xo.isVacant())
             o.print( " (VACANT)" );
@@ -3057,8 +3257,7 @@ final class Cur
         if (xo._srcAfter != null || xo._charNodesAfter != null)
         {
             o.print( " After( " );
-            o.print( "\"" + CharUtil.getString( xo._srcAfter, xo._offAfter, xo._cchAfter ) + "\"" );
-//            CharUtil.dumpChars( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
+            dumpChars( o, xo._srcAfter, xo._offAfter, xo._cchAfter );
             dumpCharNodes( o, xo._charNodesAfter, ref );
             o.print( " )" );
         }

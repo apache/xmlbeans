@@ -24,11 +24,10 @@ public final class CharUtil
         _charBufSize = charBufSize;
     }
 
-    public static CharIterator getThreadLocalCharIterator ( Object src, int off, int cch )
+    public CharIterator getCharIterator ( Object src, int off, int cch )
     {
-        CharIterator charIter = (CharIterator) tl_charIter.get();
-        charIter.init( src, off, cch );
-        return charIter;
+        _charIter.init( src, off, cch );
+        return _charIter;
     }
     
     public static CharUtil getThreadLocalCharUtil ( )
@@ -110,7 +109,7 @@ public final class CharUtil
         }
     }
 
-    public static final boolean isWhiteSpace ( Object src, int off, int cch )
+    public final boolean isWhiteSpace ( Object src, int off, int cch )
     {
         assert isValid( src, off, cch );
 
@@ -130,10 +129,10 @@ public final class CharUtil
             }
             else
             {
-                CharIterator charIter = getThreadLocalCharIterator( src, off, cch );
+                _charIter.init( src, off, cch );
                 
-                while ( isWhiteSpace( charIter.currChar() ) && --cch > 0 )
-                    charIter.next();
+                while ( isWhiteSpace( _charIter.currChar() ) && --cch > 0 )
+                    _charIter.next();
 
                 if (cch != 0)
                     return false;
@@ -167,10 +166,10 @@ public final class CharUtil
             {
                 int oldCch = cch;
             
-                CharIterator charIter = getThreadLocalCharIterator( src, off, cch );
+                _charIter.init( src, off, cch );
                 
-                while ( isWhiteSpace( charIter.currChar() ) && --cch > 0 )
-                    charIter.next();
+                while ( isWhiteSpace( _charIter.currChar() ) && --cch > 0 )
+                    _charIter.next();
                 
                 off += oldCch - cch;
             }
@@ -198,11 +197,11 @@ public final class CharUtil
         {
             int oldCch = cch;
 
-            CharIterator charIter = getThreadLocalCharIterator( src, off, cch );
-            charIter.setPos( cch - 1 );
+            _charIter.init( src, off, cch );
+            _charIter.setPos( cch - 1 );
 
-            while ( isWhiteSpace( charIter.currChar() ) && --cch > 0 )
-                charIter.prev();
+            while ( isWhiteSpace( _charIter.currChar() ) && --cch > 0 )
+                _charIter.prev();
         }
         
         if (cch == 0)
@@ -496,8 +495,6 @@ public final class CharUtil
 
             if (off != 0 || cch != s.length())
             {
-                p.print( " offf: " + off + ", cch: " + cch );
-
                 if (off < 0 || off > s.length() || off + cch < 0 || off + cch > s.length())
                 {
                     p.print( " (Error)" );
@@ -516,8 +513,6 @@ public final class CharUtil
 
             if (off != 0 || cch != chars.length)
             {
-                p.print( " off: " + off + ", cch: " + cch );
-
                 if (off < 0 || off > chars.length || off + cch < 0 || off + cch > chars.length)
                 {
                     p.print( " (Error)" );
@@ -769,13 +764,13 @@ public final class CharUtil
                     {
                         _src = cj._srcLeft;
                         _off = cj._offLeft;
-                        _cch = cj._offLeft;
+                        _cch = cj._cchLeft;
                     }
                     else
                     {
                         _src = cj._srcRight;
                         _off = cj._offRight;
-                        _cch = cj._offRight;
+                        _cch = cj._cchRight;
 
                         _startPos += cj._cchLeft;
                     }
@@ -831,10 +826,9 @@ public final class CharUtil
     private static ThreadLocal tl_charUtil =
         new ThreadLocal() { protected Object initialValue() { return new CharUtil( 1024 * 32 ); } };
 
-    private static ThreadLocal tl_charIter =
-        new ThreadLocal() { protected Object initialValue() { return new CharIterator(); } };
-    
- //   private static final int MAX_COPY = 8;
+    private CharIterator _charIter = new CharIterator();
+
+    // TODO - 64 is kinda arbitrary.  Perhaps It should be configurable.
     private static final int MAX_COPY = 64;
 
     // Current char buffer we're allcoating new chars to

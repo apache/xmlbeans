@@ -491,7 +491,7 @@
   <!-- xmlstore target ============================================== -->
 
   <target name="xmlstore.classes"
-        depends="dirs, common.classes, typestore.classes, xmlpublic.classes">
+        depends="dirs, common.classes, typestore.classes, xmlpublic.classes, newstore2.classes">
     <mkdir dir="build/classes/xmlstore"/>
     <javac srcdir="src/xmlstore" destdir="build/classes/xmlstore" source="${javac.source}" target="${javac.target}" debug="on">
       <classpath id="xmlstore.compile.path">
@@ -499,6 +499,7 @@
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/typestore"/>
         <pathelement location="build/classes/xmlpublic"/>
+        <pathelement location="build/classes/newstore2"/>
         <pathelement location="build/classes/common"/>
       </classpath>
     </javac>
@@ -519,7 +520,7 @@
   <!-- newstore2 target ============================================== -->
 
   <target name="newstore2.classes"
-        depends="dirs, common.classes, xmlpublic.classes, typestore.classes, saaj_api.classes">
+        depends="dirs, common.classes, xmlpublic.classes, typestore.classes, saaj_api.classes, piccolo.classes">
     <mkdir dir="build/classes/newstore2"/>
     <javac srcdir="src/newstore2" destdir="build/classes/newstore2" source="${javac.source}" target="${javac.target}" debug="on">
       <classpath id="newstore2.compile.path">
@@ -529,6 +530,7 @@
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/saaj_api"/>
+        <pathelement location="build/classes/piccolo"/>
       </classpath>
     </javac>
 
@@ -981,7 +983,7 @@
     </uptodate>
   </target>
 
-  <target name="piccolo.classes" depends="piccolo.classes.check, dirs" unless="piccolo.classes.notRequired">
+  <target name="piccolo.classes" depends="piccolo.classes.check, dirs, repackage.classes" unless="piccolo.classes.notRequired">
     <delete dir="build/private/piccolo" />
     <mkdir dir="build/private/piccolo" />
     <unjar src="external/lib/piccolo_apache_dist_20040629.jar" dest="build/private/piccolo" />
