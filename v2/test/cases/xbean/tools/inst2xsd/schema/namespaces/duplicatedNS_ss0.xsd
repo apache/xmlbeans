@@ -8,9 +8,9 @@
       <xs:sequence>
         <xs:element ref="ins:b" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
         <xs:element ref="ins:c" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
+        <xs:element ref="ins:a" minOccurs="0" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
         <xs:element ref="ins:d" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
         <xs:element ref="ins:e" maxOccurs="unbounded" minOccurs="0" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
-        <xs:element ref="ins:a" maxOccurs="unbounded" minOccurs="0" xmlns:ins="http://xmlbeans.apache.org/inst2xsd"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

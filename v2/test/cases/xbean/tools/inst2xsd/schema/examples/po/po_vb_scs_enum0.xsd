@@ -55,7 +55,7 @@
         </xs:simpleType>
       </xs:element>
       <xs:element type="xs:string" name="comment" minOccurs="0" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
-      <xs:element type="xs:string" name="shipDate" maxOccurs="unbounded" minOccurs="0" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+      <xs:element type="xs:string" name="shipDate" minOccurs="0" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
     </xs:sequence>
     <xs:attribute type="xs:string" name="partNum" use="optional" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
   </xs:complexType>
