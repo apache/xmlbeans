@@ -136,13 +136,13 @@ public class Java2Schema extends BindingCompiler {
           throw new IllegalStateException("createSchemaTypeSystem returned null");
         }
       } catch(XmlException xe) {
-        ExplodedTylarImpl.showXsbError(xe,null,"write",TylarConstants.SHOW_XSB_ERRORS || isVerbose());
+        ExplodedTylarImpl.showXsbError(xe,null,"write",TylarConstants.SHOW_XSB_ERRORS);
       }
       if (sts != null) {
         try {
           writer.writeSchemaTypeSystem(sts);
         } catch(IOException ioe) {
-          ExplodedTylarImpl.showXsbError(ioe,null,"compile",TylarConstants.SHOW_XSB_ERRORS || isVerbose());
+          ExplodedTylarImpl.showXsbError(ioe,null,"compile",TylarConstants.SHOW_XSB_ERRORS);
         }
       }
     }

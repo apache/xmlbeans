@@ -157,6 +157,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     mJoust = joust;
     mBindingFile = bindingFile;
     mSchemaDocuments = schemas;
+    mSchemaTypeSystem = sts;
   }
 
 
