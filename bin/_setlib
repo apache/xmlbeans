@@ -1,0 +1,17 @@
+#!/bin/sh
+
+if [ -z $XMLBEANS_HOME ]; then
+    XMLBEANS_HOME=`dirname $0`/..
+fi
+
+XMLBEANS_LIB=
+if [ -f $XMLBEANS_HOME/build/lib/xbean.jar ]; then
+    XMLBEANS_LIB=$XMLBEANS_HOME/build/lib
+fi
+if [ -f $XMLBEANS_HOME/lib/xbean.jar ]; then
+    XMLBEANS_LIB=$XMLBEANS_HOME/lib
+fi
+
+if [ -z $XMLBEANS_LIB ]; then
+    echo "ERROR: Could not find xbean.jar, try set XMLBEANS_LIB to the directory containing xbean.jar"
+fi

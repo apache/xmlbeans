@@ -2,8 +2,9 @@
 
 # Invokes XSTC
 
-cp=
-cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar:$XMLBEANS_HOME/build/lib/resolver.jar
+if [ -z $XMLBEANS_LIB ]; then . `dirname $0`/_setlib; fi
+
+cp=$XMLBEANS_LIB/xbean.jar:$XMLBEANS_LIB/jsr173_api.jar:$XMLBEANS_LIB/resolver.jar
 
 case "`uname`" in
     CYGWIN*)
