@@ -40,6 +40,7 @@ import java.net.URISyntaxException;
 import java.net.URI;
 import java.net.URL;
 import java.io.File;
+import java.lang.ref.SoftReference;
 
 
 import javax.xml.namespace.QName;
@@ -1175,24 +1176,32 @@ public class StscState
         }
     }
 
-    private static ThreadLocal stscStack = new ThreadLocal()
-    {
-        protected Object initialValue() { return new StscStack(); }
-    };
+    private static ThreadLocal tl_stscStack = new ThreadLocal();
 
     public static StscState start()
     {
-        return ((StscStack)stscStack.get()).push();
+        StscStack stscStack = (StscStack) tl_stscStack.get();
+
+        if (stscStack==null)
+        {
+            stscStack = new StscStack();
+            tl_stscStack.set(stscStack);
+        }
+        return stscStack.push();
     }
 
     public static StscState get()
     {
-        return ((StscStack)stscStack.get()).current;
+        return ((StscStack) tl_stscStack.get()).current;
     }
 
     public static void end()
     {
-        ((StscStack)stscStack.get()).pop();
+        StscStack stscStack = (StscStack) tl_stscStack.get();
+        stscStack.pop();
+        if (stscStack.stack.size()==0)
+            tl_stscStack.set(null);            // this is required to release all the references in this classloader
+                                               // which will enable class unloading and avoid OOM in PermGen
     }
 
     private final static XmlValueRef XMLSTR_PRESERVE = buildString("preserve");

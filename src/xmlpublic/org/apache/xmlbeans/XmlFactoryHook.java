@@ -21,6 +21,7 @@ import org.w3c.dom.DOMImplementation;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
+import java.lang.ref.SoftReference;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -88,13 +89,14 @@ public interface XmlFactoryHook
     public final static class ThreadContext
     {
         private static ThreadLocal threadHook = new ThreadLocal();
-        
+
         /**
          * Returns the current thread's hook, or null if none.
          */ 
         public static XmlFactoryHook getHook()
         {
-            return (XmlFactoryHook)threadHook.get();
+            SoftReference softRef = (SoftReference)threadHook.get();
+            return softRef==null ? null : (XmlFactoryHook)softRef.get();
         }
 
         /**
@@ -102,7 +104,7 @@ public interface XmlFactoryHook
          */ 
         public static void setHook(XmlFactoryHook hook)
         {
-            threadHook.set(hook);
+            threadHook.set(new SoftReference(hook));
         }
 
         // provided to prevent unwanted construction
