@@ -96,9 +96,11 @@ public class XPathPerf
             //test1(xpathStr, file);
             //test2(xpathStr, file);
 
-            test3t(xpathStr, file);
-            test3(xpathStr, file);
-            test4(file);
+//            test3t(xpathStr, file);
+//            test3(xpathStr, file);
+//            test4(file);
+
+            test5();
         }
         catch (Exception e)
         {
@@ -312,5 +314,63 @@ public class XPathPerf
         }
         while(xc.toNextSibling(xp[i]));
         xc.toParent();
+    }
+
+    private static void test5()
+    {
+        System.out.println("\n ----- test5:   XBeansXPath.selectNodes(xpathStr) Navigator: XmlBookmarks + 1 XmlCursor embeded in Navigator -----");
+
+        //String xmlDocStr = "<AAA>  <BBB id = \"b1\"/> <BBB name = \" bbb \"/> <BBB name = \"bbb\"/>  </AAA>";
+        //String xpathStr = "//BBB[normalize-space(@name)='bbb']";
+
+        String xmlDocStr =
+          "<AAA>\n" +
+          "  <BCC> \n" +
+          "     <BBB/>\n" +
+          "     <BBB/> \n" +
+          "     <BBB/> \n" +
+          "  </BCC> \n" +
+          "  <DDB> \n" +
+          "     <BBB/>\n" +
+          "     <BBB/> \n" +
+          "  </DDB> \n" +
+          "  <BEC> \n" +
+          "     <CCC/>\n" +
+          "     <DBD/> \n" +
+          "  </BEC> \n" +
+          "</AAA> ";
+        String xpathStr = "//*[contains(name(),'C')]";
+
+        try
+        {
+            XmlObject doc = XmlObject.Factory.parse(xmlDocStr);
+            XPath xpath = new XBeansXPath(xpathStr);
+            XmlCursor xc = doc.newCursor();
+            List results = xpath.selectNodes(xc);
+
+            Iterator resultIter = results.iterator();
+
+//            System.out.println("Document :: " + doc );
+            System.out.println("   XPath :: " + xpath );
+            System.out.println("");
+            System.out.println("Results" );
+            System.out.println("----------------------------------");
+
+            while ( resultIter.hasNext() )
+            {
+                xc = (XmlCursor)resultIter.next();
+                System.out.println( xc );
+            }
+            System.out.println("----------------------------------");
+            System.out.println(results.size() );
+        }
+        catch (XmlException e)
+        {
+            e.printStackTrace();
+        }
+        catch (JaxenException e)
+        {
+            e.printStackTrace();
+        }
     }
 }
