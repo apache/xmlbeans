@@ -1,3 +1,18 @@
+/*   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.apache.xmlbeans.impl.newstore2;
 
 import org.w3c.dom.Attr;
@@ -44,6 +59,8 @@ import java.util.Iterator;
 
 import javax.xml.transform.Source;
 import javax.xml.namespace.QName;
+
+import org.apache.xmlbeans.XmlCursor;
 
 final class DomImpl
 {
@@ -287,7 +304,7 @@ final class DomImpl
         }
     }
 
-    private static String validatePrefixWrtUri (
+    private static String validatePrefix (
         String prefix, String uri, String local, boolean isAttr )
     {
         validateNcName( prefix );
@@ -1911,6 +1928,8 @@ final class DomImpl
     
     public static void node_setPrefix ( Dom n, String prefix )
     {
+        validateNcName( prefix );
+        
         // TODO - make it possible to set the prefix of an xmlns
         // TODO - test to make use prefix: xml maps to the predefined namespace
         // if set???? hmmm ... perhaps I should not allow the setting of any
@@ -1925,7 +1944,7 @@ final class DomImpl
             String uri = name.getNamespaceURI();
             String local = name.getLocalPart();
             
-            prefix = validatePrefixWrtUri( prefix, uri, local, n.nodeType() == ATTR );
+            prefix = validatePrefix( prefix, uri, local, n.nodeType() == ATTR );
                                   
             c.setName( n.locale().makeQName( uri, local, prefix ) );
             
@@ -2384,7 +2403,7 @@ final class DomImpl
 
         if (a == null)
         {
-            String prefix = validatePrefixWrtUri( name.getPrefix(), uri, local, true );
+            String prefix = validatePrefix( name.getPrefix(), uri, local, true );
 
             a = document_createAttributeNS( node_getOwnerDocument( e ), uri, local );
             node_setPrefix( a, prefix );
@@ -3158,7 +3177,29 @@ final class DomImpl
 
         return xs;
     }
+    
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
 
+    public static XmlCursor _getXmlCursor ( Dom n )
+    {
+        Locale l = n.locale();
+
+        if (l.noSync())         { l.enter(); try { return getXmlCursor( n ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return getXmlCursor( n ); } finally { l.exit(); } }
+    }
+
+    public static XmlCursor getXmlCursor ( Dom n )
+    {
+        Cur c = n.tempCur();
+
+        Cursor xc = new Cursor( c );
+
+        c.release();
+
+        return xc;
+    }
 
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
