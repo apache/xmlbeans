@@ -28,6 +28,7 @@ import java.io.IOException;
 
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.LinkedHashMap;
@@ -573,12 +574,14 @@ abstract class Saver
 
         c.pop();
 
-        if (c.isRoot() && _cur._ancestorNamespaces != null)
+        List an = _cur.getAncestorNamespaces();
+
+        if (c.isRoot() && an != null)
         {
-            for ( int i = 0 ; i < _cur._ancestorNamespaces.size() ; i += 2 )
+            for ( int i = 0 ; i < an.size() ; i += 2 )
             {
-                String prefix = (String) _cur._ancestorNamespaces.get( i );
-                String uri    = (String) _cur._ancestorNamespaces.get( i + 1 );
+                String prefix = (String) an.get( i );
+                String uri    = (String) an.get( i + 1 );
                 
                 if (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)
                     addNewFrameMapping( prefix, uri );
@@ -1683,8 +1686,7 @@ abstract class Saver
         abstract void pop ( );
 
         abstract Object getChars ( );
-
-        ArrayList _ancestorNamespaces;
+        abstract List  getAncestorNamespaces ( );
 
         int _offSrc;
         int _cchSrc;
@@ -1728,6 +1730,7 @@ abstract class Saver
         void push ( )         { _cur.push(); }
         void pop  ( )         { _cur.pop(); }
 
+        List getAncestorNamespaces ( ) { return null; }
         
         Object getChars ( )
         {
@@ -1738,7 +1741,7 @@ abstract class Saver
 
             return o;
         }
-        
+
         private Cur _cur;
     }
 
@@ -1762,6 +1765,11 @@ abstract class Saver
             start.pop();
         }
 
+        List getAncestorNamespaces ( )
+        {
+            return _ancestorNamespaces;
+        }
+        
         private void computeAncestorNamespaces ( Cur c )
         {
             _ancestorNamespaces = new ArrayList();
@@ -2022,6 +2030,8 @@ abstract class Saver
         private Cur _cur;
         private Cur _end;
 
+        private ArrayList _ancestorNamespaces;
+
         private QName _elem;
 
         private boolean _saveAttr;
@@ -2064,6 +2074,8 @@ abstract class Saver
             }
         }
 
+        List getAncestorNamespaces ( ) { return _cur.getAncestorNamespaces(); }
+        
         void release ( ) { _cur.release(); }
         
         int kind ( ) { return _txt == null ? _cur.kind() : TEXT; }
@@ -2101,7 +2113,20 @@ abstract class Saver
 
             _sb.delete( 0, _sb.length() );
 
-            if (kind == ROOT || kind == ELEM)
+            assert _txt == null;
+
+//            if (
+//
+//            if (kind == ELEM || kind == COMMENT || kind == PROCINST)
+//            {
+//                
+//            }
+
+
+
+                        
+
+            if (kind == ELEM || kind == COMMENT || kind == PROCINST)
             {
                 if (_cur.isText())
                 {
@@ -2115,6 +2140,7 @@ abstract class Saver
                 if (_sb.length() > 0)
                     _txt = _sb.toString();
 
+                
             }
             else if (kind < 0 && kind != -ATTR)
             {
@@ -2144,6 +2170,12 @@ abstract class Saver
             return o;
         }
         
+        final static void spaces ( StringBuffer sb, int offset, int count )
+        {
+            while ( count-- > 0 )
+                sb.insert( offset, ' ' );
+        }
+
         final static void trim ( StringBuffer sb )
         {
             int i;
