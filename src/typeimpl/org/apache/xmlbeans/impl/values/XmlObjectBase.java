@@ -73,6 +73,8 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.ObjectStreamException;
+import java.io.ByteArrayInputStream;
+import java.io.DataInputStream;
 import java.lang.reflect.Array;
 import java.util.Date;
 import java.util.List;
@@ -121,6 +123,9 @@ import org.xml.sax.SAXException;
 
 public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlObject, SimpleValue
 {
+    public static final short MAJOR_VERSION_NUMBER = (short) 1; // for serialization
+    public static final short MINOR_VERSION_NUMBER = (short) 1; // for serialization
+
     public final Object monitor()
     {
         if (has_store())
@@ -2351,8 +2356,18 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         private void writeObject(ObjectOutputStream out) throws IOException
         {
             out.writeObject(_xbeanClass);
+            // the first short is written out for backwards compatibility
+            // it will always be zero for objects written with
+            // this code, but it used to be the first 2 bytes of the
+            // writeUTF() method
+            out.writeShort((short)0);
+            out.writeShort(MAJOR_VERSION_NUMBER);
+            out.writeShort(MINOR_VERSION_NUMBER);
+            // CR122401 - need to use writeObject instead of writeUTF
+            // for xmlText as writeUTF has a length limitation of
+            // 65535 bytes
             String xmlText = _impl.xmlText();
-            out.writeUTF(xmlText);
+            out.writeObject(xmlText);
             out.writeBoolean(false);
         }
 
@@ -2360,9 +2375,56 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         {
             try
             {
+                // read class object first - this is
+                // first just for historical reasons - really
+                // it would be better to have the version numbers
+                // first
                 _xbeanClass = (Class)in.readObject();
-                String xmlText = in.readUTF();
-                in.readBoolean();
+
+                int utfBytes = in.readUnsignedShort();
+
+                // determine version numbers
+                // if utfBytes is non-zero then we default to 0.0
+                // otherwise expect major and minor version numbers
+                // to be next entries in stream
+                int majorVersionNum = 0;
+                int minorVersionNum = 0;
+                if (utfBytes == 0)
+                {
+                    majorVersionNum = in.readUnsignedShort();
+                    minorVersionNum = in.readUnsignedShort();
+                }
+
+                String xmlText = null;
+                switch (majorVersionNum)
+                {
+                    case 0: // original, unnumbered version
+                            // minorVersionNum is always zero
+                        xmlText = readObjectV0(in, utfBytes);
+                        in.readBoolean(); // ignored
+                        break;
+
+                    case 1:
+                        switch (minorVersionNum)
+                        {
+                            case 1:
+                                xmlText = (String)in.readObject();
+                                in.readBoolean(); // ignored
+                                break;
+
+                            default:
+                                throw new IOException("Deserialization error: " +
+                                        "version number " + majorVersionNum + "." +
+                                        minorVersionNum + " not supported.");
+                        }
+                        break;
+
+                    default:
+                        throw new IOException("Deserialization error: " +
+                                "version number " + majorVersionNum + "." +
+                                minorVersionNum + " not supported.");
+                }
+
                 XmlOptions opts = new XmlOptions().setDocumentType(XmlBeans.typeForClass(_xbeanClass));
                 _impl = XmlBeans.getContextTypeLoader().parse(xmlText, null, opts);
             }
@@ -2370,6 +2432,72 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             {
                 throw (IOException)(new IOException(e.getMessage()).initCause(e));
             }
+        }
+
+        // this method is for reading the UTF-8 String that used to be
+        // written out for a serialized XmlObject according to the
+        // original format before this fix, i.e. it expects it
+        // to have been written using the following algorithm:
+        //
+        // writeObject(Class object)
+        // writeUTF(xmlText of object as String)
+        // writeBoolean()
+        //
+        // this method is passed the original input stream positioned as though
+        // it had just read the class object plus the next 2 bytes. Those 2
+        // bytes are interpreted as an unsigned short saying how many more
+        // bytes there are representing the bytes of the UTF-8-formatted String;
+        // this value is passed in as the argument utfBytes
+        private String readObjectV0(ObjectInputStream in, int utfBytes)
+                throws IOException
+        {
+            // allow an extra 2 bytes up front for the unsigned short
+            byte[] bArray = new byte[utfBytes+2];
+
+            // for format of these first 2 bytes see
+            // Java API docs - DataOutputStream.writeShort()
+            bArray[0] = (byte)( 0xff & (utfBytes >> 8) );
+            bArray[1] = (byte)( 0xff & utfBytes );
+
+            // read the next numBytes bytes from the input stream
+            // into the byte array starting at offset 2; this may
+            // take multiple calls to read()
+            int totalBytesRead = 0;
+            int numRead;
+            while (totalBytesRead < utfBytes)
+            {
+                numRead =
+                    in.read(bArray, 2+totalBytesRead, utfBytes-totalBytesRead);
+                if (numRead == -1) // reached end of stream
+                    break;
+
+                totalBytesRead += numRead;
+            }
+
+            if (totalBytesRead != utfBytes)
+            {
+                throw new IOException("Error reading backwards compatible " +
+                        "XmlObject: number of bytes read (" + totalBytesRead +
+                        ") != number expected (" + utfBytes + ")" );
+            }
+
+            // now set up a DataInputStream to read those
+            // bytes as a UTF-8 String i.e. as though we'd never
+            // read the first 2 bytes from the original stream
+            DataInputStream dis = null;
+            String str = null;
+            try
+            {
+                dis = new DataInputStream(new ByteArrayInputStream(bArray));
+                str = dis.readUTF();
+            }
+            finally
+            {
+                if (dis != null)
+                    dis.close();
+            }
+
+            return str;
         }
 
         private Object readResolve() throws ObjectStreamException
