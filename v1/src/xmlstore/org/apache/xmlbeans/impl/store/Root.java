@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -139,6 +139,7 @@ public final class Root extends Finish implements XmlStore
 
         _leftSplay = _doc;
         _doc._parentSplay = this;
+        adjustCdocBeginLeft( _doc.getCdocBegin() );
 
         _text = new Text();
 
@@ -211,7 +212,7 @@ public final class Root extends Finish implements XmlStore
         assert _leftOnly;
         assert getCchLeft() == 0;
         assert _text.length() == 0;
-        assert getCdocBeginLeft() == 0;
+        assert getCdocBeginLeft() == 1;
         assert _doc != null && _leftSplay == _doc;
     }
 
@@ -253,7 +254,7 @@ public final class Root extends Finish implements XmlStore
 
         return s.getCdocBeginLeft();
     }
-
+    
     Begin findNthBegin ( Splay parent, QName name, QNameSet set, int n )
     {
         // only one of (set or name) is not null
@@ -2794,7 +2795,7 @@ public final class Root extends Finish implements XmlStore
         assert first.getCdocBeginLeft() == 0;
 
         assert x.getCchLeft() + deltaCchLeft + x.getCch() == 0;
-        assert x.getCdocBeginLeft() + deltaCbeginLeft +x.getCdocBegin() == 0;
+        assert x.getCdocBeginLeft() + deltaCbeginLeft + x.getCdocBegin() == 0;
 
         first._leftSplay._parentSplay = last;
         last._leftSplay = first._leftSplay;

@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -114,7 +114,8 @@ public abstract class Splay extends Goobers
     final boolean isFinish    ( ) { return getKind() >= ROOT;     }
 
     final int getCch           ( ) { return _cch;              }
-    final int getCdocBegin     ( ) { return isBegin() ? 1 : 0; }
+
+    final int getCdocBegin     ( ) { return 1;                 }
     final int getCchLeft       ( ) { return _cchLeft;          }
     final int getCdocBeginLeft ( ) { return _bits >> 5;        }
     final int getCchAfter      ( ) { return _cchAfter;         }
@@ -1435,11 +1436,11 @@ public abstract class Splay extends Goobers
             //
             // You may be asking your self, "Self, why all this madness?"
             //
-            // Several reasons.  First, the by making the first hang off the
+            // Several reasons.  First, by making the first hang off the
             // left child of the last and have the right child of last be null,
-            // the root will have the totale splay statistics for the whole
+            // the root will have the total splay statistics for the whole
             // tree.  Second, you have quick access to the first splay copied.
-            // Third, building the third through the second to last does
+            // Third, building the third through the second to last do
             // not require walking to update statictics.
             //
             // Ultimately, I do this to be consistent with the format of the

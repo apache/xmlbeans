@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -74,6 +74,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.GDateBuilder;
 import org.apache.xmlbeans.XmlDate;
 import org.apache.xmlbeans.XmlDocumentProperties;
 import org.apache.xmlbeans.XmlError;
@@ -118,23 +119,15 @@ import weblogic.xml.stream.XMLInputStream;
 import weblogic.xml.stream.XMLName;
 import com.bea.x2002.x09.xbean.config.ConfigDocument;
 
-import noNamespace.FoosDocument;
-import noNamespace.BarsDocument;
-
-import noNamespace.FooDocument;
-import noNamespace.Foo;
-import noNamespace.Foos;
-
-import noNamespace.BarDocument;
-import noNamespace.Bar;
-import noNamespace.Bars;
-
 public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        org.apache.xmlbeans.impl.store.Root.dump( XmlObject.Factory.parse( "<a b:='blah'/>" ) );
-        XmlObject.Factory.parse( "<a b:='blah'/>" ).save( System.out );
+        XmlObject x = XmlObject.Factory.parse( new File( "c:\\test\\foo.xml" ) );
+
+        XmlObject[] xes = x.selectPath( "declare namespace xq = 'http://openuri.org/bea/samples/workshop/xmlBeans/xquery' $this/xq:employees/xq:employee/xq:phone[@location='work']" );
+
+        System.out.println( xes.length );
     }
 }
 

@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -77,7 +77,7 @@ package org.apache.xmlbeans.impl.common;
  * @author Arnaud  Le Hors, IBM
  * @author Rahul Srivastava, Sun Microsystems Inc.
  *
- * @version $Id: XMLChar.java,v 1.1 2003/09/15 18:20:27 ericvas Exp $
+ * @version $Id: XMLChar.java,v 1.2 2003/09/24 23:31:05 ericvas Exp $
  */
 public class XMLChar {
 
