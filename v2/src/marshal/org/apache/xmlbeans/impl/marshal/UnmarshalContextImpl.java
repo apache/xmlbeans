@@ -171,7 +171,8 @@ final class UnmarshalContextImpl
         TypeUnmarshaller um =
             typeTable.getTypeUnmarshaller(binding_type);
         if (um == null) {
-            String msg = "unable to locate unmarshaller for " + binding_type;
+            String msg = "unable to locate unmarshaller for " +
+                binding_type.getName();
             throw new XmlRuntimeException(msg);
         }
         return um;

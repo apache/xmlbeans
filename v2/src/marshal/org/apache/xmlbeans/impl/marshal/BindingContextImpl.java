@@ -73,10 +73,9 @@ import java.util.Collection;
  * Main entry point into marshalling framework.
  * Use the BindingContextFactory to create one
  */
-class BindingContextImpl
+final class BindingContextImpl
     implements BindingContext
 {
-
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
 

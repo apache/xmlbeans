@@ -59,7 +59,7 @@ package org.apache.xmlbeans.impl.marshal;
 import javax.xml.namespace.QName;
 import java.util.Collection;
 
-class CharacterVisitor
+final class CharacterVisitor
     extends XmlTypeVisitor
 {
     CharacterVisitor(RuntimeBindingProperty property,

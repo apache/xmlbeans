@@ -56,83 +56,30 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlRuntimeException;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
 
-import javax.xml.namespace.QName;
+import java.math.BigDecimal;
 
-final class RuntimeGlobalProperty
-    implements RuntimeBindingProperty
+final class DecimalTypeConverter
+    extends BaseSimpleTypeConverter
 {
-    private final BindingType type;
-    private final QName rootElement;
-
-    RuntimeGlobalProperty(BindingType type, QName root_element)
+    public Object unmarshal(UnmarshalContextImpl context)
     {
-        this.type = type;
-        this.rootElement = root_element;
+        BigDecimal val = context.getBigDecimalValue();
+        assert context.isEndElement();
+        context.next();
+        return val;
     }
 
-
-    public BindingType getType()
+    public Object unmarshalAttribute(UnmarshalContextImpl context)
     {
-        return type;
+        return context.getAttributeBigDecimalValue();
     }
 
-    public QName getName()
+    //non simple types can throw a runtime exception
+    public CharSequence print(Object value, MarshalContextImpl context)
     {
-        return rootElement;
-    }
-
-    public boolean isAttribute()
-    {
-        return false;
-    }
-
-    public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContextImpl context)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    public void fill(Object inter, Object prop_obj)
-    {
-        throw new UnsupportedOperationException();
-    }
-
-    //non simple type props can throw some runtime exception.
-    public CharSequence getLexical(Object parent, MarshalContextImpl context)
-    {
-        //TODO: polymorphism checks
-
-        final TypeMarshaller tm =
-            context.getTypeTable().getTypeMarshaller(type);
-
-        if (tm == null) {
-            throw new XmlRuntimeException("lookup failed for " + type);
-        }
-
-        final CharSequence retval = tm.print(parent, context);
-        return retval;
-    }
-
-    public Object getValue(Object parent_obj, MarshalContextImpl context)
-    {
-        throw new AssertionError("UNIMP: " + this);
-    }
-
-    public boolean isSet(Object parentObject, MarshalContextImpl context)
-    {
-        return true;
-    }
-
-    public boolean isMultiple()
-    {
-        return false;
-    }
-
-    public boolean isNillable()
-    {
-        //TODO & FIXME: we need the real information from the schema here
-        return true;
+        BigDecimal val = (BigDecimal)value;
+        return XsTypeConverter.printDecimal(val);
     }
 }
