@@ -67,7 +67,7 @@ public class XmlObjectAbstractClassTest
         srcFiles.add(source);
 
         if (!CodeGenUtil.externalCompile(srcFiles, dir, classpath, false,
-                CodeGenUtil.DEFAULT_COMPILER, CodeGenUtil.DEFAULT_MEM_START,
+                CodeGenUtil.DEFAULT_COMPILER, null, CodeGenUtil.DEFAULT_MEM_START,
                 CodeGenUtil.DEFAULT_MEM_MAX, false, false)){
             return false;
         }

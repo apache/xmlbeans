@@ -624,6 +624,25 @@ public class XmlOptions implements java.io.Serializable
         return set( SCHEMA_CODE_PRINTER, printer );
     }
 
+    /**
+     * If this option is set, then the schema compiler will print java code
+     * that is compatible with the desired Java version.  If not set, the
+     * current Java version is used.  Currently, only "1.4" and "1.5" are
+     * supported.
+     *
+     * @param source A Java version number
+     *
+     * @see GENERATE_JAVA_14
+     * @see GENERATE_JAVA_15
+     * @see XmlBeans#compileXmlBeans
+     */
+    public XmlOptions setGenerateJavaVersion (String source) {
+        return set( GENERATE_JAVA_VERSION, source );
+    }
+
+    public static final String GENERATE_JAVA_14 = "1.4";
+    public static final String GENERATE_JAVA_15 = "1.5";
+
     //
     // Complete set of XmlOption's
     //
@@ -717,6 +736,8 @@ public class XmlOptions implements java.io.Serializable
     public static final String ENTITY_RESOLVER                 = "ENTITY_RESOLVER";
     /** @exclude */
     public static final String SCHEMA_CODE_PRINTER             = "SCHEMA_CODE_PRINTER";
+    /** @exclude */
+    public static final String GENERATE_JAVA_VERSION           = "GENERATE_JAVA_VERSION";
 
     private static final XmlOptions EMPTY_OPTIONS;
     static {

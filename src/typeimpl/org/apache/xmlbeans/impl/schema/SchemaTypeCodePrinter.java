@@ -44,6 +44,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 {
     Writer _writer;
     int    _indent;
+    boolean _useJava15;
+
 
     static final String LINE_SEPARATOR =
         System.getProperty("line.separator") == null
@@ -69,6 +71,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         getPrinter(opt).printType( writer, sType );
     }
 
+    /** @deprecated */
     public static void printLoader ( Writer writer, SchemaTypeSystem system,
                                      XmlOptions opt )
         throws IOException
@@ -82,14 +85,24 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
             (opt, XmlOptions.SCHEMA_CODE_PRINTER);
         if (printer == null || !(printer instanceof SchemaCodePrinter))
         {
-            printer = new SchemaTypeCodePrinter();
+            printer = new SchemaTypeCodePrinter(opt);
         }
         return (SchemaCodePrinter) printer;
     }
 
-    public SchemaTypeCodePrinter ()
+    public SchemaTypeCodePrinter (XmlOptions opt)
     {
         _indent = 0;
+
+        String genversion = null;
+
+        if (opt != null && XmlOptions.hasOption(opt, XmlOptions.GENERATE_JAVA_VERSION))
+            genversion = (String)opt.get(XmlOptions.GENERATE_JAVA_VERSION);
+
+        if (genversion == null)
+            genversion = XmlOptions.GENERATE_JAVA_14;
+
+        _useJava15 = XmlOptions.GENERATE_JAVA_15.equals(genversion);
     }
 
     void indent()
@@ -855,6 +868,39 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         return (sType.isSimpleType() && sType.getSimpleVariety() == SchemaType.UNION);
     }
 
+    static boolean isJavaPrimitive(int javaType)
+    {
+        return (javaType < SchemaProperty.JAVA_FIRST_PRIMITIVE ? false :
+            (javaType > SchemaProperty.JAVA_LAST_PRIMITIVE ? false : true));
+    }
+
+    /** Returns the wrapped type for a java primitive. */
+    static String javaWrappedType(int javaType)
+    {
+        switch (javaType)
+        {
+            case SchemaProperty.JAVA_BOOLEAN:
+                return "java.lang.Boolean";
+            case SchemaProperty.JAVA_FLOAT:
+                return "java.lang.Float";
+            case SchemaProperty.JAVA_DOUBLE:
+                return "java.lang.Double";
+            case SchemaProperty.JAVA_BYTE:
+                return "java.lang.Byte";
+            case SchemaProperty.JAVA_SHORT:
+                return "java.lang.Short";
+            case SchemaProperty.JAVA_INT:
+                return "java.lang.Integer";
+            case SchemaProperty.JAVA_LONG:
+                return "java.lang.Long";
+
+            // anything else is not a java primitive
+            default:
+                assert false;
+                throw new IllegalStateException();
+        }
+    }
+
     String javaTypeForProperty(SchemaProperty sProp)
     {
         // The type to use is the XML object....
@@ -953,6 +999,16 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         {
             String arrayName = propertyName + "Array";
 
+            if (_useJava15)
+            {
+                String wrappedType = type;
+                if (isJavaPrimitive(javaType))
+                    wrappedType = javaWrappedType(javaType);
+
+                printJavaDoc("Gets a List of " + propdesc + "s");
+                emit("java.util.List<" + wrappedType + "> get" + propertyName + "List();");
+            }
+
             printJavaDoc("Gets array of all " + propdesc + "s");
             emit(type + "[] get" + arrayName + "();");
 
@@ -961,6 +1017,12 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
             if (!xmltype)
             {
+                if (_useJava15)
+                {
+                    printJavaDoc("Gets (as xml) a List of " + propdesc + "s");
+                    emit("java.util.List<" + xtype + "> xget" + propertyName + "List();");
+                }
+
                 printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit(xtype + "[] xget" + arrayName + "();");
 
@@ -1056,14 +1118,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 emit("void add" + propertyName + "(" + type + " " + safeVarName + ");");
             }
 
-            if (xmltype)
-            {
-                printJavaDoc("Inserts and returns a new empty value (as xml) as the ith " + propdesc);
-                emit(xtype + " insertNew" + propertyName + "(int i);");
+            printJavaDoc("Inserts and returns a new empty value (as xml) as the ith " + propdesc);
+            emit(xtype + " insertNew" + propertyName + "(int i);");
 
-                printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
-                emit(xtype + " addNew" + propertyName + "();");
-            }
+            printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
+            emit(xtype + " addNew" + propertyName + "();");
 
             printJavaDoc("Removes the ith " + propdesc);
             emit("void remove" + propertyName + "(int i);");
@@ -1712,7 +1771,76 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         endBlock();
     }
 
-    void printGetterImpls(
+    void printListGetter15Impl(String parentJavaName,
+        String propdesc, String propertyName,
+        String wrappedType, String xtype,
+        boolean xmltype, boolean xget)
+            throws IOException
+    {
+        String arrayName = propertyName + "Array";
+        String listName = propertyName + "List";
+        String parentThis = parentJavaName + ".this.";
+
+        String xgetMethod = (xget ? "x" : "") + "get";
+        String xsetMethod = (xget ? "x" : "") + "set";
+
+        printJavaDoc("Gets " + (xget ? "(as xml) " : "") + "a List of " + propdesc + "s");
+
+        emit("public java.util.List<" + wrappedType + "> " + xgetMethod + listName  + "()");
+        startBlock();
+
+        emit("final class " + listName + " extends java.util.AbstractList<" + wrappedType + ">");
+        startBlock();
+
+        // Object get(i)
+        emit("public " + wrappedType + " get(int i)");
+        emit("    { return " + parentThis + xgetMethod + arrayName + "(i); }");
+        emit("");
+
+        // Object set(i, o)
+        emit("public " + wrappedType + " set(int i, " + wrappedType + " o)");
+        startBlock();
+        emit(wrappedType + " old = " + parentThis + xgetMethod + arrayName + "(i);");
+        emit(parentThis + xsetMethod + arrayName + "(i, o);");
+        emit("return old;");
+        endBlock();
+        emit("");
+
+        // void add(i, o)
+        emit("public void add(int i, " + wrappedType +" o)");
+        if (xmltype || xget)
+            emit("    { " + parentThis + "insertNew" + propertyName + "(i).set(o); }");
+        else
+            emit("    { " + parentThis + "insert" + propertyName + "(i, o); }");
+        emit("");
+
+        // Object remove(i)
+        emit("public " + wrappedType +" remove(int i)");
+        startBlock();
+        emit(wrappedType + " old = " + parentThis + xgetMethod + arrayName + "(i);");
+        emit(parentThis + "remove" + propertyName + "(i);");
+        emit("return old;");
+        endBlock();
+        emit("");
+
+        // int size()
+        emit("public int size()");
+        emit("    { return " + parentThis + "sizeOf" + arrayName + "(); }");
+        emit("");
+
+        endBlock();
+
+        emit("");
+
+        emitImplementationPreamble();
+
+        emit("return new " + listName + "();");
+
+        emitImplementationPostamble();
+        endBlock();
+    }
+
+    void printGetterImpls(String parentJavaName,
         SchemaProperty prop, QName qName, boolean isAttr, String propertyName,
         int javaType, String type, String xtype, boolean nillable,
         boolean optional, boolean several, boolean singleton,
@@ -1815,6 +1943,17 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         {
             String arrayName = propertyName + "Array";
 
+            if (_useJava15)
+            {
+                // use boxed type if the java type is a primitive and jdk1.5
+                // jdk1.5 will box/unbox for us
+                String wrappedType = type;
+                if (isJavaPrimitive(javaType))
+                    wrappedType = javaWrappedType(javaType);
+
+                printListGetter15Impl(parentJavaName, propdesc, propertyName, wrappedType, xtype, xmltype, false);
+            }
+
             // Value[] getProp()
             printJavaDoc("Gets array of all " + propdesc + "s");
             emit("public " + type + "[] get" + arrayName + "()");
@@ -1843,6 +1982,11 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
             if (!xmltype)
             {
+                if (_useJava15)
+                {
+                    printListGetter15Impl(parentJavaName, propdesc, propertyName, xtype, xtype, xmltype, true);
+                }
+
                 // Value[] xgetProp()
                 printJavaDoc("Gets (as xml) array of all " + propdesc + "s");
                 emit("public " + xtype + "[] xget" + arrayName + "()");
@@ -2101,32 +2245,29 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 endBlock();
             }
 
-            if (xmltype)
-            {
-                printJavaDoc("Inserts and returns a new empty value (as xml) as the ith " + propdesc);
-                emit("public " + xtype + " insertNew" + propertyName + "(int i)");
-                startBlock();
-                emitImplementationPreamble();
-                emitDeclareTarget(true, xtype);
-  	            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
-                emit("target = (" + xtype + ")get_store().insert_element_user(" + identifier + ", i);");
-                emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
-                emit("return target;");
-                emitImplementationPostamble();
-                endBlock();
+            printJavaDoc("Inserts and returns a new empty value (as xml) as the ith " + propdesc);
+            emit("public " + xtype + " insertNew" + propertyName + "(int i)");
+            startBlock();
+            emitImplementationPreamble();
+            emitDeclareTarget(true, xtype);
+            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
+            emit("target = (" + xtype + ")get_store().insert_element_user(" + identifier + ", i);");
+            emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr, "i");
+            emit("return target;");
+            emitImplementationPostamble();
+            endBlock();
 
-                printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
-                emit("public " + xtype + " addNew" + propertyName + "()");
-                startBlock();
-                emitImplementationPreamble();
-                emitDeclareTarget(true, xtype);
-  	            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
-                emitAddTarget(identifier, isAttr, true, xtype);
-                emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
-                emit("return target;");
-                emitImplementationPostamble();
-                endBlock();
-            }
+            printJavaDoc("Appends and returns a new empty value (as xml) as the last " + propdesc);
+            emit("public " + xtype + " addNew" + propertyName + "()");
+            startBlock();
+            emitImplementationPreamble();
+            emitDeclareTarget(true, xtype);
+            emitPre(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
+            emitAddTarget(identifier, isAttr, true, xtype);
+            emitPost(sType, PrePostExtension.OPERATION_INSERT, identifier, isAttr);
+            emit("return target;");
+            emitImplementationPostamble();
+            endBlock();
 
             printJavaDoc("Removes the ith " + propdesc);
             emit("public void remove" + propertyName + "(int i)");
@@ -2198,6 +2339,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 String xmlType = xmlTypeForProperty( prop );
 
                 printGetterImpls(
+                    shortName,
                     prop,
                     name,
                     prop.isAttribute(),
