@@ -119,6 +119,8 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
     }
 
 
+    final static boolean PROBE_VALIDITY = true;
+    final static boolean CHECK_VALIDITY = false;
 
     private VisitorState[] _stack;
     private VisitorState[] _rollback;
@@ -309,10 +311,17 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
      * is returned. It commits the changed state machine state,
      * stores the matched element state, and returns true.
      */
-    boolean ok(SchemaParticle part)
+    boolean ok(SchemaParticle part, boolean testValidity)
     {
-        _matchedParticle = part;
-        commit();
+        if ( ! testValidity )
+        {
+            _matchedParticle = part;
+            commit();
+        }
+        else
+        {
+            rollback();
+        }
         return true;
     }
 
@@ -324,8 +333,27 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
      *
      * Call visit(null) once at the end if you're checking for
      * complete validity of the sequence of elements.
+     *
+     * This is a wrapper for the actual visit implementation.
      */
     public boolean visit(QName eltName)
+    {
+      return visit(eltName, CHECK_VALIDITY);
+    }
+
+    /**
+     * The actual implementation that
+     * traverses a deterministic content model, checking for
+     * validity at any given point.
+     *
+     * When testValidity is false then this method will change states
+     * if the current state is valid
+     *
+     * When testValidity is true then this method will not change states
+     * and will return if a particular state is valid or invalid
+     */
+
+    public boolean visit(QName eltName ,boolean testValidity)
     {
         if (!prepare())
             return notValid();
@@ -351,7 +379,7 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
                         break minmax;
                     }
                     _top._curCount++;
-                    return ok(_top._curPart);
+                    return ok(_top._curPart, testValidity);
 
                 case SchemaParticle.ELEMENT:
                     if (!_top._curPart.canStartWithElement(eltName))
@@ -361,7 +389,7 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
                         break minmax;
                     }
                     _top._curCount++;
-                    return ok(_top._curPart);
+                    return ok(_top._curPart, testValidity);
 
                 case SchemaParticle.SEQUENCE:
                     for (int i = _top._processedChildCount; i < _top._childCount; i++)
@@ -439,10 +467,15 @@ public class SchemaTypeVisitorImpl implements TypeStoreVisitor
 
         // we've completed the outermost loop
         if (eltName == null)
-            return ok(null);
+            return ok(null, testValidity);
 
         // this means we have extra elements at the end
         return notValid();
+    }
+
+    public boolean testValid(QName eltName)
+    {
+      return visit(eltName,PROBE_VALIDITY);
     }
 
     /**
