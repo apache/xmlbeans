@@ -60,6 +60,8 @@ import org.apache.xmlbeans.impl.jam.*;
 import org.w3.x2001.xmlSchema.*;
 
 import javax.xml.namespace.QName;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Transforms a set of JClasses into a BTS and a schema.  This is really just
@@ -184,6 +186,7 @@ public class Java2Schema {
     //FIXME this is going to have to change to take inheritance into account
     JProperty props[] = clazz.getProperties();
     Group xsdSequence = null;
+    List attributes = null;
     for(int i=0; i<props.length; i++) {
       if (props[i].getGetter() == null || props[i].getSetter() == null) {
         continue; // we can only deal with read-write props
@@ -221,11 +224,22 @@ public class Java2Schema {
         xsdElement.setName(propName);
         xsdElement.setType(getBuiltinTypeNameFor(props[i].getType()));
       } else {
-        Attribute xsdAtt = xsdType.addNewAttribute();
+        Attribute xsdAtt = Attribute.Factory.newInstance();
         qprop.setAttribute(true);
         xsdAtt.setName(propName);
         xsdAtt.setType(getBuiltinTypeNameFor(props[i].getType()));
+        if (attributes == null) attributes = new ArrayList();
+        attributes.add(xsdAtt);
       }
+    }
+    // No add the attributes that we saved in the list to the xsdType.
+    // This is a hack around an xbeans bug in which the sequences and
+    // attributes are output in the order in which they were added (the
+    // schema for schemas says the attributes always have to go last).
+    if (attributes != null) {
+      Attribute[] atts = new Attribute[attributes.size()];
+      attributes.toArray(atts);
+      xsdType.setAttributeArray(atts);
     }
     // check to see if they want to create a root elements from this type
     JAnnotation[] anns = clazz.getAnnotations(TAG_CT_ROOT);
@@ -237,6 +251,11 @@ public class Java2Schema {
       // the binding file here
     }
     return bindType;
+  }
+
+
+  private void addAttributeFor(QNameProperty prop) {
+
   }
 
   //REVIEW seems like having this functionality in jam (getters w/defaults)

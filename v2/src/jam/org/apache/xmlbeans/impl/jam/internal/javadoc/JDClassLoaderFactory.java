@@ -130,13 +130,12 @@ public final class JDClassLoaderFactory extends Doclet {
     PrintWriter spewWriter = new PrintWriter(System.out);
 
     JavadocResults.prepare();
-    int result =
-            com.sun.tools.javadoc.Main.execute("JAM",
-                                               spewWriter,
-                                               spewWriter,
-                                               spewWriter,
-                                               this.getClass().getName(),
-                                               args);
+    int result = com.sun.tools.javadoc.Main.execute("JAM",
+                                                    spewWriter,
+                                                    spewWriter,
+                                                    spewWriter,
+                                                    this.getClass().getName(),
+                                                    args);
     RootDoc root = JavadocResults.getRoot();
     if (result != 0 || root == null) {
       spewWriter.flush();
