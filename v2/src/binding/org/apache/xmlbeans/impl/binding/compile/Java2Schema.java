@@ -82,19 +82,20 @@ public class Java2Schema extends BindingCompiler {
   private static final String JAVA_NAMESPACE_URI   = "language_builtins";
   private static final String JAVA_PACKAGE_PREFIX  = "java.";
 
-  private static final String TAG_CT               = "xsdgen:complexType";
-  private static final String TAG_CT_TYPENAME      = TAG_CT+".typeName";
-  private static final String TAG_CT_TARGETNS      = TAG_CT+".targetNamespace";
-  private static final String TAG_CT_ROOT          = TAG_CT+".rootElement";
+  public static final String TAG_CT               = "xsdgen:complexType";
+  public static final String TAG_CT_TYPENAME      = TAG_CT+".typeName";
+  public static final String TAG_CT_TARGETNS      = TAG_CT+".targetNamespace";
+  public static final String TAG_CT_ROOT          = TAG_CT+".rootElement";
 
   private static final String TAG_EL               = "xsdgen:element";
-  private static final String TAG_EL_NAME          = TAG_EL+".name";
-  private static final String TAG_EL_NILLABLE      = TAG_EL+".nillable";
-  private static final String TAG_EL_EXCLUDE       = TAG_EL+".exclude";
-  private static final String TAG_EL_ASTYPE        = TAG_EL+".astype";
 
-  private static final String TAG_AT               = "xsdgen:attribute";
-  private static final String TAG_AT_NAME          = TAG_AT+".name";
+  public static final String TAG_EL_NAME          = TAG_EL+".name";
+  public static final String TAG_EL_NILLABLE      = TAG_EL+".nillable";
+  public static final String TAG_EL_EXCLUDE       = TAG_EL+".exclude";
+  public static final String TAG_EL_ASTYPE        = TAG_EL+".astype";
+
+  public static final String TAG_AT               = "xsdgen:attribute";
+  public static final String TAG_AT_NAME          = TAG_AT+".name";
 
   // =========================================================================
   // Variables
