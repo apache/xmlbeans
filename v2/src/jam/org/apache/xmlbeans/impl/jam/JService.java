@@ -47,4 +47,8 @@ public interface JService {
    * getClassNames().
    */
   public JClassIterator getClasses();
+
+  //public void invalidate(JClass clazz);
+
+  //public void invalidateAll();
 }

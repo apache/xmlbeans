@@ -15,14 +15,14 @@
 
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
-import org.apache.xmlbeans.impl.jam.provider.EClassBuilder;
+import org.apache.xmlbeans.impl.jam.provider.JInitializer;
 import org.apache.xmlbeans.impl.jam.*;
 
 /**
  * Implementation of JClass which can be instantiated for a given class name
  * without having to interact with any source or classfile artifacts.  Only
  * when the user requests something substantive about the java type will
- * this impl request a given EClassBuilder to populate it, which in turn
+ * this impl request a given JInitializer to populate it, which in turn
  * might cause a source file to be parsed.  This allows the caller to deal
  * with JClass objects without having to parse anything for classes which
  * they aren't interested in.
@@ -34,9 +34,9 @@ public class LazyEClass extends EClassImpl {
   // ========================================================================
   // Variables
 
-  private EClassBuilder mBuilder = null;
-  private boolean mIsIntialized = false;
-  private boolean mIsPopulated = true;
+  private JInitializer mIntitializer = null;
+  private boolean mIsInitialized = false;
+  private boolean mIsUnresolved;
 
   // ========================================================================
   // Constructors
@@ -44,9 +44,9 @@ public class LazyEClass extends EClassImpl {
   public LazyEClass(String packageName,
                     String className,
                     JClassLoader loader,
-                    EClassBuilder builder) {
+                    JInitializer builder) {
     super(packageName,className,loader);
-    mBuilder = builder;
+    mIntitializer = builder;
   }
 
   // ========================================================================
@@ -70,7 +70,7 @@ public class LazyEClass extends EClassImpl {
 
   public boolean isUnresolved() {
     checkInitialized();
-    return !mIsPopulated;//yuck
+    return mIsUnresolved;
   }
 
   public JClass getSuperclass() {
@@ -147,8 +147,8 @@ public class LazyEClass extends EClassImpl {
   // Private methods
 
   private void checkInitialized() {
-    if (mIsIntialized) return;
-    mIsPopulated = mBuilder.populateClass(this);
-    mIsIntialized = true;
+    if (mIsInitialized) return;
+    mIsUnresolved = mIntitializer.initialize(this);
+    mIsInitialized = true;
   }
 }

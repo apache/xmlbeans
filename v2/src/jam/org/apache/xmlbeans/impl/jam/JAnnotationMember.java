@@ -18,26 +18,18 @@ package org.apache.xmlbeans.impl.jam;
 
 
 /**
+ * <p>Represents a member value of a JAnnotation.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface JAnnotationMember {
 
   /**
-   * Returns the name of this annotation member.
+   * <p>Returns the value of this annotation as an Object.  If the value
+   * is primitive, an instance of one of the java.lang wrappers (e.g. Integer)
+   * will be returned.</p>
    *
-   * REVIEW this is a little weird - it's going to be the same as
-   * getDeclaration().getSimpleName();  it really is type information,
-   * which I thought we didn't want to expose here.  However,
-   * I think name is still needed here simply because we may not always
-   * have a declaration (i.e. in the javadoc case), but we will still
-   * have a name.
-   */
-  public String getName();
-
-  /**
-   * Returns the value of this annotation as an Object.  If the value
-   * is primitive, one of the
+   * <p>Note that for javadoc tags, this method always returns a String.</p>
    */
   public Object getValue();
 
@@ -57,64 +49,220 @@ public interface JAnnotationMember {
   public boolean isDefaultValueUsed();
 
   /**
-   * Returns the a representation of the declaration of this member in its
-   * annotation type declaration.
+   * <p>Returns the a representation of the declaration of this member in its
+   * annotation type declaration.  This will typically return null if
+   * the AnnotationMember is not not part of a JSR175 annotation.</p>
    */
-  public JAnnotationMemberDeclaration getDeclaration();
+  public JAnnotationMemberDeclaration getMemberDeclaration();
 
   /**
-   * Returns the String value of the annotation.  Returns an empty string
-   * by default.
+   * <p>If this member is complex (i.e. an instance of another annotation
+   * type), this method returns a representation of the annotation instance.
+   * Returns null in all other cases.  This method always returns null if the
+   * annotation is a javdoc tag, as such tags only support one level of
+   * nesting.</p>
    */
   public JAnnotation getValueAsAnnotation();
 
   /**
-   * Returns the value of this member as a JClass.  Returns null if the
+   * <p>Returns the value of this member as a JClass.  Returns null if the
    * value cannot be understood as a class name or if the type of the member
-   * is known to be something other than java.lang.Class.
+   * is known to be something other than java.lang.Class.</p>
    */
   public JClass getValueAsClass();
 
   /**
-   * Returns the String value of the annotation.  Returns an empty string
-   * by default.
+   * <p>Returns the String value of the annotation.  If the value is
+   * known to be a simple, non-array type other than String, it will be
+   * converted in a resonable manner (with an appropriate toString() or
+   * String.valueOf() method). If the value is known to be complex or is an
+   * array, this method will return null.</p>
+   *
+   * <p>If no type information is available for the annotation member (i.e.
+   * it's a javadoc tag), then the raw textual value of the member is
+   * returned.</p>
    */
   public String getValueAsString();
 
   /**
-   * Returns the value as an int.  Returns 0 by default if the value
-   * cannot be understood as an int.
+   * <p>Returns the member's value as an int.  If the value is not known to be
+   * an int, (because it's a javadoc tag or because it's a 175 annotation
+   * member of a type other than int) getValueAsString() is called.  If the result is
+   * null, NumberFormatException is thrown.  Otherwise, the String is
+   * converted to an int with Integer.valueOf(), which again may throw
+   * NumberFormatException.</p>
    */
-  public int getValueAsInt();
+  public int getValueAsInt() throws NumberFormatException;
 
   /**
-   * Returns the value as a boolean.  Returns false by default if the
-   * annotation value cannot be understood as a boolean.
+   * <p>Returns the member's value as a boolean.  If necessary, type
+   * conversion is performed in a similar manner as described for
+   * getValueAsInt(), except that IllegalArgumentException is
+   * thrown instead of NumberFormatException.</p>
    */
-  public boolean getValueAsBoolean();
+  public boolean getValueAsBoolean() throws IllegalArgumentException;
 
   /**
-   * Returns the value as a long.  Returns 0 by default if the
-   * annotation value cannot be understood as a long.
+   * <p>Returns the member's value as a long.  If necessary, type
+   * conversion is performed in a similar manner as described for
+   * getValueAsInt().</p>
    */
-  public long getValueAsLong();
+  public long getValueAsLong() throws NumberFormatException;
 
   /**
-   * Returns the value as a short.  Returns 0 by default if the
-   * annotation value cannot be understood as a short.
+   * <p>Returns the member's value as a short.  If necessary, type
+   * conversion is performed in a similar manner as described for
+   * getValueAsInt().</p>
    */
-  public short getValueAsShort();
+  public short getValueAsShort() throws NumberFormatException;
 
   /**
-   * Returns the value as a double.  Returns 0 by default if the
-   * annotation value cannot be understood as a double.
+   * <p>Returns the member's value as a double.  If necessary, type
+   * conversion is performed in a similar manner as described for
+   * getValueAsInt().</p>
    */
-  public double getValueAsDouble();
+  public double getValueAsDouble() throws NumberFormatException;
 
   /**
-   * Returns the value as a byte.  Returns 0 by default if the
-   * annotation value cannot be understood as a byte.
+   * <p>Returns the member's value as a float.  If necessary, type
+   * conversion is performed in a similar manner as described for
+   * getValueAsInt().</p>
    */
-  public byte getValueAsByte();
+  public float getValueAsFloat() throws NumberFormatException;
+
+  /**
+   * <p>Returns the member's value as a byte.  If necessary, type
+   * conversion is performed in a similar manner as described for
+   * getValueAsInt().</p>
+   */
+  public byte getValueAsByte() throws NumberFormatException;
+
+  /**
+   * <p>Returns the member's value as a char.  If necessary, type
+   * conversion is performed by calling getStringValue().  If the result
+   * is null or is a String that is not exactly of length 1,
+   * IllegalArgumentException is thrown.</p>
+   */
+  public char getValueAsChar() throws IllegalArgumentException;
+
+  /**
+   * <p>If this member is known to be of an array type, returns the value
+   * as an array of Objects.  If the array component type is primitive,
+   * the array objects will be instances of an appropriate java.lang
+   * wrapper (e.g., Integer).  Returns null if the member type is
+   * not an array.</p>
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public Object[] getValueAsArray();
+
+  /**
+   * <p>If this member is known to be an array of classes, returns an
+   * array of JClass representations of those classes.  If the memeber
+   * is known to be an array of a simple non-array type, this method
+   * will call getValueAsStringArray() and attempt to return a JClass
+   * by treating each string in the returned array as a qualified classname.
+   * Returns null otherwise.
+   * </p>
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public JClass[] getValueAsClassArray();
+
+  /**
+   * <p>If this member is known to be an array of annotations (i.e.
+   * complex, nested types), this method returns an array containing
+   * each complex value as a JAnnotation.  Returns null in all other cases.
+   * </p>
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public JClass[] getValueAsAnnotationArray();
+
+  /**
+   * <p>Returns this member's value as an array of Strings.  If this member is
+   * not of an array type, or is an array of arrays or complex annotations,
+   * this method returns null.  If it is an array of a simple, non-array type
+   * other than String, conversion on each component will be attempted as
+   * described under getStringValue().</p>
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public String[] getValueAsStringArray();
+
+  /**
+   * <p>Returns this member's value as an array of ints.  If this member is
+   * not of an array type, or is an array of arrays or complex annotations,
+   * this method returns null.  If it is an array of a simple, non-array type
+   * other than int, conversion on each component will be attempted as
+   * described under getIntValue().</p>
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public int[] getValueAsIntArray() throws NumberFormatException;
+
+  /**
+   * <p>Returns this member's value as an array of booleans.  If necessary,
+   * type conversion is performed in a similar manner as described for
+   * getValueAsIntArray(), except that IllegalArgumentException may be
+   * thrown instead of NumberFormatException.</p>
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public boolean[] getValueAsBooleanArray() throws IllegalArgumentException;
+
+  /**
+   * <p>Returns this member's value as an array of shorts.  If necessary,
+   * type conversion is performed in a similar manner as described for
+   * getValueAsIntArray().
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public short[] getValueAsShortArray() throws NumberFormatException;
+
+  /**
+   * <p>Returns this member's value as an array of longs.  If necessary,
+   * type conversion is performed in a similar manner as described for
+   * getValueAsIntArray().
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public long[] getValueAsLongArray()  throws NumberFormatException;
+
+  /**
+   * <p>Returns this member's value as an array of doubles.  If necessary,
+   * type conversion is performed in a similar manner as described for
+   * getValueAsIntArray().
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public double[] getValueAsDoubleArray()  throws NumberFormatException;
+
+  /**
+   * <p>Returns this member's value as an array of floats.  If necessary,
+   * type conversion is performed in a similar manner as described for
+   * getValueAsIntArray().
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public float[] getValueAsFloatArray()  throws NumberFormatException;
+
+  /**
+   * <p>Returns this member's value as an array of bytes.  If necessary,
+   * type conversion is performed in a similar manner as described for
+   * getValueAsIntArray().
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public byte[] getValueAsByteArray()  throws NumberFormatException;
+
+  /**
+   * <p>Returns this member's value as an array of bytes.  If necessary,
+   * type conversion is performed in a similar manner as described for
+   * getValueAsIntArray() and getValueAsChar()..
+   *
+   * <p>This method always returns null for javadoc tags.</p>
+   */
+  public char[] getValueAsCharArray()  throws IllegalArgumentException;
 
 }

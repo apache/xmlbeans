@@ -24,6 +24,7 @@ import java.util.Collection;
  * programmatically add markup to a JAM.</p>
  *
  * @author Patrick Calaham <pcal@bea.com>
+ * @deprecated This functionality will soon be supplanted by JInitializer.
  */
 public interface JAnnotationLoader {
 

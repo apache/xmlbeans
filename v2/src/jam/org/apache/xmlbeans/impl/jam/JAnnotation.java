@@ -46,6 +46,41 @@ public interface JAnnotation extends JElement {
   public String getName();
 
   /**
+   * <p>Returns the JAnnotationMember which represents the member of this
+   * annotation if this annotation qualifies as a 'single member
+   * annotation.'</p>
+   *
+   * <p>This method should not be used lightly, as it is here primarily to
+   * provide support simple javadoc tags of the form '@mytag value'.  If you
+   * are using tags of this form, you probably need to do some thinking
+   * about how you want to map your tag system into 175 annotation types.
+   * getSingleMember() provides one avenue for such a mapping by equating
+   * such simple javadoc tags as JSR175 single member annotations.</p>
+   *
+   * <p>The qualifications for being a 'single member annotation' are as
+   * follows:</p>
+   * <ul>
+   *   <li>For JSR175 tags, as described in the spec, the annotation must be
+   *       of a type which either has only one member, or has multiple members
+   *       but exactly one member which has no default value (which is
+   *       considered the single member).</li>
+   *   <li>All javadoc tags implicitly qualify as single member tags,
+   *       although not all of them should be treated as such.  For simple
+   *       javadoc tags (@mytag value), this method provides thoe only
+   *       means of accessing the tag value.  However, if the tag contains
+   *       complex content (typically expressed as name=value pairs), this
+   *       method returns a member which contains the entire raw text of
+   *       the tag, whitespace and '=' signs included.  Typically, this is not
+   *       useful - you should call getMembers() or getMember("name") to get
+   *       at the structured data.</li>
+   * </ul>
+   *
+   * <p>If this annotation does not qualify as a single member annotation,
+   * as described above, this method will return null.</p.
+   */
+  public JAnnotationMember getSingleMember();
+
+  /**
    * Returns an array containing this annotation's members.  Returns an
    * empty array if the annotation has no members.
    */
@@ -61,46 +96,61 @@ public interface JAnnotation extends JElement {
   public JAnnotationMember getMember(String named);
 
   /**
-   * Returns a representation of this annotation's type declaration.
+   * Returns a representation of this annotation's type declaration.  This
+   * typically returns null if the Annotation is does not represent a
+   * JSR175 annotation.
    */
   public JAnnotationDeclaration getDeclaration();
 
+  /**
+   * <p>If this JAnnotation represents a JSR175 annotation, returns the
+   * underlying java.lang.Annotation instance.  Returns null otherwise.</p>
+   */
+  public Object getAnnotationObject();
+
 
   // ========================================================================
-  // These methods will all be deprecated soon
+  // Deprecated - please get values from members instead
 
   /**
-   * @deprecated
+   * @deprecated Please refer to the javadocs on getSingleMember() for
+   * more information on the preferred alternative.
    */
   public String getStringValue();
 
   /**
-   * @deprecated
+   * @deprecated Please refer to the javadocs on getSingleMember() for
+   * more information on the preferred alternative.
    */
   public int getIntValue();
 
   /**
-   * @deprecated
+   * @deprecated Please refer to the javadocs on getSingleMember() for
+   * more information on the preferred alternative.
    */
   public boolean getBooleanValue();
 
   /**
-   * @deprecated
+   * @deprecated Please refer to the javadocs on getSingleMember() for
+   * more information on the preferred alternative.
    */
   public long getLongValue();
 
   /**
-   * @deprecated
+   * @deprecated Please refer to the javadocs on getSingleMember() for
+   * more information on the preferred alternative.
    */
   public short getShortValue();
 
   /**
-   * @deprecated
+   * @deprecated Please refer to the javadocs on getSingleMember() for
+   * more information on the preferred alternative.
    */
   public double getDoubleValue();
 
   /**
-   * @deprecated
+   * @deprecated Please refer to the javadocs on getSingleMember() for
+   * more information on the preferred alternative.
    */
   public byte getByteValue();
 }
