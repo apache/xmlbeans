@@ -56,13 +56,38 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.SchemaTypeSystem;
 
 /**
+ * Provides context/initialzation information for a TypeMatcher instance.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface TypeMatcherContext {
 
+  /**
+   * @return The logger to which the type matcher should send log messages.
+   */
   public BindingLogger getLogger();
 
+  /**
+   * Returns the BindingLoader as a basis for the binding process.  Normally,
+   * this will simply be the builtin loader.
+   */
+  public BindingLoader getBaseBindingLoader();
+
+  /**
+   * Returns a SchemaTypeLoader to be used as a basis for the binding process.
+   * Normally, this will simply be the builtin loader.
+   */
+  public SchemaTypeSystem getBaseSchemaTypeSystem();
+
+  /**
+   * Returns a JClassLoader to be used as a basis for the binding process.
+   * Normally, this will simply be the loader backed by the system
+   * classloader.
+   */
+  public JClassLoader getBaseJavaTypeLoader();
 }

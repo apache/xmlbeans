@@ -61,7 +61,6 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.ArrayList;
-import java.io.IOException;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
@@ -72,7 +71,7 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class TylarImpl implements Tylar, TylarWriter {
+public class TylarImpl extends BaseTylarImpl implements Tylar, TylarWriter {
 
   // ========================================================================
   // Variables
@@ -98,8 +97,8 @@ public class TylarImpl implements Tylar, TylarWriter {
   // ========================================================================
   // Tylar implementation
 
-  public BindingFile getBindingFile() {
-    return mBindingFile;
+  public BindingFile[] getBindingFiles() {
+    return new BindingFile[] {mBindingFile};
   }
 
   public SchemaDocument[] getSchemas() {

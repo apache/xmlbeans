@@ -194,7 +194,7 @@ public class Schema2Java extends BindingCompiler {
    * also that if you call this method, the various parameters on this object
    * pertaining to java compilation (e.g. setJavacPath) will be ignored.
    */
-  public void bind(TylarWriter writer) {
+  protected void internalBind(TylarWriter writer) {
     if (sts == null) throw new IllegalStateException("SchemaTypeSystem not set");
     if ((mJoust = writer.getJavaOutputStream()) == null) {
       //sanity check
@@ -202,7 +202,6 @@ public class Schema2Java extends BindingCompiler {
               "provide a JavaOutputStream, and so it cannot be used with "+
               "schema2java.");
     }
-    super.notifyCompilationStarted();
     bind();
     try {
       writer.writeBindingFile(bindingFile);

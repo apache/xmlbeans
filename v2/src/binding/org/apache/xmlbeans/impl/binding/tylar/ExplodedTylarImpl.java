@@ -85,7 +85,7 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class ExplodedTylarImpl
+public class ExplodedTylarImpl extends BaseTylarImpl
         implements TylarConstants, ExplodedTylar, TylarWriter {
 
   // ========================================================================
@@ -203,8 +203,8 @@ public class ExplodedTylarImpl
   // ========================================================================
   // Tylar implementation
 
-  public BindingFile getBindingFile() {
-    return mBindingFile;
+  public BindingFile[] getBindingFiles() {
+    return new BindingFile[] {mBindingFile};
   }
 
   public SchemaDocument[] getSchemas() {
@@ -237,6 +237,7 @@ public class ExplodedTylarImpl
 
   public Tylar toJar(File jarfile) throws IOException {
     JarHelper j = new JarHelper();
+    jarfile.getParentFile().mkdirs(); //make sure the path exists
     j.jarDir(mRootDir,jarfile);
     return new TylarImpl(jarfile.toURI(),mBindingFile,mSchemaDocuments);
   }

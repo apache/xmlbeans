@@ -74,6 +74,7 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.tylar.DefaultTylarLoader;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.binding.tylar.TylarLoader;
+import org.apache.xmlbeans.impl.binding.tylar.CompositeTylar;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
 import java.io.File;
@@ -88,18 +89,26 @@ import java.util.Iterator;
 public final class BindingContextFactoryImpl
     extends BindingContextFactory
 {
+    public BindingContext createBindingContext(URI tylarUri)
+      throws IOException, XmlException
+    {
+      return createBindingContext(new URI[] {tylarUri});
+    }
+
+
+
     public BindingContext createBindingContext(URI[] tylarUris)
         throws IOException, XmlException
     {
         if (tylarUris == null) throw new IllegalArgumentException("null uris");
         //FIXME loader needs to be pluggable
         TylarLoader loader = DefaultTylarLoader.getInstance();
-        if (loader == null) throw new IllegalArgumentException("null loader");
+        if (loader == null) throw new IllegalStateException("null loader");
         Tylar[] tylars = new Tylar[tylarUris.length];
         for (int i = 0; i < tylars.length; i++) {
             tylars[i] = loader.load(tylarUris[i]);
         }
-        return createBindingContext(tylars);
+        return createBindingContext(loader.load(tylarUris));
     }
 
     // REVIEW It's unfortunate that we can't expose this method to the public
@@ -107,19 +116,20 @@ public final class BindingContextFactoryImpl
     // up the tylar and doesn't want to pay the cost of re-parsing it.
     // Of course, exposing it means we expose Tylar to the public as well,
     // and this should be done with caution.
+    /**
+     * @deprecated use createBindingContext(TylarLoader.load(tylars))
+     */
     public BindingContext createBindingContext(Tylar[] tylars)
     {
+      return createBindingContext(new CompositeTylar(tylars));
+    }
+
+    public BindingContext createBindingContext(Tylar tylar) {
         // get the binding files
-        BindingFile[] bfs = new BindingFile[tylars.length];
-        for (int i = 0; i < tylars.length; i++) {
-            bfs[i] = tylars[i].getBindingFile();
-        }
+        BindingFile[] bfs = tylar.getBindingFiles();
         // also build the loader chain - this is the binding files plus
         // the builtin loader
-        BindingLoader[] loaders = new BindingLoader[bfs.length + 1];
-        System.arraycopy(bfs, 0, loaders, 0, bfs.length);
-        loaders[loaders.length - 1] = BuiltinBindingLoader.getInstance();
-        BindingLoader loader = PathBindingLoader.forPath(loaders);
+        BindingLoader loader = tylar.getBindingLoader();
         // finally, glue it all together
         RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bfs, loader);
         return new BindingContextImpl(loader, tbl);
@@ -140,7 +150,7 @@ public final class BindingContextFactoryImpl
         return createBindingContext(doc);
     }
 
-    public BindingContext createBindingContext(File bindingConfig)
+    public BindingContext createBindingContextFromConfig(File bindingConfig)
         throws IOException, XmlException
     {
         BindingConfigDocument doc =

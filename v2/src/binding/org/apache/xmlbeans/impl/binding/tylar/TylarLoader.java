@@ -68,7 +68,7 @@ import org.apache.xmlbeans.XmlException;
 public interface TylarLoader {
 
   /**
-   * Loads the tylar from the given URI.
+   * Loads a single tylar from the given URI.
    *
    * @param uri pointing to where the tylar is stored.
    * @return
@@ -76,4 +76,18 @@ public interface TylarLoader {
    * @throws XmlException if an error occurs parsing the contents of the tylar.
    */
   public Tylar load(URI uri) throws IOException, XmlException;
+
+  /**
+   * Returns a composition of the set of tylars at the given URIs.  Tylars
+   * will be consulted in the order in which they appear in this array when
+   * resolving bindings and types; first one wins.
+   *
+   * @param uris pointing to where the tylars are stored.
+   * @return
+   * @throws IOException if an i/o error occurs while processing
+   * @throws XmlException if an error occurs parsing the contents of the
+   * tylars.
+   */
+  public Tylar load(URI[] uris) throws IOException, XmlException;
+
 }

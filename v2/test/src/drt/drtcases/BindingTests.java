@@ -11,8 +11,6 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
-import org.apache.xmlbeans.impl.binding.compile.SchemaSourceSet;
-import org.apache.xmlbeans.impl.binding.compile.SimpleSourceSet;
 import org.apache.xmlbeans.impl.binding.compile.BindingCompilerTask;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
@@ -23,7 +21,6 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
 import java.io.*;
-import java.util.Iterator;
 
 public class BindingTests extends TestCase
 {

@@ -61,7 +61,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.jar.JarEntry;
@@ -161,6 +160,14 @@ public class DefaultTylarLoader implements TylarLoader {
                             "' scheme is not supported for loading tylars" +
                             "("+uri+")");
     }
+  }
+
+  public Tylar load(URI[] uris) throws IOException, XmlException {
+    Tylar[] tylars = new Tylar[uris.length];
+    for(int i=0; i<tylars.length; i++) {
+      tylars[i] = load(uris[i]);
+    }
+    return new CompositeTylar(tylars);
   }
 
   // ========================================================================

@@ -60,6 +60,9 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.binding.logger.MessageSink;
 import org.apache.xmlbeans.impl.binding.logger.SimpleMessageSink;
+import org.apache.xmlbeans.impl.jam.JFactory;
+import org.apache.xmlbeans.impl.jam.JFileSet;
+import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -183,6 +186,27 @@ public abstract class BindingCompilerTask extends MatchingTask {
     }
     return XmlBeans.compileXsd(xsds, XmlBeans.getBuiltinTypeSystem(), null);
   }
+
+  protected JClass[] loadJClasses(final File[] javaFiles, String classpath)
+          throws IOException
+  {
+    JFileSet fs = new JFileSet() {
+      public void include(String pattern) {}
+      public void exclude(String pattern) {}
+      public void setClasspath(String cp) {}
+      public void setCaseSensitive(boolean b) {}
+      public File[] getFiles() { return javaFiles; }
+    };
+    /*
+    String classpathString = null;
+    if (mClasspath != null) {
+      //this will be removed after jam factory is refactored
+      fs.setClasspath(classpathString = mClasspath.toString());
+    }
+    */
+    return JFactory.getInstance().loadSources(fs,null,null,null,null,classpath);
+  }
+
 
 
   // ========================================================================

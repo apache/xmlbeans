@@ -53,33 +53,68 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.binding.tylar;
 
-package org.apache.xmlbeans.impl.binding.compile;
-
-import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JFactory;
+import org.apache.xmlbeans.*;
+import org.w3.x2001.xmlSchema.SchemaDocument;
+import java.net.URI;
 
 /**
- * Represents a path on which:
- * <pre>
- * (1) Binding metadata can be loaded
- * (2) Metadata about the bound java classes can be loaded
- * (3) Metadata about the bound schema components can be loaded
- * </pre>
- * 
- * This tylarLoader concept is used at both compiletime and runtime.
- * At compiletime, it is used to provide java/schema/binding type
- * information to link against.  At runtime, it is used to provide
- * the complete java/schema/binding type information to marshal
- * with.
+ * Base class for simplifying implementation of the Tylar interface.
  *
- * @deprecated REVIEW I think this interface is unnecessary - why do we need
- * anything besides a BindingLoader to represent existing bindings?  -pcal
- */ 
-public interface TylarLoader
-{
-    BindingLoader getBindingLoader();
-    JClassLoader getJClassLoader();
-    SchemaTypeLoader getSchemaTypeLoader();
+ * @author Patrick Calahan <pcal@bea.com>
+ */
+public abstract class BaseTylarImpl implements Tylar {
+
+  // ========================================================================
+  // Partial default Tylar implementation
+
+  public String getDescription() {
+    URI uri = getLocation();
+    if (uri != null) return uri.toString();
+    return "["+this.getClass().getName()+"]";
+  }
+
+  public URI getLocation() {
+    return null;
+  }
+
+  public BindingLoader getBindingLoader() {
+    //REVIEW should consider caching this result
+    BindingFile[] bfs = getBindingFiles();
+    BindingLoader[] loaders = new BindingLoader[bfs.length+1];
+    System.arraycopy(bfs,0,loaders,0,bfs.length);
+    loaders[loaders.length-1] = BuiltinBindingLoader.getInstance();
+    return PathBindingLoader.forPath(loaders);
+  }
+
+  public SchemaTypeSystem getSchemaTypeSystem()
+  {
+    // REVIEW should consider caching this result
+    SchemaDocument[] xsds = getSchemas();
+    XmlObject[] xxds = new XmlObject[xsds.length];
+    for(int i=0; i<xsds.length; i++) xxds[i] = xsds[i].getSchema();
+    try {
+      return XmlBeans.compileXsd(xxds,XmlBeans.getBuiltinTypeSystem(),null);
+    } catch(XmlException xe) {
+      // REVIEW we need to enforce an invariant that a tylar with invalid
+      // schemas can never be instantiated.
+      xe.printStackTrace();
+      throw new IllegalStateException(xe.getMessage());
+    }
+  }
+
+  public JClassLoader getJClassLoader()
+  {
+    // REVIEW should consider caching this result
+    // create a classloader chain that runs throw all of the base tylars
+    ClassLoader cl = createClassLoader(ClassLoader.getSystemClassLoader());
+    return JFactory.getInstance().createClassLoader(cl,null,null);
+  }
 }

@@ -127,6 +127,14 @@ public class BindingLogger {
   // Public logging methods
 
   /**
+   * Logs a warning message.
+   */
+  public void logWarning(String msg) {
+    mSink.log(new MessageImpl
+            (Level.WARNING, msg, null, null, null, null));
+  }
+
+  /**
    * Logs a message that some error occurred while performing binding.
    *
    * @return true if processing should attempt to continue.
