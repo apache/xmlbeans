@@ -24,6 +24,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
@@ -93,7 +94,12 @@ public class Both2BindTask extends BindingCompilerTask {
     try {
       //FIXME when we allow them to set up a base tylar, we need to take
       //those loaders into account here
-      mCompiler.setSchemaTypesToMatch(createSchemaTypeSystem(xsdFiles));
+      SchemaDocument[] xsds = new SchemaDocument[xsdFiles.length];
+      for(int i=0; i<xsds.length; i++) {
+        xsds[i] = parseSchemaFile(xsdFiles[i]);
+        mCompiler.includeSchema(xsds[i],xsdFiles[i].getName());//REVIEW is just the name ok?  what about conflicts?
+      }
+      mCompiler.setSchemaTypesToMatch(createSchemaTypeSystem(xsds));
       mCompiler.setJavaTypesToMatch(loadJClasses(javaFiles));
     } catch (IOException e) {
       log(e.getMessage());

@@ -18,7 +18,6 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.common.XMLChar;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -121,8 +120,8 @@ public class Java2Schema extends BindingCompiler {
     //
     try {
       writer.writeBindingFile(mBindingFile);
+      //REVIEW maybe we should just include the schema and let super class write it out?
       writer.writeSchema(mSchemaDocument,"schema-0.xsd");
-
     } catch(IOException ioe) {
       logError(ioe);
     }
@@ -130,16 +129,12 @@ public class Java2Schema extends BindingCompiler {
       SchemaTypeSystem sts = XmlBeans.compileXsd
         (new XmlObject[] {mSchemaDocument},XmlBeans.getBuiltinTypeSystem(),null);
       writer.writeSchemaTypeSystem(sts);
-    } catch(Exception e) {
-      System.out.println("[XBEANS] Java2Schema encoutnered a problem trying to write out xsbs.  Ignoring for now: ");
-      e.printStackTrace(System.out);
-    }
-/*    } catch(XmlException xe) {
-      logError(xe);
     } catch(IOException ioe) {
-      logError(ioe);
+      //logError(ioe); ignore for now
+    } catch(XmlException xe) {
+      //logError(xe);  ignore for now
     }
-*/
+
   }
 
   // ========================================================================

@@ -67,6 +67,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
     mSchemaTypes = sts;
   }
 
+
   /**
    * Sets a custom TypeMatcher to use for lining up the java and schema types.
    * This is optional; if omitted, a default TypeMatcher will be used.
@@ -83,6 +84,7 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
     bind();
     try {
       tw.writeBindingFile(bindingFile);
+      tw.writeSchemaTypeSystem(mSchemaTypes);
     } catch (IOException ioe) {
       logError(ioe);
     }

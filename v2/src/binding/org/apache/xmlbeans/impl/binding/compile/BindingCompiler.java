@@ -23,9 +23,12 @@ import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.*;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * Abstract base class for classes which produce a tylar based on
@@ -53,6 +56,7 @@ public abstract class BindingCompiler extends BindingLogger
   private Tylar mBaseTylar = null;
   private boolean mIsCompilationStarted = false;
   private BindingLoader mBuiltinBindingLoader = null;
+  private List mSchemasToInclude = null;
 
   // ========================================================================
   // Constructors
@@ -86,14 +90,27 @@ public abstract class BindingCompiler extends BindingLogger
   // Public methods
 
   /**
-   * Public method for beginning the binding compilation process with
+   * <p>Public method for beginning the binding compilation process with
    * an arbitrary TylarWriter.  Delegates to the subclass to do the real work.
+   * After delegating to internalBind(), this method will finish by writing
+   * out any schemas which were specified for inclusion.</p>
+   *
    * Note: the caller of this method is responsible for calling close() on
    * the TylarWriter!
    */
   public final void bind(TylarWriter writer) {
     mIsCompilationStarted = true;
     internalBind(writer);
+    if (mSchemasToInclude != null) {
+      for(int i=0; i<mSchemasToInclude.size(); i++) {
+        SchemaToInclude sti = (SchemaToInclude)mSchemasToInclude.get(i);
+        try {
+          writer.writeSchema(sti.schema,sti.filepath);
+        } catch(IOException ioe) {
+          logError(ioe);
+        }
+      }
+    }
   }
 
   /**
@@ -160,6 +177,20 @@ public abstract class BindingCompiler extends BindingLogger
   public void setBaseLibrary(Tylar lib) {
     if (lib == null) throw new IllegalArgumentException("null lib");
     mBaseTylar = lib;
+  }
+
+  /**
+   * Specifies a schema to be included in the output tylar.  This will
+   * have no effect on the binding process.
+   *
+   * @param xsd
+   * @param filepath
+   */
+  public void includeSchema(SchemaDocument xsd, String filepath) {
+    if (xsd == null) throw new IllegalArgumentException("null xsd");
+    if (filepath == null) throw new IllegalArgumentException("null filepath");
+    if (mSchemasToInclude == null) mSchemasToInclude = new ArrayList();
+    mSchemasToInclude.add(new SchemaToInclude(xsd,filepath));
   }
 
 
@@ -297,5 +328,16 @@ public abstract class BindingCompiler extends BindingLogger
     File out = new File(directory, prefix);
     if (!out.mkdirs()) throw new IOException("Uknown problem creating temp file");
     return out;
+  }
+
+
+  private class SchemaToInclude {
+    SchemaToInclude(SchemaDocument sd, String fp) {
+      schema = sd;
+      filepath = fp;
+
+    }
+    SchemaDocument schema;
+    String filepath;
   }
 }

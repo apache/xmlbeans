@@ -16,20 +16,15 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
-import org.apache.xmlbeans.impl.binding.logger.MessageSink;
 import org.apache.xmlbeans.impl.binding.logger.SimpleMessageSink;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JamServiceFactory;
-import org.apache.xmlbeans.impl.jam.JamServiceParams;
-import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.impl.binding.logger.MessageSink;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import java.io.File;
 import java.io.IOException;
@@ -134,20 +129,25 @@ public abstract class BindingCompilerTask extends MatchingTask {
   // ========================================================================
   // Protected methods
 
-  /**
-   * Utility method for creating a SchemaTypeSystem from a set of
-   * xsd files.
-   */
-  public static SchemaTypeSystem createSchemaTypeSystem(File[] xsdFiles)
-          throws IOException, XmlException
+  protected static SchemaDocument parseSchemaFile(File file)
+    throws IOException, XmlException
   {
-    XmlObject[] xsds = new XmlObject[xsdFiles.length];
-    for (int i = 0; i < xsdFiles.length; i++) {
-        xsds[i] = parseSchemaFile(xsdFiles[i]);
-    }
+    XmlOptions options = new XmlOptions();
+    options.setLoadLineNumbers();
+    options.setLoadMessageDigest();
+    return (SchemaDocument)SCHEMA_LOADER.parse
+      (file, SchemaDocument.type, options);
+  }
+
+  protected static SchemaTypeSystem createSchemaTypeSystem(SchemaDocument[] xsds)
+    throws IOException, XmlException
+  {
     SchemaTypeLoader soapencLoader = org.apache.xmlbeans.impl.schema.SoapEncSchemaTypeSystem.get();
     SchemaTypeLoader xsdLoader = XmlBeans.getBuiltinTypeSystem();
-    return XmlBeans.compileXsd(xsds, XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {xsdLoader, soapencLoader}), null);
+    return XmlBeans.compileXsd(xsds,
+                               XmlBeans.typeLoaderUnion
+                               (new SchemaTypeLoader[] {xsdLoader, soapencLoader}),
+                               null);
   }
 
 
@@ -155,17 +155,19 @@ public abstract class BindingCompilerTask extends MatchingTask {
   // ========================================================================
   // Private methods
 
-  private static SchemaDocument parseSchemaFile(File file)
-          throws IOException, XmlException
+  //this is here only because BindingTest uses it-that is stupid, tests
+  //should not rely on our internals.  need to refactor it
+  public static SchemaTypeSystem createSchemaTypeSystem(File[] xsds)
+    throws IOException, XmlException
   {
-      XmlOptions options = new XmlOptions();
-      options.setLoadLineNumbers();
-      options.setLoadMessageDigest();
-      return (SchemaDocument)SCHEMA_LOADER.parse
-              (file, SchemaDocument.type, options);
+    SchemaDocument[] sd = new SchemaDocument[xsds.length];
+    for(int i=0; i<xsds.length; i++) {
+      sd[i] = parseSchemaFile(xsds[i]);
+    }
+    return createSchemaTypeSystem(sd);
   }
 
-  private  MessageSink createMessageSink() {
+  private MessageSink createMessageSink() {
     //FIXME this should be an AntBindingLogger
     return new SimpleMessageSink();
   }

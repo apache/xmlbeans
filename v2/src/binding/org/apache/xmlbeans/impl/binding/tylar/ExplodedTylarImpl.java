@@ -173,7 +173,13 @@ public class ExplodedTylarImpl extends BaseTylarImpl
   public void writeSchemaTypeSystem(SchemaTypeSystem sts) throws IOException {
     if (sts == null) throw new IllegalArgumentException("null sts");
     mSchemaTypeSystem = sts;
-    sts.saveToDirectory(new File(mRootDir, STS_DIR));
+    try {
+      sts.saveToDirectory(new File(mRootDir, STS_DIR));
+    } catch(Exception e) {
+      System.out.println("[XBEANS] HAS A PROBLEM WRITING XSBs, IGNORING FOR NOW: "+
+                         e.getMessage()+"\n YOUR BINDINGS ARE STILL OK");
+      //e.printStackTrace(System.out);
+    }
   }
 
   public JavaOutputStream getJavaOutputStream() {

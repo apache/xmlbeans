@@ -22,6 +22,7 @@ import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
@@ -163,15 +164,18 @@ public class Schema2JavaTask extends BindingCompilerTask {
     //build up a schema type system from the input schemas and give it to
     //the compiler
     File[] xsdFiles = (File[]) mXsdFiles.toArray(new File[mXsdFiles.size()]);
-    SchemaTypeSystem sts;
+    SchemaDocument[] xsds = new SchemaDocument[xsdFiles.length];
     try {
-      sts = createSchemaTypeSystem(xsdFiles);
+      for(int i=0; i<xsds.length; i++) {
+        xsds[i] = parseSchemaFile(xsdFiles[i]);
+        mCompiler.includeSchema(xsds[i],xsdFiles[i].getName());//REVIEW is just the name ok?  what about conflicts?
+      }
+      mCompiler.setSchemaTypeSystem(createSchemaTypeSystem(xsds));
     } catch(IOException ioe) {
       throw new BuildException(ioe);
     } catch(XmlException xe) {
       throw new BuildException(xe);
     }
-    mCompiler.setSchemaTypeSystem(sts);
     return mCompiler;
   }
 

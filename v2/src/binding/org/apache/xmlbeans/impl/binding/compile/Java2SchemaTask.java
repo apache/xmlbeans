@@ -21,7 +21,6 @@ import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.impl.jam.JamServiceFactory;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.JamService;
-import org.apache.xmlbeans.impl.jam.internal.DirectoryScanner;
 
 import java.io.File;
 import java.io.IOException;
