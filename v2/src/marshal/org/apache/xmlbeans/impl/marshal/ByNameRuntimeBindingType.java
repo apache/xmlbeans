@@ -293,6 +293,9 @@ final class ByNameRuntimeBindingType
                 final StringReader sr = new StringReader(xmldoc);
                 final XMLStreamReader reader =
                     um.getXmlInputFactory().createXMLStreamReader(sr);
+                boolean ok =
+                    MarshalStreamUtils.advanceToNextStartElement(reader);
+                assert ok;
                 final BindingTypeName btname = bindingType.getName();
                 final Object obj =
                     um.unmarshalType(reader, btname.getXmlName().getQName(),

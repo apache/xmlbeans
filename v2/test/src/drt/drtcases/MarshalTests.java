@@ -241,7 +241,7 @@ public class MarshalTests extends TestCase
         Assert.assertTrue(errors.isEmpty());
     }
 
-    public void DISABLED_testSimplePolymorphicTypeMarshal()
+    public void testSimplePolymorphicTypeMarshal()
         throws Exception
     {
         BindingContext bindingContext =
@@ -834,6 +834,39 @@ public class MarshalTests extends TestCase
         }
 
         Assert.assertTrue(errors.isEmpty());
+
+    }
+
+    public void testByNameBeanUnmarshalErrors()
+        throws Exception
+    {
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+
+        File doc = TestEnv.xbeanCase("marshal/doc3.xml");
+
+        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        XMLStreamReader xrdr =
+            xmlInputFactory.createXMLStreamReader(new FileReader(doc));
+
+        final XmlOptions options = new XmlOptions();
+        final LinkedList errors = new LinkedList();
+        options.setErrorListener(errors);
+
+        Unmarshaller um_ctx =
+            bindingContext.createUnmarshaller();
+        Object obj = um_ctx.unmarshal(xrdr, options);
+
+        //even with some errors, we should get an object
+        Assert.assertTrue(obj != null);
+
+        inform("doc3-obj = " + obj);
+
+        for (Iterator itr = errors.iterator(); itr.hasNext();) {
+            XmlError xmlError = (XmlError)itr.next();
+            inform("doc3-ERROR: " + xmlError);
+        }
+
+        Assert.assertTrue(errors.size() > 0);
 
     }
 
