@@ -34,6 +34,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.Comparator;
+import java.util.Arrays;
 import java.io.IOException;
 import java.io.StringWriter;
 
@@ -96,6 +98,8 @@ public class Java2Schema extends BindingCompiler {
   // Set of JClasses for which element annotations have already been processed.
   private Set mCheckForElements = new HashSet();
 
+  private boolean mOrderPropertiesBySource = false;
+
   // =========================================================================
   // Constructors
 
@@ -104,6 +108,21 @@ public class Java2Schema extends BindingCompiler {
       throw new IllegalArgumentException("null classes");
     }
     mClasses = classesToBind;
+  }
+
+  // ========================================================================
+  // Public methods
+
+  /**
+   * <p>Sets whether elements within generated schema types should be ordered
+   * according to the source order of their corresponding java properties.
+   * The default is false, meaning that they will instead be ordered
+   * alphabetically.</p>
+   *
+   * @param b
+   */
+  public void setOrderPropertiesBySource(boolean b) {
+    mOrderPropertiesBySource = b;
   }
 
   // ========================================================================
@@ -170,7 +189,9 @@ public class Java2Schema extends BindingCompiler {
     SchemaDocument doc = (SchemaDocument)mTns2Schemadoc.get(tns);
     if (doc == null) {
       doc = SchemaDocument.Factory.newInstance();
-      doc.addNewSchema().setTargetNamespace(tns);
+      SchemaDocument.Schema xsd = doc.addNewSchema();
+      xsd.setTargetNamespace(tns);
+      xsd.setElementFormDefault(FormChoice.QUALIFIED);
       mTns2Schemadoc.put(tns,doc);
     }
     return doc.getSchema();
@@ -227,7 +248,7 @@ public class Java2Schema extends BindingCompiler {
            XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, tes[i]));
         SimpleDocumentBinding sdb = new SimpleDocumentBinding(docBtName);
         sdb.setTypeOfElement(XmlTypeName.forTypeNamed(typeQName));
-        mBindingFile.addBindingType(sdb,false,true);
+        mBindingFile.addBindingType(sdb,true,true);
       }
     }
   }
@@ -348,6 +369,7 @@ public class Java2Schema extends BindingCompiler {
   private void bindProperties(JProperty[] props,
                               Map props2issetters,
                               SchemaPropertyFacade facade) {
+    if (mOrderPropertiesBySource) placeInSourceOrder(props);
     for(int i=0; i<props.length; i++) {
       if (mAnnHelper.getAnnotation(props[i],TAG_EL_EXCLUDE,false)) {
         logVerbose("Marked excluded, skipping",props[i]);
@@ -702,21 +724,23 @@ public class Java2Schema extends BindingCompiler {
     }
   }
 
+  private static Comparator SOURCE_POSITION_COMPARATOR = new Comparator() {
 
-  //this is temporary, will go away when we have our 175 story straight
-  private static JAnnotation[] getNamedTags(JAnnotation[] tags,
-                                            String named)
-  {
-    if (tags == null || tags.length == 0) return new JAnnotation[0];
-    List list = new ArrayList();
-    for(int i=0; i<tags.length; i++) {
-      if (tags[i].getSimpleName().equals(named)) list.add(tags[i]);
+    public int compare(Object o, Object o1) {
+      JSourcePosition p1 = ((JElement)o).getSourcePosition();
+      JSourcePosition p2 = ((JElement)o).getSourcePosition();
+      if (p1 == null) return (p2 == null) ? 0 : -1;
+      if (p2 == null) return 1;
+      return (p1.getLine() < p2.getLine()) ? -1 :
+        (p1.getLine() > p2.getLine()) ? 1 : 0;
     }
-    JAnnotation[] out = new JAnnotation[list.size()];
-    list.toArray(out);
-    return out;
+  };
+
+  /**
+   * Sorts the given array in place so that the elements are ordered by
+   * their sourcePosition line numbers.
+   */
+  private static void placeInSourceOrder(JElement[] elements) {
+    Arrays.sort(elements,SOURCE_POSITION_COMPARATOR);
   }
-
-
-
 }

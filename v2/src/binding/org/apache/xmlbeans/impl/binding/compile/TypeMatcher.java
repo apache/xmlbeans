@@ -123,7 +123,10 @@ public interface TypeMatcher
                                  JMethod factoryMethod)
         {
           this(jProperty,sProperty,isSetter);
-          validateFactoryMethod(factoryMethod, jProperty);
+          // Skipping this for now so that people can write a single factory
+          // method which returns java.lang.Object.  I'm a bit dubious about
+          // that.  Maybe we should put a flag on this validation.
+          //validateFactoryMethod(factoryMethod, jProperty);
           this.factoryMethod = factoryMethod;
         }
 
@@ -188,7 +191,7 @@ public interface TypeMatcher
           if (!prop.getType().isAssignableFrom(factory.getReturnType())) {
             throw new IllegalArgumentException
               (factory.getQualifiedName()+
-               " must return an "+prop.getType().getQualifiedName());
+               " must return an instance of "+prop.getType().getQualifiedName());
           }
         }
 
