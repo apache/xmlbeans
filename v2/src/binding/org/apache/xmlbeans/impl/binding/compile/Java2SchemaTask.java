@@ -62,6 +62,11 @@ import org.apache.tools.ant.types.Reference;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JFactory;
 import org.apache.xmlbeans.impl.jam.JFileSet;
+import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylar;
+import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
+import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
+import org.apache.xmlbeans.impl.binding.tylar.Tylar;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
@@ -78,7 +83,7 @@ public class Java2SchemaTask extends Task {
   // Variables
 
   private File mDestDir = null;
-  private File mTempDir = null;
+  private File mDestJar = null;
   private Path mSourcepath = null;
   private Path mClasspath = null;
   private String mIncludes = null;
@@ -87,9 +92,19 @@ public class Java2SchemaTask extends Task {
   // =========================================================================
   // Task attributes
 
-  public void setDestDir(File dir) { mDestDir = dir; }
+  public void setDestDir(File dir) {
+    if (mDestJar != null) {
+      throw new BuildException("You can set only one of destjar and destdir");
+    }
+    mDestDir = dir;
+  }
 
-  public void setTempDir(File dir) { mTempDir = dir; }
+  public void setDestJar(File jar) throws BuildException {
+    if (mDestDir != null) {
+      throw new BuildException("You can set only one of destjar and destdir");
+    }
+    mDestJar = jar;
+  }
 
   /**
    * Set the source directories to find the source Java files.
@@ -144,6 +159,10 @@ public class Java2SchemaTask extends Task {
     mIncludes = includes;
   }
 
+  public void setCompileSources(boolean ignoredRightNow) {}
+
+  public void setCopySources(boolean ignoredRightNow) {}
+
   // =========================================================================
   // Task implementation
 
@@ -154,7 +173,7 @@ public class Java2SchemaTask extends Task {
     JFactory jf = JFactory.getInstance();
     String[] list = mSrcDir.list();
     if (list.length == 0) throw new BuildException("srcDir attribute required");
-    if (list.length > 1) throw new BuildException("multipled srcDirs NYI");
+    if (list.length > 1) throw new BuildException("multiple srcDirs NYI");
     JFileSet fs = jf.createFileSet(new File(list[0]));
     fs.include(mIncludes);
     String classpathString = null;
@@ -174,20 +193,29 @@ public class Java2SchemaTask extends Task {
       public TylarLoader getTylarLoader() { return null; }
       public void compileJavaToBinaries(File classesDir) {}
     };
-    Java2Schema j2b = new Java2Schema(input);
-    TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);
-    Java2SchemaResult result = j2b.bind();
-    try {
-      tb.buildTylar(result);
-    } catch(IOException ioe) {
-      ioe.printStackTrace();
-      throw new BuildException(ioe);
+    BindingLogger logger = new SimpleBindingLogger();
+    Java2Schema j2b = new Java2Schema(input,logger);
+    Tylar tylar = null;
+    if (mDestDir != null) {
+      tylar = j2b.bindAsExplodedTylar(mDestDir);
+    } else if (mDestJar != null) {
+      tylar = j2b.bindAsJarredTylar(mDestJar);
     }
-    log("Java2Schema complete, output in "+mDestDir);
+    if (tylar == null) {
+      throw new BuildException("fatal errors encountered, "+
+                               "see log for details.");
+    }
+    log("Java2SchemaTask complete, output at "+tylar.getLocation());
   }
 
   // =========================================================================
   // Private methods
 
-
+  private void printErrors(Throwable[] errs) {
+    if (errs == null || errs.length == 0) return;
+    for(int i=0; i<errs.length; i++) {
+      errs[i].printStackTrace();
+    }
+    System.out.flush();
+  }
 }
