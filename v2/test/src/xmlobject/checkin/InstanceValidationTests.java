@@ -401,7 +401,7 @@ public class InstanceValidationTests extends TestCase
         {
             XmlValidationError xmlValError = (XmlValidationError) it.next();
             Assert.assertEquals(xmlValError.getErrorType(), XmlValidationError.ATTRIBUTE_TYPE_INVALID);
-            Assert.assertEquals(xmlValError.getMessage(), "Invalid value: unexpected char '106'");
+            Assert.assertEquals(xmlValError.getMessage(), "Invalid decimal value: unexpected char '106'");
         }
     }
 
