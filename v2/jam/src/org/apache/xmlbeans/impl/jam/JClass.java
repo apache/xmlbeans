@@ -319,6 +319,9 @@ public interface JClass extends JMember {
    * object has no public member classes or interfaces. This method
    * also returns an array of length 0 if this JClass object
    * represents a primitive type, an array class, or void. </p>
+   *
+   * <p>Note that no guarantees are made about the ordering of classes
+   * in this array.</p>
    */
   public JClass[] getClasses();
 

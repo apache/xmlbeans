@@ -81,8 +81,8 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
   {
     if (anns == null) return; //?
     for(int i=0; i<anns.length; i++) {
-      MAnnotation destAnn = dest.findOrCreateAnnotation
-        (anns[i].annotationType().asClassDoc().qualifiedName());
+      String tn = JavadocClassBuilder.getFdFor(anns[i].annotationType());
+      MAnnotation destAnn = dest.findOrCreateAnnotation(tn);
       populateAnnotation(destAnn,anns[i],sp);
     }
   }
@@ -94,7 +94,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     AnnotationDesc.ElementValuePair[] mvps = src.elementValues();
     for(int i=0; i<mvps.length; i++) {
       Type jmt = mvps[i].element().returnType();
-      String typeName = jmt.qualifiedTypeName();
+      String typeName = getFdFor(jmt);
       String name = mvps[i].element().name();
       AnnotationValue aval = mvps[i].value();
       Object valueObj;
@@ -120,17 +120,18 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
         MAnnotation nested = dest.createNestedValue(name,typeName);
         populateAnnotation(nested,(AnnotationDesc)valueObj,sp);
       } else if (valueObj instanceof Number || valueObj instanceof Boolean) {
-        JClass type = mContext.getClassLoader().loadClass(jmt.typeName());
+        String tn = JavadocClassBuilder.getFdFor(jmt);
+        JClass type = mContext.getClassLoader().loadClass(tn);
         dest.setSimpleValue(name,valueObj,type);
       } else if (valueObj instanceof FieldDoc) {
+        String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
         // this means it's an enum constant
-        JClass type = mContext.getClassLoader().loadClass
-          (((FieldDoc)valueObj).containingClass().qualifiedName());
+        JClass type = mContext.getClassLoader().loadClass(tn);
         String val = ((FieldDoc)valueObj).name(); //REVIEW is this right?
         dest.setSimpleValue(name,val,type);
       } else if (valueObj instanceof ClassDoc) {
-         JClass clazz = mContext.getClassLoader().loadClass
-          (((FieldDoc)valueObj).containingClass().qualifiedName());
+        String tn = JavadocClassBuilder.getFdFor(((FieldDoc)valueObj).containingClass());
+         JClass clazz = mContext.getClassLoader().loadClass(tn);
         dest.setSimpleValue(name,clazz,loadClass(JClass.class));
       } else if (valueObj instanceof String) {
         String v = ((String)valueObj).trim();
@@ -192,8 +193,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
       //FIXME this is a little bit busted - we should try to give them
       //more type information than this.  it's just a little bit harder
       //to figure it out from the javadoc objects
-      dest.setSimpleValue(memberName,value,
-                          loadClass(returnType.qualifiedTypeName()));
+      dest.setSimpleValue(memberName,value,loadClass(returnType));
       return;
     }
     // unpack the AnnotationValue values into a single array.
@@ -219,20 +219,19 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     }
     // now go do something with them
     if (valueArray[0] instanceof AnnotationDesc) {
-      String annType =
-        ((AnnotationDesc)valueArray[0]).annotationType().qualifiedName();
+      String annType = getFdFor(((AnnotationDesc)valueArray[0]).annotationType());
       MAnnotation[] anns = dest.createNestedValueArray
         (memberName, annType, valueArray.length);
       for(int i=0; i<anns.length; i++) {
         populateAnnotation(anns[i],(AnnotationDesc)valueArray[i],sp);
       }
     } else if (valueArray[0] instanceof Number || valueArray[0] instanceof Boolean) {
-      JClass type = loadClass(JavadocClassBuilder.getFdFor(returnType));
+      JClass type = loadClass(returnType);
       dest.setSimpleValue(memberName,annValueArray,type);
     } else if (valueArray[0] instanceof FieldDoc) {
       // this means it's an array of an enum constants
-      String enumTypeName =
-        ((FieldDoc)valueArray[0]).containingClass().qualifiedName();
+      String enumTypeName = JavadocClassBuilder.getFdFor(
+        ((FieldDoc)valueArray[0]).containingClass());
       JClass memberType = loadClass("[L"+enumTypeName+";");
       String[] value = new String[valueArray.length];
       for(int i=0; i<valueArray.length; i++) {
@@ -242,7 +241,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     } else if (valueArray[0] instanceof ClassDoc) {
       JClass[] value = new JClass[valueArray.length];
       for(int i=0; i<value.length; i++) {
-        value[i] = loadClass(((ClassDoc)valueArray[0]).qualifiedName());
+        value[i] = loadClass(((ClassDoc)valueArray[0]));
       }
       dest.setSimpleValue(memberName,value,loadClass(JClass[].class));
     } else if (valueArray[0] instanceof String) {
@@ -264,12 +263,21 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
     }
   }
 
-  private JClass loadClass(String fd) {
-    return mContext.getClassLoader().loadClass(fd);
+  private String getFdFor(Type t) {
+    return JavadocClassBuilder.getFdFor(t);
+  }
+
+  private JClass loadClass(Type type) {
+    return loadClass(getFdFor(type));
   }
 
   //maybe we should put this on JamClassLoader?
   private JClass loadClass(Class clazz) {
     return loadClass(clazz.getName());
   }
+
+  private JClass loadClass(String fd) {
+    return mContext.getClassLoader().loadClass(fd);
+  }
+
 }

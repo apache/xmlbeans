@@ -153,11 +153,12 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
         // do this in case they passed any 'unstructured' classes.  to the
         // params.  this could use a little TLC.
         for(int i=0; i<classes.length; i++) {
+          if (classes[i].containingClass() != null) continue; // skip inners
           if (mLogger.isVerbose(this)) {
             mLogger.verbose("..."+classes[i].qualifiedName());
           }
           ((JamServiceContextImpl)mServiceContext).
-            includeClass(classes[i].qualifiedName());
+            includeClass(getFdFor(classes[i]));
         }
       }
     } catch (FileNotFoundException e) {
@@ -187,7 +188,7 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
       if (imported != null) {
         importSpecs = new ArrayList();
         for(int i=0; i<imported.length; i++) {
-          importSpecs.add(imported[i].qualifiedName());
+          importSpecs.add(getFdFor(imported[i]));
         }
       }
     }
@@ -214,7 +215,9 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
   // JamClassPopulator implementation
 
   public void populate(MClass dest) {
+    if (dest == null) throw new IllegalArgumentException("null dest");
     ClassDoc src = (ClassDoc)dest.getArtifact();
+    if (src == null) throw new IllegalStateException("null artifact");
     dest.setModifiers(src.modifierSpecifier());
     dest.setIsInterface(src.isInterface());
     if (mDelegate != null) {
@@ -222,11 +225,11 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     }
     // set the superclass
     ClassDoc s = src.superclass();
-    if (s != null) dest.setSuperclass(s.qualifiedName());
+    if (s != null) dest.setSuperclass(getFdFor(s));
     // set the interfaces
     ClassDoc[] ints = src.interfaces();
     for(int i=0; i<ints.length; i++) {
-      dest.addInterface(ints[i].qualifiedName());
+      dest.addInterface(getFdFor(ints[i]));
     }
     // add the fields
     FieldDoc[] fields = src.fields();
@@ -331,8 +334,15 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     String dim = t.dimension();
     if (dim == null || dim.length() == 0) {
       ClassDoc cd = t.asClassDoc();
-      if (cd != null) return cd.qualifiedName();
-      return t.qualifiedTypeName();
+      if (cd != null) {
+        ClassDoc outer = cd.containingClass();
+        if (outer == null) return cd.qualifiedName();
+        String simpleName = cd.name();
+        simpleName = simpleName.substring(simpleName.lastIndexOf('.')+1);
+        return outer.qualifiedName()+'$'+simpleName;
+      } else {
+        return t.qualifiedTypeName();
+      }
     } else {
       StringWriter out = new StringWriter();
       for(int i=0, iL=dim.length()/2; i<iL; i++) out.write("[");
