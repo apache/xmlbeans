@@ -36,7 +36,7 @@ public class CompilationTests extends TestCase
     public CompilationTests(String name) { super(name); }
     public static Test suite() { return new TestSuite(CompilationTests.class); }
 
-    public void testJ2EE() throws Throwable
+    public void __testJ2EE() throws Throwable
     {
         TestEnv.deltree(TestEnv.xbeanOutput("schema/j2ee"));
         // First, compile schema
@@ -142,7 +142,7 @@ public class CompilationTests extends TestCase
         }
     }
 
-    public void __testPricequote() throws Throwable
+    public void testPricequote() throws Throwable
     {
         TestEnv.deltree(TestEnv.xbeanOutput("schema/pricequote"));
         // First, compile schema
@@ -234,7 +234,7 @@ public class CompilationTests extends TestCase
         "</xs:schema>\n",
     };
 
-    public void __testFinal() throws Throwable
+    public void testFinal() throws Throwable
     {
         SchemaDocument[] schemas = new SchemaDocument[invalidSchemas.length];
 

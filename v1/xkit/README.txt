@@ -64,9 +64,7 @@ Where to start?
        schemas you can try out.
 
          - easypo: a contrived simple starter "purchase order"
-         - cyclone: an actual customer schema (cyclonecommerce.com)
          - s4s: the Schema for Schema
-         - j2ee: j2ee descriptor schemas
 
        To compile them, you can just send the whole directory to
        scomp, for example, "cd samples"; then "scomp easypo".
