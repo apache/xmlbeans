@@ -29,6 +29,7 @@ import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 
@@ -800,7 +801,12 @@ abstract class UnmarshalResult
     {
         final boolean ret =
             MarshalStreamUtils.advanceToNextStartElement(baseReader);
+
+
         updateAttributeState();
+
+        //System.out.println("AT: " + XmlStreamUtils.printEvent(baseReader));
+
         return ret;
     }
 
@@ -844,6 +850,9 @@ abstract class UnmarshalResult
         if (defaultAttributeBits != null) {
             defaultAttributeBits.clear();
         }
+
+        //TODO: in many calls to this method, we already know that
+        //we are on a start element...
         if (baseReader.isStartElement()) {
             currentAttributeCount = baseReader.getAttributeCount();
             currentAttributeIndex = 0;

@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.common.QNameHelper;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -34,11 +35,13 @@ abstract class MarshalResult
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
 
+
     //state fields
     private final Collection errors;
     private int prefixCnt = 0;
 
     private static final String NSPREFIX = "n";
+    private static final boolean PRETTY_PREFIX = false;
 
 
     //TODO: REVIEW: consider ways to reduce the number of parameters here
@@ -84,15 +87,25 @@ abstract class MarshalResult
     protected final String findNextPrefix(final String uri)
     {
         assert uri != null;
-        String testuri;
-        String prefix;
-        do {
-            prefix = NSPREFIX + (++prefixCnt);
-            testuri = getNamespaceContext().getNamespaceURI(prefix);
+
+        String prefix =
+            PRETTY_PREFIX ? QNameHelper.suggestPrefix(uri) : nextNumberedPrefix();
+
+        for (; ;) {
+            String testuri = getNamespaceContext().getNamespaceURI(prefix);
+
+            if (testuri == null) {
+                assert prefix != null;
+                return prefix;
+            }
+
+            prefix = nextNumberedPrefix();
         }
-        while (testuri != null);
-        assert prefix != null;
-        return prefix;
+    }
+
+    private String nextNumberedPrefix()
+    {
+        return NSPREFIX + (++prefixCnt);
     }
 
     protected abstract void bindNamespace(String prefix, String uri)

@@ -602,7 +602,6 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext =
             getBindingContext(getBindingConfigDocument());
 
-
         XmlOptions opts = new XmlOptions();
         opts.setLoadLineNumbers();
         final Document document = Public2.parse(xmldoc, opts);
@@ -617,6 +616,15 @@ public class MarshalTests extends TestCase
             bindingContext.createSoapUnmarshaller(EncodingStyle.SOAP11, document);
 
         final XMLStreamReader xrdr = Public2.getStream(document);
+//        {
+//            while(xrdr.hasNext()) {
+//                System.out.println("## AT " + XmlStreamUtils.printEvent(xrdr));
+//                final int e = xrdr.next();
+//            }
+//            if (System.currentTimeMillis() > 1) {
+//                throw new AssertionError("STOP!");
+//            }
+//        }
 
         while (!xrdr.isStartElement()) {
             xrdr.next();
@@ -666,7 +674,7 @@ public class MarshalTests extends TestCase
     public void testAnyTypeSoapUnmarshal()
         throws Exception
     {
-        final boolean verbose = true;
+        final boolean verbose = false;
 
         final Collection errors = new LinkedList();
         final MyClass source_mc = new MyClass();
@@ -694,10 +702,6 @@ public class MarshalTests extends TestCase
         xml_out.writeNamespace("xs", XSD_URI);
         xml_out.writeNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
         xml_out.writeNamespace("jt", "java:com.mytest");
-
-//        ctx.marshalType(xml_out, source_mc, DFLT_ELEM_NAME,
-//                        MYCLASS_NAME,
-//                        source_mc.getClass().getName(), options);
 
         ctx.marshalType(xml_out, source_mc, DFLT_ELEM_NAME,
                         ANY_TYPE_NAME,
@@ -839,6 +843,7 @@ public class MarshalTests extends TestCase
 
         xml_out.writeStartDocument();
         xml_out.writeStartElement("DUMMY_ROOT");
+//        xml_out.writeDefaultNamespace("java:com.mytest");
         xml_out.writeNamespace("xs", XSD_URI);
         xml_out.writeNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
         xml_out.writeNamespace("jt", "java:com.mytest");
@@ -954,7 +959,8 @@ public class MarshalTests extends TestCase
         mc.setMyelt(myelt);
 
         myelt.setModeEnum(ModeEnum.Off);
-        myelt.setQn(new QName("someURI", "somePart"));
+//        myelt.setQn(new QName("someURI", "somePart"));
+        myelt.setQn(new QName("java:com.mytest2", "somePart"));
         final SimpleContentExample sce = new SimpleContentExample();
         sce.setFloatAttOne(5.43234f);
         sce.setSimpleContent("SIMPLE_CONTENT");
