@@ -18,6 +18,11 @@ package xmlobject.extensions.interfaceFeature.methodNameCollision.existing;
 
 public interface IFoo {
     String getName();
-    String getName2();
-    String getName3();
+    String getName2(int[][] ints);
+    String getName3(Inner inner);
+
+    public static interface Inner
+    {
+        String getValue();
+    }
 }

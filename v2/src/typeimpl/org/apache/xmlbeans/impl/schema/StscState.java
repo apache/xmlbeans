@@ -18,8 +18,6 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.XmlErrorCodes;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
-import org.apache.xmlbeans.impl.config.SchemaConfig;
-import org.apache.xmlbeans.impl.config.ExtensionHolder;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaComponent;
@@ -32,6 +30,7 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.BindingConfig;
 import org.apache.xmlbeans.impl.values.XmlStringImpl;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.util.HexBin;
@@ -57,7 +56,7 @@ public class StscState
     private String _givenStsName;
     private Collection _errorListener;
     private SchemaTypeSystemImpl _target;
-    private SchemaConfig _config;
+    private BindingConfig _config;
     private Map _compatMap;
     private boolean _doingDownloads;
     private byte[] _digest = null;
@@ -585,10 +584,16 @@ public class StscState
     /**
      * Initializer for the schema config object.
      */
-    public void setSchemaConfig(SchemaConfig config)
+    public void setBindingConfig(BindingConfig config)
         throws IllegalArgumentException
     {
         _config = config;
+    }
+
+    public BindingConfig getBindingConfig()
+        throws IllegalArgumentException
+    {
+        return _config;
     }
 
     /**
@@ -596,6 +601,8 @@ public class StscState
      */
     public String getPackageOverride(String namespace)
     {
+        if (_config == null)
+            return null;
         return _config.lookupPackageForNamespace(namespace);
     }
 
@@ -604,6 +611,8 @@ public class StscState
      */
     public String getJavaPrefix(String namespace)
     {
+        if (_config == null)
+            return null;
         return _config.lookupPrefixForNamespace(namespace);
     }
 
@@ -612,6 +621,8 @@ public class StscState
      */
     public String getJavaSuffix(String namespace)
     {
+        if (_config == null)
+            return null;
         return _config.lookupSuffixForNamespace(namespace);
     }
 
@@ -620,23 +631,9 @@ public class StscState
      */
     public String getJavaname(QName qname)
     {
+        if (_config == null)
+            return null;
         return _config.lookupJavanameForQName(qname);
-    }
-
-    /**
-     * Gets configured extension set, null if javaName is not contained in any extension.
-     */
-    public ExtensionHolder getExtensionHolder(String javaName)
-    {
-        return _config.extensionHolderFor(javaName);
-    }
-
-    /**
-     * Gets configured extension set.
-     */
-    public ExtensionHolder getExtensionHolder()
-    {
-        return _config.getExtensionHolder();
     }
 
     /* SPELLINGS ======================================================*/

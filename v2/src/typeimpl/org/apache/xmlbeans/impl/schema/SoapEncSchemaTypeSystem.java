@@ -43,6 +43,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.Filer;
 
 public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
     implements SchemaTypeSystem
@@ -336,6 +337,11 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
      * @param file a <code>File</code> value
      */
     public void saveToDirectory(File file)
+    {
+        throw new UnsupportedOperationException("The builtin soap encoding schema type system cannot be saved.");
+    }
+
+    public void save(Filer filer)
     {
         throw new UnsupportedOperationException("The builtin soap encoding schema type system cannot be saved.");
     }

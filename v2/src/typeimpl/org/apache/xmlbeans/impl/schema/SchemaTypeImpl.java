@@ -35,9 +35,10 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.StringEnumAbstractBase;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.InterfaceExtension;
+import org.apache.xmlbeans.PrePostExtension;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.values.*;
-import org.apache.xmlbeans.impl.config.ExtensionHolder;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.Constructor;
@@ -88,7 +89,8 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private String _fullJavaName;
     private String _shortJavaImplName;
     private String _fullJavaImplName;
-    private ExtensionHolder _extensionHolder;
+    private InterfaceExtension[] _interfaces;
+    private PrePostExtension _prepost;
 
     // runtime java type support: volatile because they're cached
     private volatile Class _javaClass;
@@ -538,15 +540,26 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         _shortJavaName = _fullJavaName.substring(index);
     }
 
-    public void setExtensionHolder(ExtensionHolder extHolder)
+    public void setInterfaceExtensions(InterfaceExtension[] interfaces)
     {
         assertResolved();
-        _extensionHolder = extHolder;
+        _interfaces = interfaces;
     }
 
-    public ExtensionHolder getExtensionHolder()
+    public InterfaceExtension[] getInterfaceExtensions()
     {
-        return _extensionHolder;
+        return _interfaces;
+    }
+
+    public void setPrePostExtension(PrePostExtension prepost)
+    {
+        assertResolved();
+        _prepost = prepost;
+    }
+
+    public PrePostExtension getPrePostExtension()
+    {
+        return _prepost;
     }
 
     public void setShortJavaImplName(String name)

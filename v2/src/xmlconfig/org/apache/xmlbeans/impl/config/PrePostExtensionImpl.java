@@ -1,35 +1,30 @@
 /*   Copyright 2004 The Apache Software Foundation
- *
- *   Licensed under the Apache License, Version 2.0 (the "License");
- *   you may not use this file except in compliance with the License.
- *   You may obtain a copy of the License at
- *
- *       http://www.apache.org/licenses/LICENSE-2.0
- *
- *   Unless required by applicable law or agreed to in writing, software
- *   distributed under the License is distributed on an "AS IS" BASIS,
- *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *   See the License for the specific language governing permissions and
- *  limitations under the License.
- */
-/**
- * Author: Cezar Andrei ( cezar.andrei at bea.com )
- * Date: Apr 12, 2004
- */
+*
+*   Licensed under the Apache License, Version 2.0 (the "License");
+*   you may not use this file except in compliance with the License.
+*   You may obtain a copy of the License at
+*
+*       http://www.apache.org/licenses/LICENSE-2.0
+*
+*   Unless required by applicable law or agreed to in writing, software
+*   distributed under the License is distributed on an "AS IS" BASIS,
+*   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*   See the License for the specific language governing permissions and
+*  limitations under the License.
+*/
+
 package org.apache.xmlbeans.impl.config;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.PrePostExtension;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JMethod;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 
 
-public class PrePostExtension
+public class PrePostExtensionImpl implements PrePostExtension
 {
-    public static int OPERATION_SET = 1;
-    public static int OPERATION_INSERT = 2;
-    public static int OPERATION_REMOVE = 3;
 
     private static JClass[] PARAMTYPES_PREPOST = null; //new JClass[]{int.class, XmlObject.class, QName.class, boolean.class, int.class};
     private static final String[] PARAMTYPES_STRING = new String[] {"int", "org.apache.xmlbeans.XmlObject",
@@ -54,20 +49,20 @@ public class PrePostExtension
     private JMethod _preSet;
     private JMethod _postSet;
 
-    static PrePostExtension newInstance(JamClassLoader jamLoader, NameSet xbeanSet, Extensionconfig.PrePostSet prePostXO)
+    static PrePostExtensionImpl newInstance(JamClassLoader jamLoader, NameSet xbeanSet, Extensionconfig.PrePostSet prePostXO)
     {
         if (prePostXO==null)
             return null;
 
-        PrePostExtension result = new PrePostExtension();
+        PrePostExtensionImpl result = new PrePostExtensionImpl();
 
         result._xbeanSet = xbeanSet;
         result._delegateToClassName = prePostXO.getStaticHandler();
-        result._delegateToClass = InterfaceExtension.validateClass(jamLoader, result._delegateToClassName, prePostXO);
+        result._delegateToClass = InterfaceExtensionImpl.validateClass(jamLoader, result._delegateToClassName, prePostXO);
 
         if ( result._delegateToClass==null ) // no HandlerClass
         {
-            SchemaConfig.warning("Handler class '" + prePostXO.getStaticHandler() + "' not found on classpath, skip validation.", prePostXO);
+            BindingConfigImpl.warning("Handler class '" + prePostXO.getStaticHandler() + "' not found on classpath, skip validation.", prePostXO);
             return result;
         }
 
@@ -84,26 +79,26 @@ public class PrePostExtension
 
         initParamPrePost(jamLoader);
 
-        _preSet = InterfaceExtension.getMethod(_delegateToClass, "preSet", PARAMTYPES_PREPOST);
+        _preSet = InterfaceExtensionImpl.getMethod(_delegateToClass, "preSet", PARAMTYPES_PREPOST);
         if (_preSet==null)
         {} // not available is ok, _preSet will be null
 
         if (_preSet!=null && !_preSet.getReturnType().equals(jamLoader.loadClass("boolean")))
         {
             // just emit an warning and don't remember as a preSet
-            SchemaConfig.warning("Method '" + _delegateToClass.getSimpleName() +
+            BindingConfigImpl.warning("Method '" + _delegateToClass.getSimpleName() +
                 ".preSet" + SIGNATURE + "' " +
                 "should return boolean to be considered for a preSet handler.", loc);
             _preSet = null;
         }
 
-        _postSet = InterfaceExtension.getMethod(_delegateToClass, "postSet", PARAMTYPES_PREPOST);
+        _postSet = InterfaceExtensionImpl.getMethod(_delegateToClass, "postSet", PARAMTYPES_PREPOST);
         if (_postSet==null)
         {} // not available is ok, _postSet will be null
 
         if (_preSet==null && _postSet==null)
         {
-            SchemaConfig.error("prePostSet handler specified '" + _delegateToClass.getSimpleName() +
+            BindingConfigImpl.error("prePostSet handler specified '" + _delegateToClass.getSimpleName() +
                 "' but no preSet" + SIGNATURE + " or " +
                 "postSet" + SIGNATURE + " methods found.", loc);
             valid = false;
@@ -129,6 +124,11 @@ public class PrePostExtension
     }
 
     // public methods
+    public NameSet getNameSet()
+    {
+        return _xbeanSet;
+    }
+
     public boolean contains(String fullJavaName)
     {
         return _xbeanSet.contains(fullJavaName);
@@ -144,6 +144,11 @@ public class PrePostExtension
         return _postSet!=null;
     }
 
+    public String getStaticHandler()
+    {
+        return _delegateToClassName;
+    }
+
     /**
      * Returns the name of the handler in a form that can be put in a java source.
      */
@@ -153,35 +158,12 @@ public class PrePostExtension
         if (_delegateToClass==null)
             return null;
 
-        return InterfaceExtension.emitType(_delegateToClass);
+        return InterfaceExtensionImpl.emitType(_delegateToClass);
     }
 
-    /**
-     * Returns the gened code for makeing the preSet call
-     * @param identifier
-     * @param isAttr
-     * @param index usualy is 'i', or can be -1 for non array properties
-     * @return gened code
-     */
-    public String getPreCall(int opType, String identifier, boolean isAttr, String index)
-    {
-        return _delegateToClassName + ".preSet(" + opType + ", this, " + identifier + ", " + isAttr + ", " + index + ")";
-    }
-
-    /**
-     * Returns the gened code for makeing the preSet call
-     * @param identifier
-     * @param isAttr
-     * @param index usualy is 'i', or can be -1 for non array properties
-     * @return gened code
-     */
-    public String getPostCall(int opType, String identifier, boolean isAttr, String index)
-    {
-        return _delegateToClassName + ".postSet(" + opType + ", this, " + identifier + ", " + isAttr + ", " + index + ");";
-    }
-
-    public boolean hasNameSetIntersection(PrePostExtension ext)
+    boolean hasNameSetIntersection(PrePostExtensionImpl ext)
     {
         return !NameSet.EMPTY.equals(_xbeanSet.intersect(ext._xbeanSet));
     }
+
 }

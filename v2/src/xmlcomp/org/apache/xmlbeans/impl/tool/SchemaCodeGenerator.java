@@ -20,8 +20,11 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.schema.SchemaTypeCodePrinter;
+import org.apache.xmlbeans.impl.schema.SchemaTypeSystemCompiler;
+import org.apache.xmlbeans.impl.schema.FilerImpl;
 import org.apache.xmlbeans.SchemaCodePrinter;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.Filer;
 import repackage.Repackager;
 
 import java.io.File;
@@ -40,87 +43,6 @@ import java.util.Set;
 
 public class SchemaCodeGenerator
 {
-    // input directory, output dir filename
-    // todo: output jar
-    public static boolean compileTypeSystem(SchemaTypeSystem saver, File sourcedir, File[] javasrc,
-         Map sourcesToCopyMap, File[] classpath, File classesdir, File outputJar, boolean nojavac,
-         XmlErrorWatcher errors, String repackage, SchemaCodePrinter codePrinter, boolean verbose, List sourcefiles,
-        File schemasDir, boolean incrSrcGen)
-    {
-
-        if (sourcedir == null || classesdir == null)
-            throw new IllegalArgumentException("Source and class gen dir must not be null.");
-
-        boolean failure = false;
-
-        // Schema files already copyed when they where parsed
-//        if ((sourcesToCopyMap != null) && (sourcesToCopyMap.size() > 0))
-//        {
-//            for (Iterator iter = sourcesToCopyMap.keySet().iterator(); iter.hasNext();)
-//            {
-//                String key = (String)iter.next();
-//
-//                try
-//                {
-//                    String schemalocation = (String)sourcesToCopyMap.get(key);
-//
-//                    File targetFile = new File(schemasDir, schemalocation);
-//                    if (targetFile.exists())
-//                        continue;
-//
-//                    File parentDir = new File(targetFile.getParent());
-//                    IOUtil.createDir(parentDir, null);
-//
-//                    InputStream in = null;
-//                    URL url = new URL(key);
-//                    // Copy the file from filepath to schema/src/<schemaFile>
-//                    in = url.openStream();
-//
-//                    FileOutputStream out = new FileOutputStream(targetFile);
-//                    IOUtil.copyCompletely(in, out);
-//                }
-//                catch (IOException e)
-//                {
-//                    System.err.println("IO Error " + e);
-//                    // failure = true; - not cause for failure
-//                }
-//            }
-//        }
-
-        Repackager repackager = repackage == null ? null : new Repackager( repackage );
-
-        // Create XmlOptions - currently just for SchemaCodePrinter,
-        // but could be used more in future
-        XmlOptions opts = new XmlOptions();
-        if (codePrinter != null)
-        {
-            opts.setSchemaCodePrinter(codePrinter);
-        }
-
-        try
-        {
-            String filename = SchemaTypeCodePrinter.indexClassForSystem(saver).replace('.', File.separatorChar) + ".java";
-            File sourcefile = new File(sourcedir, filename);
-            sourcefile.getParentFile().mkdirs();
-
-            saveTypeSystem(saver, classesdir, sourcefile, repackager, opts);
-
-            sourcefiles.add(sourcefile);
-        }
-        catch (IOException e)
-        {
-            System.err.println("IO Error " + e);
-            failure = true;
-        }
-
-        failure &= genTypes(saver, sourcefiles, sourcedir, repackager, verbose, opts, incrSrcGen);
-
-        if (failure)
-            return false;
-
-        return true;
-    }
-
     /**
      * Saves a SchemaTypeSystem to the specified directory.
      *
@@ -137,191 +59,196 @@ public class SchemaCodeGenerator
         File sourceFile, Repackager repackager, XmlOptions options)
         throws IOException
     {
-        system.saveToDirectory(classesDir);
-        options = XmlOptions.maskNull(options);
-
-        // Now generate the holder class
-        File source = sourceFile;
-        File tempDir = null;
-        if (source == null)
+        if (sourceFile == null)
         {
+            // KHK: remove this branch once we can generate bytecode directly
+
+            system.saveToDirectory(classesDir);
+            options = XmlOptions.maskNull(options);
+
+            // Now generate the holder class
+            File source = sourceFile;
+            File tempDir = null;
+
             String filename = SchemaTypeCodePrinter.indexClassForSystem(system).replace('.',
                 File.separatorChar) + ".java";
             tempDir = createTempDir();
             File sourcedir = IOUtil.createDir(tempDir, "src");
             source = new File(sourcedir, filename);
             source.getParentFile().mkdirs();
-        }
 
-        Writer writer =
-            repackager == null
+            Writer writer =
+                repackager == null
                 ? (Writer) new FileWriter( source )
                 : (Writer) new RepackagingWriter( source, repackager );
 
-        SchemaTypeCodePrinter.printLoader(writer, system, options);
+            SchemaTypeCodePrinter.printLoader(writer, system, options);
 
-        writer.close();
+            writer.close();
 
-        if (tempDir != null)
-        {
             // now compile the generated file to classesDir
             List srcFiles = new ArrayList(1);
             srcFiles.add(source);
             CodeGenUtil.externalCompile(srcFiles, classesDir, null, false);
             tryHardToDelete(tempDir);
         }
+        else
+        {
+            Filer filer = new FilerImpl(classesDir, null, repackager, false, false);
+            SchemaTypeSystemCompiler.saveTypeSystem(system, filer, options);
+        }
     }
 
-    private static boolean genTypes(SchemaTypeSystem saver, List sourcefiles, File sourcedir, Repackager repackager, boolean verbose, XmlOptions opts, boolean incrSrcGen)
-    {
-        boolean failure = false;
-
-        List types = new ArrayList();
-        types.addAll(Arrays.asList(saver.globalTypes()));
-        types.addAll(Arrays.asList(saver.documentTypes()));
-        types.addAll(Arrays.asList(saver.attributeTypes()));
-
-        Set seenFiles = null;
-        if (incrSrcGen)
-        {
-            seenFiles = new HashSet();
-            if (sourcefiles != null)
-                for (int i = 0; i < sourcefiles.size(); i++)
-                    seenFiles.add(sourcefiles.get(i));
-        }
-
-        for (Iterator i = types.iterator(); i.hasNext(); )
-        {
-            SchemaType type = (SchemaType)i.next();
-            if (verbose)
-                System.err.println("Compiling type " + type);
-            if (type.isBuiltinType())
-                continue;
-            if (type.getFullJavaName() == null)
-                continue;
-            
-            String fjn = type.getFullJavaName();
-
-            if (fjn.indexOf('$') > 0)
-            {
-                fjn =
-                    fjn.substring( 0, fjn.lastIndexOf( '.' ) ) + "." +
-                        fjn.substring( fjn.indexOf( '$' ) + 1 );
-            }
-            
-            String filename = fjn.replace('.', File.separatorChar) + ".java";
-            
-            Writer writer = null;
-            Reader reader = null;
-            boolean changed = true;
-            
-            try
-            {
-                File sourcefile = new File(sourcedir, filename);
-                sourcefile.getParentFile().mkdirs();
-                if (verbose)
-                    System.err.println("created " + sourcefile.getAbsolutePath());
-                if (incrSrcGen)
-                    seenFiles.add(sourcefile);
-                if (incrSrcGen && sourcefile.exists())
-                {
-                    // Generate the file in a buffer and then compare it to the
-                    // file already on disk
-                    // Generation
-                    StringWriter sw = new StringWriter();
-                    SchemaTypeCodePrinter.printType(sw, type, opts);
-                    StringBuffer buffer = sw.getBuffer();
-                    if (repackager != null)
-                        buffer = repackager.repackage(buffer);
-                    // Comparison
-                    List diffs = new ArrayList();
-                    reader = new java.io.FileReader(sourcefile);
-                    String str = buffer.toString();
-                    Diff.readersAsText(new java.io.StringReader(str), "<generated>",
-                            reader, sourcefile.getName(), diffs);
-                    reader.close();
-                    // Check the list of differences
-                    changed = (diffs.size() > 0);
-                    if (changed)
-                    {
-                        // Diffs encountered, replace the file with the text from
-                        // the buffer
-                        writer = new FileWriter( sourcefile );
-                        writer.write(str);
-                        writer.close();
-                        sourcefiles.add(sourcefile);
-                    }
-                    else
-                        ; // No diffs, don't do anything
-                }
-                else
-                {
-                writer =
-                    repackager == null
-                        ? (Writer) new FileWriter( sourcefile )
-                        : (Writer) new RepackagingWriter( sourcefile, repackager );
-                
-
-                SchemaTypeCodePrinter.printType(writer, type, opts);
-                
-                writer.close();
-
-                sourcefiles.add(sourcefile);
-                }
-            }
-            catch (IOException e)
-            {
-                System.err.println("IO Error " + e);
-                failure = true;
-            }
-            finally {
-                try {
-                    if (writer != null) writer.close();
-                    if (reader != null) reader.close();
-                } catch (IOException e) {}
-            }
-
-            try
-            {
-                // Generate Implementation class
-                filename = type.getFullJavaImplName().replace('.', File.separatorChar) + ".java";
-                File implFile = new File(sourcedir,  filename);
-                if (verbose)
-                    System.err.println("created " + implFile.getAbsolutePath());
-                implFile.getParentFile().mkdirs();
-
-                if (incrSrcGen)
-                    seenFiles.add(implFile);
-                // If the interface did not change, the implementation shouldn't either
-                if (changed)
-                {
-                writer =
-                    repackager == null
-                        ? (Writer) new FileWriter( implFile )
-                        : (Writer) new RepackagingWriter( implFile, repackager );
-                
-                SchemaTypeCodePrinter.printTypeImpl(writer, type, opts);
-                
-                writer.close();
-
-                sourcefiles.add(implFile);
-                }
-            }
-            catch (IOException e)
-            {
-                System.err.println("IO Error " + e);
-                failure = true;
-            }
-            finally {
-                try { if (writer != null) writer.close(); } catch (IOException e) {}
-            }
-        }
-
-        if (incrSrcGen)
-            deleteObsoleteFiles(sourcedir, sourcedir, seenFiles);
-
-        return failure;
-    }
+//    private static boolean genTypes(SchemaTypeSystem saver, List sourcefiles, File sourcedir, Repackager repackager, boolean verbose, XmlOptions opts, boolean incrSrcGen)
+//    {
+//        boolean failure = false;
+//
+//        List types = new ArrayList();
+//        types.addAll(Arrays.asList(saver.globalTypes()));
+//        types.addAll(Arrays.asList(saver.documentTypes()));
+//        types.addAll(Arrays.asList(saver.attributeTypes()));
+//
+//        Set seenFiles = null;
+//        if (incrSrcGen)
+//        {
+//            seenFiles = new HashSet();
+//            if (sourcefiles != null)
+//                for (int i = 0; i < sourcefiles.size(); i++)
+//                    seenFiles.add(sourcefiles.get(i));
+//        }
+//
+//        for (Iterator i = types.iterator(); i.hasNext(); )
+//        {
+//            SchemaType type = (SchemaType)i.next();
+//            if (verbose)
+//                System.err.println("Compiling type " + type);
+//            if (type.isBuiltinType())
+//                continue;
+//            if (type.getFullJavaName() == null)
+//                continue;
+//
+//            String fjn = type.getFullJavaName();
+//
+//            if (fjn.indexOf('$') > 0)
+//            {
+//                fjn =
+//                    fjn.substring( 0, fjn.lastIndexOf( '.' ) ) + "." +
+//                        fjn.substring( fjn.indexOf( '$' ) + 1 );
+//            }
+//
+//            String filename = fjn.replace('.', File.separatorChar) + ".java";
+//
+//            Writer writer = null;
+//            Reader reader = null;
+//            boolean changed = true;
+//
+//            try
+//            {
+//                File sourcefile = new File(sourcedir, filename);
+//                sourcefile.getParentFile().mkdirs();
+//                if (verbose)
+//                    System.err.println("created " + sourcefile.getAbsolutePath());
+//                if (incrSrcGen)
+//                    seenFiles.add(sourcefile);
+//                if (incrSrcGen && sourcefile.exists())
+//                {
+//                    // Generate the file in a buffer and then compare it to the
+//                    // file already on disk
+//                    // Generation
+//                    StringWriter sw = new StringWriter();
+//                    SchemaTypeCodePrinter.printType(sw, type, opts);
+//                    StringBuffer buffer = sw.getBuffer();
+//                    if (repackager != null)
+//                        buffer = repackager.repackage(buffer);
+//                    // Comparison
+//                    List diffs = new ArrayList();
+//                    reader = new java.io.FileReader(sourcefile);
+//                    String str = buffer.toString();
+//                    Diff.readersAsText(new java.io.StringReader(str), "<generated>",
+//                            reader, sourcefile.getName(), diffs);
+//                    reader.close();
+//                    // Check the list of differences
+//                    changed = (diffs.size() > 0);
+//                    if (changed)
+//                    {
+//                        // Diffs encountered, replace the file with the text from
+//                        // the buffer
+//                        writer = new FileWriter( sourcefile );
+//                        writer.write(str);
+//                        writer.close();
+//                        sourcefiles.add(sourcefile);
+//                    }
+//                    else
+//                        ; // No diffs, don't do anything
+//                }
+//                else
+//                {
+//                    writer =
+//                        repackager == null
+//                            ? (Writer) new FileWriter( sourcefile )
+//                            : (Writer) new RepackagingWriter( sourcefile, repackager );
+//
+//
+//                    SchemaTypeCodePrinter.printType(writer, type, opts);
+//
+//                    writer.close();
+//
+//                    sourcefiles.add(sourcefile);
+//                }
+//            }
+//            catch (IOException e)
+//            {
+//                System.err.println("IO Error " + e);
+//                failure = true;
+//            }
+//            finally {
+//                try {
+//                    if (writer != null) writer.close();
+//                    if (reader != null) reader.close();
+//                } catch (IOException e) {}
+//            }
+//
+//            try
+//            {
+//                // Generate Implementation class
+//                filename = type.getFullJavaImplName().replace('.', File.separatorChar) + ".java";
+//                File implFile = new File(sourcedir,  filename);
+//                if (verbose)
+//                    System.err.println("created " + implFile.getAbsolutePath());
+//                implFile.getParentFile().mkdirs();
+//
+//                if (incrSrcGen)
+//                    seenFiles.add(implFile);
+//                // If the interface did not change, the implementation shouldn't either
+//                if (changed)
+//                {
+//                writer =
+//                    repackager == null
+//                        ? (Writer) new FileWriter( implFile )
+//                        : (Writer) new RepackagingWriter( implFile, repackager );
+//
+//                SchemaTypeCodePrinter.printTypeImpl(writer, type, opts);
+//
+//                writer.close();
+//
+//                sourcefiles.add(implFile);
+//                }
+//            }
+//            catch (IOException e)
+//            {
+//                System.err.println("IO Error " + e);
+//                failure = true;
+//            }
+//            finally {
+//                try { if (writer != null) writer.close(); } catch (IOException e) {}
+//            }
+//        }
+//
+//        if (incrSrcGen)
+//            deleteObsoleteFiles(sourcedir, sourcedir, seenFiles);
+//
+//        return failure;
+//    }
 
     private static void deleteObsoleteFiles(File rootDir, File srcDir, Set seenFiles)
     {
@@ -409,22 +336,22 @@ try {
                 return; // don't try very hard, because we're just deleting tmp
         }
     }
-    
+
     private static Set deleteFileQueue = new HashSet();
     private static int triesRemaining = 0;
-    
+
     private static boolean tryNowThatItsLater()
     {
         List files;
-        
+
         synchronized (deleteFileQueue)
         {
             files = new ArrayList(deleteFileQueue);
             deleteFileQueue.clear();
         }
-        
+
         List retry = new ArrayList();
-        
+
         for (Iterator i = files.iterator(); i.hasNext(); )
         {
             File file = (File)i.next();
@@ -432,21 +359,21 @@ try {
             if (file.exists())
                 retry.add(file);
         }
-        
+
         synchronized (deleteFileQueue)
         {
             if (triesRemaining > 0)
                 triesRemaining -= 1;
-                
+
             if (triesRemaining <= 0 || retry.size() == 0) // done?
                 triesRemaining = 0;
             else
                 deleteFileQueue.addAll(retry); // try again?
-            
+
             return (triesRemaining <= 0);
         }
     }
-    
+
     private static void giveUp()
     {
         synchronized (deleteFileQueue)
@@ -455,7 +382,7 @@ try {
             triesRemaining = 0;
         }
     }
-    
+
     private static void tryToDeleteLater(File dir)
     {
         synchronized (deleteFileQueue)
@@ -484,12 +411,12 @@ try {
                     }
                 };
             }
-            
+
             if (triesRemaining < 10)
                 triesRemaining = 10;
         }
     }
-    
+
     static class RepackagingWriter extends StringWriter
     {
         public RepackagingWriter ( File file, Repackager repackager )
@@ -501,7 +428,7 @@ try {
         public void close ( ) throws IOException
         {
             super.close();
-            
+
             FileWriter fw = new FileWriter( _file );
             fw.write( _repackager.repackage( getBuffer() ).toString() );
             fw.close();

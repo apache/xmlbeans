@@ -19,12 +19,11 @@ package xmlobject.extensions.prePostFeature.readOnlyBean.existing;
 import prePostFeature.xbean.readOnlyBean.purchaseOrder.PurchaseOrderDocument;
 import prePostFeature.xbean.readOnlyBean.purchaseOrder.Items.Item;
 
-import org.apache.xmlbeans.impl.config.PrePostExtension;
-
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.PrePostExtension;
 
 public class FooHandler
 {
