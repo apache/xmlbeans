@@ -3690,8 +3690,6 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             super( start );
 
-            assert ! start.isAtSamePositionAs( last );
-
             _cursor = start;
             _last = last;
             _didLast = false;
