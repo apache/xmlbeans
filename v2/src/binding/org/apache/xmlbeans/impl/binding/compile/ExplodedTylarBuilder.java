@@ -86,22 +86,30 @@ public class ExplodedTylarBuilder implements TylarBuilder {
   // Variables
 
   private File mDir;
+  private File mBindingFile;
   private List mSchemas = new ArrayList();
   private List mBindings = new ArrayList();
 
   // =========================================================================
   // Constructors
 
-  public ExplodedTylarBuilder(File dir) {
-    if (dir == null) throw new IllegalArgumentException("null dir");
-    mDir = dir;
-  }
+    public ExplodedTylarBuilder(File dir) {
+      this(dir, null);
+    }
+
+    public ExplodedTylarBuilder(File dir, File bindingFile) {
+      if (dir == null) throw new IllegalArgumentException("null dir");
+      mDir = dir;
+      mBindingFile = bindingFile;
+    }
 
   // =========================================================================
   // TylarBuilder implementation
 
   protected void writeBindingFile(BindingFile bf) throws IOException {
-    File file = new File(mDir, "binding-file.xml"); //FIXME naming
+    File file = mBindingFile;
+    if (file == null)
+        file = new File(mDir, "binding-config.xml"); //FIXME naming
     FileOutputStream out = null;
     try {
       out = new FileOutputStream(file);

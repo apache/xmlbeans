@@ -59,6 +59,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
+import org.apache.tools.ant.types.FileSet;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.DirectoryScanner;
 import org.apache.xmlbeans.XmlException;
@@ -76,11 +77,14 @@ public class Both2BindTask extends MatchingTask
     // Variables
 
     private File mDestDir = null;
+    private File mDestFile = null;
     private Path mSrc = null;
     private Path mClasspath = null;
     private List mXsdFiles = null;
     private List mJavaFiles = null;
     private String mTypeMatcherClass = null;
+    private List mSchemaFilesets = new ArrayList();
+    private File mSchema = null;
 
     // =========================================================================
     // Task attributes
@@ -89,9 +93,14 @@ public class Both2BindTask extends MatchingTask
     {
         mDestDir = dir;
     }
+    
+    public void setDestFile(File file)
+    {
+        mDestFile = file;
+    }
 
     /**
-     * Set the source directories to find the source XSD files.
+     * Set the source directories to find the source Java files.
      */
     public void setSrcdir(Path srcDir)
     {
@@ -101,6 +110,22 @@ public class Both2BindTask extends MatchingTask
         else {
             mSrc.append(srcDir);
         }
+    }
+    
+    /**
+     * Sets a single schema.
+     */ 
+    public void setSchema(File file)
+    {
+        mSchema = file;
+    }
+    
+    /**
+     * Adds a fileset for source XSD files
+     */
+    public void addSchema(FileSet fileSet)
+    {
+        mSchemaFilesets.add(fileSet);
     }
     
     /**
@@ -172,7 +197,21 @@ public class Both2BindTask extends MatchingTask
             DirectoryScanner ds = this.getDirectoryScanner(srcDir);
             String[] files = ds.getIncludedFiles();
 
-            scanDir(srcDir, files);
+            scanJavaDir(srcDir, files);
+        }
+        
+        // now scan XSD files
+        // single file
+        if (mSchema != null)
+        {
+            if (!mSchema.exists())
+                throw new BuildException("schema " + mSchema + " does not exist!", getLocation());
+            mXsdFiles.add(mSchema);
+        }
+        
+        for (int i = 0; i < mSchemaFilesets.size(); i++)
+        {
+            scanSchemaFileset((FileSet)mSchemaFilesets.get(i));
         }
 
         compile();
@@ -184,14 +223,25 @@ public class Both2BindTask extends MatchingTask
         mJavaFiles = new ArrayList();
     }
     
-    protected void scanDir(File srcDir, String[] files) {
+    protected void scanJavaDir(File srcDir, String[] files) {
         for (int i = 0; i < files.length; i++)
         {
-            if (files[i].endsWith(".xsd"))
-                mXsdFiles.add(new File(srcDir, files[i]));
             if (files[i].endsWith(".java"))
                 mJavaFiles.add(new File(srcDir, files[i]));
         }
+    }
+    
+    protected void scanSchemaFileset(FileSet fs)
+    {
+        File fromDir = fs.getDir(getProject());
+        DirectoryScanner ds = fs.getDirectoryScanner(getProject());
+        String[] srcFiles = ds.getIncludedFiles();
+        for (int i = 0; i < srcFiles.length; i++)
+        {
+            if (srcFiles[i].endsWith(".xsd"))
+                mXsdFiles.add(new File(fromDir, srcFiles[i]));
+        }
+        
     }
     
     protected File[] namesToFiles(String[] names)
@@ -229,13 +279,17 @@ public class Both2BindTask extends MatchingTask
             throw new BuildException(e);
         }
         
-        TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);
+        File destDir = mDestDir;
+        if (destDir == null)
+            destDir = mDestFile.getParentFile();
+        
+        TylarBuilder tb = new ExplodedTylarBuilder(destDir, mDestFile);
         XmlOptions opts = null;
         if (mTypeMatcherClass != null)
         {
             opts = new XmlOptions();
             opts.put(Both2Bind.TYPE_MATCHER, mTypeMatcherClass);
-            System.out.println("Got matcher class " + mTypeMatcherClass);
+            log("both2Bind using matcher class " + mTypeMatcherClass);
         }
         BindingFileResult result = Both2Bind.bind(input, opts);
 
@@ -260,6 +314,16 @@ public class Both2BindTask extends MatchingTask
         if (mSrc.size() == 0) {
             throw new BuildException("srcdir attribute must be set!",
                                      getLocation());
+        }
+        
+        if (mDestDir == null && mDestFile == null)
+        {
+            throw new BuildException("destDir or destFile attribute must be set!");
+        }
+        
+        if (mDestDir != null && mDestFile != null)
+        {
+            throw new BuildException("Cannot set both destDir and destFile!", getLocation());
         }
 
         if (mDestDir != null && !mDestDir.isDirectory()) {
