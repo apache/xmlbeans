@@ -56,7 +56,14 @@ public class PerfResultUtil
 		ResultSetDocument doc = ResultSetDocument.Factory.newInstance();
 		ResultSetDocument.ResultSet resultSet = doc.addNewResultSet();
 		
+		// add default environment info
+		Environment env = resultSet.addNewEnvironment();
+		env.setOs(System.getProperty("os.name")+System.getProperty("os.version"));
+		env.setJvm(System.getProperty("java.vm.vendor")+" "+System.getProperty("java.vm.version"));
+		env.setDate(Calendar.getInstance());
+		
 		StringTokenizer st = new StringTokenizer( buff.toString(),System.getProperty("line.separator"));
+		int k = 1;
 		while(st.hasMoreTokens())
 		{
 			String currentLine = st.nextToken().toString();
@@ -67,8 +74,9 @@ public class PerfResultUtil
 				stResult.nextToken();
 				
 				Result result = resultSet.addNewResult();
-				// TODO: remove id once it's not needed
-				result.setId(System.currentTimeMillis());
+				// id is a unique integer within this result set
+				result.setId(k);
+				k += 1;
 				// name must be the first token in a flat perf result
 				result.setName(stResult.nextToken());
 				
@@ -102,11 +110,7 @@ public class PerfResultUtil
 			}
 		}
 		
-		// add default environment info
-		Environment env = resultSet.addNewEnvironment();
-		env.setOs(System.getProperty("os.name")+System.getProperty("os.version"));
-		env.setJvm(System.getProperty("java.vm.vendor")+" "+System.getProperty("java.vm.version"));
-		env.setDate(Calendar.getInstance());
+
 		// TODO: retreive all system information programmatically
 		//env.setSysmem();
 		//env.setHostname();
@@ -127,7 +131,6 @@ public class PerfResultUtil
 		p_doc.save(writer,opts);
 		writer.flush();
 		writer.close();
-		//System.out.println("result xml is:\n"+p_doc.xmlText(opts));
 	}
 	
 }

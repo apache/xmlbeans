@@ -80,7 +80,7 @@ public class CursorGetSetGetAttributeV1
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+CursorGetSetGetAttributeV1.class.getName()+" flavor="+flavor+" sizetoset="+stringToSet.length()+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" flavor="+flavor+" sizetoset="+stringToSet.length()+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

@@ -58,7 +58,7 @@ public class POTopDownSaveJaxb
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+POTopDownSaveJaxb.class.getName()+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

@@ -60,10 +60,10 @@ public class MaxMemUntypedBisLoadV1
     finally
     {
     	System.gc();
-        System.out.print(Constants.DELIM+MaxMemUntypedBisLoadV1.class.getName()+" flavor="+flavor+" ");
+        System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" flavor="+flavor+" ");
         System.out.print("hash "+hash+" ");
         System.out.print("memory "+memory+" ");
-        System.out.print("size="+size);
+        System.out.println("size="+size);
     }
   }
 

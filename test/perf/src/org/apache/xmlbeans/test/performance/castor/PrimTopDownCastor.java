@@ -47,7 +47,7 @@ public class PrimTopDownCastor
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+PrimTopDownCastor.class.getName()+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

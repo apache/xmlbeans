@@ -137,7 +137,7 @@ public class POValidateXerces
     // use perf util to get file size (XMLInputSource doens't give an easy API).
     PerfUtil util = new PerfUtil();
     char[] chars = util.fileToChars(filename);
-    System.out.print(Constants.DELIM+POValidateXerces.class.getName()+" filesize="+chars.length+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" filesize="+chars.length+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

@@ -49,7 +49,7 @@ public class POTopDownV2
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+POTopDownV2.class.getName()+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

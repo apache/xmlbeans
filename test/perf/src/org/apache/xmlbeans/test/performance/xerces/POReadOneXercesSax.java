@@ -81,7 +81,7 @@ public class POReadOneXercesSax
     
       
     // print the results
-    System.out.print(Constants.DELIM+POReadOneXercesDom.class.getName()+" filesize="+chars.length+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" filesize="+chars.length+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

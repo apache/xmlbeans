@@ -66,7 +66,7 @@ public class BisLoadXercesSax
     
       
     // print the results
-    System.out.print(Constants.DELIM+BisLoadXercesSax.class.getName()+" flavor="+flavor+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" flavor="+flavor+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }
