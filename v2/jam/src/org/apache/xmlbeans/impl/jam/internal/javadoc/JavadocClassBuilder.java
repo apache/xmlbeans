@@ -38,7 +38,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
   public static final String PARSETAGS_PROPERTY = "javadoc.parsetags";
 
   private static final String JAVA15_EXTRACTOR =
-    "org.apache.xmlbeans.impl.jam.internal.java15.Javadoc15AnnotationExtractor";
+    "org.apache.xmlbeans.impl.jam.internal.java15.Javadoc15DelegateImpl";
 
   // ========================================================================
   // Variables
@@ -46,7 +46,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
   private RootDoc mRootDoc = null;
   private JamServiceContext mServiceContext;
   private JamLogger mLogger;
-  private JavadocAnnotationExtractor mExtractor = null;
+  private Javadoc15Delegate mDelegate = null;
 
   private boolean mParseTags = true;//FIXME
 
@@ -76,7 +76,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     }
     // ok, if we could load that, let's new up the extractor delegate
     try {
-      mExtractor = (JavadocAnnotationExtractor)
+      mDelegate = (Javadoc15Delegate)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
       // if this fails for any reason, things are in a bad state
     } catch (ClassNotFoundException e) {
@@ -99,6 +99,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
 
   public void init(ElementContext ctx) {
     super.init(ctx);
+    if (mDelegate != null) mDelegate.init(ctx);
     mServiceContext.getLogger().verbose("init()",this);
     File[] files;
     try {
@@ -106,6 +107,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     } catch(IOException ioe) {
       mLogger.error(ioe);
       return;
+      
     }
     if (files == null || files.length == 0) {
       throw new IllegalArgumentException("No source files in context.");
@@ -115,7 +117,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     String classPath = (mServiceContext.getInputClasspath() == null) ? null :
       mServiceContext.getInputClasspath().toString();
     if (mLogger.isVerbose(this)) {
-      mLogger.verbose("sourcePath="+sourcePath);
+      mLogger.verbose("sourcePath ="+sourcePath);
       mLogger.verbose("classPath ="+classPath);
       for(int i=0; i<files.length; i++) {
         mLogger.verbose("including '"+files[i]+"'");
@@ -182,6 +184,9 @@ public class JavadocClassBuilder extends JamClassBuilder {
     ClassDoc src = (ClassDoc)dest.getArtifact();
     dest.setModifiers(src.modifierSpecifier());
     dest.setIsInterface(src.isInterface());
+    if (mDelegate != null) {
+      dest.setIsEnumType(mDelegate.isEnum(src));
+    }
     // set the superclass
     ClassDoc s = src.superclass();
     if (s != null) dest.setSuperclass(s.qualifiedName());
@@ -236,7 +241,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
     dest.setType(getFdFor(src.type()));
-    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
   }
 
 
@@ -317,6 +322,6 @@ public class JavadocClassBuilder extends JamClassBuilder {
       String comments = src.getRawCommentText();
       if (comments != null) dest.createComment().setText(comments);
     }
-    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
   }
 }

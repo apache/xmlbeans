@@ -54,6 +54,7 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   private boolean mIsAnnotationType = false;
   private boolean mIsInterface = false;
+  private boolean mIsEnum = false;
 
   private String mPackageName = null;
 
@@ -153,6 +154,8 @@ public class ClassImpl extends MemberImpl implements MClass,
   public boolean isInterface() { return mIsInterface; }
 
   public boolean isAnnotationType() { return mIsAnnotationType; }
+
+  public boolean isEnumType() { return mIsEnum; }
 
   public boolean isFinal() { return Modifier.isFinal(getModifiers()); }
 
@@ -363,6 +366,8 @@ public class ClassImpl extends MemberImpl implements MClass,
   public void setIsInterface(boolean b) { mIsInterface = b; }
 
   public void setIsAnnotationType(boolean b) { mIsAnnotationType = b; }
+
+  public void setIsEnumType(boolean b) { mIsEnum = b; }
 
   public String getQualifiedName() {
     return ((mPackageName.length() > 0) ? (mPackageName + '.') : "") +

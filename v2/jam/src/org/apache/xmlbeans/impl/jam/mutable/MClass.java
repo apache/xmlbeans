@@ -28,7 +28,9 @@ public interface MClass extends MMember, JClass {
 
   public void setIsInterface(boolean b);
 
-  public void setIsAnnotationType(boolean b);  
+  public void setIsAnnotationType(boolean b);
+
+  public void setIsEnumType(boolean b);
 
   /**
    * Sets the class which this class extends.  The class name must be fully-

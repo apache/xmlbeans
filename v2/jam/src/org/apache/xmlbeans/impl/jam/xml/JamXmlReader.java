@@ -14,7 +14,6 @@
  */
 package org.apache.xmlbeans.impl.jam.xml;
 
-import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.internal.CachedClassBuilder;
 import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.mutable.MField;
@@ -191,12 +190,11 @@ import java.net.URISyntaxException;
       //REVIEW creating ann for tag is not the right thing to do here.
       //we may need to store more info about exactly what the annotation was
       MAnnotation ann = element.addAnnotationForTag(assertCurrentString(NAME));
-      AnnotationProxy proxy = ann.getMutableProxy();
       while(ANNOTATIONVALUE.equals(getElementName())) {
         nextElement();
         String name = assertCurrentString(NAME);
         String value = assertCurrentString(VALUE);
-        proxy.setValue(name,value);
+        ann.setSimpleValue(name,value, null);//FIXME
         assertEnd(ANNOTATIONVALUE);
         nextElement();
       }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import org.apache.xmlbeans.impl.jam.internal.elements.AnnotationValueImpl;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 /**
  * <p>Implementation of AnnotationProxy which is used when no user-defined
@@ -59,11 +60,11 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
    * annotation map.  The super class' implementation would try to
    * find a bunch of setters that we don't have.</p>
    */
-  public void setValue(String name, Object value) {
+  public void setValue(String name, Object value, JClass type) {
     if (name == null) throw new IllegalArgumentException("null name");
     name = name.trim();
     mValues.add(new AnnotationValueImpl((ElementContext)getLogger(),//yikes, nasty.  FIXME
-                                        name,value));
+                                        name,value,type));
   }
 
 

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.jam.annotation;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 import java.util.Properties;
 import java.util.Enumeration;
@@ -88,7 +89,7 @@ public abstract class AnnotationProxy {
    * <p>Called by JAM to initialize a named member on this annotation proxy.
    * </p>
    */
-  public abstract void setValue(String name, Object value);
+  public abstract void setValue(String name, Object value, JClass type);
 
   //docme
   public abstract JAnnotationValue[] getValues();
@@ -109,53 +110,6 @@ public abstract class AnnotationProxy {
 
   // ========================================================================
   // Public methods
-
-  /**
-   * <p>Called by JAM to initialize this proxy's properties using a
-   * JSR175 annotation instnce.  The value is guaranteed to be an instance
-   * of the 1.5-specific <code>java.lang.annotation.Annotation</code>
-   * marker interface.  (It's typed as <code>Object</code> in order to
-   * preserve pre-1.5 compatibility).</p>
-   *
-   * <p>The implementation of this method introspects the given object
-   * for JSR175 annotation member methods, invokes them, and then calls
-   * <code>setMemberValue</code> using the method's name and invocation
-   * result as the name and value.</p>
-   *
-   * <p>Extending classes are free to override this method if different
-   * behavior is required.</p>
-   */
-  public void initFromAnnotationInstance(Class annType,
-                                         Object jsr175annotationObject) {
-    if (jsr175annotationObject == null) throw new IllegalArgumentException();
-    //FIXME this is a bit clumsy right now - I think we need to be a little
-    // more surgical in identifying the annotation member methods
-    Method[] methods = annType.getMethods();
-    for(int i=0; i<methods.length; i++) {
-      int mods = methods[i].getModifiers();
-      if (Modifier.isStatic(mods)) continue;
-      if (!Modifier.isPublic(mods)) continue;
-      if (methods[i].getParameterTypes().length > 0) continue;
-      {
-        // try to limit it to real annotation methods.  
-        // FIXME seems like this could be better
-        Class c = methods[i].getDeclaringClass();
-        String name = c.getName();
-        if (name.equals("java.lang.Object") ||
-          name.equals("java.lang.annotation.Annotation")) {
-          continue;
-        }
-      }
-      try {
-        setValue(methods[i].getName(),
-                 methods[i].invoke(jsr175annotationObject,null));
-      } catch (IllegalAccessException e) {
-        //getLogger().warning(e);
-      } catch (InvocationTargetException e) {
-        //getLogger().warning(e);
-      }
-    }
-  }
 
 
   //REVIEW i'm not sure this is sufficient.  they might need access to
@@ -186,12 +140,12 @@ public abstract class AnnotationProxy {
     Properties props = new Properties();
     parseAssignments(props,tagline);
     if (props.size() == 0) {
-      setValue(SINGLE_MEMBER_NAME,tagline);
+      setValue(SINGLE_MEMBER_NAME,tagline, null);
     } else {
       Enumeration names = props.propertyNames();
       while(names.hasMoreElements()) {
         String name = (String)names.nextElement();
-        setValue(name,props.getProperty(name));
+        setValue(name,props.getProperty(name), null);
       }
     }
   }
@@ -385,4 +339,53 @@ public abstract class AnnotationProxy {
     }
   }
   */
+
+  /**
+   * <p>Called by JAM to initialize this proxy's properties using a
+   * JSR175 annotation instnce.  The value is guaranteed to be an instance
+   * of the 1.5-specific <code>java.lang.annotation.Annotation</code>
+   * marker interface.  (It's typed as <code>Object</code> in order to
+   * preserve pre-1.5 compatibility).</p>
+   *
+   * <p>The implementation of this method introspects the given object
+   * for JSR175 annotation member methods, invokes them, and then calls
+   * <code>setMemberValue</code> using the method's name and invocation
+   * result as the name and value.</p>
+   *
+   * <p>Extending classes are free to override this method if different
+   * behavior is required.</p>
+
+  public void initFromAnnotationInstance(Class annType,
+                                         Object jsr175annotationObject) {
+    if (jsr175annotationObject == null) throw new IllegalArgumentException();
+    //FIXME this is a bit clumsy right now - I think we need to be a little
+    // more surgical in identifying the annotation member methods
+    Method[] methods = annType.getMethods();
+    for(int i=0; i<methods.length; i++) {
+      int mods = methods[i].getModifiers();
+      if (Modifier.isStatic(mods)) continue;
+      if (!Modifier.isPublic(mods)) continue;
+      if (methods[i].getParameterTypes().length > 0) continue;
+      {
+        // try to limit it to real annotation methods.
+        // FIXME seems like this could be better
+        Class c = methods[i].getDeclaringClass();
+        String name = c.getName();
+        if (name.equals("java.lang.Object") ||
+          name.equals("java.lang.annotation.Annotation")) {
+          continue;
+        }
+      }
+      try {
+        setValue(methods[i].getName(),
+                 methods[i].invoke(jsr175annotationObject,null), null);
+      } catch (IllegalAccessException e) {
+        //getLogger().warning(e);
+      } catch (InvocationTargetException e) {
+        //getLogger().warning(e);
+      }
+    }
+  }
+   */
+
 }

@@ -18,6 +18,7 @@ import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -33,7 +34,7 @@ public class ReflectClassBuilder extends JamClassBuilder {
   // Constants
 
   private static final String JAVA15_EXTRACTOR =
-    "org.apache.xmlbeans.impl.jam.internal.java15.Reflect15AnnotationExtractor";
+    "org.apache.xmlbeans.impl.jam.internal.java15.Reflect15DelegateImpl";
 
   // ========================================================================
   // Public static utilities
@@ -46,7 +47,7 @@ public class ReflectClassBuilder extends JamClassBuilder {
   // Variables
 
   private ClassLoader mLoader;
-  private ReflectAnnotationExtractor mExtractor = null;
+  private Reflect15Delegate mDelegate = null;
   private JamLogger mLogger = null;
 
   // ========================================================================
@@ -71,8 +72,9 @@ public class ReflectClassBuilder extends JamClassBuilder {
     }
     // ok, if we could load that, let's new up the extractor delegate
     try {
-      mExtractor = (ReflectAnnotationExtractor)
+      mDelegate = (Reflect15Delegate)
         Class.forName(JAVA15_EXTRACTOR).newInstance();
+      mDelegate.init((ElementContext)ctx);
       // if this fails for any reason, things are in a bad state
     } catch (ClassNotFoundException e) {
       mLogger.error("Internal error, failed to instantiate "+
@@ -93,6 +95,9 @@ public class ReflectClassBuilder extends JamClassBuilder {
 
   public MClass build(String packageName, String className)
   {
+    if (getLogger().isVerbose(this)) {
+      getLogger().verbose("trying to build '"+packageName+"' '"+className+"'");
+    }
     Class rclass;
     try {
       String loadme = (packageName.trim().length() > 0) ?
@@ -112,6 +117,7 @@ public class ReflectClassBuilder extends JamClassBuilder {
     Class src = (Class)dest.getArtifact();
     dest.setModifiers(src.getModifiers());
     dest.setIsInterface(src.isInterface());
+    if (mDelegate != null) dest.setIsEnumType(mDelegate.isEnum(src));
     // set the superclass
     Class s = src.getSuperclass();
     if (s != null) dest.setSuperclass(s.getName());
@@ -128,14 +134,14 @@ public class ReflectClassBuilder extends JamClassBuilder {
     Constructor[] ctors = src.getDeclaredConstructors();
     for(int i=0; i<ctors.length; i++) populate(dest.addNewConstructor(),ctors[i]);
     // add the annotations
-    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
   }
 
   private void populate(MField dest, Field src) {
     dest.setSimpleName(src.getName());
     dest.setType(src.getType().getName());
     dest.setModifiers(src.getModifiers());
-    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
   }
 
   private void populate(MConstructor dest, Constructor src) {
@@ -146,9 +152,9 @@ public class ReflectClassBuilder extends JamClassBuilder {
     Class[] paramTypes = src.getParameterTypes();
     for(int i=0; i<paramTypes.length; i++) {
       MParameter p = addParameter(dest, i, paramTypes[i]);
-      if (mExtractor != null) mExtractor.extractAnnotations(p,src,i);
+      if (mDelegate != null) mDelegate.extractAnnotations(p,src,i);
     }
-    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
   }
 
   private void populate(MMethod dest, Method src) {
@@ -160,9 +166,9 @@ public class ReflectClassBuilder extends JamClassBuilder {
     Class[] paramTypes = src.getParameterTypes();
     for(int i=0; i<paramTypes.length; i++) {
       MParameter p = addParameter(dest, i, paramTypes[i]);
-      if (mExtractor != null) mExtractor.extractAnnotations(p,src,i);
+      if (mDelegate != null) mDelegate.extractAnnotations(p,src,i);
     }
-    if (mExtractor != null) mExtractor.extractAnnotations(dest,src);
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
   }
 
   private void addThrows(MInvokable dest, Class[] exceptionTypes) {

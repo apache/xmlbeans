@@ -15,6 +15,7 @@
 package org.apache.xmlbeans.impl.jam.annotation;
 
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -50,7 +51,7 @@ public abstract class TypedAnnotationProxyBase extends AnnotationProxy {
    * <p>Extending classes are free to override this method if different
    * behavior is required.</p>
    */
-  public void setValue(String name, Object value) {
+  public void setValue(String name, Object value, JClass type) {
     if (name == null) throw new IllegalArgumentException("null name");
     if (value == null) throw new IllegalArgumentException("null value");
     Method m = getSetterFor(name,value.getClass());

@@ -12,37 +12,13 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-
-package org.apache.xmlbeans.impl.jam.mutable;
-
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.impl.jam.JamClassLoader;
-import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
 
 /**
- * <p>Mutable version of JElement.</p>
- *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface MElement extends JElement {
+public interface Constants {
 
-  public JamClassLoader getClassLoader();
+  enum Bool { UNSPECIFIED, TRUE, FALSE};
 
-  //DOCME
-  public void setSimpleName(String name);
-
-  //DOCME
-  public MSourcePosition createSourcePosition();
-
-  //DOCME
-  public void removeSourcePosition();
-
-  //DOCME
-  public MSourcePosition getMutableSourcePosition();
-
-  //DOCME
-  public void accept(MVisitor visitor);
-
-  //DOCME
-  public void setArtifact(Object o);
 }

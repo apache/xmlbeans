@@ -12,24 +12,19 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.internal.javadoc;
+package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
 
-import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
-import com.sun.javadoc.ProgramElementDoc;
-import com.sun.javadoc.Parameter;
+import java.lang.annotation.*;
 
 /**
- * Provides an interface to 1.5-specific functionality.  The impl of
- * this class is loaded by-name at runtime.
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface JavadocAnnotationExtractor {
-
-  public void extractAnnotations(MAnnotatedElement dest,
-                                 ProgramElementDoc src);
-
-  public void extractAnnotations(MAnnotatedElement dest,
-                                 Parameter src);
-
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface EmployeeAnnotation {
+    String firstName();
+    String lastName();
+    AddressAnnotation address();
+    Constants.Bool active();
 }

@@ -1,4 +1,4 @@
-<project name='jam.tests' default='all' basedir='.'>
+<project name='jam.tests' basedir='.' default='clean_all_test'>
 
 <!-- Build file to build and run JAM tests -->
 
@@ -12,7 +12,6 @@
   <property name='jsr173api_jar' value='../../build/lib/jsr173_api.jar'/>
   <property name='jsr173ri_jar' value='../../build/lib/jsr173_ri.jar'/>
   <property name='tidy_jar' value='../external/lib/tidy.jar'/>
-
 
   <path id='classpath' >
 
@@ -31,7 +30,13 @@
 
   <property name='classpath-value' refid='classpath'/>
 
-  <target name='all' depends='compile,run' />
+  <target name='clean_all_test' depends='clean,all,test'/>
+
+  <target name='clean' >
+    <delete dir='${test_build_dir}'/>
+  </target>
+
+  <target name='all' depends='compile,test' />
 
   <target name='compile' >
     <mkdir dir='${dummy_dir}'/>
@@ -51,16 +56,15 @@
      />
   </target>
 
-  <target name='run'>
 
-<!--
-    <java fork='yes' classname='junit.textui.TestRunner' classpathref='extra-classpath'>
-      <arg line='jamtest.SimpleTest' />
-    </java>
--->
+  <target name="test">
 
-    <junit fork='yes' maxmemory="128m"
-           dir='.'  
+<!-- why do these have to be separate?  something gets
+     very confused if they're not
+ -->
+
+    <junit maxmemory="256m"     fork='true'
+           dir='.'
            haltonerror='yes'
            haltonfailure='yes'
            showoutput='yes'
@@ -69,16 +73,28 @@
         <pathelement path='${classpath-value}'/> <!--ref no workie-->
       </classpath>
       <formatter type='plain' usefile='false'/>
-
-
       <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
-      <test name='org.apache.xmlbeans.test.jam.ReflectJamTest'/>
-
+      <!-- <test name='org.apache.xmlbeans.test.jam.ReflectJamTest'/>-->
       <!--parser work is on hold for the moment-->
       <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
     </junit>
+
+
+    <junit maxmemory="256m"     fork='true'
+           dir='.'
+           haltonerror='yes'
+           haltonfailure='yes'
+           showoutput='yes'
+           printsummary='yes'>
+      <classpath>
+        <pathelement path='${classpath-value}'/> <!--ref no workie-->
+      </classpath>
+      <formatter type='plain' usefile='false'/>
+      <test name='org.apache.xmlbeans.test.jam.ReflectJamTest'/>
+      <!--parser work is on hold for the moment-->
+      <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
+    </junit>
+
   </target>
 
-
 </project>
-

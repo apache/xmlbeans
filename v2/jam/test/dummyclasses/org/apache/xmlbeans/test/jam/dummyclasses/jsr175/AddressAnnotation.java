@@ -12,37 +12,18 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.xmlbeans.test.jam.dummyclasses.jsr175;
 
-package org.apache.xmlbeans.impl.jam.mutable;
-
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.impl.jam.JamClassLoader;
-import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
+import java.lang.annotation.*;
 
 /**
- * <p>Mutable version of JElement.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface MElement extends JElement {
-
-  public JamClassLoader getClassLoader();
-
-  //DOCME
-  public void setSimpleName(String name);
-
-  //DOCME
-  public MSourcePosition createSourcePosition();
-
-  //DOCME
-  public void removeSourcePosition();
-
-  //DOCME
-  public MSourcePosition getMutableSourcePosition();
-
-  //DOCME
-  public void accept(MVisitor visitor);
-
-  //DOCME
-  public void setArtifact(Object o);
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface AddressAnnotation {
+    String street();
+    String city();
+    int zip();
 }
