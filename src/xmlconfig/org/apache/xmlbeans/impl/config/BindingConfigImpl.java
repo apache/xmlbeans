@@ -350,6 +350,8 @@ public class BindingConfigImpl extends BindingConfig
         JamServiceFactory jf = JamServiceFactory.getInstance();
         JamServiceParams params = jf.createServiceParams();
         params.set14WarningsEnabled(false);
+        // BUGBUG(radup) This is here because the above doesn't do the trick
+        params.setShowWarnings(false);
 
         // process the included sources
         if (javaFiles!=null)

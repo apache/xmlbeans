@@ -91,7 +91,6 @@ public class SampleXmlUtil
         options.put(XmlOptions.SAVE_PRETTY_PRINT);
         options.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, 2);
         options.put(XmlOptions.SAVE_AGGRESSIVE_NAMESPACES);
-        options.put(XmlOptions.SAVE_USE_DEFAULT_NAMESPACE);
         String result = object.xmlText(options);
         return result;
     }
