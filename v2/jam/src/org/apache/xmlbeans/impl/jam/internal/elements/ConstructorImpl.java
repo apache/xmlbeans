@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
-import org.apache.xmlbeans.impl.jam.mutable.MElementVisitor;
 
 /**
  *
