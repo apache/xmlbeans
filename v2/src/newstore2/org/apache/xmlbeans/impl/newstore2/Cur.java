@@ -850,7 +850,11 @@ final class Cur
         assert cchMove >= 0 && cchMove <= cchRight();
 
         if (cchMove == 0)
+        {
+            _cchSrc = 0;
+            _offSrc = 0;
             return null;
+        }
 
         if (to == null)
         {
