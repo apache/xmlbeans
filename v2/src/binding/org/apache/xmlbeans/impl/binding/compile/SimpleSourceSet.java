@@ -56,33 +56,41 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JFactory;
+import org.apache.xmlbeans.impl.jam.JFileSet;
 import org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl;
-import org.apache.xmlbeans.impl.schema.StscState;
-import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlObject;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.ArrayList;
 
-public class SimpleSchemaSourceSet implements SchemaSourceSet
+public class SimpleSourceSet implements BothSourceSet
 {
+    private JClass[] classes;
+    private SchemaTypeSystem sts;
     private TylarLoader tylarLoader;
-    private SchemaTypeSystem schemaTypeSystem;
 
-    public SchemaTypeSystem getSchemaTypeSystem()
+    private SimpleSourceSet(JClass[] classes, SchemaTypeSystem sts, TylarLoader tylarLoader)
     {
-        return schemaTypeSystem;
+        this.classes = classes;
+        this.sts = sts;
+        this.tylarLoader = tylarLoader;
+    }
+
+    public JClass[] getJClasses()
+    {
+        return classes;
     }
 
     public TylarLoader getTylarLoader()
@@ -90,16 +98,55 @@ public class SimpleSchemaSourceSet implements SchemaSourceSet
         return tylarLoader;
     }
 
+    public void compileJavaToBinaries(File classesDir)
+    {
+        throw new UnsupportedOperationException();
+    }
+
+    public SchemaTypeSystem getSchemaTypeSystem()
+    {
+        return sts;
+    }
+
     public void compileSchemaToBinaries(File classesDir)
     {
-        SchemaTypeSystemImpl impl = (SchemaTypeSystemImpl)schemaTypeSystem;
+        SchemaTypeSystemImpl impl = (SchemaTypeSystemImpl)sts;
         impl.saveToDirectory(classesDir);
     }
 
-    private SimpleSchemaSourceSet(SchemaTypeSystem schemaTypeSystem, TylarLoader tylarLoader)
+    private static class SimpleJFileSet implements JFileSet
     {
-        this.tylarLoader = tylarLoader;
-        this.schemaTypeSystem = schemaTypeSystem;
+        private File[] javaFiles;
+
+        SimpleJFileSet(File[] javaFiles)
+        {
+            this.javaFiles = javaFiles;
+        }
+
+        public void include(String pattern)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public void exclude(String pattern)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setClasspath(String cp)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public void setCaseSensitive(boolean b)
+        {
+            throw new UnsupportedOperationException();
+        }
+
+        public File[] getFiles() throws IOException
+        {
+            return javaFiles;
+        }
     }
     
     private static SchemaTypeLoader schemaLoader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
@@ -119,21 +166,49 @@ public class SimpleSchemaSourceSet implements SchemaSourceSet
         return SimpleTylarLoader.forBuiltins();
     }
     
-    public static SchemaSourceSet forFile(File xsdFilename, TylarLoader tylarLoader) throws IOException, XmlException
+    public static BothSourceSet forJavaAndXsdFiles(File[] javaFiles, File[] xsdFiles, TylarLoader tylarLoader) throws IOException, XmlException
     {
         tylarLoader = defaultTylarLoader(tylarLoader);
-        SchemaTypeSystem sts = XmlBeans.compileXsd(new XmlObject[] { parseSchemaFile(xsdFilename) }, XmlBeans.getBuiltinTypeSystem(), null);
-        return new SimpleSchemaSourceSet(sts, tylarLoader);
+        JClass[] classes = null;
+        SchemaTypeSystem sts = null;
+        
+        if (javaFiles != null)
+        {
+            JFactory factory = JFactory.getInstance();
+            classes = factory.loadSources(new SimpleSourceSet.SimpleJFileSet(javaFiles),
+                    tylarLoader.getJClassLoader(), null, null);
+        }
+        
+        if (xsdFiles != null)
+        {
+            XmlObject[] parsedSchemas = new XmlObject[xsdFiles.length];
+            for (int i = 0; i < xsdFiles.length; i++)
+                parsedSchemas[i] = parseSchemaFile(xsdFiles[i]);
+            sts = XmlBeans.compileXsd(parsedSchemas, tylarLoader.getSchemaTypeLoader(), null);
+        }
+        return new SimpleSourceSet(classes, sts, tylarLoader);
     }
     
-    public static SchemaSourceSet forFileArray(File[] xsdFiles, TylarLoader tylarLoader) throws IOException, XmlException
+    public static JavaSourceSet forJavaFiles(File[] javaFiles, TylarLoader tylarLoader) throws IOException 
     {
-        tylarLoader = defaultTylarLoader(tylarLoader);
-        XmlObject[] parsedSchemas = new XmlObject[xsdFiles.length];
-        for (int i = 0; i < xsdFiles.length; i++)
-            parsedSchemas[i] = parseSchemaFile(xsdFiles[i]);
-        SchemaTypeSystem sts = XmlBeans.compileXsd(parsedSchemas, XmlBeans.getBuiltinTypeSystem(), null);
-        return new SimpleSchemaSourceSet(sts, tylarLoader);
+        try
+        {
+            return forJavaAndXsdFiles(javaFiles, null, tylarLoader);
+        }
+        catch (XmlException e)
+        {
+            throw new IllegalStateException();
+        }
+    }
+    
+    public static SchemaSourceSet forXsdFile(File xsdFilename, TylarLoader tylarLoader) throws IOException, XmlException
+    {
+        return forJavaAndXsdFiles(null, new File[] { xsdFilename }, tylarLoader);
+    }
+    
+    public static SchemaSourceSet forXsdFiles(File[] xsdFiles, TylarLoader tylarLoader) throws IOException, XmlException
+    {
+        return forJavaAndXsdFiles(null, xsdFiles, tylarLoader);
     }
         
     public static SchemaSourceSet forSchemaGenerator(SchemaCodeResult generator, TylarLoader tylarLoader)
@@ -152,7 +227,7 @@ public class SimpleSchemaSourceSet implements SchemaSourceSet
             }
             XmlObject [] sources = (XmlObject[])schemas.toArray(new XmlObject[schemas.size()]);
             SchemaTypeSystem sts = XmlBeans.compileXsd(sources, tylarLoader.getSchemaTypeLoader(), null);
-            return new SimpleSchemaSourceSet(sts, tylarLoader);
+            return new SimpleSourceSet(null, sts, tylarLoader);
         }
         catch (IOException e)
         {
@@ -163,4 +238,5 @@ public class SimpleSchemaSourceSet implements SchemaSourceSet
             throw (IllegalStateException)new IllegalStateException().initCause(e);
         }
     }
+    
 }

@@ -272,6 +272,7 @@ public class JFactory {
   /**
    * main method is provided for debugging.
    */
+  /*
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
       System.out.println("Usage:\n java org.apache.xmlbeans.impl.jam.JFactory "+
@@ -291,4 +292,5 @@ public class JFactory {
     }
     System.out.flush();
   }
+  */
 }

@@ -122,7 +122,8 @@ public class ExplodedTylarBuilder implements TylarBuilder {
       throw ioe;
     } finally {
       try {
-        out.close();
+        if (out != null)
+          out.close();
       } catch (IOException ohwell) {
         ohwell.printStackTrace();
       }
@@ -143,7 +144,8 @@ public class ExplodedTylarBuilder implements TylarBuilder {
         throw ioe;
       } finally {
         try {
-          out.close();
+          if (out != null)
+            out.close();
         } catch (Exception ohwell) {
           ohwell.printStackTrace();
         }
@@ -164,7 +166,8 @@ public class ExplodedTylarBuilder implements TylarBuilder {
         throw e;
       } finally {
         try {
-          out.close();
+          if (out != null)
+            out.close();
         } catch (Exception ohwell) {
           ohwell.printStackTrace();
         }
@@ -190,34 +193,13 @@ public class ExplodedTylarBuilder implements TylarBuilder {
     writeJavaFiles(result.getJavaCodeResult());
 
     // print the binding file
-    writeBindingFile(result.getBindingFileResult());
+    writeBindingFile(result.getBindingFile());
   }
 
-  /**
-   * @deprecated I really think it is a bad idea for SchemaToJavaResult
-   * to have the responsibility for printing out the binding file and java
-   * code.  It should just return handles to things that get printed out
-   * by the tylar builder.  I have already made this change on the
-   * java->schema side.
-   */
-  private void writeBindingFile(BindingFileResult bfg) throws IOException
-  {
-    File file = new File(mDir, "binding-file.xml"); //FIXME naming
-    FileOutputStream out = null;
-    try {
-      out = new FileOutputStream(file);
-      bfg.printBindingFile(out);
+    public void buildTylar(BindingFileResult result) throws IOException {
+      createTargetDir();
+
+      // print the binding file
+      writeBindingFile(result.getBindingFile());
     }
-    catch (IOException ioe) {
-      throw ioe;
-    }
-    finally {
-      try {
-        out.close();
-      }
-      catch (IOException ohwell) {
-        ohwell.printStackTrace();
-      }
-    }
-  }
 }

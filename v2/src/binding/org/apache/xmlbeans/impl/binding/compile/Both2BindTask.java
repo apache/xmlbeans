@@ -56,11 +56,11 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.tools.ant.BuildException;
-import org.apache.tools.ant.DirectoryScanner;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
+import org.apache.tools.ant.BuildException;
+import org.apache.tools.ant.DirectoryScanner;
 import org.apache.xmlbeans.XmlException;
 
 import java.io.File;
@@ -68,7 +68,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.ArrayList;
 
-public class Schema2JavaTask extends MatchingTask
+public class Both2BindTask extends MatchingTask
 {
 
     // =========================================================================
@@ -78,6 +78,7 @@ public class Schema2JavaTask extends MatchingTask
     private Path mSrc = null;
     private Path mClasspath = null;
     private List mXsdFiles = null;
+    private List mJavaFiles = null;
 
     // =========================================================================
     // Task attributes
@@ -148,7 +149,6 @@ public class Schema2JavaTask extends MatchingTask
         
         // scan source directories and dest directory to build up
         startScan();
-        
         String[] list = mSrc.list();
         for (int i = 0; i < list.length; i++) {
             File srcDir = getProject().resolveFile(list[i]);
@@ -170,12 +170,17 @@ public class Schema2JavaTask extends MatchingTask
     protected void startScan()
     {
         mXsdFiles = new ArrayList();
+        mJavaFiles = new ArrayList();
     }
     
     protected void scanDir(File srcDir, String[] files) {
         for (int i = 0; i < files.length; i++)
+        {
             if (files[i].endsWith(".xsd"))
                 mXsdFiles.add(new File(srcDir, files[i]));
+            if (files[i].endsWith(".java"))
+                mJavaFiles.add(new File(srcDir, files[i]));
+        }
     }
     
     protected File[] namesToFiles(String[] names)
@@ -189,6 +194,7 @@ public class Schema2JavaTask extends MatchingTask
     protected void compile() throws BuildException
     {
         File[] xsdFiles = (File[])mXsdFiles.toArray(new File[mXsdFiles.size()]);
+        File[] javaFiles = (File[])mJavaFiles.toArray(new File[mJavaFiles.size()]);
         
         TylarLoader tylarLoader = null;
         
@@ -199,9 +205,9 @@ public class Schema2JavaTask extends MatchingTask
         }
         
         // bind
-        SchemaSourceSet input = null;
+        BothSourceSet input = null;
         try {
-            input = SimpleSourceSet.forXsdFiles(xsdFiles, tylarLoader);
+            input = SimpleSourceSet.forJavaAndXsdFiles(javaFiles, xsdFiles, tylarLoader);
         }
         catch (IOException e) {
             log(e.getMessage());
@@ -211,8 +217,9 @@ public class Schema2JavaTask extends MatchingTask
             log(e.getMessage());
             throw new BuildException(e);
         }
+        
         TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);
-        SchemaToJavaResult result = Schema2Java.bind(input);
+        BindingFileResult result = Both2Bind.bind(input, null);
 
         try {
             tb.buildTylar(result);
@@ -221,7 +228,7 @@ public class Schema2JavaTask extends MatchingTask
             ioe.printStackTrace();
             throw new BuildException(ioe);
         }
-        log("Schema2Java complete, output in " + mDestDir);
+        log("Both2Bind complete, output in " + mDestDir);
     }
 
     // =========================================================================
