@@ -106,10 +106,14 @@ public final class CharUtil
                     CharUtil.getString( sb, d, _srcLeft, _offLeft + off, cchL );
                     
                     cch -= cchL;
+                    
+                    if (cch > 0)
+                        CharUtil.getString( sb, d, _srcRight, _offRight, cch );
                 }
-
-                if (cch > 0)
-                    CharUtil.getString( sb, d, _srcRight, _offRight, cch );
+                else
+                {
+                    CharUtil.getString( sb, d, _srcRight, _offRight + off - _cchLeft, cch );
+                }
             }
             else
             {
@@ -170,10 +174,15 @@ public final class CharUtil
 
                     start += cchL;
                     cch -= cchL;
+                    
+                    if (cch > 0)
+                        CharUtil.getChars( chars, start, d, _srcRight, _offRight, cch );
                 }
-
-                if (cch > 0)
-                    CharUtil.getChars( chars, start, d, _srcRight, _offRight, cch );
+                else
+                {
+                    CharUtil.getChars(
+                        chars, start, d, _srcRight, _offRight + off - _cchLeft, cch );
+                }
             }
             else
             {
@@ -220,6 +229,11 @@ public final class CharUtil
             }
         }
 
+        private void dumpChars( int off, int cch )
+        {
+            dumpChars( System.out, off, cch );
+        }
+        
         private void dumpChars( PrintStream p, int off, int cch )
         {
             p.print( "( " );
