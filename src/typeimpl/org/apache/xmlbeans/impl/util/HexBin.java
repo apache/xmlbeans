@@ -126,14 +126,12 @@ public final class  HexBin {
             return null;
 
         byte[] decoded = null;
-         try {
+        try {
           decoded = decode(binaryData.getBytes("utf-8"));
         }
         catch(UnsupportedEncodingException e) {
-         }
-        finally {
-        return decoded == null ? null : new String(decoded);
         }
+        return decoded == null ? null : new String(decoded);
     }
 
     /**
@@ -147,13 +145,11 @@ public final class  HexBin {
             return null;
 
         byte[] encoded = null;
-         try {
+        try {
           encoded = encode(binaryData.getBytes("utf-8"));
         }
         catch(UnsupportedEncodingException e) {}
-        finally {
-            return encoded == null ? null : new String(encoded);
-        }
+        return encoded == null ? null : new String(encoded);
     }
 
 }

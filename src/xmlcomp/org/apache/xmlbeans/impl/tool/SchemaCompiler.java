@@ -68,6 +68,7 @@ public class SchemaCompiler
         System.out.println("    -noann - ignore annotations");
         System.out.println("    -novdoc - do not validate contents of <documentation>");
         System.out.println("    -compiler - path to external java compiler");
+        System.out.println("    -javasource [version] - generate java source compatible for a Java version (1.4 or 1.5)");
         System.out.println("    -ms - initial memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_START + "')");
         System.out.println("    -mx - maximum memory for external java compiler (default '" + CodeGenUtil.DEFAULT_MEM_MAX + "')");
         System.out.println("    -debug - compile with debug symbols");
@@ -84,7 +85,6 @@ public class SchemaCompiler
         System.out.println("    -schemaCodePrinter - specify SchemaCodePrinter class");
         */
         System.out.println();
-        System.out.println("If you require a different java compiler, use the XMLBean Ant task instead.");
     }
 
     public static void main(String[] args)
@@ -119,6 +119,7 @@ public class SchemaCompiler
         opts.add("d");
         opts.add("cp");
         opts.add("compiler");
+        opts.add("javasource");
         opts.add("jar"); // deprecated
         opts.add("ms");
         opts.add("mx");
@@ -295,6 +296,7 @@ public class SchemaCompiler
             classpath = CodeGenUtil.systemClasspath();
         }
 
+        String javasource = cl.getOpt("javasource");
         String compiler = cl.getOpt("compiler");
         String jar = cl.getOpt("jar");
         if (verbose && jar != null)
@@ -334,6 +336,7 @@ public class SchemaCompiler
         params.setSrcDir(src);
         params.setClassesDir(classes);
         params.setCompiler(compiler);
+        params.setGenerateJavaVersion(javasource);
         params.setMemoryInitialSize(memoryInitialSize);
         params.setMemoryMaximumSize(memoryMaximumSize);
         params.setNojavac(nojavac);
@@ -379,6 +382,7 @@ public class SchemaCompiler
         private String memoryInitialSize;
         private String memoryMaximumSize;
         private String compiler;
+        private String javasource;
         private boolean nojavac;
         private boolean quiet;
         private boolean verbose;
@@ -630,10 +634,20 @@ public class SchemaCompiler
         {
             return compiler;
         }
-
+        
         public void setCompiler(String compiler)
         {
             this.compiler = compiler;
+        }
+        
+        public String getGenerateJavaVersion()
+        {
+            return javasource;
+        }
+
+        public void setGenerateJavaVersion(String javasource)
+        {
+            this.javasource = javasource;
         }
 
         /** @deprecated */
@@ -711,7 +725,7 @@ public class SchemaCompiler
         File[] javaFiles, ResourceLoader cpResourceLoader,
         boolean download, boolean noUpa, boolean noPvr, boolean noAnn, boolean noVDoc,
         Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
-        Collection outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath)
+        Collection outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath, String javasource)
     {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
@@ -899,6 +913,8 @@ public class SchemaCompiler
             opts.setCompileMdefNamespaces(mdefNamespaces);
         opts.setCompileNoValidation(); // already validated here
         opts.setEntityResolver(entResolver);
+        if (javasource != null)
+            opts.setGenerateJavaVersion(javasource);
 
         // now pass it to the main compile function
         SchemaTypeSystemCompiler.Parameters params = new SchemaTypeSystemCompiler.Parameters();
@@ -972,6 +988,7 @@ public class SchemaCompiler
         File srcDir = params.getSrcDir();
         File classesDir = params.getClassesDir();
         String compiler = params.getCompiler();
+        String javasource = params.getGenerateJavaVersion();
         String memoryInitialSize = params.getMemoryInitialSize();
         String memoryMaximumSize = params.getMemoryMaximumSize();
         boolean nojavac = params.isNojavac();
@@ -1030,7 +1047,7 @@ public class SchemaCompiler
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
         SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, urlFiles, configFiles,
             javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, noVDoc, mdefNamespaces,
-            baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
+            baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath, javasource);
         if (errorListener.hasError())
             result = false;
         long finish = System.currentTimeMillis();
@@ -1046,10 +1063,11 @@ public class SchemaCompiler
             Repackager repackager = (repackage == null ? null : new Repackager(repackage));
             FilerImpl filer = new FilerImpl(classesDir, srcDir, repackager, verbose, incrSrcGen);
 
-            // currently just for schemaCodePrinter
             XmlOptions options = new XmlOptions();
             if (codePrinter != null)
                 options.setSchemaCodePrinter(codePrinter);
+            if (javasource != null)
+                options.setGenerateJavaVersion(javasource);
 
             // save .xsb files
             system.save(filer);
@@ -1073,7 +1091,7 @@ public class SchemaCompiler
 
                 if (javaFiles != null)
                     sourcefiles.addAll(java.util.Arrays.asList(javaFiles));
-                if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, memoryInitialSize, memoryMaximumSize, quiet, verbose))
+                if (!CodeGenUtil.externalCompile(sourcefiles, classesDir, classpath, debug, compiler, javasource, memoryInitialSize, memoryMaximumSize, quiet, verbose))
                     result = false;
 
                 finish = System.currentTimeMillis();

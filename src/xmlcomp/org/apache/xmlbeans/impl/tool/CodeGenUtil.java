@@ -110,7 +110,7 @@ public class CodeGenUtil
      */
     static public boolean externalCompile(List srcFiles, File outdir, File[] cp, boolean debug)
     {
-        return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, DEFAULT_MEM_START, DEFAULT_MEM_MAX, false, false);
+        return externalCompile(srcFiles, outdir, cp, debug, DEFAULT_COMPILER, null, DEFAULT_MEM_START, DEFAULT_MEM_MAX, false, false);
     }
 
     /**
@@ -119,7 +119,7 @@ public class CodeGenUtil
      * <code>GenFile</code>s for all of the classes produced or null if an
      * error occurred.
      */
-    static public boolean externalCompile(List srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String memStart, String memMax,  boolean quiet, boolean verbose)
+    static public boolean externalCompile(List srcFiles, File outdir, File[] cp, boolean debug, String javacPath, String genver, String memStart, String memMax,  boolean quiet, boolean verbose)
     {
         List args = new ArrayList();
 
@@ -163,8 +163,14 @@ public class CodeGenUtil
             args.add(quoteAndEscapeFilename(classPath.toString()));
         }
 
+        if (genver == null)
+            genver = "1.4";
+
         args.add("-source");
-        args.add("1.4");
+        args.add(genver);
+
+        args.add("-target");
+        args.add(genver);
 
         args.add(debug ? "-g" : "-g:none");
 
@@ -263,11 +269,6 @@ public class CodeGenUtil
         }
         return (File[])cp.toArray(new File[cp.size()]);
     }
-
-  //Note - I have added a new class, JarHelper, in impl.common which provides
-  //more jarring functionality and does not require invoking jar.exe.  You
-  //may want to consider migrating your code to use this as it will be
-  //considerably faster.  pcal  12/10/2003
 
   /**
    * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
