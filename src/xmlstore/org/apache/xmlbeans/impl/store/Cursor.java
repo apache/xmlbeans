@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -2509,11 +2509,34 @@ public final class Cursor implements XmlCursor, ChangeListener
         Root rDst = cDst.getRoot();
                     
         Splay copy = s.copySplay();
+
+        Object txt = r._text;
+        int cp = r.getCp( s );
+        int cch = copy.getCchLeft() + copy.getCch();
+
+        //
+        // Remove text after which might be between leaf value and first attr value
+        //
+        
+        if (s.isLeaf() && s.getCchAfter() > 0)
+        {
+            int cchValue = s.getCchValue();
+            int cchAfter = s.getCchAfter();
             
-        sDst.insert(
-            rDst, pDst, copy,
-            r._text, r.getCp( s ), copy.getCchLeft() + copy.getCch(),
-            true );
+            if (cchValue == 0)
+                cp += cchAfter;
+            else if (s.nextSplay().isAttr())
+            {
+                char[] buf = new char [ cch ];
+                r._text.fetch( buf, 0, cp, cchValue );
+                r._text.fetch( buf, cchValue, cp + cchValue + cchAfter, cch - cchValue );
+
+                txt = buf;
+                cp = 0;
+            }
+        }
+            
+        sDst.insert( rDst, pDst, copy, txt, cp, cch, true );
             
         return true;
     }

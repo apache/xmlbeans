@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights 
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -2563,15 +2563,15 @@ public class StoreTests extends TestCase
         InputSource is = new InputSource( new StringReader(  xml ) );
         XmlSaxHandler sh = XmlObject.Factory.newXmlSaxHandler();
         
-//        xr.setFeature(
-//            "http://xml.org/sax/features/namespace-prefixes",
-//            true );
-//
-//        xr.setFeature(
-//            "http://xml.org/sax/features/namespaces", true );
-//
-//        xr.setFeature(
-//            "http://xml.org/sax/features/validation", false );
+        xr.setFeature(
+            "http://xml.org/sax/features/namespace-prefixes",
+            true );
+
+        xr.setFeature(
+            "http://xml.org/sax/features/namespaces", true );
+
+        xr.setFeature(
+            "http://xml.org/sax/features/validation", false );
 
         xr.setContentHandler( sh.getContentHandler() );
         

@@ -53,9 +53,11 @@
     <echo message="Running xbean product drt tests"/>
     <echo message="JUnit output being sent to xbean/build/test/output/drt-product.txt"/>
     <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+      <jvmarg value="-ea"/>
       <sysproperty key="xbean.rootdir" value="${basedir}"/>
       <sysproperty key="treeasserts" value="true"/>
       <classpath>
+        <pathelement location="external/lib/junit.jar"/>
         <pathelement location="build/ar/xbean.jar"/>
         <pathelement location="build/private/lib/drt.jar"/>
         <pathelement location="build/private/lib/easypo.jar"/>
