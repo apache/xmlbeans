@@ -430,7 +430,7 @@ PurchaseOrderDocument doc = PurchaseOrderDocument.Factory.parse(po);
  * the namespace prefix that's used in the query expression; the second
  * declares the expression itself.
  */
-String nsText = "declare namespace po = 'http://openuri.org/easypo'";
+String nsText = "declare namespace po = 'http://openuri.org/easypo'; ";
 String pathText = "$this/po:purchase-order/po:line-item[po:price <= 20.00]";
 String queryText = nsText + pathText;
 

@@ -102,7 +102,7 @@
   the XPath expression in this way:
   <pre>
 String queryExpression =
-    &quot;declare namespace xq='http://openuri.org/selectPath'&quot; +
+    &quot;declare namespace xq='http://openuri.org/selectPath'; &quot; +
     &quot;$this/xq:employees/xq:employee/xq:phone[contains(., '(206)')]&quot;
 </pre>
   <p>Notice in the query expression that the variable <span class="langinline">$this</span>
@@ -179,7 +179,7 @@ public void printZipsAndWorkPhones(XmlObject xml)
 {
     // Declare the namespace that will be used.
     String xqNamespace =
-        &quot;declare namespace xq='http://openuri.org/selectPath'&quot;;
+        &quot;declare namespace xq='http://openuri.org/selectPath'; &quot;;
 
     // Insert a cursor and move it to the first element.
     XmlCursor cursor = xml.newCursor();
