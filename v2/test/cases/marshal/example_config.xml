@@ -132,7 +132,8 @@
                 <bin:qname>java:Myelt</bin:qname>
             </bin:qname-property>
             <bin:qname-property>
-                <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>
+<!--                <bin:xmlcomponent>t=string@http://www.w3.org/2001/XMLSchema</bin:xmlcomponent>-->
+                <bin:xmlcomponent>t=custom-string@java:com.mytest</bin:xmlcomponent>
                 <bin:javatype>java.lang.String</bin:javatype>
                 <bin:getter>
                    <bin:method-name>getMyatt</bin:method-name>

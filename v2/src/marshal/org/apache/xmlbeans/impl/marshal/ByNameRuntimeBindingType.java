@@ -57,7 +57,15 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlRuntimeException;
-import org.apache.xmlbeans.impl.binding.bts.*;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.MethodName;
+import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
+import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
 
@@ -230,7 +238,6 @@ final class ByNameRuntimeBindingType
         private final boolean javaPrimitive;
 
         private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
-        private static final Class[] EMPTY_CLASS_ARRAY = new Class[]{};
 
         Property(int property_index,
                  Class beanClass,
@@ -249,7 +256,7 @@ final class ByNameRuntimeBindingType
             propertyClass = getPropertyClass(prop, bindingType);
             collectionElementClass = getCollectionElementClass(prop, bindingType);
             getMethod = getGetterMethod(prop, beanClass);
-            setMethod = getSetterMethod(prop, beanClass, propertyClass);
+            setMethod = getSetterMethod(prop, beanClass);
             javaPrimitive = propertyClass.isPrimitive();
         }
 
@@ -335,11 +342,29 @@ final class ByNameRuntimeBindingType
 
         private TypeMarshaller lookupMarshaller(BindingProperty prop,
                                                 RuntimeBindingTypeTable typeTable,
-                                                BindingLoader bindingLoader)
+                                                BindingLoader loader)
         {
             final BindingType bindingType =
-                bindingLoader.getBindingType(prop.getTypeName());
+                loader.getBindingType(prop.getTypeName());
             TypeMarshaller m = typeTable.getTypeMarshaller(bindingType);
+
+            if (m == null) {
+                if (bindingType instanceof SimpleBindingType) {
+                    SimpleBindingType stype = (SimpleBindingType)bindingType;
+
+                    //let's try using the as if type
+                    final BindingTypeName asif_name = stype.getAsIfBindingTypeName();
+                    assert asif_name != null : "no asif for " + stype;
+                    BindingType asif = loader.getBindingType(asif_name);
+                    if (asif == null) {
+                        throw new AssertionError("unable to get asif type for " + asif_name);
+                    }
+                    m = typeTable.getTypeMarshaller(asif);
+
+                    assert m != null : "asif type marshaller not found for " + stype;
+                }
+            }
+
             return m;
         }
 
@@ -415,7 +440,7 @@ final class ByNameRuntimeBindingType
         public CharSequence getLexical(Object value, MarshallerImpl context)
         {
             assert value != null;
-            assert marshaller != null : "no marhsaller for " + bindingProperty;
+            assert marshaller != null : "no marhsaller for " + bindingProperty.getTypeName();
             return marshaller.print(value, context);
         }
 
@@ -459,8 +484,7 @@ final class ByNameRuntimeBindingType
         }
 
         private static Method getSetterMethod(QNameProperty binding_prop,
-                                              Class beanClass,
-                                              Class propClass)
+                                              Class beanClass)
         {
             MethodName setterName = binding_prop.getSetterName();
             try {
@@ -513,7 +537,7 @@ final class ByNameRuntimeBindingType
     }
 
 
-    static final class UResultHolder
+    private static final class UResultHolder
     {
         private final ByNameRuntimeBindingType runtimeBindingType;
         private final Object value;
