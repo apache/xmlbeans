@@ -152,28 +152,8 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        String s =
-           "<soapenv:Envelope xmlns:soapenv=\"http://schemas.xmlsoap.org/soap/envelope/\" " +
-           "xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" " +
-           "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-           "xmlns:soapenc=\"http://schemas.xmlsoap.org/soap/encoding/\">" +
-           "<soapenv:Header></soapenv:Header>" +
-           "<soapenv:Body><m:sayHello xmlns:m=\"http://examples/simple\">" +
-           "<message>foo bar</message>" +
-           "</m:sayHello>" +
-           "</soapenv:Body>" +
-           "</soapenv:Envelope>";
-        
-        Document doc = Public.parse( s, Public.memoryBackend() );
-        Element e = doc.getDocumentElement();
-        NamedNodeMap attrs = e.getAttributes();
-        System.out.println( ((Attr)(attrs.item( 0 ))).getName() );
-        System.out.println( attrs.item( 0 ).getNodeName() );
-        
-
-        
 //        charTest();
-//        domTest();
+        domTest();
 
 //        domTest( Public.getImplementation( Public.memoryBackend() ) );
 //        domTest( Public.getImplementation( 0 ) );
@@ -418,11 +398,33 @@ public class EricTest
 
         Element e = theirDoc.getDocumentElement();
 
-        Document myDoc = Public.getImplementation( Public.memoryBackend() ).createDocument( "", "foo", null );
-        myDoc.removeChild( myDoc.getDocumentElement() );
-        myDoc.appendChild( myDoc.importNode( theirDoc.getDocumentElement(), true ) );
+        System.out.println( e.getAttributes().item( 0 ).getLocalName() );
+        System.out.println( e.getAttributes().item( 0 ).getNamespaceURI() );
+        System.out.println( e.getAttributes().item( 0 ).getNodeName() );
+        System.out.println( e.getAttributes().item( 0 ).getPrefix() );
+        System.out.println( e.getAttributes().item( 0 ).getNodeValue() );
+        System.out.println();
 
-        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( myDoc );
+        System.out.println( e.getAttributes().item( 1 ).getLocalName() );
+        System.out.println( e.getAttributes().item( 1 ).getNamespaceURI() );
+        System.out.println( e.getAttributes().item( 1 ).getNodeName() );
+        System.out.println( e.getAttributes().item( 1 ).getPrefix() );
+        System.out.println( e.getAttributes().item( 1 ).getNodeValue() );
+        System.out.println();
+
+        System.out.println( e.getAttributes().item( 2 ).getLocalName() );
+        System.out.println( e.getAttributes().item( 2 ).getNamespaceURI() );
+        System.out.println( e.getAttributes().item( 2 ).getNodeName() );
+        System.out.println( e.getAttributes().item( 2 ).getPrefix() );
+        System.out.println( e.getAttributes().item( 2 ).getNodeValue() );
+        System.out.println();
+
+        System.out.println( e.getAttributes().item( 3 ).getLocalName() );
+        System.out.println( e.getAttributes().item( 3 ).getNamespaceURI() );
+        System.out.println( e.getAttributes().item( 3 ).getNodeName() );
+        System.out.println( e.getAttributes().item( 3 ).getPrefix() );
+        System.out.println( e.getAttributes().item( 3 ).getNodeValue() );
+        System.out.println();
     }
 }
 
