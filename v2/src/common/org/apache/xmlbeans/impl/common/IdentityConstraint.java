@@ -298,8 +298,8 @@ public class IdentityConstraint {
                 if (cs instanceof KeyrefState)
                 {
                     KeyrefState kr = (KeyrefState)cs;
-                    if (kr._constraint.getReferencedKey() == this)
-                        kr.addKeyValues(_values);
+                    if (kr._constraint.getReferencedKey() == this._constraint)
+                        kr.addKeyValues(_values, true);
                 }
             }
         }
@@ -309,16 +309,46 @@ public class IdentityConstraint {
     }
 
     public class KeyrefState extends SelectorState {
-        Set _keyValues = new HashSet();
+        Map _keyValues = new HashMap();
+        private Object CHILD_ADDED = new Object();
+        private Object CHILD_REMOVED = new Object();
+        private Object SELF_ADDED = new Object();
 
         KeyrefState(SchemaIdentityConstraint constraint, Event e, SchemaType st) {
             super(constraint, e, st);
         }
 
-        void addKeyValues(final Set values)
+        void addKeyValues(final Set values, boolean child)
         {
-            // BUG: remove duplicates
-            _keyValues.addAll(values);
+            /** If the key values are added by children, then if two or
+             more children add the same value, the value dissapears from the map
+             but if is added by the element in question directly then it will
+             be present in the map regardless of what children contained */
+            for (Iterator it = values.iterator(); it.hasNext();)
+            {
+                Object key = it.next();
+                Object value = _keyValues.get(key);
+                if (value == null)
+                    _keyValues.put(key, child ? CHILD_ADDED : SELF_ADDED);
+                else if (value == CHILD_ADDED)
+                {
+                    if (child)
+                        _keyValues.put(key, CHILD_REMOVED);
+                    else
+                        _keyValues.put(key, SELF_ADDED);
+                }
+                else if (value == CHILD_REMOVED)
+                {
+                    if (!child)
+                        _keyValues.put(key, SELF_ADDED);
+                }
+            }
+        }
+
+        private boolean hasKeyValue(Object key)
+        {
+            Object value = _keyValues.get(key);
+            return value != null && value != CHILD_REMOVED;
         }
 
         void remove(Event e) {
@@ -330,7 +360,7 @@ public class IdentityConstraint {
                 {
                     SelectorState sel = (SelectorState)cs;
                     if (sel._constraint == _constraint.getReferencedKey())
-                        addKeyValues(sel._values);
+                        addKeyValues(sel._values, false);
                 }
             }
 
@@ -340,7 +370,7 @@ public class IdentityConstraint {
             {
 
                 XmlObjectList fields = (XmlObjectList)it.next();
-                if (fields.unfilled() < 0 && ! _keyValues.contains(fields))
+                if (fields.unfilled() < 0 && ! hasKeyValue(fields))
                 {
                     // KHK: cvc-identity-constraint.4.3 ?
                     emitError(e, "Key '" + fields + "' not found (keyRef " + QNameHelper.pretty(_constraint.getName()) + ")");
