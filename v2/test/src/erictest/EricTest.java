@@ -97,6 +97,8 @@ import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
+import java.lang.ref.WeakReference;
+import java.lang.ref.ReferenceQueue;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -117,19 +119,28 @@ import weblogic.xml.stream.XMLEvent;
 import weblogic.xml.stream.XMLInputStream;
 import weblogic.xml.stream.XMLName;
 import com.bea.x2002.x09.xbean.config.ConfigDocument;
+import javax.xml.stream.XMLStreamReader;
 
 public class EricTest
 {
+    public static class foo
+    {
+//        protected void finalize ( )
+//        {
+//            _count++;
+//        }
+
+        int _count = 111;
+    }
+    
     public static void main ( String[] args ) throws Exception
     {
-        HashMap nses = new HashMap();
-        nses.put( "x", "x.com" );
-        nses.put( "y", "y.com" );
-        XmlOptions options = new XmlOptions();
-        options.setLoadAdditionalNamespaces( nses );
-        
-        XmlObject x = XmlObject.Factory.parse( "<a></a>", options );
-        x.save( System.out );
+        ReferenceQueue q = new ReferenceQueue();
+        for ( ; ; )
+        {
+            foo f = new foo();
+            new WeakReference( f, q );
+        }
     }
 }
 

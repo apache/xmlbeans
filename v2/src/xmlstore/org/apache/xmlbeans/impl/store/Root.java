@@ -95,7 +95,6 @@ import org.xml.sax.ext.LexicalHandler;
 import weblogic.xml.stream.Attribute;
 import weblogic.xml.stream.AttributeIterator;
 import weblogic.xml.stream.CharacterData;
-import weblogic.xml.stream.Location;
 import weblogic.xml.stream.ProcessingInstruction;
 import weblogic.xml.stream.Space;
 import weblogic.xml.stream.StartDocument;
@@ -103,8 +102,8 @@ import weblogic.xml.stream.StartElement;
 import weblogic.xml.stream.XMLEvent;
 import weblogic.xml.stream.XMLInputStream;
 import weblogic.xml.stream.XMLName;
-import weblogic.xml.stream.XMLStreamException;
 
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParserFactory;
 import javax.xml.parsers.SAXParser;
@@ -1078,6 +1077,21 @@ public final class Root extends Finish implements XmlStore
         return autoTypedDocument( type, options );
     }
     
+    public XmlObject loadXml ( XMLStreamReader xsr, SchemaType type, XmlOptions options )
+        throws XmlException
+    {
+        try
+        {
+            loadXMLStreamReader( xsr, options );
+        }
+        catch ( javax.xml.stream.XMLStreamException e )
+        {
+            throw new XmlException( e.getMessage(), e );
+        }
+
+        return autoTypedDocument( type, options );
+    }
+    
     public XmlObject loadXml ( String s, SchemaType type, XmlOptions options )
         throws XmlException
     {
@@ -1713,15 +1727,23 @@ public final class Root extends Finish implements XmlStore
             annotate( new XmlLineNumber( line, column, offset ) );
         }
 
-        void lineNumberAnnotation ( XMLEvent xe )
+        void lineNumberAnnotation ( XMLStreamReader xsr )
         {
-            Location loc = xe.getLocation();
+            javax.xml.stream.Location loc = xsr.getLocation();
 
             if (loc != null)
             {
                 lineNumberAnnotation(
-                    loc.getLineNumber(), loc.getColumnNumber(), -1 );
+                    loc.getLineNumber(), loc.getColumnNumber(), loc.getCharacterOffset() );
             }
+        }
+        
+        void lineNumberAnnotation ( XMLEvent xe )
+        {
+            weblogic.xml.stream.Location loc = xe.getLocation();
+
+            if (loc != null)
+                lineNumberAnnotation( loc.getLineNumber(), loc.getColumnNumber(), -1 );
         }
 
         void javelinAnnotation ( XmlCursor.XmlBookmark ja )
@@ -1839,15 +1861,156 @@ public final class Root extends Finish implements XmlStore
 
     public XmlObject loadXml (
         XMLInputStream xis, SchemaType type, XmlOptions options )
-            throws XMLStreamException, XmlException
+            throws XmlException, weblogic.xml.stream.XMLStreamException
     {
         loadXmlInputStream( xis, options );
 
         return autoTypedDocument( type, options );
     }
 
+    public void loadXMLStreamReader ( XMLStreamReader xsr, XmlOptions options )
+        throws XmlException, javax.xml.stream.XMLStreamException
+    {
+        options = XmlOptions.maskNull( options );
+        
+        LoadContext context = new LoadContext( this, options );
+        
+        boolean lineNums = options.hasOption( XmlOptions.LOAD_LINE_NUMBERS );
+
+        events:
+        for ( int eventType = xsr.getEventType() ; ; eventType = xsr.next() )
+        {
+            switch ( eventType )
+            {
+            case XMLStreamReader.START_DOCUMENT :
+            {
+                _props.setEncoding( xsr.getCharacterEncodingScheme() );
+                _props.setVersion( xsr.getVersion() );
+                _standAlone = xsr.isStandalone();
+
+                if (lineNums)
+                    context.lineNumberAnnotation( xsr );
+
+                break;
+            }
+            
+            case XMLStreamReader.END_DOCUMENT :
+            {
+                if (lineNums)
+                    context.lineNumberAnnotation( xsr );
+
+                break events;
+            }
+            
+            case XMLStreamReader.START_ELEMENT :
+            {
+                context.begin( xsr.getName() );
+                
+                if (lineNums)
+                    context.lineNumberAnnotation( xsr );
+
+                int n = xsr.getAttributeCount();
+
+                for ( int a = 0 ; a < n ; a++ )
+                    context.attr( xsr.getAttributeName( a ), xsr.getAttributeValue( a ) );
+                
+                n = xsr.getNamespaceCount();
+
+                for ( int a = 0 ; a < n ; a++ )
+                    context.xmlns( xsr.getNamespacePrefix( a ), xsr.getNamespaceURI( a ) );
+                
+                break;
+            }
+            
+            case XMLStreamReader.END_ELEMENT :
+            {
+                context.end();
+                
+                if (lineNums)
+                    context.lineNumberAnnotation( xsr );
+                
+                break;
+            }
+            
+            case XMLStreamReader.CHARACTERS :
+            case XMLStreamReader.CDATA :
+            {
+                context.text( xsr.getTextCharacters(), xsr.getTextStart(), xsr.getTextLength() );
+                
+                if (lineNums)
+                    context.lineNumberAnnotation( xsr );
+                
+                break;
+            }
+            
+            case XMLStreamReader.COMMENT :
+            {
+                context.comment( xsr.getText() );
+                
+                if (lineNums)
+                    context.lineNumberAnnotation( xsr );
+                
+                break;
+            }
+            
+            case XMLStreamReader.PROCESSING_INSTRUCTION :
+            {
+                context.procinst( xsr.getPITarget(), xsr.getPIData() );
+                
+                if (lineNums)
+                    context.lineNumberAnnotation( xsr );
+                
+                break;
+            }
+            
+            case XMLStreamReader.ATTRIBUTE :
+            {
+                int n = xsr.getAttributeCount();
+
+                for ( int a = 0 ; a < n ; a++ )
+                    context.attr( xsr.getAttributeName( a ), xsr.getAttributeValue( a ) );
+                
+                break;
+            }
+            
+            case XMLStreamReader.NAMESPACE :
+            {
+                int n = xsr.getNamespaceCount();
+
+                for ( int a = 0 ; a < n ; a++ )
+                    context.xmlns( xsr.getNamespacePrefix( a ), xsr.getNamespaceURI( a ) );
+                
+                break;
+            }
+            
+            case XMLStreamReader.ENTITY_REFERENCE :
+            {
+                context.text( xsr.getText() );
+                break;
+            }
+            
+            case XMLStreamReader.SPACE :
+            case XMLStreamReader.DTD :
+                break;
+
+            default :
+                throw new RuntimeException( "Unhandled xml event type: " + eventType );
+            }
+
+            if (!xsr.hasNext())
+                break;
+        }
+        
+        context.finish();
+
+        associateSourceName( options );
+
+        assert validate();
+        assert isLeftOnly();
+    }
+    
     public void loadXmlInputStream ( XMLInputStream xis, XmlOptions options )
-        throws XMLStreamException, XmlException
+        throws weblogic.xml.stream.XMLStreamException, XmlException
     {
         options = XmlOptions.maskNull( options );
 

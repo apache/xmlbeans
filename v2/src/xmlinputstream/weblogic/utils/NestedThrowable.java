@@ -63,7 +63,6 @@ package weblogic.utils;
  *
  * @deprecated use JDK 1.4 style nested throwables where possible.
  *
- * @author WebLogic
  */
 
 import java.io.PrintWriter;

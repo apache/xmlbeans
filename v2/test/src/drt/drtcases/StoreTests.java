@@ -123,6 +123,39 @@ public class StoreTests extends TestCase
         return XmlObject.Factory.parse(getCaseFile(theCase), null).newCursor();
     }
 
+    private void streamTest ( String xml )
+        throws Exception
+    {
+        XmlObject x1 = XmlObject.Factory.parse( xml );
+        XmlObject x2 = XmlObject.Factory.parse( x1.newCursor().newXMLStreamReader() );
+
+        String x1Text = x1.xmlText();
+        String x2Text = x2.xmlText();
+
+        Assert.assertTrue( x1Text.equals( x2Text ) );
+    }
+
+    public void testXMLStreamReader ( )
+        throws Exception
+    {
+        streamTest( "<a/>" );
+        streamTest( "<a x='y'/>" );
+        streamTest( "<a><b>foo</b></a>" );
+        streamTest( "<a><b>fo<!--moo-->o<?goof ball?>dsfdf</b></a>" );
+        streamTest( "<a xmlns='nnn'></a>" );
+        streamTest( "<a x='y'><!---->x<b/><c p='q'>z</c></a>" );
+        streamTest( "<a x='y'><!----><b>moo</b><c p='q'></c></a>" );
+        streamTest( "<a>asa<b/>sdsd<c>aaz</c>adsasd</a>" );
+        streamTest( "<a><?target value?></a>" );
+        streamTest( "<n:a xmlns:n='nnn'></n:a>" );
+        streamTest( "<j:a x='y' p='q' xmlns:j='k'></j:a>" );
+        streamTest( "<foo xmlns=\"foo.com\"><bar>1</bar></foo>" );
+        streamTest( "<foo><!--comment--><?target foo?></foo>" );
+        streamTest( "<foo>a<bar>b</bar>c<bar>d</bar>e</foo>" );
+        streamTest( "<foo xmlns:x=\"y\"><bar xmlns:x=\"z\"/></foo>" );
+        streamTest( "<foo x=\"y\" p=\"r\"/>" );
+    }
+    
     public void testReplaceContents ( )
         throws Exception
     {

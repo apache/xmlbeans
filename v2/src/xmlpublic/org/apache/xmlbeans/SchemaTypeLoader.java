@@ -66,6 +66,8 @@ import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
 
+import javax.xml.stream.XMLStreamReader;
+
 import org.w3c.dom.Node;
 
 /**
@@ -182,6 +184,8 @@ public interface SchemaTypeLoader
     public XmlObject parse ( URL file, SchemaType type, XmlOptions options ) throws XmlException, IOException;
     /** Parses an instance of the given type. */
     public XmlObject parse ( InputStream jiois, SchemaType type, XmlOptions options ) throws XmlException, IOException;
+    /** Parses an instance of the given type. */
+    public XmlObject parse ( XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException;
     /** Parses an instance of the given type. */
     public XmlObject parse ( Reader jior, SchemaType type, XmlOptions options ) throws XmlException, IOException;
     /** Parses an instance of the given type. */

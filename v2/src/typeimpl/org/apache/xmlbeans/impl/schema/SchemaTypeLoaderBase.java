@@ -90,6 +90,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
 
@@ -334,6 +335,15 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         }
     }
 
+    public XmlObject parse ( XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException
+    {
+        XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();
+        if (hook != null)
+            return hook.parse( this, xsr, type, options );
+
+        return createNewStore( null, options ).loadXml( xsr, type, options );
+    }
+    
     public XmlObject parse ( InputStream jiois, SchemaType type, XmlOptions options ) throws XmlException, IOException
     {
         XmlFactoryHook hook = XmlFactoryHook.ThreadContext.getHook();

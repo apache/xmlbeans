@@ -62,6 +62,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
+import javax.xml.stream.XMLStreamReader;
+
 import weblogic.xml.stream.XMLInputStream;
 import weblogic.xml.stream.XMLStreamException;
 
@@ -107,6 +109,8 @@ public interface XmlFactoryHook
     public XmlObject parse ( SchemaTypeLoader loader, String xmlText, SchemaType type, XmlOptions options ) throws XmlException;
     /** Hooks Factory.parse calls */
     public XmlObject parse ( SchemaTypeLoader loader, InputStream jiois, SchemaType type, XmlOptions options ) throws XmlException, IOException;
+    /** Hooks Factory.parse calls */
+    public XmlObject parse ( SchemaTypeLoader loader, XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException;
     /** Hooks Factory.parse calls */
     public XmlObject parse ( SchemaTypeLoader loader, Reader jior, SchemaType type, XmlOptions options ) throws XmlException, IOException;
     /** Hooks Factory.parse calls */
