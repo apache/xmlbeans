@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.jam.editable.EInvokable;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JParameter;
 
@@ -123,7 +124,7 @@ public class EInvokableImpl extends EMemberImpl implements EInvokable {
     }
     JClass[] out = new JClass[mExceptionClassRefs.size()];
     for(int i=0; i<out.length; i++) {
-      out[i] = getClassLoader().loadClass((String)mExceptionClassRefs.get(i));
+      out[i] = ((JClassRef)mExceptionClassRefs.get(i)).getRefClass();
     }
     return out;
   }

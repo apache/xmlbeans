@@ -59,7 +59,6 @@ import junit.framework.TestCase;
 import org.apache.xmlbeans.impl.jam.*;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.*;
 
 /**
@@ -76,31 +75,50 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
+
+  protected static final String
+          DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
+
   //this array must contain the names of all of the test classes under
   //dummyclasses
   private static final String[] ALL_CLASSES = {
-   "org.apache.xmlbeans.test.jam.dummyclasses.ejb.IEnv",
-   "org.apache.xmlbeans.test.jam.dummyclasses.ejb.TraderEJB",
-   "org.apache.xmlbeans.test.jam.dummyclasses.ejb.TradeResult",
-   "org.apache.xmlbeans.test.jam.dummyclasses.Base",
-   "org.apache.xmlbeans.test.jam.dummyclasses.Baz",
-   "org.apache.xmlbeans.test.jam.dummyclasses.Foo",
-   "org.apache.xmlbeans.test.jam.dummyclasses.FooImpl"
+   DUMMY+".ejb.IEnv",
+   DUMMY+".ejb.MyEjbException",
+   DUMMY+".ejb.TraderEJB",
+   DUMMY+".ejb.TradeResult",
+   DUMMY+".Base",
+   DUMMY+".Baz",
+   DUMMY+".Foo",
+   DUMMY+".FooImpl",
+   DUMMY+".MyException"
   };
 
 
   // this needs to correspond to the methods on the FooImpl dummyclass
   private static final String[][] FOOIMPL_METHODS = {
-    {"public",                   "int",      "getId",  null},
-    {"public",                   "void",     "setId",  "int id"},
-    {"private final static",     "void",     "setId2",  "double id"},
-    {"protected synchronized ",  "void",     "setId3",  "double id, double id2"},
-    {"protected abstract",       "void",     "setId4",  "double id, double id2, double id3"},
-    {"",             "java.lang.String[][]", "methodDealingWithArrays",  "int[] foo, java.lang.Object[] bar"}
+    {"public",                   "int",      "getId",  null,   null},
+
+    {"public",                   "void",     "setId",  "int id",null},
+
+    {"private final static",     "void",     "setId2",  "double id",null},
+
+    {"protected synchronized ",  "void",     "setId3",  "double id, double id2",null},
+
+    {"protected abstract",       "void",     "setId4",  "double id, double id2, double id3",null},
+
+    {"",             "java.lang.String[][]", "methodDealingWithArrays",  "int[] foo, java.lang.Object[] bar",null},
+
+    {"protected abstract",       "void",     "iThrowExceptions",  "int p1, java.lang.String p2",
+     "java.lang.IllegalArgumentException," +
+          "java.lang.NoSuchMethodError," +
+          DUMMY+".MyException,"+
+          DUMMY+".ejb.MyEjbException,"+
+          "java.net.MalformedURLException,"+
+          "java.lang.OutOfMemoryError,"+
+          "java.lang.NullPointerException"
+    }
   };
 
-  protected static final String
-          DUMMY = "org.apache.xmlbeans.test.jam.dummyclasses";
 
   private static final boolean VERBOSE = false;
 
@@ -113,7 +131,7 @@ public abstract class JamTestBase extends TestCase {
 
   // ========================================================================
   // Constructors
-  
+
   public JamTestBase() {
     super("JamTestBase");
   }
@@ -186,6 +204,8 @@ public abstract class JamTestBase extends TestCase {
     resolveCheckRecursively(mResult.getAllClasses(),new HashSet());
   }
 
+
+
   /**
    * Verify that FooImpl has the correct methods with the correct
    * number of parameters and correct return types.
@@ -197,6 +217,7 @@ public abstract class JamTestBase extends TestCase {
                               methods,isParameterNamesKnown(),this);
   }
 
+
   public void testInterfaceIsAssignableFrom()
   {
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
@@ -207,7 +228,7 @@ public abstract class JamTestBase extends TestCase {
                !fooImpl.isAssignableFrom(foo));
   }
 
-  public void testClassIsAssignableFrom() 
+  public void testClassIsAssignableFrom()
   {
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
     JClass base = resolved(mLoader.loadClass(DUMMY+".Base"));
@@ -217,7 +238,7 @@ public abstract class JamTestBase extends TestCase {
                !fooImpl.isAssignableFrom(base));
   }
 
-  public void testClassIsAssignableFromDifferentClassLoaders() 
+  public void testClassIsAssignableFromDifferentClassLoaders()
   {
     JClass baz = resolved(mLoader.loadClass(DUMMY+".Baz"));
     JClass runnable = resolved(mLoader.loadClass("java.lang.Runnable"));

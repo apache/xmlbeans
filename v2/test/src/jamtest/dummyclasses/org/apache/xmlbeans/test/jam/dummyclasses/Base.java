@@ -1,7 +1,11 @@
 package org.apache.xmlbeans.test.jam.dummyclasses;
 
-  /**
-   * NOT doonkie javadoc! 
+import org.apache.xmlbeans.test.jam.dummyclasses.ejb.MyEjbException;
+
+import java.net.MalformedURLException;
+
+/**
+   * NOT doonkie javadoc!
    */
 
 /**
@@ -12,10 +16,10 @@ package org.apache.xmlbeans.test.jam.dummyclasses;
 public abstract class Base implements Foo  {
 
   /**
-   * NOT doonkie javadoc! 
+   * NOT doonkie javadoc!
    */
   /**
-   * doonkie javadoc! 
+   * doonkie javadoc!
    */
   private double doonkie = 2312;
   private long doonkietoo;
@@ -26,6 +30,8 @@ public abstract class Base implements Foo  {
   public String getFoo() { return "foo"; } // {{}}{{
 
   public void setId(int id) {}
+
+
 
 
 }

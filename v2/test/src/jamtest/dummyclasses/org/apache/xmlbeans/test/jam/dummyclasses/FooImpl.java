@@ -1,5 +1,9 @@
 package org.apache.xmlbeans.test.jam.dummyclasses;
 
+import org.apache.xmlbeans.test.jam.dummyclasses.ejb.MyEjbException;
+
+import java.net.MalformedURLException;
+
 /**
  *  Dummy class for JAM tests.
  *
@@ -20,5 +24,16 @@ public abstract class FooImpl extends Base implements Foo {
   String[][] methodDealingWithArrays(int[] foo, Object[] bar) {
     return null;
   }
+
+  protected abstract void iThrowExceptions(int p1, String p2) throws
+          IllegalArgumentException,
+          NoSuchMethodError,
+          MyException,
+          MyEjbException,
+          MalformedURLException,
+          OutOfMemoryError,
+          NullPointerException;
+
+
 
 }
