@@ -610,7 +610,7 @@
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes,
                  common.classes, typeimpl.classes, xmlcomp.classes,
-                 xmlstore.classes, newstore.classes, saaj_api.classes, binding.classes, marshal.classes,
+                 xmlstore.classes, newstore.classes, newstore2.classes, saaj_api.classes, binding.classes, marshal.classes,
                  oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes, resolver.jar">
     <jar jarfile="build/lib/xbean.jar" index="true">
@@ -625,6 +625,7 @@
       <fileset dir="build/classes/xmlschema"/>
       <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/newstore"/>
+      <fileset dir="build/classes/newstore2"/>
       <fileset dir="build/classes/saaj_api"/>
       <fileset dir="build/classes/xmlinputstream"/>
       <fileset dir="build/classes/binding"/>
@@ -849,6 +850,22 @@
       <classpath id="newstore.compile.path">
         <pathelement location="build/lib/jsr173_api.jar"/>
         <pathelement location="build/classes/common"/>
+        <pathelement location="build/classes/xmlinputstream"/>
+        <pathelement location="build/classes/xmlpublic"/>
+        <pathelement location="build/classes/saaj_api"/>
+      </classpath>
+    </javac>
+
+  </target>
+
+  <!-- newstore2 target ============================================== -->
+
+  <target name="newstore2.classes"
+        depends="dirs, xmlpublic.classes, saaj_api.classes">
+    <mkdir dir="build/classes/newstore2"/>
+    <javac srcdir="src/newstore2" destdir="build/classes/newstore2" source="1.4" debug="on">
+      <classpath id="newstore2.compile.path">
+        <pathelement location="build/lib/jsr173_api.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
         <pathelement location="build/classes/saaj_api"/>

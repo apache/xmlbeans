@@ -107,14 +107,25 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.apache.xmlbeans.impl.newstore.CharUtil;
 import org.apache.xmlbeans.impl.newstore.CharUtil.CharJoin;
 
+import org.apache.xmlbeans.impl.newstore2.Public2;
+
 public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        String xml = "<?bonk honk?><a p='q' xmlns:foo='bar'>12&amp;34567<b/><!--moo--></a>";
-        Document doc = Public.parse( xml, Public.memoryBackend() );
-        org.apache.xmlbeans.impl.newstore.pub.store.Cur.dump( doc );
+        DOMImplementation impl = Public2.getDomImplementation();
 
+        Document doc = impl.createDocument( "", "foo", null );
+
+        Element elem = doc.getDocumentElement();
+
+        Element e = doc.createElement( "moo" );
+
+        elem.appendChild( e );
+
+        Public2.dump( elem );
+
+        
 
 
 
