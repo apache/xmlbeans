@@ -269,7 +269,7 @@ public class XPath
         {
             assert
                 _currentNodeVar == null ||
-                    _currentNodeVar.startsWith( "$" );
+                _currentNodeVar.startsWith( "$" );
 
             if (currentNodeVar == null)
                 _currentNodeVar = "$this";
@@ -517,7 +517,6 @@ public class XPath
 
              while ( isWhitespace( offset ) )
                 offset++;
-
 
             advance( offset );
 
@@ -923,15 +922,12 @@ public class XPath
                     }
                     _externalNamespaces.put( prefix, uri );
 
-                    if (! tokenize( ";" )){
-			//TODO: uncomment
-                       ;
-			/*
-			throw newError(
-                            "Namespace declaration must end with ;" ); 
-			*/
+                    if (! tokenize( ";" ))
+                    {
+			            throw newError(
+                            "Namespace declaration must end with ;" );
+			        }
 
-			}
                     _externalNamespaces.put(_NS_BOUNDARY,new Integer(_offset));
 
                     continue;
@@ -939,7 +935,6 @@ public class XPath
                 
                 if (tokenize( "declare","default", "element", "namespace" ))
                 {
-
                     String uri = tokenizeQuotedUri();
                     
                     if (_namespaces.containsKey( "" ))
@@ -951,20 +946,17 @@ public class XPath
                     _namespaces.put( "", uri );
 
                     //return these to saxon:? Is it an error to pass external NS
-                     //that conflicts? or should we just override it?
-                      if (_externalNamespaces.containsKey( XPath._DEFAULT_ELT_NS ))
-                                     {
-                                         throw newError(
-                                             "Redefinition of default element namespace : ");
-                                     }
-                                     _externalNamespaces.put( XPath._DEFAULT_ELT_NS, uri );
+                    //that conflicts? or should we just override it?
+                    if (_externalNamespaces.containsKey( XPath._DEFAULT_ELT_NS ))
+                    {
+                         throw newError("Redefinition of default element namespace : ");
+                    }
+                    _externalNamespaces.put( XPath._DEFAULT_ELT_NS, uri );
 
-                                     if (! tokenize( ";" ))
-                                        throw newError(
-                                             "Default Namespace declaration must end with ;" );
-                                     //the boundary is the last ; in the prolog...
-                                     _externalNamespaces.put(_NS_BOUNDARY,new Integer(_offset));
-
+                    if (! tokenize( ";" ))
+                        throw newError("Default Namespace declaration must end with ;" );
+                    //the boundary is the last ; in the prolog...
+                    _externalNamespaces.put(_NS_BOUNDARY,new Integer(_offset));
 
                     continue;
                 }
@@ -1093,7 +1085,7 @@ public class XPath
     }
 
     public static final String _NS_BOUNDARY = "$xmlbeans!ns_boundary";
-     public static final String _DEFAULT_ELT_NS = "$xmlbeans!default_uri";
+    public static final String _DEFAULT_ELT_NS = "$xmlbeans!default_uri";
     private final Selector _selector;
     private final boolean  _sawDeepDot;
 }

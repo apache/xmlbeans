@@ -90,11 +90,11 @@ public class CopyTest extends BasicCursorTestCase {
         XmlCursor xc0 = xobj0.newCursor();
         XmlCursor xc1 = xobj1.newCursor();
 
-        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " $this//Initial");
+        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " .//Initial");
         xc0.toNextSelection();
          String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
-                 "$this//po:zip";
+                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
+                 ".//po:zip";
         xc1.selectPath( sQuery );
         xc1.toNextSelection();
 
@@ -135,12 +135,12 @@ public class CopyTest extends BasicCursorTestCase {
         XmlCursor xc0 = xobj0.newCursor();
         XmlCursor xc1 = xobj1.newCursor();
 
-        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//Initial");
+        xc0.selectPath(Common.CLM_NS_XQUERY_DEFAULT + " .//Initial");
         xc0.toNextSelection();
 
          String sQuery=
-                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";"+
-                 "$this//po:zip";
+                 "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; "+
+                 ".//po:zip";
         xc1.selectPath( sQuery );
         xc1.selectPath( sQuery );
         xc1.toNextSelection();
@@ -182,12 +182,12 @@ public class CopyTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
 
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" $this//po:shipTo/po:city");
+        m_xc.selectPath(ns+" .//po:shipTo/po:city");
         m_xc.toNextSelection();
-        xc1.selectPath(ns +" $this//po:billTo/po:city");
+        xc1.selectPath(ns +" .//po:billTo/po:city");
         xc1.toNextSelection();
         m_xc.copyXml(xc1);
         xc1.toPrevToken();
@@ -202,15 +202,15 @@ public class CopyTest extends BasicCursorTestCase {
 
     public void testCopyElementToMiddleOfTEXT() throws Exception {
 
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
         String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         m_xo = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" $this//po:shipTo/po:city");
+        m_xc.selectPath(ns+" .//po:shipTo/po:city");
         m_xc.toNextSelection();
-        xc1.selectPath(ns+" $this//po:billTo/po:city");
+        xc1.selectPath(ns+" .//po:billTo/po:city");
         xc1.toNextSelection();
         xc1.toNextToken();
         xc1.toNextChar(4);  // should be at 'T' in "Old Town"
@@ -230,7 +230,7 @@ public class CopyTest extends BasicCursorTestCase {
         assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", m_xc.xmlText());
     }
 
-    
+
 
 }
 

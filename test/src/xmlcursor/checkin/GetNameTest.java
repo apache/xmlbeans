@@ -87,9 +87,9 @@ public class GetNameTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
 
-        m_xc.selectPath(ns+" $this//po:shipTo/po:city");
+        m_xc.selectPath(ns+" .//po:shipTo/po:city");
         m_xc.toNextSelection();
         assertEquals("city", m_xc.getName().getLocalPart());
     }
@@ -97,7 +97,7 @@ public class GetNameTest extends BasicCursorTestCase {
     public void testGetNameFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse("<foo><bar>text</bar></foo>");
         m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//bar");
+        m_xc.selectPath(".//bar");
         toNextTokenOfType(m_xc, TokenType.END);
         assertEquals(null, m_xc.getName());
     }
@@ -106,9 +106,9 @@ public class GetNameTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\";";
+        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"; ";
 
-        m_xc.selectPath(ns+" $this//po:shipTo");
+        m_xc.selectPath(ns+" .//po:shipTo");
         m_xc.toNextSelection();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         assertEquals("country", m_xc.getName().getLocalPart());
@@ -125,7 +125,7 @@ public class GetNameTest extends BasicCursorTestCase {
         m_xo =  XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
-        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//ETA");
+        m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + ".//ETA");
         m_xc.toNextSelection();
         assertEquals("ETA", m_xc.getName().getLocalPart());
         assertEquals(Common.CLM_NS, m_xc.getName().getNamespaceURI());
@@ -134,8 +134,8 @@ public class GetNameTest extends BasicCursorTestCase {
     public void testGetNameAttrWithDefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_NS_PREFIX);
         m_xc = m_xo.newCursor();
-        String sDefaultElemNS = "declare default element namespace \"http://ecommerce.org/schema\";";
-        m_xc.selectPath(sDefaultElemNS + "$this//price");
+        String sDefaultElemNS = "declare default element namespace \"http://ecommerce.org/schema\"; ";
+        m_xc.selectPath(sDefaultElemNS + ".//price");
         m_xc.toNextSelection();
         m_xc.toFirstAttribute();
         assertEquals("units", m_xc.getName().getLocalPart());

@@ -154,5 +154,4 @@ public class XmlWhitespace
 
         return new String(ch, 0, (i == 0 || ch[i - 1] != ' ') ? i : i - 1);
     }
-
 }

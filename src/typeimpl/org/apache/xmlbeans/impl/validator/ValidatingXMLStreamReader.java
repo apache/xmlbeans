@@ -446,15 +446,8 @@ public class ValidatingXMLStreamReader
             _validator.nextEvent(Validator.BEGIN, _elemEvent);
 
             int attCount = getAttributeCount();
-            for(int i=0; i<attCount; i++)
-            {
-                _attEvent.setAttributeIndex(i);
-                QName qn = _attEvent.getName();
-                if (isSpecialAttribute(qn))
-                    continue;
+            validate_attributes(attCount);
 
-                _validator.nextEvent(Validator.ATTR, _attEvent);
-            }
             break;
 
         case XMLEvent.ATTRIBUTE:
@@ -606,12 +599,10 @@ public class ValidatingXMLStreamReader
         initValidator(validationType);
         _validator.nextEvent(Validator.BEGIN, _simpleEvent);
 
-        for (int i=0; i<_attNamesList.size(); i++)
-        {
-            _simpleEvent._qname = (QName)_attNamesList.get(i);
-            _simpleEvent._text = (String)_attValuesList.get(i);
-            _validator.nextEvent(Validator.ATTR, _simpleEvent);
-        }
+        // validate attributes from _attNamesList
+        validate_attributes(_attNamesList.size());
+        _attNamesList = null;
+        _attValuesList = null;
 
         _state = STATE_VALIDATING;
     }
@@ -668,6 +659,36 @@ public class ValidatingXMLStreamReader
         }
         else
             _errorListener.add(XmlError.forMessage(msg));
+    }
+
+    protected void validate_attributes(int attCount)
+    {
+        for(int i=0; i<attCount; i++)
+        {
+            validate_attribute(i);
+        }
+    }
+
+    protected void validate_attribute(int attIndex)
+    {
+        ValidatorListener.Event event;
+        if (_attNamesList==null)
+        {
+            _attEvent.setAttributeIndex(attIndex);
+            QName qn = _attEvent.getName();
+            if (isSpecialAttribute(qn))
+                return;
+
+            event = _attEvent;
+        }
+        else
+        {
+            _simpleEvent._qname = (QName)_attNamesList.get(attIndex);
+            _simpleEvent._text = (String)_attValuesList.get(attIndex);
+            event = _simpleEvent;
+        }
+
+        _validator.nextEvent(Validator.ATTR, event);
     }
 
     /**

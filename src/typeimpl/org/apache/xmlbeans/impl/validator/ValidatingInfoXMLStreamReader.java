@@ -23,6 +23,8 @@ import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDuration;
 
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.events.XMLEvent;
 import javax.xml.namespace.QName;
 import java.math.BigDecimal;
 import java.util.List;
@@ -42,6 +44,29 @@ public class ValidatingInfoXMLStreamReader
     {
         super();
     }
+
+    private int _attCount = -1;
+    private int _attIndex =  0;
+
+    public int nextWithAttributes()
+        throws XMLStreamException
+    {
+        if (_attIndex < _attCount)
+        {
+            validate_attribute(_attIndex);
+            _attIndex ++;
+            return XMLEvent.ATTRIBUTE;
+        }
+        else
+            return next();
+    }
+
+    protected void validate_attributes(int attCount)
+    {
+        _attCount = attCount;
+        _attIndex = 0;
+    }
+
 
     /**
      * @return Returns the SchemaType of the current element.
