@@ -163,14 +163,15 @@ public class CompositeBindingLoader implements BindingLoader {
   // Private methods
 
   private static void addToPath(List path, IdentityHashMap seen, BindingLoader loader) {
-    if (seen.containsKey(loader))
-      return;
+    if (seen.containsKey(loader)) return;
 
-    if (loader instanceof CompositeBindingLoader)
-      for (Iterator j = ((CompositeBindingLoader) path).loaderPath.iterator(); j.hasNext();)
+    if (loader instanceof CompositeBindingLoader) {
+      for (Iterator j = ((CompositeBindingLoader) loader).loaderPath.iterator(); j.hasNext();) {
         addToPath(path, seen, (BindingLoader) j.next());
-    else
+      }
+    } else {
       path.add(loader);
+    }
   }
 
   private CompositeBindingLoader(List path) {
