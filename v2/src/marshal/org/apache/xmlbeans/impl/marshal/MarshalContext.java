@@ -56,55 +56,73 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.namespace.NamespaceContext;
+import java.util.Collection;
 
-public interface Unmarshaller
+public final class MarshalContext
 {
-    /**
-     * unmarshall an entire xml document.
-     *
-     * PRECONDITIONS:
-     * reader must be positioned at or before the root
-     * start element of the document.
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     *
-     * @param reader
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshal(XMLStreamReader reader)
-        throws XmlException;
+    private final Collection errors;
+    private final BindingLoader loader;
+    private final RuntimeBindingTypeTable typeTable;
+    private final ScopedNamespaceContext namespaceContext;
+    private int prefixCnt = 0;
 
-    /**
-     * unmarshal an xml instance of a given schema type
-     *
-     * No attention is paid to the actual tag on which the reader is positioned.
-     * It is only the contents that matter
-     * (including attributes on that start tag).
-     *
-     *
-     * PRECONDITIONS:
-     * reader.isStartElement() must return true
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     * @param schemaType
-     * @param javaType
-     * @param context
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
-        throws XmlException;
+    private static final String NSPREFIX = "n";
+
+    MarshalContext(NamespaceContext root_nsctx,
+                   BindingLoader loader,
+                   RuntimeBindingTypeTable typeTable,
+                   Collection errors)
+    {
+        this.namespaceContext = new ScopedNamespaceContext(root_nsctx);
+        this.loader = loader;
+        this.typeTable = typeTable;
+        this.errors = errors;
+    }
+
+    Collection getErrorCollection()
+    {
+        return errors;
+    }
+
+    BindingLoader getLoader()
+    {
+        return loader;
+    }
+
+    RuntimeBindingTypeTable getTypeTable()
+    {
+        return typeTable;
+    }
+
+    ScopedNamespaceContext getNamespaceContext()
+    {
+        return namespaceContext;
+    }
+
+    String ensurePrefix(String uri)
+    {
+        String prefix = namespaceContext.getPrefix(uri);
+        if (prefix == null) {
+            prefix = bindNextPrefix(uri);
+        }
+        assert prefix != null;
+        return prefix;
+    }
+
+    private String bindNextPrefix(final String uri)
+    {
+        assert uri != null;
+        String testuri;
+        String prefix;
+        do {
+            prefix = NSPREFIX + (++prefixCnt);
+            testuri = namespaceContext.getNamespaceURI(prefix);
+        } while(testuri != null);
+        assert prefix != null;
+        namespaceContext.bindNamespace(prefix,  uri);
+        return prefix;
+    }
 }

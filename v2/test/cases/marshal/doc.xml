@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<my:load xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<My:load xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-    xmlns:my="http://www.mytest.com/" xsi:type="my:my-type">
+    xmlns:My="java:com.mytest" xsi:type="My:MyClass">
 
-    <my:myelt ignore="someval" my:attrib="4444.3333333"  >
-        <my:my-float>65.34</my:my-float>
-        <my:your_class>
-            <my:myatt xsi:type="xsd:token">inner-str</my:myatt>
-        </my:your_class>
-    </my:myelt>
+    <My:Myelt ignore="someval" My:Attrib="4444.3333333"  >
+        <My:MyFloat>65.34</My:MyFloat>
+        <My:MyClass>
+            <My:Myatt xsi:type="xsd:token">inner-str</My:Myatt>
+        </My:MyClass>
+    </My:Myelt>
 
     <!--    not working-->
-    <!--    <my:myatt xsi:nil="0" xsi:type="my:custom-string" >some string</my:myatt>-->
+    <!--    <My:Myatt xsi:nil="0" xsi:type="My:custom-string" >some string</My:Myatt>-->
 
-    <my:myatt xsi:type="xsd:token">strval</my:myatt>
+    <My:Myatt xsi:type="xsd:token">strval</My:Myatt>
 
-</my:load>
+</My:load>
 

@@ -56,55 +56,37 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
+import javax.xml.stream.Location;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
-
-public interface Unmarshaller
+final class EmptyLocation
+    implements Location
 {
-    /**
-     * unmarshall an entire xml document.
-     *
-     * PRECONDITIONS:
-     * reader must be positioned at or before the root
-     * start element of the document.
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     *
-     * @param reader
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshal(XMLStreamReader reader)
-        throws XmlException;
+    private static final Location INSTANCE = new EmptyLocation();
 
-    /**
-     * unmarshal an xml instance of a given schema type
-     *
-     * No attention is paid to the actual tag on which the reader is positioned.
-     * It is only the contents that matter
-     * (including attributes on that start tag).
-     *
-     *
-     * PRECONDITIONS:
-     * reader.isStartElement() must return true
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     * @param schemaType
-     * @param javaType
-     * @param context
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
-        throws XmlException;
+    private EmptyLocation() {}
+
+    public static Location getInstance()
+    {
+        return INSTANCE;
+    }
+
+    public int getLineNumber()
+    {
+        return -1;
+    }
+
+    public int getColumnNumber()
+    {
+        return -1;
+    }
+
+    public int getCharacterOffset()
+    {
+        return -1;
+    }
+
+    public String getLocationURI()
+    {
+        return null;
+    }
 }

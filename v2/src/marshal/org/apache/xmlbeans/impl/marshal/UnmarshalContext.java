@@ -76,17 +76,17 @@ import java.util.Collection;
  * Only one thread should ever be accessing this object, and a new one will be
  * required for each unmarshalling pass.
  */
-final class UnmarshalContext
+public final class UnmarshalContext
 {
     private final XMLStreamReader baseReader;
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
     private final Collection errors;
 
-    public UnmarshalContext(XMLStreamReader baseReader,
-                             BindingLoader bindingLoader,
-                             RuntimeBindingTypeTable typeTable,
-                             Collection errors)
+    UnmarshalContext(XMLStreamReader baseReader,
+                     BindingLoader bindingLoader,
+                     RuntimeBindingTypeTable typeTable,
+                     Collection errors)
     {
         this.baseReader = baseReader;
         this.bindingLoader = bindingLoader;
@@ -122,12 +122,6 @@ final class UnmarshalContext
             throw new XmlRuntimeException(msg);
         }
         return um;
-    }
-
-
-    public BindingLoader getBindingLoader()
-    {
-        return bindingLoader;
     }
 
     //package only -- get read/write version of error collection
@@ -180,7 +174,7 @@ final class UnmarshalContext
      *
      * @return  false if we hit an end element (any end element at all)
      */
-    public boolean advanceToNextStartElement()
+    boolean advanceToNextStartElement()
     {
         try {
             //move past our current start element
@@ -192,44 +186,44 @@ final class UnmarshalContext
         return MarshalStreamUtils.advanceToNextStartElement(baseReader);
     }
 
-    public int getAttributeCount()
+    int getAttributeCount()
     {
         assert baseReader.isStartElement();
 
         return baseReader.getAttributeCount();
     }
 
-    public String getLocalName()
+    String getLocalName()
     {
         return baseReader.getLocalName();
     }
 
-    public String getNamespaceURI()
+    String getNamespaceURI()
     {
         return baseReader.getNamespaceURI();
     }
 
-    public String getAttributeNamespaceURI(int att_idx)
+    String getAttributeNamespaceURI(int att_idx)
     {
         return baseReader.getAttributeNamespace(att_idx);
     }
 
-    public String getAttributeLocalName(int att_idx)
+    String getAttributeLocalName(int att_idx)
     {
         return baseReader.getAttributeLocalName(att_idx);
     }
 
-    public String getAttributeValue(int att_idx)
+    String getAttributeValue(int att_idx)
     {
         return baseReader.getAttributeValue(att_idx);
     }
 
-    public boolean isXsiNilTrue(int att_idx)
+    boolean isXsiNilTrue(int att_idx)
     {
         return MarshalStreamUtils.isXsiNilTrue(baseReader, att_idx, errors);
     }
 
-    public void skipElement()
+    void skipElement()
     {
         MarshalStreamUtils.skipElement(baseReader);
     }

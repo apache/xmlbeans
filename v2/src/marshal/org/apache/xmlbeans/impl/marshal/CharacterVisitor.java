@@ -56,55 +56,74 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
-
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
+import java.util.NoSuchElementException;
 
-public interface Unmarshaller
+final class CharacterVisitor
+    extends XmlTypeVisitor
 {
-    /**
-     * unmarshall an entire xml document.
-     *
-     * PRECONDITIONS:
-     * reader must be positioned at or before the root
-     * start element of the document.
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     *
-     * @param reader
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshal(XMLStreamReader reader)
-        throws XmlException;
+    private final RuntimeBindingProperty property;
+    private final MarshalContext context;
 
-    /**
-     * unmarshal an xml instance of a given schema type
-     *
-     * No attention is paid to the actual tag on which the reader is positioned.
-     * It is only the contents that matter
-     * (including attributes on that start tag).
-     *
-     *
-     * PRECONDITIONS:
-     * reader.isStartElement() must return true
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     * @param schemaType
-     * @param javaType
-     * @param context
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
-        throws XmlException;
+    public CharacterVisitor(RuntimeBindingProperty property,
+                            Object parentObject,
+                            MarshalContext context)
+    {
+        super(parentObject);
+        assert property != null;
+        this.property = property;
+        this.context = context;
+    }
+
+    private static CharSequence getCharData(RuntimeBindingProperty property,
+                                            Object parentObject,
+                                            MarshalContext context)
+    {
+        return property.getLexical(parentObject, context);
+    }
+
+    protected void advance()
+    {
+    }
+
+    protected boolean hasMoreChildren()
+    {
+        return false;
+    }
+
+    protected XmlTypeVisitor getCurrChild()
+    {
+        throw new NoSuchElementException("no children");
+    }
+
+    protected QName getName()
+    {
+        throw new IllegalStateException();
+    }
+
+    protected boolean isCharacters()
+    {
+        return true;
+    }
+
+    protected int getAttributeCount()
+    {
+        return 0;
+    }
+
+    protected String getAttributeValue(int idx)
+    {
+        throw new IllegalStateException();
+    }
+
+    protected QName getAttributeName(int idx)
+    {
+        throw new IllegalStateException();
+    }
+
+    protected CharSequence getCharData()
+    {
+        return getCharData(property, parentObject, context);
+    }
+
 }

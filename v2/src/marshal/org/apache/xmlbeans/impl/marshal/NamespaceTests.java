@@ -56,55 +56,49 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
-
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
-
-public interface Unmarshaller
+class NamespaceTests
 {
-    /**
-     * unmarshall an entire xml document.
-     *
-     * PRECONDITIONS:
-     * reader must be positioned at or before the root
-     * start element of the document.
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     *
-     * @param reader
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshal(XMLStreamReader reader)
-        throws XmlException;
+    public static void main(String[] args)
+    {
 
-    /**
-     * unmarshal an xml instance of a given schema type
-     *
-     * No attention is paid to the actual tag on which the reader is positioned.
-     * It is only the contents that matter
-     * (including attributes on that start tag).
-     *
-     *
-     * PRECONDITIONS:
-     * reader.isStartElement() must return true
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     * @param schemaType
-     * @param javaType
-     * @param context
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
-        throws XmlException;
+        ScopedNamespaceContext ctx = new ScopedNamespaceContext();
+
+        assert (0 == ctx.getCurrentScopeNamespaceCount());
+        ctx.openScope();
+        assert (0 == ctx.getCurrentScopeNamespaceCount());
+
+        ctx.bindNamespace("p1.1", "n1.1");
+        assert (1 == ctx.getCurrentScopeNamespaceCount());
+
+        ctx.bindNamespace("p1.2", "n1.2");
+        assert (2 == ctx.getCurrentScopeNamespaceCount());
+
+        ctx.openScope();
+
+        ctx.bindNamespace("p2.1", "n2.1");
+        assert (1 == ctx.getCurrentScopeNamespaceCount());
+        ctx.bindNamespace("p2.2", "n2.2");
+        assert (2 == ctx.getCurrentScopeNamespaceCount());
+
+        assert "n1.1".equals(ctx.getNamespaceURI("p1.1"));
+        assert "n2.1".equals(ctx.getNamespaceURI("p2.1"));
+
+        ctx.closeScope();
+
+        assert "n1.1".equals(ctx.getNamespaceURI("p1.1"));
+        assert (ctx.getNamespaceURI("p2.1") == null);
+
+//        final int trials = 100000000;
+//        for(int i = 1 ; i < trials ; i++) {
+//            ctx.openScope();
+//            ctx.bindNamespace("p1.1", "n2.1");
+//            ctx.openScope();
+//            ctx.bindNamespace("p2.2", "n2.2");
+//            ctx.closeScope();
+//            ctx.closeScope();
+//        }
+
+
+    }
+
 }

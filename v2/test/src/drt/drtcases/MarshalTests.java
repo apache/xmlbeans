@@ -6,11 +6,17 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContext;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactory;
+import org.apache.xmlbeans.impl.marshal.MarshalContext;
+import org.apache.xmlbeans.impl.marshal.Marshaller;
+import org.apache.xmlbeans.impl.marshal.UnmarshalContext;
 import org.apache.xmlbeans.impl.marshal.Unmarshaller;
 import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
 
+import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 import java.io.CharArrayReader;
@@ -21,6 +27,10 @@ import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.Writer;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 
 public class MarshalTests extends TestCase
 {
@@ -37,14 +47,14 @@ public class MarshalTests extends TestCase
     public void testManySimpleTypesUnmarshall()
         throws Exception
     {
-        testSimpleTypeUnmarshall(new Long(554345354445555555L), "long");
-        testSimpleTypeUnmarshall(new Float(54.5423f), "float");
-        testSimpleTypeUnmarshall("random string", "string");
+        testSimpleTypeUnmarshal(new Long(554345354445555555L), "long");
+        testSimpleTypeUnmarshal(new Float(54.5423f), "float");
+        testSimpleTypeUnmarshal("random string", "string");
     }
 
 
     //only works for values where .toString() is equivalent to marshalling
-    public void testSimpleTypeUnmarshall(Object expected, String xsd_type)
+    public void testSimpleTypeUnmarshal(Object expected, String xsd_type)
         throws Exception
     {
         Unmarshaller unmarshaller = getSimpleUnmarshaller();
@@ -64,7 +74,59 @@ public class MarshalTests extends TestCase
         System.out.println("OK for " + expected);
     }
 
-    public void testByNameBeanUnmarshall()
+
+    public void testManySimpleTypesMarshall()
+        throws Exception
+    {
+        testSimpleTypeMarshal(new Long(554345354445555555L), "long");
+        testSimpleTypeMarshal("some text here", "string");
+        testSimpleTypeMarshal("       ", "string");
+    }
+
+
+    //only works for values where .toString() is equivalent to marshalling
+    public void testSimpleTypeMarshal(Object orig, String xsd_type)
+        throws Exception
+    {
+        BindingFile bf = new BindingFile();
+        BindingConfigDocument bindingConfigDocument = bf.write();
+
+        BindingContext bindingContext =
+            BindingContextFactory.createBindingContext(bindingConfigDocument);
+
+        Marshaller m = bindingContext.createMarshaller();
+
+        EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
+        final ArrayList errors = new ArrayList();
+        MarshalContext ctx =
+            bindingContext.createMarshallContext(namespaceContext, errors);
+
+        final XMLStreamReader reader =
+            m.marshallType(orig, new QName("uri", "lname"),
+                           new QName("http://www.w3.org/2001/XMLSchema", xsd_type),
+                           orig.getClass().getName(),
+                           ctx);
+
+
+        System.out.println("==================OBJ: " + orig);
+        while (reader.hasNext()) {
+            System.out.println("STATE: " + XmlStreamUtils.printEvent(reader));
+            final int state = reader.next();
+            System.out.println("next is " + state);
+        }
+
+
+//        StringWriter sw = new StringWriter();
+//        XMLStreamWriter xwriter = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+//        final ReaderToWriter rtow = new ReaderToWriter(xwriter);
+//        rtow.write(reader);
+//        xwriter.close();
+//        sw.close();
+//
+//        System.out.println("OUTPUT=|" + sw.getBuffer() + "|");
+    }
+
+    public void testByNameBeanUnmarshal()
         throws Exception
     {
         BindingConfigDocument bcdoc = getBindingConfigDocument();
@@ -87,6 +149,43 @@ public class MarshalTests extends TestCase
         Object obj = unmarshaller.unmarshal(xrdr);
 
         System.out.println("obj = " + obj);
+    }
+
+    public void testByNameBeanUnmarshalType()
+        throws Exception
+    {
+        BindingConfigDocument bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.createBindingContext(bcdoc);
+
+
+        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
+
+        Assert.assertNotNull(unmarshaller);
+
+        //TODO: remove hard coded values
+        final File doc = new File("test/cases/marshal/doc.xml");
+        final String javaType = "com.mytest.MyClass";
+        final QName schemaType = new QName("java:com.mytest", "MyClass");
+
+        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+        XMLStreamReader xrdr =
+            xmlInputFactory.createXMLStreamReader(new FileReader(doc));
+
+        List errors = new ArrayList();
+
+        UnmarshalContext ctx = bindingContext.createUnmarshallContext(xrdr, errors);
+
+        //this is not very safe but it should work...
+        while (!xrdr.isStartElement()) {
+            xrdr.next();
+        }
+
+        Object obj = unmarshaller.unmarshallType(schemaType, javaType, ctx);
+
+
+        System.out.println("type obj = " + obj);
     }
 
     public void testPerfByNameBeanUnmarshall()
@@ -163,10 +262,42 @@ public class MarshalTests extends TestCase
         Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
         return unmarshaller;
     }
-    
+
+    private static Marshaller getSimpleMarshaller() throws IOException
+    {
+        BindingFile bf = new BindingFile();
+        BindingConfigDocument bindingConfigDocument = bf.write();
+
+        BindingContext bindingContext =
+            BindingContextFactory.createBindingContext(bindingConfigDocument);
+
+        Marshaller m = bindingContext.createMarshaller();
+        return m;
+    }
+
     public static void main(String args[])
     {
         junit.textui.TestRunner.run(suite());
+    }
+
+    private static class EmptyNamespaceContext
+        implements NamespaceContext
+    {
+        public String getNamespaceURI(String s)
+        {
+            return null;
+        }
+
+        public String getPrefix(String s)
+        {
+            return null;
+        }
+
+        public Iterator getPrefixes(String s)
+        {
+            return null;
+        }
+
     }
 
 }

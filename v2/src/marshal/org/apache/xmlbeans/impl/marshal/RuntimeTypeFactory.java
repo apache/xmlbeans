@@ -56,55 +56,19 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 
-import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
-
-public interface Unmarshaller
+class RuntimeTypeFactory
 {
-    /**
-     * unmarshall an entire xml document.
-     *
-     * PRECONDITIONS:
-     * reader must be positioned at or before the root
-     * start element of the document.
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     *
-     * @param reader
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshal(XMLStreamReader reader)
-        throws XmlException;
+    public static RuntimeBindingType createRuntimeType(BindingType type)
+    {
+        //TODO: fix instanceof nastiness
+        if (type instanceof ByNameBean) {
+            return new ByNameRuntimeBindingType((ByNameBean)type);
+        }
 
-    /**
-     * unmarshal an xml instance of a given schema type
-     *
-     * No attention is paid to the actual tag on which the reader is positioned.
-     * It is only the contents that matter
-     * (including attributes on that start tag).
-     *
-     *
-     * PRECONDITIONS:
-     * reader.isStartElement() must return true
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
-     * @param schemaType
-     * @param javaType
-     * @param context
-     * @return
-     * @throws XmlException
-     */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
-        throws XmlException;
+        throw new AssertionError("unknown type: " + type);
+    }
+
 }
