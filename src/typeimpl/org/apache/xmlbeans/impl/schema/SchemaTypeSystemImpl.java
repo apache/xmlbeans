@@ -1460,9 +1460,24 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 case 'D': // _XD_ - external identity constraint
                     return _linker.findIdentityConstraintRef(QNameHelper.forPretty(handle, 4));
                 case 'R': // _XR_ - external ref to attribute's type
-                    return _linker.findAttribute(QNameHelper.forPretty(handle, 4)).getType().getRef();
+                    // deprecated: replaced by _XY_
+                    SchemaGlobalAttribute attr = _linker.findAttribute(QNameHelper.forPretty(handle, 4));
+                    if (attr == null)
+                        throw new SchemaTypeLoaderException("Cannot resolve attribute for handle " + handle, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
+                    return attr.getType().getRef();
                 case 'S': // _XS_ - external ref to element's type
-                    return _linker.findElement(QNameHelper.forPretty(handle, 4)).getType().getRef();
+                    // deprecated: replaced by _XY_
+                    SchemaGlobalElement elem = _linker.findElement(QNameHelper.forPretty(handle, 4));
+                    if (elem == null)
+                        throw new SchemaTypeLoaderException("Cannot resolve element for handle " + handle, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
+                    return elem.getType().getRef();
+                case 'O': // _XO_ - external ref to document type
+                    return _linker.findDocumentTypeRef(QNameHelper.forPretty(handle, 4));
+                case 'Y': // _XY_ - external ref to any possible type
+                    SchemaType type = _linker.typeForSignature(handle.substring(4));
+                    if (type == null)
+                        throw new SchemaTypeLoaderException("Cannot resolve type for handle " + handle, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
+                    return type.getRef();
                 default:
                     throw new SchemaTypeLoaderException("Cannot resolve handle " + handle, _name, _handle, SchemaTypeLoaderException.BAD_HANDLE);
             }
@@ -1506,23 +1521,23 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                     // uses ref to refer to an attribute or element in another
                     // schema and the type of that attribute or element
                     // is an anonymous (local) type
+                    // kkrouse 02/1/2005: _XR_ and _XS_ refs are replaced by _XY_
                     if (type.getName() != null)
                     {
                         writeString("_XT_" + QNameHelper.pretty(type.getName()));
                     }
+                    else if (type.isDocumentType())
+                    {
+                        // Substitution groups will create document types that
+                        // extend from other document types, possibly in
+                        // different jars
+                        writeString("_XO_" + QNameHelper.pretty(type.getDocumentElementName()));
+                    }
                     else
                     {
-                        SchemaField sf = type.getContainerField();
-                        if (XmlBeans.ASSERTS)
-                            XmlBeans.assertTrue(sf != null);
-                        if (sf.isAttribute())
-                        {
-                            writeString("_XR_" + QNameHelper.pretty(sf.getName()));
-                        }
-                        else
-                        {
-                            writeString("_XS_" + QNameHelper.pretty(sf.getName()));
-                        }
+                        // fix for XMLBEANS-105:
+                        // save out the external type reference using the type's signature.
+                        writeString("_XY_" + type.toString());
                     }
 
                     return;
