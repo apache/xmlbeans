@@ -852,9 +852,6 @@ final class Cur
         {
             Xobj newXo = xo.newNode();
 
-
-// BUGBUG - am I copying too much -- sometimes I do not want to copy
-// the text after ... test copying an element with txt after ...
             newXo._srcValue = xo._srcValue;
             newXo._srcAfter = xo._srcAfter;
             newXo._offValue = xo._offValue;
@@ -890,6 +887,8 @@ final class Cur
                 }
                 while ( xo._nextSibling == null );
             }
+            else if (xo == _xobj)
+                break walk;
             else
                 xo = xo._nextSibling;
         }
