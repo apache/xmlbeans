@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.store;
+package org.apache.xmlbeans.impl.newstore2;
 
 import java.lang.reflect.Constructor;
 import java.util.List;
@@ -90,3 +90,4 @@ public final class JaxenXBeansDelegate
         public List selectPath(Object node);
     }
 }
+

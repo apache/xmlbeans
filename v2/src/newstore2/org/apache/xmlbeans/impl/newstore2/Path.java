@@ -78,7 +78,7 @@ public abstract class Path
     private static final int FORCE_XBEAN   = 1;
     private static final int FORCE_NEITHER = 2;
 
-    static Path getCompiledPath ( String pathExpr, XmlOptions options )
+    public static Path getCompiledPath ( String pathExpr, XmlOptions options )
     {
         options = XmlOptions.maskNull( options );
 

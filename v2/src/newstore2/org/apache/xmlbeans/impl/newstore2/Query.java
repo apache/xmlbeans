@@ -35,7 +35,7 @@ public abstract class Query
         return getCompiledQuery( queryExpr, options ).execute( c, options );
     }
 
-    static synchronized Query getCompiledQuery ( String queryExpr, XmlOptions options )
+    public static synchronized Query getCompiledQuery ( String queryExpr, XmlOptions options )
     {
         return getCompiledQuery( queryExpr, Path.getCurrentNodeVar( options ) );
     }

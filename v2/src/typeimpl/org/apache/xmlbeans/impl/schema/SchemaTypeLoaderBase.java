@@ -60,8 +60,8 @@ import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 {
-    private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.store.Path", "getCompiledPath", new Class[] { String.class, XmlOptions.class } );
-    private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.store.Path", "getCompiledQuery", new Class[] { String.class, XmlOptions.class } );
+    private static final Method _pathCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Path", "getCompiledPath", new Class[] { String.class, XmlOptions.class } );
+    private static final Method _queryCompiler = getMethod( "org.apache.xmlbeans.impl.newstore2.Query", "getCompiledQuery", new Class[] { String.class, XmlOptions.class } );
 
     private static Method getMethod ( String className, String methodName, Class[] args )
     {

@@ -289,7 +289,7 @@ public class Jsr173
 
             StringBuffer sb = new StringBuffer();
 
-            for ( int depth = 1 ; depth > 0 ; )
+            for ( ; ; )
             {
                 if (!hasNext())
                     throw new XMLStreamException();
@@ -297,9 +297,9 @@ public class Jsr173
                 int e = next();
 
                 if (e == END_ELEMENT)
-                    depth--;
+                    break;
                 else if (e == START_ELEMENT)
-                    depth++;
+                    throw new XMLStreamException();
                 else if (e != COMMENT && e != PROCESSING_INSTRUCTION)
                     sb.append( getText() );
             }

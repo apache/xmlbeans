@@ -294,7 +294,7 @@
 
   <target name="xbean.jar"
         depends="dirs, xmlpublic.classes, typestore.classes, common.classes,
-                 typeimpl.classes, xmlcomp.classes, xmlstore.classes,
+                 typeimpl.classes, xmlcomp.classes,
                  newstore2.classes, saaj_api.classes,
                  marshal.classes, xpath.classes, oldxbean.jar, xsdschema.classes,
                  xmlinputstream.classes, resolver.jar, xbean_xpath.jar,
@@ -309,7 +309,6 @@
       <fileset dir="build/classes/toolschema"/>
       <fileset dir="build/classes/xsdschema"/>
       <fileset dir="build/classes/xmlschema"/>
-      <fileset dir="build/classes/xmlstore"/>
       <fileset dir="build/classes/newstore2"/>
       <fileset dir="build/classes/saaj_api"/>
       <fileset dir="build/classes/xmlinputstream"/>
@@ -391,14 +390,13 @@
 
   <!-- typeimpl target ============================================== -->
 
-  <target name="typeimpl.classes" depends="dirs,  xmlstore.classes, newstore2.classes,
+  <target name="typeimpl.classes" depends="dirs, newstore2.classes,
       repackage.classes, xmlpublic.classes, typestore.classes, xsdschema.classes,
       configschema.classes, toolschema.classes, jsr173_api.jar, jam">
     <mkdir dir="build/classes/typeimpl"/>
     <javac destdir="build/classes/typeimpl" source="${javac.source}" target="${javac.target}" debug="on">
       <classpath>
         <pathelement location="build/classes/newstore2"/>
-        <pathelement location="build/classes/xmlstore"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/common"/>
         <pathelement location="build/classes/repackage"/>
@@ -472,24 +470,6 @@
     </javac>
   </target>
 
-
-  <!-- xmlstore target ============================================== -->
-
-  <target name="xmlstore.classes"
-        depends="dirs, common.classes, typestore.classes, xmlpublic.classes, newstore2.classes">
-    <mkdir dir="build/classes/xmlstore"/>
-    <javac srcdir="src/xmlstore" destdir="build/classes/xmlstore" source="${javac.source}" target="${javac.target}" debug="on">
-      <classpath id="xmlstore.compile.path">
-        <pathelement location="build/lib/jsr173_api.jar"/>
-        <pathelement location="build/classes/xmlinputstream"/>
-        <pathelement location="build/classes/typestore"/>
-        <pathelement location="build/classes/xmlpublic"/>
-        <pathelement location="build/classes/newstore2"/>
-        <pathelement location="build/classes/common"/>
-      </classpath>
-    </javac>
-
-  </target>
 
   <!-- saaj_api target ============================================== -->
 
@@ -774,7 +754,7 @@
 
   <!-- xpath target ============================================= -->
 
-  <target name="xpath.classes" depends="dirs, xmlpublic.jar, xmlstore.classes">
+  <target name="xpath.classes" depends="dirs, xmlpublic.jar, newstore2.classes">
     <mkdir dir="build/classes/xpath"/>
     <javac
        srcdir="src/xpath"
@@ -784,7 +764,7 @@
        debug="on">
       <classpath id="xpath.compile.path">
         <pathelement location="build/classes/xmlpublic"/>
-        <pathelement location="build/classes/xmlstore"/>
+        <pathelement location="build/classes/newstore2"/>
         <pathelement location="external/lib/jaxen-1.1-beta-2.jar"/>
       </classpath>
     </javac>
