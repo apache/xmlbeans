@@ -86,11 +86,11 @@ public class GetTextTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
         //assertEquals(null, m_xc.getTextValue());
 
-        try {
-            m_xc.getTextValue();
-            fail("Expecting Illegal State Exception");
-        } catch (IllegalStateException ie) {
-        }
+       //modifying test: behavior OK as of Sept 04
+        //filed bug on API
+           String text= m_xc.getTextValue();
+        assertEquals("http://www.foo.org", text);
+
 
     }
 
@@ -163,7 +163,8 @@ public class GetTextTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        m_xc.selectPath(".//po:billTo");
+        String preface="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        m_xc.selectPath(preface+" .//po:billTo");
         assertEquals(1,m_xc.getSelectionCount());
         m_xc.toNextSelection();
         toNextTokenOfType(m_xc, TokenType.ATTR);

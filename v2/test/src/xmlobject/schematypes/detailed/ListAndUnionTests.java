@@ -141,7 +141,11 @@ public class ListAndUnionTests extends TestCase
     public void testUnionArray() throws Exception
     {
         IncidentReportsDocument doc = IncidentReportsDocument.Factory.parse(
-                 "<lut:incident-reports xmlns:lut='http://openuri.org/lut'><lut:when>2001-08-06T03:34:00</lut:when><lut:when>2002-01-04</lut:when><lut:when>2002-08-26T23:10:00</lut:when></lut:incident-reports>");
+                 "<lut:incident-reports xmlns:lut='http://openuri.org/lut'>" +
+                "<lut:when>2001-08-06T03:34:00</lut:when>" +
+                "<lut:when>2002-01-04</lut:when>" +
+                "<lut:when>2002-08-26T23:10:00</lut:when>" +
+                "</lut:incident-reports>");
         IncidentReportsDocument.IncidentReports reports = doc.getIncidentReports();
         DateOrDateTime[] dt = reports.xgetWhenArray();
         Calendar[] gd = reports.getWhenArray();

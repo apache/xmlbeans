@@ -114,7 +114,8 @@ public class CursorGeneratedTypedObjectTest extends TestCase {
     public void testGetObjectGL() throws Exception {
         String sNamespace = "xmlns=\"http://www.tranxml.org/TranXML/Version4.0\" xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\"";
         CarLocationMessageDocument clm = CarLocationMessageDocument.Factory.parse(
-                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(
+                        Common.TRANXML_FILE_CLM));
         XmlCursor xc = clm.newCursor();
         xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                 "$this//GeographicLocation");
@@ -137,18 +138,33 @@ public class CursorGeneratedTypedObjectTest extends TestCase {
                     "http://www.tranxml.org/TranXML/Version4.0");
             xc0.insertAttributeWithValue("Qualifier", "FR");
             xc0.toEndToken();
+            xc0.toNextToken();//move past the end token
             xc0.insertElementWithText("CountrySubdivisionCode",
                     "http://www.tranxml.org/TranXML/Version4.0", "xyz");
             xc0.toCursor(xc);
 
-            String sExpectedXML = "<GeographicLocation " + sNamespace +
-                    "><CityName>DALLAS</CityName><StateOrProvinceCode>TX</StateOrProvinceCode><LocationIdentifier Qualifier=\"FR\"/><CountrySubdivisionCode>xyz</CountrySubdivisionCode></GeographicLocation>";
-            XmlOptions map = new XmlOptions();
+            String sExpectedXML =
+                    "<GeographicLocation "+sNamespace+">\n" +
+                    "\t\t\t<CityName>DALLAS</CityName>\n" +
+                    "\t\t\t<StateOrProvinceCode>TX</StateOrProvinceCode>\n"+
+                   "\t\t<LocationIdentifier Qualifier=\"FR\"/><CountrySubdivisionCode>xyz</CountrySubdivisionCode>" +
+                    "</GeographicLocation>";
+
+                    XmlOptions map = new XmlOptions();
           //  map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
           //  map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
             assertEquals(sExpectedXML, xc0.xmlText());
 
-            String sOExpectedXML = "<xml-fragment xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\"><ver:CityName xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">DALLAS</ver:CityName><ver:StateOrProvinceCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">TX</ver:StateOrProvinceCode><ver:LocationIdentifier Qualifier=\"FR\" xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\"/><ver:CountrySubdivisionCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">xyz</ver:CountrySubdivisionCode></xml-fragment>";
+            String sOExpectedXML =
+                    "<xml-fragment xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\">\n" +
+                    "\t\t\t<ver:CityName xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
+                    "DALLAS</ver:CityName>\n" +
+                    "\t\t\t<ver:StateOrProvinceCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">" +
+                    "TX</ver:StateOrProvinceCode>\n" +
+                    "\t\t<ver:LocationIdentifier Qualifier=\"FR\" " +
+                    "xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\"/>" +
+                    "<ver:CountrySubdivisionCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">xyz" +
+                    "</ver:CountrySubdivisionCode></xml-fragment>";
 
             GeographicLocationDocument.GeographicLocation gl = (GeographicLocationDocument.GeographicLocation) xc0.getObject();
             assertEquals(sOExpectedXML, gl.xmlText(map));

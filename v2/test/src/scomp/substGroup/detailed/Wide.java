@@ -120,13 +120,14 @@ public class Wide extends BaseCase {
         //shirt must be white
         assertTrue(!doc.validate(validateOptions));
         String[] errExpected = new String[]{
-            "cvc-attribute"
+            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
         };
         assertTrue(compareErrorCodes(errExpected));
 
 
         //TODO: is the object being copied? Should this change the color?
         bShirt.setColor("white");
+        items.setProductArray(0,bShirt);
 
         try {
             assertTrue(doc.validate(validateOptions));

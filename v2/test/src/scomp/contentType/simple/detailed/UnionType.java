@@ -109,7 +109,7 @@ public class UnionType extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
-            XmlErrorCodes.DATATYPE_VALID$UNION};
+            XmlErrorCodes.DATATYPE_MIN_EXCLUSIVE_VALID};
                     assertTrue(compareErrorCodes(errExpected));
 
     }

@@ -158,10 +158,11 @@ public class SetTextValueTest extends BasicCursorTestCase {
 
     public void testZeroCharCount() {
         char[] buffer = new char[100];
-        String sExpected = m_xc.xmlText();
+        String sExpected = "<foo xmlns:edi=\"http://ecommerce.org/schema\"/>";
         assertEquals(XmlCursor.TokenType.STARTDOC,m_xc.currentTokenType());
         toNextTokenOfType(m_xc, TokenType.START);
-
+        //since the operation is delete+replace
+        //0,0 is equivalent to a delete
         m_xc.setTextValue(buffer, 0, 0);
         toPrevTokenOfType(m_xc, TokenType.STARTDOC);
         assertEquals(sExpected, m_xc.xmlText());

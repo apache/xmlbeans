@@ -93,7 +93,7 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         Reader reader = m_xo.newReader(map);
         assertNotNull(reader);
-        XmlOptions options = new XmlOptions(map);
+         XmlOptions options = new XmlOptions(map);
         XmlObject xo = XmlObject.Factory.parse(reader, options);
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = xo.newCursor();
@@ -103,7 +103,12 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
             xc1.dispose();
         }
     }
-
+  /**
+   * yana_kadiyska (3:25:15 PM): Eric, is this going to be impl
+   * on this release? Bug? newstore2.Cursor._newXMLInputStream
+   * ericvasilik (3:26:01 PM): This is not a v2 feature. ...
+   * but otherwise, we should disable XMLInputStream tests
+   * 
     public void testNewReaderRoundTrip() throws Exception {
         _newReaderRoundTrip(null);
     }
@@ -112,6 +117,7 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         _newReaderRoundTrip(m_map);
     }
 
+   */
     private void _newXMLInputStreamRoundTrip(XmlOptions map) throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_NESTED_SIBLINGS);
         XMLInputStream xmlIs = m_xo.newXMLInputStream(map);
@@ -126,7 +132,11 @@ public class RoundTripLoaderTest extends BasicCursorTestCase {
         }
     }
 
-    public void testNewXMLInputStreamRoundTrip() throws Exception {
+ /**
+  *
+  * @throws Exception
+  */
+ public void testNewXMLInputStreamRoundTrip() throws Exception {
         _newXMLInputStreamRoundTrip(null);
     }
 

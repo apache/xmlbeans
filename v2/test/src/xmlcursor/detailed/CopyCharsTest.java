@@ -153,7 +153,7 @@ public class CopyCharsTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         toNextTokenOfType(xc1, TokenType.TEXT);
         assertEquals(5, m_xc.copyChars(5, xc1));
-        xc1.toPrevToken();
+        assertEquals(5,xc1.toPrevChar(5));
         // verify xc1
         assertEquals("01234text", xc1.getTextValue());
         xc1.dispose();

@@ -156,20 +156,12 @@ public class InsertNamespaceTest extends BasicCursorTestCase {
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.END);
 
-        // according to Eric V, this next line should throw an IllegalArgumentException.
-        // -> m_xc.insertNamespace("prefix", null);
+       //EricV: this should be OK, but make sure the saver
+        // doesn't serialize it since it's not legal XML
 
-        try {
-            m_xc.insertNamespace("prefix", null);
-            fail("Inserting null NS not OK");
-        } catch (IllegalArgumentException e) {
-
-        }
-
-        // OLD CODE:
-        // m_xc.insertNamespace("prefix", null);
-        // m_xc.toStartDoc();
-        // assertEquals("<foo xmlns:prefix=\"\"/>", m_xc.xmlText());
+         m_xc.insertNamespace("prefix", null);
+         m_xc.toStartDoc();
+        assertEquals("<foo/>", m_xc.xmlText());
     }
 
     public void testInsertEmptyNamespace() throws Exception {
