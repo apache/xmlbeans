@@ -19,6 +19,9 @@
         <echo message="usage       - this help text"/>
         <echo message="deploy      - builds our implementation jar (xbean.jar)"/>
         <echo message="clean       - cleans out the xbeans directories"/>
+        <echo message="docs        - builds the JavaDoc documentation in ./build/docs"/>
+        <echo message="xmlpublic.jar-builds xmlpublic.jar, containing just the public code"/>
+        <echo message="sources     - zips up the XmlBeans source code"/>
         <echo/>
         <echo message="testbuild   - builds, but does not run, the xbean drt"/>
         <echo message="checkintest - runs the xbean tests"/>
@@ -254,6 +257,7 @@
         <copy todir="build/private/xmlbeans-${product.version}">
             <fileset dir="xkit"/>
             <fileset dir="." includes="bin/**"/>
+            <fileset file="src/license/LICENSE.txt"/>
         </copy>
         <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
             <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd"/>
