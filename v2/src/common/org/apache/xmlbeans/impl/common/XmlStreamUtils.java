@@ -219,11 +219,6 @@ public final class XmlStreamUtils
         return "CDATA";
       case XMLStreamReader.NAMESPACE:
         return "NAMESPACE";
-      case XMLStreamReader.START_ENTITY:
-        return "START_ENTITY";
-      case XMLStreamReader.END_ENTITY:
-        return "END_ENTITY";
-
     }
     return "UNKNOWN_EVENT_TYPE";
   }
@@ -254,10 +249,6 @@ public final class XmlStreamUtils
       return XMLStreamReader.CDATA;
     if (val.equals("NAMESPACE"))
       return XMLStreamReader.NAMESPACE;
-    if (val.equals("START_ENTITY"))
-      return XMLStreamReader.START_ENTITY;
-    if (val.equals("END_ENTITY"))
-      return XMLStreamReader.END_ENTITY;
     return -1;
   }
 

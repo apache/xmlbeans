@@ -89,4 +89,14 @@ final class EmptyLocation
     {
         return null;
     }
+
+    public String getPublicId()
+    {
+        return null;
+    }
+
+    public String getSystemId()
+    {
+        return null;
+    }
 }

@@ -3475,6 +3475,7 @@ public final class Cursor implements XmlCursor, ChangeListener
             return this;
         }
 
+
         public NamespaceContext getNamespaceContext ( )
         {
             checkChanged();
@@ -3551,6 +3552,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         public int    getColumnNumber    ( ) { return _column; }
         public int    getLineNumber      ( ) { return _line;   }
         public String getLocationURI     ( ) { return _uri;    }
+        public String  getPublicId() { throw new UnsupportedOperationException("NYI");  }
+        public String  getSystemId() { throw new UnsupportedOperationException("NYI");  }
 
         public String getNamespaceURI ( String prefix )
         {
@@ -3715,6 +3718,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         public boolean isAttributeSpecified ( int index ) { throw new IllegalStateException(); }
         public int     next ( ) { throw new IllegalStateException(); }
         public int     nextTag ( ) { throw new IllegalStateException(); }
+        public String  getPublicId() { throw new IllegalStateException();  }
+        public String  getSystemId() { throw new IllegalStateException();  }
 
         private XmlCursor _cursor;
         private String    _string;
