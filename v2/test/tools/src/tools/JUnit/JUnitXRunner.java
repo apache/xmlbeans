@@ -82,7 +82,8 @@ public class JUnitXRunner extends BaseTestRunner
         else
             runner = new JUnitXRunner(files, showOutput);
 
-        runner.runTests();
+        int nFailureCount=runner.runTests();
+        System.exit(nFailureCount);
     }
 
     /////////////////////////////////////////////////////////////////////////
@@ -116,7 +117,7 @@ public class JUnitXRunner extends BaseTestRunner
     }
 
 
-    public void runTests()
+    public int runTests()
     {
         collectTests();
         Iterator itr = tests.iterator();
@@ -144,6 +145,7 @@ public class JUnitXRunner extends BaseTestRunner
             test.run(res);
         }
         _listener.endRun();
+        return res.failureCount();
     }
 
     private void collectTests()
@@ -236,7 +238,6 @@ public class JUnitXRunner extends BaseTestRunner
     {
         //System.out.println("RUN had failures");
     }
-
 
     /* This is important - not setting this to false expilcitly
      * will cause Junit to create a new classloader instance for
