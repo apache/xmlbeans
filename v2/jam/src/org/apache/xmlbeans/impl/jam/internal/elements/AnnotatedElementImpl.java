@@ -190,47 +190,21 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   // Old stuff
 
   /**
-   * @deprecated
-   * 
-   * @param tagName
-   * @return
+   * @deprecated this is a back door for xbeans.  do not use, will
+   * be removed soon.
    */
-  public MAnnotation addAnnotationForTag(String tagName, String value) {
-    MAnnotation ann = findOrCreateAnnotation(tagName);
-    JClass type = getClassLoader().loadClass("java.lang.String");
-    ann.setSimpleValue(JAnnotation.SINGLE_VALUE_NAME,value,type);
-    MAnnotation litann = addLiteralAnnotation(tagName);
-    litann.setSimpleValue(JAnnotation.SINGLE_VALUE_NAME,value,type);
+  public MAnnotation addAnnotationForProxy(Class proxyClass,
+                                           AnnotationProxy proxy)
+  {
+    //ClassImpl.validateClassName(annotationName);
+    String annotationName = proxyClass.getName();
+    MAnnotation ann = getMutableAnnotation(annotationName);
+    if (ann != null) return ann;
+    ann = new AnnotationImpl(getContext(),proxy,annotationName);
+    if (mName2Annotation == null) {
+      mName2Annotation = new HashMap();
+    }
+    mName2Annotation.put(ann.getSimpleName(),ann);
     return ann;
   }
-
- /*
- private String getAnnotationTypeFor(/*Annotation Object annotationInstance) {
-   //FIXME this may be broken, not sure yet what the class of an annotation
-   // instance is.  we may need to climb the type tree.
-   return annotationInstance.getClass().getName();
- }
-
-  public MAnnotation addAnnotationForInstance(Class annType,
-                                              Object instance) {
-    if (annType == null) throw new IllegalArgumentException("null anntype");
-    if (instance == null) throw new IllegalArgumentException("null instance");
-    MAnnotation ann = getMutableAnnotation(annType);
-    if (ann != null) {
-      ann.setAnnotationInstance(instance);
-      ((AnnotationProxy)ann.getProxy()).initFromAnnotationInstance(annType,instance);//REVIEW not totally comfortable with this cast
-      //REVIEW this is a weird case where they add another instance
-      // of the same annotation type.  We'll just go with it for now,
-      // but we might want to throw an exception here, not sure.
-    } else {
-      AnnotationProxy proxy = getContext().createProxyForAnnotationType
-        (getAnnotationTypeFor(instance));
-      proxy.initFromAnnotationInstance(annType,instance);
-      ann = new AnnotationImpl(getContext(),proxy,annType.getName());
-      ann.setAnnotationInstance(instance);
-      setArtifact(instance);
-      addAnnotation(ann);
-    }
-    return ann;
-  }*/
 }

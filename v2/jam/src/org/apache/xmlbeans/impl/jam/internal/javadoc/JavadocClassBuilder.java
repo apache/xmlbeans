@@ -69,8 +69,8 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
       mLogger.verbose("mParseTags="+mParseTags,this);
     }
     try {
-      // class for name this because it's 1.5 specific.  if it fails, we
-      // don't want to use the extractor
+      // See if we can load a 1.5-specific class.  If we can't, don't use
+      // the Javadoc15Delegate.
       Class.forName("com.sun.javadoc.AnnotationDesc");
     } catch (ClassNotFoundException e) {
       if (mLogger.isVerbose(this)) {
