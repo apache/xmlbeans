@@ -24,12 +24,14 @@ public class JUnitXRunner extends BaseTestRunner
         String outFile = null;
         boolean showOutput = false;
 
+        Collection flags = new TreeSet();
+        flags.add("showoutput");
+
         Collection options=new TreeSet();
         options.add(JUnitXTask.resultListener);
         options.add(JUnitXTask.outFile);
-        options.add("showoutput");
 
-        CommandLine cmdl = new CommandLine(args, options);
+        CommandLine cmdl = new CommandLine(args, flags, options);
         showOutput = cmdl.getOpt("showoutput") != null;
         resListener = cmdl.getOpt(JUnitXTask.resultListener);
         if (resListener != null) {
