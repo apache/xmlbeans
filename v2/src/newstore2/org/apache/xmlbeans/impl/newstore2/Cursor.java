@@ -43,8 +43,7 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
 
-import org.apache.xmlbeans.impl.newstore2.Cur;
-import org.apache.xmlbeans.impl.newstore2.Locale;
+import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
 
 public final class Cursor implements XmlCursor
 {
@@ -287,7 +286,14 @@ public final class Cursor implements XmlCursor
     
     public String _xmlText ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _xmlText( null );
+    }
+    
+    public String _xmlText ( XmlOptions options )
+    {
+        assert isValid();
+        
+        return new TextSaver( _cur, options, null ).saveToString();
     }
     
     public InputStream _newInputStream ( )
@@ -326,11 +332,6 @@ public final class Cursor implements XmlCursor
     }
     
     public XMLInputStream _newXMLInputStream ( XmlOptions options )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public String _xmlText ( XmlOptions options )
     {
         throw new RuntimeException( "Not implemented" );
     }
