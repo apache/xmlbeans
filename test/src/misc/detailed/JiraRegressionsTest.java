@@ -864,9 +864,9 @@ public class JiraRegressionsTest extends TestCase
                         "  <status name=\"first\" target=\"none\">none</status>\n" +
                         "</statusreport>";
                 XmlObject path = XmlObject.Factory.parse(statusDoc, xm);
-                XmlObject[] resSet = path.selectPath("//status");
-                Assert.assertTrue(resSet.length == 4);
-                resSet = path.selectPath("//status[@name='first']");
+                XmlObject[] resSet = path.selectPath("//*:status");
+                Assert.assertTrue( resSet.length+"",resSet.length == 4);
+                resSet = path.selectPath("//*:status[@name='first']");
                 Assert.assertTrue(resSet.length == 2);
 
             } catch (Throwable t) {
