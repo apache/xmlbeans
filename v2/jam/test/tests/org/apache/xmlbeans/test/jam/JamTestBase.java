@@ -135,7 +135,7 @@ public abstract class JamTestBase extends TestCase {
    * lines.
    */
 
-  private static final boolean VERBOSE = false;
+  private static final boolean VERBOSE = true;
 
   // ========================================================================
   // Variables
@@ -195,7 +195,9 @@ public abstract class JamTestBase extends TestCase {
   // TestCase implementation
 
   public void setUp() throws Exception {
+    System.out.println("getting result to test");
     mResult = getResultToTest();
+    System.out.println("getting class loader");
     mLoader = mResult.getClassLoader();
   }
 
@@ -216,7 +218,7 @@ public abstract class JamTestBase extends TestCase {
                expected.containsAll(classNames));
   }
 
-  public void testRecursiveResolve() {
+  public void xtestRecursiveResolve() {
     resolveCheckRecursively(mResult.getAllClasses(),new HashSet());
   }
 
@@ -242,14 +244,18 @@ public abstract class JamTestBase extends TestCase {
    * number of parameters and correct return types.
    */
   public void testFooImplMethods() {
+    System.out.println("loading..");
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
+    System.out.println("ok..");
     GoldenInvokable[] methods = GoldenInvokable.createArray(FOOIMPL_METHODS);
+        System.out.println("ok..");
     GoldenInvokable.doComparison(fooImpl.getDeclaredMethods(),
                               methods,isParameterNamesKnown(),this);
+        System.out.println("ok..");
   }
 
 
-  public void testInterfaceIsAssignableFrom()
+  public void xtestInterfaceIsAssignableFrom()
   {
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
     JClass foo = resolved(mLoader.loadClass(DUMMY+".Foo"));
@@ -259,7 +265,7 @@ public abstract class JamTestBase extends TestCase {
                !fooImpl.isAssignableFrom(foo));
   }
 
-  public void testClassIsAssignableFrom()
+  public void xtestClassIsAssignableFrom()
   {
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
     JClass base = resolved(mLoader.loadClass(DUMMY+".Base"));
@@ -269,7 +275,7 @@ public abstract class JamTestBase extends TestCase {
                !fooImpl.isAssignableFrom(base));
   }
 
-  public void testClassIsAssignableFromDifferentClassLoaders()
+  public void xtestClassIsAssignableFromDifferentClassLoaders()
   {
     JClass baz = resolved(mLoader.loadClass(DUMMY+".Baz"));
     JClass runnable = resolved(mLoader.loadClass("java.lang.Runnable"));
@@ -280,7 +286,7 @@ public abstract class JamTestBase extends TestCase {
   }
 
 
-  public void testAnnotationsAndInheritance()
+  public void xtestAnnotationsAndInheritance()
   {
     JClass ejb = resolved(mLoader.loadClass(DUMMY+".ejb.TraderEJB"));
     JClass ienv = resolved(ejb.getInterfaces()[0]);

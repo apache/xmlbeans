@@ -39,6 +39,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
   // Variables
 
   private ClassLoader mLoader;
+  private boolean mIs15available = true;
 
   // ========================================================================
   // Constructors
@@ -163,6 +164,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
    * under 1.4.</p>
    */
   private /*Annotation[]*/ Object[] get175AnnotationsOn(Object thing) {
+    if (!mIs15available) return null;
     Method annGetter;
     try {
       annGetter = thing.getClass().
@@ -175,6 +177,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     } catch(InvocationTargetException ite) {
       getLogger().debug(ite);
     }
+    mIs15available = false;
     return null;
   }
 
@@ -192,6 +195,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
    */
   private /*Annotation[][]*/ Object[][] get175ParameterAnnotationsOn(Object thing)
   {
+    if (!mIs15available) return null;
     Method annGetter;
     try {
       annGetter = thing.getClass().
@@ -204,6 +208,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     } catch(InvocationTargetException ite) {
       getLogger().debug(ite);
     }
+    mIs15available = false;
     return null;
   }
 

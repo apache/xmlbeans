@@ -52,7 +52,7 @@ public class ParserClassBuilder extends JamClassBuilder {
 
   public ParserClassBuilder(JamServiceContext jsp) {
     mSourcePath = jsp.getInputSourcepath();
-    mOut = jsp.getOut();
+    //mOut = jsp.getOut();
   }
 
   // ========================================================================

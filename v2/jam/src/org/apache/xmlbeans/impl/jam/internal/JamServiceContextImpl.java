@@ -60,7 +60,7 @@ public class JamServiceContextImpl implements JamServiceContext,
   private List mIncludeClasses = null;
   private List mExcludeClasses = null;
 
-  private PrintWriter mOut = null;
+  private PrintWriter mOut = new PrintWriter(System.out);
   private boolean mUseSystemClasspath = true;
   private boolean mVerbose = false;
   private ElementVisitor mCommentInitializer = null;

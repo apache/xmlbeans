@@ -115,7 +115,7 @@ public interface JamServiceContext extends JamLogger {
 
   public String[] getAllClassnames() throws IOException;
 
-  public PrintWriter getOut();
+  //public PrintWriter getOut();
 
 
   // ========================================================================

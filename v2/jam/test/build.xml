@@ -49,7 +49,7 @@
 -->
 
     <junit fork='yes'
-           dir='.'
+           dir='.'  
            haltonerror='yes'
            haltonfailure='yes'
            showoutput='yes'

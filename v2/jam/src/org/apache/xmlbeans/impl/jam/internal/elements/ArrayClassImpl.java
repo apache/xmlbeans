@@ -96,7 +96,7 @@ public final class ArrayClassImpl extends BuiltinClassImpl {
   // ========================================================================
   // JElement implementation
 
-  public JElement getParent() { return null; }
+//  public JElement getParent() { return null; }
 
   public String getSimpleName() {
     String out = getQualifiedName();

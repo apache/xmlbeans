@@ -126,7 +126,7 @@ public final class PrimitiveClassImpl extends BuiltinClassImpl {
       throw new IllegalArgumentException("Unknown primitive class '"+
         name+"'");
     }
-    ((ElementImpl)this).setSimpleName(name);
+    reallySetSimpleName(name);
   }
 
   // ========================================================================

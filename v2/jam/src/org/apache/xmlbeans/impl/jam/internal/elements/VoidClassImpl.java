@@ -41,7 +41,7 @@ public final class VoidClassImpl extends BuiltinClassImpl {
 
   public VoidClassImpl(ElementContext ctx) {
     super(ctx);
-    super.setSimpleName(SIMPLE_NAME);
+    super.reallySetSimpleName(SIMPLE_NAME);
   }
 
   // ========================================================================
