@@ -180,11 +180,8 @@ final class ByNameRuntimeBindingType
             final Property prop = properties[i];
             if (prop.isAttribute()) continue;
 
-            QName qn = prop.getQName();
-            if (qn.getLocalPart().equals(localname) &&
-                qn.getNamespaceURI().equals(uri)) {
+            if (doesPropMatch(uri, localname, prop))
                 return prop;
-            }
         }
         return null;
     }
@@ -197,13 +194,24 @@ final class ByNameRuntimeBindingType
             final Property prop = properties[i];
             if (!prop.isAttribute()) continue;
 
-            QName qn = prop.getQName();
-            if (qn.getLocalPart().equals(localname) &&
-                qn.getNamespaceURI().equals(uri)) {
+            if (doesPropMatch(uri, localname, prop))
                 return prop;
-            }
         }
         return null;
+    }
+
+    private static boolean doesPropMatch(String uri,
+                                         String localname,
+                                         Property prop)
+    {
+        final QName qn = prop.getQName();
+
+        if (qn.getLocalPart().equals(localname)) {
+            //QNames always uses "" for no namespace, but the incoming uri
+            //might use null or "".
+            return qn.getNamespaceURI().equals(uri == null ? "" : uri);
+        }
+        return false;
     }
 
     public int getPropertyCount()
