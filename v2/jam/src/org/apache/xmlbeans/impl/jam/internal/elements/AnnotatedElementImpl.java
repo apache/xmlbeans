@@ -11,6 +11,8 @@ import org.apache.xmlbeans.impl.jam.mutable.MComment;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -24,6 +26,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
 
   private Map mName2Annotation = null;
   private MComment mComment = null;
+
+  private List mAllJavadocTags = null;
 
   // ========================================================================
   // Constructors
@@ -69,6 +73,28 @@ public abstract class AnnotatedElementImpl extends ElementImpl
 
   public JComment getComment() { return getMutableComment(); }
 
+  public JAnnotation[] getAllJavadocTags() {
+    if (mAllJavadocTags == null) return NO_ANNOTATION;
+    JAnnotation[] out = new JAnnotation[mAllJavadocTags.size()];
+    mAllJavadocTags.toArray(out);
+    return out;
+  }
+
+  public JAnnotation[] getAllJavadocTags(String named) {
+    //FIXME this impl is quite gross
+    if (mAllJavadocTags == null) return NO_ANNOTATION;
+    List list = new ArrayList();
+    for(int i=0; i<mAllJavadocTags.size(); i++) {
+      JAnnotation j = (JAnnotation)mAllJavadocTags.get(i);
+      if (j.getSimpleName().equals(named)) {
+        list.add(j);
+      }
+    }
+    JAnnotation[] out = new JAnnotation[list.size()];
+    list.toArray(out);
+    return out;
+  }
+
   // ========================================================================
   // MAnnotatedElement implementation
 
@@ -100,19 +126,35 @@ public abstract class AnnotatedElementImpl extends ElementImpl
   }
 
   public MAnnotation addAnnotationForTag(String tagName) {
+    {
+      // looks like we need to maintain a full list no matter what
+      if (mAllJavadocTags == null) mAllJavadocTags = new ArrayList();
+      AnnotationProxy proxy = getContext().createProxyForTag(tagName);
+      MAnnotation ann = new AnnotationImpl(getContext(),proxy,tagName);
+      ann.setArtifact("@"+tagName);
+      mAllJavadocTags.add(ann);
+    }
     MAnnotation out = getMutableAnnotation(tagName);
     if (out != null) {
       //REVIEW this is a weird case.  we'll just go with it for now.
     } else {
       AnnotationProxy proxy = getContext().createProxyForTag(tagName);
       out = new AnnotationImpl(getContext(),proxy,tagName);
-
       getName2Annotation().put(tagName,out);
     }
     return out;
   }
 
   public MAnnotation addAnnotationForTag(String tagName, String tagContents) {
+    {
+      // looks like we need to maintain a full list no matter what
+      if (mAllJavadocTags == null) mAllJavadocTags = new ArrayList();
+      AnnotationProxy proxy = getContext().createProxyForTag(tagName);
+      proxy.initFromJavadocTag(tagContents);
+      MAnnotation ann = new AnnotationImpl(getContext(),proxy,tagName);
+      ann.setArtifact("@"+tagName+" "+tagContents);
+      mAllJavadocTags.add(ann);
+    }
     MAnnotation out = getMutableAnnotation(tagName);
     if (out != null) {
       //REVIEW this is a weird case where they add the same thing twice.

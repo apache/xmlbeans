@@ -94,6 +94,10 @@ public class ParserClassBuilder extends JamClassBuilder {
     return null;
   }
 
+  public void populate(MClass m) {
+    throw new IllegalStateException("NYI");
+  }
+
   // ========================================================================
   // Private methods
 

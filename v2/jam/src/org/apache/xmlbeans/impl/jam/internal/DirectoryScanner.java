@@ -216,7 +216,7 @@ public class DirectoryScanner {
    */
   private void scandir(File dir, String vpath, boolean fast)
           throws IOException {
-    if (mLogger.isVerbose()) {
+    if (mLogger.isVerbose(this)) {
       mLogger.verbose("[DirectoryScanner] scanning dir "+dir+" for '"+vpath+"'");
     }
     String[] newfiles = dir.list();
@@ -264,9 +264,7 @@ public class DirectoryScanner {
       if (file.isDirectory()) {
         if (isIncluded(name) && !isExcluded(name)) {
           mDirsIncluded.addElement(name);
-          if (mLogger.isVerbose()) {
-            mLogger.verbose("[DirectoryScanner] ...including dir "+name);
-          }
+          if (mLogger.isVerbose(this)) mLogger.verbose("...including dir "+name);
           scandir(file, name + File.separator, fast);
         } else {
           if (couldHoldIncluded(name)) {
@@ -277,12 +275,12 @@ public class DirectoryScanner {
         if (isIncluded(name)) {
           if (!isExcluded(name)) {
             mFilesIncluded.addElement(name);
-            if (mLogger.isVerbose()) {
-              mLogger.verbose("[DirectoryScanner] ...including "+name+" under '"+dir);
+            if (mLogger.isVerbose(this)) {
+              mLogger.verbose("...including "+name+" under '"+dir);
             }
           } else {
-            if (mLogger.isVerbose()) {
-              mLogger.verbose("[DirectoryScanner] ...EXCLUDING "+name+" under '"+dir);
+            if (mLogger.isVerbose(this)) {
+              mLogger.verbose("...EXCLUDING "+name+" under '"+dir);
             }
           }
         }
@@ -350,13 +348,13 @@ public class DirectoryScanner {
    *
    * @return the names of the directories which matched at least one of the
    * include patterns and none of the exclude patterns.
-   */
+
   private String[] getIncludedDirectories() {
     String[] directories = new String[mDirsIncluded.size()];
     mDirsIncluded.copyInto(directories);
     return directories;
   }
-
+   */
 
   // ========================================================================
   // SelectorUtils stuff
@@ -376,10 +374,11 @@ public class DirectoryScanner {
    *
    * @return whether or not a given path matches the start of a given
    * pattern up to the first "**".
-   */
+
   private static boolean matchPatternStart(String pattern, String str) {
     return matchPatternStart(pattern, str, true);
   }
+   */
 
   /**
    * Tests whether or not a given path matches the start of a given
@@ -451,11 +450,12 @@ public class DirectoryScanner {
    *
    * @return <code>true</code> if the pattern matches against the string,
    *         or <code>false</code> otherwise.
-   */
+
   private static boolean matchPath(String pattern, String str) {
     return matchPath(pattern, str, true);
   }
-
+   */
+  
   /**
    * Tests whether or not a given path matches a given pattern.
    *

@@ -74,4 +74,11 @@ public class QualifiedJClassRef implements JClassRef {
   public String getQualifiedName() {
     return mQualifiedClassname;
   }
+
+  // ========================================================================
+  // Object implementation
+
+  public String toString() {
+    return "(QualifiedJClassRef '"+mQualifiedClassname+"')";
+  }
 }

@@ -104,7 +104,8 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".Foo",
     DUMMY+".FooImpl",
     DUMMY+".HeavilyCommented",
-    DUMMY+".MyException"
+    DUMMY+".MyException",
+    DUMMY+".MultipleTags"
   };
 
 
@@ -136,7 +137,7 @@ public abstract class JamTestBase extends TestCase {
   // this needs to correspond to the methods on the FooImpl dummyclass
   private static final String[] HEAVILY_COMMENTS = {
     "A simple comment.",
-    "A comment which\nspans\n\nseveral\n\n\nlines."
+    "A comment which\n spans\n\n several\n\n\n lines."
   };
   /**
    * A comment which
@@ -227,20 +228,6 @@ public abstract class JamTestBase extends TestCase {
                classNames.containsAll(expected));
     assertTrue("result contains more than expected classes",
                expected.containsAll(classNames));
-  }
-
-  private void dump(JClass j) {
-    Writer out = new PrintWriter(System.out,true);
-    JamXmlWriter jxw = null;
-    try {
-      jxw = new JamXmlWriter(out);
-      jxw.write(j);
-      out.flush();
-    } catch (IOException e) {
-      e.printStackTrace();
-    } catch (XMLStreamException e) {
-      e.printStackTrace();
-    }
   }
 
 
@@ -357,9 +344,28 @@ public abstract class JamTestBase extends TestCase {
     }
   }
 
+  public void testMultipleTags() {
+    if (!isAnnotationsAvailable()) return;
+    JClass mt = resolved(mLoader.loadClass(DUMMY+".MultipleTags"));
+    compare(mt,"testMultipleTags.xml");
+    JMethod method = mt.getMethods()[0];
+    assertTrue(method.getAllJavadocTags().length == 6);
+    assertTrue(method.getAllJavadocTags("foo").length == 4);
+    assertTrue(method.getAllJavadocTags("foo")[2].getValue("z").asInt() == 3);
+    assertTrue(method.getAllJavadocTags("bar").length == 1);
+    assertTrue(method.getAllJavadocTags("bar")[0].getValue("x").asInt() == -4343);
+    assertTrue(method.getAllJavadocTags("baz").length == 1);
+  }
+
+
 
   // ========================================================================
   // Private methods
+
+  private void compare(JElement element, String masterName) {
+    dump(element);//FIXME
+  }
+
 
   private void resolveCheckRecursively(JClass[] clazzes, Set resolved) {
     for(int i=0; i<clazzes.length; i++) {
@@ -426,4 +432,20 @@ public abstract class JamTestBase extends TestCase {
     assertTrue("'"+j.getQualifiedName()+"' expected to NOT have annotation '"+ann+"'",
                 a == null);
   }
+
+  private void dump(JElement j) {
+    Writer out = new PrintWriter(System.out,true);
+    JamXmlWriter jxw = null;
+    try {
+      jxw = new JamXmlWriter(out);
+      jxw.write(j);
+      out.flush();
+    } catch (IOException e) {
+      e.printStackTrace();
+    } catch (XMLStreamException e) {
+      e.printStackTrace();
+    }
+  }
+
+
 }

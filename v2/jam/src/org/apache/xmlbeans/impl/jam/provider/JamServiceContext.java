@@ -73,7 +73,7 @@ import java.io.PrintWriter;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface JamServiceContext extends JamLogger {
+public interface JamServiceContext extends JamLogger/*killme*/ {
 
   // ========================================================================
   // Public methods
@@ -105,8 +105,6 @@ public interface JamServiceContext extends JamLogger {
    */
   public String getProperty(String name);
 
-  public JamClassLoader getParentClassLoader();
-
   public MVisitor getInitializer();
 
   public boolean isUseSystemClasspath();
@@ -114,6 +112,8 @@ public interface JamServiceContext extends JamLogger {
   public File[] getSourceFiles() throws IOException;
 
   public String[] getAllClassnames() throws IOException;
+
+  public JamLogger getLogger();
 
   //public PrintWriter getOut();
 

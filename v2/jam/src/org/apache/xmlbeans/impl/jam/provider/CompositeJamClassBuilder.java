@@ -29,6 +29,7 @@ public class CompositeJamClassBuilder extends JamClassBuilder {
   // Variables
 
   private JamClassBuilder[] mBuilders;
+  private JamClassBuilder mLastBuiltAt = null;
 
   // ========================================================================
   // Constructors
@@ -49,9 +50,18 @@ public class CompositeJamClassBuilder extends JamClassBuilder {
     MClass out = null;
     for(int i=0; i<mBuilders.length; i++) {
       out = mBuilders[i].build(pkg,cname);
-      if (out != null) return out;
+      if (out != null) {
+        mLastBuiltAt = mBuilders[i];
+        return out;
+      }
     }
     return null;
   }
+
+  public void populate(MClass c) {
+    mLastBuiltAt.populate(c);
+    mLastBuiltAt = null;
+  }
+
 
 }
