@@ -251,6 +251,7 @@
                 </bin:issetter>
                 <bin:qname>java:BigInt</bin:qname>
                 <bin:nillable>true</bin:nillable>
+                <bin:default>876587658765876587658765876587658765</bin:default>
             </bin:qname-property>
         </bin:binding-type>
     </bin:bindings>

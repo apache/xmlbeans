@@ -110,4 +110,9 @@ final class RuntimeGlobalProperty
         return true;
     }
 
+    public String getLexicalDefault()
+    {
+        throw new AssertionError("UNIMP");
+    }
+
 }

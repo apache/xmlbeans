@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
@@ -161,7 +162,7 @@ final class ByNameRuntimeBindingType
             final Property prop = attributeProperties[i];
 
             if (doesPropMatch(uri, localname, prop)) {
-                if (hasDefaultAttributes && (prop.defaultValue != null)) {
+                if (hasDefaultAttributes && (prop.typedDefaultValue != null)) {
                     context.attributePresent(i);
                 }
                 return prop;
@@ -204,7 +205,7 @@ final class ByNameRuntimeBindingType
         for (int aidx = 0, alen = attributeProperties.length; aidx < alen; aidx++) {
             final Property p = attributeProperties[aidx];
 
-            if (p.defaultValue == null) continue;
+            if (p.typedDefaultValue == null) continue;
             if (context.isAttributePresent(aidx)) continue;
 
             p.fillDefaultValue(inter);
@@ -226,7 +227,8 @@ final class ByNameRuntimeBindingType
         private final Method getMethod;
         private final Method setMethod;
         private final Method issetMethod;
-        private final Object defaultValue;
+        private final String lexicalDefaultValue;
+        private final Object typedDefaultValue;
 
         private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
 
@@ -266,16 +268,13 @@ final class ByNameRuntimeBindingType
             setMethod = getSetterMethod(prop, beanClass);
             issetMethod = getIssetterMethod(prop, beanClass);
 
-            String def = bindingProperty.getDefault();
-            if (def != null) {
-                defaultValue = extractDefaultObject(def, binding_type,
-                                                    typeTable, loader);
-                if (!prop.isAttribute()) {
-                    //TODO: deal with defaulting elements!
-                    System.out.println("Default elements not supported: " + this);
-                }
+            lexicalDefaultValue = bindingProperty.getDefault();
+            if (lexicalDefaultValue != null) {
+                typedDefaultValue = extractDefaultObject(lexicalDefaultValue,
+                                                         binding_type,
+                                                         typeTable, loader);
             } else {
-                defaultValue = null;
+                typedDefaultValue = null;
             }
         }
 
@@ -303,6 +302,13 @@ final class ByNameRuntimeBindingType
                 reader.close();
                 sr.close();
                 return obj;
+            }
+            catch (XmlRuntimeException re) {
+                //TODO: improve error handling using custom error handler
+                //esp nice to provide error info from config file
+                final String msg = "invalid default value: " + value +
+                    " for type " + bindingType.getName();
+                throw new XmlException(msg, re);
             }
             catch (XMLStreamException e) {
                 throw new XmlException(e);
@@ -476,9 +482,9 @@ final class ByNameRuntimeBindingType
         public void fillDefaultValue(Object inter)
             throws XmlException
         {
-            assert (defaultValue != null);
+            assert (typedDefaultValue != null);
 
-            this.fill(inter, defaultValue);
+            this.fill(inter, typedDefaultValue);
         }
 
         public void fillCollection(final Object inter, final Object prop_obj)
@@ -564,6 +570,11 @@ final class ByNameRuntimeBindingType
         public boolean isNillable()
         {
             return bindingProperty.isNillable();
+        }
+
+        public String getLexicalDefault()
+        {
+            return lexicalDefaultValue;
         }
 
         private static Method getSetterMethod(QNameProperty binding_prop,
