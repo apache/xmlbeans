@@ -67,20 +67,19 @@ final class CharacterVisitor
         throw new AssertionError("no name on " + this);
     }
 
-    protected int getAttributeCount()
-        throws XmlException
+    protected String getLocalPart()
     {
-        return 0;
+        throw new AssertionError("no name on " + this);
     }
 
-    protected String getAttributeValue(int idx)
+    protected String getNamespaceURI()
     {
-        throw new AssertionError("no attributes on " + this);
+        throw new AssertionError("no name on " + this);
     }
 
-    protected QName getAttributeName(int idx)
+    protected String getPrefix()
     {
-        throw new AssertionError("no attributes on " + this);
+        throw new AssertionError("no name on " + this);
     }
 
     protected CharSequence getCharData()

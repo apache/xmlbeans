@@ -32,6 +32,8 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
+import org.apache.xmlbeans.impl.marshal.util.AttributeHolder;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -58,6 +60,7 @@ final class MarshalResult implements XMLStreamReader
     private XmlTypeVisitor currVisitor;
     private int currentEventType = XMLStreamReader.START_ELEMENT;
     private boolean initedAttributes = false;
+    private AttributeHolder attributeHolder;
     private int prefixCnt = 0;
 
     //used for some array types
@@ -175,6 +178,9 @@ final class MarshalResult implements XMLStreamReader
 
     String ensurePrefix(String uri)
     {
+        assert uri != null;  //QName's should use "" for no namespace
+        assert (uri.length() > 0);
+
         String prefix = namespaceContext.getPrefix(uri);
         if (prefix == null) {
             prefix = bindNextPrefix(uri);
@@ -192,7 +198,8 @@ final class MarshalResult implements XMLStreamReader
         do {
             prefix = NSPREFIX + (++prefixCnt);
             testuri = namespaceContext.getNamespaceURI(prefix);
-        } while (testuri != null);
+        }
+        while (testuri != null);
         assert prefix != null;
         namespaceContext.bindNamespace(prefix, uri);
         return prefix;
@@ -306,37 +313,38 @@ final class MarshalResult implements XMLStreamReader
     public int getAttributeCount()
     {
         initAttributes();
-        try {
-            return currVisitor.getAttributeCount();
-        }
-        catch (XmlException e) {
-            //interface forces us into this...
-            throw new XmlRuntimeException(e);
-        }
+        if (attributeHolder == null)
+            return 0;
+        else
+            return attributeHolder.getAttributeCount();
     }
 
     public QName getAttributeName(int i)
     {
         initAttributes();
-        return currVisitor.getAttributeName(i);
+        assert attributeHolder != null;
+        return attributeHolder.getAttributeName(i);
     }
 
     public String getAttributeNamespace(int i)
     {
         initAttributes();
-        return getAttributeName(i).getNamespaceURI();
+        assert attributeHolder != null;
+        return attributeHolder.getAttributeNamespace(i);
     }
 
     public String getAttributeLocalName(int i)
     {
         initAttributes();
-        return getAttributeName(i).getLocalPart();
+        assert attributeHolder != null;
+        return attributeHolder.getAttributeLocalName(i);
     }
 
     public String getAttributePrefix(int i)
     {
         initAttributes();
-        return getAttributeName(i).getPrefix();
+        assert attributeHolder != null;
+        return attributeHolder.getAttributePrefix(i);
     }
 
     public String getAttributeType(int i)
@@ -348,14 +356,16 @@ final class MarshalResult implements XMLStreamReader
     public String getAttributeValue(int i)
     {
         initAttributes();
-        return currVisitor.getAttributeValue(i);
+        assert attributeHolder != null;
+        return attributeHolder.getAttributeValue(i);
     }
 
     public boolean isAttributeSpecified(int i)
     {
         initAttributes();
 
-        throw new UnsupportedOperationException("UNIMPLEMENTED");
+        assert attributeHolder != null;
+        return attributeHolder.isAttributeSpecified(i);
     }
 
     public int getNamespaceCount()
@@ -485,7 +495,7 @@ final class MarshalResult implements XMLStreamReader
 
     public String getLocalName()
     {
-        return getName().getLocalPart();
+        return currVisitor.getLocalPart();
     }
 
     public boolean hasName()
@@ -496,12 +506,12 @@ final class MarshalResult implements XMLStreamReader
 
     public String getNamespaceURI()
     {
-        return getName().getNamespaceURI();
+        return currVisitor.getNamespaceURI();
     }
 
     public String getPrefix()
     {
-        return getName().getPrefix();
+        return currVisitor.getPrefix();
     }
 
     public String getVersion()
@@ -538,6 +548,9 @@ final class MarshalResult implements XMLStreamReader
     {
         if (!initedAttributes) {
             try {
+                if (attributeHolder != null) {
+                    attributeHolder.clear();
+                }
                 currVisitor.initAttributes();
             }
             catch (XmlException e) {
@@ -627,13 +640,68 @@ final class MarshalResult implements XMLStreamReader
         return typeTable.getRuntimeTypeFactory();
     }
 
-    QName createQName(String uri, String localpart, String prefix) {
+    private QName createQName(String uri, String localpart, String prefix)
+    {
         return new QName(uri, localpart, prefix);
     }
 
-    QName createQName(String localpart) {
+    private QName createQName(String localpart)
+    {
         return new QName(localpart);
     }
+
+    void fillAndAddAttribute(QName qname_without_prefix,
+                             String value)
+    {
+        final String uri = qname_without_prefix.getNamespaceURI();
+        final String prefix;
+        if (uri.length() == 0) {
+            prefix = null;
+        } else {
+            prefix = ensurePrefix(uri);
+        }
+        addAttribute(uri, qname_without_prefix.getLocalPart(), prefix, value);
+    }
+
+    private void addAttribute(String namespaceURI,
+                      String localPart,
+                      String prefix,
+                      String value)
+    {
+        if (attributeHolder == null) {
+            attributeHolder = new AttributeHolder();
+        }
+        attributeHolder.add(namespaceURI, localPart, prefix, value);
+    }
+
+    void addXsiNilAttribute()
+    {
+        addAttribute(MarshalStreamUtils.XSI_NS,
+                     MarshalStreamUtils.XSI_NIL_ATTR,
+                     ensurePrefix(MarshalStreamUtils.XSI_NS),
+                     NamedXmlTypeVisitor.TRUE_LEX);
+    }
+
+    void addXsiTypeAttribute(RuntimeBindingType rtt)
+    {
+        final QName schema_type = rtt.getSchemaTypeName();
+        final String type_uri = schema_type.getNamespaceURI();
+
+        //TODO: what about types from a schema with no targetNamespace??
+        assert type_uri != null;
+        assert type_uri.length() > 0;
+
+        final String aval =
+            XsTypeConverter.getQNameString(type_uri,
+                                           schema_type.getLocalPart(),
+                                           ensurePrefix(type_uri));
+
+        addAttribute(MarshalStreamUtils.XSI_NS,
+                     MarshalStreamUtils.XSI_TYPE_ATTR,
+                     ensurePrefix(MarshalStreamUtils.XSI_NS),
+                     aval);
+    }
+
 
     private static final class BindingTypeVisitor
         implements org.apache.xmlbeans.impl.binding.bts.BindingTypeVisitor

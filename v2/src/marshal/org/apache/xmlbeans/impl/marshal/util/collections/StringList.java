@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.marshal.util.collections;
 
+import java.util.Arrays;
+
 /**
  minimal, simplisitic typesafe version of ArrayList for Strings
  wraps String[]
@@ -77,6 +79,11 @@ public final class StringList
     public void append(Object o)
     {
         add((String)o);
+    }
+
+    public void clear() {
+        Arrays.fill(store, null);
+        size = 0;
     }
 
     /**

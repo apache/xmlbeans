@@ -54,105 +54,113 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans.impl.marshal.util;
 
-import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
+import org.apache.xmlbeans.impl.marshal.util.collections.StringList;
 
 import javax.xml.namespace.QName;
-import java.lang.reflect.Array;
 
-public class WrappedArrayTypeVisitor extends NamedXmlTypeVisitor
+public final class AttributeHolder
 {
-    private final WrappedArrayRuntimeBindingType type;
-    private final int arrayLength;
+    private final StringList data;
 
-    private int currIndex = -1;
-
-    WrappedArrayTypeVisitor(RuntimeBindingProperty property,
-                            Object obj,
-                            MarshalResult result)
-        throws XmlException
+    public AttributeHolder(int initial_capacity)
     {
-        super(obj, property, result);
-
-        type = (WrappedArrayRuntimeBindingType)getActualRuntimeBindingType();
-        arrayLength = getArrayLength(obj);
+        data = new StringList(4 * initial_capacity);
     }
 
-    private static int getArrayLength(Object obj)
+    public AttributeHolder()
     {
-        if (obj == null) return 0;
-
-        return Array.getLength(obj);
+        this(4);
     }
 
-    protected int getState()
+    public void clear()
     {
-        assert currIndex <= arrayLength; //ensure we don't go past the end
+        data.clear();
 
-        if (currIndex < 0) return START;
-
-        if (currIndex >= arrayLength) return END;
-
-        return CONTENT;
+        assert data.getSize() == 0;
     }
 
-    protected int advance()
-        throws XmlException
+    public void add(String namespaceURI, String localPart, String prefix,
+                    String value)
     {
-        assert currIndex < arrayLength; //ensure we don't go past the end
+        data.add(namespaceURI);
+        data.add(localPart);
+        data.add(prefix);
+        data.add(value);
 
-        do {
-            currIndex++;
-            if (currIndex == arrayLength) return END;
+        assert (data.getSize() % 4) == 0;
+    }
+
+    public void add(QName name, String value)
+    {
+        add(name.getNamespaceURI(),
+            name.getLocalPart(),
+            name.getPrefix(),
+            value);
+    }
+
+
+    public int getAttributeCount()
+    {
+        assert (data.getSize() % 4) == 0;
+        return data.getSize() / 4;
+    }
+
+    public String getAttributeValue(int idx)
+    {
+        assert (data.getSize() % 4) == 0;
+
+        return data.get(3 + idx * 4);
+    }
+
+    public QName getAttributeName(int idx)
+    {
+        //TODO: consider caching these values...
+        return new QName(getAttributeNamespace(idx),
+                         getAttributeLocalName(idx),
+                         getAttributePrefix(idx));
+    }
+
+
+    public String getAttributeNamespace(int i)
+    {
+        assert (data.getSize() % 4) == 0;
+
+        return data.get(i * 4);
+    }
+
+    public String getAttributeLocalName(int i)
+    {
+        assert (data.getSize() % 4) == 0;
+
+        return data.get(1 + i * 4);
+    }
+
+    public String getAttributePrefix(int i)
+    {
+        assert (data.getSize() % 4) == 0;
+
+        return data.get(2 + i * 4);
+    }
+
+    public boolean isAttributeSpecified(int i)
+    {
+        throw new UnsupportedOperationException("UNIMPLEMENTED");
+    }
+
+
+    public String getAttributeValue(String uri, String lname)
+    {
+        //TODO: do better than this basic and slow implementation
+        for (int i = 0, len = getAttributeCount(); i < len; i++) {
+
+            if (lname.equals(getAttributeLocalName(i))) {
+                if (uri == null || uri.equals(getAttributeNamespace(i)))
+                    return getAttributeValue(i);
+            }
         }
-        while (!currentItemHasValue());
-
-
-        assert currIndex >= 0;
-        assert (getState() == CONTENT);
-
-        return CONTENT;
-    }
-
-    private boolean currentItemHasValue()
-        throws XmlException
-    {
-        marshalResult.setCurrIndex(currIndex);
-        return type.getElementProperty().isSet(getParentObject(),
-                                               marshalResult);
-    }
-
-    private Object getCurrentValue()
-        throws XmlException
-    {
-        marshalResult.setCurrIndex(currIndex);
-        return type.getElementProperty().getValue(getParentObject(),
-                                                  marshalResult);
-    }
-
-    public XmlTypeVisitor getCurrentChild()
-        throws XmlException
-    {
-        final Object value = getCurrentValue();
-        //TODO: avoid excessive object creation
-        return marshalResult.createVisitor(type.getElementProperty(), value);
-    }
-
-    protected CharSequence getCharData()
-    {
-        throw new IllegalStateException("not text: " + this);
-    }
-
-    protected void initAttributes()
-        throws XmlException
-    {
-        if (getParentObject() == null) {
-            marshalResult.addXsiNilAttribute();
-        } else if (needsXsiType()) {
-            marshalResult.addXsiTypeAttribute(getActualRuntimeBindingType());
-        }
+        return null;
     }
 
 }

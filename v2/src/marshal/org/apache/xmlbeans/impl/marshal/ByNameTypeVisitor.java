@@ -16,14 +16,10 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 
-import javax.xml.namespace.QName;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 final class ByNameTypeVisitor
     extends NamedXmlTypeVisitor
@@ -32,7 +28,6 @@ final class ByNameTypeVisitor
     private final int maxElementPropCount;
     private final int maxAttributePropCount;
     private int elemPropIdx = -1;
-    private List attributes; //name, value, name, value...
     private Iterator currMultipleIterator;
     private Object currMultipleItem;
     private boolean haveMultipleItem;
@@ -69,7 +64,8 @@ final class ByNameTypeVisitor
         do {
             boolean hit_end = advanceToNextItem();
             if (hit_end) return END;
-        } while (!currentPropHasMore());
+        }
+        while (!currentPropHasMore());
 
         assert elemPropIdx >= 0;
 
@@ -161,19 +157,10 @@ final class ByNameTypeVisitor
         return property;
     }
 
-    protected int getAttributeCount()
-        throws XmlException
-    {
-        final int sz = ((attributes.size()) / 2);
-        return sz;
-    }
-
     protected void initAttributes()
         throws XmlException
     {
-        attributes = new ArrayList();
         initAttributesInternal(this,
-                               attributes,
                                type,
                                maxAttributePropCount,
                                marshalResult);
@@ -181,29 +168,17 @@ final class ByNameTypeVisitor
     }
 
     static void initAttributesInternal(NamedXmlTypeVisitor typeVisitor,
-                                       List atts,
                                        AttributeRuntimeBindingType rtt,
                                        int maxAttributePropCount,
                                        MarshalResult marshalResult)
         throws XmlException
     {
-        assert atts != null;
-        atts.clear();
-
-
         final Object parent = typeVisitor.getParentObject();
         if (parent == null) {
-            QName nil_qn = typeVisitor.fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
-            addAttribute(atts, nil_qn, XsTypeConverter.printBoolean(true));
+            marshalResult.addXsiNilAttribute();
         } else {
             if (typeVisitor.needsXsiType()) {
-                QName aname = typeVisitor.fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
-                QName tn = typeVisitor.fillPrefix(rtt.getSchemaTypeName());
-                String aval = XsTypeConverter.getQNameString(tn.getNamespaceURI(),
-                                                             tn.getLocalPart(),
-                                                             tn.getPrefix());
-
-                addAttribute(atts, aname, aval);
+                marshalResult.addXsiTypeAttribute(rtt);
             }
 
             for (int i = 0, len = maxAttributePropCount; i < len; i++) {
@@ -219,36 +194,11 @@ final class ByNameTypeVisitor
 
                 if (val == null) continue;
 
-                addAttribute(atts, typeVisitor.fillPrefix(prop.getName()), val);
+                //REVIEW: defer toString call until actually used?
+                marshalResult.fillAndAddAttribute(prop.getName(),
+                                                  val.toString());
             }
         }
-
-        assert (atts.size() % 2) == 0;
-    }
-
-    static void addAttribute(List atts, QName name, CharSequence value) {
-        atts.add(name);
-        atts.add(value);
-
-        assert (atts.size() % 2) == 0;
-    }
-
-
-    protected String getAttributeValue(int idx)
-    {
-        CharSequence val = (CharSequence)attributes.get(1 + (idx * 2));
-        return val.toString();
-    }
-
-    protected QName getAttributeName(int idx)
-    {
-        QName an = (QName)attributes.get(idx * 2);
-
-        //make sure we have a valid prefix
-        assert ((an.getPrefix().length() == 0) ==
-            (an.getNamespaceURI().length() == 0));
-
-        return an;
     }
 
     protected CharSequence getCharData()

@@ -25,8 +25,6 @@ final class SimpleContentTypeVisitor
     extends SimpleContentVisitor
 {
     private final SimpleContentRuntimeBindingType type;
-    private final int maxAttributePropCount;
-    private List attributes; //name, value, name, value...
 
     public SimpleContentTypeVisitor(RuntimeBindingProperty property,
                                     Object obj,
@@ -36,49 +34,27 @@ final class SimpleContentTypeVisitor
         super(property, obj, result);
 
         type = (SimpleContentRuntimeBindingType)getActualRuntimeBindingType();
-        maxAttributePropCount =
-            obj == null ? 0 : type.getAttributePropertyCount();
-    }
-
-    protected int getAttributeCount()
-        throws XmlException
-    {
-        return attributes.size() / 2;
     }
 
     protected void initAttributes()
         throws XmlException
     {
-        attributes = new ArrayList();
         ByNameTypeVisitor.initAttributesInternal(this,
-                                                 attributes,
                                                  type,
-                                                 maxAttributePropCount,
+                                                 getMaxAttributePropCount(),
                                                  marshalResult);
 
     }
 
 
-    protected String getAttributeValue(int idx)
-    {
-        CharSequence val = (CharSequence)attributes.get(1 + (idx * 2));
-        return val.toString();
-    }
-
-    protected QName getAttributeName(int idx)
-    {
-        QName an = (QName)attributes.get(idx * 2);
-
-        //make sure we have a valid prefix
-        assert ((an.getPrefix().length() == 0) ==
-            (an.getNamespaceURI().length() == 0));
-
-        return an;
-    }
-
     protected CharSequence getCharData()
     {
         throw new IllegalStateException("not text: " + this);
+    }
+
+    private int getMaxAttributePropCount()
+    {
+        return getParentObject() == null ? 0 : type.getAttributePropertyCount();
     }
 
 

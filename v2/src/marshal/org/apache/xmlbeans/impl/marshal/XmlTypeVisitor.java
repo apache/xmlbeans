@@ -64,21 +64,17 @@ abstract class XmlTypeVisitor
     public abstract XmlTypeVisitor getCurrentChild()
         throws XmlException;
 
-
     protected abstract QName getName();
+    protected abstract String getLocalPart();
+    protected abstract String getNamespaceURI();
+    protected abstract String getPrefix();
+    
 
     //guaranteed to be called before any getAttribute* or getNamespace* method
     protected void initAttributes()
         throws XmlException
     {
     }
-
-    protected abstract int getAttributeCount()
-        throws XmlException;
-
-    protected abstract String getAttributeValue(int idx);
-
-    protected abstract QName getAttributeName(int idx);
 
     protected abstract CharSequence getCharData();
 
@@ -87,11 +83,6 @@ abstract class XmlTypeVisitor
         return this.getClass().getName() +
             " prop=" + bindingProperty.getName() +
             " type=" + bindingProperty.getRuntimeBindingType().getBindingType();
-    }
-
-    protected QName fillPrefix(final QName pname)
-    {
-        return marshalResult.fillPrefix(pname);
     }
 
 
