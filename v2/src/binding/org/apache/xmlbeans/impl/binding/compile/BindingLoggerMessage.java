@@ -53,15 +53,51 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaProperty;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import java.util.logging.Level;
 
-public interface BindingFileResult
-{
-    BindingFile getBindingFile();
+/**
+ * Encapsulates a message that was generated while running a BindingCompiler.
+ *
+ * @author Patrick Calahan <pcal@bea.com>
+ */
+public interface BindingLoggerMessage {
+
+  /**
+   * @return The severity level of the message.  This must never return null.
+   */
+  public Level getLevel();
+
+  /**
+   * @return The text of the message.  This must never return null.
+   */
+  public String getMessage();
+
+  /**
+   * @return The exception which caused the message, or null.
+   */
+  public Throwable getException();
+
+  /**
+   * @return The JElement representing the java construct to which the message
+   * applies, or null.
+   */
+  public JElement getJavaContext();
+
+  /**
+   * @return The SchemaType representing the xsd type to which the message
+   * applies, or null.
+   */
+  public SchemaType getSchemaTypeContext();
+
+  /**
+   * @return The SchemaProperty representing the xsd property to which the
+   * message applies, or null.
+   */
+  public SchemaProperty getSchemaPropertyContext();
 }

@@ -91,7 +91,7 @@ public interface Tylar {
 
   /**
    * Returns a URI describing the location of the physical store from
-   * which this Tylar was built.  This is useful for logging purposes.
+   * which this Tylar was loaded.  This is useful for logging purposes.
    */
   public URI getLocation();
 

@@ -196,7 +196,7 @@ public class Java2Schema extends BindingCompiler {
     mBindingFile.addBindingType(bindType,true,true);
     if (clazz.isPrimitive()) {
       // it's good to have registerd the dummy type, but don't go further
-      logError(clazz,"Unexpected simple type");
+      logError("Unexpected simple type",clazz);
       return bindType;
     }
     String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
@@ -239,11 +239,11 @@ public class Java2Schema extends BindingCompiler {
   private void bindProperties(JProperty[] props, SchemaPropertyFacade facade) {
     for(int i=0; i<props.length; i++) {
       if (getAnnotation(props[i],TAG_EL_EXCLUDE,false)) {
-        logVerbose(props[i],"Marked excluded, skipping");
+        logVerbose("Marked excluded, skipping",props[i]);
         continue;
       }
       if (props[i].getGetter() == null || props[i].getSetter() == null) {
-        logVerbose(props[i],"Does not have both getter and setter, skipping");
+        logVerbose("Does not have both getter and setter, skipping",props[i]);
         continue; // REVIEW this might have to change someday
       }
       { // determine the property name to use and set it
@@ -265,8 +265,8 @@ public class Java2Schema extends BindingCompiler {
         } else {
           propType = props[i].getType().forName(annotatedType);
           if (propType.isUnresolved()) {
-            logError(props[i],"Could not find class named '"+
-                              propType.getQualifiedName()+"'");
+            logError("Could not find class named '"+
+                    propType.getQualifiedName()+"'",props[i]);
           } else {
             facade.setType(propType);
           }
@@ -327,10 +327,10 @@ public class Java2Schema extends BindingCompiler {
     getBindingTypeFor(clazz);  //ensure that we've bound it
     JavaTypeName jtn = JavaTypeName.forString(clazz.getQualifiedName());
     BindingTypeName btn = mLoader.lookupTypeFor(jtn);
-    logVerbose(clazz,"BindingTypeName is "+btn);
+    logVerbose("BindingTypeName is "+btn,clazz);
     BindingType bt = mLoader.getBindingType(btn);
     if (bt != null) return bt.getName().getXmlName().getQName();
-    logError(clazz,"could not get qname");
+    logError("could not get qname",clazz);
     return new QName("ERROR",clazz.getQualifiedName());
   }
 
@@ -496,7 +496,7 @@ public class Java2Schema extends BindingCompiler {
       if (mXsElement != null) {
         if (propType.isArray()) {
           if (propType.getArrayDimensions() != 1) {
-            logError(mSrcContext,"Multidimensional arrays NYI"); //FIXME
+            logError("Multidimensional arrays NYI",mSrcContext); //FIXME
           }
           JClass componentType = propType.getArrayComponentType();
           mXsElement.setMaxOccurs("unbounded");
@@ -511,8 +511,8 @@ public class Java2Schema extends BindingCompiler {
         }
       } else if (mXsAttribute != null) {
         if (propType.isArray()) {
-          logError(mSrcContext,
-                   "Array properties cannot be mapped to xml attributes");
+          logError("Array properties cannot be mapped to xml attributes",
+                  mSrcContext);
         } else {
           mXsAttribute.setType(getQnameFor(propType));
           mBtsProp.setBindingType(getBindingTypeFor(propType));
@@ -530,7 +530,7 @@ public class Java2Schema extends BindingCompiler {
         mXsElement.setNillable(b);
         mBtsProp.setNillable(b);
       } else if (mXsAttribute != null) {
-        logError(mSrcContext,"Attributes cannot be nillable:");
+        logError("Attributes cannot be nillable:",mSrcContext);
       } else {
         throw new IllegalStateException();
       }

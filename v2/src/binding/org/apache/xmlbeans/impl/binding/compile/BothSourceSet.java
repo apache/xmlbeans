@@ -56,6 +56,9 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
+/**
+ * @deprecated this interface will soon be removed
+ */
 public interface BothSourceSet extends SchemaSourceSet, JavaSourceSet
 {
     // it's just both a SchemaSourceSet and a JavaSourceSet.

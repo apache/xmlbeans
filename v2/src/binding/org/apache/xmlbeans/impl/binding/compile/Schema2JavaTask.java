@@ -174,7 +174,7 @@ public class Schema2JavaTask extends BindingCompilerTask {
    * Based on the parameters set for this Task object, create an instance of
    * the Schema2Java compiler to be executed.
    */
-  protected BindingCompiler createCompiler() throws BuildException {
+  protected BindingCompiler getCompilerToExecute() throws BuildException {
     checkParameters();
     // scan source directories and dest directory for schemas to use
     startScan();
