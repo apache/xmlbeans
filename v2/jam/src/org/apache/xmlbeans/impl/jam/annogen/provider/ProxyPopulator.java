@@ -14,17 +14,15 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.provider;
 
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ValueSetter {
+public interface ProxyPopulator {
 
-  public void setValue(String valueName, Object value);
+  public boolean hasAnnotation(ElementId id, Class annoType);
 
-//  public void addValue(String valueName, Object value)
-//    throws NoSuchMethodException, IllegalAccessException, InvocationTargetException;
-
-//  public TargetAnnotation createNestedValue(String value ); // ..??
+  public void populateProxy(ElementId id,
+                            Class annotationType,
+                            AnnotationProxy targetProxy);
 }

@@ -25,6 +25,7 @@ import org.apache.xmlbeans.impl.jam.annogen.internal.joust.FileWriterFactory;
 import org.apache.xmlbeans.impl.jam.annogen.internal.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.jam.annogen.internal.joust.ExpressionFactory;
 import org.apache.xmlbeans.impl.jam.annogen.internal.joust.Variable;
+import org.apache.xmlbeans.impl.jam.annogen.internal.AnnotationProxyBase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -34,6 +35,7 @@ import java.util.HashSet;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.lang.reflect.Modifier;
 
 /**
@@ -80,6 +82,8 @@ public class Annogen {
 
   public static final String SETTER_PREFIX = "set_";
   private static final String FIELD_PREFIX = "_";
+  private static final String IMPL_SUFFIX = "Impl";
+  private static final String BASE_CLASS = AnnotationProxyBase.class.getName();
 
   // ========================================================================
   // Variables
@@ -87,6 +91,7 @@ public class Annogen {
   private List mClassesTodo = null;
   private Collection mClassesDone = null;
   private JavaOutputStream mJoust = null;
+  private boolean m14Compatible = true;
 
   // ========================================================================
   // Constructors
@@ -105,7 +110,7 @@ public class Annogen {
 
   public void addAnnotationClasses(JClass[] classes) {
     for(int i=0; i<classes.length; i++) {
-      if (true || classes[i].isAnnotationType()) {
+      if (true || classes[i].isAnnotationType()) {//FIXME
         mClassesTodo.addAll(Arrays.asList(classes));
       } else {
         warn("Ignoring "+classes[i].getQualifiedName()+
@@ -132,19 +137,27 @@ public class Annogen {
     }
   }
 
+  public void setPre15CompatibilityMode(boolean b) {
+    m14Compatible = b;
+  }
+
   // ========================================================================
   // Private methods
 
   private void doCodegen(JClass clazz) throws IOException {
-    ExpressionFactory ef = mJoust.getExpressionFactory();
     JMethod[] methods = clazz.getDeclaredMethods();
-    mJoust.startFile(getPackageFor(clazz),clazz.getSimpleName());
+    String simpleImplName = getImplSimpleClassnameFor(clazz);
+    mJoust.startFile(getPackageFor(clazz),simpleImplName);
+    String[] implementInterface =
+      (m14Compatible ? null : new String[] {clazz.getQualifiedName()});
     mJoust.startClass(Modifier.PUBLIC,
-                      null,
-                      new String[] {clazz.getQualifiedName()});
+                      BASE_CLASS,
+                      implementInterface);
     for(int i=0; i<methods.length; i++) {
       String fieldName = FIELD_PREFIX+ methods[i].getSimpleName();
-      String typeName = methods[i].getReturnType().getQualifiedName();
+      JClass type = methods[i].getReturnType();
+      String typeName = (m14Compatible) ?
+        getImplClassForIfGenerated(type) : type.getQualifiedName();
       Variable fieldVar =
         mJoust.writeField(Modifier.PRIVATE,typeName,fieldName,null);
       { // write the 'getter' implementation
@@ -188,15 +201,51 @@ public class Annogen {
     System.out.println("[Warning] "+msg);
   }
 
+
+  // THIS IS ALL GROSS.  WE NEED TO SET UP SOME FORMAL MAPPING MACHINERY
+  // BETWEEN THE EXPOSED TYPES AND THE IMPL TYPES
+
+
+  // ========================================================================
+  // Private methods
+
+  private String getImplClassForIfGenerated(JClass clazz) {
+    if (clazz.isArrayType()) {
+      JClass comp = clazz.getArrayComponentType();
+      if (mClassesTodo.contains(comp) || mClassesDone.contains(comp)) {
+        StringWriter out = new StringWriter();
+        out.write(getImplClassFor(comp));
+        for(int i=0; i<comp.getArrayDimensions(); i++) out.write("[]");
+        return out.toString();
+      }
+    } else if (mClassesTodo.contains(clazz) || mClassesDone.contains(clazz)) {
+      return getImplClassFor(clazz);
+    }
+    return clazz.getQualifiedName();
+  }
+
+  // ========================================================================
+  // These methods keep the runtime in sync with codegen
+
   //TODO make this logic pluggable
   private String getPackageFor(JClass clazz) {
     return clazz.getContainingPackage().getQualifiedName()+".impl";
   }
 
+  private static String getImplSimpleClassnameFor(JClass clazz) {
+    return clazz.getSimpleName()+IMPL_SUFFIX;
+  }
+
   public static String getImplClassFor(Class clazz) {
     String shortName = clazz.getName();
     shortName = shortName.substring(shortName.lastIndexOf('.')+1);
-    return clazz.getPackage().getName()+".impl."+shortName;
+    return clazz.getPackage().getName()+".impl."+shortName+IMPL_SUFFIX;
+  }
+
+  private static String getImplClassFor(JClass clazz) {
+    String shortName = clazz.getQualifiedName();
+    shortName = shortName.substring(shortName.lastIndexOf('.')+1);
+    return clazz.getContainingPackage().getQualifiedName()+".impl."+shortName+IMPL_SUFFIX;
   }
 
 

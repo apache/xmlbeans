@@ -14,11 +14,11 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal.reflect175;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ValueSetter;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annogen.internal.ReflectElementId;
-import org.apache.xmlbeans.impl.jam.annogen.internal.ReflectElementId;
+import org.apache.xmlbeans.impl.jam.annogen.tools.Annogen;
 
 import java.lang.reflect.AnnotatedElement;
 import java.lang.reflect.Method;
@@ -28,7 +28,7 @@ import java.lang.annotation.Annotation;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class Reflect175AnnotationPopulator extends AnnotationPopulator {
+public class Reflect175ProxyPopulator implements ProxyPopulator {
 
   // ========================================================================
   // Variables
@@ -47,9 +47,9 @@ public class Reflect175AnnotationPopulator extends AnnotationPopulator {
     return (element.getAnnotation(annoType) != null);
   }
 
-  public void populateAnnotation(ElementId id,
-                                 Class annoType,
-                                 ValueSetter target)
+  public void populateProxy(ElementId id,
+                            Class annoType,
+                            AnnotationProxy targetInstance)
   {
     if (!(id instanceof ReflectElementId)) {
       throw new IllegalArgumentException("This case is NYI");
@@ -65,12 +65,14 @@ public class Reflect175AnnotationPopulator extends AnnotationPopulator {
       if (returnType == null || returnType == void.class) continue;
       if (methods[i].getParameterTypes().length > 0) continue;
       try {
-        Object value = methods[i].invoke(ann,null);
-        target.setValue(methods[i].getName(),value);
+        Object value = methods[i].invoke(ann,(Object[])null);
+        targetInstance.setValue(methods[i].getName(),value);
       } catch(IllegalAccessException iae) {
         iae.printStackTrace();//FIXME log this
       } catch(InvocationTargetException ite) {
         ite.printStackTrace();//FIXME log this
+      } catch(NoSuchMethodException nsme) {
+        nsme.printStackTrace();//FIXME log this
       }
     }
   }
