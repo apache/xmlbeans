@@ -236,18 +236,18 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         check_orphaned();
         
 // NEWSTORE START
-        // Note that new_cursor does not really need sync ....
-        
-        XmlLocale l = getXmlLocale();
-        
-        if (l.noSync())         { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
-
-//        synchronized (monitor())
-//        {
-//            check_orphaned();
-//            return get_store().new_cursor();
-//        }
+//        // Note that new_cursor does not really need sync ....
+//        
+//        XmlLocale l = getXmlLocale();
+//        
+//        if (l.noSync())         { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
+//        else synchronized ( l ) { l.enter(); try { return get_store().new_cursor(); } finally { l.exit(); } }
+//
+        synchronized (monitor())
+        {
+            check_orphaned();
+            return get_store().new_cursor();
+        }
 // NEWSTORE END
     }
 
