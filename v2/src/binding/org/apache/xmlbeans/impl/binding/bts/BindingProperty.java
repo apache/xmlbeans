@@ -233,7 +233,10 @@ public abstract class BindingProperty
 
     public String toString()
     {
-        return getClass().getName() + " [" + getGetterName().getSimpleName() + "]";
+        return getClass().getName() +
+            " [" +
+            (isField() ? getFieldName() : getGetterName().getSimpleName()) +
+            "]";
     }
 
     public JavaInstanceFactory getJavaInstanceFactory()

@@ -71,6 +71,9 @@ public class YourClass
 
     private Date someDate;
 
+    public String stringField = "FLD-" + RND.nextInt();
+    public int intField = RND.nextInt();
+
 
     //hack alert
     static final Random RND = new Random();
@@ -378,7 +381,6 @@ public class YourClass
 
         final YourClass yourClass = (YourClass)o;
 
-
         if (attrib != yourClass.attrib) return false;
         if (myFloat != yourClass.myFloat) return false;
         if (someBool != yourClass.someBool) return false;
@@ -406,6 +408,9 @@ public class YourClass
         if (intEnum != null ? !intEnum.equals(yourClass.intEnum) : yourClass.intEnum != null) return false;
         if (integerEnum != null ? !integerEnum.equals(yourClass.integerEnum) : yourClass.integerEnum != null) return false;
 
+        if (stringField != null ? !stringField.equals(yourClass.stringField) : yourClass.stringField != null) return false;
+        if (intField != yourClass.intField) return false;
+
 
         return true;
     }
@@ -427,6 +432,7 @@ public class YourClass
     {
         return "com.mytest.YourClass{" +
             "myClass=" + myClass +
+            ", stringField=" + stringField +
             ", myFloat=" + myFloat +
             ", attrib=" + attrib +
             ", someBool=" + someBool +

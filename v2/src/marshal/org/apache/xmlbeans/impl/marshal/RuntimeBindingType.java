@@ -30,6 +30,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.StringReader;
 import java.lang.reflect.Method;
+import java.lang.reflect.Field;
 
 /**
  * what we need to know about a binding type at runtime.
@@ -153,7 +154,7 @@ abstract class RuntimeBindingType
         return marshaller;
     }
 
-    protected static Class getJavaClass(BindingType btype, ClassLoader backup)
+    private static Class getJavaClass(BindingType btype, ClassLoader backup)
         throws ClassNotFoundException
     {
         final JavaTypeName javaName = btype.getName().getJavaName();
@@ -231,11 +232,12 @@ abstract class RuntimeBindingType
     protected abstract static class BeanRuntimeProperty
         extends RuntimeBindingProperty
     {
-        protected final Class beanClass;
-        protected final RuntimeBindingType containingType;
-        protected final Method getMethod;
-        protected final Method setMethod;
-        protected final Method issetMethod;
+        private final Class beanClass;
+        private final RuntimeBindingType containingType;
+        private final Method getMethod;
+        private final Method setMethod;
+        private final Method issetMethod;
+        private final Field field;
         protected final RuntimeBindingType runtimeBindingType;
         protected final Class propertyClass;
         protected final Class collectionElementClass; //null for non collections
@@ -264,20 +266,30 @@ abstract class RuntimeBindingType
 
             propertyClass = getPropertyClass(prop, binding_type);
             collectionElementClass = getCollectionElementClass(prop, binding_type);
-            getMethod = ReflectionUtils.getGetterMethod(prop, beanClass);
-            setMethod = ReflectionUtils.getSetterMethod(prop, beanClass);
-            issetMethod = ReflectionUtils.getIssetterMethod(prop, beanClass);
+
 
             //we may revisit whether this is an error
-            if (getMethod == null) {
-                String e = "no getter found for " + prop + " on " + beanClass;
-                throw new XmlException(e);
-            }
+            if (prop.isField()) {
+                getMethod = null;
+                setMethod = null;
+                issetMethod = null;
+                field = ReflectionUtils.getField(prop, beanClass);
+            } else {
+                getMethod = ReflectionUtils.getGetterMethod(prop, beanClass);
+                setMethod = ReflectionUtils.getSetterMethod(prop, beanClass);
+                issetMethod = ReflectionUtils.getIssetterMethod(prop, beanClass);
+                field = null;
 
-            //we no doubt will revisit whether this is an error, esp for exceptions
-            if (setMethod == null) {
-                String e = "no setter found for " + prop + " on " + beanClass;
-                throw new XmlException(e);
+                if (getMethod == null) {
+                    String e = "no getter found for " + prop + " on " + beanClass;
+                    throw new XmlException(e);
+                }
+
+                //we no doubt will revisit whether this is an error, esp for exceptions
+                if (setMethod == null) {
+                    String e = "no setter found for " + prop + " on " + beanClass;
+                    throw new XmlException(e);
+                }
             }
 
         }
@@ -287,7 +299,19 @@ abstract class RuntimeBindingType
             throws XmlException
         {
             Object inst = containingType.getObjectFromIntermediate(inter);
-            ReflectionUtils.invokeMethod(inst, setMethod, new Object[]{prop_obj});
+            setValue(inst, prop_obj);
+        }
+
+
+        protected void setValue(final Object target, final Object prop_obj)
+            throws XmlException
+        {
+            if (field == null) {
+                ReflectionUtils.invokeMethod(target, setMethod,
+                                             new Object[]{prop_obj});
+            } else {
+                ReflectionUtils.setFieldValue(target, field, prop_obj);
+            }
         }
 
         final Object getValue(Object parentObject, MarshalResult result)
@@ -297,7 +321,11 @@ abstract class RuntimeBindingType
             assert beanClass.isInstance(parentObject) :
                 parentObject.getClass() + " is not a " + beanClass;
 
-            return ReflectionUtils.invokeMethod(parentObject, getMethod);
+            if (field == null) {
+                return ReflectionUtils.invokeMethod(parentObject, getMethod);
+            } else {
+                return ReflectionUtils.getFieldValue(parentObject, field);
+            }
         }
 
         protected Class getPropertyClass(BindingProperty prop, BindingType btype)
