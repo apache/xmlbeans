@@ -1156,14 +1156,12 @@ public class XsbDumper
         emit("Java setter delimiter: " + qnameSetString(readQNameSet()));
         if (atLeast(2, 16, 0))
             emit("Default value: " + readXmlValueObject());
-        if ((propflags & FLAG_PROP_ISATTR) == 0 && atLeast(2, 17, 0))
+        if (((propflags & FLAG_PROP_ISATTR) == 0) && atLeast(2, 17, 0))
         {
             short size = readShort();
-            emit("Accepted names (" + size + ")");
-            indent();
-            for (int i = 0; i < size; i++)
-                emit(qnameString(readQName()));
-            outdent();
+            emit("Accepted substitutions (" + size + "):");
+            for (int i = 0 ; i < size ; i++)
+                emit("  Accepted name " + readQName());
         }
         outdent();
     }
