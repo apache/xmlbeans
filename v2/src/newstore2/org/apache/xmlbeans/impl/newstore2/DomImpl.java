@@ -352,8 +352,14 @@ final class DomImpl
     
     private static void validateName ( String name )
     {
-        if (name != null && name.length() > 0 && !XMLChar.isValidName( name ))
-            throw new InvalidCharacterError();
+        if (name == null)
+            throw new IllegalArgumentException( "Target is null" );
+            
+        if (name.length() == 0)
+            throw new IllegalArgumentException( "Target is empty" );
+            
+        if (!XMLChar.isValidName( name ))
+            throw new InvalidCharacterError( "Target has an invalid character" );
     }
     
     private static void validateNcName ( String name )
@@ -792,7 +798,7 @@ final class DomImpl
         validateName( target );
         
         if (Locale.beginsWithXml( target ) && target.length() == 3)
-            throw new NamespaceErr( "Invalid target - is 'xml'" );
+            throw new InvalidCharacterError( "Invalid target - is 'xml'" );
         
         Locale l = d.locale();
 
