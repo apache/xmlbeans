@@ -138,6 +138,8 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".HeavilyCommented",
     DUMMY+".ImportsGalore",
     DUMMY+".MyException",
+    DUMMY+".MyGenericThing",
+    DUMMY+".MyGenericThingSubclass",
     OUTER_CLASS,
     OUTER_CLASS_TOO,
     DUMMY+".MultilineTags",
@@ -267,6 +269,11 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Test methods
 
+  public void testGenerics() {
+    JClass gts = mLoader.loadClass(DUMMY+".MyGenericThingSubclass");
+    resolved(gts);
+//    System.out.println("=========== "+gts.getSuperclass().getQualifiedName());
+  }
 
   public void testArrayNames() {
     doOneArrayTest("int[]","[I");
