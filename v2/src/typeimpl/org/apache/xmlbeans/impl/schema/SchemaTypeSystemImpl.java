@@ -1954,8 +1954,11 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                         impl.setContainerFieldIndex((short)2, readShort());
                         break;
                 }
-                impl.setFullJavaName(readString());
-                impl.setFullJavaImplName(readString());
+                // TODO (radup) find the right solution here
+                String jn = readString();
+                impl.setFullJavaName(jn == null ? "" : jn);
+                jn = readString();
+                impl.setFullJavaImplName(jn == null? "" : jn);
 
                 impl.setAnonymousTypeRefs(readTypeRefArray());
 

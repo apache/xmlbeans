@@ -70,10 +70,10 @@ public class Schema2Java extends BindingCompiler {
   // Constants
 
   private static String[] PRIMITIVE_TYPES =
-  {"int", "boolean", "float", "long", "double", "short", "char"};
+  {"int", "boolean", "float", "long", "double", "short", "byte", "char"};
   private static String[] BOXED_TYPES =
   {"java.lang.Integer", "java.lang.Boolean", "java.lang.Float",
-   "java.lang.Long", "java.lang.Double", "java.lang.Short",
+   "java.lang.Long", "java.lang.Double", "java.lang.Short", "java.lang.Byte",
    "java.lang.Character"};
   private static String WILDCARD_ELEMENT_MAPPING = "javax.xml.soap.SOAPElement";
   private static String WILDCARD_ATTRIBUTE_MAPPING = "javax.xml.soap.SOAPElement";
@@ -1890,7 +1890,7 @@ public class Schema2Java extends BindingCompiler {
       mJoust.writeStatement("int val = 0;");
       mJoust.writeStatement("for (int i = 0; i < " + instanceVarName + ".length; i++) " +
         "{ val *= 19; val += " +
-        enumHelper.getHashCode(instanceVarName).getMemento().toString() +
+        enumHelper.getHashCode(instanceVarName + "[i]").getMemento().toString() +
         "; }");
       mJoust.writeStatement("return val");
     }

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.tool;
 
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.schema.SchemaTypeCodePrinter;
 import org.apache.xmlbeans.SchemaCodePrinter;
@@ -50,8 +51,6 @@ public class SchemaCodeGenerator
             throw new IllegalArgumentException("Source and class gen dir must not be null.");
 
         boolean failure = false;
-
-        saver.saveToDirectory(classesdir);
 
         // Schema files already copyed when they where parsed
 //        if ((sourcesToCopyMap != null) && (sourcesToCopyMap.size() > 0))
@@ -102,16 +101,9 @@ public class SchemaCodeGenerator
             String filename = SchemaTypeCodePrinter.indexClassForSystem(saver).replace('.', File.separatorChar) + ".java";
             File sourcefile = new File(sourcedir, filename);
             sourcefile.getParentFile().mkdirs();
-            
-            Writer writer =
-                repackager == null
-                    ? (Writer) new FileWriter( sourcefile )
-                    : (Writer) new RepackagingWriter( sourcefile, repackager );
-                            
-            SchemaTypeCodePrinter.printLoader(writer, saver, opts);
-            
-            writer.close();
-            
+
+            saveTypeSystem(saver, classesdir, sourcefile, repackager, opts);
+
             sourcefiles.add(sourcefile);
         }
         catch (IOException e)
@@ -126,6 +118,57 @@ public class SchemaCodeGenerator
             return false;
 
         return true;
+    }
+
+    /**
+     * Saves a SchemaTypeSystem to the specified directory.
+     *
+     * @param system the <code>SchemaTypeSystem</code> to save
+     * @param classesDir the destination directory for xsb's
+     * @param sourceFile if present, the TypeSystemHolder source will be
+     *                   generated in this file for subsequent compilation,
+     *                   if null then the source will be generated in a temp
+     *                   directory and then compiled to the destination dir
+     * @param repackager the repackager to use when generating the holder class
+     * @param options options. Can be null
+     */
+    public static void saveTypeSystem(SchemaTypeSystem system, File classesDir,
+        File sourceFile, Repackager repackager, XmlOptions options)
+        throws IOException
+    {
+        system.saveToDirectory(classesDir);
+        options = XmlOptions.maskNull(options);
+
+        // Now generate the holder class
+        File source = sourceFile;
+        File tempDir = null;
+        if (source == null)
+        {
+            String filename = SchemaTypeCodePrinter.indexClassForSystem(system).replace('.',
+                File.separatorChar) + ".java";
+            tempDir = createTempDir();
+            File sourcedir = IOUtil.createDir(tempDir, "src");
+            source = new File(sourcedir, filename);
+            source.getParentFile().mkdirs();
+        }
+
+        Writer writer =
+            repackager == null
+                ? (Writer) new FileWriter( source )
+                : (Writer) new RepackagingWriter( source, repackager );
+
+        SchemaTypeCodePrinter.printLoader(writer, system, options);
+
+        writer.close();
+
+        if (tempDir != null)
+        {
+            // now compile the generated file to classesDir
+            List srcFiles = new ArrayList(1);
+            srcFiles.add(source);
+            CodeGenUtil.externalCompile(srcFiles, classesDir, null, false);
+            tryHardToDelete(tempDir);
+        }
     }
 
     private static boolean genTypes(SchemaTypeSystem saver, List sourcefiles, File sourcedir, Repackager repackager, boolean verbose, XmlOptions opts)
