@@ -272,8 +272,8 @@
         <copy todir="build/private/xmlbeans-${product.version}">
             <fileset dir="xkit"/>
             <fileset dir="." includes="bin/**"/>
-            <fileset file="src/license/LICENSE.txt"/>
-            <fileset file="src/license/NOTICE.txt"/>
+            <fileset file="LICENSE.txt"/>
+            <fileset file="NOTICE.txt"/>
         </copy>
         <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
             <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd"/>
@@ -315,7 +315,7 @@
                 <patternset id="src.dist.content.dirs"
                     includes="bin/** docs/** external/** samples/** src/**"/>
                 <patternset id="src.dist.content.files"
-                    includes="build.xml README.txt testbuild.xml xbeanenv.cmd xbeanenv.sh"/>
+                    includes="build.xml README.txt testbuild.xml xbeanenv.cmd xbeanenv.sh LICENSE.txt NOTICE.txt"/>
            	    <patternset id="src.dist.content.tests"
                     includes=""/><!-- don't have tests part of the distribution yet -->
             </zipfileset>
@@ -372,7 +372,8 @@
             <fileset dir="build/classes/jam"/>
             <fileset dir="build/classes/piccolo"/>
             <fileset dir="build/classes/tools"/>
-            <fileset dir="src/license"/>
+            <fileset file="LICENSE.txt"/>
+            <fileset file="NOTICE.txt"/>
             <manifest>
                 <section name="${manifest.name}">
                     <attribute name="Comment" value="${manifest.comment}"/>
