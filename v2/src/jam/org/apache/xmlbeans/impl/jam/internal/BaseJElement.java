@@ -93,6 +93,10 @@ public abstract class BaseJElement implements JElement {
   private JComment[] mComments = null;
   private List mTempList = null;
 
+  //FIXME this is a really gross quick hack to get this stuff working.
+  //we should be getting this from our classloader.
+  private JAnnotationLoader mExternalAnnotations = null;
+
   // ========================================================================
   // Constructors
 
@@ -111,6 +115,13 @@ public abstract class BaseJElement implements JElement {
     */
   }
 
+  /**
+   * @deprecated this is a quick hack, please remove
+   */
+  public void setAnnotationLoader(JAnnotationLoader l) {
+    mExternalAnnotations = l;
+  }
+
   // ========================================================================
   // JAnnotation implementation
 
@@ -124,8 +135,11 @@ public abstract class BaseJElement implements JElement {
    * @return
    */
   public /*final*/ JAnnotation[] getAnnotations() {
-    if (mAnns == null) {
+    if (true || mAnns == null) { //FIXME always do this until we fixing JAnnotationLoader thing
       List list = getTempList();
+      if (mExternalAnnotations != null) {
+        mExternalAnnotations.getAnnotations(this,list);
+      }
       getLocalAnnotations(list);
       if (list.size() == 0) {
         mAnns = NO_ANNOTATION;
