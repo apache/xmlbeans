@@ -70,7 +70,7 @@ public class StscState
     private Map _redefinedGlobalTypes        = new LinkedHashMap();
     private Map _redefinedModelGroups        = new LinkedHashMap();
     private Map _redefinedAttributeGroups    = new LinkedHashMap();
-        
+
     private Map _globalTypes        = new LinkedHashMap();
     private Map _globalElements     = new LinkedHashMap();
     private Map _globalAttributes   = new LinkedHashMap();
@@ -274,7 +274,7 @@ public class StscState
     {
         return _dependencies.isFileRepresented(url);
     }
-            
+
 
     /**
      * Initializer for schematypepath
@@ -295,26 +295,34 @@ public class StscState
      * KHK: remove this
      */
     public void error(String message, int code, XmlObject loc)
-    { addError(_errorListener, message, code, loc); }
-    
+        { addError(_errorListener, message, code, loc); }
+
     /**
      * Passes an error on to the current XmlErrorCodes.
      */
     public void error(String code, Object[] args, XmlObject loc)
-        { addError(_errorListener, code, args, loc); }
+    { addError(_errorListener, code, args, loc); }
 
     /**
-     * Passes a warning on to the current XmlErrorCodes.
+     * Passes an error on to the current XmlErrorCodes.
      */
     public void warning(String message, int code, XmlObject loc)
     {
+        addWarning(_errorListener, message, code, loc);
+    }
+
+    /**
+     * Passes an error on to the current XmlErrorCodes.
+     */
+    public void warning(String code, Object[] args, XmlObject loc)
+    {
         // it's OK for XMLSchema.xsd itself to have reserved type names
         if (code == XmlErrorCodes.RESERVED_TYPE_NAME &&
-                loc.documentProperties().getSourceName() != null &&
-                loc.documentProperties().getSourceName().indexOf("XMLSchema.xsd") > 0)
+            loc.documentProperties().getSourceName() != null &&
+            loc.documentProperties().getSourceName().indexOf("XMLSchema.xsd") > 0)
             return;
 
-        addWarning(_errorListener, message, code, loc);
+        addWarning(_errorListener, code, args, loc);
     }
 
     /**
@@ -333,7 +341,7 @@ public class StscState
                 location);
         errorListener.add(err);
     }
-    
+
     public static void addError(Collection errorListener, String code, Object[] args, XmlObject location)
     {
         XmlError err =
@@ -345,16 +353,18 @@ public class StscState
         errorListener.add(err);
     }
 
-    public static void addError(Collection errorListener, String message, int code, File location)
+    public static void addError(Collection errorListener, String code, Object[] args, File location)
     {
         XmlError err =
             XmlError.forLocation(
-              message,
+              code,
+              args,
               XmlError.SEVERITY_ERROR,
               location.toURI().toString(), 0, 0, 0);
         errorListener.add(err);
     }
 
+    // KHK: remove this
     public static void addWarning(Collection errorListener, String message, int code, XmlObject location)
     {
         XmlError err =
@@ -365,12 +375,23 @@ public class StscState
         errorListener.add(err);
     }
 
+    public static void addWarning(Collection errorListener, String code, Object[] args, XmlObject location)
+    {
+        XmlError err =
+            XmlError.forObject(
+                code,
+                args,
+                XmlError.SEVERITY_WARNING,
+                location);
+        errorListener.add(err);
+    }
+
     public static void addInfo(Collection errorListener, String message)
     {
         XmlError err = XmlError.forMessage(message, XmlError.SEVERITY_INFO);
         errorListener.add(err);
     }
-    
+
     public void setGivenTypeSystemName(String name)
         { _givenStsName = name; }
 
@@ -379,7 +400,7 @@ public class StscState
      */
     public void setTargetSchemaTypeSystem(SchemaTypeSystemImpl target)
         { _target = target; }
-    
+
     /**
      * Accumulates a schema digest...
      */
@@ -387,14 +408,14 @@ public class StscState
     {
         if (_noDigest)
             return;
-        
+
         if (digest == null)
         {
             _noDigest = true;
             _digest = null;
             return;
         }
-        
+
         if (_digest == null)
             _digest = new byte[128/8]; // 128 bits.
         int len = _digest.length;
@@ -403,7 +424,7 @@ public class StscState
         for (int i = 0; i < len; i++)
             _digest[i] ^= digest[i];
     }
-    
+
     /**
      * The SchemaTypeSystem which we're building types on behalf of.
      */
@@ -411,11 +432,11 @@ public class StscState
     {
         if (_target != null)
             return _target;
-        
+
         String name = _givenStsName;
         if (name == null && _digest != null)
             name = "s" + new String(HexBin.encode(_digest));
-        
+
         _target = new SchemaTypeSystemImpl(name);
         return _target;
     }
@@ -449,9 +470,9 @@ public class StscState
     {
         if (options == null)
         {
-            return; // defaults are all false. 
+            return; // defaults are all false.
         }
-        
+
         _compatMap = (Map)options.get(XmlOptions.COMPILE_SUBSTITUTE_NAMES);
         _noUpa = options.hasOption(XmlOptions.COMPILE_NO_UPA_RULE) ? true :
                 !"true".equals(System.getProperty("xmlbean.uniqueparticleattribution", "true"));
@@ -468,19 +489,19 @@ public class StscState
 
         if (_entityResolver != null)
             _doingDownloads = true;
-        
+
         if (options.hasOption(XmlOptions.COMPILE_MDEF_NAMESPACES))
             _mdefNamespaces.addAll((Collection)options.get(XmlOptions.COMPILE_MDEF_NAMESPACES));
     }
-    
+
     /**
      * May return null if there is no custom entity resolver.
-     */ 
+     */
     public EntityResolver getEntityResolver()
     {
         return _entityResolver;
     }
-    
+
     /**
      * True if no unique particle attribution option is set
      */
@@ -488,7 +509,7 @@ public class StscState
     {
         return _noUpa;
     }
-    
+
     /**
      * True if no particle valid (restriciton) option is set
      */
@@ -634,7 +655,7 @@ public class StscState
             registerDependency(sourceNamespace, name.getNamespaceURI());
         return result;
     }
-    
+
     SchemaTypeImpl findRedefinedGlobalType(QName name, String chameleonNamespace, SchemaTypeImpl redefinedBy)
     {
         QName redefinedName = redefinedBy.getName();
@@ -664,7 +685,7 @@ public class StscState
                 if (_redefinedGlobalTypes.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
+                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "global type", QNameHelper.pretty(name) } , null);
                 }
                 else
                 {
@@ -677,7 +698,7 @@ public class StscState
                 if (_globalTypes.containsKey(name))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate global type: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
+                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "global type", QNameHelper.pretty(name) } , null);
                 }
                 else
                 {
@@ -699,7 +720,7 @@ public class StscState
 
     SchemaType[] redefinedGlobalTypes()
         { return (SchemaType[])_redefinedGlobalTypes.values().toArray(new SchemaType[_redefinedGlobalTypes.size()]); }
-    
+
     /* DOCUMENT TYPES =================================================*/
 
     SchemaTypeImpl findDocumentType(QName name, String chameleonNamespace, String sourceNamespace)
@@ -722,7 +743,7 @@ public class StscState
         if (_documentTypes.containsKey(name))
         {
             if (!ignoreMdef(name))
-                error("Duplicate global element: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_ELEMENT, null);
+                error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "global element", QNameHelper.pretty(name) }, null);
         }
         else
         {
@@ -758,7 +779,7 @@ public class StscState
         if (_attributeTypes.containsKey(name))
         {
             if (!ignoreMdef(name))
-                error("Duplicate global attribute: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_ATTRIBUTE, null);
+                error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "global attribute", QNameHelper.pretty(name) }, null);
         }
         else
         {
@@ -882,20 +903,20 @@ public class StscState
                 if (_redefinedAttributeGroups.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
+                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "attribute group", QNameHelper.pretty(name) } , null);
                 }
                 else
                 {
                     _redefinedAttributeGroups.put(redefined, attributeGroup);
                     container.addRedefinedAttributeGroup(attributeGroup.getRef());
-                }        
+                }
             }
             else
             {
                 if (_attributeGroups.containsKey( name ))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate attribute group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
+                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "attribute group", QNameHelper.pretty(name) } , null);
                 }
                 else
                 {
@@ -957,7 +978,7 @@ public class StscState
                 if (_redefinedModelGroups.containsKey(redefined))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
+                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "model group", QNameHelper.pretty(name) } , null);
                 }
                 else
                 {
@@ -970,7 +991,7 @@ public class StscState
                 if (_modelGroups.containsKey(name))
                 {
                     if (!ignoreMdef(name))
-                        error("Duplicate model group: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
+                        error(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "model group", QNameHelper.pretty(name) } , null);
                 }
                 else
                 {
@@ -984,7 +1005,7 @@ public class StscState
 
     SchemaModelGroup[] modelGroups()
         { return (SchemaModelGroup[])_modelGroups.values().toArray(new SchemaModelGroup[_modelGroups.size()]); }
-    
+
     SchemaModelGroup[] redefinedModelGroups()
         { return (SchemaModelGroup[])_redefinedModelGroups.values().toArray(new SchemaModelGroup[_redefinedModelGroups.size()]); }
 
@@ -1008,7 +1029,7 @@ public class StscState
             if (_idConstraints.containsKey(name))
             {
                 if (!ignoreMdef(name))
-                    warning("Duplicate identity constraint: " + QNameHelper.pretty(name), XmlErrorCodes.DUPLICATE_IDENTITY_CONSTRAINT, null);
+                    warning(XmlErrorCodes.SCHEMA_PROPERTIES$DUPLICATE, new Object[] { "identity constraint", QNameHelper.pretty(name) } , null);
             }
             else
             {
@@ -1174,7 +1195,7 @@ public class StscState
         String found = null;
         String foundName = null;
         String sourceName = null;
-        
+
         switch (code)
         {
             case SchemaType.TYPE:
@@ -1229,12 +1250,12 @@ public class StscState
                         found = "model group";
                         break;
                 }
-                
+
                 if (sourceName != null)
                 {
                     sourceName = sourceName.substring(sourceName.lastIndexOf('/') + 1);
                 }
-                
+
                 if (!name.equals(itemName))
                 {
                     foundName = QNameHelper.pretty(name);
@@ -1263,7 +1284,7 @@ public class StscState
                 loc);
         }
     }
-    
+
 
     /**
      * Produces the "sourceName" (to be used within the schema project
@@ -1295,17 +1316,17 @@ public class StscState
     }
 
     private final static String PROJECT_URL_PREFIX = "project://local";
-    
+
     public String relativize(String uri)
     {
         return relativize(uri, false);
     }
-    
+
     public String computeSavedFilename(String uri)
     {
         return relativize(uri, true);
     }
-    
+
     private String relativize(String uri, boolean forSavedFilename)
     {
         if (uri == null)
@@ -1339,7 +1360,7 @@ public class StscState
             {
             }
         }
-        
+
         if (!forSavedFilename)
             return uri;
 

@@ -19,7 +19,7 @@
 package org.apache.xmlbeans;
 
 import java.util.List;
-import org.apache.xmlbeans.XmlError;
+
 import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 
@@ -122,6 +122,8 @@ public class XmlValidationError extends XmlError
 
     public static final int UNDEFINED = 10000;
 
+    // QName of field in error.  can be null.
+    private QName _fieldQName;
     private QName _offendingQName;
     private SchemaType _expectedSchemaType;
 
@@ -134,12 +136,14 @@ public class XmlValidationError extends XmlError
      * The static factory methods should be used instead of
      * this constructor.
      */
-    private XmlValidationError(String msg, int severity,
-        XmlCursor cursor, QName offendingQname, SchemaType expectedSchemaType,
-        List expectedQNames, int errorType, SchemaType badSchemaType)
+    // KHK: remove this
+    private XmlValidationError(String message, int severity,
+       XmlCursor cursor, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
+       List expectedQNames, int errorType, SchemaType badSchemaType)
     {
-        super(msg, (String)null, severity, cursor);
+        super(message, (String)null, severity, cursor);
 
+        setFieldQName(fieldQName);
         setOffendingQName(offendingQname);
         setExpectedSchemaType(expectedSchemaType);
         setExpectedQNames(expectedQNames);
@@ -151,12 +155,13 @@ public class XmlValidationError extends XmlError
      * The static factory methods should be used instead of
      * this constructor.
      */
-    private XmlValidationError(String msg, int severity,
-        Location loc, QName offendingQname, SchemaType expectedSchemaType,
-        List expectedQNames, int errorType, SchemaType badSchemaType)
+    private XmlValidationError(String code, Object[] args, int severity,
+       XmlCursor cursor, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
+       List expectedQNames, int errorType, SchemaType badSchemaType)
     {
-        super(msg, (String)null, severity, loc);
+        super(code, args, severity, cursor);
 
+        setFieldQName(fieldQName);
         setOffendingQName(offendingQname);
         setExpectedSchemaType(expectedSchemaType);
         setExpectedQNames(expectedQNames);
@@ -164,20 +169,85 @@ public class XmlValidationError extends XmlError
         setBadSchemaType(badSchemaType);
     }
 
-    public static XmlValidationError forCursorWithDetails( String msg, int severity,
-        XmlCursor cursor, QName offendingQname, SchemaType expectedSchemaType,
-        List expectedQNames, int errorType, SchemaType badSchemaType)
+    /**
+     * The static factory methods should be used instead of
+     * this constructor.
+     */
+    // KHK: remove this
+    private XmlValidationError(String message, int severity,
+       Location loc, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
+       List expectedQNames, int errorType, SchemaType badSchemaType)
     {
-        return new XmlValidationError(msg, severity, cursor, offendingQname,
-            expectedSchemaType, expectedQNames, errorType, badSchemaType);
+        super(message, (String)null, severity, loc);
+
+        setFieldQName(fieldQName);
+        setOffendingQName(offendingQname);
+        setExpectedSchemaType(expectedSchemaType);
+        setExpectedQNames(expectedQNames);
+        setErrorType(errorType);
+        setBadSchemaType(badSchemaType);
     }
 
-    public static XmlValidationError forLocationWithDetails( String msg, int severity,
-        Location location, QName offendingQname, SchemaType expectedSchemaType,
+    /**
+     * The static factory methods should be used instead of
+     * this constructor.
+     */
+    private XmlValidationError(String code, Object[] args, int severity,
+        Location loc, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
         List expectedQNames, int errorType, SchemaType badSchemaType)
     {
-        return new XmlValidationError(msg, severity, location, offendingQname,
-            expectedSchemaType, expectedQNames, errorType, badSchemaType);
+        super(code, args, severity, loc);
+
+        setFieldQName(fieldQName);
+        setOffendingQName(offendingQname);
+        setExpectedSchemaType(expectedSchemaType);
+        setExpectedQNames(expectedQNames);
+        setErrorType(errorType);
+        setBadSchemaType(badSchemaType);
+    }
+
+    public static XmlValidationError forCursorWithDetails( String message, String code, Object[] args, int severity,
+       XmlCursor cursor, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
+       List expectedQNames, int errorType, SchemaType badSchemaType)
+    {
+        if (code == null)
+            return new XmlValidationError(message, severity, cursor, fieldQName, offendingQname,
+                expectedSchemaType, expectedQNames, errorType, badSchemaType);
+        else
+            return new XmlValidationError(code, args, severity, cursor, fieldQName, offendingQname,
+                expectedSchemaType, expectedQNames, errorType, badSchemaType);
+    }
+
+    public static XmlValidationError forLocationWithDetails( String message, String code, Object[] args, int severity,
+        Location location, QName fieldQName, QName offendingQname, SchemaType expectedSchemaType,
+        List expectedQNames, int errorType, SchemaType badSchemaType)
+    {
+        if (code == null)
+            return new XmlValidationError(message, severity, location, fieldQName, offendingQname,
+                expectedSchemaType, expectedQNames, errorType, badSchemaType);
+        else
+            return new XmlValidationError(code, args, severity, location, fieldQName, offendingQname,
+                expectedSchemaType, expectedQNames, errorType, badSchemaType);
+    }
+
+    public String getMessage()
+    {
+        if (_fieldQName != null)
+        {
+            String msg = super.getMessage();
+            StringBuffer sb = new StringBuffer(msg.length() + 100);
+
+            sb.append(msg);
+
+            sb.append(" in element ");
+            sb.append(_fieldQName.getLocalPart());
+            if (_fieldQName.getNamespaceURI() != null && _fieldQName.getNamespaceURI().length() != 0)
+                sb.append('@').append(_fieldQName.getNamespaceURI());
+
+            return sb.toString();
+        }
+        else
+            return super.getMessage();
     }
 
     public SchemaType getBadSchemaType()
@@ -210,6 +280,16 @@ public class XmlValidationError extends XmlError
         this._expectedQNames = _expectedQNames;
     }
 
+    public QName getFieldQName()
+    {
+        return _fieldQName;
+    }
+
+    public void setFieldQName(QName _fieldQName)
+    {
+        this._fieldQName = _fieldQName;
+    }
+
     public QName getOffendingQName()
     {
         return _offendingQName;
@@ -229,4 +309,5 @@ public class XmlValidationError extends XmlError
     {
         this._expectedSchemaType = _expectedSchemaType;
     }
+
 }

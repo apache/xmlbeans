@@ -17,5 +17,8 @@ package org.apache.xmlbeans.impl.common;
 
 public interface ValidationContext
 {
+    // KHK: remove this
     public void invalid ( String message );
+
+    public void invalid ( String code, Object[] args );
 }

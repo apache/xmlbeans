@@ -340,6 +340,11 @@ public class RussianDollStrategy
         {
             valid = false;
         }
+
+        public void invalid(String code, Object[] args)
+        {
+            valid = false;
+        }
     }
 
     private SCTValidationContext _validationContext = new SCTValidationContext();

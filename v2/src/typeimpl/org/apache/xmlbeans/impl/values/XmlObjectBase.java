@@ -279,6 +279,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         {
             throw new XmlValueOutOfRangeException( message );
         }
+
+        public void invalid(String code, Object[] args)
+        {
+            throw new XmlValueOutOfRangeException( XmlError.formattedMessage(code, args) );
+        }
     }
 
     /**
@@ -296,6 +301,10 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
         public void invalid(String message)
         {
            _coll.add(XmlError.forObject(message, _loc));
+        }
+        public void invalid(String code, Object[] args)
+        {
+            _coll.add(XmlError.forObject(code, args, _loc));
         }
     }
 
