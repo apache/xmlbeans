@@ -77,7 +77,7 @@ public class StscImporter
         {
             this.schema = schema;
             this.chameleonNamespace = chameleonNamespace;
-            this.redefine = redefine;
+            assert redefine == null : "Not expecting a redefine";
             this.redefinedBy = -1;
         }
 
@@ -86,6 +86,10 @@ public class StscImporter
         {
             this.schema = schema;
             this.chameleonNamespace = chameleonNamespace;
+            assert (redefine != null && redefinedBy >= 0 ) ||
+                (redefine == null && redefinedBy < 0) :
+                "Not expecting redefine = " + redefine +
+                    " and redefinedBy = " + redefinedBy;
             this.redefine = redefine;
             this.redefinedBy = redefinedBy;
         }
@@ -587,6 +591,30 @@ public class StscImporter
 
         private void addScanNeeded(SchemaToProcess stp)
         {
+            if (stp.getRedefine() != null && stp.getChameleonNamespace() == null)
+            {
+                // We have to check if the same SchemaToProcess exists without
+                // redefine and if it does, replace the redefine information on it
+                // rather than use a new SchemaToProcess.
+                SchemaToProcess nonRedefineVersion = new SchemaToProcess(
+                    stp.getSchema(), null, null);
+                if (scannedAlready.contains(nonRedefineVersion))
+                {
+                    // Unfortunately, we can't get the corresponding Object
+                    // from the Java Set implementation, so we have to search
+                    // for it...
+                    for (Iterator it = scannedAlready.iterator(); it.hasNext(); )
+                    {
+                        SchemaToProcess stp2 = (SchemaToProcess) it.next();
+                        if (stp2.equals(nonRedefineVersion))
+                        {
+                            stp2.redefine = stp.getRedefine();
+                            stp2.redefinedBy = stp.getRedefinedBy();
+                            return;
+                        }
+                    }
+                }
+            }
             if (!scannedAlready.contains(stp))
             {
                 scannedAlready.add(stp);
