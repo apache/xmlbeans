@@ -274,6 +274,10 @@
             basedir="${build.dir.test.schemas}" update="false"
             includes="xbean/xmlcursor/xquery/*.xq"
             />
+      <copy file="${xbeans.test.cases.test.files}/xbean/xmlcursor/xquery/xmlQuery.zip"
+          todir="${build.dir.test.lib}"/>
+       <copy file="${xbeans.test.cases.test.files}/xbean/xmlcursor/xquery/useCases.zip"
+          todir="${build.dir.test.lib}"/>
     </target>
 
     <target name="build.xsdcases" description="Builds xmlcases.jar">
@@ -755,7 +759,7 @@
         <property name="testcasejar.update" value="true"/>
         <echo message="SCHEMAS: ${this.schema.dirs}"/>
         <antcall target="unit.build"/>
-         <antcall target="build.xqcases"/>
+        <antcall target="build.xqcases"/>
     </target>
 
     <target name="build.area.dom">

@@ -46,8 +46,8 @@
       <property name="saxon_jar" value="build/lib/saxon8.jar"/>
     </target>
 
-    <target name="check.saxon8.2.jar" depends="saxon.find1,saxon.find2">
-      <condition property="saxon8.2.jar.exists">
+    <target name="check.saxon8.jar" depends="saxon.find1,saxon.find2">
+      <condition property="saxon8.jar.exists">
         <or>
           <available file="build/lib/saxon8.jar"/>
 	        <available file="${env.XMLBEANS_EXTERNALS}/saxon8.jar"/>
@@ -55,8 +55,8 @@
       </condition>
     </target>
 
-    <target name="saxon8.2.jar" depends="check.saxon8.2.jar, dirs"
-        unless="saxon8.2.jar.exists">
+    <target name="saxon8.jar" depends="check.saxon8.jar, dirs"
+        unless="saxon8.jar.exists">
         <get dest="build/lib/saxonb8-2.zip"
             src="http://voxel.dl.sourceforge.net/sourceforge/saxon/saxonb8-1-1.zip"
             verbose="true" usetimestamp="true" ignoreerrors="true"/>
@@ -796,7 +796,7 @@
 
     <!-- xpath target ============================================= -->
 
-    <target name="xpath.classes" depends="dirs, xmlpublic.jar, newstore2.classes, saxon8.2.jar">
+    <target name="xpath.classes" depends="dirs, xmlpublic.jar, newstore2.classes, saxon8.jar">
         <mkdir dir="build/classes/xpath_xquery"/>
         <javac
             destdir="build/classes/xpath_xquery"
@@ -815,16 +815,7 @@
     <target name="xbean_xpath.jar" depends="dirs, xpath.classes">
         <jar jarfile="build/lib/xbean_xpath.jar" basedir="build/classes/xpath_xquery"/>
     </target>
-    <!--
-       <target name="expand.jaxen" depends="check.expand.jaxen" unless="expand.jaxen.notRequired">
-           <unjar src="external/lib/jaxen-1.1-beta-2.jar" dest="build/classes/xpath"/>
-       </target>
-
-       <target name="check.expand.jaxen">
-           <available property="expand.jaxen.notRequired"
-               file="build/classes/xpath/org/jaxen/XPath.class"/>
-       </target>
-       -->
+ 
     <!-- TEST Targets ===================================================== -->
     <!-- All targets hook up into testbuild.xml -->
     <property name="testbuild.file" value="testbuild.xml"/>
