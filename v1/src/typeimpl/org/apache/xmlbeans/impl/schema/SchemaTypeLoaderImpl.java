@@ -30,6 +30,7 @@ import javax.xml.namespace.QName;
 import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.WeakHashMap;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.List;
@@ -60,12 +61,12 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     private static ThreadLocal _threadTypeSystems =
         new ThreadLocal()
         {
-            protected Object initialValue() { return new HashMap(); }
+            protected Object initialValue() { return new WeakHashMap(); }
         };
 
     public static SchemaTypeLoaderImpl getContextTypeLoader()
     {
-        HashMap candidates = (HashMap) _threadTypeSystems.get();
+        WeakHashMap candidates = (WeakHashMap) _threadTypeSystems.get();
         ClassLoader threadContextClassLoader = Thread.currentThread().getContextClassLoader();
         SchemaTypeLoaderImpl candidate = (SchemaTypeLoaderImpl) candidates.get( threadContextClassLoader );
 

@@ -2259,7 +2259,7 @@ public final class Root extends Finish implements XmlStore
             if (src instanceof Cursor)
             {
                 ps.println(
-                    "  from cursor " + ((CursorGoober)((Cursor) src)._goober).getDebugId() );
+                    "  from cursor " + ((CursorGoober)((Cursor) src)._data._goober).getDebugId() );
             }
             else if (src instanceof Splay)
                 ps.println( "  from splay " + ((Splay) src).getDebugId() );
