@@ -131,10 +131,10 @@ public class JavadocClassBuilder extends JamClassBuilder {
     FieldDoc[] fields = src.fields();
     for(int i=0; i<fields.length; i++) populate(dest.addNewField(),fields[i]);
     // add the constructors
-    ConstructorDoc[] ctors = src.constructors(false);
+    ConstructorDoc[] ctors = src.constructors();
     for(int i=0; i<ctors.length; i++) populate(dest.addNewConstructor(),ctors[i]);
     // add the methods
-    MethodDoc[] methods = src.methods(false);
+    MethodDoc[] methods = src.methods();
     for(int i=0; i<methods.length; i++) populate(dest.addNewMethod(),methods[i]);
     // add the annotations
     addAnnotations(dest, src);
