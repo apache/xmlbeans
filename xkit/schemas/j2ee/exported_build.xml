@@ -17,7 +17,7 @@
     </fileset>
   </path>
   
-  <taskdef name="xmlbean" classname="com.bea.xbean.tool.XMLBean" classpathref="task.classpath"/>
+  <taskdef name="xmlbean" classname="xml.apache.org.tool.XMLBean" classpathref="task.classpath"/>
   
   <target name="build" description="Build the Schemas project and copy it to Libraries">
   	

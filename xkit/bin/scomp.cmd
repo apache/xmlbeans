@@ -7,6 +7,6 @@
 set cp=
 set cp=%cp%;%XMLBEANDIR%\xbean.jar
 
-java -classpath %cp% com.bea.xbean.tool.SchemaCompiler %*
+java -classpath %cp% xmlbeans.apache.org.tool.SchemaCompiler %*
 
 :done

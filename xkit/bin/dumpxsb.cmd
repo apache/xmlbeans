@@ -7,6 +7,6 @@
 set cp=
 set cp=%cp%;%XMLBEANDIR%\xbean.jar
 
-java -classpath %cp% com.bea.xbean.tool.XsbDumper %*
+java -classpath %cp% xmlbeans.apache.org.tool.XsbDumper %*
 
 :done
