@@ -60,6 +60,7 @@ package org.apache.xmlbeans;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * A Marshaller object is used to convert Java objects to XML documents.
@@ -86,6 +87,23 @@ public interface Marshaller
     XMLStreamReader marshall(Object obj, NamespaceContext nscontext)
         throws XmlException;
 
+    /**
+     * Write an XML representation of the Java object to the provided writer.
+     *
+     * The object is expected to correspond to a global element in a schema.
+     * The first matching global element will be used as the root element.
+     *
+     * As of this writing (11/22/2003), this method will NOT write
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The first event written will be a START_ELEMENT event.
+     *
+     * @param obj
+     * @param writer
+     * @throws XmlException
+     */
+    void marshall(XMLStreamWriter writer, Object obj)
+        throws XmlException;
+
 
     /**
      * Get an XMLStreamReader object that represents the given java type.
@@ -108,4 +126,28 @@ public interface Marshaller
                                  String javaType,
                                  MarshalContext context)
         throws XmlException;
+
+
+    /**
+     * Write an XML representation of the Java object to the provided writer.
+     *
+     * As of this writing (11/22/2003), this method will NOT write
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The first event written will be a START_ELEMENT event.
+     *
+     * @param writer
+     * @param obj
+     * @param elementName
+     * @param schemaType
+     * @param javaType
+     * @throws XmlException
+     */
+    void marshallType(XMLStreamWriter writer,
+                      Object obj,
+                      QName elementName,
+                      QName schemaType,
+                      String javaType,
+                      MarshalContext context)
+        throws XmlException;
+
 }

@@ -69,8 +69,8 @@ public class YourClass
     private float myFloat;
     private float attrib;
     private boolean someBool;
-    private List bools;// = newBoolList();
-    private List strs;// = newStringList();
+//    private List bools;// = newBoolList();
+//    private List strs;// = newStringList();
     private long[] longArray;// = {RND.nextLong(), RND.nextLong()};
     private boolean[] booleanArray;// = {true, false, true};
     private String[] stringArray;//{"ONE:"+RND.nextInt(), "TWO:"+RND.nextInt()};
@@ -129,16 +129,16 @@ public class YourClass
     {
         this.someBool = someBool;
     }
-
-    public List getBools()
-    {
-        return bools;
-    }
-
-    public void setBools(List bools)
-    {
-        this.bools = bools;
-    }
+//
+//    public List getBools()
+//    {
+//        return bools;
+//    }
+//
+//    public void setBools(List bools)
+//    {
+//        this.bools = bools;
+//    }
 
 
     /**
@@ -154,15 +154,15 @@ public class YourClass
         this.attrib = attrib;
     }
 
-    public List getStrs()
-    {
-        return strs;
-    }
-
-    public void setStrs(List strs)
-    {
-        this.strs = strs;
-    }
+//    public List getStrs()
+//    {
+//        return strs;
+//    }
+//
+//    public void setStrs(List strs)
+//    {
+//        this.strs = strs;
+//    }
 
     public long[] getLongArray()
     {
@@ -216,12 +216,12 @@ public class YourClass
         if (myFloat != yourClass.myFloat) return false;
         if (someBool != yourClass.someBool) return false;
         if (!Arrays.equals(booleanArray, yourClass.booleanArray)) return false;
-        if (bools != null ? !bools.equals(yourClass.bools) : yourClass.bools != null) return false;
+//        if (bools != null ? !bools.equals(yourClass.bools) : yourClass.bools != null) return false;
         if (!Arrays.equals(longArray, yourClass.longArray)) return false;
         if (myClass != null ? !myClass.equals(yourClass.myClass) : yourClass.myClass != null) return false;
         if (!Arrays.equals(myClassArray, yourClass.myClassArray)) return false;
         if (!Arrays.equals(stringArray, yourClass.stringArray)) return false;
-        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
+//        if (strs != null ? !strs.equals(yourClass.strs) : yourClass.strs != null) return false;
 
         return true;
     }
@@ -233,8 +233,8 @@ public class YourClass
         result = 29 * result + Float.floatToIntBits(myFloat);
         result = 29 * result + Float.floatToIntBits(attrib);
         result = 29 * result + (someBool ? 1 : 0);
-        result = 29 * result + (bools != null ? bools.hashCode() : 0);
-        result = 29 * result + (strs != null ? strs.hashCode() : 0);
+//        result = 29 * result + (bools != null ? bools.hashCode() : 0);
+//        result = 29 * result + (strs != null ? strs.hashCode() : 0);
         return result;
     }
 
@@ -248,8 +248,8 @@ public class YourClass
             ", myFloat=" + myFloat +
             ", attrib=" + attrib +
             ", someBool=" + someBool +
-            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
-            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
+//            ", bools=" + (bools == null ? null : "size:" + bools.size() + bools) +
+//            ", strs=" + (strs == null ? null : "size:" + strs.size() + strs) +
             ", longArray=" + ArrayUtils.arrayToString(longArray) +
             ", booleanArray=" + ArrayUtils.arrayToString(booleanArray) +
             ", stringArray=" + ArrayUtils.arrayToString(stringArray) +

@@ -20,7 +20,9 @@ public class MyClass {
         this.myelt = myelt;
     }
 
-
+    /**
+     *  @xsdgen:element.nillable true
+     */
     public String getMyatt()
     {
         return myatt;

@@ -150,6 +150,8 @@ public class MarshalTests extends TestCase
         myelt.setMyClass(null);
         mc.setMyelt(myelt);
 
+        myelt.setStringArray(new String[]{"one", "two", "three"});
+
 
         final File bcdoc = getBindingConfigDocument();
 
@@ -171,6 +173,84 @@ public class MarshalTests extends TestCase
         System.out.println("=======IN-OBJ: " + mc);
 
         dumpReader(reader);
+    }
+
+
+    public void testByNameMarshalViaWriter()
+        throws Exception
+    {
+        com.mytest.MyClass mc = new com.mytest.MyClass();
+        mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(99999.777f);
+        myelt.setMyFloat(5555.4444f);
+//        myelt.setMyClass(new com.mytest.MyClass());
+        myelt.setMyClass(null);
+        mc.setMyelt(myelt);
+
+        myelt.setStringArray(new String[]{"one", "two", "three"});
+
+
+        final File bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+
+        Marshaller m = bindingContext.createMarshaller();
+
+        StringWriter sw = new StringWriter();
+        XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+
+        MarshalContext ctx =
+            bindingContext.createMarshallContext(w.getNamespaceContext());
+
+         m.marshallType(w, mc, new QName("java:com.mytest", "load"),
+                           new QName("java:com.mytest", "MyClass"),
+                           mc.getClass().getName(),
+                           ctx);
+
+        System.out.println("=======IN-OBJ: " + mc);
+        System.out.println("=======OUT-XML: " + PrettyPrinter.indent(sw.getBuffer().toString()));
+    }
+
+    public void testByNameDocMarshalViaWriter()
+        throws Exception
+    {
+        com.mytest.MyClass mc = new com.mytest.MyClass();
+        mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(99999.777f);
+        myelt.setMyFloat(5555.4444f);
+//        myelt.setMyClass(new com.mytest.MyClass());
+        myelt.setMyClass(null);
+        mc.setMyelt(myelt);
+
+        myelt.setStringArray(new String[]{"one", "two", "three"});
+
+
+        final File bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+
+        Marshaller m = bindingContext.createMarshaller();
+
+        StringWriter sw = new StringWriter();
+        XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+
+        MarshalContext ctx =
+            bindingContext.createMarshallContext(w.getNamespaceContext());
+
+        m.marshall(w, mc);
+
+
+        //now unmarshall from String and compare objects...
+        StringReader sr = new StringReader(sw.getBuffer().toString());
+        XMLStreamReader rdr =
+            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+        Unmarshaller um = bindingContext.createUnmarshaller();
+        Object out_obj =  um.unmarshal(rdr);
+        Assert.assertEquals(mc, out_obj);
     }
 
 
@@ -281,6 +361,7 @@ public class MarshalTests extends TestCase
         top_obj.setMyelt(myelt);
 //        curr.setMyatt("STR" + rnd.nextInt());
         top_obj.setMyatt(null);
+//        top_obj.setMyatt("someVALUE");
 
 
         System.out.println("top_obj = " + top_obj);

@@ -65,10 +65,13 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import java.util.ArrayList;
 
 /**
@@ -120,6 +123,18 @@ class MarshallerImpl
         return marshalResult;
     }
 
+    public void marshall(XMLStreamWriter writer, Object obj)
+        throws XmlException
+    {
+        XMLStreamReader rdr = marshall(obj, writer.getNamespaceContext());
+        try {
+            XmlReaderToWriter.writeAll(rdr, writer);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
+    }
+
     public XMLStreamReader marshallType(Object obj,
                                         QName elementName,
                                         QName schemaType,
@@ -136,6 +151,23 @@ class MarshallerImpl
         BindingType type = determineBindingType(obj, schemaType, javaType);
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
         return new MarshalResult(prop, obj, our_context);
+    }
+
+    public void marshallType(XMLStreamWriter writer,
+                             Object obj,
+                             QName elementName,
+                             QName schemaType,
+                             String javaType,
+                             MarshalContext context)
+        throws XmlException
+    {
+        XMLStreamReader rdr = marshallType(obj, elementName, schemaType, javaType, context);
+        try {
+            XmlReaderToWriter.writeAll(rdr, writer);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
     }
 
     private BindingType determineBindingType(Object obj,
