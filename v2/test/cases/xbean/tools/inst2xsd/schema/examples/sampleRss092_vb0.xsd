@@ -37,7 +37,7 @@
     <xs:sequence>
       <xs:element type="xs:string" name="description" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
       <xs:element type="enclosureType" name="enclosure" minOccurs="0"/>
-      <xs:element type="sourceType" name="source" maxOccurs="unbounded" minOccurs="0"/>
+      <xs:element type="sourceType" name="source" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>
   <xs:complexType name="sourceType">

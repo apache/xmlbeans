@@ -18,8 +18,8 @@
   <xs:element name="c">
     <xs:simpleType>
       <xs:restriction base="xs:QName" xmlns:xs="http://www.w3.org/2001/XMLSchema">
-        <xs:enumeration value="foo:baz"/>
-        <xs:enumeration value="baz:foo"/>
+        <xs:enumeration value="foo:baz" xmlns:foo="http://foo"/>
+        <xs:enumeration value="baz:foo" xmlns:baz="http://baz"/>
       </xs:restriction>
     </xs:simpleType>
   </xs:element>

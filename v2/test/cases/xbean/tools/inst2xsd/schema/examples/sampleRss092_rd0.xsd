@@ -44,7 +44,7 @@
                         </xs:simpleContent>
                       </xs:complexType>
                     </xs:element>
-                    <xs:element name="source" maxOccurs="unbounded" minOccurs="0">
+                    <xs:element name="source" minOccurs="0">
                       <xs:complexType>
                         <xs:simpleContent>
                           <xs:extension base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">

@@ -5,7 +5,7 @@
       <xs:sequence>
         <xs:element ref="description"/>
         <xs:element ref="enclosure" minOccurs="0"/>
-        <xs:element ref="source" maxOccurs="unbounded" minOccurs="0"/>
+        <xs:element ref="source" minOccurs="0"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>

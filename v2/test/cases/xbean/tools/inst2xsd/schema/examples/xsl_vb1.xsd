@@ -9,7 +9,14 @@
   </xs:complexType>
   <xs:complexType name="trType">
     <xs:sequence>
-      <xs:element type="xs:string" name="th" maxOccurs="unbounded" minOccurs="0" xmlns:xs="http://www.w3.org/2001/XMLSchema"/>
+      <xs:element name="th" maxOccurs="unbounded" minOccurs="0">
+        <xs:simpleType>
+          <xs:restriction base="xs:string" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+            <xs:enumeration value="Title"/>
+            <xs:enumeration value="Artist"/>
+          </xs:restriction>
+        </xs:simpleType>
+      </xs:element>
       <xs:element type="tdType" name="td" maxOccurs="unbounded" minOccurs="0"/>
     </xs:sequence>
   </xs:complexType>

@@ -27,8 +27,9 @@
                   <xs:simpleContent>
                     <xs:extension base="xs:QName" xmlns:xs="http://www.w3.org/2001/XMLSchema">
                       <xs:attribute ref="foo:r" xmlns:foo="http://foo"/>
-                      <xs:attribute ref="baz:a" xmlns:baz="http://baz"/>
+                      <xs:attribute ref="baz:b" xmlns:baz="http://baz"/>
                       <xs:attribute ref="foo:n" xmlns:foo="http://foo"/>
+                      <xs:attribute ref="baz:a" xmlns:baz="http://baz"/>
                     </xs:extension>
                   </xs:simpleContent>
                 </xs:complexType>
