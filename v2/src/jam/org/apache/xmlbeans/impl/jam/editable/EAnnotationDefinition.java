@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JAnnotationDeclaration;
+import org.apache.xmlbeans.impl.jam.JAnnotationDefinition;
 import org.apache.xmlbeans.impl.jam.JClass;
 
 /**
@@ -23,7 +23,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface EAnnotationDefinition extends
-        JAnnotationDeclaration, EElement {
+        JAnnotationDefinition, EElement {
 
   /**
    * Creates a new member in this Annotation definition and returns the

@@ -20,13 +20,13 @@ package org.apache.xmlbeans.impl.jam;
 /**
  * Represents the definition of an Annotation.
  *
- * Note that JAnnotationDeclaration is a JClass.  In the most typical case,
+ * Note that JAnnotationDefinition is a JClass.  In the most typical case,
  * this class is simply a representation of a java.lang.Annotation class,
  * although this should not be assumed.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JAnnotationDeclaration extends JClass {
+public interface JAnnotationDefinition extends JClass {
 
   //NOTE the delcarations are also returned as JMethods
 
@@ -34,5 +34,5 @@ public interface JAnnotationDeclaration extends JClass {
    * Note that the objects in the array returned by this method are exactly
    * the same as those returned by getMethods().
    */
-  public JAnnotationMemberDeclaration[] getMemberDeclarations();
+  public JAnnotationMemberDefinition[] getMemberDefinitions();
 }

@@ -31,6 +31,14 @@ package org.apache.xmlbeans.impl.jam;
  */
 public interface JAnnotation extends JElement {
 
+  // ========================================================================
+  // Constants
+
+  public static final String SINGLE_MEMBER_NAME = "value";
+
+  // ========================================================================
+  // Public methods
+
   /**
    * Returns the name of this annotation.  Note that in the case of
    * javadoc-style annotations, this name will NOT include the leading
@@ -40,45 +48,10 @@ public interface JAnnotation extends JElement {
    * getDeclaration().getSimpleName();  it really is type information,
    * which I thought we didn't want to expose here.  However,
    * I think name is still needed here simply because we may not always
-   * have a declaration (i.e. in the javadoc case), but we will still
+   * have a definition (i.e. in the javadoc case), but we will still
    * have a name.
    */
   public String getName();
-
-  /**
-   * <p>Returns the JAnnotationMember which represents the member of this
-   * annotation if this annotation qualifies as a 'single member
-   * annotation.'</p>
-   *
-   * <p>This method should not be used lightly, as it is here primarily to
-   * provide support simple javadoc tags of the form '@mytag value'.  If you
-   * are using tags of this form, you probably need to do some thinking
-   * about how you want to map your tag system into 175 annotation types.
-   * getSingleMember() provides one avenue for such a mapping by equating
-   * such simple javadoc tags as JSR175 single member annotations.</p>
-   *
-   * <p>The qualifications for being a 'single member annotation' are as
-   * follows:</p>
-   * <ul>
-   *   <li>For JSR175 tags, as described in the spec, the annotation must be
-   *       of a type which either has only one member, or has multiple members
-   *       but exactly one member which has no default value (which is
-   *       considered the single member).</li>
-   *   <li>All javadoc tags implicitly qualify as single member tags,
-   *       although not all of them should be treated as such.  For simple
-   *       javadoc tags (@mytag value), this method provides thoe only
-   *       means of accessing the tag value.  However, if the tag contains
-   *       complex content (typically expressed as name=value pairs), this
-   *       method returns a member which contains the entire raw text of
-   *       the tag, whitespace and '=' signs included.  Typically, this is not
-   *       useful - you should call getMembers() or getMember("name") to get
-   *       at the structured data.</li>
-   * </ul>
-   *
-   * <p>If this annotation does not qualify as a single member annotation,
-   * as described above, this method will return null.</p.
-   */
-  public JAnnotationMember getSingleMember();
 
   /**
    * Returns an array containing this annotation's members.  Returns an
@@ -88,25 +61,41 @@ public interface JAnnotation extends JElement {
 
   /**
    * Returns the member of this annotation which has the given name,
-   * or null if no such member exists.
+   * or null if no such member exists.  If this tag is a 175 tag,
+   * you can call getMember(SINGLE_MEMBER_NAME) to get the single member
+   * of a single-member annotation, as described in the 175 specification.
+   * If this tag is a javadoc tag, getMember(SINGLE_MEMBER_NAME) returns
+   * the lone member of a simple javadoc tag (i.e., one of the form
+   * '@mytag myvalue').
    *
-   * @return The named member or null.
+   * @return The named member or null if none exists.
    * @throws IllegalArgumentException if the parameter is null.
    */
   public JAnnotationMember getMember(String named);
 
   /**
-   * Returns a representation of this annotation's type declaration.  This
+   * Returns a representation of this annotation's type definition.  This
    * typically returns null if the Annotation is does not represent a
    * JSR175 annotation.
    */
-  public JAnnotationDeclaration getDeclaration();
+  public JAnnotationDefinition getDefinition();
 
   /**
    * <p>If this JAnnotation represents a JSR175 annotation, returns the
    * underlying java.lang.Annotation instance.  Returns null otherwise.</p>
    */
   public Object getAnnotationObject();
+
+  /**
+   * <p>If this JAnnotation represents a javadoc tag, returns the raw,
+   * untrimmed contents of the tag.  Otherwise, returns null.  You
+   * shouldn't use this method without a really good reason - you normally
+   * should call one of the getMember() methods to get at the tag contents.
+   * You can call getMember(SINGLE_MEMBER_NAME) to get a JAnnotationMember
+   * representing the contents of a simple javadoc tag (e.g. @mytag myvalue).
+   * </p>
+   */
+  public String getJavadocText();
 
 
   // ========================================================================

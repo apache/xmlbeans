@@ -21,7 +21,7 @@ import java.util.StringTokenizer;
 import org.apache.xmlbeans.impl.jam.*;
 
 /**
- * Javadoc-backed implementation of org.apache.xmlbeans.impl.jam.Annotation
+ * Base implementation of org.apache.xmlbeans.impl.jam.Annotation
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
@@ -110,11 +110,15 @@ public class BaseJAnnotation extends BaseJElement
     return null;
   }
 
-  public JAnnotationDeclaration getDeclaration() {
+  public JAnnotationDefinition getDefinition() {
     return null;
   }
 
   public Object getAnnotationObject() {
+    return null;
+  }
+
+  public String getJavadocText() {
     return null;
   }
 
@@ -179,14 +183,10 @@ public class BaseJAnnotation extends BaseJElement
     }
   }
 
-  public JAnnotationMember getSingleMember() {
-    return this;
-  }
-
   // ========================================================================
   // JAnnotationMember implementation
 
-  public JAnnotationMemberDeclaration getMemberDeclaration() {
+  public JAnnotationMemberDefinition getMemberDefinition() {
     return null;
   }
 

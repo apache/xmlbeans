@@ -35,7 +35,7 @@ public interface JAnnotationMember {
 
   /**
    * <p>Returns true if the member's value was not explicitly set in the
-   * annotation instance but was instead taken from the member declaration
+   * annotation instance but was instead taken from the member definition's
    * default.</p>
    *
    * <p>Note that not all JAM implementations may be able to distinguish
@@ -49,11 +49,11 @@ public interface JAnnotationMember {
   public boolean isDefaultValueUsed();
 
   /**
-   * <p>Returns the a representation of the declaration of this member in its
-   * annotation type declaration.  This will typically return null if
+   * <p>Returns the a representation of the definition of this member in its
+   * annotation type definition.  This will typically return null if
    * the AnnotationMember is not not part of a JSR175 annotation.</p>
    */
-  public JAnnotationMemberDeclaration getMemberDeclaration();
+  public JAnnotationMemberDefinition getMemberDefinition();
 
   /**
    * <p>If this member is complex (i.e. an instance of another annotation
