@@ -68,6 +68,34 @@ public class JamClassLoaderImpl implements JamClassLoader {
     if (fd.startsWith("[")) {
       return ArrayClassImpl.createClassForFD(fd,this);
     }
+    {
+      // check for loading inner class by name.  if it's not in the cache
+      // yet, that means we need to go get the outer class.  when that's
+      // done, the inner class will in the cache (or not).
+      int dollar = fd.indexOf('$');
+      if (dollar != -1) {
+        String outerName = fd.substring(0,dollar);
+        ((ClassImpl)loadClass(outerName)).ensureLoaded();
+        out = cacheGet(fd);
+        // parse out the package and class names - this is kinda broken
+        int dot = fd.lastIndexOf('.');
+        if (out == null) {
+          String pkg;
+          String name;
+          if (dot == -1) {
+            pkg = "";
+            name = fd;
+          } else {
+            pkg  = fd.substring(0,dot);
+            name = fd.substring(dot+1);
+          }
+          out = new UnresolvedClassImpl(pkg,name,mContext);
+          mContext.warning("failed to resolve class "+fd);
+          cachePut(out);
+        }
+        return out;
+      }
+    }
     // parse out the package and class names - this is kinda broken
     int dot = fd.lastIndexOf('.');
     String pkg;
@@ -166,7 +194,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   }
 
   public void addToCache(JClass c) {
-    //FIXME hack for mutable classes for now
+    //FIXME hack for mutable classes for now.  also for inner classes.
     cachePut((MClass)c);
   }
 

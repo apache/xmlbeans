@@ -513,15 +513,21 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public MClass addNewInnerClass(String name) {
-    MClass inner = new ClassImpl(mPackageName,
+    // strip off everything but the last bit, no matter what they give us.
+    // we'll prepend our own simplename to make sure the full nesting
+    // is expressed correctly (i.e. with '$').
+    int lastDot = name.lastIndexOf('.');
+    if (lastDot == -1) lastDot = name.lastIndexOf('$');
+    if (lastDot != -1) name = name.substring(lastDot+1);
+    ClassImpl inner = new ClassImpl(mPackageName,
                                  getSimpleName()+"$"+name,
                                  getImportSpecs(),
                                  this);
     if (mInnerClasses == null) mInnerClasses = new ArrayList();
     mInnerClasses.add(inner);
+    inner.setState(LOADED); //REVIEW this works, but inner class lifecycle is not well thought-out
+    ((JamClassLoaderImpl)getClassLoader()).addToCache(inner);
     return inner;
-    //FIXME we need to also register the new inner class with the classloader.
-    //the way inner classes is handled is still kinda broken.
   }
 
   public void removeInnerClass(MClass clazz) {
@@ -561,7 +567,9 @@ public class ClassImpl extends MemberImpl implements MClass,
   // ========================================================================
   // Public methods for internal use only
 
-  public void setState(int state) { mState = state; }
+  public void setState(int state) {
+    mState = state;
+  }
 
   // ========================================================================
   // Public static utility methods
@@ -642,7 +650,7 @@ public class ClassImpl extends MemberImpl implements MClass,
     if (clazz != null) addMethodsRecursively(clazz, out);
   }
 
-  private void ensureLoaded() {
+  public void ensureLoaded() {
     if (mState == LOADED) return;
     if (mState == UNPOPULATED) {
       if (mPopulator == null) throw new IllegalStateException("null populator");

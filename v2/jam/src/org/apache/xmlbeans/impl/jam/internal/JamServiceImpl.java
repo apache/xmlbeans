@@ -19,8 +19,6 @@ import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JamClassIterator;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamService;
-import org.apache.xmlbeans.impl.jam.mutable.MClass;
-import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 /**
