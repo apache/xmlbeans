@@ -51,12 +51,6 @@ abstract class BaseSimpleTypeConverter
         }
     }
 
-    public void unmarshal(Object object, UnmarshalResult result)
-        throws XmlException
-    {
-        throw new UnsupportedOperationException("not supported: this=" + this);
-    }
-
     public void unmarshalIntoIntermediary(Object intermediary,
                                           UnmarshalResult result)
     {

@@ -34,23 +34,18 @@ public class WrappedArrayUnmarshaller
     public Object unmarshal(UnmarshalResult result)
         throws XmlException
     {
-        final Object inter = type.createIntermediary();
-        deserializeContents(inter, result);
-        return type.getFinalObjectFromIntermediary(inter);
-    }
-
-    public void unmarshal(Object object, UnmarshalResult result)
-        throws XmlException
-    {
-        throw new UnsupportedOperationException("not supported: this=" + this);
+        final Object inter = type.createIntermediary(result);
+        unmarshalIntoIntermediary(inter, result);
+        return type.getFinalObjectFromIntermediary(inter, result);
     }
 
     public void unmarshalIntoIntermediary(Object intermediary,
                                           UnmarshalResult result)
         throws XmlException
     {
-        throw new AssertionError("UNIMP!!");
+        deserializeContents(intermediary, result);
     }
+
 
     //TODO: cleanup this code.  We are doing extra work for assertion checking
     //also might consider consolidating the common code with the ByNameUnmarshaller
@@ -63,11 +58,14 @@ public class WrappedArrayUnmarshaller
         final String ourStartLocalName = context.getLocalName();
         context.next();
 
+        final WrappedArrayRuntimeBindingType.ItemProperty elem_prop =
+            type.getElementProperty();
+
         while (context.advanceToNextStartElement()) {
             assert context.isStartElement();
 
             if (matchesItemElement(context)) {
-                context.extractAndFillElementProp(type.getElementProperty(), inter);
+                context.extractAndFillElementProp(elem_prop, inter);
             }
         }
 

@@ -19,7 +19,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
-import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 
 import javax.xml.namespace.QName;
 import java.util.Collection;
@@ -107,17 +106,6 @@ abstract class AttributeRuntimeBindingType
     }
 
     protected abstract Collection getQNameProperties();
-
-    //some subclass will certainly need to override this
-    protected Object createIntermediary(UnmarshalResult context,
-                                        Object actual_object)
-    {
-        return actual_object;
-    }
-
-    protected abstract Object getFinalObjectFromIntermediary(Object retval,
-                                                             UnmarshalResult context)
-        throws XmlException;
 
 
     final RuntimeBindingProperty getAttributeProperty(int index)

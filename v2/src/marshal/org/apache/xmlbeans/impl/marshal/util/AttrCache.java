@@ -15,95 +15,100 @@
 
 package org.apache.xmlbeans.impl.marshal.util;
 
-import javax.xml.namespace.QName;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.ChangeStamp;
 import org.apache.xmlbeans.impl.newstore2.Public2;
 import org.w3c.dom.Node;
+
+import javax.xml.namespace.QName;
 import java.util.HashMap;
 
 public class AttrCache
 {
-    public AttrCache ( Node n, QName attrName )
+    public AttrCache(Node n, QName attrName)
     {
-        QName[] names = new QName[ 1 ];
-        names[ 0 ] = attrName;
+        QName[] names = new QName[1];
+        names[0] = attrName;
 
-        init( n, names );
+        init(n, names);
     }
 
-    public AttrCache ( Node n, QName[] attrNames )
+    public AttrCache(Node n, QName[] attrNames)
     {
-        init( n, attrNames );
+        init(n, attrNames);
     }
 
-    public Node lookup ( String key )
+    public Node lookup(String key)
     {
         ensureCache();
 
-        return (Node) _map.get( key );
+        return (Node)_map.get(key);
     }
 
-    private void init ( Node n, QName[] attrNames )
+    private void init(Node n, QName[] attrNames)
     {
         _node = n;
         _map = new HashMap();
 
         StringBuffer sb = new StringBuffer();
 
-        for ( int i = 0 ; i < attrNames.length ; i++ )
-        {
-            if (attrNames[ i ].getNamespaceURI().length() > 0)
-            {
-                sb.append( "declare namespace ns" );
-                sb.append( i );
-                sb.append( "='" );
-                sb.append( attrNames[ i ].getNamespaceURI() );
-                sb.append( "' " );
+        for (int i = 0; i < attrNames.length; i++) {
+            if (attrNames[i].getNamespaceURI().length() > 0) {
+                sb.append("declare namespace ns");
+                sb.append(i);
+                sb.append("='");
+                sb.append(attrNames[i].getNamespaceURI());
+                sb.append("' ");
             }
         }
 
-        for ( int i = 0 ; i < attrNames.length ; i++ )
-        {
+        for (int i = 0; i < attrNames.length; i++) {
             if (i > 0)
-                sb.append( "|" );
+                sb.append("|");
 
-            sb.append( ".//@" );
+            sb.append(".//@");
 
-            if (attrNames[ i ].getNamespaceURI().length() > 0)
-            {
-                sb.append( "ns" );
-                sb.append( i );
-                sb.append( ":" );
+            if (attrNames[i].getNamespaceURI().length() > 0) {
+                sb.append("ns");
+                sb.append(i);
+                sb.append(":");
             }
 
-            sb.append( attrNames[ i ].getLocalPart() );
+            sb.append(attrNames[i].getLocalPart());
         }
 
-        _path = Public2.compilePath( sb.toString(), null );
+        _path = Public2.compilePath(sb.toString(), null);
     }
 
-    private void ensureCache ( )
+    private void ensureCache()
     {
         if (_stamp != null && !_stamp.hasChanged())
             return;
 
-        XmlCursor c = Public2.getCursor( _node );
+        XmlCursor c = Public2.getCursor(_node);
 
         _stamp = c.getDocChangeStamp();
 
         _map.clear();
 
-        c.selectPath( _path );
+        c.selectPath(_path);
 
-        while ( c.toNextSelection() )
-            _map.put( c.getTextValue(), c.getDomNode() );
+        while (c.toNextSelection()) {
+            final String attr_val = c.getTextValue();
+
+            if (c.toParent()) {
+                _map.put(attr_val, c.getDomNode());
+            } else {
+                //not sure why this will ever happen.
+                assert false : " failed to move to parent: " + c;
+            }
+        }
 
         c.dispose();
     }
 
-    private Node        _node;
-    private String      _path;
+    private Node _node;
+    private String _path;
     private ChangeStamp _stamp;
-    private HashMap     _map;
+    private HashMap _map;
 }

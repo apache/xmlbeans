@@ -40,13 +40,15 @@ public final class LongList
         store = new long[initial_capacity];
     }
 
-    /**
-     get a new array just large enough to hold the items
-     */
     public long[] getMinSizedArray()
     {
+        if (size == store.length) {
+            return store;
+        }
+
         long[] new_a = new long[size];
         System.arraycopy(store, 0, new_a, 0, size);
+        store = new_a;
         return new_a;
     }
 
@@ -70,6 +72,27 @@ public final class LongList
         assert (o instanceof Number);
         add(((Number)o).longValue());
     }
+
+    public void appendDefault()
+    {
+        add(0L);
+    }
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Number)value).longValue());
+    }
+
+
+    public void set(int index, long value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
+    }
+
 
     /**
      * Appends the specified element to the end of this list.

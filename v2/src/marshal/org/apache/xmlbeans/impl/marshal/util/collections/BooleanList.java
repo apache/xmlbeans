@@ -45,8 +45,13 @@ public final class BooleanList
      */
     public boolean[] getMinSizedArray()
     {
+        if (size == store.length) {
+            return store;
+        }
+
         boolean[] new_a = new boolean[size];
         System.arraycopy(store, 0, new_a, 0, size);
+        store = new_a;
         return new_a;
     }
 
@@ -69,6 +74,25 @@ public final class BooleanList
     {
         assert (o instanceof Boolean);
         add(((Boolean)o).booleanValue());
+    }
+
+    public void appendDefault()
+    {
+        add(false);
+    }
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Boolean)value).booleanValue());
+    }
+
+    public void set(int index, boolean value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
     }
 
     /**

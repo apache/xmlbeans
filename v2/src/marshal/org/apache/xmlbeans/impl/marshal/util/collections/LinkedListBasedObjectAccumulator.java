@@ -40,5 +40,12 @@ public final class LinkedListBasedObjectAccumulator
         return (LinkedList)store;
     }
 
+    public void set(int index, Object value)
+    {
+        LinkedList l = (LinkedList)store;
+        l.set(index, value);
+        lastArray = null;
+    }
+
 }
 

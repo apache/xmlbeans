@@ -47,6 +47,16 @@ public final class GenericCollectionObjectAccumulator
         container.add(elem);
     }
 
+    public void appendDefault()
+    {
+        append(null);
+    }
+
+    public void set(int index, Object value)
+    {
+        throw new UnsupportedOperationException("no indexed access");
+    }
+
     public Object getFinalArray()
     {
         return container;

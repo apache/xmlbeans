@@ -19,7 +19,6 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
-import org.apache.xmlbeans.impl.marshal.util.ReflectionUtils;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
 
@@ -113,7 +112,6 @@ final class ByNameRuntimeBindingType
         }
     }
 
-    //some subclass will certainly need to override this
     protected Object createIntermediary(UnmarshalResult context,
                                         Object actual_object)
     {

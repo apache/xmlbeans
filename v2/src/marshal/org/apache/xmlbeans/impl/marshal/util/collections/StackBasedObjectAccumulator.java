@@ -40,5 +40,12 @@ public final class StackBasedObjectAccumulator
         return (Stack)store;
     }
 
+    public void set(int index, Object value)
+    {
+        Stack s = (Stack)store;
+        s.set(index, value);
+        lastArray = null;
+    }
+
 }
 

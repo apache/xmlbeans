@@ -19,8 +19,10 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
+import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamException;
@@ -32,14 +34,18 @@ abstract class SoapUnmarshalResult
     private final SoapAttributeHolder soapAttributeHolder =
         new SoapAttributeHolder();
     private final RefObjectTable refObjectTable;
+    private final StreamRefNavigator streamRefNavigator;
 
     SoapUnmarshalResult(BindingLoader loader,
                         RuntimeBindingTypeTable typeTable,
                         RefObjectTable refObjectTable,
+                        StreamRefNavigator refNavigator,
                         XmlOptions options)
     {
         super(loader, typeTable, options);
         this.refObjectTable = refObjectTable;
+        assert refNavigator != null;
+        this.streamRefNavigator = refNavigator;
     }
 
     protected XMLStreamReader getValidatingStream(XMLStreamReader reader)
@@ -65,42 +71,75 @@ abstract class SoapUnmarshalResult
         updateSoapAttributes();
 
         final String ref = soapAttributeHolder.ref;
+        Object tmpval = null;
         if (ref != null) {
-            baseReader = relocateStreamToRef(ref);
-            updateSoapAttributes();
-            updateAttributeState();
+            tmpval = getObjectForRefFromTable(ref);
+            if (tmpval == null) {
+                Object tmp_inter = getInterForRefFromTable(ref);
+                if (tmp_inter == null) {
+                    baseReader = relocateStreamToRef(ref);
+                    updateSoapAttributes();
+                    updateAttributeState();
+                } else {
+                    throw new AssertionError("FIXME");
+                }
+            } else {
+                prop.fill(inter, tmpval);
+                skipElement();
+            }
         }
 
-        try {
-            final RuntimeBindingType actual_rtt =
-                this.determineActualRuntimeType(prop.getRuntimeBindingType());
+        if (tmpval == null) {
+            try {
+                final RuntimeBindingType actual_rtt =
+                    this.determineActualRuntimeType(prop.getRuntimeBindingType());
 
-            final Object this_val =
-                unmarshalElementProperty(prop, inter, actual_rtt);
+                final Object this_val =
+                    unmarshalElementProperty(prop, inter, actual_rtt);
 
-            prop.fill(inter, this_val);
-        }
-        catch (InvalidLexicalValueException ilve) {
-            //unlike attributes, the error has been added to the this
-            //already via BaseSimpleTypeConveter...
+                prop.fill(inter, this_val);
+            }
+            catch (InvalidLexicalValueException ilve) {
+                //unlike attributes, the error has been added to the this
+                //already via BaseSimpleTypeConveter...
+            }
         }
 
         if (baseReader != curr_reader) {
             baseReader = curr_reader;
-            updateAttributeState(); //TODO: do we really need this here?
+            skipElement();
         }
     }
 
-    private XMLStreamReaderExt relocateStreamToRef(String ref)
+    private Object getObjectForRefFromTable(String ref)
     {
-        throw new AssertionError("UNIMP");
+        //TODO: mask null values
 
-//        XMLStreamReaderExtImpl impl = (XMLStreamReaderExtImpl)baseReader;
-//        final XMLStreamReader underlyingXmlStream = impl.getUnderlyingXmlStream();
-//        final Node node = Public2.getNode(underlyingXmlStream);
-//        final XmlCursor cursor = Public2.getCursor(node);
-//        final XMLStreamReader reader = cursor.newXMLStreamReader();
-//        return new XMLStreamReaderExtImpl(reader);
+        final Object obj = refObjectTable.getObjectForRef(ref);
+        return obj;
+    }
+
+    private Object getInterForRefFromTable(String ref)
+    {
+        //TODO: mask null values
+
+        final Object obj = refObjectTable.getInterForRef(ref);
+        return obj;
+    }
+
+    private XMLStreamReaderExt relocateStreamToRef(String ref)
+        throws XmlException
+    {
+        assert streamRefNavigator != null;
+
+        final XMLStreamReader reader = streamRefNavigator.lookupRef(ref);
+
+        if (reader == null) {
+            //TODO: better error handling in this case!!
+            throw new XmlException("failed to deref " + ref);
+        }
+
+        return new XMLStreamReaderExtImpl(reader);
     }
 
     private void updateSoapAttributes()
@@ -120,7 +159,8 @@ abstract class SoapUnmarshalResult
 
         final XMLStreamReaderExt reader = baseReader;
 
-        assert reader.isStartElement();
+        assert reader.isStartElement() :
+            " illegal state: " + XmlStreamUtils.printEvent(reader);
 
         soapAttributeHolder.clear();
 
@@ -191,15 +231,19 @@ abstract class SoapUnmarshalResult
         }
 
         final Object this_val;
-        if (prop.hasFactory()) {
-            this_val = prop.createObjectViaFactory(inter, actual_rtt);
-            addIdToTable(this_val);
-            actual_rtt.getUnmarshaller().unmarshal(this_val, this);
-        } else if (actual_rtt.hasElementChildren()) {
-            final Object intermediary = actual_rtt.createIntermediary(this);
-            this_val = actual_rtt.getObjectFromIntermediate(intermediary);
-            addIdToTable(this_val);
-            actual_rtt.getUnmarshaller().unmarshalIntoIntermediary(intermediary, this);
+
+
+        if (actual_rtt.hasElementChildren()) {
+            final Object prop_inter = prop.createIntermediary(inter, actual_rtt, this);
+
+            final String id = soapAttributeHolder.id;
+            final boolean update_again = updateRefTable(actual_rtt, prop_inter, id);
+
+            actual_rtt.getUnmarshaller().unmarshalIntoIntermediary(prop_inter, this);
+            this_val = actual_rtt.getFinalObjectFromIntermediary(prop_inter, this);
+            if (update_again) {
+                refObjectTable.putObjectForRef(id, this_val);
+            }
         } else {
             TypeUnmarshaller um = getUnmarshaller(actual_rtt);
             this_val = um.unmarshal(this);
@@ -207,11 +251,22 @@ abstract class SoapUnmarshalResult
         return this_val;
     }
 
-    private void addIdToTable(final Object this_val)
+    private boolean updateRefTable(RuntimeBindingType actual_rtt,
+                                   Object prop_inter,
+                                   String id)
     {
-        final String id = soapAttributeHolder.id;
-        if (id != null)
-            refObjectTable.putObjectForRef(id, this_val);
+        boolean update_again = false;
+        if (id != null) {
+            if (actual_rtt.isObjectFromIntermediateIdempotent()) {
+                refObjectTable.putForRef(id,
+                                         prop_inter,
+                                         actual_rtt.getObjectFromIntermediate(prop_inter));
+            } else {
+                refObjectTable.putIntermediateForRef(id, prop_inter);
+                update_again = true;
+            }
+        }
+        return update_again;
     }
 
 

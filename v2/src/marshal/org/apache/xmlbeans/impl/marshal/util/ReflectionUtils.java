@@ -19,10 +19,10 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.MethodName;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.lang.reflect.Field;
 
 public final class ReflectionUtils
 {
@@ -34,10 +34,12 @@ public final class ReflectionUtils
                                       Object[] params)
         throws XmlException
     {
-//        final Class decl = method.getDeclaringClass();
+        assert method != null : "null method";
+
+        final Class decl = method.getDeclaringClass();
 //        final Class got = target.getClass();
 //
-//        assert decl.isAssignableFrom(got) : "DECL=" + decl + " GOT:" + got;
+        assert target == null || decl.isInstance(target) : "DECL=" + decl + " GOT:" + target.getClass();
 
         assert (checkParams(method, params));
 

@@ -16,6 +16,10 @@
 package org.apache.xmlbeans;
 
 
+import org.w3c.dom.Node;
+
+
+
 /**
  * A BindingContext contains the runtime information necessary to marshal
  * or unmarshal a set of types.
@@ -85,7 +89,8 @@ public interface BindingContext
      * @return Marshaller object
      * @throws XmlException
      */
-    SoapUnmarshaller createSoapUnmarshaller(EncodingStyle encodingStyle)
+    SoapUnmarshaller createSoapUnmarshaller(EncodingStyle encodingStyle,
+                                            Node referenceRoot)
         throws XmlException;
 
 }

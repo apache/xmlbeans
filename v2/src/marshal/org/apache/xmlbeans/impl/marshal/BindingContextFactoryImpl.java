@@ -39,15 +39,16 @@ import java.util.jar.JarInputStream;
 public final class BindingContextFactoryImpl extends BindingContextFactory
 {
 
-  public BindingContext createBindingContext(ClassLoader cl) throws IOException, XmlException {
-    if (cl == null) throw new IllegalArgumentException("null uris");
-    //FIXME loader class needs to be pluggable
-    TylarLoader loader = DefaultTylarLoader.getInstance();
-    if (loader == null) throw new IllegalStateException("null loader");
-    return createBindingContext(loader.load(cl));
-  }
+    public BindingContext createBindingContext(ClassLoader cl) throws IOException, XmlException
+    {
+        if (cl == null) throw new IllegalArgumentException("null uris");
+        //FIXME loader class needs to be pluggable
+        TylarLoader loader = DefaultTylarLoader.getInstance();
+        if (loader == null) throw new IllegalStateException("null loader");
+        return createBindingContext(loader.load(cl));
+    }
 
-  public BindingContext createBindingContext(URL[] tylarUrls)
+    public BindingContext createBindingContext(URL[] tylarUrls)
         throws IOException, XmlException
     {
         if (tylarUrls == null) throw new IllegalArgumentException("null uris");
@@ -63,7 +64,7 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
     // Of course, exposing it means we expose Tylar to the public as well,
     // and this should be done with caution.
     public BindingContext createBindingContext(Tylar tylar)
-      throws IOException, XmlException
+        throws IOException, XmlException
     {
         // build the loader chain - this is the binding files plus
         // the builtin loader
@@ -116,42 +117,42 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
     }
 
 
-  // ========================================================================
-  // Deprecated methods
+    // ========================================================================
+    // Deprecated methods
 
-  /**
-   * @deprecated
-   */
-  public BindingContext createBindingContext(URI tylarUri)
-      throws IOException, XmlException
-  {
-      return createBindingContext(new URI[]{tylarUri});
-  }
+    /**
+     * @deprecated
+     */
+    public BindingContext createBindingContext(URI tylarUri)
+        throws IOException, XmlException
+    {
+        return createBindingContext(new URI[]{tylarUri});
+    }
 
-  /**
-   * @deprecated
-   */
-  public BindingContext createBindingContext(URI[] tylarUris)
-      throws IOException, XmlException
-  {
-      if (tylarUris == null) throw new IllegalArgumentException("null uris");
-      //FIXME loader class needs to be pluggable
-      TylarLoader loader = DefaultTylarLoader.getInstance();
-      if (loader == null) throw new IllegalStateException("null loader");
-      return createBindingContext(((DefaultTylarLoader)loader).load(tylarUris));
-  }
+    /**
+     * @deprecated
+     */
+    public BindingContext createBindingContext(URI[] tylarUris)
+        throws IOException, XmlException
+    {
+        if (tylarUris == null) throw new IllegalArgumentException("null uris");
+        //FIXME loader class needs to be pluggable
+        TylarLoader loader = DefaultTylarLoader.getInstance();
+        if (loader == null) throw new IllegalStateException("null loader");
+        return createBindingContext(((DefaultTylarLoader)loader).load(tylarUris));
+    }
 
-  /**
-   * @deprecated
-   */
-  public BindingContext createBindingContext(JarInputStream jar)
-      throws IOException, XmlException
-  {
-      if (jar == null) throw new IllegalArgumentException("null InputStream");
-      //FIXME loader class needs to be pluggable
-      TylarLoader loader = DefaultTylarLoader.getInstance();
-      if (loader == null) throw new IllegalStateException("null TylarLoader");
-      return createBindingContext(((DefaultTylarLoader)loader).load(jar));
-  }
+    /**
+     * @deprecated
+     */
+    public BindingContext createBindingContext(JarInputStream jar)
+        throws IOException, XmlException
+    {
+        if (jar == null) throw new IllegalArgumentException("null InputStream");
+        //FIXME loader class needs to be pluggable
+        TylarLoader loader = DefaultTylarLoader.getInstance();
+        if (loader == null) throw new IllegalStateException("null TylarLoader");
+        return createBindingContext(((DefaultTylarLoader)loader).load(jar));
+    }
 
 }

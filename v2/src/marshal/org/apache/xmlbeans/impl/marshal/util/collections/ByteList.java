@@ -45,8 +45,13 @@ public final class ByteList
      */
     public byte[] getMinSizedArray()
     {
+        if (size == store.length) {
+            return store;
+        }
+
         byte[] new_a = new byte[size];
         System.arraycopy(store, 0, new_a, 0, size);
+        store = new_a;
         return new_a;
     }
 
@@ -71,6 +76,16 @@ public final class ByteList
         add(((Number)o).byteValue());
     }
 
+    public void appendDefault()
+    {
+        add((byte)0);
+    }
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Number)value).byteValue());
+    }
+
     /**
      * Appends the specified element to the end of this list.
      *
@@ -86,6 +101,15 @@ public final class ByteList
     {
         //let array do range checking.
         return store[idx];
+    }
+
+    public void set(int index, byte value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
     }
 
 

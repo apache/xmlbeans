@@ -50,8 +50,13 @@ public final class FloatList
      */
     public float[] getMinSizedArray()
     {
+        if (size == store.length) {
+            return store;
+        }
+
         float[] new_a = new float[size];
         System.arraycopy(store, 0, new_a, 0, size);
+        store = new_a;
         return new_a;
     }
 
@@ -70,6 +75,27 @@ public final class FloatList
     {
         assert (o instanceof Number);
         add(((Number)o).floatValue());
+    }
+
+    public void appendDefault()
+    {
+        add(0f);
+    }
+
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Number)value).floatValue());
+    }
+
+
+    public void set(int index, float value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
     }
 
     /**

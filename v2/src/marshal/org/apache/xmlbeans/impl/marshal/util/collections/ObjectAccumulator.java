@@ -26,6 +26,7 @@ public abstract class ObjectAccumulator
     private final Class componentType;
     private final boolean returnCollectionForArray;
     protected final Collection store;
+    protected Object[] lastArray;
 
 
     public ObjectAccumulator(Class component_type,
@@ -56,7 +57,13 @@ public abstract class ObjectAccumulator
     {
         assert checkInstance(o);
 
+        lastArray = null;
         store.add(o);
+    }
+
+    public final void appendDefault()
+    {
+        append(null);
     }
 
     private boolean checkInstance(Object o)
@@ -76,8 +83,14 @@ public abstract class ObjectAccumulator
         if (returnCollectionForArray) {
             return store;
         } else {
+            if (lastArray != null) {
+                return lastArray;
+            }
+
             Object[] out = (Object[])Array.newInstance(componentType, store.size());
-            return store.toArray(out);
+            final Object[] retval = store.toArray(out);
+            lastArray = retval;
+            return retval;
         }
     }
 

@@ -18,8 +18,6 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
-import javax.xml.namespace.QName;
-
 public class SoapArrayUnmarshaller
     implements TypeUnmarshaller
 {
@@ -39,12 +37,6 @@ public class SoapArrayUnmarshaller
         return type.getFinalObjectFromIntermediary(inter);
     }
 
-    public void unmarshal(Object object, UnmarshalResult result)
-        throws XmlException
-    {
-        throw new UnsupportedOperationException("not supported: this=" + this);
-    }
-
     public void unmarshalIntoIntermediary(Object intermediary,
                                           UnmarshalResult result)
         throws XmlException
@@ -52,8 +44,6 @@ public class SoapArrayUnmarshaller
         throw new AssertionError("UNIMP!!");
     }
 
-    //TODO: cleanup this code.  We are doing extra work for assertion checking
-    //also might consider consolidating the common code with the ByNameUnmarshaller
     private void deserializeContents(Object inter,
                                      UnmarshalResult context)
         throws XmlException

@@ -19,11 +19,12 @@ import org.apache.xmlbeans.BindingContext;
 import org.apache.xmlbeans.EncodingStyle;
 import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.SoapMarshaller;
+import org.apache.xmlbeans.SoapUnmarshaller;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SoapUnmarshaller;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.w3c.dom.Node;
 
 import java.util.Collection;
 
@@ -95,16 +96,23 @@ final class BindingContextImpl implements BindingContext
                                       encodingStyle);
     }
 
-    public SoapUnmarshaller createSoapUnmarshaller(EncodingStyle encodingStyle)
+    public SoapUnmarshaller createSoapUnmarshaller(EncodingStyle encodingStyle,
+                                                   Node referenceRoot)
         throws XmlException
     {
         if (encodingStyle == null) {
             throw new IllegalArgumentException("null encodingStyle");
         }
 
+        if (referenceRoot == null) {
+            throw new IllegalArgumentException("null referenceRoot");
+        }
+
+
         return new SoapUnmarshallerImpl(bindingLoader,
                                         typeTable,
-                                        encodingStyle);
+                                        encodingStyle,
+                                        referenceRoot);
     }
 
     static Collection extractErrorHandler(XmlOptions options)

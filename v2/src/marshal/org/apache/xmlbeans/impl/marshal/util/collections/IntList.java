@@ -48,8 +48,13 @@ public final class IntList
      */
     public int[] getMinSizedArray()
     {
+        if (size == store.length) {
+            return store;
+        }
+
         int[] new_a = new int[size];
         System.arraycopy(store, 0, new_a, 0, size);
+        store = new_a;
         return new_a;
     }
 
@@ -67,6 +72,25 @@ public final class IntList
     {
         assert (o instanceof Number);
         add(((Number)o).intValue());
+    }
+
+    public void appendDefault()
+    {
+        add(0);
+    }
+
+    public void set(int index, Object value)
+    {
+        set(index, ((Number)value).intValue());
+    }
+
+    public void set(int index, int value)
+    {
+        ensureCapacity(index + 1);
+        if (index >= size) {
+            size = index + 1;
+        }
+        store[index] = value;
     }
 
     /**

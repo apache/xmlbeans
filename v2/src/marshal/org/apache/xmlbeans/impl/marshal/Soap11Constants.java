@@ -15,8 +15,6 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
-
 import javax.xml.namespace.QName;
 
 final class Soap11Constants
@@ -35,6 +33,11 @@ final class Soap11Constants
     static String constructRefValueFromId(int id)
     {
         return REF_PREFIX + Integer.toString(id);
+    }
+
+    static String constructIdValueFromId(int id)
+    {
+        return ID_PREFIX + Integer.toString(id);
     }
 
 

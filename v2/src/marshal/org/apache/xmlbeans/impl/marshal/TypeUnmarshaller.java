@@ -41,21 +41,6 @@ interface TypeUnmarshaller
 
 
     /**
-     * Unmarshal into an existing object (i.e. fill the object's properties).
-     *
-     * This method is optional and TypeUnmarshaller's for immutable
-     * types (e.g. java.lang.String) will throw UnsupportedOperationException
-     *
-     * @param object  Object who's properties will be filled.
-     * @param result
-     * @throws UnsupportedOperationException  if not appropriate for this type
-     * @throws XmlException
-     */
-    void unmarshal(Object object, UnmarshalResult result)
-        throws XmlException;
-
-
-    /**
      * unmarshal into an intermediate value.  required only for types that
      * have element children.  used for soap unmarshalling
      *

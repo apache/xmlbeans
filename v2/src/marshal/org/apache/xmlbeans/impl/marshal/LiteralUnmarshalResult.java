@@ -20,9 +20,8 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
-import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -118,8 +117,10 @@ final class LiteralUnmarshalResult
 
         final Object this_val;
         if (prop.hasFactory()) {
-            this_val = prop.createObjectViaFactory(inter, actual_rtt);
-            actual_rtt.getUnmarshaller().unmarshal(this_val, this);
+            final Object prop_inter =
+                prop.createIntermediary(inter, actual_rtt, this);
+            actual_rtt.getUnmarshaller().unmarshalIntoIntermediary(prop_inter, this);
+            this_val = actual_rtt.getFinalObjectFromIntermediary(prop_inter, this);
         } else {
             TypeUnmarshaller um = getUnmarshaller(actual_rtt);
             this_val = um.unmarshal(this);
