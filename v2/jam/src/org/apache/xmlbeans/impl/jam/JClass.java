@@ -68,9 +68,10 @@ public interface JClass extends JMember {
   public JClass getSuperclass();
 
   /**
-   * Returns all of the interfaces directly implemented by this class.
-   * Returns an empty array if no interfaces are implemented.  REVIEW
-   * we probably want getInterfaces and getDeclaredInterfaces.
+   * Returns an unordered array containing all of the interfaces directly
+   * implemented by this class.  Returns an empty array if no interfaces are
+   * implemented.
+   * REVIEW we probably want getInterfaces and getDeclaredInterfaces.
    */
   public JClass[] getInterfaces();
 
@@ -79,7 +80,7 @@ public interface JClass extends JMember {
    * think this makes it more clear but is not consistent with
    * java.lang.Class.</p>
    *
-   * <p>Returns an array containing Field objects reflecting all the
+   * <p>Returns an unordered array containing Field objects reflecting all the
    * accessible public fields of the class or interface represented by
    * this Class object. The elements2 in the array returned are not
    * sorted and are not in any particular order. This method returns
@@ -97,6 +98,9 @@ public interface JClass extends JMember {
    * this method. User code should use the methods of class Array to
    * manipulate arrays. </p>
    *
+   * <p>Note that no guarantees are made about the ordering of fields in
+   * this array.</p>
+   *
    * <p>See The Java Language Specification, sections 8.2 and
    * 8.3. </p>
    */
@@ -104,7 +108,7 @@ public interface JClass extends JMember {
 
 
   /**
-   * <p>Returns an array of Field objects reflecting all the fields
+   * <p>Returns an unordered array of Field objects reflecting all the fields
    * declared by the class or interface represented by this Class
    * object. This includes public, protected, default (package)
    * access, and private fields, but excludes inherited fields. The
@@ -140,8 +144,8 @@ public interface JClass extends JMember {
   public JMethod[] getMethods();
 
   /**
-   * <p>Returns an array of Method objects reflecting all the methods
-   * declared by the class or interface represented by this Class
+   * <p>Returns an unordered array of Method objects reflecting all the
+   * methods declared by the class or interface represented by this Class
    * object. This includes public, protected, default (package)
    * access, and private methods, but excludes inherited methods. The
    * elements2 in the array returned are not sorted and are not in any
@@ -158,8 +162,8 @@ public interface JClass extends JMember {
   public JMethod[] getDeclaredMethods();
 
   /**
-   * <p>Returns an array containing Constructor objects reflecting all
-   * the public constructors of the class represented by this Class
+   * <p>Returns an unordered array containing Constructor objects reflecting
+   * all the public constructors of the class represented by this Class
    * object. An array of length 0 is returned if the class has no
    * public constructors, or if the class is an array class, or if the
    * class reflects a primitive type or void. </p>
@@ -310,9 +314,9 @@ public interface JClass extends JMember {
   public boolean equals(Object o);
 
   /**
-   * <p>Returns the inner classes for this class.  The array contains
-   * JClass objects representing all the public classes and interfaces
-   * that are members of the class represented by this JClass.  This
+   * <p>Returns an unordered array containing the inner classes for this class.
+   * The array contains JClass objects representing all the public classes and
+   * interfaces that are members of the class represented by this JClass.  This
    * includes public class and interface members inherited from
    * superclasses and public class and interface members declared by
    * the class. This method returns an array of length 0 if this Class
@@ -362,8 +366,8 @@ public interface JClass extends JMember {
   public JClass forName(String name);
 
   /**
-   * <p>Returns a list of classes that were explicitly imported by this
-   * class using an import statement.  It does not include any classes
+   * <p>Returns an unordered array of classes that were explicitly imported by
+   * this class using an import statement.  It does not include any classes
    * that might be imported via package imports (i.e. with the '*' wildcard),
    * nor does it include any classes that are simply used via fully-qualified
    * name in the body of this class.</p>
@@ -375,9 +379,9 @@ public interface JClass extends JMember {
   public JClass[] getImportedClasses();
 
   /**
-   * <p>Returns the set of JPackages which are imported by this class using
-   * a package import statement (i.e. with the '*' wildcard), as well as the
-   * containing packages of all of the JClasses returned by <code>
+   * <p>Returns an unordered set of JPackages which are imported by this class
+   * using a package import statement (i.e. with the '*' wildcard), as well as
+   * the containing packages of all of the JClasses returned by <code>
    * getImportedClasses()</code>.</p>
    *
    * <p>Note that this is an optional operation; if the source for the
