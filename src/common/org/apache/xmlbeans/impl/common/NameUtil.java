@@ -51,6 +51,7 @@ public class NameUtil
               "do",
               "double",
               "else",
+              "enum", // since JDK1.5
               "extends",
               "false", // not a keyword
               "final",
