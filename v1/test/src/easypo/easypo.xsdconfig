@@ -18,8 +18,11 @@
     <xb:package>com.easypo</xb:package>
   </xb:namespace>
 
-  <xb:namespace uri="##any">
+  <xb:namespace uriprefix="http://openuri">
     <xb:prefix>Xml</xb:prefix>
+  </xb:namespace>
+
+  <xb:namespace uriprefix="http://openuri.org/easy">
     <xb:suffix>Bean</xb:suffix>
   </xb:namespace>
 
