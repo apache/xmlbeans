@@ -249,8 +249,17 @@ final class MarshalStreamUtils
         throw new XmlException("unexpected end of xml stream");
     }
 
+
     static void addError(Collection errors,
                          String msg,
+                         Location location)
+    {
+        addError(errors, msg, XmlError.SEVERITY_ERROR, location);
+    }
+
+    static void addError(Collection errors,
+                         String msg,
+                         int severity,
                          Location location)
     {
         assert location != null;
@@ -259,8 +268,10 @@ final class MarshalStreamUtils
         if (systemId == null) {
             systemId = "<unknown>"; // without this we get no line numbers
         }
+
         final XmlError err =
             XmlError.forLocation(msg,
+                                 severity,
                                  systemId,
                                  location.getLineNumber(),
                                  location.getColumnNumber(),
