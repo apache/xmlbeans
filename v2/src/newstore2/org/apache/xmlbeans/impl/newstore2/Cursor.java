@@ -583,9 +583,66 @@ public final class Cursor implements XmlCursor, ChangeListener
         return (Node) _cur.getDom();
     }
     
+    private boolean isDomFragment ( )
+    {
+        if (! isStartdoc())
+            return true;
+
+        boolean seenElement = false;
+
+        XmlCursor c = newCursor();
+        int token = c.toNextToken().intValue();
+
+        try
+        {
+            LOOP: for ( ; ; )
+            {
+                SWITCH: switch ( token )
+                {
+                    case TokenType.INT_START:
+                        if (seenElement)
+                            return true;
+                        seenElement = true;
+                        token = c.toEndToken().intValue();
+                        break SWITCH;
+
+                    case TokenType.INT_TEXT:
+                        if (!Locale.isWhiteSpace( c.getChars() ))
+                            return true;
+                        token = c.toNextToken().intValue();
+                        break SWITCH;
+
+                    case TokenType.INT_NONE:
+                    case TokenType.INT_ENDDOC:
+                        break LOOP;
+
+                    case TokenType.INT_ATTR:
+                    case TokenType.INT_NAMESPACE:
+                        return true;
+
+                    case TokenType.INT_END:
+                    case TokenType.INT_COMMENT:
+                    case TokenType.INT_PROCINST:
+                        token = c.toNextToken().intValue();
+                        break SWITCH;
+
+                    case TokenType.INT_STARTDOC:
+                        assert false;
+                        break LOOP;
+                }
+            }
+        }
+        finally
+        {
+            c.dispose();
+        }
+
+        return !seenElement;
+    }
+
     private static final class DomSaver extends Saver
     {
-        DomSaver ( Cur c, XmlOptions options )
+        DomSaver ( Cur c, boolean isFrag, XmlOptions options )
         {
             super( c, options );
             
@@ -594,6 +651,7 @@ public final class Cursor implements XmlCursor, ChangeListener
 
             _stl = c._locale._schemaTypeLoader;
             _options = options;
+            _isFrag = isFrag;
         }
 
         Node saveDom ( )
@@ -606,8 +664,12 @@ public final class Cursor implements XmlCursor, ChangeListener
             {
                 _nodeCur = l.getCur();  // Not weak or temp
 
+                // Build the tree
+                
                 while ( process() )
                     ;
+
+                // Set the type
 
                 while ( !_nodeCur.isRoot() )
                     _nodeCur.toParent();
@@ -636,34 +698,29 @@ public final class Cursor implements XmlCursor, ChangeListener
             // have attrs in fragments
             
             if (Locale.isFragmentQName( c.getName() ))
+                _nodeCur.moveTo( null, Cur.NO_POS );
+            
+            ensureDoc();
+
+            _nodeCur.createElement( getQualifiedName( c, c.getName() ) );
+            _nodeCur.next();
+
+            for ( iterateMappings() ; hasMapping() ; nextMapping() )
             {
-                _nodeCur.createDomDocFragRoot();
+                _nodeCur.createAttr( _nodeCur._locale.createXmlns( mappingPrefix() ) );
                 _nodeCur.next();
+                _nodeCur.insertString( mappingUri() );
+                _nodeCur.toParent();
+                _nodeCur.skipWithAttrs();
             }
-            else
+
+            for ( int i = 0 ; i < attrNames.size() ; i ++ )
             {
-                ensureDoc();
-
-                _nodeCur.createElement( getQualifiedName( c, c.getName() ) );
+                _nodeCur.createAttr( getQualifiedName( c, (QName) attrNames.get( i ) ) );
                 _nodeCur.next();
-
-                for ( iterateMappings() ; hasMapping() ; nextMapping() )
-                {
-                    _nodeCur.createAttr( _nodeCur._locale.createXmlns( mappingPrefix() ) );
-                    _nodeCur.next();
-                    _nodeCur.insertString( mappingUri() );
-                    _nodeCur.toParent();
-                    _nodeCur.skipWithAttrs();
-                }
-                
-                for ( int i = 0 ; i < attrNames.size() ; i ++ )
-                {
-                    _nodeCur.createAttr( getQualifiedName( c, (QName) attrNames.get( i ) ) );
-                    _nodeCur.next();
-                    _nodeCur.insertString( (String) attrValues.get( i ) );
-                    _nodeCur.toParent();
-                    _nodeCur.skipWithAttrs();
-                }
+                _nodeCur.insertString( (String) attrValues.get( i ) );
+                _nodeCur.toParent();
+                _nodeCur.skipWithAttrs();
             }
             
             return false;
@@ -740,7 +797,11 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             if (!_nodeCur.isPositioned())
             {
-                _nodeCur.createDomDocumentRoot();
+                if (_isFrag)
+                    _nodeCur.createDomDocFragRoot();
+                else
+                    _nodeCur.createDomDocumentRoot();
+
                 _nodeCur.next();
             }
         }
@@ -749,6 +810,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         private SchemaType       _type;
         private SchemaTypeLoader _stl;
         private XmlOptions       _options;
+        private boolean          _isFrag;
     }
     
     public Node _newDomNode ( XmlOptions options )
@@ -761,7 +823,7 @@ public final class Cursor implements XmlCursor, ChangeListener
             options.remove( XmlOptions.SAVE_INNER );
         }
 
-        return new DomSaver( _cur, options ).saveDom();
+        return new DomSaver( _cur, isDomFragment(), options ).saveDom();
     }
     
     public boolean _toCursor ( Cursor other )
