@@ -75,7 +75,7 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
       // the Javadoc15Delegate.
       Class.forName("com.sun.javadoc.AnnotationDesc");
     } catch (ClassNotFoundException e) {
-      issue14RuntimeWarning(e);
+      issue14RuntimeWarning(e,mLogger);
       return;
     }
     // ok, if we could load that, let's new up the extractor delegate
@@ -84,11 +84,11 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
         Class.forName(JAVA15_EXTRACTOR).newInstance();
       // if this fails for any reason, things are in a bad state
     } catch (ClassNotFoundException e) {
-      issue14BuildWarning(e);
+      issue14BuildWarning(e,mLogger);
     } catch (IllegalAccessException e) {
-      issue14BuildWarning(e);
+      issue14BuildWarning(e,mLogger);
     } catch (InstantiationException e) {
-      issue14BuildWarning(e);
+      issue14BuildWarning(e,mLogger);
     }
   }
 
