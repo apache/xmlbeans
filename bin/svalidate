@@ -4,7 +4,12 @@
 #
 # Validates an instance against a schema.
 
+if [ -f $XMLBEANS_HOME/build/ar/xbean.jar ];
+then
 CP=$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar:$XMLBEANS_HOME/build/lib/jsr173_ri.jar
+else
+cp=$cp:$XMLBEANS_HOME/lib/xbean.jar:$XMLBEANS_HOME/lib/jsr173_api.jar:$XMLBEANS_HOME/lib/jsr173_ri.jar
+fi
 
 case "`uname`" in
     CYGWIN*)
@@ -12,4 +17,4 @@ case "`uname`" in
         ;;
 esac
 
-exec java -classpath $CP org.apache.xmlbeans.impl.tool.StreamInstanceValidator $*
+java -classpath $CP org.apache.xmlbeans.impl.tool.StreamInstanceValidator $*

@@ -7,41 +7,45 @@ Welcome to XMLBeans!
 Kit contents:
 
 (1) One copy of xbean.jar, which contains XMLBeans.
-    Should work on any JDK 1.4.x.
+    Should work on any JDK 1.4.x or 1.5.x.
     ./lib/xbean.jar
 
 (2) License information for XML Beans and included libraries
-    ./license.txt
+    ./license.txt ???????????????
 
 (3) One folder full of command-line scripts, pointing to the
     useful main() functions in the JAR.
     ./bin
 
-(4) One bit of ant task documentation.
-    ./anttask.html
-
-(5) A copy of the plain javadoc tree for org.apache.xmlbeans.*
+(4) A copy of the plain javadoc tree for org.apache.xmlbeans.*
     ./docs/reference
 
-(6) A preliminary collection of nicely formatted user-level
+(5) A preliminary collection of nicely formatted user-level
     documentation HTML (includes reformatted and nicely
     organized javadoc as well)
     ./docs/guide
 
-(7) A few sample schemas
+(6) A few sample schemas
     ./schemas
 
+(7) Two samples that show the use of the XmlCursor API. Between
+    this README file and the two samples, you should be well on
+    your way to becoming an XmlBeans expert
+    ./samples
+
+(8) Tests ??????
+    ./tests
 
 Where to start?
 
 (1) Setup.
 
-    1. make sure you have a JDK 1.4.x installed; that java[.exe]
-       is on your path and that JAVA_HOME/bin contains java[.exe],
-       javac[.exe], and jar[.exe].
+    1. make sure you have a JDK 1.4.x installed (or 1.5.x); that
+       java[.exe] is on your path and that JAVA_HOME/bin contains
+       java[.exe], javac[.exe], and jar[.exe].
 
     2. set your XMLBEANS_HOME env variable to point to the directory
-       containing xbean.jar (i.e., ./lib).
+       in which you installed XmlBeans (i.e., /home/user/xmlbeans-2.0.0).
 
     3. put the scripts in ./bin on your path.
 
@@ -54,23 +58,25 @@ Where to start?
        schemas you can try out.
 
          - easypo: a contrived simple starter "purchase order"
-         - cyclone: an actual customer schema (cyclonecommerce.com)
-         - s4s: the Schema for Schema
-         - j2ee: j2ee descriptor schemas
+         - nameworld: another simple schema
+         - numerals: schema illustrating the use of various flavors
+                     of XmlSchema simple types
+         - s4s: the Schema for Schema and Schema for XML
 
        To compile them, you can just send the whole directory to
-       scomp, for example, "cd samples"; then "scomp easypo".
+       scomp, "scomp samples", or compile each file individually,
+       "cd samples"; then "scomp easypo.xsd".
        You will get an "xmltypes.jar" out that contains all the
        compiled XMLBeans.  To pick your own JAR filename just say
 
-       scomp -out myeasypo.jar easypo
+       scomp -out myeasypo.jar easypo.xsd
 
 
     2. Especially as you get started, you will want to see the
        .java source code for the generated code.  To get that,
        use a command-line like
 
-       scomp -src mysrcdir -out myeasypo.jar easypo
+       scomp -src mysrcdir -out myeasypo.jar easypo.xsd
 
        The "mysrcdir" will contain all the .java source code
        for the generated XMLBeans.
@@ -116,11 +122,12 @@ Where to start?
       org.apache.xmlbeans.XmlBeans, including a function that can be
       used to determine whether a Java class is an XmlBean and
       functions to manage runtime-loading of schema type
-      systems.
+      systems or programatically compiling Schema files
 
     With that, you're ready to navigate the javadoc and play
     with the code.  Also, try reading some of our 
-    docs that are included in ./docs
+    docs that are included in ./docs and samples, included
+    in ./samples
 
 (3) Try some of the other utilities; you can also see a few
     examples of XMLBean techniques in their source code.
@@ -157,3 +164,6 @@ Where to start?
        of a type system.  They are analogous to .class files
        for .java.
 
+    5. "inst2xsd"
+
+    6. "xsd2inst"

@@ -260,21 +260,21 @@
             <fileset dir="src/xmlschema/schema" includes="XML.xsd"/>
         </copy>
         <copy todir="build/private/xmlbeans-${product.version}/schemas">
-            <fileset dir="test/src" includes="easypo/*.xsd,easypo/*.xsdconfig"/>
-            <fileset dir="test/cases/schema" includes="cyclone/**/*.xsd,j2ee/*.xsd"/>
+            <fileset dir="test/cases/xbean/xmlobject"
+                includes="easypo.xsd,easypo.xsdconfig,numerals.xsd,nameworld.xsd"/>
         </copy>
 
         <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
         <copy todir="build/private/xmlbeans-${product.version}/lib" file="build/ar/xbean.jar"/>
 
-        <mkdir dir="build/private/xmlbeans-${product.version}/src/schema"/>
-        <copy todir="build/private/xmlbeans-${product.version}/src/schema">
-            <fileset dir="src/toolschema"/>
-        </copy>
-
         <mkdir dir="build/private/xmlbeans-${product.version}/docs"/>
         <copy todir="build/private/xmlbeans-${product.version}/docs">
             <fileset dir="build/docs"/>
+        </copy>
+        
+        <mkdir dir="build/private/xmlbeans-${product.version}/samples"/>
+        <copy todir="build/private/xmlbeans-${product.version}/samples">
+            <fileset dir="samples/cursor"/>
         </copy>
 
         <zip destfile="build/private/xmlbeans-${product.version}.zip"
@@ -291,19 +291,22 @@
         <delete file="build/private/xmlbeans-${product.version}-src.tgz"/>
 
         <zip destfile="build/private/xmlbeans-${product.version}-src.zip">
-            <zipfileset
-                dir="."
-                includes="**"
-                excludes="build/**"
-                prefix="xmlbeans-${product.version}"/>
+            <zipfileset dir="." prefix="xmlbeans-${product.version}">
+                <patternset id="src.dist.content.dirs"
+                    includes="bin/** docs/** external/** samples/** src/**"/>
+                <patternset id="src.dist.content.files"
+                    includes="build.xml README.txt testbuild.xml xbeanenv.cmd xbeanenv.sh"/>
+           	    <patternset id="src.dist.content.tests"
+                    includes=""/><!-- don't have tests part of the distribution yet -->
+            </zipfileset>
         </zip>
         <tar destfile="build/private/xmlbeans-${product.version}-src.tgz"
             compression="gzip">
-            <tarfileset
-                dir="."
-                includes="**"
-                excludes="build/**"
-                prefix="xmlbeans-${product.version}"/>
+            <tarfileset dir="." prefix="xmlbeans-${product.version}">
+                <patternset refid="src.dist.content.dirs"/>
+                <patternset refid="src.dist.content.files"/>
+                <patternset refid="src.dist.content.tests"/>
+            </tarfileset>
         </tar>
     </target>
 

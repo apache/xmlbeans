@@ -4,7 +4,12 @@
 #Builds xsd files from xml instance files.
 
 cp=
-cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar:$XMLBEANS_HOME/build/lib/resolver.jar
+if [ -f $XMLBEANS_HOME/build/ar/xbean.jar ];
+then
+cp=$cp:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar
+else
+cp=$cp:$XMLBEANS_HOME/lib/xbean.jar:$XMLBEANS_HOME/lib/jsr173_api.jar
+fi
 
 case "`uname`" in
     CYGWIN*)
