@@ -1023,7 +1023,7 @@ abstract class Saver
         {
             assert docTypeName != null;
 
-            emit( "<DOCTYPE " );
+            emit( "<!DOCTYPE " );
             emit( docTypeName );
 
             if (publicId == null && systemId != null)
