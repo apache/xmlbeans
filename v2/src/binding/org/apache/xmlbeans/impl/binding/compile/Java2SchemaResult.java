@@ -53,12 +53,18 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.binding.compile;
 
-public interface JavaToSchemaResult
-{
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.w3.x2001.xmlSchema.SchemaDocument;
 
+/**
+ * Encapsulates results returned by Java2Schema.
+ *
+ * @author Patrick Calahan <pcal@bea.com>
+ */
+public interface Java2SchemaResult
+{
   /**
    * Returns an array containing the set of fatal errors that were encountered
    * during the binding process.  Returns an empty array if no fatal errors
@@ -66,11 +72,16 @@ public interface JavaToSchemaResult
    */
   public Throwable[] getErrors();
 
-  // REVIEW (dbau) I've changed the generator type names to *Result as suggested
+  /**
+   * Returns the BindingFile object that was produced by Java2Schema.  May
+   * return null if catastrophic errors were encountered.
+   */
+  public BindingFile getBindingFile();
 
-  BindingFileResult getBindingFileResult();
+  /**
+   * Returns an array containing the schema documents which were produced
+   * by Java2Schema.
+   */
+  public SchemaDocument[] getSchemas();
 
-  SchemaCodeResult getSchemaCodeResult();
-
-  JavaSourceSet getJavaSourceSet();
 }
