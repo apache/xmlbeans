@@ -5,19 +5,20 @@
  */
 package drtcases;
 
-import junit.framework.TestCase;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import junit.framework.Assert;
-import org.apache.xmlbeans.impl.binding.BindingFile;
-import org.apache.xmlbeans.impl.binding.ByNameBean;
-import org.apache.xmlbeans.impl.binding.JavaName;
-import org.apache.xmlbeans.impl.binding.XmlName;
-import org.apache.xmlbeans.impl.binding.QNameProperty;
-import org.apache.xmlbeans.impl.binding.PathBindingLoader;
-import org.apache.xmlbeans.impl.binding.BuiltinBindingLoader;
-import org.apache.xmlbeans.impl.binding.BindingLoader;
-import org.apache.xmlbeans.impl.binding.SimpleBindingType;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
+import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.XmlName;
 import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
 
 import javax.xml.namespace.QName;
@@ -95,7 +96,16 @@ public class BindingTests extends TestCase
         ByNameBean bnbc = (ByNameBean)bfc.getBindingType(JavaName.forString("com.mytest.MyClass"), XmlName.forString("t=my-type@http://www.mytest.com/"));
         ByNameBean bnb2c = (ByNameBean)bfc.getBindingType(JavaName.forString("com.mytest.YourClass"), XmlName.forString("t=your-type@http://www.mytest.com/"));
         SimpleBindingType sbtc = (SimpleBindingType)bfc.getBindingType(JavaName.forString("java.lang.String"), XmlName.forString("t=custom-string@http://www.mytest.com/"));
-        
+
+        // check loading xsd:float
+        QName qn = new QName("http://www.w3.org/2001/XMLSchema", "float");
+        XmlName xn = XmlName.forTypeNamed(qn);
+        XmlName xns = XmlName.forString("t=float@http://www.w3.org/2001/XMLSchema");
+        Assert.assertEquals(xn, xns);
+        Assert.assertEquals(xn.hashCode(), xns.hashCode());
+        BindingType btype = lc.getBindingTypeForXmlPojo(xn);
+        Assert.assertNotNull(btype);
+
         // check bnb
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myelt"));
         Assert.assertEquals("setMyelt", prop.getSetterName());

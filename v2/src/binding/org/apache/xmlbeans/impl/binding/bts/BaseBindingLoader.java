@@ -64,10 +64,10 @@ import java.util.LinkedHashMap;
  */ 
 public abstract class BaseBindingLoader implements BindingLoader
 {
-    protected Map bindingTypes = new LinkedHashMap();    // name-pair -> BindingType
-    protected Map xmlFromJava = new LinkedHashMap();     // javaName -> pair
-    protected Map javaFromXmlPojo = new LinkedHashMap(); // xmlName -> pair (pojo)
-    protected Map javaFromXmlObj = new LinkedHashMap();  // xmlName -> pair (xmlobj)
+    protected final Map bindingTypes = new LinkedHashMap();    // name-pair -> BindingType
+    protected final Map xmlFromJava = new LinkedHashMap();     // javaName -> pair
+    protected final Map javaFromXmlPojo = new LinkedHashMap(); // xmlName -> pair (pojo)
+    protected final Map javaFromXmlObj = new LinkedHashMap();  // xmlName -> pair (xmlobj)
 
     public BindingType getBindingType(JavaName jName, XmlName xName)
     {

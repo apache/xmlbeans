@@ -66,11 +66,6 @@ import java.util.LinkedHashMap;
  */ 
 public class BuiltinBindingLoader extends BaseBindingLoader
 {
-    private Map bindingTypes = new LinkedHashMap();    // name-pair -> BindingType
-    private Map xmlFromJava = new LinkedHashMap();     // javaName -> xmlName
-    private Map javaFromXmlPojo = new LinkedHashMap(); // xmlName -> javaName (pojo)
-    private Map javaFromXmlObj = new LinkedHashMap();  // xmlName -> javaName (xmlobj)
-    
     private static final String xsns = "http://www.w3.org/2001/XMLSchema";
     
     private void addMapping(String xmlType, String javaName, boolean pojo, boolean defaultForJava, boolean defaultForXml)
