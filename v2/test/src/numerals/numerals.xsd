@@ -27,4 +27,8 @@
       </xs:sequence>
     </xs:complexType>
   </xs:element>
+
+  <xs:attribute name='price' type='xs:float' />
+  <xs:attribute name='quant' type='xs:byte' />
+    
 </xs:schema>
