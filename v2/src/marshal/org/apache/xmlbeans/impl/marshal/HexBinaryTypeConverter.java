@@ -24,6 +24,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ByteArrayInputStream;
 
+/**
+ * converter for: byte[] <-> hexBinary
+ */
 final class HexBinaryTypeConverter
     extends BaseSimpleTypeConverter
 {
@@ -53,13 +56,12 @@ final class HexBinaryTypeConverter
                                      UnmarshalResult result)
         throws XmlException
     {
-        byte[] buf = HexBin.decode(lexical_value.toString().getBytes());
-        if (buf != null)
-            return new ByteArrayInputStream(buf);
-        else
-            throw new InvalidLexicalValueException("invalid hexBinary value",
-                                                   result.getLocation());
-
+        try {
+            return XsTypeConverter.lexHexBinary(lexical_value);
+        }
+        catch (InvalidLexicalValueException e) {
+            throw new InvalidLexicalValueException(e, result.getLocation());
+        }
     }
 
     //non simple types can throw a runtime exception
