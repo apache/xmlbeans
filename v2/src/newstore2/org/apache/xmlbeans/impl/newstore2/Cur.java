@@ -750,9 +750,9 @@ final class Cur
             return Locale._xmlnsUri;
         
         for ( Xobj c = _xobj ; c != null ; c = c._parent )
-            for ( Xobj a = _xobj._firstChild ; a != null && a.isAttr() ; a = a._nextSibling )
-                if (_xobj.isXmlns() && _xobj.getXmlnsPrefix().equals( prefix ))
-                    return _xobj.getXmlnsUri();
+            for ( Xobj a = c._firstChild ; a != null && a.isAttr() ; a = a._nextSibling )
+                if (a.isXmlns() && a.getXmlnsPrefix().equals( prefix ))
+                    return a.getXmlnsUri();
 
         return null;
     }
