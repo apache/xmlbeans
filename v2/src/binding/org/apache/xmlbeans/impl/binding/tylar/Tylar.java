@@ -15,7 +15,6 @@
 
 package org.apache.xmlbeans.impl.binding.tylar;
 
-import java.net.URI;
 import java.net.URL;
 import java.io.IOException;
 
@@ -41,7 +40,7 @@ public interface Tylar {
   /**
    * Returns the binding files contained in this Tylar.
    */
-  public BindingFile[] getBindingFiles() throws IOException, XmlException;
+  public BindingFile[] getBindingFiles() /*throws IOException, XmlException*/;
 
   /**
    * Returns the schema documents contained in this Tylar.  Note that this
@@ -49,14 +48,14 @@ public interface Tylar {
    * a TylarLoader) will typically throw UnsupportedOperationException
    * in the implementation of this method.
    */
-  public SchemaDocument[] getSchemas() throws IOException, XmlException;
+  public SchemaDocument[] getSchemas() /*throws IOException, XmlException*/;
 
   /**
    * Returns a BindingLoader for the bindings in this tylar.  This is really
    * just a convenience method; it simply returns a composite of the binding
    * files returned by getBindingFiles() plus the BuiltinBindingLoader.
    */
-  public BindingLoader getBindingLoader() throws IOException, XmlException;
+  public BindingLoader getBindingLoader() /*throws IOException, XmlException*/;
 
   /**
    * Returns a BindingLoader for the bindings in this tylar.  This is really

@@ -115,4 +115,43 @@ public final class BindingContextFactoryImpl extends BindingContextFactory
         return createBindingContext(bf, provider);
     }
 
+
+  // ========================================================================
+  // Deprecated methods
+
+  /**
+   * @deprecated
+   */
+  public BindingContext createBindingContext(URI tylarUri)
+      throws IOException, XmlException
+  {
+      return createBindingContext(new URI[]{tylarUri});
+  }
+
+  /**
+   * @deprecated
+   */
+  public BindingContext createBindingContext(URI[] tylarUris)
+      throws IOException, XmlException
+  {
+      if (tylarUris == null) throw new IllegalArgumentException("null uris");
+      //FIXME loader class needs to be pluggable
+      TylarLoader loader = DefaultTylarLoader.getInstance();
+      if (loader == null) throw new IllegalStateException("null loader");
+      return createBindingContext(((DefaultTylarLoader)loader).load(tylarUris));
+  }
+
+  /**
+   * @deprecated
+   */
+  public BindingContext createBindingContext(JarInputStream jar)
+      throws IOException, XmlException
+  {
+      if (jar == null) throw new IllegalArgumentException("null InputStream");
+      //FIXME loader class needs to be pluggable
+      TylarLoader loader = DefaultTylarLoader.getInstance();
+      if (loader == null) throw new IllegalStateException("null TylarLoader");
+      return createBindingContext(((DefaultTylarLoader)loader).load(jar));
+  }
+
 }

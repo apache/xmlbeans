@@ -37,7 +37,8 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
   // ========================================================================
   // Constructors
 
-  /*package*/ AnnotationImpl(ElementContext ctx, AnnotationProxy proxy,
+  /*package*/ AnnotationImpl(ElementContext ctx,
+                             AnnotationProxy proxy,
                              String simplename) {
     super(ctx);
     if (proxy == null) throw new IllegalArgumentException("null proxy");
@@ -81,7 +82,7 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
   public MAnnotation createNestedValue(String name, String annTypeName) {
     if (name == null) throw new IllegalArgumentException("null name");
     if (annTypeName == null) throw new IllegalArgumentException("null typename");
-    AnnotationProxy p = getContext().createProxyForAnnotationType(annTypeName);
+    AnnotationProxy p = getContext().createAnnotationProxy(annTypeName);
     AnnotationImpl out = new AnnotationImpl(getContext(),p,annTypeName);
     JClass type  = getContext().getClassLoader().loadClass(annTypeName);
     mProxy.setValue(name,out,type);
@@ -96,7 +97,7 @@ public final class AnnotationImpl extends ElementImpl implements MAnnotation {
     if (dimensions < 0) throw new IllegalArgumentException("dimensions = "+dimensions);
     MAnnotation[] out = new MAnnotation[dimensions];
     for(int i=0; i<out.length; i++) {
-      AnnotationProxy p = getContext().createProxyForAnnotationType(annComponentTypeName);
+      AnnotationProxy p = getContext().createAnnotationProxy(annComponentTypeName);
       out[i] = new AnnotationImpl(getContext(),p,annComponentTypeName);
     }
     JClass type  = getContext().getClassLoader().loadClass("[L"+annComponentTypeName+";");

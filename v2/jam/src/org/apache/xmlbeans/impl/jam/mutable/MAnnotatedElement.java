@@ -17,17 +17,21 @@ public interface MAnnotatedElement extends MElement, JAnnotatedElement {
    */
   public MAnnotation findOrCreateAnnotation(String annotationName);
 
-  //DOCME
-  public MAnnotation addAnnotation(String annotationName);
 
-
+  
   public MAnnotation[] getMutableAnnotations();
 
   //DOCME
-  public MAnnotation getMutableAnnotation(Class proxyClass);
+  public MAnnotation getMutableAnnotation(String named);
+
+
 
   //DOCME
-  public MAnnotation getMutableAnnotation(String tagnameOr175typename);
+  public MAnnotation addLiteralAnnotation(String annotationName);
+
+//  public MAnnotation[] getLiteralMutableAnnotations();
+
+//  public MAnnotation[] getLiteralMutableAnnotations(String named);
 
 
   //DOCME
@@ -41,12 +45,8 @@ public interface MAnnotatedElement extends MElement, JAnnotatedElement {
 
 
 
-
   /**
    * @deprecated
    */
-  public MAnnotation addAnnotationForTag(String tagName, String tagContents);
-
-
-
+  public MAnnotation addAnnotationForTag(String tagName, String value);
 }

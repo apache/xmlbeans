@@ -89,29 +89,19 @@ public abstract class BindingContextFactory
   /**
    * @deprecated
    */
-  public BindingContext createBindingContext(URI[] tylarUris)
-    throws IOException, XmlException {
-    URL[] urls = new URL[tylarUris.length];
-    for(int i=0; i<urls.length; i++) urls[i] = new URL(tylarUris[i].toString());
-    return createBindingContext(urls);
-  }
-
-  /**
-   * @deprecated
-   */ 
-  public BindingContext createBindingContext(URI tylarUri)
-    throws IOException, XmlException {
-    return createBindingContext(new URI[]{tylarUri});
-  }
+  public abstract BindingContext createBindingContext(URI tylarUri)
+      throws IOException, XmlException;
 
   /**
    * @deprecated
    */
-  public BindingContext createBindingContext(JarInputStream jar)
-          throws IOException, XmlException {
-    throw new UnsupportedOperationException
-      ("Creating a BindingContext from a JarInputStream is no longer supported.");
-  }
+  public abstract BindingContext createBindingContext(URI[] tylarUris)
+      throws IOException, XmlException;
 
+  /**
+   * @deprecated
+   */
+  public abstract BindingContext createBindingContext(JarInputStream jar)
+      throws IOException, XmlException;
 
 }

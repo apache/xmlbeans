@@ -19,8 +19,8 @@ import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annotation.DefaultAnnotationProxy;
-import org.apache.xmlbeans.impl.jam.annotation.TagParser;
-import org.apache.xmlbeans.impl.jam.annotation.TagParser;
+import org.apache.xmlbeans.impl.jam.annotation.JavadocTagParser;
+import org.apache.xmlbeans.impl.jam.annotation.WhitespaceDelimitedTagParser;
 import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.visitor.*;
@@ -54,8 +54,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   private Map mSourceRoot2Scanner = null;
   private Map mClassRoot2Scanner = null;
 
-  private Map m175type2proxyclass = null;
-  private Map mTagname2proxyclass = null;
+  private Map mAnnname2proxyclass = null;
 
   private List mClasspath = null;
   private List mSourcepath = null;
@@ -68,7 +67,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   private boolean mUseSystemClasspath = true;
 
 
-  private TagParser mTagParser = null;
+  private JavadocTagParser mTagParser = null;
   private MVisitor mCommentInitializer = null;
   private MVisitor mPropertyInitializer = new PropertyInitializer();
   private List mOtherInitializers = null;
@@ -101,6 +100,14 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     JamClassBuilder[] comp = new JamClassBuilder[mBaseBuilders.size()];
     mBaseBuilders.toArray(comp);
     return new CompositeJamClassBuilder(comp);
+  }
+
+  public JavadocTagParser getTagParser() {
+    if (mTagParser == null) {
+      mTagParser = new WhitespaceDelimitedTagParser();
+      mTagParser.init(this);
+    }
+    return mTagParser;
   }
 
   // ========================================================================
@@ -197,36 +204,19 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     return (mProperties == null) ? null : mProperties.getProperty(name);
   }
 
-  public void register175AnnotationProxy(Class proxy, String jsr175type) {
+  public void registerAnnotationProxy(Class proxy, String annotationName) {
     validateProxyClass(proxy);
-    ClassImpl.validateClassName(jsr175type);
-    if (m175type2proxyclass == null) {
-      m175type2proxyclass = new HashMap();
+    ClassImpl.validateClassName(annotationName);
+    if (mAnnname2proxyclass == null) {
+      mAnnname2proxyclass = new HashMap();
     } else {
-      Class current = (Class)m175type2proxyclass.get(jsr175type);
+      Class current = (Class)mAnnname2proxyclass.get(annotationName);
       if (current != null) {
         throw new IllegalArgumentException("A proxy is already registered for "
-          +jsr175type+": "+current.getName());
+          +annotationName+": "+current.getName());
       }
     }
-    m175type2proxyclass.put(jsr175type,proxy);
-  }
-
-  public void registerJavadocTagProxy(Class proxy, String tagname) {
-    validateProxyClass(proxy);
-    if (proxy == null) throw new IllegalArgumentException("null class");
-    if (tagname == null) throw new IllegalArgumentException("null tagname");
-    //fixme validate tagname
-    if (mTagname2proxyclass == null) {
-      mTagname2proxyclass = new HashMap();
-    } else {
-      Class current = (Class)mTagname2proxyclass.get(tagname);
-      if (current != null) {
-        throw new IllegalArgumentException("A proxy is already registered for "
-          +tagname+": "+current.getName());
-      }
-    }
-    mTagname2proxyclass.put(tagname,proxy);
+    mAnnname2proxyclass.put(annotationName,proxy);
   }
 
 
@@ -265,8 +255,9 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
   }
 
   //DOCME
-  public void setTagParser(TagParser tp) {
+  public void setJavadocTagParser(JavadocTagParser tp) {
     mTagParser = tp;
+    tp.init(this); //FIXME this is a little broken to do this here
   }
 
   public void includeSourceFile(File file) {
@@ -448,21 +439,10 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
 
   public JamClassLoader getClassLoader() { return mLoader; }
 
-  public AnnotationProxy createProxyForTag(String tagname) {
+  public AnnotationProxy createAnnotationProxy(String jsr175typename) {
     Class pc = null;
-    if (mTagname2proxyclass != null) {
-      pc = (Class)mTagname2proxyclass.get(tagname);
-      if (pc == null) pc = DefaultAnnotationProxy.class;
-    } else {
-      pc = DefaultAnnotationProxy.class;
-    }
-    return createProxy(pc);
-  }
-
-  public AnnotationProxy createProxyForAnnotationType(String jsr175typename) {
-    Class pc = null;
-    if (m175type2proxyclass != null) {
-      pc = (Class)m175type2proxyclass.get(jsr175typename);
+    if (mAnnname2proxyclass != null) {
+      pc = (Class)mAnnname2proxyclass.get(jsr175typename);
       if (pc == null) pc = DefaultAnnotationProxy.class;
     } else {
       pc = DefaultAnnotationProxy.class;

@@ -241,8 +241,8 @@ public abstract class BindingCompiler extends BindingLogger
     BindingLoader[] loaders = null;
     try {
       loaders = new BindingLoader[]{ mBaseTylar.getBindingLoader(), builtin };
-    } catch(IOException ioe) { logError(ioe);
-    } catch(XmlException xe) { logError(xe);
+    } catch(Exception ioe) {
+      logError(ioe);
     }
     return (loaders == null) ? builtin : CompositeBindingLoader.forPath(loaders);
   }

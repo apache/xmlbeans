@@ -172,13 +172,13 @@ public class PropertyImpl extends AnnotatedElementImpl implements JProperty {
       JAnnotation[] anns = mSetter.getAnnotations();
       for(int i=0; i<anns.length; i++) super.addAnnotation(anns[i]);
       anns = mSetter.getAllJavadocTags();
-      for(int i=0; i<anns.length; i++) super.addJavadocAnnotation(anns[i]);
+      for(int i=0; i<anns.length; i++) super.addAnnotation(anns[i]);
     }
     if (mGetter != null) {
       JAnnotation[] anns = mGetter.getAnnotations();
       for(int i=0; i<anns.length; i++) super.addAnnotation(anns[i]);
       anns = mGetter.getAllJavadocTags();
-      for(int i=0; i<anns.length; i++) super.addJavadocAnnotation(anns[i]);
+      for(int i=0; i<anns.length; i++) super.addAnnotation(anns[i]);
     }
   }
 
