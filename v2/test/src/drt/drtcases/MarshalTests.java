@@ -40,6 +40,8 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.GDuration;
+import org.apache.xmlbeans.EncodingStyle;
+import org.apache.xmlbeans.SoapMarshaller;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
@@ -234,7 +236,7 @@ public class MarshalTests extends TestCase
             bindingContext.createUnmarshaller();
 
         Object obj = umctx.unmarshal(xrdr, options);
-        reportErrors(errors, "SimpleType error. lexical="+lexval);
+        reportErrors(errors, "SimpleType error. lexical=" + lexval);
         Assert.assertTrue(errors.isEmpty());
 
 
@@ -417,6 +419,82 @@ public class MarshalTests extends TestCase
         dumpReader(reader);
         reportErrors(errors, "byname-marshal");
         Assert.assertTrue(errors.isEmpty());
+    }
+
+
+    public void testByNameMarshalSoap()
+        throws Exception
+    {
+        final boolean verbose = false;
+
+        com.mytest.MyClass mc = new com.mytest.MyClass();
+        mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(99999.777f);
+        myelt.setMyFloat(5555.4444f);
+
+        QName qn = new QName("foo", "bar");
+        myelt.setQn(qn);
+        myelt.setQn2(qn);
+
+        myelt.setWrappedArrayOne(new String[]{"a", "a", "b"});
+
+        MySubClass sub = new MySubClass();
+        sub.setBigInt(new BigInteger("23522352235223522352"));
+
+        myelt.setMySubClass(sub);
+        myelt.setMyClass(sub);
+        sub.setMyelt(myelt);  //cycle
+
+        myelt.setMyBoss(myelt); //cycle: self reference
+
+        SimpleContentExample se = new SimpleContentExample();
+        se.setFloatAttOne(44.33f);
+        se.setSimpleContent("someSimpleContentOkay");
+        myelt.setSimpleContentExample(se);
+
+        myelt.setModeEnum(ModeEnum.On);
+
+        mc.setMyelt(myelt);
+
+        myelt.setStringArray(new String[]{"a", "b", "c"});
+
+        myelt.setMyClassArray(new MyClass[]{sub, new MyClass(),
+                                            //this type is not in our binding file,
+                                            //but we should then treat is as its the parent type
+                                            new MySubSubClass(),
+                                            sub});
+
+
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+
+        final XmlOptions options = new XmlOptions();
+        Collection errors = new LinkedList();
+        options.setErrorListener(errors);
+
+        final SoapMarshaller ctx =
+            bindingContext.createSoapMarshaller(EncodingStyle.SOAP11);
+
+        Assert.assertNotNull(ctx);
+
+
+        final XMLStreamReader reader =
+            ctx.marshalType(mc, new QName("java:com.mytest", "load"),
+                            new QName("java:com.mytest", "MyClass"),
+                            mc.getClass().getName(), options);
+
+        dumpReader(reader, verbose);
+        reportErrors(errors, "byname-marshal-soap");
+        Assert.assertTrue(errors.isEmpty());
+
+        inform("===========final id objs coming next===========", verbose);
+        final Iterator itr = ctx.marshalReferenced(options);
+        while (itr.hasNext()) {
+            final XMLStreamReader rdr = (XMLStreamReader)itr.next();
+            inform("got rdr: " + System.identityHashCode(rdr), verbose);
+            dumpReader(rdr, verbose);
+            rdr.close();
+        }
     }
 
 
@@ -965,6 +1043,12 @@ public class MarshalTests extends TestCase
     private static void dumpReader(final XMLStreamReader reader)
         throws XMLStreamException, XmlException, IOException
     {
+        dumpReader(reader, VERBOSE);
+    }
+
+    private static void dumpReader(final XMLStreamReader reader, boolean verbose)
+        throws XMLStreamException, XmlException, IOException
+    {
         final boolean write_doc = true;
         if (write_doc) {
             StringWriter sw = new StringWriter();
@@ -977,22 +1061,21 @@ public class MarshalTests extends TestCase
 
             xsw.close();
 
-            if (VERBOSE) {
+            if (verbose) {
                 final String xmldoc = sw.getBuffer().toString();
-                inform("DOC:");
-                inform(PrettyPrinter.indent(xmldoc));
-                inform((xmldoc));
+                inform("DOC:", verbose);
+                inform(PrettyPrinter.indent(xmldoc), verbose);
             }
         } else {
             int i = 0;
-            if (VERBOSE)
+            if (verbose)
                 inform((i++) + "\tSTATE: " +
-                       XmlStreamUtils.printEvent(reader));
+                       XmlStreamUtils.printEvent(reader), verbose);
             while (reader.hasNext()) {
                 final int state = reader.next();
-                if (VERBOSE)
+                if (verbose)
                     inform((i++) + "\tSTATE: " +
-                           XmlStreamUtils.printEvent(reader));
+                           XmlStreamUtils.printEvent(reader), verbose);
             }
         }
     }
@@ -1304,7 +1387,17 @@ public class MarshalTests extends TestCase
 
     private static void inform(String msg)
     {
-        if (VERBOSE) System.out.println(msg);
+        inform(msg, VERBOSE);
+    }
+
+    private static void inform(String msg, boolean verbose)
+    {
+        if (verbose) System.out.println(msg);
+    }
+
+    private static void say(String msg)
+    {
+        System.out.println(msg);
     }
 
     private static void error(String msg)

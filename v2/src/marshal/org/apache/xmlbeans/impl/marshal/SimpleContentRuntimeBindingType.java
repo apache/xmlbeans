@@ -36,10 +36,15 @@ class SimpleContentRuntimeBindingType
         super(simpleContentBean);
     }
 
+    void accept(RuntimeTypeVisitor visitor)
+        throws XmlException
+    {
+        visitor.visit(this);
+    }
+
     //prepare internal data structures for use
     public final void initialize(RuntimeBindingTypeTable typeTable,
-                                 BindingLoader loader
-                                 )
+                                 BindingLoader loader)
         throws XmlException
     {
         super.initialize(typeTable, loader);
@@ -50,6 +55,11 @@ class SimpleContentRuntimeBindingType
             new SimpleContentRuntimeProperty(getJavaType(),
                                              simpleContentProperty, this,
                                              typeTable, loader);
+    }
+
+    boolean hasElementChildren()
+    {
+        return false;
     }
 
     private SimpleContentBean getSimpleContentBean()

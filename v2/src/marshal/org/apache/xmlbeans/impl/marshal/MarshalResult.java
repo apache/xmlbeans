@@ -44,7 +44,7 @@ import java.util.Collection;
 import java.util.Stack;
 
 
-final class MarshalResult implements XMLStreamReader
+abstract class MarshalResult implements XMLStreamReader
 {
 
     //per binding context constants
@@ -57,6 +57,7 @@ final class MarshalResult implements XMLStreamReader
     private final Collection errors;
     private final ScopedNamespaceContext namespaceContext;
     private final Stack visitorStack = new Stack();
+
     private XmlTypeVisitor currVisitor;
     private int currentEventType = XMLStreamReader.START_ELEMENT;
     private boolean initedAttributes = false;
@@ -84,7 +85,29 @@ final class MarshalResult implements XMLStreamReader
         namespaceContext = new ScopedNamespaceContext(root_nsctx);
         namespaceContext.openScope();
         errors = BindingContextImpl.extractErrorHandler(options);
-        currVisitor = createVisitor(property, obj);
+        currVisitor = createInitialVisitor(property, obj);
+    }
+
+    //reset to initial state but with new property and object
+    protected void reset(RuntimeBindingProperty property, Object obj)
+        throws XmlException
+    {
+        namespaceContext.clear();
+        namespaceContext.openScope();
+        visitorStack.clear();
+        currVisitor = createInitialVisitor(property, obj);
+        currentEventType = XMLStreamReader.START_ELEMENT;
+        initedAttributes = false;
+        if (attributeHolder != null) attributeHolder.clear();
+        prefixCnt = 0;
+        currIndex = 0;
+    }
+
+    protected XmlTypeVisitor createInitialVisitor(RuntimeBindingProperty property,
+                                                  Object obj)
+        throws XmlException
+    {
+        return createVisitor(property, obj);
     }
 
     protected XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
@@ -94,11 +117,13 @@ final class MarshalResult implements XMLStreamReader
         assert property != null;
 
         BindingType btype = property.getRuntimeBindingType().getBindingType();
-        bindingTypeVisitor.setParentObject(obj);
-        bindingTypeVisitor.setRuntimeBindingProperty(property);
-        btype.accept(bindingTypeVisitor);
-        return bindingTypeVisitor.getXmlTypeVisitor();
+        final BindingTypeVisitor type_visitor = bindingTypeVisitor;
+        type_visitor.setParentObject(obj);
+        type_visitor.setRuntimeBindingProperty(property);
+        btype.accept(type_visitor);
+        return type_visitor.getXmlTypeVisitor();
     }
+
 
     public Object getProperty(String s)
         throws IllegalArgumentException
@@ -106,7 +131,8 @@ final class MarshalResult implements XMLStreamReader
         throw new UnsupportedOperationException("UNIMPLEMENTED");
     }
 
-    public int next() throws XMLStreamException
+    public int next()
+        throws XMLStreamException
     {
         switch (currVisitor.getState()) {
             case XmlTypeVisitor.START:
@@ -551,7 +577,7 @@ final class MarshalResult implements XMLStreamReader
         throw new IllegalStateException();
     }
 
-    private void initAttributes()
+    protected void initAttributes()
     {
         if (!initedAttributes) {
             try {

@@ -98,20 +98,13 @@ final class MarshallerImpl
         final RuntimeBindingType runtime_type =
             typeTable.createRuntimeType(btype, loader);
 
-        if (obj != null &&
-            !runtime_type.isJavaPrimitive() &&
-            !runtime_type.getJavaType().isInstance(obj)) {
-            String m = "instance type: " + obj.getClass() +
-                " not an instance of expected type: " +
-                runtime_type.getJavaType();
-            throw new XmlException(m);
-        }
+        runtime_type.checkInstance(obj);
 
         RuntimeGlobalProperty prop =
             new RuntimeGlobalProperty(elem_qn, runtime_type);
 
-        return new MarshalResult(loader, typeTable,
-                                 nscontext, prop, obj, null);
+        return new LiteralMarshalResult(loader, typeTable,
+                                        nscontext, prop, obj, null);
     }
 
 
@@ -260,8 +253,33 @@ final class MarshallerImpl
                                        NamespaceContext namespaceContext)
         throws XmlException
     {
+        BindingType type = lookupBindingType(schemaType, javaType,
+                                             elementName, obj, loader);
+
+        return createMarshalResult(type, elementName, namespaceContext, obj);
+    }
+
+    static BindingType lookupBindingType(QName schemaType,
+                                         String javaType,
+                                         QName elementName,
+                                         Object obj,
+                                         BindingLoader loader)
+        throws XmlException
+    {
+        return lookupBindingType(XmlTypeName.forTypeNamed(schemaType),
+                                 javaType,
+                                 elementName, obj, loader);
+    }
+
+    static BindingType lookupBindingType(XmlTypeName schema_type,
+                                         String javaType,
+                                         QName elementName,
+                                         Object obj,
+                                         BindingLoader loader)
+        throws XmlException
+    {
         final BindingType type =
-            loadBindingType(XmlTypeName.forTypeNamed(schemaType),
+            loadBindingType(schema_type,
                             JavaTypeName.forClassName(javaType),
                             loader);
 
@@ -269,12 +287,11 @@ final class MarshallerImpl
             final String msg = "failed to find a suitable binding type for" +
                 " use in marshalling \"" + elementName + "\". " +
                 " using java type: " + javaType +
-                " schema type: " + schemaType +
+                " schema type: " + schema_type +
                 " instance type: " + obj.getClass().getName();
             throw new XmlException(msg);
         }
-
-        return createMarshalResult(type, elementName, namespaceContext, obj);
+        return type;
     }
 
     public void marshalType(XMLStreamWriter writer,
@@ -359,19 +376,10 @@ final class MarshallerImpl
             determineDocumentType(elementName);
 
         final XmlTypeName elem_type = doc_binding.getTypeOfElement();
-        final BindingType type =
-            loadBindingType(elem_type,
-                            JavaTypeName.forClassName(javaType),
-                            loader);
 
-        if (type == null) {
-            final String msg = "failed to find a suitable binding type for" +
-                " use in marshalling \"" + elementName + "\" " +
-                " using java type: " + javaType +
-                " schema type: " + elem_type +
-                " instance type: " + obj.getClass().getName();
-            throw new XmlException(msg);
-        }
+        final BindingType type =
+            lookupBindingType(elem_type, javaType, elementName, obj, loader);
+
         NamespaceContext nscontext = getNamespaceContextFromOptions(options);
         return createMarshalResult(type, elementName,
                                    nscontext, obj);

@@ -15,38 +15,25 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlException;
 
-class SimpleRuntimeBindingType
-    extends RuntimeBindingType
+import javax.xml.namespace.NamespaceContext;
+
+final class LiteralMarshalResult
+    extends MarshalResult
 {
-    private final SimpleBindingType simpleBindingType;
 
-    public SimpleRuntimeBindingType(SimpleBindingType type)
+    //TODO: REVIEW: consider ways to reduce the number of parameters here
+    LiteralMarshalResult(BindingLoader loader,
+                      RuntimeBindingTypeTable tbl,
+                      NamespaceContext root_nsctx,
+                      RuntimeBindingProperty property,
+                      Object obj,
+                      XmlOptions options)
         throws XmlException
     {
-        super(type);
-        simpleBindingType = type;
+        super(loader, tbl, root_nsctx, property, obj, options);
     }
-
-    void accept(RuntimeTypeVisitor visitor)
-        throws XmlException
-    {
-        visitor.visit(this);
-    }
-
-    public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader
-                           )
-        throws XmlException
-    {
-    }
-
-    boolean hasElementChildren()
-    {
-        return false;
-    }
-
 }

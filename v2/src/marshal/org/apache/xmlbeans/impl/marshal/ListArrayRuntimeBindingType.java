@@ -39,6 +39,12 @@ final class ListArrayRuntimeBindingType
         listArrayType = binding_type;
     }
 
+    void accept(RuntimeTypeVisitor visitor)
+        throws XmlException
+    {
+        visitor.visit(this);
+    }
+
     public void initialize(RuntimeBindingTypeTable typeTable,
                            BindingLoader bindingLoader
                            )
@@ -58,6 +64,11 @@ final class ListArrayRuntimeBindingType
             typeTable.createRuntimeType(item_type, bindingLoader);
 
         itemProperty = new LAProperty(this, item_rtt);
+    }
+
+    boolean hasElementChildren()
+    {
+        return false;
     }
 
 
