@@ -9,7 +9,6 @@ import org.apache.xmlbeans.SchemaType;
 
 public abstract class BindingType
 {
-    private BindingLoader bLoader;
     private JavaName jName;
     private XmlName xName;
     private boolean isXmlObj;
@@ -19,9 +18,8 @@ public abstract class BindingType
      * 
      * Subclasses should call super(..) when defining constructors that init new BindingTypes.
      */ 
-    protected BindingType(BindingLoader bLoader, JavaName jName, XmlName xName, boolean isXmlObj)
+    protected BindingType(JavaName jName, XmlName xName, boolean isXmlObj)
     {
-        this.bLoader = bLoader;
         this.jName = jName;
         this.xName = xName;
         this.isXmlObj = isXmlObj;
@@ -32,9 +30,8 @@ public abstract class BindingType
      * 
      * Subclasses should have ctors of the same signature and call super(..) first.
      */ 
-    protected BindingType(BindingLoader bLoader, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    protected BindingType(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
     {
-        this.bLoader = bLoader;
         this.jName = JavaName.forString(node.getJavatype());
         this.xName = XmlName.forString(node.getXmlcomponent());
         this.isXmlObj = node.getXmlobj();
@@ -52,11 +49,6 @@ public abstract class BindingType
         node.setXmlcomponent(xName.toString());
         node.setXmlobj(isXmlObj);
         return node;
-    }
-    
-    public final BindingLoader getBindingLoader()
-    {
-        return bLoader;
     }
     
     public final JavaName getJavaName()
@@ -77,14 +69,14 @@ public abstract class BindingType
     
     /* REGISTRY OF SUBCLASSES */
     
-    private static final Class[] ctorArgs = new Class[] {BindingLoader.class, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType.class};
+    private static final Class[] ctorArgs = new Class[] {org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType.class};
     
     public static BindingType loadFromBindingTypeNode(BindingLoader bLoader, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
     {
         try
         {
             Class clazz = kinds.classForType(node.schemaType());
-            return (BindingType)clazz.getConstructor(ctorArgs).newInstance(new Object[] {bLoader, node});
+            return (BindingType)clazz.getConstructor(ctorArgs).newInstance(new Object[] {node});
         }
         catch (Exception e)
         {
@@ -110,6 +102,7 @@ public abstract class BindingType
     {
         registerClassAndType(JaxbBean.class, org.apache.xmlbeans.x2003.x09.bindingConfig.JaxbBean.type);
         registerClassAndType(ByNameBean.class, org.apache.xmlbeans.x2003.x09.bindingConfig.ByNameBean.type);
+        registerClassAndType(SimpleBindingType.class, org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleType.type);
     }
 
 }

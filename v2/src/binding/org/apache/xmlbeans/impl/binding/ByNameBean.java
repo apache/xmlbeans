@@ -20,21 +20,21 @@ public class ByNameBean extends BindingType
     Map eltProps = new HashMap(); // QName -> prop (elts)
     Map attProps = new HashMap(); // QName -> prop (attrs)
     
-    public ByNameBean(BindingLoader bLoader, JavaName jName, XmlName xName, boolean isXmlObj)
+    public ByNameBean(JavaName jName, XmlName xName, boolean isXmlObj)
     {
-        super(bLoader, jName, xName, isXmlObj);
+        super(jName, xName, isXmlObj);
     }
 
-    public ByNameBean(BindingLoader bFile, org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    public ByNameBean(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
     {
-        super(bFile, node);
+        super(node);
         
         org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty[] propArray =
            ((org.apache.xmlbeans.x2003.x09.bindingConfig.ByNameBean)node).getQnamePropertyArray();
         
         for (int i = 0; i < propArray.length; i++)
         {
-            addProperty((QNameProperty)BindingProperty.forNode(getBindingLoader(), propArray[i]));
+            addProperty((QNameProperty)BindingProperty.forNode(propArray[i]));
         }
     }
     
