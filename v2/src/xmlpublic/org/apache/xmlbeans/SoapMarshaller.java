@@ -17,6 +17,7 @@ package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import java.util.Iterator;
 
 /**
@@ -27,6 +28,54 @@ import java.util.Iterator;
  */
 public interface SoapMarshaller
 {
+    /**
+     * Write an XML representation of the Java object to the provided output.
+     *
+     * It is the responsibility of the caller to ensure that
+     * obj is an instanceof javaType
+     *
+     * As of this writing (11/22/2003), this method will NOT write
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The first event written will be a START_ELEMENT event.
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * </ul>
+     *
+     * @param writer
+     * @param obj
+     * @param elementName
+     * @param schemaType
+     * @param javaType the java type in the format returned by Class.getName()
+     * @throws XmlException
+     */
+    void marshalType(XMLStreamWriter writer,
+                     Object obj,
+                     QName elementName,
+                     QName schemaType,
+                     String javaType,
+                     XmlOptions options)
+        throws XmlException;
+
+
+
+    /**
+     * Get the multiply referenced objects, usually written after the other parts.
+     *
+     * <ul>
+     * <li>A collection instance that should be used as an error listener during
+     * compilation, as described in {@link XmlOptions#setErrorListener}.</li>
+     * </ul>
+     *
+     * @param options
+     * @throws XmlException
+     */
+    void marshalReferenced(XMLStreamWriter writer,
+                           XmlOptions options)
+        throws XmlException;
+
+
 
     /**
      * Get an XMLStreamReader object that represents the given java type.
@@ -34,8 +83,8 @@ public interface SoapMarshaller
      * It is the responsibility of the caller to ensure that
      * obj is an instanceof javaType
 
-     * As of this writing (11/22/2003), the returned reader will NOT contain
-     * a START_DOCUMENT or END_DOCUMENT element.
+     * The returned reader will NOT contain a
+     * START_DOCUMENT or END_DOCUMENT element.
      * The reader's first event is a START_ELEMENT event.
      *
      * <ul>
@@ -62,7 +111,7 @@ public interface SoapMarshaller
     /**
      * Get the multiply referenced objects, usually written after the other parts.
      *
-     * Returns an Iterator of XMLStreamReader objects, each reader 
+     * Returns an Iterator of XMLStreamReader objects, each reader
      * represting an object that has been referred to more than once.
      *
      *

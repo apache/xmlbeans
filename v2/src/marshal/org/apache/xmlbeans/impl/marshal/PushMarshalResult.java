@@ -26,7 +26,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
 import java.util.Iterator;
 
-class PushMarshalResult
+abstract class PushMarshalResult
     extends MarshalResult
     implements RuntimeTypeVisitor
 {
@@ -35,10 +35,10 @@ class PushMarshalResult
     private Object currObject;
     private RuntimeBindingProperty currProp;
 
-    public PushMarshalResult(BindingLoader bindingLoader,
-                             RuntimeBindingTypeTable typeTable,
-                             XMLStreamWriter writer,
-                             XmlOptions options)
+    PushMarshalResult(BindingLoader bindingLoader,
+                      RuntimeBindingTypeTable typeTable,
+                      XMLStreamWriter writer,
+                      XmlOptions options)
         throws XmlException
     {
         super(bindingLoader,
@@ -47,34 +47,84 @@ class PushMarshalResult
         this.writer = writer;
     }
 
+
+    final void marshalType(final Object obj,
+                           final RuntimeBindingProperty prop)
+        throws XmlException
+    {
+        final RuntimeBindingType actual_rtt =
+            prop.getActualRuntimeType(obj, this);
+        marshalType(obj, prop, actual_rtt);
+    }
+
     //this method can be called recursively
     private void marshalType(final Object obj,
                              final RuntimeBindingProperty prop,
                              final RuntimeBindingType actual_rtt)
         throws XmlException
     {
+        marshalTypeWithName(obj, prop, actual_rtt, prop.getName());
+    }
+
+
+    //this method can be called recursively
+    private void marshalTypeWithName(final Object obj,
+                                     final RuntimeBindingProperty prop,
+                                     final RuntimeBindingType actual_rtt,
+                                     QName name)
+        throws XmlException
+    {
         try {
-            writeStartElement(prop);
-            if (obj == null) {
-                addXsiNilAttribute();
-            } else if (actual_rtt != prop.getRuntimeBindingType()) {
-                addXsiTypeAttribute(actual_rtt);
-            }
-            currObject = obj;
-            currProp = prop;
-            actual_rtt.accept(this);
-            writer.writeEndElement();
+            writeStartElement(name);
+            writeXsiAttributes(obj, actual_rtt, prop);
+            updateState(obj, prop);
+            writeContents(actual_rtt);
+            writeEndElement();
         }
         catch (XMLStreamException e) {
             throw new XmlException(e);
         }
     }
 
-    private void writeStartElement(final RuntimeBindingProperty prop)
+    protected final void writeEndElement() throws XMLStreamException
+    {
+        writer.writeEndElement();
+    }
+
+    protected final void updateState(final Object obj,
+                                     final RuntimeBindingProperty prop)
+    {
+        currObject = obj;
+        currProp = prop;
+    }
+
+    protected final void writeXsiAttributes(final Object obj,
+                                            final RuntimeBindingType actual_rtt,
+                                            final RuntimeBindingProperty prop)
+        throws XmlException
+    {
+        if (obj == null) {
+            addXsiNilAttribute();
+        } else if (actual_rtt != prop.getRuntimeBindingType()) {
+            addXsiTypeAttribute(actual_rtt);
+        }
+    }
+
+    protected void writeContents(final RuntimeBindingType actual_rtt)
+        throws XmlException
+    {
+        actual_rtt.accept(this);
+    }
+
+    protected final Object getCurrObject()
+    {
+        return currObject;
+    }
+
+    protected void writeStartElement(QName name)
         throws XMLStreamException, XmlException
     {
-        final QName prop_name = prop.getName();
-        final String uri = prop_name.getNamespaceURI();
+        final String uri = name.getNamespaceURI();
         if (uri.length() > 0) {
             String prefix = getNamespaceContext().getPrefix(uri);
             final String new_prefix;
@@ -86,23 +136,14 @@ class PushMarshalResult
             }
             assert prefix != null;
             writer.writeStartElement(prefix,
-                                     prop_name.getLocalPart(),
-                                     prop_name.getNamespaceURI());
+                                     name.getLocalPart(),
+                                     name.getNamespaceURI());
             if (new_prefix != null) {
                 bindNamespace(new_prefix, uri);
             }
         } else {
-            writer.writeStartElement(prop_name.getLocalPart());
+            writer.writeStartElement(name.getLocalPart());
         }
-    }
-
-    void marshalType(final Object obj,
-                     final RuntimeBindingProperty prop)
-        throws XmlException
-    {
-        final RuntimeBindingType actual_rtt =
-            prop.getActualRuntimeType(obj, this);
-        marshalType(obj, prop, actual_rtt);
     }
 
 

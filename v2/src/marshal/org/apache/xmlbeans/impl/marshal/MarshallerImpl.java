@@ -317,7 +317,7 @@ final class MarshallerImpl
             new RuntimeGlobalProperty(elementName, runtime_type);
 
         final PushMarshalResult pmr =
-            new PushMarshalResult(loader, typeTable, writer, null);
+            new LiteralPushMarshalResult(loader, typeTable, writer, null);
 
         pmr.marshalType(obj, prop);
     }

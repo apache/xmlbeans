@@ -28,10 +28,12 @@ import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.XMLStreamWriter;
 import java.util.Iterator;
 
 //this class is not thread safe and doesn't have to be per javadocs
-class SoapMarshallerImpl
+
+final class SoapMarshallerImpl
     implements SoapMarshaller
 {
     //per binding context constants
@@ -52,15 +54,34 @@ class SoapMarshallerImpl
         this.encodingStyle = encodingStyle;
     }
 
-    public XMLStreamReader marshalType(Object obj,
-                                       QName elementName,
-                                       QName schemaType,
-                                       String javaType,
-                                       XmlOptions options)
+
+    public void marshalType(XMLStreamWriter writer,
+                            Object obj,
+                            QName elementName,
+                            QName schemaType,
+                            String javaType,
+                            XmlOptions options)
         throws XmlException
     {
-        final NamespaceContext nscontext =
-            MarshallerImpl.getNamespaceContextFromOptions(options);
+        final RuntimeGlobalProperty prop =
+            createGlobalProperty(schemaType, javaType, elementName, obj);
+
+        if (prop.getRuntimeBindingType().hasElementChildren()) {
+            objectRefTable = new ObjectRefTable();
+        }
+
+        final PushSoapMarshalResult result =
+            createPushSoapResult(writer, options);
+
+        addObjectGraphToRefTable(obj, prop.getRuntimeBindingType(),
+                                 prop, result);
+
+        result.marshalType(obj, prop);
+
+    }
+
+    private RuntimeGlobalProperty createGlobalProperty(QName schemaType, String javaType, QName elementName, Object obj) throws XmlException
+    {
         final BindingType btype =
             MarshallerImpl.lookupBindingType(schemaType, javaType,
                                              elementName, obj, loader);
@@ -74,28 +95,73 @@ class SoapMarshallerImpl
 
         RuntimeGlobalProperty prop =
             new RuntimeGlobalProperty(elementName, runtime_type);
+        return prop;
+    }
 
-        if (runtime_type.hasElementChildren()) {
+    private PushSoapMarshalResult createPushSoapResult(XMLStreamWriter writer,
+                                                       XmlOptions options)
+        throws XmlException
+    {
+        final PushSoapMarshalResult result;
+        if (EncodingStyle.SOAP11.equals(encodingStyle)) {
+            result = new PushSoap11MarshalResult(loader,
+                                                 typeTable,
+                                                 writer,
+                                                 options,
+                                                 objectRefTable);
+        } else if (EncodingStyle.SOAP12.equals(encodingStyle)) {
+            throw new AssertionError("UNIMP");
+        } else {
+            throw new AssertionError("UNKNOWN ENCODING: " + encodingStyle);
+        }
+        return result;
+    }
+
+    public void marshalReferenced(XMLStreamWriter writer,
+                                  XmlOptions options)
+        throws XmlException
+    {
+        if (objectRefTable == null || !objectRefTable.hasMultiplyRefdObjects())
+            return;
+
+        final PushSoapMarshalResult result =
+            createPushSoapResult(writer, options);
+        result.writeIdParts();
+    }
+
+    public XMLStreamReader marshalType(Object obj,
+                                       QName elementName,
+                                       QName schemaType,
+                                       String javaType,
+                                       XmlOptions options)
+        throws XmlException
+    {
+        final RuntimeGlobalProperty prop =
+            createGlobalProperty(schemaType, javaType, elementName, obj);
+
+        if (prop.getRuntimeBindingType().hasElementChildren()) {
             objectRefTable = new ObjectRefTable();
         }
 
+        final NamespaceContext nscontext =
+            MarshallerImpl.getNamespaceContextFromOptions(options);
+        final PullSoapMarshalResult retval =
+            createPullMarshalResult(nscontext, prop, obj, options, false);
 
-        final SoapMarshalResult retval =
-            createMarshalResult(nscontext, prop, obj, options, false);
-
-        addObjectGraphToRefTable(obj, runtime_type, prop, retval);
+        addObjectGraphToRefTable(obj, prop.getRuntimeBindingType(),
+                                 prop, retval);
 
         return retval;
     }
 
-    private SoapMarshalResult createMarshalResult(final NamespaceContext nscontext,
-                                                  RuntimeBindingProperty prop,
-                                                  Object obj,
-                                                  XmlOptions options,
-                                                  boolean doing_id_parts)
+    private PullSoapMarshalResult createPullMarshalResult(NamespaceContext nscontext,
+                                                          RuntimeBindingProperty prop,
+                                                          Object obj,
+                                                          XmlOptions options,
+                                                          boolean doing_id_parts)
         throws XmlException
     {
-        final SoapMarshalResult retval;
+        final PullSoapMarshalResult retval;
 
         if (EncodingStyle.SOAP11.equals(encodingStyle)) {
             retval = new Soap11MarshalResult(loader, typeTable,
@@ -121,7 +187,6 @@ class SoapMarshallerImpl
         instanceVisitor.setCurrObject(obj, prop);
         instanceVisitor.setMarshalResult(result);
         runtime_type.accept(instanceVisitor);
-
     }
 
     public Iterator marshalReferenced(XmlOptions options)
@@ -139,7 +204,7 @@ class SoapMarshallerImpl
         private final XmlOptions options;
         private final NamespaceContext nscontext;
         private final Iterator tblItr = objectRefTable.getMultipleRefTableEntries();
-        private SoapMarshalResult marshalResult;
+        private PullSoapMarshalResult marshalResult;
 
         public ReaderIterator(XmlOptions options)
         {
@@ -160,10 +225,10 @@ class SoapMarshallerImpl
 
             try {
                 if (marshalResult == null) {
-                    marshalResult = createMarshalResult(nscontext,
-                                                        cur_val.getProp(),
-                                                        cur_val.object,
-                                                        options, true);
+                    marshalResult = createPullMarshalResult(nscontext,
+                                                            cur_val.getProp(),
+                                                            cur_val.object,
+                                                            options, true);
                 } else {
                     marshalResult.reset(cur_val.getProp(), cur_val.object, true);
                 }
@@ -192,21 +257,11 @@ class SoapMarshallerImpl
         private RuntimeBindingProperty currProp;
         private MarshalResult marshalResult;
 
-        public Object getCurrObject()
-        {
-            return currObject;
-        }
-
         public void setCurrObject(Object obj,
                                   RuntimeBindingProperty prop)
         {
             this.currObject = obj;
             this.currProp = prop;
-        }
-
-        public MarshalResult getMarshalResult()
-        {
-            return marshalResult;
         }
 
         public void setMarshalResult(MarshalResult marshalResult)

@@ -91,6 +91,7 @@ public class MarshalTests extends TestCase
     //must be in sync with binding config file
     private static final BigInteger DEFAULT_BIG_INT =
         new BigInteger("876587658765876587658765876587658765");
+    private static final String XSD_URI = "http://www.w3.org/2001/XMLSchema";
 
     public MarshalTests(String name)
     {
@@ -113,6 +114,51 @@ public class MarshalTests extends TestCase
             XMLInputFactory.newInstance().createXMLStreamReader(sr);
 
         dumpReader(reader);
+    }
+
+    //does not test any xmlbeans code, but rather a quick sanity check
+    //of the current jsr 173 impl
+    public void testAStreamWriter()
+        throws Exception
+    {
+        StringWriter sw = new StringWriter();
+        final XMLStreamWriter writer =
+            XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+
+        writer.writeStartDocument();
+        writer.writeStartElement("dummy");
+        final String uri = "uri";
+        final String prefix = "prefix";
+        final String lname = "lname";
+
+        writer.writeStartElement(prefix, lname, uri);
+        if (writer.getPrefix(uri) == null) {
+            writer.writeNamespace(prefix, uri);
+        }
+        writer.writeEndElement();
+
+        writer.writeStartElement(prefix, lname, uri);
+        if (writer.getPrefix(uri) == null) {
+            writer.writeNamespace(prefix, uri);
+        }
+        writer.writeEndElement();
+
+        writer.writeEndElement(); //dummy
+
+        writer.writeEndDocument();
+        writer.close();
+        sw.close();
+
+        final String DOC = sw.getBuffer().toString();
+        inform("DOC W: " + DOC);
+
+
+        StringReader sr = new StringReader(DOC);
+        final XMLStreamReader reader =
+            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+
+        //uncomment when stax bug is fixed
+        //dumpReader(reader, true);
     }
 
     public void testManySimpleTypesUnmarshall()
@@ -298,7 +344,7 @@ public class MarshalTests extends TestCase
             ctx.marshalType(orig,
 //                           new QName("uri", "lname"),
                             new QName("lname"),
-                            new QName("http://www.w3.org/2001/XMLSchema", xsd_type),
+                            new QName(XSD_URI, xsd_type),
                             java_type, options);
 
 
@@ -326,7 +372,7 @@ public class MarshalTests extends TestCase
 
         String our_obj = "hello";
 
-        final QName schemaType = new QName("http://www.w3.org/2001/XMLSchema", "anyType");
+        final QName schemaType = new QName(XSD_URI, "anyType");
         final String javaType = Object.class.getName();
         final XMLStreamReader reader =
             ctx.marshalType(our_obj,
@@ -497,6 +543,98 @@ public class MarshalTests extends TestCase
             inform("got rdr: " + System.identityHashCode(rdr), verbose);
             dumpReader(rdr, verbose);
             rdr.close();
+        }
+    }
+
+
+    public void testByNameMarshalSoapViaWriter()
+        throws Exception
+    {
+        final boolean verbose = false;
+
+        com.mytest.MyClass mc = new com.mytest.MyClass();
+        mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(99999.777f);
+        myelt.setMyFloat(5555.4444f);
+
+        QName qn = new QName("foo", "bar");
+        myelt.setQn(qn);
+        myelt.setQn2(qn);
+
+        myelt.setWrappedArrayOne(new String[]{"a", "a", "b"});
+
+        MySubClass sub = new MySubClass();
+        sub.setBigInt(new BigInteger("23522352235223522352"));
+
+        myelt.setMySubClass(sub);
+        myelt.setMyClass(sub);
+        sub.setMyelt(myelt);  //cycle
+
+        myelt.setMyBoss(myelt); //cycle: self reference
+
+        SimpleContentExample se = new SimpleContentExample();
+        se.setFloatAttOne(44.33f);
+        se.setSimpleContent("someSimpleContentOkay");
+        myelt.setSimpleContentExample(se);
+
+        myelt.setModeEnum(ModeEnum.On);
+
+        mc.setMyelt(myelt);
+
+        myelt.setStringArray(new String[]{"a", "b", "c"});
+
+        myelt.setMyClassArray(new MyClass[]{sub, new MyClass(),
+                                            sub});
+
+
+        BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
+
+        final XmlOptions options = new XmlOptions();
+        Collection errors = new LinkedList();
+        options.setErrorListener(errors);
+
+        final SoapMarshaller ctx =
+            bindingContext.createSoapMarshaller(EncodingStyle.SOAP11);
+
+        Assert.assertNotNull(ctx);
+
+        {
+
+            StringWriter sw = new StringWriter();
+            XMLStreamWriter xml_out =
+                XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+
+            ctx.marshalType(xml_out, mc, new QName("java:com.mytest", "load"),
+                            new QName("java:com.mytest", "MyClass"),
+                            mc.getClass().getName(), options);
+//        ctx.marshalType(xml_out, "TEST1", new QName("someuri", "str"),
+//                        new QName(XSD_URI, "string"),
+//                        String.class.getName(), options);
+            xml_out.close();
+            sw.close();
+
+            inform("=======SOAPOUT-XML:\n" +
+                   PrettyPrinter.indent(sw.getBuffer().toString()));
+            reportErrors(errors, "byname-marshal-soap-writer");
+            Assert.assertTrue(errors.isEmpty());
+        }
+
+        {
+            StringWriter sw2 = new StringWriter();
+            XMLStreamWriter xml_out2 =
+                XMLOutputFactory.newInstance().createXMLStreamWriter(sw2);
+            xml_out2.writeStartDocument();
+            xml_out2.writeStartElement("ID_DUMMY");
+            ctx.marshalReferenced(xml_out2, options);
+            xml_out2.writeEndElement();
+            xml_out2.writeEndDocument();
+            xml_out2.close();
+            sw2.close();
+
+            inform("=======2SOAPOUT-XML:\n" + sw2.getBuffer().toString());
+            reportErrors(errors, "byname-marshal-soap-writer");
+            Assert.assertTrue(errors.isEmpty());
         }
     }
 
@@ -790,8 +928,8 @@ public class MarshalTests extends TestCase
             bindingContext.createMarshaller();
         Assert.assertNotNull(ctx);
 
-        ctx.marshal(fos, mc);
-//        ctx.marshal(fos, mc, options);
+//        ctx.marshal(fos, mc);
+        ctx.marshal(fos, mc, options);
         fos.close();
 
         //now unmarshall from file and compare objects...

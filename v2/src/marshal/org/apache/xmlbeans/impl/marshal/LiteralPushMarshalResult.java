@@ -16,32 +16,29 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
+import java.util.Iterator;
 
-class Soap11RefdObjectVisitor
-    extends RefdObjectVisitor
+final class LiteralPushMarshalResult
+    extends PushMarshalResult
 {
-
-    private static final QName HREF_NAME = new QName("href");
-    private static final String REF_PREFIX = '#' + PullSoapMarshalResult.ID_PREFIX;
-
-    public Soap11RefdObjectVisitor(RuntimeBindingProperty property,
-                                   Object obj,
-                                   PullMarshalResult result,
-                                   int id)
+    LiteralPushMarshalResult(BindingLoader bindingLoader,
+                             RuntimeBindingTypeTable typeTable,
+                             XMLStreamWriter writer,
+                             XmlOptions options)
         throws XmlException
     {
-        super(property, obj, result, id);
+        super(bindingLoader,
+              typeTable,
+              writer,
+              options);
     }
 
-    protected QName getRefQName()
-    {
-        return HREF_NAME;
-    }
-
-    protected String getRefValue()
-    {
-        return REF_PREFIX + Integer.toString(id);
-    }
 }
