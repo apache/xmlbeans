@@ -790,7 +790,8 @@ abstract class Xobj implements TypeStore
     final void removeCharsHelper (
         int p, int cchRemove, Xobj xTo, int pTo, boolean moveCurs, boolean invalidate )
     {
-        assert p > 0 && p < posMax() && p != posAfter() - 1 && cchRemove > 0;
+        assert p > 0 && p < posMax() && p != posAfter() - 1;
+        assert cchRemove > 0;
         assert cchRight( p ) >= cchRemove;
         assert !moveCurs || xTo != null;
 
@@ -803,8 +804,6 @@ abstract class Xobj implements TypeStore
         // cursor just before an end tag, instead of placing it just before the first child.  Also,
         // I adjust all positions of curs after the text to be removed to account for the removal.
 
-        assert !moveCurs || xTo != null;
-
         for ( Cur c = getEmbedded() ; c != null ; )
         {
             Cur next = c._next;
@@ -816,8 +815,9 @@ abstract class Xobj implements TypeStore
             // and no parent which will cause normaliztion checks in MoveTo to fail.  I don't think
             // that nextChars will be called under such circumstnaces.
 
-            if (c._xobj == this && c._pos >= p &&
-                  c._pos < p + (cchRemove < 0 ? cchRight( p ) : cchRemove))
+            assert c._xobj == this;
+
+            if (c._pos >= p && c._pos < p + cchRemove)
             {
                 if (moveCurs)
                     c.moveToNoCheck( xTo, pTo + c._pos - p );
@@ -840,17 +840,17 @@ abstract class Xobj implements TypeStore
         // xTo/pTo.  The caller has to make sure that if xTo/pTo is not specified, then there are
         // no bookmarks in the span of text to be removed.
         
-        assert _bookmarks == null || xTo != null;
-
         for ( Bookmark b = _bookmarks ; b != null ; )
         {
             Bookmark next = b._next;
 
             // Similarly, as above, I can't call inChars here
+
+            assert b._xobj == this;
             
-            if (b._xobj == this && b._pos >= p &&
-                  b._pos < p + (cchRemove < 0 ? cchRight( p ) : cchRemove))
+            if (b._pos >= p && b._pos < p + cchRemove)
             {
+                assert xTo != null;
                 b.moveTo( xTo, pTo + b._pos - p );
             }
 
@@ -1038,13 +1038,12 @@ abstract class Xobj implements TypeStore
         for ( c.next() ; !c.isAtEndOfLastPush() ; )
         {
             if (c.isText())
-            {
                 scrub.scrub( c.getChars( -1 ), c._offSrc, c._cchSrc );
-                c.next();
-            }
 
             if (c.isComment() || c.isProcinst())
                 c.skip();
+            else
+                c.next();
         }
         
         String s = scrub.getResultAsString();
@@ -1950,6 +1949,8 @@ abstract class Xobj implements TypeStore
             throw new IllegalStateException();
 
         QNameSet endSet = null;
+        boolean  gotEndSet = false;
+        
         Xobj candidate = null;
 
         for ( Xobj x = _lastChild ; x != null ; x = x._prevSibling )
@@ -1959,10 +1960,13 @@ abstract class Xobj implements TypeStore
                 if (x._name.equals( name ))
                     break;
 
-                if (endSet == null)
+                if (!gotEndSet)
+                {
                     endSet = _user.get_element_ending_delimiters( name );
+                    gotEndSet = true;
+                }
 
-                if (endSet.contains( x._name ))
+                if (endSet == null || endSet.contains( x._name ))
                     candidate = x;
             }
         }
