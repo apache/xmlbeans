@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2000-2003 The Apache Software Foundation.  All rights
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 * are met:
 *
 * 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer. 
+*    notice, this list of conditions and the following disclaimer.
 *
 * 2. Redistributions in binary form must reproduce the above copyright
 *    notice, this list of conditions and the following disclaimer in
@@ -18,19 +18,19 @@
 *    distribution.
 *
 * 3. The end-user documentation included with the redistribution,
-*    if any, must include the following acknowledgment:  
+*    if any, must include the following acknowledgment:
 *       "This product includes software developed by the
 *        Apache Software Foundation (http://www.apache.org/)."
 *    Alternately, this acknowledgment may appear in the software itself,
 *    if and wherever such third-party acknowledgments normally appear.
 *
-* 4. The names "Apache" and "Apache Software Foundation" must 
+* 4. The names "Apache" and "Apache Software Foundation" must
 *    not be used to endorse or promote products derived from this
-*    software without prior written permission. For written 
+*    software without prior written permission. For written
 *    permission, please contact apache@apache.org.
 *
-* 5. Products derived from this software may not be called "Apache 
-*    XMLBeans", nor may "Apache" appear in their name, without prior 
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
 *    written permission of the Apache Software Foundation.
 *
 * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -49,7 +49,7 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems 
+* originally based on software copyright (c) 2000-2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
@@ -144,7 +144,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private boolean _hasWildcardElements;
     private boolean _hasWildcardAttributes;
     // set of valid QNames that can be substituted for a property
-    private Set _validSubstitutions = Collections.EMPTY_SET; 
+    private Set _validSubstitutions = Collections.EMPTY_SET;
 
     // simple content support
     private int _complexTypeVariety;
@@ -216,7 +216,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     // for document types only - only valid during compilation
     private QName _sg;
-    private List _sgMembers = new ArrayList(); 
+    private List _sgMembers = new ArrayList();
 
     public boolean isUnloaded()
     {
@@ -386,12 +386,33 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public QName getDocumentElementName()
     {
-        return _isDocumentType ? getContentModel().getName() : null;
+        if (_isDocumentType)
+        {
+            SchemaParticle sp = getContentModel();
+            if (sp != null)
+                return sp.getName();
+        }
+
+        return null;
     }
 
     public QName getAttributeTypeAttributeName()
     {
-        return _isAttributeType ? getAttributeModel().getAttributes()[0].getName() : null;
+        if (_isAttributeType)
+        {
+            SchemaAttributeModel sam = getAttributeModel();
+            if (sam != null)
+            {
+                SchemaLocalAttribute[] slaArray = sam.getAttributes();
+                if (slaArray != null && slaArray.length > 0)
+                {
+                    SchemaLocalAttribute sla = slaArray[0];
+                    return sla.getName();
+                }
+            }
+        }
+
+        return null;
     }
 
     public void setDocumentType(boolean isDocument)
@@ -663,7 +684,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         for (Iterator it = results.iterator() ; it.hasNext() ; )
         {
             SchemaProperty prop = (SchemaProperty)it.next();
-            SchemaProperty baseProp = prop.isAttribute() ? 
+            SchemaProperty baseProp = prop.isAttribute() ?
                 baseType.getAttributeProperty(prop.getName()) :
                 baseType.getElementProperty(prop.getName());
 
@@ -676,7 +697,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             {
                 if ( eq(prop.getMinOccurs(), baseProp.getMinOccurs()) &&
                      eq(prop.getMaxOccurs(), baseProp.getMaxOccurs()) &&
-                     prop.hasNillable() == baseProp.hasNillable()) 
+                     prop.hasNillable() == baseProp.hasNillable())
                 {
                     it.remove();
                 }
@@ -856,7 +877,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             {
                 type = prop.getType();
             }
-            else if (!_typedWildcardElements.contains(eltName) && 
+            else if (!_typedWildcardElements.contains(eltName) &&
                      !_validSubstitutions.contains(eltName))
             {
                 type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
@@ -1124,7 +1145,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     public void addSubstitutionGroupMember(QName member)
         { assertSGResolved(); _sgMembers.add(member); }
 
-    public QName[] getSubstitutionGroupMembers() 
+    public QName[] getSubstitutionGroupMembers()
     {
         QName[] result = new QName[_sgMembers.size()];
         return (QName[])_sgMembers.toArray(result);
@@ -1233,7 +1254,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             patterns[i] = _patterns[i].getPattern();
         return patterns;
     }
-    
+
     public org.apache.xmlbeans.impl.regex.RegularExpression[] getPatternExpressions()
     {
         if (_patterns == null)
@@ -1561,7 +1582,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             result.set_newValue((XmlObject)obj);
         else
             result.objectSet(obj);
-        
+
         result.check_dated();
         result.setImmutable();
 
@@ -1917,7 +1938,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
         if (getContainerField() != null)
         {
-            prefix = (getContainerField().getName().getNamespaceURI().length() > 0 ? 
+            prefix = (getContainerField().getName().getNamespaceURI().length() > 0 ?
                             (getContainerField().isAttribute() ? "Q=" : "E=") :
                             (getContainerField().isAttribute() ? "A=" : "U="))
                     + getContainerField().getName().getLocalPart();
@@ -1964,7 +1985,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public String getChameleonNamespace()
         { return _chameleon ? _parseTNS : null; }
-    
+
     public boolean isRedefinition()
         { return _redefinition; }
 
