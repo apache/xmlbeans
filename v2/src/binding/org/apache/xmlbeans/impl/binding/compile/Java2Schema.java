@@ -109,13 +109,19 @@ public class Java2Schema extends BindingCompiler {
     if (classesToBind == null) {
       throw new IllegalArgumentException("null classes");
     }
-    /*
+/*
     for(int i=0; i<classesToBind.length; i++) {
       if (classesToBind[i].isUnresolvedType()) {
-        throw new IllegalArgumentException(classesToBind[i].getQualifiedName()+
-                                           " is unresolved.");
+        throw new IllegalArgumentException
+          (classesToBind[i].getQualifiedName()+
+           " is unresolved.  Please check that your include- and sourcepaths "+
+           " are correct.");
       }
-    } */
+    }
+    if (classesToBind.length == 0) {
+      throw new IllegalArgumentException("No input classes found.");
+    }
+    */
     mClasses = classesToBind;
   }
 
@@ -749,7 +755,7 @@ public class Java2Schema extends BindingCompiler {
 
     public int compare(Object o, Object o1) {
       JSourcePosition p1 = ((JElement)o).getSourcePosition();
-      JSourcePosition p2 = ((JElement)o).getSourcePosition();
+      JSourcePosition p2 = ((JElement)o1).getSourcePosition();
       if (p1 == null) return (p2 == null) ? 0 : -1;
       if (p2 == null) return 1;
       return (p1.getLine() < p2.getLine()) ? -1 :

@@ -39,6 +39,11 @@ import com.sun.javadoc.AnnotationTypeDoc;
  */
 public class Javadoc15DelegateImpl implements Javadoc15Delegate {
 
+
+//temporary
+private static boolean DEFAULTS_ENABLED = false;
+public static final void setDefaultsEnabled(boolean b) { DEFAULTS_ENABLED = b; }
+
   // ========================================================================
   // Variables
 
@@ -101,7 +106,7 @@ public class Javadoc15DelegateImpl implements Javadoc15Delegate {
         setAnnotationValue(name,jmt,aval,dest,sp);
       }
     }
-if (true) return;
+if (!DEFAULTS_ENABLED) return;
     { // also set values for the type's defaults
       AnnotationTypeDoc atd = src.annotationType();
       AnnotationTypeElementDoc[] elements = atd.elements();
