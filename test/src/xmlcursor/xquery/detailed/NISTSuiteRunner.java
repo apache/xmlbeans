@@ -28,7 +28,7 @@ import xmlcursor.xquery.common.AbstractRunner;
 
 /**
  *
- */
+
 public class NISTSuiteRunner extends AbstractRunner
 
 
@@ -101,3 +101,4 @@ public class NISTSuiteRunner extends AbstractRunner
     TestSuiteDocument.TestSuite.TestGroup[] group;
 
 }
+*/

@@ -20,6 +20,7 @@ import xbean.scomp.derivation.facets.union.UnionPatternEltDocument;
 import xbean.scomp.derivation.facets.union.SmallPatternUnion;
 import xbean.scomp.derivation.facets.union.UnionEnumEltDocument;
 import xbean.scomp.derivation.facets.union.SmallEnumUnion;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * Only pattern and enumeration restrictions possible
@@ -56,7 +57,9 @@ public class UnionRestriction extends BaseCase {
         doc.setUnionPatternElt(new Integer(-1));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$PATTERN_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -90,7 +93,9 @@ public class UnionRestriction extends BaseCase {
         doc.setUnionEnumElt(new Integer(2));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_ENUM_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 

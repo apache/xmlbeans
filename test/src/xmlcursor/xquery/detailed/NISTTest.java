@@ -51,7 +51,7 @@ public class NISTTest extends XQTestCase
     {
         String query=null;
         String outFile=null;
-        XmlObject obj=XmlObject.Factory.newInstance();
+        XmlObject obj=XmlObject.Factory.parse("<xml-fragment/>");
 
 
             //NIST BUG: folder is called testSuite but appears
@@ -79,7 +79,9 @@ public class NISTTest extends XQTestCase
 //               assertEquals(inFiles.length, outFiles.length);
 
                 XmlObject[] queryRes = obj.execQuery(query);
-                XmlObject expRes=XmlObject.Factory.parse(outFiles[i].getStringValue());
+                String input = ZipUtil.getStringFromZip(
+                    pathToZip,zipName,temp+outFiles[i].getStringValue());
+                XmlObject expRes=XmlObject.Factory.parse( input );
                 XPathCommon.compare(queryRes,new XmlObject[]{expRes});
             }
 
