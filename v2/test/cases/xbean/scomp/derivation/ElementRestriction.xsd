@@ -1,0 +1,29 @@
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://xbean/scomp/derivation/ElementRestriction"
+    targetNamespace="http://xbean/scomp/derivation/ElementRestriction"
+    >
+   <!--Walmsley p.320-->
+    <xsd:complexType name="baseT">
+        <xsd:sequence>
+            <xsd:element name="a" maxOccurs="3"/>
+            <xsd:element name="b" fixed="myval"/>
+            <xsd:element name="c" type="xsd:string"/>
+        </xsd:sequence>
+    </xsd:complexType>
+
+    <xsd:complexType name="RestrictedEltT">
+        <xsd:complexContent>
+            <xsd:restriction base="baseT">
+                <xsd:sequence>
+                    <xsd:element name="a" maxOccurs="2"/>
+                    <xsd:element name="b" fixed="myval"/>
+                    <xsd:element name="c" type="xsd:token"/>
+                </xsd:sequence>
+            </xsd:restriction>
+        </xsd:complexContent>
+    </xsd:complexType>
+
+    <xsd:element name="Element" type="RestrictedEltT"/>
+</xsd:schema>
+

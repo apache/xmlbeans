@@ -1,0 +1,17 @@
+<xsd:schema
+    xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+    xmlns="http://xbean/scomp/contentType/builtIn/Legacy"
+    targetNamespace="http://xbean/scomp/contentType/builtIn/Legacy"
+    elementFormDefault="qualified"
+    >
+
+    <xsd:element name="NotationElt" type="xsd:NOTATION"/>
+    <xsd:element name="NmTokenElt" type="xsd:NMTOKEN"/>
+    <xsd:element name="NmTokensElt" type="xsd:NMTOKENS"/>
+    <xsd:element name="IDElt" type="xsd:ID"/>
+    <xsd:element name="IdRefElt" type="xsd:IDREF"/>
+    <xsd:element name="IdRefsElt" type="xsd:IDREFS"/>
+    <xsd:element name="EntityElt" type="xsd:ENTITY"/>
+    <xsd:element name="EntitiesElt" type="xsd:ENTITIES"/>
+
+</xsd:schema>
