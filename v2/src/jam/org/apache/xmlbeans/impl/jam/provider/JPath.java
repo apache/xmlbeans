@@ -15,8 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam.provider;
 
-import java.io.File;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.URI;
 import java.net.URL;
 import java.net.MalformedURLException;
@@ -70,6 +69,19 @@ public class JPath {
       out[i] = mFiles[i].toURL();
     }
     return out;
+  }
+
+  //fixme - need to abstract out JPath and have separate impls
+  public InputStream findInPath(String resource) {
+    for(int i=0; i<mFiles.length; i++) {
+      File f = new File(mFiles[i],resource);
+      try {
+        if (f.exists()) return new FileInputStream(f);
+      } catch(FileNotFoundException weird) {
+        weird.printStackTrace();
+      }
+    }
+    return null;
   }
 
   // ========================================================================

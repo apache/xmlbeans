@@ -31,5 +31,9 @@ public interface EMember extends EElement, JMember {
 
   public ESourcePosition getEditableSourcePosition();
 
+  public void addComment(String comment);
+
+
+
 
 }

@@ -186,7 +186,7 @@ public interface XmlTokenSource
     void save ( OutputStream os ) throws IOException;
 
     /**
-     * Writes the XML represented by this source to the given writer.
+     * Writes the XML represented by this source to the given output.
      */
     void save ( Writer w ) throws IOException;
 
@@ -332,7 +332,7 @@ public interface XmlTokenSource
     void save ( OutputStream os, XmlOptions options ) throws IOException;
 
     /**
-     * Writes the XML represented by this source to the given writer.
+     * Writes the XML represented by this source to the given output.
      */
     void save ( Writer w, XmlOptions options ) throws IOException;
 }

@@ -27,6 +27,8 @@ public interface EField extends JField, EMember {
 
   public void setType(String typeName);
 
+  public void setUnqualifiedType(String typeName);
+
   public void setType(JClass type);
 
 }

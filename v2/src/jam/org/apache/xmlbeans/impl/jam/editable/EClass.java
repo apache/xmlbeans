@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.jam.editable;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 
+import java.util.Collection;
+
 /**
  * Editable representation of a java class or interface.
  *
@@ -24,13 +26,24 @@ import org.apache.xmlbeans.impl.jam.JClass;
  */
 public interface EClass extends EMember, JClass {
 
+  public void setIsInterface(boolean b);
+
   /**
-   * Sets the class which this class extends.  Pass null to make the class
-   * extend nothing.
+   * Sets the class which this class extends.  The class name must be fully-
+   * qualified.  Pass null to make the class extend nothing.
    *
    * @throws IllegalArgumentException if the name is not a valid class name.
    */
   public void setSuperclass(String qualifiedClassName);
+
+  /**
+   * Sets the name of this class that this class extends.  The name
+   * may or may nor be fully-qualified.  Pass null to make the class
+   * extend nothing.
+   *
+   * @throws IllegalArgumentException if the name is not a valid class name.
+   */
+  public void setSuperclassUnqualified(String unqualifiedClassName);
 
   /**
    * Sets the class which this class extends.  Pass null to make the class
@@ -48,6 +61,15 @@ public interface EClass extends EMember, JClass {
    * a valid class name.
    */
   public void addInterface(String className);
+
+  /**
+   * Adds to the list of interfaces implemented by this class.  The class name
+   * may or may not be qualified.
+   *
+   * @throws IllegalArgumentException if the parameter is null or is not
+   * a valid class name.
+   */
+  public void addInterfaceUnqualified(String unqualifiedClassName);
 
   /**
    * Adds to the list of interfaces implemented by this class.
@@ -97,13 +119,9 @@ public interface EClass extends EMember, JClass {
 
   /**
    * Creates a new field, adds it to this class, and returns it.
+   * The type of the field must be qualified
    */
-  public EField addNewField(String typeName, String fieldName);
-
-  /**
-   * Creates a new field, adds it to this class, and returns it.
-   */
-  public EField addNewField(JClass type, String name);
+  public EField addNewField(String fieldName);
 
   /**
    * Removes the given field from this class.  Does nothing if this class
@@ -135,6 +153,19 @@ public interface EClass extends EMember, JClass {
    * strongly-typed version of getDeclaredMethods().
    */
   public EMethod[] getEditableMethods();
+
+  /**
+   * Adds an import specification the the class.  This should be everything
+   * between 'import ' and ';'.  Wildcard '*' imports are valid.
+   */
+  public void addImportSpec(String spec);
+
+  /**
+   * Calls addImportSpec(String) for each String in the given Collection.
+   */
+  public void addImportSpecs(Collection c);
+
+
 
   // not sure that these are something we want to do.  is a property really
   // an inherent part of a java type?

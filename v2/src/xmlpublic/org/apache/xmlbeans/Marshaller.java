@@ -87,7 +87,7 @@ public interface Marshaller
 
 
     /**
-     * Write an XML representation of the Java object to the provided writer.
+     * Write an XML representation of the Java object to the provided output.
      *
      * The object is expected to correspond to a global element in a schema.
      * The first matching global element will be used as the root element.
@@ -104,7 +104,7 @@ public interface Marshaller
         throws XmlException;
 
     /**
-     * Write an XML representation of the Java object to the provided writer.
+     * Write an XML representation of the Java object to the provided output.
      *
      * The object is expected to correspond to a global element in a schema.
      * The first matching global element will be used as the root element.
@@ -134,7 +134,7 @@ public interface Marshaller
 
 
     /**
-     * Write an XML representation of the Java object to the provided writer
+     * Write an XML representation of the Java object to the provided output
      * as a complete xml document using the default encoding
      *
      * The object is expected to correspond to a global element in a schema.
@@ -152,7 +152,7 @@ public interface Marshaller
 
 
     /**
-     * Write an XML representation of the Java object to the provided writer
+     * Write an XML representation of the Java object to the provided output
      * as a complete xml document using the default encoding
      *
      * The object is expected to correspond to a global element in a schema.
@@ -186,7 +186,7 @@ public interface Marshaller
     /**
      * @deprecated use XmlOptions based method instead
      *
-     * Write an XML representation of the Java object to the provided writer
+     * Write an XML representation of the Java object to the provided output
      * as a complete xml document
      *
      * The object is expected to correspond to a global element in a schema.
@@ -263,7 +263,7 @@ public interface Marshaller
         throws XmlException;
 
     /**
-     * Write an XML representation of the Java object to the provided writer.
+     * Write an XML representation of the Java object to the provided output.
      *
      * It is the responsibility of the caller to ensure that
      * obj is an instanceof javaType
@@ -288,7 +288,7 @@ public interface Marshaller
 
 
     /**
-     * Write an XML representation of the Java object to the provided writer.
+     * Write an XML representation of the Java object to the provided output.
      *
      * It is the responsibility of the caller to ensure that
      * obj is an instanceof javaType

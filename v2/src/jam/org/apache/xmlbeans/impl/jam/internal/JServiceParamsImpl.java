@@ -18,7 +18,7 @@ package org.apache.xmlbeans.impl.jam.internal;
 import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JServiceParams;
-import org.apache.xmlbeans.impl.jam.provider.JInitializerParams;
+import org.apache.xmlbeans.impl.jam.provider.JStoreParams;
 import org.apache.xmlbeans.impl.jam.provider.JPath;
 
 import java.util.*;
@@ -30,7 +30,7 @@ import java.io.IOException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JServiceParamsImpl implements JServiceParams, JInitializerParams
+public class JServiceParamsImpl implements JServiceParams, JStoreParams
 {
   // ========================================================================
   // Variables
@@ -49,6 +49,7 @@ public class JServiceParamsImpl implements JServiceParams, JInitializerParams
   private JAnnotationLoader mAnnotationLoader = null;
   private boolean mUseSystemClasspath = true;
   private boolean mVerbose = false;
+  private JClassLoader mParentClassloader = null;
 
   // ========================================================================
   // Constructors
@@ -197,9 +198,7 @@ public class JServiceParamsImpl implements JServiceParams, JInitializerParams
   }
 
   public void setParentClassLoader(JClassLoader loader) {
-  }
-
-  public void setBaseClassLoader(ClassLoader cl) {
+    mParentClassloader = loader;
   }
 
   public void setUseSystemClasspath(boolean use) {
@@ -207,7 +206,7 @@ public class JServiceParamsImpl implements JServiceParams, JInitializerParams
   }
 
   // ========================================================================
-  // JInitializerParams implementation
+  // JStoreParams implementation
 
   public JPath getInputClasspath() {
     return createJPath(mClasspath);
@@ -226,6 +225,10 @@ public class JServiceParamsImpl implements JServiceParams, JInitializerParams
   }
 
   public Properties getProperties() {
+    return null;
+  }
+
+  public JClassLoader getParentClassLoader() {
     return null;
   }
 

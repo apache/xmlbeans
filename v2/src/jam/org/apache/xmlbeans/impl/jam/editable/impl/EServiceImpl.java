@@ -73,6 +73,12 @@ public class EServiceImpl implements EService, JClassLoader {
     return new JClassIterator(this,getClassNames());
   }
 
+  public JClass[] getAllClasses() {
+    JClass[] out = new JClass[mClasses.values().size()];
+    mClasses.values().toArray(out);
+    return out;
+  }
+
   // ========================================================================
   // JClassLoader implementation
 

@@ -69,7 +69,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
 
   /**
    * Creates a new tylar from the given directory.  The directory must exist
-   * or be creatable.  The default JavaOutputStream will be used for codegen.
+   * or be creatable.  The default JavaOutputStream will be used for output.
    */
   public static ExplodedTylarImpl create(File dir) throws IOException {
     return create(dir, createDefaultJoust(dir));
@@ -78,7 +78,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
   /**
    * Loads a tylar from the given directory.  The directory must exist
    * and contain at least a binding file.  The default JavaOutputStream
-   * will be used for codegen.
+   * will be used for output.
    */
   public static ExplodedTylarImpl load(File dir)
           throws IOException, XmlException {

@@ -55,17 +55,19 @@
 */
 package org.apache.xmlbeans.impl.jam.provider;
 
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+
 import java.io.File;
 import java.io.PrintWriter;
 import java.util.Properties;
 
 /**
- * Structure containing information given to a BaseJProvider subclass in
- * order to instantiate a new JClassBuilder.
+ * <p>Structure containing information given to a BaseJProvider subclass in
+ * order to instantiate a new JStore.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JInitializerParams {
+public interface JStoreParams {
 
   // ========================================================================
   // Public methods
@@ -86,7 +88,7 @@ public interface JInitializerParams {
 
   /**
    * @return a PrintWriter to which logging and debugging information should
-   * be written by the JInitializer, or null, indicating that such output
+   * be written by the JStore, or null, indicating that such output
    * should be suppressed.
    */
   public PrintWriter getOut();
@@ -103,4 +105,6 @@ public interface JInitializerParams {
    * by the client, or null.
    */
   public Properties getProperties();
+
+  public JClassLoader getParentClassLoader();
 }

@@ -32,7 +32,9 @@ public interface EMethod extends JMethod, EInvokable {
    * @throws IllegalArgumentException if the parameter is not a valid
    * java class name.
    */
-  public void setReturnType(String qualifiedClassName);
+  public void setReturnType(String qualifiedTypeName);
+
+  public void setUnqualifiedReturnType(String unqualifiedTypeName);
 
   /**
    * <p>Sets the type of this method's return value.  Null may be passed if

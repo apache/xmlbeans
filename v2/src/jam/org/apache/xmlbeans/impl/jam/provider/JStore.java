@@ -66,13 +66,15 @@ import org.apache.xmlbeans.impl.jam.editable.EClass;
  *
  * <p>Secondary JInitializers can also be used to take the result of an
  * initialization described above and manipulate it in some way. For example,
- * a secondary JInitializer could be used to augment or alter the metadata
+ * a secondary JStore could be used to augment or alter the metadata
  * associated ith parts of a given java type.  CompositeJInitializer can
  * be used to chain together JInitializers for such purposes.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JInitializer {
+public interface JStore {
+
+  public boolean isArtifactAvailable(String qualifiedClassName);
 
   /**
    * <p>Initialize the given EClass.  The class will typically have no

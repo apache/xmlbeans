@@ -763,15 +763,23 @@
 
   <property name='jam_gendir' value='build/generatedsrc'/>
 
+  <target name='jam.clean'>
+    <delete dir='build/classes/jam'/>
+  </target>
+
   <target name='jam.parser'>
+    <delete dir='${jam_gendir}'/>
     <mkdir dir='${jam_gendir}'/>
-    <antlr outputdirectory='${jam_gendir}'
-           target='src/jam/java.g'>
+
+    <antlr outputdirectory='${jam_gendir}' target='src/jam/java.g' 
+           debug='false'>
        <classpath>
          <pathelement location='external/lib/antlr.jar'/>
          <pathelement path='${java.class.path}'/>
+         <pathelement path='build/classes'/>
        </classpath>
     </antlr>
+
   </target>
 
   <target name='jam.compile' depends='dirs'>
@@ -780,8 +788,9 @@
       <src path='src/jam'/>
       <src path='${jam_gendir}'/>
       <classpath>
-        <pathelement location='external/lib/antlr-runtime.jar'/>
+        <pathelement location='external/lib/antlr.jar'/>
         <pathelement path='${java.class.path}'/>
+         <pathelement path='build/classes'/>
       </classpath>
     </javac>
   </target>

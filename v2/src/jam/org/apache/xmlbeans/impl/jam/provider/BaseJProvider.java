@@ -19,13 +19,10 @@ import org.apache.xmlbeans.impl.jam.JProvider;
 import org.apache.xmlbeans.impl.jam.JService;
 import org.apache.xmlbeans.impl.jam.JServiceParams;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.internal.StandardJClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.RootJClassLoader;
 import org.apache.xmlbeans.impl.jam.internal.JServiceImpl;
 import org.apache.xmlbeans.impl.jam.internal.JServiceParamsImpl;
-import org.apache.xmlbeans.impl.jam.internal.reflect.RClassBuilder;
-import org.apache.xmlbeans.impl.jam.provider.JInitializerParams;
-import org.apache.xmlbeans.impl.jam.provider.JClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.reflect.RClassLoader;
 
 import java.io.IOException;
 
@@ -70,10 +67,10 @@ public abstract class BaseJProvider implements JProvider
   // Abstract methods
 
   /**
-   * Subclasses just need to override this to provide use with a
-   * JClassBuilder; we'll take care of the rest.
+   * Subclasses only need to override this; we'll take care of the rest.
    */
-  public abstract JClassBuilder createJClassBuilder(JInitializerParams jcb)
+  protected abstract JClassLoader createClassLoader(JServiceParamsImpl params,
+                                                    JClassLoader parent)
           throws IOException;
 
   // ========================================================================
@@ -101,12 +98,9 @@ public abstract class BaseJProvider implements JProvider
     //build up the clasloader chain
     JClassLoader parent = new RootJClassLoader(params.getAnnotationLoader());
     if (params.isUseSystemClasspath()) {
-      parent = new StandardJClassLoader(RClassBuilder.getSystemClassBuilder(),
-                                        parent,
-                                        params.getAnnotationLoader());
+      parent = new RClassLoader(ClassLoader.getSystemClassLoader(),parent);
     }
-    return new StandardJClassLoader(createJClassBuilder(params),
-                                    parent,
-                                    params.getAnnotationLoader());
+    return createClassLoader(params,parent);
   }
+
 }

@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.jam.internal;
 import org.apache.xmlbeans.impl.jam.JService;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
 import org.apache.xmlbeans.impl.jam.JClassIterator;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 /**
  *
@@ -55,4 +56,13 @@ public class JServiceImpl implements JService {
   public JClassIterator getClasses() {
     return new JClassIterator(getClassLoader(),getClassNames());
   }
+
+  public JClass[] getAllClasses() {
+    JClass[] out = new JClass[mClassNames.length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = getClassLoader().loadClass(mClassNames[i]);
+    }
+    return out;
+  }
+
 }

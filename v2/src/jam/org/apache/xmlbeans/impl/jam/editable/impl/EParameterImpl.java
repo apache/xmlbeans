@@ -16,6 +16,10 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EParameter;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.DirectJClassRef;
+import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JMember;
 
@@ -28,16 +32,18 @@ public class EParameterImpl extends EMemberImpl implements EParameter {
   // ========================================================================
   // Variables
 
-  private String mTypeClassName;
+  private JClassRef mTypeClassRef;
 
   // ========================================================================
   // Constructors
 
-  /*package*/ EParameterImpl(String simpleName,
-                             JMember containingMember,
-                             String typeName)
+  public EParameterImpl() {}
+
+  public EParameterImpl(String simpleName,
+                        EMemberImpl containingMember,
+                        String typeName)
   {
-    super(simpleName,containingMember.getContainingClass());
+    super(simpleName,(EClassImpl)containingMember.getContainingClass());
     setType(typeName);
   }
 
@@ -51,19 +57,34 @@ public class EParameterImpl extends EMemberImpl implements EParameter {
   // ========================================================================
   // EParameter implementation
 
-  public void setType(String typeName) {
-    if (typeName == null) throw new IllegalArgumentException("null typename");
-    mTypeClassName = typeName;
+  public void setType(String qcname) {
+    if (qcname == null) throw new IllegalArgumentException("null typename");
+    mTypeClassRef = QualifiedJClassRef.create
+            (qcname,(EClassImpl)getContainingClass());
   }
 
-  public void setType(JClass type) {
-    setType(type.getQualifiedName());
+  public void setType(JClass qcname) {
+    if (qcname == null) throw new IllegalArgumentException("null qcname");
+    mTypeClassRef = DirectJClassRef.create(qcname);
+  }
+
+  public void setUnqualifiedType(String ucname) {
+    if (ucname == null) throw new IllegalArgumentException("null ucname");
+    mTypeClassRef = UnqualifiedJClassRef.create
+            (ucname,(EClassImpl)getContainingClass());
   }
 
   // ========================================================================
   // JParameter implementation
 
   public JClass getType() {
-    return getClassLoader().loadClass(mTypeClassName);
+    return mTypeClassRef.getRefClass();
+  }
+
+  // ========================================================================
+  // Package methods
+
+  /*package*/ void setContainingMember(EMemberImpl member) {
+    super.setContainingClass((EClassImpl)member.getContainingClass());
   }
 }
