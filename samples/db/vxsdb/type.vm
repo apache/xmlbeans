@@ -19,4 +19,4 @@
 ##
 ## See doc for constant values:
 ## http://xmlbeans.apache.org/docs/v2/reference/constant-values.html
-#if($property.type.simpleVariety == 1)#if($property.type.name.localPart == "boolean")BOOLEAN#elseif($property.type.name.localPart == "dateTime")TIMESTAMP#elseif($property.type.name.localPart == "decimal")DECIMAL#elseif($property.type.name.localPart == "int")TINYINT#elseif($property.type.name.localPart == "integer")INTEGER#elseif($property.type.name.localPart == "long")INTEGER#elseif($property.type.name.localPart == "string")VARCHAR#end#end
+#if($property.type.simpleVariety == 1)#if($property.type.primitiveType.name.localPart == "boolean")BOOLEAN#elseif($property.type.primitiveType.name.localPart == "dateTime")TIMESTAMP#elseif($property.type.primitiveType.name.localPart == "decimal")DECIMAL#elseif($property.type.primitiveType.name.localPart == "int")INTEGER#elseif($property.type.primitiveType.name.localPart == "integer")INTEGER#elseif($property.type.primitiveType.name.localPart == "long")INTEGER#elseif($property.type.primitiveType.name.localPart == "string")VARCHAR#elseif(true)OTHER#end#end
