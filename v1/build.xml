@@ -897,9 +897,10 @@
    </target>
 
    <target name="jaxen.jar" depends="check.jaxen.jar, dirs" unless="jaxen.jar.exists">
-     <get dest="build/lib/jaxen.jar"
+     <!--get dest="build/lib/jaxen.jar"
           src="http://www.ibiblio.org/maven/jaxen/jars/jaxen-1.1-beta-2.jar"
-          verbose="true" usetimestamp="true" ignoreerrors="true"/>
+          verbose="true" usetimestamp="true" ignoreerrors="true"/ -->
+     <copy file="external/lib/jaxen-1.1-beta-2.jar" tofile="build/lib/jaxen.jar" />  
    </target>
 
   <!-- xpath target ============================================= -->
