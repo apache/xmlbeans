@@ -24,7 +24,7 @@ import org.apache.xmlbeans.xml.stream.utils.NestedThrowable;
 /**
  * The base exception for unexpected input during XML handling
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  */
 

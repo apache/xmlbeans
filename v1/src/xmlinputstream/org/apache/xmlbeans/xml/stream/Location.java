@@ -19,7 +19,7 @@ package org.apache.xmlbeans.xml.stream;
  * Returns the document location of the event.  This is not
  * required to be exact and is informational only.
  * 
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  *
  */

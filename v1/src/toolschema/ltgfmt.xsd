@@ -1,7 +1,7 @@
 <xs:schema
    xmlns:xs="http://www.w3.org/2001/XMLSchema"
-   xmlns:tns="http://www.bea.com/2003/05/xmlbean/ltgfmt"
-   targetNamespace="http://www.bea.com/2003/05/xmlbean/ltgfmt"
+   xmlns:tns="http://xml.apache.org/xmlbeans/2004/02/xmlbean/ltgfmt"
+   targetNamespace="http://xml.apache.org/xmlbeans/2004/02/xmlbean/ltgfmt"
    elementFormDefault="qualified">
 
   <xs:element name="tests">

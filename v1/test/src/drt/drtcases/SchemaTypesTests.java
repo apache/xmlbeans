@@ -104,7 +104,7 @@ public class SchemaTypesTests extends TestCase
         Assert.assertEquals("http://dmoz.org/World/Fran\u00e7ais/", person.getAnyuriAtt().toString());
         Assert.assertEquals("http://3space.org/space%20space/", person.getAnyuri().toString());
 
-        //RuntimeException: src/xmlstore/com/bea/xml/store/Splay.java(1537): ns != null && ns.length() > 0 failed
+        //RuntimeException: src/xmlstore/org/apache/xmlbeans/impl/store/Splay.java(1537): ns != null && ns.length() > 0 failed
         //Assert.assertEquals("JPEG", person.getNotationAtt().toString());
         //Assert.assertEquals("GIF", person.getNotation().toString());
     }
@@ -145,7 +145,7 @@ public class SchemaTypesTests extends TestCase
         person.setQname(new QName("ddd","eee"));
         Assert.assertEquals("{ddd}eee", person.getQname().toString());
 
-        //Exception: src/xmlstore/com/bea/xml/store/Type.java(189): user == _user failed
+        //Exception: src/xmlstore/org/apache/xmlbeans/impl/store/Type.java(189): user == _user failed
 //        person.setAnyuriAtt(URI.create("b.d:7002"));
 //        Assert.assertEquals("b.d:7002", person.getAnyuriAtt().toString());
 

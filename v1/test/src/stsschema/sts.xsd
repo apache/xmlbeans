@@ -1,6 +1,6 @@
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:sts="http://bea.com/internal/soap-test-script"
-  targetNamespace="http://bea.com/internal/soap-test-script"
+  xmlns:sts="http://xml.apache.org/xmlbeans/2004/02/xmlbean/internal/soap-test-script"
+  targetNamespace="http://xml.apache.org/xmlbeans/2004/02/xmlbean/internal/soap-test-script"
   elementFormDefault="qualified"
   blockDefault="#all">
   

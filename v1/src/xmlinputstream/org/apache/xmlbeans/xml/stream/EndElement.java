@@ -20,7 +20,7 @@ package org.apache.xmlbeans.xml.stream;
  * The name is available in the getName method of
  * org.apache.xmlbeans.xml.stream.XMLEvent interface.
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  * @see org.apache.xmlbeans.xml.stream.XMLEvent
 */

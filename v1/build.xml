@@ -385,7 +385,7 @@
     <delete dir="${docs.dir}"/>
     <mkdir dir="${docs.dir}"/>
     <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="1.4" stylesheetfile="docs/stylesheet.css">
-      <link href="http://e-docs.bea.com/wls/docs81/javadocs/"/>
+      <link href="http://xml.apache.org/xmlbeans/docs/reference/index.html"/>
       <link href="http://java.sun.com/j2se/1.4.2/docs/api/"/>
       <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>
       <link href="http://xml.apache.org/xerces-j/apiDocs/"/>
@@ -444,7 +444,7 @@
 
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
-        <fileset dir="xkit"/>
+        <fileset dir="xkit" />
      </copy>
 
      <mkdir dir="build/private/xmlbeans-${product.version}/lib"/>
@@ -462,11 +462,17 @@
 
      <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
           basedir="build/private"
-          includes="xmlbeans-${product.version}/**"/>
+          includes="xmlbeans-${product.version}/**">
+         <zipfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
+         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
+     </zip>
      <tar destfile="build/private/incubating-xmlbeans-${product.version}.tgz"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
-          compression="gzip"/>
+          compression="gzip">
+         <tarfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
+         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
+     </tar>
   </target>
 
   <target name="dist-src" depends="clean, dirs">
@@ -477,16 +483,22 @@
      	<zipfileset
      		dir="."
        		includes="**"
-       		excludes="build/**"
-       		prefix="xmlbeans-${product.version}"/>
+            excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
+                test/src/stsschema/**, test/src/unmarshal/**"
+       		prefix="xmlbeans-${product.version}" />
+         <zipfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
+         <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
      </zip>
 	 <tar destfile="build/private/incubating-xmlbeans-${product.version}-src.tgz"
 	 	  compression="gzip">
      	<tarfileset
      		dir="."
        		includes="**"
-       		excludes="build/**"
+       		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
+                test/src/stsschema/**, test/src/unmarshal/**"
        		prefix="xmlbeans-${product.version}"/>
+         <tarfileset dir="." includes="src/license/license.txt" fullpath="xmlbeans-${product.version}/license.txt"/>
+         <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
      </tar>
   </target>
 

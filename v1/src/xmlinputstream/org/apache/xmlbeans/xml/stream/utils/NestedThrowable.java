@@ -21,8 +21,6 @@ package org.apache.xmlbeans.xml.stream.utils;
  * implementation of toString() and printStackTrace()
  *
  * @deprecated use JDK 1.4 style nested throwables where possible.
- *
- * @author WebLogic
  */
 
 import java.io.PrintWriter;
