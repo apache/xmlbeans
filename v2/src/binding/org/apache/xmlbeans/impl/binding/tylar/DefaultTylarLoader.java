@@ -82,7 +82,7 @@ public class DefaultTylarLoader implements TylarLoader {
   private static final char[] OTHER_SEPCHARS = {'\\'};
   private static final char SEPCHAR = '/';
 
-  private static final boolean VERBOSE = true;
+  private static final boolean VERBOSE = false;
 
   private static final String BINDING_FILE_JARENTRY =
           normalizeEntryName(TylarConstants.BINDING_FILE);
