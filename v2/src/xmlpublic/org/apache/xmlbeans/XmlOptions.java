@@ -448,24 +448,6 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
-     * If this option is set, then schema validation will be performed during
-     * unmarshalling.  Errors will be added to error collection supplied
-     * in this options instance
-     */
-    public XmlOptions setUnmarshalValidate () {
-        return set( UNMARSHAL_VALIDATE );
-    }
-
-
-    /**
-     * Provide a factory to be used for the creation of the top level object
-     * returned by the unmarshal methods.
-     */
-    public XmlOptions setUnmarshalInitialObjectFactory(ObjectFactory factory) {
-        return set( UNMARSHAL_INITIAL_OBJECT_FACTORY, factory );
-    }
-
-    /**
      * Sets the name of the variable that represents
      * the current node in a query expression.
      * 
@@ -670,12 +652,6 @@ public class XmlOptions implements java.io.Serializable
     public static final String LOAD_USE_DEFAULT_RESOLVER       =  "LOAD_USE_DEFAULT_RESOLVER";
     /** @exclude */
     public static final String LOAD_USE_XMLREADER              =  "LOAD_USE_XMLREADER";
-
-    /** @exclude */
-    public static final String UNMARSHAL_VALIDATE              =  "UNMARSHAL_VALIDATE";
-
-    /** @exclude */
-    public static final String UNMARSHAL_INITIAL_OBJECT_FACTORY=  "UNMARSHAL_INITIAL_OBJECT_FACTORY";
 
     /** @exclude */
     public static final String XQUERY_CURRENT_NODE_VAR         =  "XQUERY_CURRENT_NODE_VAR";
