@@ -38,8 +38,8 @@ public class GetTextValueTest extends BasicCursorTestCase {
     public static Test suite() {
         return new TestSuite(GetTextValueTest.class);
     }
-    
-     // Depth first concatenation of all text leaves
+
+    // Depth first concatenation of all text leaves
      
     public void testNormalCase() {
         String sExpected = "  32.18";
@@ -53,8 +53,7 @@ public class GetTextValueTest extends BasicCursorTestCase {
         try {
             m_xc.getTextValue(null, 0, 10);
             fail("Buffer was Null");
-        }
-        catch (IllegalArgumentException ie) {
+        } catch (IllegalArgumentException ie) {
         }
     }
 
@@ -63,8 +62,7 @@ public class GetTextValueTest extends BasicCursorTestCase {
         try {
             m_xc.getTextValue(buffer, -1, 100);
             fail("Offset < 0");
-        }
-        catch (IllegalArgumentException ie) {
+        } catch (IllegalArgumentException ie) {
         }
 
     }
@@ -89,20 +87,18 @@ public class GetTextValueTest extends BasicCursorTestCase {
         try {
             m_xc.getTextValue(buffer, 101, 1);
             fail("Offset Past end");
-        }
-        catch (IllegalArgumentException ie) {
+        } catch (IllegalArgumentException ie) {
         }
     }
 
     //charCount<=0: should be a noop
+    //BUT: Assumption is that <0=infinity, so all is copies
     public void testNegativeCharCount() {
         char[] buffer = new char[100];
-        try {
-            int nCount = m_xc.getTextValue(buffer, 0, -1);
-            if (nCount > 0) fail("Negative Char Cnt");
-        }
-        catch (IllegalArgumentException ie) {
-        }
+        String sExpected = m_xc.getTextValue();
+        int nCount = m_xc.getTextValue(buffer, 0, -1);
+        assertEquals(sExpected.length(), nCount);
+        assertEquals(sExpected, new String(buffer, 0, nCount));
     }
 
     public void testZeroCharCount() {
@@ -112,57 +108,66 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals("", new String(buffer).trim());
     }
 
-//    public void testLargeCharCount() {
-//        String sExpected = "  32.18";
-//        char[] buffer = new char[200];
-//        int nCharCount = 300;
-//        assertEquals(true, sDoc.length() < nCharCount);
-//        assertEquals(false, buffer.length >= nCharCount);
-//        int nCopied = m_xc.getTextValue(buffer, 0, nCharCount);
-//        assertEquals(sExpected.length(), nCopied);
-//        assertEquals(sExpected, new String(buffer).substring(0, nCopied));
-//    }
+    public void testLargeCharCount() {
+        String sExpected = "  32.18";
+        char[] buffer = new char[200];
+        int nCharCount = 300;
+        assertEquals(true, sDoc.length() < nCharCount);
+        assertEquals(false, buffer.length >= nCharCount);
+        int nCopied = m_xc.getTextValue(buffer, 0, nCharCount);
+        assertEquals(sExpected.length(), nCopied);
+        assertEquals(sExpected, new String(buffer).substring(0, nCopied));
+    }
 
     //offset+selection>buffer
     public void testSelectionPastEnd() {
+        String sExpected = " 32";
         char[] buffer = new char[100];
-        try {
-            int nCopied = m_xc.getTextValue(buffer, 97, 4);
-            fail("Offset + max Past end");
-        }
-        catch ( IllegalArgumentException e ) {
-        }
+        int nCopied = m_xc.getTextValue(buffer, 97, 4);
+        assertEquals(sExpected.length(), nCopied);
+        assertEquals(sExpected, new String(buffer).substring(97, nCopied));
+        assertEquals("", new String(buffer).substring(0, 97));
     }
 
 
-    //End,Enddoc,Namespace should return 0 as per spec
+    //End,Enddoc,Namespace should
+    //return 0 as per spec
+    //NB: Design changed, should work now
     public void testGetNonTextElement() {
         char[] buffer = new char[100];
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
         int nCopied = m_xc.getTextValue(buffer, 0, 100);
-        assertEquals("", new String(buffer));
-        assertEquals(0, nCopied);
+        String sExpected = "http://ecommerce.org/schema";
+        assertEquals(sExpected,
+                new String(buffer, 0, nCopied));
+        assertEquals(sExpected.length(), nCopied);
+        try {
+            toNextTokenOfType(m_xc, TokenType.END);
+            nCopied = m_xc.getTextValue(buffer, 0, 100);
+            fail("Operation not allowed");
+        } catch (java.lang.IllegalStateException e) {
+        }
 
-        toNextTokenOfType(m_xc, TokenType.END);
-        nCopied = m_xc.getTextValue(buffer, 0, 100);
-        assertEquals("", new String(buffer));
-        assertEquals(0, nCopied);
+        try {
+            toNextTokenOfType(m_xc, TokenType.ENDDOC);
+            nCopied = m_xc.getTextValue(buffer, 0, 100);
+            fail("Operation not allowed");
+        } catch (java.lang.IllegalStateException e) {
+        }
 
-        toNextTokenOfType(m_xc, TokenType.ENDDOC);
-        nCopied = m_xc.getTextValue(buffer, 0, 100);
-        assertEquals("", new String(buffer));
-        assertEquals(0, nCopied);
 
     }
 
     //test text of comment, PI or Attr
     public void testCommentPIAttr() throws Exception {
-        String sExpected = "the 'price' element's namespace is http://ecommerce.org/schema";
+        String sExpected = "http://ecommerce.org/schema";
         int nSize = sExpected.length();
         char[] buffer = new char[nSize + 1];
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
         int nCopied = m_xc.getTextValue(buffer, 0, nSize);
-        assertEquals(sExpected, new String(buffer).substring(0, nCopied));
+        assertEquals(sExpected,
+                new String(buffer)
+                .substring(0, nCopied));
         assertEquals(sExpected.length(), nCopied);
 
         String sTestXml = "<?xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"?><foo at0=\"value0\">text</foo>";
@@ -179,15 +184,18 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals("value0".length(), nCopied);
 
         sExpected =
-                "xml-stylesheet type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"";
+                "type=\"text/xsl\" xmlns=\"http://openuri.org/shipping/\"";
+        nSize = sExpected.length();
         toPrevTokenOfType(m_xc, TokenType.PROCINST);
         nCopied = m_xc.getTextValue(buffer, 0, nSize);
-        assertEquals(sExpected, new String(buffer).substring(0, nCopied));
+        assertEquals(sExpected, new String(buffer)
+                .substring(0, nCopied));
         assertEquals(sExpected.length(), nCopied);
 
     }
 
     public void setUp() throws Exception {
-        m_xc = XmlObject.Factory.parse(sDoc).newCursor();
+        m_xc = XmlObject.Factory.parse(sDoc)
+                .newCursor();
     }
 }

@@ -34,6 +34,7 @@
     <property name="build.dir.test.src" value="${build.dir.test}/classes"/>
     <property name="build.dir.test.tools" value="${build.dir.test}/tools"/>
     <property name="xbeans.test.tools" value="${xbeans.test.root}/tools"/>
+    <property name="xbeans.test.lib" value="${xbeans.test.root}/lib"/>
     <property name="xbeans.test.tools.lib" value="${xbeans.test.tools}/lib"/>
     <property name="xbeans.test.tools.src" value="${xbeans.test.tools}/src"/>
 
@@ -726,7 +727,7 @@
 
     <target name="build.area.dom">
         <property name="includes.for.compile"
-            value="**/dom/**/*.java"/>
+            value="**/dom/**/*.java,**/dom/detailed/**/*.java"/>
         <property name="testcasejar.update" value="true"/>
         <antcall target="unit.build"/>
     </target>
@@ -1001,6 +1002,26 @@
             </classpath>
             <arg value="${JWhich.arg}"/>
         </java>
+    </target>
+
+
+    <target name="dom-w3c">
+        <javac srcdir="${xbeans.test.src}/dom/detailed/w3c"
+            classpathref="build.classpath"
+           fork="false"
+            debug="on"
+            optimize="on"
+            verbose="false"
+            failonerror="true"/>
+         <jar destfile="${xbeans.test.lib}/w3c_domts.jar"
+            basedir="${xbeans.test.src}/dom/detailed/w3c"
+            update="false"/>
+          <antcall target="dom-w3c.clean"/>
+    </target>
+    <target name="dom-w3c.clean">
+        <delete>
+            <fileset dir="${xbeans.test.src}/dom/detailed/w3c" includes="**/*.class"/>
+        </delete>
     </target>
 
 
