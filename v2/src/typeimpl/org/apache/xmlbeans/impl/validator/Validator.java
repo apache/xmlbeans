@@ -1621,7 +1621,14 @@ public final class Validator
 
     public SchemaLocalElement getCurrentElement()
     {
-        return _localElement;// != null ? _localElement : (_stateStack!=null ? (SchemaLocalElement)_stateStack._field : null);
+        if (_localElement != null)
+            return _localElement;
+
+        //try getting it from the stack (this should happen after END)  
+        if (_stateStack!=null && _stateStack._field instanceof SchemaLocalElement )
+            return (SchemaLocalElement)_stateStack._field;
+
+        return null;
     }
 
     public SchemaParticle getCurrentWildcardElement()
