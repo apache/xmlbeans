@@ -219,7 +219,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
 
   public ClassLoader createClassLoader(ClassLoader parent) {
     try {
-      return new URLClassLoader(new URL[] {mSourceRoot.toURL()},parent);
+      return new URLClassLoader(new URL[] {mRootDir.toURL()},parent);
     } catch(MalformedURLException mue){
       throw new RuntimeException(mue); //FIXME this is bad
     }

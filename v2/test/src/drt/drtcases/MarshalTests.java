@@ -15,13 +15,13 @@
 
 package drtcases;
 
+import com.mytest.IntEnum;
+import com.mytest.IntegerEnum;
+import com.mytest.ModeEnum;
 import com.mytest.MyClass;
 import com.mytest.MySubClass;
 import com.mytest.MySubSubClass;
 import com.mytest.SimpleContentExample;
-import com.mytest.ModeEnum;
-import com.mytest.IntegerEnum;
-import com.mytest.IntEnum;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -29,11 +29,16 @@ import junit.framework.TestSuite;
 import org.apache.xmlbeans.BindingContext;
 import org.apache.xmlbeans.BindingContextFactory;
 import org.apache.xmlbeans.Marshaller;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.Unmarshaller;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
+import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
@@ -54,6 +59,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -65,7 +71,13 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
+import java.net.URI;
+import java.net.URLClassLoader;
+import java.net.URL;
+
+import repackage.Repackage;
 
 
 public class MarshalTests extends TestCase
@@ -190,7 +202,7 @@ public class MarshalTests extends TestCase
     {
         BindingContext bindingContext = getBuiltinBindingContext();
 
-         String xmldoc = "<a" +
+        String xmldoc = "<a" +
             " xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
             " xmlns:xs='http://www.w3.org/2001/XMLSchema' xsi:type='xs:" +
             xsd_type + "' >" + lexval + "</a>";
@@ -202,7 +214,6 @@ public class MarshalTests extends TestCase
         final XmlOptions options = new XmlOptions();
         Collection errors = new LinkedList();
         options.setErrorListener(errors);
-        options.setUnmarshalValidate();
 
         Unmarshaller umctx =
             bindingContext.createUnmarshaller();
@@ -1035,6 +1046,111 @@ public class MarshalTests extends TestCase
         final long diff = (after_millis - before_millis);
         inform("milliseconds: " + diff + " trials: " + trials);
         inform("milliseconds PER trial: " + (diff / (double)trials));
+    }
+
+    public void testUnmarshalValidation()
+        throws Exception
+    {
+        final File schema = TestEnv.xbeanCase("marshal/example.xsd");
+        final File instance = TestEnv.xbeanCase("marshal/example_instance.xml");
+
+        Assert.assertTrue(schema.exists());
+        Assert.assertTrue(instance.exists());
+
+        final XmlObject[] schemas = new XmlObject[]{XmlObject.Factory.parse(schema)};
+        SchemaTypeSystem sts = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), new XmlOptions());
+        Schema2Java s2j = new Schema2Java(sts);
+        File dest = new File("/tmp/unmarshal-tests-" + System.currentTimeMillis() + "-tylar");
+        final boolean ok = dest.mkdirs();
+        Assert.assertTrue("mkdir" + dest + " failed", ok);
+
+        s2j.bindAsExplodedTylar(dest);
+
+        //workaround bug in schema2java, we need to copy the xsd files by hand
+        File sdir = new File(dest, TylarConstants.SCHEMA_DIR);
+        final boolean k = sdir.mkdirs();
+        Assert.assertTrue("failed to mkdirs: " + sdir, k);
+        Assert.assertTrue("no such directory: " + sdir, sdir.exists());
+        File destfile = new File(sdir, schema.getName());
+        Repackage.copyFile(schema, destfile);
+        Assert.assertTrue("file copy failed to " + destfile, destfile.exists());
+
+        final URI tylar_uri = dest.toURI();
+        final Thread thread = Thread.currentThread();
+        final ClassLoader curr_cl = thread.getContextClassLoader();
+        final URLClassLoader cl =
+            new URLClassLoader(new URL[]{tylar_uri.toURL()}, curr_cl);
+        thread.setContextClassLoader(cl);
+        try {
+            final BindingContextFactory bcf = BindingContextFactory.newInstance();
+            final BindingContext binding_context =
+                bcf.createBindingContext(tylar_uri);
+            final Unmarshaller um = binding_context.createUnmarshaller();
+            InputStream is = new FileInputStream(instance);
+            XmlOptions opts_validation_on = new XmlOptions();
+            opts_validation_on.setUnmarshalValidate();
+            final List errors = new ArrayList();
+            opts_validation_on.setErrorListener(errors);
+            final Object obj = um.unmarshal(is, opts_validation_on);
+            Assert.assertNotNull(obj);
+            inform("address=" + obj);
+            is.close();
+
+            reportErrors(errors);
+            Assert.assertTrue(errors.isEmpty());
+
+            // -- this is currently broken --
+            //now try unmarshalType...
+//        final FileInputStream fis = new FileInputStream(instance);
+//        final XMLStreamReader rdr =
+//            XMLInputFactory.newInstance().createXMLStreamReader(fis);
+//        QName schema_type = new QName("http://nosuch.domain.name", "USAddress");
+//        String java_type = obj.getClass().getName();
+//
+//        //not super robust but this should work for valid xml
+//        while(!rdr.isStartElement()) {
+//            rdr.next();
+//        }
+//
+//        um.unmarshalType(rdr, schema_type, java_type, opts);
+//        rdr.close();
+//        fis.close();
+//
+//        reportErrors(errors);
+//        Assert.assertTrue(errors.isEmpty());
+
+
+            // -- this is currently broken --
+            //now lets try validating our stream over objects
+//        final Marshaller marshaller = binding_context.createMarshaller();
+//        final XmlOptions empty_opts = new XmlOptions();
+//        final XMLStreamReader obj_rdr =
+//            marshaller.marshal(obj, empty_opts);
+//        inform("VALIDATION-OBJ: " + obj);
+//
+//        final Object obj2 = um.unmarshal(obj_rdr, opts_validation_on);
+//        inform("obj2="+obj2);
+//        obj_rdr.close();
+//        reportErrors(errors);
+//        Assert.assertTrue(errors.isEmpty());
+
+            // depends on reasonable equals methods which we do not have yet
+            //Assert.assertEquals(obj, obj2);
+
+        }
+        finally {
+            thread.setContextClassLoader(curr_cl);
+        }
+    }
+
+    private static void reportErrors(List errors)
+    {
+        if (!errors.isEmpty()) {
+            for (Iterator itr = errors.iterator(); itr.hasNext();) {
+                Object err = itr.next();
+                inform("validation-error: " + err);
+            }
+        }
     }
 
     protected static void bufferedStreamCopy(Reader in, Writer out)

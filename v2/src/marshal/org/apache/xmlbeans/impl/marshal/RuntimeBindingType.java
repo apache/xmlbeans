@@ -52,8 +52,10 @@ abstract class RuntimeBindingType
 
         }
         catch (ClassNotFoundException e) {
+            ClassLoader context_cl =
+                Thread.currentThread().getContextClassLoader();
             final String msg = "failed to load " +
-                binding_type.getName().getJavaName();
+                binding_type.getName().getJavaName() + " from " + context_cl;
             throw new XmlException(msg, e);
         }
 

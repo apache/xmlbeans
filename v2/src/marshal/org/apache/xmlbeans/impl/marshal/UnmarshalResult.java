@@ -17,11 +17,11 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDuration;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -143,29 +143,17 @@ final class UnmarshalResult
     Object unmarshalDocument(XMLStreamReader reader)
         throws XmlException
     {
-        //TODO: turn on validation before looking at root type
-        MarshalStreamUtils.advanceToFirstItemOfInterest(reader);
-        enrichXmlStream(reader);
-        BindingType bindingType = determineRootType();
-
         if (isValidating()) {
             ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
             final SchemaTypeLoader schemaTypeLoader =
                 schemaTypeLoaderProvider.getSchemaTypeLoader();
-            final XmlTypeName xtype = bindingType.getName().getXmlName();
-            assert xtype.isSchemaType();
-            assert xtype.isGlobal();
-            SchemaType schema_type = schemaTypeLoader.findType(xtype.getQName());
-            if (schema_type == null) {
-                throw new XmlException("unable to locate type " + schema_type +
-                                       " in provided schema type system");
-            }
-            //TODO: pass in null instead of schema_type (currently not working)
-            vr.init(reader, schema_type, schemaTypeLoader, options, errors);
-            reader = vr; //note changing param
+            vr.init(reader, null, schemaTypeLoader, options, errors);
+            enrichXmlStream(vr);
+        } else {
+            enrichXmlStream(reader);
         }
-
-
+        advanceToFirstItemOfInterest();
+        BindingType bindingType = determineRootType();
         return unmarshalBindingType(bindingType);
     }
 
