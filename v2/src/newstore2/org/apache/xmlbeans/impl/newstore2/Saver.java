@@ -283,7 +283,7 @@ abstract class Saver
 
             assert k != ATTR;
             
-            if (k == ELEM)
+            if (k != TEXT)
                 start.toEnd();
             
             start.next();
@@ -2091,67 +2091,86 @@ abstract class Saver
         
         boolean toFirstAttr   ( ) { assert _txt == null; return _cur.toFirstAttr(); }
         boolean toNextAttr    ( ) { assert _txt == null; return _cur.toNextAttr(); }
-        String  getAttrValue  ( ) { throw new RuntimeException( "Not impl" ); }
+        String  getAttrValue  ( ) { assert _txt == null; return _cur.getAttrValue(); }
         
         void toEnd ( ) { assert _txt == null; _cur.toEnd(); }
         
         boolean next ( )
         {
+            int k = kind();
+            
             if (_txt != null)
             {
                 assert _txt.length() > 0;
                 assert !_cur.isText();
                 _txt = null;
-                
-                return true;
+                k = kind();
             }
-
-            int kind = kind();
-
-            if (!_cur.next())
-                return false;
-
-            _sb.delete( 0, _sb.length() );
-
-            assert _txt == null;
-
-//            if (
-//
-//            if (kind == ELEM || kind == COMMENT || kind == PROCINST)
-//            {
-//                
-//            }
-
-
-
-                        
-
-            if (kind == ELEM || kind == COMMENT || kind == PROCINST)
+            else
             {
+                int prevKind = k;
+
+                if (!_cur.next())
+                    return false;
+
+                _sb.delete( 0, _sb.length() );
+
+                assert _txt == null;
+
                 if (_cur.isText())
                 {
-                    Object src = _cur.getChars();
-                    CharUtil.getString( _sb, _cur._offSrc, _cur._cchSrc );
+                    CharUtil.getString( _sb, _cur.getChars(), _cur._offSrc, _cur._cchSrc );
                     _cur.next();
+                    trim( _sb );
                 }
 
-                trim( _sb );
+                k = kind();
+
+                boolean isLeaf =
+                    prevKind == COMMENT || prevKind == PROCINST ||
+                        (prevKind == ELEM && k == -ELEM);
+
+                if (_sb.length() > 0 && !isLeaf)
+                {
+                    _sb.insert( 0, _newLine );
+                    spaces( _sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth );
+                }
+
+                if (prevKind != ROOT && !isLeaf)
+                {
+                    _sb.append( _newLine );
+                    int d = k < 0 ? _depth - 1 : _depth;
+                    spaces( _sb, _sb.length(), _prettyOffset + _prettyIndent * d );
+                }
                 
                 if (_sb.length() > 0)
+                {
                     _txt = _sb.toString();
+                    k = kind();
+                }
+            }
 
-                
-            }
-            else if (kind < 0 && kind != -ATTR)
-            {
-            }
+            if (k == ELEM)
+                _depth++;
+            else if (k == -ELEM)
+                _depth--;
 
             return true;
         }
         
-        void push ( ) { _cur.push(); _stack.add( _txt ); }
+        void push ( )
+        {
+            _cur.push();
+            _stack.add( _txt );
+            _stack.add( new Integer( _depth ) );
+        }
         
-        void pop ( ) { _cur.pop(); _txt = (String) _stack.remove( _stack.size() - 1 ); }
+        void pop ( )
+        {
+            _cur.pop();
+            _depth = ((Integer) _stack.remove( _stack.size() - 1 )).intValue();
+            _txt = (String) _stack.remove( _stack.size() - 1 );
+        }
         
         Object getChars ( )
         {
@@ -2173,7 +2192,7 @@ abstract class Saver
         final static void spaces ( StringBuffer sb, int offset, int count )
         {
             while ( count-- > 0 )
-                sb.insert( offset, ' ' );
+                sb.insert( offset, '.' );
         }
 
         final static void trim ( StringBuffer sb )
@@ -2200,6 +2219,8 @@ abstract class Saver
 
         private String       _txt;
         private StringBuffer _sb;
+
+        private int          _depth;
         
         private ArrayList    _stack;
     }
@@ -2233,5 +2254,8 @@ abstract class Saver
     private HashMap   _prefixMap;
     private String    _initialDefaultUri;
 
-    protected String _newLine;
+    static String _newLine =
+        System.getProperty( "line.separator" ) == null
+            ? "\n"
+            : System.getProperty( "line.separator" );
 }

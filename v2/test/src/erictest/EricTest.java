@@ -106,33 +106,37 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        XmlOptions innerOptions = new XmlOptions();
-        innerOptions.setSaveInner();
+//        XmlOptions innerOptions = new XmlOptions();
+//        innerOptions.setSaveInner();
         
         XmlOptions prettyOptions = new XmlOptions();
-        innerOptions.setSavePrettyPrint();
+        prettyOptions.setSavePrettyPrint();
 
-        XmlOptions synthOptions = new XmlOptions();
-        synthOptions.setSaveSyntheticDocumentElement( new QName( "synth" ) );
+//        XmlOptions synthOptions = new XmlOptions();
+//        synthOptions.setSaveSyntheticDocumentElement( new QName( "synth" ) );
         
-        XmlObject x = XmlObject.Factory.parse( "<a x='y'><b>33<c>11</c>22</a>" );
-        XmlCursor cx = x.newCursor();
-        cx.toFirstChild();
-        cx.save( System.out, prettyOptions );
+//        XmlObject x = XmlObject.Factory.parse( "<a x='y'><b>33<c>11</c>22</b></a>" );
+//        XmlCursor cx = x.newCursor();
+//        cx.save( System.out, prettyOptions );
+
+        Document doc = Public2.parse( new FileInputStream( new File( "c:\\ee.xml" ) ), null );
         
-        XmlCursor c = Public2.newStore();
+        System.out.println( Public2.save( doc, prettyOptions ) );
+        
+//        XmlCursor c = Public2.newStore();
+//
+//        c.toNextToken();
+//
+//        c.beginElement( "foo" );
+//        c.insertNamespace( "ns1", "ns1.com" );
+//        c.insertAttributeWithValue( "x", "y" );
+//        c.insertElementWithText( "bar", "text" );
+//        c.insertElementWithText( "bar2", "text" );
+//
+//        c.toStartDoc();
+//        Public2.dump( c );
 
-        c.toNextToken();
-
-        c.beginElement( "foo" );
-        c.insertNamespace( "ns1", "ns1.com" );
-        c.insertAttributeWithValue( "x", "y" );
-        c.insertElementWithText( "bar", "text" );
-        c.insertElementWithText( "bar2", "text" );
-
-        c.toStartDoc();
-        Public2.dump( c );
-
+/*
         c.toStartDoc();
         System.out.println( "Rename document: " + c.xmlText( synthOptions ) );
         
@@ -202,7 +206,7 @@ public class EricTest
         
         // TODO - set saving of inner of elem with attrs, does the old
         // saver save out the attributes or just hte content?
-
+*/
 
 //        Document doc = Public2.parse( "<a/>" );
 //
