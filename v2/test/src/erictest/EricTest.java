@@ -33,6 +33,7 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
+import org.apache.xmlbeans.XmlCursor.ChangeStamp;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.GDateBuilder;
 import org.apache.xmlbeans.SimpleValue;
@@ -67,6 +68,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -111,7 +113,98 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Public2.test( null );
+        Document doc = Public2.parse( "<a><b id='1'/><b id='2'/></a>" );
+
+        Cache cache = new Cache( doc, new QName( "id" ) );
+
+        Public2.dump( cache.lookup( "1" ) );
+        Public2.dump( cache.lookup( "2" ) );
+    }
+
+    public static class Cache
+    {
+        public Cache ( Node n, QName attrName )
+        {
+            QName[] names = new QName[ 1 ];
+            names[ 0 ] = attrName;
+            
+            init( n, names );
+        }
+        
+        public Cache ( Node n, QName[] attrNames )
+        {
+            init( n, attrNames );
+        }
+
+        public Node lookup ( String key )
+        {
+            ensureCache();
+
+            return (Node) _map.get( key );
+        }
+
+        private void init ( Node n, QName[] attrNames )
+        {
+            _node = n;
+            _map = new HashMap();
+
+            StringBuffer sb = new StringBuffer();
+
+            for ( int i = 0 ; i < attrNames.length ; i++ )
+            {
+                if (attrNames[ i ].getNamespaceURI().length() > 0)
+                {
+                    sb.append( "declare namespace ns" );
+                    sb.append( i );
+                    sb.append( "='" );
+                    sb.append( attrNames[ i ].getNamespaceURI() );
+                    sb.append( "' " );
+                }
+            }
+
+            for ( int i = 0 ; i < attrNames.length ; i++ )
+            {
+                if (i > 0)
+                    sb.append( "|" );
+                
+                sb.append( ".//@" );
+
+                if (attrNames[ i ].getNamespaceURI().length() > 0)
+                {
+                    sb.append( "ns" );
+                    sb.append( i );
+                    sb.append( ":" );
+                }
+
+                sb.append( attrNames[ i ].getLocalPart() );
+            }
+
+            _path = Public2.compilePath( sb.toString(), null );
+        }
+
+        private void ensureCache ( )
+        {
+            if (_stamp != null && !_stamp.hasChanged())
+                return;
+
+            XmlCursor c = Public2.getCursor( _node );
+            
+            _stamp = c.getDocChangeStamp();
+
+            _map.clear();
+
+            c.selectPath( _path );
+
+            while ( c.toNextSelection() )
+                _map.put( c.getTextValue(), c.getDomNode() );
+
+            c.dispose();
+        }
+
+        private Node        _node;
+        private String      _path;
+        private ChangeStamp _stamp;
+        private HashMap     _map;
     }
 }
 

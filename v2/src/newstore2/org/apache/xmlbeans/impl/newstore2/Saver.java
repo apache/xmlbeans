@@ -362,7 +362,7 @@ abstract class Saver
 
             _postProcess = false;
         }
-        
+
         if (_done)
         {
             if (_cur != null)
@@ -370,7 +370,7 @@ abstract class Saver
                 _cur.release();
                 _cur = null;
             }
-
+            
             return false;
         }
 

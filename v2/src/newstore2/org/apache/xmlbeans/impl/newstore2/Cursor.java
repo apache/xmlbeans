@@ -25,6 +25,7 @@ import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
+import org.apache.xmlbeans.XmlCursor.ChangeStamp;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlDocumentProperties;
@@ -49,8 +50,10 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
 
 import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
+import org.apache.xmlbeans.impl.newstore2.Locale.GeneralChangeListener;
+import org.apache.xmlbeans.impl.newstore2.Path.PathEngine;
 
-public final class Cursor implements XmlCursor
+public final class Cursor implements XmlCursor, GeneralChangeListener
 {
     static final int ROOT     = Cur.ROOT;
     static final int ELEM     = Cur.ELEM;
@@ -63,6 +66,7 @@ public final class Cursor implements XmlCursor
     {
         _locale = c._locale;
         _cur = c.weakCur( this );
+        _currentSelection = -1;
     }
 
     private static boolean isValid ( Cur c )
@@ -380,6 +384,28 @@ public final class Cursor implements XmlCursor
         return true;
     }
 
+    private static final class ChangeStampImpl implements ChangeStamp
+    {
+        ChangeStampImpl ( Locale l )
+        {
+            _locale = l;
+            _versionStamp = _locale.version();
+        }
+
+        public boolean hasChanged ( )
+        {
+            return _versionStamp != _locale.version();
+        }
+
+        private final Locale _locale;
+        private final long   _versionStamp;
+    }
+
+    public ChangeStamp _getDocChangeStamp ( )
+    {
+        return new ChangeStampImpl( _locale );
+    }
+    
     public XmlDocumentProperties _documentProperties ( )
     {
         return Locale.getDocProps( _cur, true );
@@ -547,52 +573,92 @@ public final class Cursor implements XmlCursor
     
     public void _push ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        _cur.push();
     }
     
     public boolean _pop ( )
     {
+        return _cur.pop();
+    }
+    
+    public void notifyGeneralChange ( )
+    {
         throw new RuntimeException( "Not implemented" );
+    }
+
+    public void setNextGeneralChangeListener ( GeneralChangeListener listener )
+    {
+        _nextGeneralChangeListener = listener;
+    }
+        
+    public GeneralChangeListener getNextGeneralChangeListener ( )
+    {
+        return _nextGeneralChangeListener;
     }
     
     public void _selectPath ( String path )
     {
-        throw new RuntimeException( "Not implemented" );
+        _selectPath( path, null );
     }
     
-    public void _selectPath ( String path, XmlOptions options )
+    public void _selectPath ( String pathExpr, XmlOptions options )
     {
-        throw new RuntimeException( "Not implemented" );
+        _cur.clearSelection();
+        _pathEngine = Path.getCompiledPath( pathExpr, options ).execute( _cur );
     }
     
     public boolean _hasNextSelection ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        push();
+
+        try
+        {
+            return toNextSelection();
+        }
+        finally
+        {
+            pop();
+        }
     }
     
     public boolean _toNextSelection ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        return _toSelection( _currentSelection + 1 );
     }
     
     public boolean _toSelection ( int i )
     {
-        throw new RuntimeException( "Not implemented" );
+        while ( i >= _cur.selectionCount() )
+        {
+            if (_pathEngine == null || !_pathEngine.next( _cur ))
+                return false;
+        }
+
+        _cur.moveToSelection( _currentSelection = i );
+        
+        return true;
     }
     
     public int _getSelectionCount ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        _toSelection( Integer.MAX_VALUE );
+        
+        return _cur.selectionCount();
     }
     
     public void _addToSelection ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        _toSelection( Integer.MAX_VALUE );
+
+        _cur.addToSelection();
     }
     
     public void _clearSelections ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        _cur.clearSelection();
+        _pathEngine.release();
+        _pathEngine = null;
+        _currentSelection = 0;
     }
     
     public boolean _toBookmark ( XmlBookmark bookmark )
@@ -668,31 +734,8 @@ public final class Cursor implements XmlCursor
     public boolean _toNextSibling ( )
     {
         assert isValid();
-
-        if (!_cur.hasParent())
-            return false;
-
-        Cur c = tempCur();
         
-        int k = c.kind();
-
-        if (k == ATTR)
-            c.toParent();
-        else if (k == ELEM)
-        {
-            c.toEnd();
-            c.next();
-        }
-
-        while ( (k = c.kind()) > 0 && k != ELEM )
-            c.next();
-
-        if (k == ELEM)
-            _cur.moveToCur( c );
-
-        c.release();
-
-        return k == ELEM;
+        return Locale.toNextSiblingElement( _cur );
     }
     
     public boolean _toPrevSibling ( )
@@ -744,18 +787,7 @@ public final class Cursor implements XmlCursor
     
     public boolean _toFirstChild ( )
     {
-        if (!Locale.pushToContainer( _cur ))
-            return false;
-
-        if (!_cur.hasChildren() || (_cur.next() && !_cur.isElem() && !_toNextSibling()))
-        {
-            _cur.pop();
-            return false;
-        }
-
-        _cur.popButStay();
-
-        return true;
+        return Locale.toFirstChildElement( _cur );
     }
 
     public boolean _toChild ( String local )
@@ -835,7 +867,13 @@ public final class Cursor implements XmlCursor
     
     public String _getTextValue ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!_cur.isNode())
+        {
+            throw new IllegalStateException(
+                "Can't get text value, current token can have no text value" );
+        }
+
+        return Locale.getTextValue ( _cur, Locale.WS_PRESERVE );
     }
     
     public int _getTextValue ( char[] returnedChars, int offset, int maxCharacterCount )
@@ -905,11 +943,6 @@ public final class Cursor implements XmlCursor
     }
     
     public XmlCursor _execQuery ( String query, XmlOptions options )
-    {
-        throw new RuntimeException( "Not implemented" );
-    }
-    
-    public ChangeStamp _getDocChangeStamp ( )
     {
         throw new RuntimeException( "Not implemented" );
     }
@@ -1228,6 +1261,11 @@ public final class Cursor implements XmlCursor
     //
     //
 
-    private Locale _locale;
-    private Cur    _cur;
+    private Locale     _locale;
+    private Cur        _cur;
+    private PathEngine _pathEngine;
+    private int        _currentSelection;
+
+    
+    private GeneralChangeListener _nextGeneralChangeListener;
 }

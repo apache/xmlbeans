@@ -59,6 +59,8 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.CdataNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
+import org.apache.xmlbeans.impl.newstore2.Cur.Locations;
+
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.QNameSet;
 import org.apache.xmlbeans.QNameCache;
@@ -69,6 +71,8 @@ import org.apache.xmlbeans.XmlDocumentProperties;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.impl.values.TypeStore;
+
 final class Locale implements DOMImplementation, SaajCallback
 {
     static final int ROOT     = Cur.ROOT;
@@ -78,6 +82,11 @@ final class Locale implements DOMImplementation, SaajCallback
     static final int PROCINST = Cur.PROCINST;
     static final int TEXT     = Cur.TEXT;
 
+    static final int WS_UNSPECIFIED = TypeStore.WS_UNSPECIFIED;
+    static final int WS_PRESERVE    = TypeStore.WS_PRESERVE;
+    static final int WS_REPLACE     = TypeStore.WS_REPLACE;
+    static final int WS_COLLAPSE    = TypeStore.WS_COLLAPSE;
+                                        
     static final String _xsi         = "http://www.w3.org/2001/XMLSchema-instance";
     static final String _schema      = "http://www.w3.org/2001/XMLSchema";
     static final String _openFragUri = "http://www.openuri.org/fragment";
@@ -144,54 +153,231 @@ final class Locale implements DOMImplementation, SaajCallback
         return props;
     }
 
-    static boolean pushToContainer ( Cur c )
+    void registerForTextChange ( Cur c )
     {
-        if (c.isContainer())
-            return true;
+        // The end of this list points to itself so that I can know if
+        // any cur is on the list by seeing if netx != null.
+        
+        assert c._nextTextChangeListener == null;
+        
+        if (_textChangeListeners == null)
+            _textChangeListeners = c._nextTextChangeListener = c;
+        else
+        {
+            c._nextTextChangeListener = _textChangeListeners;
+            _textChangeListeners = c;
+        }
+    }
+
+    interface GeneralChangeListener
+    {
+        void notifyGeneralChange ( );
+
+        void setNextGeneralChangeListener ( GeneralChangeListener listener );
+        
+        GeneralChangeListener getNextGeneralChangeListener ( );
+    }
+
+    void registerForGeneralChange ( GeneralChangeListener listener )
+    {
+        if (listener.getNextGeneralChangeListener() == null)
+        {
+            if (_generalChangeListeners == null)
+                listener.setNextGeneralChangeListener( listener );
+            else
+                listener.setNextGeneralChangeListener( _generalChangeListeners );
+        
+            _generalChangeListeners = listener;
+        }
+    }
+
+    void notifyGeneralChangeListeners ( )
+    {
+        while ( _generalChangeListeners != null )
+        {
+            _generalChangeListeners.notifyGeneralChange();
+
+            if (_generalChangeListeners.getNextGeneralChangeListener() == _generalChangeListeners)
+                _generalChangeListeners.setNextGeneralChangeListener( null );
+
+            GeneralChangeListener next = _generalChangeListeners.getNextGeneralChangeListener();
+
+            _generalChangeListeners.setNextGeneralChangeListener( null );
+
+            _generalChangeListeners = next;
+        }
+    }
+    
+    void notifyTextChangeListeners ( )
+    {
+        while ( _textChangeListeners != null )
+        {
+            _textChangeListeners.textChangeNotification();
+
+            if (_textChangeListeners._nextTextChangeListener == _textChangeListeners)
+                _textChangeListeners._nextTextChangeListener = null;
+
+            _textChangeListeners = _textChangeListeners._nextTextChangeListener;
+        }
+    }
+
+    //
+    // Cursor helpers
+    //
+
+    static String getTextValue ( Cur c, int wsRule )
+    {
+        assert c.isNode();
+        
+        if (!c.hasChildren() && wsRule == WS_UNSPECIFIED || wsRule == WS_PRESERVE)
+            return c.getValueString();
+
+        int scrubState = START_STATE;
+        StringBuffer sb = new StringBuffer();
 
         c.push();
 
-        boolean move = false;
+        for ( c.next() ; !c.isAtEndOfLastPush() ; c.next() )
+            if (c.isText())
+                scrubState = scrubText( c.getChars( -1 ), c._offSrc, c._cchSrc, wsRule, sb );
 
-        if (c.isAttr())
+        c.pop();
+                
+        return sb.toString();
+    }
+
+    private static final int START_STATE = 0;
+    private static final int SPACE_SEEN_STATE = 1;
+    private static final int NOSPACE_STATE = 2;
+
+    private static final int scrubText(
+        Object src, int off, int cch, int wsRule, StringBuffer sb )
+    {
+        throw new RuntimeException( "Not impl" );
+        
+//        assert text != null;
+//
+//        if (text._buf == null)
+//        {
+//            assert cch == 0;
+//            assert cp == 0;
+//            return state;
+//        }
+//
+//        if (cch == 0)
+//            return state;
+//
+//        boolean replace = false;
+//        boolean collapse = false;
+//
+//        switch ( ws )
+//        {
+//        case TypeStore.WS_UNSPECIFIED :                            break;
+//        case TypeStore.WS_PRESERVE    :                            break;
+//        case TypeStore.WS_REPLACE     :            replace = true; break;
+//        case TypeStore.WS_COLLAPSE    : collapse = replace = true; break;
+//
+//		default : assert false: "Unknown white space rule " +ws;
+//        }
+//
+//        if (!replace && !collapse)
+//        {
+//            text.fetch(sb, cp, cch);
+//            return state;
+//        }
+//
+//        int off = text.unObscure( cp, cch );
+//        int startpt = 0;
+//
+//        for ( int i = 0 ; i < cch ; i++ )
+//        {
+//            char ch = text._buf[ off + i ];
+//
+//            if (ch == ' ' || ch == '\n' || ch == '\r' || ch == '\t')
+//            {
+//                sb.append(text._buf, off + startpt, i - startpt);
+//                startpt = i + 1;
+//
+//                if (collapse)
+//                {
+//                    if (state == NOSPACE_STATE)
+//                        state = SPACE_SEEN_STATE;
+//                }
+//                else
+//                    sb.append(' ');
+//            }
+//            else
+//            {
+//                if (state == SPACE_SEEN_STATE)
+//                    sb.append( ' ' );
+//
+//                state = NOSPACE_STATE;
+//            }
+//        }
+//
+//        sb.append( text._buf, off + startpt, cch - startpt );
+//
+//        return state;
+    }
+
+    static boolean pushToContainer ( Cur c )
+    {
+        c.push();
+        
+        for ( ; ; )
         {
+            switch ( c.kind() )
+            {
+            case    ROOT : case     ELEM : return true;
+            case  - ROOT : case   - ELEM : c.pop(); return false;
+            case COMMENT : case PROCINST : c.toEnd(); c.next(); break;
+            default                      : c.nextWithAttrs();   break;
+            }
+        }
+    }
+
+    static boolean toFirstChildElement ( Cur c )
+    {
+        if (!pushToContainer( c ))
+            return false;
+
+        if (!c.toFirstChild() || (!c.isElem() && !toNextSiblingElement( c )))
+        {
+            c.pop();
+            return false;
+        }
+
+        c.popButStay();
+
+        return true;
+    }
+    
+    static boolean toNextSiblingElement ( Cur c )
+    {
+        if (!c.hasParent())
+            return false;
+
+        c.push();
+
+        int k = c.kind();
+
+        if (k == ATTR)
             c.toParent();
+        else if (k == ELEM)
+        {
+            c.toEnd();
             c.next();
         }
 
-        loop:
-        for ( ; ; )
-        {
-            assert c.isContainer() || c.isFinish() || c.isComment() || c.isProcinst() || c.isText();
-            
-            switch ( c.kind() )
-            {
-            case ROOT :
-            case ELEM :
-                move = true;
-                break loop;
+        while ( (k = c.kind()) > 0 && k != ELEM )
+            c.next();
 
-            case - ROOT :
-            case - ELEM :
-                break loop;
+        if (k == ELEM)
+            c.popButStay();
+        else
+            c.pop();
 
-            case COMMENT :
-            case PROCINST :
-                c.toEnd();
-                // Fall thru
-
-            default :
-                c.next();
-                break;
-            }
-        }
-
-        if (move)
-            return true;
-
-        c.pop();
-
-        return false;
+        return k == ELEM;
     }
 
     static boolean toChild ( Cur c, String uri, String local, int i )
@@ -365,6 +551,7 @@ final class Locale implements DOMImplementation, SaajCallback
         _tempFrames = new Cur [ _numTempFramesLeft = 8 ];
         _charUtil = CharUtil.getThreadLocalCharUtil();
         _qnameFactory = new DefaultQNameFactory();
+        _locations = new Locations();
     }
 
     long version ( )
@@ -441,24 +628,22 @@ final class Locale implements DOMImplementation, SaajCallback
         if (_curPool == null)
         {
             c = new Cur( this );
-            c._state = Cur.POOLED;
             c._tempFrame = -1;
         }
         else
         {
             c = _curPool;
             _curPool = c.listRemove( _curPool );
+            c._state = Cur.UNREGISTERED;
             _curPoolCount--;
         }
 
+        assert c._state == Cur.UNREGISTERED;
         assert c._prev == null && c._next == null;
         assert !c.isPositioned();
         assert c._obj == null;
                 
         c._curKind = curKind;
-
-        c._state = Cur.UNEMBEDDED;
-        _unembedded = c.listInsert( _unembedded );
 
         return c;
     }
@@ -1128,10 +1313,16 @@ final class Locale implements DOMImplementation, SaajCallback
     Cur _curPool;
     int _curPoolCount;
 
-    Cur _unembedded;
+    Cur _registered;
+
+    GeneralChangeListener _generalChangeListeners;
+    
+    Cur _textChangeListeners;
     
     long _versionAll;
     long _versionSansText;
+
+    Locations _locations;
     
     CharUtil _charUtil;
     
