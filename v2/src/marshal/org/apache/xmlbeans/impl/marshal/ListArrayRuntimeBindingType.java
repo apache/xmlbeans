@@ -39,9 +39,9 @@ final class ListArrayRuntimeBindingType
         listArrayType = binding_type;
     }
 
-    void initialize(RuntimeBindingTypeTable typeTable,
-                    BindingLoader bindingLoader,
-                    RuntimeTypeFactory rttFactory)
+    public void initialize(RuntimeBindingTypeTable typeTable,
+                           BindingLoader bindingLoader
+                           )
         throws XmlException
     {
         final BindingTypeName item_type_name = listArrayType.getItemType();
@@ -55,13 +55,14 @@ final class ListArrayRuntimeBindingType
         }
 
         final RuntimeBindingType item_rtt =
-            rttFactory.createRuntimeType(item_type, typeTable, bindingLoader);
+            typeTable.createRuntimeType(item_type, bindingLoader);
 
-        itemProperty = new LAProperty(this, item_rtt, typeTable, bindingLoader);
+        itemProperty = new LAProperty(this, item_rtt);
     }
 
 
-    RuntimeBindingProperty getItemProperty() {
+    RuntimeBindingProperty getItemProperty()
+    {
         assert itemProperty != null;
         return itemProperty;
     }
@@ -70,27 +71,16 @@ final class ListArrayRuntimeBindingType
         extends RuntimeBindingProperty
     {
         private final RuntimeBindingType itemType;
-        private final TypeMarshaller marshaller; // used only for simple types
-        private final TypeUnmarshaller unmarshaller;
 
         LAProperty(RuntimeBindingType containing_type,
-                   RuntimeBindingType item_type,
-                   RuntimeBindingTypeTable type_table,
-                   BindingLoader loader)
+                   RuntimeBindingType item_type)
             throws XmlException
         {
             super(containing_type);
 
             itemType = item_type;
 
-            final BindingType binding_type = item_type.getBindingType();
-            marshaller =
-                type_table.lookupMarshaller(binding_type, loader);
-            unmarshaller =
-                type_table.lookupUnmarshaller(binding_type, loader);
-
-            assert marshaller != null;
-            assert unmarshaller != null;
+            assert item_type.getMarshaller() != null;
         }
 
         Class getItemClass()
@@ -107,9 +97,7 @@ final class ListArrayRuntimeBindingType
                                                 MarshalResult result)
             throws XmlException
         {
-            return MarshalResult.findActualRuntimeType(property_value,
-                                                       itemType,
-                                                       result);
+            return result.determineRuntimeBindingType(itemType, property_value);
         }
 
         QName getName()
@@ -120,7 +108,7 @@ final class ListArrayRuntimeBindingType
         public TypeUnmarshaller getTypeUnmarshaller(UnmarshalResult context)
             throws XmlException
         {
-            return unmarshaller;
+            return itemType.getUnmarshaller();
         }
 
         public void fill(Object inter, Object prop_obj)
@@ -136,9 +124,9 @@ final class ListArrayRuntimeBindingType
         {
             assert value != null;
             assert  result != null;
-            assert marshaller != null;
+            assert itemType.getMarshaller() != null;
 
-            return marshaller.print(value, result);
+            return itemType.getMarshaller().print(value, result);
         }
 
         Object getValue(Object parentObject, MarshalResult result)

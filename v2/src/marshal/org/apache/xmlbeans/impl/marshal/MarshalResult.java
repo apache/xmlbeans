@@ -208,11 +208,19 @@ final class MarshalResult implements XMLStreamReader
         return prefix;
     }
 
-
-    RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
+    //TODO: improve this method by going up the type hierarchy
+    RuntimeBindingType determineRuntimeBindingType(RuntimeBindingType expected,
+                                                   Object instance)
         throws XmlException
     {
-        final BindingTypeName type_name = type.getName();
+        if (instance == null ||
+            expected.isJavaPrimitive() ||
+            expected.isJavaFinal() ||
+            instance.getClass().equals(expected.getJavaType())) {
+            return expected;
+        }
+
+        final BindingTypeName type_name = expected.getBindingType().getName();
         String expectedJavaClass = type_name.getJavaName().toString();
         String actualJavaClass = instance.getClass().getName();
         if (!actualJavaClass.equals(expectedJavaClass)) {
@@ -222,19 +230,11 @@ final class MarshalResult implements XMLStreamReader
                                                  type_name.getXmlName(),
                                                  bindingLoader);
             if (actual_type != null) {
-                type = actual_type;          //redefine type param
+                return typeTable.createRuntimeType(actual_type, bindingLoader);
             }
             //else go with original type and hope for the best...
         }
-        return getRuntimeTypeFactory().createRuntimeType(type, typeTable, bindingLoader);
-    }
-
-
-    RuntimeBindingType createRuntimeBindingType(BindingType type)
-        throws XmlException
-    {
-        return getRuntimeTypeFactory().createRuntimeType(type, typeTable,
-                                                         bindingLoader);
+        return expected;
     }
 
     public void require(int i, String s, String s1)
@@ -597,28 +597,6 @@ final class MarshalResult implements XMLStreamReader
         return typeTable;
     }
 
-    static RuntimeBindingType findActualRuntimeType(Object property_value,
-                                                    RuntimeBindingType expected_type,
-                                                    MarshalResult result)
-        throws XmlException
-    {
-        if (property_value == null)
-            return expected_type;
-
-        if (expected_type.isJavaPrimitive() || expected_type.isJavaFinal())
-            return expected_type;
-
-        final Class instance_class = property_value.getClass();
-        if (instance_class.equals(expected_type.getJavaType()))
-            return expected_type;
-
-        BindingType btype = expected_type.getBindingType();
-        //TODO: improve this method by going up the type hierarchy
-        //also avoid duplicate work going on in this next call.
-        return result.createRuntimeBindingType(btype, property_value);
-    }
-
-
     int getCurrIndex()
     {
         return currIndex;
@@ -638,11 +616,6 @@ final class MarshalResult implements XMLStreamReader
     {
         XmlError e = XmlError.forMessage(msg, XmlError.SEVERITY_WARNING);
         getErrorCollection().add(e);
-    }
-
-    private RuntimeTypeFactory getRuntimeTypeFactory()
-    {
-        return typeTable.getRuntimeTypeFactory();
     }
 
     private QName createQName(String uri, String localpart, String prefix)
@@ -669,9 +642,9 @@ final class MarshalResult implements XMLStreamReader
     }
 
     private void addAttribute(String namespaceURI,
-                      String localPart,
-                      String prefix,
-                      String value)
+                              String localPart,
+                              String prefix,
+                              String value)
     {
         if (attributeHolder == null) {
             attributeHolder = new AttributeHolder();

@@ -16,29 +16,23 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 final class SimpleContentBeanMarshaller implements TypeMarshaller
 {
     private final SimpleContentRuntimeBindingType simpleContentType;
-    private final TypeMarshaller contentMarshaller;
 
-    public SimpleContentBeanMarshaller(SimpleContentRuntimeBindingType rtt,
-                                       RuntimeBindingTypeTable table,
-                                       BindingLoader loader)
+    public SimpleContentBeanMarshaller(SimpleContentRuntimeBindingType rtt)
         throws XmlException
     {
         simpleContentType = rtt;
-        final BindingType content_binding_type =
-            rtt.getSimpleContentProperty().getRuntimeBindingType().getBindingType();
-        final TypeMarshaller marshaller =
-            table.lookupMarshaller(content_binding_type, loader);
+        final RuntimeBindingType content_rtt =
+            rtt.getSimpleContentProperty().getRuntimeBindingType();
+        final TypeMarshaller marshaller = content_rtt.getMarshaller();
         if (marshaller == null) {
-            String e = "failed to find marshaller for " + content_binding_type;
+            String e = "failed to find marshaller for " +
+                content_rtt.getBindingType();
             throw new AssertionError(e);
         }
-        contentMarshaller = marshaller;
     }
 
     //non simple types can throw a runtime exception
@@ -51,28 +45,10 @@ final class SimpleContentBeanMarshaller implements TypeMarshaller
         final Object simple_content_val =
             simple_content_prop.getValue(value, result);
 
-        final RuntimeBindingType prop_rtt =
-            simple_content_prop.getRuntimeBindingType();
+        final RuntimeBindingType actual_prop_rtt =
+            result.determineRuntimeBindingType(simple_content_prop.getRuntimeBindingType(),
+                                               simple_content_val);
 
-        final RuntimeBindingType actualRuntimeType =
-            MarshalResult.findActualRuntimeType(simple_content_val,
-                                                prop_rtt, result);
-
-        TypeMarshaller content_marshaller;
-        if (actualRuntimeType == prop_rtt) {
-            content_marshaller = contentMarshaller;
-        } else {
-            RuntimeBindingTypeTable table = result.getTypeTable();
-            BindingLoader loader = result.getBindingLoader();
-            content_marshaller =
-                table.lookupMarshaller(prop_rtt.getBindingType(), loader);
-            if (content_marshaller == null) {
-                String msg = "unable to find marshaller for " +
-                    prop_rtt.getBindingType() + ".  Using default marshaller";
-                result.addWarning(msg);
-                content_marshaller = contentMarshaller;
-            }
-        }
-        return content_marshaller.print(simple_content_val, result);
+        return actual_prop_rtt.getMarshaller().print(simple_content_val, result);
     }
 }

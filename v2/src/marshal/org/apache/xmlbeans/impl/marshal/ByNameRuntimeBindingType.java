@@ -84,13 +84,13 @@ final class ByNameRuntimeBindingType
     protected void initElementProperty(QNameProperty prop,
                                        int elem_idx,
                                        RuntimeBindingTypeTable typeTable,
-                                       BindingLoader loader,
-                                       RuntimeTypeFactory rttFactory)
+                                       BindingLoader loader
+                                       )
         throws XmlException
     {
         elementProperties[elem_idx] =
             new ElementQNameProperty(elem_idx, getJavaType(), hasMulti(), prop,
-                                     this, typeTable, loader, rttFactory);
+                                     this, typeTable, loader);
     }
 
     protected Object createIntermediary(UnmarshalResult context)
@@ -178,12 +178,11 @@ final class ByNameRuntimeBindingType
                              QNameProperty prop,
                              RuntimeBindingType containing_type,
                              RuntimeBindingTypeTable typeTable,
-                             BindingLoader loader,
-                             RuntimeTypeFactory rttFactory)
+                             BindingLoader loader)
             throws XmlException
         {
             super(beanClass, bean_has_multis,
-                  prop, containing_type, typeTable, loader, rttFactory);
+                  prop, containing_type, typeTable, loader);
             propertyIndex = property_index;
             assert !prop.isAttribute();
         }

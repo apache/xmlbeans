@@ -19,7 +19,7 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 
-public class SimpleRuntimeBindingType
+class SimpleRuntimeBindingType
     extends RuntimeBindingType
 {
     private final SimpleBindingType simpleBindingType;
@@ -32,8 +32,8 @@ public class SimpleRuntimeBindingType
     }
 
     public void initialize(RuntimeBindingTypeTable typeTable,
-                           BindingLoader bindingLoader,
-                           RuntimeTypeFactory rttFactory)
+                           BindingLoader bindingLoader
+                           )
         throws XmlException
     {
     }

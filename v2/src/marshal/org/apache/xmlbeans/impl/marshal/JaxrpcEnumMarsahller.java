@@ -32,6 +32,6 @@ final class JaxrpcEnumMarsahller
     public CharSequence print(Object value, MarshalResult result)
         throws XmlException
     {
-       return enumType.print(value, result);
+        return enumType.print(value, result);
     }
 }

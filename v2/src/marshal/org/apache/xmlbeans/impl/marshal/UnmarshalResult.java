@@ -29,13 +29,13 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
-import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
-import javax.xml.namespace.QName;
 import javax.xml.namespace.NamespaceContext;
+import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -88,18 +88,10 @@ final class UnmarshalResult
         this.errors = BindingContextImpl.extractErrorHandler(options);
     }
 
-
-    RuntimeTypeFactory getRuntimeTypeFactory()
-    {
-        return typeTable.getRuntimeTypeFactory();
-    }
-
     RuntimeBindingType getRuntimeType(BindingType type)
         throws XmlException
     {
-        return typeTable.getRuntimeTypeFactory().createRuntimeType(type,
-                                                                   typeTable,
-                                                                   bindingLoader);
+        return typeTable.createRuntimeType(type, bindingLoader);
     }
 
     private void enrichXmlStream(XMLStreamReader reader)
@@ -122,10 +114,13 @@ final class UnmarshalResult
 
     //returns null and updates errors if there was a problem.
     TypeUnmarshaller getTypeUnmarshaller(BindingType binding_type)
+        throws XmlException
     {
 
-        TypeUnmarshaller um =
-            typeTable.getTypeUnmarshaller(binding_type);
+        final RuntimeBindingType rtt =
+            typeTable.createRuntimeType(binding_type, bindingLoader);
+        final TypeUnmarshaller um = rtt.getUnmarshaller();
+
         if (um == null) {
             String msg = "unable to locate unmarshaller for " +
                 binding_type.getName();
@@ -185,18 +180,16 @@ final class UnmarshalResult
         final ObjectFactory of = extractObjectFactory();
 
         try {
+            final RuntimeBindingType rtt = getRuntimeType(bindingType);
             if (of == null) {
                 if (hasXsiNil())
                     um = NullUnmarshaller.getInstance();
                 else
-                    um = typeTable.getOrCreateTypeUnmarshaller(bindingType,
-                                                               bindingLoader);
+                    um = rtt.getUnmarshaller();
                 return um.unmarshal(this);
             } else {
-                final RuntimeBindingType rtt = getRuntimeType(bindingType);
                 final Object initial_obj = of.createObject(rtt.getJavaType());
-                um = typeTable.getOrCreateTypeUnmarshaller(bindingType,
-                                                           bindingLoader);
+                um = rtt.getUnmarshaller();
                 um.unmarshal(initial_obj, this);
                 return initial_obj;
             }

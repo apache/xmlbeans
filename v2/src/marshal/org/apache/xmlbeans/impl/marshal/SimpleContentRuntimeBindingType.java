@@ -37,19 +37,19 @@ class SimpleContentRuntimeBindingType
     }
 
     //prepare internal data structures for use
-    final void initialize(RuntimeBindingTypeTable typeTable,
-                          BindingLoader loader,
-                          RuntimeTypeFactory rttFactory)
+    public final void initialize(RuntimeBindingTypeTable typeTable,
+                                 BindingLoader loader
+                                 )
         throws XmlException
     {
-        super.initialize(typeTable, loader, rttFactory);
+        super.initialize(typeTable, loader);
         SimpleContentBean scb = getSimpleContentBean();
         final SimpleContentProperty simpleContentProperty =
             scb.getSimpleContentProperty();
         simpleTypeProperty =
             new SimpleContentRuntimeProperty(getJavaType(),
                                              simpleContentProperty, this,
-                                             typeTable, loader, rttFactory);
+                                             typeTable, loader);
     }
 
     private SimpleContentBean getSimpleContentBean()
@@ -60,8 +60,8 @@ class SimpleContentRuntimeBindingType
     protected void initElementProperty(QNameProperty prop,
                                        int elem_idx,
                                        RuntimeBindingTypeTable typeTable,
-                                       BindingLoader loader,
-                                       RuntimeTypeFactory rttFactory)
+                                       BindingLoader loader
+                                       )
         throws XmlException
     {
         throw new AssertionError("invalid property for this type: " + prop);
@@ -108,11 +108,10 @@ class SimpleContentRuntimeBindingType
                                      BindingProperty prop,
                                      RuntimeBindingType containing_type,
                                      RuntimeBindingTypeTable typeTable,
-                                     BindingLoader loader,
-                                     RuntimeTypeFactory rttFactory)
+                                     BindingLoader loader)
             throws XmlException
         {
-            super(beanClass, prop, containing_type, typeTable, loader, rttFactory);
+            super(beanClass, prop, containing_type, typeTable, loader);
         }
 
         QName getName()

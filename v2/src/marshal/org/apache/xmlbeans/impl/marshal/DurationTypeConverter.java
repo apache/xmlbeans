@@ -15,13 +15,9 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.GDateSpecification;
-import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.GDuration;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
-
-import java.util.Calendar;
 
 
 /**

@@ -25,7 +25,8 @@ final class ReplaceStringTypeConverter
     private static final TypeConverter INSTANCE
         = new ReplaceStringTypeConverter();
 
-    static TypeConverter getInstance() {
+    static TypeConverter getInstance()
+    {
         return INSTANCE;
     }
 

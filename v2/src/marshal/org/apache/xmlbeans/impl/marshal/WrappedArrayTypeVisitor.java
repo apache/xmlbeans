@@ -16,9 +16,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
-import javax.xml.namespace.QName;
 import java.lang.reflect.Array;
 
 public class WrappedArrayTypeVisitor extends NamedXmlTypeVisitor
