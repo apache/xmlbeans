@@ -825,6 +825,9 @@
 
   <target name="checkintest">
     <ant antfile="${testbuild.file}" target="checkin"/>
+    <!--<antcall target="bootstrap"/> -->
+    <antcall target="marshal-drt"/>
+    <antcall target="binding-drt"/>
   </target>
 
   <target name="detailed">
