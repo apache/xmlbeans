@@ -254,8 +254,15 @@ public class MarshalTests extends TestCase
         myelt.setAttrib(99999.777f);
         myelt.setMyFloat(5555.4444f);
 //        myelt.setMyClass(new com.mytest.MyClass());
+
+
         MySubClass sub = new MySubClass();
-        sub.setBigInt(new BigInteger("123431234321234321234321234212341234"));
+        sub.setBigInt(new BigInteger("23522352235223522352"));
+//        sub.setIsSetBigInt(false); //TESTING;
+//        sub.setBigInt(null);
+//        sub.setIsSetBigInt(true); //TESTING;
+
+
         myelt.setMyClass(sub);
         mc.setMyelt(myelt);
 

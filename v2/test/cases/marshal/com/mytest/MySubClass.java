@@ -22,6 +22,7 @@ public class MySubClass
 {
 
     private BigInteger bigInt;
+    private boolean issetBigInt;
 
     public BigInteger getBigInt()
     {
@@ -31,6 +32,15 @@ public class MySubClass
     public void setBigInt(BigInteger bigInt)
     {
         this.bigInt = bigInt;
+        setIsSetBigInt(bigInt != null);
+    }
+
+    public boolean isSetBigInt() {
+        return issetBigInt;
+    }
+
+    public void setIsSetBigInt(boolean val) {
+        issetBigInt = val;
     }
 
     public String toString()

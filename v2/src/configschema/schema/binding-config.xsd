@@ -105,6 +105,7 @@
         <xs:sequence>
           <xs:element name="getter" type="tns:java-method-name"/>
           <xs:element name="setter" type="tns:java-method-name" minOccurs="0"/>
+          <xs:element name="issetter" type="tns:java-method-name" minOccurs="0"/>
         </xs:sequence>
         <xs:element name="field" type="tns:java-field-name"/>
         <xs:element name="static" type="tns:java-field-name"/>
