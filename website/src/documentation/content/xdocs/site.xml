@@ -108,14 +108,14 @@ See http://xml.apache.org/forrest/linking.html for more info
             </forrest>
             <cocoon href="cocoon/"/>
         </xml.apache.org>
-        <mailsubuser label="XmlBeans User List Subscribe" href="mailto:xmlbeans-user-subscribe@xml.apache.org"/>
-        <mailunsubuser label="XmlBeans User List UnSubscribe" href="mailto:xmlbeans-user-unsubscribe@xml.apache.org"/>
-        <mailsubdev label="XmlBeans Dev List Subscribe" href="mailto:xmlbeans-dev-subscribe@xml.apache.org"/>
-        <mailunsubdev label="XmlBeans Dev List UnSubscribe" href="mailto:xmlbeans-dev-unsubscribe@xml.apache.org"/>
-        <mailsubcvs label="XmlBeans CVS List Subscribe" href="mailto:xmlbeans-cvs-subscribe@xml.apache.org"/>
-        <mailunsubcvs label="XmlBeans CVS List UnSubscribe" href="mailto:xmlbeans-cvs-unsubscribe@xml.apache.org"/>
-        <userlistarchive label="XmlBeams User List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=152"/>
-        <devlistarchive label="XmlBeans Dev List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=151"/>
-        <cvslistarchive label="XmlBeans CVS List Archive" href="http://nagoya.apache.org/eyebrowse/SummarizeList?listId=150"/>
+        <mailsubuser label="XmlBeans User List Subscribe" href="mailto:user-subscribe@xmlbeans.apache.org"/>
+        <mailunsubuser label="XmlBeans User List UnSubscribe" href="mailto:user-unsubscribe@xmlbeans.apache.org"/>
+        <mailsubdev label="XmlBeans Dev List Subscribe" href="mailto:dev-subscribe@xmlbeans.apache.org"/>
+        <mailunsubdev label="XmlBeans Dev List UnSubscribe" href="mailto:dev-unsubscribe@xmlbeans.apache.org"/>
+        <mailsubcvs label="XmlBeans CVS List Subscribe" href="mailto:commits-subscribe@xmlbeans.apache.org"/>
+        <mailunsubcvs label="XmlBeans CVS List UnSubscribe" href="mailto:commits-unsubscribe@xmlbeans.apache.org"/>
+        <userlistarchive label="XmlBeams User List Archive" href="http://issues.apache.org/eyebrowse/SummarizeList?listId=277"/>
+        <devlistarchive label="XmlBeans Dev List Archive" href="http://issues.apache.org/eyebrowse/SummarizeList?listId=278"/>
+        <cvslistarchive label="XmlBeans CVS List Archive" href="http://issues.apache.org/eyebrowse/SummarizeList?listId=276"/>
     </external-refs>
 </site>

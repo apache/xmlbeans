@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
 <document>
 	<header>
@@ -12,8 +12,8 @@
 		<section>
 			<title>XMLBeans Version 2 Project Management</title>
 			<p>You can find information about XMLBeans 2.0 planning at  <link href="http://wiki.apache.org/xmlbeans/V2Features">XMLBeans Feature Plan</link> 
-			if you want to provide ideas or feedback on this planning it is best to post it to either xmlbeans-dev@xml.apache.org or
-			xmlbeans-user@xml.apache.org.</p>
+			if you want to provide ideas or feedback on this planning it is best to post it to either dev@xmlbeans.apache.org or
+			user@xmlbeans.apache.org.</p>
 		</section>
 		<section>
 			<title>XMLBeans Bug Lists</title>
