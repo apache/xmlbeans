@@ -56,7 +56,6 @@
 
 package org.apache.xmlbeans;
 
-
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
@@ -64,9 +63,13 @@ import javax.xml.stream.XMLStreamWriter;
 
 /**
  * A Marshaller object is used to convert Java objects to XML documents.
+ * The object is not thread safe and should not be shared between threads.
+ * It can however be shared across different invocations of
+ * Marshaller.marshalType() for a given document.
  */
 public interface Marshaller
 {
+
     /**
      * Get an XMLStreamReader object that represents the Java object as XML.
      * Note that the object's contents are accessed on demand, so modifying
@@ -81,13 +84,11 @@ public interface Marshaller
      *
      * @param obj
      * @param nscontext  initial NamespaceContext representing initial defined namespaces
-     * @param context
      * @return  XMLStreamReader representing the XML content
      * @throws XmlException
      */
     XMLStreamReader marshall(Object obj,
-                             NamespaceContext nscontext,
-                             MarshalContext context)
+                             NamespaceContext nscontext)
         throws XmlException;
 
     /**
@@ -104,9 +105,7 @@ public interface Marshaller
      * @param writer
      * @throws XmlException
      */
-    void marshall(XMLStreamWriter writer,
-                  Object obj,
-                  MarshalContext context)
+    void marshall(XMLStreamWriter writer, Object obj)
         throws XmlException;
 
 
@@ -121,15 +120,15 @@ public interface Marshaller
      * @param elementName
      * @param schemaType
      * @param javaType
-     * @param context
+     * @param namespaceContext
      * @return
      * @throws XmlException
      */
-    XMLStreamReader marshallType(Object obj,
-                                 QName elementName,
-                                 QName schemaType,
-                                 String javaType,
-                                 MarshalContext context)
+    XMLStreamReader marshalType(Object obj,
+                                QName elementName,
+                                QName schemaType,
+                                String javaType,
+                                NamespaceContext namespaceContext)
         throws XmlException;
 
 
@@ -147,12 +146,11 @@ public interface Marshaller
      * @param javaType
      * @throws XmlException
      */
-    void marshallType(XMLStreamWriter writer,
-                      Object obj,
-                      QName elementName,
-                      QName schemaType,
-                      String javaType,
-                      MarshalContext context)
+    void marshalType(XMLStreamWriter writer,
+                     Object obj,
+                     QName elementName,
+                     QName schemaType,
+                     String javaType)
         throws XmlException;
 
 }

@@ -74,8 +74,8 @@ import org.apache.xmlbeans.impl.binding.tylar.TylarFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Iterator;
 import java.net.URI;
+import java.util.Iterator;
 
 /**
  * creates BindingContext objects from various inputs.
@@ -84,38 +84,38 @@ public final class BindingContextFactoryImpl
     extends BindingContextFactory
 {
 
-  public BindingContext createBindingContext(URI[] tylarUris)
-          throws IOException, XmlException
-  {
-    Tylar[] tylars = new Tylar[tylarUris.length];
-    for(int i=0; i<tylars.length; i++) {
-      tylars[i] = TylarFactory.getInstance().load(tylarUris[i]);
+    public BindingContext createBindingContext(URI[] tylarUris)
+        throws IOException, XmlException
+    {
+        Tylar[] tylars = new Tylar[tylarUris.length];
+        for (int i = 0; i < tylars.length; i++) {
+            tylars[i] = TylarFactory.getInstance().load(tylarUris[i]);
+        }
+        return createBindingContext(tylars);
     }
-    return createBindingContext(tylars);
-  }
 
-  // REVIEW It's unfortunate that we can't expose this method to the public
-  // at the moment.  It's easy to imagine cases where one has already built
-  // up the tylar and doesn't want to pay the cost of re-parsing it.
-  // Of course, exposing it means we expose Tylar to the public as well,
-  // and this should be done with caution.
-  public BindingContext createBindingContext(Tylar[] tylars)
-  {
-    // get the binding files
-    BindingFile[] bfs = new BindingFile[tylars.length];
-    for(int i=0; i<tylars.length; i++) {
-      bfs[i] = tylars[i].getBindingFile();
+    // REVIEW It's unfortunate that we can't expose this method to the public
+    // at the moment.  It's easy to imagine cases where one has already built
+    // up the tylar and doesn't want to pay the cost of re-parsing it.
+    // Of course, exposing it means we expose Tylar to the public as well,
+    // and this should be done with caution.
+    public BindingContext createBindingContext(Tylar[] tylars)
+    {
+        // get the binding files
+        BindingFile[] bfs = new BindingFile[tylars.length];
+        for (int i = 0; i < tylars.length; i++) {
+            bfs[i] = tylars[i].getBindingFile();
+        }
+        // also build the loader chain - this is the binding files plus
+        // the builtin loader
+        BindingLoader[] loaders = new BindingLoader[bfs.length + 1];
+        System.arraycopy(bfs, 0, loaders, 0, bfs.length);
+        loaders[loaders.length - 1] = BuiltinBindingLoader.getInstance();
+        BindingLoader loader = PathBindingLoader.forPath(loaders);
+        // finally, glue it all together
+        RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bfs, loader);
+        return new BindingContextImpl(loader, tbl);
     }
-    // also build the loader chain - this is the binding files plus
-    // the builtin loader
-    BindingLoader[] loaders = new BindingLoader[bfs.length+1];
-    System.arraycopy(bfs,0,loaders,0,bfs.length);
-    loaders[loaders.length-1] = BuiltinBindingLoader.getInstance();
-    BindingLoader loader = PathBindingLoader.forPath(loaders);
-    // finally, glue it all together
-    RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bfs, loader);
-    return new BindingContextImpl(loader, tbl);
-  }
 
     public BindingContext createBindingContext()
     {
@@ -149,10 +149,10 @@ public final class BindingContextFactoryImpl
 
     private static BindingContextImpl createBindingContext(BindingFile bf)
     {
-      BindingLoader bindingLoader = buildBindingLoader(bf);
-      RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bf, bindingLoader);
+        BindingLoader bindingLoader = buildBindingLoader(bf);
+        RuntimeBindingTypeTable tbl = buildUnmarshallingTypeTable(bf, bindingLoader);
 
-      return new BindingContextImpl(bindingLoader, tbl);
+        return new BindingContextImpl(bindingLoader, tbl);
     }
 
     private static BindingLoader buildBindingLoader(BindingFile bf)
@@ -165,17 +165,17 @@ public final class BindingContextFactoryImpl
     private static RuntimeBindingTypeTable buildUnmarshallingTypeTable(BindingFile bf,
                                                                        BindingLoader loader)
     {
-      RuntimeBindingTypeTable tbl = RuntimeBindingTypeTable.createRuntimeBindingTypeTable();
-      populateTable(bf,loader,tbl);
-      return tbl;
+        RuntimeBindingTypeTable tbl = RuntimeBindingTypeTable.createRuntimeBindingTypeTable();
+        populateTable(bf, loader, tbl);
+        return tbl;
     }
 
     private static RuntimeBindingTypeTable buildUnmarshallingTypeTable(BindingFile[] bfs,
                                                                        BindingLoader loader)
     {
-      RuntimeBindingTypeTable tbl = RuntimeBindingTypeTable.createRuntimeBindingTypeTable();
-      for(int i=0; i<bfs.length; i++) populateTable(bfs[i],loader,tbl);
-      return tbl;
+        RuntimeBindingTypeTable tbl = RuntimeBindingTypeTable.createRuntimeBindingTypeTable();
+        for (int i = 0; i < bfs.length; i++) populateTable(bfs[i], loader, tbl);
+        return tbl;
     }
 
     private static RuntimeBindingTypeTable populateTable(BindingFile bf,
@@ -226,7 +226,7 @@ public final class BindingContextFactoryImpl
         um = table.getTypeUnmarshaller(asif);
         if (um != null) return um;
 
-        String msg = "unable to get simple type unmarshaller for " + stype +  " using asif="+asif;
+        String msg = "unable to get simple type unmarshaller for " + stype + " using asif=" + asif;
         throw new AssertionError(msg);
     }
 

@@ -67,13 +67,13 @@ final class NullUnmarshaller
     {
     }
 
-    public Object unmarshal(UnmarshalContextImpl context)
+    public Object unmarshal(UnmarshallerImpl context)
     {
         context.skipElement();
         return null;
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         throw new UnsupportedOperationException();
     }

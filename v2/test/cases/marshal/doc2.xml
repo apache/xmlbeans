@@ -7,8 +7,11 @@
 <!--    xsi:type="n1:MyClass"-->
 
 
-    <n1:Myelt>
-        <n1:Attrib>432.3432</n1:Attrib>
+    <n1:Myelt n1:Attrib="  5555.54321">
+
+        <SomeBool xmlns="java:com.mytest">1</SomeBool>
+
+
         <n1:junk><a><b>fda</b></a></n1:junk>
         <n1:MyClass>
 <!--            <n1:Myelt></n1:Myelt>-->
@@ -23,7 +26,9 @@
         <n1:SomeBool>true</n1:SomeBool>
         <n1:SomeBool>0</n1:SomeBool>
         <n1:SomeBool>1</n1:SomeBool>
-        <SomeBool xmlns="java:com.mytest">1</SomeBool>
+
+        <n1:BooleanArray>true</n1:BooleanArray>
+        <n1:BooleanArray>1</n1:BooleanArray>
 
     </n1:Myelt>
 

@@ -61,20 +61,20 @@ import org.apache.xmlbeans.impl.util.XsTypeConverter;
 final class IntTypeConverter
     extends BaseSimpleTypeConverter
 {
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         int val = context.getIntValue();
         return new Integer(val);
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         int val = context.getAttributeIntValue();
         return new Integer(val);
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         Integer val = (Integer)value;
         return XsTypeConverter.printInt(val.intValue());

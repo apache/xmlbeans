@@ -62,20 +62,20 @@ final class FloatTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         float val = context.getAttributeFloatValue();
         return new Float(val);
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         Float val = (Float)value;
         return XsTypeConverter.printFloat(val.floatValue());
     }
 
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         float val = context.getFloatValue();
         return new Float(val);

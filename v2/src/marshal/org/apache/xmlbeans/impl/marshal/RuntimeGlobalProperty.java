@@ -89,7 +89,7 @@ final class RuntimeGlobalProperty
         return false;
     }
 
-    public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContextImpl context)
+    public TypeUnmarshaller getTypeUnmarshaller(UnmarshallerImpl context)
     {
         throw new UnsupportedOperationException();
     }
@@ -100,7 +100,7 @@ final class RuntimeGlobalProperty
     }
 
     //non simple type props can throw some runtime exception.
-    public CharSequence getLexical(Object parent, MarshalContextImpl context)
+    public CharSequence getLexical(Object parent, MarshallerImpl context)
     {
         //TODO: polymorphism checks
 
@@ -115,12 +115,12 @@ final class RuntimeGlobalProperty
         return retval;
     }
 
-    public Object getValue(Object parent_obj, MarshalContextImpl context)
+    public Object getValue(Object parent_obj, MarshallerImpl context)
     {
         throw new AssertionError("UNIMP: " + this);
     }
 
-    public boolean isSet(Object parentObject, MarshalContextImpl context)
+    public boolean isSet(Object parentObject, MarshallerImpl context)
     {
         return true;
     }

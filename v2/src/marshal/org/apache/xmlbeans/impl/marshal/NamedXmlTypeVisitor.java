@@ -65,7 +65,7 @@ abstract class NamedXmlTypeVisitor
 
     NamedXmlTypeVisitor(Object parentObject,
                         RuntimeBindingProperty property,
-                        MarshalContextImpl context)
+                        MarshallerImpl context)
     {
         super(parentObject, property, context);
 

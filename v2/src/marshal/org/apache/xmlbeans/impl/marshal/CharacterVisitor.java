@@ -64,7 +64,7 @@ final class CharacterVisitor
 {
     CharacterVisitor(RuntimeBindingProperty property,
                      Object parentObject,
-                     MarshalContextImpl context)
+                     MarshallerImpl context)
     {
         super(parentObject, property, context);
         assert (!(parentObject instanceof Collection));
@@ -109,7 +109,7 @@ final class CharacterVisitor
     protected CharSequence getCharData()
     {
         final Object parent = getParentObject();
-        assert parent != null : "bad visitor: this="+this;
+        assert parent != null : "bad visitor: this=" + this;
         return getBindingProperty().getLexical(parent, marshalContext);
     }
 

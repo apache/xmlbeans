@@ -64,19 +64,19 @@ final class DecimalTypeConverter
     extends BaseSimpleTypeConverter
 {
 
-    protected Object getObject(UnmarshalContextImpl context)
+    protected Object getObject(UnmarshallerImpl context)
     {
         BigDecimal val = context.getBigDecimalValue();
         return val;
     }
 
-    public Object unmarshalAttribute(UnmarshalContextImpl context)
+    public Object unmarshalAttribute(UnmarshallerImpl context)
     {
         return context.getAttributeBigDecimalValue();
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContextImpl context)
+    public CharSequence print(Object value, MarshallerImpl context)
     {
         BigDecimal val = (BigDecimal)value;
         return XsTypeConverter.printDecimal(val);

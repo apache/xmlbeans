@@ -63,5 +63,5 @@ package org.apache.xmlbeans.impl.marshal;
 interface TypeMarshaller
 {
     //non simple types can throw a runtime exception
-    CharSequence print(Object value, MarshalContextImpl context);
+    CharSequence print(Object value, MarshallerImpl context);
 }

@@ -61,8 +61,8 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
-import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
 import org.apache.xmlbeans.impl.marshal.util.collections.ArrayIterator;
+import org.apache.xmlbeans.impl.marshal.util.collections.EmptyIterator;
 import org.apache.xmlbeans.impl.marshal.util.collections.ReflectiveArrayIterator;
 
 import javax.xml.namespace.NamespaceContext;
@@ -70,14 +70,14 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import java.util.Stack;
-import java.util.Iterator;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Stack;
 
 
 final class MarshalResult implements XMLStreamReader
 {
-    private final MarshalContextImpl context;
+    private final MarshallerImpl context;
 
     //state fields
     private XmlTypeVisitor currVisitor;
@@ -89,7 +89,7 @@ final class MarshalResult implements XMLStreamReader
     private static final String ATTRIBUTE_XML_TYPE = "CDATA";
 
     MarshalResult(RuntimeBindingProperty property, Object obj,
-                  MarshalContextImpl context)
+                  MarshallerImpl context)
     {
         currVisitor = createVisitor(property, obj, context);
         this.context = context;
@@ -97,7 +97,7 @@ final class MarshalResult implements XMLStreamReader
 
     protected static XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
                                                   Object obj,
-                                                  MarshalContextImpl context)
+                                                  MarshallerImpl context)
     {
         BindingType btype = property.getType();
 
