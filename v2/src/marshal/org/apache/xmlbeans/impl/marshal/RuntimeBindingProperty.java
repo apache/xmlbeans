@@ -214,9 +214,11 @@ abstract class RuntimeBindingProperty
             params = null;
         }
 
-        return ReflectionUtils.invokeMethod(actual_obj,
-                                            parentFactoryMethod,
-                                            params);
+        final Object obj = ReflectionUtils.invokeMethod(actual_obj,
+                                                    parentFactoryMethod,
+                                                    params);
+        assert actual_rtt.checkInstance(obj);
+        return obj;
 
     }
 

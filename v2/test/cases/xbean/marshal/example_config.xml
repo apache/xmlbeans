@@ -93,7 +93,17 @@
                    <bin:method-name>setMyClassArray</bin:method-name>
                    <bin:param-type>com.mytest.MyClass[]</bin:param-type>
                 </bin:setter>
+
+
                 <bin:collection>com.mytest.MyClass[]</bin:collection>
+
+                <bin:factory xsi:type="bin:parent-instance-factory">
+                    <bin:create-object-method>
+                        <bin:method-name>createObject</bin:method-name>
+                        <bin:param-type>java.lang.Class</bin:param-type>
+                    </bin:create-object-method>
+                </bin:factory>
+
                 <bin:qname>java:MyClassArray</bin:qname>
                 <bin:multiple>true</bin:multiple>
             </bin:qname-property>
