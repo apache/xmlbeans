@@ -29,6 +29,7 @@ See http://xml.apache.org/forrest/linking.html for more info
 	</sourceAndBinaries>
 	<documentation label="Documentation" href="documentation/" tab="documentation">
 		<faq label="XMLBeans FAQ" href="index.html#FAQ" description="XMLBeans Frequently Asked Questions"/>
+		<userdoc label="Installing XMLBeans" href="conInstallGuide.html" description="Install XMLBeans"/>
 		<userdoc label="Version 1 User Documentation" href="index.html#XMLBeans+Version+1+User+Documentation" description="XMLBeans Version 1 User Documentation"/>
 		<userdoc label="Version 1 JavaDoc" href="index.html#XMLBeans+Version+1+JavaDoc" description="XMLBeans Version 1 JavaDoc"/>
 	</documentation>
