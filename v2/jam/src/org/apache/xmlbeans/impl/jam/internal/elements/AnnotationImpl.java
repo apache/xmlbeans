@@ -16,7 +16,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
+import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 
 /**
@@ -24,7 +24,7 @@ import org.apache.xmlbeans.impl.jam.JAnnotationValue;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public final class AnnotationImpl extends ElementImpl implements EAnnotation {
+public final class AnnotationImpl extends ElementImpl implements MAnnotation {
 
   // ========================================================================
   // Variables
@@ -73,7 +73,7 @@ public final class AnnotationImpl extends ElementImpl implements EAnnotation {
   }
 
   // ========================================================================
-  // EElement implementation
+  // MElement implementation
 
   public AnnotationProxy getEditableProxy() {
     return mProxy;

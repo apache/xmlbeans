@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRefContext;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
@@ -29,11 +29,11 @@ import java.util.Collection;
 import java.util.List;
 
 /**
- * <p>Implementation of JClass and EClass.</p>
+ * <p>Implementation of JClass and MClass.</p>
  *
  * @author Patrick Calahan <jdclasspcal@bea.com>
  */
-public class ClassImpl extends MemberImpl implements EClass,
+public class ClassImpl extends MemberImpl implements MClass,
   JClassRef, JClassRefContext
 {
   // ========================================================================
@@ -207,7 +207,7 @@ public class ClassImpl extends MemberImpl implements EClass,
   public int getArrayDimensions() { return 0; }
 
   // ========================================================================
-  // EClass implementation
+  // MClass implementation
 
   public void setSuperclass(String qualifiedClassName) {
     mSuperClassRef = QualifiedJClassRef.create(qualifiedClassName, this);
@@ -257,71 +257,71 @@ public class ClassImpl extends MemberImpl implements EClass,
     }
   }
 
-  public EConstructor addNewConstructor() {
+  public MConstructor addNewConstructor() {
     if (mConstructors == null) mConstructors = new ArrayList();
-    EConstructor out = new ConstructorImpl(this);
+    MConstructor out = new ConstructorImpl(this);
     mConstructors.add(out);
     return out;
   }
 
-  public void removeConstructor(EConstructor constr) {
+  public void removeConstructor(MConstructor constr) {
     if (mConstructors == null) return;
     mConstructors.remove(constr);
   }
 
-  public EConstructor[] getEditableConstructors() {
+  public MConstructor[] getEditableConstructors() {
     if (mConstructors == null || mConstructors.size() == 0) {
-      return new EConstructor[0];
+      return new MConstructor[0];
     }
-    EConstructor[] out = new EConstructor[mConstructors.size()];
+    MConstructor[] out = new MConstructor[mConstructors.size()];
     mConstructors.toArray(out);
     return out;
   }
 
-  public EField addNewField() {
+  public MField addNewField() {
     if (mFields == null) mFields = new ArrayList();
-    EField out = new FieldImpl(defaultName(mFields.size()),
+    MField out = new FieldImpl(defaultName(mFields.size()),
                                 this,"java.lang.Object");
     mFields.add(out);
     return out;
   }
 
-  public void removeField(EField field) {
+  public void removeField(MField field) {
     if (mFields == null) return;
     mFields.remove(field);
   }
 
-  public EField[] getEditableFields() {
+  public MField[] getEditableFields() {
     if (mFields == null || mFields.size() == 0) {
-      return new EField[0];
+      return new MField[0];
     }
-    EField[] out = new EField[mFields.size()];
+    MField[] out = new MField[mFields.size()];
     mFields.toArray(out);
     return out;
   }
 
-  public EMethod addNewMethod() {
+  public MMethod addNewMethod() {
     if (mMethods == null) mMethods = new ArrayList();
-    EMethod out = new MethodImpl(defaultName(mMethods.size()),this);
+    MMethod out = new MethodImpl(defaultName(mMethods.size()),this);
     mMethods.add(out);
     return out;
   }
 
-  public void removeMethod(EMethod method) {
+  public void removeMethod(MMethod method) {
     if (mMethods == null) return;
     mMethods.remove(method);
   }
 
-  public EMethod[] getEditableMethods() {
+  public MMethod[] getEditableMethods() {
     if (mMethods == null || mMethods.size() == 0) {
-      return new EMethod[0];
+      return new MMethod[0];
     }
-    EMethod[] out = new EMethod[mMethods.size()];
+    MMethod[] out = new MMethod[mMethods.size()];
     mMethods.toArray(out);
     return out;
   }
 
-  public JProperty addNewProperty(String name, EMethod getter, EMethod setter) {
+  public JProperty addNewProperty(String name, MMethod getter, MMethod setter) {
     if (mProperties == null) mProperties = new ArrayList();
     JProperty out = new PropertyImpl(name,getter,setter,
                                      getter.getReturnType().getQualifiedName());

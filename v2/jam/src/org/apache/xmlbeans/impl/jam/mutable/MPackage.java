@@ -12,16 +12,14 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
+package org.apache.xmlbeans.impl.jam.mutable;
 
-package org.apache.xmlbeans.impl.jam.editable;
-
-import org.apache.xmlbeans.impl.jam.JConstructor;
+import org.apache.xmlbeans.impl.jam.JPackage;
 
 /**
- * Editable representation of a java constructor.
+ * <p>Mutable version of JPackage.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EConstructor extends JConstructor, EInvokable {
-
+public interface MPackage extends  JPackage, MAnnotatedElement {
 }

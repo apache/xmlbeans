@@ -12,30 +12,17 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.editable;
+
+package org.apache.xmlbeans.impl.jam.mutable;
+
+import org.apache.xmlbeans.impl.jam.JMember;
 
 /**
+ * <p>Mutable version of JMember.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EElementVisitor {
+public interface MMember extends MAnnotatedElement, JMember {
 
-  public void visit(EClass clazz);
-
-  public void visit(EConstructor ctor);
-
-  public void visit(EField field);
-
-  public void visit(EMethod method);
-
-  public void visit(EParameter param);
-
-  public void visit(EAnnotation param);
-
-  public void visit(EComment param);
-
-//FIXME  implement this?   public void visit(EPackage param);
-
-
-
+  public void setModifiers(int modifiers);
 }

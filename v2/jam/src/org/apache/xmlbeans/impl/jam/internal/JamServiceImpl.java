@@ -19,7 +19,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JamClassIterator;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
 import org.apache.xmlbeans.impl.jam.JamService;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
@@ -74,7 +74,7 @@ public class JamServiceImpl implements JamService {
   // at the moment, we just cast down to this elements class to get at
   // these methods
 
-  public EClass addNewClass(String packageName,
+  public MClass addNewClass(String packageName,
                             String className,
                             String[] importSpecs)
   {
@@ -83,7 +83,7 @@ public class JamServiceImpl implements JamService {
     return out;
   }
 
-  public EClass addNewClass(JClass copyme) {
+  public MClass addNewClass(JClass copyme) {
     throw new IllegalStateException("NYI");
   }
 

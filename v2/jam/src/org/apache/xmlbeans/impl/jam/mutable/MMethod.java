@@ -13,17 +13,17 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JMethod;
 
 /**
- * Editable representation of a java method.
+ * <p>Mutable version of JMethod.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EMethod extends JMethod, EInvokable {
+public interface MMethod extends JMethod, MInvokable {
 
   /**
    * <p>Sets the type of this method's return value.  Null can be passed if

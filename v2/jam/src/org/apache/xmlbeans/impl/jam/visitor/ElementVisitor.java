@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.visitor;
 
-import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.mutable.*;
 
 /**
  * <p>To be extended by classes which wish to traverse a set of JClasses.</p>
@@ -23,20 +23,20 @@ import org.apache.xmlbeans.impl.jam.editable.*;
  */
 public abstract class ElementVisitor {
 
-  public void visit(EPackage pkg) {}
+  public void visit(MPackage pkg) {}
 
-  public void visit(EClass clazz) {}
+  public void visit(MClass clazz) {}
 
-  public void visit(EConstructor ctor) {}
+  public void visit(MConstructor ctor) {}
 
-  public void visit(EField field) {}
+  public void visit(MField field) {}
 
-  public void visit(EMethod method) {}
+  public void visit(MMethod method) {}
 
-  public void visit(EParameter param) {}
+  public void visit(MParameter param) {}
 
-  public void visit(EAnnotation ann) {}
+  public void visit(MAnnotation ann) {}
 
-  public void visit(EComment comment) {}
+  public void visit(MComment comment) {}
 
 }

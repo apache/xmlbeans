@@ -16,7 +16,7 @@ package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
 import com.sun.javadoc.*;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.internal.elements.PrimitiveClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
@@ -96,7 +96,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
 
 
 
-  public EClass build(String packageName, String className) {
+  public MClass build(String packageName, String className) {
     if (VERBOSE) {
       System.out.println("[JavadocClassBuilder] building '"+
                          packageName+"' '"+className+"'");
@@ -109,7 +109,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     }
     ClassDoc cd = mRootDoc.classNamed(cn);
     if (cd == null) return null;
-    EClass out = createClassToBuild(packageName, className, null);
+    MClass out = createClassToBuild(packageName, className, null);
     populate(out,cd);
     return out;
   }
@@ -117,7 +117,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
   // ========================================================================
   // Private methods
 
-  private void populate(EClass dest, ClassDoc src) {
+  private void populate(MClass dest, ClassDoc src) {
     dest.setArtifact(src);
     dest.setModifiers(src.modifierSpecifier());
     dest.setIsInterface(src.isInterface());
@@ -141,7 +141,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     addSourcePosition(dest,src);
   }
 
-  private void populate(EField dest, FieldDoc src) {
+  private void populate(MField dest, FieldDoc src) {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
     dest.setType(getFdFor(src.type()));
@@ -150,12 +150,12 @@ public class JavadocClassBuilder extends JamClassBuilder {
     addSourcePosition(dest,src);
   }
 
-  private void populate(EMethod dest, MethodDoc src) {
-    populate((EInvokable)dest,(ExecutableMemberDoc)src);
+  private void populate(MMethod dest, MethodDoc src) {
+    populate((MInvokable)dest,(ExecutableMemberDoc)src);
     dest.setReturnType(getFdFor(src.returnType()));
   }
 
-  private void populate(EInvokable dest, ExecutableMemberDoc src) {
+  private void populate(MInvokable dest, ExecutableMemberDoc src) {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
     dest.setModifiers(src.modifierSpecifier());
@@ -171,7 +171,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     addSourcePosition(dest,src);
   }
 
-  private void populate(EParameter dest, Parameter src) {
+  private void populate(MParameter dest, Parameter src) {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
     dest.setType(getFdFor(src.type()));
@@ -205,10 +205,10 @@ public class JavadocClassBuilder extends JamClassBuilder {
     }
   }
 
-  private void addSourcePosition(EElement dest, Doc src) {
+  private void addSourcePosition(MElement dest, Doc src) {
     SourcePosition jds = src.position();
     if (jds == null) return;
-    ESourcePosition sp = dest.createSourcePosition();
+    MSourcePosition sp = dest.createSourcePosition();
     sp.setColumn(jds.column());
     sp.setLine(jds.line());
     File f = jds.file();
@@ -216,17 +216,17 @@ public class JavadocClassBuilder extends JamClassBuilder {
   }
 
 
-  private void addAnnotations(EAnnotatedElement dest, ProgramElementDoc src) {
+  private void addAnnotations(MAnnotatedElement dest, ProgramElementDoc src) {
     String comments = src.getRawCommentText();
     if (comments != null) dest.createComment().setText(comments);
     if (mIs15) addAnnotations(dest,callGetAnnotations(src));
   }
 
-  private void addAnnotations(EAnnotatedElement dest, Object[] descs) {
+  private void addAnnotations(MAnnotatedElement dest, Object[] descs) {
     if (descs == null) return;
     if (!mIs15) return;
     for(int i=0; i<descs.length; i++) {
-      EAnnotation ann =
+      MAnnotation ann =
         dest.addAnnotationForType(callGetAnnotationType(descs[i]).qualifiedTypeName());
       ann.setArtifact(descs[i]);
       AnnotationProxy proxy = ann.getEditableProxy();

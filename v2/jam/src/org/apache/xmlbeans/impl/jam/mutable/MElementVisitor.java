@@ -12,12 +12,30 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.editable;
-
-import org.apache.xmlbeans.impl.jam.JPackage;
+package org.apache.xmlbeans.impl.jam.mutable;
 
 /**
+ *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EPackage extends  JPackage, EAnnotatedElement {
+public interface MElementVisitor {
+
+  public void visit(MClass clazz);
+
+  public void visit(MConstructor ctor);
+
+  public void visit(MField field);
+
+  public void visit(MMethod method);
+
+  public void visit(MParameter param);
+
+  public void visit(MAnnotation param);
+
+  public void visit(MComment param);
+
+//FIXME  implement this?   public void visit(MPackage param);
+
+
+
 }

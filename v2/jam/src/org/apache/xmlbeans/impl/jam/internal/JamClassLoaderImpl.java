@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JPackage;
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.internal.elements.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
@@ -61,7 +61,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   public final JClass loadClass(String fd)
   {
     fd = fd.trim();//REVIEW is this paranoid?
-    EClass out = (EClass)mFd2ClassCache.get(fd);
+    MClass out = (MClass)mFd2ClassCache.get(fd);
     if (out != null) return out;
     if (fd.startsWith("[")) {
       return ArrayClassImpl.createClassForFD(fd,this);
@@ -141,7 +141,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   }
 
   public void addToCache(JClass c) {
-    //FIXME hack for editable classes for now
+    //FIXME hack for mutable classes for now
     mFd2ClassCache.put(c.getQualifiedName(),c);
   }
 

@@ -16,14 +16,14 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EConstructor;
-import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
+import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
+import org.apache.xmlbeans.impl.jam.mutable.MElementVisitor;
 
 /**
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public final class ConstructorImpl extends InvokableImpl implements EConstructor {
+public final class ConstructorImpl extends InvokableImpl implements MConstructor {
 
   // ========================================================================
   // Constructors

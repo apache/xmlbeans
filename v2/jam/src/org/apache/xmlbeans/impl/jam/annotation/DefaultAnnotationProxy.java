@@ -69,7 +69,7 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
    * Introspects the src object for annotation member methods, invokes them
    * and creates corresponding EAnnotationMembers in the given dest object.
 
-  private void populateAnnotationMembers(EAnnotation dest,
+  private void populateAnnotationMembers(MAnnotation dest,
                                          Object src,
                                          Class srcClass)
   {

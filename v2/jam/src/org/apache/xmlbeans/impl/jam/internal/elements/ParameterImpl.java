@@ -17,18 +17,18 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EParameter;
+import org.apache.xmlbeans.impl.jam.mutable.MParameter;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
 
 /**
- * <p>Implementation of JParameter and EParameter.</p>
+ * <p>Implementation of JParameter and MParameter.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ParameterImpl extends MemberImpl implements EParameter {
+public class ParameterImpl extends MemberImpl implements MParameter {
 
   // ========================================================================
   // Variables
@@ -55,7 +55,7 @@ public class ParameterImpl extends MemberImpl implements EParameter {
   }
 
   // ========================================================================
-  // EParameter implementation
+  // MParameter implementation
 
   public void setType(String qcname) {
     if (qcname == null) throw new IllegalArgumentException("null typename");

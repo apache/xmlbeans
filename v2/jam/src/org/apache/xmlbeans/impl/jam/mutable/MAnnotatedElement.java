@@ -1,13 +1,15 @@
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 
 
 /**
+ * <p>Mutable version of JAnnotatedElement.</p>
+ *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EAnnotatedElement extends EElement, JAnnotatedElement {
+public interface MAnnotatedElement extends MElement, JAnnotatedElement {
 
   /**
    * <p>Creates an annotation to expose the metadata in a javadoc tag.
@@ -17,7 +19,7 @@ public interface EAnnotatedElement extends EElement, JAnnotatedElement {
    * @param tagName name of the javadoc tag to be represented.
    * @return
    */
-  public EAnnotation addAnnotationForTag(String tagName);
+  public MAnnotation addAnnotationForTag(String tagName);
 
   /**
    * <p>Creates an annotation to expose the metadata in a javadoc tag.</p>
@@ -26,30 +28,30 @@ public interface EAnnotatedElement extends EElement, JAnnotatedElement {
    * @param tagContents
    * @return
    */
-  public EAnnotation addAnnotationForTag(String tagName, String tagContents);
+  public MAnnotation addAnnotationForTag(String tagName, String tagContents);
 
   //DOCME
-  public EAnnotation addAnnotationForInstance(/*Annotation*/ Object jsr175annotationInstance);
+  public MAnnotation addAnnotationForInstance(/*Annotation*/ Object jsr175annotationInstance);
 
   //DOCME
-  public EAnnotation addAnnotationForType(String jsr175annotationClassname);
+  public MAnnotation addAnnotationForType(String jsr175annotationClassname);
 
   //DOCME actually not entirely clear we ever want to be able to do this
-  public EAnnotation addAnnotationForProxy(AnnotationProxy proxy);
+  public MAnnotation addAnnotationForProxy(AnnotationProxy proxy);
 
 
   //DOCME
-  public EAnnotation getEditableAnnotation(Class proxyClass);
+  public MAnnotation getEditableAnnotation(Class proxyClass);
 
   //DOCME
-  public EAnnotation getEditableAnnotation(String tagnameOr175typename);
+  public MAnnotation getEditableAnnotation(String tagnameOr175typename);
 
 
   //DOCME
-  public EComment getEditableComment();
+  public MComment getEditableComment();
 
   //DOCME
-  public EComment createComment();
+  public MComment createComment();
 
   //DOCME
   public void removeComment();

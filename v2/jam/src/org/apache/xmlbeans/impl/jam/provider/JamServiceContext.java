@@ -79,14 +79,14 @@ public interface JamServiceContext extends JamLogger {
   // Public methods
 
   /**
-   * @return The classpath to be searched when trying to initialize an EClass
+   * @return The classpath to be searched when trying to initialize an MClass
    * for a java class which was not in the inputSources or inputClasses,
    * or null.
    */
   public ResourcePath getInputClasspath();
 
   /**
-   * @return The sourcepath to be searched when trying to initialize an EClass
+   * @return The sourcepath to be searched when trying to initialize an MClass
    * for a java class which was not in the inputSources or inputClasses, or
    * null.
    */

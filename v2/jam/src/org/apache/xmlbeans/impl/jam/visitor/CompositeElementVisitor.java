@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.visitor;
 
-import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.mutable.*;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -37,35 +37,35 @@ public class CompositeElementVisitor extends ElementVisitor {
   // ========================================================================
   // ElementVisitor implementation
 
-  public void visit(EPackage pkg) {
+  public void visit(MPackage pkg) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(pkg);
   }
 
-  public void visit(EClass clazz) {
+  public void visit(MClass clazz) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(clazz);
   }
 
-  public void visit(EConstructor ctor) {
+  public void visit(MConstructor ctor) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(ctor);
   }
 
-  public void visit(EField field) {
+  public void visit(MField field) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(field);
   }
 
-  public void visit(EMethod method) {
+  public void visit(MMethod method) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(method);
   }
 
-  public void visit(EParameter param) {
+  public void visit(MParameter param) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(param);
   }
 
-  public void visit(EAnnotation ann) {
+  public void visit(MAnnotation ann) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(ann);
   }
 
-  public void visit(EComment comment) {
+  public void visit(MComment comment) {
     for(int i=0; i<mVisitors.length; i++) mVisitors[i].visit(comment);
   }
 

@@ -13,34 +13,18 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
-import org.apache.xmlbeans.impl.jam.JSourcePosition;
-
-import java.net.URI;
+import org.apache.xmlbeans.impl.jam.JAnnotation;
+import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 
 /**
- * An editable description of a location in a source file.
+ * <p>Mutable version of JAnnotation.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ESourcePosition extends JSourcePosition {
+public interface MAnnotation extends JAnnotation, MElement {
 
-  /**
-   * Sets the text column number for this source position.  Set to -1 if
-   * it is not known.
-   */
-  public void setColumn(int col);
-
-  /**
-   * Sets the text line number for this source position.  Set to -1 if
-   * it is not known.
-   */
-  public void setLine(int line);
-
-  /**
-   * Sets the URI of the source file.  Set to null if it is not known.
-   */
-  public void setSourceURI(URI uri);
+  public AnnotationProxy getEditableProxy();
 
 }

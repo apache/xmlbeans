@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EField;
+import org.apache.xmlbeans.impl.jam.mutable.MField;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
@@ -26,11 +26,11 @@ import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
 import java.lang.reflect.Modifier;
 
 /**
- * <p>Implementation of JField and EField.</p>
+ * <p>Implementation of JField and MField.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public final class FieldImpl extends MemberImpl implements EField {
+public final class FieldImpl extends MemberImpl implements MField {
 
   // ========================================================================
   // Variables
@@ -59,7 +59,7 @@ public final class FieldImpl extends MemberImpl implements EField {
 
 
   // ========================================================================
-  // EField implementation
+  // MField implementation
 
   public void setType(JClass type) {
     if (type == null) throw new IllegalArgumentException("null type");

@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.editable.*;
+import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 
 import java.lang.reflect.Constructor;
@@ -52,7 +52,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
   // ========================================================================
   // JamClassBuilder implementation
 
-  public EClass build(String packageName, String className)
+  public MClass build(String packageName, String className)
   {
     Class rclass;
     try {
@@ -61,7 +61,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
       getLogger().debug(cnfe);
       return null;
     }
-    EClass out = createClassToBuild(packageName, className, null);
+    MClass out = createClassToBuild(packageName, className, null);
     populate(out,rclass);
     return out;
   }
@@ -69,7 +69,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
   // ========================================================================
   // Private methods
 
-  private void populate(EClass dest, Class src) {
+  private void populate(MClass dest, Class src) {
     dest.setModifiers(src.getModifiers());
     dest.setIsInterface(src.isInterface());
     // set the superclass
@@ -91,14 +91,14 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     add175Annotations(dest, src);
   }
 
-  private void populate(EField dest, Field src) {
+  private void populate(MField dest, Field src) {
     dest.setSimpleName(src.getName());
     dest.setType(src.getType().getName());
     dest.setModifiers(src.getModifiers());
     add175Annotations(dest, src);
   }
 
-  private void populate(EConstructor dest, Constructor src) {
+  private void populate(MConstructor dest, Constructor src) {
     dest.setSimpleName(src.getName());
     dest.setModifiers(src.getModifiers());
     Class[] exceptions = src.getExceptionTypes();
@@ -112,7 +112,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     add175Annotations(dest, src);
   }
 
-  private void populate(EMethod dest, Method src) {
+  private void populate(MMethod dest, Method src) {
     dest.setSimpleName(src.getName());
     dest.setModifiers(src.getModifiers());
     dest.setReturnType(src.getReturnType().getName());
@@ -127,17 +127,17 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     add175Annotations(dest, src);
   }
 
-  private void addThrows(EInvokable dest, Class[] exceptionTypes) {
+  private void addThrows(MInvokable dest, Class[] exceptionTypes) {
     for(int i=0; i<exceptionTypes.length; i++) {
       dest.addException(exceptionTypes[i].getName());
     }
   }
 
-  private void addParameter(EInvokable dest,
+  private void addParameter(MInvokable dest,
                             int paramNum,
                             Class paramType,
                             /*Annotation*/ Object[] param175Anns) {
-    EParameter p = dest.addNewParameter();
+    MParameter p = dest.addNewParameter();
     p.setSimpleName("param"+paramNum);
     p.setType(paramType.getName());
     if (param175Anns != null) { //add the 175 annotations to the parameter
@@ -147,7 +147,7 @@ public class ReflectingClassBuilder extends JamClassBuilder {
     }
   }
 
-  private void add175Annotations(EAnnotatedElement dest, Object src) {
+  private void add175Annotations(MAnnotatedElement dest, Object src) {
     /*Annotation[]*/ Object[] anns = get175AnnotationsOn(src);
     if (anns == null || anns.length == 0) return;
     for(int i=0; i<anns.length; i++) {

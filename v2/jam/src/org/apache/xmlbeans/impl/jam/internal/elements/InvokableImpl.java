@@ -18,8 +18,8 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
 import org.apache.xmlbeans.impl.jam.JParameter;
-import org.apache.xmlbeans.impl.jam.editable.EInvokable;
-import org.apache.xmlbeans.impl.jam.editable.EParameter;
+import org.apache.xmlbeans.impl.jam.mutable.MInvokable;
+import org.apache.xmlbeans.impl.jam.mutable.MParameter;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
@@ -33,7 +33,7 @@ import java.util.List;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public abstract class InvokableImpl extends MemberImpl implements EInvokable {
+public abstract class InvokableImpl extends MemberImpl implements MInvokable {
 
   // ========================================================================
   // Variables
@@ -49,7 +49,7 @@ public abstract class InvokableImpl extends MemberImpl implements EInvokable {
   }
 
   // ========================================================================
-  // EConstructor implementation
+  // MConstructor implementation
 
   public void addException(JClass exceptionClass) {
     if (exceptionClass == null) {
@@ -86,23 +86,23 @@ public abstract class InvokableImpl extends MemberImpl implements EInvokable {
     removeException(exceptionClass.getQualifiedName());
   }
 
-  public EParameter addNewParameter() {
+  public MParameter addNewParameter() {
     if (mParameters == null) mParameters = new ArrayList();
-    EParameter param = new ParameterImpl(defaultName(mParameters.size()),
+    MParameter param = new ParameterImpl(defaultName(mParameters.size()),
                                           this,"java.lang.Object");
     mParameters.add(param);
     return param;
   }
 
-  public void removeParameter(EParameter parameter) {
+  public void removeParameter(MParameter parameter) {
     if (mParameters != null) mParameters.remove(parameter);
   }
 
-  public EParameter[] getEditableParameters() {
+  public MParameter[] getEditableParameters() {
     if (mParameters == null || mParameters.size() == 0) {
-    return new EParameter[0];
+    return new MParameter[0];
     } else {
-      EParameter[] out = new EParameter[mParameters.size()];
+      MParameter[] out = new MParameter[mParameters.size()];
       mParameters.toArray(out);
       return out;
     }

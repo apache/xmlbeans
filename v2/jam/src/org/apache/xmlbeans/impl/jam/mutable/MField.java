@@ -12,19 +12,23 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JComment;
+package org.apache.xmlbeans.impl.jam.mutable;
+
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JField;
 
 /**
+ * <p>Mutable version of JField.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EComment extends JComment {
+public interface MField extends JField, MMember {
 
-  /**
-   * Sets the text of this comment.
-   */
-  public void setText(String text);
+  public void setType(String typeName);
+
+  public void setUnqualifiedType(String typeName);
+
+  public void setType(JClass type);
 
 }

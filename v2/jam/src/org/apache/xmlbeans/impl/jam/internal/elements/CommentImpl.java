@@ -15,14 +15,14 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
-import org.apache.xmlbeans.impl.jam.editable.EComment;
+import org.apache.xmlbeans.impl.jam.mutable.MComment;
 
 /**
  * <p>Implementation
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public final class CommentImpl extends ElementImpl implements EComment {
+public final class CommentImpl extends ElementImpl implements MComment {
 
   // ========================================================================
   // Variables
@@ -35,7 +35,7 @@ public final class CommentImpl extends ElementImpl implements EComment {
   /*package*/ CommentImpl(ElementImpl parent) { super(parent); }
 
   // ========================================================================
-  // EComment implementation
+  // MComment implementation
 
   public void setText(String text) { mText = text; }
 

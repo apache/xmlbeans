@@ -13,27 +13,28 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JElement;
 
 /**
+ * <p>Mutable version of JElement.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EElement extends JElement {
+public interface MElement extends JElement {
 
   //DOCME
   public void setSimpleName(String name);
 
   //DOCME
-  public ESourcePosition createSourcePosition();
+  public MSourcePosition createSourcePosition();
 
   //DOCME
   public void removeSourcePosition();
 
   //DOCME
-  public ESourcePosition getEditableSourcePosition();
+  public MSourcePosition getEditableSourcePosition();
 
   //DOCME
   public void setArtifact(Object o);

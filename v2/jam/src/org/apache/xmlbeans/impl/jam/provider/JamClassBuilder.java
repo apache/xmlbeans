@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.provider;
 
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.internal.elements.ClassImpl;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
@@ -49,7 +49,7 @@ public abstract class JamClassBuilder {
   /**
    * <p>When a JamClassBuilder decides that it is going to be able
    * to respond to a build() request, it must call this method to get an
-   * initial instance of EClass.  It should then initialize the EClass
+   * initial instance of MClass.  It should then initialize the MClass
    * as appropriate and then return it.</p>
    *
    * @param packageName qualified name of the package that contains the
@@ -60,7 +60,7 @@ public abstract class JamClassBuilder {
    * the builder is planning on setting any unqualified type references
    * on the class.
    */
-  protected EClass createClassToBuild(String packageName,
+  protected MClass createClassToBuild(String packageName,
                                       String className,
                                       String[] importSpecs)
   {
@@ -84,8 +84,8 @@ public abstract class JamClassBuilder {
    * <p>This is called by JAM when it attempts to load a class.  If the
    * builder has access to an artifact (typically a java source or classfile)
    * that represents the given type, it should call createClass() to get
-   * a new instance of EClass, populate that instance, and then return it.
-   * It should not perform any caching - if an EClass is going to be returned,
+   * a new instance of MClass, populate that instance, and then return it.
+   * It should not perform any caching - if an MClass is going to be returned,
    * it should be a new instance.</p>
    *
    * <p>If not artififact is available, the builder should just return null,
@@ -96,5 +96,5 @@ public abstract class JamClassBuilder {
    * @param className
    * @return
    */ 
-  public abstract EClass build(String packageName, String className);
+  public abstract MClass build(String packageName, String className);
 }

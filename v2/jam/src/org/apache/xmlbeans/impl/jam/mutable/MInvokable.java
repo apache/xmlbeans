@@ -53,18 +53,17 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.jam.editable;
+package org.apache.xmlbeans.impl.jam.mutable;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JInvokable;
 
 /**
- * <p>Editable representation of a member which can be invoked, i.e.
- * and EMethod or an EConstructor.</p>
+ * <p>Mutable version of JInvokable.</p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface EInvokable extends JInvokable, EMember {
+public interface MInvokable extends JInvokable, MMember {
   /**
    * <p>Adds a declaration of a checked exception of the given type.</p>
    *
@@ -102,7 +101,7 @@ public interface EInvokable extends JInvokable, EMember {
    * Creates a new parameter on this method of type java.lang.Object and
    * with a default name.
    */
-  public EParameter addNewParameter();
+  public MParameter addNewParameter();
 
   /**
    * Removes the given parameter.  Does nothing if the parameter is not
@@ -110,12 +109,12 @@ public interface EInvokable extends JInvokable, EMember {
    *
    * @throws java.lang.IllegalArgumentException if either parameter is null.
    */
-  public void removeParameter(EParameter parameter);
+  public void removeParameter(MParameter parameter);
 
   /**
    * Returns all of the parameters on this method, or an empty array if there
    * are none.  This is simply a more strongly-typed version of
    * getParameters().
    */
-  public EParameter[] getEditableParameters();
+  public MParameter[] getEditableParameters();
 }
