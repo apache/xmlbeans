@@ -359,13 +359,18 @@ abstract class Saver
                 popMappings();
                 _postPop = false;
             }
+
+            _postProcess = false;
         }
         
         if (_done)
         {
-            _cur.release();
-            _cur = null;
-            
+            if (_cur != null)
+            {
+                _cur.release();
+                _cur = null;
+            }
+
             return false;
         }
 
