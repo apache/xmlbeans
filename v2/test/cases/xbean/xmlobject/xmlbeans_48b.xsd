@@ -1,0 +1,120 @@
+<?xml version="1.0"?>
+
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:muws-xs="http://docs.oasis-open.org/wsdm/2004/04/muws-0.5/schema"
+    targetNamespace="http://docs.oasis-open.org/wsdm/2004/04/muws-0.5/schema"
+    elementFormDefault="qualified" attributeFormDefault="unqualified">
+
+    <xs:element name="ResourceId" type="xs:anyURI"/>
+    <xs:element name="Name" type="xs:string"/>
+    <xs:element name="Version" type="xs:string"/>
+
+    <xs:complexType name="StateInformation">
+        <xs:sequence>
+            <xs:element name="State" type="xs:anyURI"/>
+            <xs:element name="TimeEntered" type="xs:dateTime"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="ResourceState" type="muws-xs:StateInformation"/>
+
+    <xs:attributeGroup name="MetricAttributes">
+        <xs:attribute name="ResetAt" type="xs:dateTime"/>
+        <xs:attribute name="LastUpdated" type="xs:dateTime"/>
+        <xs:attribute name="ChangeType">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="Counter"/>
+                    <xs:enumeration value="Gauge"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:attribute name="TimeScope">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="Interval"/>
+                    <xs:enumeration value="PointInTime"/>
+                    <xs:enumeration value="StartupInterval"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:attribute>
+        <xs:anyAttribute namespace="##other" processContents="lax"/>
+    </xs:attributeGroup>
+
+    <xs:complexType name="IntegerMetric">
+        <xs:simpleContent>
+            <xs:extension base="xs:integer">
+                <xs:attributeGroup ref="muws-xs:MetricAttributes"/>
+                <xs:anyAttribute namespace="##other" processContents="lax"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:complexType name="DurationMetric">
+        <xs:simpleContent>
+            <xs:extension base="xs:duration">
+                <xs:attributeGroup ref="muws-xs:MetricAttributes"/>
+                <xs:anyAttribute namespace="##other" processContents="lax"/>
+            </xs:extension>
+        </xs:simpleContent>
+    </xs:complexType>
+
+    <xs:element name="CurrentTime" type="xs:dateTime"/>
+
+    <xs:complexType name="ResourceIdentityPropertiesType">
+        <xs:sequence>
+            <xs:element ref="muws-xs:ResourceId"/>
+            <xs:element ref="muws-xs:Name" minOccurs="0"/>
+            <xs:element ref="muws-xs:Version" minOccurs="0"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded"
+                namespace="##other" processContents="lax"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="ResourceIdentityProperties"
+        type="muws-xs:ResourceIdentityPropertiesType"/>
+
+    <xs:complexType name="ResourceStatePropertiesType">
+        <xs:sequence>
+            <xs:element ref="muws-xs:ResourceState"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded"
+                namespace="##other" processContents="lax"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="ResourceStateProperties"
+        type="muws-xs:ResourceStatePropertiesType"/>
+
+    <xs:complexType name="ResourceMetricsPropertiesType">
+        <xs:sequence>
+            <xs:element ref="muws-xs:CurrentTime"/>
+            <xs:any minOccurs="0" maxOccurs="unbounded"
+                namespace="##other" processContents="lax"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:element name="ResourceMetricsProperties"
+        type="muws-xs:ResourceMetricsPropertiesType"/>
+
+    <xs:element name="Start">
+        <xs:complexType/>
+    </xs:element>
+    <xs:element name="StartOK">
+        <xs:complexType/>
+    </xs:element>
+
+    <xs:element name="Stop">
+        <xs:complexType/>
+    </xs:element>
+    <xs:element name="StopOK">
+        <xs:complexType/>
+    </xs:element>
+
+    <xs:element name="ResetAll">
+        <xs:complexType/>
+    </xs:element>
+    <xs:element name="ResetAllOK">
+        <xs:complexType/>
+    </xs:element>
+
+</xs:schema>
