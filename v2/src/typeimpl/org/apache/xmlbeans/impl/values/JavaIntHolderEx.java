@@ -60,6 +60,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.common.ValidationContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
 
 public abstract class JavaIntHolderEx extends JavaIntHolder
 {
@@ -76,7 +77,7 @@ public abstract class JavaIntHolderEx extends JavaIntHolder
     {
         int v;
 
-        try { v = Integer.parseInt(s); }
+        try { v = XsTypeConverter.lexInt(s); }
         catch (Exception e) { throw new XmlValueOutOfRangeException(); }
         
         if (_validateOnSet())

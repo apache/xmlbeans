@@ -121,6 +121,7 @@
         <pathelement location="build/lib/jsr173_ri.jar"/>
         <pathelement location="build/private/lib/drt.jar"/>
         <pathelement location="build/private/lib/easypo.jar"/>
+        <pathelement location="build/private/lib/numerals.jar"/>
         <pathelement location="build/private/lib/schemas.jar"/>
         <pathelement location="build/private/lib/xstypes.jar"/>
         <pathelement location="build/private/lib/enumtest.jar"/>
@@ -205,6 +206,7 @@
     <pathelement location="build/lib/jsr173_api.jar"/>
     <pathelement location="build/lib/jsr173_ri.jar"/>
     <pathelement location="build/private/lib/easypo.jar"/>
+    <pathelement location="build/private/lib/numerals.jar"/>
     <pathelement location="build/private/lib/schemas.jar"/>
     <pathelement location="build/private/lib/enumtest.jar"/>
     <pathelement location="build/private/lib/xstypes.jar"/>
@@ -221,7 +223,8 @@
 
   <!-- builddrt target ============================================== -->
 
-  <target name="drt.classes" depends="dirs, easypo.jar, schemas.jar, xstypes.jar, enumtest.jar, xbean_xpath.jar, test_marshal.classes, jsr173_ri.jar">
+  <target name="drt.classes" depends="dirs, easypo.jar, numerals.jar, schemas.jar, xstypes.jar,
+        enumtest.jar, xbean_xpath.jar, test_marshal.classes, jsr173_ri.jar">
     <mkdir dir="build/private/classes/drt"/>
     <javac
        srcdir="test/src/drt"
@@ -359,6 +362,22 @@
       <arg line="-out build/private/lib/easypo.jar test/src/easypo"/>
     </java>
   </target>
+
+    <!-- numerals (for testing) target ================================== -->
+
+    <target name="numerals.check">
+      <uptodate property="numerals.notRequired" targetfile="build/private/lib/numerals.jar">
+        <srcfiles dir="test/src/numerals" includes="**/*"/>
+        <srcfiles dir="build/ar" includes="xbean.jar"/>
+      </uptodate>
+    </target>
+
+    <target name="numerals.jar" depends="numerals.check, dirs, xbean" unless="numerals.notRequired">
+      <java classname="${schema_compiler}" classpathref="scomp.run.path" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <arg line="-out build/private/lib/numerals.jar test/src/numerals"/>
+      </java>
+    </target>
 
   <!-- schemas (for testing) target ================================ -->
 

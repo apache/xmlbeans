@@ -60,6 +60,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.ValidationContext;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -95,14 +96,10 @@ public abstract class JavaDoubleHolder extends XmlObjectBase
     {
         try
         {
-            return Double.parseDouble(v);
+            return XsTypeConverter.lexDouble(v);
         }
         catch(NumberFormatException e)
         {
-            if (v.equals("INF"))  return Double.POSITIVE_INFINITY;
-            if (v.equals("-INF")) return Double.NEGATIVE_INFINITY;
-            if (v.equals("NaN"))  return Double.NaN;
-            
             context.invalid("Invalid double value");
 
             return Double.NaN;

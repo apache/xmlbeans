@@ -64,6 +64,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem;
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
 
 public abstract class JavaIntHolder extends XmlObjectBase
 {
@@ -78,8 +79,8 @@ public abstract class JavaIntHolder extends XmlObjectBase
     public String compute_text(NamespaceManager nsm) { return Long.toString(_value); }
     protected void set_text(String s)
     {
-        try { set_int(Integer.parseInt(s)); }
-        catch (Exception e) { throw new XmlValueOutOfRangeException(); }
+        try { set_int(XsTypeConverter.lexInt(s)); }
+        catch (Exception e) { throw new XmlValueOutOfRangeException("invalid int: " + s); }
     }
     protected void set_nil()
     {

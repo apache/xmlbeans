@@ -77,7 +77,7 @@ package org.apache.xmlbeans.impl.common;
  * @author Arnaud  Le Hors, IBM
  * @author Rahul Srivastava, Sun Microsystems Inc.
  *
- * @version $Id: XMLChar.java,v 1.1 2003/09/26 21:23:26 ericvas Exp $
+ * @version $Id: XMLChar.java,v 1.2 2003/12/02 22:48:21 cezar Exp $
  */
 public class XMLChar {
 
@@ -587,7 +587,7 @@ public class XMLChar {
      * Check to see if a string is a valid NCName according to [4]
      * from the XML Namespaces 1.0 Recommendation
      *
-     * @param name string to check
+     * @param ncName string to check
      * @return true if name is a valid NCName
      */
     public static boolean isValidNCName(String ncName) {
