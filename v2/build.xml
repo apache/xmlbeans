@@ -197,7 +197,7 @@
 
   <!-- extensions test -->
   <target name="extensionsTest" depends="extensions.compile">
-    <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
+    <echo message="JUnit output being sent to build/test/output/drt-extensions.txt"/>
     <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
       <jvmarg value="-ea"/>
       <classpath>
@@ -207,7 +207,8 @@
         <pathelement location="build/lib/jsr173_ri.jar"/>
         <pathelement location="build/private/lib/extensions.jar"/>
         <pathelement location="build/test/extensionsuse"/>
-      </classpath>
+        <pathelement path='${java.class.path}'/>
+	  </classpath>
       <formatter type="plain"/>
       <test name="drtcases.ExtensionsTest" outfile="build/test/output/drt-extensions"/>
     </junit>
@@ -220,7 +221,7 @@
         <pathelement location="build/ar/xbean.jar"/>
         <pathelement location="build/lib/jsr173_api.jar"/>
         <pathelement location="build/lib/jsr173_ri.jar"/>
-      </classpath>
+	  </classpath>
     </javac>
 
     <java classname="${schema_compiler}" fork="true" failonerror="true">
@@ -230,6 +231,7 @@
         <pathelement location="build/lib/jsr173_api.jar"/>
         <pathelement location="build/lib/jsr173_ri.jar"/>
         <pathelement location="build/test/extensions"/>
+        <pathelement path='${java.class.path}'/>
       </classpath>
       <arg line="-out build/private/lib/extensions.jar test/src/extensions"/>
     </java>
@@ -246,8 +248,8 @@
       </classpath>
     </javac>
   </target>
-  <!-- extensions test -->
 
+  <!-- eric test -->
   <target name="eric" depends="erictest.jar"/>
 
   <target name="default" depends="deploy, builddrt"/>
@@ -766,7 +768,9 @@
 
   <!-- typeimpl target ============================================== -->
 
-  <target name="typeimpl.classes" depends="dirs, xmlstore.classes, newstore2.classes, repackage.classes, xmlpublic.classes, typestore.classes, xsdschema.classes, configschema.classes, toolschema.classes, jsr173_api.jar">
+  <target name="typeimpl.classes" depends="dirs,  xmlstore.classes, newstore2.classes,
+      repackage.classes, xmlpublic.classes, typestore.classes, xsdschema.classes,
+      configschema.classes, toolschema.classes, jsr173_api.jar, jam">
     <mkdir dir="build/classes/typeimpl"/>
     <javac destdir="build/classes/typeimpl" source="1.4" debug="on">
       <classpath>
@@ -780,6 +784,7 @@
         <pathelement location="build/classes/xmlconfig"/>
         <pathelement location="build/classes/configschema"/>
         <pathelement location="build/classes/xsdschema"/>
+        <pathelement location="build/classes/jam"/>
         <pathelement location="build/lib/jsr173_api.jar"/>
       </classpath>
 

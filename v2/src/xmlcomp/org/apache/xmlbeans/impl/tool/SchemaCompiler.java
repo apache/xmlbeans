@@ -613,11 +613,11 @@ public class SchemaCompiler
     }
 
     private static SchemaTypeSystem loadTypeSystem(
-        String name, File[] xsdFiles,
-        File[] wsdlFiles, File[] configFiles, ResourceLoader cpResourceLoader,
+        String name, File[] xsdFiles, File[] wsdlFiles, File[] configFiles,
+        File[] javaFiles, ResourceLoader cpResourceLoader,
         boolean download, boolean noUpa, boolean noPvr, boolean noAnn,
         Set mdefNamespaces, File baseDir, Map sourcesToCopyMap,
-        Collection outerErrorListener, File schemasDir, EntityResolver entResolver)
+        Collection outerErrorListener, File schemasDir, EntityResolver entResolver, File[] classpath)
     {
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
 
@@ -778,6 +778,7 @@ public class SchemaCompiler
         params.setName(name);
         params.setSchemas(sdocs);
         params.setConfigs(cdocs);
+        params.setJavaFiles(javaFiles);
         params.setLinkTo(linkTo);
         params.setOptions(opts);
         params.setErrorListener(errorListener);
@@ -785,6 +786,7 @@ public class SchemaCompiler
         params.setBaseURI(baseURI);
         params.setSourcesToCopyMap(sourcesToCopyMap);
         params.setSchemasDir(schemasDir);
+        params.setClasspath(classpath);
         return SchemaTypeSystemCompiler.compile(params);
     }
 
@@ -842,9 +844,9 @@ public class SchemaCompiler
 
         // build the in-memory type system
         XmlErrorWatcher errorListener = new XmlErrorWatcher(outerErrorListener);
-        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, configFiles, cpResourceLoader,
-            download, noUpa, noPvr, noAnn, mdefNamespaces, baseDir, sourcesToCopyMap, errorListener,
-            schemasDir, cmdLineEntRes);
+        SchemaTypeSystem system = loadTypeSystem(name, xsdFiles, wsdlFiles, configFiles,
+            javaFiles, cpResourceLoader, download, noUpa, noPvr, noAnn, mdefNamespaces,
+            baseDir, sourcesToCopyMap, errorListener, schemasDir, cmdLineEntRes, classpath);
         if (errorListener.hasError())
             result = false;
         long finish = System.currentTimeMillis();

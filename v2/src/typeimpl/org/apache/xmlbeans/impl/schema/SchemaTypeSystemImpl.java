@@ -188,7 +188,8 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         SchemaTypeSystemImpl stsi =
             SchemaTypeSystemCompiler.compileImpl(
                 null, (Schema[])schemas.toArray(EMPTY_SCHEMA_ARRAY),
-                (Config[])configs.toArray(EMPTY_CONFIG_ARRAY), linkTo, options, errorWatcher, false, null, null, null);
+                (Config[])configs.toArray(EMPTY_CONFIG_ARRAY), null, 
+                linkTo, options, errorWatcher, false, null, null, null, null);
 
         if (errorWatcher.hasError())
         {

@@ -834,6 +834,7 @@ public class XMLStreamReaderExtImpl
                     break loop;
 
                 case XMLStreamReader.END_ELEMENT:
+                    _location.set(_xmlSteam.getLocation());
                     depth--;
                     if (depth<0)
                         break loop;

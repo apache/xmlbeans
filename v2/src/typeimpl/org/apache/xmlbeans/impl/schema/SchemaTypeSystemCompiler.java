@@ -42,6 +42,7 @@ public class SchemaTypeSystemCompiler
         private String name;
         private Schema[] schemas;
         private Config[] configs;
+        private File[] javaFiles;
         private SchemaTypeLoader linkTo;
         private XmlOptions options;
         private Collection errorListener;
@@ -49,6 +50,7 @@ public class SchemaTypeSystemCompiler
         private URI baseURI;
         private Map sourcesToCopyMap;
         private File schemasDir;
+        private File[] classpath;
 
         public String getName()
         {
@@ -78,6 +80,16 @@ public class SchemaTypeSystemCompiler
         public void setConfigs(ConfigDocument.Config[] configs)
         {
             this.configs = configs;
+        }
+
+        public File[] getJavaFiles()
+        {
+            return javaFiles;
+        }
+
+        public void setJavaFiles(File[] javaFiles)
+        {
+            this.javaFiles = javaFiles;
         }
 
         public SchemaTypeLoader getLinkTo()
@@ -149,16 +161,29 @@ public class SchemaTypeSystemCompiler
         {
             this.schemasDir = schemasDir;
         }
+
+        public File[] getClasspath()
+        {
+            return classpath;
+        }
+
+        public void setClasspath(File[] classpath)
+        {
+            this.classpath = classpath;
+        }
     }
 
     public static SchemaTypeSystem compile(Parameters params)
     {
-        return compileImpl(params.getName(), params.getSchemas(), params.getConfigs(), params.getLinkTo(), params.getOptions(), params.getErrorListener(), params.isJavaize(), params.getBaseURI(), params.getSourcesToCopyMap(), params.getSchemasDir());
+        return compileImpl(params.getName(), params.getSchemas(), params.getConfigs(),
+            params.getJavaFiles(), params.getLinkTo(), params.getOptions(),
+            params.getErrorListener(), params.isJavaize(), params.getBaseURI(),
+            params.getSourcesToCopyMap(), params.getSchemasDir(), params.getClasspath());
     }
     
     /* package!!! */ static SchemaTypeSystemImpl compileImpl( String name, Schema[] schemas,
-         Config[] configs, SchemaTypeLoader linkTo, XmlOptions options, Collection outsideErrors,
-         boolean javaize, URI baseURI, Map sourcesToCopyMap, File schemasDir)
+         Config[] configs, File[] javaFiles, SchemaTypeLoader linkTo, XmlOptions options, Collection outsideErrors,
+         boolean javaize, URI baseURI, Map sourcesToCopyMap, File schemasDir, File[] classpath)
     {
         if (linkTo == null)
             throw new IllegalArgumentException("Must supply linkTo");
@@ -171,7 +196,7 @@ public class SchemaTypeSystemCompiler
         try
         {
             state.setErrorListener(errorWatcher);
-            state.setSchemaConfig(SchemaConfig.forConfigDocuments(configs));
+            state.setSchemaConfig(SchemaConfig.forConfigDocuments(configs, javaFiles, classpath));
             state.setOptions(options);
             state.setGivenTypeSystemName(name);
             state.setSchemasDir(schemasDir);
