@@ -78,17 +78,26 @@ import java.net.MalformedURLException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.InputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.CharArrayReader;
+import java.io.FileWriter;
+import java.io.Writer;
+import java.io.CharArrayWriter;
+import java.io.OutputStreamWriter;
 
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
+import org.apache.xmlbeans.impl.common.IOUtil;
+import org.apache.xmlbeans.impl.common.XmlEncodingSniffer;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-
-import javax.xml.transform.Source;
 
 public class StscImporter
 {
@@ -457,16 +466,21 @@ public class StscImporter
                 try
                 {
                     source = resolver.resolveEntity(namespace, absoluteURL);
-                }
+                    if (source==null)
+                         throw new XmlException("Unresolvable entity for: " + namespace + " : " + absoluteURL);
+                }   // TODO (cezar)add check source==null
                 catch (SAXException e)
                 {
                     throw new XmlException(e);
                 }
                     
+                state.addSourceUri(absoluteURL, null);
+
                 // first preference for InputSource contract: character stream
                 Reader reader = source.getCharacterStream();
                 if (reader != null)
                 {
+                    reader = copySchemaSource(absoluteURL, reader, state);
                     XmlOptions options = new XmlOptions();
                     options.setLoadLineNumbers();
                     options.setDocumentSourceName(absoluteURL);
@@ -477,6 +491,7 @@ public class StscImporter
                 InputStream bytes = source.getByteStream();
                 if (bytes != null)
                 {
+                    bytes = copySchemaSource(absoluteURL, bytes, state);
                     String encoding = source.getEncoding();
                     XmlOptions options = new XmlOptions();
                     options.setLoadLineNumbers();
@@ -491,6 +506,8 @@ public class StscImporter
                 String urlToLoad = source.getSystemId();
                 if (urlToLoad == null)
                     throw new IOException("EntityResolver unable to resolve " + absoluteURL + " (for namespace " + namespace + ")");
+
+                copySchemaSource(absoluteURL, state);
                 XmlOptions options = new XmlOptions();
                 options.setLoadLineNumbers();
                 options.setLoadMessageDigest();
@@ -498,13 +515,16 @@ public class StscImporter
                 URL urlDownload = new URL(urlToLoad);
                 return loader.parse(urlDownload, null, options);
             }
-            
+
             // no resolver - just use the URL directly, no substitution
+            state.addSourceUri(absoluteURL, null);
+            copySchemaSource(absoluteURL, state);
+
             XmlOptions options = new XmlOptions();
             options.setLoadLineNumbers();
             options.setLoadMessageDigest();
-                
             URL urlDownload = new URL(absoluteURL);
+
             return loader.parse(urlDownload, null, options);
         }
 
@@ -646,9 +666,11 @@ public class StscImporter
                 while (hasNextToScan())
                 {
                     SchemaToProcess stp = nextToScan();
-                    state.addSourceUri(stp.getSourceName(), null);
+                    String uri = stp.getSourceName();
+                    state.addSourceUri(uri, null);
                     result.add(stp);
-                    
+                    copySchemaSource(uri, state);
+
                     {
                         // handle imports
                         Import[] imports = stp.getSchema().getImportArray();
@@ -743,6 +765,123 @@ public class StscImporter
 
             return (SchemaToProcess[])result.toArray(new SchemaToProcess[result.size()]);
         }
-    }
 
+        private static Reader copySchemaSource(String url, Reader reader, StscState state)
+        {
+            //Copy the schema file if it wasn't already copied
+            if (state.getSchemasDir() == null)
+                return reader;
+
+            String schemalocation = state.sourceNameForUri(url);
+            File targetFile = new File(state.getSchemasDir(), schemalocation);
+            if (targetFile.exists())
+                return reader;
+
+            try
+            {
+                File parentDir = new File(targetFile.getParent());
+                IOUtil.createDir(parentDir, null);
+
+                CharArrayReader car = copy(reader);
+                XmlEncodingSniffer xes = new XmlEncodingSniffer(car, null);
+                Writer out = new OutputStreamWriter(new FileOutputStream(targetFile), xes.getXmlEncoding());
+                IOUtil.copyCompletely(car, out);
+
+                car.reset();
+                return car;
+            }
+            catch (IOException e)
+            {
+                System.err.println("IO Error " + e);
+                return reader;
+            }
+        }
+
+        private static InputStream copySchemaSource(String url, InputStream bytes, StscState state)
+        {
+            //Copy the schema file if it wasn't already copied
+            if (state.getSchemasDir() == null)
+                return bytes;
+
+            String schemalocation = state.sourceNameForUri(url);
+            File targetFile = new File(state.getSchemasDir(), schemalocation);
+            if (targetFile.exists())
+                return bytes;
+
+            try
+            {
+                File parentDir = new File(targetFile.getParent());
+                IOUtil.createDir(parentDir, null);
+
+                ByteArrayInputStream bais = copy(bytes);
+
+                FileOutputStream out = new FileOutputStream(targetFile);
+                IOUtil.copyCompletely(bais, out);
+
+                bais.reset();
+                return bais;
+            }
+            catch (IOException e)
+            {
+                System.err.println("IO Error " + e);
+                return bytes;
+            }
+        }
+
+        private static void copySchemaSource(String urlLoc, StscState state)
+        {
+            //Copy the schema file if it wasn't already copied
+            if (state.getSchemasDir()!=null)
+            {
+                String schemalocation = state.sourceNameForUri(urlLoc);
+
+                File targetFile = new File(state.getSchemasDir(), schemalocation);
+                if (!targetFile.exists())
+                {
+                    try
+                    {
+                        File parentDir = new File(targetFile.getParent());
+                        IOUtil.createDir(parentDir, null);
+
+                        InputStream in = null;
+                        URL url = new URL(urlLoc);
+                        // Copy the file from filepath to schema/src/<schemaFile>
+                        in = url.openStream();
+
+                        FileOutputStream out = new FileOutputStream(targetFile);
+                        IOUtil.copyCompletely(in, out);
+                    }
+                    catch (IOException e)
+                    {
+                        System.err.println("IO Error " + e);
+                        // failure = true; - not cause for failure
+                    }
+                }
+            }
+        }
+
+        private static ByteArrayInputStream copy(InputStream is) throws IOException
+        {
+            byte [] buf = new byte[1024];
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+            int bytesRead;
+            while(( bytesRead = is.read(buf, 0, 1024)) > 0)
+                baos.write(buf, 0, bytesRead);
+
+            return new ByteArrayInputStream(baos.toByteArray());
+        }
+
+        private static CharArrayReader copy(Reader is) throws IOException
+        {
+            char[] buf = new char[1024];
+            CharArrayWriter baos = new CharArrayWriter();
+
+            int bytesRead;
+            while(( bytesRead = is.read(buf, 0, 1024)) > 0)
+                baos.write(buf, 0, bytesRead);
+
+            return new CharArrayReader(baos.toCharArray());
+        }
+    }
 }

@@ -74,6 +74,7 @@ import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.config.SchemaConfig;
 
 import java.util.Collection;
+import java.io.File;
 
 public class SchemaTypeSystemCompiler
 {
@@ -88,6 +89,7 @@ public class SchemaTypeSystemCompiler
         private boolean javaize;
         private URI baseURI;
         private Map sourcesToCopyMap;
+        private File schemasDir;
 
         public String getName()
         {
@@ -178,16 +180,26 @@ public class SchemaTypeSystemCompiler
         {
             this.sourcesToCopyMap = sourcesToCopyMap;
         }
+
+        public File getSchemasDir()
+        {
+            return schemasDir;
+        }
+
+        public void setSchemasDir(File schemasDir)
+        {
+            this.schemasDir = schemasDir;
+        }
     }
 
     public static SchemaTypeSystem compile(Parameters params)
     {
-        return compileImpl(params.getName(), params.getSchemas(), params.getConfigs(), params.getLinkTo(), params.getOptions(), params.getErrorListener(), params.isJavaize(), params.getBaseURI(), params.getSourcesToCopyMap());
+        return compileImpl(params.getName(), params.getSchemas(), params.getConfigs(), params.getLinkTo(), params.getOptions(), params.getErrorListener(), params.isJavaize(), params.getBaseURI(), params.getSourcesToCopyMap(), params.getSchemasDir());
     }
     
-    /* package!!! */ static SchemaTypeSystemImpl compileImpl(
-        String name, Schema[] schemas, Config[] configs,
-        SchemaTypeLoader linkTo, XmlOptions options, Collection outsideErrors, boolean javaize, URI baseURI, Map sourcesToCopyMap)
+    /* package!!! */ static SchemaTypeSystemImpl compileImpl( String name, Schema[] schemas,
+         Config[] configs, SchemaTypeLoader linkTo, XmlOptions options, Collection outsideErrors,
+         boolean javaize, URI baseURI, Map sourcesToCopyMap, File schemasDir)
     {
         if (linkTo == null)
             throw new IllegalArgumentException("Must supply linkTo");
@@ -203,6 +215,7 @@ public class SchemaTypeSystemCompiler
             state.setSchemaConfig(SchemaConfig.forConfigDocuments(configs));
             state.setOptions(options);
             state.setGivenTypeSystemName(name);
+            state.setSchemasDir(schemasDir);
             if (baseURI != null)
                 state.setBaseUri(baseURI);
 

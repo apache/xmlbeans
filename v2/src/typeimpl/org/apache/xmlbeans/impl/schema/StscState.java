@@ -58,6 +58,7 @@ package org.apache.xmlbeans.impl.schema;
 
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.common.ResolverUtil;
 import org.apache.xmlbeans.impl.config.SchemaConfig;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaGlobalElement;
@@ -124,6 +125,7 @@ public class StscState
     private boolean _noAnn;
     private Set _mdefNamespaces     = buildDefaultMdefNamespaces();
     private EntityResolver _entityResolver;
+    private File _schemasDir;
 
     private static Set buildDefaultMdefNamespaces()
     {
@@ -314,6 +316,10 @@ public class StscState
         _doingDownloads = options.hasOption(XmlOptions.COMPILE_DOWNLOAD_URLS) ? true :
                 "true".equals(System.getProperty("xmlbean.downloadurls", "false"));
         _entityResolver = (EntityResolver)options.get(XmlOptions.ENTITY_RESOLVER);
+
+        if (_entityResolver == null)
+            _entityResolver = ResolverUtil.getGlobalEntityResolver();
+
         if (_entityResolver != null)
             _doingDownloads = true;
         
@@ -1123,4 +1129,14 @@ public class StscState
     Map _sourceForUri = new HashMap();
     URI _baseURI = URI.create(PROJECT_URL_PREFIX + "/");
     SchemaTypeLoader _s4sloader = XmlBeans.typeLoaderForClassLoader(SchemaDocument.class.getClassLoader());
+
+    public File getSchemasDir()
+    {
+        return _schemasDir;
+    }
+
+    public void setSchemasDir(File _schemasDir)
+    {
+        this._schemasDir = _schemasDir;
+    }
 }
