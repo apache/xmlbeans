@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
 <document>
 	<header>
@@ -28,6 +28,13 @@
 			<ul>
 				<li><link href="../docs/reference/index.html">XMLBeans Java Doc</link></li>
 			</ul>
+		</section>
+		<section>
+		    <title>Wiki Pages</title>
+			<p>Have an idea for a sample you'd like to see? Looking for ideas for a sample you'd like to write? 
+			    For a Wiki page where you can view ideas and add your own, see 
+			<link href="http://wiki.apache.org/xmlbeans/XmlBeansSampleSuggestions">XMLBeans Samples Suggestions</link>.</p>
+                                    <p>For a early explanation of what XMLBeans is all about, see <link href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansExplanation">XMLBeans Explanation</link>.</p>
 		</section>
 	</body>
 </document>
