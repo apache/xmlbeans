@@ -53,38 +53,39 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam;
 
-import java.io.File;
+import org.apache.xmlbeans.impl.jam.JService;
+import org.apache.xmlbeans.impl.jam.JServiceParams;
+
 import java.io.IOException;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * Interface through which custom JAM implementations may be exposed.
+ * Typical users should not be concerned with this interface - use
+ * JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public interface JProvider {
 
   // ========================================================================
   // Public methods
-  
-  
-  public void include(String pattern);
 
-  public void exclude(String pattern);
+  /**
+   * Creates a new JAM service based on the given parameters.
+   *
+   * @param params Parameters for the new service.
+   * @return a new service
+   * @throws IOException if an IO error occurrs while creating the service.
+   * @throws IllegalArgumentException is params is null or not an instance
+   * returned by JServiceFactory.createServiceParams().
+   */
+  public JService createService(JServiceParams params) throws IOException;
 
-  public void setClasspath(String cp);
-
-  public void setCaseSensitive(boolean b);
-
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
-
-  //  public boolean setFollowSymlinks(boolean b);
+  /**
+   * Returns a brief description of this JAM provider.
+   */
+  public String getDescription();
 
 }

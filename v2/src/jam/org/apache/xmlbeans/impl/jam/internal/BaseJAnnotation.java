@@ -68,6 +68,7 @@ import org.apache.xmlbeans.impl.jam.JSourcePosition;
  * @author Patrick Calahan <pcal@bea.com>
  */
 public class BaseJAnnotation extends BaseJElement implements JAnnotation {
+
   // ========================================================================
   // Constants
 
@@ -98,6 +99,15 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
     mParent = parent;
     mName = name;
     mValue = value;  // ok to be null
+    if (mValue != null) {
+      mValue = mValue.trim();
+      if (mValue.length() > 1) {
+        if  (mValue.charAt(0) == '\"' &&
+                mValue.charAt(mValue.length()-1) == '\"') {
+          mValue = mValue.substring(1,mValue.length()-1);
+        }
+      }
+    }
     mSourcePosition = pos;
   }
 
@@ -132,12 +142,13 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
   }
 
   public boolean getBooleanValue() {
-    return Boolean.valueOf(getStringValue()).booleanValue();
+    return Boolean.valueOf(getTrimmedStringValue().trim()).booleanValue();
   }
 
   public int getIntValue() {
+    if (mValue == null) return 0;
     try {
-      return Integer.parseInt(getStringValue());
+      return Integer.parseInt(getTrimmedStringValue().trim());
     } catch (NumberFormatException nfe) {
       return 0;
     }
@@ -145,7 +156,7 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
 
   public long getLongValue() {
     try {
-      return Long.parseLong(getStringValue());
+      return Long.parseLong(getTrimmedStringValue());
     } catch (NumberFormatException nfe) {
       return 0;
     }
@@ -153,7 +164,7 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
 
   public float getFloatValue() {
     try {
-      return Float.parseFloat(getStringValue());
+      return Float.parseFloat(getTrimmedStringValue());
     } catch (NumberFormatException nfe) {
       return 0;
     }
@@ -161,7 +172,7 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
 
   public double getDoubleValue() {
     try {
-      return Double.parseDouble(getStringValue());
+      return Double.parseDouble(getTrimmedStringValue());
     } catch (NumberFormatException nfe) {
       return 0;
     }
@@ -169,7 +180,7 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
 
   public short getShortValue() {
     try {
-      return Short.parseShort(getStringValue());
+      return Short.parseShort(getTrimmedStringValue());
     } catch (NumberFormatException nfe) {
       return 0;
     }
@@ -177,10 +188,19 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
 
   public byte getByteValue() {
     try {
-      return Byte.parseByte(getStringValue());
+      return Byte.parseByte(getTrimmedStringValue());
     } catch (NumberFormatException nfe) {
       return 0;
     }
+  }
+
+  // ========================================================================
+  // Protected methods
+
+  protected String getTrimmedStringValue() {
+    String v = getStringValue();
+    if (v == null) return "";
+    return v.trim();
   }
 
   // ========================================================================
@@ -210,6 +230,5 @@ public class BaseJAnnotation extends BaseJElement implements JAnnotation {
    */
   protected void getLocalComments(Collection out) {
   }
-
 
 }

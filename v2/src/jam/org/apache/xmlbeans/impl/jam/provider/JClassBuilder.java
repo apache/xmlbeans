@@ -53,38 +53,38 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.provider;
 
-package org.apache.xmlbeans.impl.jam;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * Defines an object which can create an instance of JClass for a named
+ * java class.  This interface is a key part of the boilerplate JProvider
+ * implementation provided by BaseJProvider; to write a new JAM provider,
+ * all you really have to do is implement this interface.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public interface JClassBuilder {
 
-  // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
-
-  public void exclude(String pattern);
-
-  public void setClasspath(String cp);
-
-  public void setCaseSensitive(boolean b);
-
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
-
-  //  public boolean setFollowSymlinks(boolean b);
+  /**
+   * Instantiates and returns a new JClass for the java class of the given
+   * name.  If the JClassBuilder has no knowledge about the named class,
+   * this method should return null.
+   *
+   * The given JClassLoader must be used for resolving all type references
+   * by the returned JClass instance.  The loader's JAnnotationLoader should
+   * also be respected for loading annotations.
+   *
+   * Note that unlike a JClassLoader.loadClass(), this method should always
+   * return a new instance of the JClass.  (The builtin JClassLoader machinery
+   * implementations will handle caching as appropriate).
+   *
+   * @param qualifiedClassname name of JClass to instantiate
+   * @param loader loader for resolving referenced types
+   * @return new JClass, or null if the class is not known
+   */
+  public JClass buildJClass(String qualifiedClassname, JClassLoader loader);
 
 }

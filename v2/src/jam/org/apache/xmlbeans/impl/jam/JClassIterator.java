@@ -53,38 +53,87 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Iterator;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
+ * A typed Iterator on a set of JClasses.
  *
- * @deprecated Please us JServiceFactory instead.
+ * The use of JClassIterator (as opposed to arrays or Collections of JClass)
+ * is encouraged as it can significantly reduce memory consumption when
+ * using JAM to process large numbers of java classes.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class JClassIterator implements Iterator {
+
+  // ========================================================================
+  // Variables
+
+  private JClassLoader mLoader;
+  private String[] mClassNames;
+  private int mIndex = 0;
+
+  // ========================================================================
+  // Constructor
+
+  /**
+   * Constructs a new JClassIterator
+   *
+   * @param loader JClassLoader from which to load the classes
+   * @param classes Array of full-qualified classnames to iterate on.
+   *
+   * @throws IllegalArgumentException if either argument is null.
+   */
+  public JClassIterator(JClassLoader loader, String[] classes) {
+    if (loader == null) throw new IllegalArgumentException("null loader");
+    if (classes == null) throw new IllegalArgumentException("null classes");
+    mLoader = loader;
+    mClassNames = classes;
+  }
 
   // ========================================================================
   // Public methods
-  
-  
-  public void include(String pattern);
 
-  public void exclude(String pattern);
+  /**
+   * Returns the next class.  Exactly equivalent to (JClass)next().
+   *
+   * @throws IndexOutOfBoundsException if there are no classes left to
+   * iterate on.
+   */
+  public JClass nextClass() {
+    if (!hasNext()) throw new IndexOutOfBoundsException();
+    mIndex++;
+    return mLoader.loadClass(mClassNames[mIndex-1]);
+  }
 
-  public void setClasspath(String cp);
+  // ========================================================================
+  // Iterator implementation
 
-  public void setCaseSensitive(boolean b);
+  /**
+   * Returns true if classes remain to be iterated upon.
+   */
+  public boolean hasNext() {
+    return mIndex < mClassNames.length;
+  }
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
 
-  //  public boolean setFollowSymlinks(boolean b);
+  /**
+   * Returns the next class.
+   *
+   * @throws IndexOutOfBoundsException if there are no classes left to
+   * iterate on.
+   */
+  public Object next() { return nextClass(); }
 
+  // ========================================================================
+  // Unsupported methods
+
+  /**
+   * @throws UnsupportedOperationException
+   */
+  public void remove() {
+    throw new UnsupportedOperationException();
+  }
 }

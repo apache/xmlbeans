@@ -53,38 +53,77 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.internal;
 
-package org.apache.xmlbeans.impl.jam;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JPackage;
+import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Map;
+import java.util.HashMap;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * Singleton classloader which should be at the root of every JClassLoader
+ * chain.  Handles primtives, void, and returns an UnresolvedJClass in the
+ * worst case.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class RootJClassLoader implements JClassLoader {
 
   // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
+  // Variables
 
-  public void exclude(String pattern);
+  private JAnnotationLoader mAnnotationLoader;
 
-  public void setClasspath(String cp);
+  // ========================================================================
+  // Static initializer
 
-  public void setCaseSensitive(boolean b);
+  private static final Map mFd2Class = new HashMap();
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  static {
+    for(int i=0; i<PrimitiveJClass.PRIMITIVES.length; i++) {
+      mFd2Class.put(PrimitiveJClass.PRIMITIVES[i][0],
+                    PrimitiveJClass.getPrimitiveClassForName(
+                            (String)PrimitiveJClass.PRIMITIVES[i][0]));
+    }
+    mFd2Class.put("void",VoidJClass.getInstance());
+  }
 
-  //  public boolean setFollowSymlinks(boolean b);
 
+  // ========================================================================
+  // Constructors
+
+  public RootJClassLoader() {
+    mAnnotationLoader = null;
+  }
+
+  public RootJClassLoader(JAnnotationLoader loader) {
+    mAnnotationLoader = loader;
+  }
+
+  // ========================================================================
+  // JClassLoader implementation
+
+  public JClass loadClass(String fd) {
+    if (fd == null) throw new IllegalArgumentException("null fd");
+    fd = fd.trim();
+    // check cache first
+    JClass out = (JClass)mFd2Class.get(fd);
+    if (out != null) return out;
+    return new UnresolvedJClass(fd);
+  }
+
+  public JPackage getPackage(String name) {
+    return new JPackageImpl(name);
+  }
+
+  public JAnnotationLoader getAnnotationLoader() {
+    return mAnnotationLoader;
+  }
+
+  public JClassLoader getParent() {
+    return null;
+  }
 }

@@ -73,6 +73,8 @@ import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
 /**
  * <p>javadoc-backed implementation of JClassLoader.
  *
+ * @deprecated Should be removed along with JFactory.
+ *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public class JDClassLoader implements JClassLoader
@@ -126,8 +128,8 @@ public class JDClassLoader implements JClassLoader
     }
   }
 
-  public JAnnotationLoader getAnnotationLoader() { 
-    return mAnnotationLoader; 
+  public JAnnotationLoader getAnnotationLoader() {
+    return mAnnotationLoader;
   }
 
   public JPackage getPackage(String named) {
@@ -165,22 +167,22 @@ public class JDClassLoader implements JClassLoader
    */
   public static String getFieldDescriptorFor(Type t) {
     String dim = t.dimension();
-    if (dim == null || dim.length() == 0) { 
+    if (dim == null || dim.length() == 0) {
       return t.qualifiedTypeName();
     } else {
       StringWriter out = new StringWriter();
       for(int i=0, iL=dim.length()/2; i<iL; i++) out.write("[");
-      JClass primClass = 
-	PrimitiveJClass.getPrimitiveClassForName(t.qualifiedTypeName());
+      JClass primClass =
+              PrimitiveJClass.getPrimitiveClassForName(t.qualifiedTypeName());
       if (primClass != null) { //i.e. if primitive
         out.write(primClass.getFieldDescriptor());
       } else {
         out.write("L");
         out.write(t.qualifiedTypeName());
         out.write(";");
-      } 
+      }
       return out.toString();
-    } 
+    }
   }
 
 }

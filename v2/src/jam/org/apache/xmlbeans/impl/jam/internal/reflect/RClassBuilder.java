@@ -53,38 +53,51 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.internal.reflect;
 
-package org.apache.xmlbeans.impl.jam;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.xmlbeans.impl.jam.provider.JClassBuilder;
+import org.apache.xmlbeans.impl.jam.provider.JPath;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class RClassBuilder implements JClassBuilder {
 
   // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
+  // Variables
 
-  public void exclude(String pattern);
+  private ClassLoader mLoader;
 
-  public void setClasspath(String cp);
+  // ========================================================================
+  // Factories
 
-  public void setCaseSensitive(boolean b);
+  public static RClassBuilder getSystemClassBuilder() {
+    return new RClassBuilder(ClassLoader.getSystemClassLoader());
+  }
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  public static RClassBuilder getClassBuilderFor(ClassLoader cl) {
+    return new RClassBuilder(cl);
+  }
 
-  //  public boolean setFollowSymlinks(boolean b);
+  // ========================================================================
+  // Constructors
 
+  private RClassBuilder(ClassLoader cl) {
+    if (cl == null) throw new IllegalArgumentException("null cl");
+    mLoader = cl;
+  }
+
+  // ========================================================================
+  // Implements JClassBuilder
+
+  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
+    try {
+      return new RClass(mLoader.loadClass(qualifiedName),loader);
+    } catch(ClassNotFoundException cnfe) {
+      return null;
+    }
+  }
 }

@@ -53,117 +53,96 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam.internal;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.StringTokenizer;
 import java.util.Vector;
-import org.apache.xmlbeans.impl.jam.JFileSet;
+import java.util.StringTokenizer;
+import java.util.List;
+import java.util.ArrayList;
 
 /**
- * @deprecated
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JFileSetImpl implements JFileSet {
+public class DirectoryScanner {
 
   // ========================================================================
   // Variables
 
-  private List mIncludes = new ArrayList();
-  private List mExcludes = new ArrayList();
-  private String mClasspath = null;
   private boolean mCaseSensitive = true;
-  private File mBasedir;
-  protected String[] includes;
-  protected String[] excludes;
-  protected Vector filesIncluded;
-  protected Vector dirsIncluded;
+  private File mRoot;
+  private List mIncludeList = null;
+  private List mExcludeList = null;
+  private String[] mIncludes;
+  private String[] mExcludes;
+  private Vector mFilesIncluded;
+  private Vector mDirsIncluded;
+  private boolean mIsDirty = false;
+  private String[] mIncludedFilesCache = null;
 
   // ========================================================================
   // Constructors
 
-  public JFileSetImpl(File root) {
-    if (root == null) throw new IllegalArgumentException("null root");
-    if (!root.exists()) {
-      throw new IllegalArgumentException(root + " does not exist");
-    }
-    if (!root.isDirectory()) {
-      throw new IllegalArgumentException(root + " is not a directory");
-    }
-    mBasedir = root;
+  public DirectoryScanner(File dirToScan) {
+    mRoot = dirToScan;
   }
 
   // ========================================================================
   // Public methods
 
-  public File[] getFiles() throws IOException {
-    String[] includes = new String[mIncludes.size()];
-    mIncludes.toArray(includes);
-    String[] excludes = new String[mExcludes.size()];
-    mExcludes.toArray(excludes);
-    setIncludes(includes);
-    setExcludes(excludes);
-    scan();
-    String[] names = getIncludedFiles();
-    File[] out = new File[names.length];
-    for (int i = 0; i < names.length; i++) {
-      out[i] = new File(mBasedir, names[i]);
-    }
-    return out;
-  }
-
-  // ========================================================================
-  // main() method
-
-  public static void main(String[] args) {
-    try {
-      JFileSetImpl fs = new JFileSetImpl(new File(args[0]));
-      for (int i = 1; i < args.length; i++) {
-        fs.include(args[i]);
-      }
-      File[] files = fs.getFiles();
-      for (int i = 0; i < files.length; i++) {
-        System.out.println(files[i].toString());
-      }
-      System.out.flush();
-    } catch (Throwable t) {
-      t.printStackTrace();
-      System.out.flush();
-      System.exit(-1);
-    }
-  }
-
-  // ========================================================================
-  // JFileSet implementation
-
   public void include(String pattern) {
-    mIncludes.add(pattern);
+    if (mIncludeList == null) mIncludeList = new ArrayList();
+    mIncludeList.add(pattern);
+    mIsDirty = true;
   }
 
   public void exclude(String pattern) {
-    mExcludes.add(pattern);
+    if (mExcludeList == null) mExcludeList = new ArrayList();
+    mExcludeList.add(pattern);
+    mIsDirty = true;
   }
 
-  public void setCaseSensitive(boolean b) {
-    mCaseSensitive = b;
+  /**
+   * Scans the root directory with the patterns that have been included
+   * and excluded and returns the names of the resulting file set
+   * relative to the root dir.
+   */
+  public String[] getIncludedFiles() throws IOException {
+    if (!mIsDirty && mIncludedFilesCache != null) {
+      return mIncludedFilesCache;
+    }
+    if (mIncludeList != null) {
+      String[] inc = new String[mIncludeList.size()];
+      mIncludeList.toArray(inc);
+      setIncludes(inc);
+    } else {
+      setIncludes(null);
+    }
+    if (mExcludeList != null) {
+      String[] exc = new String[mExcludeList.size()];
+      mExcludeList.toArray(exc);
+      setExcludes(exc);
+    } else {
+      setExcludes(null);
+    }
+    scan();
+    mIncludedFilesCache = new String[mFilesIncluded.size()];
+    mFilesIncluded.copyInto(mIncludedFilesCache);
+    return mIncludedFilesCache;
   }
 
-  public void setClasspath(String classpath) {
-    mClasspath = classpath;
+  public void setDirty() {
+    mIsDirty = true;
   }
 
-    // =========================================================================
-  // Public methods
-
-  public String getClasspath() { return mClasspath; }
+  public File getRoot() {
+    return mRoot;
+  }
 
   // ========================================================================
-  // Directory scanner stuff
+  // Private methods
 
   /**
    * Sets the list of include patterns to use. All '/' and '\' characters
@@ -180,9 +159,9 @@ public class JFileSetImpl implements JFileSet {
    */
   private void setIncludes(String[] includes) {
     if (includes == null) {
-      this.includes = null;
+      this.mIncludes = null;
     } else {
-      this.includes = new String[includes.length];
+      this.mIncludes = new String[includes.length];
       for (int i = 0; i < includes.length; i++) {
         String pattern;
         pattern = includes[i].replace('/', File.separatorChar).
@@ -190,7 +169,7 @@ public class JFileSetImpl implements JFileSet {
         if (pattern.endsWith(File.separator)) {
           pattern += "**";
         }
-        this.includes[i] = pattern;
+        this.mIncludes[i] = pattern;
       }
     }
   }
@@ -210,9 +189,9 @@ public class JFileSetImpl implements JFileSet {
    */
   private void setExcludes(String[] excludes) {
     if (excludes == null) {
-      this.excludes = null;
+      this.mExcludes = null;
     } else {
-      this.excludes = new String[excludes.length];
+      this.mExcludes = new String[excludes.length];
       for (int i = 0; i < excludes.length; i++) {
         String pattern;
         pattern = excludes[i].replace('/', File.separatorChar).
@@ -220,7 +199,7 @@ public class JFileSetImpl implements JFileSet {
         if (pattern.endsWith(File.separator)) {
           pattern += "**";
         }
-        this.excludes[i] = pattern;
+        this.mExcludes[i] = pattern;
       }
     }
   }
@@ -236,28 +215,28 @@ public class JFileSetImpl implements JFileSet {
    *            or isn't a directory).
    */
   private void scan() throws IllegalStateException, IOException {
-    if (includes == null) {
-      // No includes supplied, so set it to 'matches all'
-      includes = new String[1];
-      includes[0] = "**";
+    if (mIncludes == null) {
+      // No mIncludes supplied, so set it to 'matches all'
+      mIncludes = new String[1];
+      mIncludes[0] = "**";
     }
-    if (excludes == null) {
-      excludes = new String[0];
+    if (mExcludes == null) {
+      mExcludes = new String[0];
     }
-    filesIncluded = new Vector();
-    dirsIncluded = new Vector();
+    mFilesIncluded = new Vector();
+    mDirsIncluded = new Vector();
     if (isIncluded("")) {
       if (!isExcluded("")) {
-        dirsIncluded.addElement("");
+        mDirsIncluded.addElement("");
       }
     }
-    scandir(mBasedir, "", true);
+    scandir(mRoot, "", true);
   }
 
   /**
    * Scans the given directory for files and directories. Found files and
    * directories are placed in their respective collections, based on the
-   * matching of includes, excludes, and the selectors.  When a directory
+   * matching of mIncludes, mExcludes, and the selectors.  When a directory
    * is found, it is scanned recursively.
    *
    * @param dir   The directory to scan. Must not be <code>null</code>.
@@ -266,56 +245,56 @@ public class JFileSetImpl implements JFileSet {
    *              dir). Must not be <code>null</code>.
    * @param fast  Whether or not this call is part of a fast scan.
    *
-   * @see #filesIncluded
-   * @see #dirsIncluded
+   * @see #mFilesIncluded
+   * @see #mDirsIncluded
    */
   private void scandir(File dir, String vpath, boolean fast)
           throws IOException {
     String[] newfiles = dir.list();
     if (newfiles == null) {
       /*
-       * two reasons are mentioned in the API docs for File.list
-       * (1) dir is not a directory. This is impossible as
-       *     we wouldn't get here in this case.
-       * (2) an IO error occurred (why doesn't it throw an exception
-       *     then???)
-       */
+      * two reasons are mentioned in the API docs for File.list
+      * (1) dir is not a directory. This is impossible as
+      *     we wouldn't get here in this case.
+      * (2) an IO error occurred (why doesn't it throw an exception
+      *     then???)
+      */
       throw new IOException("IO error scanning directory "
-              + dir.getAbsolutePath());
+                            + dir.getAbsolutePath());
     }
     /*
-      if (!followSymlinks) {
-      Vector noLinks = new Vector();
-      for (int i = 0; i < newfiles.length; i++) {
-      try {
-      if (fileUtils.isSymbolicLink(dir, newfiles[i])) {
-      String name = vpath + newfiles[i];
-      File   file = new File(dir, newfiles[i]);
-      if (file.isDirectory()) {
-      dirsExcluded.addElement(name);
-      } else {
-      filesExcluded.addElement(name);
-      }
-      } else {
-      noLinks.addElement(newfiles[i]);
-      }
-      } catch (IOException ioe) {
-      String msg = "IOException caught while checking "
-      + "for links, couldn't get cannonical path!";
-      // will be caught and redirected to Ant's logging system
-      System.err.println(msg);
-      noLinks.addElement(newfiles[i]);
-      }
-      }
-      newfiles = new String[noLinks.size()];
-      noLinks.copyInto(newfiles);
-      }*/
+    if (!followSymlinks) {
+    Vector noLinks = new Vector();
+    for (int i = 0; i < newfiles.length; i++) {
+    try {
+    if (fileUtils.isSymbolicLink(dir, newfiles[i])) {
+    String name = vpath + newfiles[i];
+    File   file = new File(dir, newfiles[i]);
+    if (file.isDirectory()) {
+    dirsExcluded.addElement(name);
+    } else {
+    filesExcluded.addElement(name);
+    }
+    } else {
+    noLinks.addElement(newfiles[i]);
+    }
+    } catch (IOException ioe) {
+    String msg = "IOException caught while checking "
+    + "for links, couldn't get cannonical path!";
+    // will be caught and redirected to Ant's logging system
+    System.err.println(msg);
+    noLinks.addElement(newfiles[i]);
+    }
+    }
+    newfiles = new String[noLinks.size()];
+    noLinks.copyInto(newfiles);
+    }*/
     for (int i = 0; i < newfiles.length; i++) {
       String name = vpath + newfiles[i];
       File file = new File(dir, newfiles[i]);
       if (file.isDirectory()) {
         if (isIncluded(name) && !isExcluded(name)) {
-          dirsIncluded.addElement(name);
+          mDirsIncluded.addElement(name);
           scandir(file, name + File.separator, fast);
         } else {
           if (couldHoldIncluded(name)) {
@@ -325,7 +304,7 @@ public class JFileSetImpl implements JFileSet {
       } else if (file.isFile()) {
         if (isIncluded(name)) {
           if (!isExcluded(name)) {
-            filesIncluded.addElement(name);
+            mFilesIncluded.addElement(name);
           }
         }
       }
@@ -341,8 +320,8 @@ public class JFileSetImpl implements JFileSet {
    *         include pattern, or <code>false</code> otherwise.
    */
   private boolean isIncluded(String name) {
-    for (int i = 0; i < includes.length; i++) {
-      if (matchPath(includes[i], name, mCaseSensitive)) {
+    for (int i = 0; i < mIncludes.length; i++) {
+      if (matchPath(mIncludes[i], name, mCaseSensitive)) {
         return true;
       }
     }
@@ -358,8 +337,8 @@ public class JFileSetImpl implements JFileSet {
    *         least one include pattern, or <code>false</code> otherwise.
    */
   private boolean couldHoldIncluded(String name) {
-    for (int i = 0; i < includes.length; i++) {
-      if (matchPatternStart(includes[i], name, mCaseSensitive)) {
+    for (int i = 0; i < mIncludes.length; i++) {
+      if (matchPatternStart(mIncludes[i], name, mCaseSensitive)) {
         return true;
       }
     }
@@ -375,8 +354,8 @@ public class JFileSetImpl implements JFileSet {
    *         exclude pattern, or <code>false</code> otherwise.
    */
   private boolean isExcluded(String name) {
-    for (int i = 0; i < excludes.length; i++) {
-      if (matchPath(excludes[i], name, mCaseSensitive)) {
+    for (int i = 0; i < mExcludes.length; i++) {
+      if (matchPath(mExcludes[i], name, mCaseSensitive)) {
         return true;
       }
     }
@@ -384,19 +363,6 @@ public class JFileSetImpl implements JFileSet {
   }
 
 
-  /**
-   * Returns the names of the files which matched at least one of the
-   * include patterns and none of the exclude patterns.  The names are
-   * relative to the base directory.
-   *
-   * @return the names of the files which matched at least one of the
-   *         include patterns and none of the exclude patterns.
-   */
-  private String[] getIncludedFiles() {
-    String[] files = new String[filesIncluded.size()];
-    filesIncluded.copyInto(files);
-    return files;
-  }
 
   /**
    * Returns the names of the directories which matched at least one
@@ -407,8 +373,8 @@ public class JFileSetImpl implements JFileSet {
    * include patterns and none of the exclude patterns.
    */
   private String[] getIncludedDirectories() {
-    String[] directories = new String[dirsIncluded.size()];
-    dirsIncluded.copyInto(directories);
+    String[] directories = new String[mDirsIncluded.size()];
+    mDirsIncluded.copyInto(directories);
     return directories;
   }
 
@@ -432,7 +398,7 @@ public class JFileSetImpl implements JFileSet {
    * @return whether or not a given path matches the start of a given
    * pattern up to the first "**".
    */
-  public static boolean matchPatternStart(String pattern, String str) {
+  private static boolean matchPatternStart(String pattern, String str) {
     return matchPatternStart(pattern, str, true);
   }
 
@@ -454,7 +420,7 @@ public class JFileSetImpl implements JFileSet {
    * @return whether or not a given path matches the start of a given
    * pattern up to the first "**".
    */
-  public static boolean matchPatternStart(String pattern, String str,
+  private static boolean matchPatternStart(String pattern, String str,
                                           boolean mCaseSensitive) {
     // When str starts with a File.separator, pattern has to start with a
     // File.separator.
@@ -477,7 +443,7 @@ public class JFileSetImpl implements JFileSet {
         break;
       }
       if (!match(patDir, (String) strDirs.elementAt(strIdxStart),
-              mCaseSensitive)) {
+                 mCaseSensitive)) {
         return false;
       }
       patIdxStart++;
@@ -507,7 +473,7 @@ public class JFileSetImpl implements JFileSet {
    * @return <code>true</code> if the pattern matches against the string,
    *         or <code>false</code> otherwise.
    */
-  public static boolean matchPath(String pattern, String str) {
+  private static boolean matchPath(String pattern, String str) {
     return matchPath(pattern, str, true);
   }
 
@@ -524,8 +490,8 @@ public class JFileSetImpl implements JFileSet {
    * @return <code>true</code> if the pattern matches against the string,
    *         or <code>false</code> otherwise.
    */
-  public static boolean matchPath(String pattern, String str,
-                                  boolean mCaseSensitive) {
+  private static boolean matchPath(String pattern, String str,
+                                   boolean mCaseSensitive) {
     // When str starts with a File.separator, pattern has to start with a
     // File.separator.
     // When pattern starts with a File.separator, str has to start with a
@@ -547,7 +513,7 @@ public class JFileSetImpl implements JFileSet {
         break;
       }
       if (!match(patDir, (String) strDirs.elementAt(strIdxStart),
-              mCaseSensitive)) {
+                 mCaseSensitive)) {
         return false;
       }
       patIdxStart++;

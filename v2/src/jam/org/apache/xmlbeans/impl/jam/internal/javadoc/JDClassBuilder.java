@@ -53,38 +53,68 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
-package org.apache.xmlbeans.impl.jam;
+import org.apache.xmlbeans.impl.jam.provider.JClassBuilder;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
+import org.apache.xmlbeans.impl.jam.internal.JServiceParamsImpl;
+import com.sun.javadoc.RootDoc;
+import com.sun.javadoc.ClassDoc;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class JDClassBuilder implements JClassBuilder {
 
   // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
+  // Variables
 
-  public void exclude(String pattern);
+  private RootDoc mRootDoc;
 
-  public void setClasspath(String cp);
+  // ========================================================================
+  // Factory
 
-  public void setCaseSensitive(boolean b);
+  public static JClassBuilder create(JServiceParamsImpl params)
+          throws IOException
+  {
+    File[] files = params.getSourceFiles();
+    String sourcePath = (params.getInputSourcepath() == null) ? null :
+            params.getInputSourcepath().toString();
+    String classPath = (params.getInputClasspath() == null) ? null :
+            params.getInputClasspath().toString();
+    return JDClassLoaderFactory.getInstance().
+            createBuilder(files,
+                          params.getAnnotationLoader(),
+                          params.getOut(),
+                          sourcePath,
+                          classPath,
+                          null);//FIXME glean javadoc args from props
+  }
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  // ========================================================================
+  // Constructors
 
-  //  public boolean setFollowSymlinks(boolean b);
+  /*package*/ JDClassBuilder(RootDoc rd) {
+    if (rd == null) throw new IllegalArgumentException("null rd");
+    mRootDoc = rd;
+  }
 
+  // ========================================================================
+  // JClassBuilder implementation
+
+  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
+    ClassDoc jd = mRootDoc.classNamed(qualifiedName);
+    if (jd != null) {
+      return JDFactory.getInstance().createClass(jd,loader);
+    } else {
+      return null;
+    }
+  }
 }

@@ -53,38 +53,73 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.internal;
 
-package org.apache.xmlbeans.impl.jam;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JPackage;
+import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
+import org.apache.xmlbeans.impl.jam.provider.JClassBuilder;
 
-import java.io.File;
-import java.io.IOException;
+import java.util.Map;
+import java.util.WeakHashMap;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class StandardJClassLoader implements JClassLoader {
 
   // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
+  // Variables
 
-  public void exclude(String pattern);
+  private JClassBuilder mService;
+  private JAnnotationLoader mAnnotationLoader = null;
+  private JClassLoader mParent;
+  private Map mName2Package = new WeakHashMap();
+  private Map mFd2Class = new WeakHashMap();
 
-  public void setClasspath(String cp);
+  // ========================================================================
+  // Constructors
 
-  public void setCaseSensitive(boolean b);
+  public StandardJClassLoader(JClassBuilder service,
+                              JClassLoader parent,
+                              JAnnotationLoader annloader)
+  {
+    if (service == null) throw new IllegalArgumentException("null service");
+    if (parent == null) throw new IllegalArgumentException("null parent");
+    mService = service;
+    mAnnotationLoader = annloader; //this one can be null
+    mParent = parent;
+  }
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  // ========================================================================
+  // JClassLoader implementation
 
-  //  public boolean setFollowSymlinks(boolean b);
+  public JClass loadClass(String fieldDescriptor) {
+    //FIXME this is busted for arrays
+    JClass out = (JClass)mFd2Class.get(fieldDescriptor);
+    if (out != null) return out;
+    //FIXME check here to be sure it's a valid name
+    out = mService.buildJClass(fieldDescriptor,this);
+    if (out == null) {
+      out = mParent.loadClass(fieldDescriptor);
+      if (out == null) throw new IllegalStateException();
+    }
+    mFd2Class.put(fieldDescriptor,out);
+    return out;
+  }
 
+  public JPackage getPackage(String named) {
+    JPackage out = (JPackage)mName2Package.get(named);
+    if (out == null) {
+      out = new JPackageImpl(named);
+      mName2Package.put(named,out);
+    }
+    return out;
+  }
+
+  public JAnnotationLoader getAnnotationLoader() { return mAnnotationLoader; }
+
+  public JClassLoader getParent() { return mParent; }
 }

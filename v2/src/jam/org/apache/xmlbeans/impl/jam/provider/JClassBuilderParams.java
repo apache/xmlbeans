@@ -53,38 +53,52 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
-package org.apache.xmlbeans.impl.jam;
+package org.apache.xmlbeans.impl.jam.provider;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Properties;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * Structure containing information given to a BaseJProvider subclass in
+ * order to instantiate a new JClassBuilder.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public interface JClassBuilderParams {
 
   // ========================================================================
   // Public methods
-  
-  
-  public void include(String pattern);
 
-  public void exclude(String pattern);
+  /**
+   * @return The classpath to be searched when trying to build a JClass for
+   * a java class which was not in the inputSources or inputClasses, or null.
+   */
+  public JPath getInputClasspath();
 
-  public void setClasspath(String cp);
+  /**
+   * @return The sourcepath to be searched when trying to build a JClass for
+   * a java class which was not in the inputSources or inputClasses, or null.
+   */
+  public JPath getInputSourcepath();
 
-  public void setCaseSensitive(boolean b);
+  /**
+   * @return a PrintWriter to which logging and debugging information should
+   * be written by the JClassBuilder, or null, indicating that such output
+   * should be suppressed.
+   */
+  public PrintWriter getOut();
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  /**
+   * @return The classpath to be used in loading external classes on which
+   * the service implementation depends, or null.  This is not generally
+   * needed.
+   */
+  public JPath getToolClasspath();
 
-  //  public boolean setFollowSymlinks(boolean b);
-
+  /**
+   * @return a set of service implementation-specific properties specified
+   * by the client, or null.
+   */
+  public Properties getProperties();
 }

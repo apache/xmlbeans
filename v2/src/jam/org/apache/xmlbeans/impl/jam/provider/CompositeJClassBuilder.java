@@ -53,38 +53,43 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.provider;
 
-package org.apache.xmlbeans.impl.jam;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * A JClassBuilder which delegate to a list of JClassBuilders.  When requested
+ * to build a new JClass, it will try each builder on the list until
+ * one of them is able to build the class.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class CompositeJClassBuilder implements JClassBuilder {
 
   // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
+  // Variables
 
-  public void exclude(String pattern);
+  private JClassBuilder[] mServices;
 
-  public void setClasspath(String cp);
+  // ========================================================================
+  // Constructors
 
-  public void setCaseSensitive(boolean b);
+  public CompositeJClassBuilder(JClassBuilder[] services) {
+    if (services == null) throw new IllegalArgumentException("null services");
+    mServices = services;
+  }
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  // ========================================================================
+  // JClassBuilder implementation
 
-  //  public boolean setFollowSymlinks(boolean b);
+  public JClass buildJClass(String qualifiedName, JClassLoader loader) {
+    JClass out = null;
+    for(int i=0; i<mServices.length; i++) {
+      out = mServices[i].buildJClass(qualifiedName,loader);
+      if (out != null) return out;
+    }
+    return null;
+  }
 
 }
