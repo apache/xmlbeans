@@ -235,6 +235,34 @@ public class CompileTestBase extends TestCase {
         }
     }
 
+    public String getSchemaTop(String tns) {
+        return "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" +
+                "<xs:schema " +
+                "attributeFormDefault=\"unqualified\" elementFormDefault=\"qualified\" " +
+                "targetNamespace=\"http://" + tns + "\" xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" >";
+    }
+
+    public String getSchemaBottom() {
+        return "</xs:schema>";
+    }
+
+    public void checkPerf(long initBase, long endBase,
+                          long initIncr, long endIncr) throws Exception {
+        long initTime = endBase - initBase;
+        long incrTime = endIncr - initIncr;
+        long diffTime = initTime - incrTime;
+        System.out.println("Initial Compile Time: " + initTime);
+        //assert initbase.compareTo(endbase) > 0;
+        System.out.println("Incremental Compile Time" + incrTime);
+        //assert incrbase.compareTo(endincr) > 0;
+        System.out.println("Perf Time: " + diffTime);
+        if (!(diffTime > 0))
+            throw new Exception("InitTime: "+initTime+"\n" +
+                                "IncrTime: "+incrTime+"\n" +
+                                "Perf Time Increased: " + diffTime);
+        //assert incrbase.compareTo(endincr) > 0;
+    }
+
     public static String[] invalidSchemas = {
         "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
             "  <xs:complexType name='base' final='extension'/>\n" +
