@@ -119,6 +119,17 @@ public class GlobalEltNillable extends BaseCase {
         }
         assertTrue ( testElt.isNilGlobalEltNillableInt());
         assertEquals(0, testElt.getGlobalEltNillableInt());
+
+        //after setting the value, the nil attribute should be gone
+        testElt.setGlobalEltNillableInt(3);
+        assertEquals(
+                "<GlobalEltNillableInt" +
+                " xmlns=\"http://xbean/scomp/element/GlobalEltNillable\"" +
+                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" +
+                ">3</GlobalEltNillableInt>",
+                testElt.xmlText() );
+
+
     }
 
 

@@ -16,17 +16,13 @@
 
 package xmlcursor.detailed;
 
-import org.apache.xmlbeans.XmlOptions;
 import junit.framework.*;
 import junit.framework.Assert.*;
 
 import java.io.*;
 
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-import org.apache.xmlbeans.XmlDocumentProperties;
+import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 
 import javax.xml.namespace.QName;
@@ -34,6 +30,9 @@ import javax.xml.namespace.QName;
 import xmlcursor.common.*;
 
 import java.net.URL;
+
+import test.xbean.xmlcursor.cr196679.TestType;
+import test.xbean.xmlcursor.cr196679.TestDocument;
 
 
 /**
@@ -112,7 +111,40 @@ public class SelectionsTest extends BasicCursorTestCase {
 
     }
 
+    public void testCR196679() throws Exception
+  {
+      TestDocument testDoc = null;
+      String input="<ns:test xmlns:ns=\"http://xbean.test/xmlcursor/CR196679\">\n" +
+              "  <ns:name>myTest</ns:name>" +
+              "  <ns:value>5</ns:value>" +
+              "  </ns:test>";
+      testDoc = TestDocument.Factory.parse(input);
+      TestType test = testDoc.getTest();
 
+      String queryName =
+        "declare namespace ns='http://xbean.test/xmlcursor/CR196679'" +
+        "$this/ns:name";
+
+      String queryValue =
+        "declare namespace ns='http://xbean.test/xmlcursor/CR196679'" +
+        "$this/ns:value";
+
+      XmlCursor cursor = test.newCursor();
+      cursor.push();
+      cursor.selectPath(queryName);
+      cursor.toNextSelection();
+
+      assertEquals("myTest",cursor.getTextValue());
+
+      cursor.pop();
+      cursor.selectPath(queryValue);
+      cursor.toNextSelection();
+
+      assertEquals("5",cursor.getTextValue());//expected output is value=5
+
+      cursor.dispose();
+
+  }
     public void setUp()throws Exception{
 	m_xo=XmlObject.Factory.parse(sXml);
 	m_xc= m_xo.newCursor();
