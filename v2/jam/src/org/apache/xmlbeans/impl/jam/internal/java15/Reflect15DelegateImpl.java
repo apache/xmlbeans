@@ -80,6 +80,14 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
   public void extractAnnotations(MParameter dest, Method src, int paramNum) {
     Annotation[][] anns = src.getParameterAnnotations();
     if (anns == null) return;
+    if (anns.length <= paramNum) {
+      //FIXME something is not right here, just a quick fix.  bug in reflection?
+      if (mLogger.isVerbose(this)) {
+        mLogger.warning("method "+src.getName()+
+                        " has fewer than expected parameter annotations ");
+      }
+      return;
+    }
     extractAnnotations(dest,anns[paramNum]);
   }
 
@@ -90,7 +98,10 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
       anns = src.getParameterAnnotations();
     } catch(NullPointerException wtf) {
       //FIXME workaround, sun code throws an NPE here
-//      System.err.println("[Reflect15DelegateImpl] Ignoring apprent bug in reflection");
+      if (mLogger.isVerbose(this)) {
+        mLogger.verbose("ignoring unexpected error while calling Constructor.getParameterAnnotations():");
+        mLogger.verbose(wtf);
+      }
       //wtf.printStackTrace();
       return;
     }
