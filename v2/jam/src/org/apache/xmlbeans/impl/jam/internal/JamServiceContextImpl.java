@@ -30,6 +30,7 @@ import org.apache.xmlbeans.impl.jam.provider.CompositeJamClassBuilder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -360,6 +361,10 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
       if (mClasspath.contains(classpathElement)) return;
     }
     mClasspath.add(classpathElement);
+  }
+
+  public void setLoggerWriter(PrintWriter out) {
+    super.setOut(out);//FIXME
   }
 
 

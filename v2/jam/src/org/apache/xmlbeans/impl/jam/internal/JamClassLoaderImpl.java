@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.jam.internal.elements.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 
 import java.util.*;
+import java.lang.ref.WeakReference;
 
 /**
  *
@@ -35,7 +36,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   // Variables
 
   private Map mName2Package = new HashMap();
-  private Map mFd2ClassCache = null;
+  private Map mFd2ClassCache = new HashMap();
   private JamClassBuilder mBuilder;
   private MVisitor mInitializer = null;
   private ElementContext mContext;
@@ -62,8 +63,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
 
   public final JClass loadClass(String fd)
   {
-    fd = fd.trim();//REVIEW is this paranoid?
-    MClass out = (MClass)mFd2ClassCache.get(fd);
+    MClass out = cacheGet(fd);
     if (out != null) return out;
     if (fd.startsWith("[")) {
       return ArrayClassImpl.createClassForFD(fd,this);
@@ -87,10 +87,10 @@ public class JamClassLoaderImpl implements JamClassLoader {
       //or something for them which returns null rather than UnresolvedClass.
       out = new UnresolvedClassImpl(pkg,name,mContext);
       mContext.warning("failed to resolve class "+fd);
-      mFd2ClassCache.put(fd,out);
+      cachePut(out);
       return out;
     }
-    mFd2ClassCache.put(fd,out);
+    cachePut(out);
     ((ClassImpl)out).setState(ClassImpl.POPULATING);
     mBuilder.populate(out);
     if (mInitializer == null) {
@@ -132,9 +132,30 @@ public class JamClassLoaderImpl implements JamClassLoader {
    * <p>Stuff the primitives and void into the cache.</p>
    */
   private void initCache() {
-    mFd2ClassCache = new HashMap();
     PrimitiveClassImpl.mapNameToPrimitive(mContext,mFd2ClassCache);
     mFd2ClassCache.put("void",new VoidClassImpl(mContext));
+  }
+
+  private void cachePut(MClass clazz) {
+    mFd2ClassCache.put(new String(clazz.getFieldDescriptor().trim()),
+                       new WeakReference(clazz));
+  }
+
+  private MClass cacheGet(String fd) {
+    Object out = mFd2ClassCache.get(fd.trim());
+    if (out == null) return null;
+    if (out instanceof MClass) return (MClass)out;
+    if (out instanceof WeakReference) {
+      out = ((WeakReference)out).get();
+      if (out == null) {
+        mFd2ClassCache.remove(fd.trim());
+        return null;
+      } else {
+//        System.out.println("got "+fd+" from cache");
+        return (MClass)out;
+      }
+    }
+    throw new IllegalStateException();
   }
 
   // ========================================================================
@@ -150,7 +171,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
 
   public void addToCache(JClass c) {
     //FIXME hack for mutable classes for now
-    mFd2ClassCache.put(c.getQualifiedName(),c);
+    cachePut((MClass)c);
   }
 
   //ok, the best thinking here is that when you are in an initializer

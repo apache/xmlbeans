@@ -190,7 +190,7 @@ public interface JamServiceParams {
    * @param out a PrintWriter to write to
    * @throws IllegalArgumentException if the argument is null
    */
-//  public void setLogger(PrintWriter out);
+  public void setLoggerWriter(PrintWriter out);
 
   /**
    * </p>Enables verbose debugging output from all instances of the given

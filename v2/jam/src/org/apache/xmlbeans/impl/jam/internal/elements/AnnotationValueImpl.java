@@ -17,6 +17,9 @@ package org.apache.xmlbeans.impl.jam.internal.elements;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
+import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
+import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRefContext;
 
 
 /**
@@ -30,7 +33,7 @@ public class AnnotationValueImpl implements JAnnotationValue {
   // Variables
 
   private Object mValue = null;
-  private JClass mType = null;
+  private JClassRef mType = null;
   private String mName;
   private ElementContext mContext;
   private boolean mIsDefaultUsed = false;
@@ -53,7 +56,7 @@ public class AnnotationValueImpl implements JAnnotationValue {
     }
     mContext = ctx;
     mName = name;
-    mType = type;
+    mType = QualifiedJClassRef.create(type);
   }
 
   // ========================================================================
@@ -66,8 +69,7 @@ public class AnnotationValueImpl implements JAnnotationValue {
 
   public String getName() { return mName; }
 
-  public JClass getType() { return mType; }
-
+  public JClass getType() { return mType.getRefClass(); }
 
 
   public JAnnotation asAnnotation() {
