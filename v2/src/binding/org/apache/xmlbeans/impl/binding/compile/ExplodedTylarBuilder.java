@@ -64,6 +64,7 @@ import org.apache.tools.ant.BuildException;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
@@ -75,139 +76,148 @@ import java.util.Collection;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class ExplodedTylarBuilder implements TylarBuilder
-{
+public class ExplodedTylarBuilder implements TylarBuilder {
 
-    // =========================================================================
-    // Constants
+  // =========================================================================
+  // Constants
 
-    private static final int XML_INDENT = 2;
+  private static final int XML_INDENT = 2;
 
-    // =========================================================================
-    // Variables
+  // =========================================================================
+  // Variables
 
-    private File mDir;
-    private List mSchemas = new ArrayList();
-    private List mBindings = new ArrayList();
+  private File mDir;
+  private List mSchemas = new ArrayList();
+  private List mBindings = new ArrayList();
 
-    // =========================================================================
-    // Constructors
+  // =========================================================================
+  // Constructors
 
-    public ExplodedTylarBuilder(File dir)
-    {
-        if (dir == null) throw new IllegalArgumentException("null dir");
-        mDir = dir;
+  public ExplodedTylarBuilder(File dir) {
+    if (dir == null) throw new IllegalArgumentException("null dir");
+    mDir = dir;
+  }
+
+  // =========================================================================
+  // TylarBuilder implementation
+
+  public void buildTylar(Java2SchemaResult result) throws IOException {
+    createTargetDir();
+    // write schemas
+    writeXsdFiles(result.getSchemas());
+    // print the binding file
+    writeBindingFile(result.getBindingFile());
+  }
+
+  protected void writeBindingFile(BindingFile bf) throws IOException {
+    File file = new File(mDir, "binding-file.xml"); //FIXME naming
+    FileOutputStream out = null;
+    try {
+      out = new FileOutputStream(file);
+      BindingConfigDocument doc = bf.write();
+      doc.save(out,
+               new XmlOptions().setSavePrettyPrint().
+               setSavePrettyPrintIndent(XML_INDENT));
+    } catch (IOException ioe) {
+      throw ioe;
+    } finally {
+      try {
+        out.close();
+      } catch (IOException ohwell) {
+        ohwell.printStackTrace();
+      }
     }
+  }
 
-    // =========================================================================
-    // TylarBuilder implementation
-
-    public void buildTylar(JavaToSchemaResult result) throws IOException
-    {
-        createTargetDir();
-        
-        // write schemas
-        writeXsdFiles(result.getSchemaCodeResult());
-        
-        // print the binding file
-        writeBindingFile(result.getBindingFileResult());
-    }
-    
-    protected void writeBindingFile(BindingFileResult bfg) throws IOException
-    {
-        File file = new File(mDir, "binding-file.xml"); //FIXME naming
-        FileOutputStream out = null;
+  protected void writeXsdFiles(SchemaDocument[] xsds) throws IOException {
+    // print the schemas
+    for (int i = 0; i < xsds.length; i++) {
+      File file = new File(mDir, "schema-" + i + ".xsd");//FIXME naming
+      FileOutputStream out = null;
+      try {
+        out = new FileOutputStream(file);
+        xsds[i].save(out,
+                     new XmlOptions().setSavePrettyPrint().
+                     setSavePrettyPrintIndent(XML_INDENT));
+      } catch (IOException ioe) {
+        throw ioe;
+      } finally {
         try {
-            out = new FileOutputStream(file);
-            bfg.printBindingFile(out);
+          out.close();
+        } catch (Exception ohwell) {
+          ohwell.printStackTrace();
         }
-        catch (IOException ioe) {
-            throw ioe;
-        }
-        finally {
-            try {
-                out.close();
-            }
-            catch (IOException ohwell) {
-                ohwell.printStackTrace();
-            }
-        }
+      }
     }
-    
-    
-    protected void writeXsdFiles(SchemaCodeResult scg) throws IOException
-    {
-        // print the schemas
-        String[] tns = scg.getTargetNamespaces();
-        for (int i = 0; i < tns.length; i++) {
-            File file = new File(mDir, "schema-" + i + ".xsd");//FIXME naming
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(file);
-                scg.printSchema(tns[i], out);
-            }
-            catch (IOException ioe) {
-                throw ioe;
-            }
-            finally {
-                try {
-                    out.close();
-                }
-                catch (Exception ohwell) {
-                    ohwell.printStackTrace();
-                }
-            }
-        }
-    }
-    
-    protected void writeJavaFiles(JavaCodeResult jcg) throws IOException
-    {
-        Collection classnames = jcg.getToplevelClasses();
-        for (Iterator i = classnames.iterator(); i.hasNext(); )
-        {
-            String className = (String)i.next();
-            File javaFile = new File(mDir, className.replace('.','/') + ".java");
-            FileOutputStream out = null;
-            try {
-                out = new FileOutputStream(javaFile);
-                jcg.printSourceCode(className, out);
-            }
-            catch (IOException e) {
-                throw e;
-            }
-            finally
-            {
-                try {
-                    out.close();
-                }
-                catch (Exception ohwell) {
-                    ohwell.printStackTrace();
-                }
-            }
-        }
-    }
+  }
 
-    protected void createTargetDir()
-    {
-        if (!mDir.exists()) {
-            if (!mDir.mkdirs()) {
-                throw new IllegalArgumentException("failed to create dir " + mDir);
-            }
+  protected void writeJavaFiles(JavaCodeResult jcg) throws IOException {
+    Collection classnames = jcg.getToplevelClasses();
+    for (Iterator i = classnames.iterator(); i.hasNext();) {
+      String className = (String) i.next();
+      File javaFile = new File(mDir, className.replace('.', '/') + ".java");
+      FileOutputStream out = null;
+      try {
+        out = new FileOutputStream(javaFile);
+        jcg.printSourceCode(className, out);
+      } catch (IOException e) {
+        throw e;
+      } finally {
+        try {
+          out.close();
+        } catch (Exception ohwell) {
+          ohwell.printStackTrace();
         }
-        else {
-            if (!mDir.isDirectory())
-                throw new IllegalArgumentException("not a directory: " + mDir);
-        }
+      }
     }
-    
-    public void buildTylar(SchemaToJavaResult result) throws IOException
-    {
-        createTargetDir();
-        
-        // print the java files
-        writeJavaFiles(result.getJavaCodeResult());
-        
-        // print the binding file
-        writeBindingFile(result.getBindingFileResult());
+  }
+
+  protected void createTargetDir() {
+    if (!mDir.exists()) {
+      if (!mDir.mkdirs()) {
+        throw new IllegalArgumentException("failed to create dir " + mDir);
+      }
+    } else {
+      if (!mDir.isDirectory())
+        throw new IllegalArgumentException("not a directory: " + mDir);
     }
+  }
+
+  public void buildTylar(SchemaToJavaResult result) throws IOException {
+    createTargetDir();
+
+    // print the java files
+    writeJavaFiles(result.getJavaCodeResult());
+
+    // print the binding file
+    writeBindingFile(result.getBindingFileResult());
+  }
+
+  /**
+   * @deprecated I really think it is a bad idea for SchemaToJavaResult
+   * to have the responsibility for printing out the binding file and java
+   * code.  It should just return handles to things that get printed out
+   * by the tylar builder.  I have already made this change on the
+   * java->schema side.
+   */
+  private void writeBindingFile(BindingFileResult bfg) throws IOException
+  {
+    File file = new File(mDir, "binding-file.xml"); //FIXME naming
+    FileOutputStream out = null;
+    try {
+      out = new FileOutputStream(file);
+      bfg.printBindingFile(out);
+    }
+    catch (IOException ioe) {
+      throw ioe;
+    }
+    finally {
+      try {
+        out.close();
+      }
+      catch (IOException ohwell) {
+        ohwell.printStackTrace();
+      }
+    }
+  }
 }

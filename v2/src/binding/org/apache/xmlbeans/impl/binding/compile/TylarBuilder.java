@@ -75,7 +75,7 @@ import java.io.IOException;
  */
 public interface TylarBuilder {
 
-  public void buildTylar(JavaToSchemaResult result) throws IOException;
+  public void buildTylar(Java2SchemaResult result) throws IOException;
 
   public void buildTylar(SchemaToJavaResult result) throws IOException;
 }

@@ -128,22 +128,8 @@ public class Java2Schema {
    * Does the binding work on the inputs passed to the constructor and returns
    * the result.
    */
-  public JavaToSchemaResult bind() {
-    final JavaToSchemaResultImpl out = new JavaToSchemaResultImpl(mInput);
-    bind(mInput.getJClasses(),out);
-    final Throwable[] errors;
-    if (mErrors == null) {
-      errors = new Throwable[0];
-    } else {
-      errors = new Throwable[mErrors.size()];
-      mErrors.toArray(errors);
-    }
-    return new JavaToSchemaResult() {
-      public Throwable[] getErrors() { return errors; }
-      public BindingFileResult getBindingFileResult() { return out; }
-      public SchemaCodeResult getSchemaCodeResult() { return out; }
-      public JavaSourceSet getJavaSourceSet() { return out.getJavaSourceSet(); }
-    };
+  public Java2SchemaResult bind() {
+    return bind(mInput.getJClasses());
   }
 
   // ========================================================================
@@ -153,8 +139,8 @@ public class Java2Schema {
    * Runs through all of the given classes and creates both schema types
    * and bts bindings for them in the given result object.
    */
-  private void bind(JClass[] classes, JavaToSchemaResultImpl jtsr) {
-    jtsr.addBindingFile(mBindingFile = new BindingFile());
+  private Java2SchemaResult bind(JClass[] classes) {
+    mBindingFile = new BindingFile();
     mLoader = PathBindingLoader.forPath
             (new BindingLoader[] {mBindingFile,
                                   BuiltinBindingLoader.getInstance()});
@@ -166,7 +152,22 @@ public class Java2Schema {
       mSchema.setTargetNamespace(getTargetNamespace(classes[0]));
     }
     for(int i=0; i<classes.length; i++) getBindingTypeFor(classes[i]);
-    jtsr.addSchema(mSchemaDocument);
+    //collect the errors
+    final Throwable[] errors;
+    if (mErrors == null) {
+      errors = new Throwable[0];
+    } else {
+      errors = new Throwable[mErrors.size()];
+      mErrors.toArray(errors);
+    }
+    //build the result object
+    final BindingFile bf = mBindingFile;
+    final SchemaDocument[] schemas = {mSchemaDocument};
+    return new Java2SchemaResult() {
+      public Throwable[] getErrors() { return errors; }
+      public BindingFile getBindingFile() { return bf; }
+      public SchemaDocument[] getSchemas() { return schemas; }
+    };
   }
 
   /**

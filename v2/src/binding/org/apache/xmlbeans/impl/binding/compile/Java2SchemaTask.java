@@ -59,12 +59,9 @@ import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
 import org.apache.tools.ant.types.Path;
 import org.apache.tools.ant.types.Reference;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JFactory;
 import org.apache.xmlbeans.impl.jam.JFileSet;
-import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import java.io.File;
 import java.io.IOException;
@@ -179,7 +176,7 @@ public class Java2SchemaTask extends Task {
     };
     Java2Schema j2b = new Java2Schema(input);
     TylarBuilder tb = new ExplodedTylarBuilder(mDestDir);
-    JavaToSchemaResult result = j2b.bind();
+    Java2SchemaResult result = j2b.bind();
     try {
       tb.buildTylar(result);
     } catch(IOException ioe) {
