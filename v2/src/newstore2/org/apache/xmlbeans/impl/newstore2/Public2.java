@@ -308,3 +308,4 @@ public final class Public2
         DomImpl.impl_saajCallback_setSaajData( d, new Object() );
     }
 }
+ 

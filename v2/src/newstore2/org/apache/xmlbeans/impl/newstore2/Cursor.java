@@ -1286,4 +1286,4 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
 
     
     private GeneralChangeListener _nextGeneralChangeListener;
-}
+} 
