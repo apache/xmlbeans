@@ -80,7 +80,9 @@ abstract class SoapUnmarshalResult
             }
         }
 
+        final String id = soapAttributeHolder.id;
         updateAttributeState();
+
 
         final TypeUnmarshaller um;
         final ObjectFactory of = extractObjectFactory();
@@ -89,18 +91,34 @@ abstract class SoapUnmarshalResult
 
         try {
             final RuntimeBindingType rtt = getRuntimeType(bindingType);
+
+            //we have a 2x2 matrix of choices here (factory yes/no, id yes/no)
+            //would be nice to clean up this code
             if (of == null) {
-                if (hasXsiNil())
-                    um = NullUnmarshaller.getInstance();
-                else
-                    um = rtt.getUnmarshaller();
-                retval = um.unmarshal(this);
+                if (id == null) {
+                    if (hasXsiNil())
+                        um = NullUnmarshaller.getInstance();
+                    else
+                        um = rtt.getUnmarshaller();
+                    retval = um.unmarshal(this);
+                } else {
+                    if (!hasXsiNil() && rtt.hasElementChildren()) {
+                        final Object inter = rtt.createIntermediary(this);
+                        retval = umarshalComplexElementWithId(rtt, inter, id);
+                    } else {
+                        retval = unmarshalSimpleElementWithId(rtt, id);
+                    }
+                }
             } else {
                 final Object initial_obj = of.createObject(rtt.getJavaType());
                 um = rtt.getUnmarshaller();
                 final Object inter = rtt.createIntermediary(this, initial_obj);
-                um.unmarshalIntoIntermediary(inter, this);
-                retval = rtt.getFinalObjectFromIntermediary(inter, this);
+                if (id == null) {
+                    um.unmarshalIntoIntermediary(inter, this);
+                    retval = rtt.getFinalObjectFromIntermediary(inter, this);
+                } else {
+                    retval = umarshalComplexElementWithId(rtt, inter, id);
+                }
             }
         }
         catch (InvalidLexicalValueException ilve) {
@@ -310,8 +328,8 @@ abstract class SoapUnmarshalResult
 
     protected abstract QName getRefAttributeName();
 
-    private Object unmarshalElementProperty(RuntimeBindingProperty prop,
-                                            Object inter)
+    private Object unmarshalElementProperty(final RuntimeBindingProperty prop,
+                                            final Object inter)
         throws XmlException
     {
         final RuntimeBindingType actual_rtt =
@@ -329,19 +347,39 @@ abstract class SoapUnmarshalResult
 
         if (!hasXsiNil() && actual_rtt.hasElementChildren()) {
             final Object prop_inter = prop.createIntermediary(inter, actual_rtt, this);
-            final boolean update_again = updateRefTable(actual_rtt, prop_inter, id);
-            actual_rtt.getUnmarshaller().unmarshalIntoIntermediary(prop_inter, this);
-            this_val = actual_rtt.getFinalObjectFromIntermediary(prop_inter, this);
-            interToFinalMap().put(prop_inter, this_val);
-            if (update_again) {
-                refObjectTable.putObjectForRef(id, this_val);
-            }
+            this_val = umarshalComplexElementWithId(actual_rtt, prop_inter, id);
         } else {
-            TypeUnmarshaller um = getUnmarshaller(actual_rtt);
-            this_val = um.unmarshal(this);
-            if (id != null) {
-                refObjectTable.putForRef(id, this_val, this_val);
-            }
+            this_val = unmarshalSimpleElementWithId(actual_rtt, id);
+        }
+        return this_val;
+    }
+
+    //simple means xsi:nil == true or no element children
+    private Object unmarshalSimpleElementWithId(final RuntimeBindingType actual_rtt,
+                                                final String id)
+        throws XmlException
+    {
+        final TypeUnmarshaller um = getUnmarshaller(actual_rtt);
+        final Object this_val = um.unmarshal(this);
+        if (id != null) {
+            refObjectTable.putForRef(id, this_val, this_val);
+        }
+        return this_val;
+    }
+
+    //by "complex" I mean can have element children
+    private Object umarshalComplexElementWithId(final RuntimeBindingType actual_rtt,
+                                                final Object prop_inter,
+                                                final String id)
+        throws XmlException
+    {
+        final Object this_val;
+        final boolean update_again = updateRefTable(actual_rtt, prop_inter, id);
+        actual_rtt.getUnmarshaller().unmarshalIntoIntermediary(prop_inter, this);
+        this_val = actual_rtt.getFinalObjectFromIntermediary(prop_inter, this);
+        interToFinalMap().put(prop_inter, this_val);
+        if (update_again) {
+            refObjectTable.putObjectForRef(id, this_val);
         }
         return this_val;
     }
