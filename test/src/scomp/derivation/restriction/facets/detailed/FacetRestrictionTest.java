@@ -204,8 +204,35 @@ public class FacetRestrictionTest extends BaseCase {
 
        }
 
-     public void testWSElt() throws Throwable {
-        fail("do this test");
+    public void testWSElt() throws Throwable {
+
+        // whiteSpace="replace" case
+        WSReplaceEltDocument doc = WSReplaceEltDocument.Factory.parse("<WSReplaceElt " +
+                "xmlns=\"http://xbean/scomp/derivation/facets/FacetRestriction\">" +
+                " This is a    test.\nThe resulting string should convert tabs \t, line feeds \n  and carriage returns into a single space \n" +
+                "</WSReplaceElt>");
+
+        // whiteSpace="collapse " case
+        WSCollapseEltDocument doc2 = WSCollapseEltDocument.Factory.parse("<WSCollapseElt " +
+                "xmlns=\"http://xbean/scomp/derivation/facets/FacetRestriction\">" +
+                " This is a    test.\nThe resulting string should convert tabs \t, line feeds \n  and carriage returns into a single space \n" +
+                "</WSCollapseElt>");
+
+        try {
+            assertTrue(doc.validate(validateOptions));
+            assertTrue(doc2.validate(validateOptions));
+        }
+        catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
+
+        String replaceExpected = " This is a    test. The resulting string should convert tabs  , line feeds    and carriage returns into a single space  ";
+        assertEquals(replaceExpected, doc.getWSReplaceElt());
+
+        String collapseExpected = "This is a test. The resulting string should convert tabs , line feeds and carriage returns into a single space";
+        assertEquals(collapseExpected, doc2.getWSCollapseElt());
+
     }
 
    public void testEnumElt() throws Throwable {

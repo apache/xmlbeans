@@ -55,9 +55,9 @@
            </xs:restriction>
        </xs:simpleType>
 
-    <xs:simpleType name="WST">
+    <xs:simpleType name="WSTPreserve">
            <xs:restriction base="xs:string">
-               <xs:whiteSpace value="replace"/>
+               <xs:whiteSpace value="preserve"/>
            </xs:restriction>
        </xs:simpleType>
 
@@ -82,7 +82,7 @@
     <xs:element name="LengthElt" type="LengthT"/>
     <xs:element name="MinMaxLengthElt" type="MinMaxLengthT"/>
     <xs:element name="DigitsElt" type="DigitsT"/>
-    <xs:element name="WSElt" type="WST"/>
+    <xs:element name="WSPreserveElt" type="WSTPreserve"/>
     <xs:element name="EnumElt" type="EnumT"/>
     <xs:element name="PatternElt" type="PatternT"/>
 

@@ -16,15 +16,23 @@ package scomp.derivation.restriction.facets.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.facets.facets.*;
+import xbean.scomp.derivation.facets.facets.DigitsEltDocument;
+import xbean.scomp.derivation.facets.facets.EnumEltDocument;
+import xbean.scomp.derivation.facets.facets.EnumT;
+import xbean.scomp.derivation.facets.facets.LengthEltDocument;
+import xbean.scomp.derivation.facets.facets.MinMaxExclusiveDateEltDocument;
+import xbean.scomp.derivation.facets.facets.MinMaxExclusiveEltDocument;
+import xbean.scomp.derivation.facets.facets.MinMaxInclusiveDateEltDocument;
+import xbean.scomp.derivation.facets.facets.MinMaxInclusiveEltDocument;
+import xbean.scomp.derivation.facets.facets.MinMaxLengthEltDocument;
+import xbean.scomp.derivation.facets.facets.PatternEltDocument;
 
 import java.math.BigDecimal;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.Date;
 import java.util.TimeZone;
 
 import org.apache.xmlbeans.XmlErrorCodes;
-import org.apache.xmlbeans.XmlOptions;
 
 /**
  */
@@ -210,7 +218,22 @@ public class FacetsTest extends BaseCase {
     }
 
     public void testWSElt() throws Throwable {
-        fail("do this test");
+        WSPreserveEltDocument doc = WSPreserveEltDocument.Factory.parse("<WSPreserveElt " +
+                "xmlns=\"http://xbean/scomp/derivation/facets/Facets\">" +
+                "This is a\ttest.\nThe resulting string should preserve all whitespace     tabs and carriage returns as is\n" +
+                "</WSPreserveElt>");
+
+
+        try {
+            assertTrue(doc.validate(validateOptions));
+        }
+        catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
+
+        String expected = "This is a\ttest.\nThe resulting string should preserve all whitespace     tabs and carriage returns as is\n";
+        assertEquals(expected, doc.getWSPreserveElt());
     }
 
     public void testEnumElt() throws Throwable {

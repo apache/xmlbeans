@@ -57,11 +57,18 @@
            </xs:restriction>
        </xs:simpleType>
 
-    <xs:simpleType name="WST">
-           <xs:restriction base="base:WST">
+    <xs:simpleType name="WSTReplace">
+           <xs:restriction base="base:WSTPreserve">
                <xs:whiteSpace value="replace"/>
            </xs:restriction>
        </xs:simpleType>
+
+    <xs:simpleType name="WSTCollapse">
+           <xs:restriction base="base:WSTPreserve">
+               <xs:whiteSpace value="collapse"/>
+           </xs:restriction>
+       </xs:simpleType>
+
 
      <xs:simpleType name="EnumT">
            <xs:restriction base="base:EnumT">
@@ -82,7 +89,8 @@
     <xs:element name="LengthElt" type="xs:integer"/>
     <xs:element name="MinMaxLengthElt" type="MinMaxLengthT"/>
     <xs:element name="DigitsElt" type="DigitsT"/>
-    <xs:element name="WSElt" type="WST"/>
+    <xs:element name="WSReplaceElt" type="WSTReplace"/>
+    <xs:element name="WSCollapseElt" type="WSTCollapse" />
     <xs:element name="EnumElt" type="EnumT"/>
     <xs:element name="PatternElt" type="PatternT"/>
 

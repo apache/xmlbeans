@@ -14,12 +14,145 @@
  */
 package scomp.substGroup.restriction.detailed;
 
-import junit.framework.TestCase;
+import org.apache.xmlbeans.*;
+import scomp.common.BaseCase;
+
+import java.util.List;
+import java.util.Iterator;
+
 
 /**
  */
-public class Final extends TestCase{
-    public void testRun(){
-       fail("Compile time test"); 
+public class Final extends BaseCase {
+
+    /**
+     * The follwing are test for the 'final' attribute used in a base in substitution groups
+     * They are negative tests and test for #all, restriction, extenstion and 'extenstion restriction' values
+     */
+    public void testFinalAll() {
+        String inputXsd = constructInputXsdString("#all");
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(2, xme.getErrors().size());
+
+            Iterator itr = xme.getErrors().iterator();
+            XmlError eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+
+            eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+        }
+
+    }
+
+    public void testFinalExtRestr() {
+        String inputXsd = constructInputXsdString("extension restriction");
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(2, xme.getErrors().size());
+
+            Iterator itr = xme.getErrors().iterator();
+            XmlError eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+
+            eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+        }
+
+    }
+
+    public void testFinalRestriction() {
+        String inputXsd = constructInputXsdString("restriction");
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(1, xme.getErrors().size());
+
+            Iterator itr = xme.getErrors().iterator();
+            XmlError eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+        }
+    }
+
+    public void testFinalExtension() {
+        String inputXsd = constructInputXsdString("extension");
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(1, xme.getErrors().size());
+
+            Iterator itr = xme.getErrors().iterator();
+            XmlError eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+
+        }
+    }
+
+
+    private String constructInputXsdString(String sFinalAttributeValue) {
+        return ("    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "\n" +
+                "    <xsd:element name=\"Product\" type=\"BaseProductType\" final=\"" + sFinalAttributeValue + "\"/>\n" +
+                "\n" +
+                "    <xsd:complexType name=\"BaseProductType\">\n" +
+                "        <xsd:sequence>\n" +
+                "            <xsd:element name=\"number\" type=\"xsd:integer\" />\n" +
+                "            <xsd:element name=\"name\" type=\"xsd:string\" minOccurs=\"0\" />\n" +
+                "            <xsd:element name=\"size\" type=\"xsd:integer\" minOccurs=\"0\" />\n" +
+                "        </xsd:sequence>\n" +
+                "    </xsd:complexType>\n" +
+                "\n" +
+                "    <xsd:element name=\"Shirt\" type=\"ShirtType\" substitutionGroup=\"Product\" />\n" +
+                "\n" +
+                "    <xsd:complexType name=\"ShirtType\">\n" +
+                "        <xsd:complexContent>\n" +
+                "            <xsd:extension base=\"BaseProductType\">\n" +
+                "                <xsd:sequence>\n" +
+                "                    <xsd:element name=\"color\" type=\"xsd:string\"/>\n" +
+                "                </xsd:sequence>\n" +
+                "            </xsd:extension>\n" +
+                "        </xsd:complexContent>\n" +
+                "    </xsd:complexType>\n" +
+                "\n" +
+                "        <xsd:element name=\"Hat\" type=\"HatType\" substitutionGroup=\"Product\" />\n" +
+                "\n" +
+                "        <xsd:complexType name=\"HatType\">\n" +
+                "            <xsd:complexContent>\n" +
+                "                <xsd:restriction base=\"BaseProductType\">\n" +
+                "                    <xsd:sequence>\n" +
+                "                        <xsd:element name=\"number\" type=\"xsd:integer\"/>\n" +
+                "                    </xsd:sequence>\n" +
+                "                </xsd:restriction>\n" +
+                "            </xsd:complexContent>\n" +
+                "        </xsd:complexType>\n" +
+                "\n" +
+                "    </xsd:schema>");
     }
 }
+
