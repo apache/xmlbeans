@@ -46,7 +46,9 @@ public class BindingTests extends TestCase
         File typesonlyfile = TestEnv.xbeanCase("schema/typesonly/typesonly.xsd");
         File[] xsds = new File[] {typesonlyfile};
         Schema2Java compiler = new Schema2Java(
+          //FIXME please dont use product internals in a test
                 BindingCompilerTask.createSchemaTypeSystem(xsds));
+
         final JavaOutputStream joust = createJoust();
         BindingFile bindingFile = null;
         TylarWriter twriter = new TylarWriter() {

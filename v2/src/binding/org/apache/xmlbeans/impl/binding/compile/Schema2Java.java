@@ -192,6 +192,7 @@ public class Schema2Java extends BindingCompiler {
     bind();
     try {
       writer.writeBindingFile(bindingFile);
+      writer.writeSchemaTypeSystem(sts);
     } catch (IOException ioe) {
       if (!logError(ioe)) return;
     }
