@@ -65,7 +65,8 @@ public class SetIdentityTest extends TestCase {
 
     public void testSetIdentity() throws Exception {
         CarLocationMessageDocument clm =
-                (CarLocationMessageDocument) XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM));
+                (CarLocationMessageDocument) XmlObject.Factory.parse(
+                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         XmlCursor xc = clm.newCursor();
 
         xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +

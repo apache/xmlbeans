@@ -50,7 +50,7 @@ public class TestXmlReader extends TestCase {
      */
     public void testConcurrency() throws Exception {
         // Get the file contents
-        String xmlFile = JarUtil.getResourceFromJar(Common.XMLCASES_JAR, "xbean/xmlcursor/po.xml");
+        String xmlFile = JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml");
 
         StringXmlReader rdr1 = new StringXmlReader(xmlFile);
         StringXmlReader rdr2 = new StringXmlReader(xmlFile);

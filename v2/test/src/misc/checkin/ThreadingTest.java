@@ -30,77 +30,72 @@ import tools.util.*;
 
 import java.io.File;
 
-public class ThreadingTest extends TestCase
-{
-    public ThreadingTest(String name) { super(name); }
-    public static Test suite() { return new TestSuite(ThreadingTest.class); }
+public class ThreadingTest extends TestCase {
+    public ThreadingTest(String name) {
+        super(name);
+    }
+
+    public static Test suite() {
+        return new TestSuite(ThreadingTest.class);
+    }
 
     public static final int THREAD_COUNT = 4;
     public static final int ITERATION_COUNT = 1;
 
-    public class CompilationThread extends Thread
-    {
+    public class CompilationThread extends Thread {
         private Throwable _throwable;
         private boolean _result;
 
-        public Throwable getException()
-        {
+        public Throwable getException() {
             return _throwable;
         }
 
-        public boolean getResult()
-        {
+        public boolean getResult() {
             return _result;
         }
 
-        public void run()
-        {
-            try
-            {
-                for (int i = 0; i < ITERATION_COUNT; i++)
-                {
-                    SchemaTypeLoader loader = XmlBeans.loadXsd(new XmlObject[] {
-                        XmlObject.Factory.parse(
-                                 JarUtil.getResourceFromJarasFile("xsdcases.jar",
-                                         "xbean/misc/xmldsig-core-schema.xsd")) });
-                    File temp= JarUtil.getResourceFromJarasFile("xmlcases.jar",
-                                     "xbean/misc/signature-example.xml");
-                    XmlObject result = loader.parse(
-                             temp, null, null);
-                    Assert.assertEquals(loader.findDocumentType(new QName("http://www.w3.org/2000/09/xmldsig#", "Signature")), result.schemaType());
+        public void run() {
+            try {
+                for (int i = 0; i < ITERATION_COUNT; i++) {
+                    SchemaTypeLoader loader = XmlBeans.loadXsd(
+                            new XmlObject[]{
+                                XmlObject.Factory.parse(
+                                        JarUtil.getResourceFromJarasFile(
+                                                "xbean/misc/xmldsig-core-schema.xsd"))});
+                    File temp = JarUtil.getResourceFromJarasFile(
+                            "xbean/misc/signature-example.xml");
+                    XmlObject result = loader.parse(temp, null, null);
+                    Assert.assertEquals(loader.findDocumentType(new QName(
+                            "http://www.w3.org/2000/09/xmldsig#",
+                            "Signature")), result.schemaType());
                 }
                 _result = true;
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t) {
                 _throwable = t;
                 t.printStackTrace();
             }
         }
     }
 
-    public void testThreadedCompilation() throws Throwable
-    {
+    public void testThreadedCompilation() throws Throwable {
         CompilationThread[] threads = new CompilationThread[THREAD_COUNT];
-        for (int i = 0; i < threads.length; i++)
-        {
+        for (int i = 0; i < threads.length; i++) {
             threads[i] = new CompilationThread();
         }
 
-        for (int i = 0; i < threads.length; i++)
-        {
+        for (int i = 0; i < threads.length; i++) {
             threads[i].start();
         }
 
-        for (int i = 0; i < threads.length; i++)
-        {
+        for (int i = 0; i < threads.length; i++) {
             threads[i].join();
         }
 
-        for (int i = 0; i < threads.length; i++)
-        {
+        for (int i = 0; i < threads.length; i++) {
             Assert.assertNull(threads[i].getException());
-            Assert.assertTrue("Thread " + i + " didn't succeed", threads[i].getResult());
+            Assert.assertTrue("Thread " + i + " didn't succeed",
+                    threads[i].getResult());
         }
     }
 }

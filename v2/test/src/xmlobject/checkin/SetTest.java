@@ -73,23 +73,16 @@ public class SetTest extends BasicCursorTestCase {
     }
 
     public void testSetFromSTARTstronglyTyped() throws Exception {
-        // PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-        //         Common.XML_PURCHASEORDER);
-        PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+       PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         XmlString xcomment = pod.getPurchaseOrder().xgetComment();
         xcomment.setStringValue("new comment text");
         assertEquals("new comment text", pod.getPurchaseOrder().getComment());
     }
 
     public void testSetFromATTRstronglyTyped() throws Exception {
-/*        PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                Common.XML_PURCHASEORDER);
-                */
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         XmlDate xorderDate = pod.getPurchaseOrder().xgetOrderDate();
 
         assertFalse(xorderDate==null);
@@ -108,12 +101,9 @@ public class SetTest extends BasicCursorTestCase {
     }
 
     public void testSetFromFixedATTR() throws Exception {
-/*        PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                Common.XML_PURCHASEORDER);
-                */
+
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         USAddress usa = pod.getPurchaseOrder().getShipTo();
          assertFalse(usa==null);
 
@@ -126,12 +116,9 @@ public class SetTest extends BasicCursorTestCase {
     }
 
     public void testSetFromComplexType() throws Exception {
-        /*  PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                  Common.XML_PURCHASEORDER);
-                  */
+
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         USAddress usa = pod.getPurchaseOrder().getShipTo();
         assertFalse(usa==null);
         usa.set(

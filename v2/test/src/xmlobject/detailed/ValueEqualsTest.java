@@ -69,11 +69,9 @@ public class ValueEqualsTest extends BasicCursorTestCase {
     public void testValueEqualsTrue() throws Exception {
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument)
                 XmlObject.Factory.parse(
-                           JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                           JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         assertEquals(true, clmDoc.valueEquals(m_xo));
     }
 

@@ -58,8 +58,7 @@ public class CompareToTest extends BasicCursorTestCase {
 
     public void testCompareToEquals() throws Exception {
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         EventStatus[] aEventStatus = clmDoc.getCarLocationMessage()
                 .getEventStatusArray();
         if (aEventStatus.length < 1) {
@@ -83,8 +82,7 @@ public class CompareToTest extends BasicCursorTestCase {
 
     public void testCompareToNull() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         try {
             assertEquals(XmlObject.NOT_EQUAL, m_xo.compareTo(null));
             assertTrue(false);
@@ -99,7 +97,7 @@ public class CompareToTest extends BasicCursorTestCase {
 //        PurchaseOrderDocument poDoc = (PurchaseOrderDocument) XmlObject.Factory.parse(
    //             Common.XML_PURCHASEORDER);
            PurchaseOrderDocument poDoc = (PurchaseOrderDocument) XmlObject.Factory.parse(
-              JarUtil.getResourceFromJar("xmlcases.jar","xbean/xmlcursor/po.xml"));
+              JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
 
         try {
             BigDecimal bdUSPrice0 = poDoc.getPurchaseOrder().getItems()
@@ -118,7 +116,7 @@ public class CompareToTest extends BasicCursorTestCase {
     public void testCompareToGreaterThan() throws Exception {
         PurchaseOrderDocument poDoc = (PurchaseOrderDocument)
                 XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar","xbean/xmlcursor/po.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         try {
             BigDecimal bdUSPrice0 = poDoc.getPurchaseOrder().getItems()
                     .getItemArray(0)
@@ -137,8 +135,7 @@ public class CompareToTest extends BasicCursorTestCase {
 
     public void testCompareToString() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         try {
             assertEquals(0, m_xo.compareTo(""));
             fail("Expected ClassCastException");
@@ -150,8 +147,7 @@ public class CompareToTest extends BasicCursorTestCase {
 
     public void testCompareValue() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
         XmlObject xo = m_xc.getObject();

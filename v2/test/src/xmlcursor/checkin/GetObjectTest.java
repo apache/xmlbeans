@@ -48,8 +48,7 @@ public class GetObjectTest extends BasicCursorTestCase {
 
     public void testGetObjectFromSTARTDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         assertEquals(true,
                 m_xc.getObject() instanceof CarLocationMessageDocument);
@@ -57,8 +56,7 @@ public class GetObjectTest extends BasicCursorTestCase {
 
     public void testGetObjectFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
         assertEquals(true,
@@ -67,9 +65,8 @@ public class GetObjectTest extends BasicCursorTestCase {
 
     public void testGetObjectFromATTR() throws Exception {
         m_xo =
-                XmlObject.Factory.parse(//Common.XML_PURCHASEORDER);
-                        JarUtil.getResourceFromJar("xmlcases.jar",
-                                "xbean/xmlcursor/po.xml"));
+                XmlObject.Factory.parse(
+                        JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         m_xc = m_xo.newCursor();
         String sQuery=
                  "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\""+
@@ -82,8 +79,7 @@ public class GetObjectTest extends BasicCursorTestCase {
 
     public void testGetObjectFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.END);
         assertEquals(null, m_xc.getObject());
@@ -91,8 +87,7 @@ public class GetObjectTest extends BasicCursorTestCase {
 
     public void testGetObjectFromENDDOC() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toEndDoc();
         assertEquals(null, m_xc.getObject());
@@ -100,8 +95,7 @@ public class GetObjectTest extends BasicCursorTestCase {
 
     public void testGetObjectFromNAMESPACE() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.NAMESPACE);
         assertEquals(null, m_xc.getObject());
@@ -123,8 +117,7 @@ public class GetObjectTest extends BasicCursorTestCase {
 
     public void testGetObjectFromTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
         assertEquals(null, m_xc.getObject());

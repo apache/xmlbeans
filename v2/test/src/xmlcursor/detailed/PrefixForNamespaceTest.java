@@ -87,8 +87,7 @@ public class PrefixForNamespaceTest extends BasicCursorTestCase {
 
     public void testprefixForNamespaceFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                      JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                      JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
         assertEquals("xsi",
@@ -97,8 +96,7 @@ public class PrefixForNamespaceTest extends BasicCursorTestCase {
 
     public void testprefixForNamespaceFromSTARTdefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                      JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                      JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
         assertEquals("",

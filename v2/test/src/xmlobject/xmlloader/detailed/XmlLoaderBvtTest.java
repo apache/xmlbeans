@@ -46,8 +46,7 @@ public class XmlLoaderBvtTest extends BasicCursorTestCase {
 
         CarLocationMessageDocument clm =
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
-                           JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                           JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
 
         assertNotNull(clm);
     }

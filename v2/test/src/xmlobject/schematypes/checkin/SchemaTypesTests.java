@@ -54,8 +54,7 @@ public class SchemaTypesTests extends TestCase
         {
             doc = (CustomerDocument)
                     XmlObject.Factory.parse(
-                            JarUtil.getResourceFromJarasFile("xmlcases.jar",
-                                    "xbean/xmlobject/person.xml"));
+                            JarUtil.getResourceFromJarasFile("xbean/xmlobject/person.xml"));
         }
     }
 

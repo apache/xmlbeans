@@ -63,8 +63,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
         System.out.println("====== Example-1 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
                 JarUtil.getResourceFromJar
-                (Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/cdcatalog.xml"));
+                ("xbean/xmlcursor/xpath/cdcatalog.xml"));
 
 
         String ex0Simple =getQuery("testFunctionCount",0) ;
@@ -111,8 +110,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
      */
     public void testFunctionId() throws Exception {
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/cdcatalog.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/cdcatalog.xml"));
 
         String ex1Simple =getQuery("testFunctionId",0) ;
 
@@ -165,8 +163,7 @@ public abstract class XPathFunctionTest extends BaseXPathTest {
 
     public void testFunctionLast() throws Exception {
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/cdcatalog.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/cdcatalog.xml"));
 
         String ex1Simple = getQuery("testFunctionLast",0);
         String ex1Expanded = "";

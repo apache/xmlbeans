@@ -98,7 +98,7 @@ public class RemoveTest extends BasicCursorTestCase {
         //          Common.XMLCASES_JAR, Common.TRANXML_FILE_XMLCURSOR_PO));
         //XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
         m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
-                "xmlcases.jar", "xbean/xmlcursor/po.xml"));
+                "xbean/xmlcursor/po.xml"));
         m_xc = m_xo.newCursor();
         String sQuery=
                  "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\""+
@@ -121,7 +121,7 @@ public class RemoveTest extends BasicCursorTestCase {
 
         // m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
         m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
-                "xmlcases.jar", "xbean/xmlcursor/po.xml"));
+              "xbean/xmlcursor/po.xml"));
         m_xc = m_xo.newCursor();
          String sQuery=
                  "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\""+

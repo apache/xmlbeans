@@ -56,8 +56,7 @@ public class GetAttributeTextTest extends BasicCursorTestCase {
 
     public void testGetAttributeTextFromSTARTChildHasAttr() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         m_xc.selectPath("$this//items");
         assertEquals(null, m_xc.getAttributeText(new QName("partNum")));
@@ -65,8 +64,7 @@ public class GetAttributeTextTest extends BasicCursorTestCase {
 
     public void testGetAttributeTextFromSTARTDOCChildHasAttr() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         assertEquals(null, m_xc.getAttributeText(new QName("partNum")));
     }

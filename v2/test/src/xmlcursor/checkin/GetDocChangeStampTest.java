@@ -40,8 +40,7 @@ public class GetDocChangeStampTest extends BasicCursorTestCase {
 
     public void testGetDocChangeStampHasChanged() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
@@ -56,8 +55,7 @@ public class GetDocChangeStampTest extends BasicCursorTestCase {
 
     public void testGetDocChangeStampNotChanged() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
         m_xc = m_xo.newCursor();

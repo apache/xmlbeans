@@ -52,8 +52,7 @@ public class ValidateTest extends BasicCursorTestCase {
     public void testValidateTrue() throws Exception {
         //m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
          m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         assertEquals(true, m_xo.validate());
     }
 
@@ -61,18 +60,15 @@ public class ValidateTest extends BasicCursorTestCase {
         XmlOptions map = new XmlOptions();
         map.put(XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT, null);
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO)
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO)
                 , map);
 
         assertEquals(false, m_xo.validate(map));
     }
 
     public void testValidateFalseFixedAttr() throws Exception {
-       // m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
-          m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+         m_xo = XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
                     String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 

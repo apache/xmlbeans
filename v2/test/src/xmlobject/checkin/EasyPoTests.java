@@ -40,7 +40,7 @@ public class EasyPoTests extends TestCase
     public void testEasyPo() throws Exception
     {
         XmlPurchaseOrderDocumentBean doc = (XmlPurchaseOrderDocumentBean)
-            XmlObject.Factory.parse(JarUtil.getResourceFromJarasFile("xmlcases.jar",
+            XmlObject.Factory.parse(JarUtil.getResourceFromJarasFile(
                                      "xbean/xmlobject/easypo1.xml"));
         Assert.assertEquals(false, doc.isNil());
         PurchaseOrder order = doc.getPurchaseOrder();

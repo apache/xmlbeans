@@ -46,7 +46,8 @@ public class MultipleCursorSetTest extends TestCase {
     }
 
     public void testMultipleCursorSet() throws Exception {
-        XmlCursor xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM)).newCursor();
+        XmlCursor xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(
+                Common.TRANXML_FILE_CLM)).newCursor();
         xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                       "$this//EquipmentNumber");
         xc.toNextSelection();

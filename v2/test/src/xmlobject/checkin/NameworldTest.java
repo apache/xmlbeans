@@ -45,7 +45,7 @@ public class NameworldTest extends TestCase
     {
         NameworldDocument doc = (NameworldDocument)
                     XmlObject.Factory.parse(
-                                    JarUtil.getResourceFromJarasFile("xmlcases.jar",
+                                    JarUtil.getResourceFromJarasFile(
                                             "xbean/xmlobject/nameworld.xml"));
 
         Assert.assertEquals(new QName("http://openuri.org/nameworld", "nameworld"), doc.schemaType().getDocumentElementName());

@@ -58,8 +58,7 @@ public class CursorLocations extends BasicCursorTestCase {
 
 
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xo1 = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
 
 
@@ -249,8 +248,7 @@ public class CursorLocations extends BasicCursorTestCase {
 
         //PurchaseOrderDocument pod = (PurchaseOrderDocument)XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
         PurchaseOrderDocument pod = PurchaseOrderDocument.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         xc1 = pod.newCursor();
         xc2 = pod.newCursor();
         xc3 = pod.newCursor();

@@ -76,11 +76,9 @@ public class MoveTest extends BasicCursorTestCase {
     public void testMoveDifferentStoresLoadedFromFile() throws Exception {
         // load the documents and obtain a cursor
         XmlObject xobj0 = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         XmlObject xobj1 = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
 
         XmlCursor xc0 = xobj0.newCursor();
         XmlCursor xc1 = xobj1.newCursor();
@@ -128,8 +126,7 @@ public class MoveTest extends BasicCursorTestCase {
 
     public void testMoveNewLocation() throws Exception {
        m_xo=XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
         m_xc = m_xo.newCursor();
@@ -153,8 +150,7 @@ public class MoveTest extends BasicCursorTestCase {
 
     public void testMoveElementToMiddleOfTEXT() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
         m_xc = m_xo.newCursor();

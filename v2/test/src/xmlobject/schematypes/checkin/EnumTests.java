@@ -38,7 +38,7 @@ public class EnumTests extends TestCase
     {
         StatusreportDocument doc = (StatusreportDocument)
                     XmlObject.Factory.parse(
-                            JarUtil.getResourceFromJarasFile("xmlcases.jar",
+                            JarUtil.getResourceFromJarasFile(
                                     "xbean/xmlobject/enumtest.xml"));
 
         Quantity.Enum[] contents = new Quantity.Enum[]

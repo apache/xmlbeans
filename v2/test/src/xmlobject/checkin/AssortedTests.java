@@ -194,7 +194,7 @@ public class AssortedTests extends TestCase
     public static void testParse() throws Exception
     {
         XmlTime xt = XmlTime.Factory.parse("<xml-fragment>12:00:00</xml-fragment>");
-        Assert.assertEquals("12:00:00", xt.calendarValue().toString());
+        Assert.assertEquals("12:00:00", xt.getCalendarValue().toString());
     }
 
     

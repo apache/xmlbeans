@@ -58,7 +58,7 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
     }
 
     public void testTypeForClass() throws Exception {
-        m_xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM)).newCursor();
+        m_xc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM)).newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//GeographicLocation");
         m_xc.toNextSelection();
         GeographicLocation gl = (GeographicLocation) m_xc.getObject();
@@ -87,7 +87,7 @@ public class XmlLoaderMiscTest extends BasicCursorTestCase {
         SchemaTypeLoader stl = XmlBeans.typeLoaderForClassLoader(CarLocationMessageDocument.class.getClassLoader());
         if (stl == null)
             fail("typeLoaderForClassLoader failed with CarLocationMessageDocument.class");
-        m_xo = stl.parse(JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM), null, null);
+        m_xo = stl.parse(JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM), null, null);
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//FleetID");
         m_xc.toNextSelection();
