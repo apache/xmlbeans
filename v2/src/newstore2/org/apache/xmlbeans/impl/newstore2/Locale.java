@@ -2288,7 +2288,10 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     
     public void exit ( )
     {
-        assert _numTempFramesLeft >= 0;
+       // assert _numTempFramesLeft >= 0;
+        //asserts computed frame fits between 0 and _tempFrames.length
+        assert _numTempFramesLeft >= 0  && ( _numTempFramesLeft <= _tempFrames.length - 1 ):
+                " Temp frames mismanaged. Impossible stack frame. Unsynchronized: "+noSync();
 
         int frame = _tempFrames.length - ++_numTempFramesLeft;
 
