@@ -23,6 +23,7 @@ import org.apache.xmlbeans.SchemaModelGroup;
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaIdentityConstraint;
+import org.apache.xmlbeans.ResourceLoader;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import javax.xml.namespace.QName;

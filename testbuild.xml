@@ -848,6 +848,7 @@
             includes="${excludes}"
             classpathref="test.run.classpath"
             optimize="on"
+            debug="on"
             source="1.4"
             verbose="false"
             failonerror="true"/>

@@ -19,6 +19,8 @@ import javax.xml.namespace.QName;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+import java.io.File;
 
 import javax.xml.stream.XMLStreamReader;
 
@@ -122,6 +124,7 @@ public final class XmlBeans
     private static final Method _nodeToXmlObjectMethod = buildNodeToXmlObjectMethod();
     private static final Method _nodeToXmlStreamMethod = buildNodeToXmlStreamMethod();
     private static final Method _streamToNodeMethod = buildStreamToNodeMethod();
+    private static final Constructor _pathResourceLoaderConstructor = buildPathResourceLoaderConstructor();
 
     private static RuntimeException causedException ( RuntimeException e, Throwable cause )
     {
@@ -138,6 +141,24 @@ public final class XmlBeans
         return new XmlException( e.getMessage(), e );
     }
 
+    private static final Constructor buildConstructor ( String className, Class[] args )
+    {
+        try
+        {
+            return
+                Class.forName(
+                    className, false, XmlBeans.class.getClassLoader() ).
+                getConstructor( args );
+        }
+        catch ( Exception e )
+        {
+            throw causedException(
+                new IllegalStateException(
+                    "Cannot load constructor for " + className +
+                ": verify that xbean.jar is on the classpath" ), e );
+        }
+    }
+    
     private static final Method buildMethod ( String className, String methodName, Class[] args )
     {
         try
@@ -184,27 +205,10 @@ public final class XmlBeans
 
     private static final Method buildTypeLoaderBuilderMethod ( )
     {
-        Class resourceLoaderClass;
-        
-        try
-        {
-            resourceLoaderClass =
-                Class.forName(
-                    "org.apache.xmlbeans.impl.schema.ResourceLoader",
-                    false, XmlBeans.class.getClassLoader() );
-        }
-        catch ( Exception e )
-        {
-            throw causedException(
-                new IllegalStateException(
-                    "Cannot load " + "ResourceLoader" +
-                        ": verify that xbean.jar is on the classpath" ), e );
-        }
-        
         return
             buildMethod(
                 "org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl", "build",
-                new Class[] { SchemaTypeLoader[].class, resourceLoaderClass, ClassLoader.class } );
+                new Class[] { SchemaTypeLoader[].class, ResourceLoader.class, ClassLoader.class } );
     }
 
     private static final Method buildCompilationMethod()
@@ -236,6 +240,14 @@ public final class XmlBeans
             buildMethod(
                 "org.apache.xmlbeans.impl.newstore2.Locale", "streamToNode",
                 new Class[] { XMLStreamReader.class } );
+    }
+    
+    private static final Constructor buildPathResourceLoaderConstructor()
+    {
+        return
+            buildConstructor(
+                "org.apache.xmlbeans.impl.schema.PathResourceLoader",
+                new Class[] { File[].class } );
     }
 
     /**
@@ -510,7 +522,7 @@ public final class XmlBeans
      */
     public static SchemaTypeSystem compileXsd(XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
     {
-        return compileXmlBeans(null, null, schemas, null, typepath, null, options);
+        return compileXmlBeans(null, null, schemas, null, typepath!=null ? typepath : getContextTypeLoader(), null, options);
     }
 
     /**
@@ -558,7 +570,7 @@ public final class XmlBeans
      */
     public static SchemaTypeSystem compileXsd(SchemaTypeSystem system, XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
     {
-        return compileXmlBeans(null, system, schemas, null, typepath, null, options);
+        return compileXmlBeans(null, system, schemas, null, typepath != null ? typepath : getContextTypeLoader(), null, options);
     }
 
     /**
@@ -682,7 +694,53 @@ public final class XmlBeans
             throw causedException( new IllegalStateException(e.getMessage()), e );
         }
     }
+    
+    /**
+     * Returns a SchemaTypeLoader that searches for compiled schema types
+     * in the given ResourceLoader.
+     * 
+     * @see XmlBeans#resourceLoaderForPath(File[])
+     */
+    public static SchemaTypeLoader typeLoaderForResource(ResourceLoader resourceLoader)
+    {
+        try
+        {
+            return (SchemaTypeLoader)_typeLoaderBuilderMethod.invoke(null, new Object[] {null, resourceLoader, null});
+        }
+        catch (IllegalAccessException e)
+        {
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xbean.jar is correct"), e);
+        }
+        catch (InvocationTargetException e)
+        {
+            throw causedException(new IllegalStateException(e.getMessage()), e);
+        }
+    }
 
+    /**
+     * Returns a new ResourceLoader for a search path where each component of
+     * the path is either a directory or a compiled xbean jar.
+     */
+    public static ResourceLoader resourceLoaderForPath(File[] path)
+    {
+        try
+        {
+            return (ResourceLoader)_pathResourceLoaderConstructor.newInstance(new Object[] {path});
+        }
+        catch (IllegalAccessException e)
+        {
+            throw causedException(new IllegalStateException("No access to SchemaTypeLoaderImpl: verify that version of xbean.jar is correct"), e);
+        }
+        catch (InstantiationException e)
+        {
+            throw causedException(new IllegalStateException(e.getMessage()), e);
+        }
+        catch (InvocationTargetException e)
+        {
+            throw causedException(new IllegalStateException(e.getMessage()), e);
+        }
+    }
+    
     /**
      * Returns the SchemaType from a corresponding XmlObject subclass,
      * or null if none.

@@ -13,7 +13,7 @@
  *  limitations under the License.
  */
 
-package org.apache.xmlbeans.impl.schema;
+package org.apache.xmlbeans;
 
 import java.io.InputStream;
 
