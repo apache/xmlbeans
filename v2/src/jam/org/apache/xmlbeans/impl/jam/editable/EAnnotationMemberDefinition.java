@@ -55,14 +55,14 @@
 */
 package org.apache.xmlbeans.impl.jam.editable;
 
-import org.apache.xmlbeans.impl.jam.JAnnotationMemberDefinition;
+import org.apache.xmlbeans.impl.jam.JAnnotationMemberDeclaration;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface EAnnotationMemberDefinition
-        extends JAnnotationMemberDefinition, EElement {
+        extends JAnnotationMemberDeclaration, EElement {
 
 
 }

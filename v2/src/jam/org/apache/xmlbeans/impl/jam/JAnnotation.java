@@ -104,7 +104,7 @@ public interface JAnnotation extends JElement {
   /**
    * Returns a representation of this annotation's type declaration.
    */
-  public JAnnotationDefinition getDefinition();
+  public JAnnotationDeclaration getDeclaration();
 
 
   // ========================================================================

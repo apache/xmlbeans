@@ -55,33 +55,24 @@
 */
 package org.apache.xmlbeans.impl.jam;
 
+//FIXME rename to JAnnotationDefinition
+
 /**
- * Note that the member definition is actually a JMethod.
+ * Represents the definition of an Annotation.
+ *
+ * Note that JAnnotationDeclaration is a JClass.  In the most typical case,
+ * this class is simply a representation of a java.lang.Annotation class,
+ * although this should not be assumed.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JAnnotationMemberDefinition extends JMethod {
+public interface JAnnotationDeclaration extends JClass {
 
-  //FIXME so, if the type is an annotation, what are they supposed to do?
-  /**
-   * Returns a JClass representing the type of this annotation memeber.
-   * Note that it is entirely possible that the JClass returned by this
-   * method will be a JAnnotationDefinition.  Note that getType() and
-   * getReturnType() will return exactly the same value.
-   *
-   * @return
-   */
-  public JClass getType();
+  //NOTE the delcarations are also returned as JMethods
 
   /**
-   * Returns an object representing the default value of this annotation
-   * member.
-   *
-   * @return
+   * Note that the objects in the array returned by this method are exactly
+   * the same as those returned by getMethods().
    */
-  public Object getDefaultValue();
-
-
-  //REVIEW I don't want to expose this unless somebody really needs it
-  //public JAnnotationDefinition getContainingAnnotationDefinition();
+  public JAnnotationMemberDeclaration[] getMemberDeclarations();
 }

@@ -55,6 +55,8 @@
 */
 package org.apache.xmlbeans.impl.jam;
 
+
+
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
@@ -98,7 +100,7 @@ public interface JAnnotationMember {
    * Returns the a representation of the declaration of this member in its
    * annotation type declaration.
    */
-  public JAnnotationMemberDefinition getDefinition();
+  public JAnnotationMemberDeclaration getDeclaration();
 
   /**
    * Returns the String value of the annotation.  Returns an empty string
