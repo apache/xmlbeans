@@ -242,7 +242,7 @@ public class BaseJAnnotation extends BaseJElement
     return null;
   }
 
-  public JClass[] getValueAsAnnotationArray() {
+  public JAnnotation[] getValueAsAnnotationArray() {
     return null;
   }
 

@@ -177,7 +177,7 @@ public interface JAnnotationMember {
    *
    * <p>This method always returns null for javadoc tags.</p>
    */
-  public JClass[] getValueAsAnnotationArray();
+  public JAnnotation[] getValueAsAnnotationArray();
 
   /**
    * <p>Returns this member's value as an array of Strings.  If this member is
