@@ -59,9 +59,11 @@ public class Java2Schema extends BindingCompiler {
   public static final String TAG_EL_NILLABLE      = TAG_EL+".nillable";
   public static final String TAG_EL_EXCLUDE       = TAG_EL+".exclude";
   public static final String TAG_EL_ASTYPE        = TAG_EL+".astype";
+  public static final String TAG_EL_CHECKER       = TAG_EL+".isSetMethod";
 
   public static final String TAG_AT               = "xsdgen:attribute";
   public static final String TAG_AT_NAME          = TAG_AT+".name";
+  public static final String TAG_AT_CHECKER       = TAG_AT+".isSetMethod";
 
   // this is the character that replaces invalid characters when creating new
   // xml names.
@@ -518,6 +520,13 @@ public class Java2Schema extends BindingCompiler {
      */
     public void setSetter(JMethod s) {
       mBtsProp.setSetterName(MethodName.create(s));
+    }
+
+    /**
+     * Sets the name of the java setter for this property.
+     */
+    public void setIssetter(JMethod s) {
+      mBtsProp.setIssetterName(MethodName.create(s));
     }
 
     /**

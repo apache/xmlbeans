@@ -52,7 +52,7 @@
     -->
   </target>
 
-  <target name='compile' depends='parser'>
+  <target name='compile' depends='parser,unpack_java15jar'>
 
     <mkdir dir='${classes_dir}'/>
 
@@ -68,7 +68,6 @@
       </classpath>
     </javac>
 
-    <unjar src='${java15_jar}' dest='${classes_dir}'/>
 
   </target>
 
@@ -129,6 +128,11 @@
     <jar jarfile='${java15_jar}' basedir='${java15_builddir}' update='false'/>
   </target>
 
+  <target name='unpack_java15jar' unless='skip_java15jar'>
+    <mkdir dir='${classes_dir}'/>
+    <unjar src='${java15_jar}' dest='${classes_dir}'/>
+  </target>
+
 
   <target name='repackage' depends='clean,repackage_check,repackage_do'/>
 
@@ -165,6 +169,7 @@
 
     <ant dir='.' target='website' inheritAll='false' >
       <property name='src_dir' value='${repackaged_src}'/>
+      <property name='skip_java15jar' value='true'/>
     </ant>
   </target>
   

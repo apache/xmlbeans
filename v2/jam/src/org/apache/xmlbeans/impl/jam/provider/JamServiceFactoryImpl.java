@@ -52,6 +52,8 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
   public static final String USE_NEW_PARSER =
     "JamServiceFactoryImpl.use-new-parser";
 
+  private static final String PREFIX = "[JamServiceFactoryImpl]";
+  
   // ========================================================================
   // Constructors
 
@@ -145,7 +147,13 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
     throws IOException
   {
     File[] sources = ctx.getSourceFiles();
-    if (sources == null || sources.length == 0) return null;
+    if (sources == null || sources.length == 0) {
+      if (ctx.isVerbose()) {
+        ctx.verbose(PREFIX+ "no source files present, "+
+                    "skipping source ClassBuilder");
+      }
+      return null;
+    }
     if(ctx.getProperty(USE_NEW_PARSER) == null) {
       return new JavadocClassBuilder(ctx);
     } else {

@@ -32,6 +32,14 @@ public interface JamServiceParams {
   // Public methods
 
   /**
+   * <p>Include a single java source file to be viewed.  Note that if your
+   * code is able to understand the file/package structure in which the
+   * source exists, you may get better performance by using the various
+   * include... methods which take a sourcepath parameter.</p>
+   */
+  public void includeSourceFile(File file);
+
+  /**
    * Specifies a set of java source files to be included in the JamService.
    *
    * <p>Note that calling this method implicitly includes the 'root' in
@@ -42,7 +50,7 @@ public interface JamServiceParams {
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void includeSourceFiles(File[] sourcepath, String pattern);
+  public void includeSourcePattern(File[] sourcepath, String pattern);
 
   /**
    * Specifies a set of java source files to be excluded in the JamService.
@@ -54,7 +62,7 @@ public interface JamServiceParams {
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void excludeSourceFiles(File[] sourcepath, String pattern);
+  public void excludeSourcePattern(File[] sourcepath, String pattern);
 
   /**
    * Specifies a set of java class files to be excluded in the JamService.
@@ -66,7 +74,7 @@ public interface JamServiceParams {
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void includeClassFiles(File[] classpath, String pattern);
+  public void includeClassPattern(File[] classpath, String pattern);
 
   /**
    * Specifies a set of java class files to be excluded from the JamService.
@@ -78,7 +86,7 @@ public interface JamServiceParams {
    * 'Include and Exclude Patterns').
    * @throws IllegalArgumentException if either argument is null.
    */
-  public void excludeClassFiles(File[] classpath, String pattern);
+  public void excludeClassPattern(File[] classpath, String pattern);
 
   /**
    * <p>Includes a single source File in the JamService.  The sourcepath parameter
@@ -182,7 +190,7 @@ public interface JamServiceParams {
    * @param out a PrintWriter to write to
    * @throws IllegalArgumentException if the argument is null
    */
-  public void setLogger(PrintWriter out);
+//  public void setLogger(PrintWriter out);
 
   /**
    * Sets whether the JamService should send verbose output to the logger.

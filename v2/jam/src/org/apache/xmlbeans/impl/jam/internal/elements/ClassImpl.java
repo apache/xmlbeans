@@ -317,7 +317,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   public JProperty addNewProperty(String name, MMethod getter, MMethod setter) {
     if (mProperties == null) mProperties = new ArrayList();
     JProperty out = new PropertyImpl(name,getter,setter,
-                                     getter.getReturnType().getQualifiedName());
+                                     getter.getReturnType().getFieldDescriptor());
     mProperties.add(out);
     return out;
   }

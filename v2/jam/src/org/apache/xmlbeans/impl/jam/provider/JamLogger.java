@@ -46,4 +46,9 @@ public interface JamLogger {
    */
   public void error(Throwable t);
 
+  /**
+   * <p>Outputs an error as appropriate.</p>
+   */
+  public void error(String msg);
+
 }

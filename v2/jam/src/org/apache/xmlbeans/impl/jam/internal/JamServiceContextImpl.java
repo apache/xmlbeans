@@ -60,12 +60,13 @@ public class JamServiceContextImpl implements JamServiceContext,
   private List mIncludeClasses = null;
   private List mExcludeClasses = null;
 
-  private PrintWriter mOut = new PrintWriter(System.out);
+  private PrintWriter mOut = new PrintWriter(System.out,true);
   private boolean mUseSystemClasspath = true;
   private boolean mVerbose = false;
   private MVisitor mCommentInitializer = null;
   private MVisitor mPropertyInitializer = null;
   private List mOtherInitializers = null;
+  private List mUnstructuredSourceFiles = null;
 
   private JamClassLoader mLoader = null;
 
@@ -121,17 +122,36 @@ public class JamServiceContextImpl implements JamServiceContext,
   }*/
 
   public File[] getSourceFiles() throws IOException {
-    if (mSourceRoot2Scanner == null) return new File[0];
+
     Set set = new HashSet();
-    for(Iterator i = mSourceRoot2Scanner.values().iterator(); i.hasNext(); ) {
-      DirectoryScanner ds = (DirectoryScanner)i.next();
-      String[] files = ds.getIncludedFiles();
-      for(int j=0; j<files.length; j++) {
-        set.add(new File(ds.getRoot(),files[j]));
+    if (mSourceRoot2Scanner != null) {
+      for(Iterator i = mSourceRoot2Scanner.values().iterator(); i.hasNext(); ) {
+        DirectoryScanner ds = (DirectoryScanner)i.next();
+        if (mVerbose) verbose(PREFIX+ " checking scanner for dir"+ds.getRoot());
+        String[] files = ds.getIncludedFiles();
+        for(int j=0; j<files.length; j++) {
+          if (mVerbose) verbose(PREFIX+ " ...including a source file "+files[j]);
+          set.add(new File(ds.getRoot(),files[j]));
+        }
       }
+    }
+    // also dump unstructured files in there as well.  javadoc doesn't
+    // know the difference, but eventually we're going to care
+    // when we introduce lazy parsing
+    if (mUnstructuredSourceFiles != null) {
+      if (mVerbose) verbose(PREFIX+ "adding "+mUnstructuredSourceFiles.size()+
+                            " other source files");
+      set.addAll(mUnstructuredSourceFiles);
     }
     File[] out = new File[set.size()];
     set.toArray(out);
+    return out;
+  }
+
+  public File[] getUnstructuredSourceFiles() {
+    if (mUnstructuredSourceFiles == null) return null;
+    File[] out = new File[mUnstructuredSourceFiles.size()];
+    mUnstructuredSourceFiles.toArray(out);
     return out;
   }
 
@@ -213,7 +233,6 @@ public class JamServiceContextImpl implements JamServiceContext,
   // JamServiceParams implementation
 
 
-
   //DOCME
   public void setCommentInitializer(MVisitor initializer) {
     mCommentInitializer = initializer;
@@ -231,41 +250,62 @@ public class JamServiceContextImpl implements JamServiceContext,
   }
 
 
-  public void includeSourceFiles(File[] sourcepath, String pattern) {
+  public void includeSourceFile(File file) {
+    if (file == null) throw new IllegalArgumentException("null file");
+    if (mVerbose) verbose(PREFIX+ "adding source "+file.getAbsoluteFile());
+    if (mUnstructuredSourceFiles == null) {
+      mUnstructuredSourceFiles = new ArrayList();
+    }
+    mUnstructuredSourceFiles.add(file.getAbsoluteFile());
+  }
+
+  public void includeSourcePattern(File[] sourcepath, String pattern) {
     if (sourcepath == null) throw new IllegalArgumentException("null sourcepath");
     if (sourcepath.length == 0) throw new IllegalArgumentException("empty sourcepath");
     if (pattern == null) throw new IllegalArgumentException("null pattern");
+    pattern = pattern.trim();
+    if (pattern.length() == 0) throw new IllegalArgumentException("empty pattern");
     for(int i=0; i<sourcepath.length; i++) {
+      if (mVerbose) verbose(PREFIX+ "including '"+pattern+"' under "+sourcepath[i]);
       addSourcepath(sourcepath[i]);
       getSourceScanner(sourcepath[i]).include(pattern);
     }
   }
 
-  public void includeClassFiles(File classpath[], String pattern) {
+  public void includeClassPattern(File classpath[], String pattern) {
     if (classpath == null) throw new IllegalArgumentException("null classpath");
     if (classpath.length == 0) throw new IllegalArgumentException("empty classpath");
     if (pattern == null) throw new IllegalArgumentException("null pattern");
+    pattern = pattern.trim();
+    if (pattern.length() == 0) throw new IllegalArgumentException("empty pattern");
     for(int i=0; i<classpath.length; i++) {
+      if (mVerbose) verbose(PREFIX+ "including '"+pattern+"' under "+classpath[i]);
       addClasspath(classpath[i]);
       getClassScanner(classpath[i]).include(pattern);
     }
   }
 
-  public void excludeSourceFiles(File[] sourcepath, String pattern) {
+  public void excludeSourcePattern(File[] sourcepath, String pattern) {
     if (sourcepath == null) throw new IllegalArgumentException("null sourcepath");
     if (sourcepath.length == 0) throw new IllegalArgumentException("empty sourcepath");
     if (pattern == null) throw new IllegalArgumentException("null pattern");
+    pattern = pattern.trim();
+    if (pattern.length() == 0) throw new IllegalArgumentException("empty pattern");
     for(int i=0; i<sourcepath.length; i++) {
+      if (mVerbose) verbose(PREFIX+ "EXCLUDING '"+pattern+"' under "+sourcepath[i]);
       addSourcepath(sourcepath[i]);
       getSourceScanner(sourcepath[i]).exclude(pattern);
     }
   }
 
-  public void excludeClassFiles(File[] classpath, String pattern) {
+  public void excludeClassPattern(File[] classpath, String pattern) {
     if (classpath == null) throw new IllegalArgumentException("null classpath");
     if (classpath.length == 0) throw new IllegalArgumentException("empty classpath");
     if (pattern == null) throw new IllegalArgumentException("null pattern");
+    pattern = pattern.trim();
+    if (pattern.length() == 0) throw new IllegalArgumentException("empty pattern");
     for(int i=0; i<classpath.length; i++) {
+      if (mVerbose) verbose(PREFIX+ "EXCLUDING '"+pattern+"' under "+classpath[i]);
       addClasspath(classpath[i]);
       getClassScanner(classpath[i]).exclude(pattern);
     }
@@ -273,22 +313,22 @@ public class JamServiceContextImpl implements JamServiceContext,
 
   public void includeSourceFile(File[] sourcepath, File sourceFile) {
     File root = getPathRootForFile(sourcepath,sourceFile);
-    includeSourceFiles(new File[] {root}, source2pattern(root,sourceFile));
+    includeSourcePattern(new File[] {root}, source2pattern(root,sourceFile));
   }
 
   public void excludeSourceFile(File[] sourcepath, File sourceFile) {
     File root = getPathRootForFile(sourcepath,sourceFile);
-    excludeSourceFiles(new File[] {root}, source2pattern(root,sourceFile));
+    excludeSourcePattern(new File[] {root}, source2pattern(root,sourceFile));
   }
 
   public void includeClassFile(File[] classpath, File classFile) {
     File root = getPathRootForFile(classpath,classFile);
-    includeClassFiles(new File[] {root}, source2pattern(root,classFile));
+    includeClassPattern(new File[] {root}, source2pattern(root,classFile));
   }
 
   public void excludeClassFile(File[] classpath, File classFile) {
     File root = getPathRootForFile(classpath,classFile);
-    excludeClassFiles(new File[] {root}, source2pattern(root,classFile));
+    excludeClassPattern(new File[] {root}, source2pattern(root,classFile));
   }
 
   public void includeClass(String qualifiedClassname) {
@@ -333,7 +373,7 @@ public class JamServiceContextImpl implements JamServiceContext,
     mProperties.setProperty(name,value);
   }
 
-  public void setLogger(PrintWriter out) { mOut = out; }
+  //public void setLogger(PrintWriter out) { mOut = out; }
 
   public void setVerbose(boolean v) {
     mVerbose = v;
@@ -448,17 +488,35 @@ public class JamServiceContextImpl implements JamServiceContext,
   // ========================================================================
   // Private methods
 
+  private static final String PREFIX = "[JamServiceContextImpl] ";
+
   private File getPathRootForFile(File[] sourcepath, File sourceFile) {
     if (sourcepath == null) throw new IllegalArgumentException("null sourcepath");
     if (sourcepath.length == 0) throw new IllegalArgumentException("empty sourcepath");
     if (sourceFile == null) throw new IllegalArgumentException("null sourceFile");
-    String f = sourceFile.getAbsolutePath();
+    sourceFile = sourceFile.getAbsoluteFile();
+    if (mVerbose) verbose(PREFIX+"Getting root for "+sourceFile+"...");
     for(int i=0; i<sourcepath.length; i++) {
-      if (f.startsWith(sourcepath[i].getAbsolutePath())) {//cheesy?
-        return sourcepath[i];
+      if (mVerbose) verbose(PREFIX+"...looking in "+sourcepath[i]);
+      if (isContainingDir(sourcepath[i],sourceFile)) {
+        if (mVerbose) verbose(PREFIX+"...found it!");
+        return sourcepath[i].getAbsoluteFile();
       }
     }
     throw new IllegalArgumentException(sourceFile+" is not in the given path.");
+  }
+
+  /**
+   * Returns true if the given dir contains the given file.
+   */
+  private boolean isContainingDir(File dir, File file) {
+    if (mVerbose) verbose(PREFIX+ "... ...isContainingDir "+dir+"  "+file);
+    if (file == null) return false;
+    if (dir.equals(file)) {
+      if (mVerbose) verbose(PREFIX+ "... ...yes!");
+      return true;
+    }
+    return isContainingDir(dir,file.getParentFile());
   }
 
 
@@ -490,10 +548,14 @@ public class JamServiceContextImpl implements JamServiceContext,
    * given root.
    */
   private String source2pattern(File root, File sourceFile) {
+    if (mVerbose) verbose(PREFIX+ "source2pattern "+root+"  "+sourceFile);
     //REVIEW this is a bit cheesy
     String r = root.getAbsolutePath();
     String s = sourceFile.getAbsolutePath();
-    return s.substring(r.length());
+    if (mVerbose) {
+      verbose(PREFIX+ "source2pattern returning "+s.substring(r.length()+1));
+    }
+    return s.substring(r.length()+1);
   }
 
   /**

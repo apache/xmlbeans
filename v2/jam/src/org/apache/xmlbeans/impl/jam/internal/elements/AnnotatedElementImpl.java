@@ -55,7 +55,8 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     if (mName2Annotation == null) return null;
     int delim = valueName.indexOf('@');
     if (delim == -1) {
-      throw new IllegalArgumentException("invalid value identifier '"+valueName);
+      throw new IllegalArgumentException("value identifiers must include an '@'"+
+                                         valueName);
     }
     JAnnotation out = getAnnotation(valueName.substring(0,delim));
     return out.getValue(valueName.substring(delim+1));
@@ -134,6 +135,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
     String typename = getAnnotationTypeFor(jsr175annotationInstance);
     MAnnotation ann = getMutableAnnotation(typename);
     if (ann != null) {
+      ann.setAnnotationInstance(jsr175annotationInstance);
       ann.getMutableProxy().initFromAnnotationInstance(jsr175annotationInstance);
       //REVIEW this is a weird case where they add another instance
       // of the same annotation type.  We'll just go with it for now,
@@ -143,6 +145,7 @@ public abstract class AnnotatedElementImpl extends ElementImpl
         (getAnnotationTypeFor(jsr175annotationInstance));
       proxy.initFromAnnotationInstance(jsr175annotationInstance);
       ann = new AnnotationImpl(getContext(),proxy,typename);
+      ann.setAnnotationInstance(jsr175annotationInstance);
       setArtifact(jsr175annotationInstance);
       getName2Annotation().put(typename,ann);
     }

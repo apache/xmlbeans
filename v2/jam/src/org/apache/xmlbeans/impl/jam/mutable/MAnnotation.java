@@ -25,6 +25,11 @@ import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
  */
 public interface MAnnotation extends JAnnotation, MElement {
 
+  // ========================================================================
+  // MAnnotation implementation
+
+  public void setAnnotationInstance(Object o);
+
   public AnnotationProxy getMutableProxy();
 
 }

@@ -264,6 +264,9 @@ public class DirectoryScanner {
       if (file.isDirectory()) {
         if (isIncluded(name) && !isExcluded(name)) {
           mDirsIncluded.addElement(name);
+          if (mLogger.isVerbose()) {
+            mLogger.verbose("[DirectoryScanner] ...including dir "+name);
+          }
           scandir(file, name + File.separator, fast);
         } else {
           if (couldHoldIncluded(name)) {
@@ -275,11 +278,11 @@ public class DirectoryScanner {
           if (!isExcluded(name)) {
             mFilesIncluded.addElement(name);
             if (mLogger.isVerbose()) {
-              mLogger.verbose("[DirectoryScanner] including "+name+" under '"+dir);
+              mLogger.verbose("[DirectoryScanner] ...including "+name+" under '"+dir);
             }
           } else {
             if (mLogger.isVerbose()) {
-              mLogger.verbose("[DirectoryScanner] EXCLUDING "+name+" under '"+dir);
+              mLogger.verbose("[DirectoryScanner] ...EXCLUDING "+name+" under '"+dir);
             }
           }
         }
