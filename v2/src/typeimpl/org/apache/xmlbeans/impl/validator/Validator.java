@@ -53,6 +53,7 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlValidationError;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SimpleValue;
@@ -129,10 +130,24 @@ public final class Validator
             if (_errorListener != null)
             {
                 assert event != null;
-                _errorListener.add(
-                    XmlValidationError.forCursorWithDetails( msg, severity, event.getLocationAsCursor(),
-                        offendingQName, expectedSchemaType, expectedQNames,
-                        errorType, badSchemaType));
+                XmlError error;
+                XmlCursor curs = event.getLocationAsCursor();
+                if (curs != null)
+                {
+                    // non-streaming validation uses XmlCursor
+                    error = XmlValidationError.forCursorWithDetails( msg, severity,
+                        curs, offendingQName, expectedSchemaType, expectedQNames,
+                        errorType, badSchemaType);
+                }
+                else
+                {
+                    // streaming validation uses Location
+                    error = XmlValidationError.forLocationWithDetails( msg, severity,
+                        event.getLocation(), offendingQName, expectedSchemaType, expectedQNames,
+                        errorType, badSchemaType);
+                }
+
+                _errorListener.add(error);
             }
         }
     }

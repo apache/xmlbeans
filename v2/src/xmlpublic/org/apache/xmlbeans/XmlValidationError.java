@@ -21,6 +21,7 @@ package org.apache.xmlbeans;
 import java.util.List;
 import org.apache.xmlbeans.XmlError;
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 
 /**
  * The XmlValidationError class extends the {@link XmlError }XMLError class. The XML Validator contains
@@ -146,11 +147,36 @@ public class XmlValidationError extends XmlError
         setBadSchemaType(badSchemaType);
     }
 
+    /**
+     * The static factory methods should be used instead of
+     * this constructor.
+     */
+    private XmlValidationError(String msg, int severity,
+        Location loc, QName offendingQname, SchemaType expectedSchemaType,
+        List expectedQNames, int errorType, SchemaType badSchemaType)
+    {
+        super(msg, (String)null, severity, loc);
+
+        setOffendingQName(offendingQname);
+        setExpectedSchemaType(expectedSchemaType);
+        setExpectedQNames(expectedQNames);
+        setErrorType(errorType);
+        setBadSchemaType(badSchemaType);
+    }
+
     public static XmlValidationError forCursorWithDetails( String msg, int severity,
         XmlCursor cursor, QName offendingQname, SchemaType expectedSchemaType,
         List expectedQNames, int errorType, SchemaType badSchemaType)
     {
         return new XmlValidationError(msg, severity, cursor, offendingQname,
+            expectedSchemaType, expectedQNames, errorType, badSchemaType);
+    }
+
+    public static XmlValidationError forLocationWithDetails( String msg, int severity,
+        Location location, QName offendingQname, SchemaType expectedSchemaType,
+        List expectedQNames, int errorType, SchemaType badSchemaType)
+    {
+        return new XmlValidationError(msg, severity, location, offendingQname,
             expectedSchemaType, expectedQNames, errorType, badSchemaType);
     }
 
