@@ -53,38 +53,79 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.provider;
 
-package org.apache.xmlbeans.impl.jam;
+import org.apache.xmlbeans.impl.jam.JProvider;
+import org.apache.xmlbeans.impl.jam.internal.JServiceParamsImpl;
+import org.apache.xmlbeans.impl.jam.internal.reflect.RClassBuilder;
+import org.apache.xmlbeans.impl.jam.internal.javadoc.JDClassBuilder;
 
-import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * Singleton which is the DefaultJProvider to be used in the current VM.
+ * This is the Provider to which the ServiceFactory delegates.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class DefaultJProvider extends BaseJProvider {
+
+  // ========================================================================
+  // Constants
+
+  private static final JProvider INSTANCE = new DefaultJProvider();
+
+  // ========================================================================
+  // Singleton
+
+  public static JProvider getInstance() { return INSTANCE; }
+
+  // ========================================================================
+  // BaseJProvider implementation
+
+  public JClassBuilder createJClassBuilder(JClassBuilderParams params)
+          throws IOException
+  {
+    List builderList = new ArrayList();
+    if (params.getInputSourcepath() != null) {
+      builderList.add(createSourceService(params));
+    }
+    if (params.getInputClasspath() != null) {
+      builderList.add(createClassService(params));
+    }
+    JClassBuilder[] builderArray = new JClassBuilder[builderList.size()];
+    builderList.toArray(builderArray);
+    return new CompositeJClassBuilder(builderArray);
+  }
 
   // ========================================================================
   // Public methods
-  
-  
-  public void include(String pattern);
 
-  public void exclude(String pattern);
+  public JClassBuilder createSourceService(JClassBuilderParams jp)
+          throws IOException
+  {
+    //FIXME someday should make the name of the service class to use here
+    //settable via a system property
+    return JDClassBuilder.create((JServiceParamsImpl)jp);
+  }
 
-  public void setClasspath(String cp);
+  public JClassBuilder createClassService(JClassBuilderParams jp)
+          throws IOException
+  {
+    //FIXME someday should make the name of the service class to use here
+    //settable via a system property
+    JPath cp = jp.getInputClasspath();
+    if (cp == null) {
+      return RClassBuilder.getSystemClassBuilder();
+    } else {
+      URL[] urls = cp.toUrlPath();
+      return RClassBuilder.getClassBuilderFor(new URLClassLoader(urls));
+    }
+  }
 
-  public void setCaseSensitive(boolean b);
-
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
-
-  //  public boolean setFollowSymlinks(boolean b);
 
 }

@@ -53,38 +53,36 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam;
 
-import java.io.File;
-import java.io.IOException;
-
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * A JService describes two kinds of information
+ * - a
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public interface JService {
 
-  // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
+  /**
+   * Returns a JClassLoader which can be used to load JClasses from class-
+   * and source-file locations specified in the JServiceParams with which
+   * this service was instantiated.  Note that it is possible to use this
+   * mechanism to load JClasses that are not returned by getClasses().
+   */
+  public JClassLoader getClassLoader();
 
-  public void exclude(String pattern);
+  /**
+   * Returns the names of the classes that were described in the
+   * JServiceParams object used to create this service.  Note that this
+   * list will never change for a given service; though it is possible
+   * to use the service's JClassLoader to load other types, this method will
+   * always return the initial set of classes.
+   */
+  public String[] getClassNames();
 
-  public void setClasspath(String cp);
-
-  public void setCaseSensitive(boolean b);
-
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
-
-  //  public boolean setFollowSymlinks(boolean b);
-
+  /**
+   * Returns an iterator of the JClasses named in the array returned by
+   * getClassNames().
+   */
+  public JClassIterator getClasses();
 }

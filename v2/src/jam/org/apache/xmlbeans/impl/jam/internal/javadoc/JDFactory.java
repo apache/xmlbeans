@@ -151,6 +151,11 @@ public class JDFactory {
     return new JDClass(doc, loader);
   }
 
+  //REVIEW not really clear why need two here
+  public JClass createClass(ClassDoc doc, JClassLoader loader) {
+    return new JDClass(doc, loader);
+  }
+
   /////
   // JConstructor
   //

@@ -85,6 +85,8 @@ import org.apache.xmlbeans.impl.jam.internal.reflect.RClassLoader;
  * }
  * </pre>
  *
+ * @deprecated Please us JServiceFactory instead.
+ *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public class JFactory {
@@ -307,7 +309,6 @@ public class JFactory {
   /**
    * main method is provided for debugging.
    */
-  /*
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
       System.out.println("Usage:\n java org.apache.xmlbeans.impl.jam.JFactory "+
@@ -318,16 +319,33 @@ public class JFactory {
     // create the factory
     JFactory factory = new JFactory();
     JFileSet fs = factory.createFileSet(new File("."));
-    for(int i=0; i<args.length; i++) fs.include(args[i]);
-    JClass[] classes = factory.loadSources(fs);
+    for(int i=0; i<args.length; i++) {
+      if (args[i].endsWith(".java")) fs.include(args[i]);
+    }
+    PrintWriter log = new PrintWriter(System.out);
+    JClass[] classes = factory.loadSources(fs,null,null,log,".","t:/src_141/server/classes",
+                                           new String[] {"-verbose"});
+    log.flush();
     JamPrinter printer = JamPrinter.newInstance();
     PrintWriter out = new PrintWriter(System.out,true);
     for(int i=0; i<classes.length; i++) {
       printer.print(classes[i],out);
     }
+    JClassLoader loader = classes[0].getClassLoader();
+    for(int i=0; i<args.length; i++) {
+      if (!args[i].endsWith(".java")) {
+        JClass clazz = loader.loadClass(args[i]);
+        printer.print(clazz,out);
+        JMethod[] meths = clazz.getMethods();
+        for(int j=0; j<meths.length; j++) {
+          System.out.println(meths[j].getSimpleName()+"  "+
+                             meths[j].getAnnotation("operation")+"  ----");
+        }
+
+      }
+    }
     System.out.flush();
   }
-  */
 
   /**
    * @deprecated Don't do this.

@@ -53,38 +53,46 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
+package org.apache.xmlbeans.impl.jam.internal;
 
-package org.apache.xmlbeans.impl.jam;
-
-import java.io.File;
-import java.io.IOException;
+import org.apache.xmlbeans.impl.jam.JService;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JClassIterator;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class JServiceImpl implements JService {
 
   // ========================================================================
-  // Public methods
-  
-  
-  public void include(String pattern);
+  // Variables
 
-  public void exclude(String pattern);
+  private JClassLoader mClassLoader;
+  private String[] mClassNames;
 
-  public void setClasspath(String cp);
+  // ========================================================================
+  // Constructors
 
-  public void setCaseSensitive(boolean b);
+  public JServiceImpl(JClassLoader jcl, String[] classes) {
+    if (jcl == null) throw new IllegalArgumentException("null jcl");
+    if (classes == null) throw new IllegalArgumentException("null classes");
+    mClassLoader = jcl;
+    mClassNames = classes;
+  }
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  // ========================================================================
+  // JService implementation
 
-  //  public boolean setFollowSymlinks(boolean b);
+  public JClassLoader getClassLoader() {
+    return mClassLoader;
+  }
 
+  public String[] getClassNames() {
+    return mClassNames;
+  }
+
+  public JClassIterator getClasses() {
+    return new JClassIterator(getClassLoader(),getClassNames());
+  }
 }

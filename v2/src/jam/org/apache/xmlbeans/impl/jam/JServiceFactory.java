@@ -53,38 +53,92 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam;
 
-import java.io.File;
+import org.apache.xmlbeans.impl.jam.internal.JServiceParamsImpl;
+import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
+import org.apache.xmlbeans.impl.jam.provider.DefaultJProvider;
+
 import java.io.IOException;
+import java.io.File;
+import java.io.PrintWriter;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
+ * This is the normal entry point into the JAM subsystem.  JServiceFactory
+ * is a singleton factory which can create a new JServiceParams and
+ * JServices.  Here is a code sample that demonstrates how to use
+ * JServiceFactory.
  *
- * @deprecated Please us JServiceFactory instead.
+ * <pre>
+ * JServiceFactory factory = JServiceFactory.getInstance();
+ * JServiceParams params = factory.createServiceParams();
+ * params.includeSources(new File("c:/myproject/src","mypackage/*.java"));
+ * JService service = factory.createService(params);
+ * </pre>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class JServiceFactory {
+
+  // ========================================================================
+  // Constants
+
+  private static final JServiceFactory INSTANCE = new JServiceFactory();
+
+  // ========================================================================
+  // Singleton
+
+  /**
+   * Return the factory singleton.
+   */
+  public static JServiceFactory getInstance() { return INSTANCE; }
+
+  private JServiceFactory() {}
 
   // ========================================================================
   // Public methods
-  
-  
-  public void include(String pattern);
 
-  public void exclude(String pattern);
+  /**
+   * Create a new JServiceParams instance.  The params can be populated
+   * and then given to the createService method to create a new JService.
+   */
+  public JServiceParams createServiceParams() {
+    return new JServiceParamsImpl();
+  }
 
-  public void setClasspath(String cp);
+  /**
+   * Create a new JService from the given parameters.
+   *
+   * @throws IOException if an IO error occurred while creating the service
+   * @throws IllegalArgumentException if the params is null or not
+   * an instance returned by createServiceParams().
+   */
+  public JService createService(JServiceParams params) throws IOException {
+    return DefaultJProvider.getInstance().createService(params);
+  }
 
-  public void setCaseSensitive(boolean b);
+  // ========================================================================
+  // main() method
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
+  public static void main(String[] args) {
+    try {
+      JServiceParams sp = getInstance().createServiceParams();
+      for(int i=0; i<args.length; i++) {
+        sp.includeSourceFiles(new File("."),args[i]);
+      }
+      JService service = getInstance().createService(sp);
+      JamPrinter jp = JamPrinter.newInstance();
+      PrintWriter out = new PrintWriter(System.out);
+      for(JClassIterator i = service.getClasses(); i.hasNext(); ) {
+        out.println("-------- ");
+        jp.print(i.nextClass(),out);
+      }
+      out.flush();
+    } catch(Exception e){
+      e.printStackTrace();
+    }
+    System.out.flush();
+    System.err.flush();
 
-  //  public boolean setFollowSymlinks(boolean b);
-
+  }
 }

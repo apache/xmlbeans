@@ -53,38 +53,78 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
-package org.apache.xmlbeans.impl.jam;
+package org.apache.xmlbeans.impl.jam.provider;
 
 import java.io.File;
-import java.io.IOException;
+import java.io.StringWriter;
+import java.net.URI;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 /**
- * <p>Describes a set of input source files which describe the java types to
- * be represented.  Instances of JFileSet are created by JFactory.</p>
- *
- * @deprecated Please us JServiceFactory instead.
+ * Represent a file search path, such as a classpath or sourcepath.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface JFileSet {
+public class JPath {
+
+  // ========================================================================
+  // Factory
+
+  public static JPath forFiles(File[] files) {
+    return new JPath(files);
+  }
+
+  // ========================================================================
+  // Constants
+
+  //public static final JPath EMPTY_JPATH = new JPath(new File[]{});
+
+  // ========================================================================
+  // Variables
+
+  private File[] mFiles;
+
+  // ========================================================================
+  // Constructors
+
+  private JPath(File[] files) {
+    if (files == null) throw new IllegalArgumentException("null files");
+    mFiles = files;
+  }
 
   // ========================================================================
   // Public methods
-  
-  
-  public void include(String pattern);
 
-  public void exclude(String pattern);
+  public URI[] toUriPath() {
+    URI[] out = new URI[mFiles.length];
+    for(int i=0; i<mFiles.length; i++) {
+      out[i] = mFiles[i].toURI();
+    }
+    return out;
+  }
 
-  public void setClasspath(String cp);
+  public URL[] toUrlPath() throws MalformedURLException {
+    URL[] out = new URL[mFiles.length];
+    for(int i=0; i<mFiles.length; i++) {
+      out[i] = mFiles[i].toURL();
+    }
+    return out;
+  }
 
-  public void setCaseSensitive(boolean b);
+  // ========================================================================
+  // Object implementation
 
-  // REVIEW: why can't JFileSet just be the following method and none of the
-  // others? (davidbau)
-  public File[] getFiles() throws IOException;
-
-  //  public boolean setFollowSymlinks(boolean b);
-
+  /**
+   * Returns the path as a single string in which each file component is
+   * separates by File.pathSeparatorChar.
+   */
+  public String toString() {
+    StringWriter out = new StringWriter();
+    for(int i=0; i<mFiles.length; i++) {
+      out.write(mFiles[i].getAbsolutePath());
+      out.write(File.pathSeparatorChar);
+    }
+    return out.toString();
+  }
 }
