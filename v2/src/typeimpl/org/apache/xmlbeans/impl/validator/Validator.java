@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 * are met:
 *
 * 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer. 
+*    notice, this list of conditions and the following disclaimer.
 *
 * 2. Redistributions in binary form must reproduce the above copyright
 *    notice, this list of conditions and the following disclaimer in
@@ -18,19 +18,19 @@
 *    distribution.
 *
 * 3. The end-user documentation included with the redistribution,
-*    if any, must include the following acknowledgment:  
+*    if any, must include the following acknowledgment:
 *       "This product includes software developed by the
 *        Apache Software Foundation (http://www.apache.org/)."
 *    Alternately, this acknowledgment may appear in the software itself,
 *    if and wherever such third-party acknowledgments normally appear.
 *
-* 4. The names "Apache" and "Apache Software Foundation" must 
+* 4. The names "Apache" and "Apache Software Foundation" must
 *    not be used to endorse or promote products derived from this
-*    software without prior written permission. For written 
+*    software without prior written permission. For written
 *    permission, please contact apache@apache.org.
 *
-* 5. Products derived from this software may not be called "Apache 
-*    XMLBeans", nor may "Apache" appear in their name, without prior 
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
 *    written permission of the Apache Software Foundation.
 *
 * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -49,7 +49,7 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems 
+* originally based on software copyright (c) 2000-2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
@@ -97,11 +97,14 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SimpleValue;
+import org.apache.xmlbeans.SchemaProperty;
 
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.ArrayList;
 import javax.xml.namespace.QName;
 
 public final class Validator
@@ -204,6 +207,8 @@ public final class Validator
 
     public void nextEvent ( int kind, Event event )
     {
+        resetValues();
+
         if (_eatContent > 0)
         {
             switch ( kind )
@@ -231,6 +236,9 @@ public final class Validator
 
     private void beginEvent ( Event event )
     {
+        _localElement = null;
+        _wildcardElement = null;
+        String message = null;
         State state = topState();
 
         SchemaType  elementType  = null;
@@ -259,21 +267,36 @@ public final class Validator
 
             if (!state.visit( name ))
             {
-                emitFieldError( event, "Element not allowed:", name );
+                message = findDetailedErrorBegin(state , name);
+                if (message != null)
+                {
+                  emitFieldError(event, message);
+                  message = null;
+                }
+                else
+                {
+                  emitFieldError(event, "Element not allowed:", name);
+                }
                 _eatContent = 1;
+
                 return;
             }
 
             SchemaParticle currentParticle = state.currentParticle();
+            _wildcardElement = currentParticle;
 
             if (currentParticle.getParticleType() == SchemaParticle.WILDCARD)
             {
+                //_wildcardElement = currentParticle;
                 QNameSet elemWildcardSet = currentParticle.getWildcardSet();
 
                 if (!elemWildcardSet.contains( name ))
                 {
+                    // Additional processing may be needed to generate more
+                    // descriptive messages
                     emitFieldError( event, "Element not allowed:", name );
                     _eatContent = 1;
+
                     return;
                 }
 
@@ -285,7 +308,8 @@ public final class Validator
                     return;
                 }
 
-                elementField = _globalTypes.findElement( name );
+                _localElement = _globalTypes.findElement( name );
+                elementField = _localElement;
 
                 if (elementField == null)
                 {
@@ -314,7 +338,7 @@ public final class Validator
                 {
                     if (((SchemaLocalElement)currentParticle).blockSubstitution())
                     {
-                        emitFieldError(event, 
+                        emitFieldError(event,
                             "Element substitution not allowed when group head has block='substitution'", name);
                         _eatContent = 1;
                         return;
@@ -325,9 +349,11 @@ public final class Validator
                     assert newField != null;
 
                     if (newField != null)
+                    {
                         elementField = newField;
+                        _localElement = newField;
+                    }
                 }
-
                 else
                 {
                     elementField = (SchemaField) currentParticle;
@@ -461,6 +487,7 @@ public final class Validator
             if (elementField instanceof SchemaLocalElement)
             {
                 SchemaLocalElement sle  = (SchemaLocalElement)elementField;
+                _localElement = sle;
 
                 if (sle.blockExtension() || sle.blockRestriction())
                 {
@@ -491,6 +518,7 @@ public final class Validator
         if (elementField instanceof SchemaLocalElement)
         {
             SchemaLocalElement sle = (SchemaLocalElement)elementField;
+            _localElement = sle;
 
             if (sle.isAbstract())
             {
@@ -522,7 +550,7 @@ public final class Validator
             isNil = JavaBooleanHolder.validateLexical(_chars.asString(), _vc);
             hasNil = true;
         }
-        
+
         // note in schema spec 3.3.4, you're not even allowed to say xsi:nil="false" if you're not nillable!
         if (hasNil && !elementField.isNillable())
         {
@@ -578,6 +606,8 @@ public final class Validator
 
         if (attrSchema != null)
         {
+            _localAttribute = attrSchema;
+
             if (attrSchema.getUse() == SchemaLocalAttribute.PROHIBITED)
             {
                 emitFieldError(
@@ -598,6 +628,7 @@ public final class Validator
         }
 
         int wildcardProcess = state._attrModel.getWildcardProcess();
+        _wildcardAttribute = state._attrModel;
 
         if (wildcardProcess == SchemaAttributeModel.NONE)
         {
@@ -620,10 +651,12 @@ public final class Validator
             return;
         }
 
+
         if (wildcardProcess == SchemaAttributeModel.SKIP)
             return;
 
         attrSchema = _globalTypes.findAttribute( attrName );
+        _localAttribute = attrSchema;
 
         if (attrSchema == null)
         {
@@ -678,13 +711,13 @@ public final class Validator
                         if (XmlQName.type.isAssignableFrom(type))
                         {
                             emitFieldError(
-                                event, 
-                                "Default QName values are unsupported for attribute: " + 
-                                    QNameHelper.pretty(sla.getName()), 
+                                event,
+                                "Default QName values are unsupported for attribute: " +
+                                    QNameHelper.pretty(sla.getName()),
                                 XmlError.SEVERITY_INFO);
                         }
 
-                        else 
+                        else
                         {
                             validateSimpleType(
                                 type, sla.getDefaultText(), event );
@@ -700,12 +733,27 @@ public final class Validator
 
     private void endEvent ( Event event )
     {
+        _localElement = null;
+        _wildcardElement = null;
+        String message = null;
         State state = topState();
 
         if (!state._isNil)
         {
             if (!state.end())
-                emitFieldError( event, "Expected element(s)" );
+            {
+
+                message = findDetailedErrorEnd(state);
+
+                if (message != null)
+                {
+                  emitFieldError(event, message);
+                }
+                else
+                {
+                  emitFieldError(event, "Expected element(s)");
+                }
+            }
 
             // This end event has no text, use this fact to pass no text to
             // handleText
@@ -755,10 +803,10 @@ public final class Validator
                 _constraintEngine.text( event, state._type, "", false);
         }
 
-        if (!emptyContent && !state._canHaveMixedContent && 
+        if (!emptyContent && !state._canHaveMixedContent &&
             !event.textIsWhitespace() & !state._hasSimpleContent)
         {
-            if (field instanceof SchemaLocalElement) 
+            if (field instanceof SchemaLocalElement)
             {
                 SchemaLocalElement e = (SchemaLocalElement)field;
                 emitError(event, "Element: '" + QNameHelper.pretty(e.getName()) + "' cannot have mixed content.");
@@ -771,11 +819,58 @@ public final class Validator
             state._sawText = true;
     }
 
+    private String findDetailedErrorBegin(State state, QName qName)
+    {
+        String message = null;
+        SchemaProperty[] eltProperties = state._type.getElementProperties();
+
+        for (int ii = 0; ii < eltProperties.length; ii++)
+        {
+            //Get the element from the schema
+            SchemaProperty sProp = eltProperties[ii];
+
+            // test if the element is valid
+            if (state.test(sProp.getName()))
+            {
+                message = "Expected element " + QNameHelper.pretty(sProp.getName()) + " instead of " + QNameHelper.pretty(qName) + " here";
+                break;
+            }
+        }
+        return message;
+    }
+
+    private String findDetailedErrorEnd(State state)
+    {
+        SchemaProperty[] eltProperties  = state._type.getElementProperties();
+        String message = null;
+
+        for (int ii = 0; ii < eltProperties.length; ii++)
+        {
+            //Get the element from the schema
+            SchemaProperty sProp = eltProperties[ii];
+
+            // test if the element is valid
+            if (state.test(sProp.getName()))
+            {
+                message = "Expected element " + QNameHelper.pretty(sProp.getName()) +
+                          " at the end of the content";
+                break;
+            }
+        }
+        return message;
+    }
+
+
     private final class State
     {
         boolean visit ( QName name )
         {
             return _canHaveElements && _visitor.visit( name );
+        }
+
+        boolean test( QName name )
+        {
+            return _canHaveElements && _visitor.testValid( name );
         }
 
         boolean end ( )
@@ -1048,6 +1143,7 @@ public final class Validator
         case SchemaType.BTC_STRING :
         {
             JavaStringEnumerationHolderEx.validateLexical( value, type, _vc );
+            _stringValue = value;
             break;
         }
         case SchemaType.BTC_DECIMAL :
@@ -1056,15 +1152,15 @@ public final class Validator
 
             if (errorState == _errorState)
             {
-                JavaDecimalHolderEx.validateValue(
-                    new BigDecimal( value ), type, _vc );
+                _decimalValue = new BigDecimal( value );
+                JavaDecimalHolderEx.validateValue( _decimalValue, type, _vc );
             }
 
             break;
         }
         case SchemaType.BTC_BOOLEAN :
         {
-            JavaBooleanHolderEx.validateLexical( value, type, _vc );
+            _booleanValue = JavaBooleanHolderEx.validateLexical( value, type, _vc );
             break;
         }
         case SchemaType.BTC_FLOAT :
@@ -1075,6 +1171,7 @@ public final class Validator
             if (errorState == _errorState)
                 JavaFloatHolderEx.validateValue( f, type, _vc );
 
+            _floatValue = f;
             break;
         }
         case SchemaType.BTC_DOUBLE :
@@ -1085,6 +1182,7 @@ public final class Validator
             if (errorState == _errorState)
                 JavaDoubleHolderEx.validateValue( d, type, _vc );
 
+            _doubleValue = d;
             break;
         }
         case SchemaType.BTC_QNAME :
@@ -1096,6 +1194,7 @@ public final class Validator
             if (errorState == _errorState)
                 JavaQNameHolderEx.validateValue( n, type, _vc );
 
+            _qnameValue = n;
             break;
         }
         case SchemaType.BTC_ANY_URI :
@@ -1118,6 +1217,7 @@ public final class Validator
             if (d != null)
                 XmlDateImpl.validateValue( d, type, _vc );
 
+            _gdateValue = d;
             break;
         }
         case SchemaType.BTC_DURATION :
@@ -1127,6 +1227,7 @@ public final class Validator
             if (d != null)
                 XmlDurationImpl.validateValue( d, type, _vc );
 
+            _gdurationValue = d;
             break;
         }
         case SchemaType.BTC_BASE_64_BINARY :
@@ -1137,6 +1238,7 @@ public final class Validator
             if (v != null)
                 JavaBase64HolderEx.validateValue( v, type, _vc );
 
+            _byteArrayValue = v;
             break;
         }
         case SchemaType.BTC_HEX_BINARY :
@@ -1147,10 +1249,11 @@ public final class Validator
             if (v != null)
                 JavaHexBinaryHolderEx.validateValue( v, type, _vc );
 
+            _byteArrayValue = v;
             break;
         }
         case SchemaType.BTC_NOTATION :
-            // Unimplemented. 
+            // Unimplemented.
             break;
 
         default :
@@ -1172,7 +1275,7 @@ public final class Validator
 
         String[] items = XmlListImpl.split_list(value);
 
-        
+
         int i;
         XmlObject o;
 
@@ -1197,7 +1300,7 @@ public final class Validator
                         " items, fewer than min length facet (" + i + ") for " + QNameHelper.readable(type) );
             }
         }
-        
+
         if ((o = type.getFacet( SchemaType.FACET_MAX_LENGTH )) != null)
         {
             if ((i = ((SimpleValue)o).getIntValue()) < items.length)
@@ -1210,11 +1313,13 @@ public final class Validator
         }
 
         SchemaType itemType = type.getListItemType();
+        _listValue = new ArrayList();
 
         for ( i = 0 ; i < items.length ; i++ )
         {
             validateSimpleType(
                 itemType, items[i], event );
+            addToList(itemType);
         }
 
         // If no errors up to this point, then I can create an
@@ -1296,7 +1401,10 @@ public final class Validator
             }
 
             if (originalErrorState == _errorState)
+            {
+                _unionType = types[i];
                 break;
+            }
         }
 
         _errorState = originalState;
@@ -1351,6 +1459,105 @@ public final class Validator
         }
     }
 
+    private void addToList(SchemaType type)
+    {
+        if (type.getSimpleVariety() != SchemaType.ATOMIC)
+            return;
+
+        if (type.getUnionMemberTypes().length>0 && getUnionType()!=null)
+        {
+            type = getUnionType();
+            _unionType = null;
+        }
+
+        switch ( type.getPrimitiveType().getBuiltinTypeCode() )
+        {
+            case SchemaType.BTC_ANY_SIMPLE :
+                {
+                    break;
+                }
+            case SchemaType.BTC_STRING :
+                {
+                    _listValue.add(_stringValue);
+                    _stringValue = null;
+                    break;
+                }
+            case SchemaType.BTC_DECIMAL :
+                {
+                    _listValue.add( _decimalValue );
+                    _decimalValue = null;
+                    break;
+                }
+            case SchemaType.BTC_BOOLEAN :
+                {
+                    _listValue.add(_booleanValue ? Boolean.TRUE : Boolean.FALSE);
+                    _booleanValue = false;
+                    break;
+                }
+            case SchemaType.BTC_FLOAT :
+                {
+                    _listValue.add(new Float(_floatValue));
+                    _floatValue = 0;
+                    break;
+                }
+            case SchemaType.BTC_DOUBLE :
+                {
+                    _listValue.add(new Double(_doubleValue));
+                    _doubleValue = 0;
+                    break;
+                }
+            case SchemaType.BTC_QNAME :
+                {
+                    _listValue.add(_qnameValue);
+                    _qnameValue = null;
+                    break;
+                }
+            case SchemaType.BTC_ANY_URI :
+                {
+                    break;
+                }
+            case SchemaType.BTC_DATE_TIME :
+            case SchemaType.BTC_TIME :
+            case SchemaType.BTC_DATE :
+            case SchemaType.BTC_G_YEAR_MONTH :
+            case SchemaType.BTC_G_YEAR :
+            case SchemaType.BTC_G_MONTH_DAY :
+            case SchemaType.BTC_G_DAY :
+            case SchemaType.BTC_G_MONTH :
+                {
+                    _listValue.add(_gdateValue);
+                    _gdateValue = null;
+                    break;
+                }
+            case SchemaType.BTC_DURATION :
+                {
+                    _listValue.add(_gdurationValue);
+                    _gdurationValue = null;
+                    break;
+                }
+            case SchemaType.BTC_BASE_64_BINARY :
+                {
+                    _listValue.add(_byteArrayValue);
+                    _byteArrayValue = null;
+                    break;
+                }
+            case SchemaType.BTC_HEX_BINARY :
+                {
+                    _listValue.add(_byteArrayValue);
+                    _byteArrayValue = null;
+                    break;
+                }
+            case SchemaType.BTC_NOTATION :
+                {
+                    _listValue.add(_stringValue);
+                    _stringValue = null;
+                    break;
+                }
+
+            default :
+                throw new RuntimeException( "Unexpected primitive type code" );
+        }
+    }
 
     //
     // Members of the validator class
@@ -1368,4 +1575,115 @@ public final class Validator
     private int                _suspendErrors;
     private IdentityConstraint _constraintEngine;
     private int                _eatContent;
+
+    private SchemaLocalElement   _localElement;
+    private SchemaParticle       _wildcardElement;
+    private SchemaLocalAttribute _localAttribute;
+    private SchemaAttributeModel _wildcardAttribute;
+    private SchemaType           _unionType;
+
+    // Strongly typed values
+    private String _stringValue;
+    private BigDecimal _decimalValue;
+    private boolean _booleanValue;
+    private float _floatValue;
+    private double _doubleValue;
+    private QName _qnameValue;
+    private GDate _gdateValue;
+    private GDuration _gdurationValue;
+    private byte[] _byteArrayValue;
+    private List _listValue;
+
+    private void resetValues()
+    {
+        _localAttribute = null;
+        _wildcardAttribute = null;
+        _stringValue = null;
+        _decimalValue = null;
+        _booleanValue = false;
+        _floatValue = 0;
+        _doubleValue = 0;
+        _qnameValue = null;
+        _gdateValue = null;
+        _gdurationValue = null;
+        _byteArrayValue = null;
+        _listValue = null;
+        _unionType = null;
+        _localAttribute = null;
+    }
+
+    public SchemaLocalElement getCurrentElement()
+    {
+        return _localElement;// != null ? _localElement : (_stateStack!=null ? (SchemaLocalElement)_stateStack._field : null);
+    }
+
+    public SchemaParticle getCurrentWildcaldElement()
+    {
+        return _wildcardElement;
+    }
+
+    public SchemaLocalAttribute getCurrentAttribute()
+    {
+        return _localAttribute;
+    }
+
+    public SchemaAttributeModel getCurrentWildcardAttribute()
+    {
+        return _wildcardAttribute;
+    }
+
+    public String getStringValue()
+    {
+        return _stringValue;
+    }
+
+    public BigDecimal getDecimalValue()
+    {
+        return _decimalValue;
+    }
+
+    public boolean getBooleanValue()
+    {
+        return _booleanValue;
+    }
+
+    public float getFloatValue()
+    {
+        return _floatValue;
+    }
+
+    public double getDoubleValue()
+    {
+        return _doubleValue;
+    }
+
+    public QName getQNameValue()
+    {
+        return _qnameValue;
+    }
+
+    public GDate getGDateValue()
+    {
+        return _gdateValue;
+    }
+
+    public GDuration getGDurationValue()
+    {
+        return _gdurationValue;
+    }
+
+    public byte[] getByteArrayValue()
+    {
+        return _byteArrayValue;
+    }
+
+    public List getListValue()
+    {
+        return _listValue;
+    }
+
+    public SchemaType getUnionType()
+    {
+        return _unionType;
+    }
 }
