@@ -15,37 +15,20 @@
 
 package drtcases;
 
-import javax.xml.namespace.QName;
-import org.apache.xmlbeans.impl.store.Root;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
-import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.XmlException;
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlNormalizedString;
 import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XMLStreamValidationException;
-import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlToken;
-import org.apache.xmlbeans.XmlNormalizedString;
-import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-
-// Types from substgroup.xsd
 import org.openuri.sgs.ADocument;
 import org.openuri.sgs.BDocument;
 import org.openuri.sgs.CDocument;
 import org.openuri.sgs.RootDocument;
-
 import org.w3.x2001.xmlSchema.SchemaDocument;
-
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
 
 public class SubstGroupTests extends TestCase
 {

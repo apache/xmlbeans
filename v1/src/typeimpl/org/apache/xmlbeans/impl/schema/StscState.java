@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.config.SchemaConfig;
+import org.apache.xmlbeans.impl.config.ExtensionHolder;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.SchemaComponent;
@@ -361,6 +362,22 @@ public class StscState
     public String getJavaname(QName qname)
     {
         return _config.lookupJavanameForQName(qname);
+    }
+
+    /**
+     * Gets configured extension set, null if javaName is not contained in any extension.
+     */
+    public ExtensionHolder getExtensionHolder(String javaName)
+    {
+        return _config.extensionHolderFor(javaName);
+    }
+
+    /**
+     * Gets configured extension set.
+     */
+    public ExtensionHolder getExtensionHolder()
+    {
+        return _config.getExtensionHolder();
     }
 
     /* SPELLINGS ======================================================*/
