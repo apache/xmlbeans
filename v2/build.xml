@@ -691,6 +691,7 @@
     <property name="repackage_arg" value=""/>
     <property name="schema_compiler" value="org.apache.xmlbeans.impl.tool.SchemaCompiler"/>
     <property name="bootstrap_schema_compiler" value="org.apache.xmlbeans.impl.tool.SchemaCompiler"/>
+    <property name="piccolo_package_name" value="org.apache.xmlbeans.impl.piccolo"/>
 
     <!--
         Params to repackage are:
@@ -701,11 +702,6 @@
                 are to be converted which which which other packages.  Right now, there are two.
                 org.apache.xmlbeans and apache.xmlbeans.impl, the public and implementation
                 packages.
-
-            new_schema_compiler
-
-                The name of the class which will new the new schema compiler.  Will replace
-                ${schema_compiler} during the bootstrap process.
 
             rp_source_dir
 
@@ -737,10 +733,31 @@
             <param name="replacement" value="${new_repackage_arg}"/>
         </antcall>
 
+
+        <!-- apply the repachage_spec on old schema_compiler and get the result in new_schema_compiler property -->
+        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
+            inputstring="${schema_compiler}" outputproperty="new_schema_compiler">
+            <arg line="${new_repackage_arg}"/>
+        </java>
+        <!-- modify the new build script with the new property -->
         <antcall target="edit_build_script">
             <param name="token"       value="schema_compiler"/>
             <param name="replacement" value="${new_schema_compiler}"/>
         </antcall>
+
+
+        <!-- apply the repachage_spec on old piccolo_package_name and get the result in new_piccolo_package_name property -->
+        <java classpath="build/classes/repackage" classname="repackage.Repackage"  failonerror="true"
+            inputstring="${piccolo_package_name}" outputproperty="new_piccolo_package_name">
+            <arg line="${new_repackage_arg}"/>
+        </java>
+        <!-- modify the new build script with the new property -->
+        <antcall target="edit_build_script">
+            <param name="token"       value="piccolo_package_name"/>
+            <param name="replacement" value="${new_piccolo_package_name}"/>
+        </antcall>
+
+
 
         <ant dir="${rp_target_dir}" target="xbean" inheritAll="false"/>
 
@@ -966,29 +983,24 @@
     <uptodate property="piccolo.classes.notRequired"
         targetfile="build/ar/xbean.jar" >
       <srcfiles dir="external/lib" includes="**/piccolo_*.jar"/>
-      <srcfiles dir="build/classes/piccolo" includes="**/*.class"/>
-      <srcfiles dir="build/private/piccolo/src" includes="**/*.java"/>
-      <srcfiles dir="build/private/piccolo/src_repackage" includes="**/*.java"/>
     </uptodate>
   </target>
 
   <target name="piccolo.classes" depends="piccolo.classes.check, dirs" unless="piccolo.classes.notRequired">
+    <delete dir="build/private/piccolo" />
     <mkdir dir="build/private/piccolo" />
     <unjar src="external/lib/piccolo_apache_dist_20040629.jar" dest="build/private/piccolo" />
 
     <echo message="Re-packaging XmlBeans" />
 
-    <property
-        name="piccolo_repackage_spec"
-        value="com.bluecast:org.apache.xmlbeans.impl.piccolo"/>
-
     <java classname="repackage.Repackage" fork="true" failonerror="true">
         <classpath>
             <pathelement location="build/classes/repackage"/>
         </classpath>
-        <arg line="-repackage ${piccolo_repackage_spec} -f build/private/piccolo/src -t build/private/piccolo/src_repackage"/>
+        <arg line="-repackage com.bluecast:${piccolo_package_name} -f build/private/piccolo/src -t build/private/piccolo/src_repackage"/>
     </java>
 
+    <delete dir="build/classes/piccolo" />
     <mkdir dir="build/classes/piccolo" />
     <javac
           destdir="build/classes/piccolo"

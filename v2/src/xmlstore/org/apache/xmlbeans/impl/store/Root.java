@@ -665,7 +665,7 @@ public final class Root extends Finish
         {
             try
             {
-                Class pc = Class.forName( "com.bluecast.xml.Piccolo" );
+                Class pc = Class.forName( "org.apache.xmlbeans.impl.piccolo.xml.Piccolo" );
                 
                 XMLReader xr = (XMLReader) pc.newInstance();
 
@@ -1118,7 +1118,13 @@ public final class Root extends Finish
     {
         is.setSystemId( "file://" );
 
-        getSaxLoader().load( this, is, options );
+        // check for user supplied XMLReader
+        XMLReader xmlReader = (options==null ? null : (XMLReader)options.get(XmlOptions.LOAD_USE_XMLREADER));
+
+        if (xmlReader!=null)
+            new DefaultSaxLoader(xmlReader);
+        else
+            getSaxLoader().load( this, is, options );
 
         return autoTypedDocument( type, options );
     }
