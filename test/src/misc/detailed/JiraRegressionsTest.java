@@ -360,7 +360,7 @@ public class JiraRegressionsTest extends TestCase
         classDir.mkdirs();
 
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setXsdFiles(new File[]{JarUtil.getResourceFromJarasFile("xbean/xmlobject/xmlbeans_57.xml")});
+        params.setXsdFiles(new File[]{JarUtil.getResourceFromJarasFile("xbean/misc/xmlbeans_57.xml")});
         params.setErrorListener(errorList);
         params.setSrcDir(srcDir);
         params.setClassesDir(classDir);
@@ -404,7 +404,7 @@ public class JiraRegressionsTest extends TestCase
         classDir.mkdirs();
 
         SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setWsdlFiles(new File[]{JarUtil.getResourceFromJarasFile("xbean/xmlobject/xmlbeans_62.xml")});
+        params.setWsdlFiles(new File[]{JarUtil.getResourceFromJarasFile("xbean/misc/xmlbeans_62.xml")});
         params.setErrorListener(errorList);
         params.setSrcDir(srcDir);
         params.setClassesDir(classDir);
@@ -435,7 +435,7 @@ public class JiraRegressionsTest extends TestCase
     public void test_jira_XmlBeans64() throws Exception
     {
         // load the document
-        File inst = JarUtil.getResourceFromJarasFile("xbean/xmlobject/xmlbeans_64.xml");
+        File inst = JarUtil.getResourceFromJarasFile("xbean/misc/xmlbeans_64.xml");
         XmlObject doc = RecorderSessionDocument.Factory.parse(inst);
         // validate
         XmlOptions validateOptions = new XmlOptions();
@@ -526,7 +526,7 @@ public class JiraRegressionsTest extends TestCase
     public void test_jira_XmlBeans71() throws Exception
     {
         //schema src lives in cases/xbean/xmlobject/xmlbeans_71.xsd
-        abc.BazResponseDocument doc = abc.BazResponseDocument.Factory.parse(JarUtil.getResourceFromJarasFile("xbean/xmlobject/xmlbeans_71.xml"), xmOpts);
+        abc.BazResponseDocument doc = abc.BazResponseDocument.Factory.parse(JarUtil.getResourceFromJarasFile("xbean/misc/xmlbeans_71.xml"), xmOpts);
         xmOpts.setErrorListener(errorList);
         abc.BazResponseDocument.BazResponse baz = doc.getBazResponse();
 
@@ -633,7 +633,7 @@ public class JiraRegressionsTest extends TestCase
     public void test_jira_xmlbeans78() throws Exception
     {
         XMLInputFactory factory = XMLInputFactory.newInstance();
-        FileInputStream fis = new FileInputStream(JarUtil.getResourceFromJarasFile("xbean/xmlobject/soapenv_streamreader.xml"));
+        FileInputStream fis = new FileInputStream(JarUtil.getResourceFromJarasFile("xbean/misc/xmlbeans_78.xml"));
         XMLStreamReader reader = factory.createXMLStreamReader(fis);
         skipToBody(reader);
         XmlObject o = XmlObject.Factory.parse(reader);
@@ -681,7 +681,7 @@ public class JiraRegressionsTest extends TestCase
                 "</doc> ";
         XmlObject xb80 = XmlObject.Factory.parse(xpathDoc);
         XmlObject[] resSet = xb80.selectPath("declare namespace " +
-                "ext='http://somebody.elses.extension'$this//ext:a[@test='test']");
+                "ext='http://somebody.elses.extension'; $this//ext:a[@test='test']");
 
         Assert.assertTrue(resSet.length == 1);
         System.out.println("Result was: " + resSet[0].xmlText());
