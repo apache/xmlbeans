@@ -105,7 +105,7 @@ public class Repackager
                 toPackage += to.get( j );
             }
 
-            _fromMatchers[ off + i ] = Pattern.compile( pattern ).matcher( null );
+            _fromMatchers[ off + i ] = Pattern.compile( pattern ).matcher( "" );
             _toPackageNames[ off + i ] = toPackage;
         }
     }
