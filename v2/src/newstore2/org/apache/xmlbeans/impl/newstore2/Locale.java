@@ -757,6 +757,12 @@ final class Locale implements DOMImplementation, SaajCallback
 //        return DomImpl._domImplementation_hasFeature( this, feature, version );
     }
 
+    public Object getFeature ( String feature, String version )
+    {
+        throw new RuntimeException( "DOM Level 3 Not implemented" );
+    }
+
+
     //
     // SaajCallback methods
     //
