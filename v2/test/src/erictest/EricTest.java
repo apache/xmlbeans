@@ -152,6 +152,25 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
+        String xml =
+            "<schema\n" +
+            "  xmlns='http://www.w3.org/2001/XMLSchema'>\n" +
+            "</schema>";
+
+//        String xml =
+//            "<schema\n" +
+//            "  xmlns='http://www.w3.org/2001/XMLSchema'>\n" +
+//            "</schema>";
+
+        XmlObject document = XmlObject.Factory.parse( xml );
+//        document.getSchema().save( System.out );
+        XmlCursor c = document.newCursor();
+        c.toFirstChild();
+        c.getObject().newDomNode();
+//        document.getSchema().newDomNode();
+        
+
+        
 //        charTest();
         domTest();
 
