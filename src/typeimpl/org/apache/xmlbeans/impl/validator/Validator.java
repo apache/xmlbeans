@@ -57,6 +57,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.XmlString;
 
 import java.math.BigDecimal;
 import java.util.Collection;
@@ -222,6 +223,11 @@ public final class Validator
                 emitFieldError(event,  "Nil element cannot have element content");
                 _eatContent = 1;
                 return;
+            }
+
+            if (!state._isNil && state._field != null && state._field.isFixed())
+            {
+                emitFieldError(event, "Element '" + QNameHelper.pretty(state._field.getName()) + "' is fixed and not nil so is not allowed to have element children.");
             }
 
             if (!state.visit( name ))
@@ -753,6 +759,19 @@ public final class Validator
 
                 _constraintEngine.text( event, state._type, value, false );
             }
+            else if (state._canHaveMixedContent)
+            {
+                // handles cvc-elt.5.2.2.2.1, checking mixed content against fixed.
+                // if we see <mixedType>a</b>c</mixedType>, we validate against
+                // the first 'a' text and we check the content of mixedType to
+                // be empty in beginElem().  we don't care about checking against
+                // the 'c' text since there will already be an error for <b/>
+                String value =
+                    validateSimpleType(
+                        XmlString.type, field, event, emptyContent, true );
+
+                _constraintEngine.text( event, XmlString.type, value, false );
+            }
             else if (emptyContent)
             {
                 _constraintEngine.text( event, state._type, null, true );
@@ -762,7 +781,7 @@ public final class Validator
         }
 
         if (!emptyContent && !state._canHaveMixedContent && 
-            !event.textIsWhitespace() & !state._hasSimpleContent)
+            !event.textIsWhitespace() && !state._hasSimpleContent)
         {
             if (field instanceof SchemaLocalElement) 
             {

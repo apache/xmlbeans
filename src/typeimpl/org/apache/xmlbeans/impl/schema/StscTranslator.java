@@ -30,6 +30,8 @@ import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.values.NamespaceContext;
+import org.apache.xmlbeans.impl.values.XmlPositiveIntegerImpl;
+import org.apache.xmlbeans.impl.values.XmlNonNegativeIntegerImpl;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.XmlObject;
@@ -45,6 +47,8 @@ import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.SchemaGlobalAttribute;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlInteger;
+import org.apache.xmlbeans.XmlNonNegativeInteger;
+import org.apache.xmlbeans.XmlPositiveInteger;
 
 import javax.xml.namespace.QName;
 
@@ -1074,7 +1078,7 @@ public class StscTranslator
         return SchemaLocalAttribute.OPTIONAL;
     }
 
-    static XmlInteger buildNnInteger(XmlAnySimpleType value)
+    static BigInteger buildBigInt(XmlAnySimpleType value)
     {
         if (value == null)
             return null;
@@ -1095,9 +1099,34 @@ public class StscTranslator
             StscState.get().error("Must be nonnegative integer", XmlErrorContext.MALFORMED_NUMBER, value);
             return null;
         }
+
+        return bigInt;
+    }
+
+
+    static XmlNonNegativeInteger buildNnInteger(XmlAnySimpleType value)
+    {
+        BigInteger bigInt = buildBigInt(value);
         try
         {
-            XmlIntegerImpl i = new XmlIntegerImpl();
+            XmlNonNegativeIntegerImpl i = new XmlNonNegativeIntegerImpl();
+            i.set(bigInt);
+            i.setImmutable();
+            return i;
+        }
+        catch (XmlValueOutOfRangeException e)
+        {
+            StscState.get().error("Internal error processing number", XmlErrorContext.MALFORMED_NUMBER, value);
+            return null;
+        }
+    }
+
+    static XmlPositiveInteger buildPosInteger(XmlAnySimpleType value)
+    {
+        BigInteger bigInt = buildBigInt(value);
+        try
+        {
+            XmlPositiveIntegerImpl i = new XmlPositiveIntegerImpl();
             i.set(bigInt);
             i.setImmutable();
             return i;
