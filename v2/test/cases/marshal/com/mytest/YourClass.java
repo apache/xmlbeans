@@ -16,6 +16,7 @@
 package com.mytest;
 
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
+import org.apache.xmlbeans.ObjectFactory;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.Random;
 import java.util.Arrays;
 
 public class YourClass
+    implements ObjectFactory
 {
     private YourClass myBoss = null;
 

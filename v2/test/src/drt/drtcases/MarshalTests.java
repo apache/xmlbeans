@@ -22,6 +22,7 @@ import com.mytest.MyClass;
 import com.mytest.MySubClass;
 import com.mytest.MySubSubClass;
 import com.mytest.SimpleContentExample;
+import com.mytest.YourClass;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -37,6 +38,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.ObjectFactory;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
@@ -886,6 +888,8 @@ public class MarshalTests extends TestCase
             xmlInputFactory.createXMLStreamReader(new FileReader(doc));
 
         final XmlOptions options = new XmlOptions();
+        ObjectFactory of = new YourClass();
+        options.setUnmarshalInitialObjectFactory(of);
         final LinkedList errors = new LinkedList();
         options.setErrorListener(errors);
 
