@@ -91,6 +91,8 @@ public class RuntimeTylar implements Tylar, TylarConstants {
 
   public URL[] getLocations() { return mLocations; }
 
+  public URL getLocation() { return null; }
+
   public BindingLoader getBindingLoader() /*throws IOException, XmlException*/ {
 try {
     if (mBindingLoader == null) {

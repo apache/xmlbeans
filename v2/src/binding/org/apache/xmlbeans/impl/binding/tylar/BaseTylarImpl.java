@@ -45,6 +45,10 @@ public abstract class BaseTylarImpl implements Tylar {
     return null;
   }
 
+  public URL getLocation() {
+    return null;
+  }
+
   public BindingLoader getBindingLoader() /*throws IOException, XmlException*/ {
 try {
   //REVIEW should consider caching this result
