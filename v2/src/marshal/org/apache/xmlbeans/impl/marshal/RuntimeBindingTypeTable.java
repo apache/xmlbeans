@@ -174,6 +174,8 @@ final class RuntimeBindingTypeTable
 
     private void addBuiltins()
     {
+        addXsdBuiltin("anyType", Object.class, new ObjectAnyTypeConverter());
+
         final FloatTypeConverter float_conv = new FloatTypeConverter();
         addXsdBuiltin("float", float.class, float_conv);
         addXsdBuiltin("float", Float.class, float_conv);

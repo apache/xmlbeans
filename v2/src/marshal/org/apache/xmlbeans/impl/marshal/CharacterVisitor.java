@@ -45,7 +45,6 @@ final class CharacterVisitor
         }
     }
 
-
     protected int getState()
     {
         return CHARS;

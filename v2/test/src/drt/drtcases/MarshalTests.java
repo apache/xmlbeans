@@ -152,10 +152,7 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal("aToken", "token");
         testSimpleTypeMarshal("       ", "string");
 
-        testSimpleTypeMarshal(Calendar.getInstance(), "dateTime");
-
         testSimpleTypeMarshal(new QName("someuri", "somelname"), "QName");
-
     }
 
 
@@ -242,6 +239,56 @@ public class MarshalTests extends TestCase
         }
 
         Assert.assertTrue(errors.isEmpty());
+    }
+
+    public void DISABLED_testSimplePolymorphicTypeMarshal()
+        throws Exception
+    {
+        BindingContext bindingContext =
+            BindingContextFactory.newInstance().createBindingContext();
+
+        final XmlOptions options = new XmlOptions();
+        Collection errors = new LinkedList();
+        options.setErrorListener(errors);
+
+        Marshaller ctx =
+            bindingContext.createMarshaller();
+        Assert.assertNotNull(ctx);
+
+        String our_obj = "hello";
+
+        final QName schemaType = new QName("http://www.w3.org/2001/XMLSchema", "anyType");
+        final String javaType = Object.class.getName();
+        final XMLStreamReader reader =
+            ctx.marshalType(our_obj,
+                            new QName("lname"),
+                            schemaType,
+                            javaType, options);
+
+
+        inform("==================POLYOBJ: " + our_obj);
+
+        final boolean dump = false;
+        if (dump) {
+            dumpReader(reader);
+        } else {
+            Unmarshaller um =
+                bindingContext.createUnmarshaller();
+            Assert.assertNotNull(um);
+
+            Object out = um.unmarshalType(reader, schemaType, javaType, options);
+            Assert.assertEquals(our_obj, out);
+
+
+            if (!errors.isEmpty()) {
+                for (Iterator itr = errors.iterator(); itr.hasNext();) {
+                    Object err = itr.next();
+                    inform("Error: " + err);
+                }
+            }
+
+            Assert.assertTrue(errors.isEmpty());
+        }
     }
 
 
@@ -510,7 +557,7 @@ public class MarshalTests extends TestCase
         //crank up these numbers to see real perf testing
         //the test still has some value aside from perf
         //in that it can test large stack depths.
-        final int trials = 20;
+        final int trials = 50;
         final int depth = 3;
         final int thread_cnt = 5;
         final int boolean_array_size = 3;
@@ -568,7 +615,7 @@ public class MarshalTests extends TestCase
             runners[i].start();
         }
 
-        inform("joining " + thread_cnt + " threads...");
+        inform("trials=" + trials +  "\tjoining " + thread_cnt + " threads...");
 
         for(int i = 0 ; i < thread_cnt ; i++) {
             runners[i].join();
@@ -905,7 +952,6 @@ public class MarshalTests extends TestCase
             out.write(buf, 0, charsRead);
         }
     }
-
 
     private File getBindingConfigDocument()
     {

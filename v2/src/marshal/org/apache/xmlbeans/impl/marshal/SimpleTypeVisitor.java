@@ -24,6 +24,7 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
 {
     private int state = START;
     private QName attributeName;
+    private String xsiTypeAttVal;
 
     private static final String NIL_ATT_VAL =
         XsTypeConverter.printBoolean(true).intern();
@@ -76,6 +77,18 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     {
         if (getParentObject() == null) {
             attributeName = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
+        } else if (needsXsiType()) {
+            attributeName = fillPrefix(MarshalStreamUtils.XSI_TYPE_QNAME);
+
+            final QName schema_type_name =
+                getActualRuntimeBindingType().getSchemaTypeName();
+
+            QName tn = fillPrefix(schema_type_name);
+            xsiTypeAttVal = XsTypeConverter.getQNameString(tn.getNamespaceURI(),
+                                                           tn.getLocalPart(),
+                                                           tn.getPrefix());
+        } else {
+            attributeName = null;
         }
     }
 
@@ -89,7 +102,8 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     protected String getAttributeValue(int idx)
     {
         assert attributeName != null;
-        return NIL_ATT_VAL;
+        
+        return xsiTypeAttVal==null ? NIL_ATT_VAL : xsiTypeAttVal;
     }
 
     protected QName getAttributeName(int idx)

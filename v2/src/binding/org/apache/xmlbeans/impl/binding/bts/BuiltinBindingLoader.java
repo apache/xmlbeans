@@ -83,6 +83,8 @@ public class BuiltinBindingLoader extends BaseBindingLoader {
 
     addPojoXml("anySimpleType", "java.lang.String");
 
+    addPojoTwoWay("anyType", "java.lang.Object");
+
     addPojoTwoWay("string", "java.lang.String");
     addPojoXml("normalizedString", "java.lang.String");
     addPojoXml("token", "java.lang.String");

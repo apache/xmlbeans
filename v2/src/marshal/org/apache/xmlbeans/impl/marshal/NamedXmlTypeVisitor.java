@@ -15,18 +15,27 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
+
 import javax.xml.namespace.QName;
+
+//named means we have an actual start/end element versus just characters
 
 abstract class NamedXmlTypeVisitor
     extends XmlTypeVisitor
 {
     private final QName name;
+    private final RuntimeBindingType actualRuntimeBindingType;
 
     NamedXmlTypeVisitor(Object parentObject,
                         RuntimeBindingProperty property,
                         MarshalResult result)
+        throws XmlException
     {
         super(parentObject, property, result);
+
+        actualRuntimeBindingType =
+            property.getActualRuntimeType(parentObject, result);
 
         //TODO: optimize to avoid object creation
         name = addPrefixToName(getBindingProperty().getName());
@@ -35,6 +44,11 @@ abstract class NamedXmlTypeVisitor
     protected QName getName()
     {
         return name;
+    }
+
+    protected final RuntimeBindingType getActualRuntimeBindingType()
+    {
+        return actualRuntimeBindingType;
     }
 
     private QName addPrefixToName(final QName pname)
@@ -49,6 +63,12 @@ abstract class NamedXmlTypeVisitor
             String prefix = marshalResult.ensurePrefix(uri);
             return new QName(uri, pname.getLocalPart(), prefix);
         }
+    }
+
+    protected final boolean needsXsiType()
+    {
+        return (actualRuntimeBindingType !=
+            getBindingProperty().getRuntimeBindingType());
     }
 
 }
