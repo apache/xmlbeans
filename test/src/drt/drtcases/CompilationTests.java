@@ -175,21 +175,6 @@ public class CompilationTests extends TestCase
         Assert.assertTrue("Cannout find " + outputjar, outputjar.exists());
     }
 
-    public void __testAnnuity() throws Throwable
-    {
-        TestEnv.deltree(TestEnv.xbeanOutput("schema/annuity"));
-        // First, compile schema
-        File srcdir = TestEnv.xbeanOutput("schema/annuity/src");
-        File outputdir = TestEnv.xbeanOutput("schema/annuity/classes");
-        SchemaCompiler.Parameters params = new SchemaCompiler.Parameters();
-        params.setXsdFiles(new File[] { TestEnv.xbeanCase("schema/annuity/annuitynet.xsd") });
-        params.setSrcDir(srcdir);
-        params.setClassesDir(outputdir);
-        params.setConfigFiles(new File[] { TestEnv.xbeanCase("schema/annuity/annuitynet.xsdconfig") });
-        Assert.assertTrue("Build failed", SchemaCompiler.compile(params));
-        Assert.assertTrue("Cannout find " + outputdir, outputdir.exists());
-    }
-
     static String [] invalidSchemas = {
         "<xs:schema xmlns:xs='http://www.w3.org/2001/XMLSchema'>\n" +
         "  <xs:complexType name='base' final='extension'/>\n" +
