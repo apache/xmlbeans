@@ -1,42 +1,81 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://apache.org/forrest/dtd/document-v12.dtd">
+<!DOCTYPE document PUBLIC "-//APACHE//DTD Documentation V1.2//EN" "http://forrest.apache.org/dtd/document-v12.dtd">
 <document>
-	<header>
-		<title>XMLBeans Documentation</title>
-	</header>
-	<body>
-		<section>
-			<title>XMLBeans FAQ</title>
-      <p>Visit the Wiki <link href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq">XMLBeans Version 1 FAQ</link></p>
-      <p>For a early explanation of what XMLBeans is all about, see <link href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansExplanation">XMLBeans Explanation</link>.</p>
-		</section>
-		<section>
-			<title>XMLBeans Version 1 User Documentation</title>
-			<ul>
-				<li><link href="../samples/index.html">Samples</link></li>
-				<li><link href="../docs/guide/conGettingStartedwithXMLBeans.html">Getting started with XMLBeans</link></li>
-				<li><link href="../docs/guide/conIntroToTheSchemaTypeSystem.html">Intro to the Schema Type System</link></li>
-				<li><link href="../docs/guide/conJavaTypesGeneratedFromUserDerived.html">Java Types generated from User Derived Types</link></li>
-				<li><link href="../docs/guide/conMethodsForGeneratedJavaTypes.html">Java Methods for Types generated from Schema</link></li>
-				<li><link href="../docs/guide/conNavigatingXMLwithCursors.html">Navigating XML with XMLCursor</link></li>
-				<li><link href="../docs/guide/conSelectingXMLwithXPath.html">Selecting XML with XPath</link></li>
-				<li><link href="../docs/guide/conUnderstandingXMLTokens.html">Understanding XML Tokens</link></li>
-				<li><link href="../docs/guide/conUsingBookmarksToAnnotateXML.html">Using Bookmarks to Annotate XML</link></li>
-				<li><link href="../docs/guide/conXMLBeansSupportBuiltInSchemaTypes.html">XMLBeans support for Built-in Schema Types</link></li>
-			</ul>
-		</section>
-		<section>
-			<title>XMLBeans JavaDoc</title>
-			<ul>
-				<li><link href="../docs/reference/index.html">XMLBeans V1 Java Doc</link></li>
-				<li><link href="../docs/v2/reference/index.html">XMLBeans V2 Java Doc</link></li>
-			</ul>
-		</section>
-		<section>
-		  <title>Wiki Pages</title>
-			<p>Have an idea for a sample you'd like to see? Looking for ideas for a sample you'd like to write?  For a Wiki page where you can view ideas and add your own, see 
-        <link href="http://wiki.apache.org/xmlbeans/XmlBeansSampleSuggestions">XMLBeans Samples Suggestions</link>.
-      </p>
-		</section>
-	</body>
+    <header>
+        <title>XMLBeans Documentation</title>
+    </header>
+    <body>
+        <section>
+            <title>Tutorial</title>
+            <p>Get a hands on introduction to XMLBeans through <link href="tutorial_getstarted.html">Tutorial: First Steps with XMLBeans</link>
+            </p>
+        </section>
+        <section>
+            <title>XMLBeans FAQ</title>
+            <p>Visit the Wiki <link href="http://wiki.apache.org/xmlbeans/XmlBeansV1Faq">XMLBeans
+                    Version 1 FAQ</link>
+            </p>
+            <p>For a early explanation of what XMLBeans is all about, see <link
+                    href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansExplanation">XMLBeans Explanation</link>.</p>
+        </section>
+        <section>
+            <title>XMLBeans Version 1 User Documentation</title>
+            <ul>
+                <li>
+                    <link href="../samples/index.html">Samples</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conGettingStartedwithXMLBeans.html">Getting Started
+                        with XMLBeans</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conIntroToTheSchemaTypeSystem.html">Intro to the
+                        Schema Type System</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conJavaTypesGeneratedFromUserDerived.html">Java Types
+                        generated from User Derived Types</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conMethodsForGeneratedJavaTypes.html">Java Methods for
+                        Types generated from Schema</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conNavigatingXMLwithCursors.html">Navigating XML with XMLCursor</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conSelectingXMLwithXPath.html">Selecting XML with XPath</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conUnderstandingXMLTokens.html">Understanding XML Tokens</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conUsingBookmarksToAnnotateXML.html">Using Bookmarks
+                        to Annotate XML</link>
+                </li>
+                <li>
+                    <link href="../docs/guide/conXMLBeansSupportBuiltInSchemaTypes.html">XMLBeans
+                        support for Built-in Schema Types</link>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <title>XMLBeans JavaDoc</title>
+            <ul>
+                <li>
+                    <link href="../docs/reference/index.html">XMLBeans V1 Java Doc</link>
+                </li>
+                <li>
+                    <link href="../docs/v2/reference/index.html">XMLBeans V2 Java Doc</link>
+                </li>
+            </ul>
+        </section>
+        <section>
+            <title>Wiki Pages</title>
+            <p>Have an idea for a sample you'd like to see? Looking for ideas for a sample you'd
+                like to write? For a Wiki page where you can view ideas and add your own, see <link
+                    href="http://wiki.apache.org/xmlbeans/XmlBeansSampleSuggestions">XMLBeans
+                    Samples Suggestions</link>. </p>
+        </section>
+    </body>
 </document>
