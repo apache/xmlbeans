@@ -132,7 +132,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
         m_xc.insertNamespace("pre3", "uri3");
         m_xc.insertNamespace(null, "uridefault");
         m_xc.toStartDoc();
-        m_xc.selectPath("default element namespace=\"nsa\"" + "$this//bar");
+        m_xc.selectPath("declare default element namespace \"nsa\";" + "$this//bar");
         m_xc.toNextSelection();
         m_xc.toFirstAttribute();
 

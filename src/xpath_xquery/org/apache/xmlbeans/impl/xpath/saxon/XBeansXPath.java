@@ -23,6 +23,7 @@ import java.util.Map;
 
 import net.sf.saxon.query.*;
 import net.sf.saxon.Configuration;
+import net.sf.saxon.om.NodeInfo;
 import net.sf.saxon.xpath.XPathException;
 import net.sf.saxon.xpath.XPathEvaluator;
 import net.sf.saxon.xpath.StandaloneContext;
@@ -74,8 +75,11 @@ public class XBeansXPath
     {
         try
         {
-            XPathEvaluator xpe = new XPathEvaluator(new DOMSource((Node) node));
+            DOMSource rootNode =new DOMSource((Node) node);
+            XPathEvaluator xpe = new XPathEvaluator();
+            NodeInfo _theNode = xpe.setSource(rootNode);
             XBeansStandaloneContext sc = new XBeansStandaloneContext();
+            sc.declareVariable("this",_theNode);
             xpe.setStaticContext(sc);
 
             // Declare ns bindings
