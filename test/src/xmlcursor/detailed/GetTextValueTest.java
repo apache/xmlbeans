@@ -121,12 +121,12 @@ public class GetTextValueTest extends BasicCursorTestCase {
 
     //offset+selection>buffer
     public void testSelectionPastEnd() {
-        String sExpected = " 32";
+        String sExpected = "  3";
         char[] buffer = new char[100];
         int nCopied = m_xc.getTextValue(buffer, 97, 4);
         assertEquals(sExpected.length(), nCopied);
-        assertEquals(sExpected, new String(buffer).substring(97, nCopied));
-        assertEquals("", new String(buffer).substring(0, 97));
+        assertEquals(sExpected, new String(buffer,97, nCopied) );
+        assertEquals("", new String(buffer,0, 97).trim());
     }
 
 

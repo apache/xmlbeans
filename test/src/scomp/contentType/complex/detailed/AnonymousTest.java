@@ -33,62 +33,79 @@ import scomp.common.BaseCase;
 /**
  * testing anonymous complex types
  */
-public class AnonymousTest extends BaseCase {
+public class AnonymousTest
+    extends BaseCase
+{
 
 
-    public void testSimpleAnonymous() throws Throwable {
+    public void testSimpleAnonymous()
+        throws Throwable
+    {
         AnonymousElt testElt = AnonymousElt.Factory.newInstance();
         assertEquals(null, testElt.getChild1());
         assertEquals(null, testElt.xgetChild1());
-        XmlInteger ival=XmlInteger.Factory.newInstance();
+        XmlInteger ival = XmlInteger.Factory.newInstance();
         testElt.xsetChild1(ival);
         testElt.setChild2(new BigInteger("5"));
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment><child1/><child2>5</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
+            "<child3>1</child3></xml-fragment>",
+            testElt.xmlText());
 
         testElt.xsetChild2(
-                XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
+            XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
         ival.setBigIntegerValue(new BigInteger("10"));
         testElt.xsetChild1(ival);
         assertEquals("<xml-fragment><child1>10</child1><child2>3</child2>" +
-                "<child3>1</child3></xml-fragment>",
-                testElt.xmlText());
-           try {
+            "<child3>1</child3></xml-fragment>",
+            testElt.xmlText());
+        try
+        {
             assertTrue(testElt.validate(validateOptions));
         }
-        catch (Throwable t) {
+        catch (Throwable t)
+        {
             showErrors();
             throw t;
         }
     }
 
-    public void testMixedAnonymous() throws Exception {
+    public void testMixedAnonymous()
+        throws Throwable
+    {
         AnonymousMixedElt testElt = AnonymousMixedElt.Factory.newInstance();
         assertEquals(null, testElt.getChild1());
         assertEquals(null, testElt.xgetChild1());
         testElt.setChild2(new BigInteger("5"));
         assertEquals(5, testElt.getChild2().intValue());
-        assertTrue(
-                XmlInteger.Factory.parse("<xml-fragment>5</xml-fragment>")
-                    .valueEquals(
-                        testElt.xgetChild2())
-        );
+        assertTrue(XmlInteger.Factory.parse("<xml-fragment>5</xml-fragment>")
+            .valueEquals(testElt.xgetChild2()));
         XmlCursor cur = testElt.newCursor();
         cur.toFirstContentToken();
         cur.insertChars("Random mixed content");
         testElt.setChild3(new BigInteger("1"));
         assertEquals("<xml-fragment>Random mixed content" +
-                "<child2>5</child2>" +
-                "<child3>1</child3>" +
-                "</xml-fragment>",
-                testElt.xmlText());
+            "<child2>5</child2>" +
+            "<child3>1</child3>" +
+            "</xml-fragment>",
+            testElt.xmlText());
 
-        testElt.xsetChild2(XmlInteger.Factory.parse("3"));
-        assertEquals("", testElt.xmlText());
-        assertTrue(testElt.validate());
-
+        testElt.xsetChild1(
+            XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
+        assertEquals("<xml-fragment>Random mixed content" +
+            "<child1>3</child1>" +
+            "<child2>5</child2>" +
+            "<child3>1</child3>" +
+            "</xml-fragment>", testElt.xmlText());
+        try
+        {
+            assertTrue(testElt.validate(validateOptions));
+        }
+        catch (Throwable t)
+        {
+            showErrors();
+            throw t;
+        }
 
     }
 }
