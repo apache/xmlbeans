@@ -1228,11 +1228,6 @@ public final class Root extends Finish implements XmlStore
             return _root;
         }
 
-        private Splay last ( )
-        {
-            return _root._leftSplay;
-        }
-
         private int getCp ( Splay s )
         {
             assert _root.isLeftOnly();
@@ -1261,7 +1256,7 @@ public final class Root extends Finish implements XmlStore
             assert !_finished;
             assert s.getCch() == 0;
 
-            _root.insertSplay( s, last() );
+            _root.insertSplay( s, _root._leftSplay );
 
             _lastSplay = s;
             _lastPos = 0;
@@ -1386,7 +1381,7 @@ public final class Root extends Finish implements XmlStore
 
                         if (s.namespaceForPrefix( prefix ) == null)
                         {
-                            _root.insertSplay(
+                            _root.insertSingleSplaySansSplayInLeftOnlyTree(
                                 new Xmlns( new QName( namespace, prefix ) ),
                                 s );
 
@@ -2729,6 +2724,36 @@ public final class Root extends Finish implements XmlStore
         assert validateSplayTree();
     }
 
+    /**
+     * Special insert to insert a single splay into a leftonly tree without
+     * causing the tree to go non left only.  Because this does not splay,
+     * doing this too many times can be very inefficient.
+     */
+    
+    void insertSingleSplaySansSplayInLeftOnlyTree ( Splay s, Splay a )
+    {
+        assert _leftOnly;
+        assert s._rightSplay == null;
+        assert s._leftSplay == null;
+
+        s._leftSplay = a;
+        s._parentSplay = a._parentSplay;
+        a._parentSplay._leftSplay = s;
+        a._parentSplay = s;
+
+        s.adjustCchLeft( a.getCchLeft() + a.getCch() );
+        s.adjustCdocBeginLeft( a.getCdocBeginLeft() + a.getCdocBegin() );
+        
+        int cch = s.getCch();
+        int cbegin = s.getCdocBegin();
+        
+        for ( Splay p = s._parentSplay ; p != null ; p = p._parentSplay )
+        {
+            p.adjustCchLeft( cch );
+            p.adjustCdocBeginLeft( cbegin );
+        }
+    }
+            
     /**
      * Remove [ first, last ) splays from total sequence:
      *

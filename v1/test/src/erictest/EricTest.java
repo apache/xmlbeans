@@ -123,11 +123,14 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        XmlObject x = XmlObject.Factory.parse( new File( "c:\\test\\foo.xml" ) );
-
-        XmlObject[] xes = x.selectPath( "declare namespace xq = 'http://openuri.org/bea/samples/workshop/xmlBeans/xquery' $this/xq:employees/xq:employee/xq:phone[@location='work']" );
-
-        System.out.println( xes.length );
+        HashMap nses = new HashMap();
+        nses.put( "x", "x.com" );
+        nses.put( "y", "y.com" );
+        XmlOptions options = new XmlOptions();
+        options.setLoadAdditionalNamespaces( nses );
+        
+        XmlObject x = XmlObject.Factory.parse( "<a></a>", options );
+        x.save( System.out );
     }
 }
 
