@@ -50,6 +50,8 @@ import java.util.Random;
 
 public class MarshalTests extends TestCase
 {
+    private static final boolean VERBOSE = false;
+
     public MarshalTests(String name)
     {
         super(name);
@@ -187,7 +189,7 @@ public class MarshalTests extends TestCase
         Assert.assertTrue(errors.isEmpty());
 
 
-//        System.out.println("OK for " + expected);
+//        inform("OK for " + expected);
     }
 
 
@@ -214,13 +216,13 @@ public class MarshalTests extends TestCase
                             orig.getClass().getName(), options);
 
 
-        System.out.println("==================OBJ: " + orig);
+        inform("==================OBJ: " + orig);
         dumpReader(reader);
 
         if (!errors.isEmpty()) {
             for (Iterator itr = errors.iterator(); itr.hasNext();) {
                 Object err = itr.next();
-                System.out.println("Error: " + err);
+                inform("Error: " + err);
             }
         }
 
@@ -251,7 +253,6 @@ public class MarshalTests extends TestCase
                                             sub});
 
 
-
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         final XmlOptions options = new XmlOptions();
@@ -275,12 +276,11 @@ public class MarshalTests extends TestCase
 //                            new QName("java:com.mytest", "MySubClass"),
 //                            "MyClass", null);
 
-        System.out.println("=======IN-OBJ: " + mc);
+        inform("=======IN-OBJ: " + mc);
 
         dumpReader(reader);
         Assert.assertTrue(errors.isEmpty());
     }
-
 
 
     public void testByNameMarshalViaWriter()
@@ -317,8 +317,8 @@ public class MarshalTests extends TestCase
                         new QName("java:com.mytest", "MyClass"),
                         mc.getClass().getName(), options);
 
-        System.out.println("=======IN-OBJ: " + mc);
-        System.out.println("=======OUT-XML: " + PrettyPrinter.indent(sw.getBuffer().toString()));
+        inform("=======IN-OBJ: " + mc);
+        inform("=======OUT-XML: " + PrettyPrinter.indent(sw.getBuffer().toString()));
         Assert.assertTrue(errors.isEmpty());
     }
 
@@ -392,7 +392,7 @@ public class MarshalTests extends TestCase
         ctx.marshal(baos, mc, options);
         baos.close();
         final byte[] buf = baos.toByteArray();
-        System.out.println("16Doc="+new String(buf, encoding));
+        inform("16Doc=" + new String(buf, encoding));
 
         //now unmarshall from String and compare objects...
         Unmarshaller umctx = bindingContext.createUnmarshaller((new XmlOptions()));
@@ -433,7 +433,7 @@ public class MarshalTests extends TestCase
             curr = my_c;
         }
 
-        //System.out.println("top_obj = " + top_obj);
+        //inform("top_obj = " + top_obj);
 
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
@@ -473,11 +473,11 @@ public class MarshalTests extends TestCase
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
-//        System.out.println(" perf_out_obj = " + top_obj);
+//        inform(" perf_out_obj = " + top_obj);
         Assert.assertTrue(errors.isEmpty());
         Assert.assertEquals(top_obj, out_obj);
-        System.out.println("milliseconds: " + diff + " trials: " + trials);
-        System.out.println("milliseconds PER trial: " + (diff / (double)trials));
+        inform("milliseconds: " + diff + " trials: " + trials);
+        inform("milliseconds PER trial: " + (diff / (double)trials));
     }
 
     private boolean[] createRandomBooleanArray(Random rnd, int size)
@@ -508,7 +508,7 @@ public class MarshalTests extends TestCase
 //        top_obj.setMyatt("someVALUE");
 
 
-        System.out.println("top_obj = " + top_obj);
+        inform("top_obj = " + top_obj);
 
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
@@ -538,36 +538,42 @@ public class MarshalTests extends TestCase
         Unmarshaller umctx =
             bindingContext.createUnmarshaller(options);
         out_obj = umctx.unmarshalType(reader, schemaType, javaType);
-        System.out.println(" out_obj = " + top_obj);
+        inform(" out_obj = " + top_obj);
         Assert.assertEquals(top_obj, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }
 
     private static void dumpReader(final XMLStreamReader reader)
-        throws XMLStreamException
+        throws XMLStreamException, XmlException, IOException
     {
         final boolean write_doc = true;
         if (write_doc) {
             StringWriter sw = new StringWriter();
 
             XMLStreamWriter xsw =
-                XMLOutputFactory.newInstance().createXMLStreamWriter(sw); 
+                XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
 
 
             XmlReaderToWriter.writeAll(reader, xsw);
 
             xsw.close();
 
-            final String xmldoc = sw.getBuffer().toString();
-            System.out.println("DOC:");
-//            System.out.println(PrettyPrinter.indent(xmldoc));
-            System.out.println((xmldoc));
+            if (VERBOSE) {
+                final String xmldoc = sw.getBuffer().toString();
+                inform("DOC:");
+                inform(PrettyPrinter.indent(xmldoc));
+                inform((xmldoc));
+            }
         } else {
             int i = 0;
-            System.out.println((i++) + "\tSTATE: " + XmlStreamUtils.printEvent(reader));
+            if (VERBOSE)
+                inform((i++) + "\tSTATE: " +
+                                   XmlStreamUtils.printEvent(reader));
             while (reader.hasNext()) {
                 final int state = reader.next();
-                System.out.println((i++) + "\tSTATE: " + XmlStreamUtils.printEvent(reader));
+                if (VERBOSE)
+                    inform((i++) + "\tSTATE: " +
+                                       XmlStreamUtils.printEvent(reader));
             }
         }
     }
@@ -591,11 +597,11 @@ public class MarshalTests extends TestCase
             bindingContext.createUnmarshaller(options);
         Object obj = um_ctx.unmarshal(xrdr);
 
-        System.out.println("doc2-obj = " + obj);
+        inform("doc2-obj = " + obj);
 
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
             XmlError xmlError = (XmlError)itr.next();
-            System.out.println("doc2-ERROR: " + xmlError);
+            inform("doc2-ERROR: " + xmlError);
         }
 
         Assert.assertTrue(errors.isEmpty());
@@ -617,11 +623,11 @@ public class MarshalTests extends TestCase
             bindingContext.createUnmarshaller(options);
         Object obj = um_ctx.unmarshal(new FileInputStream(doc));
 
-        System.out.println("doc2-obj = " + obj);
+        inform("doc2-obj = " + obj);
 
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
             XmlError xmlError = (XmlError)itr.next();
-            System.out.println("doc2-ERROR: " + xmlError);
+            inform("doc2-ERROR: " + xmlError);
         }
 
         Assert.assertTrue(errors.isEmpty());
@@ -654,13 +660,13 @@ public class MarshalTests extends TestCase
 
         Object obj = ctx.unmarshalType(xrdr, schemaType, javaType);
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
-            System.out.println("ERROR: " + itr.next());
+            inform("ERROR: " + itr.next());
         }
-        System.out.println("+++++TYPE obj = " + obj);
+        inform("+++++TYPE obj = " + obj);
 
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
             XmlError xmlError = (XmlError)itr.next();
-            System.out.println("doc-ERROR: " + xmlError);
+            inform("doc-ERROR: " + xmlError);
         }
 
         Assert.assertTrue(errors.isEmpty());
@@ -698,13 +704,13 @@ public class MarshalTests extends TestCase
 
             if ((i % 1000) == 0) {
                 String s = obj.toString().substring(0, 70);
-                System.out.println("i=" + i + "\tobj = " + s + "...");
+                inform("i=" + i + "\tobj = " + s + "...");
             }
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
-        System.out.println("milliseconds: " + diff + " trials: " + trials);
-        System.out.println("milliseconds PER trial: " + (diff / (double)trials));
+        inform("milliseconds: " + diff + " trials: " + trials);
+        inform("milliseconds PER trial: " + (diff / (double)trials));
     }
 
     protected static void bufferedStreamCopy(Reader in, Writer out)
@@ -731,9 +737,13 @@ public class MarshalTests extends TestCase
     }
 
     private static BindingContext getBindingContext(File bcdoc)
-            throws XmlException, IOException
+        throws XmlException, IOException
     {
-      return ((BindingContextFactoryImpl)BindingContextFactory.newInstance()).
-          createBindingContextFromConfig(bcdoc);
+        return ((BindingContextFactoryImpl)BindingContextFactory.newInstance()).
+            createBindingContextFromConfig(bcdoc);
+    }
+
+    private static void  inform(String msg) {
+        if (VERBOSE) System.out.println(msg);
     }
 }
