@@ -199,6 +199,9 @@ public final class Cursor implements XmlCursor, ChangeListener
         checkInsertionValidity( thisStuff );
 
         thisStuff.moveNode( _cur );
+
+        _cur.toEnd();
+        _cur.nextWithAttrs();
     }
     
     //
