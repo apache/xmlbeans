@@ -15,6 +15,9 @@
 package org.apache.xmlbeans.impl.jam.annogen;
 
 import org.apache.xmlbeans.impl.jam.annogen.internal.AnnotationServiceParamsImpl;
+import org.apache.xmlbeans.impl.jam.annogen.internal.BaseAnnotationService;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.CompositeProxyPopulator;
 
 
 /**
@@ -23,17 +26,26 @@ import org.apache.xmlbeans.impl.jam.annogen.internal.AnnotationServiceParamsImpl
 public class AnnotationServiceFactory {
 
   // ========================================================================
-  // Constants
-
-  private static final AnnotationServiceFactory DEFAULT = new AnnotationServiceFactory();
-
-  // ========================================================================
   // Singleton
 
   /**
    * Return the default factory singleton for this VM.
    */
   public static AnnotationServiceFactory getInstance() { return DEFAULT; }
+
+  // ========================================================================
+  // Constants
+
+  private static final AnnotationServiceFactory DEFAULT = new AnnotationServiceFactory();
+
+
+  private static final String REFLECTING_POPULATOR =
+    "org.apache.xmlbeans.impl.jam.annogen.internal.reflect175";
+
+  // ========================================================================
+  // Variables
+
+  private ProxyPopulator mReflectingPopulator = null;
 
   // ========================================================================
   // Constructors
@@ -55,8 +67,10 @@ public class AnnotationServiceFactory {
   /**
    * <p>Create a new AnnoService using the given parameters.</p>
    */
-  public AnnotationService createService(AnnotationService params) {
-    return null;
+  public AnnotationService createService(AnnotationServiceParams params) {
+    ProxyPopulator[] pps = ((AnnotationServiceParamsImpl)params).getPopulators();
+    ProxyPopulator cp = new CompositeProxyPopulator((pps));
+    return new BaseAnnotationService(cp);
   }
 
 
@@ -66,6 +80,37 @@ public class AnnotationServiceFactory {
    * annotation APIs in java.lang.reflect).</p>
    */
   public AnnotationService createDefaultService() {
+    return new BaseAnnotationService(getReflectingPopulator());
+  }
+
+
+  // ========================================================================
+  // Private methods
+
+
+  public ProxyPopulator getReflectingPopulator() {
+    if (mReflectingPopulator != null) return mReflectingPopulator;
+
+    try {
+      // class for name this because it's 1.5-specific.  if it fails, we
+      // don't want to use the extractor
+      Class.forName("java.lang.annotation.Annotation");
+    } catch (ClassNotFoundException e) {
+      //issue14RuntimeWarning(e);
+      return null;
+    }
+    // ok, if we could load that, let's new up the extractor delegate
+    try {
+      mReflectingPopulator = (ProxyPopulator)
+        Class.forName(REFLECTING_POPULATOR).newInstance();
+      // if this fails for any reason, things are in a bad state
+    } catch (ClassNotFoundException e) {
+//      issue14BuildWarning(e);
+    } catch (IllegalAccessException e) {
+//      issue14BuildWarning(e);
+    } catch (InstantiationException e) {
+//      issue14BuildWarning(e);
+    }
     return null;
   }
 }
