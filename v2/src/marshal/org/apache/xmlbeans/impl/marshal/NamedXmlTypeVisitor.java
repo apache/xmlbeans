@@ -41,7 +41,7 @@ abstract class NamedXmlTypeVisitor
             property.getActualRuntimeType(parentObject, result);
 
         //TODO: optimize to avoid object creation
-        name = addPrefixToName(getBindingProperty().getName());
+        name = fillPrefix(getBindingProperty().getName());
     }
 
     protected QName getName()
@@ -52,20 +52,6 @@ abstract class NamedXmlTypeVisitor
     protected final RuntimeBindingType getActualRuntimeBindingType()
     {
         return actualRuntimeBindingType;
-    }
-
-    private QName addPrefixToName(final QName pname)
-    {
-        final String uri = pname.getNamespaceURI();
-
-        assert uri != null;  //QName's should use "" for no namespace
-
-        if (uri.length() == 0) {
-            return new QName(pname.getLocalPart());
-        } else {
-            String prefix = marshalResult.ensurePrefix(uri);
-            return new QName(uri, pname.getLocalPart(), prefix);
-        }
     }
 
     protected final boolean needsXsiType()

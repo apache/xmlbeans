@@ -91,16 +91,7 @@ abstract class XmlTypeVisitor
 
     protected QName fillPrefix(final QName pname)
     {
-        final String uri = pname.getNamespaceURI();
-
-        assert uri != null;  //QName's should use "" for no namespace
-
-        if (uri.length() == 0) {
-            return new QName(pname.getLocalPart());
-        } else {
-            String prefix = marshalResult.ensurePrefix(uri);
-            return new QName(uri, pname.getLocalPart(), prefix);
-        }
+        return marshalResult.fillPrefix(pname);
     }
 
 
