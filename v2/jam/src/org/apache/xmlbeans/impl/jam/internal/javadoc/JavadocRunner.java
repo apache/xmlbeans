@@ -44,6 +44,14 @@ public class JavadocRunner extends Doclet {
   // Factory methods
   
   public static JavadocRunner newInstance() {
+    try {
+      // See if we can load a 1.5-specific class.  If we can't, don't use
+      // the default.  FIXME please rationalize handling of this throughout
+      // the code.
+      Class.forName("com.sun.javadoc.AnnotationDesc");
+    } catch (ClassNotFoundException e) {
+      return new JavadocRunner();
+    }
     //REVIEW we should probably normalize the handling of 1.5-specific class
     //instantation and error handling
     try {
