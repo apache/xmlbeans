@@ -673,14 +673,16 @@ public class StscComplexTypeResolver
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
-        /*
         // BUGBUG: can restrict mixed content as long as all child elements are optional
         else if (baseType.getContentType() != SchemaType.SIMPLE_CONTENT)
-            state.error("The specified base type " + baseType.toString() + " does not have simple content.", XmlErrorCodes.SIMPLE_BASE_NOT_SIMPLE, parseTree);
+        {
+            // src-ct.2: complex types with simple content can only extend simple types
+            state.error(XmlErrorCodes.SCHEMA_COMPLEX_TYPE$SIMPLE_CONTENT,
+                new Object[] { QNameHelper.pretty(baseType.getName()) } ,
+                parseTree);
             // recovery: extends ANY_SIMPLE type
             baseType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
-        */
         else if (baseType.getContentType() == SchemaType.MIXED_CONTENT &&
             baseType.getContentModel() != null && !baseType.getContentModel().isSkippable())
         {
