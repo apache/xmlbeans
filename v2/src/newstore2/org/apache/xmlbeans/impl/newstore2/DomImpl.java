@@ -1641,9 +1641,9 @@ final class DomImpl
                 {
                     while ( cn._next != null )
                     {
-                        cn._src = null;
-                        cn._off = 0;
-                        cn._cch = 0;
+                        cn._next._src = null;
+                        cn._next._off = 0;
+                        cn._next._cch = 0;
 
                         cn = CharNode.remove( cn, cn._next );
                     }
