@@ -45,7 +45,7 @@ public final class JaxenXBeansDelegate
     }
 
 
-    // Loose coupling functionality with xqrl.jar
+    // Loose coupling functionality with xbean_xpath.jar
 
     private static Constructor _constructor;
 

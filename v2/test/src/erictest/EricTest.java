@@ -100,8 +100,6 @@ import javax.xml.stream.XMLStreamReader;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.xmlbeans.impl.newstore.CharUtil;
-import org.apache.xmlbeans.impl.newstore.CharUtil.CharJoin;
 
 import org.apache.xmlbeans.impl.newstore2.Public2;
 
