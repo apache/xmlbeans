@@ -26,10 +26,10 @@ public class ComplexDetailedTest extends Inst2XsdTestBase {
                 XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum2_rd0.xsd")));
         log("-= Venetian Options =-");
         runSchemaBuild(inst, common.getVenetianOptions(),
-                XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum2_ss0.xsd")));
+                XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum2_vb0.xsd")));
         log("-= Salami Options =-");
         runSchemaBuild(inst, common.getSalamiOptions(),
-                XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum2_vb0.xsd")));
+                XmlObject.Factory.parse(new File(SCHEMA_CASES_DIR + "complex" + P + "enum" + P + "enum2_ss0.xsd")));
     }
 
     public void test_complex_enum_never() throws Exception {

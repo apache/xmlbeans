@@ -67,7 +67,8 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
     /*
     TODO: Redirect output these tests cause problems
     with the xml log
-    public void test_main_license() throws Exception {
+    */
+    /*public void test_main_license() throws Exception {
         Inst2Xsd.main(new String[]{"-license"});
     }
     public void test_main_noarg_enum() throws Exception {
@@ -93,7 +94,10 @@ public class Inst2XsdMiscTest extends Inst2XsdTestBase {
     }
     public void test_main_noarg_help() throws Exception {
         Inst2Xsd.main(new String[]{"-help"});
-    } */
+    }
+    public void test_no_param() throws Exception {
+        Inst2Xsd.main(null);
+    }*/
 
 
 
