@@ -86,8 +86,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
       //something.  We need to break out a separate checkClass() method
       //or something for them which returns null rather than UnresolvedClass.
       out = new UnresolvedClassImpl(pkg,name,mContext);
-      mContext.warning(new ClassNotFoundException("Failed to resolve class "+
-                                                  pkg+"' '"+name+"'"));
+      mContext.warning("Warning: failed to resolve class '"+pkg+"' '"+name+"'");
       mFd2ClassCache.put(fd,out);
       return out;
     }

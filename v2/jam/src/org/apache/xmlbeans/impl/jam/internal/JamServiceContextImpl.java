@@ -456,7 +456,7 @@ public class JamServiceContextImpl extends JamLoggerImpl implements JamServiceCo
     if (isVerbose(this)) verbose(PREFIX+"Getting root for "+sourceFile+"...");
     for(int i=0; i<sourcepath.length; i++) {
       if (isVerbose(this)) verbose(PREFIX+"...looking in "+sourcepath[i]);
-      if (isContainingDir(sourcepath[i],sourceFile)) {
+      if (isContainingDir(sourcepath[i].getAbsoluteFile(),sourceFile)) {
         if (isVerbose(this)) verbose(PREFIX+"...found it!");
         return sourcepath[i].getAbsoluteFile();
       }

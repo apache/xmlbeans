@@ -316,6 +316,7 @@ public class JamXmlWriter extends JVisitor {
     for(int i=0; i<values.length; i++) {
       writeAnnotationValue(values[i]);
     }
+    mOut.writeEndElement();
   }
 
   private void writeAnnotationValue(JAnnotationValue val)
@@ -323,8 +324,8 @@ public class JamXmlWriter extends JVisitor {
   {
     mOut.writeStartElement(ANNOTATIONVALUE_ELEMENT);
     writeValueElement(NAME_ELEMENT,val.getName());
-
-writeValueElement(VALUE_ELEMENT,val.asString());
+    writeValueElement(VALUE_ELEMENT,val.asString());
+    mOut.writeEndElement();
     //FIXME what about asAnnotationArray?
 /*    JAnnotation nestedAnn = val.asAnnotation();
     if (nestedAnn != null) {

@@ -11,6 +11,7 @@
   <property name='junit_jar' value='${jamroot}/external/lib/junit.jar' />
   <property name='jsr173api_jar' value='../../build/lib/jsr173_api.jar'/>
   <property name='jsr173ri_jar' value='../../build/lib/jsr173_ri.jar'/>
+  <property name='tidy_jar' value='../external/lib/tidy.jar'/>
 
 
   <path id='classpath' >
@@ -21,6 +22,7 @@
     <pathelement location='${junit_jar}'/>
     <pathelement path='${java.class.path}' />
 
+    <pathelement location='${tidy_jar}' />
     <pathelement location='${jsr173api_jar}' />
     <pathelement location='${jsr173ri_jar}' />
 
@@ -69,7 +71,7 @@
 
 
       <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
-      <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
+      <test name='org.apache.xmlbeans.test.jam.ReflectJamTest'/>
 
       <!--parser work is on hold for the moment-->
       <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
