@@ -1379,7 +1379,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         DocProps props = (DocProps) c.getBookmark( DocProps.class );
 
-        if (props == null)
+        if (props == null && ensure)
             c.setBookmark( DocProps.class, props = new DocProps() );
 
         c.pop();
