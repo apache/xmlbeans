@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -38,6 +39,11 @@ final class SoapArrayRuntimeBindingType
     {
         super(binding_type);
         soapArrayType = binding_type;
+    }
+
+
+    int[] getRanks() {
+      throw new AssertionError("INVALID CALL");
     }
 
     void accept(RuntimeTypeVisitor visitor)

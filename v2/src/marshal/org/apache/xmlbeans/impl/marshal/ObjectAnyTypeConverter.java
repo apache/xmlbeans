@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 
 import javax.xml.namespace.QName;
 
@@ -34,7 +35,8 @@ public final class ObjectAnyTypeConverter
         final QName xsi_type = result.getXsiType();
         assert xsi_type == null : " xsi-type is " + xsi_type;
         String lname = result.getLocalName();
-        throw new AssertionError("GENERIC XML UNIMPLEMENTED: " + lname);
+        throw new AssertionError("GENERIC XML UNIMPLEMENTED: " + lname +
+                                 " at " + XmlStreamUtils.printEvent(result.baseReader));
     }
 
     public void unmarshalIntoIntermediary(Object intermediary,

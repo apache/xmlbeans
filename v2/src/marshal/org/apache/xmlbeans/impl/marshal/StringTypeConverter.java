@@ -41,6 +41,7 @@ class StringTypeConverter
     //non simple types can throw a runtime exception
     public CharSequence print(Object value, MarshalResult result)
     {
+        assert value instanceof String : "expected String type, not " + value.getClass();
         String val = (String)value;
         return XsTypeConverter.printString(val);
     }

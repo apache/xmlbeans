@@ -100,6 +100,7 @@ public class MarshalTests extends TestCase
     private static final QName DFLT_ELEM_NAME = new QName("java:com.mytest", "load");
     private static final QName MYCLASS_NAME = new QName("java:com.mytest", "MyClass");
     private static final QName DUMMY_QNAME = new QName("foo", "bar");
+    private static final QName ANY_TYPE_NAME = new QName(XSD_URI, "anyType");
 
 
     public MarshalTests(String name)
@@ -661,6 +662,100 @@ public class MarshalTests extends TestCase
         xrdr.close();
     }
 
+
+    public void testAnyTypeSoapUnmarshal()
+        throws Exception
+    {
+        final boolean verbose = true;
+
+        final Collection errors = new LinkedList();
+        final MyClass source_mc = new MyClass();
+
+
+        BindingContext bindingContext =
+            getBindingContext(getBindingConfigDocument());
+
+        //////////////////////////////////////////////
+
+        final XmlOptions options = new XmlOptions();
+        options.setErrorListener(errors);
+
+        final SoapMarshaller ctx =
+            bindingContext.createSoapMarshaller(EncodingStyle.SOAP11);
+
+        Assert.assertNotNull(ctx);
+
+        StringWriter sw = new StringWriter();
+        XMLStreamWriter xml_out =
+            XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+
+        xml_out.writeStartDocument();
+        xml_out.writeStartElement("DUMMY_ROOT");
+        xml_out.writeNamespace("xs", XSD_URI);
+        xml_out.writeNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        xml_out.writeNamespace("jt", "java:com.mytest");
+
+//        ctx.marshalType(xml_out, source_mc, DFLT_ELEM_NAME,
+//                        MYCLASS_NAME,
+//                        source_mc.getClass().getName(), options);
+
+        ctx.marshalType(xml_out, source_mc, DFLT_ELEM_NAME,
+                        ANY_TYPE_NAME,
+                        Object.class.getName(), options);
+
+
+        xml_out.writeComment("ids are coming next");
+
+        ctx.marshalReferenced(xml_out, options);
+        xml_out.writeEndElement();
+        xml_out.writeEndDocument();
+        xml_out.close();
+        sw.close();
+        final String xmldoc = sw.getBuffer().toString();
+
+        //////////////////////////////////////////////
+
+        reportErrors(errors, "byname-marshal-soap-writer");
+        Assert.assertTrue(errors.isEmpty());
+
+
+        XmlOptions opts = new XmlOptions();
+        opts.setLoadLineNumbers();
+        final Document document = Public2.parse(xmldoc, opts);
+
+        if (verbose) {
+            final XMLStreamReader tmp_stream = Public2.getStream(document);
+            dumpReader(tmp_stream, true);
+            tmp_stream.close();
+        }
+
+        final SoapUnmarshaller um =
+            bindingContext.createSoapUnmarshaller(EncodingStyle.SOAP11, document);
+
+        final XMLStreamReader xrdr = Public2.getStream(document);
+
+        while (!xrdr.isStartElement()) {
+            xrdr.next();
+        }
+        xrdr.next();
+        //now at Dummy node
+        while (!xrdr.isStartElement()) {
+            xrdr.next();
+        }
+        //now at actual type
+        xrdr.require(XMLStreamReader.START_ELEMENT,
+                     DFLT_ELEM_NAME.getNamespaceURI(),
+                     DFLT_ELEM_NAME.getLocalPart());
+
+
+        final Object obj = um.unmarshalType(xrdr, ANY_TYPE_NAME,
+                                            Object.class.getName(), null);
+
+        inform("GOT OBJ: " + obj.getClass(), verbose);
+        Assert.assertTrue(obj instanceof MyClass);
+        xrdr.close();
+    }
+
     //note that mc obj will be changed
     private String createSoapExampleXmlString(MyClass mc,
                                               final Collection errors)
@@ -678,6 +773,7 @@ public class MarshalTests extends TestCase
 
         MySubClass sub = new MySubClass();
         sub.setBigInt(new BigInteger("23522352235223522352"));
+        sub.quadStringArray = MySubClass.newQuadStringArray();
 
         myelt.setMySubClass(sub);
         myelt.setMyClass(sub);
@@ -1655,10 +1751,13 @@ public class MarshalTests extends TestCase
         final SchemaDocument xsd_obj =
             (SchemaDocument)XmlObject.Factory.parse(schema);
         final XmlObject[] schemas = new XmlObject[]{xsd_obj};
+        final XmlOptions opts = new XmlOptions();
+        opts.setCompileDownloadUrls();
         SchemaTypeSystem sts = XmlBeans.compileXsd(schemas,
                                                    XmlBeans.getBuiltinTypeSystem(),
-                                                   new XmlOptions());
+                                                   opts);
         Schema2Java s2j = new Schema2Java(sts);
+
         s2j.includeSchema(xsd_obj, schema.getName());
         final File tmpfile = File.createTempFile("marshalTests", "-tylar");
         if (!tmpfile.delete()) {
@@ -1741,7 +1840,6 @@ public class MarshalTests extends TestCase
             thread.setContextClassLoader(curr_cl);
         }
     }
-
 
     private static void reportErrors(List errors)
     {

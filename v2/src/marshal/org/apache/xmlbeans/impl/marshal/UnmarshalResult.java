@@ -1015,7 +1015,7 @@ abstract class UnmarshalResult
 
         if (expected_type.isAssignableFrom(actual_type)) return true;
 
-        //TODO: FIXME!  deal with cases where reflection gives us autboxing.
+        //TODO: FIXME!  deal with cases where reflection gives us autoboxing.
         if (actual_type.isPrimitive()) return true;
 
         return false;
