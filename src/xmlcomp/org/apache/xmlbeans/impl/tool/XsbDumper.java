@@ -138,7 +138,7 @@ public class XsbDumper
 
     public static final int DATA_BABE = 0xDA7ABABE;
     public static final int MAJOR_VERSION = 2;
-    public static final int MINOR_VERSION = 21;
+    public static final int MINOR_VERSION = 22;
 
     public static final int FILETYPE_SCHEMAINDEX = 1;
     public static final int FILETYPE_SCHEMATYPE = 2;
@@ -1038,6 +1038,10 @@ public class XsbDumper
         emit("Name: " + qnameString(readQName()));
         emit("Target namespace: " + readString());
         emit("Chameleon: " + readShort());
+        if (atLeast(2, 22, 0))
+            emit("Element form default: " + readString());
+        if (atLeast(2, 22, 0))
+            emit("Attribute form default: " + readString());
         if (atLeast(2, 15, 0))
             emit("Redefine: " + readShort());
         emit("Model Group Xml: ");
@@ -1052,6 +1056,8 @@ public class XsbDumper
         emit("Name: " + qnameString(readQName()));
         emit("Target namespace: " + readString());
         emit("Chameleon: " + readShort());
+        if (atLeast(2, 22, 0))
+            emit("Form default: " + readString());
         if (atLeast(2, 15, 0))
             emit("Redefine: " + readShort());
         emit("Attribute Group Xml: ");

@@ -70,7 +70,7 @@ public class SchemaCompiler
         System.out.println("    -d [dir] - target binary directory for .class and .xsb files");
         System.out.println("    -src [dir] - target directory for generated .java files");
         System.out.println("    -srconly - do not compile .java files or jar the output.");
-        System.out.println("    -out [result.jar] - the name of the output jar");
+        System.out.println("    -out [xmltypes.jar] - the name of the output jar");
         System.out.println("    -dl - permit network downloads for imports and includes (default is off)");
         System.out.println("    -noupa - do not enforce the unique particle attribution rule");
         System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");

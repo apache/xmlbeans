@@ -30,6 +30,8 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
     private Object _userData;
     private String _parseTNS;
     private boolean _chameleon;
+    private String _elemFormDefault;
+    private String _attFormDefault;
     private boolean _redefinition;
     private SchemaAnnotation _annotation;
     private String _filename;
@@ -46,13 +48,15 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
         _name = name;
     }
 
-    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x, SchemaAnnotation a, Object userData)
+    public void init(QName name, String targetNamespace, boolean chameleon, String elemFormDefault, String attFormDefault, boolean redefinition, XmlObject x, SchemaAnnotation a, Object userData)
     {
         assert _name == null || name.equals( _name );
         
         _name = name;
         _parseTNS = targetNamespace;
         _chameleon = chameleon;
+        _elemFormDefault = elemFormDefault;
+        _attFormDefault = attFormDefault;
         _redefinition = redefinition;
         _parseObject = x;
         _annotation = a;
@@ -89,7 +93,13 @@ public class SchemaModelGroupImpl implements SchemaModelGroup
 
     public String getChameleonNamespace()
         { return _chameleon ? _parseTNS : null; }
-    
+
+    public String getElemFormDefault()
+        { return _elemFormDefault; }
+
+    public String getAttFormDefault()
+        { return _attFormDefault; }
+
     public boolean isRedefinition()
         { return _redefinition; }
 

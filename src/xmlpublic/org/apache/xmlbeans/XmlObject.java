@@ -317,8 +317,9 @@ public interface XmlObject extends XmlTokenSource
      * returns a new XmlObject instance whose schemaType is the
      * new type.
      * <p>
-     * Returns null if the type change is not allowed. Certain
-     * type changes may be prohibited on the interior of an xml
+     * Returns the new XmlObject if the type change was successful,
+     * the old XmlObject if no changes could be made. <p/>
+     * Certain type changes may be prohibited in the interior of an xml
      * tree due to schema type system constraints (that is, due
      * to a parent container within which the newly specified
      * type is not permissible), but there are no constraints
@@ -329,7 +330,7 @@ public interface XmlObject extends XmlTokenSource
      * be used rather than the old one. The old XmlObject instance and
      * any other XmlObject instances in the subtree are permanently
      * invalidated and should not be used. (They will return
-     * InvalidStateException if you try to use them.)
+     * XmlValueDisconnectedException if you try to use them.)
      *
      * If a type change is done on the interior of an Xml
      * tree, then xsi:type attributes are updated as needed.
@@ -341,18 +342,21 @@ public interface XmlObject extends XmlTokenSource
      * groups and returns an XmlObject instance whose schemaType is the
      * new type and container name is the new name.
      * <p>
+     * Returns the new XmlObject if the substitution was successful,
+     * the old XmlObject if no changes could be made. <p/>
      * In order for the operation to succeed, several conditions must hold:
-     * - the container of this type must be an element
-     * - a global element with the name <code>newName</code> must exist
-     * and must be in the substition group of the containing element
-     * - the <code>newType</code> type must be consistent with the declared
-     * type of the new element
+     * <ul><li> the container of this type must be an element </li>
+     * <li> a global element with the name <code>newName</code> must exist
+     * and must be in the substition group of the containing element </li>
+     * <li> the <code>newType</code> type must be consistent with the declared
+     * type of the new element </li></ul>
      * <p>
      * If the type change is allowed, then the new XmlObject should
      * be used rather than the old one. The old XmlObject instance and
      * any other XmlObject instances in the subtree are permanently
      * invalidated and should not be used. (They will return
-     * InvalidStateException if you try to use them.)
+     * XmlValueDisconnectedException if you try to use them.)
+     * If necessary, xsi:type attributes are updated.
      */
     XmlObject substitute(QName newName, SchemaType newType);
 
@@ -571,8 +575,8 @@ public interface XmlObject extends XmlTokenSource
         /**
          * Parses the given {@link String} as XML.
          */ 
-        public static XmlObject parse ( String s ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( s, null, null ); }
+        public static XmlObject parse ( String xmlAsString ) throws XmlException {
+          return XmlBeans.getContextTypeLoader().parse( xmlAsString, null, null ); }
         
         /**
          * Parses the given {@link String} as XML.
@@ -624,20 +628,20 @@ public interface XmlObject extends XmlTokenSource
          * @param options Options as specified.
          * @return A new instance containing the specified XML.
          */ 
-        public static XmlObject parse ( String s, XmlOptions options ) throws XmlException {
-          return XmlBeans.getContextTypeLoader().parse( s, null, options ); }
+        public static XmlObject parse ( String xmlAsString, XmlOptions options ) throws XmlException {
+          return XmlBeans.getContextTypeLoader().parse( xmlAsString, null, options ); }
         
         /**
          * Parses the given {@link File} as XML.
          */ 
-        public static XmlObject parse ( File f ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( f, null, null ); }
+        public static XmlObject parse ( File file ) throws XmlException, IOException {
+          return XmlBeans.getContextTypeLoader().parse( file, null, null ); }
 
         /**
          * Parses the given {@link File} as XML.
          */ 
-        public static XmlObject parse ( File f, XmlOptions options ) throws XmlException, IOException {
-          return XmlBeans.getContextTypeLoader().parse( f, null, options ); }
+        public static XmlObject parse ( File file, XmlOptions options ) throws XmlException, IOException {
+          return XmlBeans.getContextTypeLoader().parse( file, null, options ); }
         
         /**
          * Downloads the given {@link java.net.URL} as XML.

@@ -52,9 +52,11 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     private Map _idConstraintCache;
     private Map _typeCache;
     private Map _documentCache;
+    private Map _attributeTypeCache;
     private Map _classnameCache;
 
     public static String METADATA_PACKAGE_LOAD = SchemaTypeSystemImpl.METADATA_PACKAGE_GEN;
+    private static final Object CACHED_NOT_FOUND = new Object();
         
     // The following maintains a cache of SchemaTypeLoaders per ClassLoader per Thread.
     // I use soft references to allow the garbage collector to reclain the type loaders
@@ -210,6 +212,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
         _idConstraintCache = Collections.synchronizedMap(new HashMap());
         _typeCache = Collections.synchronizedMap(new HashMap());
         _documentCache = Collections.synchronizedMap(new HashMap());
+        _attributeTypeCache = Collections.synchronizedMap(new HashMap());
         _classnameCache = Collections.synchronizedMap(new HashMap());
     }
 
@@ -326,8 +329,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 
     public SchemaType.Ref findTypeRef(QName name)
     {
-        SchemaType.Ref result = (SchemaType.Ref)_typeCache.get(name);
-        if (result == null && !_typeCache.containsKey(name))
+        /**
+         * The maps are synchronized, we use two accesses to the cache (one read
+         * and one write), but the code inbetween is not synchronized. The
+         * assumption is that the underlying datastructures (the search path and
+         * the classloader) do not change, so two threads running the code in
+         * parallel will come up with the same result.
+         */
+        Object cached = _typeCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaType.Ref result = (SchemaType.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findTypeRef(name)))
@@ -341,7 +354,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered type " + QNameHelper.pretty(name) + " but does not return it";
                 }
             }
-            _typeCache.put(name, result);
+            _typeCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
@@ -350,8 +363,11 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
     {
         classname = classname.replace('$', '.');
 
-        SchemaType result = (SchemaType)_classnameCache.get(classname);
-        if (result == null && !_classnameCache.containsKey(classname))
+        Object cached = _classnameCache.get(classname);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaType result = (SchemaType) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].typeForClassname(classname)))
@@ -365,15 +381,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered type " + classname + " but does not return it";
                 }
             }
-            _classnameCache.put(classname, result);
+            _classnameCache.put(classname, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
 
     public SchemaType.Ref findDocumentTypeRef(QName name)
     {
-        SchemaType.Ref result = (SchemaType.Ref)_documentCache.get(name);
-        if (result == null && !_documentCache.containsKey(name))
+        Object cached = _documentCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaType.Ref result = (SchemaType.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findDocumentTypeRef(name)))
@@ -387,15 +406,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered element " + QNameHelper.pretty(name) + " but does not contain document type";
                 }
             }
-            _documentCache.put(name, result);
+            _documentCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
 
     public SchemaType.Ref findAttributeTypeRef(QName name)
     {
-        SchemaType.Ref result = (SchemaType.Ref)_attributeCache.get(name);
-        if (result == null && !_attributeCache.containsKey(name))
+        Object cached = _attributeTypeCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaType.Ref result = (SchemaType.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findAttributeTypeRef(name)))
@@ -409,15 +431,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered attribute " + QNameHelper.pretty(name) + " but does not contain attribute type";
                 }
             }
-            _attributeCache.put(name, result);
+            _attributeTypeCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
 
     public SchemaGlobalElement.Ref findElementRef(QName name)
     {
-        SchemaGlobalElement.Ref result = (SchemaGlobalElement.Ref)_elementCache.get(name);
-        if (result == null && !_elementCache.containsKey(name))
+        Object cached = _elementCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaGlobalElement.Ref result = (SchemaGlobalElement.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findElementRef(name)))
@@ -431,15 +456,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered element " + QNameHelper.pretty(name) + " but does not return it";
                 }
             }
-            _elementCache.put(name, result);
+            _elementCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
 
     public SchemaGlobalAttribute.Ref findAttributeRef(QName name)
     {
-        SchemaGlobalAttribute.Ref result = (SchemaGlobalAttribute.Ref)_attributeCache.get(name);
-        if (result == null && !_attributeCache.containsKey(name))
+        Object cached = _attributeCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaGlobalAttribute.Ref result = (SchemaGlobalAttribute.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findAttributeRef(name)))
@@ -453,15 +481,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered attribute " + QNameHelper.pretty(name) + " but does not return it";
                 }
             }
-            _attributeCache.put(name, result);
+            _attributeCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
 
     public SchemaModelGroup.Ref findModelGroupRef(QName name)
     {
-        SchemaModelGroup.Ref result = (SchemaModelGroup.Ref)_modelGroupCache.get(name);
-        if (result == null && !_modelGroupCache.containsKey(name))
+        Object cached = _modelGroupCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaModelGroup.Ref result = (SchemaModelGroup.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findModelGroupRef(name)))
@@ -475,15 +506,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered model group " + QNameHelper.pretty(name) + " but does not return it";
                 }
             }
-            _modelGroupCache.put(name, result);
+            _modelGroupCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
 
     public SchemaAttributeGroup.Ref findAttributeGroupRef(QName name)
     {
-        SchemaAttributeGroup.Ref result = (SchemaAttributeGroup.Ref)_attributeGroupCache.get(name);
-        if (result == null && !_attributeGroupCache.containsKey(name))
+        Object cached = _attributeGroupCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaAttributeGroup.Ref result = (SchemaAttributeGroup.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findAttributeGroupRef(name)))
@@ -497,15 +531,18 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered attribute group " + QNameHelper.pretty(name) + " but does not return it";
                 }
             }
-            _attributeGroupCache.put(name, result);
+            _attributeGroupCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }
 
     public SchemaIdentityConstraint.Ref findIdentityConstraintRef(QName name)
     {
-        SchemaIdentityConstraint.Ref result = (SchemaIdentityConstraint.Ref)_idConstraintCache.get(name);
-        if (result == null && !_idConstraintCache.containsKey(name))
+        Object cached = _idConstraintCache.get(name);
+        if (cached == CACHED_NOT_FOUND)
+            return null;
+        SchemaIdentityConstraint.Ref result = (SchemaIdentityConstraint.Ref) cached;
+        if (result == null)
         {
             for (int i = 0; i < _searchPath.length; i++)
                 if (null != (result = _searchPath[i].findIdentityConstraintRef(name)))
@@ -519,7 +556,7 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
                     assert(result != null) : "Type system registered identity constraint " + QNameHelper.pretty(name) + " but does not return it";
                 }
             }
-            _idConstraintCache.put(name, result);
+            _idConstraintCache.put(name, result == null ? CACHED_NOT_FOUND : result);
         }
         return result;
     }

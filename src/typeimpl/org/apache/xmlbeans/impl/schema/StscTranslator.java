@@ -72,6 +72,7 @@ public class StscTranslator
 {
     private static final QName WSDL_ARRAYTYPE_NAME =
         QNameHelper.forLNS("arrayType", "http://schemas.xmlsoap.org/wsdl/");
+    private static final String FORM_QUALIFIED = "qualified";
 
     public static void addAllDefinitions(StscImporter.SchemaToProcess[] schemasAndChameleons)
     {
@@ -407,7 +408,7 @@ public class StscTranslator
         SchemaTypeImpl sType = new SchemaTypeImpl( StscState.get().getContainer(targetNamespace) );
 
         sType.setDocumentType(true);
-        sType.setParseContext( xsdType, targetNamespace, chameleon, false);
+        sType.setParseContext( xsdType, targetNamespace, chameleon, null, null, false);
         sType.setFilename( findFilename( xsdType ) );
 
         return sType;
@@ -418,7 +419,7 @@ public class StscTranslator
         SchemaTypeImpl sType = new SchemaTypeImpl( StscState.get().getContainer(targetNamespace) );
 
         sType.setAttributeType(true);
-        sType.setParseContext( xsdType, targetNamespace, chameleon, false);
+        sType.setParseContext( xsdType, targetNamespace, chameleon, null, null, false);
         sType.setFilename( findFilename( xsdType ) );
 
         return sType;
@@ -451,7 +452,7 @@ public class StscTranslator
         // System.err.println("Recording type " + QNameHelper.pretty(name));
 
         SchemaTypeImpl sType = new SchemaTypeImpl(state.getContainer(targetNamespace));
-        sType.setParseContext(xsdType, targetNamespace, chameleon, redefinition);
+        sType.setParseContext(xsdType, targetNamespace, chameleon, null, null, redefinition);
         sType.setFilename(findFilename(xsdType));
         sType.setName(QNameHelper.forLNS(localname, targetNamespace));
         sType.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), xsdType));
@@ -487,7 +488,7 @@ public class StscTranslator
 
         SchemaTypeImpl sType = new SchemaTypeImpl(state.getContainer(targetNamespace));
         sType.setSimpleType(true);
-        sType.setParseContext(xsdType, targetNamespace, chameleon, redefinition);
+        sType.setParseContext(xsdType, targetNamespace, chameleon, null, null, redefinition);
         sType.setFilename(findFilename(xsdType));
         sType.setName(name);
         sType.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), xsdType));
@@ -545,6 +546,7 @@ public class StscTranslator
     // http://www.w3c.org/TR/#section-Constraints-on-XML-Representations-of-Element-Declarations
     public static SchemaLocalElementImpl translateElement(
         Element xsdElt, String targetNamespace, boolean chameleon,
+        String elemFormDefault, String attFormDefault,
         List anonymousTypes, SchemaType outerType)
     {
         StscState state = StscState.get();
@@ -676,13 +678,19 @@ public class StscTranslator
         if (xsdElt instanceof LocalElement)
         {
             impl = new SchemaLocalElementImpl();
+            boolean qualified = false; // default
             FormChoice form = xsdElt.xgetForm();
-            if (form == null)
-                form = findElementFormDefault(xsdElt);
-            if (form == null || form.getStringValue().equals("unqualified"))
-                qname = QNameHelper.forLN(name);
+            if (form != null)
+                qualified = form.getStringValue().equals(FORM_QUALIFIED);
+            else if (elemFormDefault != null)
+                qualified = elemFormDefault.equals(FORM_QUALIFIED);
             else
-                qname = QNameHelper.forLNS(name, targetNamespace);
+            {
+                form = findElementFormDefault(xsdElt);
+                qualified = form != null && form.getStringValue().equals(FORM_QUALIFIED);
+            }
+
+            qname = qualified ? QNameHelper.forLNS(name, targetNamespace) : QNameHelper.forLN(name);
         }
         else
         {
@@ -772,7 +780,8 @@ public class StscTranslator
             // leave the anonymous type unresolved: it will be resolved later.
             anonymousTypes.add(sType);
             sTypeImpl.setSimpleType(simpleTypedef);
-            sTypeImpl.setParseContext(typedef, targetNamespace, chameleon, false);
+            sTypeImpl.setParseContext(typedef, targetNamespace, chameleon,
+                 elemFormDefault, attFormDefault, false);
             sTypeImpl.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), typedef));
             sTypeImpl.setUserData(getUserData(typedef));
         }
@@ -996,7 +1005,12 @@ public class StscTranslator
         SchemaContainer c = StscState.get().getContainer(targetNamespace);
         SchemaModelGroupImpl result = new SchemaModelGroupImpl(c);
         SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(c, namedGroup);
-        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, namedGroup, ann, getUserData(namedGroup));
+        FormChoice elemFormDefault = findElementFormDefault(namedGroup);
+        FormChoice attFormDefault = findAttributeFormDefault(namedGroup);
+        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon,
+            elemFormDefault == null ? null : elemFormDefault.getStringValue(),
+            attFormDefault == null ? null : attFormDefault.getStringValue(),
+            redefinition, namedGroup, ann, getUserData(namedGroup));
         result.setFilename(findFilename(namedGroup));
         return result;
     }
@@ -1012,7 +1026,10 @@ public class StscTranslator
         SchemaContainer c = StscState.get().getContainer(targetNamespace);
         SchemaAttributeGroupImpl result = new SchemaAttributeGroupImpl(c);
         SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(c, attrGroup);
-        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon, redefinition, attrGroup, ann, getUserData(attrGroup));
+        FormChoice formDefault = findAttributeFormDefault(attrGroup);
+        result.init(QNameHelper.forLNS(name, targetNamespace), targetNamespace, chameleon,
+            formDefault == null ? null : formDefault.getStringValue(),
+            redefinition, attrGroup, ann, getUserData(attrGroup));
         result.setFilename(findFilename(attrGroup));
         return result;
     }
@@ -1027,8 +1044,9 @@ public class StscTranslator
     }
 
     static SchemaLocalAttributeImpl translateAttribute(
-        Attribute xsdAttr, String targetNamespace, boolean chameleon, List anonymousTypes,
-        SchemaType outerType, SchemaAttributeModel baseModel, boolean local)
+        Attribute xsdAttr, String targetNamespace, String formDefault, boolean chameleon,
+        List anonymousTypes, SchemaType outerType, SchemaAttributeModel baseModel,
+        boolean local)
     {
         StscState state = StscState.get();
 
@@ -1115,13 +1133,19 @@ public class StscTranslator
         {
             if (local)
             {
+                boolean qualified = false; // default
                 FormChoice form = xsdAttr.xgetForm();
-                if (form == null)
-                    form = findAttributeFormDefault(xsdAttr);
-                if (form == null || form.getStringValue().equals("unqualified"))
-                    qname = QNameHelper.forLN(name);
+                if (form != null)
+                    qualified = form.getStringValue().equals(FORM_QUALIFIED);
+                else if (formDefault != null)
+                    qualified = formDefault.equals(FORM_QUALIFIED);
                 else
-                    qname = QNameHelper.forLNS(name, targetNamespace);
+                {
+                    form = findAttributeFormDefault(xsdAttr);
+                    qualified = form != null && form.getStringValue().equals(FORM_QUALIFIED);
+                }
+
+                qname = qualified ? QNameHelper.forLNS(name, targetNamespace) : QNameHelper.forLN(name);
             }
             else
             {
@@ -1162,7 +1186,7 @@ public class StscTranslator
                 // leave the anonymous type unresolved: it will be resolved later.
                 anonymousTypes.add(sType);
                 sTypeImpl.setSimpleType(true);
-                sTypeImpl.setParseContext(typedef, targetNamespace, chameleon, false);
+                sTypeImpl.setParseContext(typedef, targetNamespace, chameleon, null, null, false);
                 sTypeImpl.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), typedef));
                 sTypeImpl.setUserData(getUserData(typedef));
             }

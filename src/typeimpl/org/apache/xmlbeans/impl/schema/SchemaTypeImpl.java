@@ -2177,14 +2177,18 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     private XmlObject _parseObject;
     private String _parseTNS;
+    private String _elemFormDefault;
+    private String _attFormDefault;
     private boolean _chameleon;
     private boolean _redefinition;
 
-    public void setParseContext(XmlObject parseObject, String targetNamespace, boolean chameleon, boolean redefinition)
+    public void setParseContext(XmlObject parseObject, String targetNamespace, boolean chameleon, String elemFormDefault, String attFormDefault, boolean redefinition)
     {
         _parseObject = parseObject;
         _parseTNS = targetNamespace;
         _chameleon = chameleon;
+        _elemFormDefault = elemFormDefault;
+        _attFormDefault = attFormDefault;
         _redefinition = redefinition;
     }
 
@@ -2196,6 +2200,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public boolean isChameleon ( )
         { return _chameleon; }
+
+    public String getElemFormDefault()
+        { return _elemFormDefault; }
+
+    public String getAttFormDefault()
+        { return _attFormDefault; }
 
     public String getChameleonNamespace()
         { return _chameleon ? _parseTNS : null; }

@@ -167,7 +167,7 @@ public class StscResolver
             (SchemaGlobalElementImpl)
                 StscTranslator.translateElement(
                     (Element) sImpl.getParseObject(),
-                    sImpl.getTargetNamespace(), sImpl.isChameleon(),
+                    sImpl.getTargetNamespace(), sImpl.isChameleon(), null, null,
                     anonTypes, sImpl );
 
         SchemaLocalElementImpl contentModel = null;
@@ -224,7 +224,7 @@ public class StscResolver
 
         SchemaGlobalAttributeImpl attribute =
             (SchemaGlobalAttributeImpl) StscTranslator.translateAttribute(
-                (Attribute) sImpl.getParseObject(), sImpl.getTargetNamespace(),
+                (Attribute) sImpl.getParseObject(), sImpl.getTargetNamespace(), null,
                 sImpl.isChameleon(), anonTypes, sImpl, null, false );
 
         SchemaAttributeModelImpl attributeModel = new SchemaAttributeModelImpl();
