@@ -123,7 +123,8 @@ public abstract class JamTestBase extends TestCase {
     DUMMY+".HeavilyCommented",
     DUMMY+".MyException",
     DUMMY+".MultilineTags",
-    DUMMY+".ManyTags"
+    DUMMY+".ManyTags",
+    DUMMY+".ValuesById"
   };
 
 
@@ -250,6 +251,43 @@ public abstract class JamTestBase extends TestCase {
                classNames.containsAll(expected));
     assertTrue("result contains more than expected classes",
                expected.containsAll(classNames));
+  }
+
+  public void testAnnotationValuesById() {
+    if (!isAnnotationsAvailable()) return;
+    JClass clazz = resolved(mLoader.loadClass(DUMMY+".ValuesById"));
+    assertTrue("value id foo has unexpected single-member value",
+               clazz.getAnnotationValue("foo") == null);
+    {
+      final String ANN = "bar@x";
+      final String VAL = "hello";
+      JAnnotationValue barx = clazz.getAnnotationValue(ANN);
+      assertTrue("no "+ANN, barx !=  null);
+      assertTrue(ANN+" does not equal "+VAL+", instead is '"+barx.asString(),
+                 barx.asString().equals(VAL));
+    }
+    {
+      final String ANN = "bar@y";
+      final String VAL = "goodbye";
+      JAnnotationValue bary = clazz.getAnnotationValue(ANN);
+      assertTrue("no "+ANN, bary !=  null);
+      assertTrue(ANN+" does not equal "+VAL+", instead is '"+bary.asString(),
+                 bary.asString().equals(VAL));
+    }
+    {
+      final String ANN = "baz";
+      final String VAL = "I have no pairs.";
+      JAnnotationValue val = clazz.getAnnotationValue(ANN);
+      assertTrue("no "+ANN, val !=  null);
+      assertTrue(ANN+" does not equal "+VAL+", instead is '"+val.asString(),
+                 val.asString().equals(VAL));
+    }
+    {
+      JAnnotationValue widget = clazz.getAnnotationValue("bar@widegetgen:name");
+      assertTrue("no bar@widegentgen:name", widget !=  null);
+      assertTrue("bar@widegetgen:name does not equal aloha",widget.asString().equals("aloha"));
+    }
+    assertTrue(clazz.getAnnotationValue("nothinghere") == null);
   }
 
   public void testXmlWriter() throws XMLStreamException, IOException
