@@ -54,57 +54,58 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans;
 
-import org.apache.xmlbeans.XmlException;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
-public interface Unmarshaller
+/**
+ * A Marshaller object is used to convert Java objects to XML documents.
+ */
+public interface Marshaller
 {
     /**
-     * unmarshall an entire xml document.
+     * Get an XMLStreamReader object that represents the Java object as XML.
+     * Note that the object's contents are accessed on demand, so modifying
+     * the object while reading from the reader will produce undefined results.
      *
-     * PRECONDITIONS:
-     * reader must be positioned at or before the root
-     * start element of the document.
+     * The object is expected to correspond to a global element in a schema.
+     * The first matching global element will be used as the root element.
      *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
+     * As of this writing (11/22/2003), the returned reader will NOT contain
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The reader's first event is a START_ELEMENT event.
      *
-     *
-     * @param reader
-     * @return
+     * @param obj
+     * @param nscontext  initial NamespaceContext representing initial defined namespaces
+     * @return  XMLStreamReader representing the XML content
      * @throws XmlException
      */
-    Object unmarshal(XMLStreamReader reader)
+    XMLStreamReader marshall(Object obj, NamespaceContext nscontext)
         throws XmlException;
 
+
     /**
-     * unmarshal an xml instance of a given schema type
+     * Get an XMLStreamReader object that represents the given java type.
      *
-     * No attention is paid to the actual tag on which the reader is positioned.
-     * It is only the contents that matter
-     * (including attributes on that start tag).
+     * As of this writing (11/22/2003), the returned reader will NOT contain
+     * a START_DOCUMENT or END_DOCUMENT element.
+     * The reader's first event is a START_ELEMENT event.
      *
-     *
-     * PRECONDITIONS:
-     * reader.isStartElement() must return true
-     *
-     * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
-     *
+     * @param obj
+     * @param elementName
      * @param schemaType
      * @param javaType
      * @param context
      * @return
      * @throws XmlException
      */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
+    XMLStreamReader marshallType(Object obj,
+                                 QName elementName,
+                                 QName schemaType,
+                                 String javaType,
+                                 MarshalContext context)
         throws XmlException;
 }

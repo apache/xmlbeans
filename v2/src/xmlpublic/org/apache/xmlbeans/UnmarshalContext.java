@@ -54,63 +54,22 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
-
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+package org.apache.xmlbeans;
 
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.namespace.NamespaceContext;
-import java.util.Collection;
 
 /**
- * Main entry point into marshalling framework.
- * Use the BindingContextFactory to create one
+ * An UnmarshalContext object represents the state of an unmarshal operation
+ * of a given document.  The object is not thread safe and should not be shared
+ * amonst threads.  It can however be shared across different invocations of
+ * Unmarshaller.unmarshalType() for a given document.
  */
-public class BindingContext
+public interface UnmarshalContext
 {
-
-    private final BindingLoader bindingLoader;
-    private final RuntimeBindingTypeTable typeTable;
-
-    /* package protected -- use the factory */
-    BindingContext(BindingLoader bindingLoader,
-                   RuntimeBindingTypeTable typeTable)
-    {
-        this.bindingLoader = bindingLoader;
-        this.typeTable = typeTable;
-    }
-
-
-    public Unmarshaller createUnmarshaller()
-    {
-        return new UnmarshallerImpl(bindingLoader, typeTable);
-    }
-
-    //TODO: REVIEW: should error collection concept be exposed here?
-    public UnmarshalContext createUnmarshallContext(XMLStreamReader reader,
-                                                    Collection errors)
-    {
-        return new UnmarshalContext(reader, bindingLoader, typeTable, errors);
-    }
-
-    //TODO: REVIEW: should error collection concept be exposed here?
-    public UnmarshalContext createUnmarshallContext(Collection errors)
-    {
-        return new UnmarshalContext(bindingLoader, typeTable, errors);
-    }
-
-
-    public Marshaller createMarshaller()
-    {
-        return new MarshallerImpl(bindingLoader, typeTable);
-    }
-
-    //TODO: REVIEW: should error collection concept be exposed here?
-    public MarshalContext createMarshallContext(NamespaceContext namespaceContext,
-                                                Collection errors)
-    {
-        return new MarshalContext(namespaceContext, bindingLoader, typeTable, errors);
-    }
-
-
+    /**
+     * Set the XMLStreamReader object to be used when reading the xml document
+     *
+     * @param reader
+     */
+    void setXmlStream(XMLStreamReader reader);
 }

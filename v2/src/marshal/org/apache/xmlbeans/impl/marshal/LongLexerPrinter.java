@@ -76,7 +76,7 @@ final class LongLexerPrinter
 
     public CharSequence print(Object value, Collection errors)
     {
-        Long fobj = (Long) value;
+        Long fobj = (Long)value;
         return XsTypeConverter.printLong(fobj.longValue());
     }
 

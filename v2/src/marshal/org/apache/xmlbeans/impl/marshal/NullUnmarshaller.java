@@ -67,14 +67,14 @@ final class NullUnmarshaller
     {
     }
 
-    public Object unmarshal(UnmarshalContext context)
+    public Object unmarshal(UnmarshalContextImpl context)
     {
         context.skipElement();
         return null;
     }
 
     public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContext context)
+                                      UnmarshalContextImpl context)
     {
         throw new UnsupportedOperationException();
     }

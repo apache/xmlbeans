@@ -56,18 +56,24 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.impl.common.XsTypeConverter;
+
 import javax.xml.namespace.QName;
 
 final class SimpleTypeVisitor extends NamedXmlTypeVisitor
 {
     private int state = START;
     private QName attributeName;
-    private static final String NIL_ATT_VAL = "true";
+
+    private static final String NIL_ATT_VAL =
+        XsTypeConverter.printBoolean(true).intern();
+    private final CharacterVisitor char_visitor;
 
     public SimpleTypeVisitor(RuntimeBindingProperty property, Object obj,
-                             MarshalContext context)
+                             MarshalContextImpl context)
     {
         super(obj, property, context);
+        char_visitor = new CharacterVisitor(getBindingProperty(), getParentObject(), marshalContext);
     }
 
     protected int getState()
@@ -95,11 +101,12 @@ final class SimpleTypeVisitor extends NamedXmlTypeVisitor
     public XmlTypeVisitor getCurrentChild()
     {
         assert state == CHARS;
-        return new CharacterVisitor(bindingProperty, parentObject, marshalContext);
+        return char_visitor;
     }
 
-    protected void initAttributes() {
-        if (parentObject == null) {
+    protected void initAttributes()
+    {
+        if (getParentObject() == null) {
             attributeName = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
         }
     }

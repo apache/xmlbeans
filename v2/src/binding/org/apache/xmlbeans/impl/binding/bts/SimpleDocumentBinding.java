@@ -73,6 +73,11 @@ public class SimpleDocumentBinding extends BindingType
         typeOfElement = XmlName.forString(node.getTypeOfElement());
     }
 
+    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
+    {
+        this((org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding)node);
+    }
+
     /**
      * This function copies an instance back out to the relevant part of the XML file.
      *

@@ -82,6 +82,9 @@ public class YourClass
         this.myClass = myClass;
     }
 
+    /**
+     *  @xsdgen:attribute.name Attrib
+     */
     public float getAttrib()
     {
         return attrib;

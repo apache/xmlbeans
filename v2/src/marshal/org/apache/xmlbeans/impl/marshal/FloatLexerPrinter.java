@@ -76,7 +76,7 @@ final class FloatLexerPrinter
 
     public CharSequence print(Object value, Collection errors)
     {
-        Float fobj = (Float) value;
+        Float fobj = (Float)value;
         return XsTypeConverter.printFloat(fobj.floatValue());
     }
 

@@ -72,7 +72,7 @@ class AtomicSimpleTypeConverter
         this.lexerPrinter = lexerPrinter;
     }
 
-    public Object unmarshal(UnmarshalContext context)
+    public Object unmarshal(UnmarshalContextImpl context)
     {
         final CharSequence content = context.getElementText();
 
@@ -82,7 +82,7 @@ class AtomicSimpleTypeConverter
     }
 
     public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContext context)
+                                      UnmarshalContextImpl context)
     {
         return lexerPrinter.lex(lexicalValue, context.getErrorCollection());
     }
@@ -93,7 +93,7 @@ class AtomicSimpleTypeConverter
     }
 
     //non simple types can throw a runtime exception
-    public CharSequence print(Object value, MarshalContext context)
+    public CharSequence print(Object value, MarshalContextImpl context)
     {
         return lexerPrinter.print(value, context.getErrorCollection());
     }

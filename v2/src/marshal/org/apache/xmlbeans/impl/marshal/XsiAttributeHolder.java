@@ -56,12 +56,28 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import javax.xml.namespace.QName;
 
 /**
- * A TypeMarshaller knows how to marshall a java object into xml.
+ * holder struct for results of xsi attributes
+ * For internal use only!
  */
-interface TypeMarshaller
+final class XsiAttributeHolder
 {
-    //non simple types can throw a runtime exception
-    CharSequence print(Object value, MarshalContextImpl context);
+    boolean hasXsiNil;
+    QName xsiType;
+    String schemaLocation;
+    String noNamespaceSchemaLocation;
+
+    XsiAttributeHolder()
+    {
+    }
+
+    void reset()
+    {
+        hasXsiNil = false;
+        xsiType = null;
+        schemaLocation = null;
+        noNamespaceSchemaLocation = null;
+    }
 }

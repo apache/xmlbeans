@@ -57,7 +57,6 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import javax.xml.namespace.QName;
-import javax.xml.stream.XMLStreamReader;
 
 abstract class NamedXmlTypeVisitor
     extends XmlTypeVisitor
@@ -66,12 +65,12 @@ abstract class NamedXmlTypeVisitor
 
     NamedXmlTypeVisitor(Object parentObject,
                         RuntimeBindingProperty property,
-                        MarshalContext context)
+                        MarshalContextImpl context)
     {
         super(parentObject, property, context);
 
         //TODO: optimize to avoid object creation
-        name = addPrefixToName(bindingProperty.getName());
+        name = addPrefixToName(getBindingProperty().getName());
     }
 
     protected QName getName()

@@ -4,38 +4,33 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
+import org.apache.xmlbeans.BindingContext;
+import org.apache.xmlbeans.BindingContextFactory;
+import org.apache.xmlbeans.MarshalContext;
+import org.apache.xmlbeans.Marshaller;
+import org.apache.xmlbeans.UnmarshalContext;
+import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
-import org.apache.xmlbeans.impl.marshal.BindingContext;
-import org.apache.xmlbeans.impl.marshal.BindingContextFactory;
-import org.apache.xmlbeans.impl.marshal.MarshalContext;
-import org.apache.xmlbeans.impl.marshal.Marshaller;
-import org.apache.xmlbeans.impl.marshal.UnmarshalContext;
-import org.apache.xmlbeans.impl.marshal.Unmarshaller;
+import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
-import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.CharArrayReader;
-import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
-import java.io.Writer;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
 
 
@@ -108,18 +103,14 @@ public class MarshalTests extends TestCase
     public void testSimpleTypeMarshal(Object orig, String xsd_type)
         throws Exception
     {
-        BindingFile bf = new BindingFile();
-        BindingConfigDocument bindingConfigDocument = bf.write();
-
         BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bindingConfigDocument);
+            BindingContextFactory.newInstance().createBindingContext();
 
         Marshaller m = bindingContext.createMarshaller();
 
         EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
-        final ArrayList errors = new ArrayList();
         MarshalContext ctx =
-            bindingContext.createMarshallContext(namespaceContext, errors);
+            bindingContext.createMarshallContext(namespaceContext);
 
         final XMLStreamReader reader =
             m.marshallType(orig,
@@ -148,17 +139,16 @@ public class MarshalTests extends TestCase
         mc.setMyelt(myelt);
 
 
-        BindingConfigDocument bcdoc = getBindingConfigDocument();
+        final File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
 
         Marshaller m = bindingContext.createMarshaller();
 
         EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
-        final ArrayList errors = new ArrayList();
         MarshalContext ctx =
-            bindingContext.createMarshallContext(namespaceContext, errors);
+            bindingContext.createMarshallContext(namespaceContext);
 
         final XMLStreamReader reader =
             m.marshallType(mc, new QName("java:com.mytest", "load"),
@@ -172,16 +162,16 @@ public class MarshalTests extends TestCase
     }
 
 
-    public void DISABLED_testByNameMarshalPerf()
+    public void testByNameMarshalPerf()
         throws Exception
     {
-        final int trials = 10;
+        final int trials = 100;
+        final int depth = 3;
 
         Random rnd = new Random();
 
         com.mytest.MyClass top_obj = new com.mytest.MyClass();
 
-        final int depth = 4;
         com.mytest.MyClass curr = top_obj;
 
         for (int i = 0; i < depth; i++) {
@@ -197,10 +187,10 @@ public class MarshalTests extends TestCase
 
         System.out.println("top_obj = " + top_obj);
 
-        BindingConfigDocument bcdoc = getBindingConfigDocument();
+        final File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
 
         Marshaller m = bindingContext.createMarshaller();
 
@@ -221,7 +211,7 @@ public class MarshalTests extends TestCase
             errors.clear();
 
             MarshalContext ctx =
-                bindingContext.createMarshallContext(namespaceContext, errors);
+                bindingContext.createMarshallContext(namespaceContext);
 
             final XMLStreamReader reader =
                 m.marshallType(top_obj, elem_name,
@@ -231,7 +221,7 @@ public class MarshalTests extends TestCase
 
             //TODO: remove hard coded values
 
-            UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader, errors);
+            UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader);
             out_obj = unmarshaller.unmarshallType(schemaType, javaType, umctx);
         }
         final long after_millis = System.currentTimeMillis();
@@ -262,10 +252,10 @@ public class MarshalTests extends TestCase
 
         System.out.println("top_obj = " + top_obj);
 
-        BindingConfigDocument bcdoc = getBindingConfigDocument();
+        File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
 
         Marshaller m = bindingContext.createMarshaller();
 
@@ -285,7 +275,7 @@ public class MarshalTests extends TestCase
         errors.clear();
 
         MarshalContext ctx =
-            bindingContext.createMarshallContext(namespaceContext, errors);
+            bindingContext.createMarshallContext(namespaceContext);
 
         final XMLStreamReader reader =
             m.marshallType(top_obj, elem_name,
@@ -293,7 +283,7 @@ public class MarshalTests extends TestCase
                            class_name,
                            ctx);
 
-        UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader, errors);
+        UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader);
         out_obj = unmarshaller.unmarshallType(schemaType, javaType, umctx);
         System.out.println(" out_obj = " + top_obj);
         Assert.assertEquals(top_obj, out_obj);
@@ -329,10 +319,10 @@ public class MarshalTests extends TestCase
     public void testByNameBeanUnmarshal()
         throws Exception
     {
-        BindingConfigDocument bcdoc = getBindingConfigDocument();
+        File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
 
         Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
 
@@ -352,10 +342,10 @@ public class MarshalTests extends TestCase
     public void testByNameBeanUnmarshalType()
         throws Exception
     {
-        BindingConfigDocument bcdoc = getBindingConfigDocument();
+        File bcdoc = getBindingConfigDocument();
 
         BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bcdoc);
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
 
 
         Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
@@ -370,9 +360,7 @@ public class MarshalTests extends TestCase
         XMLStreamReader xrdr =
             xmlInputFactory.createXMLStreamReader(new FileReader(doc));
 
-        List errors = new ArrayList();
-
-        UnmarshalContext ctx = bindingContext.createUnmarshallContext(xrdr, errors);
+        UnmarshalContext ctx = bindingContext.createUnmarshallContext(xrdr);
 
         //this is not very safe but it should work...
         while (!xrdr.isStartElement()) {
@@ -390,8 +378,8 @@ public class MarshalTests extends TestCase
 //    {
 //        BindingConfigDocument bcdoc = getBindingConfigDocument();
 //
-//        BindingContext bindingContext =
-//            BindingContextFactory.createBindingContext(bcdoc);
+//        IBindingContext bindingContext =
+//            IBindingContextFactory.createBindingContext(bcdoc);
 //
 //        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
 //
@@ -439,36 +427,19 @@ public class MarshalTests extends TestCase
     }
 
 
-    private BindingConfigDocument getBindingConfigDocument()
-        throws IOException, XmlException
+    private File getBindingConfigDocument()
     {
         File loc = TestEnv.xbeanCase("marshal/example_config.xml");
-        BindingConfigDocument bcdoc = BindingConfigDocument.Factory.parse(loc);
-        return bcdoc;
+        return loc;
     }
 
-    private static Unmarshaller getSimpleUnmarshaller() throws IOException
+    private static Unmarshaller getSimpleUnmarshaller() throws XmlException
     {
-        BindingFile bf = new BindingFile();
-        BindingConfigDocument bindingConfigDocument = bf.write();
-
         BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bindingConfigDocument);
+            BindingContextFactory.newInstance().createBindingContext();
 
         Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
         return unmarshaller;
-    }
-
-    private static Marshaller getSimpleMarshaller() throws IOException
-    {
-        BindingFile bf = new BindingFile();
-        BindingConfigDocument bindingConfigDocument = bf.write();
-
-        BindingContext bindingContext =
-            BindingContextFactory.createBindingContext(bindingConfigDocument);
-
-        Marshaller m = bindingContext.createMarshaller();
-        return m;
     }
 
     public static void main(String args[])

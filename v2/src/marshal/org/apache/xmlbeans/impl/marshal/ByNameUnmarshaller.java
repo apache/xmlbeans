@@ -58,12 +58,6 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-import org.apache.xmlbeans.impl.common.XmlStreamUtils;
-import org.apache.xmlbeans.XmlRuntimeException;
-
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.namespace.QName;
 
 final class ByNameUnmarshaller implements TypeUnmarshaller
 {
@@ -74,7 +68,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         this.type = new ByNameRuntimeBindingType(type);
     }
 
-    public Object unmarshal(UnmarshalContext context)
+    public Object unmarshal(UnmarshalContextImpl context)
     {
         final Object inter = type.createIntermediary(context);
         deserializeAttributes(inter, context);
@@ -83,27 +77,21 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     }
 
     public Object unmarshalSimpleType(CharSequence lexicalValue,
-                                      UnmarshalContext context)
+                                      UnmarshalContextImpl context)
     {
         throw new UnsupportedOperationException();
     }
 
     //TODO: cleanup this code.  We are doing extra work for assertion checking
-    private void deserializeContents(Object inter, UnmarshalContext context)
+    private void deserializeContents(Object inter, UnmarshalContextImpl context)
     {
-        final XMLStreamReader xmlStream = context.getXmlStream();
-        assert xmlStream.isStartElement();
-        final QName ourStartName = xmlStream.getName();
-        try {
-            //move past our current start element
-            xmlStream.next();
-        }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
+        assert context.isStartElement();
+        final String ourStartUri = context.getNamespaceURI();
+        final String ourStartLocalName = context.getLocalName();
+        context.next();
 
         while (context.advanceToNextStartElement()) {
-            assert xmlStream.isStartElement();
+            assert context.isStartElement();
 
             RuntimeBindingProperty prop = findMatchingElementProperty(context);
             if (prop == null) {
@@ -112,33 +100,22 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
                 //TODO: implement first one wins?, this is last one wins
                 fillElementProp(prop, context, inter);
             }
-
         }
 
-        assert xmlStream.isEndElement();
-        final QName ourEndName = xmlStream.getName();
-        assert ourStartName.equals(ourEndName) :
-            "expected=" + ourStartName + " got=" + ourEndName;
+        assert context.isEndElement();
+        final String ourEndUri = context.getNamespaceURI();
+        final String ourEndLocalName = context.getLocalName();
+        assert ourStartUri.equals(ourEndUri) :
+            "expected=" + ourStartUri + " got=" + ourEndUri;
+        assert ourStartLocalName.equals(ourEndLocalName) :
+            "expected=" + ourStartLocalName + " got=" + ourEndLocalName;
 
-        try {
-            if (xmlStream.hasNext()) xmlStream.next();
-        }
-        catch (XMLStreamException e) {
-            throw new XmlRuntimeException(e);
-        }
-    }
-
-    //debugging only method
-    private void dumpState(UnmarshalContext context, String str)
-    {
-        System.out.println(str + "=" +
-                           XmlStreamUtils.printEvent(context.getXmlStream()) +
-                           " THIS="+this);
+        if (context.hasNext()) context.next();
     }
 
 
     private static void fillElementProp(RuntimeBindingProperty prop,
-                                        UnmarshalContext context,
+                                        UnmarshalContextImpl context,
                                         Object inter)
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
@@ -151,7 +128,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
 
     private static void fillAttributeProp(RuntimeBindingProperty prop,
                                           CharSequence lexical,
-                                          UnmarshalContext context,
+                                          UnmarshalContextImpl context,
                                           Object inter)
     {
         final TypeUnmarshaller um = prop.getTypeUnmarshaller(context);
@@ -161,7 +138,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         prop.fill(inter, prop_val);
     }
 
-    private void deserializeAttributes(Object inter, UnmarshalContext context)
+    private void deserializeAttributes(Object inter, UnmarshalContextImpl context)
     {
         final int cnt = context.getAttributeCount();
         for (int att_idx = 0; att_idx < cnt; att_idx++) {
@@ -174,7 +151,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         }
     }
 
-    private RuntimeBindingProperty findMatchingElementProperty(UnmarshalContext context)
+    private RuntimeBindingProperty findMatchingElementProperty(UnmarshalContextImpl context)
     {
         String uri = context.getNamespaceURI();
         String lname = context.getLocalName();
@@ -182,7 +159,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
     }
 
     private RuntimeBindingProperty findMatchingAttributeProperty(int att_idx,
-                                                                 UnmarshalContext context)
+                                                                 UnmarshalContextImpl context)
     {
         String uri = context.getAttributeNamespaceURI(att_idx);
         String lname = context.getAttributeLocalName(att_idx);

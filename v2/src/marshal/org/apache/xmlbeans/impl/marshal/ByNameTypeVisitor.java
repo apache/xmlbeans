@@ -56,11 +56,9 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-
 import javax.xml.namespace.QName;
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 
 class ByNameTypeVisitor extends NamedXmlTypeVisitor
 {
@@ -72,14 +70,10 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
 
     ByNameTypeVisitor(RuntimeBindingProperty property, Object obj,
-                      MarshalContext context)
+                      MarshalContextImpl context)
     {
         super(obj, property, context);
-        final ByNameBean bean_type = (ByNameBean)property.getType();
-        //TODO: avoid new
-        type = new ByNameRuntimeBindingType(bean_type);
-        type.initialize(context.getTypeTable(), context.getLoader());
-
+        type = (ByNameRuntimeBindingType)context.createRuntimeBindingType(property.getType());
         maxPropCount = obj == null ? 0 : type.getPropertyCount();
     }
 
@@ -105,7 +99,7 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
 
         final RuntimeBindingProperty property = getCurrentProperty();
 
-        if (property.isAttribute() || !property.isSet(parentObject, marshalContext))
+        if (property.isAttribute() || !property.isSet(getParentObject(), marshalContext))
             return advance();
 
         return getState();
@@ -114,7 +108,7 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
     public XmlTypeVisitor getCurrentChild()
     {
         final RuntimeBindingProperty property = getCurrentProperty();
-        Object prop_obj = property.getValue(parentObject, marshalContext);
+        Object prop_obj = property.getValue(getParentObject(), marshalContext);
         return MarshalResult.createVisitor(property, prop_obj, marshalContext);
     }
 
@@ -142,7 +136,7 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
         final List vals = new ArrayList();
         final List names = new ArrayList();
 
-        if (parentObject == null) {
+        if (getParentObject() == null) {
             QName nil_qn = fillPrefix(MarshalStreamUtils.XSI_NIL_QNAME);
             names.add(nil_qn);
             vals.add("true");
@@ -153,9 +147,10 @@ class ByNameTypeVisitor extends NamedXmlTypeVisitor
                 final RuntimeBindingProperty prop = type.getProperty(i);
 
                 if (!prop.isAttribute()) continue;
-                if (!prop.isSet(parentObject, marshalContext)) continue;
+                if (!prop.isSet(getParentObject(), marshalContext)) continue;
 
-                final Object value = prop.getValue(parentObject, marshalContext);
+                final Object value = prop.getValue(getParentObject(),
+                                                   marshalContext);
 
                 final CharSequence val = prop.getLexical(value,
                                                          marshalContext);

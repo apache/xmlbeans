@@ -57,6 +57,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.UnmarshalContext;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
@@ -76,17 +77,21 @@ import java.util.Collection;
  * Only one thread should ever be accessing this object, and a new one will be
  * required for each unmarshalling pass.
  */
-public final class UnmarshalContext
+final class UnmarshalContextImpl
+    implements UnmarshalContext
 {
     private XMLStreamReader baseReader;
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
     private final Collection errors;
+    private final XsiAttributeHolder xsiAttributeHolder =
+        new XsiAttributeHolder();
+    private boolean gotXsiAttributes;
 
-    UnmarshalContext(XMLStreamReader baseReader,
-                     BindingLoader bindingLoader,
-                     RuntimeBindingTypeTable typeTable,
-                     Collection errors)
+    UnmarshalContextImpl(XMLStreamReader baseReader,
+                         BindingLoader bindingLoader,
+                         RuntimeBindingTypeTable typeTable,
+                         Collection errors)
     {
         this.baseReader = baseReader;
         this.bindingLoader = bindingLoader;
@@ -95,9 +100,9 @@ public final class UnmarshalContext
     }
 
 
-    UnmarshalContext(BindingLoader bindingLoader,
-                     RuntimeBindingTypeTable typeTable,
-                     Collection errors)
+    UnmarshalContextImpl(BindingLoader bindingLoader,
+                         RuntimeBindingTypeTable typeTable,
+                         Collection errors)
     {
         this.bindingLoader = bindingLoader;
         this.errors = errors;
@@ -105,14 +110,18 @@ public final class UnmarshalContext
     }
 
 
-    public XMLStreamReader getXmlStream()
-    {
-        return baseReader;
-    }
-
     public void setXmlStream(XMLStreamReader reader)
     {
         baseReader = reader;
+        xsiAttributeHolder.reset();
+    }
+
+    /**
+     *
+     * @return  true if we have a non null XMLStreamReader
+     */
+    boolean hasXmlStream() {
+        return (baseReader != null);
     }
 
     RuntimeBindingTypeTable getTypeTable()
@@ -165,24 +174,34 @@ public final class UnmarshalContext
         }
     }
 
-    /**
-     * special marker qname object used to indicate that we noticed
-     * an xsi:nil="true" value while we were looking for an xsi:type attribute
-     *
-     * note that such a value would never be returned by getXsiType since
-     * it is illegal to declare types in the instance namespace.
-     */
-    static final QName XSI_NIL_MARKER = MarshalStreamUtils.XSI_NIL_MARKER;
 
     /**
-     * return:
-     * XSI_NIL_MARKER for xsi:nil="true"
-     * or the QName value found for xsi:type
+     * return the QName value found for xsi:type
      * or null if neither one was found
      */
     QName getXsiType()
     {
-        return MarshalStreamUtils.getXsiType(baseReader, errors);
+        if (!gotXsiAttributes) {
+            getXsiAttributes();
+        }
+        assert gotXsiAttributes;
+        return xsiAttributeHolder.xsiType;
+    }
+
+    boolean hasXsiNil()
+    {
+        if (!gotXsiAttributes) {
+            getXsiAttributes();
+        }
+        assert gotXsiAttributes;
+        return xsiAttributeHolder.hasXsiNil;
+    }
+
+    private void getXsiAttributes()
+    {
+        MarshalStreamUtils.getXsiAttributes(xsiAttributeHolder,
+                                            baseReader, errors);
+        gotXsiAttributes = true;
     }
 
     /**
@@ -191,7 +210,19 @@ public final class UnmarshalContext
      */
     boolean advanceToNextStartElement()
     {
-       return MarshalStreamUtils.advanceToNextStartElement(baseReader);
+        xsiAttributeHolder.reset();
+        gotXsiAttributes = false;
+        return MarshalStreamUtils.advanceToNextStartElement(baseReader);
+    }
+
+    boolean isStartElement()
+    {
+        return baseReader.isStartElement();
+    }
+
+    boolean isEndElement()
+    {
+        return baseReader.isEndElement();
     }
 
     int getAttributeCount()
@@ -226,14 +257,30 @@ public final class UnmarshalContext
         return baseReader.getAttributeValue(att_idx);
     }
 
-    boolean isXsiNilTrue(int att_idx)
-    {
-        return MarshalStreamUtils.isXsiNilTrue(baseReader, att_idx, errors);
-    }
-
     void skipElement()
     {
         MarshalStreamUtils.skipElement(baseReader);
+    }
+
+    int next()
+    {
+        xsiAttributeHolder.reset();
+        try {
+            return baseReader.next();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
+    boolean hasNext()
+    {
+        try {
+            return baseReader.hasNext();
+        }
+        catch (XMLStreamException e) {
+            throw new XmlRuntimeException(e);
+        }
     }
 
 }

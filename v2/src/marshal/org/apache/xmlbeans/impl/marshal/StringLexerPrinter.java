@@ -69,6 +69,6 @@ class StringLexerPrinter implements AtomicLexerPrinter
 
     public CharSequence print(Object value, Collection errors)
     {
-        return (CharSequence) value;
+        return (CharSequence)value;
     }
 }

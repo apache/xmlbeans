@@ -56,18 +56,19 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
 
 import javax.xml.namespace.QName;
 
 class RuntimeGlobalProperty
-   implements RuntimeBindingProperty
+    implements RuntimeBindingProperty
 {
     private final BindingType type;
     private final QName rootElement;
 
-    RuntimeGlobalProperty(BindingType type, QName root_element) {
+    RuntimeGlobalProperty(BindingType type, QName root_element)
+    {
         this.type = type;
         this.rootElement = root_element;
     }
@@ -88,7 +89,7 @@ class RuntimeGlobalProperty
         return false;
     }
 
-    public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContext context)
+    public TypeUnmarshaller getTypeUnmarshaller(UnmarshalContextImpl context)
     {
         throw new UnsupportedOperationException();
     }
@@ -99,7 +100,7 @@ class RuntimeGlobalProperty
     }
 
     //non simple type props can throw some runtime exception.
-    public CharSequence getLexical(Object parent, MarshalContext context)
+    public CharSequence getLexical(Object parent, MarshalContextImpl context)
     {
         //TODO: polymorphism checks
 
@@ -114,12 +115,12 @@ class RuntimeGlobalProperty
         return retval;
     }
 
-    public Object getValue(Object parent_obj, MarshalContext context)
+    public Object getValue(Object parent_obj, MarshalContextImpl context)
     {
         throw new AssertionError("UNIMP: " + this);
     }
 
-    public boolean isSet(Object parentObject, MarshalContext context)
+    public boolean isSet(Object parentObject, MarshalContextImpl context)
     {
         return true;
     }

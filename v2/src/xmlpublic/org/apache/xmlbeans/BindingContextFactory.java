@@ -54,14 +54,69 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans;
 
+
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
- * A TypeMarshaller knows how to marshall a java object into xml.
+ * BindingContextFactory is used to create BindingContext objects
+ * from a binding configuration file.
  */
-interface TypeMarshaller
+public abstract class BindingContextFactory
 {
-    //non simple types can throw a runtime exception
-    CharSequence print(Object value, MarshalContextImpl context);
+    /**
+     * Create a BindingContext that only knows about builtin types
+     *
+     * @return a BindingContext object for builtin types
+     */
+    public abstract BindingContext createBindingContext();
+
+    /**
+     * Create a BindingContext from a binding config xml file
+     *
+     * @param bindingConfig
+     * @return
+     * @throws IOException
+     * @throws XmlException
+     */
+    public abstract BindingContext createBindingContext(InputStream bindingConfig)
+        throws IOException, XmlException;
+
+    /**
+     * Create a BindingContext from a binding config xml file
+     *
+     * @param bindingConfig
+     * @return
+     * @throws IOException
+     * @throws XmlException
+     */
+    public abstract BindingContext createBindingContext(File bindingConfig)
+        throws IOException, XmlException;
+
+
+    protected final static String DEFAULT_IMPL =
+        "org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl";
+
+    public static BindingContextFactory newInstance()
+    {
+        try {
+            Class default_impl = Class.forName(DEFAULT_IMPL);
+            final BindingContextFactory factory =
+                (BindingContextFactory)default_impl.newInstance();
+            return factory;
+        }
+        catch (ClassNotFoundException e) {
+            throw new XmlRuntimeException(e);
+        }
+        catch (InstantiationException e) {
+            throw new XmlRuntimeException(e);
+        }
+        catch (IllegalAccessException e) {
+            throw new XmlRuntimeException(e);
+        }
+    }
+
 }

@@ -11,7 +11,7 @@
     </My:Myelt>
 
     <!--    not working-->
-    <!--    <My:Myatt xsi:nil="0" xsi:type="My:custom-string" >some string</My:Myatt>-->
+<!--        <My:Myatt xsi:nil="0" xsi:type="My:custom-string" >some string</My:Myatt>-->
 
 
     <My:Myatt xsi:type="xsd:token">strval</My:Myatt>

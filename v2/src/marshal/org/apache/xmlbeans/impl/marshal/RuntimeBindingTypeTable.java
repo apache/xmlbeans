@@ -58,10 +58,10 @@ package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.XmlName;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;

@@ -54,14 +54,58 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal;
+package org.apache.xmlbeans;
 
+import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamReader;
 
 /**
- * A TypeMarshaller knows how to marshall a java object into xml.
+ * An Unmarshaller is used to unmarshal xml documents into Java objects.
  */
-interface TypeMarshaller
+public interface Unmarshaller
 {
-    //non simple types can throw a runtime exception
-    CharSequence print(Object value, MarshalContextImpl context);
+    /**
+     * unmarshall an entire xml document.
+     *
+     * PRECONDITIONS:
+     * reader must be positioned at or before the root
+     * start element of the document.
+     *
+     * POSTCONDITIONS:
+     * reader will be positioned immediately after the end element
+     * corresponding to the start element from the precondition
+     *
+     *
+     * @param reader
+     * @return
+     * @throws org.apache.xmlbeans.XmlException
+     */
+    Object unmarshal(XMLStreamReader reader)
+        throws XmlException;
+
+    /**
+     * unmarshal an xml instance of a given schema type
+     *
+     * No attention is paid to the actual tag on which the reader is positioned.
+     * It is only the contents that matter
+     * (including attributes on that start tag).
+     *
+     *
+     * PRECONDITIONS:
+     * reader.isStartElement() must return true
+     *
+     * POSTCONDITIONS:
+     * reader will be positioned immediately after the end element
+     * corresponding to the start element from the precondition
+     *
+     * @param schemaType
+     * @param javaType
+     * @param context
+     * @return
+     * @throws org.apache.xmlbeans.XmlException
+     */
+    Object unmarshallType(QName schemaType,
+                          String javaType,
+                          UnmarshalContext context)
+        throws XmlException;
 }

@@ -57,7 +57,6 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import javax.xml.namespace.QName;
-import java.util.NoSuchElementException;
 
 final class CharacterVisitor
     extends XmlTypeVisitor
@@ -66,16 +65,9 @@ final class CharacterVisitor
 
     CharacterVisitor(RuntimeBindingProperty property,
                      Object parentObject,
-                     MarshalContext context)
+                     MarshalContextImpl context)
     {
         super(parentObject, property, context);
-    }
-
-    private static CharSequence getCharData(RuntimeBindingProperty property,
-                                            Object parentObject,
-                                            MarshalContext context)
-    {
-        return property.getLexical(parentObject, context);
     }
 
 
@@ -116,7 +108,7 @@ final class CharacterVisitor
 
     protected CharSequence getCharData()
     {
-        return getCharData(bindingProperty, parentObject, marshalContext);
+        return getBindingProperty().getLexical(getParentObject(), marshalContext);
     }
 
 }

@@ -57,9 +57,9 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
-import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 
 import javax.xml.namespace.NamespaceContext;
@@ -71,7 +71,7 @@ import java.util.Stack;
 
 final class MarshalResult implements XMLStreamReader
 {
-    private final MarshalContext context;
+    private final MarshalContextImpl context;
 
     //state fields
     private XmlTypeVisitor currVisitor;
@@ -79,10 +79,11 @@ final class MarshalResult implements XMLStreamReader
     private int currentEventType = XMLStreamReader.START_ELEMENT;
     private boolean initedAttributes = false;
 
+
     private static final String ATTRIBUTE_XML_TYPE = "CDATA";
 
     MarshalResult(RuntimeBindingProperty property, Object obj,
-                  MarshalContext context)
+                  MarshalContextImpl context)
     {
         currVisitor = createVisitor(property, obj, context);
         this.context = context;
@@ -90,7 +91,7 @@ final class MarshalResult implements XMLStreamReader
 
     protected static XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
                                                   Object obj,
-                                                  MarshalContext context)
+                                                  MarshalContextImpl context)
     {
         BindingType btype = property.getType();
 
@@ -416,8 +417,6 @@ final class MarshalResult implements XMLStreamReader
             throw new IndexOutOfBoundsException(msg);
         }
     }
-
-
 
 
     public String toString()
