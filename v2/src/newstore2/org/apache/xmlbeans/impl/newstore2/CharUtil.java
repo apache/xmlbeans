@@ -354,9 +354,9 @@ public final class CharUtil
             _offSrc = 0;
             
             if (posInsert == 0)
-                newSrc = new CharJoin( src, off, cch, srcInsert, offInsert, cchInsert );
-            else if (posInsert == cch)
                 newSrc = new CharJoin( srcInsert, offInsert, cchInsert, src, off, cch );
+            else if (posInsert == cch)
+                newSrc = new CharJoin( src, off, cch, srcInsert, offInsert, cchInsert );
             else
             {
                 newSrc =
