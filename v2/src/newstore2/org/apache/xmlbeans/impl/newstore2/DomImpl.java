@@ -2879,7 +2879,7 @@ final class DomImpl
         Locale l = e.locale();
 
         if (attr == null)
-            throw new NotFoundErr( "Attr to set is null" );
+            throw new IllegalArgumentException( "Attr to set is null" );
 
         Dom a;
 
