@@ -2,7 +2,7 @@
 * The Apache Software License, Version 1.1
 *
 *
-* Copyright (c) 2003 The Apache Software Foundation.  All rights 
+* Copyright (c) 2003 The Apache Software Foundation.  All rights
 * reserved.
 *
 * Redistribution and use in source and binary forms, with or without
@@ -10,7 +10,7 @@
 * are met:
 *
 * 1. Redistributions of source code must retain the above copyright
-*    notice, this list of conditions and the following disclaimer. 
+*    notice, this list of conditions and the following disclaimer.
 *
 * 2. Redistributions in binary form must reproduce the above copyright
 *    notice, this list of conditions and the following disclaimer in
@@ -18,19 +18,19 @@
 *    distribution.
 *
 * 3. The end-user documentation included with the redistribution,
-*    if any, must include the following acknowledgment:  
+*    if any, must include the following acknowledgment:
 *       "This product includes software developed by the
 *        Apache Software Foundation (http://www.apache.org/)."
 *    Alternately, this acknowledgment may appear in the software itself,
 *    if and wherever such third-party acknowledgments normally appear.
 *
-* 4. The names "Apache" and "Apache Software Foundation" must 
+* 4. The names "Apache" and "Apache Software Foundation" must
 *    not be used to endorse or promote products derived from this
-*    software without prior written permission. For written 
+*    software without prior written permission. For written
 *    permission, please contact apache@apache.org.
 *
-* 5. Products derived from this software may not be called "Apache 
-*    XMLBeans", nor may "Apache" appear in their name, without prior 
+* 5. Products derived from this software may not be called "Apache
+*    XMLBeans", nor may "Apache" appear in their name, without prior
 *    written permission of the Apache Software Foundation.
 *
 * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
@@ -49,7 +49,7 @@
 *
 * This software consists of voluntary contributions made by many
 * individuals on behalf of the Apache Software Foundation and was
-* originally based on software copyright (c) 2000-2003 BEA Systems 
+* originally based on software copyright (c) 2000-2003 BEA Systems
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
@@ -63,7 +63,7 @@ package weblogic.utils;
  *
  * @deprecated use JDK 1.4 style nested throwables where possible.
  *
- * @author Copyright (c) 1997 by WebLogic, Inc. All Rights Reserved.
+ * @author WebLogic
  */
 
 import java.io.PrintWriter;
@@ -98,7 +98,7 @@ public interface NestedThrowable {
       if (nested == null) {
         return nt.superToString();
       } else {
-        return nt.superToString() + " - with nested exception:" + 
+        return nt.superToString() + " - with nested exception:" +
           EOL + "[" + nestedToString(nested) + "]";
       }
     }
@@ -106,7 +106,7 @@ public interface NestedThrowable {
     private static String nestedToString(Throwable nested) {
       if (nested instanceof InvocationTargetException) {
         InvocationTargetException ite = (InvocationTargetException) nested;
-        return nested.toString() + " - with target exception:" + 
+        return nested.toString() + " - with target exception:" +
           EOL + "[" + ite.getTargetException().toString() +
           "]";
       }
@@ -119,7 +119,7 @@ public interface NestedThrowable {
      *
      * @param s                 PrintStream
      */
-    public static void printStackTrace(NestedThrowable nt, PrintStream s) { 
+    public static void printStackTrace(NestedThrowable nt, PrintStream s) {
       Throwable nested = nt.getNested();
       if (nested != null) {
         nested.printStackTrace(s);
@@ -134,7 +134,7 @@ public interface NestedThrowable {
      *
      * @param w                 PrintWriter
      */
-    public static void printStackTrace(NestedThrowable nt, PrintWriter w) { 
+    public static void printStackTrace(NestedThrowable nt, PrintWriter w) {
       Throwable nested = nt.getNested();
       if (nested != null) {
         nested.printStackTrace(w);

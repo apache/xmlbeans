@@ -227,7 +227,7 @@ public class SniffedXmlInputStream extends BufferedInputStream
     /* package */ static String extractXmlDeclEncoding(char[] buf, int offset, int size)
     {
         int limit = offset + size;
-        int xmlpi = firstIndexOfAscii("<?xml", buf, offset, limit);
+        int xmlpi = firstIndexOf("<?xml", buf, offset, limit);
         if (xmlpi >= 0)
         {
             int i = xmlpi + 5;
@@ -244,21 +244,27 @@ public class SniffedXmlInputStream extends BufferedInputStream
         return null;
     }
 
-    private static int firstIndexOfAscii(String s, char[] buf, int startAt, int limit)
+    private static int firstIndexOf(String s, char[] buf, int startAt, int limit)
     {
         assert(s.length() > 0);
-        byte[] lookFor = s.getBytes();
-        int firstchar = lookFor[0];
+        char[] lookFor = s.toCharArray();
+
+        char firstchar = lookFor[0];
         searching: for (limit -= lookFor.length; startAt < limit; startAt++)
         {
             if (buf[startAt] == firstchar)
             {
                 for (int i = 1; i < lookFor.length; i++)
+                {
                     if (buf[startAt + i] != lookFor[i])
+                    {
                         continue searching;
+                    }
+                }
                 return startAt;
             }
         }
+
         return -1;
     }
 
