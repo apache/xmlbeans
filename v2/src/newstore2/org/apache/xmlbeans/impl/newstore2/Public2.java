@@ -25,6 +25,7 @@ import org.w3c.dom.Document;
 
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlObject;
 
 import java.io.PrintStream;
 
@@ -252,9 +253,11 @@ public final class Public2
 
         c.dump();
 
-        c.next();
-        c.next();
-        c.next();
+//        c.setType( XmlObject.type );
+
+//        TypeStore store = c.getTypeStore();
+
+//        store.invalidate_text();
 
         c.dump();
         

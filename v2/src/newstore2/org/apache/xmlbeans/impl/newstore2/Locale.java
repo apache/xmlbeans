@@ -444,7 +444,6 @@ final class Locale implements DOMImplementation, SaajCallback
             c = new Cur( this );
             c._state = Cur.POOLED;
             c._tempFrame = -1;
-            c._pos = -1;
         }
         else
         {
@@ -454,8 +453,7 @@ final class Locale implements DOMImplementation, SaajCallback
         }
 
         assert c._prev == null && c._next == null;
-        assert c._xobj == null;
-        assert c._pos == -1;
+        assert !c.isPositioned();
         assert c._obj == null;
                 
         c._curKind = curKind;
@@ -1143,4 +1141,6 @@ final class Locale implements DOMImplementation, SaajCallback
     Dom _ownerDoc;
 
     QNameFactory _qnameFactory;
+
+    boolean _validateOnSet;
 }

@@ -60,6 +60,7 @@ import java.io.PrintStream;
 
 import java.util.Iterator;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.xmlbeans.impl.newstore2.Locale.LoadContext;
 
@@ -70,7 +71,22 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.CdataNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
+import org.apache.xmlbeans.SchemaField;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.QNameSet;
+
+import org.apache.xmlbeans.impl.values.TypeStore;
+import org.apache.xmlbeans.impl.values.TypeStoreUser;
+import org.apache.xmlbeans.impl.values.TypeStoreVisitor;
+
 import javax.xml.namespace.QName;
+
+import org.apache.xmlbeans.impl.common.ValidatorListener;
 
 final class Cur
 {
@@ -94,10 +110,12 @@ final class Cur
     Cur ( Locale l )
     {
         _locale = l;
+        _pos = -1;
     }
 
     static boolean kindIsContainer ( int t ) { return t ==  ELEM || t ==  ROOT; }
     static boolean kindIsFinish    ( int t ) { return t == -ELEM || t == -ROOT; }
+    static boolean kindIsNode      ( int t ) { return t > 0  || t != TEXT; }
     
     int kind ( ) { assert isNormal(); return _xobj == null ? NONE : _xobj.kind( _pos ); }
 
@@ -110,7 +128,10 @@ final class Cur
     boolean isProcinst  ( ) { return kind() == PROCINST; }
     
     boolean isContainer ( ) { return kindIsContainer( kind() ); }
-    boolean isFinish    ( ) { return kindIsFinish( kind() ); }
+    boolean isFinish    ( ) { return kindIsFinish   ( kind() ); }
+    boolean isNode      ( ) { return kindIsNode     ( kind() ); }
+    
+//    boolean isTypeable  ( ) { return _xobj.isTypeable(); }
 
     boolean isDomDocRoot ( )
     {
@@ -306,6 +327,13 @@ final class Cur
         return _xobj == that._xobj && _pos == that._xobj.posEnd();
     }
 
+    boolean isAtEndOfLastPush ( )
+    {
+        assert _stack != null && _stack.size() > 0;
+
+        return isAtEndOf( (Cur) _stack.get( _stack.size() - 1 ) );
+    }
+
     void moveToCur ( Cur to )
     {
         assert isNormal();
@@ -330,6 +358,8 @@ final class Cur
         if (_selection == null)
             _selection = new ArrayList();
 
+        // TODO - make this more efficient ....
+        //        Need to add call changeCallback ....
         _selection.add( permCur() );
     }
     
@@ -662,6 +692,27 @@ final class Cur
         set( getNormal( x, p ), _posTemp );
 
         return true;
+    }
+    
+    boolean nextWithAttrs ( )
+    {
+        int k = kind();
+
+        if (k == ROOT || k == ELEM)
+        {
+            if (toFirstAttr())
+                return true;
+        }
+        else if (k == ATTR)
+        {
+            if (toNextAttr())
+                return true;
+            
+            if (!toParentRaw())
+                return false;
+        }
+        
+        return next();
     }
     
     boolean next ( )
@@ -1181,12 +1232,14 @@ final class Cur
             Xobj newXo = xo.newNode();
 
             newXo._srcValue = xo._srcValue;
-            newXo._srcAfter = xo._srcAfter;
             newXo._offValue = xo._offValue;
-            newXo._offAfter = xo._offAfter;
             newXo._cchValue = xo._cchValue;
+            
+            newXo._srcAfter = xo._srcAfter;
+            newXo._offAfter = xo._offAfter;
             newXo._cchAfter = xo._cchAfter;
 
+            // TODO - strange to have charNode stuff inside here .....
             newXo._charNodesValue = CharNode.copyNodes( xo._charNodesValue, newXo );
             newXo._charNodesAfter = CharNode.copyNodes( xo._charNodesAfter, newXo );
 
@@ -1199,8 +1252,10 @@ final class Cur
             {
                 newParent = newXo;
                 xo = xo._firstChild;
+                continue;
             }
-            else if (xo._nextSibling == null)
+            
+            if (xo._nextSibling == null)
             {
                 do
                 {
@@ -1217,8 +1272,8 @@ final class Cur
             }
             else if (xo == _xobj)
                 break walk;
-            else
-                xo = xo._nextSibling;
+            
+            xo = xo._nextSibling;
         }
 
         copy._srcAfter = null;
@@ -1339,6 +1394,41 @@ final class Cur
         return x;
     }
 
+//    boolean isInvalid ( )
+//    {
+//        assert isNormal() && isPositioned() && _pos == 0;
+//
+//        return _xobj.isInvalid();
+//    }
+
+//    void setType ( SchemaType type )
+//    {
+//        assert isNormal() && isPositioned() && _pos == 0;
+//        _xobj.setType( type );
+//    }
+    
+//    TypeStoreUser getTypeStoreUser ( )
+//    {
+//        assert isNormal() && isPositioned() && _pos == 0;
+//
+//        return _xobj.getTypeStoreUser();
+//    }
+    
+//    void setTypeStoreUser ( TypeStoreUser user )
+//    {
+//        assert isNormal() && isPositioned() && _pos == 0;
+//
+//        _xobj.setTypeStoreUser( user );
+//    }
+
+//    TypeStore getTypeStore ( )
+//    {
+//        assert isNormal() && isPositioned();
+//        assert isElem() || isAttr() || isRoot();
+//
+//        return (TypeStore) _xobj;
+//    }
+    
     Dom getDom ( )
     {
         assert isNormal();
@@ -1646,7 +1736,7 @@ final class Cur
     //
     //
 
-    private abstract static class Xobj
+    private abstract static class Xobj implements TypeStore
     {
         Xobj ( Locale l, int kind, int domType )
         {
@@ -1655,11 +1745,11 @@ final class Cur
                     kind == COMMENT || kind == PROCINST;
                     
             _locale = l;
-            _bits = (domType << 8) + kind;
+            _bits = (domType << 4) + kind;
         }
 
-        final int kind    ( ) { return _bits & 0xFF; }
-        final int domType ( ) { return _bits >> 8;   }
+        final int kind    ( ) { return _bits & 0xF; }
+        final int domType ( ) { return (_bits & 0xF0) >> 4; }
         
         final boolean isRoot      ( ) { return kind() == ROOT; }
         final boolean isAttr      ( ) { return kind() == ATTR; }
@@ -1702,6 +1792,106 @@ final class Cur
         abstract Xobj newNode ( );
 
         //
+        // 
+        //
+
+//        final boolean isValid    ( ) { return (_bits & 0x100) == 0; }
+//        final boolean isInvalid  ( ) { return (_bits & 0x100) != 0; }
+//        final void    setValid   ( ) { _bits &= ~0x100; }
+//        final void    setInvalid ( ) { _bits &=  0x100; }
+
+        final boolean isVacant   ( ) { return (_bits & 0x100) != 0; }
+        final boolean isOccupied ( ) { return (_bits & 0x100) == 0; }
+
+        final void fillVacancy ( )
+        {
+            assert isOccupied();
+
+            throw new RuntimeException( "Not implemented" );
+        }
+
+        final void vacate ( )
+        {
+            if (isOccupied())
+            {
+                throw new RuntimeException( "Not implemented" );
+            }
+        }
+
+//        static void setType ( SchemaType type )
+//        {
+//            TypeStoreUser user = getTypeStoreUser();
+//
+//            if (user == null || user.get_schema_type() == type)
+//            {
+//                if (c.isRoot())
+//                {
+//                    disconnectTree();
+//                    setTypeStoreUser( ((TypeStoreUserFactory) type).createTypeStoreUser() );
+//                }
+//                else
+//                    throw new RuntimeException( "Not impl" );
+//            }
+//        }
+//
+//        private static void disconnectTree ( )
+//        {
+//            // Disconnect all type store uses in this tree.  If there is no
+//            // user at the top, then there can be no children.
+//
+//            // TODO - make not recursive
+//            if (getTypeStoreUser() != null)
+//            {
+//                setTypeStoreUserLocal( null );
+//
+//                for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
+//                    disconnectTree( x );
+//            }
+//        }
+    
+        final TypeStoreUser getTypeStoreUser ( )
+        {
+            // Don't assert isNormal() here ... infinite recursion
+            return _user;
+        }
+        
+//        private final void setTypeStoreUserHelper ( TypeStoreUser user )
+//        {
+//            assert isValid();
+//            _user = user;
+//        }
+
+        // Just set the local user without dealing with disconnecting
+        // children...
+        void setTypeStoreUserLocal ( TypeStoreUser newUser )
+        {
+//            assert isNormal( 0 );
+//            
+//            if (isInvalid())
+//            {
+//                assert _cchValue == 0;
+//
+//                TypeStoreUser oldUser = getTypeStoreUser();
+//
+//                String newValue = oldUser.build_text( this );
+//
+//                setValid();
+//
+//                oldUser.disconnect_store();
+//
+//                Cur c = tempCur();
+//                c.next();
+//                c.insertChars( newValue, 0, newValue.length() );
+//                c.release();
+//            }
+//
+//            setTypeStoreUserHelper( newUser );
+//
+//            if (newUser != null)
+//                newUser.attach_store( this );
+        }
+        
+        //
         // Dom interface
         //
 
@@ -1723,7 +1913,9 @@ final class Cur
         //
         //
         //
-        
+
+        // TODO - should be able to have Cur's which are not pointing
+        // at text not be on either list.
         Cur getEmbedded ( )
         {
             Cur c = _locale._unembedded;
@@ -1767,21 +1959,28 @@ final class Cur
                 return false;
 
             if (isRoot())
-                return p <= posEnd();
+            {
+                if (p > posEnd())
+                    return false;
+            }
+            else if (!isAttr())
+            {
+                if (p >= posMax())
+                    return false;
+            }
+            else if (p > posEnd())
+            {
+                if (_cchAfter == 0)
+                    return false;
 
-            if (!isAttr())
-                return p < posMax();
+                if (_nextSibling != null && _nextSibling.isAttr())
+                    return false;
 
-            if (p <= posEnd())
-                return true;
+                if (_parent == null || !(_parent.isRoot() || _parent.kind() == ELEM))
+                    return false;
+            }
 
-            if (_cchAfter == 0)
-                return false;
-
-            if (_nextSibling != null && _nextSibling.isAttr())
-                return false;
-
-            if (_parent == null || !(_parent.isRoot() || _parent.kind() == ELEM))
+            if (isVacant() && (_cchAfter != 0 || getTypeStoreUser() == null))
                 return false;
 
             return true;
@@ -1907,32 +2106,76 @@ final class Cur
             
             return src;
         }
+
+        //
+        // TypeStore
+        //
+        
+        public boolean is_attribute ( ) { return isAttr(); }
+        public boolean validate_on_set ( ) { return _locale._validateOnSet; }
+        public void invalidate_text ( ) { vacate(); }
+        
+        public XmlCursor new_cursor ( ) { return TypeImpl.typeStore_new_cursor( this ); }
+        public void validate ( ValidatorListener vEventSink ) { TypeImpl.typeStore_validate( this, vEventSink ); }
+        public SchemaTypeLoader get_schematypeloader ( ) { return TypeImpl.typeStore_get_schematypeloader( this ); }
+        public TypeStoreUser change_type ( SchemaType sType ) { return TypeImpl.typeStore_change_type( this, sType ); }
+        public QName get_xsi_type ( ) { return TypeImpl.typeStore_get_xsi_type( this ); }
+        public String fetch_text ( int whitespaceRule ) { return TypeImpl.typeStore_fetch_text( this, whitespaceRule ); }
+        public void store_text ( String text ) { TypeImpl.typeStore_store_text( this, text ); }
+        public String compute_default_text ( ) { return TypeImpl.typeStore_compute_default_text( this ); }
+        public int compute_flags ( ) { return TypeImpl.typeStore_compute_flags( this ); }
+        public SchemaField get_schema_field ( ) { return TypeImpl.typeStore_get_schema_field( this ); }
+        public void invalidate_nil ( ) { TypeImpl.typeStore_invalidate_nil( this ); }
+        public boolean find_nil ( ) { return TypeImpl.typeStore_find_nil( this ); }
+        public int count_elements ( QName name ) { return TypeImpl.typeStore_count_elements( this, name ); }
+        public int count_elements ( QNameSet names ) { return TypeImpl.typeStore_count_elements( this, names ); }
+        public TypeStoreUser find_element_user ( QName name, int i ) { return TypeImpl.typeStore_find_element_user( this, name, i ); }
+        public TypeStoreUser find_element_user ( QNameSet names, int i ) { return TypeImpl.typeStore_find_element_user( this, names, i ); }
+        public void find_all_element_users ( QName name, List fillMeUp ) { TypeImpl.typeStore_find_all_element_users( this, name, fillMeUp ); }
+        public void find_all_element_users ( QNameSet name, List fillMeUp ) { TypeImpl.typeStore_find_all_element_users( this, name, fillMeUp ); }
+        public TypeStoreUser insert_element_user ( QName name, int i ) { return TypeImpl.typeStore_insert_element_user( this, name, i ); }
+        public TypeStoreUser insert_element_user ( QNameSet set, QName name, int i ) { return TypeImpl.typeStore_insert_element_user( this, set, name, i ); }
+        public TypeStoreUser add_element_user ( QName name ) { return TypeImpl.typeStore_add_element_user( this, name ); }
+        public void remove_element ( QName name, int i ) { TypeImpl.typeStore_remove_element( this, name, i ); }
+        public void remove_element ( QNameSet names, int i ) { TypeImpl.typeStore_remove_element( this, names, i ); }
+        public TypeStoreUser find_attribute_user ( QName name ) { return TypeImpl.typeStore_find_attribute_user( this, name ); }
+        public TypeStoreUser add_attribute_user ( QName name ) { return TypeImpl.typeStore_add_attribute_user( this, name ); }
+        public void remove_attribute ( QName name ) { TypeImpl.typeStore_remove_attribute( this, name ); }
+        public TypeStoreUser copy_contents_from ( TypeStore source ) { return TypeImpl.typeStore_copy_contents_from( this, source ); }
+        public void array_setter ( XmlObject[] sources, QName elementName ) { TypeImpl.typeStore_array_setter( this, sources, elementName ); }
+        public void visit_elements ( TypeStoreVisitor visitor ) { TypeImpl.typeStore_visit_elements( this, visitor ); }
+        public XmlObject[] exec_query ( String queryExpr, XmlOptions options ) throws XmlException { return TypeImpl.typeStore_exec_query( this, queryExpr, options ); }
+        public Object get_root_object ( ) { return TypeImpl.typeStore_get_root_object( this ); }
+        public String find_prefix_for_nsuri ( String nsuri, String suggested_prefix ) { return TypeImpl.typeStore_find_prefix_for_nsuri( this, nsuri, suggested_prefix ); }
+        public String getNamespaceForPrefix ( String prefix ) { return TypeImpl.typeStore_getNamespaceForPrefix( this, prefix ); }
         
         //
         //
         //
 
         Locale _locale;
-
-        Cur _embedded;
-        
-        int _bits;
-
         QName _name;
 
-        Xobj _parent;
-        Xobj _nextSibling;
-        Xobj _prevSibling;
-        Xobj _firstChild;
-        Xobj _lastChild;
+        private Cur _embedded;
         
-        Object _srcValue, _srcAfter;
-        int    _offValue, _offAfter;
-        int    _cchValue, _cchAfter;
+        private int _bits;
+
+        private Xobj _parent;
+        private Xobj _nextSibling;
+        private Xobj _prevSibling;
+        private Xobj _firstChild;
+        private Xobj _lastChild;
+        
+        private Object _srcValue, _srcAfter;
+        private int    _offValue, _offAfter;
+        private int    _cchValue, _cchAfter;
 
         // TODO - put this in a ptr off this node
-        CharNode _charNodesValue;
-        CharNode _charNodesAfter;
+        private CharNode _charNodesValue;
+        private CharNode _charNodesAfter;
+
+        // TODO - put this in a ptr off this node
+        private TypeStoreUser _user;
     }
 
     private abstract static class NodeXobj extends Xobj implements Dom, Node, NodeList
@@ -2656,8 +2899,8 @@ final class Cur
 
     Locale _locale;
     
-    Xobj _xobj;
-    int _pos;
+    private Xobj _xobj;
+    private int _pos;
 
     int _state;
     int _curKind;

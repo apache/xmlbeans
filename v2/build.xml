@@ -850,10 +850,11 @@
   <!-- newstore2 target ============================================== -->
 
   <target name="newstore2.classes"
-        depends="dirs, common.classes, xmlpublic.classes, saaj_api.classes">
+        depends="dirs, common.classes, xmlpublic.classes, typestore.classes, saaj_api.classes">
     <mkdir dir="build/classes/newstore2"/>
     <javac srcdir="src/newstore2" destdir="build/classes/newstore2" source="1.4" debug="on">
       <classpath id="newstore2.compile.path">
+        <pathelement location="build/classes/typestore"/>
         <pathelement location="build/lib/jsr173_api.jar"/>
         <pathelement location="build/classes/xmlinputstream"/>
         <pathelement location="build/classes/xmlpublic"/>
