@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Iterator;
@@ -392,20 +393,22 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
         if (fullFactory)
         {
-            emit("public static " + fullName + " parse(java.lang.String s) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( s, type, null ); }");
+            emit("/** @param xmlAsString the string value to parse */");
+            emit("public static " + fullName + " parse(java.lang.String xmlAsString) throws org.apache.xmlbeans.XmlException {");
+            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( xmlAsString, type, null ); }");
             emit("");
 
-            emit("public static " + fullName + " parse(java.lang.String s, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( s, type, options ); }");
+            emit("public static " + fullName + " parse(java.lang.String xmlAsString, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException {");
+            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( xmlAsString, type, options ); }");
             emit("");
 
-            emit("public static " + fullName + " parse(java.io.File f) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( f, type, null ); }");
+            emit("/** @param file the file from which to load an xml document */");
+            emit("public static " + fullName + " parse(java.io.File file) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
+            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( file, type, null ); }");
             emit("");
 
-            emit("public static " + fullName + " parse(java.io.File f, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
-            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( f, type, options ); }");
+            emit("public static " + fullName + " parse(java.io.File file, org.apache.xmlbeans.XmlOptions options) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
+            emit("  return (" + fullName + ") org.apache.xmlbeans.XmlBeans.getContextTypeLoader().parse( file, type, options ); }");
             emit("");
 
             emit("public static " + fullName + " parse(java.net.URL u) throws org.apache.xmlbeans.XmlException, java.io.IOException {");
@@ -771,9 +774,18 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
         emit("");
         SchemaStringEnumEntry[] entries = sType.getStringEnumEntries();
+        HashSet seenValues = new HashSet();
+        HashSet repeatValues = new HashSet();
         for (int i = 0; i < entries.length; i++)
         {
             String enumValue = entries[i].getString();
+            if (seenValues.contains(enumValue))
+            {
+                repeatValues.add(enumValue);
+                continue;
+            }
+            else
+                seenValues.add(enumValue);
             String constName = entries[i].getEnumName();
             if (baseEnumType != sType)
                 emit("static final " + baseEnumClass + ".Enum " + constName + " = " + baseEnumClass + "." + constName + ";");
@@ -783,6 +795,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         emit("");
         for (int i = 0; i < entries.length; i++)
         {
+            if (repeatValues.contains(entries[i].getString()))
+                continue;
             String constName = "INT_" + entries[i].getEnumName();
             if (baseEnumType != sType)
                 emit("static final int " + constName + " = " + baseEnumClass + "." + constName + ";");

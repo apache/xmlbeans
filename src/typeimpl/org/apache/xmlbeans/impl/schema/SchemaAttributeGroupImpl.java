@@ -29,6 +29,7 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
     private XmlObject _parseObject;
     private Object _userData;
     private String _parseTNS;
+    private String _formDefault;
     private boolean _chameleon;
     private boolean _redefinition;
     private SchemaAnnotation _annotation;
@@ -45,13 +46,14 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
         _name = name;
     }
 
-    public void init(QName name, String targetNamespace, boolean chameleon, boolean redefinition, XmlObject x, SchemaAnnotation a, Object userData)
+    public void init(QName name, String targetNamespace, boolean chameleon, String formDefault, boolean redefinition, XmlObject x, SchemaAnnotation a, Object userData)
     {
         assert _name == null || name.equals( _name );
 
         _name = name;
         _parseTNS = targetNamespace;
         _chameleon = chameleon;
+        _formDefault = formDefault;
         _redefinition = redefinition;
         _parseObject = x;
         _annotation = a;
@@ -88,6 +90,9 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
 
     public String getChameleonNamespace()
         { return _chameleon ? _parseTNS : null; }
+
+    public String getFormDefault()
+        { return _formDefault; }
 
     public SchemaAnnotation getAnnotation()
         { return _annotation; }

@@ -210,7 +210,7 @@ public class StscSimpleTypeResolver
             itemImpl = new SchemaTypeImpl(sImpl.getContainer());
             errorLoc = parseInner;
             itemImpl.setSimpleType(true);
-            itemImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
+            itemImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), false);
             itemImpl.setOuterSchemaTypeRef(sImpl.getRef());
             SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), parseInner);
             itemImpl.setAnnotation(ann);
@@ -318,7 +318,7 @@ public class StscSimpleTypeResolver
             // BUGBUG: see if non<simpleType> children can leak through
             SchemaTypeImpl mImpl = new SchemaTypeImpl(sImpl.getContainer());
             mImpl.setSimpleType(true);
-            mImpl.setParseContext(simpleTypes[i], sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
+            mImpl.setParseContext(simpleTypes[i], sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), false);
             memberImplList.add(mImpl);
             mImpl.setOuterSchemaTypeRef(sImpl.getRef());
             mImpl.setAnonymousUnionMemberOrdinal(i + 1);
@@ -459,7 +459,7 @@ public class StscSimpleTypeResolver
             
             baseImpl = new SchemaTypeImpl(sImpl.getContainer());
             baseImpl.setSimpleType(true);
-            baseImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, false);
+            baseImpl.setParseContext(parseInner, sImpl.getTargetNamespace(), sImpl.getChameleonNamespace() != null, sImpl.getElemFormDefault(), sImpl.getAttFormDefault(), false);
             // baseImpl.setSkippedAnonymousType(true);
             baseImpl.setOuterSchemaTypeRef(sImpl.getRef());
             SchemaAnnotationImpl ann = SchemaAnnotationImpl.getAnnotation(sImpl.getContainer(), parseInner);

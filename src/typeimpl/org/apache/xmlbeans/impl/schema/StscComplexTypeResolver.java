@@ -298,14 +298,18 @@ public class StscComplexTypeResolver
         Map elementModel = new LinkedHashMap();
 
         // build content model and anonymous types
-        SchemaParticle contentModel = translateContentModel(sImpl, parseGroup, targetNamespace, chameleon, particleCode, anonymousTypes, elementModel, false, null);
+        SchemaParticle contentModel = translateContentModel(sImpl,
+            parseGroup, targetNamespace, chameleon,
+            sImpl.getElemFormDefault(), sImpl.getAttFormDefault(),
+            particleCode, anonymousTypes, elementModel, false, null);
 
         // detect the nonempty "all" case (empty <all> doesn't count - it needs to be eliminated to match XSD test cases)
         boolean isAll = contentModel != null && contentModel.getParticleType() == SchemaParticle.ALL;
         
         // build attr model and anonymous types
         SchemaAttributeModelImpl attrModel = new SchemaAttributeModelImpl();
-        translateAttributeModel(parseTree, targetNamespace, chameleon, anonymousTypes, sImpl, null, attrModel, null, true, null);
+        translateAttributeModel(parseTree, targetNamespace, chameleon, sImpl.getAttFormDefault(),
+            anonymousTypes, sImpl, null, attrModel, null, true, null);
 
         // summarize wildcard information
         WildcardResult wcElt = summarizeEltWildcards(contentModel);
@@ -412,8 +416,10 @@ public class StscComplexTypeResolver
         Map elementModel = new LinkedHashMap();
 
         // build content model and anonymous types
-        SchemaParticle contentModel = translateContentModel(
-            sImpl, parseEg, targetNamespace, chameleon, particleCode, anonymousTypes, elementModel, false, null);
+        SchemaParticle contentModel = translateContentModel( sImpl,
+            parseEg, targetNamespace, chameleon,
+            sImpl.getElemFormDefault(), sImpl.getAttFormDefault(),
+            particleCode, anonymousTypes, elementModel, false, null);
 
         // detect the nonempty "all" case (empty <all> doesn't count - it needs to be eliminated to match XSD test cases)
         boolean isAll = contentModel != null && contentModel.getParticleType() == SchemaParticle.ALL;
@@ -424,7 +430,8 @@ public class StscComplexTypeResolver
             attrModel = new SchemaAttributeModelImpl();
         else
             attrModel = new SchemaAttributeModelImpl(baseType.getAttributeModel());
-        translateAttributeModel(parseTree, targetNamespace, chameleon, anonymousTypes, sImpl, null, attrModel, baseType, false, null);
+        translateAttributeModel(parseTree, targetNamespace, chameleon, sImpl.getAttFormDefault(),
+            anonymousTypes, sImpl, null, attrModel, baseType, false, null);
 
         // summarize wildcard information
         WildcardResult wcElt = summarizeEltWildcards(contentModel);
@@ -544,9 +551,10 @@ public class StscComplexTypeResolver
         Group parseEg = getContentModel(parseTree);
         
         // build extension model
-        SchemaParticle extensionModel = translateContentModel(
-                sImpl, parseEg, targetNamespace, chameleon, translateParticleCode(parseEg),
-                anonymousTypes, baseElementModel, false, null);
+        SchemaParticle extensionModel = translateContentModel(sImpl,
+            parseEg, targetNamespace, chameleon,
+            sImpl.getElemFormDefault(), sImpl.getAttFormDefault(),
+            translateParticleCode(parseEg), anonymousTypes, baseElementModel, false, null);
         
         // apply rule #2 near http://www.w3.org/TR/xmlschema-1/#c-mve: empty ext model -> mixed taken from base
         if (extensionModel == null && !mixed)
@@ -580,7 +588,8 @@ public class StscComplexTypeResolver
             attrModel = new SchemaAttributeModelImpl();
         else
             attrModel = new SchemaAttributeModelImpl(baseType.getAttributeModel());
-        translateAttributeModel(parseTree, targetNamespace, chameleon, anonymousTypes, sImpl, null, attrModel, baseType, true, null);
+        translateAttributeModel(parseTree, targetNamespace, chameleon, sImpl.getAttFormDefault(),
+            anonymousTypes, sImpl, null, attrModel, baseType, true, null);
 
         // summarize wildcard information
         WildcardResult wcElt = summarizeEltWildcards(contentModel);
@@ -707,7 +716,8 @@ public class StscComplexTypeResolver
             attrModel = new SchemaAttributeModelImpl();
         else
             attrModel = new SchemaAttributeModelImpl(baseType.getAttributeModel());
-        translateAttributeModel(parseTree, targetNamespace, chameleon, anonymousTypes, sImpl, null, attrModel, baseType, false, null);
+        translateAttributeModel(parseTree, targetNamespace, chameleon, sImpl.getAttFormDefault(),
+            anonymousTypes, sImpl, null, attrModel, baseType, false, null);
 
         // summarize wildcard information
         WildcardResult wcAttr = summarizeAttrWildcards(attrModel);
@@ -807,7 +817,7 @@ public class StscComplexTypeResolver
         List anonymousTypes = new ArrayList();
         SchemaAttributeModelImpl attrModel;
         attrModel = new SchemaAttributeModelImpl(baseType.getAttributeModel());
-        translateAttributeModel(parseTree, targetNamespace, chameleon, anonymousTypes, sImpl, null, attrModel, baseType, true, null);
+        translateAttributeModel(parseTree, targetNamespace, chameleon, sImpl.getAttFormDefault(), anonymousTypes, sImpl, null, attrModel, baseType, true, null);
 
         // summarize wildcard information
         WildcardResult wcAttr = summarizeAttrWildcards(attrModel);
@@ -895,8 +905,8 @@ public class StscComplexTypeResolver
         }
     }
 
-    static void translateAttributeModel(
-            XmlObject parseTree, String targetNamespace, boolean chameleon,
+    static void translateAttributeModel(XmlObject parseTree,
+            String targetNamespace, boolean chameleon, String formDefault,
             List anonymousTypes, SchemaType outerType,
             Set seenAttributes, SchemaAttributeModelImpl result,
             SchemaType baseType, boolean extension,
@@ -921,7 +931,7 @@ public class StscComplexTypeResolver
                 {
                     Attribute xsdattr = (Attribute)cur.getObject();
 
-                    SchemaLocalAttribute sAttr = StscTranslator.translateAttribute(xsdattr, targetNamespace, chameleon, anonymousTypes, outerType, baseModel, true);
+                    SchemaLocalAttribute sAttr = StscTranslator.translateAttribute(xsdattr, targetNamespace, formDefault, chameleon, anonymousTypes, outerType, baseModel, true);
                     if (sAttr == null)
                         continue;
 
@@ -1086,7 +1096,10 @@ public class StscComplexTypeResolver
                     SchemaAttributeGroupImpl nestedRedefinitionFor = null;
                     if (group.isRedefinition())
                         nestedRedefinitionFor = group;
-                    translateAttributeModel(group.getParseObject(), subTargetNamespace, chameleon, anonymousTypes, outerType, seenAttributes, result, baseType, extension, nestedRedefinitionFor);
+                    translateAttributeModel(group.getParseObject(), subTargetNamespace, chameleon,
+                        group.getFormDefault(),
+                        anonymousTypes, outerType, seenAttributes, result, baseType,
+                        extension, nestedRedefinitionFor);
                     state.finishProcessing(group);
                     break;
                 }
@@ -1182,8 +1195,8 @@ public class StscComplexTypeResolver
     static SchemaParticle translateContentModel(
             SchemaType outerType,
             XmlObject parseTree, String targetNamespace, boolean chameleon,
-            int particleCode,
-            List anonymousTypes, Map elementModel,
+            String elemFormDefault, String attFormDefault,
+            int particleCode, List anonymousTypes, Map elementModel,
             boolean allowElt, RedefinitionForGroup redefinitionFor)
     {
         if (parseTree == null || particleCode == 0)
@@ -1210,7 +1223,8 @@ public class StscComplexTypeResolver
             // TODO: detect substitution group for this element and construct a choice
 
             LocalElement parseElt = (LocalElement)parseTree;
-            sPart = StscTranslator.translateElement(parseElt, targetNamespace, chameleon, anonymousTypes, outerType);
+            sPart = StscTranslator.translateElement(parseElt, targetNamespace, chameleon,
+                elemFormDefault, attFormDefault, anonymousTypes, outerType);
             if (sPart == null)
                 return null;
             minOccurs = extractMinOccurs(parseElt.xgetMinOccurs());
@@ -1320,6 +1334,8 @@ public class StscComplexTypeResolver
                 String newTargetNamespace = group.getTargetNamespace();
                 if (newTargetNamespace != null)
                     targetNamespace = newTargetNamespace;
+                elemFormDefault = group.getElemFormDefault();
+                attFormDefault = group.getAttFormDefault();
                 chameleon = group.getChameleonNamespace() != null;
             }
 
@@ -1375,8 +1391,9 @@ public class StscComplexTypeResolver
                     continue;
                 addMinusPointlessParticles(accumulate,
                         translateContentModel(outerType,
-                                cur.getObject(), targetNamespace, chameleon, code,
-                                anonymousTypes, elementModel, true, redefinitionFor),
+                            cur.getObject(), targetNamespace, chameleon,
+                            elemFormDefault, attFormDefault, code,
+                            anonymousTypes, elementModel, true, redefinitionFor),
                         sPart.getParticleType());
             }
             sPart.setParticleChildren((SchemaParticle[])
