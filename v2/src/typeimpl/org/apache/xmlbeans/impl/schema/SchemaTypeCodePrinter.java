@@ -17,6 +17,8 @@ package org.apache.xmlbeans.impl.schema;
 
 import java.io.Writer;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -306,7 +308,8 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         }
         else
         {
-            SchemaProperty[] props = sType.getDerivedProperties();
+            SchemaProperty[] props = getDerivedProperties(sType);
+
             for (int i = 0; i < props.length; i++)
             {
                 SchemaProperty prop = props[i];
@@ -2178,7 +2181,7 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
                 // complex content type implementations derive from base type impls
                 // so derived property impls can be reused
                 
-                properties = sType.getDerivedProperties();
+                properties = getDerivedProperties(sType);
             }
             
             Map qNameMap = printStaticFields(properties);
@@ -2232,6 +2235,26 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
         printNestedTypeImpls(sType, system);
 
         endBlock();
+    }
+
+    private SchemaProperty[] getDerivedProperties(SchemaType sType)
+    {
+        // We have to see if this is redefined, because if it is we have
+        // to include all properties associated to its supertypes
+        QName name = sType.getName();
+        if (name != null && name.equals(sType.getBaseType().getName()))
+        {
+            SchemaType sType2 = sType.getBaseType();
+            List allProps = new ArrayList(Arrays.asList(sType.getDerivedProperties()));
+            while (sType2 != null && name.equals(sType2.getName()))
+            {
+                allProps.addAll(Arrays.asList(sType2.getDerivedProperties()));
+                sType2 = sType2.getBaseType();
+            }
+            return (SchemaProperty[]) allProps.toArray(new SchemaProperty[allProps.size()]);
+        }
+        else
+            return sType.getDerivedProperties();
     }
 
     private void printExtensionImplMethods(SchemaType sType) throws IOException

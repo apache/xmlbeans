@@ -22,10 +22,16 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlObject;
+
 import org.example.prod.NewSizeDocument;
+import org.openuri.versionstest.ElementDocument;
+import org.openuri.versionstest.Type;
+import org.openuri.versionstest.TypeX;
 
 import java.util.List;
 import java.util.ArrayList;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 
 /**
  * @author Cezar Andrei (cezar.andrei at bea.com)
@@ -69,7 +75,32 @@ public class RedefineTest extends TestCase
         }
         catch (XmlException e)
         {
-            Assert.assertTrue(false);
+            StringWriter w = new StringWriter();
+            e.printStackTrace(new PrintWriter(w));
+            Assert.fail(w.toString());
+        }
+    }
+
+    public void testMultipleRedefine()
+    {
+        try
+        {
+            String xml = "<v:element xmlns:v='http://openuri.org/versionstest'>" +
+                "<aa>AA</aa><a>A</a><b>B</b><c>C</c>" + "</v:element>";
+            ElementDocument doc = ElementDocument.Factory.parse(xml);
+            TypeX tx = doc.getElement();
+
+            Assert.assertTrue(tx.validate());
+            Assert.assertEquals("A", tx.getA());
+            Assert.assertEquals("B", tx.getB());
+            Assert.assertEquals("C", tx.getC());
+            Assert.assertEquals("AA", ((Type) tx).getAa());
+        }
+        catch (XmlException e)
+        {
+            StringWriter w = new StringWriter();
+            e.printStackTrace(new PrintWriter(w));
+            Assert.fail(w.toString());
         }
     }
 

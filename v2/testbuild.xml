@@ -159,6 +159,7 @@
 
     <fileset id="schema.files.copy" dir="${xbeans.test.cases.test.files}">
         <include name="**/*.xsd"/>
+        <include name="**/*.xsddonotcompile"/>
         <include name="**/*.txt"/>
         <include name="**/*.xml"/>
         <include name="**/*.xsdconfig"/>
@@ -314,7 +315,7 @@
     </target>
 
     <target name="scomp" unless="jar.uptodate">
-        <echo message="Using compiler from: ${schema.compiler}"/>
+        <echo message="Compiling ${schemasrc} using compiler from: ${schema.compiler}"/>
         <!--
         Lets make this target easy to call as a standalone. To call it standalone
         ant scomp -Dschemasrc=file|schema dir

@@ -309,9 +309,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
             // support for redefine, at the end of the file
             if (reader.atLeast(2, 15, 0))
             {
-                _redefinedGlobalTypes = reader.readQNameRefMap();
-                _redefinedModelGroups = reader.readQNameRefMap();
-                _redefinedAttributeGroups = reader.readQNameRefMap();
+                _redefinedGlobalTypes = reader.readQNameRefMapAsList();
+                _redefinedModelGroups = reader.readQNameRefMapAsList();
+                _redefinedAttributeGroups = reader.readQNameRefMapAsList();
             }
             if (reader.atLeast(2, 19, 0))
             {
@@ -426,6 +426,14 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         Map result = new LinkedHashMap();
         for (int i = 0; i < components.length; i++)
             result.put(components[i].getName(), components[i].getComponentRef());
+        return result;
+    }
+
+    private static List buildComponentRefList(SchemaComponent[] components)
+    {
+        List result = new ArrayList();
+        for (int i = 0; i < components.length; i++)
+            result.add(components[i].getComponentRef());
         return result;
     }
 
@@ -563,11 +571,11 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         _globalElements = buildComponentRefMap(state.globalElements());
         _globalAttributes = buildComponentRefMap(state.globalAttributes());
         _modelGroups = buildComponentRefMap(state.modelGroups());
-        _redefinedModelGroups = buildComponentRefMap(state.redefinedModelGroups());
+        _redefinedModelGroups = buildComponentRefList(state.redefinedModelGroups());
         _attributeGroups = buildComponentRefMap(state.attributeGroups());
-        _redefinedAttributeGroups = buildComponentRefMap(state.redefinedAttributeGroups());
+        _redefinedAttributeGroups = buildComponentRefList(state.redefinedAttributeGroups());
         _globalTypes = buildComponentRefMap(state.globalTypes());
-        _redefinedGlobalTypes = buildComponentRefMap(state.redefinedGlobalTypes());
+        _redefinedGlobalTypes = buildComponentRefList(state.redefinedGlobalTypes());
         _documentTypes = buildDocumentMap(state.documentTypes());
         _attributeTypes = buildAttributeTypeMap(state.attributeTypes());
         _typeRefsByClassname = buildTypeRefsByClassname(state.typesByClassname());
@@ -860,9 +868,9 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private List _annotations;
 
     // actual type system data, map QNames -> SchemaComponent.Ref
-    private Map _redefinedModelGroups;
-    private Map _redefinedAttributeGroups;
-    private Map _redefinedGlobalTypes;
+    private List _redefinedModelGroups;
+    private List _redefinedAttributeGroups;
+    private List _redefinedGlobalTypes;
 
     private Map _globalElements;
     private Map _globalAttributes;
@@ -1669,6 +1677,19 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 QName name = readQName();
                 SchemaComponent.Ref obj = readHandle();
                 result.put(name, obj);
+            }
+            return result;
+        }
+
+        List readQNameRefMapAsList()
+        {
+            int size = readShort();
+            List result = new ArrayList(size);
+            for (int i = 0; i < size; i++)
+            {
+                readQName();
+                SchemaComponent.Ref obj = readHandle();
+                result.add(obj);
             }
             return result;
         }
@@ -3107,7 +3128,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         SchemaType[] result = new SchemaType[_redefinedGlobalTypes.size()];
         int j = 0;
-        for (Iterator i = _redefinedGlobalTypes.values().iterator(); i.hasNext(); j++)
+        for (Iterator i = _redefinedGlobalTypes.iterator(); i.hasNext(); j++)
             result[j] = ((SchemaType.Ref)i.next()).get();
         return result;
     }
@@ -3187,7 +3208,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         SchemaModelGroup[] result = new SchemaModelGroup[_redefinedModelGroups.size()];
         int j = 0;
-        for (Iterator i = _redefinedModelGroups.values().iterator(); i.hasNext(); j++)
+        for (Iterator i = _redefinedModelGroups.iterator(); i.hasNext(); j++)
             result[j] = ((SchemaModelGroup.Ref)i.next()).get();
         return result;
     }
@@ -3211,7 +3232,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
 
         SchemaAttributeGroup[] result = new SchemaAttributeGroup[_redefinedAttributeGroups.size()];
         int j = 0;
-        for (Iterator i = _redefinedAttributeGroups.values().iterator(); i.hasNext(); j++)
+        for (Iterator i = _redefinedAttributeGroups.iterator(); i.hasNext(); j++)
             result[j] = ((SchemaAttributeGroup.Ref)i.next()).get();
         return result;
     }
