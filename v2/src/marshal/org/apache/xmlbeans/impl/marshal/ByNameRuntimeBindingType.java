@@ -61,7 +61,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
@@ -141,7 +141,7 @@ final class ByNameRuntimeBindingType
     private static Class getJavaClass(BindingType btype, ClassLoader backup)
         throws ClassNotFoundException
     {
-        final JavaName javaName = btype.getName().getJavaName();
+        final JavaTypeName javaName = btype.getName().getJavaName();
         String jclass = javaName.toString();
         return ClassLoadingUtils.loadClass(jclass, backup);
     }
@@ -238,7 +238,7 @@ final class ByNameRuntimeBindingType
             final Class propertyClass;
             try {
                 final ClassLoader our_cl = getClass().getClassLoader();
-                final JavaName collectionClass = prop.getCollectionClass();
+                final JavaTypeName collectionClass = prop.getCollectionClass();
 
                 if (collectionClass == null) {
                     propertyClass = getJavaClass(btype, our_cl);
@@ -262,7 +262,7 @@ final class ByNameRuntimeBindingType
             assert btype != null;
 
             try {
-                final JavaName collectionClass = prop.getCollectionClass();
+                final JavaTypeName collectionClass = prop.getCollectionClass();
 
                 if (collectionClass == null) {
                     return null;

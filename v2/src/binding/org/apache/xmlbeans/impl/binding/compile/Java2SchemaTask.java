@@ -172,7 +172,7 @@ public class Java2SchemaTask extends Task {
       ioe.printStackTrace();
       throw new BuildException(ioe);
     }
-    JavaToSchemaInput input = new JavaToSchemaInput() {
+    JavaSourceSet input = new JavaSourceSet() {
       public JClass[] getJClasses() { return classes; }
       public TylarLoader getTylarLoader() { return null; }
       public void compileJavaToBinaries(File classesDir) {}

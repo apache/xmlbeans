@@ -107,7 +107,7 @@ public class SimpleSchemaToJavaResultCompiler
         
         // next, output all the .java files to the temp dir
         List javaFileList = new ArrayList();
-        JavaCodeGenerator jcg = sources.getJavaCodeGenerator();
+        JavaCodeResult jcg = sources.getJavaCodeResult();
         Collection classNames = jcg.getToplevelClasses();
         for (Iterator i = classNames.iterator(); i.hasNext(); )
         {
@@ -124,11 +124,11 @@ public class SimpleSchemaToJavaResultCompiler
                 CodeGenUtil.DEFAULT_COMPILER, CodeGenUtil.DEFAULT_MEM_START, CodeGenUtil.DEFAULT_MEM_MAX, false, false);
         
         // then also dump the schema binary files into the JAR
-        SchemaToJavaInput sourceSet = sources.getSchemaSourceSet();
+        SchemaSourceSet sourceSet = sources.getSchemaSourceSet();
         sourceSet.compileSchemaToBinaries(classDir);
         
         // then create the binding-config.xml file
-        BindingFileGenerator bfg = sources.getBindingFileGenerator();
+        BindingFileResult bfg = sources.getBindingFileResult();
         OutputStream output = new FileOutputStream(ensureDir(classDir, PathBindingLoader.STANDARD_PATH));
         bfg.printBindingFile(output);
         output.close();

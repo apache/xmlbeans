@@ -77,7 +77,5 @@ public interface TylarBuilder {
 
   public void buildTylar(JavaToSchemaResult result) throws IOException;
 
-  //NYI
-  //public void buildTylar(SchemaToJavaResult result) throws IOException;
-
+  public void buildTylar(SchemaToJavaResult result) throws IOException;
 }

@@ -56,24 +56,10 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import java.util.Collection;
-import java.io.OutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 
-public interface SchemaGenerator
+public interface BindingFileResult
 {
-    /**
-     * Returns a collection of targetNamespace URIs as Strings.
-     */
-    String[] getTargetNamespaces();
-    
-    /**
-     * Prints the .xsd source code for the given target namespace.
-     * 
-     * Note for internationalization: utf-8 is always used for the
-     * given OutputStream.
-     */ 
-    void printSchema(String targetNamespace, OutputStream output) throws IOException;
-    
-    // consider: maybe returning generated schemas in some other form?
+    void printBindingFile(OutputStream output) throws IOException;
 }

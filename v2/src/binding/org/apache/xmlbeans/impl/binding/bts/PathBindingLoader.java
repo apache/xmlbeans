@@ -57,7 +57,7 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.schema.FileResourceLoader;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
@@ -134,7 +134,7 @@ public class PathBindingLoader implements BindingLoader
         return null;
     }
 
-    public BindingTypeName lookupPojoFor(XmlName xName)
+    public BindingTypeName lookupPojoFor(XmlTypeName xName)
     {
         BindingTypeName result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )
@@ -146,7 +146,7 @@ public class PathBindingLoader implements BindingLoader
         return null;
     }
 
-    public BindingTypeName lookupXmlObjectFor(XmlName xName)
+    public BindingTypeName lookupXmlObjectFor(XmlTypeName xName)
     {
         BindingTypeName result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )
@@ -158,7 +158,7 @@ public class PathBindingLoader implements BindingLoader
         return null;
     }
 
-    public BindingTypeName lookupTypeFor(JavaName jName)
+    public BindingTypeName lookupTypeFor(JavaTypeName jName)
     {
         BindingTypeName result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )
@@ -170,7 +170,7 @@ public class PathBindingLoader implements BindingLoader
         return null;
     }
 
-    public BindingTypeName lookupElementFor(JavaName jName)
+    public BindingTypeName lookupElementFor(JavaTypeName jName)
     {
         BindingTypeName result = null;
         for (Iterator i = loaderPath.iterator(); i.hasNext(); )

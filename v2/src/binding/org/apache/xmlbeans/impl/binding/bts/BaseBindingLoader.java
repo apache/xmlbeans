@@ -76,22 +76,22 @@ public abstract class BaseBindingLoader implements BindingLoader
         return (BindingType)bindingTypes.get(btName);
     }
 
-    public BindingTypeName lookupPojoFor(XmlName xName)
+    public BindingTypeName lookupPojoFor(XmlTypeName xName)
     {
         return (BindingTypeName)javaFromXmlPojo.get(xName);
     }
 
-    public BindingTypeName lookupXmlObjectFor(XmlName xName)
+    public BindingTypeName lookupXmlObjectFor(XmlTypeName xName)
     {
         return (BindingTypeName)javaFromXmlObj.get(xName);
     }
 
-    public BindingTypeName lookupTypeFor(JavaName jName)
+    public BindingTypeName lookupTypeFor(JavaTypeName jName)
     {
         return (BindingTypeName)xmlFromJava.get(jName);
     }
 
-    public BindingTypeName lookupElementFor(JavaName jName)
+    public BindingTypeName lookupElementFor(JavaTypeName jName)
     {
         return (BindingTypeName)xmlFromJavaElement.get(jName);
     }
@@ -101,27 +101,27 @@ public abstract class BaseBindingLoader implements BindingLoader
         bindingTypes.put(bType.getName(), bType);
     }
     
-    protected void addPojoFor(XmlName xName, BindingTypeName btName)
+    protected void addPojoFor(XmlTypeName xName, BindingTypeName btName)
     {
         assert(!btName.getJavaName().isXmlObject());
         javaFromXmlPojo.put(xName, btName);
     }
 
-    protected void addXmlObjectFor(XmlName xName, BindingTypeName btName)
+    protected void addXmlObjectFor(XmlTypeName xName, BindingTypeName btName)
     {
         assert(btName.getJavaName().isXmlObject());
         javaFromXmlObj.put(xName, btName);
     }
 
-    protected void addTypeFor(JavaName jName, BindingTypeName btName)
+    protected void addTypeFor(JavaTypeName jName, BindingTypeName btName)
     {
         assert(btName.getXmlName().isSchemaType());
         xmlFromJava.put(jName, btName);
     }
 
-    protected void addElementFor(JavaName jName, BindingTypeName btName)
+    protected void addElementFor(JavaTypeName jName, BindingTypeName btName)
     {
-        assert(btName.getXmlName().getComponentType() == XmlName.ELEMENT);
+        assert(btName.getXmlName().getComponentType() == XmlTypeName.ELEMENT);
         xmlFromJavaElement.put(jName, btName);
     }
     

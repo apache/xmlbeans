@@ -72,7 +72,7 @@ public class SimpleBindingType extends BindingType
     {
         super(node);
         org.apache.xml.xmlbeans.bindingConfig.SimpleType stNode = (org.apache.xml.xmlbeans.bindingConfig.SimpleType)node;
-        asIfXmlType = XmlName.forString(stNode.getAsXml());
+        asIfXmlType = XmlTypeName.forString(stNode.getAsXml());
     }
 
     protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
@@ -82,15 +82,15 @@ public class SimpleBindingType extends BindingType
         return stNode;
     }
 
-    private XmlName asIfXmlType;
+    private XmlTypeName asIfXmlType;
 
     // typically the "as if" type is the closest base builtin type.
-    public XmlName getAsIfXmlType()
+    public XmlTypeName getAsIfXmlType()
     {
         return asIfXmlType;
     }
 
-    public void setAsIfXmlType(XmlName asIfXmlType)
+    public void setAsIfXmlType(XmlTypeName asIfXmlType)
     {
         this.asIfXmlType = asIfXmlType;
     }

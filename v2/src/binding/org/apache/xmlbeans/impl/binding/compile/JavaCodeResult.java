@@ -53,51 +53,29 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.binding.bts;
 
-/**
- * BindingType for root elements.
- */
-public class SimpleDocumentBinding extends BindingType
+package org.apache.xmlbeans.impl.binding.compile;
+
+import java.util.Collection;
+import java.io.OutputStream;
+import java.io.IOException;
+
+public interface JavaCodeResult
 {
-    private XmlTypeName typeOfElement;
-
-    public SimpleDocumentBinding(BindingTypeName btname)
-    {
-        super(btname);
-    }
-
-    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding node)
-    {
-        super(node);
-        typeOfElement = XmlTypeName.forString(node.getTypeOfElement());
-    }
-
-    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this((org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding)node);
-    }
-
     /**
-     * This function copies an instance back out to the relevant part of the XML file.
-     *
-     * Subclasses should override and call super.write first.
+     * Returns a collection of fully-qualified Java class name strings
      */
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding sdbNode =
-                (org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) super.write(node);
-        sdbNode.setTypeOfElement(typeOfElement.toString());
-        return sdbNode;
-    }
-
-    public XmlTypeName getTypeOfElement()
-    {
-        return typeOfElement;
-    }
-
-    public void setTypeOfElement(XmlTypeName typeOfElement)
-    {
-        this.typeOfElement = typeOfElement;
-    }
+    Collection getToplevelClasses();
+    
+    /**
+     * Prints the .java source code for the given class.
+     * 
+     * Note for internationalization: the system default encoding
+     * should be used for the given OutputStream, since it is conventional
+     * for Java programs to be compiled from files using this encoding.
+     * 
+     * To produce a safely portable source file, a printer should be
+     * careful to use uXXXX escape codes for any non-ascii characters.
+     */ 
+    void printSourceCode(String topLevelClassName, OutputStream output) throws IOException;
 }

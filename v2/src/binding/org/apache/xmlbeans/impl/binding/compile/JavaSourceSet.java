@@ -60,7 +60,7 @@ import org.apache.xmlbeans.impl.jam.JClass;
 
 import java.io.File;
 
-public interface JavaToSchemaInput  // WARNING: this class will be renamed to "JavaSourceSet"
+public interface JavaSourceSet
 {
     /**
      * Returns the JClasses to be processed for binding.

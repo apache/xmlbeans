@@ -53,51 +53,27 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.binding.bts;
 
-/**
- * BindingType for root elements.
- */
-public class SimpleDocumentBinding extends BindingType
+package org.apache.xmlbeans.impl.binding.compile;
+
+import java.util.Collection;
+import java.io.OutputStream;
+import java.io.IOException;
+
+public interface SchemaCodeResult
 {
-    private XmlTypeName typeOfElement;
-
-    public SimpleDocumentBinding(BindingTypeName btname)
-    {
-        super(btname);
-    }
-
-    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding node)
-    {
-        super(node);
-        typeOfElement = XmlTypeName.forString(node.getTypeOfElement());
-    }
-
-    public SimpleDocumentBinding(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        this((org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding)node);
-    }
-
     /**
-     * This function copies an instance back out to the relevant part of the XML file.
-     *
-     * Subclasses should override and call super.write first.
+     * Returns a collection of targetNamespace URIs as Strings.
      */
-    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
-    {
-        org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding sdbNode =
-                (org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding) super.write(node);
-        sdbNode.setTypeOfElement(typeOfElement.toString());
-        return sdbNode;
-    }
-
-    public XmlTypeName getTypeOfElement()
-    {
-        return typeOfElement;
-    }
-
-    public void setTypeOfElement(XmlTypeName typeOfElement)
-    {
-        this.typeOfElement = typeOfElement;
-    }
+    String[] getTargetNamespaces();
+    
+    /**
+     * Prints the .xsd source code for the given target namespace.
+     * 
+     * Note for internationalization: utf-8 is always used for the
+     * given OutputStream.
+     */ 
+    void printSchema(String targetNamespace, OutputStream output) throws IOException;
+    
+    // consider: maybe returning generated schemas in some other form?
 }

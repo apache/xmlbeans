@@ -75,15 +75,15 @@ public class BuiltinBindingLoader extends BaseBindingLoader
     
     private void addMapping(String xmlType, String javaName, boolean fromJavaDefault, boolean fromXmlDefault)
     {
-        XmlName xn = XmlName.forTypeNamed(new QName(xsns, xmlType));
-        JavaName jn = JavaName.forString(javaName);
+        XmlTypeName xn = XmlTypeName.forTypeNamed(new QName(xsns, xmlType));
+        JavaTypeName jn = JavaTypeName.forString(javaName);
         BindingTypeName btName = BindingTypeName.forPair(jn, xn);
         BindingType bType = new BuiltinBindingType(btName);
         
         addBindingType(bType);
         if (fromJavaDefault)
         {
-            if (bType.getName().getXmlName().getComponentType() == XmlName.ELEMENT)
+            if (bType.getName().getXmlName().getComponentType() == XmlTypeName.ELEMENT)
                 addElementFor(bType.getName().getJavaName(), bType.getName());
             else
                 addTypeFor(bType.getName().getJavaName(), bType.getName());
@@ -114,7 +114,7 @@ public class BuiltinBindingLoader extends BaseBindingLoader
     
     private void addPojo(String xmlType, String javaName)
     {
-        addMapping(xmlType, javaName, true, false);
+        addMapping(xmlType, javaName, false, false);
     }
 
     private BuiltinBindingLoader()

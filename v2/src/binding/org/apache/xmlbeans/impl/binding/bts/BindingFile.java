@@ -109,32 +109,32 @@ public class BindingFile extends BaseBindingLoader
                 doc.getBindingConfig().getJavaToXml().getMappingArray();
         for (int i = 0; i < mNodes.length; i++)
         {
-            JavaName jName = JavaName.forString(mNodes[i].getJavatype());
-            XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
+            JavaTypeName jName = JavaTypeName.forString(mNodes[i].getJavatype());
+            XmlTypeName xName = XmlTypeName.forString(mNodes[i].getXmlcomponent());
             addTypeFor(jName, BindingTypeName.forPair(jName, xName));
         }
 
         mNodes = doc.getBindingConfig().getJavaToElement().getMappingArray();
         for (int i = 0; i < mNodes.length; i++)
         {
-            JavaName jName = JavaName.forString(mNodes[i].getJavatype());
-            XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
+            JavaTypeName jName = JavaTypeName.forString(mNodes[i].getJavatype());
+            XmlTypeName xName = XmlTypeName.forString(mNodes[i].getXmlcomponent());
             addElementFor(jName, BindingTypeName.forPair(jName, xName));
         }
 
         mNodes = doc.getBindingConfig().getXmlToPojo().getMappingArray();
         for (int i = 0; i < mNodes.length; i++)
         {
-            JavaName jName = JavaName.forString(mNodes[i].getJavatype());
-            XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
+            JavaTypeName jName = JavaTypeName.forString(mNodes[i].getJavatype());
+            XmlTypeName xName = XmlTypeName.forString(mNodes[i].getXmlcomponent());
             addPojoFor(xName, BindingTypeName.forPair(jName, xName));
         }
 
         mNodes = doc.getBindingConfig().getXmlToXmlobj().getMappingArray();
         for (int i = 0; i < mNodes.length; i++)
         {
-            JavaName jName = JavaName.forString(mNodes[i].getJavatype());
-            XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
+            JavaTypeName jName = JavaTypeName.forString(mNodes[i].getJavatype());
+            XmlTypeName xName = XmlTypeName.forString(mNodes[i].getXmlcomponent());
             addXmlObjectFor(xName, BindingTypeName.forPair(jName, xName));
         }
     }
@@ -187,7 +187,7 @@ public class BindingFile extends BaseBindingLoader
         // from-java mappings
         for (Iterator i = typeMappedJavaTypes().iterator(); i.hasNext(); )
         {
-            JavaName jName = (JavaName)i.next();
+            JavaTypeName jName = (JavaTypeName)i.next();
             BindingTypeName pair = lookupTypeFor(jName);
             org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = typetabNode.addNewMapping();
             mNode.setJavatype(jName.toString());
@@ -197,7 +197,7 @@ public class BindingFile extends BaseBindingLoader
         // from-java mappings
         for (Iterator i = elementMappedJavaTypes().iterator(); i.hasNext(); )
         {
-            JavaName jName = (JavaName)i.next();
+            JavaTypeName jName = (JavaTypeName)i.next();
             BindingTypeName pair = lookupElementFor(jName);
             org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = elementtabNode.addNewMapping();
             mNode.setJavatype(jName.toString());
@@ -207,7 +207,7 @@ public class BindingFile extends BaseBindingLoader
         // to-pojo
         for (Iterator i = pojoMappedXmlTypes().iterator(); i.hasNext(); )
         {
-            XmlName xName = (XmlName)i.next();
+            XmlTypeName xName = (XmlTypeName)i.next();
             BindingTypeName pair = lookupPojoFor(xName);
             org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = pojotabNode.addNewMapping();
             mNode.setJavatype(pair.getJavaName().toString());
@@ -217,7 +217,7 @@ public class BindingFile extends BaseBindingLoader
         // to-xmlobj
         for (Iterator i = xmlObjectMappedXmlTypes().iterator(); i.hasNext(); )
         {
-            XmlName xName = (XmlName)i.next();
+            XmlTypeName xName = (XmlTypeName)i.next();
             BindingTypeName pair = lookupXmlObjectFor(xName);
             org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = xotabNode.addNewMapping();
             mNode.setJavatype(pair.getJavaName().toString());
@@ -237,7 +237,7 @@ public class BindingFile extends BaseBindingLoader
         }
         if (fromJavaDefault)
         {
-            if (bType.getName().getXmlName().getComponentType() == XmlName.ELEMENT)
+            if (bType.getName().getXmlName().getComponentType() == XmlTypeName.ELEMENT)
                 addElementFor(bType.getName().getJavaName(), bType.getName());
             else
                 addTypeFor(bType.getName().getJavaName(), bType.getName());

@@ -63,8 +63,8 @@ import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
-import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 
 import javax.xml.namespace.NamespaceContext;
@@ -96,7 +96,7 @@ class MarshallerImpl
                                     NamespaceContext nscontext)
         throws XmlException
     {
-        final JavaName jname = JavaName.forString(obj.getClass().getName());
+        final JavaTypeName jname = JavaTypeName.forString(obj.getClass().getName());
         BindingTypeName root_elem_btype = bindingLoader.lookupElementFor(jname);
         if (root_elem_btype == null) {
             final String msg = "failed to find root " +
@@ -104,8 +104,8 @@ class MarshallerImpl
             throw new XmlRuntimeException(msg);
         }
 
-        final XmlName elem = root_elem_btype.getXmlName();
-        assert elem.getComponentType() == XmlName.ELEMENT;
+        final XmlTypeName elem = root_elem_btype.getXmlName();
+        assert elem.getComponentType() == XmlTypeName.ELEMENT;
         final QName elem_qn = elem.getQName();
 
         //get type for this element/object pair
@@ -185,8 +185,8 @@ class MarshallerImpl
                                                  QName schemaType,
                                                  BindingLoader loader)
     {
-        JavaName jname = JavaName.forString(javaType);
-        XmlName xname = XmlName.forTypeNamed(schemaType);
+        JavaTypeName jname = JavaTypeName.forString(javaType);
+        XmlTypeName xname = XmlTypeName.forTypeNamed(schemaType);
         BindingTypeName btname = BindingTypeName.forPair(jname, xname);
         if (btname == null) {
             final String msg = "failed to find type corresponding to " + btname;

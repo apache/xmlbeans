@@ -60,8 +60,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.JavaName;
-import org.apache.xmlbeans.impl.binding.bts.XmlName;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.marshal.builtin.BooleanLexerPrinter;
 import org.apache.xmlbeans.impl.marshal.builtin.ByteLexerPrinter;
 import org.apache.xmlbeans.impl.marshal.builtin.DoubleLexerPrinter;
@@ -166,8 +166,8 @@ class RuntimeBindingTypeTable
         final BindingLoader bindingLoader = BuiltinBindingLoader.getInstance();
 
         QName xml_type = new QName(XSD_NS, xsdType);
-        JavaName jName = JavaName.forString(javaType);
-        XmlName xName = XmlName.forTypeNamed(xml_type);
+        JavaTypeName jName = JavaTypeName.forString(javaType);
+        XmlTypeName xName = XmlTypeName.forTypeNamed(xml_type);
         BindingType btype = bindingLoader.getBindingType(BindingTypeName.forPair(jName, xName));
         if (btype == null) {
             throw new AssertionError("failed to find builtin for java:" + jName +

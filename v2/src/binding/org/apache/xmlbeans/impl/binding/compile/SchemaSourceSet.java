@@ -56,10 +56,26 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import java.io.IOException;
-import java.io.OutputStream;
+import org.apache.xmlbeans.SchemaTypeSystem;
 
-public interface BindingFileGenerator
+import java.io.File;
+
+public interface SchemaSourceSet // WARNING: this class will be renamed to "SchemaSourceSet"
 {
-    void printBindingFile(OutputStream output) throws IOException;
+    /**
+     * Returns a typesystem that contains all the schema types to be
+     * converted to or bound to Java.
+     */ 
+    SchemaTypeSystem getSchemaTypeSystem();
+    
+    /**
+     * Returns the path used for resolving already-known bindings
+     */
+    TylarLoader getTylarLoader();
+    
+    /**
+     * Compiles just the schema metadata to binaries in the given directory.
+     * Any generated Java or binding code isn't included in this compile. 
+     */
+    void compileSchemaToBinaries(File classesDir);
 }

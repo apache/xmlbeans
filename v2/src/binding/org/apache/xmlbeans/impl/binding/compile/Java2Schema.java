@@ -104,7 +104,7 @@ public class Java2Schema {
   private SchemaDocument mSchemaDocument;
   private SchemaDocument.Schema mSchema;
   //
-  private JavaToSchemaInput mInput;
+  private JavaSourceSet mInput;
   private Collection mErrors = null;
 
   // =========================================================================
@@ -114,9 +114,9 @@ public class Java2Schema {
    * Initializes a Java2Schema instance to perform binding on the given
    * inputs, but does not actually do the binding work.
    */
-  public Java2Schema(JavaToSchemaInput jtsi) {
+  public Java2Schema(JavaSourceSet jtsi) {
     if (jtsi == null) {
-      throw new IllegalArgumentException("null JavaToSchemaInput");
+      throw new IllegalArgumentException("null JavaSourceSet");
     }
     mInput = jtsi;
   }
@@ -140,9 +140,9 @@ public class Java2Schema {
     }
     return new JavaToSchemaResult() {
       public Throwable[] getErrors() { return errors; }
-      public BindingFileGenerator getBindingFileGenerator() { return out; }
-      public SchemaGenerator getSchemaGenerator() { return out; }
-      public JavaToSchemaInput getJavaSourceSet() { return out.getJavaSourceSet(); }
+      public BindingFileResult getBindingFileResult() { return out; }
+      public SchemaCodeResult getSchemaCodeResult() { return out; }
+      public JavaSourceSet getJavaSourceSet() { return out.getJavaSourceSet(); }
     };
   }
 
@@ -207,7 +207,7 @@ public class Java2Schema {
     }
     // create a binding type
     BindingTypeName btname = BindingTypeName.forPair(getJavaName(clazz),
-                                                     XmlName.forTypeNamed(qname));
+                                                     XmlTypeName.forTypeNamed(qname));
     ByNameBean bindType = new ByNameBean(btname);
     mBindingFile.addBindingType(bindType,true,true);
     if (clazz.isPrimitive()) {
@@ -220,7 +220,7 @@ public class Java2Schema {
       QName rootQName = new QName(tns, rootName);
       BindingTypeName docBtName =
               BindingTypeName.forPair(getJavaName(clazz),
-                                      XmlName.forGlobalName(XmlName.ELEMENT, rootQName));
+                                      XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, rootQName));
       SimpleDocumentBinding sdb = new SimpleDocumentBinding(docBtName);
       sdb.setTypeOfElement(btname.getXmlName());
       mBindingFile.addBindingType(sdb,true,true);
@@ -309,10 +309,10 @@ public class Java2Schema {
   // Private utility methods
 
   /**
-   * Returns a JavaName for the given JClass.  Might want to pool these.
+   * Returns a JavaTypeName for the given JClass.  Might want to pool these.
    */
-  private JavaName getJavaName(JClass jc) {
-    return JavaName.forString(jc.getQualifiedName());
+  private JavaTypeName getJavaName(JClass jc) {
+    return JavaTypeName.forString(jc.getQualifiedName());
   }
 
   /**
@@ -340,7 +340,7 @@ public class Java2Schema {
    */
   private QName getBuiltinTypeNameFor(JClass clazz) {
     BindingType bt = mLoader.getBindingType
-            (mLoader.lookupTypeFor(JavaName.forString(clazz.getQualifiedName())));
+            (mLoader.lookupTypeFor(JavaTypeName.forString(clazz.getQualifiedName())));
     if (bt != null) return bt.getName().getXmlName().getQName();
     logError(clazz,"no type found");
     return new QName("ERROR",clazz.getQualifiedName());
@@ -541,7 +541,7 @@ public class Java2Schema {
           mXsElement.setType(getBuiltinTypeNameFor(componentType));
           mBtsProp.setMultiple(true);
           mBtsProp.setCollectionClass //FIXME
-                  (JavaName.forString(componentType.getQualifiedName()+"[]"));
+                  (JavaTypeName.forString(componentType.getQualifiedName()+"[]"));
           mBtsProp.setBindingType(getBindingTypeFor(componentType));
         } else {
           mXsElement.setType(getBuiltinTypeNameFor(propType));

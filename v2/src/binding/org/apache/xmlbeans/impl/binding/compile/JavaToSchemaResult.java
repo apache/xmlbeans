@@ -66,15 +66,11 @@ public interface JavaToSchemaResult
    */
   public Throwable[] getErrors();
 
-  // REVIEW I'm still uncomfortable with the names of these generator types.
-  // A 'result' object should contain 'results', not generators.  The fact
-  // that that is how they are in fact implemented only makes the case
-  // stronger - all of the generation has already occurred by the time
-  // you get an instance of this result object.
+  // REVIEW (dbau) I've changed the generator type names to *Result as suggested
 
-  BindingFileGenerator getBindingFileGenerator();
+  BindingFileResult getBindingFileResult();
 
-  SchemaGenerator getSchemaGenerator();
+  SchemaCodeResult getSchemaCodeResult();
 
-  JavaToSchemaInput getJavaSourceSet();
+  JavaSourceSet getJavaSourceSet();
 }
