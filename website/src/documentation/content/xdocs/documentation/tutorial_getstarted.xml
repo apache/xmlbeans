@@ -8,8 +8,8 @@
         <section>
             <title/>
             <p>This tutorial introduces XMLBeans basics. Through it, you'll get a hands on view of
-                the three technologies that make up version 1 of XMLBeans: strongly-typed access to
-                XML through compiled schema, type-agnostic access to XML through the XML cursor.
+                two of the three technologies that make up version 1 of XMLBeans: strongly-typed access to
+                XML through compiled schema and type-agnostic access to XML through the XML cursor.
                 This tutorial describes what XMLBeans is and introduces a few of the tools that come
                 with an XMLBeans installation.</p>
             <p>To get started, you'll need the following:</p>
@@ -17,6 +17,7 @@
                 <li>JDK 1.4 for version 1 XMLBeans releases. You can download the JDK <jump href="http://java.sun.com/j2se/1.4.2/download.html">here</jump>.</li>
                 <li>An XMLBeans version 1 installation. If you don't have this yet, you'll find
                     installation instructions at <link href="conInstallGuide.html">Installing XMLBeans</link>.</li>
+                <li>An environment set up according to what's described in <link href="conInstallGuide.html">Installing XMLBeans</link>.</li>
                 <li>An editor for writing Java code. This could be a text editor or your favorite
                     Java IDE.</li>
             </ul>
@@ -118,7 +119,7 @@
                     element that has four immediate children: <code>&lt;customer&gt;</code>,
                     <code>&lt;date&gt;</code>, <code>&lt;line-item&gt;</code>, and <code>&lt;shipper&gt;</code> —
                     in that sequence.</li>
-                <li>Each of the four child elements has its own children in a particular structure,
+                <li>Three of the four child elements have their own children in a particular structure,
                     as defined in the schema's respective <code>&lt;complexType&gt;</code> elements.</li>
             </ul>
             <p>Now take a look at an XML document based on this schema. Copy the following XML from
@@ -308,7 +309,12 @@ public abstract int sizeOfLineItemArray()</source>
                 <p>Start out by creating a POUpdater.java file in the
                     <code>tutorials\gettingstarted\src</code> directory. Add the following code to
                     that file:</p>
-                <source>public class POUpdater
+                <source>import java.io.*;
+import java.math.*;
+import org.apache.xmlbeans.*;
+import org.apache.easypo.*;
+
+public class POUpdater
 {
     private static String addLineItem(File purchaseOrder, String itemDescription,
                                       String perUnitOuncesString, 
@@ -362,7 +368,12 @@ newItem.setQuantity(itemQuantity);</source>
                     the schema. </p>
                 <p>Here's a full version of the <code>POUpdater</code> class, with the
                     <code>addLineItem</code> method accessible via a <code>main</code> method.</p>
-                <source>public class POUpdater
+                <source>import java.io.*;
+import java.math.*;
+import org.apache.xmlbeans.*;
+import org.apache.easypo.*;
+
+public class POUpdater
 {
     public static void main(String[] args)
     {
@@ -406,12 +417,12 @@ newItem.setQuantity(itemQuantity);</source>
 }</source>
                 <p>Now, compile the new class with a command such as the following (the line is
                     broken for readability):</p>
-                <source>javac -classpath $XMLBEANS_HOME/lib/xbean.jar:tutorials/gettingstarted/lib/easypo.jar 
-    POUpdater instances/easypo/easypo.xml &quot;a new item&quot; 5.0 20.00 6</source>
+                <source>javac -classpath %XMLBEANS_HOME%\lib\xbean.jar;tutorials\gettingstarted\lib\easypo.jar 
+    -d tutorials\gettingstarted\classes tutorials\gettingstarted\src\POUpdater.java</source>
                 <p>After you compile, you can try out the class with the following command (again,
                     broken for readability):</p>
-                <source>java -cp tutorials/gettingstarted/classes:$XMLBEANS_HOME/lib/xbean.jar:tutorials/gettingstarted/lib/easypo.jar 
-    POUpdater tutorials/gettingstarted/instances/easypo.xml &quot;a new item&quot; 5.0 20.00 6</source>
+                <source>java -cp tutorials\gettingstarted\classes;%XMLBEANS_HOME%\lib\xbean.jar;tutorials\gettingstarted\lib\easypo.jar 
+    POUpdater tutorials\gettingstarted\instances\easypo.xml &quot;a new item&quot; 5.0 20.00 6</source>
                 <p>The output should look like the instance output above, but with the following
                     added as the last <code>&lt;line-item&gt;</code> element, immediately
                     before the <code>&lt;shipper&gt;</code> element. </p>
@@ -638,6 +649,9 @@ cursor.beginElement(&quot;per-unit-ounces&quot;, namespaceUri);
         args[3], args[4]);
     System.out.println(updatedPoXml);
 } </source>
+                <p>Finally, before compiling, you'll need to add two more import statements to support the alphabetization code:</p>
+                <source>import java.text.*;
+import java.util.*;</source>
                 <p>Test the <code>POUpdater</code> class just as you did before. This time, you
                     should see the new <code>&lt;line-item&gt;</code> element added as the
                     first in the set, rather than at the end.</p>

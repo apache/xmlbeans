@@ -79,7 +79,6 @@ See http://xml.apache.org/forrest/linking.html for more info
             <userdoc label="Tutorial: First Steps"
                 href="documentation/tutorial_getstarted.html" description="Write some XMLBeans code."/>
             <userdoc label="V1 Javadoc" href="docs/reference/index.html" description="Look over references."/>
-            <userdoc label="V1 Javadoc" href="docs/reference/index.html" description="Look over references."/>
             <userdoc label="V2 Javadoc" href="docs/v2/reference/index.html" description="Look over references."/>
             <sample label="Samples" href="samples/index.html" description="See a list of samples for download."/>
             <explanation label="An Explanation"
