@@ -872,7 +872,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
             {
                 // Substitution groups
                 SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
-                SchemaGlobalElement head = elt.substitutionGroup();
+                SchemaGlobalElement head = elt == null ? null : elt.substitutionGroup();
                 if (head == null)
                     return BuiltinSchemaTypeSystem.ST_NO_TYPE;
                 prop = (SchemaProperty)_propertyModelByElementName.get(head.getName());
