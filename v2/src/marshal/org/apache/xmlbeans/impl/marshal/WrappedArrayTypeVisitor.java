@@ -106,8 +106,7 @@ public class WrappedArrayTypeVisitor extends NamedXmlTypeVisitor
         do {
             currIndex++;
             if (currIndex == arrayLength) return END;
-        }
-        while (!currentItemHasValue());
+        } while (!currentItemHasValue());
 
 
         assert currIndex >= 0;
@@ -137,9 +136,7 @@ public class WrappedArrayTypeVisitor extends NamedXmlTypeVisitor
     {
         final Object value = getCurrentValue();
         //TODO: avoid excessive object creation
-        return MarshalResult.createVisitor(type.getElementProperty(),
-                                           value,
-                                           marshalResult);
+        return marshalResult.createVisitor(type.getElementProperty(), value);
     }
 
     protected int getAttributeCount()

@@ -69,8 +69,7 @@ final class ByNameTypeVisitor
         do {
             boolean hit_end = advanceToNextItem();
             if (hit_end) return END;
-        }
-        while (!currentPropHasMore());
+        } while (!currentPropHasMore());
 
         assert elemPropIdx >= 0;
 
@@ -145,14 +144,13 @@ final class ByNameTypeVisitor
         final RuntimeBindingProperty property = getCurrentElementProperty();
 
         if (haveMultipleItem) {
-            return MarshalResult.createVisitor(property, currMultipleItem,
-                                               marshalResult);
+            return marshalResult.createVisitor(property, currMultipleItem);
         } else {
             Object prop_obj = property.getValue(getParentObject(), marshalResult);
             if (prop_obj instanceof Collection) {
                 throw new AssertionError("not good: " + prop_obj);
             }
-            return MarshalResult.createVisitor(property, prop_obj, marshalResult);
+            return marshalResult.createVisitor(property, prop_obj);
         }
     }
 

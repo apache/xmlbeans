@@ -19,13 +19,15 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeVisitor;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
-import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
+import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
 
@@ -89,31 +91,20 @@ final class RuntimeBindingTypeTable
         throws XmlException
     {
         final TypeUnmarshaller type_um;
-        //TODO: cleanup this nasty instanceof stuff (Visitor?)
 
-        if (type instanceof SimpleBindingType) {
-            //note this could return a static for builtin types
-            type_um = createSimpleTypeUnmarshaller((SimpleBindingType)type,
-                                                   loader, this);
-        } else if (type instanceof ByNameBean) {
-            //NOTE that in the case of cyclical types, it is possible
-            //to have "dangling" TypeUnmarshal objects that are not in the map.
-            //But this is of no concern as they are immutable and will share
-            //the same RuntimeBindingType object
-            ByNameRuntimeBindingType runtimeType =
-                (ByNameRuntimeBindingType)runtimeTypeFactory.createRuntimeType(type, this, loader);
-            type_um = new ByNameUnmarshaller(runtimeType);
-        } else if (type instanceof WrappedArrayType) {
-            WrappedArrayType wat = (WrappedArrayType)type;
-            WrappedArrayRuntimeBindingType runtimeType =
-                (WrappedArrayRuntimeBindingType)runtimeTypeFactory.createRuntimeType(type, this, loader);
-            type_um = new WrappedArrayUnmarshaller(runtimeType);
-        } else {
-            throw new AssertionError("UNIMPLEMENTED TYPE: " + type);
-        }
+        type_um = createTypeUnmarshallerInternal(type, loader);
+
         putTypeUnmarshaller(type, type_um);
         type_um.initialize(this, loader);
         return type_um;
+    }
+
+    private TypeUnmarshaller createTypeUnmarshallerInternal(BindingType type, BindingLoader loader) throws XmlException
+    {
+        TypeVisitor type_visitor =
+            new TypeVisitor(this, loader, runtimeTypeFactory);
+        type.accept(type_visitor);
+        return type_visitor.getUnmarshaller();
     }
 
 
@@ -406,10 +397,81 @@ final class RuntimeBindingTypeTable
             if (asif_name == null)
                 throw new XmlException("no asif for " + stype);
 
+            //TODO: consider inserting non null return values into our map
             return lookupMarshaller(asif_name, loader);
         }
 
         return null;
+    }
+
+
+    private static final class TypeVisitor
+        implements BindingTypeVisitor
+    {
+        private final BindingLoader loader;
+        private final RuntimeTypeFactory runtimeTypeFactory;
+        private final RuntimeBindingTypeTable runtimeBindingTypeTable;
+
+        private TypeUnmarshaller typeUnmarshaller;
+
+        public TypeVisitor(RuntimeBindingTypeTable runtimeBindingTypeTable,
+                           BindingLoader loader,
+                           RuntimeTypeFactory runtimeTypeFactory)
+        {
+            this.runtimeBindingTypeTable = runtimeBindingTypeTable;
+            this.loader = loader;
+            this.runtimeTypeFactory = runtimeTypeFactory;
+        }
+
+        public void visit(BuiltinBindingType builtinBindingType)
+            throws XmlException
+        {
+            throw new AssertionError("internal error: no builtin unmarshaller for " +
+                                     builtinBindingType);
+        }
+
+        public void visit(ByNameBean byNameBean)
+            throws XmlException
+        {
+            ByNameRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(byNameBean,
+                                                     runtimeBindingTypeTable,
+                                                     loader);
+
+            typeUnmarshaller = new ByNameUnmarshaller(rtt);
+        }
+
+        public void visit(SimpleBindingType simpleBindingType)
+            throws XmlException
+        {
+            typeUnmarshaller =
+                createSimpleTypeUnmarshaller(simpleBindingType, loader,
+                                             runtimeBindingTypeTable);
+        }
+
+        public void visit(SimpleDocumentBinding simpleDocumentBinding)
+            throws XmlException
+        {
+            throw new AssertionError("type not allowed here" +
+                                     simpleDocumentBinding);
+        }
+
+        public void visit(WrappedArrayType wrappedArrayType)
+            throws XmlException
+        {
+            WrappedArrayRuntimeBindingType rtt =
+                runtimeTypeFactory.createRuntimeType(wrappedArrayType,
+                                                     runtimeBindingTypeTable,
+                                                     loader);
+            typeUnmarshaller = new WrappedArrayUnmarshaller(rtt);
+        }
+
+        public TypeUnmarshaller getUnmarshaller()
+        {
+            assert typeUnmarshaller != null;
+            return typeUnmarshaller;
+        }
+
     }
 
 }

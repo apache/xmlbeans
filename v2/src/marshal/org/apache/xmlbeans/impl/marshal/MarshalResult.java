@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
@@ -50,6 +51,8 @@ final class MarshalResult implements XMLStreamReader
     private final RuntimeBindingTypeTable typeTable;
 
     //state fields
+    private final BindingTypeVisitor bindingTypeVisitor =
+        new BindingTypeVisitor(this);
     private final Collection errors;
     private final ScopedNamespaceContext namespaceContext;
     private final Stack visitorStack = new Stack();
@@ -80,35 +83,21 @@ final class MarshalResult implements XMLStreamReader
         typeTable = tbl;
         namespaceContext = new ScopedNamespaceContext(root_nsctx);
         namespaceContext.openScope();
-
         errors = BindingContextImpl.extractErrorHandler(options);
-
-        //TODO: REVIEW: passing this from a ctor can be touble
-        currVisitor = createVisitor(property, obj, this);
-
+        currVisitor = createVisitor(property, obj);
     }
 
-    protected static XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
-                                                  Object obj,
-                                                  MarshalResult result)
+    protected XmlTypeVisitor createVisitor(RuntimeBindingProperty property,
+                                           Object obj)
         throws XmlException
     {
         assert property != null;
 
         BindingType btype = property.getRuntimeBindingType().getBindingType();
-
-        //TODO: cleanup instanceof -- Visitor?
-        if (btype instanceof ByNameBean) {
-            return new ByNameTypeVisitor(property, obj, result);
-        } else if (btype instanceof SimpleBindingType) {
-            return new SimpleTypeVisitor(property, obj, result);
-        } else if (btype instanceof BuiltinBindingType) {
-            return new SimpleTypeVisitor(property, obj, result);
-        } else if (btype instanceof WrappedArrayType) {
-            return new WrappedArrayTypeVisitor(property, obj, result);
-        }
-
-        throw new AssertionError("UNIMP TYPE: " + btype);
+        bindingTypeVisitor.setParentObject(obj);
+        bindingTypeVisitor.setRuntimeBindingProperty(property);
+        btype.accept(bindingTypeVisitor);
+        return bindingTypeVisitor.getXmlTypeVisitor();
     }
 
     public Object getProperty(String s)
@@ -165,7 +154,6 @@ final class MarshalResult implements XMLStreamReader
     }
 
 
-
     RuntimeBindingType createRuntimeBindingType(BindingType type, Object instance)
         throws XmlException
     {
@@ -185,7 +173,6 @@ final class MarshalResult implements XMLStreamReader
         }
         return runtimeTypeFactory.createRuntimeType(type, typeTable, bindingLoader);
     }
-
 
 
     RuntimeBindingType createRuntimeBindingType(BindingType type)
@@ -404,47 +391,47 @@ final class MarshalResult implements XMLStreamReader
 
         final int len = seq.length();
         char[] val = new char[len];
-        for(int i = 0 ; i < len ; i++) {
+        for (int i = 0; i < len; i++) {
             val[i] = seq.charAt(i);
         }
         return val;
     }
 
 
-      public int getTextCharacters(int sourceStart,
-                                   char[] target,
-                                   int targetStart,
-                                   int length)
-          throws XMLStreamException
-      {
-          if (length < 0)
-              throw new IndexOutOfBoundsException("negative length: " + length);
+    public int getTextCharacters(int sourceStart,
+                                 char[] target,
+                                 int targetStart,
+                                 int length)
+        throws XMLStreamException
+    {
+        if (length < 0)
+            throw new IndexOutOfBoundsException("negative length: " + length);
 
-          if (targetStart < 0)
-              throw new IndexOutOfBoundsException("negative targetStart: " + targetStart);
+        if (targetStart < 0)
+            throw new IndexOutOfBoundsException("negative targetStart: " + targetStart);
 
-          final int target_length = target.length;
-          if (targetStart >= target_length)
-              throw new IndexOutOfBoundsException("targetStart(" + targetStart + ") past end of target(" + target_length + ")");
+        final int target_length = target.length;
+        if (targetStart >= target_length)
+            throw new IndexOutOfBoundsException("targetStart(" + targetStart + ") past end of target(" + target_length + ")");
 
-          if ((targetStart + length) > target_length) {
-              throw new IndexOutOfBoundsException("insufficient data in target(length is " + target_length + ")");
-          }
+        if ((targetStart + length) > target_length) {
+            throw new IndexOutOfBoundsException("insufficient data in target(length is " + target_length + ")");
+        }
 
-          CharSequence seq = currVisitor.getCharData();
-          if (seq instanceof String) {
-              final String s = seq.toString();
-              s.getChars(sourceStart, sourceStart + length, target, targetStart);
-              return length;
-          }
+        CharSequence seq = currVisitor.getCharData();
+        if (seq instanceof String) {
+            final String s = seq.toString();
+            s.getChars(sourceStart, sourceStart + length, target, targetStart);
+            return length;
+        }
 
-          //TODO: review this code
-          int cnt = 0;
-          for (int src_idx = sourceStart, dest_idx = targetStart; cnt < length; cnt++) {
-              target[dest_idx++] = seq.charAt(src_idx++);
-          }
-          return cnt;
-      }
+        //TODO: review this code
+        int cnt = 0;
+        for (int src_idx = sourceStart, dest_idx = targetStart; cnt < length; cnt++) {
+            target[dest_idx++] = seq.charAt(src_idx++);
+        }
+        return cnt;
+    }
 
     public int getTextStart()
     {
@@ -604,7 +591,7 @@ final class MarshalResult implements XMLStreamReader
     {
         if (property_value == null)
             return expected_type;
-        
+
         if (expected_type.isJavaPrimitive())
             return expected_type;
 
@@ -627,6 +614,76 @@ final class MarshalResult implements XMLStreamReader
     void setCurrIndex(int currIndex)
     {
         this.currIndex = currIndex;
+    }
+
+    private static final class BindingTypeVisitor
+        implements org.apache.xmlbeans.impl.binding.bts.BindingTypeVisitor
+    {
+        private final MarshalResult marshalResult;
+
+        private Object parentObject;
+        private RuntimeBindingProperty runtimeBindingProperty;
+
+        private XmlTypeVisitor xmlTypeVisitor;
+
+        public BindingTypeVisitor(MarshalResult marshalResult)
+        {
+            this.marshalResult = marshalResult;
+        }
+
+        public void setParentObject(Object parentObject)
+        {
+            this.parentObject = parentObject;
+        }
+
+        public void setRuntimeBindingProperty(RuntimeBindingProperty runtimeBindingProperty)
+        {
+            this.runtimeBindingProperty = runtimeBindingProperty;
+        }
+
+        public XmlTypeVisitor getXmlTypeVisitor()
+        {
+            return xmlTypeVisitor;
+        }
+
+        public void visit(BuiltinBindingType builtinBindingType)
+            throws XmlException
+        {
+            xmlTypeVisitor = new SimpleTypeVisitor(runtimeBindingProperty,
+                                                   parentObject,
+                                                   marshalResult);
+        }
+
+        public void visit(ByNameBean byNameBean)
+            throws XmlException
+        {
+            xmlTypeVisitor = new ByNameTypeVisitor(runtimeBindingProperty,
+                                                   parentObject,
+                                                   marshalResult);
+        }
+
+        public void visit(SimpleBindingType simpleBindingType)
+            throws XmlException
+        {
+            xmlTypeVisitor = new SimpleTypeVisitor(runtimeBindingProperty,
+                                                   parentObject,
+                                                   marshalResult);
+        }
+
+        public void visit(SimpleDocumentBinding simpleDocumentBinding)
+            throws XmlException
+        {
+            throw new AssertionError("unexpected type: " + simpleDocumentBinding);
+        }
+
+        public void visit(WrappedArrayType wrappedArrayType)
+            throws XmlException
+        {
+            xmlTypeVisitor = new WrappedArrayTypeVisitor(runtimeBindingProperty,
+                                                         parentObject,
+                                                         marshalResult);
+        }
+
     }
 
 }

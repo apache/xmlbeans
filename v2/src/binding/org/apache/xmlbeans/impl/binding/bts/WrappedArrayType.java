@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.binding.bts;
 
+import org.apache.xmlbeans.XmlException;
+
 import javax.xml.namespace.QName;
 
 /**
@@ -74,6 +76,11 @@ public class WrappedArrayType extends BindingType
         wa.setNillable(nillable);
         
         return wa;
+    }
+
+    public void accept(BindingTypeVisitor visitor) throws XmlException
+    {
+        visitor.visit(this);
     }
 
 

@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.common.XmlWhitespace;
+import org.apache.xmlbeans.XmlException;
 
 /**
  * A binding of a simple user-defined type that operates by
@@ -86,7 +87,12 @@ public class SimpleBindingType extends BindingType {
     return stNode;
   }
 
-  // ========================================================================
+    public void accept(BindingTypeVisitor visitor) throws XmlException
+    {
+        visitor.visit(this);
+    }
+
+    // ========================================================================
   // Public methods
 
   // typically the "as if" type is the closest base builtin type.

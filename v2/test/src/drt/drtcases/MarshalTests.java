@@ -583,10 +583,10 @@ public class MarshalTests extends TestCase
         //crank up these numbers to see real perf testing
         //the test still has some value aside from perf
         //in that it can test large stack depths.
-        final int trials = 50;
-        final int depth = 3;
-        final int thread_cnt = 5;
-        final int boolean_array_size = 3;
+        final int trials = getTrials(30);
+        final int depth = 12;
+        final int thread_cnt = 3;
+        final int boolean_array_size = 30;
 
         Random rnd = new Random();
 
@@ -659,6 +659,17 @@ public class MarshalTests extends TestCase
                " threads=" + thread_cnt);
         inform("milliseconds PER trial: " + (diff / (double)trials));
         inform("milliseconds PER roundtrip: " + (diff / ((double)trials * thread_cnt)));
+    }
+
+    private static int getTrials(int default_val)
+    {
+        String prop = "drtcases.MarshalTests.trials";
+        String val = System.getProperty(prop);
+        if (val == null) return default_val;
+
+        int t = Integer.parseInt(val);
+        assert t > 0;
+        return t;
     }
 
     private static Object doRoundTrip(MyClass top_obj,
