@@ -56,13 +56,20 @@
 package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.bts.*;
+import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylar;
+import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
+import org.apache.xmlbeans.impl.binding.tylar.ExplodedTylarImpl;
+import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.tools.ant.BuildException;
 import org.w3.x2001.xmlSchema.*;
-
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Collection;
+import java.util.logging.Level;
+import java.io.File;
+import java.io.IOException;
+
 
 /**
  * Takes a set of Java source inputs and generates a set of XML schemas to
@@ -95,6 +102,8 @@ public class Java2Schema {
   private static final String TAG_AT               = "xsdgen:attribute";
   private static final String TAG_AT_NAME          = TAG_AT+".name";
 
+  //for debugging only
+  private static final boolean IGNORE_SEVERE_ERRORS = true;
 
   // =========================================================================
   // Variables
@@ -103,43 +112,64 @@ public class Java2Schema {
   private BindingLoader mLoader;
   private SchemaDocument mSchemaDocument;
   private SchemaDocument.Schema mSchema;
-  //
   private JavaSourceSet mInput;
-  private Collection mErrors = null;
+  private BindingLogger mLogger = null;
+  private boolean mAnySevereErrors = false;
 
   // =========================================================================
   // Constructors
 
   /**
    * Initializes a Java2Schema instance to perform binding on the given
-   * inputs, but does not actually do the binding work.
+   * inputs, but does not actually do any binding work.
    */
-  public Java2Schema(JavaSourceSet jtsi) {
-    if (jtsi == null) {
-      throw new IllegalArgumentException("null JavaSourceSet");
-    }
+  public Java2Schema(JavaSourceSet jtsi, BindingLogger logger) {
+    if (jtsi == null) throw new IllegalArgumentException("null jtsi");
+    if (logger == null) throw new IllegalArgumentException("null logger");
     mInput = jtsi;
+    mLogger = logger;
   }
 
   // =========================================================================
   // Public methods
 
   /**
-   * Does the binding work on the inputs passed to the constructor and returns
-   * the result.
+   * Performs the binding and returns an exploded tylar in the specified
+   * directory.  Returns null if any severe errors were encountered.
    */
-  public Java2SchemaResult bind() {
-    return bind(mInput.getJClasses());
+  public ExplodedTylar bindAsExplodedTylar(File tylarDestDir) {
+    Java2SchemaResult result = bind();
+    if (result == null) return null;
+    ExplodedTylarImpl tylar = new ExplodedTylarImpl(tylarDestDir);
+    if (!tylarDestDir.exists()) {
+      if (!tylarDestDir.mkdirs()) {
+        logError("failed to create "+tylarDestDir);
+        return null;
+      }
+    }
+    buildTylar(result,(TylarWriter)tylar);
+    return mAnySevereErrors && !IGNORE_SEVERE_ERRORS ? null : tylar;
   }
 
-  // ========================================================================
-  // Private methods
+  /**
+   * Performs the binding and returns a tylar in the specified jar file.
+   * Returns null if any severe errors were encountered.
+   */
+  public Tylar bindAsJarredTylar(File tylarJar) {
+    throw new RuntimeException("NYI");
+  }
 
   /**
-   * Runs through all of the given classes and creates both schema types
-   * and bts bindings for them in the given result object.
+   * Does the binding work on the inputs passed to the constructor and returns
+   * the raw result object.  Returns null if any severe errors were
+   * encountered.
+   *
+   * Although this method is public, it should only be used if you know what
+   * you're doing - you're probably better off using one of the other 'bind'
+   * methods which return tylars.
    */
-  private Java2SchemaResult bind(JClass[] classes) {
+  public Java2SchemaResult bind() {
+    JClass[] classes = mInput.getJClasses();
     mBindingFile = new BindingFile();
     mLoader = PathBindingLoader.forPath
             (new BindingLoader[] {mBindingFile,
@@ -152,22 +182,33 @@ public class Java2Schema {
       mSchema.setTargetNamespace(getTargetNamespace(classes[0]));
     }
     for(int i=0; i<classes.length; i++) getBindingTypeFor(classes[i]);
-    //collect the errors
-    final Throwable[] errors;
-    if (mErrors == null) {
-      errors = new Throwable[0];
-    } else {
-      errors = new Throwable[mErrors.size()];
-      mErrors.toArray(errors);
-    }
+    if (mAnySevereErrors && !IGNORE_SEVERE_ERRORS) return null;
     //build the result object
     final BindingFile bf = mBindingFile;
     final SchemaDocument[] schemas = {mSchemaDocument};
     return new Java2SchemaResult() {
-      public Throwable[] getErrors() { return errors; }
       public BindingFile getBindingFile() { return bf; }
       public SchemaDocument[] getSchemas() { return schemas; }
     };
+  }
+
+
+  // ========================================================================
+  // Private methods
+
+  /**
+   * Feeds a tylar builder with the given compilation results.
+   */
+  private void buildTylar(Java2SchemaResult result, TylarWriter builder) {
+    try {
+      builder.writeBindingFile(result.getBindingFile());
+      SchemaDocument[] xsds = result.getSchemas();
+      for(int i=0; i<xsds.length; i++) {
+        builder.writeSchema(xsds[i],"schema-"+i+".xsd");//FIXME dumb naming
+      }
+    } catch(IOException ioe) {
+      logError(ioe);
+    }
   }
 
   /**
@@ -343,7 +384,7 @@ public class Java2Schema {
     BindingType bt = mLoader.getBindingType
             (mLoader.lookupTypeFor(JavaTypeName.forString(clazz.getQualifiedName())));
     if (bt != null) return bt.getName().getXmlName().getQName();
-    logError(clazz,"no type found");
+    logError(clazz,"no builtin type found");
     return new QName("ERROR",clazz.getQualifiedName());
   }
 
@@ -374,23 +415,41 @@ public class Java2Schema {
    * Logs a message that fatal error that occurred while performing binding
    * on the given java construct.  The binding process should attempt
    * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.  FIXME We need a formal
-   * build-time logging interface.
+   * as many errors as possible in a single pass.
    */
   private void logError(JElement context, Throwable error) {
-    if (mErrors == null) mErrors = new ArrayList();
-    mErrors.add(error);
+    mAnySevereErrors = true;
+    mLogger.log(Level.SEVERE,null,error,context);
   }
 
   /**
    * Logs a message that fatal error that occurred while performing binding
    * on the given java construct.  The binding process should attempt
    * to continue even after such errors are encountered so as to identify
-   * as many errors as possible in a single pass.  FIXME We need a formal
-   * build-time logging interface.
+   * as many errors as possible in a single pass.
    */
   private void logError(JElement context, String msg) {
-    logError(context, new RuntimeException(msg)); //FIXME
+    mAnySevereErrors = true;
+    mLogger.log(Level.SEVERE,msg,null,context);
+  }
+
+  /**
+   * Logs a message that fatal error that occurred while performing binding
+   * on the given java construct.  The binding process should attempt
+   * to continue even after such errors are encountered so as to identify
+   * as many errors as possible in a single pass.
+   */
+  private void logError(String msg) {
+    mAnySevereErrors = true;
+    mLogger.log(Level.SEVERE,msg,null);
+  }
+
+  /**
+   * Logs a message that fatal error that occurred.
+   */
+  private void logError(Throwable t) {
+    mAnySevereErrors = true;
+    mLogger.log(Level.SEVERE,null,t);
   }
 
   /**
@@ -398,7 +457,7 @@ public class Java2Schema {
    * mode.
    */
   private void logVerbose(JElement context, String msg) {
-    //FIXME
+    mLogger.log(Level.FINEST,msg,null,context);
   }
 
   /*

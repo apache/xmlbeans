@@ -83,10 +83,6 @@ public class FileWriterFactory implements WriterFactory {
 
   public FileWriterFactory(File sourceRoot) {
     if (sourceRoot == null) throw new IllegalArgumentException();
-    if (!sourceRoot.mkdirs()) {
-      throw new IllegalArgumentException("Failed to create directory " +
-                                         sourceRoot);
-    }
     mSourceRoot = sourceRoot;
   }
 
@@ -97,8 +93,10 @@ public class FileWriterFactory implements WriterFactory {
           throws IOException {
     File dir = new File(mSourceRoot, packageName.replace
                                      (PACKAGE_SEPARATOR, File.separatorChar));
-    if (!dir.mkdirs()) {
-      throw new IllegalArgumentException("Failed to create directory " + dir);
+    if (!dir.exists()) {
+      if (!dir.mkdirs()) {
+        throw new IOException("Failed to create directory " + dir);
+      }
     }
     File outFile = new File(dir, className + EXTENSION);
     return new FileWriter(outFile);

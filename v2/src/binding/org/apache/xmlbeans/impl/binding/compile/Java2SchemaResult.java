@@ -66,13 +66,6 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 public interface Java2SchemaResult
 {
   /**
-   * Returns an array containing the set of fatal errors that were encountered
-   * during the binding process.  Returns an empty array if no fatal errors
-   * were encounted.
-   */
-  public Throwable[] getErrors();
-
-  /**
    * Returns the BindingFile object that was produced by Java2Schema.  May
    * return null if catastrophic errors were encountered.
    */
