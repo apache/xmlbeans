@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import org.apache.xmlbeans.impl.jam.JComment;
 import org.apache.xmlbeans.impl.jam.JSourcePosition;
 
@@ -64,8 +65,8 @@ import org.apache.xmlbeans.impl.jam.JSourcePosition;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-
-/*package*/ final class JDComment implements JComment {
+public class JDComment implements JComment
+{
   // ========================================================================
   // Variables
 
@@ -74,7 +75,7 @@ import org.apache.xmlbeans.impl.jam.JSourcePosition;
 
   // ========================================================================
   // Constructors
-
+  
   public JDComment(String text) {
     mText = text;
   }

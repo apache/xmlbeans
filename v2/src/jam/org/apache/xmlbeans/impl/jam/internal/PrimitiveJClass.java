@@ -56,10 +56,9 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-
 import java.util.HashMap;
 import java.util.Map;
+import org.apache.xmlbeans.impl.jam.JClass;
 
 /**
  * JClass impl for primitive type singletons.

@@ -56,22 +56,22 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import com.sun.javadoc.ParamTag;
 import com.sun.javadoc.Parameter;
-import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.internal.BaseJElement;
 
 /**
  * Javadoc-backed implementation of JParameter.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/ final class JDParameter extends BaseJElement
-        implements JParameter {
+public class JDParameter extends BaseJElement implements JParameter 
+{
 
   // ========================================================================
   // Variables
@@ -82,10 +82,10 @@ import java.util.List;
 
   // ========================================================================
   // Constructors
-
-  public JDParameter(Parameter p,
-                     JDExecutableMember parent,
-                     JClassLoader loader) {
+  
+  public JDParameter(Parameter p, 
+		     JDExecutableMember parent, 
+		     JClassLoader loader) {
     mParameter = p;
     mParent = parent;
     mLoader = loader;
@@ -94,49 +94,46 @@ import java.util.List;
   // ========================================================================
   // JElement implementation
 
-  public JElement getParent() {
-    return mParent;
-  }
+  public JElement getParent() { return mParent; }
 
-  public JElement[] getChildren() {
-    return null;
-  }
-
-  public String getSimpleName() {
+  public JElement[] getChildren() { return null; }
+  
+  public String getSimpleName() { 
     return mParameter.name();
   }
 
-  public String getQualifiedName() {
-    return mParameter.name();
+  public String getQualifiedName() { 
+    return mParameter.name(); 
   }
 
-  public JSourcePosition getSourcePosition() {
+  public JSourcePosition getSourcePosition() { 
     return mParent.getSourcePosition(); //close enough
   }
 
   // ========================================================================
   // BaseJElement implementation
 
-  protected void getLocalAnnotations(Collection out) {
+  protected void getLocalAnnotations(Collection out) { 
     ParamTag[] tags = mParent.getMember().paramTags();
     if (tags == null || tags.length == 0) return;
-    tags = getParamTagsFor(tags, mParameter);
+    tags = getParamTagsFor(tags,mParameter);
     if (tags == null || tags.length == 0) return;
-    for (int i = 0; i < tags.length; i++) {
-      out.add(new JDAnnotation(this, tags[i]));
+    for(int i=0; i<tags.length; i++) {
+      ParamTag t = tags[i];
+      JSourcePosition sp = JDFactory.getInstance().createSourcePosition(t.position());
+      out.add(JDFactory.getInstance().createAnnotation(this, t.name(), t.parameterComment(), sp));
     }
   }
 
   // javadoc doesn't recognize @param comments, unfortunately.  FIXME
   // we could be clever and figure them out ourselves, i suppose.
-  protected void getLocalComments(Collection out) {
-  }
+  protected void getLocalComments(Collection out) {}
 
   // ========================================================================
   // JParameter implementation
 
   public JClass getType() {
-    return JDClassLoader.getClassSafely(mParameter.type(), mLoader);
+    return JDClassLoader.getClassFor(mParameter.type(),mLoader);
   }
 
   // ========================================================================
@@ -148,10 +145,10 @@ import java.util.List;
    */
   private ParamTag[] getParamTagsFor(ParamTag[] all, Parameter p) {
     List list = null;
-    for (int i = 0; i < all.length; i++) {
+    for(int i=0; i<all.length; i++) {
       if (all[i].parameterName().equals(p.name())) {
-        if (list == null) list = new ArrayList();
-        list.add(all[i]);
+	if (list == null) list = new ArrayList();
+	list.add(all[i]);
       }
     }
     if (list == null) return null;
@@ -161,5 +158,3 @@ import java.util.List;
   }
 
 }
-
-

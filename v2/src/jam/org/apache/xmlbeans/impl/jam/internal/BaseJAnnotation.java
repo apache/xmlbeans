@@ -56,12 +56,11 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
+import java.util.Collection;
+import java.util.StringTokenizer;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JElement;
 import org.apache.xmlbeans.impl.jam.JSourcePosition;
-
-import java.util.Collection;
-import java.util.StringTokenizer;
 
 /**
  * Javadoc-backed implementation of org.apache.xmlbeans.impl.jam.Annotation

@@ -56,18 +56,18 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import com.sun.javadoc.SourcePosition;
+import java.net.URI;
 import org.apache.xmlbeans.impl.jam.JSourcePosition;
 
-import java.net.URI;
-
 /**
- * <p>Javadoc-backed implementation of JSourcePosition.</p>
+ * Javadoc-backed implementation of JSourcePosition.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/ final class JDSourcePosition implements JSourcePosition {
-
+public class JDSourcePosition implements JSourcePosition
+{
   // ========================================================================
   // Variables
 
@@ -75,7 +75,7 @@ import java.net.URI;
 
   // ========================================================================
   // Constructors
-
+  
   public JDSourcePosition(SourcePosition p) {
     if (p == null) throw new IllegalArgumentException("null position");
     mPosition = p;
@@ -84,15 +84,9 @@ import java.net.URI;
   // ========================================================================
   // JSourcePosition implementation
 
-  public int getColumn() {
-    return mPosition.column();
-  }
+  public int getColumn() { return mPosition.column(); } 
 
-  public int getLine() {
-    return mPosition.line();
-  }
+  public int getLine() { return mPosition.line(); } 
 
-  public URI getSourceURI() {
-    return mPosition.file().toURI();
-  }
+  public URI getSourceURI() { return mPosition.file().toURI(); } 
 }

@@ -53,21 +53,16 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
 import com.sun.javadoc.Doclet;
 import com.sun.javadoc.RootDoc;
-import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JFileSet;
-import org.apache.xmlbeans.impl.jam.internal.JFileSetImpl;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
+import org.apache.xmlbeans.impl.jam.JAnnotationLoader;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JFileSet;
 
 /**
  * <p>This class does its best to encapsulate and make threadsafe the
@@ -75,15 +70,15 @@ import java.lang.reflect.InvocationTargetException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public final class JDClassLoaderFactory extends Doclet {
+public class JDClassLoaderFactory extends Doclet {
 
   // ========================================================================
   // Singleton
 
   private static final JDClassLoaderFactory INSTANCE =
-    new JDClassLoaderFactory();
+    JDFactory.getInstance().createClassLoaderFactory();
 
-  private JDClassLoaderFactory() {}
+  /* package */ JDClassLoaderFactory() {}
 
   public static final JDClassLoaderFactory getInstance() { return INSTANCE; }
 
@@ -143,7 +138,7 @@ public final class JDClassLoaderFactory extends Doclet {
                                  ", root="+root+":\n"+
                                  spew.toString());
     }
-    return new JDClassLoader(root,parentLoader);
+    return JDFactory.getInstance().createClassLoader(root,parentLoader);
   }
 
   // ========================================================================
@@ -157,4 +152,3 @@ public final class JDClassLoaderFactory extends Doclet {
 
 
 }
-

@@ -56,12 +56,11 @@
 
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.*;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.apache.xmlbeans.impl.jam.*;
 
 /**
  * <p>Helper class containing methods to which JClass implementations

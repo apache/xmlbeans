@@ -53,12 +53,28 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-
 package org.apache.xmlbeans.impl.jam.internal;
 
-import org.apache.xmlbeans.impl.jam.*;
 
+import com.sun.javadoc.ClassDoc;
+import com.sun.javadoc.ConstructorDoc;
+import com.sun.javadoc.FieldDoc;
+import com.sun.javadoc.MethodDoc;
+import com.sun.javadoc.Type;
 import java.io.StringWriter;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.xmlbeans.impl.jam.JAnnotation;
+import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JComment;
+import org.apache.xmlbeans.impl.jam.JConstructor;
+import org.apache.xmlbeans.impl.jam.JField;
+import org.apache.xmlbeans.impl.jam.JMethod;
+import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.JPackage;
+import org.apache.xmlbeans.impl.jam.JSourcePosition;
 
 
 /**
@@ -78,10 +94,10 @@ public final class ArrayJClass extends BuiltinJClass {
   // ========================================================================
   // Factory methods
 
-  public static JClass createClassFor(String arrayFD, JClassLoader loader)
-          throws ClassNotFoundException {
+  public static JClass createClassFor(String arrayFD, JClassLoader loader) 
+  {
     if (!arrayFD.startsWith("[")) {
-      throw new IllegalArgumentException("must be an array type: " + arrayFD);
+      throw new IllegalArgumentException("must be an array type: "+arrayFD);
     }
     // if it's an array type, we have to be careful
     String componentType;
@@ -91,19 +107,25 @@ public final class ArrayJClass extends BuiltinJClass {
       // get the component type, since a source description for it
       // might be available
       int dims = arrayFD.indexOf("L");
-      if (dims != -1 && dims < arrayFD.length() - 2) {
-        componentType = arrayFD.substring(dims + 1, arrayFD.length() - 1);
-        return new ArrayJClass(loader.loadClass(componentType), dims);
+      if (dims != -1 && dims<arrayFD.length()-2) {
+	componentType = arrayFD.substring(dims+1,arrayFD.length()-1);
+	return new ArrayJClass(loader.loadClass(componentType),dims);
       } else {
-        // name is malformed
-        throw new ClassNotFoundException(arrayFD);
+	// name is effed
+	throw new IllegalArgumentException("array type field descriptor '"+
+					   arrayFD+"' is malformed");
       }
     } else {
-      int dims = arrayFD.lastIndexOf("[") + 1;
+      int dims = arrayFD.lastIndexOf("[")+1;
       JClass primType = PrimitiveJClass.getPrimitiveClassForName
-              (arrayFD.substring(dims, dims + 1));
-      if (primType == null) throw new ClassNotFoundException(arrayFD);
-      return new ArrayJClass(primType, dims);
+	(arrayFD.substring(dims,dims+1));
+      if (primType == null) {
+	// if it didn't end with ';', it has to be a valid primitive
+	// type name or it's effed
+	throw new IllegalArgumentException("array type field descriptor '"+
+					   arrayFD+"' is malformed");
+      }
+      return new ArrayJClass(primType,dims);
     }
   }
 
@@ -113,38 +135,35 @@ public final class ArrayJClass extends BuiltinJClass {
   /**
    * Constructs a JDClass for the given ClassDoc in the given context.
    */
-  private ArrayJClass(JClass componentType, int dimensions) {
+  private ArrayJClass(JClass componentType, int dimensions)
+  {
     if (dimensions < 1) {
-      throw new IllegalArgumentException("dimensions=" + dimensions);
+      throw new IllegalArgumentException("dimensions="+dimensions);
     }
     if (componentType == null) {
       throw new IllegalArgumentException("null componentType");
     }
     mComponentType = componentType;
-    mDimensions = dimensions;
+    mDimensions = dimensions; 
   }
-
+  
   // ========================================================================
   // JElement implementation
 
-  public JElement getParent() {
-    return null;
-  }
+  public JElement getParent() { return null; }
 
-  public JElement[] getChildren() {
-    return null;
-  }
+  public JElement[] getChildren() { return null; }
 
   public String getSimpleName() {
     String out = getQualifiedName();
     int lastDot = out.lastIndexOf('.');
-    return (lastDot == -1) ? out : out.substring(lastDot + 1);
-  }
+    return (lastDot == -1) ? out : out.substring(lastDot+1);
+  }    
 
-  public String getQualifiedName() {
+  public String getQualifiedName() { 
     StringWriter out = new StringWriter();
     out.write(mComponentType.getQualifiedName());
-    for (int i = 0; i < mDimensions; i++) out.write("[]");
+    for(int i=0; i<mDimensions; i++) out.write("[]");
     return out.toString();
   }
 
@@ -156,82 +175,58 @@ public final class ArrayJClass extends BuiltinJClass {
     return BaseJElement.NO_ANNOTATION;
   }
 
-  public JAnnotation getAnnotation(String named) {
-    return null;
-  }
+  public JAnnotation getAnnotation(String named) { return null; }
 
-  public JComment[] getComments() {
-    return BaseJElement.NO_COMMENT;
-  }
+  public JComment[] getComments() { return BaseJElement.NO_COMMENT; }
 
   // ========================================================================
   // JMember implementation
 
-  public int getModifiers() {
-    return mComponentType.getModifiers();
+  public int getModifiers() { return mComponentType.getModifiers(); }
+
+  public boolean isPackagePrivate() { 
+    return mComponentType.isPackagePrivate(); 
   }
 
-  public boolean isPackagePrivate() {
-    return mComponentType.isPackagePrivate();
-  }
+  public boolean isProtected() { return mComponentType.isProtected(); }
 
-  public boolean isProtected() {
-    return mComponentType.isProtected();
-  }
+  public boolean isPublic() { return mComponentType.isPublic(); }
 
-  public boolean isPublic() {
-    return mComponentType.isPublic();
-  }
+  public boolean isPrivate() { return mComponentType.isPrivate(); }
 
-  public boolean isPrivate() {
-    return mComponentType.isPrivate();
-  }
-
-  public JSourcePosition getSourcePosition() {
-    return null;
-  }
-
-  public JClass getContainingClass() {
-    return null;
-  }
+  public JSourcePosition getSourcePosition() { return null; }
+  
+  public JClass getContainingClass() { return null; }
 
   // ========================================================================
   // JClass implementation
 
   public JClassLoader getClassLoader() {
-    return mComponentType.getClassLoader();
+    return mComponentType.getClassLoader(); 
   }
 
-  public JClass forName(String fd) throws ClassNotFoundException {
+  public JClass forName(String fd) {
     return mComponentType.forName(fd);
   }
 
-  public boolean isArray() {
-    return true;
-  }
+  public boolean isArray() { return true; }
 
-  public JClass getArrayComponentType() {
-    return mComponentType;
-  }
+  public JClass getArrayComponentType() { return mComponentType; }
 
-  public int getArrayDimensions() {
-    return mDimensions;
-  }
-
-  public JClass getSuperclass() {
-    return ObjectJClass.getInstance();
-  }
+  public int getArrayDimensions() { return mDimensions; }
+  
+  public JClass getSuperclass() { return ObjectJClass.getInstance(); }
 
   public boolean isAssignableFrom(JClass c) {
     return c.isArray() &&
-            (c.getArrayDimensions() == mDimensions) &&
-            (mComponentType.isAssignableFrom(c.getArrayComponentType()));
+      (c.getArrayDimensions() == mDimensions) &&
+      (mComponentType.isAssignableFrom(c.getArrayComponentType()));
   }
 
   public String getFieldDescriptor() {
     //REVIEW should we cache this result?
     StringWriter out = new StringWriter();
-    for (int i = 0; i < mDimensions; i++) out.write("[");
+    for(int i=0; i<mDimensions; i++) out.write("[");
     if (mComponentType.isPrimitive()) {
       out.write(mComponentType.getFieldDescriptor());
     } else {

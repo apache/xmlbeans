@@ -282,11 +282,12 @@ public class Java2Schema {
         if (annotatedType == null) {
           facade.setType(props[i].getType());
         } else {
-          try {
-            facade.setType(props[i].getType().forName(annotatedType));
-            //FIXME this needs to change when we put isUnresolved in JClass.
-          } catch(ClassNotFoundException cnfe) {
-            logError(props[i],cnfe);
+          JClass clazz = props[i].getType().forName(annotatedType);
+          if (clazz.isUnresolved()) {
+            logError(props[i],"Could not find class named '"+
+                              clazz.getQualifiedName()+"'");
+          } else {
+            facade.setType(clazz);
           }
         }
       }

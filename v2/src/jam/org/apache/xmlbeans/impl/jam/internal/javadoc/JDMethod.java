@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.jam.internal.javadoc;
 
+
 import com.sun.javadoc.MethodDoc;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
@@ -66,8 +67,9 @@ import org.apache.xmlbeans.impl.jam.JMethod;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-/*package*/ final class JDMethod extends JDExecutableMember
-        implements JMethod {
+public class JDMethod extends JDExecutableMember 
+	      implements JMethod 
+{
 
   // ========================================================================
   // Variables
@@ -76,9 +78,9 @@ import org.apache.xmlbeans.impl.jam.JMethod;
 
   // ========================================================================
   // Constructors
-
+  
   public JDMethod(MethodDoc f, JClassLoader loader) {
-    super(f, loader);
+    super(f,loader);
     mMethod = f;
   }
 
@@ -86,20 +88,12 @@ import org.apache.xmlbeans.impl.jam.JMethod;
   // JMethod implementation
 
   public JClass getReturnType() {
-    return JDClassLoader.getClassSafely(mMethod.returnType(), mLoader);
+    return JDClassLoader.getClassFor(mMethod.returnType(),mLoader);
   }
 
-  public boolean isSynchronized() {
-    return mMethod.isSynchronized();
-  }
+  public boolean isSynchronized() { return mMethod.isSynchronized(); }
 
-  public boolean isNative() {
-    return mMethod.isNative();
-  }
+  public boolean isNative() { return mMethod.isNative(); }
 
-  public boolean isAbstract() {
-    return mMethod.isAbstract();
-  }
+  public boolean isAbstract() {  return mMethod.isAbstract(); }
 }
-
-

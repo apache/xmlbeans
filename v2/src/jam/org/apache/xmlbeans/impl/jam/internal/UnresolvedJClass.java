@@ -54,42 +54,52 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.jam.internal.javadoc;
+package org.apache.xmlbeans.impl.jam.internal;
 
-import com.sun.javadoc.FieldDoc;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
-import org.apache.xmlbeans.impl.jam.JField;
+import org.apache.xmlbeans.impl.jam.JPackage;
 
 /**
- * javadoc-backed implementation of JClass.
+ * This is the JClass impl that is returned when a java type cannot be
+ * resolved.  It has only a name.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class JDField extends JDMember implements JField {
+public final class UnresolvedJClass extends BuiltinJClass {
 
   // ========================================================================
   // Variables
 
-  private FieldDoc mField;
+  private String mName;
+  private JClassHelper mHelper;
 
   // ========================================================================
-  // Constructors
-  
-  public JDField(FieldDoc f, JClassLoader loader) {
-    super(f,loader);
-    mField = f;
+  // Constructor
+
+  public UnresolvedJClass(String name) {
+    if (name == null) throw new IllegalArgumentException("null name");
+    mName = name;
+    mHelper = new JClassHelper(this);
   }
 
   // ========================================================================
-  // JField implementation
+  // JClass impl
 
-  public JClass getType() { 
-    return JDClassLoader.getClassFor(mField.type(),mLoader); 
+  public String getSimpleName() {
+    String out = getQualifiedName();
+    int lastDot = out.lastIndexOf('.');
+    return (lastDot == -1) ? out : out.substring(lastDot+1);
+  }    
+
+  public String getQualifiedName() { return mName; }
+
+  public String getFieldDescriptor() { return mName; }
+
+  public JPackage getContainingPackage() { return null; }
+
+  public boolean isAssignableFrom(JClass c) { 
+    return mHelper.isAssignableFrom(c);
   }
 
-  public boolean isTransient() { return mField.isTransient(); }
-
-  public boolean isVolatile() { return mField.isVolatile(); }
-
+  public boolean isUnresolved() { return true; }
 }
