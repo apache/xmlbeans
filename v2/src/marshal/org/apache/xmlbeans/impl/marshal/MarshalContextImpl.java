@@ -64,6 +64,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 
 import javax.xml.namespace.NamespaceContext;
 import java.util.Collection;
+import java.util.Collections;
 
 final class MarshalContextImpl
     implements MarshalContext
@@ -90,6 +91,16 @@ final class MarshalContextImpl
         this.errors = errors;
 
         namespaceContext.openScope(); //TODO: verify this
+    }
+
+    public boolean hasErrors()
+    {
+        return !errors.isEmpty();
+    }
+
+    public Collection getErrors()
+    {
+        return Collections.unmodifiableCollection(errors);
     }
 
     Collection getErrorCollection()
@@ -161,4 +172,5 @@ final class MarshalContextImpl
         namespaceContext.bindNamespace(prefix, uri);
         return prefix;
     }
+
 }

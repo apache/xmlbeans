@@ -56,16 +56,19 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.XmlError;
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.Location;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
-import javax.xml.stream.Location;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Collection;
 
 final class MarshalStreamUtils
@@ -310,6 +313,22 @@ final class MarshalStreamUtils
                                                   location.getColumnNumber(),
                                                   location.getCharacterOffset());
         errors.add(err);
+    }
+
+    static Object inputStreamToBytes(final InputStream val)
+    {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        int b;
+        try {
+            while ((b = val.read()) != -1) {
+                baos.write(b);
+            }
+        }
+        catch (IOException e) {
+            throw new XmlRuntimeException(e);
+        }
+        return baos.toByteArray();
     }
 
 

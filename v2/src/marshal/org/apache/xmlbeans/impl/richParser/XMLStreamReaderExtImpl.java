@@ -61,7 +61,7 @@ import org.apache.xmlbeans.GDateBuilder;
 import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.impl.common.XMLChar;
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 import org.apache.xmlbeans.impl.util.Base64;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;

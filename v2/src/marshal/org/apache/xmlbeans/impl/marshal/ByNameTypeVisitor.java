@@ -57,7 +57,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;

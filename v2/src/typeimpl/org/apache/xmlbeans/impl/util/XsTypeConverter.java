@@ -54,17 +54,22 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.common;
+package org.apache.xmlbeans.impl.util;
 
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDateBuilder;
+import org.apache.xmlbeans.XmlCalendar;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 
 import javax.xml.namespace.QName;
 import javax.xml.namespace.NamespaceContext;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.Collection;
+import java.util.Calendar;
+import java.util.Date;
 
 public final class XsTypeConverter
 {
@@ -503,7 +508,7 @@ public final class XsTypeConverter
         }
     }
 
-    // ======================== QName ========================
+    // ======================== GDate ========================
     public static GDate lexGDate(CharSequence charSeq)
     {
         return new GDate(charSeq);
@@ -527,7 +532,70 @@ public final class XsTypeConverter
         return gdate.toString();
     }
 
+
+
+    // ======================== dateTime ========================
+    public static XmlCalendar lexDateTime(CharSequence v)
+    {
+        GDate value = getGDateValue(v, SchemaType.BTC_DATE_TIME);
+        return value.getCalendar();
+    }
+
+
+    public static String printDateTime(Calendar c)
+    {
+        GDate value = getGDateValue(c, SchemaType.BTC_DATE_TIME);
+        return value.canonicalString();
+    }
+
+    public static String printDateTime(Date c)
+    {
+        GDate value = getGDateValue(c, SchemaType.BTC_DATE_TIME);
+        return value.canonicalString();
+    }
+
+
+    // ======================== hexBinary ========================
+    public static CharSequence printHexBinary(byte[] val)
+    {
+        return HexBin.bytesToString(val);
+    }
+
+
+    // ======================== base64binary ========================
+    public static CharSequence printBase64Binary(byte[] val)
+    {
+        final byte[] bytes = Base64.encode(val);
+        return new String(bytes);
+    }
+
+
+
     // private utils
+    private static GDate getGDateValue(Calendar c, int builtin_type_code)
+    {
+        GDateBuilder gDateBuilder = new GDateBuilder(c);
+        gDateBuilder.setBuiltinTypeCode(builtin_type_code);
+        GDate value = gDateBuilder.toGDate();
+        return value;
+    }
+
+    private static GDate getGDateValue(Date d, int builtin_type_code)
+    {
+        GDateBuilder gDateBuilder = new GDateBuilder(d);
+        gDateBuilder.setBuiltinTypeCode(builtin_type_code);
+        GDate value = gDateBuilder.toGDate();
+        return value;
+    }
+
+    private static GDate getGDateValue(CharSequence v, int builtin_type_code)
+    {
+        GDateBuilder gDateBuilder = new GDateBuilder(v);
+        gDateBuilder.setBuiltinTypeCode(builtin_type_code);
+        GDate value = gDateBuilder.toGDate();
+        return value;
+    }
+
     private static String trimInitialPlus(String xml)
     {
         if (xml.charAt(0) == '+') {

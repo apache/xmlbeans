@@ -1,5 +1,7 @@
 package drtcases;
 
+import com.mytest.MyClass;
+import com.mytest.MySubClass;
 import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
@@ -11,7 +13,7 @@ import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.UnmarshalContext;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlCalendar;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
@@ -32,15 +34,13 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.Random;
-import java.util.Collection;
-import java.math.BigInteger;
-import java.math.BigDecimal;
-
-import com.mytest.MySubClass;
-import com.mytest.MyClass;
 
 
 public class MarshalTests extends TestCase
@@ -81,6 +81,11 @@ public class MarshalTests extends TestCase
         testSimpleTypeUnmarshal(new Float(54.5423f), "float");
         testSimpleTypeUnmarshal(new Double(23432.43234), "double");
         testSimpleTypeUnmarshal("random string", "string");
+
+        Calendar c = Calendar.getInstance();
+
+        testSimpleTypeUnmarshal(c, "2002-03-06T08:04:39.265Z", "dateTime");
+
     }
 
 
@@ -100,26 +105,57 @@ public class MarshalTests extends TestCase
         testSimpleTypeMarshal("       ", "string");
     }
 
+
+
     //only works for values where .toString() is equivalent to marshalling
     public void testSimpleTypeUnmarshal(Object expected, String xsd_type)
         throws Exception
     {
-        Unmarshaller unmarshaller = getSimpleUnmarshaller();
+        testSimpleTypeUnmarshal(expected, expected.toString(), xsd_type);
+    }
+
+    public void testSimpleTypeUnmarshal(Object expected,
+                                        String lexval,
+                                        String xsd_type)
+        throws Exception
+    {
+        BindingContext bindingContext =
+            BindingContextFactory.newInstance().createBindingContext();
+
+        Unmarshaller unmarshaller1 = bindingContext.createUnmarshaller();
+        Unmarshaller unmarshaller = unmarshaller1;
 
         String xmldoc = "<a xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'" +
             " xmlns:xs='http://www.w3.org/2001/XMLSchema' xsi:type='xs:" +
-            xsd_type + "' >" + expected + "</a>";
+            xsd_type + "' >" + lexval + "</a>";
 
         StringReader stringReader = new StringReader(xmldoc);
         XMLStreamReader xrdr =
             XMLInputFactory.newInstance().createXMLStreamReader(stringReader);
 
-        Object obj = unmarshaller.unmarshal(xrdr);
+        UnmarshalContext umctx =
+            bindingContext.createUnmarshallContext(new ArrayList(), xrdr);
+        Object obj = unmarshaller.unmarshal(umctx);
 
-        Assert.assertEquals(expected, obj);
+
+        //special case date/time tests.
+        //we really need more robust testing here.
+        if (expected instanceof Calendar) {
+            XmlCalendar got = (XmlCalendar)obj;
+            String got_lex = got.toString();
+            Assert.assertEquals(lexval, got_lex);
+        } else {
+            Assert.assertEquals(expected, obj);
+        }
+
+        Assert.assertTrue(!umctx.hasErrors());
+
 
 //        System.out.println("OK for " + expected);
     }
+
+
+
 
 
     //only works for values where .toString() is equivalent to marshalling
@@ -133,7 +169,8 @@ public class MarshalTests extends TestCase
 
         EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
         MarshalContext ctx =
-            bindingContext.createMarshallContext(namespaceContext);
+            bindingContext.createMarshallContext(new ArrayList(),
+                                                 namespaceContext);
 
         final XMLStreamReader reader =
             m.marshallType(orig,
@@ -146,6 +183,8 @@ public class MarshalTests extends TestCase
 
         System.out.println("==================OBJ: " + orig);
         dumpReader(reader);
+
+        Assert.assertTrue(!ctx.hasErrors());
     }
 
 
@@ -175,7 +214,7 @@ public class MarshalTests extends TestCase
 
         EmptyNamespaceContext namespaceContext = new EmptyNamespaceContext();
         MarshalContext ctx =
-            bindingContext.createMarshallContext(namespaceContext);
+            bindingContext.createMarshallContext(new ArrayList(), namespaceContext);
 
         final XMLStreamReader reader =
             m.marshallType(mc, new QName("java:com.mytest", "load"),
@@ -186,6 +225,7 @@ public class MarshalTests extends TestCase
         System.out.println("=======IN-OBJ: " + mc);
 
         dumpReader(reader);
+        Assert.assertTrue(!ctx.hasErrors());
     }
 
 
@@ -215,7 +255,7 @@ public class MarshalTests extends TestCase
         XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
 
         MarshalContext ctx =
-            bindingContext.createMarshallContext(w.getNamespaceContext());
+            bindingContext.createMarshallContext(new ArrayList(), w.getNamespaceContext());
 
          m.marshallType(w, mc, new QName("java:com.mytest", "load"),
                            new QName("java:com.mytest", "MyClass"),
@@ -224,6 +264,7 @@ public class MarshalTests extends TestCase
 
         System.out.println("=======IN-OBJ: " + mc);
         System.out.println("=======OUT-XML: " + PrettyPrinter.indent(sw.getBuffer().toString()));
+        Assert.assertTrue(!ctx.hasErrors());
     }
 
     public void testByNameDocMarshalViaWriter()
@@ -252,9 +293,10 @@ public class MarshalTests extends TestCase
         XMLStreamWriter w = XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
 
         MarshalContext ctx =
-            bindingContext.createMarshallContext(w.getNamespaceContext());
+            bindingContext.createMarshallContext(new ArrayList(),
+                                                 w.getNamespaceContext());
 
-        m.marshall(w, mc);
+        m.marshall(w, mc, ctx);
 
 
         //now unmarshall from String and compare objects...
@@ -262,8 +304,10 @@ public class MarshalTests extends TestCase
         XMLStreamReader rdr =
             XMLInputFactory.newInstance().createXMLStreamReader(sr);
         Unmarshaller um = bindingContext.createUnmarshaller();
-        Object out_obj =  um.unmarshal(rdr);
+        Object out_obj =
+            um.unmarshal(bindingContext.createUnmarshallContext(new ArrayList(), rdr));
         Assert.assertEquals(mc, out_obj);
+        Assert.assertTrue(!ctx.hasErrors());
     }
 
 
@@ -323,7 +367,8 @@ public class MarshalTests extends TestCase
             errors.clear();
 
             MarshalContext ctx =
-                bindingContext.createMarshallContext(namespaceContext);
+                bindingContext.createMarshallContext(new ArrayList(),
+                                                     namespaceContext);
 
             final XMLStreamReader reader =
                 m.marshallType(top_obj, elem_name,
@@ -338,8 +383,8 @@ public class MarshalTests extends TestCase
 //                return;
 //            }
 
-            UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader);
-            out_obj = unmarshaller.unmarshallType(schemaType, javaType, umctx);
+            UnmarshalContext umctx = bindingContext.createUnmarshallContext(new ArrayList(), reader);
+            out_obj = unmarshaller.unmarshalType(schemaType, javaType, umctx);
         }
         final long after_millis = System.currentTimeMillis();
         final long diff = (after_millis - before_millis);
@@ -402,7 +447,8 @@ public class MarshalTests extends TestCase
         errors.clear();
 
         MarshalContext ctx =
-            bindingContext.createMarshallContext(namespaceContext);
+            bindingContext.createMarshallContext(new ArrayList(),
+                                                 namespaceContext);
 
         final XMLStreamReader reader =
             m.marshallType(top_obj, elem_name,
@@ -410,10 +456,13 @@ public class MarshalTests extends TestCase
                            class_name,
                            ctx);
 
-        UnmarshalContext umctx = bindingContext.createUnmarshallContext(reader);
-        out_obj = unmarshaller.unmarshallType(schemaType, javaType, umctx);
+        UnmarshalContext umctx =
+            bindingContext.createUnmarshallContext(new ArrayList(), reader);
+        out_obj = unmarshaller.unmarshalType(schemaType, javaType, umctx);
         System.out.println(" out_obj = " + top_obj);
         Assert.assertEquals(top_obj, out_obj);
+        Assert.assertTrue(!ctx.hasErrors());
+        Assert.assertTrue(!umctx.hasErrors());
     }
 
     private static void dumpReader(final XMLStreamReader reader)
@@ -461,10 +510,43 @@ public class MarshalTests extends TestCase
         XMLStreamReader xrdr =
             xmlInputFactory.createXMLStreamReader(new FileReader(doc));
 
-        Object obj = unmarshaller.unmarshal(xrdr);
+        UnmarshalContext um_ctx =
+            bindingContext.createUnmarshallContext(new ArrayList(), xrdr);
+        Object obj = unmarshaller.unmarshal(um_ctx);
 
         System.out.println("obj = " + obj);
+        Assert.assertTrue(!um_ctx.hasErrors());
+
     }
+
+
+    //temp hacked up test for dd stuff
+//    public void testJ2EEByNameBeanUnmarshal()
+//        throws Exception
+//    {
+//        File loc = new File("/tmp/j2ee14-binding.xml");
+//        File bcdoc = loc;
+//
+//        BindingContext bindingContext =
+//            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+//
+//        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
+//
+//        Assert.assertNotNull(unmarshaller);
+//
+//        File doc = new File("/tmp/j2ee14-instance.xml");
+//
+//        final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+//        XMLStreamReader xrdr =
+//            xmlInputFactory.createXMLStreamReader(new FileReader(doc));
+//
+//        UnmarshalContext um_ctx =
+//            bindingContext.createUnmarshallContext(new ArrayList(), xrdr);
+//        Object obj = unmarshaller.unmarshal(um_ctx);
+//
+//        System.out.println("obj = " + obj);
+//        Assert.assertTrue(!um_ctx.hasErrors());
+//    }
 
     public void testByNameBeanUnmarshalType()
         throws Exception
@@ -487,14 +569,15 @@ public class MarshalTests extends TestCase
         XMLStreamReader xrdr =
             xmlInputFactory.createXMLStreamReader(new FileReader(doc));
 
-        UnmarshalContext ctx = bindingContext.createUnmarshallContext(xrdr);
+        UnmarshalContext ctx =
+            bindingContext.createUnmarshallContext(new ArrayList(), xrdr);
 
         //this is not very safe but it should work...
         while (!xrdr.isStartElement()) {
             xrdr.next();
         }
 
-        Object obj = unmarshaller.unmarshallType(schemaType, javaType, ctx);
+        Object obj = unmarshaller.unmarshalType(schemaType, javaType, ctx);
         final Collection errors = ctx.getErrors();
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
             System.out.println("ERROR: " + itr.next());
@@ -502,6 +585,7 @@ public class MarshalTests extends TestCase
         System.out.println("+++++TYPE obj = " + obj);
 
         Assert.assertTrue(errors.isEmpty());
+        Assert.assertTrue(!ctx.hasErrors());
     }
 
     public void DISABLED_testPerfByNameBeanUnmarshall()
@@ -535,7 +619,7 @@ public class MarshalTests extends TestCase
             XMLStreamReader xrdr =
                 xmlInputFactory.createXMLStreamReader(cr);
 
-            Object obj = unmarshaller.unmarshal(xrdr);
+            Object obj = unmarshaller.unmarshal(null);
 
             if ((i % 1000) == 0) {
                 String s = obj.toString().substring(0, 70);
@@ -564,15 +648,6 @@ public class MarshalTests extends TestCase
     {
         File loc = TestEnv.xbeanCase("marshal/example_config.xml");
         return loc;
-    }
-
-    private static Unmarshaller getSimpleUnmarshaller() throws XmlException
-    {
-        BindingContext bindingContext =
-            BindingContextFactory.newInstance().createBindingContext();
-
-        Unmarshaller unmarshaller = bindingContext.createUnmarshaller();
-        return unmarshaller;
     }
 
     public static void main(String args[])

@@ -81,10 +81,13 @@ public interface Marshaller
      *
      * @param obj
      * @param nscontext  initial NamespaceContext representing initial defined namespaces
+     * @param context
      * @return  XMLStreamReader representing the XML content
      * @throws XmlException
      */
-    XMLStreamReader marshall(Object obj, NamespaceContext nscontext)
+    XMLStreamReader marshall(Object obj,
+                             NamespaceContext nscontext,
+                             MarshalContext context)
         throws XmlException;
 
     /**
@@ -101,7 +104,9 @@ public interface Marshaller
      * @param writer
      * @throws XmlException
      */
-    void marshall(XMLStreamWriter writer, Object obj)
+    void marshall(XMLStreamWriter writer,
+                  Object obj,
+                  MarshalContext context)
         throws XmlException;
 
 

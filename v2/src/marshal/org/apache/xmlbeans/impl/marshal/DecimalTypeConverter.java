@@ -56,7 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.common.XsTypeConverter;
+import org.apache.xmlbeans.impl.util.XsTypeConverter;
 
 import java.math.BigDecimal;
 

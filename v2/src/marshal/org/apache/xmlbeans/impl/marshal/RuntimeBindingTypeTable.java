@@ -153,12 +153,12 @@ final class RuntimeBindingTypeTable
         }
     }
 
-    protected void addXsdBuiltin(String xsdType, String javaType, TypeConverter converter)
+    protected void addXsdBuiltin(String xsdType, Class javaClass, TypeConverter converter)
     {
         final BindingLoader bindingLoader = BuiltinBindingLoader.getInstance();
 
         QName xml_type = new QName(XSD_NS, xsdType);
-        JavaTypeName jName = JavaTypeName.forString(javaType);
+        JavaTypeName jName = JavaTypeName.forString(javaClass.getName());
         XmlTypeName xName = XmlTypeName.forTypeNamed(xml_type);
         BindingType btype = bindingLoader.getBindingType(BindingTypeName.forPair(jName, xName));
         if (btype == null) {
@@ -176,15 +176,15 @@ final class RuntimeBindingTypeTable
     private void addBuiltins()
     {
         final FloatTypeConverter float_conv = new FloatTypeConverter();
-        addXsdBuiltin("float", float.class.getName(), float_conv);
-        addXsdBuiltin("float", Float.class.getName(), float_conv);
+        addXsdBuiltin("float", float.class, float_conv);
+        addXsdBuiltin("float", Float.class, float_conv);
 
         final DoubleTypeConverter double_conv = new DoubleTypeConverter();
-        addXsdBuiltin("double", double.class.getName(), double_conv);
-        addXsdBuiltin("double", Double.class.getName(), double_conv);
+        addXsdBuiltin("double", double.class, double_conv);
+        addXsdBuiltin("double", Double.class, double_conv);
 
         final IntegerTypeConverter integer_conv = new IntegerTypeConverter();
-        final String bigint = java.math.BigInteger.class.getName();
+        final Class bigint = java.math.BigInteger.class;
         addXsdBuiltin("integer", bigint, integer_conv);
         addXsdBuiltin("nonPositiveInteger", bigint, integer_conv);
         addXsdBuiltin("negativeInteger", bigint, integer_conv);
@@ -192,37 +192,37 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("positiveInteger", bigint, integer_conv);
         addXsdBuiltin("unsignedLong", bigint, integer_conv);
 
-        addXsdBuiltin("decimal", java.math.BigDecimal.class.getName(),
+        addXsdBuiltin("decimal", java.math.BigDecimal.class,
                       new DecimalTypeConverter());
 
         final LongTypeConverter long_conv = new LongTypeConverter();
-        addXsdBuiltin("long", long.class.getName(), long_conv);
-        addXsdBuiltin("long", Long.class.getName(), long_conv);
-        addXsdBuiltin("unsignedInt", long.class.getName(), long_conv);
-        addXsdBuiltin("unsignedInt", Long.class.getName(), long_conv);
+        addXsdBuiltin("long", long.class, long_conv);
+        addXsdBuiltin("long", Long.class, long_conv);
+        addXsdBuiltin("unsignedInt", long.class, long_conv);
+        addXsdBuiltin("unsignedInt", Long.class, long_conv);
 
         final IntTypeConverter int_conv = new IntTypeConverter();
-        addXsdBuiltin("int", int.class.getName(), int_conv);
-        addXsdBuiltin("int", Integer.class.getName(), int_conv);
-        addXsdBuiltin("unsignedShort", int.class.getName(), int_conv);
-        addXsdBuiltin("unsignedShort", Integer.class.getName(), int_conv);
+        addXsdBuiltin("int", int.class, int_conv);
+        addXsdBuiltin("int", Integer.class, int_conv);
+        addXsdBuiltin("unsignedShort", int.class, int_conv);
+        addXsdBuiltin("unsignedShort", Integer.class, int_conv);
 
         final ShortTypeConverter short_conv = new ShortTypeConverter();
-        addXsdBuiltin("short", short.class.getName(), short_conv);
-        addXsdBuiltin("short", Short.class.getName(), short_conv);
-        addXsdBuiltin("unsignedByte", short.class.getName(), short_conv);
-        addXsdBuiltin("unsignedByte", Short.class.getName(), short_conv);
+        addXsdBuiltin("short", short.class, short_conv);
+        addXsdBuiltin("short", Short.class, short_conv);
+        addXsdBuiltin("unsignedByte", short.class, short_conv);
+        addXsdBuiltin("unsignedByte", Short.class, short_conv);
 
         final ByteTypeConverter byte_conv = new ByteTypeConverter();
-        addXsdBuiltin("byte", byte.class.getName(), byte_conv);
-        addXsdBuiltin("byte", Byte.class.getName(), byte_conv);
+        addXsdBuiltin("byte", byte.class, byte_conv);
+        addXsdBuiltin("byte", Byte.class, byte_conv);
 
         final BooleanTypeConverter boolean_conv = new BooleanTypeConverter();
-        addXsdBuiltin("boolean", boolean.class.getName(), boolean_conv);
-        addXsdBuiltin("boolean", Boolean.class.getName(), boolean_conv);
+        addXsdBuiltin("boolean", boolean.class, boolean_conv);
+        addXsdBuiltin("boolean", Boolean.class, boolean_conv);
 
         final StringTypeConverter string_conv = new StringTypeConverter();
-        final String str = String.class.getName();
+        final Class str = String.class;
         addXsdBuiltin("string", str, string_conv);
         addXsdBuiltin("normalizedString", str, string_conv);
         addXsdBuiltin("token", str, string_conv);
@@ -233,6 +233,18 @@ final class RuntimeBindingTypeTable
         addXsdBuiltin("ID", str, string_conv);
         addXsdBuiltin("IDREF", str, string_conv);
         addXsdBuiltin("ENTITY", str, string_conv);
+
+        addXsdBuiltin("anyURI",
+                      str,
+                      new AnyUriToStringTypeConverter());
+
+        addXsdBuiltin("dateTime",
+                      java.util.Calendar.class,
+                      new DateTimeTypeConverter());
+
+        addXsdBuiltin("QName",
+                      javax.xml.namespace.QName.class,
+                      new QNameTypeConverter());
     }
 
 

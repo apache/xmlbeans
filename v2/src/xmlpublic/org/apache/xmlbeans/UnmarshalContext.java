@@ -75,6 +75,13 @@ public interface UnmarshalContext
     void setXmlStream(XMLStreamReader reader);
 
     /**
+     * Do we have errors?
+     *
+     * @return
+     */
+    boolean hasErrors();
+
+    /**
      *
      * @return  read-only collection of error objects
      */

@@ -68,19 +68,19 @@ public interface Unmarshaller
      * unmarshall an entire xml document.
      *
      * PRECONDITIONS:
-     * reader must be positioned at or before the root
+     * reader (taken from context) must be positioned at or before the root
      * start element of the document.
      *
      * POSTCONDITIONS:
-     * reader will be positioned immediately after the end element
-     * corresponding to the start element from the precondition
+     * reader (taken from context) will be positioned immediately after
+     * the end element corresponding to the start element from the precondition
      *
      *
-     * @param reader
+     * @param context
      * @return
      * @throws org.apache.xmlbeans.XmlException
      */
-    Object unmarshal(XMLStreamReader reader)
+    Object unmarshal(UnmarshalContext context)
         throws XmlException;
 
     /**
@@ -104,8 +104,8 @@ public interface Unmarshaller
      * @return
      * @throws org.apache.xmlbeans.XmlException
      */
-    Object unmarshallType(QName schemaType,
-                          String javaType,
-                          UnmarshalContext context)
+    Object unmarshalType(QName schemaType,
+                         String javaType,
+                         UnmarshalContext context)
         throws XmlException;
 }

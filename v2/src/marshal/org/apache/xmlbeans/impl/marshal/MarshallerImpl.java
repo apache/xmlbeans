@@ -93,9 +93,11 @@ final class MarshallerImpl
     }
 
     public XMLStreamReader marshall(Object obj,
-                                    NamespaceContext nscontext)
+                                    NamespaceContext nscontext,
+                                    MarshalContext context)
         throws XmlException
     {
+
         final JavaTypeName jname = JavaTypeName.forString(obj.getClass().getName());
         BindingTypeName root_elem_btype = bindingLoader.lookupElementFor(jname);
         if (root_elem_btype == null) {
@@ -118,15 +120,13 @@ final class MarshallerImpl
         MarshalContextImpl ctx = new MarshalContextImpl(nscontext, bindingLoader,
                                                         typeTable, errors);
 
-        final MarshalResult marshalResult = new MarshalResult(prop, obj, ctx);
-        BindingContextImpl.checkErrors(errors, "marshalling error");
-        return marshalResult;
+        return new MarshalResult(prop, obj, ctx);
     }
 
-    public void marshall(XMLStreamWriter writer, Object obj)
+    public void marshall(XMLStreamWriter writer, Object obj, MarshalContext context)
         throws XmlException
     {
-        XMLStreamReader rdr = marshall(obj, writer.getNamespaceContext());
+        XMLStreamReader rdr = marshall(obj, writer.getNamespaceContext(), null);
         try {
             XmlReaderToWriter.writeAll(rdr, writer);
         }

@@ -216,22 +216,18 @@ public final class BindingContextFactoryImpl
                                                                  RuntimeBindingTypeTable table)
     {
         TypeUnmarshaller um = table.getTypeUnmarshaller(stype);
+        if (um != null) return um;
 
-        if (um == null) {
-            //let's try using the as if type
-            BindingType asif = loader.getBindingType(stype.getAsIfBindingTypeName());
-            if (asif == null) {
-                throw new AssertionError("unable to get asif type for " + stype);
-            }
-            um = table.getTypeUnmarshaller(asif);
+        //let's try using the as if type
+        BindingType asif = loader.getBindingType(stype.getAsIfBindingTypeName());
+        if (asif == null) {
+            throw new AssertionError("unable to get asif type for " + stype);
         }
+        um = table.getTypeUnmarshaller(asif);
+        if (um != null) return um;
 
-        if (um == null) {
-            String msg = "unable to get simple type unmarshaller for " + stype;
-            throw new AssertionError(msg);
-        }
-
-        return um;
+        String msg = "unable to get simple type unmarshaller for " + stype +  " using asif="+asif;
+        throw new AssertionError(msg);
     }
 
 }
