@@ -110,8 +110,7 @@ final class MarshallerImpl
                                    NamespaceContext nscontext)
         throws XmlException
     {
-
-        final JavaTypeName jname = JavaTypeName.forString(obj.getClass().getName());
+        JavaTypeName jname = determineJavaType(obj);
         BindingTypeName root_elem_btype = loader.lookupElementFor(jname);
         if (root_elem_btype == null) {
             final String msg = "failed to find root " +
@@ -137,6 +136,11 @@ final class MarshallerImpl
 
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(btype, elem_qn);
         return new MarshalResult(prop, obj, this);
+    }
+
+    private static JavaTypeName determineJavaType(Object obj)
+    {
+        return JavaTypeName.forString(obj.getClass().getName());
     }
 
     public void marshal(XMLStreamWriter writer, Object obj)
@@ -197,7 +201,7 @@ final class MarshallerImpl
                                        NamespaceContext namespaceContext)
         throws XmlException
     {
-        BindingType type = determineBindingType(obj, schemaType, javaType);
+        BindingType type = lookupBindingType(obj, schemaType, loader);
         RuntimeGlobalProperty prop = new RuntimeGlobalProperty(type, elementName);
         return new MarshalResult(prop, obj, this);
     }
@@ -220,22 +224,12 @@ final class MarshallerImpl
         }
     }
 
-    private BindingType determineBindingType(Object obj,
-                                             QName schemaType,
-                                             String javaType)
-    {
-        //TODO: consult object when needed for polymorphism
-        BindingType binding_type = lookupBindingType(javaType, schemaType,
-                                                     loader);
-
-        return binding_type;
-    }
-
-    private static BindingType lookupBindingType(String javaType,
+    private static BindingType lookupBindingType(Object obj,
                                                  QName schemaType,
                                                  BindingLoader loader)
     {
-        JavaTypeName jname = JavaTypeName.forString(javaType);
+        JavaTypeName jname = determineJavaType(obj);
+
         XmlTypeName xname = XmlTypeName.forTypeNamed(schemaType);
         BindingTypeName btname = BindingTypeName.forPair(jname, xname);
         if (btname == null) {
@@ -315,7 +309,8 @@ final class MarshallerImpl
         do {
             prefix = NSPREFIX + (++prefixCnt);
             testuri = namespaceContext.getNamespaceURI(prefix);
-        } while (testuri != null);
+        }
+        while (testuri != null);
         assert prefix != null;
         namespaceContext.bindNamespace(prefix, uri);
         return prefix;
