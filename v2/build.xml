@@ -290,12 +290,12 @@
   <!-- previously in xbean.xml -->
 
   <target name="xbean.jar"
-        depends="dirs, xmlpublic.classes, typestore.classes,
-                 common.classes, typeimpl.classes, xmlcomp.classes,
-                 xmlstore.classes, newstore2.classes,
-                 saaj_api.classes, binding.classes, marshal.classes, xpath.classes,
-                 oldxbean.jar, xsdschema.classes,
-                 xmlinputstream.classes, resolver.jar, xbean_xpath.jar, piccolo.classes">
+        depends="dirs, xmlpublic.classes, typestore.classes, common.classes,
+                 typeimpl.classes, xmlcomp.classes, xmlstore.classes,
+                 newstore2.classes, saaj_api.classes, binding.classes,
+                 marshal.classes, xpath.classes, oldxbean.jar, xsdschema.classes,
+                 xmlinputstream.classes, resolver.jar, xbean_xpath.jar,
+                 piccolo.classes, tools.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
       <fileset dir="build/classes/xmlpublic"/>
       <fileset dir="build/classes/typestore"/>
@@ -315,6 +315,7 @@
       <fileset dir="build/classes/repackage"/>
       <fileset dir="build/classes/jam"/>
       <fileset dir="build/classes/piccolo"/>
+      <fileset dir="build/classes/tools"/>
       <fileset dir="src/license"/>
     </jar>
   </target>
@@ -542,6 +543,27 @@
     </javac>
 
   </target>
+
+    <!-- tools target ============================================== -->
+
+    <target name="tools.classes"
+          depends="dirs, common.classes, xmlpublic.classes, typestore.classes, saaj_api.classes, piccolo.classes,
+          typeimpl.classes">
+      <mkdir dir="build/classes/tools"/>
+      <javac srcdir="src/tools" destdir="build/classes/tools" source="${javac.source}" target="${javac.target}" debug="on">
+        <classpath id="tools.compile.path">
+          <pathelement location="build/classes/typestore"/>
+          <pathelement location="build/lib/jsr173_api.jar"/>
+          <pathelement location="build/classes/xmlinputstream"/>
+          <pathelement location="build/classes/xmlpublic"/>
+          <pathelement location="build/classes/common"/>
+          <pathelement location="build/classes/saaj_api"/>
+          <pathelement location="build/classes/piccolo"/>
+          <pathelement location="build/classes/typeimpl"/>
+        </classpath>
+      </javac>
+
+    </target>
 
   <!-- bootstrap schema target support ================================ -->
 
