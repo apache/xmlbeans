@@ -121,84 +121,84 @@ public class ToBookmarkTest extends BasicCursorTestCase {
     }
 
     public void testPostMoveBookmarkInsideMove() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String exp_ns = "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" $this//po:shipTo/po:city");
-	while (m_xc.toNextSelection()){
-	    m_xc.setBookmark(_theBookmark);
-	    xc1.selectPath(ns+" $this//po:billTo/po:city");
-	    while (xc1.toNextSelection()){
-		m_xc.moveXml(xc1);
-		try {
-		    assertEquals(true, xc1.toBookmark(_theBookmark));
-		    assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", xc1.xmlText());
-		    xc1.toNextSibling();
-		    assertEquals("<po:city "+exp_ns+">Old Town</po:city>", xc1.xmlText());
-		} catch (Exception e){}
-	    }
-	}
-	xc1.dispose();
+        m_xc.selectPath(ns + " $this//po:shipTo/po:city");
+        while (m_xc.toNextSelection()) {
+            m_xc.setBookmark(_theBookmark);
+            xc1.selectPath(ns + " $this//po:billTo/po:city");
+            while (xc1.toNextSelection()) {
+                m_xc.moveXml(xc1);
+                try {
+                    assertEquals(true, xc1.toBookmark(_theBookmark));
+                    assertEquals("<po:city " + exp_ns + ">Mill Valley</po:city>", xc1.xmlText());
+                    xc1.toNextSibling();
+                    assertEquals("<po:city " + exp_ns + ">Old Town</po:city>", xc1.xmlText());
+                } catch (Exception e) {
+                }
+            }
+        }
+        xc1.dispose();
     }
 
     public void testPostMoveBookmarkToRightOfMove() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String exp_ns = "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
-        m_xc.selectPath(ns+" $this//po:shipTo/po:city");
-	while (m_xc.toNextSelection()){
-	    m_xc.setBookmark(_theBookmark);
-	    toNextTokenOfType(m_xc, TokenType.TEXT);
-	    m_xc.toNextToken();
-	    m_xc.toNextToken();  // move to behind the <city>Mill Valley</city> element
-	    assertEquals(TokenType.TEXT, m_xc.currentTokenType());
-	    m_xc.setBookmark(_theBookmark1);
-	    m_xc.toBookmark(_theBookmark);
-	    xc1.selectPath(ns+" $this//po:billTo/po:city");
-	    while (xc1.toNextSelection()){
-		m_xc.moveXml(xc1);
-		m_xc.toStartDoc();
-		try {
-		    assertEquals(true, xc1.toBookmark(_theBookmark1));
-		    xc1.toPrevSibling();
-		    assertEquals("<po:street "+exp_ns+">123 Maple Street</po:street>", xc1.xmlText());
-		}catch (Exception e){}
-	    }
-	}
-	xc1.dispose();
+        m_xc.selectPath(ns + " $this//po:shipTo/po:city");
+        while (m_xc.toNextSelection()) {
+            m_xc.setBookmark(_theBookmark);
+            toNextTokenOfType(m_xc, TokenType.TEXT);
+            m_xc.toNextToken();
+            m_xc.toNextToken();  // move to behind the <city>Mill Valley</city> element
+            assertEquals(TokenType.TEXT, m_xc.currentTokenType());
+            m_xc.setBookmark(_theBookmark1);
+            m_xc.toBookmark(_theBookmark);
+            xc1.selectPath(ns + " $this//po:billTo/po:city");
+            while (xc1.toNextSelection()) {
+                m_xc.moveXml(xc1);
+                m_xc.toStartDoc();
+                try {
+                    assertEquals(true, xc1.toBookmark(_theBookmark1));
+                    xc1.toPrevSibling();
+                    assertEquals("<po:street " + exp_ns + ">123 Maple Street</po:street>", xc1.xmlText());
+                } catch (Exception e) {
+                }
+            }
+        }
+        xc1.dispose();
     }
 
     public void testToBookmarkPostCopy() throws Exception {
-        m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
+        m_xo = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
-        String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
-        String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String ns = "declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
+        String exp_ns = "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
-        m_xc.selectPath(ns+" $this//po:shipTo/po:city");
-	while ( m_xc.toNextSelection()){
-	    m_xc.setBookmark(_theBookmark);
-	    xc1.selectPath(ns+"$this//po:billTo/po:city");
-	    while (xc1.toNextSelection()){
-		m_xc.copyXml(xc1);
-		try {
-		    assertEquals(true, xc1.toBookmark(_theBookmark));
-		    assertEquals("<po:city "+exp_ns+">Mill Valley</po:city>", xc1.xmlText());
-		    xc1.toNextSibling();
-		    assertEquals("<po:state "+exp_ns+">CA</po:state>", xc1.xmlText());
-		} catch(Exception e){}
-	    }
-	}
-	xc1.dispose();
+        m_xc.selectPath(ns + " $this//po:shipTo/po:city");
+        while (m_xc.toNextSelection()) {
+            m_xc.setBookmark(_theBookmark);
+            xc1.selectPath(ns + "$this//po:billTo/po:city");
+            while (xc1.toNextSelection()) {
+                m_xc.copyXml(xc1);
+                try {
+                    assertEquals(true, xc1.toBookmark(_theBookmark));
+                    assertEquals("<po:city " + exp_ns + ">Mill Valley</po:city>", xc1.xmlText());
+                    xc1.toNextSibling();
+                    assertEquals("<po:state " + exp_ns + ">CA</po:state>", xc1.xmlText());
+                } catch (Exception e) {
+                }
+            }
+        }
+        xc1.dispose();
     }
 
     public void testToBookmarkPostMoveChars() throws Exception {
@@ -222,59 +222,74 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         }
     }
 
+    /**
+     * Purpose of the test:
+     * start w/ 01234, copy the first two characters b/n 3 and 4
+     * result should be 0123*01*4  where * shows the new insert
+     *
+     * @throws Exception
+     */
+
     public void testToBookmarkPostCopyChars() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_DIGITS);
         m_xc = m_xo.newCursor();
-        XmlCursor xc1 = m_xo.newCursor();
+        // XmlCursor xc1 = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
-        xc1.toCursor(m_xc);
+        XmlCursor xc1 = m_xc.newCursor();
+        //xc1.toCursor(m_xc);
         xc1.toNextChar(1);
-        // set a Bookmark at the '1'
+        // set a Bookmark at the '1', text is 1234
         xc1.setBookmark(_theBookmark);
-         // move xc1 to the '3'
+        // move xc1 to the '3' , text post cursor is 34
         xc1.toNextChar(2);
         try {
             assertEquals("34", xc1.getTextValue());
+            //text at m_xc is 01234, should get 0123*01*4
             assertEquals(2, m_xc.copyChars(2, xc1));
-            assertEquals("0120134", m_xc.getTextValue());
-            assertEquals("34", xc1.getTextValue());
+            assertEquals("0123014", m_xc.getTextValue());
+            assertEquals("3014", xc1.getTextValue());
             xc1.toBookmark(_theBookmark);
-            assertEquals("120134", xc1.getTextValue());
+            assertEquals("123014", xc1.getTextValue());
         } finally {
             xc1.dispose();
         }
     }
 
 
-
     public void testToBookmarkPostRemove() throws Exception {
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_BAR_TEXT);
         m_xc = m_xo.newCursor();
         m_xc.selectPath(".//bar");
-	while(m_xc.toNextSelection())
-	    assertEquals("<bar>text</bar>", m_xc.xmlText());
-	m_xc.toNextToken();
-	m_xc.setBookmark(_theBookmark);  // set annot. at 'text'
-	m_xc.toStartDoc();
-	XmlCursor xc1 = m_xc.newCursor();
-	xc1.toBookmark(_theBookmark);
-	SimpleBookmark sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
-	assertEquals("value", sa.text);
-	xc1.toEndDoc();
+        while (m_xc.toNextSelection())
+            assertEquals("<bar>text</bar>", m_xc.xmlText());
+        m_xc.toNextToken();
+        m_xc.setBookmark(_theBookmark);  // set annot. at 'text'
+        m_xc.toStartDoc();
+        XmlCursor xc1 = m_xc.newCursor();
+        xc1.toBookmark(_theBookmark);
+        SimpleBookmark sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
+        assertEquals("value", sa.text);
+        xc1.toEndDoc();
 
         m_xc.selectPath("$this//bar");
-	while(m_xc.toNextSelection()){
-	    m_xc.removeXml();
-	    m_xc.toStartDoc();
-	    try {
-		assertEquals("<foo/>", m_xc.xmlText());
-		assertEquals(false, xc1.toBookmark(_theBookmark));
-		sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
-		assertNull(sa);
-		assertEquals(TokenType.ENDDOC, xc1.currentTokenType());
-	    }catch(Exception e){}
-	}
-	xc1.dispose();
+        while (m_xc.toNextSelection()) {
+            m_xc.removeXml();
+            m_xc.toStartDoc();
+            try {
+                assertEquals("<foo/>", m_xc.xmlText());
+                //test modified, the two cursors are not in the same
+                //tree anymore
+                assertEquals(true, xc1.toBookmark(_theBookmark));
+                assertTrue( ! xc1.isInSameDocument(m_xc));
+                assertTrue( ! xc1.isLeftOf(m_xc));
+
+                sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
+                assertNull(sa);
+                assertEquals(TokenType.ENDDOC, xc1.currentTokenType());
+            } catch (Exception e) {
+            }
+        }
+        xc1.dispose();
     }
 
     public void testToBookmarkPostRemoveAttribute() throws Exception {
@@ -294,7 +309,8 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         m_xc.toStartDoc();
         try {
             assertEquals("<foo>text</foo>", m_xc.xmlText());
-            assertEquals(false, xc1.toBookmark(_theBookmark));
+            assertEquals(true, xc1.toBookmark(_theBookmark));
+            assertTrue( ! xc1.isInSameDocument(m_xc));
         } finally {
             xc1.dispose();
         }
@@ -313,7 +329,8 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         XmlCursor xc1 = m_xc.newCursor();
         xc1.toEndDoc();
         try {
-            assertEquals(false, xc1.toBookmark(_theBookmark));
+            assertEquals(true, xc1.toBookmark(_theBookmark));
+            assertTrue( ! xc1.isInSameDocument(m_xc));
             SimpleBookmark sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
             assertNull(sa);
             assertEquals(TokenType.ENDDOC, xc1.currentTokenType());
@@ -336,7 +353,8 @@ public class ToBookmarkTest extends BasicCursorTestCase {
         m_xc.toStartDoc();
         assertEquals("<foo>changed</foo>", m_xc.xmlText());
         try {
-            assertEquals(false, xc1.toBookmark(_theBookmark));
+            assertEquals(true, xc1.toBookmark(_theBookmark));
+            assertTrue( ! xc1.isInSameDocument(m_xc));
             SimpleBookmark sa = (SimpleBookmark) xc1.getBookmark(SimpleBookmark.class);
             assertNull(sa);
             assertEquals(TokenType.ENDDOC, xc1.currentTokenType());

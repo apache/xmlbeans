@@ -24,11 +24,13 @@ import xbean.scomp.substGroup.xabstract.BeachUmbrellaT;
 import xbean.scomp.substGroup.userAbstract.RootDocument;
 import xbean.scomp.substGroup.userAbstract.Bar;
 import xbean.scomp.substGroup.userAbstract.AbstractFoo;
+import xbean.scomp.substGroup.userAbstract.GenericFoo;
 
 
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlString;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -131,8 +133,14 @@ public class Abstract extends BaseCase {
         barElt.insertNewFoo(0);
 
         AbstractFoo elt= barElt.getFooArray()[0];
-        fail(" Why is this an instantiation of an abstract type. " +
-                "Usability bug " + elt.getClass());
+        assertTrue (! doc.validate(validateOptions));
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_LOCALLY_VALID$ABSTRACT
+                   };
+             assertTrue(compareErrorCodes(errExpected));
+        elt.changeType(GenericFoo.type);
+         assertTrue ( doc.validate(validateOptions));
+
 
     }
 

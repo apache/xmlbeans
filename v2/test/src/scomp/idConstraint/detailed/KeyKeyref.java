@@ -80,7 +80,7 @@ public class KeyKeyref extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
-            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID
+            XmlErrorCodes.IDENTITY_CONSTRAINT_VALID$DUPLICATE_UNIQUE
         };
         assertTrue(compareErrorCodes(errExpected));
 

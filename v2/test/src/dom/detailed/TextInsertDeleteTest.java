@@ -18,10 +18,8 @@ package dom.detailed;
 
 import dom.common.Loader;
 import junit.framework.TestCase;
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.w3c.dom.Text;
+import org.w3c.dom.*;
+import org.apache.xmlbeans.XmlObject;
 
 
 /**
@@ -34,6 +32,20 @@ public class TextInsertDeleteTest extends TestCase {
     Document m_doc,
     m_docNS;
     Node m_node;
+
+    public void testBuildMixedContent(){
+        DOMImplementation domImpl = XmlObject.Factory.newDomImplementation( null );
+        m_doc=domImpl.createDocument("foobar","val",null);
+        Element root=m_doc.getDocumentElement();
+        //m_doc.appendChild(root);
+        Element n=(Element)m_doc.createElement("foo");
+        Text txt1=m_doc.createTextNode("foobar");
+        Text txt2=m_doc.createTextNode("baz");
+       root.appendChild(txt1);
+         root.appendChild(n);
+         root.appendChild(txt2);
+         System.out.println(m_doc.toString()) ;
+    }
 
     public void testAdjacent() {
         NodeList ch = m_node.getChildNodes();

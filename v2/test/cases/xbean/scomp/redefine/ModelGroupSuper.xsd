@@ -5,7 +5,7 @@
     xmlns:color="http://xbean/scomp/redefine/SimpleRedefined"
 
     >
-   <!-- <xs:redefine schemaLocation="ModelGroupSub.xs">
+  <!--  <xs:redefine schemaLocation="ModelGroupSub.xs">
         <xs:complexType name="GroupT">
             <xs:complexContent>
                 <xs:extension base="GroupT">
