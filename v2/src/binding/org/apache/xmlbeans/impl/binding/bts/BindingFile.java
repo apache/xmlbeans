@@ -65,6 +65,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.io.IOException;
 
+import com.sun.tools.javac.v8.util.Pair;
+
 
 /**
  * Represents a BindingLoader whose contents are loaded from a
@@ -172,7 +174,8 @@ public class BindingFile extends BaseBindingLoader
         {
             Map.Entry entry = (Map.Entry)i.next();
             JavaName jName = (JavaName)entry.getKey();
-            XmlName xName = (XmlName)entry.getValue();
+            NamePair pair = (NamePair)entry.getValue();
+            XmlName xName = pair.getXmlName();
             org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = jtabNode.addNewMapping();
             mNode.setJavatype(jName.toString());
             mNode.setXmlcomponent(xName.toString());

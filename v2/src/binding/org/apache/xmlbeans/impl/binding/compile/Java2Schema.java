@@ -60,9 +60,6 @@ import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
 import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.XmlObject;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.XmlBeans;
 import org.w3.x2001.xmlSchema.*;
 
 import javax.xml.namespace.QName;
@@ -81,12 +78,15 @@ public class Java2Schema {
   private static final String JAVA_PACKAGE_PREFIX  = "java.";
 
   private static final String TAG_CT               = "xsdgen:complexType";
-  private static final String TAG_CT_TYPENAME      = TAG_CT+"@typeName";
-  private static final String TAG_CT_TARGETNS      = TAG_CT+"@targetNamespace";
-  private static final String TAG_CT_ROOT          = TAG_CT+"@rootElement";
+  private static final String TAG_CT_TYPENAME      = TAG_CT+".typeName";
+  private static final String TAG_CT_TARGETNS      = TAG_CT+".targetNamespace";
+  private static final String TAG_CT_ROOT          = TAG_CT+".rootElement";
 
   private static final String TAG_EL               = "xsdgen:element";
-  private static final String TAG_EL_NAME          = TAG_EL+"@name";
+  private static final String TAG_EL_NAME          = TAG_EL+".name";
+
+  private static final String TAG_AT               = "xsdgen:attribute";
+  private static final String TAG_AT_NAME          = TAG_AT+".name";
 
   // =========================================================================
   // Variables
@@ -138,40 +138,57 @@ public class Java2Schema {
     // create the schema type
     TopLevelComplexType xsdType = mSchema.addNewComplexType();
     String tns = getTargetNamespace(clazz);
-    QName qname = new QName(tns,clazz.getSimpleName());
+    String xsdName = getAnnotation(clazz,TAG_CT_TYPENAME,clazz.getSimpleName());
+    QName qname = new QName(tns,xsdName);
+    xsdType.setName(xsdName);
     // create a binding type
     ByNameBean bindType = new ByNameBean(getJavaName(clazz),
                                          XmlName.forTypeNamed(qname),
                                          isXmlObj(clazz));
     mBindingFile.addBindingType(bindType,true,true);
     // run through the class' properties to populate the binding and xsdtypes
+    //FIXME this is going to have to change to take inheritance into account
     JProperty props[] = clazz.getProperties();
     Group xsdSequence = null;
     for(int i=0; i<props.length; i++) {
       if (props[i].getGetter() == null || props[i].getSetter() == null) {
         continue; // we can only deal with read-write props
       }
-      String propName = getAnnotation(props[i],TAG_EL_NAME,props[i].getSimpleName());
+      boolean isAttribute = false;
+      String propName = getAnnotation(props[i],TAG_AT_NAME,null);
+      if (propName != null) {
+        isAttribute = true;
+      } else {
+        propName = getAnnotation(props[i],TAG_EL_NAME,props[i].getSimpleName());
+      }
       BindingType propType = getBindingTypeFor(props[i].getType());
       QNameProperty qprop = new QNameProperty();
       qprop.setBindingType(propType);
-      qprop.setQName(new QName(propName));
+      qprop.setQName(new QName(tns,propName));
       qprop.setGetterName(props[i].getGetter().getSimpleName());
       qprop.setSetterName(props[i].getSetter().getSimpleName());
       bindType.addProperty(qprop);
       // also populate the schema type
-      if (xsdSequence == null) xsdSequence = xsdType.addNewSequence();
-      LocalElement xsdElement = xsdSequence.addNewElement();
-      xsdElement.setName(propName);
-      xsdElement.setType(getBuiltinTypeNameFor(props[i].getType()));
+      if (!isAttribute) {
+        if (xsdSequence == null) xsdSequence = xsdType.addNewSequence();
+        LocalElement xsdElement = xsdSequence.addNewElement();
+        xsdElement.setName(propName);
+        xsdElement.setType(getBuiltinTypeNameFor(props[i].getType()));
+      } else {
+        Attribute xsdAtt = xsdType.addNewAttribute();
+        qprop.setAttribute(true);
+        xsdAtt.setName(propName);
+        xsdAtt.setType(getBuiltinTypeNameFor(props[i].getType()));
+      }
     }
-
     // check to see if they want to create a root elements from this type
     JAnnotation[] anns = clazz.getAnnotations(TAG_CT_ROOT);
-    if (anns.length != 0) {
-      for(int i=0; i<anns.length; i++) {
-
-      }
+    for(int i=0; i<anns.length; i++) {
+      TopLevelElement root = mSchema.addNewElement();
+      root.setName(anns[i].getStringValue());
+      root.setType(qname);
+      // FIXME still not entirely clear to me what we should do about
+      // the binding file here
     }
     return bindType;
   }
