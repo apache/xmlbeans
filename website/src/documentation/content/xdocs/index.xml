@@ -6,6 +6,10 @@
 	</header>
 	<body>
 		<section>
+			<title>Latest News</title>
+			<p>Read the latest <link href="site:news">XMLBeans news</link>!</p>
+		</section>
+		<section>
 			<title>Introduction to XMLBeans</title>
 			<p>XMLBeans is a tool that allows you to access the <em>full</em> power of XML in a Java friendly way.  It is an XML-Java binding tool.  The idea is that you can 
 			take advantage the richness and features of XML and XML Schema and have these features mapped as naturally as possible to the equivalent Java language and typing 

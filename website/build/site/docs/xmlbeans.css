@@ -26,7 +26,6 @@ h1 {
 	font-size: 135%;
 	margin-top: .5em;
 	margin-bottom: .5em;
-	border-bottom: solid 6px #4C6C8F;
 }
 
 /* Use h2 for all second-level headings. */
@@ -34,7 +33,6 @@ h2 {
 	font-size: 125%;
 	margin-top: 1em;
 	margin-bottom: .6em;
-	border-bottom: solid 4px #4C6C8F;
 }
 
 /* Use h3 for all third-level headings. */
@@ -42,7 +40,6 @@ h3 {
 	font-size: 110%;
 	margin-top: 1em;
 	margin-bottom: .6em;
-	border-bottom: solid 2px #4C6C8F;
 }
 
 /* Use h4 for all fourth-level headings. 
@@ -51,7 +48,6 @@ h4 {
 	font-size: 105%;
 	margin-top: 1em;
 	margin-bottom: .6em;
-	border-bottom: solid 1px #4C6C8F;
 }
 
 /* Use h5 for all fifth-level heading.  
