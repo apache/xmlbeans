@@ -27,6 +27,8 @@ import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
 import org.xml.sax.SAXException;
 
+import java.util.HashMap;
+
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.Reference;
 import java.lang.ref.PhantomReference;
@@ -57,6 +59,9 @@ import org.apache.xmlbeans.impl.newstore2.DomImpl.CdataNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajTextNode;
 import org.apache.xmlbeans.impl.newstore2.DomImpl.SaajCdataNode;
 
+import org.apache.xmlbeans.QNameSet;
+import org.apache.xmlbeans.QNameCache;
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.XmlDocumentProperties;
@@ -65,6 +70,14 @@ import javax.xml.namespace.QName;
 
 final class Locale implements DOMImplementation, SaajCallback
 {
+    static final int NONE     = Cur.NONE;
+    static final int ROOT     = Cur.ROOT;
+    static final int ELEM     = Cur.ELEM;
+    static final int ATTR     = Cur.ATTR;
+    static final int COMMENT  = Cur.COMMENT;
+    static final int PROCINST = Cur.PROCINST;
+    static final int TEXT     = Cur.TEXT;
+
     static final String _xsi         = "http://www.w3.org/2001/XMLSchema-instance";
     static final String _schema      = "http://www.w3.org/2001/XMLSchema";
     static final String _openFragUri = "http://www.openuri.org/fragment";
@@ -75,45 +88,22 @@ final class Locale implements DOMImplementation, SaajCallback
     static final QName _xsiType         = new QName( _xsi, "type" );
     static final QName _openuriFragment = new QName( _openFragUri, "fragment" );
     static final QName _xmlFragment     = new QName( "xml-fragment" );
+
+    // TODO (ericvas ) - have a qname factory here so that the same factory may be
+    // used by the parser.  This factory would probably come from my
+    // high speed parser.  Otherwise, use a thread local one
     
-    Locale ( )
-    {
-        _noSync = true;
-        _tempFrames = new Cur [ _numTempFramesLeft = 8 ];
-        _charUtil = CharUtil.getThreadLocalCharUtil();
-    }
-
-    static XmlDocumentProperties getDocProps ( Cur c )
-    {
-        Cur cRoot = c.tempCur();
-
-        while ( cRoot.toParent() )
-            ;
-
-        XmlDocumentProperties props =
-            (XmlDocumentProperties) cRoot.getBookmark( XmlDocumentProperties.class );
-
-        cRoot.release();
-
-        return props;
-    }
-
-    long version ( )
-    {
-        return _versionAll;
-    }
-
     QName makeQName ( String uri, String localPart )
     {
         assert localPart != null && localPart.length() > 0;
         // TODO - make sure name is a well formed name?
 
-        return new QName( uri, localPart );
+        return _qnameFactory.getQName( uri, localPart );
     }
 
     QName makeQName ( String uri, String local, String prefix )
     {
-        return new QName( uri, local, prefix == null ? "" : prefix );
+        return _qnameFactory.getQName( uri, local, prefix == null ? "" : prefix );
     }
 
     QName makeQualifiedQName ( String uri, String qname )
@@ -124,8 +114,256 @@ final class Locale implements DOMImplementation, SaajCallback
         int i = qname.indexOf( ':' );
 
         return i < 0
-            ? new QName( uri, qname )
-            : new QName( uri, qname.substring( i + 1 ), qname.substring( 0, i ) );
+            ? _qnameFactory.getQName( uri, qname )
+            : _qnameFactory.getQName( uri, qname.substring( i + 1 ), qname.substring( 0, i ) );
+    }
+
+    static XmlDocumentProperties getDocProps ( Cur c, boolean ensure )
+    {
+        c.push();
+
+        while ( c.toParent() )
+            ;
+
+        XmlDocumentProperties props =
+            (XmlDocumentProperties) c.getBookmark( XmlDocumentProperties.class );
+
+//        if (props == null)
+//        {
+//            props = new XmlDocumentProperties
+//        }
+
+        c.pop();
+
+        return props;
+    }
+
+    static boolean pushToContainer ( Cur c )
+    {
+        if (c.isContainer())
+            return true;
+
+        c.push();
+
+        boolean move = false;
+
+        if (c.isAttr())
+        {
+            c.toParent();
+            c.next();
+        }
+
+        loop:
+        for ( ; ; )
+        {
+            assert c.isContainer() || c.isFinish() || c.isComment() || c.isProcinst() || c.isText();
+            
+            switch ( c.kind() )
+            {
+            case ROOT :
+            case ELEM :
+                move = true;
+                break loop;
+
+            case - ROOT :
+            case - ELEM :
+                break loop;
+
+            case COMMENT :
+            case PROCINST :
+                c.toEnd();
+                // Fall thru
+
+            default :
+                c.next();
+                break;
+            }
+        }
+
+        if (move)
+            return true;
+
+        c.pop();
+
+        return false;
+    }
+
+    static boolean toChild ( Cur c, String uri, String local, int i )
+    {
+        return toChild( c, c._locale.makeQName( uri, local ), i );
+    }
+    
+    static boolean toChild ( Cur c, QName name, int i )
+    {
+//        if (!c.pushToContainer())
+//            return false;
+//
+        throw new RuntimeException( "Not implemented" );
+//        c.pop....
+    }
+
+//    private final class NthChildCache
+//    {
+//        private boolean namesSame ( QName pattern, QName name )
+//        {
+//            return pattern == null || pattern.equals( name );
+//        }
+//
+//        private boolean setsSame ( QNameSet patternSet, QNameSet set)
+//        {
+//            // value equality is probably too expensive. Since the use case
+//            // involves QNameSets that are generated by the compiler, we
+//            // can use identity comparison.
+//            return patternSet != null && patternSet == set;
+//        }
+//
+//        private boolean nameHit(QName namePattern,  QNameSet setPattern, QName name)
+//        {
+//            if (setPattern == null)
+//                return namesSame(namePattern, name);
+//            else
+//                return setPattern.contains(name);
+//        }
+//
+//        private boolean cacheSame (QName namePattern,  QNameSet setPattern)
+//        {
+//            return setPattern == null ? namesSame(namePattern, _name) :
+//                setsSame(setPattern, _set);
+//        }
+//
+//        int distance ( Splay parent, QName name, QNameSet set, int n )
+//        {
+//            assert n >= 0;
+//
+//            if (_version != Root.this.getVersion())
+//                return Integer.MAX_VALUE - 1;
+//
+//            if (parent != _parent || !cacheSame(name, set))
+//                return Integer.MAX_VALUE;
+//
+//            return n > _n ? n - _n : _n - n;
+//        }
+//
+//        Begin fetch ( Splay parent, QName name, QNameSet set, int n )
+//        {
+//            assert n >= 0;
+//
+//            if (_version != Root.this.getVersion() || _parent != parent ||
+//                  ! cacheSame(name, set) || n == 0)
+//            {
+//                _version = Root.this.getVersion();
+//                _parent = parent;
+//                _name = name;
+//                _child = null;
+//                _n = -1;
+//
+//                if (!parent.isLeaf())
+//                {
+//                    loop:
+//                    for ( Splay s = parent.nextSplay() ; ; s = s.nextSplay() )
+//                    {
+//                        switch ( s.getKind() )
+//                        {
+//                        case END  :
+//                        case ROOT : break loop;
+//
+//                        case BEGIN :
+//                            if (nameHit( name, set, s.getName() ))
+//                            {
+//                                _child = s;
+//                                _n = 0;
+//                                break loop;
+//                            }
+//
+//                            s = s.getFinishSplay();
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
+//
+//            if (_n < 0)
+//                return null;
+//
+//            if (n > _n)
+//            {
+//                while ( n > _n )
+//                {
+//                    for ( Splay s = _child.getFinishSplay().nextSplay() ; ;
+//                          s = s.nextSplay() )
+//                    {
+//                        if (s.isFinish())
+//                            return null;
+//
+//                        if (s.isBegin())
+//                        {
+//                            if (nameHit( name, set, s.getName() ))
+//                            {
+//                                _child = s;
+//                                _n++;
+//                                break;
+//                            }
+//
+//                            s = s.getFinishSplay();
+//                        }
+//                    }
+//                }
+//            }
+//            else if (n < _n)
+//            {
+//                while ( n < _n )
+//                {
+//                    Splay s = _child;
+//
+//                    for ( ; ; )
+//                    {
+//                        s = s.prevSplay();
+//
+//                        if (s.isLeaf() || s.isEnd())
+//                        {
+//                            if (s.isEnd())
+//                                s = s.getContainer();
+//
+//                            if (nameHit( name, set, s.getName() ))
+//                            {
+//                                _child = s;
+//                                _n--;
+//                                break;
+//                            }
+//                        }
+//                        else if (s.isContainer())
+//                            return null;
+//                    }
+//                }
+//            }
+//
+//            return (Begin) _child;
+//        }
+//
+//        private long     _version;
+//        private Splay    _parent;
+//        private QName    _name;
+//        private QNameSet _set;
+//        
+//        private Splay _child;
+//        private int   _n;
+//    }
+    
+    //
+    // 
+    //
+
+    Locale ( )
+    {
+        _noSync = true;
+        _tempFrames = new Cur [ _numTempFramesLeft = 8 ];
+        _charUtil = CharUtil.getThreadLocalCharUtil();
+        _qnameFactory = new DefaultQNameFactory();
+    }
+
+    long version ( )
+    {
+        return _versionAll;
     }
 
     Cur permCur ( )
@@ -796,6 +1034,45 @@ final class Locale implements DOMImplementation, SaajCallback
         return DomImpl.saajCallback_importSoapElement( (Dom) doc, elem, deep, parentName );
     }
 
+    
+    private static final class DefaultQNameFactory implements QNameFactory
+    {
+        private QNameCache _cache = XmlBeans.getQNameCache();
+        
+        public QName getQName ( String uri, String local )
+        {
+            return _cache.getName( uri, local, "" );
+        }
+
+        public QName getQName ( String uri, String local, String prefix )
+        {
+            return _cache.getName( uri, local, prefix );
+        }
+
+        public QName getQName (
+            char[] uriSrc,   int uriPos,   int uriCch,
+            char[] localSrc, int localPos, int localCch )
+        {
+            return
+                _cache.getName(
+                    new String( uriSrc, uriPos, uriCch ),
+                    new String( localSrc, localPos, localCch ),
+                    "" );
+        }
+
+        public QName getQName (
+            char[] uriSrc,    int uriPos,    int uriCch,
+            char[] localSrc,  int localPos,  int localCch,
+            char[] prefixSrc, int prefixPos, int prefixCch )
+        {
+            return
+                _cache.getName(
+                    new String( uriSrc, uriPos, uriCch ),
+                    new String( localSrc, localPos, localCch ),
+                    new String( prefixSrc, prefixPos, prefixCch ) );
+        }
+    }
+    
     //
     //
     //
@@ -821,4 +1098,6 @@ final class Locale implements DOMImplementation, SaajCallback
     Saaj _saaj;
     
     Dom _ownerDoc;
+
+    QNameFactory _qnameFactory;
 }

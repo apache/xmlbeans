@@ -61,24 +61,31 @@ public final class QNameCache
         this(initialCapacity, DEFAULT_LOAD);
     }
 
+    public QName getName(String uri, String localName)
+    {
+        return getName( uri, localName, "" );
+    }
+    
     /**
      * Fetches a QName with the given namespace and localname.
      * Creates one if one is not found in the cache.
      * 
      * @param uri the namespace
      * @param localName the localname
+     * @param prefix the prefix
      * @return the cached QName
      */ 
-    public QName getName(String uri, String localName)
+    public QName getName(String uri, String localName, String prefix)
     {
         /*
-        return new QName(uri, localName);
+        return new QName(uri, localName, prefix);
         */
         assert localName != null;
         
         if (uri == null) uri = "";
+        if (prefix == null) prefix = "";
 
-        int index = hash(uri, localName) & hashmask;
+        int index = hash(uri, localName, prefix) & hashmask;
         while (true) {
             QName q = table[index];
             if (q == null)
@@ -87,9 +94,9 @@ public final class QNameCache
                 if (numEntries >= threshold)
                     rehash();
 
-                return table[index] = new QName(uri, localName);
+                return table[index] = new QName(uri, localName, prefix);
             }
-            else if (equals(q, uri, localName))
+            else if (equals(q, uri, localName, prefix))
                 return q;
             else 
                 index = (index-1) & hashmask;
@@ -107,24 +114,37 @@ public final class QNameCache
             QName q = table[i];
             if (q != null)
             {
-                int newIndex = hash(q.getNamespaceURI(), q.getLocalPart()) & newHashmask;
+                int newIndex =
+                    hash( q.getNamespaceURI(), q.getLocalPart(), q.getPrefix() ) & newHashmask;
+                
                 while (newTable[newIndex] != null)
                     newIndex = (newIndex - 1) & newHashmask;
+                
                 newTable[newIndex] = q;
             }
         }
 
         table = newTable;
         hashmask = newHashmask;
-        threshold = (int)(newLength * loadFactor);
+        threshold = (int) (newLength * loadFactor);
     }
-    private static int hash(String uri, String localName)
+    
+    private static int hash(String uri, String localName, String prefix)
     {
-        return (uri.hashCode() << 5) + localName.hashCode();
+        int h = 0;
+
+        h += prefix.hashCode() << 10;
+        h += uri.hashCode() << 5;
+        h += localName.hashCode();
+
+        return h;
     }
 
-    private static boolean equals(QName q, String uri, String localName)
+    private static boolean equals(QName q, String uri, String localName, String prefix)
     {
-        return q.getLocalPart().equals(localName) && q.getNamespaceURI().equals(uri);
+        return
+            q.getLocalPart().equals(localName) &&
+                q.getNamespaceURI().equals(uri) &&
+                    q.getPrefix().equals(prefix);
     }
 }

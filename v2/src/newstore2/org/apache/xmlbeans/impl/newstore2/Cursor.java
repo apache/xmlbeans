@@ -361,21 +361,6 @@ public final class Cursor implements XmlCursor
         return _locale;
     }
     
-    public boolean _toFirstChild ( )
-    {
-        throw new RuntimeException( "Not implemented" );
-//        Cur c = _cur.tempCur();
-//
-//        if (!c.toNearestContainer() || !c.toFirstChildElem())
-//            return false;
-//
-//        _cur.moveToCur( c );
-//
-//        c.release();
-//
-//        return true;
-    }
-
     public boolean _toParent ( )
     {
         Cur c = _cur.tempCur();
@@ -390,15 +375,10 @@ public final class Cursor implements XmlCursor
         return true;
     }
 
-
-
-
-
-    
-
     public XmlDocumentProperties _documentProperties ( )
     {
         throw new RuntimeException( "Not implemented" );
+//        _cur.
     }
     
     public XMLStreamReader _newXMLStreamReader ( )
@@ -715,29 +695,45 @@ public final class Cursor implements XmlCursor
         throw new RuntimeException( "Not implemented" );
     }
     
-    public boolean _toChild ( String name )
+    public boolean _toFirstChild ( )
     {
-        throw new RuntimeException( "Not implemented" );
+        if (!Locale.pushToContainer( _cur ))
+            return false;
+
+        if (!_cur.hasChildren() || (_cur.next() && !_cur.isElem() && !_toNextSibling()))
+        {
+            _cur.pop();
+            return false;
+        }
+
+        _cur.popButStay();
+
+        return true;
     }
-    
-    public boolean _toChild ( String namespace, String name )
+
+    public boolean _toChild ( String local )
     {
-        throw new RuntimeException( "Not implemented" );
+        return Locale.toChild( _cur, null, local, 0 );
     }
     
     public boolean _toChild ( QName name )
     {
-        throw new RuntimeException( "Not implemented" );
+        return Locale.toChild( _cur, name, 0 );
+    }
+    
+    public boolean _toChild ( String namespace, String local )
+    {
+        return Locale.toChild( _cur, namespace, local, 0 );
     }
     
     public boolean _toChild ( int index )
     {
-        throw new RuntimeException( "Not implemented" );
+        return Locale.toChild( _cur, null, null, index );
     }
     
     public boolean _toChild ( QName name, int index )
     {
-        throw new RuntimeException( "Not implemented" );
+        return Locale.toChild( _cur, name.getNamespaceURI(), name.getLocalPart(), index );
     }
     
     public boolean _toNextSibling ( String name )
