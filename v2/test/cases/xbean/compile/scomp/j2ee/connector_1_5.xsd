@@ -49,7 +49,7 @@ Subject to Standard License Terms and Conditions.
 
 <xsd:annotation>
 <xsd:documentation>
-
+<![CDATA[
 This is the XML Schema for the Connector 1.5 deployment
 descriptor.  All Connector deployment descriptors must
 indicate the connector resource adapter schema by using the
@@ -73,7 +73,7 @@ the schema using the xsi:schemaLocation attribute for J2EE
 namespace with the following location:
 
 http://java.sun.com/xml/ns/j2ee/connector_1_5.xsd
-
+]]>
 </xsd:documentation>
 </xsd:annotation>
 

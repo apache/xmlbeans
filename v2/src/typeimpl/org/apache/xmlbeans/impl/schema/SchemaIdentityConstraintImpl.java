@@ -34,6 +34,7 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     private QName _name;
     private int _type;
     private XmlObject _parse;
+    private Object _userData;
     private SchemaAnnotation _annotation;
     private Map _nsMap = Collections.EMPTY_MAP;
     private String _parseTNS;
@@ -191,4 +192,10 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
 
     public SchemaComponent.Ref getComponentRef()
         { return getRef(); }
+
+    public Object getUserData()
+    {   return _userData; }
+
+    public void setUserData(Object data)
+    {   _userData = data; }
 }

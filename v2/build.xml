@@ -189,7 +189,7 @@
     <property name="docs.dir" value="build/docs"/>
     <delete dir="${docs.dir}"/>
     <mkdir dir="${docs.dir}"/>
-    <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="${javac.source}" target="${javac.target}" stylesheetfile="docs/stylesheet.css">
+    <javadoc packagenames="*" sourcepath="src/xmlpublic" classpath="${javadoc.path}" destdir="${docs.dir}/reference" windowtitle="XMLBeans Documentation" source="${javac.source}" stylesheetfile="docs/stylesheet.css">
       <link href="http://e-docs.bea.com/wls/docs81/javadocs/"/>
       <link href="http://java.sun.com/j2se/1.4.2/docs/api/"/>
       <link href="http://java.sun.com/j2ee/1.4/docs/api/"/>

@@ -80,4 +80,10 @@ public interface SchemaField
      * True if the value is fixed.
      */
     boolean isFixed();
+
+    /**
+     * Returns user-specific information.
+     * @see SchemaBookmark
+     */
+    Object getUserData();
 }

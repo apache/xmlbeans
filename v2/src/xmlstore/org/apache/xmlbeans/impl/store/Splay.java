@@ -2314,7 +2314,10 @@ public abstract class Splay extends Goobers
         if (getXsiNil( r ) == nil)
             return;
 
-        setAttr( r, _xsiNil, "true" );
+        if (nil)
+            setAttr( r, _xsiNil, "true" );
+        else
+            removeAttr( r,_xsiNil );
     }
 
     boolean getXsiNil ( Root r )

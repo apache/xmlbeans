@@ -2378,7 +2378,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             try
             {
-                result.init(readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, GroupDocument.Factory.parse( readString() ).getGroup(), readAnnotation());
+                result.init(readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, GroupDocument.Factory.parse( readString() ).getGroup(), readAnnotation(), null);
             }
             catch ( XmlException e )
             {
@@ -2390,7 +2390,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         {
             try
             {
-                result.init( readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, AttributeGroupDocument.Factory.parse( readString() ).getAttributeGroup(), readAnnotation());
+                result.init( readQName(), readString(), readShort() == 1, atLeast(2, 15, 0) ? readShort() == 1 : false, AttributeGroupDocument.Factory.parse( readString() ).getAttributeGroup(), readAnnotation(), null);
             }
             catch ( XmlException e )
             {
@@ -2401,7 +2401,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
         void loadAttribute(SchemaLocalAttributeImpl result)
         {
             // name, type, use, deftext, defval, fixed, soaparraytype, annotation
-            result.init(readQName(), readTypeRef(), readShort(), readString(), null, atLeast(2, 16, 0) ? readXmlValueObject() : null, readShort() == 1, readSOAPArrayType(), readAnnotation());
+            result.init(readQName(), readTypeRef(), readShort(), readString(), null, atLeast(2, 16, 0) ? readXmlValueObject() : null, readShort() == 1, readSOAPArrayType(), readAnnotation(), null);
         }
 
         void writeAttributeData(SchemaLocalAttribute attr)

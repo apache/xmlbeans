@@ -49,7 +49,7 @@ Subject to Standard License Terms and Conditions.
 
 <xsd:annotation>
 <xsd:documentation>
-
+<![CDATA[
 This is the XML Schema for the application 1.4 deployment
 descriptor.  All application deployment descriptors must
 indicate that the schema by using the J2EE namespace
@@ -73,7 +73,7 @@ the schema using the xsi:schemaLocation attribute for J2EE
 namespace with the following location:
 
 http://java.sun.com/xml/ns/j2ee/application_1_4.xsd
-
+]]>
 </xsd:documentation>
 </xsd:annotation>
 

@@ -49,7 +49,7 @@ Subject to Standard License Terms and Conditions.
 
 <xsd:annotation>
 <xsd:documentation>
-
+<![CDATA[
 This is the XML Schema for the application client 1.4
 deployment descriptor.  All application client deployment
 descriptors must indicate the application client
@@ -68,7 +68,7 @@ using the version element as shown below:
 
     ...
     </application-client>
-
+]]>
 The instance documents may indicate the published version of
 the schema using the xsi:schemaLocation attribute for J2EE
 namespace with the following location:

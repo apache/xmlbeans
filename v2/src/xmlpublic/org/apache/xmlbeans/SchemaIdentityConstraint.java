@@ -88,4 +88,10 @@ public interface SchemaIdentityConstraint extends SchemaComponent, SchemaAnnotat
         public final SchemaIdentityConstraint get()
             { return (SchemaIdentityConstraint)getComponent(); }
     }
+
+    /**
+     * Returns user-specific information.
+     * @see SchemaBookmark
+     */
+    Object getUserData();
 }

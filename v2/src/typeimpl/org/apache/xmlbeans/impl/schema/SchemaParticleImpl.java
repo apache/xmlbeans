@@ -49,6 +49,7 @@ public class SchemaParticleImpl implements SchemaParticle
     private boolean _isNillable;
     private SchemaType.Ref _typeref;
     protected XmlObject _parseObject;
+    private Object _userData;
     private XmlValueRef _defaultValue;
 
     protected void mutate()
@@ -236,5 +237,15 @@ public class SchemaParticleImpl implements SchemaParticle
     {
         mutate();
         _defaultValue = defaultRef;
+    }
+
+    public Object getUserData()
+    {
+        return _userData;
+    }
+
+    public void setUserData(Object data)
+    {
+        _userData = data;
     }
 }

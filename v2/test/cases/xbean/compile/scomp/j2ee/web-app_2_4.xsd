@@ -49,7 +49,7 @@ Subject to Standard License Terms and Conditions.
 
 <xsd:annotation>
 <xsd:documentation>
-
+<![CDATA[
 This is the XML Schema for the Servlet 2.4 deployment
 descriptor.  All Servlet deployment descriptors must
 indicate the web application schema by using the J2EE
@@ -72,7 +72,7 @@ the schema using the xsi:schemaLocation attribute for J2EE
 namespace with the following location:
 
 http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd
-
+]]>
 </xsd:documentation>
 </xsd:annotation>
 

@@ -225,6 +225,12 @@ public interface SchemaType extends SchemaComponent, SchemaAnnotated
     public abstract Class getEnumJavaClass();
 
     /**
+     * Returns user-specific information.
+     * @see SchemaBookmark
+     */
+    public Object getUserData();
+
+    /**
      * True if the Xsd type is anonymous (i.e., not top-level).
      */
     public abstract boolean isAnonymousType();

@@ -59,4 +59,10 @@ public interface SchemaModelGroup extends SchemaComponent, SchemaAnnotated
         public final SchemaModelGroup get()
             { return (SchemaModelGroup)getComponent(); }
     }
+
+    /**
+     * Returns user-specific information.
+     * @see SchemaBookmark
+     */
+    Object getUserData();
 }

@@ -98,6 +98,9 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private volatile Constructor _javaImplConstructor2;
     private volatile boolean _implNotAvailable;
 
+    // user data objects not persisted
+    private volatile Object _userData;
+
     private final Object[] _ctrArgs = new Object[] { this };
 
     // reflective support
@@ -568,6 +571,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public String getFullJavaImplName() { return _fullJavaImplName;}
     public String getShortJavaImplName() { return _shortJavaImplName;}
+
+    public Object getUserData()
+    {   return _userData; }
+
+    public void setUserData(Object data)
+    {   _userData = data; }
 
     public SchemaTypeSystem getTypeSystem()
         { return _typeSystem; }
