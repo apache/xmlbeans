@@ -64,6 +64,8 @@ abstract class Saver
 
     Saver ( Cur c, XmlOptions options )
     {
+        assert c._locale.entered();
+        
         options = XmlOptions.maskNull( options );
         
         _cur = createSaveCur( c, options );
@@ -1549,34 +1551,59 @@ abstract class Saver
         TextReader ( Cur c, XmlOptions options )
         {
             _textSaver = new TextSaver( c, options, null );
+            _locale = c._locale;
+            _closed = false;
         }
 
-        public void close ( ) throws IOException { }
+        public void close ( ) throws IOException { _closed = true; }
 
-        public boolean ready ( ) throws IOException { return true; }
+        public boolean ready ( ) throws IOException { return !_closed; }
 
         public int read ( ) throws IOException
         {
-            return _textSaver.read();
+            checkClosed();
+            
+            if (_locale.noSync())         { _locale.enter(); try { return _textSaver.read(); } finally { _locale.exit(); } }
+            else synchronized ( _locale ) { _locale.enter(); try { return _textSaver.read(); } finally { _locale.exit(); } }
         }
 
         public int read ( char[] cbuf ) throws IOException
         {
-            return _textSaver.read( cbuf, 0, cbuf == null ? 0 : cbuf.length );
+            checkClosed();
+            
+            if (_locale.noSync())         { _locale.enter(); try { return _textSaver.read( cbuf, 0, cbuf == null ? 0 : cbuf.length ); } finally { _locale.exit(); } }
+            else synchronized ( _locale ) { _locale.enter(); try { return _textSaver.read( cbuf, 0, cbuf == null ? 0 : cbuf.length ); } finally { _locale.exit(); } }
         }
 
         public int read ( char[] cbuf, int off, int len ) throws IOException
         {
-            return _textSaver.read( cbuf, off, len );
+            checkClosed();
+            
+            if (_locale.noSync())         { _locale.enter(); try { return _textSaver.read( cbuf, off, len ); } finally { _locale.exit(); } }
+            else synchronized ( _locale ) { _locale.enter(); try { return _textSaver.read( cbuf, off, len ); } finally { _locale.exit(); } }
         }
 
+        private void checkClosed ( ) throws IOException
+        {
+            if (_closed)
+                throw new IOException( "Reader has been closed" );
+        }
+        
+        private Locale    _locale;
         private TextSaver _textSaver;
+        private boolean   _closed;
     }
     
     static final class InputStreamSaver extends InputStream
     {
         InputStreamSaver ( Cur c, XmlOptions options )
         {
+            _locale = c._locale;
+
+            _closed = false;
+            
+            assert _locale.entered();
+            
             options = XmlOptions.maskNull( options );
             
             _outStreamImpl = new OutputStreamImpl();
@@ -1619,14 +1646,40 @@ abstract class Saver
             _textSaver = new TextSaver( c, options, encoding );
         }
 
-        public int read ( )
+        public void close ( ) throws IOException
         {
-            return _outStreamImpl.read();
+            _closed = true;
         }
 
-        public int read ( byte[] bbuf, int off, int len )
+        private void checkClosed ( ) throws IOException
         {
-            return _outStreamImpl.read ( bbuf, off, len );
+            if (_closed)
+                throw new IOException( "Stream closed" );
+        }
+
+        // Having the gateway here is kinda slow for the single character case.  It may be possible
+        // to only enter the gate when there are no chars in the buffer.
+        
+        public int read ( ) throws IOException
+        {
+            checkClosed();
+            
+            if (_locale.noSync())         { _locale.enter(); try { return _outStreamImpl.read(); } finally { _locale.exit(); } }
+            else synchronized ( _locale ) { _locale.enter(); try { return _outStreamImpl.read(); } finally { _locale.exit(); } }
+        }
+
+        public int read ( byte[] bbuf, int off, int len ) throws IOException
+        {
+            checkClosed();
+            
+            if (bbuf == null)
+                throw new NullPointerException( "buf to read into is null" );
+
+            if (off < 0 || off > bbuf.length)
+                throw new IndexOutOfBoundsException( "Offset is not within buf" );
+            
+            if (_locale.noSync())         { _locale.enter(); try { return _outStreamImpl.read( bbuf, off, len ); } finally { _locale.exit(); } }
+            else synchronized ( _locale ) { _locale.enter(); try { return _outStreamImpl.read( bbuf, off, len ); } finally { _locale.exit(); } }
         }
 
         private int ensure ( int cbyte )
@@ -1817,6 +1870,8 @@ abstract class Saver
             byte[] _buf;
         }
 
+        private Locale             _locale;
+        private boolean            _closed;
         private OutputStreamImpl   _outStreamImpl;
         private TextSaver          _textSaver;
         private OutputStreamWriter _converter;
@@ -2764,4 +2819,4 @@ abstract class Saver
         System.getProperty( "line.separator" ) == null
             ? "\n"
             : System.getProperty( "line.separator" );
-} 
+}
