@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EConstructor;
 import org.apache.xmlbeans.impl.jam.editable.EParameter;
+import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JParameter;
 
@@ -36,5 +37,19 @@ public class EConstructorImpl extends EInvokableImpl implements EConstructor {
   /*package*/ EConstructorImpl(EClassImpl containingClass) {
     super(containingClass.getSimpleName(),containingClass);
   }
+
+  // ========================================================================
+  // EElement implementation
+
+  public void accept(EElementVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  public void acceptAndWalk(EElementVisitor visitor) {
+    accept(visitor);
+    acceptAndWalkAll(visitor,getEditableParameters());
+    acceptAndWalkAll(visitor,getEditableAnnotations());
+  }
+
 
 }

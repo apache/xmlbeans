@@ -412,4 +412,16 @@ public class EClassImpl extends EMemberImpl
     }
   }
 
+  public void accept(EElementVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  public void acceptAndWalk(EElementVisitor visitor) {
+    accept(visitor);
+    acceptAndWalkAll(visitor,getEditableFields());
+    acceptAndWalkAll(visitor,getEditableConstructors());
+    acceptAndWalkAll(visitor,getEditableMethods());
+    acceptAndWalkAll(visitor,getEditableAnnotations());
+  }
+
 }

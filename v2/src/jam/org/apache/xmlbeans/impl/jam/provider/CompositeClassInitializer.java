@@ -15,36 +15,31 @@
 package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.editable.EClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeClassBuilder implements EClassBuilder {
+public class CompositeClassInitializer implements EClassInitializer {
 
   // ========================================================================
   // Variables
 
-  private EClassBuilder[] mBuilders;
+  private EClassInitializer[] mIniters;
 
   // ========================================================================
   // Constructors
 
-  public CompositeClassBuilder(EClassBuilder[] builders) {
-    mBuilders = builders;
+  public CompositeClassInitializer(EClassInitializer[] initers) {
+    if (initers == null) throw new IllegalArgumentException("null initers");
+    mIniters = initers;
   }
 
   // ========================================================================
   // EClassBuilder implementation
 
-  public EClass build(String pkg, String cname, JClassLoader cl) {
-    EClass out = null;
-    for(int i=0; i<mBuilders.length; i++) {
-      out = mBuilders[i].build(pkg,cname,cl);
-      if (out != null) return out;
-    }
-    return null;
+  public void initialize(EClass clazz) {
+    for(int i=0; i<mIniters.length; i++) mIniters[i].initialize(clazz);
   }
 
 }

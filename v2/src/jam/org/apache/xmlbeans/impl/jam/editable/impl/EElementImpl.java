@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.jam.editable.impl;
 import org.apache.xmlbeans.impl.jam.editable.EElement;
 import org.apache.xmlbeans.impl.jam.editable.ESourcePosition;
 import org.apache.xmlbeans.impl.jam.editable.EAnnotation;
+import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.*;
 
 import java.util.List;
@@ -152,6 +153,13 @@ public abstract class EElementImpl implements EElement {
   public int hashCode() {
     String qn = getQualifiedName();
     return (qn == null) ? 0 : qn.hashCode();
+  }
+
+  // ========================================================================
+  // Protected methods
+
+  protected void acceptAndWalkAll(EElementVisitor v, EElement[] elems) {
+    for(int i=0; i<elems.length; i++) elems[i].acceptAndWalk(v);
   }
 
 

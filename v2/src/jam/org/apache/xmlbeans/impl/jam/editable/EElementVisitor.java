@@ -12,25 +12,29 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.provider;
-
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+package org.apache.xmlbeans.impl.jam.editable;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EClassInitializer {
+public interface EElementVisitor {
 
-  /**
-   * <p>Initializes the given EClass.  Returns true if the implementation
-   * was able to resolve the java type represented by the clazz parameter
-   * and do something to initialize it.</p>
-   *
-   * <p>Note that the type to be initialized will never be an array type,
-   * a primitive, 'void', or 'java.lang.Object'.</p>
-   *
-   */
-  public void initialize(EClass clazz);
+  public void visit(EClass clazz);
+
+  public void visit(EConstructor ctor);
+
+  public void visit(EField field);
+
+  public void visit(EMethod method);
+
+  public void visit(EParameter param);
+
+  //REVIEW i'm not sure we want to visit annotations and their members,
+  //but we have little choice as long as they are elements.  Maybe that
+  //needs to change.
+  public void visit(EAnnotation param);
+
+  public void visit(EAnnotationMember member);
 
 }

@@ -109,4 +109,6 @@ public interface JStoreParams {
   public Properties getProperties();
 
   public JClassLoader getParentClassLoader();
+
+  public EClassInitializer getInitializer();
 }

@@ -24,7 +24,7 @@ import java.io.IOException;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class NewJServiceFactory extends DefaultJResultFactory {
+public class NewJServiceFactory extends DefaultJServiceFactory {
 
   /**
    * <p>Creates the sourcefile classloader to be used given the input params.
@@ -40,7 +40,7 @@ public class NewJServiceFactory extends DefaultJResultFactory {
     // FIXME this is a temporary hack - we shouldnt have to do this
     builders[1] = ReflectionClassBuilder.getSystemClassBuilder();
     CompositeClassBuilder ccb = new CompositeClassBuilder(builders);
-    return new JClassLoaderImpl(ccb,null);
+    return new JClassLoaderImpl(ccb,params.getInitializer());
   }
 
 }

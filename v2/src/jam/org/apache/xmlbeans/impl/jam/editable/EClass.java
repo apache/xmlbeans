@@ -150,9 +150,9 @@ public interface EClass extends EMember, JClass {
   public void removeMethod(EMethod method);
 
   /**
-   * Returns the EditableMethods declared on this class.  This does not include
-   * methods from any base class or interface.  This is simply a more
-   * strongly-typed version of getDeclaredMethods().
+   * Returns the EditableMethods declared on this class.  This does not
+   * include methods inherited from any base class or interface.  This is
+   * simply a more strongly-typed version of getDeclaredMethods().
    */
   public EMethod[] getEditableMethods();
 

@@ -14,23 +14,13 @@
  */
 package org.apache.xmlbeans.impl.jam.provider;
 
-import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.editable.EElement;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface EClassInitializer {
+public interface ElementProcessor {
 
-  /**
-   * <p>Initializes the given EClass.  Returns true if the implementation
-   * was able to resolve the java type represented by the clazz parameter
-   * and do something to initialize it.</p>
-   *
-   * <p>Note that the type to be initialized will never be an array type,
-   * a primitive, 'void', or 'java.lang.Object'.</p>
-   *
-   */
-  public void initialize(EClass clazz);
-
+  public void process(EElement e);
 }

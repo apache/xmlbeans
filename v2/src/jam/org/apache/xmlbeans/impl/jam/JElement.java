@@ -37,18 +37,16 @@ public abstract interface JElement {
   public JAnnotation[] getAnnotations();
 
   /**
-   * <p>Returns the set of annotations associated with this
-   * abstraction which have the given name.  Returns an empty array if
-   * there are no such annotations.</p>
+   * <p>Returns the annotation of the named annotation class.  The
+   * named class must be loadable by the JClassLoader which loaded
+   * this JElement.</p>
    *
-   * @deprecated I don't think we should encourage people to support
-   * multiple annotations with the same name as that does not work once
-   * we get to 175-land.
-   */
-  public JAnnotation[] getAnnotations(String named);
-
-  /**
-   * <p>Returns the annotation on this abstraction which has the given
+   * NOTE: The following additional behavior is still supported
+   * in the case where the annotation takes the form of javadoc tags,
+   * but it is deprecated.
+   *
+   * <p>Returns the annotation on this abstraction of the given
+   * annotation type.  which has the given
    * name.  If more than one such annotation exists, returns the first
    * one in document order.  If none exists, returns null.</p>
    *
@@ -65,7 +63,16 @@ public abstract interface JElement {
    * return null.</p>
    *
    */
-  public JAnnotation getAnnotation(String named);
+  public JAnnotation getAnnotation(String qualifiedAnnotationClassname);
+
+  /**
+   * <p>Returns the annotation on this abstraction of the given
+   * annotation type.</p>
+   */
+  //public JAnnotation getAnnotation(JAnnotationDefinition annType);
+
+
+
 
   /**
    * <p>Returns the parent of this abstraction, or null if this
@@ -116,4 +123,20 @@ public abstract interface JElement {
    * element, or null if the position is unknown on not applicable.
    */
   public JSourcePosition getSourcePosition();
+
+
+  // ========================================================================
+  // Deprecated methods
+
+  /**
+   * <p>Returns the set of annotations associated with this
+   * abstraction which have the given name.  Returns an empty array if
+   * there are no such annotations.</p>
+   *
+   * @deprecated I don't think we should encourage people to support
+   * multiple annotations with the same name as that does not work once
+   * we get to 175-land.
+   */
+  public JAnnotation[] getAnnotations(String named);
+
 }

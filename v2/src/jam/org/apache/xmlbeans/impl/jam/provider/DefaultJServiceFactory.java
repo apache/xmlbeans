@@ -35,12 +35,12 @@ import java.net.URLClassLoader;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class DefaultJResultFactory extends JServiceFactory {
+public class DefaultJServiceFactory extends JServiceFactory {
 
   // ========================================================================
   // Constructors
 
-  public DefaultJResultFactory() {}
+  public DefaultJServiceFactory() {}
 
   // ========================================================================
   // JServiceFactory implementation

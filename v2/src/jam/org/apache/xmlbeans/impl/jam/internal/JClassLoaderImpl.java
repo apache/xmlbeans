@@ -54,8 +54,15 @@ public class JClassLoaderImpl implements JClassLoader {
   public JClassLoaderImpl(EClassBuilder builder,
                           EClassInitializer initializer) {
     if (builder == null) throw new IllegalArgumentException("null builder");
+    if (initializer == null) throw new IllegalArgumentException("null initializer");
     mBuilder = builder;
     mInitializer = initializer;
+  }
+
+  public JClassLoaderImpl(EClassBuilder builder) {
+    if (builder == null) throw new IllegalArgumentException("null builder");
+    mBuilder = builder;
+    mInitializer = null;
   }
 
   // ========================================================================
@@ -90,11 +97,11 @@ public class JClassLoaderImpl implements JClassLoader {
     if (out == null) {
       out = new EClassImpl(pkg,name,this,null);
       ((EClassImpl)out).setIsUnresolved(true);
-      if (mVerbose) System.out.println("[JClassLoaderImpl] unresolve class '"+
+      if (mVerbose) System.out.println("[JClassLoaderImpl] unresolved class '"+
                                        pkg+" "+name+"'!!");
     }
-    if (out instanceof EClassImpl) {
-      if (mInitializer != null) mInitializer.initialize((EClassImpl)out);
+    if (mInitializer != null && out instanceof EClassImpl) {
+      mInitializer.initialize((EClassImpl)out);
     }
     mFd2ClassCache.put(fd,out);
     return out;

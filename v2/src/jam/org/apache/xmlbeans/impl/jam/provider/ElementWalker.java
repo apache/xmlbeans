@@ -15,36 +15,31 @@
 package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.editable.EClass;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
 
 /**
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class CompositeClassBuilder implements EClassBuilder {
+public class ElementWalker {
 
   // ========================================================================
   // Variables
 
-  private EClassBuilder[] mBuilders;
+  private ElementProcessor mProcessor;
 
   // ========================================================================
   // Constructors
 
-  public CompositeClassBuilder(EClassBuilder[] builders) {
-    mBuilders = builders;
+  public ElementWalker(ElementProcessor p) {
+    mProcessor = p;
   }
 
   // ========================================================================
-  // EClassBuilder implementation
+  // Public methods
 
-  public EClass build(String pkg, String cname, JClassLoader cl) {
-    EClass out = null;
-    for(int i=0; i<mBuilders.length; i++) {
-      out = mBuilders[i].build(pkg,cname,cl);
-      if (out != null) return out;
-    }
-    return null;
+  public void walk(EClass clazz) {
+    mProcessor.process(clazz);
   }
+
 
 }
