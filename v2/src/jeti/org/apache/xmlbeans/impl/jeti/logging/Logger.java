@@ -19,18 +19,21 @@ import org.apache.xmlbeans.impl.jam.JElement;
 import java.util.logging.Level;
 
 /**
+ * <p>Client interface logging service.</p>
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
 public interface Logger {
 
   /**
+   * Outputs a generic logging message.
    */
   public void log(Level level,
                   String msgId,
                   Object[] msgArgs);
 
   /**
+   * Outputs a generic logging message.
    */
   public void log(Level level,
                   String msgId,
@@ -38,21 +41,33 @@ public interface Logger {
                   Throwable error);
 
   /**
-   *
+   * Outputs a diagnostic message that was encountered while processing
+   * a specific java construct.
    *
    * @param level
-   * @param javaContext
+   * @param javaDiagnosticContext
    * @param msgId
    * @param msgArgs
    */
-  public void log(Level level,
-                  JElement javaContext,
-                  String msgId,
-                  Object[] msgArgs);
+  public void addDiagnostic(Level level,
+                            JElement javaDiagnosticContext,
+                            String msgId,
+                            Object[] msgArgs);
 
-
-
-  public void log(Message m);
-
+  /**
+   * Outputs a diagnostic message that was encountered while processing
+   * a specific java construct.
+   *
+   *
+   * @param level
+   * @param javaDiagnosticContext
+   * @param msgId
+   * @param msgArgs
+   */
+  public void addDiagnostic(Level level,
+                            JElement javaDiagnosticContext,
+                            String msgId,
+                            Object[] msgArgs,
+                            Throwable error);
 
 }

@@ -12,7 +12,9 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jeti.logging;
+package org.apache.xmlbeans.impl.jeti.logging.provider;
+
+import org.apache.xmlbeans.impl.jeti.logging.provider.Message;
 
 /**
  * To be implemented by providers who want to handle messages/diagnostics
