@@ -109,20 +109,23 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        XmlOptions options = new XmlOptions();
-        options.setSavePrettyPrint();
-
-
-
+        Document doc = Public2.parse( "<a>1234567890123456789012345678901234567890</a>" );;
+        doc.getDocumentElement().appendChild( doc.createTextNode( "a" ) );
         
-        Document doc = Public2.parse( "<a><?moo foo?>\r\n<!--comment--></a>" );;
-
-        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "a:b", "value" );
-        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "xxx:b", "kjkj" );
-
-        Public2.dump( doc );
-
-        System.out.println( Public2.save( doc, options ) );
+//        XmlOptions options = new XmlOptions();
+//        options.setSavePrettyPrint();
+//
+//
+//
+//        
+//        Document doc = Public2.parse( "<a><?moo foo?>\r\n<!--comment--></a>" );;
+//
+//        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "a:b", "value" );
+//        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "xxx:b", "kjkj" );
+//
+//        Public2.dump( doc );
+//
+//        System.out.println( Public2.save( doc, options ) );
     }
 }
 
