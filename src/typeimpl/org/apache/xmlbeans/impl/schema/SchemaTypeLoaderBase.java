@@ -58,7 +58,6 @@ import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 {
-    // User-Agent: XMLBeans/1.0.4 (org.apache.xmlbeans)
     private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
 
     private static final Method _rootBuilder = getMethod( "org.apache.xmlbeans.impl.store.Root", "newStore", new Class[] { SchemaTypeLoader.class, SchemaType.class, XmlOptions.class } );
