@@ -75,6 +75,21 @@
     Part 1 version: Id: XMLSchema.xsd,v 1.53 2003/02/24 17:40:07 ht Exp 
     Part 2 version: Id: datatypes.xsd,v 1.60 2003/04/05 11:02:30 ht Exp 
   </xs:documentation>
+  <xs:documentation>
+    Apache XMLBean changes:
+
+    2003/05/14: The regular expressions that describe integrity constraint
+    xpaths has been modified to permit whitespaces in certain places, as
+    discussed in one of the errata.
+
+    2003/05/28: the type of the &lt;element> element in an &lt;all> group has
+    been given a name so that it is legal to use the type in both a base type
+    and a restriction when using the allModel (otherwise it breaks one of the
+    particle-valid (restriction) rules).
+
+    2003/09/15: finalDefault has been changed to permit "list" and "union"
+
+  </xs:documentation>
  </xs:annotation>
 
 

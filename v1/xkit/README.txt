@@ -50,7 +50,7 @@ Where to start?
        is on your path and that JAVA_HOME/bin contains java[.exe],
        javac[.exe], and jar[.exe].
 
-    2. set your XMLBEANDIR env variable to point to the directory
+    2. set your XMLBEANS_HOME env variable to point to the directory
        containing xbean.jar (i.e., ./lib).
 
     3. put the scripts in ./bin on your path.
