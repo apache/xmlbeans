@@ -295,7 +295,7 @@
                  xmlstore.classes, newstore2.classes,
                  saaj_api.classes, binding.classes, marshal.classes, xpath.classes,
                  oldxbean.jar, xsdschema.classes,
-                 xmlinputstream.classes, resolver.jar, xbean_xpath.jar">
+                 xmlinputstream.classes, resolver.jar, xbean_xpath.jar, piccolo.classes">
     <jar jarfile="build/lib/xbean.jar" index="true">
       <fileset dir="build/classes/xmlpublic"/>
       <fileset dir="build/classes/typestore"/>
@@ -314,6 +314,7 @@
       <fileset dir="build/classes/marshal"/>
       <fileset dir="build/classes/repackage"/>
       <fileset dir="build/classes/jam"/>
+      <fileset dir="build/classes/piccolo"/>
       <fileset dir="src/license"/>
     </jar>
   </target>
@@ -960,5 +961,42 @@
     </java>
   </target>
 
+  <!-- Piccolo deployment -->
+  <target name="piccolo.classes.check">
+    <uptodate property="piccolo.classes.notRequired"
+        targetfile="build/ar/xbean.jar" >
+      <srcfiles dir="external/lib" includes="**/piccolo_*.jar"/>
+      <srcfiles dir="build/classes/piccolo" includes="**/*.class"/>
+      <srcfiles dir="build/private/piccolo/src" includes="**/*.java"/>
+      <srcfiles dir="build/private/piccolo/src_repackage" includes="**/*.java"/>
+    </uptodate>
+  </target>
+
+  <target name="piccolo.classes" depends="piccolo.classes.check, dirs" unless="piccolo.classes.notRequired">
+    <mkdir dir="build/private/piccolo" />
+    <unjar src="external/lib/piccolo_apache_dist_20040629.jar" dest="build/private/piccolo" />
+
+    <echo message="Re-packaging XmlBeans" />
+
+    <property
+        name="piccolo_repackage_spec"
+        value="com.bluecast:org.apache.xmlbeans.impl.piccolo"/>
+
+    <java classname="repackage.Repackage" fork="true" failonerror="true">
+        <classpath>
+            <pathelement location="build/classes/repackage"/>
+        </classpath>
+        <arg line="-repackage ${piccolo_repackage_spec} -f build/private/piccolo/src -t build/private/piccolo/src_repackage"/>
+    </java>
+
+    <mkdir dir="build/classes/piccolo" />
+    <javac
+          destdir="build/classes/piccolo"
+          classpath=""
+          source="1.3" target="1.4"
+          debug="on" >
+         <src path="build/private/piccolo/src_repackage"/>
+    </javac>
+  </target>
 
 </project>
