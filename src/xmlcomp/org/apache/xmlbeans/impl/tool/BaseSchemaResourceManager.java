@@ -15,12 +15,12 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import com.bea.x2003.x01.xmlbean.xsdownload.DownloadedSchemasDocument;
-import com.bea.x2003.x01.xmlbean.xsdownload.DownloadedSchemaEntry;
-import com.bea.x2003.x01.xmlbean.xsdownload.DownloadedSchemasDocument.DownloadedSchemas;
 import org.apache.xmlbeans.impl.util.HexBin;
 import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemasDocument;
+import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemasDocument.DownloadedSchemas;
+import org.apache.xml.xmlbeans.x2004.x02.xmlbean.xsdownload.DownloadedSchemaEntry;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -80,7 +80,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
             try
             {
                 _importsDoc = DownloadedSchemasDocument.Factory.parse(
-                    "<dls:downloaded-schemas xmlns:dls='http://www.bea.com/2003/01/xmlbean/xsdownload' defaultDirectory='" + getDefaultSchemaDir() + "'/>"
+                    "<dls:downloaded-schemas xmlns:dls='http://xml.apache.org/xmlbeans/2004/02/xmlbean/xsdownload' defaultDirectory='" + getDefaultSchemaDir() + "'/>"
                 );
             }
             catch (Exception e)
@@ -553,7 +553,7 @@ public abstract class BaseSchemaResourceManager extends SchemaImportResolver
         {
             URL url = new URL( schemaLocation );
             URLConnection conn = url.openConnection();
-            conn.addRequestProperty("User-Agent", "BEA XML Beans/1.0");
+            conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.1");
             conn.addRequestProperty("Accept", "application/xml, text/xml, */*");
             DigestInputStream input = digestInputStream(conn.getInputStream());
             IOUtil.copyCompletely(input, buffer);

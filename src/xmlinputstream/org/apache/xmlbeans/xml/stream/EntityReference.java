@@ -18,7 +18,7 @@ package org.apache.xmlbeans.xml.stream;
 /**
  * An interface for handling Entity Declarations
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  */
 

@@ -15,12 +15,12 @@
 
 package org.apache.xmlbeans.impl.tool;
 
-import com.bea.x2003.x05.xmlbean.ltgfmt.TestsDocument;
-import com.bea.x2003.x05.xmlbean.ltgfmt.FileDesc;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlCalendar;
+import org.apache.xml.xmlbeans.x2004.x02.xmlbean.ltgfmt.TestsDocument;
+import org.apache.xml.xmlbeans.x2004.x02.xmlbean.ltgfmt.FileDesc;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -341,14 +341,14 @@ public class XSTCTester
         try
         {
             XmlOptions ltgOptions = new XmlOptions();
-            ltgOptions.setLoadSubstituteNamespaces(Collections.singletonMap("", "http://www.bea.com/2003/05/xmlbean/ltgfmt"));
+            ltgOptions.setLoadSubstituteNamespaces(Collections.singletonMap("", "http://xml.apache.org/xmlbeans/2004/02/xmlbean/ltgfmt"));
             ltgOptions.setErrorListener(errors);
             ltgOptions.setLoadLineNumbers();
             TestsDocument doc = TestsDocument.Factory.parse(ltgFile, ltgOptions);
             if (!doc.validate(ltgOptions))
                 throw new Exception("Document " + ltgFile + " not valid.");
             
-            com.bea.x2003.x05.xmlbean.ltgfmt.TestCase[] testCases = doc.getTests().getTestArray();
+            org.apache.xml.xmlbeans.x2004.x02.xmlbean.ltgfmt.TestCase[] testCases = doc.getTests().getTestArray();
             
             Collection result = new ArrayList();
             for (int i = 0; i < testCases.length; i++)

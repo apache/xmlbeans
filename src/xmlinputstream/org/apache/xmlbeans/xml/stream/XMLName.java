@@ -18,7 +18,7 @@ package org.apache.xmlbeans.xml.stream;
 /**
  * Encapsulates information about the Qualified Name of an XML event.
  *
- * @since Weblogic XML Input Stream 1.0
+ *
  * @version 1.0
  * @see org.apache.xmlbeans.xml.stream.StartElement
  * @see org.apache.xmlbeans.xml.stream.XMLEvent
