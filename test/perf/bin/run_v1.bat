@@ -1,90 +1,65 @@
-echo off
-call v1.bat POReadAllV1 1 
-echo
-call v1.bat POReadAllV1 2 
-echo
-call v1.bat POReadAllV1 3 
-echo
-call v1.bat POReadAllV1 4 
-echo
-call v1.bat POReadAllV1 5 
-echo
-call v1.bat POReadAllV1 6 
-echo
-call v1.bat POReadAllV1 7 
-echo
-call v1.bat POReadOneV1 1
-echo
-call v1.bat POReadOneV1 2
-echo
-call v1.bat POReadOneV1 3
-echo
-call v1.bat POReadOneV1 4
-echo
-call v1.bat POReadOneV1 5
-echo
-call v1.bat POReadOneV1 6
-echo
-call v1.bat POReadOneV1 7
-echo
+call v1.bat POReadAllV1 filename 1 
+call v1.bat POReadAllV1 filename 2 
+call v1.bat POReadAllV1 filename 3 
+call v1.bat POReadAllV1 filename 4 
+call v1.bat POReadAllV1 filename 5 
+call v1.bat POReadAllV1 filename 6 
+call v1.bat POReadAllV1 filename 7 
+call v1.bat POReadOneV1 filename 1
+call v1.bat POReadOneV1 filename 2
+call v1.bat POReadOneV1 filename 3
+call v1.bat POReadOneV1 filename 4
+call v1.bat POReadOneV1 filename 5
+call v1.bat POReadOneV1 filename 6
+call v1.bat POReadOneV1 filename 7
 call v1.bat POTopDownV1
-echo
 call v1.bat POTopDownSaveV1
-echo
 call v1.bat POValidateXmlObjV1
-echo
 call v1.bat PrimTopDownV1
-echo 
 call v1.bat NPrimTopDownV1
-echo 
-call v1.bat CursorWalkV1 deep-attributes
-echo
-call v1.bat CursorWalkV1 deep-elements
-echo 
-call v1.bat CursorWalkV1 wide-attributes
-echo
-call v1.bat CursorWalkV1 wide-elements
-echo
-call v1.bat CursorWalkV1 wide-text
-echo
-call v1.bat CursorGetAttributeV1 deep-attributes
-echo
-call v1.bat CursorGetAttributeV1 wide-attributes
-echo
-call v1.bat CursorGetSetGetAttributeV1 deep-attributes
-echo
-call v1.bat CursorGetSetGetAttributeV1 wide-attributes
-echo
+call v1.bat CursorWalkV1 flavor deep-attributes
+call v1.bat CursorWalkV1 flavor deep-elements
+call v1.bat CursorWalkV1 flavor wide-attributes
+call v1.bat CursorWalkV1 flavor wide-elements
+call v1.bat CursorWalkV1 flavor wide-text
+call v1.bat CursorGetAttributeV1 flavor deep-attributes
+call v1.bat CursorGetAttributeV1 flavor wide-attributes
+call v1.bat CursorGetSetGetAttributeV1 flavor deep-attributes
+call v1.bat CursorGetSetGetAttributeV1 flavor wide-attributes
 call v1.bat CursorGetElementV1
-echo
 call v1.bat CursorGetSetGetElementV1
-echo
-call v1.bat BisLoadV1 deep-attributes
-echo 
-call v1.bat BisLoadV1 deep-elements
-echo 
-call v1.bat BisLoadV1 wide-attributes
-echo 
-call v1.bat BisLoadV1 wide-elements
-echo 
-call v1.bat BisLoadV1 wide-text
-echo 
-call v1.bat DomWalkV1 deep-attributes
-echo
-call v1.bat DomWalkV1 deep-elements
-echo
-call v1.bat DomWalkV1 wide-attributes
-echo
-call v1.bat DomWalkV1 wide-elements
-echo
-call v1.bat DomWalkV1 wide-text
-echo
-call v1.bat DomWalkNLV1 deep-attributes
-echo
-call v1.bat DomWalkNLV1 deep-elements
-echo
-call v1.bat DomWalkNLV1 wide-attributes
-echo
-call v1.bat DomWalkNLV1 wide-elements
-echo
-call v1.bat DomWalkNLV1 wide-text
+call v1.bat BisLoadV1 flavor deep-attributes
+call v1.bat BisLoadV1 flavor deep-elements
+call v1.bat BisLoadV1 flavor wide-attributes
+call v1.bat BisLoadV1 flavor wide-elements
+call v1.bat BisLoadV1 flavor wide-text
+call v1.bat DomWalkV1 flavor deep-attributes
+call v1.bat DomWalkV1 flavor deep-elements
+call v1.bat DomWalkV1 flavor wide-attributes
+call v1.bat DomWalkV1 flavor wide-elements
+call v1.bat DomWalkV1 flavor wide-text
+call v1.bat DomWalkNLV1 flavor deep-attributes
+call v1.bat DomWalkNLV1 flavor deep-elements
+call v1.bat DomWalkNLV1 flavor wide-attributes
+call v1.bat DomWalkNLV1 flavor wide-elements
+call v1.bat DomWalkNLV1 flavor wide-text
+call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor deep-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 128 flavor deep-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 256 flavor deep-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 512 flavor deep-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor deep-elements
+call v1.bat MaxMemUntypedBisLoadV1 memory 128 flavor deep-elements
+call v1.bat MaxMemUntypedBisLoadV1 memory 256 flavor deep-elements
+call v1.bat MaxMemUntypedBisLoadV1 memory 512 flavor deep-elements
+call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor wide-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 128 flavor wide-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 256 flavor wide-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 512 flavor wide-attributes
+call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor wide-text
+call v1.bat MaxMemUntypedBisLoadV1 memory 128 flavor wide-text
+call v1.bat MaxMemUntypedBisLoadV1 memory 256 flavor wide-text
+call v1.bat MaxMemUntypedBisLoadV1 memory 512 flavor wide-text
+call v1.bat MaxMemUntypedBisLoadV1 memory 64 flavor wide-text
+call v1.bat MaxMemUntypedBisLoadV1 memory 128 flavor wide-elements
+call v1.bat MaxMemUntypedBisLoadV1 memory 256 flavor wide-elements
+call v1.bat MaxMemUntypedBisLoadV1 memory 512 flavor wide-elements

@@ -103,4 +103,11 @@ public class Constants
   public static final BigInteger myNegBigInteger = new BigInteger("-987654321");
   public static final GregorianCalendar myDate = new GregorianCalendar();
   public static final String myString = "hello world!";
+  
+  // memory scenario values
+  public static final int MEM_INTERVAL = 100000;
+  public static final int MEM_INITIALSIZE = 4000000;
+  
+  // netui config xsd for real-world example
+  public static final String NETUI_CONFIG_INSTANCE = XSD_DIR+P+"netui-config.xml";
 }

@@ -1,51 +1,51 @@
-call xerces.bat POReadAllXercesSax 1 
-call xerces.bat POReadAllXercesDom 1 
-call xerces.bat POReadAllXercesSax 2 
-call xerces.bat POReadAllXercesDom 2 
-call xerces.bat POReadAllXercesSax 3 
-call xerces.bat POReadAllXercesDom 3 
-call xerces.bat POReadAllXercesSax 4 
-call xerces.bat POReadAllXercesDom 4 
-call xerces.bat POReadAllXercesSax 5 
-call xerces.bat POReadAllXercesDom 5 
-call xerces.bat POReadAllXercesSax 6 
-call xerces.bat POReadAllXercesDom 6 
-call xerces.bat POReadAllXercesSax 7 
-call xerces.bat POReadAllXercesDom 7 
-call xerces.bat POReadOneXercesSax 1 
-call xerces.bat POReadOneXercesDom 1 
-call xerces.bat POReadOneXercesSax 2 
-call xerces.bat POReadOneXercesDom 2 
-call xerces.bat POReadOneXercesSax 3 
-call xerces.bat POReadOneXercesDom 3 
-call xerces.bat POReadOneXercesSax 4 
-call xerces.bat POReadOneXercesDom 4 
-call xerces.bat POReadOneXercesSax 5 
-call xerces.bat POReadOneXercesDom 5 
-call xerces.bat POReadOneXercesSax 6 
-call xerces.bat POReadOneXercesDom 6 
-call xerces.bat POReadOneXercesSax 7 
-call xerces.bat POReadOneXercesDom 7 
+call xerces.bat POReadAllXercesSax filename 1 
+call xerces.bat POReadAllXercesDom filename 1 
+call xerces.bat POReadAllXercesSax filename 2 
+call xerces.bat POReadAllXercesDom filename 2 
+call xerces.bat POReadAllXercesSax filename 3 
+call xerces.bat POReadAllXercesDom filename 3 
+call xerces.bat POReadAllXercesSax filename 4 
+call xerces.bat POReadAllXercesDom filename 4 
+call xerces.bat POReadAllXercesSax filename 5 
+call xerces.bat POReadAllXercesDom filename 5 
+call xerces.bat POReadAllXercesSax filename 6 
+call xerces.bat POReadAllXercesDom filename 6 
+call xerces.bat POReadAllXercesSax filename 7 
+call xerces.bat POReadAllXercesDom filename 7 
+call xerces.bat POReadOneXercesSax filename 1 
+call xerces.bat POReadOneXercesDom filename 1 
+call xerces.bat POReadOneXercesSax filename 2 
+call xerces.bat POReadOneXercesDom filename 2 
+call xerces.bat POReadOneXercesSax filename 3 
+call xerces.bat POReadOneXercesDom filename 3 
+call xerces.bat POReadOneXercesSax filename 4 
+call xerces.bat POReadOneXercesDom filename 4 
+call xerces.bat POReadOneXercesSax filename 5 
+call xerces.bat POReadOneXercesDom filename 5 
+call xerces.bat POReadOneXercesSax filename 6 
+call xerces.bat POReadOneXercesDom filename 6 
+call xerces.bat POReadOneXercesSax filename 7 
+call xerces.bat POReadOneXercesDom filename 7 
 call xerces.bat POTopDownXercesSax
 call xerces.bat POTopDownXercesDom
 call xerces.bat POValidateXerces
-call xerces.bat BisLoadXercesDom deep-attributes
-call xerces.bat BisLoadXercesSax deep-attributes
-call xerces.bat BisLoadXercesDom deep-elements
-call xerces.bat BisLoadXercesSax deep-elements
-call xerces.bat BisLoadXercesDom wide-attributes
-call xerces.bat BisLoadXercesSax wide-attributes
-call xerces.bat BisLoadXercesDom wide-elements
-call xerces.bat BisLoadXercesSax wide-elements
-call xerces.bat BisLoadXercesDom wide-text 
-call xerces.bat BisLoadXercesSax wide-text
-call xerces.bat DomWalkXerces deep-attributes
-call xerces.bat DomWalkXerces deep-elements
-call xerces.bat DomWalkXerces wide-attributes
-call xerces.bat DomWalkXerces wide-elements
-call xerces.bat DomWalkXerces wide-text
-call xerces.bat DomWalkNLXerces deep-attributes
-call xerces.bat DomWalkNLXerces deep-elements
-call xerces.bat DomWalkNLXerces wide-attributes
-call xerces.bat DomWalkNLXerces wide-elements
-call xerces.bat DomWalkNLXerces wide-text
+call xerces.bat BisLoadXercesDom flavor deep-attributes
+call xerces.bat BisLoadXercesSax flavor deep-attributes
+call xerces.bat BisLoadXercesDom flavor deep-elements
+call xerces.bat BisLoadXercesSax flavor deep-elements
+call xerces.bat BisLoadXercesDom flavor wide-attributes
+call xerces.bat BisLoadXercesSax flavor wide-attributes
+call xerces.bat BisLoadXercesDom flavor wide-elements
+call xerces.bat BisLoadXercesSax flavor wide-elements
+call xerces.bat BisLoadXercesDom flavor wide-text 
+call xerces.bat BisLoadXercesSax flavor wide-text
+call xerces.bat DomWalkXerces flavor deep-attributes
+call xerces.bat DomWalkXerces flavor deep-elements
+call xerces.bat DomWalkXerces flavor wide-attributes
+call xerces.bat DomWalkXerces flavor wide-elements
+call xerces.bat DomWalkXerces flavor wide-text
+call xerces.bat DomWalkNLXerces flavor deep-attributes
+call xerces.bat DomWalkNLXerces flavor deep-elements
+call xerces.bat DomWalkNLXerces flavor wide-attributes
+call xerces.bat DomWalkNLXerces flavor wide-elements
+call xerces.bat DomWalkNLXerces flavor wide-text

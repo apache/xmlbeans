@@ -25,14 +25,14 @@ import java.lang.Math;
 
 public class PerfUtil
 {
-  public float getMemoryUsageMb(){
+  /*public float getMemoryUsageMb(){
     System.runFinalization();
     System.gc();
     try{Thread.currentThread().sleep(4000);}catch(InterruptedException ie){}
     Runtime runtime = Runtime.getRuntime();
     float result = ((float) runtime.totalMemory() - runtime.freeMemory())/(1024*1024);
     return result;
-  }
+  }*/
 
   // TODO: add more flavors
   public char[] createXmlData(String flavor, int size){
@@ -93,7 +93,7 @@ public class PerfUtil
       }
       buff.append(rootEnd);
     }
-    System.out.println("num chars: "+buff.length());
+    //System.out.println("num chars: "+buff.length());
     return buff.toString().toCharArray();
   }
 

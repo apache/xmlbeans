@@ -1,14 +1,14 @@
-call jibx.bat POReadAllJibx 1 
-call jibx.bat POReadAllJibx 2 
-call jibx.bat POReadAllJibx 3 
-call jibx.bat POReadAllJibx 4 
-call jibx.bat POReadAllJibx 5 
-call jibx.bat POReadAllJibx 6 
-call jibx.bat POReadAllJibx 7 
-call jibx.bat POReadOneJibx 1 
-call jibx.bat POReadOneJibx 2 
-call jibx.bat POReadOneJibx 3 
-call jibx.bat POReadOneJibx 4 
-call jibx.bat POReadOneJibx 5 
-call jibx.bat POReadOneJibx 6 
-call jibx.bat POReadOneJibx 7 
+call jibx.bat POReadAllJibx filename 1 
+call jibx.bat POReadAllJibx filename 2 
+call jibx.bat POReadAllJibx filename 3 
+call jibx.bat POReadAllJibx filename 4 
+call jibx.bat POReadAllJibx filename 5 
+call jibx.bat POReadAllJibx filename 6 
+call jibx.bat POReadAllJibx filename 7 
+call jibx.bat POReadOneJibx filename 1 
+call jibx.bat POReadOneJibx filename 2 
+call jibx.bat POReadOneJibx filename 3 
+call jibx.bat POReadOneJibx filename 4 
+call jibx.bat POReadOneJibx filename 5 
+call jibx.bat POReadOneJibx filename 6 
+call jibx.bat POReadOneJibx filename 7 
