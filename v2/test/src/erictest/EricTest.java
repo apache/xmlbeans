@@ -109,13 +109,16 @@ public class EricTest
         XmlOptions innerOptions = new XmlOptions();
         innerOptions.setSaveInner();
         
+        XmlOptions prettyOptions = new XmlOptions();
+        innerOptions.setPrettyPrint();
+
         XmlOptions synthOptions = new XmlOptions();
         synthOptions.setSaveSyntheticDocumentElement( new QName( "synth" ) );
         
-        XmlObject x = XmlObject.Factory.parse( "<a x='y'/>" );
+        XmlObject x = XmlObject.Factory.parse( "<a x='y'><b>33<c>11</c>22</a>" );
         XmlCursor cx = x.newCursor();
         cx.toFirstChild();
-        cx.save( System.out, innerOptions );
+        cx.save( System.out, prettyOptions );
         
         XmlCursor c = Public2.newStore();
 
