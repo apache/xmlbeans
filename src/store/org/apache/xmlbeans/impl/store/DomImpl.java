@@ -1308,6 +1308,13 @@ final class DomImpl
         case DOCFRAG :
         case ATTR :
         {
+	     if (n instanceof Xobj)
+         {
+             Xobj node = (Xobj) n;
+             if (node.isFirstChildPtrDomUsable())
+                 return (Xobj.NodeXobj) node._firstChild;
+         }
+
             Cur c = n.tempCur();
             
             c.next();
@@ -1462,6 +1469,13 @@ final class DomImpl
         case COMMENT :
         case ELEMENT :
         {
+	      if (n instanceof Xobj)
+          {
+              Xobj node = (Xobj) n;
+              if (node.isNextSiblingPtrDomUsable())
+                  return
+                     (Xobj.NodeXobj) node._nextSibling;
+          }
             Cur c = n.tempCur();
 
             c.skip();
@@ -2535,7 +2549,14 @@ final class DomImpl
         //        
         //return null;
         
-        // TODO - optimize for the 0 and 1 child case
+          // optimize for the 0 and 1 child case
+        if (i == 0 && (n instanceof Xobj))
+        {
+            Xobj node = (Xobj) n;
+            if (node.isFirstChildPtrDomUsable())
+                return
+                   (Xobj.NodeXobj) node._firstChild;
+        }
         
         return n.locale().findDomNthChild(n, i);
     }
@@ -2591,7 +2612,15 @@ final class DomImpl
         //return len;
         
         
-        // TODO - optimize for the 0 and 1 child case
+        //optimize for the 0 and 1 child case
+
+        if (n instanceof Xobj)
+        {
+            Xobj node = (Xobj) n;
+            int count;
+            if ((count = node.getDomZeroOneChildren()) < 2)
+                return count;
+        }
         
         return n.locale().domLength(n);
     }

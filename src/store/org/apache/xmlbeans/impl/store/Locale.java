@@ -2392,14 +2392,32 @@ public final class Locale
         if (parent == null)
             return null;
         
-        int da = _domNthCache_A.distance( parent, n );
-        int db = _domNthCache_B.distance( parent, n );
+        int da = _domNthCache_A.distance(parent, n);
+        int db = _domNthCache_B.distance(parent, n);
         
-        Dom x =
-            da <= db
-            ? _domNthCache_A.fetch( parent, n )
-            : _domNthCache_B.fetch( parent, n );
-        
+       
+        // the "better" cache should never walk more than 1/2 len
+        Dom x = null;
+        boolean bInvalidate = (db - _domNthCache_B._len / 2 > 0) &&
+            (db - _domNthCache_B._len / 2 - domNthCache.BLITZ_BOUNDARY > 0);
+        boolean aInvalidate = (da - _domNthCache_A._len / 2 > 0) &&
+            (da - _domNthCache_A._len / 2 - domNthCache.BLITZ_BOUNDARY > 0);
+        if (da <= db)
+            if (!aInvalidate)
+                x = _domNthCache_A.fetch(parent, n);
+            else
+            {
+                _domNthCache_B._version = -1;//blitz the cache
+                x = _domNthCache_B.fetch(parent, n);
+            }
+        else if (!bInvalidate)
+            x = _domNthCache_B.fetch(parent, n);
+        else
+        {
+            _domNthCache_A._version = -1;//blitz the cache
+            x = _domNthCache_A.fetch(parent, n);
+        }
+
         if (da == db)
         {
             domNthCache temp = _domNthCache_A;
@@ -2566,7 +2584,8 @@ public final class Locale
             return _child;
         }
         
-        private long  _version;
+        public static final int BLITZ_BOUNDARY = 40; //walk small lists
+	 private long  _version;
         private Dom   _parent;
         private Dom   _child;
         private int   _n;
