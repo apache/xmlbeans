@@ -1302,6 +1302,8 @@ public final class Mcur extends Cur
                     _nextSibling._prevSibling = _prevSibling;
 
                 _parent = null;
+                _prevSibling = null;
+                _nextSibling = null;
             }
 
             return this;

@@ -4541,6 +4541,16 @@ public abstract class Saver implements NamespaceManager
 
                 if (c.getUri().length() > 0)
                 {
+                    // BUGBUG -- exporting a dom starting at some
+                    // element with inner turned on has a bug, where
+                    // the generic saver trys to save out a fragment,
+                    // but this code trys to save out the real element
+                    // (and thus does not obey the inner contract).
+                    // Because of this, the uri of the element may not
+                    // be ensured.  Here I ensure it again....
+                    
+                    ensureMapping( c.getUri(), null, false, false );
+                          
                     String prefix = getUriMapping( c.getUri() );
 
                     if (prefix.length() > 0)
