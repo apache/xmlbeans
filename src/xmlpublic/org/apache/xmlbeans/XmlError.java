@@ -180,8 +180,6 @@ public class XmlError implements java.io.Serializable
 
         XmlCursor cur = xobj.newCursor();
         XmlError result = forCursor(message, severity, cur);
-        if (cur != null)
-            cur.dispose();
         return result;
     }
 
