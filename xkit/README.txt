@@ -1,4 +1,4 @@
-XMLBeans v 1.0.3 Development Kit (jdk1.3 port)
+XMLBeans v 1.0.4-jdk1.3-rc1 Development Kit
 
 
 Welcome to XMLBeans!
@@ -7,7 +7,7 @@ Welcome to XMLBeans!
 Kit contents:
 
 (1) One copy of xbean.jar, which contains XMLBeans.
-    Should work on any JDK 1.4.x.
+    Should work on any JDK 1.3.x.
     ./lib/xbean.jar
 
 (2) License information for XML Beans and included libraries
@@ -36,7 +36,7 @@ Where to start?
 
 (1) Setup.
 
-    1. make sure you have a JDK 1.4.x installed; that java[.exe]
+    1. make sure you have a JDK 1.3.x installed; that java[.exe]
        is on your path and that JAVA_HOME/bin contains java[.exe],
        javac[.exe], and jar[.exe].
 
