@@ -67,6 +67,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private volatile SchemaField _containerField;
     private volatile int _containerFieldCode;
     private volatile int _containerFieldIndex;
+    private volatile QName[] _groupReferenceContext;
     private SchemaType.Ref[] _anonymousTyperefs;
     private boolean _isDocumentType;
     private boolean _isAttributeType;
@@ -477,6 +478,15 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         _containerFieldCode = code;
         _containerFieldIndex = index;
     }
+
+    /* package */ void setGroupReferenceContext(QName[] groupNames)
+    {
+        assertUnresolved();
+        _groupReferenceContext = groupNames;
+    }
+
+    /* package */ QName[] getGroupReferenceContext()
+    { return _groupReferenceContext; }
 
     public SchemaType getOuterType()
         { return _outerSchemaTypeRef == null ? null : _outerSchemaTypeRef.get(); }

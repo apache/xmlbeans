@@ -45,22 +45,12 @@ import javax.xml.namespace.QName;
  * further override some of these methods and may also provide additional
  * methods and fields.
  * <p>
- * Note: it is important that FilterXmlOBject has no storage (i.e., no
+ * Note: it is important that FilterXmlObject has no storage (i.e., no
  * non-transient fields), because subclasses may be serializable and
  * adding storage would break the serialization format.
  */ 
-public abstract class FilterXmlObject implements XmlObject, SimpleValue
+public abstract class FilterXmlObject implements XmlObject, SimpleValue, DelegateXmlObject
 {
-    /**
-     * This abstract method is called to obtain the underlying XmlObject.
-     * Override this method to supply or compute the wrapped object.
-     * <p>
-     * Every other method of this class delegates to the object returned
-     * from this method. It is assumed that the object implements all the
-     * methods of both XmlObject and SimpleValue.
-     */ 
-    public abstract XmlObject underlyingXmlObject();
-
     public SchemaType schemaType()
     {
         return underlyingXmlObject().schemaType();

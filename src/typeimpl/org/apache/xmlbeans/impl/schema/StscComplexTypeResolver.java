@@ -892,7 +892,7 @@ public class StscComplexTypeResolver
                                 if (sAttr.getUse() != SchemaLocalAttribute.REQUIRED)
                                 {
                                     if (baseAttr.getUse() == SchemaLocalAttribute.REQUIRED)
-                                        state.error("A restriction cannot modify an attribute that is required in the base type to be prohibited or optional.", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr.xgetUse());
+                                        state.error("A restriction cannot modify an attribute that is required in the base type to be prohibited or optional.", XmlErrorContext.DUPLICATE_ATTRIBUTE_NAME, xsdattr);
                                     
                                     if (sAttr.getUse() == SchemaLocalAttribute.PROHIBITED)
                                         result.removeProhibitedAttribute(sAttr.getName());
@@ -1258,6 +1258,8 @@ public class StscComplexTypeResolver
 
         if (maxOccurs != null && maxOccurs.compareTo(BigInteger.ONE) < 0)
         {
+            // remove from list of anonymous types if it was added
+            anonymousTypes.remove(sPart.getType());
             return null; // maxOccurs == minOccurs == 0, same as no particle at all.
         }
 

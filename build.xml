@@ -117,6 +117,7 @@
         <classpath>
           <pathelement location="build/ar/xbean.jar" />
           <pathelement location="external/lib/junit.jar"/>
+          <pathelement location="build/lib/xml-apis.jar"/>
           <fileset refid="extension.jars"/>
           <pathelement location="build/test/extensionsuse"/>
         </classpath>
@@ -651,8 +652,8 @@
 
   <target name="dist-bin" depends="xbean, docs">
      <delete dir="build/private/xmlbeans-${product.version}"/>
-     <delete file="build/private/incubating-xmlbeans-${product.version}.zip"/>
-     <delete file="build/private/incubating-xmlbeans-${product.version}.tgz"/>
+     <delete file="build/private/xmlbeans-${product.version}.zip"/>
+     <delete file="build/private/xmlbeans-${product.version}.tgz"/>
 
      <mkdir dir="build/private/xmlbeans-${product.version}"/>
      <copy todir="build/private/xmlbeans-${product.version}">
@@ -687,7 +688,7 @@
 
      <chmod dir="build/private/xmlbeans-${product.version}/bin" perm="ugo+rx" includes="**" />
 
-     <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
+     <zip destfile="build/private/xmlbeans-${product.version}.zip"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
           excludes="xmlbeans-${product.version}/bin/dumpxsb, 
@@ -697,7 +698,7 @@
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
          <zipfileset dir="build/private/xmlbeans-${product.version}/bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" filemode="755"/>
      </zip>
-     <tar destfile="build/private/incubating-xmlbeans-${product.version}.tgz"
+     <tar destfile="build/private/xmlbeans-${product.version}.tgz"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
           excludes="xmlbeans-${product.version}/bin/dumpxsb, 
@@ -711,10 +712,10 @@
   </target>
 
   <target name="dist-src" depends="clean, dirs">
-     <delete file="build/private/incubating-xmlbeans-${product.version}-src.zip"/>
-     <delete file="build/private/incubating-xmlbeans-${product.version}-src.tgz"/>
+     <delete file="build/private/xmlbeans-${product.version}-src.zip"/>
+     <delete file="build/private/xmlbeans-${product.version}-src.tgz"/>
 
-     <zip destfile="build/private/incubating-xmlbeans-${product.version}-src.zip">
+     <zip destfile="build/private/xmlbeans-${product.version}-src.zip">
      	<zipfileset
      		dir="."
        		includes="**"
@@ -725,7 +726,7 @@
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
          <zipfileset dir="bin" includes="dumpxsb, scomp, validate" prefix="xmlbeans-${product.version}/bin" filemode="755"/>
      </zip>
-     <tar destfile="build/private/incubating-xmlbeans-${product.version}-src.tgz"
+     <tar destfile="build/private/xmlbeans-${product.version}-src.tgz"
 	 	  compression="gzip">
      	<tarfileset
      		dir="."

@@ -1599,4 +1599,60 @@ public class ValidationTests extends TestCase
         doTest(schemas, null, valid, invalid);
     }
 
+    public void testValidateNestedGroups ( )
+        throws Exception
+    {
+        // This is a weird Schema, inspired from JIRA bug XMLBEANS-35
+        // Make sure we compile it and then validate correctly
+        String schemas[] = {
+            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\" targetNamespace=\"http://tempuri.org/f_up_groups\" xmlns:tns=\"http://tempuri.org/f_up_groups\">\n" +
+            "\n" +
+            "<xs:group name=\"d\">\n" +
+            "  <xs:sequence>\n" +
+            "      <xs:element name=\"error\">\n" +
+            "          <xs:complexType>\n" +
+            "                  <xs:group ref=\"tns:e\"/>\n" +
+            "          </xs:complexType>\n" +
+            "      </xs:element>\n" +
+            "  </xs:sequence>\n" +
+            "</xs:group>\n" +
+            "\n" +
+            "<xs:group name=\"e\">\n" +
+            "  <xs:sequence>\n" +
+            "          <xs:element name=\"error\" minOccurs=\"0\">\n" +
+            "                  <xs:complexType>\n" +
+            "                          <xs:group ref=\"tns:d\"/>\n" +
+            "                  </xs:complexType>\n" +
+            "          </xs:element>\n" +
+            "  </xs:sequence>\n" +
+            "</xs:group>\n" +
+            "\n" +
+            "<xs:element name=\"root\">\n" +
+            "  <xs:complexType>\n" +
+            "  <xs:group ref=\"tns:d\"/>\n" +
+            "  </xs:complexType>\n" +
+            "</xs:element>\n" +
+            "\n" +
+            "</xs:schema>\n"};
+
+        String valid[] = {
+            "<ns:root xmlns:ns=\"http://tempuri.org/f_up_groups\">\n" +
+            "   <error>\n" +
+            "      <error>\n" +
+            "         <error/>" +
+           "      </error>\n" +
+            "    </error>\n" +
+            "</ns:root>\n"};
+
+        String invalid[] = {
+            "<ns:root xmlns:ns=\"http://tempuri.org/f_up_groups\">\n" +
+            "   <error>\n" +
+            "      <error>\n" +
+           "      </error>\n" +
+            "    </error>\n" +
+            "</ns:root>\n"};
+
+        doTest(schemas, null, valid, invalid);
+    }
+
 }

@@ -72,6 +72,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.SchemaLocalAttribute;
 import org.apache.xmlbeans.FilterXmlObject;
+import org.apache.xmlbeans.DelegateXmlObject;
 
 import org.w3c.dom.Node;
 
@@ -97,11 +98,11 @@ public abstract class XmlObjectBase implements TypeStoreUser, Serializable, XmlO
             return null;
         if (obj instanceof XmlObjectBase)
             return (XmlObjectBase)obj;
-        while (obj instanceof FilterXmlObject)
-            obj = ((FilterXmlObject)obj).underlyingXmlObject();
+        while (obj instanceof DelegateXmlObject)
+            obj = ((DelegateXmlObject)obj).underlyingXmlObject();
         if (obj instanceof XmlObjectBase)
             return (XmlObjectBase)obj;
-        throw new IllegalStateException("Non-native implementations of XmlObject should extend FilterXmlObject");
+        throw new IllegalStateException("Non-native implementations of XmlObject should extend FilterXmlObject or implement DelegateXmlObject");
     }
 
     public final XmlObject copy()

@@ -47,11 +47,11 @@ public class JavaQNameHolder extends XmlObjectBase
     {
         public String find_prefix_for_nsuri(String nsuri, String suggested_prefix)
         {
-            return QNameHelper.suggestPrefix(suggested_prefix);
+            return QNameHelper.suggestPrefix(nsuri);
         }
         public String getNamespaceForPrefix(String prefix)
         {
-            return prefix;
+            throw new RuntimeException( "Should not be called" );
         }
     }
 

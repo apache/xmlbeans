@@ -652,14 +652,22 @@ public class SchemaCompiler
                         int count = 0;
                         for (int j = 0; j < types.length; j++)
                         {
-                            // explicit cast for paranoia
-                            SchemaDocument.Schema[] schemas = (SchemaDocument.Schema[])types[j].selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
+                            XmlObject[] schemas = types[j].selectPath("declare namespace xs=\"http://www.w3.org/2001/XMLSchema\" xs:schema");
+                            if (schemas.length == 0)
+                            {
+                                StscState.addWarning(errorListener, "The WSDL " + wsdlFiles[i] + " did not have any schema documents in namespace 'http://www.w3.org/2001/XMLSchema'", XmlErrorContext.GENERIC_ERROR, wsdldoc);
+                                continue;
+                            }
+
                             for (int k = 0; k < schemas.length; k++)
                             {
-                                if (schemas[k].validate(new XmlOptions().setErrorListener(errorListener)))
+                                if (schemas[k] instanceof SchemaDocument.Schema &&
+                                    schemas[k].validate(new XmlOptions().setErrorListener(errorListener)))
+                                {
+                                    count++;
                                     scontentlist.add(schemas[k]);
+                                }
                             }
-                            count += schemas.length;
                         }
                         StscState.addInfo(errorListener, "Processing " + count + " schema(s) in " + wsdlFiles[i].toString());
                     }

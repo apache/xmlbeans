@@ -65,6 +65,8 @@ public class XMLBean extends MatchingTask
                         optimize,
                         download,
                         srconly,
+                        noupa,
+                        nopvr,
                         failonerror = true,
                         fork = true,
                         includeAntRuntime = true,
@@ -222,6 +224,8 @@ public class XMLBean extends MatchingTask
             params.setExtensions(extensions);
             params.setErrorListener(err);
             params.setMdefNamespaces(mdefnamespaces);
+            params.setNoUpa(noupa);
+            params.setNoPvr(nopvr);
             success = SchemaCompiler.compile(params);
 
             if (success && !srconly) {
@@ -673,6 +677,32 @@ public class XMLBean extends MatchingTask
     public void setMemoryMaximumSize(String memoryMaximumSize)
     {
         this.memoryMaximumSize = memoryMaximumSize;
+    }
+
+    /**
+     * Do not enforce the unique particle attribution rule.
+     */
+    public void setNoUpa(boolean noupa)
+    {
+        this.noupa = noupa;
+    }
+
+    public boolean isNoUpa()
+    {
+        return noupa;
+    }
+
+    /**
+     * Do not enforce the particle valid (restriction) rule.
+     */
+    public void setNoPvr(boolean nopvr)
+    {
+        this.nopvr = nopvr;
+    }
+
+    public boolean isNoPvr()
+    {
+        return nopvr;
     }
 
     private URL urlFromFile(File f)

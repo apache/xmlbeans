@@ -1,3 +1,24 @@
+Changes since v1.0.3:
+
+- bug fix: Fix for http://issues.apache.org/jira/browse/XMLBEANS-35 (Radu Preotiuc)
+- updated ant docs (Kevin Krouse)
+- bug fix: throw BuildException if exception happens and failonerror=true (Kevin Krouse)
+- added version api (Kevin Krouse)
+- bug fix: links in ant help docs (Kevin Krouse)
+- improved validation error message to print list missing elements (Kevin Krouse)
+- moved ..underlyingXmlObject() method from FilterXmlObject abstract class to DelegateXmlObject (Ray Birklid)
+- bug fix: XMLBEANS-62: Avoid class cast exception when compiling older schema namespace (James Stratchan)
+- bug fix: validate mixed content against fixed value constraint (Kevin Krouse)
+- bug fix: mixed content with fixed value constraint can't have element children (Kevin Krouse)
+- bug fix: XMLBEANS-54: fixed totalDigits facet for xs:integer (Kevin Krouse)
+- add option to pass in "##local" to -allowmdef (Ray Birklid/Radu Preotiuc)
+- uriprefix option to the .xsdconfig files. (Kevin Krouse)
+- bug fix: Fixed JavaQNameHolder - pretty namesapce manager (Eric Vasilik)
+- Added maven files in default recommneded locations. (Dutta Satadip/Joseph Hindsley)
+- Vaidation optimization for JIRA bug XMLBEANS-37. (Cezar Andrei)
+- bug fix: Remove anonymous type from list if it has minOccurs = maxOccurs = 0 (Kevin Krouse)
+
+
 Changes since v1.0.2:
 
 - interface extension (Cezar Andrei)

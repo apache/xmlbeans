@@ -46,7 +46,6 @@ import org.w3.x2001.xmlSchema.SchemaDocument;
 
 public abstract class BaseSchemaResourceManager extends SchemaImportResolver
 {
-    // User-Agent: XMLBeans/1.0.4-jdk1.3 (org.apache.xmlbeans)
     private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
 
     private String _defaultCopyDirectory;

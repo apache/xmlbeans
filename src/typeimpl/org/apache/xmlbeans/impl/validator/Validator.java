@@ -58,13 +58,16 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SimpleValue;
 import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.XmlString;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.xml.namespace.QName;
 
 public final class Validator
@@ -225,6 +228,11 @@ public final class Validator
                 emitFieldError(event,  "Nil element cannot have element content");
                 _eatContent = 1;
                 return;
+            }
+
+            if (!state._isNil && state._field != null && state._field.isFixed())
+            {
+                emitFieldError(event, "Element '" + QNameHelper.pretty(state._field.getName()) + "' is fixed and not nil so is not allowed to have element children.");
             }
 
             if (!state.visit( name ))
@@ -759,6 +767,19 @@ public final class Validator
 
                 _constraintEngine.text( event, state._type, value, false );
             }
+            else if (state._canHaveMixedContent)
+            {
+                // handles cvc-elt.5.2.2.2.1, checking mixed content against fixed.
+                // if we see <mixedType>a</b>c</mixedType>, we validate against
+                // the first 'a' text and we check the content of mixedType to
+                // be empty in beginElem().  we don't care about checking against
+                // the 'c' text since there will already be an error for <b/>
+                String value =
+                    validateSimpleType(
+                        XmlString.type, field, event, emptyContent, true );
+
+                _constraintEngine.text( event, XmlString.type, value, false );
+            }
             else if (emptyContent)
             {
                 _constraintEngine.text( event, state._type, null, true );
@@ -768,7 +789,7 @@ public final class Validator
         }
 
         if (!emptyContent && !state._canHaveMixedContent && 
-            !event.textIsWhitespace() & !state._hasSimpleContent)
+            !event.textIsWhitespace() && !state._hasSimpleContent)
         {
             if (field instanceof SchemaLocalElement) 
             {
@@ -788,6 +809,9 @@ public final class Validator
         String message = null;
         SchemaProperty[] eltProperties = state._type.getElementProperties();
 
+        ArrayList expectedNames = new ArrayList();
+        ArrayList optionalNames = new ArrayList();
+
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
@@ -796,10 +820,28 @@ public final class Validator
             // test if the element is valid
             if (state.test(sProp.getName()))
             {
-                message = "Expected element " + QNameHelper.pretty(sProp.getName()) + " instead of " + QNameHelper.pretty(qName) + " here";
-                break;
+                if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs()))
+                    optionalNames.add(sProp.getName());
+                else
+                    expectedNames.add(sProp.getName());
             }
         }
+
+        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+
+        if (names.size() > 0)
+        {
+            StringBuffer buf = new StringBuffer();
+            for (Iterator iter = names.iterator(); iter.hasNext(); )
+            {
+                buf.append(QNameHelper.pretty((QName)iter.next()));
+                buf.append(" ");
+            }
+
+            message = "Expected element" + (names.size()>1 ? "s " : " ") +
+                      buf.toString() + "at the end of the content";
+        }
+
         return message;
     }
 
@@ -808,6 +850,9 @@ public final class Validator
         SchemaProperty[] eltProperties  = state._type.getElementProperties();
         String message = null;
 
+        ArrayList expectedNames = new ArrayList();
+        ArrayList optionalNames = new ArrayList();
+
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
@@ -816,11 +861,28 @@ public final class Validator
             // test if the element is valid
             if (state.test(sProp.getName()))
             {
-                message = "Expected element " + QNameHelper.pretty(sProp.getName()) +
-                          " at the end of the content";
-                break;
+                if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs()))
+                    optionalNames.add(sProp.getName());
+                else
+                    expectedNames.add(sProp.getName());
             }
         }
+
+        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+
+        if (names.size() > 0)
+        {
+            StringBuffer buf = new StringBuffer();
+            for (Iterator iter = names.iterator(); iter.hasNext(); )
+            {
+                buf.append(QNameHelper.pretty((QName)iter.next()));
+                buf.append(" ");
+            }
+
+            message = "Expected element" + (names.size()>1 ? "s " : " ") +
+                      buf.toString() + "at the end of the content";
+        }
+
         return message;
     }
 

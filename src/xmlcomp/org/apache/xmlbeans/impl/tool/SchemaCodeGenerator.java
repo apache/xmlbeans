@@ -296,9 +296,10 @@ public class SchemaCodeGenerator
         {
             if (dir.isDirectory())
             {
-                String[] list = dir.list();
-                for (int i = 0; i < list.length; i++)
-                    tryToDelete(new File(dir, list[i]));
+                String[] list = dir.list(); // can return null if I/O error
+                if (list != null)
+                    for (int i = 0; i < list.length; i++)
+                        tryToDelete(new File(dir, list[i]));
             }
             if (!dir.delete())
                 return; // don't try very hard, because we're just deleting tmp

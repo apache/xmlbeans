@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<properties>
+		<title>Maven XMLBeans Plugin Goals</title>
+	</properties>
+	<body>
+		<goals>
+			<goal>
+				<name>xmlbeans:xmlbeans</name>
+				<description>Generates XMLBeans from XML Schema files.</description>
+			</goal>
+		</goals>
+	</body>
+</document>

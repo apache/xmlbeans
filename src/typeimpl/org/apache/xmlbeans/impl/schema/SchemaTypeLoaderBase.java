@@ -35,6 +35,7 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlFactoryHook;
 import org.apache.xmlbeans.XmlRuntimeException;
+import org.apache.xmlbeans.XmlBeans;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
@@ -61,7 +62,6 @@ import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 {
-    // User-Agent: XMLBeans/1.0.4-jdk1.3 (org.apache.xmlbeans)
     private static final String USER_AGENT = "XMLBeans/" + XmlBeans.getVersion() + " (" + XmlBeans.getTitle() + ")";
 
     private static final Method _rootBuilder = getMethod( "org.apache.xmlbeans.impl.store.Root", "newStore", new Class[] { SchemaTypeLoader.class, SchemaType.class, XmlOptions.class } );

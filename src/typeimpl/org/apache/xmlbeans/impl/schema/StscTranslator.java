@@ -30,6 +30,8 @@ import org.apache.xmlbeans.impl.common.XPath;
 import org.apache.xmlbeans.impl.values.XmlIntegerImpl;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
 import org.apache.xmlbeans.impl.values.NamespaceContext;
+import org.apache.xmlbeans.impl.values.XmlPositiveIntegerImpl;
+import org.apache.xmlbeans.impl.values.XmlNonNegativeIntegerImpl;
 import org.apache.xmlbeans.impl.regex.RegularExpression;
 import org.apache.xmlbeans.soap.SOAPArrayType;
 import org.apache.xmlbeans.XmlObject;
@@ -46,6 +48,8 @@ import org.apache.xmlbeans.SchemaGlobalAttribute;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlInteger;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlNonNegativeInteger;
+import org.apache.xmlbeans.XmlPositiveInteger;
 
 import javax.xml.namespace.QName;
 
@@ -256,26 +260,26 @@ public class StscTranslator
             
             for (Iterator i = stRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined simple type " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)stRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined simple type " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)stRedefinitions.get(name));
             }
 
             for (Iterator i = ctRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined complex type " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)ctRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined complex type " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)ctRedefinitions.get(name));
             }
             
             for (Iterator i = agRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined attribute group " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)agRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined attribute group " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)agRedefinitions.get(name));
             }
             
             for (Iterator i = mgRedefinitions.keySet().iterator(); i.hasNext(); )
             {
-                QName name = (QName)i.next();
-                state.error("Redefined model group " + QNameHelper.pretty(name) + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)mgRedefinitions.get(name));
+                String name = (String)i.next();
+                state.error("Redefined model group " + name + " not found in " + schemaLocation, XmlErrorContext.GENERIC_ERROR, (XmlObject)mgRedefinitions.get(name));
             }
         }
     }
@@ -615,14 +619,26 @@ public class StscTranslator
 
         if (typedef != null)
         {
+            Object[] grps = state.getCurrentProcessing();
+            QName[] context = new QName[grps.length];
+            for (int i = 0; i < context.length; i++)
+                if (grps[i] instanceof SchemaModelGroupImpl)
+                    context[i] = ((SchemaModelGroupImpl ) grps[i]).getName();
+            SchemaType repeat = checkRecursiveGroupReference(context, qname, (SchemaTypeImpl)outerType);
+            if (repeat != null)
+                sType = repeat;
+            else
+            {
             SchemaTypeImpl sTypeImpl = new SchemaTypeImpl(state.sts());
             sType = sTypeImpl;
             sTypeImpl.setContainerField(impl);
             sTypeImpl.setOuterSchemaTypeRef(outerType == null ? null : outerType.getRef());
+            sTypeImpl.setGroupReferenceContext(context);
             // leave the anonymous type unresolved: it will be resolved later.
             anonymousTypes.add(sType);
             sTypeImpl.setSimpleType(simpleTypedef);
             sTypeImpl.setParseContext(typedef, targetNamespace, chameleon, false);
+            }
         }
 
         if (sType == null)
@@ -742,6 +758,62 @@ public class StscTranslator
         return impl;
     }
     
+    /**
+     * We need to do this because of the following kind of Schemas:
+     * <xs:group name="e">
+     *     <xs:sequence>
+     *         <xs:element name="error">
+     *             <xs:complexType>
+     *                 <xs:group ref="e"/>
+     *             </xs:complexType>
+     *         </xs:element>
+     *     </xs:sequence>
+     * </xs:group>
+     * (see JIRA bug XMLBEANS-35)
+     * Even though this should not be allowed because it produces an infinite
+     * number of anonymous types and local elements nested within each other,
+     * the de facto consensus among Schema processors is that this should be
+     * valid, therefore we have to detect this situation and "patch up" the
+     * Schema object model so that instead of creating a new anonymous type,
+     * we refer to the one that was already created earlier.
+     * In order to accomplish that, we store inside every anonymous type the
+     * list of groups that were dereferenced at the moment the type was created
+     * and if the same pattern is about to repeat, it means that we are in a
+     * case similar to the above.
+     */
+    private static SchemaType checkRecursiveGroupReference(QName[] context, QName containingElement, SchemaTypeImpl outerType)
+    {
+        if (context.length < 1)
+            return null;
+        SchemaTypeImpl type = outerType;
+
+        while (type != null)
+        {
+            if (type.getName() != null || type.isDocumentType())
+                return null; // not anonymous
+            if (containingElement.equals(type.getContainerField().getName()))
+            {
+                QName[] outerContext = type.getGroupReferenceContext();
+                if (outerContext != null && outerContext.length == context.length)
+                {
+                    // Smells like trouble
+                    boolean equal = true;
+                    for (int i = 0; i < context.length; i++)
+                        if (!(context[i] == null && outerContext[i] == null ||
+                              context[i] != null && context[i].equals(outerContext[i])))
+                        {
+                            equal = false;
+                            break;
+                        }
+                    if (equal)
+                        return type;
+                }
+            }
+            type = (SchemaTypeImpl) type.getOuterType();
+        }
+        return null;
+    }
+
     private static String removeWhitespace(String xpath)
     {
         StringBuffer sb = new StringBuffer();
@@ -1076,7 +1148,7 @@ public class StscTranslator
         return SchemaLocalAttribute.OPTIONAL;
     }
 
-    static XmlInteger buildNnInteger(XmlAnySimpleType value)
+    static BigInteger buildBigInt(XmlAnySimpleType value)
     {
         if (value == null)
             return null;
@@ -1097,9 +1169,34 @@ public class StscTranslator
             StscState.get().error("Must be nonnegative integer", XmlErrorContext.MALFORMED_NUMBER, value);
             return null;
         }
+
+        return bigInt;
+    }
+
+
+    static XmlNonNegativeInteger buildNnInteger(XmlAnySimpleType value)
+    {
+        BigInteger bigInt = buildBigInt(value);
         try
         {
-            XmlIntegerImpl i = new XmlIntegerImpl();
+            XmlNonNegativeIntegerImpl i = new XmlNonNegativeIntegerImpl();
+            i.set(bigInt);
+            i.setImmutable();
+            return i;
+        }
+        catch (XmlValueOutOfRangeException e)
+        {
+            StscState.get().error("Internal error processing number", XmlErrorContext.MALFORMED_NUMBER, value);
+            return null;
+        }
+    }
+
+    static XmlPositiveInteger buildPosInteger(XmlAnySimpleType value)
+    {
+        BigInteger bigInt = buildBigInt(value);
+        try
+        {
+            XmlPositiveIntegerImpl i = new XmlPositiveIntegerImpl();
             i.set(bigInt);
             i.setImmutable();
             return i;

@@ -27,6 +27,7 @@ import org.apache.xmlbeans.SchemaGlobalElement;
 import org.apache.xmlbeans.XmlID;
 import org.apache.xmlbeans.XmlAnySimpleType;
 import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.impl.common.XmlErrorContext;
 import org.apache.xmlbeans.impl.common.XBeanDebug;
 import org.apache.xmlbeans.impl.common.QNameHelper;
@@ -167,6 +168,27 @@ public class StscChecker
                                 StscState.get().error("The " + QNameHelper.pretty(model.getName()) + " element fixed value '" + valueConstraint + "' is not a valid value for " + QNameHelper.readable(model.getType()), XmlErrorContext.GENERIC_ERROR, location);
                             else
                                 StscState.get().error("The " + QNameHelper.pretty(model.getName()) + " element default value '" + valueConstraint + "' is not a valid value for " + QNameHelper.readable(model.getType()), XmlErrorContext.GENERIC_ERROR, location);
+                        }
+                    }
+                    else if (model.getType().getContentType() == SchemaType.MIXED_CONTENT)
+                    {
+                        if (!model.getType().getContentModel().isSkippable())
+                        {
+                            String constraintName = (model.isFixed() ? "fixed" : "default");
+
+                            StscState.get().error("The " + QNameHelper.pretty(model.getName()) + " element cannot have a " +
+                                    constraintName + " value '" + valueConstraint + "' because it's content is mixed " +
+                                    "but not emptiable.", XmlErrorContext.GENERIC_ERROR, location);
+                        }
+                        else
+                        {
+                            // Element Default Valid (Immediate): cos-valid-default.2.2.2
+                            // no need to validate the value; type is a xs:string
+                            SchemaPropertyImpl sProp = (SchemaPropertyImpl)parentType.getElementProperty(model.getName());
+                            if (sProp != null && sProp.getDefaultText() != null)
+                            {
+                                sProp.setDefaultValue(new XmlValueRef(XmlString.type.newValue(valueConstraint)));
+                            }
                         }
                     }
                     else if (model.getType().getContentType() == SchemaType.ELEMENT_CONTENT)

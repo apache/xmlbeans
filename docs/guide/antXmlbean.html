@@ -47,8 +47,8 @@
     by the schema files.</p>
   <p class="notepara"><b>Note:</b> This task depends on an external library not
     included in the Ant distribution called xbean.jar. &nbsp;It can be found in
-    the XMLBeans developer kit at <a href="http://xml.apache.org/xmlbeans/"
-        target="_blank">http://xml.apache.org/xmlbeans/</a>.
+    the XMLBeans developer kit at <a
+ href="http://xmlbeans.apache.org/" target="_blank">http://xmlbeans.apache.org/</a>.
     The build script will need to include a taskdef for xmlbean, which could look
     like this:</p>
 </div>
@@ -107,25 +107,6 @@
           imports and includes.&nbsp; Defaults to false, meaning all imports and
           includes must be copied locally.<br> </td>
         <td align="center" valign="top">No, default is false.</td>
-      </tr>
-      <tr>
-        <td valign="top">failonerror</td>
-        <td valign="top"> Determines whether or not the ant target will continue
-          if the XMLBean creation encounters a build error.<br> </td>
-        <td align="center" valign="top">No, default is true.</td>
-      </tr>
-      <tr>
-        <td valign="top">verbose<br> </td>
-        <td valign="top">Controls the amount of build message output.<br> </td>
-        <td valign="top" align="center">No, default is true.</td>
-      </tr>
-      <tr>
-        <td valign="top">typesystemname<br> </td>
-        <td valign="top">The name of the package that the TypeSystemHolder class
-          should be generated in.&nbsp; Normally this should be left unspecified.
-          None of the XMLBeans are generated in this package. Use .xsdconfig files
-          to modify XMLBean package or class names.<br> </td>
-        <td valign="top" align="center">No<br> </td>
       </tr>
       <tr>
         <td valign="top">classgendir<br> </td>
@@ -266,6 +247,39 @@
         <td align="center" valign="top">No</td>
       </tr>
       <tr>
+        <td valign="top">failonerror</td>
+        <td valign="top"> Determines whether or not the ant target will continue
+          if the XMLBean creation encounters a build error.<br> </td>
+        <td align="center" valign="top">No, default is true.</td>
+      </tr>
+      <tr>
+        <td valign="top">verbose<br> </td>
+        <td valign="top">Controls the amount of build message output.<br> </td>
+        <td valign="top" align="center">No, default is true.</td>
+      </tr>
+      <tr>
+        <td valign="top">quiet<br> </td>
+        <td valign="top">Controls the amount of build message output.<br> </td>
+        <td valign="top" align="center">No, default is false.</td>
+      </tr>
+      <tr>
+        <td valign="top">typesystemname<br> </td>
+        <td valign="top">The name of the package that the TypeSystemHolder class
+          should be generated in.&nbsp; Normally this should be left unspecified.
+          None of the XMLBeans are generated in this package. Use .xsdconfig files
+          to modify XMLBean package or class names.<br> </td>
+        <td valign="top" align="center">No<br> </td>
+      </tr>
+      <tr>
+        <td valign="top">noupa</td>
+        <td valign="top">Do not enforce the unique particle attribution rule.<br> </td>
+        <td align="center" valign="top">No, default is false.</td>
+      </tr>
+        <td valign="top">nopvr</td>
+        <td valign="top">Do not enforce the particle valid (restriction) rule.<br> </td>
+        <td align="center" valign="top">No, default is false.</td>
+      </tr>
+      <tr>
         <td valign="top">ignoreDuplicatesInNamespaces</td>
         <td valign="top">Comma separated list of one or more namespaces
         in which duplicate definitions are to be ignored.
@@ -278,7 +292,7 @@
 </div>
 <div id=topictext> Be sure to define the task in your script, like this:</div>
 <div>
-  <pre>&lt;taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="path/to/xbean.jar"</pre>
+  <pre>&lt;taskdef name="xmlbean" classname="org.apache.xmlbeans.impl.tool.XMLBean" classpath="path/to/xbean.jar" /&gt;</pre>
   <p>The following builds all the schemas in the schemas directory and creates
     a jar called &quot;Schemas.jar&quot;.</p>
 </div>

@@ -74,7 +74,7 @@ public class StscState
     private Map _attributeTypes     = new SequencedHashMap();
     private Map _typesByClassname   = new SequencedHashMap();
     private Map _misspelledNames    = new HashMap();
-    private Set _processingGroups   = new HashSet();
+    private Set _processingGroups   = new SequencedHashSet();
     private Map _idConstraints      = new SequencedHashMap();
     private Set _namespaces         = new HashSet();
     private boolean _noUpa;
@@ -273,7 +273,17 @@ public class StscState
             _doingDownloads = true;
         
         if (options.hasOption(XmlOptions.COMPILE_MDEF_NAMESPACES))
+        {
             _mdefNamespaces.addAll((Collection)options.get(XmlOptions.COMPILE_MDEF_NAMESPACES));
+            
+            String local = "##local";
+            
+            if (_mdefNamespaces.contains(local))
+            {
+                _mdefNamespaces.remove(local);
+                _mdefNamespaces.add("");
+            }
+        }
     }
     
     /**
@@ -743,6 +753,11 @@ public class StscState
         if (XmlBeans.ASSERTS)
             XmlBeans.assertTrue(_processingGroups.contains(obj));
         _processingGroups.remove(obj);
+    }
+
+    Object[] getCurrentProcessing()
+    {
+        return _processingGroups.toArray();
     }
 
     /* JAVAIZATION ====================================================*/
