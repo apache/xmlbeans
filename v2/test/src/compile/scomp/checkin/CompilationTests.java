@@ -20,20 +20,25 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 import org.apache.xmlbeans.impl.common.QNameHelper;
+import org.apache.xmlbeans.impl.tool.SchemaCodeGenerator;
 import org.apache.xmlbeans.impl.tool.SchemaCompiler;
 import org.apache.xmlbeans.impl.tool.CodeGenUtil;
+import org.apache.xmlbeans.impl.tool.Diff;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3.x2001.xmlSchema.TopLevelComplexType;
 import org.apache.xmlbeans.SchemaBookmark;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlBeans;
-import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Arrays;
@@ -73,20 +78,71 @@ public class CompilationTests extends TestCase
         List errors = new ArrayList();
         params.setErrorListener(errors);
         boolean result = SchemaCompiler.compile(params);
+        StringWriter message = new StringWriter();
         if (!result)
-        {
-            // Display the errors
-            for (int i = 0; i < errors.size(); i++)
-            {
-                XmlError error = (XmlError) errors.get(i);
-                if (error.getSeverity() == XmlError.SEVERITY_ERROR)
-                    System.out.println(error.toString());
-            }
-        }
-        Assert.assertTrue("Build failed", result);
+            dumpErrors(errors, new PrintWriter(message));
+        Assert.assertTrue("Build failed:" + message, result);
         Assert.assertTrue("Cannot find " + outputjar, outputjar.exists());
     }
 
+    public void testIncrementalCompilation() throws Throwable
+    {
+        File[] files = new File[] {
+            xbeanCase("incr/incr1.xsd"),
+            xbeanCase("incr/incr3.xsd"),
+            xbeanCase("incr/incr4.xsd"),
+            xbeanCase("incr/incr2.xsd"),
+            xbeanCase("incr/incr2-1.xsd")
+        };
+        int n = files.length;
+        SchemaDocument.Schema[] schemas = new SchemaDocument.Schema[n - 1];
+        SchemaTypeSystem system;
+        deltree(xbeanOutput("compile/scomp/incr"));
+        File out = xbeanOutput("compile/scomp/incr/out");
+        File outincr = xbeanOutput("compile/scomp/incr/outincr");
+
+        for (int i = 0; i < n - 2; i++)
+            schemas[i] = SchemaDocument.Factory.parse(files[i]).getSchema();
+        // Compile incrementally
+        // Initial compile
+        schemas[n - 2] = SchemaDocument.Factory.parse(files[n-2]).getSchema();
+        List errors = new ArrayList();
+        XmlOptions options = (new XmlOptions()).setErrorListener(errors);
+        SchemaTypeSystem builtin = XmlBeans.getBuiltinTypeSystem();
+        system = XmlBeans.compileXsd(schemas, builtin, options);
+        Assert.assertNotNull("Compilation failed during inititial compile.", system);
+
+        // Incremental compile
+        String url = schemas[n - 2].documentProperties().getSourceName();
+        SchemaDocument.Schema[] schemas1 = new SchemaDocument.Schema[1];
+        schemas1[0] = SchemaDocument.Factory.parse(files[n-1]).getSchema();
+        schemas1[0].documentProperties().setSourceName(url);
+        errors.clear();
+        system = XmlBeans.compileXsd(system, schemas1, builtin, options);
+        Assert.assertNotNull("Compilation failed during incremental compile.", system);
+        SchemaCodeGenerator.saveTypeSystem(system, outincr, null, null, null);
+
+        // Now compile non-incrementally for the purpose of comparing the result
+        errors.clear();
+        schemas[n-2] = schemas1[0];
+        system = XmlBeans.compileXsd(schemas, builtin, options);
+        Assert.assertNotNull("Compilation failed during reference compile.", system);
+        SchemaCodeGenerator.saveTypeSystem(system, out, null, null, null);
+
+        // Compare the results
+        String oldPropValue = System.getProperty("xmlbeans.diff.diffIndex");
+        System.setProperty("xmlbeans.diff.diffIndex", "false");
+        errors.clear();
+        Diff.dirsAsTypeSystems(out, outincr, errors);
+        System.setProperty("xmlbeans.diff.diffIndex", oldPropValue == null ? "true" : oldPropValue);
+        if (errors.size() > 0)
+        {
+            StringWriter message = new StringWriter();
+            for (int i = 0; i < errors.size(); i++)
+                message.write(((String) errors.get(i)) + "\n");
+            Assert.fail("Differences encountered:" + message);
+        }
+    }
 
     public void testSchemaBookmarks() throws Throwable
     {
@@ -329,6 +385,17 @@ public class CompilationTests extends TestCase
     //location of files under "cases folder"
     static String  fileLocation="/xbean/compile/scomp/";
     private static File outputroot = new File(fwroot, "build/test/output");
+
+    private static void dumpErrors(List errors, PrintWriter out)
+    {
+        // Display the errors
+        for (int i = 0; i < errors.size(); i++)
+        {
+            XmlError error = (XmlError) errors.get(i);
+            if (error.getSeverity() == XmlError.SEVERITY_ERROR)
+                out.println(error.toString());
+        }
+    }
 
     public static File getRootFile() throws IllegalStateException
     {
