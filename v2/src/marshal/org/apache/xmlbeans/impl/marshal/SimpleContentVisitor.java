@@ -24,8 +24,9 @@ abstract class SimpleContentVisitor
 
     private int state = START;
 
-    public SimpleContentVisitor(RuntimeBindingProperty property, Object obj,
-                                MarshalResult result)
+    public SimpleContentVisitor(RuntimeBindingProperty property,
+                                Object obj,
+                                PullMarshalResult result)
         throws XmlException
     {
         super(obj, property, result);

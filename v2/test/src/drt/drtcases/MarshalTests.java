@@ -29,9 +29,12 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.xmlbeans.BindingContext;
 import org.apache.xmlbeans.BindingContextFactory;
+import org.apache.xmlbeans.EncodingStyle;
+import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.ObjectFactory;
 import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.SoapMarshaller;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCalendar;
@@ -39,9 +42,6 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.GDuration;
-import org.apache.xmlbeans.EncodingStyle;
-import org.apache.xmlbeans.SoapMarshaller;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
@@ -549,11 +549,20 @@ public class MarshalTests extends TestCase
         myelt.setAttrib(99999.777f);
         myelt.setMyFloat(5555.4444f);
 //        myelt.setMyClass(new com.mytest.MyClass());
-        myelt.setMyClass(null);
+//        myelt.setMyClass(new com.mytest.MySubSubClass());
+        myelt.setMyClass(new com.mytest.MySubClass());
         mc.setMyelt(myelt);
+
+        myelt.setModeEnum(ModeEnum.Off);
+        myelt.setQn(new QName("someURI", "somePart"));
+        final SimpleContentExample sce = new SimpleContentExample();
+        sce.setFloatAttOne(5.43234f);
+        sce.setSimpleContent("SIMPLE_CONTENT");
+        myelt.setSimpleContentExample(sce);
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
 
+        myelt.setSimpleStringArray(myelt.getStringArray());
 
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
@@ -570,15 +579,36 @@ public class MarshalTests extends TestCase
         Assert.assertNotNull(ctx);
 
 
+        final QName elem_name = new QName("java:com.mytest", "load");
+        final QName type_name = new QName("java:com.mytest", "MyClass");
         ctx.marshalType(w, mc,
-                        new QName("java:com.mytest", "load"),
-                        new QName("java:com.mytest", "MyClass"),
+                        elem_name,
+                        type_name,
                         mc.getClass().getName(), options);
+        w.close();
+        sw.close();
 
         inform("=======IN-OBJ: " + mc);
-        inform("=======OUT-XML: " + PrettyPrinter.indent(sw.getBuffer().toString()));
+        inform("=======OUT-XML:\n" + PrettyPrinter.indent(sw.getBuffer().toString()));
         reportErrors(errors, "byname-writer");
         Assert.assertTrue(errors.isEmpty());
+
+
+        StringReader sr = new StringReader(sw.getBuffer().toString());
+        XMLStreamReader rdr =
+            XMLInputFactory.newInstance().createXMLStreamReader(sr);
+        while (!rdr.isStartElement()) {
+            rdr.next();
+        }
+        Unmarshaller umctx = bindingContext.createUnmarshaller();
+        Object out_obj = umctx.unmarshalType(rdr, type_name, mc.getClass().getName(), options);
+        reportErrors(errors, "byname-doc-writer");
+        Assert.assertTrue(errors.isEmpty());
+        if (!mc.equals(out_obj)) {
+            inform("IN : " + mc, true);
+            inform("OUT: " + out_obj, true);
+        }
+        Assert.assertEquals(mc, out_obj);
     }
 
     public void testByNameDocMarshalViaWriter()
@@ -630,7 +660,7 @@ public class MarshalTests extends TestCase
         myelt.setAttrib(99999.777f);
         myelt.setMyFloat(5555.4444f);
 //        myelt.setMyClass(new com.mytest.MyClass());
-        myelt.setMyClass(null);
+//        myelt.setMyClass(new com.mytest.MySubSubClass());
         mc.setMyelt(myelt);
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
@@ -681,7 +711,10 @@ public class MarshalTests extends TestCase
         myelt.setAttrib(99999.777f);
         myelt.setMyFloat(5555.4444f);
 //        myelt.setMyClass(new com.mytest.MyClass());
-        myelt.setMyClass(null);
+//        myelt.setMyClass(null);
+//        myelt.setMyClass(new com.mytest.MySubSubClass());
+        myelt.setMyClass(new com.mytest.MySubClass());
+
         mc.setMyelt(myelt);
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
@@ -710,6 +743,10 @@ public class MarshalTests extends TestCase
         final ByteArrayInputStream bais = new ByteArrayInputStream(buf);
         Object out_obj = umctx.unmarshal(bais, options);
         reportErrors(errors, "marsh-outstream");
+        if (!mc.equals(out_obj)) {
+            inform("\nIN : " + mc, true);
+            inform("OUT: " + out_obj, true);
+        }
         Assert.assertEquals(mc, out_obj);
         Assert.assertTrue(errors.isEmpty());
     }
@@ -1256,7 +1293,9 @@ public class MarshalTests extends TestCase
         final SchemaDocument xsd_obj =
             (SchemaDocument)XmlObject.Factory.parse(schema);
         final XmlObject[] schemas = new XmlObject[]{xsd_obj};
-        SchemaTypeSystem sts = XmlBeans.compileXsd(schemas, XmlBeans.getBuiltinTypeSystem(), new XmlOptions());
+        SchemaTypeSystem sts = XmlBeans.compileXsd(schemas,
+                                                   XmlBeans.getBuiltinTypeSystem(),
+                                                   new XmlOptions());
         Schema2Java s2j = new Schema2Java(sts);
         s2j.includeSchema(xsd_obj, schema.getName());
         final File tmpfile = File.createTempFile("marshalTests", "-tylar");

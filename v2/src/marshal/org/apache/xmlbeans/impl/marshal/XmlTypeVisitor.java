@@ -23,11 +23,11 @@ abstract class XmlTypeVisitor
 {
     private final Object parentObject;
     private final RuntimeBindingProperty bindingProperty;
-    protected final MarshalResult marshalResult;
+    protected final PullMarshalResult marshalResult;
 
     XmlTypeVisitor(Object obj,
                    RuntimeBindingProperty property,
-                   MarshalResult result)
+                   PullMarshalResult result)
         throws XmlException
     {
         this.parentObject = obj;

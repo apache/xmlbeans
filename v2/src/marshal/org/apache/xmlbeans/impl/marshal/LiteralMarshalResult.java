@@ -15,23 +15,23 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
 import javax.xml.namespace.NamespaceContext;
 
 final class LiteralMarshalResult
-    extends MarshalResult
+    extends PullMarshalResult
 {
 
     //TODO: REVIEW: consider ways to reduce the number of parameters here
     LiteralMarshalResult(BindingLoader loader,
-                      RuntimeBindingTypeTable tbl,
-                      NamespaceContext root_nsctx,
-                      RuntimeBindingProperty property,
-                      Object obj,
-                      XmlOptions options)
+                         RuntimeBindingTypeTable tbl,
+                         NamespaceContext root_nsctx,
+                         RuntimeBindingProperty property,
+                         Object obj,
+                         XmlOptions options)
         throws XmlException
     {
         super(loader, tbl, root_nsctx, property, obj, options);

@@ -34,7 +34,7 @@ abstract class NamedXmlTypeVisitor
 
     NamedXmlTypeVisitor(Object parentObject,
                         RuntimeBindingProperty property,
-                        MarshalResult result)
+                        PullMarshalResult result)
         throws XmlException
     {
         super(parentObject, property, result);

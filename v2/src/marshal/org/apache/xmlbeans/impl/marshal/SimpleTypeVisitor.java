@@ -23,7 +23,7 @@ final class SimpleTypeVisitor
 
     public SimpleTypeVisitor(RuntimeBindingProperty property,
                              Object obj,
-                             MarshalResult result)
+                             PullMarshalResult result)
         throws XmlException
     {
         super(property, obj, result);
