@@ -31,7 +31,11 @@ public abstract class BuiltinBindingLoader extends BaseBindingLoader {
 
   // ========================================================================
   // Static methods
-        
+
+  public static BindingLoader getInstance() {
+    return getBuiltinBindingLoader(false);
+  }
+
   public static BindingLoader getBuiltinBindingLoader(boolean jaxRpc) {
     if (jaxRpc)
       return JaxRpcBuiltinBindingLoader.getInstance();
