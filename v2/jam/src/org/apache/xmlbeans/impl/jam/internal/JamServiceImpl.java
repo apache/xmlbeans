@@ -70,18 +70,7 @@ public class JamServiceImpl implements JamService {
   }
 
   // ========================================================================
-  // Public methods - somexday we need to clean up the way this is exposed.
-  // at the moment, we just cast down to this elements class to get at
-  // these methods
-
-  public MClass addNewClass(String packageName,
-                            String className,
-                            String[] importSpecs)
-  {
-    ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs);
-    ((JamClassLoaderImpl)getClassLoader()).addToCache(out);//FIXME yuck, please sort this out
-    return out;
-  }
+  // Hackish methods
 
   // this is a back door for jamxmlutils, which can't know the class names
   // until after it's parsed the xml file (which can't be done without

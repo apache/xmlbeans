@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
+import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.jam.visitor.JVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.*;
@@ -23,6 +24,7 @@ import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRefContext;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.UnqualifiedJClassRef;
+import org.apache.xmlbeans.impl.jam.internal.JamClassLoaderImpl;
 
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -40,12 +42,11 @@ public class ClassImpl extends MemberImpl implements MClass,
   // ========================================================================
   // Constants
 
-  public static final int NEW = 0;
-  public static final int BUILDING = 1;
-  public static final int POPULATING = 2;
-  public static final int INITIALIZING = 3;
-  public static final int LOADED = 4;
-  //public static final int UNRESOLVED = 4;
+  public static final int NEW = 1;
+  public static final int UNPOPULATED = 2;
+  public static final int POPULATING = 3;
+  public static final int INITIALIZING = 4;
+  public static final int LOADED = 5;
 
   // ========================================================================
   // Variables
@@ -69,6 +70,8 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   private String[] mImports = null;
 
+  private JamClassBuilder mPopulator;
+
   // FIXME implement this - we should only create one UnqualifiedJClassRef
   // for each unqualified name so as to avoid resolving them over and over.
   //private Map mName2Uqref = null;
@@ -79,11 +82,13 @@ public class ClassImpl extends MemberImpl implements MClass,
   public ClassImpl(String packageName,
                    String simpleName,
                    ElementContext ctx,
-                   String[] importSpecs) {
+                   String[] importSpecs,
+                   JamClassBuilder populator) {
     super(ctx);
     super.setSimpleName(simpleName);
     mPackageName = packageName.trim();
     mImports = importSpecs;
+    mPopulator = populator;
   }
 
   // ========================================================================
@@ -94,6 +99,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JClass getSuperclass() {
+    ensurePopulated();
     if (mSuperClassRef == null) {
       return null;
     } else {
@@ -102,6 +108,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JClass[] getInterfaces() {
+    ensurePopulated();
     if (mInterfaceRefs == null || mInterfaceRefs.size() == 0) {
       return new JClass[0];
     } else {
@@ -114,6 +121,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JField[] getFields() {
+    ensurePopulated();
     List list = new ArrayList();
     addFieldsRecursively(this, list);
     JField[] out = new JField[list.size()];
@@ -122,10 +130,12 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JField[] getDeclaredFields() {
+    ensurePopulated();
     return getMutableFields();
   }
 
   public JMethod[] getMethods() {
+    ensurePopulated();
     List list = new ArrayList();
     addMethodsRecursively(this, list);
     JMethod[] out = new JMethod[list.size()];
@@ -134,6 +144,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JProperty[] getProperties() {
+    ensurePopulated();
     if (mProperties == null) return new JProperty[0];
     JProperty[] out = new JProperty[mProperties.size()];
     mProperties.toArray(out);
@@ -141,21 +152,42 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JProperty[] getDeclaredProperties() {
+    ensurePopulated();
     if (mDeclaredProperties == null) return new JProperty[0];
     JProperty[] out = new JProperty[mDeclaredProperties.size()];
     mDeclaredProperties.toArray(out);
     return out;
   }
 
-  public JMethod[] getDeclaredMethods() { return getMutableMethods(); }
+  public JMethod[] getDeclaredMethods() {
+    ensurePopulated();
+    return getMutableMethods();
+  }
 
-  public JConstructor[] getConstructors() { return getMutableConstructors(); }
+  public JConstructor[] getConstructors() {
+    ensurePopulated();
+    return getMutableConstructors();
+  }
 
-  public boolean isInterface() { return mIsInterface; }
+  public boolean isInterface() {
+    ensurePopulated();
+    return mIsInterface;
+  }
 
-  public boolean isAnnotationType() { return mIsAnnotationType; }
+  public boolean isAnnotationType() {
+    ensurePopulated();
+    return mIsAnnotationType;
+  }
 
-  public boolean isEnumType() { return mIsEnum; }
+  public boolean isEnumType() {
+    ensurePopulated();
+    return mIsEnum;
+  }
+
+  public int getModifiers() {
+    ensurePopulated();
+    return super.getModifiers();
+  }
 
   public boolean isFinal() { return Modifier.isFinal(getModifiers()); }
 
@@ -164,6 +196,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   public boolean isAbstract() { return Modifier.isAbstract(getModifiers()); }
 
   public boolean isAssignableFrom(JClass arg) {
+    ensurePopulated();
     if (isPrimitiveType() || arg.isPrimitiveType()) {
       return getQualifiedName().equals(arg.getQualifiedName());
     }
@@ -171,6 +204,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JClass[] getClasses() {
+    ensurePopulated();
     return new JClass[0];//FIXME
   }
 
@@ -183,10 +217,12 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public JPackage[] getImportedPackages() {
+    ensurePopulated();
     return new JPackage[0];//FIXME
   }
 
   public JClass[] getImportedClasses() {
+    ensurePopulated();
 //    if (true) throw new IllegalStateException();
     String[] imports = getImportSpecs();
     if (imports == null) return new JClass[0];
@@ -222,7 +258,57 @@ public class ClassImpl extends MemberImpl implements MClass,
   public int getArrayDimensions() { return 0; }
 
   // ========================================================================
+  // AnnotatedElementImpl implementation - just to add ensureLoaded()
+
+  public JAnnotation[] getAnnotations() {
+    ensurePopulated();
+    return super.getAnnotations();
+  }
+
+  public JAnnotation getAnnotation(Class proxyClass) {
+    ensurePopulated();
+    return super.getAnnotation(proxyClass);
+  }
+
+  public JAnnotation getAnnotation(String named) {
+    ensurePopulated();
+    return super.getAnnotation(named);
+  }
+
+  public JAnnotationValue getAnnotationValue(String valueId) {
+    ensurePopulated();
+    return super.getAnnotationValue(valueId);
+  }
+
+
+  public Object getAnnotationProxy(Class proxyClass) {
+    ensurePopulated();
+    return super.getAnnotationProxy(proxyClass);
+  }
+
+  public JComment getComment() {
+    ensurePopulated();
+    return super.getComment();
+  }
+
+  public JAnnotation[] getAllJavadocTags() {
+    ensurePopulated();
+    return super.getAllJavadocTags();
+  }
+
+  // ========================================================================
+  // Element implementation - just to add ensureLoaded()
+
+  public JSourcePosition getSourcePosition() {
+    ensurePopulated();
+    return super.getSourcePosition();
+  }
+
+
+  // ========================================================================
   // MClass implementation
+
+  //FIXME should add assertiong here that state is not LOADED
 
   public void setSuperclass(String qualifiedClassName) {
     if (qualifiedClassName == null) {
@@ -397,6 +483,7 @@ public class ClassImpl extends MemberImpl implements MClass,
   }
 
   public String[] getImportSpecs() {
+    ensurePopulated();
     if (mImports == null) return new String[0];
     return mImports;
   }
@@ -406,9 +493,7 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public void setState(int state) { mState = state; }
 
-
-
-
+  public void setPopulator(JamClassBuilder builder) { mPopulator = builder; }
 
   // ========================================================================
   // Public static utility methods
@@ -487,6 +572,17 @@ public class ClassImpl extends MemberImpl implements MClass,
     }
     clazz = clazz.getSuperclass();
     if (clazz != null) addMethodsRecursively(clazz, out);
+  }
+
+  private void ensurePopulated() {
+    if (mState == UNPOPULATED) {
+      if (mPopulator == null) throw new IllegalStateException("null populator");
+      setState(POPULATING);
+      mPopulator.populate(this);
+      setState(INITIALIZING);
+      ((JamClassLoaderImpl)getClassLoader()).initialize(this);
+      setState(ClassImpl.LOADED);
+    }
   }
 
 }

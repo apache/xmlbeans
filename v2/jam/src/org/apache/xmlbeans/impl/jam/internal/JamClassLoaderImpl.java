@@ -91,28 +91,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
       return out;
     }
     cachePut(out);
-    ((ClassImpl)out).setState(ClassImpl.POPULATING);
-    mBuilder.populate(out);
-    if (mInitializer == null) {
-      ((ClassImpl)out).setState(ClassImpl.LOADED);
-    } else {
-      ((ClassImpl)out).setState(ClassImpl.INITIALIZING);
-      // see comments below about this.  we need to document this more openly,
-      // since it affects people writing initializers.
-      if (mAlreadyInitializing) {
-        // we already are running initializers, so we have to do it later
-        mInitializeStack.push(out);
-      } else {
-        out.accept(mInitializer);
-        ((ClassImpl)out).setState(ClassImpl.LOADED);
-        while(!mInitializeStack.isEmpty()) {
-          ClassImpl initme = (ClassImpl)mInitializeStack.pop();
-          initme.accept(mInitializer);
-          ((ClassImpl)out).setState(ClassImpl.LOADED);
-        }
-        mAlreadyInitializing = false;
-      }
-    }
+    ((ClassImpl)out).setState(ClassImpl.UNPOPULATED);
     return out;
   }
 
@@ -159,6 +138,25 @@ public class JamClassLoaderImpl implements JamClassLoader {
 
   // ========================================================================
   // Public methods?
+
+  //should only be called by ClassImpl
+  public void initialize(ClassImpl out) {
+    if (mInitializer != null) {
+      // see comments below about this.  we need to document this more openly,
+      // since it affects people writing initializers.
+      if (mAlreadyInitializing) {
+        // we already are running initializers, so we have to do this one later
+        mInitializeStack.push(out);
+      } else {
+        out.accept(mInitializer);
+        while(!mInitializeStack.isEmpty()) {
+          ClassImpl initme = (ClassImpl)mInitializeStack.pop();
+          initme.accept(mInitializer);
+        }
+        mAlreadyInitializing = false;
+      }
+    }
+  }
 
   /**
    * Returns an unmodifiable collection containing the JClasses which
