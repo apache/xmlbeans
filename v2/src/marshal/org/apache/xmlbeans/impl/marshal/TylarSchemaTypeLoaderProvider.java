@@ -73,7 +73,7 @@ final class TylarSchemaTypeLoaderProvider
     public SchemaTypeLoader getSchemaTypeLoader()
     {
         if (schemaTypeLoader == null) {
-            schemaTypeLoader = tylar.getSchemaTypeSystem();
+            schemaTypeLoader = tylar.getSchemaTypeLoader();
         }
         assert schemaTypeLoader != null;
         return schemaTypeLoader;

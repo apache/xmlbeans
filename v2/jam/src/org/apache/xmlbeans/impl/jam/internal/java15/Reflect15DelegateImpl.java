@@ -77,11 +77,22 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
     extractAnnotations(dest,anns);
   }
 
-  public void extractAnnotations(MParameter dest, Method src, int paramNum) {
-    Annotation[][] anns = src.getParameterAnnotations();
+  public void extractAnnotations(MParameter dest, Method src,
+                                 int paramNum) {
+    Annotation[][] anns;
+    try {
+      anns = src.getParameterAnnotations();
+    } catch(NullPointerException wtf) {
+      //FIXME workaround, sun code throws an NPE here
+      if (mLogger.isVerbose(this)) {
+        mLogger.verbose("ignoring unexpected error while calling Method.getParameterAnnotations():");
+        mLogger.verbose(wtf);
+      }
+      //wtf.printStackTrace();
+      return;
+    }
     if (anns == null) return;
-    if (anns.length <= paramNum) {
-      //FIXME something is not right here, just a quick fix.  bug in reflection?
+    if (paramNum >= anns.length) {
       if (mLogger.isVerbose(this)) {
         mLogger.warning("method "+src.getName()+
                         " has fewer than expected parameter annotations ");
@@ -106,9 +117,14 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
       return;
     }
     if (anns == null) return;
-    for(int i=0; i<anns[paramNum].length; i++) {
-      extractAnnotations(dest,anns[i]);
+    if (paramNum >= anns.length) {
+      if (mLogger.isVerbose(this)) {
+        mLogger.warning("constructor "+src.getName()+
+                        " has fewer than expected parameter annotations ");
+      }
+      return;
     }
+    extractAnnotations(dest,anns[paramNum]);
   }
 
   public boolean isEnum(Class clazz) { return clazz.isEnum(); }

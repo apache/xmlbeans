@@ -20,6 +20,10 @@ import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
 import org.apache.xmlbeans.impl.jam.*;
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 import org.apache.xmlbeans.impl.common.XMLChar;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -118,6 +122,16 @@ public class Java2Schema extends BindingCompiler {
     try {
       writer.writeBindingFile(mBindingFile);
       writer.writeSchema(mSchemaDocument,"schema-0.xsd");
+
+    } catch(IOException ioe) {
+      logError(ioe);
+    }
+    try {
+      SchemaTypeSystem sts = XmlBeans.compileXsd
+        (new XmlObject[] {mSchemaDocument},XmlBeans.getBuiltinTypeSystem(),null);
+      writer.writeSchemaTypeSystem(sts);
+    } catch(XmlException xe) {
+      logError(xe);
     } catch(IOException ioe) {
       logError(ioe);
     }
@@ -157,13 +171,19 @@ public class Java2Schema extends BindingCompiler {
     xsType.setName(xsdName);
     // deal with inheritance - see if it extends anything
     JClass superclass = clazz.getSuperclass();
+    // we have to remember whether we created an ExtensionType because that
+    // is where the sequence of properties have to go - note that this
+    // gets passed into the SchemaPropertyFacade created below.  It's
+    // unforuntante that the SchemaDocument model does not allow us to deal
+    // with this kind of thing in a more elegant and polymorphic way.
+    ExtensionType extType = null;
     if (superclass != null && !superclass.isObjectType() &&
             !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
       // FIXME we're ignoring interfaces at the moment
       BindingType superBindingType = getBindingTypeFor(superclass);
       ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
-      ExtensionType et = ccd.addNewExtension();
-      et.setBase(superBindingType.getName().getXmlName().getQName());
+      extType = ccd.addNewExtension();
+      extType.setBase(superBindingType.getName().getXmlName().getQName());
     }
     // create a binding type
     BindingTypeName btname = BindingTypeName.forPair(getJavaName(clazz),
@@ -186,7 +206,7 @@ public class Java2Schema extends BindingCompiler {
       mBindingFile.addBindingType(sdb,true,true);
     }
     // run through the class' properties to populate the binding and xsdtypes
-    SchemaPropertyFacade facade = new SchemaPropertyFacade(xsType,bindType,tns);
+    SchemaPropertyFacade facade = new SchemaPropertyFacade(xsType,extType,bindType,tns);
     Map props2issetters = new HashMap();
     getIsSetters(clazz,props2issetters);
     bindProperties(clazz.getDeclaredProperties(),props2issetters,facade);
@@ -474,6 +494,9 @@ public class Java2Schema extends BindingCompiler {
    * on a given BTS/XSD type pair, and any operations on the facade will
    * apply to that property until the next property is created
    * (via newAttributeProperty or newElementProperty).
+   *
+   * This class really wouldn't be necessary if the SchemaDocument model
+   * were a bit more user-friendly.
    */
   class SchemaPropertyFacade {
 
@@ -481,6 +504,7 @@ public class Java2Schema extends BindingCompiler {
     // Variables
 
     private TopLevelComplexType mXsType;
+    private ExtensionType mExtensionType = null;
     private String mXsTargetNamespace;
     private LocalElement mXsElement = null; // exactly one of these two is
     private Attribute mXsAttribute = null;  // remains null
@@ -494,12 +518,14 @@ public class Java2Schema extends BindingCompiler {
     // Constructors
 
     public SchemaPropertyFacade(TopLevelComplexType xsType,
+                                ExtensionType extType, //may be null
                                 ByNameBean bt,
                                 String tns) {
       if (xsType == null) throw new IllegalArgumentException("null xsType");
       if (bt == null) throw new IllegalArgumentException("null bt");
       if (tns == null) throw new IllegalArgumentException("null tns");
       mXsType = xsType;
+      mExtensionType = extType;
       mBtsType = bt;
       mXsTargetNamespace = tns;
     }
@@ -521,7 +547,12 @@ public class Java2Schema extends BindingCompiler {
     public void newElementProperty(JElement srcContext) {
       newBtsProperty();
       mSrcContext = srcContext;
-      if (mXsSequence == null) mXsSequence = mXsType.addNewSequence();
+      if (mXsSequence == null) {
+        // nest it inside the extension element if they specified one,
+        // otherwise just do it in the complexType
+        mXsSequence = (mExtensionType != null) ?
+          mExtensionType.addNewSequence() : mXsType.addNewSequence();
+      }
       mXsElement = mXsSequence.addNewElement();
       mXsAttribute = null;
     }

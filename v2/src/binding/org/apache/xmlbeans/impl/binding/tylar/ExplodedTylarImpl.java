@@ -29,6 +29,9 @@ import java.util.Collection;
 import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaTypeSystem;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.joust.FileWriterFactory;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
@@ -63,6 +66,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
   private BindingFile mBindingFile = null;
   private JavaOutputStream mJoust = null;
   private Collection mSchemaDocuments = null;
+  private SchemaTypeSystem mSchemaTypeSystem = null;
 
   // ========================================================================
   // Factory methods
@@ -96,7 +100,7 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     } else {
       if (!dir.mkdirs()) throw new IOException("Failed to create " + dir);
     }
-    return new ExplodedTylarImpl(dir, null, null, joust);
+    return new ExplodedTylarImpl(dir, null, null, null, joust);
   }
 
   /**
@@ -113,7 +117,17 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     BindingFile bf = parseBindingFile(new File(dir, BINDING_FILE));
     Collection schemas = new ArrayList();
     parseSchemas(new File(dir, SCHEMA_DIR), schemas);
-    return new ExplodedTylarImpl(dir, bf, schemas, joust);
+    SchemaTypeSystem sts = null;
+    {
+      File stsDir = new File(dir, STS_DIR);
+      if (stsDir.exists()) {
+        //FIXME i still dont get how to do this.  Where is the TypeSystemHolder?
+        // sts = SchemaTypeSystemImpl.forName()
+      }
+
+    }
+
+    return new ExplodedTylarImpl(dir, bf, schemas, sts, joust);
   }
 
   // ========================================================================
@@ -125,7 +139,8 @@ public class ExplodedTylarImpl extends BaseTylarImpl
    */
   private ExplodedTylarImpl(File dir, // must exist
                             BindingFile bindingFile, // null ok
-                            Collection schemas, // null ok
+                            Collection schemas, // null ok,
+                            SchemaTypeSystem sts, // null ok
                             JavaOutputStream joust)    // null ok
   {
     mRootDir = dir;
@@ -155,6 +170,12 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     writeXsd(xsd, new File(mSchemaDir, schemaFileName));
   }
 
+  public void writeSchemaTypeSystem(SchemaTypeSystem sts) throws IOException {
+    if (sts == null) throw new IllegalArgumentException("null sts");
+    mSchemaTypeSystem = sts;
+    sts.saveToDirectory(new File(mRootDir, STS_DIR));
+  }
+
   public JavaOutputStream getJavaOutputStream() {
     return mJoust;
   }
@@ -175,6 +196,13 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     SchemaDocument[] out = new SchemaDocument[mSchemaDocuments.size()];
     mSchemaDocuments.toArray(out);
     return out;
+  }
+
+  public SchemaTypeLoader getSchemaTypeLoader() {
+    if (mSchemaTypeSystem == null) {
+      mSchemaTypeSystem = getDefaultSchemaTypeSystem();
+    }
+    return mSchemaTypeSystem;
   }
 
   public URI getLocation() {
@@ -232,6 +260,14 @@ public class ExplodedTylarImpl extends BaseTylarImpl
     File srcDir = new File(dir,TylarConstants.SRC_ROOT);
     return new ValidatingJavaOutputStream
             (new SourceJavaOutputStream(new FileWriterFactory(srcDir)));
+  }
+
+  private static SchemaTypeSystem buildSts(Collection xsds)
+    throws XmlException
+  {
+    SchemaDocument[] x = new SchemaDocument[xsds.size()];
+    xsds.toArray(x);
+    return XmlBeans.compileXsd(x,XmlBeans.getBuiltinTypeSystem(),null);
   }
 
   private static void parseSchemas(File schemaDir, Collection out)

@@ -20,6 +20,7 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import org.apache.xmlbeans.impl.binding.bts.*;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.binding.compile.BindingCompilerTask;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
@@ -54,6 +55,7 @@ public class BindingTests extends TestCase
             if (verbose) bf.write().save(System.out);
           }
           public void writeSchema(SchemaDocument xsd, String filepath) {}
+          public void writeSchemaTypeSystem(SchemaTypeSystem sts) {}
           public void close() {}
         };
         //FIXME this is kinda dumb, just emulating current behavior.

@@ -222,13 +222,13 @@ public abstract class BindingCompiler extends BindingLogger
    * @throws IllegalStateException if this method is called before
    * the abstract bind() method is called.
    */
-  public SchemaTypeSystem getBaseSchemaTypeSystem()
+  public SchemaTypeLoader getBaseSchemaTypeLoader()
   {
     assertCompilationStarted(true);
     if (mBaseTylar == null) {
       return XmlBeans.getBuiltinTypeSystem();
     } else {
-      return mBaseTylar.getSchemaTypeSystem();
+      return mBaseTylar.getSchemaTypeLoader();
     }
   }
 

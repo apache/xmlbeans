@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.binding.tylar;
 import java.io.IOException;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
+import org.apache.xmlbeans.SchemaTypeSystem;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 /**
@@ -43,6 +44,15 @@ public interface TylarWriter {
    * @throws IOException
    */
   public void writeSchema(SchemaDocument xsd, String filepath) throws IOException;
+
+  /**
+   * Writes the given schema type system into the tylar in a binary format.
+   * Note that this functionality is completely independent of writeSchema() -
+   * if you want both, you need to write them separately.
+   *
+   * @param sts  The schema type system to write.
+   */
+  public void writeSchemaTypeSystem(SchemaTypeSystem sts) throws IOException;
 
   /**
    * Returns the JavaOutputStream which should be used for creating new java

@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.binding.tylar;
 
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.SchemaTypeLoader;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import java.util.Collection;
@@ -98,6 +100,16 @@ public class CompositeTylar extends BaseTylarImpl {
     SchemaDocument[] out = new SchemaDocument[all.size()];
     all.toArray(out);
     return out;
+  }
+
+  public SchemaTypeLoader getSchemaTypeLoader() {
+    if (mTylars.length == 0) return XmlBeans.getBuiltinTypeSystem();
+    if (mTylars.length == 1) return mTylars[0].getSchemaTypeLoader();
+    SchemaTypeLoader[] sts = new SchemaTypeLoader[mTylars.length];
+    for(int i=0; i<mTylars.length; i++) sts[i] = mTylars[i].getSchemaTypeLoader();
+    return XmlBeans.typeLoaderUnion(sts);
+
+
   }
 
   public ClassLoader createClassLoader(ClassLoader cl) {
