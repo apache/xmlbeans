@@ -58,7 +58,6 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaProperty;
 

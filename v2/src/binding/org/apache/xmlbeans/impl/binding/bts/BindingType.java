@@ -144,4 +144,8 @@ public abstract class BindingType
         registerClassAndType(SimpleDocumentBinding.class, org.apache.xml.xmlbeans.bindingConfig.SimpleDocumentBinding.type);
     }
 
+    public String toString()
+    {
+        return getClass().getName() + "[" + btName.getJavaName() + "; " + btName.getXmlName() + "]";
+    }
 }
