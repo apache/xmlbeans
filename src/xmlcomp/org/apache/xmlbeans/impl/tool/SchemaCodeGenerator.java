@@ -245,20 +245,23 @@ public class SchemaCodeGenerator
         return failure;
     }
 
-    private static final Method _jaxbCodeGeneratorMethod = buildJaxbCodeGeneratorMethod();
-
-    private static Method buildJaxbCodeGeneratorMethod()
+    private static class JaxbCodeGeneratorHolder
     {
-        try
+        private static final Method _jaxbCodeGeneratorMethod = buildJaxbCodeGeneratorMethod();
+    
+        private static Method buildJaxbCodeGeneratorMethod()
         {
-            return Class.forName("org.apache.xmlbeans.impl.jaxb.compiler.JaxbCodeGenerator", false, SchemaCodeGenerator.class.getClassLoader())
-                .getMethod("compile", new Class[] {SchemaTypeSystem.class, List.class, File.class, File.class, XmlErrorWatcher.class });
-        }
-        catch (Exception e)
-        {
-            IllegalStateException e2 =  new IllegalStateException("Cannot load JaxbCodeGenerator: verify that xbean.jar is on the classpath");
-            e2.initCause(e);
-            throw e2;
+            try
+            {
+                return Class.forName("org.apache.xmlbeans.impl.jaxb.compiler.JaxbCodeGenerator", false, SchemaCodeGenerator.class.getClassLoader())
+                    .getMethod("compile", new Class[] {SchemaTypeSystem.class, List.class, File.class, File.class, XmlErrorWatcher.class });
+            }
+            catch (Exception e)
+            {
+                IllegalStateException e2 =  new IllegalStateException("Cannot load JaxbCodeGenerator: verify that xbean.jar is on the classpath");
+                e2.initCause(e);
+                throw e2;
+            }
         }
     }
 
@@ -266,7 +269,7 @@ public class SchemaCodeGenerator
     {
         try
         {
-            return ((Boolean)_jaxbCodeGeneratorMethod.invoke(null, new Object[] { saver, sourcefiles, sourcedir, classesdir, errors })).booleanValue();
+            return ((Boolean)JaxbCodeGeneratorHolder._jaxbCodeGeneratorMethod.invoke(null, new Object[] { saver, sourcefiles, sourcedir, classesdir, errors })).booleanValue();
         }
         catch (InvocationTargetException e)
         {
