@@ -143,4 +143,9 @@ class UnmarshallerImpl implements Unmarshaller
 
         return result.unmarshalType(reader, schemaType, javaType);
     }
+
+    XMLInputFactory getXmlInputFactory()
+    {
+        return xmlInputFactory;
+    }
 }

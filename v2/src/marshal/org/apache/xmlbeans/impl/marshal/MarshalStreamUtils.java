@@ -273,8 +273,10 @@ final class MarshalStreamUtils
 
                         //eventually we'll handle these...
                     case XMLStreamReader.ATTRIBUTE:
+                        throw new AssertionError("NAKED ATTRIBUTE UNIMPLEMENTED");
                     case XMLStreamReader.CHARACTERS:
-                        throw new AssertionError("UNIMPLEMENTED TYPE: " + state);
+                        if (rdr.isWhiteSpace()) break;
+                        throw new AssertionError("NAKED CHARDATA UNIMPLEMENTED");
 
                         //bad news in the xml stream
                     case XMLStreamReader.END_DOCUMENT:

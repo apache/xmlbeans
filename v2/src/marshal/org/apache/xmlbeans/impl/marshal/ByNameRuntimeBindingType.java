@@ -56,6 +56,7 @@
 
 package org.apache.xmlbeans.impl.marshal;
 
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
@@ -70,10 +71,13 @@ import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
 
 import javax.xml.namespace.QName;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Iterator;
 import java.util.Collection;
+import java.util.Iterator;
 
 
 final class ByNameRuntimeBindingType
@@ -84,6 +88,7 @@ final class ByNameRuntimeBindingType
     private final Property[] attributeProperties;
     private final Property[] elementProperties;
     private final boolean hasMulti;  //has any multi properties
+    private final boolean hasDefaultAttributes;  //has any attributes with defaults
 
     //is this a subtype of something besides the ultimate parent type?
     //(XmlObject or java.lang.Object, though only the latter
@@ -106,19 +111,25 @@ final class ByNameRuntimeBindingType
         int elem_prop_cnt = 0;
         int att_prop_cnt = 0;
         boolean has_multi = false;
+        boolean has_attribute_defaults = false;
         final Collection type_props = btype.getProperties();
         for (Iterator itr = type_props.iterator(); itr.hasNext();) {
             QNameProperty p = (QNameProperty)itr.next();
             if (p.isMultiple()) has_multi = true;
-            if (p.isAttribute())
+            if (p.isAttribute()) {
                 att_prop_cnt++;
-            else
+                if (p.getDefault() != null) {
+                    has_attribute_defaults = true;
+                }
+            } else {
                 elem_prop_cnt++;
+            }
         }
 
         attributeProperties = new Property[att_prop_cnt];
         elementProperties = new Property[elem_prop_cnt];
         hasMulti = has_multi;
+        hasDefaultAttributes = has_attribute_defaults;
 
         isSubType = determineIsSubType(javaClass);
     }
@@ -208,13 +219,18 @@ final class ByNameRuntimeBindingType
 
     //TODO: optimize this linear scan
     RuntimeBindingProperty getMatchingAttributeProperty(String uri,
-                                                        String localname)
+                                                        String localname,
+                                                        UnmarshalResult context)
     {
         for (int i = 0, len = attributeProperties.length; i < len; i++) {
             final Property prop = attributeProperties[i];
 
-            if (doesPropMatch(uri, localname, prop))
+            if (doesPropMatch(uri, localname, prop)) {
+                if (hasDefaultAttributes && (prop.defaultValue != null)) {
+                    context.attributePresent(i);
+                }
                 return prop;
+            }
         }
         return null;
     }
@@ -250,9 +266,28 @@ final class ByNameRuntimeBindingType
         return isSubType;
     }
 
+    public boolean hasDefaultAttributes()
+    {
+        return hasDefaultAttributes;
+    }
+
     public QName getSchemaTypeName()
     {
         return byNameBean.getName().getXmlName().getQName();
+    }
+
+    public void fillDefaultAttributes(Object inter, UnmarshalResult context)
+    {
+        if (!hasDefaultAttributes) return;
+
+        for (int aidx = 0, alen = attributeProperties.length; aidx < alen; aidx++) {
+            final Property p = attributeProperties[aidx];
+
+            if (p.defaultValue == null) continue;
+            if (context.isAttributePresent(aidx)) continue;
+
+            p.fillDefaultValue(inter);
+        }
     }
 
 
@@ -270,6 +305,7 @@ final class ByNameRuntimeBindingType
         private final Method getMethod;
         private final Method setMethod;
         private final boolean javaPrimitive;
+        private final Object defaultValue;
 
         private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
 
@@ -298,6 +334,47 @@ final class ByNameRuntimeBindingType
             getMethod = getGetterMethod(prop, beanClass);
             setMethod = getSetterMethod(prop, beanClass);
             javaPrimitive = propertyClass.isPrimitive();
+
+            String def = bindingProperty.getDefault();
+            if (def != null) {
+                defaultValue = extractDefaultObject(def, bindingType,
+                                                    typeTable, loader);
+                if (!prop.isAttribute()) {
+                    //TODO: deal with defaulting elements!
+                    System.out.println("Default elements not supported: " + this);
+                }
+            } else {
+                defaultValue = null;
+            }
+        }
+
+
+        //REVIEW: find a shorter path to our goal.
+        private static Object extractDefaultObject(String value,
+                                                   BindingType bindingType,
+                                                   RuntimeBindingTypeTable typeTable,
+                                                   BindingLoader loader)
+        {
+            final String xmldoc = "<a>" + value + "</a>";
+            try {
+                final UnmarshallerImpl um = new UnmarshallerImpl(loader, typeTable);
+                final StringReader sr = new StringReader(xmldoc);
+                final XMLStreamReader reader =
+                    um.getXmlInputFactory().createXMLStreamReader(sr);
+                final BindingTypeName btname = bindingType.getName();
+                final Object obj =
+                    um.unmarshalType(reader, btname.getXmlName().getQName(),
+                                     btname.getJavaName().toString());
+                reader.close();
+                sr.close();
+                return obj;
+            }
+            catch (XmlException e) {
+                throw new XmlRuntimeException(e);
+            }
+            catch (XMLStreamException e) {
+                throw new XmlRuntimeException(e);
+            }
         }
 
         private Class getPropertyClass(QNameProperty prop, BindingType btype)
@@ -468,6 +545,14 @@ final class ByNameRuntimeBindingType
             }
         }
 
+
+        public void fillDefaultValue(Object inter)
+        {
+            assert (defaultValue != null);
+
+            this.fill(inter, defaultValue);
+        }
+
         public void fillCollection(final Object inter, final Object prop_obj)
         {
             assert isMultiple();
@@ -584,6 +669,7 @@ final class ByNameRuntimeBindingType
         {
             return bindingProperty.getQName();
         }
+
 
     }
 

@@ -79,6 +79,7 @@ import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.util.BitSet;
 import java.util.Collection;
 import java.util.Date;
 
@@ -103,6 +104,7 @@ final class UnmarshalResult
     private final XsiAttributeHolder xsiAttributeHolder =
         new XsiAttributeHolder();
     private boolean gotXsiAttributes;
+    private BitSet defaultAttributeBits;
     private int currentAttributeIndex = INVALID;
     private int currentAttributeCount = INVALID;
 
@@ -722,6 +724,9 @@ final class UnmarshalResult
     {
         xsiAttributeHolder.reset();
         gotXsiAttributes = false;
+        if (defaultAttributeBits != null) {
+            defaultAttributeBits.clear();
+        }
         if (baseReader.isStartElement()) {
             currentAttributeCount = baseReader.getAttributeCount();
             currentAttributeIndex = 0;
@@ -801,6 +806,24 @@ final class UnmarshalResult
         assert currentAttributeIndex != INVALID;
 
         return baseReader.getAttributeLocalName(currentAttributeIndex);
+    }
+
+    public void attributePresent(int att_idx)
+    {
+        if (defaultAttributeBits == null) {
+            int bits_size = getAttributeCount();
+            defaultAttributeBits = new BitSet(bits_size);
+        }
+
+        defaultAttributeBits.set(att_idx);
+    }
+
+    public boolean isAttributePresent(int att_idx)
+    {
+        if (defaultAttributeBits == null)
+            return false;
+
+        return defaultAttributeBits.get(att_idx);
     }
 
 }

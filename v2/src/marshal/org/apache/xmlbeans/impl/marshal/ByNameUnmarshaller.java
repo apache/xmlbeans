@@ -162,6 +162,8 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
 
             context.advanceAttribute();
         }
+
+       type.fillDefaultAttributes(inter, context);
     }
 
     private RuntimeBindingProperty findMatchingAttributeProperty(UnmarshalResult context)
@@ -169,7 +171,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         String uri = context.getCurrentAttributeNamespaceURI();
         String lname = context.getCurrentAttributeLocalName();
 
-        return type.getMatchingAttributeProperty(uri, lname);
+        return type.getMatchingAttributeProperty(uri, lname, context);
     }
 
     private RuntimeBindingProperty findMatchingElementProperty(UnmarshalResult context)
