@@ -479,13 +479,24 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printNestedInnerTypes(SchemaType sType, SchemaTypeSystem system) throws IOException
     {
-        SchemaType[] anonTypes = sType.getAnonymousTypes();
-        for (int i = 0; i < anonTypes.length; i++)
+        boolean redefinition = sType.getName() != null &&
+            sType.getName().equals(sType.getBaseType().getName());
+        while (sType != null)
         {
-            if (anonTypes[i].isSkippedAnonymousType())
-                printNestedInnerTypes(anonTypes[i], system);
-            else
-                printInnerType(anonTypes[i], system);
+            SchemaType[] anonTypes = sType.getAnonymousTypes();
+            for (int i = 0; i < anonTypes.length; i++)
+            {
+                if (anonTypes[i].isSkippedAnonymousType())
+                    printNestedInnerTypes(anonTypes[i], system);
+                else
+                    printInnerType(anonTypes[i], system);
+            }
+            // For redefinition by extension, go ahead and print the anonymous
+            // types in the base
+            if (!redefinition ||
+                sType.getDerivationType() != SchemaType.DT_EXTENSION)
+                break;
+            sType = sType.getBaseType();
         }
     }
 
@@ -2494,13 +2505,24 @@ public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 
     void printNestedTypeImpls(SchemaType sType, SchemaTypeSystem system) throws IOException
     {
-        SchemaType[] anonTypes = sType.getAnonymousTypes();
-        for (int i = 0; i < anonTypes.length; i++)
+        boolean redefinition = sType.getName() != null &&
+            sType.getName().equals(sType.getBaseType().getName());
+        while (sType != null)
         {
-            if (anonTypes[i].isSkippedAnonymousType())
-                printNestedTypeImpls(anonTypes[i], system);
-            else
-                printInnerTypeImpl(anonTypes[i], system, true);
+            SchemaType[] anonTypes = sType.getAnonymousTypes();
+            for (int i = 0; i < anonTypes.length; i++)
+            {
+                if (anonTypes[i].isSkippedAnonymousType())
+                    printNestedTypeImpls(anonTypes[i], system);
+                else
+                    printInnerTypeImpl(anonTypes[i], system, true);
+            }
+            // For redefinition by extension, go ahead and print the anonymous
+            // types in the base
+            if (!redefinition ||
+                sType.getDerivationType() != SchemaType.DT_EXTENSION)
+                break;
+            sType = sType.getBaseType();
         }
     }
 }

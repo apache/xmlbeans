@@ -68,6 +68,9 @@ public class StscJavaizer
             else
                 skipJavaizingType((SchemaTypeImpl)gType);
             allSeenTypes.addAll(Arrays.asList(gType.getAnonymousTypes()));
+            if (((SchemaTypeImpl) gType).isRedefinition() &&
+                gType.getDerivationType() == SchemaType.DT_EXTENSION)
+                addAnonymousTypesFromRedefinition(gType.getBaseType(), allSeenTypes);
         }
     }
 
@@ -275,7 +278,9 @@ public class StscJavaizer
         }
 
         // assign java type names to anonymous types
-        assignJavaAnonymousTypeNames(sImpl);
+        // for redefined types, this step was performed when javaizing the redefinition
+        if (sImpl.getFullJavaName() != null)
+            assignJavaAnonymousTypeNames(sImpl);
 
         sImpl.finishJavaizing();
     }
@@ -308,6 +313,23 @@ public class StscJavaizer
         Set usedTypeNames = new HashSet();
         SchemaType[] anonymousTypes = outerType.getAnonymousTypes();
         StscState state = StscState.get();
+
+        int nrOfAnonTypes = anonymousTypes.length;
+        if (outerType.isRedefinition() &&
+            outerType.getDerivationType() == SchemaType.DT_EXTENSION)
+        {
+            // We have to add the anonymous types for redefinitions to the list
+            // since they don't have another outer class
+            ArrayList list = new ArrayList();
+            addAnonymousTypesFromRedefinition(outerType.getBaseType(), list);
+            if (list.size() > 0)
+            {
+                SchemaType[] temp = new SchemaType[nrOfAnonTypes + list.size()];
+                list.toArray(temp);
+                System.arraycopy(anonymousTypes, 0, temp, list.size(), nrOfAnonTypes);
+                anonymousTypes = temp;
+            }
+        }
 
         // Because we generate nested java interfaces, and nested
         // interface names must not be the same as an ancestor, use up
@@ -365,10 +387,25 @@ public class StscJavaizer
                         javaname = "Base"; break;
                 }
             }
-            sImpl.setShortJavaName(
+
+            if (i < nrOfAnonTypes)
+            {
+                sImpl.setShortJavaName(
                     pickInnerJavaClassName(usedTypeNames, localname, javaname));
-            sImpl.setShortJavaImplName(
+                sImpl.setShortJavaImplName(
                     pickInnerJavaImplName(usedTypeNames, localname, javaname == null ? null : javaname + "Impl"));
+            }
+            else
+            {
+                // This comes from redefined types, so we have to compute the
+                // full name here
+                sImpl.setFullJavaName(outerType.getFullJavaName() + "$" +
+                    pickInnerJavaClassName(usedTypeNames, localname, javaname));
+                sImpl.setFullJavaImplName(outerType.getFullJavaImplName() + "$" +
+                    pickInnerJavaImplName(usedTypeNames, localname, javaname == null ? null : javaname + "Impl"));
+            }
+
+            // TODO(radup) why is this inside this loop here?
             setExtensions(sImpl, state);
         }
     }
@@ -829,4 +866,16 @@ public class StscJavaizer
         return sElt.getName();
     }
 
+    static void addAnonymousTypesFromRedefinition(SchemaType sType, List result)
+    {
+        while (sType != null)
+        {
+            SchemaType[] newAnonTypes = sType.getAnonymousTypes();
+            if (newAnonTypes.length > 0)
+                result.addAll(Arrays.asList(newAnonTypes));
+            if (sType.getDerivationType() != SchemaType.DT_EXTENSION)
+                break;
+            sType = sType.getBaseType();
+        }
+    }
 }

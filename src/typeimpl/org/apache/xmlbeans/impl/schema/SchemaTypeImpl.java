@@ -550,28 +550,6 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         _shortJavaName = _fullJavaName.substring(index);
     }
 
-    public void setInterfaceExtensions(InterfaceExtension[] interfaces)
-    {
-        assertResolved();
-        _interfaces = interfaces;
-    }
-
-    public InterfaceExtension[] getInterfaceExtensions()
-    {
-        return _interfaces;
-    }
-
-    public void setPrePostExtension(PrePostExtension prepost)
-    {
-        assertResolved();
-        _prepost = prepost;
-    }
-
-    public PrePostExtension getPrePostExtension()
-    {
-        return _prepost;
-    }
-
     public void setShortJavaImplName(String name)
     {
         assertResolved();
@@ -594,6 +572,28 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
     public String getFullJavaImplName() { return _fullJavaImplName;}
     public String getShortJavaImplName() { return _shortJavaImplName;}
+
+    public void setInterfaceExtensions(InterfaceExtension[] interfaces)
+    {
+        assertResolved();
+        _interfaces = interfaces;
+    }
+
+    public InterfaceExtension[] getInterfaceExtensions()
+    {
+        return _interfaces;
+    }
+
+    public void setPrePostExtension(PrePostExtension prepost)
+    {
+        assertResolved();
+        _prepost = prepost;
+    }
+
+    public PrePostExtension getPrePostExtension()
+    {
+        return _prepost;
+    }
 
     public Object getUserData()
     {   return _userData; }
