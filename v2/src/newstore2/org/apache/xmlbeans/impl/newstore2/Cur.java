@@ -2425,6 +2425,11 @@ final class Cur
     
     void setType ( SchemaType type )
     {
+        setType( type, true );
+    }
+    
+    void setType ( SchemaType type, boolean complain )
+    {
         assert type != null;
         assert isUserNode();
 
@@ -2448,7 +2453,7 @@ final class Cur
 
         if (isAttr())
         {
-            if (parentUser.get_attribute_type( getName() ) != type)
+            if (complain && parentUser.get_attribute_type( getName() ) != type)
             {
                 throw
                     new IllegalArgumentException(
@@ -2475,12 +2480,22 @@ final class Cur
         QName typeName = type.getName();
 
         if (typeName == null)
-            throw new IllegalArgumentException( "Can't set type of element, type is un-named" );
+        {
+            if (complain)
+                throw new IllegalArgumentException( "Can't set type of element, type is un-named" );
+            else
+                return;
+        }
 
         // See if setting xsiType would result in the target type
         
         if (parentUser.get_element_type( getName(), typeName ) != type)
-            throw new IllegalArgumentException( "Can't set type of element, invalid type" );
+        {
+            if (complain)
+                throw new IllegalArgumentException( "Can't set type of element, invalid type" );
+            else
+                return;
+        }
 
         setAttrValueAsQName( Locale._xsiType, typeName );
     }

@@ -1197,13 +1197,15 @@ abstract class Xobj implements TypeStore
     final boolean bitIsSet   ( int mask ) { return (_bits & mask) != 0; }
     final boolean bitIsClear ( int mask ) { return (_bits & mask) == 0; }
 
-    static final int VACANT   = 0x100;
-    static final int STABLEUSER = 0x200;
+    static final int VACANT             = 0x100;
+    static final int STABLE_USER        = 0x200;
+    static final int INHIBIT_DISCONNECT = 0x400;
 
-    final boolean isVacant     ( ) { return bitIsSet  ( VACANT ); }
-    final boolean isOccupied   ( ) { return bitIsClear( VACANT ); }
+    final boolean isVacant          ( ) { return bitIsSet   ( VACANT ); }
+    final boolean isOccupied        ( ) { return bitIsClear ( VACANT ); }
+    final boolean inhibitDisconnect ( ) { return bitIsSet   ( INHIBIT_DISCONNECT ); }
 
-    final boolean isStableUser    ( ) { return bitIsSet( STABLEUSER ); }
+    final boolean isStableUser    ( ) { return bitIsSet( STABLE_USER ); }
 
     void invalidateNil ( )
     {
@@ -1227,12 +1229,12 @@ abstract class Xobj implements TypeStore
 
         _user.attach_store( this );
 
-        setBit( STABLEUSER );
+        setBit( STABLE_USER );
     }
 
     void disconnectUser ( )
     {
-        if (_user != null)
+        if (_user != null && !inhibitDisconnect())
         {
             ensureOccupancy();
             _user.disconnect_store();
@@ -1563,11 +1565,6 @@ abstract class Xobj implements TypeStore
     public boolean is_attribute    ( ) { assert isValid(); return isAttr();               }
     public boolean validate_on_set ( ) { assert isValid(); return _locale._validateOnSet; }
 
-    // TODO - need to set up the frame here for now ... when I have converted the code gen,
-    // do it there and remove it from here.
-    //
-    // Note that not all of these need the temp frame ...
-
     public void invalidate_text ( )
     {
         _locale.enter();
@@ -1690,7 +1687,7 @@ abstract class Xobj implements TypeStore
         try
         {
             Cur c = tempCur();
-            c.setType( type );
+            c.setType( type, false );
             c.release();
         }
         finally
@@ -2103,9 +2100,10 @@ abstract class Xobj implements TypeStore
 
                     disconnectChildrenUsers();
 
-                    TypeStoreUser savedUser = _user;
-                    _user = null;
-                    
+                    assert !inhibitDisconnect();
+
+                    setBit( INHIBIT_DISCONNECT );
+
                     QName xsiType = isContainer() ? getXsiTypeName() : null;
                 
                     Xobj copy = xSrc.copyNode( _locale );
@@ -2121,9 +2119,8 @@ abstract class Xobj implements TypeStore
                     if (xsiType != null)
                         c.setXsiType( xsiType );
 
-                    assert _user == null;
-
-                    _user = savedUser;
+                    assert inhibitDisconnect();
+                    clearBit( INHIBIT_DISCONNECT );
                 }
 
                 if (sourceNamespaces != null)

@@ -49,9 +49,9 @@ public class NameCollisionTest extends TestCase{
                      it[i].setAge(50);
                     it[i].setName4("BEAN Name"+i);
 // NEWSTORE START
-//                      sExpected.append("<consultant age=\"50\" name=\"BEAN Name"+i+"\"/>");
-                      sExpected.append("<consultant name=\"BEAN Name"+i+"\" " +
-                              "age=\"50\"/>");
+                      sExpected.append("<consultant age=\"50\" name=\"BEAN Name"+i+"\"/>");
+//                      sExpected.append("<consultant name=\"BEAN Name"+i+"\" " +
+//                              "age=\"50\"/>");
 // NEWSTORE END
               }
 

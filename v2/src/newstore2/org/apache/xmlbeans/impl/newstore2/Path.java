@@ -291,9 +291,12 @@ public abstract class Path
                     c.addToSelection( _cur );
 
                 doAttrs( ret, c );
-                
+
                 if ((ret & DESCEND) == 0 || !Locale.toFirstChildElement( _cur ))
+                {
+                    end();
                     _cur.skip();
+                }
             }
             else
                 _cur.next();
@@ -321,7 +324,7 @@ public abstract class Path
 
         public boolean next ( Cur c )
         {
-            if (_version != _cur._locale.version())
+            if (_cur != null && _version != _cur._locale.version())
                 throw new ConcurrentModificationException( "Document changed during select" );
             
             int startCount = c.selectionCount();

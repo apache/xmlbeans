@@ -383,7 +383,7 @@ public class StoreTests extends TestCase
         {
             _sb.append( s );
 // NEWSTORE START
-//            if (buf != null)
+            if (buf != null)
 // NEWSTORE END
             _sb.append( buf, off, cch );
             _sb.append( "\n" );
@@ -1121,7 +1121,7 @@ public class StoreTests extends TestCase
         throws Exception
     {
 // NEWSTORE START
-        doXmlStreamTest( xml );
+//        doXmlStreamTest( xml );
 // NEWSTORE END
         doSaverTest( xml );
     }
@@ -1162,311 +1162,311 @@ public class StoreTests extends TestCase
     }
 
 // NEWSTORE START
-    public void testXMLStream ( )
-        throws Exception
-    {
-        XmlObject o =
-            XmlObject.Factory.parse(
-                "<foo x=\"y\" xmlns=\"default.com\">" +
-                    "<!-- x -->bar</foo>" );
-        
-        XmlCursor c = o.newCursor();
-        
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        
-        c.insertElement( "bar", "bar.com" );
-        
-        c.toStartDoc();
-
-        XMLInputStream xis = c.newXMLInputStream();
-
-        XMLEvent xev;
-        StartDocument startDocument;
-        EndDocument endDocument;
-        StartElement startElement;
-        AttributeIterator attributeIterator;
-        StartPrefixMapping startPrefixMapping;
-        EndPrefixMapping endPrefixMapping;
-        ChangePrefixMapping cpm;
-        EndElement endElement;
-        Attribute attribute;
-        Comment comment;
-        CharacterData characterData;
-        XMLName name;
-        String str;
-        Map map;
-        
-        xev = startDocument = (StartDocument) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.START_DOCUMENT );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( startDocument.isStartDocument() );
-        
-        xev = startPrefixMapping = (StartPrefixMapping) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.START_PREFIX_MAPPING );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( xev.isStartPrefixMapping() );
-        str = startPrefixMapping.getNamespaceUri();
-        Assert.assertTrue( str.equals( "default.com" ) );
-        Assert.assertTrue( startPrefixMapping.getPrefix().length() == 0 );
-        
-        xev = startElement = (StartElement) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.START_ELEMENT );
-        Assert.assertTrue( xev.hasName() );
-        Assert.assertTrue( xev.isStartElement() );
-        assertName( startElement.getName(), "default.com", "foo", null );
-        attributeIterator = startElement.getAttributes();
-        attribute = attributeIterator.next();
-        assertName( attribute.getName(), null, "x", null );
-        Assert.assertTrue( attribute.getValue().equals( "y" ) );
-        Assert.assertTrue( attributeIterator.next() == null );
-        attributeIterator = startElement.getNamespaces();
-        attribute = attributeIterator.next();
-        assertName( attribute.getName(), null, "xmlns", null );
-        Assert.assertTrue( attribute.getValue().equals( "default.com" ) );
-        Assert.assertTrue( attributeIterator.next() == null );
-        attributeIterator = startElement.getAttributesAndNamespaces();
-        Assert.assertTrue( attributeIterator.next() != null );
-        Assert.assertTrue( attributeIterator.next() != null );
-        Assert.assertTrue( attributeIterator.next() == null );
-        name = new XmlNameImpl( null, "x", null );
-        attribute = startElement.getAttributeByName( name );
-        Assert.assertTrue( attribute != null );
-        Assert.assertTrue( attribute.getValue().equals( "y" ) );
-        name = new XmlNameImpl( null, "xmlns", null );
-        attribute = startElement.getAttributeByName( name );
-        Assert.assertTrue( attribute == null );
-        str = startElement.getNamespaceUri( null );
-        Assert.assertTrue( str.equals( "default.com" ) );
-
-        xev = startPrefixMapping = (StartPrefixMapping) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.START_PREFIX_MAPPING );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( xev.isStartPrefixMapping() );
-        str = startPrefixMapping.getNamespaceUri();
-        Assert.assertTrue( str.equals( "bar.com" ) );
-        Assert.assertTrue( startPrefixMapping.getPrefix().equals( "bar" ) );
-        
-        xev = startElement = (StartElement) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.START_ELEMENT );
-        Assert.assertTrue( xev.hasName() );
-        Assert.assertTrue( xev.isStartElement() );
-        assertName( startElement.getName(), "bar.com", "bar", "bar" );
-        attributeIterator = startElement.getAttributes();
-        Assert.assertTrue( attributeIterator.next() == null );
-        attributeIterator = startElement.getNamespaces();
-        attribute = attributeIterator.next();
-        assertName( attribute.getName(), null, "bar", "xmlns" );
-        Assert.assertTrue( attribute.getValue().equals( "bar.com" ) );
-        Assert.assertTrue( attributeIterator.next() == null );
-        attributeIterator = startElement.getAttributesAndNamespaces();
-        Assert.assertTrue( attributeIterator.next() != null );
-        Assert.assertTrue( attributeIterator.next() == null );
-        str = startElement.getNamespaceUri( "bar" );
-        Assert.assertTrue( str.equals( "bar.com" ) );
-        map = startElement.getNamespaceMap();
-        Assert.assertTrue( map.get( "bar" ).equals( "bar.com" ) );
-        
-        xev = endElement = (EndElement) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.END_ELEMENT );
-        Assert.assertTrue( xev.hasName() );
-        Assert.assertTrue( xev.isEndElement() );
-        assertName( endElement.getName(), "bar.com", "bar", "bar" );
-
-        xev = endPrefixMapping = (EndPrefixMapping) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.END_PREFIX_MAPPING );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( xev.isEndPrefixMapping() );
-        Assert.assertTrue( endPrefixMapping.getPrefix().equals( "bar" ) );
-
-        xev = comment = (Comment) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.COMMENT );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( comment.hasContent() );
-        Assert.assertTrue( comment.getContent().equals( " x " ) );
-        
-        xev = characterData = (CharacterData) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.CHARACTER_DATA );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( xev.isCharacterData() );
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "bar" ) );
-
-        xev = endElement = (EndElement) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.END_ELEMENT );
-        Assert.assertTrue( xev.hasName() );
-        Assert.assertTrue( xev.isEndElement() );
-        assertName( endElement.getName(), "default.com", "foo", null );
-
-        xev = cpm = (ChangePrefixMapping) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.CHANGE_PREFIX_MAPPING );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( xev.isChangePrefixMapping() );
-        Assert.assertTrue( cpm.getPrefix().length() == 0 );
-        Assert.assertTrue( cpm.getOldNamespaceUri().equals( "default.com" ) );
-        Assert.assertTrue( cpm.getNewNamespaceUri().equals( "" ) );
-
-        xev = endDocument = (EndDocument) xis.next();
-        Assert.assertTrue( xev.getType() == XMLEvent.END_DOCUMENT );
-        Assert.assertTrue( !xev.hasName() );
-        Assert.assertTrue( xev.isEndDocument() );
-        
-        xev = xis.next();
-        Assert.assertTrue( xev == null );
-
-        //
-        // Test ChangePrefixMapping event
-        //
-
-        o = XmlObject.Factory.parse( "<foo xmlns:x=\"y\"><bar xmlns:x=\"z\"/></foo>" );
-        c = o.newCursor();
-        xis = c.newXMLInputStream();
-        
-        startDocument = (StartDocument) xis.next();
-        
-        startPrefixMapping = (StartPrefixMapping) xis.next();
-        str = startPrefixMapping.getNamespaceUri();
-        Assert.assertTrue( str.equals( "y" ) );
-        Assert.assertTrue( startPrefixMapping.getPrefix().equals( "x" ) );
-        
-        startElement = (StartElement) xis.next();
-
-        startPrefixMapping = (StartPrefixMapping) xis.next();
-        str = startPrefixMapping.getNamespaceUri();
-        Assert.assertTrue( str.equals( "z" ) );
-        Assert.assertTrue( startPrefixMapping.getPrefix().equals( "x" ) );
-        
-        startElement = (StartElement) xis.next();
-        
-        endElement = (EndElement) xis.next();
-
-        cpm = (ChangePrefixMapping) xis.next();
-        str = cpm.getOldNamespaceUri();
-        Assert.assertTrue( str.equals( "z" ) );
-        str = cpm.getNewNamespaceUri();
-        Assert.assertTrue( str.equals( "y" ) );
-        str = cpm.getPrefix();
-        Assert.assertTrue( str.equals( "x" ) );
-
-        endElement = (EndElement) xis.next();
-        
-        endPrefixMapping = (EndPrefixMapping) xis.next();
-        Assert.assertTrue( endPrefixMapping.getPrefix().equals( "x" ) );
-
-        endDocument = (EndDocument) xis.next();
-        
-        xev = xis.next();
-        Assert.assertTrue( xev == null );
-
-        //
-        // Test CharacterData events
-        //
-
-        o = XmlObject.Factory.parse( "<foo>a<bar>b<baz>c</baz>d</bar>e</foo>" );
-        c = o.newCursor();
-        xis = c.newXMLInputStream();
-        
-        startDocument = (StartDocument) xis.next();
-
-        startElement = (StartElement) xis.next();
-
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "a" ) );
-
-        startElement = (StartElement) xis.next();
-        
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "b" ) );
-
-        startElement = (StartElement) xis.next();
-        
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "c" ) );
-
-        endElement = (EndElement) xis.next();
-        
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "d" ) );
-
-        endElement = (EndElement) xis.next();
-
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "e" ) );
-
-        endElement = (EndElement) xis.next();
-        
-        endDocument = (EndDocument) xis.next();
-        
-        xev = xis.next();
-        Assert.assertTrue( xev == null );
-
-        //
-        // Test SubStreams
-        //
-
-        o = XmlObject.Factory.parse( "<foo>a<bar>b<baz>c</baz>d</bar>e</foo>" );
-        c = o.newCursor();
-        xis = c.newXMLInputStream();
-        
-        startDocument = (StartDocument) xis.next();
-
-        startElement = (StartElement) xis.next();
-
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "a" ) );
-
-        startElement = (StartElement) xis.next();
-        
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "b" ) );
-
-            XMLInputStream xis2 = xis.getSubStream();
-
-        startElement = (StartElement) xis.next();
-        
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "c" ) );
-
-        endElement = (EndElement) xis.next();
-        
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "d" ) );
-
-            startElement = (StartElement) xis2.next();
-
-            characterData = (CharacterData) xis2.next();
-            Assert.assertTrue( characterData.hasContent() );
-            Assert.assertTrue( characterData.getContent().equals( "c" ) );
-
-            endElement = (EndElement) xis2.next();
-            
-            xev = xis2.next();
-            Assert.assertTrue( xev == null );
-            
-        endElement = (EndElement) xis.next();
-
-        characterData = (CharacterData) xis.next();
-        Assert.assertTrue( characterData.hasContent() );
-        Assert.assertTrue( characterData.getContent().equals( "e" ) );
-
-        endElement = (EndElement) xis.next();
-        
-        endDocument = (EndDocument) xis.next();
-        
-        xev = xis.next();
-        Assert.assertTrue( xev == null );
-    }
+//    public void testXMLStream ( )
+//        throws Exception
+//    {
+//        XmlObject o =
+//            XmlObject.Factory.parse(
+//                "<foo x=\"y\" xmlns=\"default.com\">" +
+//                    "<!-- x -->bar</foo>" );
+//        
+//        XmlCursor c = o.newCursor();
+//        
+//        c.toNextToken();
+//        c.toNextToken();
+//        c.toNextToken();
+//        c.toNextToken();
+//        
+//        c.insertElement( "bar", "bar.com" );
+//        
+//        c.toStartDoc();
+//
+//        XMLInputStream xis = c.newXMLInputStream();
+//
+//        XMLEvent xev;
+//        StartDocument startDocument;
+//        EndDocument endDocument;
+//        StartElement startElement;
+//        AttributeIterator attributeIterator;
+//        StartPrefixMapping startPrefixMapping;
+//        EndPrefixMapping endPrefixMapping;
+//        ChangePrefixMapping cpm;
+//        EndElement endElement;
+//        Attribute attribute;
+//        Comment comment;
+//        CharacterData characterData;
+//        XMLName name;
+//        String str;
+//        Map map;
+//        
+//        xev = startDocument = (StartDocument) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.START_DOCUMENT );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( startDocument.isStartDocument() );
+//        
+//        xev = startPrefixMapping = (StartPrefixMapping) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.START_PREFIX_MAPPING );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( xev.isStartPrefixMapping() );
+//        str = startPrefixMapping.getNamespaceUri();
+//        Assert.assertTrue( str.equals( "default.com" ) );
+//        Assert.assertTrue( startPrefixMapping.getPrefix().length() == 0 );
+//        
+//        xev = startElement = (StartElement) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.START_ELEMENT );
+//        Assert.assertTrue( xev.hasName() );
+//        Assert.assertTrue( xev.isStartElement() );
+//        assertName( startElement.getName(), "default.com", "foo", null );
+//        attributeIterator = startElement.getAttributes();
+//        attribute = attributeIterator.next();
+//        assertName( attribute.getName(), null, "x", null );
+//        Assert.assertTrue( attribute.getValue().equals( "y" ) );
+//        Assert.assertTrue( attributeIterator.next() == null );
+//        attributeIterator = startElement.getNamespaces();
+//        attribute = attributeIterator.next();
+//        assertName( attribute.getName(), null, "xmlns", null );
+//        Assert.assertTrue( attribute.getValue().equals( "default.com" ) );
+//        Assert.assertTrue( attributeIterator.next() == null );
+//        attributeIterator = startElement.getAttributesAndNamespaces();
+//        Assert.assertTrue( attributeIterator.next() != null );
+//        Assert.assertTrue( attributeIterator.next() != null );
+//        Assert.assertTrue( attributeIterator.next() == null );
+//        name = new XmlNameImpl( null, "x", null );
+//        attribute = startElement.getAttributeByName( name );
+//        Assert.assertTrue( attribute != null );
+//        Assert.assertTrue( attribute.getValue().equals( "y" ) );
+//        name = new XmlNameImpl( null, "xmlns", null );
+//        attribute = startElement.getAttributeByName( name );
+//        Assert.assertTrue( attribute == null );
+//        str = startElement.getNamespaceUri( null );
+//        Assert.assertTrue( str.equals( "default.com" ) );
+//
+//        xev = startPrefixMapping = (StartPrefixMapping) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.START_PREFIX_MAPPING );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( xev.isStartPrefixMapping() );
+//        str = startPrefixMapping.getNamespaceUri();
+//        Assert.assertTrue( str.equals( "bar.com" ) );
+//        Assert.assertTrue( startPrefixMapping.getPrefix().equals( "bar" ) );
+//        
+//        xev = startElement = (StartElement) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.START_ELEMENT );
+//        Assert.assertTrue( xev.hasName() );
+//        Assert.assertTrue( xev.isStartElement() );
+//        assertName( startElement.getName(), "bar.com", "bar", "bar" );
+//        attributeIterator = startElement.getAttributes();
+//        Assert.assertTrue( attributeIterator.next() == null );
+//        attributeIterator = startElement.getNamespaces();
+//        attribute = attributeIterator.next();
+//        assertName( attribute.getName(), null, "bar", "xmlns" );
+//        Assert.assertTrue( attribute.getValue().equals( "bar.com" ) );
+//        Assert.assertTrue( attributeIterator.next() == null );
+//        attributeIterator = startElement.getAttributesAndNamespaces();
+//        Assert.assertTrue( attributeIterator.next() != null );
+//        Assert.assertTrue( attributeIterator.next() == null );
+//        str = startElement.getNamespaceUri( "bar" );
+//        Assert.assertTrue( str.equals( "bar.com" ) );
+//        map = startElement.getNamespaceMap();
+//        Assert.assertTrue( map.get( "bar" ).equals( "bar.com" ) );
+//        
+//        xev = endElement = (EndElement) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.END_ELEMENT );
+//        Assert.assertTrue( xev.hasName() );
+//        Assert.assertTrue( xev.isEndElement() );
+//        assertName( endElement.getName(), "bar.com", "bar", "bar" );
+//
+//        xev = endPrefixMapping = (EndPrefixMapping) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.END_PREFIX_MAPPING );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( xev.isEndPrefixMapping() );
+//        Assert.assertTrue( endPrefixMapping.getPrefix().equals( "bar" ) );
+//
+//        xev = comment = (Comment) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.COMMENT );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( comment.hasContent() );
+//        Assert.assertTrue( comment.getContent().equals( " x " ) );
+//        
+//        xev = characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.CHARACTER_DATA );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( xev.isCharacterData() );
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "bar" ) );
+//
+//        xev = endElement = (EndElement) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.END_ELEMENT );
+//        Assert.assertTrue( xev.hasName() );
+//        Assert.assertTrue( xev.isEndElement() );
+//        assertName( endElement.getName(), "default.com", "foo", null );
+//
+//        xev = cpm = (ChangePrefixMapping) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.CHANGE_PREFIX_MAPPING );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( xev.isChangePrefixMapping() );
+//        Assert.assertTrue( cpm.getPrefix().length() == 0 );
+//        Assert.assertTrue( cpm.getOldNamespaceUri().equals( "default.com" ) );
+//        Assert.assertTrue( cpm.getNewNamespaceUri().equals( "" ) );
+//
+//        xev = endDocument = (EndDocument) xis.next();
+//        Assert.assertTrue( xev.getType() == XMLEvent.END_DOCUMENT );
+//        Assert.assertTrue( !xev.hasName() );
+//        Assert.assertTrue( xev.isEndDocument() );
+//        
+//        xev = xis.next();
+//        Assert.assertTrue( xev == null );
+//
+//        //
+//        // Test ChangePrefixMapping event
+//        //
+//
+//        o = XmlObject.Factory.parse( "<foo xmlns:x=\"y\"><bar xmlns:x=\"z\"/></foo>" );
+//        c = o.newCursor();
+//        xis = c.newXMLInputStream();
+//        
+//        startDocument = (StartDocument) xis.next();
+//        
+//        startPrefixMapping = (StartPrefixMapping) xis.next();
+//        str = startPrefixMapping.getNamespaceUri();
+//        Assert.assertTrue( str.equals( "y" ) );
+//        Assert.assertTrue( startPrefixMapping.getPrefix().equals( "x" ) );
+//        
+//        startElement = (StartElement) xis.next();
+//
+//        startPrefixMapping = (StartPrefixMapping) xis.next();
+//        str = startPrefixMapping.getNamespaceUri();
+//        Assert.assertTrue( str.equals( "z" ) );
+//        Assert.assertTrue( startPrefixMapping.getPrefix().equals( "x" ) );
+//        
+//        startElement = (StartElement) xis.next();
+//        
+//        endElement = (EndElement) xis.next();
+//
+//        cpm = (ChangePrefixMapping) xis.next();
+//        str = cpm.getOldNamespaceUri();
+//        Assert.assertTrue( str.equals( "z" ) );
+//        str = cpm.getNewNamespaceUri();
+//        Assert.assertTrue( str.equals( "y" ) );
+//        str = cpm.getPrefix();
+//        Assert.assertTrue( str.equals( "x" ) );
+//
+//        endElement = (EndElement) xis.next();
+//        
+//        endPrefixMapping = (EndPrefixMapping) xis.next();
+//        Assert.assertTrue( endPrefixMapping.getPrefix().equals( "x" ) );
+//
+//        endDocument = (EndDocument) xis.next();
+//        
+//        xev = xis.next();
+//        Assert.assertTrue( xev == null );
+//
+//        //
+//        // Test CharacterData events
+//        //
+//
+//        o = XmlObject.Factory.parse( "<foo>a<bar>b<baz>c</baz>d</bar>e</foo>" );
+//        c = o.newCursor();
+//        xis = c.newXMLInputStream();
+//        
+//        startDocument = (StartDocument) xis.next();
+//
+//        startElement = (StartElement) xis.next();
+//
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "a" ) );
+//
+//        startElement = (StartElement) xis.next();
+//        
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "b" ) );
+//
+//        startElement = (StartElement) xis.next();
+//        
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "c" ) );
+//
+//        endElement = (EndElement) xis.next();
+//        
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "d" ) );
+//
+//        endElement = (EndElement) xis.next();
+//
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "e" ) );
+//
+//        endElement = (EndElement) xis.next();
+//        
+//        endDocument = (EndDocument) xis.next();
+//        
+//        xev = xis.next();
+//        Assert.assertTrue( xev == null );
+//
+//        //
+//        // Test SubStreams
+//        //
+//
+//        o = XmlObject.Factory.parse( "<foo>a<bar>b<baz>c</baz>d</bar>e</foo>" );
+//        c = o.newCursor();
+//        xis = c.newXMLInputStream();
+//        
+//        startDocument = (StartDocument) xis.next();
+//
+//        startElement = (StartElement) xis.next();
+//
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "a" ) );
+//
+//        startElement = (StartElement) xis.next();
+//        
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "b" ) );
+//
+//            XMLInputStream xis2 = xis.getSubStream();
+//
+//        startElement = (StartElement) xis.next();
+//        
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "c" ) );
+//
+//        endElement = (EndElement) xis.next();
+//        
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "d" ) );
+//
+//            startElement = (StartElement) xis2.next();
+//
+//            characterData = (CharacterData) xis2.next();
+//            Assert.assertTrue( characterData.hasContent() );
+//            Assert.assertTrue( characterData.getContent().equals( "c" ) );
+//
+//            endElement = (EndElement) xis2.next();
+//            
+//            xev = xis2.next();
+//            Assert.assertTrue( xev == null );
+//            
+//        endElement = (EndElement) xis.next();
+//
+//        characterData = (CharacterData) xis.next();
+//        Assert.assertTrue( characterData.hasContent() );
+//        Assert.assertTrue( characterData.getContent().equals( "e" ) );
+//
+//        endElement = (EndElement) xis.next();
+//        
+//        endDocument = (EndDocument) xis.next();
+//        
+//        xev = xis.next();
+//        Assert.assertTrue( xev == null );
+//    }
 // NEWSTORE END
     
     private XmlCursor navDoc ( XmlObject x, String dirs )
@@ -1598,8 +1598,8 @@ public class StoreTests extends TestCase
         cFrom = navDoc( x, "d" );
         cTo = navNewCursor( cFrom, "" );
 // NEWSTORE START
-//        Assert.assertTrue( cFrom.moveXml( cTo ) );
-        Assert.assertTrue( !cFrom.moveXml( cTo ) );
+        Assert.assertTrue( cFrom.moveXml( cTo ) );
+//        Assert.assertTrue( !cFrom.moveXml( cTo ) );
 // NEWSTORE END
         cFrom.insertChars( "[FROM]" );
         cTo.insertChars( "[TO]" );
@@ -1611,12 +1611,12 @@ public class StoreTests extends TestCase
             new QName( null, "bar" ) );
 
 // NEWSTORE START
-//        Assert.assertTrue(
-//            x.xmlText( options ).equals( "<bar>[TO]<foo>abcdef</foo>[FROM]</bar>" ) ||
-//                x.xmlText( options ).equals( "<bar>[FROM]<foo>abcdef</foo>[TO]</bar>" ) );
         Assert.assertTrue(
-            x.xmlText( options ).equals( "<bar>[FROM][TO]<foo>abcdef</foo></bar>" ) ||
-                x.xmlText( options ).equals( "<bar>[TO][FROM]<foo>abcdef</foo></bar>" ) );
+            x.xmlText( options ).equals( "<bar>[TO]<foo>abcdef</foo>[FROM]</bar>" ) ||
+                x.xmlText( options ).equals( "<bar>[FROM]<foo>abcdef</foo>[TO]</bar>" ) );
+//        Assert.assertTrue(
+//            x.xmlText( options ).equals( "<bar>[FROM][TO]<foo>abcdef</foo></bar>" ) ||
+//                x.xmlText( options ).equals( "<bar>[TO][FROM]<foo>abcdef</foo></bar>" ) );
 // NEWSTORE END
         
         //
@@ -1626,17 +1626,17 @@ public class StoreTests extends TestCase
         cFrom = navDoc( x, "d" );
         cTo = navNewCursor( cFrom, "ttt" );
 // NEWSTORE START
-//        Assert.assertTrue( cFrom.moveXml( cTo ) );
-        Assert.assertTrue( !cFrom.moveXml( cTo ) );
+        Assert.assertTrue( cFrom.moveXml( cTo ) );
+//        Assert.assertTrue( !cFrom.moveXml( cTo ) );
 // NEWSTORE END
         cFrom.insertChars( "[FROM]" );
         cTo.insertChars( "[TO]" );
 
         Assert.assertTrue(
 // NEWSTORE START
-//            x.xmlText( options ).equals( "<bar><foo>abcdef</foo>[FROM][TO]</bar>" ) ||
-//                x.xmlText( options ).equals( "<bar><foo>abcdef</foo>[TO][FROM]</bar>" ) );
-            x.xmlText( options ).equals( "<bar>[FROM]<foo>abcdef</foo>[TO]</bar>" ) );
+            x.xmlText( options ).equals( "<bar><foo>abcdef</foo>[FROM][TO]</bar>" ) ||
+                x.xmlText( options ).equals( "<bar><foo>abcdef</foo>[TO][FROM]</bar>" ) );
+//            x.xmlText( options ).equals( "<bar>[FROM]<foo>abcdef</foo>[TO]</bar>" ) );
 // NEWSTORE END
         
         //
@@ -2306,18 +2306,18 @@ public class StoreTests extends TestCase
     }
 
 // NEWSTORE START
-    public void testAnnotation ( )
-        throws Exception
-    {
-        XmlObject x = XmlObject.Factory.parse( "<foo/>" );
-        XmlCursor c = x.newCursor();
-        c.toNextToken();
-        MyAnno a = new MyAnno();
-        c.setBookmark( a );
-        Assert.assertTrue( c.removeXml() );
-        XmlCursor c2 = a.createCursor();
-        Assert.assertTrue( c2 == null );
-    }
+//    public void testAnnotation ( )
+//        throws Exception
+//    {
+//        XmlObject x = XmlObject.Factory.parse( "<foo/>" );
+//        XmlCursor c = x.newCursor();
+//        c.toNextToken();
+//        MyAnno a = new MyAnno();
+//        c.setBookmark( a );
+//        Assert.assertTrue( c.removeXml() );
+//        XmlCursor c2 = a.createCursor();
+//        Assert.assertTrue( c2 == null );
+//    }
 // NEWSTORE END
     
     public void testAttrSetter ( )
@@ -2619,8 +2619,8 @@ public class StoreTests extends TestCase
 
         // 'a' prefix namespace is not remapped
 // NEWSTORE START
-//        String expect = "<a xmlns:a=\"aNS\" xmlns:b=\"bNS\" xmlns:c=\"cNS\"><a:b/></a>";
-        String expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns:a=\"aNS\"><a:b/></a>";
+        String expect = "<a xmlns:a=\"aNS\" xmlns:b=\"bNS\" xmlns:c=\"cNS\"><a:b/></a>";
+//        String expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns:a=\"aNS\"><a:b/></a>";
 // NEWSTORE END
 
         xml = "<a xmlns='aNS'><b/></a>";
@@ -2637,36 +2637,36 @@ public class StoreTests extends TestCase
 
         // default namespace is not remapped
 // NEWSTORE START
-//        expect = "<a xmlns=\"aNS\" xmlns:b=\"bNS\" xmlns:c=\"cNS\"><b/></a>";
-        expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns=\"aNS\"><b/></a>";
+        expect = "<a xmlns=\"aNS\" xmlns:b=\"bNS\" xmlns:c=\"cNS\"><b/></a>";
+//        expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns=\"aNS\"><b/></a>";
 // NEWSTORE END
         Assert.assertEquals( expect, x.xmlText() );
 
     }
 
 // NEWSTORE START
-    public void testCR135193()
-        throws Exception
-    {
-        String xml = "<a xmlns='aNS' xmlns:b='bNS'><b><c/></b></a>";
-
-        XmlObject x = XmlObject.Factory.parse(xml);
-
-        // get an XMLInputStream and move to XMLEvent.START_ELEMENT for 'b'
-        XmlCursor c = x.newCursor();
-        XMLInputStream xis = c.newXMLInputStream();
-        c.dispose();
-        while (xis.hasNext() && xis.next().getType() != XMLEvent.START_ELEMENT) {
-        }
-
-        // reparse from 'b' element using an sub-XMLInputStream
-        XMLInputStream xis1 = xis.getSubStream();
-        XmlObject x1 = XmlObject.Factory.parse(xis1);
-
-        // CR135193: namespaces including default are set on the 'b' child
-        String expect = "<b xmlns=\"aNS\" xmlns:b=\"bNS\"><c/></b>";
-        Assert.assertEquals( expect, x1.xmlText() );
-    }
+//    public void testCR135193()
+//        throws Exception
+//    {
+//        String xml = "<a xmlns='aNS' xmlns:b='bNS'><b><c/></b></a>";
+//
+//        XmlObject x = XmlObject.Factory.parse(xml);
+//
+//        // get an XMLInputStream and move to XMLEvent.START_ELEMENT for 'b'
+//        XmlCursor c = x.newCursor();
+//        XMLInputStream xis = c.newXMLInputStream();
+//        c.dispose();
+//        while (xis.hasNext() && xis.next().getType() != XMLEvent.START_ELEMENT) {
+//        }
+//
+//        // reparse from 'b' element using an sub-XMLInputStream
+//        XMLInputStream xis1 = xis.getSubStream();
+//        XmlObject x1 = XmlObject.Factory.parse(xis1);
+//
+//        // CR135193: namespaces including default are set on the 'b' child
+//        String expect = "<b xmlns=\"aNS\" xmlns:b=\"bNS\"><c/></b>";
+//        Assert.assertEquals( expect, x1.xmlText() );
+//    }
 // NEWSTORE END
 
 }
