@@ -106,120 +106,30 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        XmlOptions innerOptions = new XmlOptions();
-        innerOptions.setSaveInner();
+        Document doc = Public2.parse( "<z:foo xmlns:z='uri'>text<z:a>25</z:a></z:foo>" );
+
+        Element e = doc.getDocumentElement();
+
+        Attr a = (Attr) e.getAttributes().item( 0 );
+
+        Public2.dump( doc );
+
+        e.removeAttributeNode( a );
+
+        Public2.dump( doc );
         
-        XmlOptions prettyOptions = new XmlOptions();
-        prettyOptions.setSavePrettyPrint();
-        prettyOptions.setSavePrettyPrintOffset( 8 );
 
-        XmlOptions synthOptions = new XmlOptions();
-        synthOptions.setSaveSyntheticDocumentElement( new QName( "synth" ) );
-
+        
+        
         XmlCursor c = Public2.newStore();
 
         c.toNextToken();
-
-        c.beginElement( "foo" );
-        c.insertNamespace( "", "empty.com" );
-        c.insertAttributeWithValue( "x", "y" );
-        c.insertElementWithText( "bar", "hohoho", "text" );
-        c.toPrevSibling();
-        QName name = c.getName();
-        c.setName( new QName( name.getNamespaceURI(), name.getLocalPart(), "nsss" ) );
-        c.toNextSibling();
-        c.insertElementWithText( "bar2", "text" );
+        c.insertChars( "abc" );
+        c.insertElement( "foo" );
 
         c.toStartDoc();
-        Public2.dump( c );
 
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        System.out.println( "Attr: " + c.xmlText( prettyOptions ) );
-        
-        c.toStartDoc();
-        System.out.println( "Rename document: " + c.xmlText( synthOptions ) );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        System.out.println( "Rename doc elem: " + c.xmlText( synthOptions ) );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        System.out.println( "Inner Doc Elem: " + c.xmlText( innerOptions ) );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        System.out.println( "Doc Elem: " + c.xmlText( prettyOptions ) );
-        
-        c.toStartDoc();
-        System.out.println( "Whole doc: " + c.xmlText() );
-
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        System.out.println( "Namespace: " + c.xmlText() );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        System.out.println( "Nested elem: " + c.xmlText() );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        System.out.println( "Text: " + c.xmlText() );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        System.out.println( "Nothing: " + c.xmlText() );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        System.out.println( "Rename attr: " + c.xmlText( synthOptions ) );
-        
-        c.toStartDoc();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        c.toNextToken();
-        System.out.println( "Rename Text: " + c.xmlText( synthOptions ) );
-
-//        Document doc = Public2.parse( "<a/>" );
-//
-//        Node n = doc.createCDATASection( "asas" );
-//        System.out.println( n.getNodeType() );
-//        System.out.println( n.getNodeName() );
-//
-//        doc.getDocumentElement().setAttributeNS( "moo", "xmlns", "boo" );
-        
-//        Document doc = Public2.parse( "<a/>" );
-//        XmlOptions options = new XmlOptions();
-//        options.setSavePrettyPrint();
-//
-//        Document doc = Public2.parse( "<a><?moo foo?>\r\n<!--comment--></a>" );;
-//
-//        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "a:b", "value" );
-//        doc.getDocumentElement().setAttributeNS( "uri:foo.com", "xxx:b", "kjkj" );
-//
-//        Public2.dump( doc );
-//
-//        System.out.println( Public2.save( doc, options ) );
+        System.out.println( Public2.save( c ) );
     }
 }
 

@@ -192,9 +192,9 @@ final class Locale implements DOMImplementation, SaajCallback
         assert curKind == Cur.TEMP || curKind == Cur.PERM || curKind == Cur.WEAK;
         assert _curPool == null || _curPoolCount > 0;
         
-        Cur c = _curPool;
+        Cur c;
         
-        if (c == null)
+        if (_curPool == null)
         {
             c = new Cur( this );
             c._state = Cur.POOLED;
@@ -203,6 +203,7 @@ final class Locale implements DOMImplementation, SaajCallback
         }
         else
         {
+            c = _curPool;
             _curPool = c.listRemove( _curPool );
             _curPoolCount--;
         }

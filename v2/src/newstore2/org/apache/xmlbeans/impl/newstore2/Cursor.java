@@ -939,6 +939,7 @@ public final class Cursor implements XmlCursor
                 complain( "Can't insert before the document or an attribute." );
 
             _cur.insertChars( text, 0, text.length() );
+//            _cur.
         }
     }
 
@@ -1011,6 +1012,11 @@ public final class Cursor implements XmlCursor
     
     public void _insertProcInst ( String target, String text )
     {
+        validateLocalName( target );
+
+        if (Locale.beginsWithXml( target ))
+            throw new IllegalArgumentException( "Target is 'xml'" );
+        
         Cur c = _locale.tempCur();
 
         c.createProcinst( target );

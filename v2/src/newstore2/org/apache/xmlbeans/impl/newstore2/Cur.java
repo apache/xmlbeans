@@ -724,6 +724,11 @@ final class Cur
         return true;
     }
 
+//    int nextChars ( int cch )
+//    {
+//        
+//    }
+
     void setCharNodes ( CharNode nodes )
     {
         Xobj x = getDenormal();
@@ -936,6 +941,8 @@ final class Cur
         else
         {
             int pe = _xobj.posEnd();
+
+            // Check for no-op, but return the text "moved"
             
             if (_xobj == to._xobj && to._pos >= _pos && to._pos < _pos + cchMove)
             {
