@@ -56,11 +56,11 @@
 
 package org.apache.xmlbeans.impl.common;
 
-import weblogic.xml.stream.ReferenceResolver;
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLName;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.ReferenceResolver;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public class GenericXmlInputStream implements XMLInputStream
 {

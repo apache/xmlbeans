@@ -54,21 +54,25 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
+
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
 /**
- * This event signals that a prefix mapping has gone out of scope
- *
- * @since Weblogic XML Input Stream 1.0
- * @version 1.0
- * @see weblogic.xml.stream.StartPrefixMapping
- * @see weblogic.xml.stream.ChangePrefixMapping
+ * This interface can be implemented to allow resolution of references
+ * on a stream.  
  */
-
-public interface EndPrefixMapping extends XMLEvent {
-  /* 
-   * Returns the prefix that has gone out of scope
-   * @return String value of the prefix
+public interface ReferenceResolver {
+  /**
+   * Returns the xml pointed to by this idref as an XMLInputStream
+   * @param idref
    */
-  public String getPrefix();
+  XMLInputStream resolve(String idref)
+    throws XMLStreamException;
+
+  /**
+   * Returns the id that corresponds to this idref
+   * @param idref
+   */
+  String getId(String idref);
 }

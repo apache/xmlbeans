@@ -61,9 +61,9 @@ import weblogic.xml.schema.model.parser.XSDParser;
 import weblogic.xml.schema.model.SchemaDocument;
 import weblogic.xml.schema.model.XSDSchema;
 import weblogic.xml.schema.model.XSDException;
-import weblogic.xml.stream.XMLInputStreamFactory;
-import weblogic.xml.stream.XMLStreamException;
-import weblogic.xml.stream.events.Name;
+import org.apache.xmlbeans.xml.stream.XMLInputStreamFactory;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.events.Name;
 
 import java.io.Reader;
 import java.io.FileReader;

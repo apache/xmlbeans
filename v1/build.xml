@@ -121,6 +121,13 @@
     <copy file="build/private/lib/oldxbean.jar" tofile="external/lib/oldxbean.jar"/>
   </target>
 
+  <target name="quickbootstrap">
+    <echo message="=========================================================="/>
+    <echo message="Bootstrapping currently built xbean.jar without verifying."/>
+    <echo message="=========================================================="/>
+    <copy file="build/ar/xbean.jar" tofile="external/lib/oldxbean.jar"/>
+  </target>
+
   <!-- zipcompare (for checking bootstrap) ============================ -->
 
   <target name="zipcompare.classes">

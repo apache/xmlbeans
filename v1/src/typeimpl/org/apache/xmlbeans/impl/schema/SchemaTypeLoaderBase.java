@@ -93,8 +93,8 @@ import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
 
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 {

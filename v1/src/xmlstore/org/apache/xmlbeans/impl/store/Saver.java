@@ -92,22 +92,22 @@ import org.xml.sax.ContentHandler;
 import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.AttributesImpl;
-import weblogic.xml.stream.Attribute;
-import weblogic.xml.stream.AttributeIterator;
-import weblogic.xml.stream.ChangePrefixMapping;
-import weblogic.xml.stream.CharacterData;
-import weblogic.xml.stream.Comment;
-import weblogic.xml.stream.EndDocument;
-import weblogic.xml.stream.EndElement;
-import weblogic.xml.stream.EndPrefixMapping;
-import weblogic.xml.stream.Location;
-import weblogic.xml.stream.ProcessingInstruction;
-import weblogic.xml.stream.StartDocument;
-import weblogic.xml.stream.StartElement;
-import weblogic.xml.stream.StartPrefixMapping;
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.XMLName;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.Attribute;
+import org.apache.xmlbeans.xml.stream.AttributeIterator;
+import org.apache.xmlbeans.xml.stream.ChangePrefixMapping;
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.Comment;
+import org.apache.xmlbeans.xml.stream.EndDocument;
+import org.apache.xmlbeans.xml.stream.EndElement;
+import org.apache.xmlbeans.xml.stream.EndPrefixMapping;
+import org.apache.xmlbeans.xml.stream.Location;
+import org.apache.xmlbeans.xml.stream.ProcessingInstruction;
+import org.apache.xmlbeans.xml.stream.StartDocument;
+import org.apache.xmlbeans.xml.stream.StartElement;
+import org.apache.xmlbeans.xml.stream.StartPrefixMapping;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 public abstract class Saver implements NamespaceManager
 {

@@ -54,7 +54,7 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.utils;
+package org.apache.xmlbeans.xml.stream.utils;
 
 /**
  * The interface implemented by NestedException, NestedError, and

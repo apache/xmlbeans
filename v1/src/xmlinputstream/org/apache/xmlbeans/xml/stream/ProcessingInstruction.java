@@ -54,14 +54,14 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package weblogic.xml.stream;
+package org.apache.xmlbeans.xml.stream;
 
 /**
  * A marker interface for processing instructions
  *
  * @since Weblogic XML Input Stream 1.0
  * @version 1.0
- * @see weblogic.xml.stream.XMLEvent
+ * @see org.apache.xmlbeans.xml.stream.XMLEvent
 */
 public interface ProcessingInstruction extends XMLEvent {
   /*

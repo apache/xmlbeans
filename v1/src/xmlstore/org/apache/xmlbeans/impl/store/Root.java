@@ -92,18 +92,18 @@ import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.ext.LexicalHandler;
-import weblogic.xml.stream.Attribute;
-import weblogic.xml.stream.AttributeIterator;
-import weblogic.xml.stream.CharacterData;
-import weblogic.xml.stream.Location;
-import weblogic.xml.stream.ProcessingInstruction;
-import weblogic.xml.stream.Space;
-import weblogic.xml.stream.StartDocument;
-import weblogic.xml.stream.StartElement;
-import weblogic.xml.stream.XMLEvent;
-import weblogic.xml.stream.XMLInputStream;
-import weblogic.xml.stream.XMLName;
-import weblogic.xml.stream.XMLStreamException;
+import org.apache.xmlbeans.xml.stream.Attribute;
+import org.apache.xmlbeans.xml.stream.AttributeIterator;
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.Location;
+import org.apache.xmlbeans.xml.stream.ProcessingInstruction;
+import org.apache.xmlbeans.xml.stream.Space;
+import org.apache.xmlbeans.xml.stream.StartDocument;
+import org.apache.xmlbeans.xml.stream.StartElement;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
+import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLName;
+import org.apache.xmlbeans.xml.stream.XMLStreamException;
 
 import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParserFactory;
@@ -1977,8 +1977,8 @@ public final class Root extends Finish implements XmlStore
                 break;
 
             case XMLEvent.COMMENT :
-                weblogic.xml.stream.Comment comment =
-                    (weblogic.xml.stream.Comment) xe;
+                org.apache.xmlbeans.xml.stream.Comment comment =
+                    (org.apache.xmlbeans.xml.stream.Comment) xe;
 
                 if (comment.hasContent())
                 {
