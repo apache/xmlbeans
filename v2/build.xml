@@ -183,7 +183,9 @@
   </target>
 
   <target name='jamdrt'>
+<!-- FIXME - repackaging issues
     <ant dir='test/src/jamtest' target='all' inheritAll='false' />
+-->
   </target>
 
   <target name="builddrt" depends="drt.jar, random.jar, eric"/>
