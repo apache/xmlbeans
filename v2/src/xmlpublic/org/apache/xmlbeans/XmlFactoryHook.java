@@ -16,6 +16,7 @@
 package org.apache.xmlbeans;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.DOMImplementation;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,6 +79,8 @@ public interface XmlFactoryHook
     public XmlObject parse ( SchemaTypeLoader loader, XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
     /** Hooks Factory.newXmlSaxHandler calls */
     public XmlSaxHandler newXmlSaxHandler ( SchemaTypeLoader loader, SchemaType type, XmlOptions options );
+    /** Hooks Factory.newDomImplementation calls */
+    public DOMImplementation newDomImplementation ( SchemaTypeLoader loader, XmlOptions options );
 
     /**
      * Used to manage the XmlFactoryHook for the current thread.

@@ -30,7 +30,7 @@ import java.io.UnsupportedEncodingException;
  *
  * @author Jeffrey Rodriguez
  * @author Sandy Gao
- * @version $Id: Base64.java,v 1.2 2004/02/12 20:06:22 ericvas Exp $
+ * @version $Id: Base64.java,v 1.3 2004/09/14 02:01:28 ericvas Exp $
  */
 public final class  Base64 {
 
@@ -285,46 +285,46 @@ public final class  Base64 {
         return decodedData;
     }
 
-    /**
-     * Decodes Base64 data into octects
-     *
-     * @param base64Data String containing Base64 data
-     * @return string containing decoded data.
-     */
-    public static String decode(String base64Data) {
-        if (base64Data == null)
-            return null;
-
-        byte[] decoded = null;
-        try {
-            decoded = decode(base64Data.getBytes("utf-8"));
-        }
-        catch(UnsupportedEncodingException e) {
-        }
-        finally {
-            return decoded == null ? null : new String(decoded);
-        }
-    }
-
-    /**
-     * Encodes octects (using utf-8) into Base64 data
-     *
-     * @param binaryData String containing Hex data
-     * @return string containing decoded data.
-     */
-    public static String encode(String binaryData) {
-        if (binaryData == null)
-            return null;
-
-        byte[] encoded = null;
-         try {
-          encoded = encode(binaryData.getBytes("utf-8"));
-        }
-        catch(UnsupportedEncodingException e) {}
-        finally {
-            return encoded == null ? null : new String(encoded);
-        }
-    }
+//    /**
+//     * Decodes Base64 data into octects
+//     *
+//     * @param base64Data String containing Base64 data
+//     * @return string containing decoded data.
+//     */
+//    public static String decode(String base64Data) {
+//        if (base64Data == null)
+//            return null;
+//
+//        byte[] decoded = null;
+//        try {
+//            decoded = decode(base64Data.getBytes("utf-8"));
+//        }
+//        catch(UnsupportedEncodingException e) {
+//        }
+//        finally {
+//            return decoded == null ? null : new String(decoded);
+//        }
+//    }
+//
+//    /**
+//     * Encodes octects (using utf-8) into Base64 data
+//     *
+//     * @param binaryData String containing Hex data
+//     * @return string containing decoded data.
+//     */
+//    public static String encode(String binaryData) {
+//        if (binaryData == null)
+//            return null;
+//
+//        byte[] encoded = null;
+//         try {
+//          encoded = encode(binaryData.getBytes("utf-8"));
+//        }
+//        catch(UnsupportedEncodingException e) {}
+//        finally {
+//            return encoded == null ? null : new String(encoded);
+//        }
+//    }
 
     /**
      * remove WhiteSpace from MIME containing encoded Base64 data.

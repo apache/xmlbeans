@@ -16,10 +16,8 @@
 package xmlcursor.jsr173.common;
 
 
-import org.apache.xmlbeans.impl.newstore2.Public2;
-import org.apache.xmlbeans.impl.newstore2.Jsr173;
-
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
@@ -59,7 +57,7 @@ public abstract class PITest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        cur = Public2.newStore();
+        cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
         cur.insertProcInst("xml-stylesheet", "http://foobar");
         cur.insertElement("foobar");

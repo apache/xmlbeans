@@ -518,6 +518,9 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void _save ( File file, XmlOptions options ) throws IOException
     {
+        if (file == null)
+            throw new IllegalArgumentException( "Null file specified" );
+        
         OutputStream os = new FileOutputStream( file );
 
         try
@@ -532,6 +535,9 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void _save ( OutputStream os, XmlOptions options ) throws IOException
     {
+        if (os == null)
+            throw new IllegalArgumentException( "Null OutputStream specified" );
+        
         InputStream is = _newInputStream( options );
 
         try
@@ -556,6 +562,9 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void _save ( Writer w, XmlOptions options ) throws IOException
     {
+        if (w == null)
+            throw new IllegalArgumentException( "Null Writer specified" );
+        
         Reader r = _newReader( options );
 
         try
@@ -1162,6 +1171,21 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public int _getTextValue ( char[] chars, int offset, int max )
     {
+        if (chars == null)
+            throw new IllegalArgumentException( "char buffer is null" );
+
+        if (offset < 0)
+            throw new IllegalArgumentException( "offset < 0" );
+
+        if (offset >= chars.length)
+            throw new IllegalArgumentException( "offset off end" );
+
+        if (max < 0)
+            max = Integer.MAX_VALUE;
+
+        if (offset + max > chars.length)
+            max = chars.length - offset;
+        
         if (_cur.isText())
             return _getChars( chars, offset, max );
 
@@ -2008,7 +2032,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     public InputStream newInputStream ( ) { if (preCheck()) { _cur._locale.enter(); try { return _newInputStream(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _newInputStream(); } finally { _cur._locale.exit(); } } }
     public Reader newReader ( ) { if (preCheck()) { _cur._locale.enter(); try { return _newReader(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _newReader(); } finally { _cur._locale.exit(); } } }
     public Node newDomNode ( ) { if (preCheck()) { _cur._locale.enter(); try { return _newDomNode(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _newDomNode(); } finally { _cur._locale.exit(); } } }
-    public Node getDomNode ( ) { if (preCheck()) { _cur._locale.enter(); try { return _getDomNode(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _newDomNode(); } finally { _cur._locale.exit(); } } }
+    public Node getDomNode ( ) { if (preCheck()) { _cur._locale.enter(); try { return _getDomNode(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { return _getDomNode(); } finally { _cur._locale.exit(); } } }
     public void save ( ContentHandler ch, LexicalHandler lh ) throws SAXException { if (preCheck()) { _cur._locale.enter(); try { _save( ch, lh ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _save( ch, lh ); } finally { _cur._locale.exit(); } } }
     public void save ( File file ) throws IOException { if (preCheck()) { _cur._locale.enter(); try { _save( file ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _save( file ); } finally { _cur._locale.exit(); } } }
     public void save ( OutputStream os ) throws IOException { if (preCheck()) { _cur._locale.enter(); try { _save( os ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _save( os ); } finally { _cur._locale.exit(); } } }

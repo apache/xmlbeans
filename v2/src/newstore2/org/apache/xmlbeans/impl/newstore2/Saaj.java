@@ -44,6 +44,10 @@ import org.w3c.dom.Text;
 
 public interface Saaj
 {
+    // Use in XmlOptions to enable SAAJ support in store
+    
+    public static final String SAAJ_IMPL =  "SAAJ_IMPL";
+    
     public interface SaajCallback
     {
         void   setSaajData ( Node n, Object o );
@@ -139,7 +143,7 @@ public interface Saaj
     void    soapHeaderElement_setActor          ( SOAPHeaderElement soapHeaderElement, String actor );
     String  soapHeaderElement_getActor          ( SOAPHeaderElement soapHeaderElement );
 
-    boolean soapText_isComment (javax.xml.soap.Text text );
+    boolean soapText_isComment ( javax.xml.soap.Text text );
 
     DetailEntry detail_addDetailEntry   ( Detail detail, Name name );
     Iterator    detail_getDetailEntries ( Detail detail );

@@ -22,8 +22,9 @@ import dom.common.TestSetup;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.xmlbeans.impl.newstore2.Public2;
 import org.w3c.dom.*;
+
+import org.apache.xmlbeans.XmlObject;
 
 /**
  *
@@ -366,8 +367,8 @@ public class NamedNodeMapTest extends TestCase implements TestSetup {
 
     public void setUp() throws Exception {
 
-        m_doc = (org.w3c.dom.Document) Public2.parse(sXml);
-        m_docNS = (org.w3c.dom.Document) Public2.parse(sXmlNS);
+        m_doc = (org.w3c.dom.Document) XmlObject.Factory.parse( sXml ).getDomNode();
+        m_docNS = (org.w3c.dom.Document) XmlObject.Factory.parse( sXmlNS ).getDomNode();
         moveToNode();
 
     }

@@ -38,7 +38,6 @@ public class GetTextValueTest extends BasicCursorTestCase {
     public static Test suite() {
         return new TestSuite(GetTextValueTest.class);
     }
- /*
     
      // Depth first concatenation of all text leaves
      
@@ -75,7 +74,7 @@ public class GetTextValueTest extends BasicCursorTestCase {
         char[] buffer = new char[10];
         buffer[0] = 'T';
         int nOffset = 2;
-        int nCopied = m_xc.getTextValue(buffer, 2, 100);
+        int nCopied = m_xc.getTextValue(buffer, 2, 8);
         assertEquals(7, nCopied);
         assertEquals(sExpected,
                 new String(buffer).substring(0, nCopied + nOffset));
@@ -113,25 +112,26 @@ public class GetTextValueTest extends BasicCursorTestCase {
         assertEquals("", new String(buffer).trim());
     }
 
-    public void testLargeCharCount() {
-        String sExpected = "  32.18";
-        char[] buffer = new char[200];
-        int nCharCount = 300;
-        assertEquals(true, sDoc.length() < nCharCount);
-        assertEquals(false, buffer.length >= nCharCount);
-        int nCopied = m_xc.getTextValue(buffer, 0, nCharCount);
-        assertEquals(sExpected.length(), nCopied);
-        assertEquals(sExpected, new String(buffer).substring(0, nCopied));
-    }
+//    public void testLargeCharCount() {
+//        String sExpected = "  32.18";
+//        char[] buffer = new char[200];
+//        int nCharCount = 300;
+//        assertEquals(true, sDoc.length() < nCharCount);
+//        assertEquals(false, buffer.length >= nCharCount);
+//        int nCopied = m_xc.getTextValue(buffer, 0, nCharCount);
+//        assertEquals(sExpected.length(), nCopied);
+//        assertEquals(sExpected, new String(buffer).substring(0, nCopied));
+//    }
 
     //offset+selection>buffer
     public void testSelectionPastEnd() {
-        String sExpected = " 32";
         char[] buffer = new char[100];
-        int nCopied = m_xc.getTextValue(buffer, 97, 4);
-        assertEquals(sExpected.length(), nCopied);
-        assertEquals(sExpected, new String(buffer).substring(97, nCopied));
-        assertEquals("", new String(buffer).substring(0, 97));
+        try {
+            int nCopied = m_xc.getTextValue(buffer, 97, 4);
+            fail("Offset + max Past end");
+        }
+        catch ( IllegalArgumentException e ) {
+        }
     }
 
 
@@ -190,5 +190,4 @@ public class GetTextValueTest extends BasicCursorTestCase {
     public void setUp() throws Exception {
         m_xc = XmlObject.Factory.parse(sDoc).newCursor();
     }
-*/
 }

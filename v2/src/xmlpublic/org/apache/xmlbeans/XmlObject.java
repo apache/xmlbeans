@@ -22,6 +22,7 @@ import javax.xml.stream.XMLStreamReader;
 import javax.xml.namespace.QName;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.DOMImplementation;
 
 import java.io.InputStream;
 import java.io.File;
@@ -748,6 +749,18 @@ public interface XmlObject extends XmlTokenSource
         public static XmlSaxHandler newXmlSaxHandler ( XmlOptions options ) {
           return XmlBeans.getContextTypeLoader().newXmlSaxHandler( null, options ); }
             
+        /**
+         * Creates a new DOMImplementation object
+         */ 
+        public static DOMImplementation newDomImplementation ( ) {
+          return XmlBeans.getContextTypeLoader().newDomImplementation( null ); }
+        
+        /**
+         * Creates a new DOMImplementation object, taking options
+         */ 
+        public static DOMImplementation newDomImplementation ( XmlOptions options ) {
+          return XmlBeans.getContextTypeLoader().newDomImplementation( options ); }
+        
         /**
          * Returns a new validating {@link XMLInputStream} that throws exceptions when the input is not valid.
          */ 

@@ -54,8 +54,6 @@ import org.apache.xmlbeans.QNameSet;
 
 public final class Public2
 {
-    public static final String SAAJ_IMPL = "SAAJ_IMPL";
-
     private static Locale newLocale ( Saaj saaj )
     {
         XmlOptions options = null;
@@ -63,10 +61,15 @@ public final class Public2
         if (saaj != null)
         {
             options = new XmlOptions();
-            options.put( SAAJ_IMPL, saaj );
+            options.put( org.apache.xmlbeans.impl.newstore2.Saaj.SAAJ_IMPL, saaj );
         }
 
         return Locale.getLocale( null, options );
+    }
+
+    private static Locale newLocale ( )
+    {
+        return Locale.getLocale( null, null );
     }
 
     public static void setSync ( Document doc, boolean sync )
@@ -85,7 +88,7 @@ public final class Public2
 
     public static DOMImplementation getDomImplementation ( )
     {
-        return newLocale( null );
+        return newLocale( );
     }
 
     public static DOMImplementation getDomImplementation ( Saaj saaj )
@@ -96,7 +99,7 @@ public final class Public2
     public static Document parse ( String s )
         throws XmlException
     {
-        Locale l = newLocale( null );
+        Locale l = newLocale();
 
         Dom d;
 
@@ -109,7 +112,7 @@ public final class Public2
     public static Document parse ( String s, XmlOptions options )
         throws XmlException
     {
-        Locale l = newLocale( null );
+        Locale l = newLocale();
 
         Dom d;
 
@@ -135,7 +138,7 @@ public final class Public2
     public static Document parse ( InputStream is, XmlOptions options )
         throws XmlException, IOException
     {
-        Locale l = newLocale( null );
+        Locale l = newLocale();
 
         Dom d;
 

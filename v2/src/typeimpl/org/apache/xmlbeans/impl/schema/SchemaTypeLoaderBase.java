@@ -56,6 +56,7 @@ import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.DOMImplementation;
 
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 import org.apache.xmlbeans.xml.stream.XMLStreamException;
@@ -390,6 +391,11 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         return Locale.newSaxHandler( this, type, options );
 //        return Root.newSaxHandler( this, type, options );
 // NEWSTORE END
+    }
+
+    public DOMImplementation newDomImplementation ( XmlOptions options )
+    {
+        return Locale.newDomImplementation( this, options );
     }
 
     public XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException

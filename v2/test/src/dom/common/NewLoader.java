@@ -15,7 +15,7 @@
 
 package dom.common;
 
-import org.apache.xmlbeans.impl.newstore2.Public2;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlRuntimeException;
 
@@ -26,7 +26,7 @@ public class NewLoader extends Loader{
     {
         try
         {
-            return (org.w3c.dom.Document) Public2.parse( sXml );
+            return (org.w3c.dom.Document) XmlObject.Factory.parse( sXml ).getDomNode();
         }
         catch ( XmlException e )
         {
@@ -38,7 +38,7 @@ public class NewLoader extends Loader{
     {
         org.w3c.dom.Document doc = load( sXml );
         
-        Public2.setSync( doc,true );
+        org.apache.xmlbeans.impl.newstore2.Public2.setSync( doc,true );
         
         return doc;
     }

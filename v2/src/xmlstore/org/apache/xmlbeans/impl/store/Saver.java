@@ -24,6 +24,7 @@ import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.store.Splay.Container;
 import org.apache.xmlbeans.impl.store.Splay.Xmlns;
 import org.apache.xmlbeans.impl.values.NamespaceManager;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
 import java.io.InputStream;
@@ -4414,8 +4415,7 @@ public abstract class Saver implements NamespaceManager
             // to create the fragment
 
 // NEWSTORE START
-            DOMImplementation impl =
-                org.apache.xmlbeans.impl.newstore2.Public2.getDomImplementation();
+            DOMImplementation impl = XmlObject.Factory.newDomImplementation();
 
             _doc = impl.createDocument( null, "foo", null );
 

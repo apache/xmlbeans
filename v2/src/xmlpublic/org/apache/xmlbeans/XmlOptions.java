@@ -570,6 +570,18 @@ public class XmlOptions implements java.io.Serializable
     }
 
     /**
+     * This option controls whether or not operations on XmlBeans are
+     * thread safe.  When not on, all XmlBean operations will be syncronized.
+     * This provides for multiple thread the ability to access a single
+     * XmlBeans simultainously, but has a perf impact.  If set, then
+     * only one thread may access an XmlBean.
+     */
+    public XmlOptions setUnsynchronized ( )
+    {
+        return set( UNSYNCHRONIZED );
+    }
+
+    /**
      * If this option is set when compiling a schema, then the given
      * EntityResolver will be consulted in order to resolve any
      * URIs while downloading imported schemas.
@@ -602,86 +614,88 @@ public class XmlOptions implements java.io.Serializable
     // TODO - Add selectPath option to track the seletion (deault is to clean selections fast). 
     
     /** @exclude */
-    public static final String SAVE_NAMESPACES_FIRST           =  "SAVE_NAMESPACES_FIRST";
+    public static final String SAVE_NAMESPACES_FIRST           = "SAVE_NAMESPACES_FIRST";
     /** @exclude */
-    public static final String SAVE_SYNTHETIC_DOCUMENT_ELEMENT =  "SAVE_SYNTHETIC_DOCUMENT_ELEMENT";
+    public static final String SAVE_SYNTHETIC_DOCUMENT_ELEMENT = "SAVE_SYNTHETIC_DOCUMENT_ELEMENT";
     /** @exclude */
-    public static final String SAVE_PRETTY_PRINT               =  "SAVE_PRETTY_PRINT";
+    public static final String SAVE_PRETTY_PRINT               = "SAVE_PRETTY_PRINT";
     /** @exclude */
-    public static final String SAVE_PRETTY_PRINT_INDENT        =  "SAVE_PRETTY_PRINT_INDENT";
+    public static final String SAVE_PRETTY_PRINT_INDENT        = "SAVE_PRETTY_PRINT_INDENT";
     /** @exclude */
-    public static final String SAVE_PRETTY_PRINT_OFFSET        =  "SAVE_PRETTY_PRINT_OFFSET";
+    public static final String SAVE_PRETTY_PRINT_OFFSET        = "SAVE_PRETTY_PRINT_OFFSET";
     /** @exclude */
-    public static final String SAVE_AGGRESSIVE_NAMESPACES      =  "SAVE_AGGRESSIVE_NAMESPACES";
+    public static final String SAVE_AGGRESSIVE_NAMESPACES      = "SAVE_AGGRESSIVE_NAMESPACES";
     /** @exclude */
-    public static final String SAVE_USE_DEFAULT_NAMESPACE      =  "SAVE_USE_DEFAULT_NAMESPACE";
+    public static final String SAVE_USE_DEFAULT_NAMESPACE      = "SAVE_USE_DEFAULT_NAMESPACE";
     /** @exclude */
-    public static final String SAVE_IMPLICIT_NAMESPACES        =  "SAVE_IMPLICIT_NAMESPACES";
+    public static final String SAVE_IMPLICIT_NAMESPACES        = "SAVE_IMPLICIT_NAMESPACES";
     /** @exclude */
-    public static final String SAVE_SUGGESTED_PREFIXES         =  "SAVE_SUGGESTED_PREFIXES";
+    public static final String SAVE_SUGGESTED_PREFIXES         = "SAVE_SUGGESTED_PREFIXES";
     /** @exclude */
-    public static final String SAVE_FILTER_PROCINST            =  "SAVE_FILTER_PROCINST";
+    public static final String SAVE_FILTER_PROCINST            = "SAVE_FILTER_PROCINST";
     /** @exclude */
-    public static final String SAVE_USE_OPEN_FRAGMENT          =  "SAVE_USE_OPEN_FRAGMENT";
+    public static final String SAVE_USE_OPEN_FRAGMENT          = "SAVE_USE_OPEN_FRAGMENT";
     /** @exclude */
-    public static final String SAVE_OUTER                      =  "SAVE_OUTER";
+    public static final String SAVE_OUTER                      = "SAVE_OUTER";
     /** @exclude */
-    public static final String SAVE_INNER                      =  "SAVE_INNER";
+    public static final String SAVE_INNER                      = "SAVE_INNER";
     /** @exclude */
-    public static final String SAVE_NO_XML_DECL                =  "SAVE_NO_XML_DECL";
+    public static final String SAVE_NO_XML_DECL                = "SAVE_NO_XML_DECL";
     
     /** @exclude */
-    public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   =  "LOAD_REPLACE_DOCUMENT_ELEMENT";
+    public static final String LOAD_REPLACE_DOCUMENT_ELEMENT   = "LOAD_REPLACE_DOCUMENT_ELEMENT";
     /** @exclude */
-    public static final String LOAD_STRIP_WHITESPACE           =  "LOAD_STRIP_WHITESPACE";
+    public static final String LOAD_STRIP_WHITESPACE           = "LOAD_STRIP_WHITESPACE";
     /** @exclude */
-    public static final String LOAD_STRIP_COMMENTS             =  "LOAD_STRIP_COMMENTS";
+    public static final String LOAD_STRIP_COMMENTS             = "LOAD_STRIP_COMMENTS";
     /** @exclude */
-    public static final String LOAD_STRIP_PROCINSTS            =  "LOAD_STRIP_PROCINSTS";
+    public static final String LOAD_STRIP_PROCINSTS            = "LOAD_STRIP_PROCINSTS";
     /** @exclude */
-    public static final String LOAD_LINE_NUMBERS               =  "LOAD_LINE_NUMBERS";
+    public static final String LOAD_LINE_NUMBERS               = "LOAD_LINE_NUMBERS";
     /** @exclude */
-    public static final String LOAD_SUBSTITUTE_NAMESPACES      =  "LOAD_SUBSTITUTE_NAMESPACES";
+    public static final String LOAD_SUBSTITUTE_NAMESPACES      = "LOAD_SUBSTITUTE_NAMESPACES";
     /** @exclude */
-    public static final String LOAD_TRIM_TEXT_BUFFER           =  "LOAD_TRIM_TEXT_BUFFER";
+    public static final String LOAD_TRIM_TEXT_BUFFER           = "LOAD_TRIM_TEXT_BUFFER";
     /** @exclude */
-    public static final String LOAD_ADDITIONAL_NAMESPACES      =  "LOAD_ADDITIONAL_NAMESPACES";
+    public static final String LOAD_ADDITIONAL_NAMESPACES      = "LOAD_ADDITIONAL_NAMESPACES";
     /** @exclude */
-    public static final String LOAD_MESSAGE_DIGEST             =  "LOAD_MESSAGE_DIGEST";
+    public static final String LOAD_MESSAGE_DIGEST             = "LOAD_MESSAGE_DIGEST";
     /** @exclude */
-    public static final String LOAD_USE_DEFAULT_RESOLVER       =  "LOAD_USE_DEFAULT_RESOLVER";
+    public static final String LOAD_USE_DEFAULT_RESOLVER       = "LOAD_USE_DEFAULT_RESOLVER";
     /** @exclude */
-    public static final String LOAD_USE_XMLREADER              =  "LOAD_USE_XMLREADER";
+    public static final String LOAD_USE_XMLREADER              = "LOAD_USE_XMLREADER";
 
     /** @exclude */
-    public static final String XQUERY_CURRENT_NODE_VAR         =  "XQUERY_CURRENT_NODE_VAR";
+    public static final String XQUERY_CURRENT_NODE_VAR         = "XQUERY_CURRENT_NODE_VAR";
 
     /** @exclude */
-    public static final String CHARACTER_ENCODING              =  "CHARACTER_ENCODING";
+    public static final String CHARACTER_ENCODING              = "CHARACTER_ENCODING";
     /** @exclude */
-    public static final String ERROR_LISTENER                  =  "ERROR_LISTENER";
+    public static final String ERROR_LISTENER                  = "ERROR_LISTENER";
     /** @exclude */
-    public static final String DOCUMENT_TYPE                   =  "DOCUMENT_TYPE";
+    public static final String DOCUMENT_TYPE                   = "DOCUMENT_TYPE";
     /** @exclude */
-    public static final String DOCUMENT_SOURCE_NAME            =  "DOCUMENT_SOURCE_NAME";
+    public static final String DOCUMENT_SOURCE_NAME            = "DOCUMENT_SOURCE_NAME";
     /** @exclude */
-    public static final String COMPILE_SUBSTITUTE_NAMES        =  "COMPILE_SUBSTITUTE_NAMES";
+    public static final String COMPILE_SUBSTITUTE_NAMES        = "COMPILE_SUBSTITUTE_NAMES";
     /** @exclude */
-    public static final String COMPILE_NO_VALIDATION           =  "COMPILE_NO_VALIDATION";
+    public static final String COMPILE_NO_VALIDATION           = "COMPILE_NO_VALIDATION";
     /** @exclude */
-    public static final String COMPILE_NO_UPA_RULE             =  "COMPILE_NO_UPA_RULE";
+    public static final String COMPILE_NO_UPA_RULE             = "COMPILE_NO_UPA_RULE";
     /** @exclude */
-    public static final String COMPILE_NO_PVR_RULE             =  "COMPILE_NO_PVR_RULE";
+    public static final String COMPILE_NO_PVR_RULE             = "COMPILE_NO_PVR_RULE";
     /** @exclude */
-    public static final String COMPILE_NO_ANNOTATIONS          =  "COMPILE_NO_ANNOTATIONS";
+    public static final String COMPILE_NO_ANNOTATIONS          = "COMPILE_NO_ANNOTATIONS";
     /** @exclude */
-    public static final String COMPILE_DOWNLOAD_URLS           =  "COMPILE_DOWNLOAD_URLS";
+    public static final String COMPILE_DOWNLOAD_URLS           = "COMPILE_DOWNLOAD_URLS";
     /** @exclude */
-    public static final String COMPILE_MDEF_NAMESPACES         =  "COMPILE_MDEF_NAMESPACES";
+    public static final String COMPILE_MDEF_NAMESPACES         = "COMPILE_MDEF_NAMESPACES";
     /** @exclude */
-    public static final String VALIDATE_ON_SET                 =  "VALIDATE_ON_SET";
+    public static final String VALIDATE_ON_SET                 = "VALIDATE_ON_SET";
     /** @exclude */
-    public static final String ENTITY_RESOLVER                 =  "ENTITY_RESOLVER";
+    public static final String UNSYNCHRONIZED                  = "UNSYNCHRONIZED";
+    /** @exclude */
+    public static final String ENTITY_RESOLVER                 = "ENTITY_RESOLVER";
     /** @exclude */
     public static final String SCHEMA_CODE_PRINTER             = "SCHEMA_CODE_PRINTER";
 

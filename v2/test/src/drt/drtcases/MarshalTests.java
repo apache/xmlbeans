@@ -48,7 +48,6 @@ import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
-import org.apache.xmlbeans.impl.newstore2.Public2;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.w3c.dom.Document;
@@ -604,10 +603,10 @@ public class MarshalTests extends TestCase
 
         XmlOptions opts = new XmlOptions();
         opts.setLoadLineNumbers();
-        final Document document = Public2.parse(xmldoc, opts);
+        final Document document = (Document) XmlObject.Factory.parse( sXml, opts ).getDomNode();
 
         if (verbose) {
-            final XMLStreamReader tmp_stream = Public2.getStream(document);
+            final XMLStreamReader tmp_stream = XmlBeans.nodeToXmlStreamReader(document);
             dumpReader(tmp_stream, true);
             tmp_stream.close();
         }
@@ -615,7 +614,7 @@ public class MarshalTests extends TestCase
         final SoapUnmarshaller um =
             bindingContext.createSoapUnmarshaller(EncodingStyle.SOAP11, document);
 
-        final XMLStreamReader xrdr = Public2.getStream(document);
+        final XMLStreamReader xrdr = XmlBeans.nodeToXmlStreamReader(document);
 //        {
 //            while(xrdr.hasNext()) {
 //                System.out.println("## AT " + XmlStreamUtils.printEvent(xrdr));
@@ -725,10 +724,10 @@ public class MarshalTests extends TestCase
 
         XmlOptions opts = new XmlOptions();
         opts.setLoadLineNumbers();
-        final Document document = Public2.parse(xmldoc, opts);
+        final Document document = (Document) XmlObject.Factory.parse(xmldoc, opts).getDomNode();
 
         if (verbose) {
-            final XMLStreamReader tmp_stream = Public2.getStream(document);
+            final XMLStreamReader tmp_stream = XmlBeans.nodeToXmlStreamReader(document);
             dumpReader(tmp_stream, true);
             tmp_stream.close();
         }
@@ -736,7 +735,7 @@ public class MarshalTests extends TestCase
         final SoapUnmarshaller um =
             bindingContext.createSoapUnmarshaller(EncodingStyle.SOAP11, document);
 
-        final XMLStreamReader xrdr = Public2.getStream(document);
+        final XMLStreamReader xrdr = XmlBeans.nodeToXmlStreamReader(document);
 
         while (!xrdr.isStartElement()) {
             xrdr.next();

@@ -71,6 +71,7 @@ import org.apache.xmlbeans.impl.newstore2.Cur.Locations;
 
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlLineNumber;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.XmlBookmark;
 import org.apache.xmlbeans.XmlSaxHandler;
 import org.apache.xmlbeans.XmlException;
@@ -136,19 +137,19 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         // Also - have a thread local setting for thread safety?  .. Perhaps something
         // in the type loader which defines whether ot not sync is on????
         
-        _noSync = true;
+        _noSync = options.hasOption( XmlOptions.UNSYNCHRONIZED );
         
         _tempFrames = new Cur [ _numTempFramesLeft = 8 ];
 
-        // BUGBUG - this cannot be thread locale ....
-        // BUGBUG - this cannot be thread locale ....
-        // BUGBUG - this cannot be thread locale ....
+        // BUGBUG - this cannot be thread local ....
+        // BUGBUG - this cannot be thread local ....
+        // BUGBUG - this cannot be thread local .... uhh what, again?
         // 
         // Lazy create this (loading up a locale should use the thread locale one)
         // same goes for the qname factory .. use thread local for hte most part when loading
         
         _qnameFactory = new DefaultQNameFactory();
-        
+
         _locations = new Locations( this );
 
         _schemaTypeLoader = stl;
@@ -159,7 +160,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         // Check for Saaj implementation request
         //
         
-        Object saajObj = options.get( Public2.SAAJ_IMPL );
+        Object saajObj = options.get( Saaj.SAAJ_IMPL );
 
         if (saajObj != null)
         {
@@ -184,7 +185,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             stl = XmlBeans.getContextTypeLoader();
         
         options = XmlOptions.maskNull( options );
-        
+
         Locale l = null;
         
         if (options.hasOption( USE_SAME_LOCALE ))
@@ -201,7 +202,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             if (l._schemaTypeLoader != stl)
                 throw new IllegalArgumentException( "Source locale does not support same schema type loader" );
             
-            if (l._saaj != null && l._saaj != options.get( Public2.SAAJ_IMPL ))
+            if (l._saaj != null && l._saaj != options.get( Saaj.SAAJ_IMPL ))
                 throw new IllegalArgumentException( "Source locale does not support same saaj" );
 
             if (l._validateOnSet && !options.hasOption( XmlOptions.VALIDATE_ON_SET ))
@@ -231,7 +232,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     //
     //
     
-    void autoTypeDocument ( Cur c, SchemaType requestedType, XmlOptions options )
+    static void autoTypeDocument ( Cur c, SchemaType requestedType, XmlOptions options )
         throws XmlException
     {
         assert c.isRoot();
@@ -258,7 +259,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             QName xsiTypeName = c.getXsiTypeName();
 
             SchemaType xsiSchemaType =
-                xsiTypeName == null ? null : _schemaTypeLoader.findType( xsiTypeName );
+                xsiTypeName == null ? null : c._locale._schemaTypeLoader.findType( xsiTypeName );
 
             if (requestedType == null || requestedType.isAssignableFrom( xsiSchemaType ))
                 type = xsiSchemaType;
@@ -281,7 +282,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
             if (docElemName != null)
             {
-                type = _schemaTypeLoader.findDocumentType( docElemName );
+                type = c._locale._schemaTypeLoader.findDocumentType( docElemName );
 
                 if (type != null && requestedType != null)
                 {
@@ -306,7 +307,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
             type =
                 Locale.toFirstNormalAttr( c ) && !Locale.toNextNormalAttr( c )
-                  ? _schemaTypeLoader.findAttributeType( c.getName() ) : null;
+                  ? c._locale._schemaTypeLoader.findAttributeType( c.getName() ) : null;
 
             c.pop();
         }
@@ -328,7 +329,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         }
     }
     
-    private boolean namespacesSame ( QName n1, QName n2 )
+    private static boolean namespacesSame ( QName n1, QName n2 )
     {
         if (n1 == n2)
             return true;
@@ -345,7 +346,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         return n1.getNamespaceURI().equals( n2.getNamespaceURI() );
     }
 
-    private void addNamespace ( StringBuffer sb, QName name )
+    private static void addNamespace ( StringBuffer sb, QName name )
     {
         if (name.getNamespaceURI() == null)
             sb.append( "<no namespace>" );
@@ -357,7 +358,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         }
     }
 
-    private void verifyDocumentType ( Cur c, QName docElemName ) throws XmlException
+    private static void verifyDocumentType ( Cur c, QName docElemName ) throws XmlException
     {
         assert c.isRoot();
         
@@ -421,7 +422,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         }
     }
 
-    private void verifyAttributeType ( Cur c, QName attrName ) throws XmlException
+    private static void verifyAttributeType ( Cur c, QName attrName ) throws XmlException
     {
         assert c.isRoot();
 
@@ -534,6 +535,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         return isFrag || numDocElems != 1;
     }
+    
     //
     //
     //
@@ -568,7 +570,17 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         return x;
     }
-                                   
+
+    //
+    //
+    //
+    
+    public static DOMImplementation newDomImplementation (
+        SchemaTypeLoader stl, XmlOptions options )
+    {
+        return (DOMImplementation) getLocale( stl, options );
+    }
+            
     //
     //
     //
@@ -2728,7 +2740,41 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         throw new RuntimeException( "DOM Level 3 Not implemented" );
     }
 
+    //
+    // Dom methods
+    //
 
+    private static Dom checkNode ( Node n )
+    {
+        if (n == null)
+            throw new IllegalArgumentException( "Node is null" );
+
+        if (!(n instanceof Dom))
+            throw new IllegalArgumentException( "Node is not an XmlBeans node" );
+
+        return (Dom) n;
+    }
+
+    public static XmlCursor nodeToCursor ( Node n )
+    {
+        return DomImpl._getXmlCursor( checkNode( n ) );
+    }
+
+    public static XmlObject nodeToXmlObject ( Node n )
+    {
+        return DomImpl._getXmlObject( checkNode( n ) );
+    }
+    
+    public static XMLStreamReader nodeToXmlStream ( Node n )
+    {
+        return DomImpl._getXmlStreamReader( checkNode( n ) );
+    }
+
+    public static Node streamToNode ( XMLStreamReader xs )
+    {
+        return Jsr173.nodeFromStream( xs );
+    }
+    
     //
     // SaajCallback methods
     //

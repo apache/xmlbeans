@@ -38,7 +38,8 @@ public class Jsr173
 {
     public static Node nodeFromStream ( XMLStreamReader xs )
     {
-        assert xs instanceof Jsr173GateWay;
+        if (!(xs instanceof Jsr173GateWay))
+            return null;
 
         Jsr173GateWay gw = (Jsr173GateWay) xs;
 
