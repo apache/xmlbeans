@@ -46,9 +46,11 @@ public class Java2Schema extends BindingCompiler {
   private static final String JAVA_PACKAGE_PREFIX  = "java.";
 
   public static final String TAG_CT               = "xsdgen:complexType";
+  public static final String TAG_CT_EXCLUDE       = TAG_CT+".exclude";
   public static final String TAG_CT_TYPENAME      = TAG_CT+".typeName";
   public static final String TAG_CT_TARGETNS      = TAG_CT+".targetNamespace";
   public static final String TAG_CT_ROOT          = TAG_CT+".rootElement";
+  public static final String TAG_CT_IGNORESUPER   = TAG_CT+".ignoreSuper";
 
   private static final String TAG_EL               = "xsdgen:element";
 
@@ -123,7 +125,11 @@ public class Java2Schema extends BindingCompiler {
       mSchema.setTargetNamespace(getTargetNamespace(mClasses[0]));
     }
     //This does the binding
-    for(int i=0; i<mClasses.length; i++) getBindingTypeFor(mClasses[i]);
+    for(int i=0; i<mClasses.length; i++) {
+      if (!getAnnotation(mClasses[i],TAG_CT_EXCLUDE,false)) {
+        getBindingTypeFor(mClasses[i]);
+      }
+    }
     //
     try {
       writer.writeBindingFile(mBindingFile);
@@ -165,7 +171,8 @@ public class Java2Schema extends BindingCompiler {
     xsType.setName(xsdName);
     // deal with inheritance - see if it extends anything
     JClass superclass = clazz.getSuperclass();
-    if (superclass != null && !superclass.isObject()) {
+    if (superclass != null && !superclass.isObject() &&
+            !getAnnotation(superclass,TAG_CT_IGNORESUPER,false)) {
       // FIXME we're ignoring interfaces at the moment
       BindingType superBindingType = getBindingTypeFor(superclass);
       ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
@@ -246,6 +253,12 @@ public class Java2Schema extends BindingCompiler {
         if (annotatedType == null) {
           facade.setType(propType = props[i].getType());
         } else {
+          if (!props[i].getType().isArray()) {
+            //THIS IS A QUICK GROSS HACK THAT SHOULD BE REMOVED.
+            //IF SOMEONE WANTS TO AS TYPE AN ARRAY PROPERTY, THEY NEED
+            //TO ASTYPE IT TO THE ARRAY TYPE THEMSELVES
+            annotatedType = "[L"+annotatedType+";";
+          }
           propType = props[i].getType().forName(annotatedType);
           if (propType.isUnresolved()) {
             logError("Could not find class named '"+
