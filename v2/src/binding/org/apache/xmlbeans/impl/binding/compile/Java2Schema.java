@@ -204,7 +204,9 @@ public class Java2Schema {
     String rootName = getAnnotation(clazz,TAG_CT_ROOT,null);
     if (rootName != null) {
       QName rootQName = new QName(tns, rootName);
-      BindingTypeName docBtName = BindingTypeName.forPair(getJavaName(clazz), XmlName.forGlobalName(XmlName.ELEMENT, rootQName));
+      BindingTypeName docBtName =
+              BindingTypeName.forPair(getJavaName(clazz),
+                                      XmlName.forGlobalName(XmlName.ELEMENT, rootQName));
       SimpleDocumentBinding sdb = new SimpleDocumentBinding(docBtName);
       sdb.setTypeOfElement(btname.getXmlName());
       mBindingFile.addBindingType(sdb,true,true);
@@ -226,12 +228,26 @@ public class Java2Schema {
       } else {
         propName = getAnnotation(props[i],TAG_EL_NAME,props[i].getSimpleName());
       }
-      BindingType propType = getBindingTypeFor(getPropertyType(props[i]));
       QNameProperty qprop = new QNameProperty();
-      qprop.setBindingType(propType);
       qprop.setQName(new QName(tns,propName));
       qprop.setGetterName(props[i].getGetter().getSimpleName());
       qprop.setSetterName(props[i].getSetter().getSimpleName());
+      JClass propType;
+      if (props[i].getType().isArray()) {
+        if (props[i].getType().getArrayDimensions() != 1) {
+          throw new RuntimeException //FIXME
+                  ("Sorry, mulidimensional arrays not yet supported: "+
+                   props[i].getQualifiedName());
+        }
+        propType = props[i].getType().getArrayComponentType();
+        qprop.setBindingType(getBindingTypeFor(propType));
+        qprop.setMultiple(true);
+        qprop.setCollectionClass //FIXME this is lame
+                (JavaName.forString(propType.getQualifiedName()+"[]"));
+      } else {
+        qprop.setBindingType(getBindingTypeFor
+                             (propType = getPropertyType(props[i])));
+      }
       {
         //nillable tag
         JAnnotation a = props[i].getAnnotation(TAG_EL_NILLABLE);
@@ -250,8 +266,13 @@ public class Java2Schema {
         if (xsdSequence == null) xsdSequence = xsdType.addNewSequence();
         LocalElement xsdElement = xsdSequence.addNewElement();
         xsdElement.setName(propName);
-        xsdElement.setType(getBuiltinTypeNameFor(props[i].getType()));
+        xsdElement.setType(getBuiltinTypeNameFor(propType));
+        if (props[i].getType().isArray()) xsdElement.setMaxOccurs("unbounded");
       } else {
+        if (props[i].getType().isArray()) {
+          logError(new RuntimeException
+                  ("Array properties cannot be mapped to xml attribtes"));
+        }
         Attribute xsdAtt = Attribute.Factory.newInstance();
         qprop.setAttribute(true);
         xsdAtt.setName(propName);
