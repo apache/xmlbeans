@@ -58,6 +58,7 @@ package org.apache.xmlbeans;
 
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
+import java.io.InputStream;
 
 /**
  * An Unmarshaller is used to unmarshal xml documents into Java objects.
@@ -69,21 +70,32 @@ public interface Unmarshaller
 {
 
     /**
-     * unmarshall an entire xml document.
+     *  unmarshall an entire xml document.
      *
      * PRECONDITIONS:
-     * reader (taken from context) must be positioned at or before the root
+     * reader must be positioned at or before the root
      * start element of the document.
      *
      * POSTCONDITIONS:
-     * reader (taken from context) will be positioned immediately after
+     * reader will be positioned immediately after
      * the end element corresponding to the start element from the precondition
      *
+     * @param reader
+     * @return
+     * @throws XmlException
+     */
+    Object unmarshal(XMLStreamReader reader)
+        throws XmlException;
+
+    /**
+     * unmarshall an entire xml document.  The encoding to use is determined
+     * according to the heuristic specified in the XML 1.0 recommendation.
      *
+     * @param doc
      * @return
      * @throws org.apache.xmlbeans.XmlException
      */
-    Object unmarshal(XMLStreamReader reader)
+    Object unmarshal(InputStream doc)
         throws XmlException;
 
     /**

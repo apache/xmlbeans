@@ -33,6 +33,9 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
+import java.io.FileInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.ByteArrayInputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -307,6 +310,49 @@ public class MarshalTests extends TestCase
     }
 
 
+    public void testByNameDocMarshalViaOutputStream()
+        throws Exception
+    {
+        com.mytest.MyClass mc = new com.mytest.MyClass();
+        mc.setMyatt("attval");
+        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        myelt.setAttrib(99999.777f);
+        myelt.setMyFloat(5555.4444f);
+//        myelt.setMyClass(new com.mytest.MyClass());
+        myelt.setMyClass(null);
+        mc.setMyelt(myelt);
+
+        myelt.setStringArray(new String[]{"one", "two", "three"});
+
+
+        final File bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+
+        final XmlOptions options = new XmlOptions();
+        Collection errors = new LinkedList();
+        options.setErrorListener(errors);
+        Marshaller ctx =
+            bindingContext.createMarshaller(options);
+
+        final String encoding = "UTF-16";
+        ctx.marshall(baos, mc, encoding);
+        baos.close();
+        final byte[] buf = baos.toByteArray();
+        System.out.println("Doc="+new String(buf, encoding));
+
+        //now unmarshall from String and compare objects...
+        Unmarshaller umctx = bindingContext.createUnmarshaller((new XmlOptions()));
+        final ByteArrayInputStream bais = new ByteArrayInputStream(buf);
+        Object out_obj = umctx.unmarshal(bais);
+        Assert.assertEquals(mc, out_obj);
+        Assert.assertTrue(errors.isEmpty());
+    }
+
+
     public void testRoundtripPerf()
         throws Exception
     {
@@ -497,6 +543,35 @@ public class MarshalTests extends TestCase
         Unmarshaller um_ctx =
             bindingContext.createUnmarshaller(options);
         Object obj = um_ctx.unmarshal(xrdr);
+
+        System.out.println("doc2-obj = " + obj);
+
+        for (Iterator itr = errors.iterator(); itr.hasNext();) {
+            XmlError xmlError = (XmlError)itr.next();
+            System.out.println("doc2-ERROR: " + xmlError);
+        }
+
+        Assert.assertTrue(errors.isEmpty());
+
+    }
+
+    public void testByNameBeanUnmarshalFromInputStream()
+        throws Exception
+    {
+        File bcdoc = getBindingConfigDocument();
+
+        BindingContext bindingContext =
+            BindingContextFactory.newInstance().createBindingContext(bcdoc);
+
+        File doc = TestEnv.xbeanCase("marshal/doc2.xml");
+
+        final XmlOptions options = new XmlOptions();
+        final LinkedList errors = new LinkedList();
+        options.setErrorListener(errors);
+
+        Unmarshaller um_ctx =
+            bindingContext.createUnmarshaller(options);
+        Object obj = um_ctx.unmarshal(new FileInputStream(doc));
 
         System.out.println("doc2-obj = " + obj);
 
