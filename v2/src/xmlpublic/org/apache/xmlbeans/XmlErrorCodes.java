@@ -328,10 +328,10 @@ public abstract class XmlErrorCodes
     public static final String DATATYPE_FRACTION_DIGITS_VALID = "cvc-fractionDigits-valid";
 
     /**
-     * cvc-id: See
+     * cvc-id.2: See clause 2 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-id">XMLSchema Structures 1.0: Validation Root Valid (ID/IDREF)</a>
      */
-    public static final String VALIDATION_ROOT_VALID = "cvc-id";
+    public static final String ID_VALID$DUPLICATE = "cvc-id.2";
 
     /**
      * cvc-identity-constraint: See

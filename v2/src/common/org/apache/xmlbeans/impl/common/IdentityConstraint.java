@@ -537,8 +537,7 @@ public class IdentityConstraint {
                 xmlValue.set(o, 0);
 
                 if (_values.contains(xmlValue))
-                    // KHK: cvc-id.2
-                    emitError(e, "Duplicate ID value '" + value + "'");
+                    emitError(e, XmlErrorCodes.ID_VALID$DUPLICATE, new Object[] { value });
                 else
                     _values.add(xmlValue);
             }
