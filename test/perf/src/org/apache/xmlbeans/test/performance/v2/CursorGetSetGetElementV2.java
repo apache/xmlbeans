@@ -78,7 +78,7 @@ public class CursorGetSetGetElementV2
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+CursorGetSetGetElementV2.class.getName()+" flavor="+flavor+" stringtoset="+stringToSet.length()+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" flavor="+flavor+" stringtoset="+stringToSet.length()+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

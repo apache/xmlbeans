@@ -62,7 +62,7 @@ public class BisLoadXercesDom
     
       
     // print the results
-    System.out.print(Constants.DELIM+BisLoadXercesDom.class.getName()+" flavor="+flavor+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" flavor="+flavor+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

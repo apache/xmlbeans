@@ -78,7 +78,7 @@ public class POValidateXmlObjV1
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+POValidateXmlObjV1.class.getName()+" filesize="+chars.length+" ");
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" filesize="+chars.length+" ");
     System.out.print("hash "+hash+" ");
     System.out.print("time "+cputime+"\n");
   }

@@ -14,10 +14,8 @@
 */
 package org.apache.xmlbeans.test.performance.utils;
 
-//import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.BufferedInputStream;
-//import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.FileNotFoundException;
 import java.lang.StringBuffer;
@@ -25,18 +23,10 @@ import java.lang.Math;
 
 public class PerfUtil
 {
-  /*public float getMemoryUsageMb(){
-    System.runFinalization();
-    System.gc();
-    try{Thread.currentThread().sleep(4000);}catch(InterruptedException ie){}
-    Runtime runtime = Runtime.getRuntime();
-    float result = ((float) runtime.totalMemory() - runtime.freeMemory())/(1024*1024);
-    return result;
-  }*/
 
   // TODO: add more flavors
   public char[] createXmlData(String flavor, int size){
-    StringBuffer buff = new StringBuffer();
+    StringBuffer buff = new StringBuffer(size);
     final String rootStart = "<r>";
     final String rootEnd = "</r>";
     final String childStart = "<c>";

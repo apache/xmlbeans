@@ -100,7 +100,7 @@ public class POGetSetGetCustNameV1
     cputime = System.currentTimeMillis() - cputime;
       
     // print the results
-    System.out.print(Constants.DELIM+POGetSetGetCustNameV1.class.getName()+
+    System.out.print(Constants.DELIM+test.getClass().getSimpleName()+
     				" filesize="+chars.length+
 					" stringtoset="+stringToSet.length()+" ");
     System.out.print("hash "+hash+" ");
