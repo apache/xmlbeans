@@ -111,8 +111,24 @@ public class EricTest
 {
     public static void main ( String[] args ) throws Exception
     {
-        Public2.parse( "<xml-fragment><b><c/></b><d/></xml-fragment>" ).cloneNode( true );
+        XmlCursor c = Public2.newStore();
 
+        c.toNextToken();
+        c.insertAttribute( "moo" );
+        c.toPrevToken();
+
+        Node n = c.getDomNode();
+
+        n.appendChild( n.getOwnerDocument().createTextNode( "a" ) );
+        n.appendChild( n.getOwnerDocument().createTextNode( "b" ) );
+
+//        Public2.test( n );
+
+        Public2.dump( n );
+        
+        n.normalize();
+
+        Public2.dump( n );
         
 //        XmlCursor c = Public2.newStore();
 //

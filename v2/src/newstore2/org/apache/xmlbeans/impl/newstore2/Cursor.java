@@ -52,7 +52,6 @@ import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
 
 public final class Cursor implements XmlCursor
 {
-    static final int NONE     = Cur.NONE;
     static final int ROOT     = Cur.ROOT;
     static final int ELEM     = Cur.ELEM;
     static final int ATTR     = Cur.ATTR;
@@ -155,7 +154,7 @@ public final class Cursor implements XmlCursor
 
     private void insertNode ( Cur thisStuff, String text )
     {
-        assert thisStuff.kind() != TEXT && thisStuff.kind() > 0;
+        assert thisStuff.isNode();
         assert isValid( thisStuff );
         assert isValid();
 
@@ -181,10 +180,9 @@ public final class Cursor implements XmlCursor
 
         if (thisKind == ATTR)
         {
-            _cur.push();
             _cur.prev();
             int pk = _cur.kind();
-            _cur.pop();
+            _cur.next();
 
             if (pk != ELEM && pk != ROOT && pk != -ATTR)
             {
