@@ -68,10 +68,10 @@ static class OrderBookmark extends XmlCursor.XmlBookmark {
     XML. The following excerpt of code creates a cursor and an instance of the 
     <span class="langinline">OrderBookmark</span> class. Then it uses the cursor 
     to insert the bookmark at the cursor's current location.</p>
-  <pre>
+    <pre>
     XmlCursor orderCursor = xmlDoc.newCursor();
     OrderBookmark thisBookmark = new OrderBookmark("foo");
-    orderCursor.setBookmark(thisAnnotation);
+    orderCursor.setBookmark(thisBookmark);
 </pre>
   <p class=relatedtopics>Related Topics</p>
   <p><a href="conNavigatingXMLwithCursors.html">Navigating XML with Cursors</a></p>
