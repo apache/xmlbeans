@@ -237,7 +237,14 @@ import java.io.Writer;
   {
     mOut.writeStartElement(ANNOTATIONVALUE);
     writeValueElement(NAME,val.getName());
+    writeValueElement(TYPE,val.getType().getQualifiedName());
     writeValueElement(VALUE,val.asString());
+    if (val.getType().isArrayType()) {
+      //FIXME
+      //throw new IllegalStateException("Serializing annotation members of an "+
+    //                                  "array type is not yet supported");
+    }
+
     mOut.writeEndElement();
     //FIXME what about asAnnotationArray?
 /*    JAnnotation nestedAnn = val.asAnnotation();

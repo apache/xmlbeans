@@ -18,6 +18,8 @@ import org.apache.xmlbeans.impl.jam.JAnnotation;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 
+import java.util.Arrays;
+
 /**
  * <p>Implementation of JAnnotationValue</p>
  *
@@ -44,114 +46,30 @@ public class AnnotationValueImpl implements JAnnotationValue {
     if (ctx == null) throw new IllegalArgumentException("null ctx");
     if (name == null) throw new IllegalArgumentException("null name");
     if (value == null) throw new IllegalArgumentException("null value");
-    //if (type == null) throw new IllegalArgumentException("null type");
+    if (type == null) throw new IllegalArgumentException("null type");
+    if (value.getClass().isArray()) {
+      mValue = ensureArrayWrapped(value);
+    } else {
+      mValue = value;
+    }
     mContext = ctx;
     mName = name;
-    mValue = value;
     mType = type;
   }
 
   // ========================================================================
-  // ??? implementation  maybe we don't want this anymore
-
-  public void setValue(Object o) {
-    mValue = o;
-  }
-
-  public void setValue(String value) {
-    mValue = value;
-  }
-
-  public void setValue(JAnnotation value) {
-    mValue = value;
-  }
-
-  public void setValue(boolean value) {
-    mValue = new Boolean(value);
-  }
-
-  public void setValue(int value) {
-    mValue = new Integer(value);
-  }
-
-  public void setValue(short value) {
-    mValue = new Short(value);
-  }
-
-  public void setValue(long value) {
-    mValue = new Long(value);
-  }
-
-  public void setValue(float value) {
-    mValue = new Float(value);
-  }
-
-  public void setValue(double value) {
-    mValue = new Double(value);
-  }
-
-  public void setValue(JClass clazz) {
-    mValue = clazz;
-    //FIXME QualifiedJClassRef.create(clazz.getQualifiedName(),mContext);
-
-  }
-
-  public void setValue(String[] value) {
-    mValue = value;
-  }
-
-  public void setValue(JAnnotation[] value) {
-    mValue = value;
-  }
-
-  public void setValue(boolean[] value) {
-    mValue = value;
-  }
-
-  public void setValue(int[] value) {
-    mValue = value;
-  }
-
-  public void setValue(short[] value) {
-    mValue = value;
-  }
-
-  public void setValue(long[] value) {
-    mValue = value;
-  }
-
-  public void setValue(float[] value) {
-    mValue = value;
-  }
-
-  public void setValue(double[] value) {
-    mValue = value;
-  }
-
-  public void setValue(JClass[] classes) {
-    mValue = classes;
-  }
-
-  // ========================================================================
-  // JAnnotationValue implementation  FIXME
+  // JAnnotationValue implementation
 
   public boolean isDefaultValueUsed() {
-    throw new IllegalStateException("nyi");
+    throw new IllegalStateException("NYI");
     //return mIsDefaultUsed;
   }
 
-  public String getName() {
-    return mName;
-  }
+  public String getName() { return mName; }
 
-  //docme
-  public JClass getType() {
-    return mType;
-  }
+  public JClass getType() { return mType; }
 
-  public Object getValue() {
-    return mValue;
-  }
+//  public Object getValue() { return mValue; }
 
   public JAnnotation asAnnotation() {
     if (mValue instanceof JAnnotation) {
@@ -162,7 +80,11 @@ public class AnnotationValueImpl implements JAnnotationValue {
   }
 
   public JClass asClass() {
-    throw new IllegalStateException("NYI");
+    if (mValue instanceof JClass) {
+      return (JClass)mValue;
+    } else {
+      return null; //REVIEW or throw?
+    }
   }
 
   public String asString() {
@@ -236,59 +158,159 @@ public class AnnotationValueImpl implements JAnnotationValue {
   }
 
   public char asChar() throws IllegalArgumentException {
+    //FIXME this is not right
     if (mValue == null) return 0;
     if (mValue instanceof Character) return ((Character)mValue).charValue();
     mValue = mValue.toString();
     return (((String)mValue).length() == 0) ? 0 : ((String)mValue).charAt(0);
   }
 
-  public Object[] asArray() {
-     throw new IllegalStateException("NYI");
-  }
-
   public JClass[] asClassArray() {
-    throw new IllegalStateException("NYI");
+    if (mValue instanceof JClass[]) {
+      return (JClass[])mValue;
+    } else {
+      return null;
+    }
   }
 
   public JAnnotation[] asAnnotationArray() {
-    throw new IllegalStateException("NYI");
+    if (mValue instanceof JAnnotation[]) {
+      return (JAnnotation[])mValue;
+    } else {
+      return null;
+    }
   }
 
   public String[] asStringArray() {
-    throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    String[] out = new String[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) out[i] = ((Object[])mValue)[i].toString();
+    return out;
   }
 
   public int[] asIntArray() throws NumberFormatException {
-       throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    int[] out = new int[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = Integer.parseInt(((Object[])mValue)[i].toString());
+    }
+    return out;
   }
 
   public boolean[] asBooleanArray() throws IllegalArgumentException {
-      throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    boolean[] out = new boolean[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = Boolean.valueOf(((Object[])mValue)[i].toString()).booleanValue();
+    }
+    return out;
   }
 
   public short[] asShortArray() throws NumberFormatException {
-        throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    short[] out = new short[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = Short.parseShort(((Object[])mValue)[i].toString());
+    }
+    return out;
   }
 
   public long[] asLongArray() throws NumberFormatException {
-       throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    long[] out = new long[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = Long.parseLong(((Object[])mValue)[i].toString());
+    }
+    return out;
   }
 
   public double[] asDoubleArray() throws NumberFormatException {
-        throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    double[] out = new double[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = Double.parseDouble(((Object[])mValue)[i].toString());
+    }
+    return out;
   }
 
   public float[] asFloatArray() throws NumberFormatException {
-       throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    float[] out = new float[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = Float.parseFloat(((Object[])mValue)[i].toString());
+    }
+    return out;
   }
 
   public byte[] asByteArray() throws NumberFormatException {
-       throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    byte[] out = new byte[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      out[i] = Byte.parseByte(((Object[])mValue)[i].toString());
+    }
+    return out;
   }
 
   public char[] asCharArray() throws IllegalArgumentException {
-        throw new IllegalStateException("NYI");
+    if (!mValue.getClass().isArray()) return null;
+    char[] out = new char[((Object[])mValue).length];
+    for(int i=0; i<out.length; i++) {
+      //FIXME this is not right
+      out[i] = (((Object[])mValue)[i].toString()).charAt(0);
+    }
+    return out;
   }
 
+  // ========================================================================
+  // Private methods
+
+  //ugh, where is autoboxing when you need it?
+  private static final Object[] ensureArrayWrapped(Object o) {
+    if (o instanceof Object[]) return (Object[])o;
+    if (o instanceof int[]) {
+      int dims = ((int[])o).length;
+      Integer[] out = new Integer[dims];
+      for(int i=0; i<dims; i++) out[i] = new Integer(((int[])o)[i]);
+      return out;
+    } else if (o instanceof boolean[]) {
+      int dims = ((boolean[])o).length;
+      Boolean[] out = new Boolean[dims];
+      for(int i=0; i<dims; i++) out[i] = new Boolean(((boolean[])o)[i]);
+      return out;
+    } else if (o instanceof byte[]) {
+      int dims = ((byte[])o).length;
+      Byte[] out = new Byte[dims];
+      for(int i=0; i<dims; i++) out[i] = new Byte(((byte[])o)[i]);
+      return out;
+    } else if (o instanceof char[]) {
+      int dims = ((char[])o).length;
+      Character[] out = new Character[dims];
+      for(int i=0; i<dims; i++) out[i] = new Character(((char[])o)[i]);
+      return out;
+    } else if (o instanceof float[]) {
+      int dims = ((float[])o).length;
+      Float[] out = new Float[dims];
+      for(int i=0; i<dims; i++) out[i] = new Float(((float[])o)[i]);
+      return out;
+    } else if (o instanceof double[]) {
+      int dims = ((double[])o).length;
+      Double[] out = new Double[dims];
+      for(int i=0; i<dims; i++) out[i] = new Double(((double[])o)[i]);
+      return out;
+    } else if (o instanceof long[]) {
+      int dims = ((long[])o).length;
+      Long[] out = new Long[dims];
+      for(int i=0; i<dims; i++) out[i] = new Long(((long[])o)[i]);
+      return out;
+    } else if (o instanceof short[]) {
+      int dims = ((short[])o).length;
+      Short[] out = new Short[dims];
+      for(int i=0; i<dims; i++) out[i] = new Short(((short[])o)[i]);
+      return out;
+    } else {
+      throw new IllegalStateException("Unknown array type "+o.getClass());
+    }
+
+  }
 
 }

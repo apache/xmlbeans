@@ -80,6 +80,7 @@ import com.sun.org.apache.xml.internal.serialize.XMLSerializer;
 import com.sun.org.apache.xml.internal.serialize.OutputFormat;
 import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.RFEAnnotation;
 import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.EmployeeAnnotation;
+import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.EmployeeGroupAnnotation;
 import org.apache.xmlbeans.test.jam.dummyclasses.jsr175.AddressAnnotation;
 
 /**
@@ -359,6 +360,7 @@ public abstract class JamTestBase extends TestCase {
     JamXmlUtils jxu = JamXmlUtils.getInstance();
     //JClass[] classes = mResult.getAllClasses();
     File source = new File(getMasterDir(),SOURCE);
+
     JClass[] classes = jxu.createService(new FileInputStream(source)).
       getAllClasses();
     StringWriter xml = new StringWriter();
@@ -399,16 +401,33 @@ public abstract class JamTestBase extends TestCase {
 
   public void testNested175AnnotationsUntyped() throws IOException, XMLStreamException {
     JClass clazz = resolved(mLoader.loadClass(DUMMY+".jsr175.NestedAnnotatedClass"));
-    JAnnotation employee = clazz.getAnnotation(EmployeeAnnotation.class);
-    assertTrue("employee annotation is null",employee != null);
+    JAnnotation employeeGroup = clazz.getAnnotation(EmployeeGroupAnnotation.class);
+    assertTrue("employeeGroup is null", employeeGroup != null);
+    JAnnotationValue employeeListValue = employeeGroup.getValue("employees");
+    JClass listType = employeeListValue.getType();
+    assertTrue("listType is null", listType != null);
+    assertTrue("listType is "+listType.getFieldDescriptor()+", expecting"+
+               EmployeeAnnotation[].class.getName(),
+               EmployeeAnnotation[].class.getName().equals(listType.getFieldDescriptor()));
+    assertTrue("employees list is null", employeeListValue != null);
+    JAnnotation[] employeeList = employeeListValue.asAnnotationArray();
+    assertTrue("employees list is null", employeeList != null);
+    assertTrue("employees list length is "+employeeList.length+", expecting 2",
+               employeeList.length == 2);
+    JAnnotation boog = employeeList[0];
+    assertTrue("boog annotation is null",boog != null);
     {
-      JAnnotationValue firstName = employee.getValue("firstName");
+      JAnnotationValue firstName = boog.getValue("firstName");
       assertTrue("firstName is null",firstName != null);
       assertTrue("firstName is "+firstName.asString(),
                  firstName.asString().equals("Boog"));
+      JClass type = firstName.getType();
+      assertTrue("firstName type is null",type != null);
+      assertTrue("firstName type is "+type.getQualifiedName(),
+                 "java.lang.String".equals(type.getQualifiedName()));
     }
     {
-      JAnnotationValue active = employee.getValue("active");
+      JAnnotationValue active = boog.getValue("active");
       assertTrue("active is null",active != null);
       assertTrue("active = "+active.asString(),
                  active.asString().equals("TRUE"));
@@ -426,18 +445,29 @@ public abstract class JamTestBase extends TestCase {
       //assertTrue("active type is not an enum", ((ClassImpl)type).isEnumType());
     }
     {
-      JAnnotationValue lastName = employee.getValue("lastName");
+      JAnnotationValue lastName = boog.getValue("lastName");
       assertTrue("lastName is null",lastName != null);
       assertTrue("lastName is "+lastName.asString(),
                  lastName.asString().equals("Powell"));
       JClass lastNameType = lastName.getType();
       assertTrue("street type is null",lastNameType != null);
       assertTrue("lastNameType "+lastNameType.getQualifiedName(),
-                 lastNameType.getQualifiedName().equals("java.lang.String"));
-
+                 "java.lang.String".equals(lastNameType.getQualifiedName()));
     }
     {
-      JAnnotationValue addressValue = employee.getValue("address");
+      JAnnotationValue specialDigits = boog.getValue("specialDigits");
+      assertTrue("specialDigits is null",specialDigits != null);
+      int[] expect = { 8, 6, 7, 5, 3, 0, 9 };
+      assertTrue("specialDigits does not contain expected digits",
+                 Arrays.equals(expect,specialDigits.asIntArray()));
+      JClass specialDigitsType = specialDigits.getType();
+      assertTrue("specialDigits type is null",specialDigitsType != null);
+      assertTrue("specialDigits type is "+specialDigitsType.getFieldDescriptor()+
+                 ", expecting "+int[].class.getName(),
+                 specialDigitsType.getFieldDescriptor().equals(int[].class.getName()));
+    }
+    {
+      JAnnotationValue addressValue = boog.getValue("address");
       assertTrue("address is null",addressValue != null);
       JAnnotation address = addressValue.asAnnotation();
       assertTrue("address is null",address != null);

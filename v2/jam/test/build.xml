@@ -63,6 +63,10 @@
      very confused if they're not
  -->
 
+    <echo message=''/>
+    <echo message=''/>
+    <echo message='================= beginning javadoc tests ======== '/>
+
     <junit maxmemory="256m"     fork='true'
            dir='.'
            haltonerror='yes'
@@ -78,6 +82,10 @@
       <!--parser work is on hold for the moment-->
       <!--<test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>-->
     </junit>
+
+    <echo message=''/>
+    <echo message=''/>
+    <echo message='================= beginning reflection tests ======== '/>
 
 
     <junit maxmemory="256m"     fork='true'

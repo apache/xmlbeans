@@ -21,6 +21,7 @@ import org.apache.xmlbeans.impl.jam.JamServiceParams;
 import org.apache.xmlbeans.impl.jam.internal.CachedClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.internal.JamServiceImpl;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 import javax.xml.stream.XMLStreamException;
 import java.io.InputStream;
@@ -58,7 +59,7 @@ public class JamXmlUtils {
     JamService out = jsf.createService(params);
     // now go read the xml.  we have to do this afterwards so that the
     // classloader has been created and is available for linking.
-    JamXmlReader reader = new JamXmlReader(cache,in);
+    JamXmlReader reader = new JamXmlReader(cache,in,(ElementContext)params);
     reader.read();
     {
       // slightly gross hack to get the class names into the service

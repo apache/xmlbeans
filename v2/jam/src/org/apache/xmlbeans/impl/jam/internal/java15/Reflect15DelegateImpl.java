@@ -100,15 +100,13 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
     }
   }
 
-  public boolean isEnum(Class clazz) {
-    return clazz.isEnum();
-  }
+  public boolean isEnum(Class clazz) { return clazz.isEnum(); }
 
   // ========================================================================
   // Private methods
 
   private void extractAnnotations(MAnnotatedElement dest,
-                                         Annotation[] anns)
+                                  Annotation[] anns)
   {
     if (anns == null || anns.length == 0) return;
     for(int i=0; i<anns.length; i++) {
@@ -153,6 +151,13 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
                                                       annType.getName());
           nested.setAnnotationInstance(value);
           populateAnnotation(nested,(Annotation)value);
+        } else if (value instanceof Annotation[]) {
+          Annotation[] anns = (Annotation[])value;
+          MAnnotation[] nested = dest.createNestedValueArray
+            (methods[i].getName(),
+             methods[i].getReturnType().getComponentType().getName(),
+             anns.length);
+          for(int j=0; j<anns.length; j++) populateAnnotation(nested[j],anns[j]);
         } else {
           JClass type = mContext.getClassLoader().
             loadClass(methods[i].getReturnType().getName());
