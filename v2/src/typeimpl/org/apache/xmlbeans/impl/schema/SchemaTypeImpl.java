@@ -1463,6 +1463,131 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     public void setBuiltinTypeCode(int builtinTypeCode)
         { assertResolving(); _builtinTypeCode = builtinTypeCode; }
 
+    synchronized void assignJavaElementSetterModel()
+    {
+        // To compute the element setter model, we need to compute the
+        // delimiting elements for each element.
+
+        SchemaProperty[] eltProps = getElementProperties();
+        SchemaParticle contentModel = getContentModel();
+        Map state = new HashMap();
+        QNameSet allContents = computeAllContainedElements(contentModel, state);
+
+        for (int i = 0; i < eltProps.length; i++)
+        {
+            SchemaPropertyImpl sImpl = (SchemaPropertyImpl)eltProps[i];
+            QNameSet nde = computeNondelimitingElements(sImpl.getName(), contentModel, state);
+            QNameSetBuilder builder = new QNameSetBuilder(allContents);
+            builder.removeAll(nde);
+            sImpl.setJavaSetterDelimiter(builder.toQNameSet());
+        }
+    }
+
+    /**
+     * Used to compute setter model.
+     *
+     * Returns the QNameSet of all elements that can possibly come before an
+     * element whose name is given by the target in a valid instance of the
+     * contentModel.  When appending an element, it comes before the first
+     * one that is not in this set.
+     */
+    private static QNameSet computeNondelimitingElements(QName target, SchemaParticle contentModel, Map state)
+    {
+        QNameSet allContents = computeAllContainedElements(contentModel, state);
+        if (!allContents.contains(target))
+            return QNameSet.EMPTY;
+
+        // If iterated, then all contents are delimiting.
+        if (contentModel.getMaxOccurs() == null ||
+            contentModel.getMaxOccurs().compareTo(BigInteger.ONE) > 0)
+            return allContents;
+
+        QNameSetBuilder builder;
+
+        switch (contentModel.getParticleType())
+        {
+            case SchemaParticle.ALL:
+            case SchemaParticle.ELEMENT:
+            default:
+                return allContents;
+
+            case SchemaParticle.WILDCARD:
+                return QNameSet.singleton(target);
+
+            case SchemaParticle.CHOICE:
+                builder = new QNameSetBuilder();
+                for (int i = 0; i < contentModel.countOfParticleChild(); i++)
+                {
+                    QNameSet childContents = computeAllContainedElements(contentModel.getParticleChild(i), state);
+                    if (childContents.contains(target))
+                        builder.addAll(computeNondelimitingElements(target, contentModel.getParticleChild(i), state));
+                }
+                return builder.toQNameSet();
+
+            case SchemaParticle.SEQUENCE:
+                builder = new QNameSetBuilder();
+                boolean seenTarget = false;
+                for (int i = contentModel.countOfParticleChild(); i > 0; )
+                {
+                    i--;
+                    QNameSet childContents = computeAllContainedElements(contentModel.getParticleChild(i), state);
+                    if (seenTarget)
+                    {
+                        builder.addAll(childContents);
+                    }
+                    else if (childContents.contains(target))
+                    {
+                        builder.addAll(computeNondelimitingElements(target, contentModel.getParticleChild(i), state));
+                        seenTarget = true;
+                    }
+                }
+                return builder.toQNameSet();
+        }
+    }
+
+    /**
+     * Used to compute the setter model.
+     *
+     * Returns the set of all QNames of elements that could possibly be
+     * contained in the given contentModel. The state variable is used
+     * to record the results, so that if they are needed again later,
+     * they do not need to be recomputed.
+     */
+    private static QNameSet computeAllContainedElements(SchemaParticle contentModel, Map state)
+    {
+        // Remember previously computed results to avoid complexity explosion
+        QNameSet result = (QNameSet)state.get(contentModel);
+        if (result != null)
+            return result;
+
+        QNameSetBuilder builder;
+
+        switch (contentModel.getParticleType())
+        {
+            case SchemaParticle.ALL:
+            case SchemaParticle.CHOICE:
+            case SchemaParticle.SEQUENCE:
+            default:
+                builder = new QNameSetBuilder();
+                for (int i = 0; i < contentModel.countOfParticleChild(); i++)
+                {
+                    builder.addAll(computeAllContainedElements(contentModel.getParticleChild(i), state));
+                }
+                result = builder.toQNameSet();
+                break;
+
+            case SchemaParticle.WILDCARD:
+                result = contentModel.getWildcardSet();
+                break;
+
+            case SchemaParticle.ELEMENT:
+                result = QNameSet.singleton(contentModel.getName());
+                break;
+        }
+        state.put(contentModel, result);
+        return result;
+    }
+
     public Class getJavaClass()
     {
         // This field is declared volatile and Class is immutable so this is allowed.

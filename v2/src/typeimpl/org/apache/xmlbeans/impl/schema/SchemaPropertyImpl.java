@@ -116,10 +116,17 @@ public class SchemaPropertyImpl implements SchemaProperty
     }
 
     public QNameSet getJavaSetterDelimiter()
-        { return _javaSetterDelimiter == null ? QNameSet.EMPTY : _javaSetterDelimiter; }
+    {
+        if (_isAttribute)
+            return QNameSet.EMPTY;
+        if (_javaSetterDelimiter == null)
+            ((SchemaTypeImpl) getContainerType()).assignJavaElementSetterModel();
+        assert _javaSetterDelimiter != null;
+        return _javaSetterDelimiter;
+    }
 
-    public void setJavaSetterDelimiter(QNameSet set)
-        { mutate(); _javaSetterDelimiter = set; }
+    void setJavaSetterDelimiter(QNameSet set)
+        { _javaSetterDelimiter = set; }
 
     public QName[] acceptedNames()
     { 
