@@ -1799,7 +1799,8 @@ final class Cur
         // exactly be "correct" here.
 
         xTo.insertCharsHelper(
-            pTo, xFrom.getCharsHelper( pFrom, cch ), xFrom.offSrc(), xFrom.cchSrc(), false );
+            pTo, xFrom.getCharsHelper( pFrom, cch ),
+            xFrom._locale._offSrc, xFrom._locale._cchSrc, false );
         
         xFrom.removeCharsHelper( pFrom, cch, xTo, pTo, true, false );
     }
@@ -2284,11 +2285,6 @@ final class Cur
     String getCharsAsString ( int cch, int wsr )
     {
         return _xobj.getCharsAsString( _pos, cch, wsr );
-//        assert isNormal() && _xobj != null;
-//
-//        String s = _xobj.getString( _pos, cch );
-//
-//        return Locale.applyWhiteSpaceRule( s, wsr );
     }
 
     String getValueAsString ( int wsr )
@@ -2296,15 +2292,6 @@ final class Cur
         assert isNode();
 
         return _xobj.getValueAsString( wsr );
-//
-//        // TODO - make sure there are no children (ok for an element to have
-//        // attrs)
-//
-//        assert ! hasChildren();
-//
-//        String s = _xobj.getValueAsString();
-//        
-//        return Locale.applyWhiteSpaceRule( s, wsr );
     }
     
     String getValueAsString ( )
@@ -2328,8 +2315,8 @@ final class Cur
 
         Object src = _xobj.getFirstChars();
 
-        _offSrc = _xobj.offSrc();
-        _cchSrc = _xobj.cchSrc();
+        _offSrc = _locale._offSrc;
+        _cchSrc = _locale._cchSrc;
 
         return src;
     }
