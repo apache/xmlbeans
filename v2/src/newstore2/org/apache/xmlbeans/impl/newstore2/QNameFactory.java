@@ -31,4 +31,4 @@ public interface QNameFactory
         char[] uriSrc,    int uriPos,    int uriCch,
         char[] localSrc,  int localPos,  int localCch,
         char[] prefixSrc, int prefixPos, int prefixCch );
-}
+} 

@@ -287,4 +287,4 @@ public abstract class Path
     protected final String _pathKey;
     
     private static HashMap _xbeanPathCache = new HashMap();
-}
+} 

@@ -143,4 +143,4 @@ public interface Saaj
 
     DetailEntry detail_addDetailEntry   ( Detail detail, Name name );
     Iterator    detail_getDetailEntries ( Detail detail );
-}
+} 
