@@ -812,7 +812,7 @@ final class Cur
     CharNode getCharNodes ( )
     {
         assert isPositioned();
-        assert !_xobj.isRoot() || _pos > 0;
+        assert !isRoot();
         
         Xobj x = getDenormal();
         int  p = _posTemp;
