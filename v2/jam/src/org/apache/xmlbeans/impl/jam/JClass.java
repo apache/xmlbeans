@@ -342,26 +342,30 @@ public interface JClass extends JMember {
   public JClass forName(String name);
 
   /**
-   * Returns the minmal set of JPackages which contain all of the clases
-   * imported by this class.  This includes packages imported via the '*'
-   * import notation as well as the packages which contain explicitly
-   * imported classes.
+   * <p>Returns a list of classes that were explicitly imported by this
+   * class using an import statement.  It does not include any classes
+   * that might be imported via package imports (i.e. with the '*' wildcard),
+   * nor does it include any classes that are simply used via fully-qualified
+   * name in the body of this class.</p>
    *
-   * Note that this is an optional operation; if the source for the
-   * class is not available (i.e. this JClass is backed by a
-   * java.lang.Class), then this method will return an array of length
-   * 0.
-   */
-  public JPackage[] getImportedPackages();
-
-  /**
-   * Returns a list of classes that were explicitly imported by this
-   * class.  Note that this is an optional operation; if the source
-   * for the class is not available (i.e. this JClass is backed by a
-   * java.lang.Class), then this method will return an array of length
-   * 0.
+   * <p>Note that this is an optional operation; if the source for the class
+   * is not available (i.e. this JClass is backed by a java.lang.Class), then
+   * this method will return an array of length 0.</p>
    */
   public JClass[] getImportedClasses();
+
+  /**
+   * <p>Returns the set of JPackages which are imported by this class using
+   * a package import statement (i.e. with the '*' wildcard), as well as the
+   * containing packages of all of the JClasses returned by <code>
+   * getImportedClasses()</code>.</p>
+   *
+   * <p>Note that this is an optional operation; if the source for the
+   * class is not available (i.e. this JClass is backed by a
+   * java.lang.Class), then this method will return an array of length
+   * 0.</p>
+   */
+  public JPackage[] getImportedPackages();
 
   /**
    * Returns true if a backing entity for this class could not be

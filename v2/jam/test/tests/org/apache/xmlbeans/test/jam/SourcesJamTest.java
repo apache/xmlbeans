@@ -97,7 +97,7 @@ public class SourcesJamTest extends JamTestBase {
 
   protected boolean isAnnotationsAvailable() { return true; }
 
-  protected boolean isImportsAvailable() { return false; }
+  protected boolean isImportsAvailable() { return true; }
 
   //kind of a quick hack for now, should remove this and make sure that
   //even the classes case make the annotations available using a special

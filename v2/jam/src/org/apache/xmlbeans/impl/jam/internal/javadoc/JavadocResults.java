@@ -65,7 +65,7 @@ public class JavadocResults {
     try {
       Object holder = getHolder();
       Method getter = holder.getClass().getMethod("_getRoot",new Class[0]);
-      return (RootDoc)getter.invoke(holder,null);
+      return (RootDoc)getter.invoke(holder,(Object[])null);
     } catch(Exception e) {
       e.printStackTrace();
       throw new IllegalStateException();//FIXME??

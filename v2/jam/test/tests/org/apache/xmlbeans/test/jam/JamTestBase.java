@@ -97,7 +97,7 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
-  private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
+  private static final boolean CONTINUE_ON_COMPARE_FAIL = true;
   private static final boolean WRITE_RESULT_ON_FAIL = true;
 
   private static final String WRITE_RESULT_PREFIX = "result-";
@@ -559,14 +559,35 @@ public abstract class JamTestBase extends TestCase {
   }
 
 
-  public void testImports()
+  public void testClassImports()
   {
     if (!isImportsAvailable()) return;
     JClass clazz = resolved(mLoader.loadClass(DUMMY+".ImportsGalore"));
     JClass[] imports = clazz.getImportedClasses();
-    assertTrue("class has "+imports.length+" imports",
-               imports.length == 3);
+    final String[] IMPORTED_CLASSES = {
+      "org.apache.xmlbeans.impl.jam.JClass",
+      "javax.xml.stream.XMLStreamException",
+      "java.util.Properties"
+    };
+    assertElementsNamed(imports,IMPORTED_CLASSES);
   }
+
+
+  public void testPackageImports()
+  {
+    if (!isImportsAvailable()) return;
+    JClass clazz = resolved(mLoader.loadClass(DUMMY+".ImportsGalore"));
+    JPackage[] imports = clazz.getImportedPackages();
+    final String[] IMPORTED_PACKAGES = {
+      "java.lang",
+      "java.lang.reflect",
+      "java.util",
+      "javax.xml.stream",
+      "org.apache.xmlbeans.impl.jam"
+    };
+    assertElementsNamed(imports,IMPORTED_PACKAGES);
+  }
+
 
 
   public void testInterfaceIsAssignableFrom()
@@ -665,6 +686,17 @@ public abstract class JamTestBase extends TestCase {
 
   // ========================================================================
   // Private methods
+
+  private void assertElementsNamed(JElement[] elements, String[] qnames) {
+    assertTrue("array not of correct length ["+
+               elements.length+","+qnames.length+"]",
+               (elements.length == qnames.length));
+    for(int i=0; i<elements.length; i++) {
+      String qn = elements[i].getQualifiedName();
+      assertTrue("item "+i+" not correct ["+qn+","+qnames[i]+"]",
+                 qn.equals(qnames[i]));
+    }
+  }
 
   private void compare(String result, String masterFileName) {
     try {

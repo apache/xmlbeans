@@ -168,7 +168,7 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
       }
       try {
         if (isVerbose) mLogger.verbose("invoking "+methods[i].getName()+"()");
-        Object value = methods[i].invoke(src,null);
+        Object value = methods[i].invoke(src,(Object[])null);
         if (isVerbose) mLogger.verbose("value is "+value);
         if (value instanceof Annotation) {
           if (isVerbose) mLogger.verbose("it's nested!!  creating for "+
