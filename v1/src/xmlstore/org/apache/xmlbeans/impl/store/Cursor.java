@@ -2871,14 +2871,17 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void changeNotification ( )
     {
-        if (_data._selections != null)
+        if (!isDisposed())
         {
-            _data._selections.size();  // Force a full selection
-            _data._selections.cursify( getRoot() );
-        }
+            if (_data._selections != null)
+            {
+                _data._selections.size();  // Force a full selection
+                _data._selections.cursify( getRoot() );
+            }
 
-        if (_data._stack != null)
-            _data._stack.cursify( getRoot() );
+            if (_data._stack != null)
+                _data._stack.cursify( getRoot() );
+        }
     }
     
     public void selectPath ( String path, XmlOptions options )
