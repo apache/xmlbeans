@@ -276,8 +276,8 @@
             />
       <copy file="${xbeans.test.cases.test.files}/xbean/xmlcursor/xquery/xmlQuery.zip"
           todir="${build.dir.test.lib}"/>
-       <copy file="${xbeans.test.cases.test.files}/xbean/xmlcursor/xquery/useCases.zip"
-          todir="${build.dir.test.lib}"/>
+       <!--copy file="${xbeans.test.cases.test.files}/xbean/xmlcursor/xquery/useCases.zip"
+          todir="${build.dir.test.lib}"/-->
     </target>
 
     <target name="build.xsdcases" description="Builds xmlcases.jar">
@@ -485,10 +485,10 @@
 
                 <antcall target="build.schemas"/>
                 <antcall target="build.tests"/>
-
+		
             </else>
         </if>
-
+	<antcall target="build.xqcases"/>
     </target>
 
     <!-- Bea-xmlbeans has already been built and in the right location -->
