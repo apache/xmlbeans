@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam_old.JClass;
 
 public final class BindingTypeName {
 

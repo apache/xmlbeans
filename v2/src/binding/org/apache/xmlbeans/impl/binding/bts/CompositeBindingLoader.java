@@ -51,10 +51,12 @@ public class CompositeBindingLoader implements BindingLoader {
 
 
   public static BindingLoader forPath(BindingLoader[] path) {
+    if (path == null) throw new IllegalArgumentException("null path");
     return forPath(Arrays.asList(path));
   }
 
   public static BindingLoader forPath(Collection path) {
+    if (path == null) throw new IllegalArgumentException("null path");
     IdentityHashMap seen = new IdentityHashMap();
     List flattened = new ArrayList(path.size());
     for (Iterator i = path.iterator(); i.hasNext();) {
@@ -70,6 +72,7 @@ public class CompositeBindingLoader implements BindingLoader {
   // BindingLoader implementation
 
   public BindingType getBindingType(BindingTypeName btName) {
+    if (btName == null) throw new IllegalArgumentException("null btName");
     BindingType result = null;
     for (Iterator i = loaderPath.iterator(); i.hasNext();) {
       result = ((BindingLoader) i.next()).getBindingType(btName);
@@ -80,6 +83,7 @@ public class CompositeBindingLoader implements BindingLoader {
   }
 
   public BindingTypeName lookupPojoFor(XmlTypeName xName) {
+    if (xName == null) throw new IllegalArgumentException("null xName");
     BindingTypeName result = null;
     for (Iterator i = loaderPath.iterator(); i.hasNext();) {
       result = ((BindingLoader) i.next()).lookupPojoFor(xName);
@@ -90,6 +94,7 @@ public class CompositeBindingLoader implements BindingLoader {
   }
 
   public BindingTypeName lookupXmlObjectFor(XmlTypeName xName) {
+    if (xName == null) throw new IllegalArgumentException("null xName");
     BindingTypeName result = null;
     for (Iterator i = loaderPath.iterator(); i.hasNext();) {
       result = ((BindingLoader) i.next()).lookupXmlObjectFor(xName);
@@ -100,6 +105,7 @@ public class CompositeBindingLoader implements BindingLoader {
   }
 
   public BindingTypeName lookupTypeFor(JavaTypeName jName) {
+    if (jName == null) throw new IllegalArgumentException("null jName");
     BindingTypeName result = null;
     for (Iterator i = loaderPath.iterator(); i.hasNext();) {
       result = ((BindingLoader) i.next()).lookupTypeFor(jName);
@@ -110,6 +116,7 @@ public class CompositeBindingLoader implements BindingLoader {
   }
 
   public BindingTypeName lookupElementFor(JavaTypeName jName) {
+    if (jName == null) throw new IllegalArgumentException("null jName");
     BindingTypeName result = null;
     for (Iterator i = loaderPath.iterator(); i.hasNext();) {
       result = ((BindingLoader) i.next()).lookupElementFor(jName);
@@ -122,7 +129,9 @@ public class CompositeBindingLoader implements BindingLoader {
   // ========================================================================
   // Private methods
 
-  private static void addToPath(List path, IdentityHashMap seen, BindingLoader loader) {
+  private static void addToPath(List path,
+                                IdentityHashMap seen,
+                                BindingLoader loader) {
     if (seen.containsKey(loader)) return;
 
     if (loader instanceof CompositeBindingLoader) {
@@ -135,6 +144,7 @@ public class CompositeBindingLoader implements BindingLoader {
   }
 
   private CompositeBindingLoader(List path) {
+    if (path == null) throw new IllegalArgumentException("null path");
     loaderPath = Collections.unmodifiableList(path);
   }
 

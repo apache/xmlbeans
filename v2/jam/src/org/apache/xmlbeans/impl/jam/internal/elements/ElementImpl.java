@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.*;
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MElement;
 import org.apache.xmlbeans.impl.jam.mutable.MSourcePosition;
 
@@ -148,7 +148,7 @@ public abstract class ElementImpl implements MElement {
    * <p>Simple utility method used by subclasses to implement
    * acceptAndWalk.</p>
    */
-  protected static void acceptAndWalkAll(ElementVisitor v, JElement[] sub) {
+  protected static void acceptAndWalkAll(MElementVisitor v, JElement[] sub) {
     for(int i=0; i<sub.length; i++) sub[i].acceptAndWalk(v);
   }
 }

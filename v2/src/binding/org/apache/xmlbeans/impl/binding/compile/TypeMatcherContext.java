@@ -17,7 +17,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam_old.JClassLoader;
 import org.apache.xmlbeans.SchemaTypeSystem;
 
 /**

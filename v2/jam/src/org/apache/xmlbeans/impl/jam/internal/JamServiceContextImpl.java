@@ -63,8 +63,8 @@ public class JamServiceContextImpl implements JamServiceContext,
   private PrintWriter mOut = new PrintWriter(System.out);
   private boolean mUseSystemClasspath = true;
   private boolean mVerbose = false;
-  private ElementVisitor mCommentInitializer = null;
-  private ElementVisitor mPropertyInitializer = null;
+  private MElementVisitor mCommentInitializer = null;
+  private MElementVisitor mPropertyInitializer = null;
   private List mOtherInitializers = null;
 
   private JamClassLoader mLoader = null;
@@ -205,7 +205,7 @@ public class JamServiceContextImpl implements JamServiceContext,
   }
 
 
-  public ElementVisitor getInitializer() {
+  public MElementVisitor getInitializer() {
     List initers = new ArrayList();
     initers.add((mCommentInitializer != null) ? mCommentInitializer :
                 new CommentInitializer());
@@ -216,9 +216,9 @@ public class JamServiceContextImpl implements JamServiceContext,
 
     if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
     // now go
-    ElementVisitor[] inits = new ElementVisitor[initers.size()];
+    MElementVisitor[] inits = new MElementVisitor[initers.size()];
     initers.toArray(inits);
-    return new CompositeElementVisitor(inits);
+    return new CompositeMElementVisitor(inits);
   }
 
   // ========================================================================
@@ -227,17 +227,17 @@ public class JamServiceContextImpl implements JamServiceContext,
 
 
   //DOCME
-  public void setCommentInitializer(ElementVisitor initializer) {
+  public void setCommentInitializer(MElementVisitor initializer) {
     mCommentInitializer = initializer;
   }
 
   //DOCME
-  public void setPropertyInitializer(ElementVisitor initializer) {
+  public void setPropertyInitializer(MElementVisitor initializer) {
     mPropertyInitializer = initializer;
   }
 
   //DOCME
-  public void addInitializer(ElementVisitor initializer) {
+  public void addInitializer(MElementVisitor initializer) {
     if (mOtherInitializers == null) mOtherInitializers = new ArrayList();
     mOtherInitializers.add(initializer);
   }

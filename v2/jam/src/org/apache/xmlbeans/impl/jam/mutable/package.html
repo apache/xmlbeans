@@ -9,9 +9,9 @@
   <p>
     Typically, this is only used in conjunction with an 'initializer'
     ElementVisitor which is run on a JClass when it is first loaded.  The
-    initializer might use these editable 'E*' abstractions to, for example,
+    initializer might use these editable 'M*' abstractions to, for example,
     do some pre-processing on the comments or annotations, or to determine
-    which methods on a class should be exposed as JProperties.  The E*
+    which methods on a class should be exposed as JProperties.  The M*
     classes are also used by JAM providers in implementing the JamClassBuilder
     interface, which populates an EClass with methods, fields, and so on.
   </p>
@@ -22,4 +22,5 @@
     file.  This could be useful, for example, to drive a code-generation
     mechanism (Note that JAM does not provide a model for the contents of
     method bodies, so this may not be a useful approach).
+  </p>
 </body>

@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MComment;
 
 /**
@@ -44,9 +44,9 @@ public final class CommentImpl extends ElementImpl implements MComment {
   // ========================================================================
   // JElement implementation
 
-  public void accept(ElementVisitor visitor) { visitor.visit(this); }
+  public void accept(MElementVisitor visitor) { visitor.visit(this); }
 
-  public void acceptAndWalk(ElementVisitor visitor) { accept(visitor); }
+  public void acceptAndWalk(MElementVisitor visitor) { accept(visitor); }
 
   public String getQualifiedName() {
     return getParent().getQualifiedName()+".{comment}"; //REVIEW

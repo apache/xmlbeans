@@ -14,19 +14,19 @@
  */
 package org.apache.xmlbeans.impl.jam.visitor;
 
-import org.apache.xmlbeans.impl.jam.JProperty;
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JProperty;
+import org.apache.xmlbeans.impl.jam.internal.elements.PropertyImpl;
 import org.apache.xmlbeans.impl.jam.mutable.MClass;
 import org.apache.xmlbeans.impl.jam.mutable.MMethod;
-import org.apache.xmlbeans.impl.jam.internal.elements.PropertyImpl;
 
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class PropertyInitializer extends ElementVisitor {
+public class PropertyInitializer extends MElementVisitor {
 
   // ========================================================================
   // Element visitor implementation

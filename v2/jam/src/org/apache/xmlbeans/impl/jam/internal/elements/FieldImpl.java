@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MField;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.internal.classrefs.JClassRef;
@@ -105,11 +105,11 @@ public final class FieldImpl extends MemberImpl implements MField {
   // ========================================================================
   // JElement implementation
 
-  public void accept(ElementVisitor visitor) {
+  public void accept(MElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(ElementVisitor visitor) {
+  public void acceptAndWalk(MElementVisitor visitor) {
     accept(visitor);
     visitAnnotations(visitor);
   }

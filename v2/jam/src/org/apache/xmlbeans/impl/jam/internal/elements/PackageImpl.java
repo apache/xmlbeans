@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MPackage;
 
 import java.util.ArrayList;
@@ -53,11 +53,11 @@ public class PackageImpl extends AnnotatedElementImpl implements MPackage {
 
   public String getQualifiedName() { return mName; }
 
-  public void accept(ElementVisitor visitor) {
+  public void accept(MElementVisitor visitor) {
     visitor.visit(this);
   }
 
-  public void acceptAndWalk(ElementVisitor visitor) {
+  public void acceptAndWalk(MElementVisitor visitor) {
     accept(visitor);
     acceptAndWalkAll(visitor,getClasses());
   }

@@ -15,16 +15,36 @@
 package org.apache.xmlbeans.impl.jam.visitor;
 
 import org.apache.xmlbeans.impl.jam.JComment;
-import org.apache.xmlbeans.impl.jam.mutable.*;
+import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
+import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
+import org.apache.xmlbeans.impl.jam.mutable.MClass;
+import org.apache.xmlbeans.impl.jam.mutable.MComment;
+import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
+import org.apache.xmlbeans.impl.jam.mutable.MField;
+import org.apache.xmlbeans.impl.jam.mutable.MMethod;
+import org.apache.xmlbeans.impl.jam.mutable.MParameter;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
+ * <p>
+ *   Visitor which does the default comment processing and javadoc tag
+ *   parsing during JClass initialization.  If different behavior is
+ *   desired, an extension of this class can be specified on
+ *   <code>JamServiceParams.setCommentInitializer()</code>.</p.
+ * </p>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class CommentInitializer extends ElementVisitor {
+public class CommentInitializer extends MElementVisitor {
 
   // ========================================================================
   // Constructors - but maybe it should be a singleton?

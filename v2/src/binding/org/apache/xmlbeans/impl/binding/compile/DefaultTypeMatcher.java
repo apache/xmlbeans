@@ -15,8 +15,8 @@
 
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JProperty;
+import org.apache.xmlbeans.impl.jam_old.JClass;
+import org.apache.xmlbeans.impl.jam_old.JProperty;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaProperty;

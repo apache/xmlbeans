@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.JParameter;
 import org.apache.xmlbeans.impl.jam.mutable.MInvokable;
 import org.apache.xmlbeans.impl.jam.mutable.MParameter;
@@ -145,7 +145,7 @@ public abstract class InvokableImpl extends MemberImpl implements MInvokable {
   // ========================================================================
   // JElement implementation
 
-  public void acceptAndWalk(ElementVisitor visitor) {
+  public void acceptAndWalk(MElementVisitor visitor) {
     accept(visitor);
     acceptAndWalkAll(visitor,getEditableParameters());
     visitAnnotations(visitor);

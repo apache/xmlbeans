@@ -21,8 +21,8 @@ import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.JProperty;
+import org.apache.xmlbeans.impl.jam_old.JClass;
+import org.apache.xmlbeans.impl.jam_old.JProperty;
 
 import javax.xml.namespace.QName;
 import java.io.IOException;

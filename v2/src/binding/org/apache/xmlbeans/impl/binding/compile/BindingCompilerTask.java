@@ -20,9 +20,9 @@ import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
 import org.apache.xmlbeans.impl.binding.logger.MessageSink;
 import org.apache.xmlbeans.impl.binding.logger.SimpleMessageSink;
-import org.apache.xmlbeans.impl.jam.JFactory;
-import org.apache.xmlbeans.impl.jam.JFileSet;
-import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam_old.JFactory;
+import org.apache.xmlbeans.impl.jam_old.JFileSet;
+import org.apache.xmlbeans.impl.jam_old.JClass;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -160,7 +160,7 @@ public abstract class BindingCompilerTask extends MatchingTask {
     /*
     String classpathString = null;
     if (mClasspath != null) {
-      //this will be removed after jam factory is refactored
+      //this will be removed after jam_old factory is refactored
       fs.setClasspath(classpathString = mClasspath.toString());
     }
     */

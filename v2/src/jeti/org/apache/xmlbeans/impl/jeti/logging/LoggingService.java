@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jeti.logging;
 
-import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam_old.JElement;
 
 /**
  *

@@ -15,7 +15,7 @@
 
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
-import org.apache.xmlbeans.impl.jam.visitor.ElementVisitor;
+import org.apache.xmlbeans.impl.jam.visitor.MElementVisitor;
 import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
 
 /**
@@ -35,7 +35,7 @@ public final class ConstructorImpl extends InvokableImpl implements MConstructor
   // ========================================================================
   // JElement implementation
 
-  public void accept(ElementVisitor visitor) {
+  public void accept(MElementVisitor visitor) {
     visitor.visit(this);
   }
 
