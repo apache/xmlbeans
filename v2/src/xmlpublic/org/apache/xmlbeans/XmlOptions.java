@@ -734,8 +734,11 @@ public class XmlOptions implements java.io.Serializable
 
     /** Used to test a generic option */
     public boolean hasOption   ( Object option ) { return _map.containsKey( option ); }
+    public static boolean hasOption ( XmlOptions options, Object option ) { return options == null ? false : options.hasOption( option ); }
+    
     /** Used to get a generic option */
     public Object  get         ( Object option ) { return _map.get( option ); }
+    public void    remove      ( Object option ) { _map.remove( option ); }
 
     /** Used to test a generic option on an options object that may be null */
     public static Object safeGet(XmlOptions o, Object option) {

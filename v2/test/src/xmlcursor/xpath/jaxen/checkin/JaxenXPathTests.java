@@ -53,11 +53,11 @@ public class JaxenXPathTests extends TestCase {
     public void testConformance() throws Exception {
 // EricVas: I'm not implementing Jaxen in V2's newstore ... need to find a replacement for Jaxen
 // NEWSTORE START
-        XmlObject doc = null;
-
-        doc = XmlObject.Factory.parse(sXml);
-
-        runAll(doc, xpath);
+//        XmlObject doc = null;
+//
+//        doc = XmlObject.Factory.parse(sXml);
+//
+//        runAll(doc, xpath);
 // NEWSTORE END
     }
 

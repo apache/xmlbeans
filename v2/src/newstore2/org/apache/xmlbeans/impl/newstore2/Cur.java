@@ -2644,15 +2644,26 @@ final class Cur
         return isOnList( _locale._registered );
     }
 
+    static final String LOAD_USE_LOCALE_CHAR_UTIL = "LOAD_USE_LOCALE_CHAR_UTIL";
+
     static final class CurLoadContext extends LoadContext
     {
         CurLoadContext ( Locale l, XmlOptions options )
         {
-// TODO - use a thread local charUtil to load the xml -- don't use the
-// locales charUtil, let the Locales _charUtil be specific to it because
-// it is not thread safe to share a thread local charUtil between Locales
-            
             options = XmlOptions.maskNull( options );
+            
+            _locale = l;
+            
+            _charUtil =
+                options.hasOption( LOAD_USE_LOCALE_CHAR_UTIL )
+                    ? _locale.getCharUtil()
+                    : CharUtil.getThreadLocalCharUtil();
+
+            _frontier = createDomDocumentRootXobj( _locale );
+            _after = false;
+
+            _lastXobj = _frontier;
+            _lastPos  = 0;
 
             if (options.hasOption( XmlOptions.LOAD_REPLACE_DOCUMENT_ELEMENT ))
             {
@@ -2666,13 +2677,6 @@ final class Cur
             
             _substituteNamespaces = (Map) options.get( XmlOptions.LOAD_SUBSTITUTE_NAMESPACES );
             _additionalNamespaces = (Map) options.get( XmlOptions.LOAD_ADDITIONAL_NAMESPACES );
-
-            _locale = l;
-            _frontier = createDomDocumentRootXobj( l );
-            _after = false;
-
-            _lastXobj = _frontier;
-            _lastPos  = 0;
 
             _locale._versionAll++;
             _locale._versionSansText++;
@@ -2817,8 +2821,9 @@ final class Cur
         {
             if (!_stripComments)
             {
-                CharUtil cu = _locale._charUtil;
-                comment( cu.saveChars( chars, off, cch, null, 0, 0 ), cu._offSrc, cu._cchSrc );
+                comment(
+                    _charUtil.saveChars(
+                        chars, off, cch, null, 0, 0 ), _charUtil._offSrc, _charUtil._cchSrc );
             }
         }
 
@@ -2836,23 +2841,23 @@ final class Cur
 
         private void stripLeadingWhitespace ( )
         {
-            CharUtil cu = _locale._charUtil;
-            
             if (_after)
             {
                 _frontier._srcAfter =
-                    cu.stripRight( _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
+                    _charUtil.stripRight(
+                        _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
                 
-                _frontier._offAfter = cu._offSrc;
-                _frontier._cchAfter = cu._cchSrc;
+                _frontier._offAfter = _charUtil._offSrc;
+                _frontier._cchAfter = _charUtil._cchSrc;
             }
             else
             {
                 _frontier._srcValue =
-                    cu.stripRight( _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
+                    _charUtil.stripRight(
+                        _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
                 
-                _frontier._offValue = cu._offSrc;
-                _frontier._cchValue = cu._cchSrc;
+                _frontier._offValue = _charUtil._offSrc;
+                _frontier._cchValue = _charUtil._cchSrc;
             }
         }
         
@@ -2860,8 +2865,6 @@ final class Cur
         {
             if (cch <= 0)
                 return;
-
-            CharUtil cu = _locale._charUtil;
 
             _lastXobj = _frontier;
             _lastPos  = _frontier._cchValue + 1;
@@ -2871,23 +2874,23 @@ final class Cur
                 _lastPos += _frontier._cchAfter + 1;
                 
                 _frontier._srcAfter =
-                    cu.saveChars(
+                    _charUtil.saveChars(
                         src, off, cch,
                         _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
 
-                _frontier._offAfter = cu._offSrc;
-                _frontier._cchAfter = cu._cchSrc;
+                _frontier._offAfter = _charUtil._offSrc;
+                _frontier._cchAfter = _charUtil._cchSrc;
                 
             }
             else
             {
                 _frontier._srcValue =
-                    cu.saveChars(
+                    _charUtil.saveChars(
                         src, off, cch,
                         _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
 
-                _frontier._offValue = cu._offSrc;
-                _frontier._cchValue = cu._cchSrc;
+                _frontier._offValue = _charUtil._offSrc;
+                _frontier._cchValue = _charUtil._cchSrc;
             }
         }
         
@@ -2902,9 +2905,9 @@ final class Cur
             
             if (_stripWhitespace)
             {
-                srcObj = _locale._charUtil.stripLeft( srcObj, off, cch );
-                off = _locale._charUtil._offSrc;
-                cch = _locale._charUtil._cchSrc;
+                srcObj = _charUtil.stripLeft( srcObj, off, cch );
+                off = _charUtil._offSrc;
+                cch = _charUtil._cchSrc;
             }
             
             text( srcObj, off, cch );
@@ -2948,9 +2951,7 @@ final class Cur
 
             // See if the document element is a fragment
 
-            boolean isFrag =
-                c.getName().equals( Locale._openuriFragment ) ||
-                    c.getName().equals( Locale._xmlFragment );
+            boolean isFrag = Locale.isFragmentQName( c.getName() );
 
             if (_discardDocElem || isFrag)
             {
@@ -3036,20 +3037,22 @@ final class Cur
             _frontier.dump();
         }
         
-        private Locale  _locale;
-        private Xobj    _frontier;
-        private boolean _after;
-
-        private Xobj    _lastXobj;
-        private int     _lastPos;
+        private Locale   _locale;
+        private CharUtil _charUtil;
         
-        private boolean _discardDocElem;
-        private QName   _replaceDocElem;
-        private boolean _stripWhitespace;
-        private boolean _stripComments;
-        private boolean _stripProcinsts;
-        private Map     _substituteNamespaces;
-        private Map     _additionalNamespaces;
+        private Xobj     _frontier;
+        private boolean  _after;
+
+        private Xobj     _lastXobj;
+        private int      _lastPos;
+        
+        private boolean  _discardDocElem;
+        private QName    _replaceDocElem;
+        private boolean  _stripWhitespace;
+        private boolean  _stripComments;
+        private boolean  _stripProcinsts;
+        private Map      _substituteNamespaces;
+        private Map      _additionalNamespaces;
     }
 
     //

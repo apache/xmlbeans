@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.newstore2;
 
+import java.util.ArrayList;
+
 import java.io.PrintStream;
 
 import javax.xml.namespace.QName;
@@ -23,6 +25,8 @@ import javax.xml.stream.XMLStreamReader;
 
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
 
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.apache.xmlbeans.XmlCursor.ChangeStamp;
@@ -579,62 +583,185 @@ public final class Cursor implements XmlCursor, ChangeListener
         return (Node) _cur.getDom();
     }
     
-    public Node _newDomNode ( XmlOptions options )
+    private static final class DomSaver extends Saver
     {
-        boolean isFrag;
-
-        if (_cur.isRoot())
+        DomSaver ( Cur c, XmlOptions options )
         {
-            Cur cEnd = _cur.tempCur();
-            cEnd.toEnd();
+            super( c, options );
+            
+            if (c.isUserNode())
+                _type = c.getUser().get_schema_type();
 
-            _cur.nextWithAttrs();
-
-            isFrag = Locale.isFragment( _cur, cEnd );
-
-            cEnd.release();
-
-            _cur.toParent();
+            _stl = c._locale._schemaTypeLoader;
+            _options = options;
         }
-        else
-            isFrag = true;
 
-        Locale l = Locale.getLocale( _cur._locale._schemaTypeLoader, null );
-
-        l.enter();
-
-        try
+        Node saveDom ( )
         {
-            Cur c = l.tempCur();
+            Locale l = Locale.getLocale( _stl, _options );
 
-            if (isFrag)
-                c.createDomDocFragRoot();
+            l.enter();
+
+            try
+            {
+                _nodeCur = l.getCur();  // Not weak or temp
+
+                while ( process() )
+                    ;
+
+                while ( !_nodeCur.isRoot() )
+                    _nodeCur.toParent();
+
+                if (_type != null)
+                    _nodeCur.setType( _type );
+
+                Node node = (Node) _nodeCur.getDom();
+
+                _nodeCur.release();
+
+                _nodeCur = null;
+
+                return node;
+            }
+            finally
+            {
+                l.exit();
+            }
+        }
+        
+        protected boolean emitElement ( SaveCur c, ArrayList attrNames, ArrayList attrValues )
+        {
+            // If there was text or comments before the frag element, I will loose them -- oh well
+            // Also, I will lose any attributes and namesapces on the fragment -- DOM can
+            // have attrs in fragments
+            
+            if (Locale.isFragmentQName( c.getName() ))
+            {
+                _nodeCur.createDomDocFragRoot();
+                _nodeCur.next();
+            }
             else
-                c.createDomDocumentRoot();
+            {
+                ensureDoc();
 
+                _nodeCur.createElement( getQualifiedName( c, c.getName() ) );
+                _nodeCur.next();
+
+                for ( iterateMappings() ; hasMapping() ; nextMapping() )
+                {
+                    _nodeCur.createAttr( _nodeCur._locale.createXmlns( mappingPrefix() ) );
+                    _nodeCur.next();
+                    _nodeCur.insertString( mappingUri() );
+                    _nodeCur.toParent();
+                    _nodeCur.skipWithAttrs();
+                }
+                
+                for ( int i = 0 ; i < attrNames.size() ; i ++ )
+                {
+                    _nodeCur.createAttr( getQualifiedName( c, (QName) attrNames.get( i ) ) );
+                    _nodeCur.next();
+                    _nodeCur.insertString( (String) attrValues.get( i ) );
+                    _nodeCur.toParent();
+                    _nodeCur.skipWithAttrs();
+                }
+            }
+            
+            return false;
+        }
+        
+        protected void emitFinish ( SaveCur c )
+        {
+            if (!Locale.isFragmentQName( c.getName() ))
+            {
+                assert _nodeCur.isEnd();
+                _nodeCur.next();
+            }
+        }
+        
+        protected void emitText ( SaveCur c )
+        {
+            ensureDoc();
+
+            Object src = c.getChars();
+
+            if (c._cchSrc > 0)
+            {
+                _nodeCur.insertChars( src, c._offSrc, c._cchSrc );
+                _nodeCur.next();
+            }
+        }
+        
+        protected void emitComment ( SaveCur c )
+        {
+            ensureDoc();
+
+            _nodeCur.createComment();
+            emitTextValue( c );
+            _nodeCur.skip();
+        }
+        
+        protected void emitProcinst ( SaveCur c )
+        {
+            ensureDoc();
+
+            _nodeCur.createProcinst( c.getName().getLocalPart() );
+            emitTextValue( c );
+            _nodeCur.skip();
+        }
+
+        private QName getQualifiedName ( SaveCur c, QName name )
+        {
+            String uri = name.getNamespaceURI();
+            
+            String prefix = uri.length() > 0 ? getUriMapping( uri ) : "";
+
+            if (prefix.equals( name.getPrefix() ))
+                return name;
+
+            return _nodeCur._locale.makeQName( uri, name.getLocalPart(), prefix );
+        }
+
+        private void emitTextValue ( SaveCur c )
+        {
+            c.push();
             c.next();
 
-            if (_cur.isText())
-                c.insertChars( _cur.getChars( -1 ), _cur._offSrc, _cur._cchSrc );
-            else if (_cur.isRoot())
-                Cur.moveNodeContents( _cur._xobj.copyNode( l ), c, true );
-            else if (_cur.kind() > 0)
-                _cur.copyNode( c );
+            if (c.isText())
+            {
+                _nodeCur.next();
+                _nodeCur.insertChars( c.getChars(), c._offSrc, c._cchSrc );
+                _nodeCur.toParent();
+            }
 
-            c.toParent();
-
-            assert c.isRoot();
-
-            Node n = (Node) c.getDom();
-
-            c.release();
-
-            return n;
+            c.pop();
         }
-        finally
+        
+        private void ensureDoc ( )
         {
-            l.exit();
+            if (!_nodeCur.isPositioned())
+            {
+                _nodeCur.createDomDocumentRoot();
+                _nodeCur.next();
+            }
         }
+
+        private Cur              _nodeCur;
+        private SchemaType       _type;
+        private SchemaTypeLoader _stl;
+        private XmlOptions       _options;
+    }
+    
+    public Node _newDomNode ( XmlOptions options )
+    {
+        // Must ignore inner options for compat with v1.
+        
+        if (XmlOptions.hasOption( options, XmlOptions.SAVE_INNER ))
+        {
+            options = new XmlOptions( options );
+            options.remove( XmlOptions.SAVE_INNER );
+        }
+
+        return new DomSaver( _cur, options ).saveDom();
     }
     
     public boolean _toCursor ( Cursor other )
@@ -686,6 +813,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public boolean _hasNextSelection ( )
     {
+        int curr = _currentSelection;
         push();
 
         try
@@ -694,6 +822,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         }
         finally
         {
+            _currentSelection = curr;
             pop();
         }
     }
@@ -726,6 +855,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public int _getSelectionCount ( )
     {
+        // Should never get to MAX_VALUE selection index, so, state should not change
         _toSelection( Integer.MAX_VALUE );
         
         return _cur.selectionCount();
@@ -1023,7 +1153,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void _setTextValue ( char[] sourceChars, int offset, int length )
     {
-        CharUtil cu = _cur._locale._charUtil;
+        CharUtil cu = _cur._locale.getCharUtil();
         
         setTextValue(
             cu.saveChars( sourceChars, offset, length, null, 0, 0 ), cu._offSrc, cu._cchSrc );

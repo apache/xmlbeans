@@ -863,7 +863,7 @@ abstract class Xobj implements TypeStore
         // Now, remove the actual chars
 
         int pa = posAfter();
-        CharUtil cu = _locale._charUtil;
+        CharUtil cu = _locale.getCharUtil();
         
         if (p < pa)
         {
@@ -920,7 +920,7 @@ abstract class Xobj implements TypeStore
         // I do not assume that inserting after text will have a parent.  There are use cases
         // from moveNodesContents which excersize this.
 
-        CharUtil cu = _locale._charUtil;
+        CharUtil cu = _locale.getCharUtil();
 
         if (p < pa)
         {
@@ -1113,8 +1113,10 @@ abstract class Xobj implements TypeStore
 
         if (lastAttr == null || lastAttr._cchAfter <= 0)
         {
-            _locale._charUtil._offSrc = 0;
-            _locale._charUtil._cchSrc = 0;
+            CharUtil cu = _locale.getCharUtil();
+            
+            cu._offSrc = 0;
+            cu._cchSrc = 0;
             
             return null;
         }
@@ -1134,8 +1136,8 @@ abstract class Xobj implements TypeStore
 
     // These return the remainder of the char triple that getChars starts
     
-    final int offSrc ( ) { return _locale._charUtil._offSrc; }
-    final int cchSrc ( ) { return _locale._charUtil._cchSrc; }
+    final int offSrc ( ) { return _locale.getCharUtil()._offSrc; }
+    final int cchSrc ( ) { return _locale.getCharUtil()._cchSrc; }
 
     Object getChars ( int pos, int cch )
     {
@@ -1148,8 +1150,10 @@ abstract class Xobj implements TypeStore
 
         if (cch == 0)
         {
-            _locale._charUtil._offSrc = 0;
-            _locale._charUtil._cchSrc = 0;
+            CharUtil cu = _locale.getCharUtil();
+            
+            cu._offSrc = 0;
+            cu._cchSrc = 0;
 
             return null;
         }
@@ -1170,15 +1174,15 @@ abstract class Xobj implements TypeStore
         if (pos >= pa)
         {
             src = _srcAfter;
-            _locale._charUtil._offSrc = _offAfter + pos - pa;
+            _locale.getCharUtil()._offSrc = _offAfter + pos - pa;
         }
         else
         {
             src = _srcValue;
-            _locale._charUtil._offSrc = _offValue + pos - 1;
+            _locale.getCharUtil()._offSrc = _offValue + pos - 1;
         }
 
-        _locale._charUtil._cchSrc = cch;
+        _locale.getCharUtil()._cchSrc = cch;
 
         return src;
     }
@@ -1694,7 +1698,7 @@ abstract class Xobj implements TypeStore
             _locale.exit();
         }
 
-        return _user;
+        return getUser();
     }
 
     public QName get_xsi_type ( )

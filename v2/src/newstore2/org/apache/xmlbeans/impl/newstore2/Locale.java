@@ -147,8 +147,6 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         // Lazy create this (loading up a locale should use the thread locale one)
         // same goes for the qname factory .. use thread local for hte most part when loading
         
-        _charUtil = new CharUtil( 1024 );
-        
         _qnameFactory = new DefaultQNameFactory();
         
         _locations = new Locations( this );
@@ -487,11 +485,20 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         }
     }
 
+    static boolean isFragmentQName ( QName name )
+    {
+        return name.equals( Locale._openuriFragment ) || name.equals( Locale._xmlFragment );
+    }
+
     static boolean isFragment ( Cur start, Cur end )
     {
         assert !end.isAttr();
 
+        start.push();
+        end.push();
+
         int numDocElems = 0;
+        boolean isFrag = false;
         
         while ( ! start.isSamePos( end ) )
         {
@@ -501,10 +508,16 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
                 break;
             
             if (k == TEXT && !isWhiteSpace( start.getCharsAsString( -1 )))
-                return true;
+            {
+                isFrag = true;
+                break;
+            }
 
             if (k == ELEM && ++numDocElems > 1)
-                return true;
+            {
+                isFrag = true;
+                break;
+            }
 
             // Move to next token
 
@@ -516,9 +529,10 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             start.next();
         }
 
-        assert numDocElems == 0 || numDocElems == 1;
+        start.pop();
+        end.pop();
 
-        return numDocElems != 1;
+        return isFrag || numDocElems != 1;
     }
     //
     //
@@ -1012,7 +1026,14 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
             _options = options;
             _type = type;
 
-            initSaxHandler( l, options );
+            // Because SAX loading is not atomic with respect to XmlBeans, I can't use the default
+            // thread local CharUtil.  Instruct the SaxHandler (and the LoadContext, eventually)
+            // to use the Locale specific CharUtil.
+
+            XmlOptions saxHandlerOptions = new XmlOptions( options );
+            saxHandlerOptions.put( Cur.LOAD_USE_LOCALE_CHAR_UTIL );
+
+            initSaxHandler( l, saxHandlerOptions );
         }
 
         public ContentHandler getContentHandler ( )
@@ -1932,6 +1953,14 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
     // 
     //
 
+    CharUtil getCharUtil ( )
+    {
+        if (_charUtil == null)
+            _charUtil = new CharUtil( 1024 );
+
+        return _charUtil;
+    }
+
     long version ( )
     {
         return _versionAll;
@@ -2796,7 +2825,7 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
     Locations _locations;
     
-    CharUtil _charUtil;
+    private CharUtil _charUtil;
     
     Saaj _saaj;
     
