@@ -257,7 +257,7 @@ public class StscImporter
     }
 
     //workaround for Sun bug # 4723726
-    private static URI resolve(URI base, String child)
+    public static URI resolve(URI base, String child)
         throws URISyntaxException
     {
         URI childUri = new URI(child);
@@ -268,11 +268,26 @@ public class StscImporter
         // URI is pointing at something nested inside a jar, we seem to have
         // to this ourselves to make sure that the nested jar url gets
         // resolved correctly
-        if (childUri.equals(ruri) &&
+        if (childUri.equals(ruri) && !childUri.isAbsolute() &&
           (base.getScheme().equals("jar") || base.getScheme().equals("zip"))) {
             String r = base.toString();
             int lastslash = r.lastIndexOf('/');
             r = r.substring(0,lastslash) + "/" + childUri;
+            // Sun's implementation of URI doesn't support references to the
+            // parent directory ("/..") in the part after "!/" so we have to
+            // remove these ourselves
+            int slashDotDotIndex = r.lastIndexOf("/..");
+            int exclPointSlashIndex = r.lastIndexOf("!/");
+            while (slashDotDotIndex >= 0 && slashDotDotIndex > exclPointSlashIndex)
+            {
+                int prevSlashIndex = r.lastIndexOf("/", slashDotDotIndex - 1);
+                if (prevSlashIndex >= exclPointSlashIndex)
+                {
+                    String temp = r.substring(slashDotDotIndex + 3);
+                    r = r.substring(0, prevSlashIndex).concat(temp);
+                }
+                slashDotDotIndex = r.lastIndexOf("/..");
+            }
             return URI.create(r);
         }
 

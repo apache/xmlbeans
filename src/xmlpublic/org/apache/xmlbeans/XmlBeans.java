@@ -530,7 +530,7 @@ public final class XmlBeans
      */
     public static SchemaTypeSystem compileXsd(XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
     {
-        return compileXmlBeans(null, null, schemas, null, typepath!=null ? typepath : getContextTypeLoader(), null, options);
+        return compileXmlBeans(null, null, schemas, null, typepath, null, options);
     }
 
     /**
@@ -578,7 +578,7 @@ public final class XmlBeans
      */
     public static SchemaTypeSystem compileXsd(SchemaTypeSystem system, XmlObject[] schemas, SchemaTypeLoader typepath, XmlOptions options) throws XmlException
     {
-        return compileXmlBeans(null, system, schemas, null, typepath != null ? typepath : getContextTypeLoader(), null, options);
+        return compileXmlBeans(null, system, schemas, null, typepath, null, options);
     }
 
     /**
@@ -611,7 +611,8 @@ public final class XmlBeans
      *
      * <p>The optional SchemaTypeLoader argument will be
      * consulted for already-compiled schema types which may be linked
-     * while processing the given schemas.</p>
+     * while processing the given schemas. If not specified, the context
+     * typeloader (as returned by {@link #getContextTypeLoader}) will be used.</p>
      *
      * <p>The optional {@link Filer} argument is used to create new binary or source
      * files which are the product of the compilation.  If the Filer is null, the
@@ -646,7 +647,7 @@ public final class XmlBeans
 
         try
         {
-            return (SchemaTypeSystem)_compilationMethod.invoke(null, new Object[] { name, system, schemas, config, typepath, filer, options });
+            return (SchemaTypeSystem)_compilationMethod.invoke(null, new Object[] { name, system, schemas, config, typepath != null ? typepath : getContextTypeLoader(), filer, options });
         }
         catch (IllegalAccessException e)
         {
