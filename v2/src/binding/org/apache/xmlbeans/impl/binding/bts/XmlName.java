@@ -6,6 +6,10 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.common.XMLChar;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.soap.SOAPArrayType;
 
 import javax.xml.namespace.QName;
 
@@ -20,7 +24,7 @@ import javax.xml.namespace.QName;
  * 
  * a-name1|t|e=name2|p.3|s|p.5|c|p.0|t|e=name3@my-namespace
  * 
- * This reads as:
+ * This reads as:g
  * The attribute declaration called "name1" (unqualified) inside
  * the anonymous type of
  * the element declaration called "name2" (qualified) which is
@@ -77,7 +81,7 @@ import javax.xml.namespace.QName;
  * Notice SOAP arrays are included in the naming schema, as follows:
  * 
  * A soap array type written like this:
- *     x:drg[,,,][,][,,,]
+ *     x:drg[,,,][,][,,]
  * 
  * Has the following signature:
  *     y.3|y.2|y.4|t=drg@foobar
@@ -87,23 +91,24 @@ public class XmlName
     private String namespace;
     private String path;
     
-    public static final int NOTATION = 'n';
-    public static final int ELEMENT = 'e';
-    public static final int ID_CONSTRAINT = 'k';
-    public static final int MODEL_GROUP = 'g';
-    public static final int ALL = 'l';
-    public static final int SEQUENCE = 's';
-    public static final int CHOICE = 'c';
-    public static final int PARTICLE = 'p';
-    public static final int WILDCARD = 'w';
-    public static final int ATTRIBUTE_USE = 'v';
-    public static final int ATTRIBUTE = 'a';
-    public static final int ATTRIBUTE_GROUP = 'r';
-    public static final int TYPE = 't';
-    public static final int DOCUMENT_TYPE = 'd';
-    public static final int ATTRIBUTE_TYPE = 'b';
-    public static final int MEMBER = 'm';
-    public static final int SOAP_ARRAY = 'y';
+    public static final char NOTATION = 'n';
+    public static final char ELEMENT = 'e';
+    public static final char ID_CONSTRAINT = 'k';
+    public static final char MODEL_GROUP = 'g';
+    public static final char ALL = 'l';
+    public static final char SEQUENCE = 's';
+    public static final char CHOICE = 'c';
+    public static final char PARTICLE = 'p';
+    public static final char WILDCARD = 'w';
+    public static final char ATTRIBUTE_USE = 'v';
+    public static final char ATTRIBUTE = 'a';
+    public static final char ATTRIBUTE_GROUP = 'r';
+    public static final char TYPE = 't';
+    public static final char DOCUMENT_TYPE = 'd';
+    public static final char ATTRIBUTE_TYPE = 'b';
+    public static final char MEMBER = 'm';
+    public static final char SOAP_ARRAY = 'y';
+    public static final char NO_TYPE = 'z';
     
     /**
      * This function is used to see if a path is valid or not.
@@ -118,7 +123,7 @@ public class XmlName
         boolean hasName = (localName != null);
         boolean isAnonymous = internalIsAnonymous();
         boolean isQualified = internalIsQualified();
-        boolean isGlobal = !isNestedComponent();
+        boolean isGlobal = isGlobal();
     
         if (!isGlobal)
         {
@@ -135,50 +140,69 @@ public class XmlName
         {
             case NOTATION:
                 result = (isGlobal && hasName && isQualified);
+                break;
                 
             case ELEMENT:
                 result = (hasName && (isGlobal && isQualified || outerType == TYPE || outerType == PARTICLE));
+                break;
                 
             case ID_CONSTRAINT:
                 result = (hasName && outerType == ELEMENT);
+                break;
                 
             case MODEL_GROUP:
                 result = (hasName && isGlobal);
+                break;
                 
             case ALL:
             case SEQUENCE:
             case CHOICE:
                 result = (isAnonymous && (outerType == PARTICLE || outerType == MODEL_GROUP));
+                break;
                 
             case PARTICLE:
                 result = (hasNumber && (outerType == SEQUENCE || outerType == CHOICE || outerType == ALL || outerType == TYPE));
+                break;
                 
             case WILDCARD:
                 result = (isAnonymous && (outerType == PARTICLE || outerType == TYPE || outerType == ATTRIBUTE_GROUP));
+                break;
                 
             case ATTRIBUTE_USE:
                 result = (hasName && (outerType == TYPE || outerType == ATTRIBUTE_GROUP));
+                break;
                 
             case ATTRIBUTE:
                 result = (hasName && (isGlobal && isQualified || outerType == TYPE || outerType == ATTRIBUTE_USE));
+                break;
                 
             case ATTRIBUTE_GROUP:
                 result = (hasName && isQualified && isGlobal);
+                break;
                 
             case TYPE:
                 result = ((hasName && isQualified && isGlobal) || (isAnonymous && outerType == TYPE || outerType == ELEMENT || outerType == ATTRIBUTE || outerType == MEMBER));
+                break;
                 
             case DOCUMENT_TYPE:
                 result = (hasName && isQualified && isGlobal);
+                break;
                 
             case ATTRIBUTE_TYPE:
                 result = (hasName && isQualified && isGlobal);
+                break;
                 
             case MEMBER:
                 result = (isAnonymous && outerType == TYPE);
+                break;
                 
             case SOAP_ARRAY:
-                result = (hasNumber && (outerType == SOAP_ARRAY || outerType == TYPE && !outerComponent.isNestedComponent()));
+                result = (hasNumber && (outerType == SOAP_ARRAY || outerType == TYPE && outerComponent.isGlobal()));
+                break;
+                
+            case NO_TYPE:
+                result = (isAnonymous && isGlobal && namespace.length() == 0);
+                break;
                 
             default:
                 result = false;
@@ -220,25 +244,174 @@ public class XmlName
      */ 
     public static XmlName forTypeNamed(QName name)
     {
-        return forPathAndNamespace("t=" + name.getLocalPart(), name.getNamespaceURI());
+        return forPathAndNamespace(TYPE + "=" + name.getLocalPart(), name.getNamespaceURI());
     }
     
     /**
      * Creates an XMLName for a global schema element with the given fully-qualified QName.
      */ 
-    public static XmlName forElementNamed(QName name)
+    public static XmlName forGlobalName(char kind, QName name)
     {
-        return forPathAndNamespace("e=" + name.getLocalPart(), name.getNamespaceURI());
+        return forPathAndNamespace(kind + "=" + name.getLocalPart(), name.getNamespaceURI());
     }
     
     /**
-     * Creates an XMLName for a global schema attribute with the given fully-qualified QName.
-     */ 
-    public static XmlName forAttributeNamed(QName name)
+     * Creates an XMLName for a nested component
+     */
+    public static XmlName forNestedName(char kind, String localName, boolean qualified, XmlName outer)
     {
-        return forPathAndNamespace("a=" + name.getLocalPart(), name.getNamespaceURI());
+        return forPathAndNamespace(kind + (qualified ? "=" : "-") + localName + "|" + outer.path, outer.namespace);
+    }
+    
+    /**
+     * Creates an XMLName for a nested component
+     */
+    public static XmlName forNestedNumber(char kind, int n, XmlName outer)
+    {
+        return forPathAndNamespace(kind + "." + n + "|" + outer.path, outer.namespace);
     }
 
+    /**
+     * Creates an XMLName for a nested component
+     */
+    public static XmlName forNestedAnonymous(char kind, XmlName outer)
+    {
+        return forPathAndNamespace(kind + "|" + outer.path, outer.namespace);
+    }
+
+    /**
+     * Creates an XMLName for a particular schema type
+     */
+    public static XmlName forSchemaType(SchemaType sType)
+    {
+        if (sType.getName() != null)
+            return forTypeNamed(sType.getName());
+
+        if (sType.isDocumentType())
+            return forGlobalName(DOCUMENT_TYPE, sType.getDocumentElementName());
+
+        if (sType.isAttributeType())
+            return forGlobalName(ATTRIBUTE_TYPE, sType.getAttributeTypeAttributeName());
+
+        if (sType.isNoType() || sType.getOuterType() == null) // latter is an error
+            return forPathAndNamespace("" + NO_TYPE, "");
+        
+        SchemaType outerType = sType.getOuterType();
+        XmlName outerName = forSchemaType(outerType);
+        
+        if (sType.getContainerField() != null)
+        {
+            boolean qualified = sType.getContainerField().getName().getNamespaceURI().length() > 0;
+            String localName = sType.getContainerField().getName().getLocalPart();
+            char kind = (sType.getContainerField().isAttribute() ? ATTRIBUTE : ELEMENT);
+            return forNestedAnonymous(TYPE, forNestedName(kind, localName, qualified, outerName));
+        }
+        
+        if (outerType.getSimpleVariety() == SchemaType.UNION)
+            return forNestedAnonymous(TYPE, forNestedNumber(MEMBER, sType.getAnonymousUnionMemberOrdinal(), outerName));
+        
+        return forNestedAnonymous(TYPE, outerName);
+    }
+    
+    /**
+     * Creates one for a SOAPArrayType
+     */
+    public static XmlName forSoapArrayType(SOAPArrayType sType)
+    {
+        StringBuffer sb = new StringBuffer();
+        sb.append(SOAP_ARRAY + "." + sType.getDimensions().length);
+        int[] ranks = sType.getRanks();
+        for (int i = ranks.length - 1; i >= 0; i-= 1)
+        {
+            sb.append("|" + SOAP_ARRAY + "." + ranks[i]);
+        }
+        QName name = sType.getQName();
+        sb.append("|" + TYPE + "=" + name.getLocalPart());
+        return forPathAndNamespace(sb.toString(), name.getNamespaceURI());
+    }
+    
+    /**
+     * True if it is a schema type
+     */
+    public boolean isSchemaType()
+    {
+        switch (getComponentType())
+        {
+            case TYPE:
+            case DOCUMENT_TYPE:
+            case ATTRIBUTE_TYPE:
+            case NO_TYPE:
+                return true;
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Finds a type with the given name.
+     */
+    public SchemaType findTypeIn(SchemaTypeLoader loader)
+    {
+        switch (getComponentType())
+        {
+            case NO_TYPE:
+                return XmlBeans.NO_TYPE;
+            case DOCUMENT_TYPE:
+                return loader.findDocumentType(getQName());
+            case ATTRIBUTE_TYPE:
+                return loader.findAttributeType(getQName());
+            default:
+                return null;
+            case TYPE:
+                break;
+        }
+        
+        if (isGlobal())
+            return loader.findType(getQName());
+
+        XmlName outerName = getOuterComponent();
+        
+        // if the component is contained within a type, get it
+        for (XmlName outerTypeName = outerName; ; outerTypeName = outerTypeName.getOuterComponent())
+        {
+            if (outerTypeName.isSchemaType())
+            {
+                SchemaType outerType = outerTypeName.findTypeIn(loader);
+                switch (outerName.getComponentType())
+                {
+                    default:
+                        throw new IllegalStateException("Illegal type name " + this);
+                
+                    case TYPE:
+                        return outerType.getAnonymousTypes()[0];
+                
+                    case ELEMENT:
+                        return outerType.getElementType(outerName.getQName(), null, loader);
+                        
+                    case ATTRIBUTE:
+                        return outerType.getAttributeType(outerName.getQName(), loader);
+                
+                    case MEMBER:
+                        return outerType.getAnonymousTypes()[outerName.getNumber()];
+                }
+            }
+            if (outerTypeName.isGlobal())
+            {
+                switch (outerName.getComponentType())
+                {
+                    default:
+                        throw new IllegalStateException("Illegal type name " + this);
+                
+                    case ELEMENT:
+                        return loader.findDocumentType(outerTypeName.getQName()).getElementType(outerTypeName.getQName(), null, loader);
+                        
+                    case ATTRIBUTE:
+                        return loader.findAttributeType(outerTypeName.getQName()).getAttributeType(outerTypeName.getQName(), loader);
+                }
+            }
+        }
+    }
+    
     private static XmlName forPathAndNamespace(String path, String namespace)
     {
         return new XmlName(path, namespace);
@@ -253,13 +426,13 @@ public class XmlName
         this.namespace = namespace;
     }
     
-    boolean isNestedComponent()
+    public boolean isGlobal()
     {
         int index = path.indexOf('|');
-        return index >= 0;
+        return index < 0;
     }
     
-    XmlName getOuterComponent()
+    public XmlName getOuterComponent()
     {
         int index = path.indexOf('|');
         if (index < 0)

@@ -818,16 +818,16 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         }
         else
         {
-            if (!_typedWildcardElements.contains(eltName))
+            if (!_typedWildcardElements.contains(eltName) || wildcardTypeLoader == null)
                 return BuiltinSchemaTypeSystem.ST_NO_TYPE;
 
             SchemaGlobalElement elt = wildcardTypeLoader.findElement(eltName);
             if (elt == null)
-                return BuiltinSchemaTypeSystem.ST_ANY_TYPE;
+                return BuiltinSchemaTypeSystem.ST_NO_TYPE;
             type = elt.getType();
         }
 
-        if (xsiType != null)
+        if (xsiType != null && wildcardTypeLoader != null)
         {
             SchemaType itype = wildcardTypeLoader.findType(xsiType);
             if (itype == null)
@@ -853,12 +853,12 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         if (prop != null)
             return prop.getType();
 
-        if (!_typedWildcardAttributes.contains(attrName))
+        if (!_typedWildcardAttributes.contains(attrName) || wildcardTypeLoader == null)
             return BuiltinSchemaTypeSystem.ST_NO_TYPE;
 
         SchemaGlobalAttribute attr = wildcardTypeLoader.findAttribute(attrName);
         if (attr == null)
-            return BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
+            return BuiltinSchemaTypeSystem.ST_NO_TYPE;
         return attr.getType();
     }
 
@@ -888,7 +888,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                 if (elt != null)
                     type = elt.getType();
                 else
-                    type = BuiltinSchemaTypeSystem.ST_ANY_TYPE;
+                    type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
             }
 
             if (xsiType != null)
@@ -935,7 +935,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
                 if (attr != null)
                     type = (SchemaTypeImpl)attr.getType();
                 else
-                    type = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
+                    type = BuiltinSchemaTypeSystem.ST_NO_TYPE;
             }
         }
 

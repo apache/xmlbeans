@@ -221,10 +221,24 @@ public class BindingFile extends BaseBindingLoader
         }
     }
 
-  public Collection getBindingTypes()
-  {
-    return Collections.unmodifiableCollection(bindingTypes.values());
-  }
+    public Collection getMappedJavaNames()
+    {
+        return Collections.unmodifiableCollection(this.xmlFromJava.keySet());
+    }
 
+    public Collection getPojoMappedXmlNames()
+    {
+        return Collections.unmodifiableCollection(this.javaFromXmlPojo.keySet());
+    }
+
+    public Collection getXmlObjectMappedXmlNames()
+    {
+        return Collections.unmodifiableCollection(this.javaFromXmlObj.keySet());
+    }
+    
+    public Collection getBindingTypes()
+    {
+        return Collections.unmodifiableCollection(bindingTypes.values());
+    }
 
 }

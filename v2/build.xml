@@ -764,6 +764,7 @@
 
   <path id="bootstrap.compile.path">
     <pathelement location="build/classes/xmlpublic"/>
+    <pathelement location="build/lib/jsr173_07_api.jar"/>
   </path>
 
   <property name="bootstrap.compile.path" refid="bootstrap.compile.path"/>
