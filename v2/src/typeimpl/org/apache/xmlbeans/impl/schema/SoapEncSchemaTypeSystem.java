@@ -70,11 +70,14 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
     private SchemaGlobalAttributeImpl arrayType;
     private Map _handlesToObjects = new HashMap();
     private String soapArrayHandle;
+    private SchemaContainer _container = new SchemaContainer(SOAPENC);
 
     private SoapEncSchemaTypeSystem()
     {
         // soapenc:Array
-        soapArray = new SchemaTypeImpl(this, true);
+        _container.setTypeSystem(this);
+        soapArray = new SchemaTypeImpl(_container, true);
+        _container.addGlobalType(soapArray.getRef());
         soapArray.setName(new QName(SOAPENC, SOAP_ARRAY));
         soapArrayHandle = SOAP_ARRAY.toLowerCase() + "type";
         soapArray.setComplexTypeVariety(SchemaType.ELEMENT_CONTENT);
@@ -123,11 +126,13 @@ public class SoapEncSchemaTypeSystem extends SchemaTypeLoaderBase
         soapArray.setContentModel(contentModel, attrModel, Collections.EMPTY_MAP, Collections.EMPTY_MAP, false);
 
         // soapenc:arrayType
-        arrayType = new SchemaGlobalAttributeImpl(this);
+        arrayType = new SchemaGlobalAttributeImpl(_container);
+        _container.addGlobalAttribute(arrayType.getRef());
         arrayType.init(new QName(SOAPENC, ARRAY_TYPE), BuiltinSchemaTypeSystem.ST_STRING.getRef(),
             SchemaLocalAttributeImpl.OPTIONAL, null, null, null, false, null, null, null);
         _handlesToObjects.put(soapArrayHandle, soapArray);
         _handlesToObjects.put(ARRAY_TYPE.toLowerCase() + "attribute", arrayType);
+        _container.setImmutable();
     }
 
     /**

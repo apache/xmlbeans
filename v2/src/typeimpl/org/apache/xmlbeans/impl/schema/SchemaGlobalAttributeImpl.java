@@ -23,19 +23,24 @@ import org.apache.xmlbeans.XmlObject;
 public class SchemaGlobalAttributeImpl extends SchemaLocalAttributeImpl
         implements SchemaGlobalAttribute
 {
-    SchemaTypeSystem _typeSystem;
+    SchemaContainer _container;
     String _filename;
     private String _parseTNS;
     private boolean _chameleon;
 
-    public SchemaGlobalAttributeImpl(SchemaTypeSystem typeSystem)
+    public SchemaGlobalAttributeImpl(SchemaContainer container)
     {
-        _typeSystem = typeSystem;
+        _container = container;
     }
 
     public SchemaTypeSystem getTypeSystem()
     {
-        return _typeSystem;
+        return _container.getTypeSystem();
+    }
+
+    SchemaContainer getContainer()
+    {
+        return _container;
     }
 
 

@@ -104,7 +104,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     private final Object[] _ctrArgs = new Object[] { this };
 
     // reflective support
-    private SchemaTypeSystem _typeSystem;
+    private SchemaContainer _container;
     private String _filename;
 
     // complex content support
@@ -207,14 +207,14 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
 
 
 
-    SchemaTypeImpl(SchemaTypeSystem typeSystem)
+    SchemaTypeImpl(SchemaContainer container)
     {
-        _typeSystem = typeSystem;
+        _container = container;
     }
 
-    SchemaTypeImpl(SchemaTypeSystem typeSystem, boolean unloaded)
+    SchemaTypeImpl(SchemaContainer container, boolean unloaded)
     {
-        _typeSystem = typeSystem;
+        _container = container;
         _unloaded = unloaded;
         if (unloaded)
             finishQuick();
@@ -578,11 +578,18 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
     public void setUserData(Object data)
     {   _userData = data; }
 
+    /* Only used for asserts */
+    SchemaContainer getContainer()
+    {   return _container; }
+
+    void setContainer(SchemaContainer container)
+    {   _container = container; }
+
     public SchemaTypeSystem getTypeSystem()
-        { return _typeSystem; }
+    {   return _container.getTypeSystem(); }
 
     public SchemaParticle getContentModel()
-        { return _contentModel; }
+    {   return _contentModel; }
 
     private static void buildEltList(List eltList, SchemaParticle contentModel)
     {
@@ -1452,11 +1459,11 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         if (_javaClass == null && getFullJavaName() != null)
         {
             try
-                { _javaClass = Class.forName(getFullJavaName(), false, _typeSystem.getClassLoader()); }
+                { _javaClass = Class.forName(getFullJavaName(), false, getTypeSystem().getClassLoader()); }
             catch (ClassNotFoundException e)
             {
                 System.err.println("Could not find class name " + getFullJavaName());
-                System.err.println("Searched in classloader " + _typeSystem.getClassLoader());
+                System.err.println("Searched in classloader " + getTypeSystem().getClassLoader());
                 e.printStackTrace(System.err);
                 _javaClass = null;
             }
@@ -1473,7 +1480,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         {
             try {
                 if (getFullJavaImplName() != null)
-                    _javaImplClass = Class.forName(getFullJavaImplName(), false, _typeSystem.getClassLoader());
+                    _javaImplClass = Class.forName(getFullJavaImplName(), false, getTypeSystem().getClassLoader());
                 else
                     _implNotAvailable = true;
             }
@@ -1531,7 +1538,7 @@ public final class SchemaTypeImpl implements SchemaType, TypeStoreUserFactory
         if (_javaEnumClass == null)
         {
             try
-                { _javaEnumClass = Class.forName(getBaseEnumType().getFullJavaName() + "$Enum", false, _typeSystem.getClassLoader()); }
+                { _javaEnumClass = Class.forName(getBaseEnumType().getFullJavaName() + "$Enum", false, getTypeSystem().getClassLoader()); }
             catch (ClassNotFoundException e)
                 { _javaEnumClass = null; }
         }

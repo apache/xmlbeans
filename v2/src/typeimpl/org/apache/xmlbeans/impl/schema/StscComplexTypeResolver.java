@@ -363,7 +363,7 @@ public class StscComplexTypeResolver
             }
             else
             {
-                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace());
+                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), targetNamespace);
             }
             
             if (baseType == null)
@@ -482,7 +482,7 @@ public class StscComplexTypeResolver
             }
             else
             {
-                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace());
+                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), targetNamespace);
             }
             if (baseType == null)
                 state.notFoundError(parseTree.getBase(), XmlErrorContext.TYPE_NOT_FOUND, parseTree.xgetBase());
@@ -615,7 +615,7 @@ public class StscComplexTypeResolver
             }
             else
             {
-                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace());
+                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), targetNamespace);
             }
             if (baseType == null)
             {
@@ -713,7 +713,7 @@ public class StscComplexTypeResolver
             }
             else
             {
-                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace());
+                baseType = state.findGlobalType(parseTree.getBase(), sImpl.getChameleonNamespace(), targetNamespace);
             }
             if (baseType == null)
             {
@@ -988,7 +988,7 @@ public class StscComplexTypeResolver
                     }
                     else
                     {
-                        group = state.findAttributeGroup(ref, chameleon ? targetNamespace : null);
+                        group = state.findAttributeGroup(ref, chameleon ? targetNamespace : null, targetNamespace);
                     }
                     if (group == null)
                     {
@@ -1195,7 +1195,7 @@ public class StscComplexTypeResolver
                 }
                 else
                 {
-                    group = state.findModelGroup(ref, chameleon ? targetNamespace : null);
+                    group = state.findModelGroup(ref, chameleon ? targetNamespace : null, targetNamespace);
                 }
                 if (group == null)
                 {

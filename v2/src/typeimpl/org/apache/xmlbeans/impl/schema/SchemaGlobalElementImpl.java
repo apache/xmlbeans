@@ -31,21 +31,26 @@ public class SchemaGlobalElementImpl extends SchemaLocalElementImpl
     private static final QName[] _namearray = new QName[0];
     private boolean _finalExt;
     private boolean _finalRest;
-    private SchemaTypeSystem _typeSystem;
+    private SchemaContainer _container;
     private String _filename;
     // private XmlObject _parseObject; now inherited from base
     private String _parseTNS;
     private boolean _chameleon;
     private SchemaGlobalElement.Ref _sg;
 
-    public SchemaGlobalElementImpl(SchemaTypeSystem typeSystem)
+    public SchemaGlobalElementImpl(SchemaContainer container)
     {
-        _typeSystem = typeSystem;
+        _container = container;
     }
 
     public SchemaTypeSystem getTypeSystem()
     {
-        return _typeSystem;
+        return _container.getTypeSystem();
+    }
+
+    SchemaContainer getContainer()
+    {
+        return _container;
     }
 
     public String getSourceName()

@@ -27,7 +27,7 @@ import java.util.Collections;
 
 public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
 {
-    private SchemaTypeSystem _typeSystem;
+    private SchemaContainer _container;
     private String _selector;
     private String[] _fields;
     private SchemaIdentityConstraint.Ref _key;
@@ -44,8 +44,8 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     private volatile XPath _selectorPath;
     private volatile XPath[] _fieldPaths;
 
-    public SchemaIdentityConstraintImpl(SchemaTypeSystem sys) {
-        _typeSystem = sys;
+    public SchemaIdentityConstraintImpl(SchemaContainer c) {
+        _container = c;
     }
 
     public String getSelector() {
@@ -156,7 +156,11 @@ public class SchemaIdentityConstraintImpl implements SchemaIdentityConstraint
     }
 
     public SchemaTypeSystem getTypeSystem() {
-        return _typeSystem;
+        return _container.getTypeSystem();
+    }
+
+    SchemaContainer getContainer() {
+        return _container;
     }
 
     public void setParseContext(XmlObject o, String targetNamespace, boolean chameleon) {

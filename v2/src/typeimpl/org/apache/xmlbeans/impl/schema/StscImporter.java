@@ -326,6 +326,13 @@ public class StscImporter
             // First resolve relative URLs with respect to base URL for doc
             URI baseURI = parseURI(baseURLForDoc(referencedBy));
             String absoluteURL = baseURI == null ? locationURL : resolve(baseURI, locationURL).toString();
+
+            StscState state = StscState.get();
+
+            // probe 0: this url is already processed, from a previous compile
+            if (state.isFileProcessed(absoluteURL))
+                return null;
+
             // probe 1: ns+url - perfect match
             if (absoluteURL != null && targetNamespace != null)
             {
@@ -333,8 +340,6 @@ public class StscImporter
                 if (result != null)
                     return result;
             }
-
-            StscState state = StscState.get();
 
             // probe 2: we have preexisting knowledge of this namespace,
             // either from another schema file or from the linker.
@@ -445,7 +450,7 @@ public class StscImporter
             return null;
         }
         
-        private XmlObject downloadDocument(SchemaTypeLoader loader, String namespace, String absoluteURL)
+        static XmlObject downloadDocument(SchemaTypeLoader loader, String namespace, String absoluteURL)
                 throws MalformedURLException, IOException, XmlException
         {
             StscState state = StscState.get();
@@ -668,7 +673,7 @@ public class StscImporter
                         for (int i = 0; i < imports.length; i++)
                         {
                             Schema imported = downloadSchema(imports[i], emptyStringIfNull(imports[i].getNamespace()), imports[i].getSchemaLocation());
-    
+
                             // if download fails, an error has already been reported.
                             if (imported == null)
                                 continue;

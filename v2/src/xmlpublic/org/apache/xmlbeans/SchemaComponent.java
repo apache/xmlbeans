@@ -95,7 +95,10 @@ public interface SchemaComponent
         public final SchemaComponent getComponent()
         {
             if (_schemaComponent == null && _handle != null)
+            {
                 _schemaComponent = _schemaTypeSystem.resolveHandle(_handle);
+                _schemaTypeSystem = null;
+            }
 
             return _schemaComponent;
         }

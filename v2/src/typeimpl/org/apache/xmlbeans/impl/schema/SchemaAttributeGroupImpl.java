@@ -24,7 +24,7 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 
 public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
 {
-    private SchemaTypeSystem _typeSystem;
+    private SchemaContainer _container;
     private QName _name;
     private XmlObject _parseObject;
     private Object _userData;
@@ -33,14 +33,14 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
     private boolean _redefinition;
     private SchemaAnnotation _annotation;
 
-    public SchemaAttributeGroupImpl(SchemaTypeSystem typeSystem)
+    public SchemaAttributeGroupImpl(SchemaContainer container)
     {
-        _typeSystem = typeSystem;
+        _container = container;
     }
 
-    public SchemaAttributeGroupImpl(SchemaTypeSystem typeSystem, QName name)
+    public SchemaAttributeGroupImpl(SchemaContainer container, QName name)
     {
-        this(typeSystem);
+        _container = container;
         _name = name;
     }
 
@@ -59,7 +59,12 @@ public class SchemaAttributeGroupImpl implements SchemaAttributeGroup
 
     public SchemaTypeSystem getTypeSystem()
     {
-        return _typeSystem;
+        return _container.getTypeSystem();
+    }
+
+    SchemaContainer getContainer()
+    {
+        return _container;
     }
 
     public int getComponentType()

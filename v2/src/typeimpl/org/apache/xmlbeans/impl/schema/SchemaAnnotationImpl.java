@@ -31,7 +31,7 @@ import org.apache.xmlbeans.SchemaComponent;
 
 public class SchemaAnnotationImpl implements SchemaAnnotation
 {
-    private SchemaTypeSystem _typeSystem;
+    private SchemaContainer _container;
     private AppinfoDocument.Appinfo[] _appInfo;
     private DocumentationDocument.Documentation[] _documentation;
     private Attribute[] _attributes;
@@ -49,7 +49,10 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
     {   return ANNOTATION; }
 
     public SchemaTypeSystem getTypeSystem()
-    {   return _typeSystem; }
+    {   return _container != null ? _container.getTypeSystem() : null; }
+
+    SchemaContainer getContainer()
+    {   return _container; }
 
     public QName getName()
     {   return null; }
@@ -57,22 +60,22 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
     public SchemaComponent.Ref getComponentRef()
     {   return null; }
 
-    public static SchemaAnnotationImpl getAnnotation(SchemaTypeSystem ts,
+    public static SchemaAnnotationImpl getAnnotation(SchemaContainer c,
         Annotated elem)
     {
         AnnotationDocument.Annotation ann = elem.getAnnotation();
 
-        return getAnnotation(ts, elem, ann);
+        return getAnnotation(c, elem, ann);
     }
 
-    public static SchemaAnnotationImpl getAnnotation(SchemaTypeSystem ts,
+    public static SchemaAnnotationImpl getAnnotation(SchemaContainer c,
         XmlObject elem, AnnotationDocument.Annotation ann)
     {
         // Check option
         if (StscState.get().noAnn())
             return null;
 
-        SchemaAnnotationImpl result = new SchemaAnnotationImpl(ts);
+        SchemaAnnotationImpl result = new SchemaAnnotationImpl(c);
         // Retrieving attributes, first attributes on the enclosing element
         ArrayList attrArray = new ArrayList(2);
         addNoSchemaAttributes(elem, attrArray);
@@ -116,17 +119,17 @@ public class SchemaAnnotationImpl implements SchemaAnnotation
         cursor.dispose();
     }
 
-    private SchemaAnnotationImpl(SchemaTypeSystem ts)
+    private SchemaAnnotationImpl(SchemaContainer c)
     {
-        _typeSystem = ts;
+        _container = c;
     }
 
-    /*package*/ SchemaAnnotationImpl(SchemaTypeSystem ts,
+    /*package*/ SchemaAnnotationImpl(SchemaContainer c,
         AppinfoDocument.Appinfo[] aap,
         DocumentationDocument.Documentation[] adoc,
         Attribute[] aat)
     {
-        _typeSystem = ts;
+        _container = c;
         _appInfo = aap;
         _documentation = adoc;
         _attributes = aat;
