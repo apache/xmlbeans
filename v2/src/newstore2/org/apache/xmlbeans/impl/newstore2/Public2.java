@@ -1,3 +1,18 @@
+/*   Copyright 2004 The Apache Software Foundation
+ *
+ *   Licensed under the Apache License, Version 2.0 (the "License");
+ *   you may not use this file except in compliance with the License.
+ *   You may obtain a copy of the License at
+ *
+ *       http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *   Unless required by applicable law or agreed to in writing, software
+ *   distributed under the License is distributed on an "AS IS" BASIS,
+ *   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *   See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
+
 package org.apache.xmlbeans.impl.newstore2;
 
 import javax.xml.stream.XMLStreamReader;
@@ -7,6 +22,8 @@ import java.io.InputStream;
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Node;
 import org.w3c.dom.Document;
+
+import org.apache.xmlbeans.XmlCursor;
 
 import java.io.PrintStream;
 
@@ -43,11 +60,11 @@ public final class Public2
         return newLocale( null );
     }
     
-    public static DOMImplementation getImplementation ( Saaj saaj )
+    public static DOMImplementation getDomImplementation ( Saaj saaj )
     {
         return newLocale( saaj );
     }
-            
+    
     public static Document parse ( String s )
     {
         Locale l = newLocale( null );
@@ -117,6 +134,18 @@ public final class Public2
         c.release();
 
         return s;
+    }
+    
+    public static XmlCursor getCursor ( Node n )
+    {
+        assert n instanceof Dom;
+
+        Dom d = (Dom) n;
+
+        Locale l = d.locale();
+
+        if (l.noSync())         { l.enter(); try { return DomImpl.getXmlCursor( d ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return DomImpl.getXmlCursor( d ); } finally { l.exit(); } }
     }
     
     public static void dump ( PrintStream o, Dom d )

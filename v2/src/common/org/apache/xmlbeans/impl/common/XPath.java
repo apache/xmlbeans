@@ -407,6 +407,12 @@ public class XPath
             if (prefix.equals( "fn" ))
                   return "http://www.w3.org/2002/11/xquery-functions";
 
+            if (prefix.equals( "xdt" ))
+                  return "http://www.w3.org/2003/11/xpath-datatypes";
+
+            if (prefix.equals( "local" ))
+                  return "http://www.w3.org/2003/11/xquery-local-functions";
+
             throw newError( "Undefined prefix: " + prefix );
         }
 
