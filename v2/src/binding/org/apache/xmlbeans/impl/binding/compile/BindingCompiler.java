@@ -146,7 +146,6 @@ public abstract class BindingCompiler {
     bind((TylarWriter)tylar);
     try {
       // close it up.  this may cause the generated code to be compiled.
-      System.out.println("COMPILE!!!!!!!!!!!!!!!!!!");
       if (mDoCompile) logVerbose("Compiling java sources...");
       tylar.close();
     } catch(IOException ioe) {

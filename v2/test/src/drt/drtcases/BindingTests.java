@@ -9,17 +9,7 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.xmlbeans.impl.binding.bts.BindingFile;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
-import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
-import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
-import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.binding.compile.SchemaSourceSet;
 import org.apache.xmlbeans.impl.binding.compile.SimpleSourceSet;
@@ -114,22 +104,22 @@ public class BindingTests extends TestCase
 
         QNameProperty prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "myelt"));
-        prop.setSetterName("setMyelt");
-        prop.setGetterName("getMyelt");
+        prop.setSetterName(createSetterName("setMyelt",bnb2.getName()));
+        prop.setGetterName(createGetterName("getMyelt"));
         prop.setBindingType(bnb2);
         bnb.addProperty(prop);
 
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "myelt2"));
-        prop.setSetterName("setMyelt2");
-        prop.setGetterName("getMyelt2");
+        prop.setSetterName(createSetterName("setMyelt2",bnb.getName()));
+        prop.setGetterName(createGetterName("getMyelt2"));
         prop.setBindingType(bnb);
         bnb.addProperty(prop);
 
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "myatt"));
-        prop.setSetterName("setMyatt");
-        prop.setGetterName("getMyatt");
+        prop.setSetterName(createSetterName("setMyatt",sbt.getName()));
+        prop.setGetterName(createGetterName("getMyatt"));
         prop.setBindingType(sbt);
         bnb.addProperty(prop);
 
@@ -137,15 +127,15 @@ public class BindingTests extends TestCase
 
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "yourelt"));
-        prop.setSetterName("setYourelt");
-        prop.setGetterName("getYourelt");
+        prop.setSetterName(createSetterName("setYourelt",bnb2.getName()));
+        prop.setGetterName(createGetterName("getYourelt"));
         prop.setBindingType(bnb2);
         bnb2.addProperty(prop);
 
         prop = new QNameProperty();
         prop.setQName(new QName("http://www.mytest.com/", "yourelt2"));
-        prop.setSetterName("setYourelt2");
-        prop.setGetterName("getYourelt2");
+        prop.setSetterName(createSetterName("setYourelt2",bnb.getName()));
+        prop.setGetterName(createGetterName("getYourelt2"));
         prop.setBindingType(bnb);
         bnb2.addProperty(prop);
 
@@ -188,32 +178,53 @@ public class BindingTests extends TestCase
 
         // check bnb
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myelt"));
-        Assert.assertEquals("setMyelt", prop.getSetterName());
-        Assert.assertEquals("getMyelt", prop.getGetterName());
+        Assert.assertEquals(createSetterName("setMyelt",prop.getTypeName()),
+                            prop.getSetterName());
+        Assert.assertEquals(createGetterName("getMyelt"),
+                            prop.getGetterName());
         Assert.assertEquals(bnb2c, lc.getBindingType(prop.getTypeName()));
 
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myelt2"));
-        Assert.assertEquals("setMyelt2", prop.getSetterName());
-        Assert.assertEquals("getMyelt2", prop.getGetterName());
+        Assert.assertEquals(createSetterName("setMyelt2",prop.getTypeName()),
+                            prop.getSetterName());
+        Assert.assertEquals(createGetterName("getMyelt2"), prop.getGetterName());
         Assert.assertEquals(bnbc, lc.getBindingType(prop.getTypeName()));
 
         prop = bnbc.getPropertyForElement(new QName("http://www.mytest.com/", "myatt"));
-        Assert.assertEquals("setMyatt", prop.getSetterName());
-        Assert.assertEquals("getMyatt", prop.getGetterName());
+        Assert.assertEquals(createSetterName("setMyatt",prop.getTypeName()),
+                            prop.getSetterName());
+        Assert.assertEquals(createGetterName("getMyatt"), prop.getGetterName());
         Assert.assertEquals(sbtc, lc.getBindingType(prop.getTypeName()));
 
         // check bnb2
         prop = bnb2c.getPropertyForElement(new QName("http://www.mytest.com/", "yourelt"));
-        Assert.assertEquals("setYourelt", prop.getSetterName());
-        Assert.assertEquals("getYourelt", prop.getGetterName());
+        Assert.assertEquals(createSetterName("setYourelt", prop.getTypeName()),
+                                             prop.getSetterName());
+        Assert.assertEquals(createGetterName("getYourelt"), prop.getGetterName());
         Assert.assertEquals(bnb2c, lc.getBindingType(prop.getTypeName()));
 
         prop = bnb2c.getPropertyForElement(new QName("http://www.mytest.com/", "yourelt2"));
-        Assert.assertEquals("setYourelt2", prop.getSetterName());
-        Assert.assertEquals("getYourelt2", prop.getGetterName());
+        Assert.assertEquals(createSetterName("setYourelt2",prop.getTypeName()),
+                            prop.getSetterName());
+        Assert.assertEquals(createGetterName("getYourelt2"), prop.getGetterName());
         Assert.assertEquals(bnbc, lc.getBindingType(prop.getTypeName()));
 
         // check sbtc
         Assert.assertEquals(XmlTypeName.forString("t=string@http://www.w3.org/2001/XMLSchema"), sbtc.getAsIfXmlType());
     }
+
+  /**
+   * Utility method for building up method names in the binding file.
+   */
+  private static MethodName createGetterName(String methodName) {
+    return MethodName.create(methodName);
+  }
+
+  /**
+   * Utility method for building up method names in the binding file.
+   */
+  private static MethodName createSetterName(String methodName, BindingTypeName bt) {
+    return MethodName.create(methodName,
+                             bt.getJavaName());
+  }
 }

@@ -57,13 +57,7 @@
 package org.apache.xmlbeans.impl.marshal;
 
 import org.apache.xmlbeans.XmlRuntimeException;
-import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.binding.bts.BindingProperty;
-import org.apache.xmlbeans.impl.binding.bts.BindingType;
-import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
-import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
-import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
-import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
+import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
 import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
 
@@ -468,10 +462,9 @@ final class ByNameRuntimeBindingType
                                               Class beanClass,
                                               Class propClass)
         {
-            String setter = binding_prop.getSetterName();
+            MethodName setterName = binding_prop.getSetterName();
             try {
-                final Method set_method =
-                    beanClass.getMethod(setter, new Class[]{propClass});
+                final Method set_method = setterName.getMethodOn(beanClass);
                 return set_method;
             }
             catch (NoSuchMethodException e) {
@@ -480,16 +473,19 @@ final class ByNameRuntimeBindingType
             catch (SecurityException e) {
                 throw new XmlRuntimeException(e);
             }
+            catch (ClassNotFoundException cnfe) {
+                throw new XmlRuntimeException(cnfe);
+            }
         }
 
 
         private static Method getGetterMethod(QNameProperty binding_prop,
                                               Class beanClass)
         {
-            String getter = binding_prop.getGetterName();
+            MethodName getterName = binding_prop.getGetterName();
             try {
                 final Method get_method =
-                    beanClass.getMethod(getter, EMPTY_CLASS_ARRAY);
+                    getterName.getMethodOn(beanClass);
                 return get_method;
             }
             catch (NoSuchMethodException e) {
@@ -497,6 +493,9 @@ final class ByNameRuntimeBindingType
             }
             catch (SecurityException e) {
                 throw new XmlRuntimeException(e);
+            }
+            catch (ClassNotFoundException cnfe) {
+                throw new XmlRuntimeException(cnfe);//should never happen
             }
         }
 

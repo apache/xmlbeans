@@ -109,8 +109,6 @@ public class RClassLoader implements JClassLoader {
     if (fd == null) throw new IllegalArgumentException("null fd");
     //
     //FIXME we should do some more work here to make sure that
-
-
     fd = fd.trim();
     // check cache first
     JClass out = (JClass)mFd2Class.get(fd);
@@ -170,29 +168,29 @@ public class RClassLoader implements JClassLoader {
   // ========================================================================
   // Private methods
 
-  private void validateClassName(String className) 
-    throws IllegalArgumentException 
+  private void validateClassName(String className)
+          throws IllegalArgumentException
   {
     if (!Character.isJavaIdentifierStart(className.charAt(0))) {
       throw new IllegalArgumentException
-	("Invalid first character in class name: "+className);
+              ("Invalid first character in class name: "+className);
     }
     for(int i=1; i<className.length(); i++) {
       char c = className.charAt(i);
       if (c == '.') {
-	if (className.charAt(i-1) == '.') {
-	  throw new IllegalArgumentException
-	    ("'..' not allowed in class name: "+className);
-	}
-	if (i == className.length()-1) {
-	  throw new IllegalArgumentException
-	    ("'.' not allowed at end of class name: "+className);
-	}
+        if (className.charAt(i-1) == '.') {
+          throw new IllegalArgumentException
+                  ("'..' not allowed in class name: "+className);
+        }
+        if (i == className.length()-1) {
+          throw new IllegalArgumentException
+                  ("'.' not allowed at end of class name: "+className);
+        }
       } else {
-	if (!Character.isJavaIdentifierPart(c)) {
-	  throw new IllegalArgumentException
-	    ("Illegal character '"+c+"' in class name: "+className);
-	}
+        if (!Character.isJavaIdentifierPart(c)) {
+          throw new IllegalArgumentException
+                  ("Illegal character '"+c+"' in class name: "+className);
+        }
       }
     }
   }

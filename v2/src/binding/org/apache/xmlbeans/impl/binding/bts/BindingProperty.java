@@ -57,6 +57,8 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.impl.jam.JMethod;
+import org.apache.xml.xmlbeans.bindingConfig.JavaMethodName;
 
 /**
  * Represents a property.  Every property corresponds to a
@@ -67,8 +69,8 @@ import org.apache.xmlbeans.SchemaType;
 public abstract class BindingProperty
 {
     private BindingTypeName btName;
-    private String getter;
-    private String setter;
+    private MethodName getter;
+    private MethodName setter;
     private String field;
     private JavaTypeName collection;
     
@@ -91,8 +93,8 @@ public abstract class BindingProperty
         this.btName = BindingTypeName.forPair(
                         JavaTypeName.forString(node.getJavatype()),
                         XmlTypeName.forString(node.getXmlcomponent()));
-        this.getter = node.getGetter();
-        this.setter = node.getSetter();
+        this.getter = MethodName.create(node.getGetter());
+        this.setter = MethodName.create(node.getSetter());
         this.field = node.getField();
         String collection = node.getCollection();
         if (collection != null)
@@ -112,10 +114,12 @@ public abstract class BindingProperty
         node.setXmlcomponent(btName.getXmlName().toString());
         if (getFieldName() != null)
             node.setField(getFieldName());
-        if (getGetterName() != null)
-            node.setGetter(getGetterName());
-        if (getSetterName() != null)
-            node.setSetter(getSetterName());
+        if (getGetterName() != null) {
+          getGetterName().write(node.addNewGetter());
+        }
+        if (getSetterName() != null) {
+          getSetterName().write(node.addNewSetter());
+        }
         if (getCollectionClass() != null)
             node.setCollection(getCollectionClass().toString());
         return node;
@@ -136,14 +140,14 @@ public abstract class BindingProperty
         btName = bType.getName();
     }
     
-    public String getGetterName()
+    public MethodName getGetterName()
     {
         return isField() ? null : getter;
     }
     
-    public void setGetterName(String getter)
+    public void setGetterName(MethodName mn)
     {
-        this.getter = getter;
+        getter = mn;
     }
     
     public boolean hasSetter()
@@ -151,14 +155,14 @@ public abstract class BindingProperty
         return !isField() && setter != null;
     }
     
-    public String getSetterName()
+    public MethodName getSetterName()
     {
         return isField() ? null : setter;
     }
     
-    public void setSetterName(String setter)
+    public void setSetterName(MethodName mn)
     {
-        this.setter = setter; 
+        setter = mn;
     }
     
     public String getFieldName()
@@ -180,7 +184,8 @@ public abstract class BindingProperty
     {
         collection = jName;
     }
-    
+
+
     /* REGISTRY OF SUBCLASSES */
     
     private static final Class[] ctorArgs = new Class[] {org.apache.xml.xmlbeans.bindingConfig.BindingProperty.class};
@@ -197,7 +202,9 @@ public abstract class BindingProperty
             throw (IllegalStateException)new IllegalStateException("Cannot load class for " + node.schemaType() + ": should be registered.").initCause(e);
         }
     }
-    
+
+
+
     /**
      * Should only be called by BindingFile, when loading up bindingtypes
      */

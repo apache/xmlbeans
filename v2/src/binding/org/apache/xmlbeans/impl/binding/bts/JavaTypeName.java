@@ -57,7 +57,9 @@
 package org.apache.xmlbeans.impl.binding.bts;
 
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.internal.PrimitiveJClass;
 import org.apache.xmlbeans.XmlObject;
+import java.io.StringWriter;
 
 /**
  * Represents a Java class name, and provides some utility methods
@@ -257,5 +259,34 @@ public final class JavaTypeName
     public int hashCode()
     {
         return className.hashCode() + arrayString.length() + (isXmlObject ? 1 : 0);
+    }
+
+    /**
+     * Loads the class represented by this JavaTypeName in the given
+     * ClassLoader.  This is really horrible - the impedance mismatch
+     * in the naming here is very really painful.  Need to do something better.
+     */
+    public Class loadClassIn(ClassLoader loader) throws ClassNotFoundException {
+      int d = getArrayDepth();
+      if (d == 0) {
+        String s = toString();
+        Class out = PrimitiveJClass.getPrimitiveClass(s);
+        if (out != null) return out;
+        return loader.loadClass(s);
+      } else {
+        StringWriter buff = new StringWriter();
+        for(int i=0; i<d; i++) buff.write("[");
+        String s = toString();
+        s = s.substring(0,s.indexOf("["));
+        String fd = PrimitiveJClass.getFieldDescriptor(s);
+        if (fd != null) {
+          buff.write(fd);
+        } else {
+          buff.write("L");
+          buff.write(s);
+          buff.write(";");
+        }
+        return loader.loadClass(buff.toString());
+      }
     }
 }
