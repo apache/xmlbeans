@@ -21,10 +21,12 @@ import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 
+import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
 import javax.xml.stream.XMLStreamReader;
 
-class SoapMarshallerImpl implements SoapMarshaller
+class SoapMarshallerImpl
+    implements SoapMarshaller
 {
     //per binding context constants
     private final BindingLoader loader;
@@ -48,7 +50,12 @@ class SoapMarshallerImpl implements SoapMarshaller
                                        XmlOptions options)
         throws XmlException
     {
-        throw new AssertionError("UNIMP: this=" + this);
+        NamespaceContext nscontext =
+            MarshallerImpl.getNamespaceContextFromOptions(options);
+
+        throw new AssertionError("UNIMP");
+
+
     }
 
     public XMLStreamReader marshalReferenced(XmlOptions options)

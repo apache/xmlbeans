@@ -360,23 +360,6 @@ abstract class RuntimeBindingType
             return (val != null);
         }
 
-        final CharSequence getLexical(Object value,
-                                      MarshalResult result)
-            throws XmlException
-        {
-            assert value != null :
-                "null value for " + getName() + " class=" + beanClass;
-
-            assert  result != null :
-                "null value for " + getName() + " class=" + beanClass;
-
-            assert runtimeBindingType.getMarshaller() != null :
-                "null marshaller for prop=" + getName() + " java-type=" +
-                beanClass + " propType=" + runtimeBindingType;
-
-            return runtimeBindingType.getMarshaller().print(value, result);
-        }
-
     }
 
 

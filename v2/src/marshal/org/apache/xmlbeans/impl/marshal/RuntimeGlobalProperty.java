@@ -66,21 +66,6 @@ final class RuntimeGlobalProperty
         throw new UnsupportedOperationException();
     }
 
-    //non simple type props can throw some runtime exception.
-    public CharSequence getLexical(Object parent, MarshalResult result)
-        throws XmlException
-    {
-        //TODO: polymorphism checks
-        final TypeMarshaller tm = getRuntimeBindingType().getMarshaller();
-
-        if (tm == null) {
-            throw new XmlException("Unable find marshaller for " + getType());
-        }
-
-        final CharSequence retval = tm.print(parent, result);
-        return retval;
-    }
-
     public Object getValue(Object parent_obj, MarshalResult result)
         throws XmlException
     {
