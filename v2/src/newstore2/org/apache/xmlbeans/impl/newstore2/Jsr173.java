@@ -29,6 +29,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.Location;
 
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlLineNumber;
+import org.apache.xmlbeans.XmlDocumentProperties;
 
 import org.w3c.dom.Node;
 
@@ -83,7 +85,7 @@ public class Jsr173
         else if (inner)
         {
             if (!c.hasAttrs() && !c.hasChildren())
-                xs = new XMLStreamReaderForString( c, c.getValueChars(), c._offSrc, c._cchSrc );
+                xs = new XMLStreamReaderForString( c, c.getFirstChars(), c._offSrc, c._cchSrc );
             else
             {
                 assert c.isContainer();
@@ -255,7 +257,7 @@ public class Jsr173
                 return _cur.getValueAsString();
 
             if (k == Cur.TEXT)
-                return _cur.getString( -1 );
+                return _cur.getCharsAsString( -1 );
 
             throw new IllegalStateException();
         }
@@ -573,15 +575,15 @@ public class Jsr173
         public String getNamespacePrefix ( int index )
         {
             Cur ca = toXmlns( _cur, index );
-            QName name = ca.getName();
+            String prefix = ca.getXmlnsPrefix();
             ca.release();
-            return name.getLocalPart();
+            return prefix;
         }
 
         public String getNamespaceURI ( int index )
         {
             Cur ca = toXmlns( _cur, index );
-            String uri = ca.getValueAsString();
+            String uri = ca.getXmlnsUri();
             ca.release();
             return uri;
         }
@@ -799,49 +801,39 @@ public class Jsr173
 
         public boolean isWhiteSpace ( )
         {
-            throw new RuntimeException( "Not implemented" );
+            checkChanged();
 
-//            checkChanged();
-//
-//            // TODO - avoid creating a string here
-//            String s = getText();
-//
-//            for ( int i = 0 ; i < s.length() ; i++ )
-//            {
-//                if (!Splay.isWhiteSpace( s.charAt( i ) ))
-//                    return false;
-//            }
-//
-//            return true;
+            // TODO - avoid creating a string here
+            String s = getText();
+
+            return _locale._charUtil.isWhiteSpace( s, 0, s.length() );
         }
 
         public Location getLocation ( )
         {
             checkChanged();
-            
-            return this;
 
-//            XmlCursor c = getCursor();
-//
-//            XmlLineNumber ln = (XmlLineNumber) c.getBookmark( XmlLineNumber.class );
-//
-//            // BUGBUG - put source name here
-//            _uri = null;
-//
-//            if (ln != null)
-//            {
-//                _line = ln.getLine();
-//                _column = ln.getColumn();
-//                _offset = ln.getOffset();
-//            }
-//            else
-//            {
-//                _line = -1;
-//                _column = -1;
-//                _offset = -1;
-//            }
-//
-//            return this;
+            Cur c = getCur();
+
+            XmlLineNumber ln = (XmlLineNumber) c.getBookmark( XmlLineNumber.class );
+
+            // BUGBUG - put source name here
+            _uri = null;
+
+            if (ln != null)
+            {
+                _line = ln.getLine();
+                _column = ln.getColumn();
+                _offset = ln.getOffset();
+            }
+            else
+            {
+                _line = -1;
+                _column = -1;
+                _offset = -1;
+            }
+
+            return this;
         }
 
 
@@ -849,57 +841,52 @@ public class Jsr173
         {
             checkChanged();
 
-            throw new RuntimeException( "Not implemented" );
+            if (name == null)
+                throw new IllegalArgumentException( "Property name is null" );
+
+            // BUGBUG - I should implement some perperties here
+            
+            return null;
         }
 
         public String getCharacterEncodingScheme ( )
         {
             checkChanged();
 
-            // TODO - implement this properly
-            return "utf-8";
-            
-//            XmlDocumentProperties props = getCursor().documentProperties();
-//
-//            return props == null ? null : props.getEncoding();
+            XmlDocumentProperties props = _locale.getDocProps( getCur(), false );
+
+            return props == null ? null : props.getEncoding();
         }
 
         public String getEncoding ( )
         {
-            checkChanged();
-
-            // TODO - implement this properly
-            return "utf-8";
+            // BUGBUG - this should probably return the actual decoding used on the document
+            return null;
         }
 
         public String getVersion ( )
         {
             checkChanged();
 
-            // TODO - implement this properly
-            return "1.0";
-            
-//            XmlDocumentProperties props = getCursor().documentProperties();
-//
-//            return props == null ? null : props.getVersion();
+            XmlDocumentProperties props = _locale.getDocProps( getCur(), false );
+
+            return props == null ? null : props.getVersion();
         }
 
         public boolean isStandalone ( )
         {
             checkChanged();
 
-            throw new RuntimeException( "Not implemented" );
-            
-//            return false;
+            XmlDocumentProperties props = _locale.getDocProps( getCur(), false );
+
+            return props == null ? false : props.getStandalone();
         }
 
         public boolean standaloneSet ( )
         {
             checkChanged();
-            
-            throw new RuntimeException( "Not implemented" );
-//
-//            return false;
+
+            return false;
         }
 
         public void require ( int type, String namespaceURI, String localName )
@@ -926,8 +913,8 @@ public class Jsr173
         public int    getLineNumber      ( ) { return _line;   }
         public String getLocationURI     ( ) { return _uri;    }
         
-        public String getPublicId() { return null; }
-        public String getSystemId() { return null; }
+        public String getPublicId ( ) { return null; }
+        public String getSystemId ( ) { return null; }
 
         public NamespaceContext getNamespaceContext ( )
         {
@@ -997,9 +984,10 @@ public class Jsr173
         private long   _version;
         
         String _uri;
-        int _line=-1;
-        int _column=-1;
-        int _offset=-1;
+        
+        int _line   = -1;
+        int _column = -1;
+        int _offset = -1;
     }
     
     //

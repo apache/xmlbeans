@@ -31,6 +31,12 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 
+import org.xml.sax.ContentHandler;
+import org.xml.sax.ext.LexicalHandler;
+import org.xml.sax.SAXException;
+
+import org.xml.sax.helpers.AttributesImpl;
+
 import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.List;
@@ -149,7 +155,7 @@ abstract class Saver
         {
             positionToInner( c, start, end );
 
-            if (isFragment( start, end ))
+            if (Locale.isFragment( start, end ))
             {
                 positionToInner( c, start, end );
                 cur = new FragSaveCur( start, end, fragName );
@@ -170,8 +176,11 @@ abstract class Saver
             if (saveInner)
             {
                 positionToInner( c, start, end );
-                boolean isFrag = isFragment( start, end );
-                cur = new FragSaveCur( start, end, isFragment( start, end ) ? fragName : synthName);
+                boolean isFrag = Locale.isFragment( start, end );
+                
+                cur =
+                    new FragSaveCur(
+                        start, end, Locale.isFragment( start, end ) ? fragName : synthName );
             }
             else if (synthName != null)
             {
@@ -257,38 +266,6 @@ abstract class Saver
 
         end.moveToCur( c );
         end.toEnd();
-    }
-
-    private static boolean isFragment ( Cur start, Cur end )
-    {
-        assert !end.isAttr();
-
-        int numDocElems = 0;
-        
-        while ( ! start.isSamePos( end ) )
-        {
-            int k = start.kind();
-
-            if (k == ATTR)
-                break;
-            
-            if (k == TEXT && !Locale.isWhiteSpace( start.getString( -1 )))
-                break;
-
-            if (k == ELEM && ++numDocElems > 1)
-                break;
-
-            // Move to next token
-
-            assert k != ATTR;
-            
-            if (k != TEXT)
-                start.toEnd();
-            
-            start.next();
-        }
-
-        return numDocElems != 1;
     }
 
     protected boolean saveNamespacesFirst ( )
@@ -860,8 +837,7 @@ abstract class Saver
             }
         }
         
-        protected boolean emitElement (
-            SaveCur c, ArrayList attrNames, ArrayList attrValues )
+        protected boolean emitElement ( SaveCur c, ArrayList attrNames, ArrayList attrValues )
         {
             assert c.isElem();
 
@@ -1852,16 +1828,247 @@ abstract class Saver
         private OutputStreamWriter _converter;
     }
 
-//    static final class SaxSaver extends Saver
-//    {
-//        SaxSaver (
-//            Root r, Splay s, int p, XmlOptions options,
-//            ContentHandler contentHandler, LexicalHandler lexicalhandler )
-//                throws SAXException
-//        {
-//            super( r, s, p, options );
-//        }
-//    }
+    static final class SaxSaver extends Saver
+    {
+        SaxSaver ( Cur c, XmlOptions options, ContentHandler ch, LexicalHandler lh )
+            throws SAXException
+        {
+            super( c, options );
+            
+            _contentHandler = ch;
+            _lexicalHandler = lh;
+
+            _attributes = new AttributesImpl();
+            
+            _contentHandler.startDocument();
+
+            try
+            {
+                while ( process() )
+                    ;
+            }
+            catch ( SaverSAXException e )
+            {
+                throw e._saxException;
+            }
+            
+            _contentHandler.endDocument();
+        }
+
+        private class SaverSAXException extends RuntimeException
+        {
+            SaverSAXException ( SAXException e )
+            {
+                _saxException = e;
+            }
+            
+            SAXException _saxException;
+        }
+
+        private String getPrefixedName ( QName name )
+        {
+            String uri = name.getNamespaceURI();
+            String local = name.getLocalPart();
+
+            if (uri.length() == 0)
+                return local;
+
+            String prefix = getUriMapping( uri );
+
+            if (prefix.length() == 0)
+                return local;
+
+            return prefix + ":" + local;
+        }
+        
+        private void emitNamespacesHelper ( )
+        {
+            for ( iterateMappings() ; hasMapping() ; nextMapping() )
+            {
+                String prefix = mappingPrefix();
+                String uri = mappingUri();
+
+                try
+                {
+                    _contentHandler.startPrefixMapping( prefix, uri );
+                }
+                catch ( SAXException e )
+                {
+                    throw new SaverSAXException( e );
+                }
+
+                if (prefix == null || prefix.length() == 0)
+                    _attributes.addAttribute( "", "", "xmlns", "CDATA", uri );
+                else
+                    _attributes.addAttribute( "", "", "xmlns:" + prefix, "CDATA", uri );
+            }
+        }
+            
+        protected boolean emitElement ( SaveCur c, ArrayList attrNames, ArrayList attrValues )
+        {
+            _attributes.clear();
+            
+            if (saveNamespacesFirst())
+                emitNamespacesHelper();
+
+            for ( int i = 0 ; i < attrNames.size() ; i++ )
+            {
+                QName name = (QName) attrNames.get( i );
+                
+                _attributes.addAttribute(
+                    name.getNamespaceURI(), name.getLocalPart(), getPrefixedName( name ),
+                    "CDATA", (String) attrValues.get( i ) );
+            }
+
+            if (!saveNamespacesFirst())
+                emitNamespacesHelper();
+
+            QName elemName = c.getName();
+
+            try
+            {
+                _contentHandler.startElement(
+                    elemName.getNamespaceURI(), elemName.getLocalPart(),
+                    getPrefixedName( elemName ), _attributes );
+            }
+            catch ( SAXException e )
+            {
+                throw new SaverSAXException( e );
+            }
+
+            return false;
+        }
+        
+        protected void emitFinish ( SaveCur c )
+        {
+            QName name = c.getName();
+
+            try
+            {
+                _contentHandler.endElement(
+                    name.getNamespaceURI(), name.getLocalPart(), getPrefixedName( name ) );
+            
+                for ( iterateMappings() ; hasMapping() ; nextMapping() )
+                    _contentHandler.endPrefixMapping( mappingPrefix() );
+            }
+            catch ( SAXException e )
+            {
+                throw new SaverSAXException( e );
+            }
+        }
+        
+        protected void emitText ( SaveCur c )
+        {
+            assert c.isText();
+
+            Object src = c.getChars();
+
+            try
+            {
+                if (src instanceof char[])
+                {
+                    // Pray the user does not modify the buffer ....
+                    _contentHandler.characters( (char[]) src, c._offSrc, c._cchSrc );
+                }
+                else
+                {
+                    if (_buf == null)
+                        _buf = new char [ 1024 ];
+
+                    while ( c._cchSrc > 0 )
+                    {
+                        int cch = java.lang.Math.max( _buf.length, c._cchSrc );
+
+                        CharUtil.getChars( _buf, 0, src, c._offSrc, cch );
+
+                        _contentHandler.characters( _buf, 0, cch );
+
+                        c._offSrc += cch;
+                        c._cchSrc -= cch;
+                    }
+                }
+            }
+            catch ( SAXException e )
+            {
+                throw new SaverSAXException( e );
+            }
+        }
+        
+        protected void emitComment ( SaveCur c )
+        {
+            if (_lexicalHandler != null)
+            {
+                c.push();
+
+                c.next();
+
+                try
+                {
+                    if (!c.isText())
+                        _lexicalHandler.comment( null, 0, 0 );
+                    else
+                    {
+                        Object src = c.getChars();
+
+                        if (src instanceof char[])
+                        {
+                            // Pray the user does not modify the buffer ....
+                            _lexicalHandler.comment( (char[]) src, c._offSrc, c._cchSrc );
+                        }
+                        else
+                        {
+                            if (_buf == null || _buf.length < c._cchSrc)
+                                _buf = new char [ java.lang.Math.min( 1024, c._cchSrc ) ];
+
+                            CharUtil.getChars( _buf, 0, src, c._offSrc, c._cchSrc );
+
+                            _lexicalHandler.comment( _buf, 0, c._cchSrc );
+                        }
+                    }
+                }
+                catch ( SAXException e )
+                {
+                    throw new SaverSAXException( e );
+                }
+
+                c.pop();
+            }
+        }
+        
+        protected void emitProcinst ( SaveCur c )
+        {
+            String target = c.getName().getLocalPart();
+            
+            c.push();
+
+            c.next();
+
+            String value = CharUtil.getString( c.getChars(), c._offSrc, c._cchSrc );
+
+            c.pop();
+
+            try
+            {
+                _contentHandler.processingInstruction( c.getName().getLocalPart(), value );
+            }
+            catch ( SAXException e )
+            {
+                throw new SaverSAXException( e );
+            }
+        }
+
+        // TODO - need to emit doc type !!!!!
+        // TODO - need to emit doc type !!!!!
+        // TODO - need to emit doc type !!!!!
+        // TODO - need to emit doc type !!!!!
+
+        private ContentHandler _contentHandler;
+        private LexicalHandler _lexicalHandler;
+
+        private AttributesImpl _attributes;
+
+        private char[] _buf;
+    }
     
     //
     //
@@ -2446,7 +2653,7 @@ abstract class Saver
                         spaces( _sb, _newLine.length(), _prettyOffset + _prettyIndent * _depth );
                     }
                     
-                    if (prevKind != ROOT)
+                    if (prevKind != ROOT && k != -ROOT)
                         _sb.append( _newLine );
                     
                     int d = k < 0 ? _depth - 1 : _depth;

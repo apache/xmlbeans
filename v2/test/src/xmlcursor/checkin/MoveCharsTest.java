@@ -58,8 +58,12 @@ public class MoveCharsTest extends BasicCursorTestCase {
         try {
             assertEquals("234", xc1.getChars());
             assertEquals(3, m_xc.moveChars(3, xc1));
+// NEWSTORE START
+//            assertEquals("34", m_xc.getChars());
+//            assertEquals("34", xc1.getChars());
             assertEquals("01234", m_xc.getChars());
             assertEquals("234", xc1.getChars());
+// NEWSTORE END
         } finally {
             xc1.dispose();
         }
@@ -242,7 +246,7 @@ public class MoveCharsTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         toNextTokenOfType(xc1, TokenType.TEXT);
         assertEquals(5, m_xc.moveChars(5, xc1));
-        xc1.toPrevToken();
+        xc1.toParent();
         // verify xc1
         assertEquals("01234text", xc1.getTextValue());
         xc1.dispose();

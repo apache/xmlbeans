@@ -22,8 +22,6 @@ import org.apache.xmlbeans.XmlCursor;
 import drtcases.TestEnv;
 import junit.framework.Assert;
 
-import org.apache.xmlbeans.impl.store.Root;
-
 public class SimplePersonTest
 {
     public static void main(String args[]) throws Exception

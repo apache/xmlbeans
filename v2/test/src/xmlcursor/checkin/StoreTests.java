@@ -382,6 +382,9 @@ public class StoreTests extends TestCase
         private void add ( String s, char[] buf, int off, int cch )
         {
             _sb.append( s );
+// NEWSTORE START
+//            if (buf != null)
+// NEWSTORE END
             _sb.append( buf, off, cch );
             _sb.append( "\n" );
         }
@@ -1117,7 +1120,9 @@ public class StoreTests extends TestCase
     private void doSaveTest ( String xml )
         throws Exception
     {
+// NEWSTORE START
         doXmlStreamTest( xml );
+// NEWSTORE END
         doSaverTest( xml );
     }
 
@@ -1156,6 +1161,7 @@ public class StoreTests extends TestCase
         Assert.assertTrue( c.xmlText().equals( "<bar xmlns:a=\"a.com\"/>" ) );
     }
 
+// NEWSTORE START
     public void testXMLStream ( )
         throws Exception
     {
@@ -1461,6 +1467,7 @@ public class StoreTests extends TestCase
         xev = xis.next();
         Assert.assertTrue( xev == null );
     }
+// NEWSTORE END
     
     private XmlCursor navDoc ( XmlObject x, String dirs )
     {
@@ -1590,7 +1597,10 @@ public class StoreTests extends TestCase
         x = XmlObject.Factory.parse( "<foo>abcdef</foo>" );
         cFrom = navDoc( x, "d" );
         cTo = navNewCursor( cFrom, "" );
+// NEWSTORE START
+//        Assert.assertTrue( cFrom.moveXml( cTo ) );
         Assert.assertTrue( !cFrom.moveXml( cTo ) );
+// NEWSTORE END
         cFrom.insertChars( "[FROM]" );
         cTo.insertChars( "[TO]" );
 
@@ -1600,9 +1610,14 @@ public class StoreTests extends TestCase
             XmlOptions.SAVE_SYNTHETIC_DOCUMENT_ELEMENT,
             new QName( null, "bar" ) );
 
+// NEWSTORE START
+//        Assert.assertTrue(
+//            x.xmlText( options ).equals( "<bar>[TO]<foo>abcdef</foo>[FROM]</bar>" ) ||
+//                x.xmlText( options ).equals( "<bar>[FROM]<foo>abcdef</foo>[TO]</bar>" ) );
         Assert.assertTrue(
             x.xmlText( options ).equals( "<bar>[FROM][TO]<foo>abcdef</foo></bar>" ) ||
                 x.xmlText( options ).equals( "<bar>[TO][FROM]<foo>abcdef</foo></bar>" ) );
+// NEWSTORE END
         
         //
         
@@ -1610,12 +1625,19 @@ public class StoreTests extends TestCase
         
         cFrom = navDoc( x, "d" );
         cTo = navNewCursor( cFrom, "ttt" );
+// NEWSTORE START
+//        Assert.assertTrue( cFrom.moveXml( cTo ) );
         Assert.assertTrue( !cFrom.moveXml( cTo ) );
+// NEWSTORE END
         cFrom.insertChars( "[FROM]" );
         cTo.insertChars( "[TO]" );
 
         Assert.assertTrue(
+// NEWSTORE START
+//            x.xmlText( options ).equals( "<bar><foo>abcdef</foo>[FROM][TO]</bar>" ) ||
+//                x.xmlText( options ).equals( "<bar><foo>abcdef</foo>[TO][FROM]</bar>" ) );
             x.xmlText( options ).equals( "<bar>[FROM]<foo>abcdef</foo>[TO]</bar>" ) );
+// NEWSTORE END
         
         //
         
@@ -2283,6 +2305,7 @@ public class StoreTests extends TestCase
     {
     }
 
+// NEWSTORE START
     public void testAnnotation ( )
         throws Exception
     {
@@ -2295,6 +2318,7 @@ public class StoreTests extends TestCase
         XmlCursor c2 = a.createCursor();
         Assert.assertTrue( c2 == null );
     }
+// NEWSTORE END
     
     public void testAttrSetter ( )
         throws Exception
@@ -2594,8 +2618,10 @@ public class StoreTests extends TestCase
         XmlObject x = XmlObject.Factory.parse(xml, options);
 
         // 'a' prefix namespace is not remapped
+// NEWSTORE START
+//        String expect = "<a xmlns:a=\"aNS\" xmlns:b=\"bNS\" xmlns:c=\"cNS\"><a:b/></a>";
         String expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns:a=\"aNS\"><a:b/></a>";
-        Assert.assertEquals( expect, x.xmlText() );
+// NEWSTORE END
 
         xml = "<a xmlns='aNS'><b/></a>";
 
@@ -2610,11 +2636,15 @@ public class StoreTests extends TestCase
         x = XmlObject.Factory.parse(xml, options);
 
         // default namespace is not remapped
+// NEWSTORE START
+//        expect = "<a xmlns=\"aNS\" xmlns:b=\"bNS\" xmlns:c=\"cNS\"><b/></a>";
         expect = "<a xmlns:c=\"cNS\" xmlns:b=\"bNS\" xmlns=\"aNS\"><b/></a>";
+// NEWSTORE END
         Assert.assertEquals( expect, x.xmlText() );
 
     }
 
+// NEWSTORE START
     public void testCR135193()
         throws Exception
     {
@@ -2637,5 +2667,6 @@ public class StoreTests extends TestCase
         String expect = "<b xmlns=\"aNS\" xmlns:b=\"bNS\"><c/></b>";
         Assert.assertEquals( expect, x1.xmlText() );
     }
+// NEWSTORE END
 
 }

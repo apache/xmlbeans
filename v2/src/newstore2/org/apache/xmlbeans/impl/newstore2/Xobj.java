@@ -77,6 +77,7 @@ import org.apache.xmlbeans.SchemaField;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlCursor.XmlMark;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
@@ -123,7 +124,7 @@ abstract class Xobj implements TypeStore
     final boolean isElem      ( ) { return kind() == ELEM; }
     final boolean isProcinst  ( ) { return kind() == PROCINST; }
     final boolean isContainer ( ) { return Cur.kindIsContainer( kind() ); }
-    final boolean isUserNode  ( ) { return Cur.kindIsUserNode ( kind() ); }
+    final boolean isUserNode  ( ) { int k = kind(); return k == ELEM || k == ROOT || (k == ATTR && !isXmlns()); }
 
     final boolean isNormalAttr ( ) { return isAttr() && !isXmlns(); }
 
@@ -136,7 +137,7 @@ abstract class Xobj implements TypeStore
     final boolean isXmlns ( ) { return isAttr() ? Locale.isXmlns( _name ) : false; }
 
     final String getXmlnsPrefix ( ) { return Locale.xmlnsPrefix( _name ); }
-    final String getXmlnsUri    ( ) { return getValue(); }
+    final String getXmlnsUri    ( ) { return getValueAsString(); }
 
     final boolean hasTextEnsureOccupancy ( )
     {
@@ -176,6 +177,9 @@ abstract class Xobj implements TypeStore
 
     final int cchLeft ( int p )
     {
+        if (isRoot() && p == 0)
+            return 0;
+        
         Xobj x = getDenormal( p );
         
         p = posTemp();
@@ -235,6 +239,11 @@ abstract class Xobj implements TypeStore
         
         if (includeEnd)
         {
+            // Can't denormalize at the beginning of the document
+
+            if (xIn.isRoot() && pIn == 0)
+                return false;
+
             xIn = xIn.getDenormal( pIn );
             pIn = xIn.posTemp();
             
@@ -251,11 +260,40 @@ abstract class Xobj implements TypeStore
     final boolean isJustAfterEnd ( Xobj x, int p )
     {
         assert x.isNormal( p );
+
+        // Get denormalize at the beginning of the doc
+        
+        if (x.isRoot() && p == 0)
+            return false;
         
         return
             x == this
                 ? p == posAfter()
                 : x.getDenormal( p ) == this && x.posTemp() == posAfter();
+    }
+
+    final boolean isInSameTree ( Xobj x )
+    {
+        if (_locale != x._locale)
+            return false;
+
+        for ( Xobj y = this ; ; y = y._parent )
+        {
+            if (y == x)
+                return true;
+            
+            if (y._parent == null)
+            {
+                for ( ; ; x = x._parent )
+                {
+                    if (y == this)
+                        return true;
+
+                    if (x._parent == null)
+                        return x == y;
+                }
+            }
+        }
     }
 
     final boolean contains ( Cur c )
@@ -280,6 +318,41 @@ abstract class Xobj implements TypeStore
                 return true;
 
         return false;
+    }
+
+    final Bookmark setBookmark ( int p, Object key, Object value )
+    {
+        assert isNormal( p );
+        
+        for ( Bookmark b = _bookmarks ; b != null ; b = b._next )
+        {
+            if (p == b._pos && key == b._key)
+            {
+                if (value == null)
+                {
+                    _bookmarks = b.listRemove( _bookmarks );
+                    return null;
+                }
+                
+                b._value = value;
+
+                return b;
+            }
+        }
+
+        if (value == null)
+            return null;
+        
+        Bookmark b = new Bookmark();
+
+        b._xobj  = this;
+        b._pos   = p;
+        b._key   = key;
+        b._value = value;
+
+        _bookmarks = b.listInsert( _bookmarks );
+
+        return b;
     }
 
     final Xobj findXmlnsForPrefix ( String prefix )
@@ -393,7 +466,13 @@ abstract class Xobj implements TypeStore
 
     final Xobj nextAttr ( )
     {
-        return _nextSibling == null || !_nextSibling.isAttr() ? null : _nextSibling;
+        if (_firstChild != null && _firstChild.isAttr())
+            return _firstChild;
+        
+        if (_nextSibling != null && _nextSibling.isAttr())
+            return _nextSibling;
+
+        return null;
     }
 
     final boolean isValid ( )
@@ -436,10 +515,13 @@ abstract class Xobj implements TypeStore
         return x;
     }
 
+    // Can't denormalize a position at the very beginning of the document.  No where to go to the
+    // left!
+    
     final Xobj getDenormal ( int p )
     {
         assert END_POS == -1;
-        assert !isRoot() || p >= END_POS;
+        assert !isRoot() || p == END_POS || p > 0;
 
         Xobj x = this;
         
@@ -501,9 +583,9 @@ abstract class Xobj implements TypeStore
         return true;
     }
 
-    final Xobj walk ( Xobj root )
+    final Xobj walk ( Xobj root, boolean walkChildren )
     {
-        if (_firstChild != null)
+        if (_firstChild != null && walkChildren)
             return _firstChild;
 
         for ( Xobj x = this ; x != root ; x = x._parent )
@@ -585,7 +667,6 @@ abstract class Xobj implements TypeStore
 
     final void removeXobjs ( Xobj first, Xobj last )
     {
-        assert _locale == first._locale;
         assert last._locale == first._locale;
         assert first._parent == this;
         assert last._parent == this;
@@ -864,19 +945,121 @@ abstract class Xobj implements TypeStore
         }
     }
     
-    String getValue ( int wsr )
+    Xobj copyNode ( Locale toLocale )
     {
-        ensureOccupancy();
-        return getString( 1, -1, wsr );
+        Xobj newParent = null;
+        Xobj copy = null;
+            
+        for ( Xobj x = this ; ; )
+        {
+            x.ensureOccupancy();
+            
+            Xobj newX = x.newNode( toLocale );
+
+            newX._srcValue = x._srcValue;
+            newX._offValue = x._offValue;
+            newX._cchValue = x._cchValue;
+            
+            newX._srcAfter = x._srcAfter;
+            newX._offAfter = x._offAfter;
+            newX._cchAfter = x._cchAfter;
+
+            // TODO - strange to have charNode stuff inside here .....
+            newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX );
+            newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX );
+
+            if (newParent == null)
+                copy = newX;
+            else
+                newParent.appendXobj( newX );
+
+            // Walk to the next in-order xobj.  Record the current (y) to compute newParent
+
+            Xobj y = x;
+
+            if ((x = x.walk( this, true )) == null)
+                break;
+
+            if (y == x._parent)
+                newParent = newX;
+            else
+                for ( ; y._parent != x._parent ; y = y._parent )
+                    newParent = newParent._parent;
+        }
+
+        copy._srcAfter = null;
+        copy._offAfter = 0;
+        copy._cchAfter = 0;
+
+        return copy;
     }
 
-    String getValue ( )
+    // Rturns all the chars, even if there is text intermixed with children
+
+    String getCharsAsString ( int p, int cch, int wsr )
     {
-        ensureOccupancy();
-        return getString( 1, -1, Locale.WS_PRESERVE );
+        if (cchRight( p ) == 0)
+            return "";
+
+        Object src = getChars( p, cch );
+
+        if (wsr == Locale.WS_PRESERVE)
+            return CharUtil.getString( src, offSrc(), cchSrc() );
+        
+        Locale.ScrubBuffer scrub = Locale.getScrubBuffer( wsr );
+
+        scrub.scrub( src, offSrc(), cchSrc() );
+        
+        return scrub.getResultAsString();
+    }
+    
+    String getValueAsString ( int wsr )
+    {
+        if (!hasChildren())
+        {
+            Object src = getFirstChars();
+
+            if (wsr == Locale.WS_PRESERVE)
+                return CharUtil.getString( src, offSrc(), cchSrc() );
+
+            Locale.ScrubBuffer scrub = Locale.getScrubBuffer( wsr );
+
+            scrub.scrub( src, offSrc(), cchSrc() );
+
+            return scrub.getResultAsString();
+        }
+
+        Locale.ScrubBuffer scrub = Locale.getScrubBuffer( wsr );
+
+        Cur c = tempCur();
+
+        c.push();
+
+        for ( c.next() ; !c.isAtEndOfLastPush() ; )
+        {
+            if (c.isText())
+            {
+                scrub.scrub( c.getChars( -1 ), c._offSrc, c._cchSrc );
+                c.next();
+            }
+
+            if (c.isComment() || c.isProcinst())
+                c.skip();
+        }
+        
+        String s = scrub.getResultAsString();
+
+        c.release();
+
+        return s;
     }
 
-    String getString ( int p, int cch, int wsr )
+    String getValueAsString ( )
+    {
+        return getValueAsString( Locale.WS_PRESERVE );
+    }
+
+    String getString ( int p, int cch )
     {
         int cchRight = cchRight( p );
 
@@ -913,7 +1096,30 @@ abstract class Xobj implements TypeStore
             }
         }
 
-        return Locale.applyWhiteSpaceRule( s, wsr );
+        return s;
+    }
+
+    // Returns just chars just after the begin tag ... does not get all the text if there are
+    // children
+
+    Object getFirstChars ( )
+    {
+        ensureOccupancy();
+        
+        if (_cchValue > 0)
+            return getChars( 1, -1 );
+
+        Xobj lastAttr = lastAttr();
+
+        if (lastAttr == null || lastAttr._cchAfter <= 0)
+        {
+            _locale._charUtil._offSrc = 0;
+            _locale._charUtil._cchSrc = 0;
+            
+            return null;
+        }
+
+        return lastAttr.getChars( lastAttr.posAfter(), -1 );
     }
 
     Object getChars ( int pos, int cch, Cur c )
@@ -1029,54 +1235,35 @@ abstract class Xobj implements TypeStore
             _user = null;
         }
     }
+
+    // If a node does not have a user, then I don't need to walk its descendents.  NOte that
+    // the doconnect happens in document order.  This may be a problem ... not sure ... May want
+    // to disconnect in a bottom up manner.
     
     void disconnectNonRootUsers ( )
     {
-        for ( Xobj x = isRoot() ? walk( this ) : this ; x != null ; x = x.walk( this ) )
-            x.disconnectUser();
+        Xobj next;
+        
+        for ( Xobj x = this ; x != null ; x = next )
+        {
+            next = x.walk( this, x._user != null );
+
+            if (!x.isRoot())
+                x.disconnectUser();
+        }
     }
 
-//    void disconnectNonRootUsers ( )
-//    {
-//        disconnectUsers( !isRoot() );
-//    }
-//
-//    void disconnectUsers ( boolean doMe )
-//    {
-//        Xobj x = this;
-//
-//        main_loop:
-//        for ( ; ; )
-//        {
-//            if (x._firstChild != null && x._user != null &&
-//                    (!x.isStableUser() || (x == this && doMe)))
-//            {
-//                x = x._firstChild;
-//                continue;
-//            }
-//
-//            for ( ; ; x = x._parent )
-//            {
-//                // post document order process here
-//
-//                if (x._user != null && (x != this || doMe))
-//                {
-//                    x.ensureOccupancy();
-//                    x._user.disconnect_store();
-//                    x._user = null;
-//                }
-//
-//                if (x == this)
-//                    break main_loop;
-//
-//                if (x._nextSibling != null)
-//                {
-//                    x = x._nextSibling;
-//                    break;
-//                }
-//            }
-//        }
-//    }
+    void disconnectChildrenUsers ( )
+    {
+        Xobj next;
+        
+        for ( Xobj x = walk( this, _user == null ) ; x != null ; x = next )
+        {
+            next = x.walk( this, x._user != null );
+
+            x.disconnectUser();
+        }
+    }
 
     /**
      * Given a prefix, returns the namespace corresponding to
@@ -1123,6 +1310,100 @@ abstract class Xobj implements TypeStore
         return defaultAlwaysMapped && prefix.length() == 0 ? "" : null;
     }
 
+    final String prefixForNamespace ( String ns, String suggestion, boolean createIfMissing )
+    {
+        if (ns == null)
+            ns = "";
+
+        // special cases
+        
+        if (ns.equals( Locale._xml1998Uri ))
+            return "xml";
+        
+        if (ns.equals( Locale._xmlnsUri ))
+            return "xmlns";
+
+        // Get the closest container for the spot we're on
+
+        Xobj base = this;
+
+        while ( !base.isContainer() )
+            base = base.ensureParent();
+
+        // Special handling for the no-namespace case
+        
+        if (ns.length() == 0)
+        {
+            // Search for a namespace decl which defines the default namespace
+
+            Xobj a = base.findXmlnsForPrefix( "" );
+
+            // If I did not find a default decl or the decl maps to the no namespace, then
+            // the default namespace is mapped to ""
+            
+            if (a == null || a.getXmlnsUri().length() == 0)
+                return "";
+
+            // At this point, I've found a default namespace which is *not* the no-namespace.
+            // If I can't modify the document to mape the desired no-namespace, I must fail.
+            
+            if (!createIfMissing)
+                return null;
+
+            // Ok, I need to make the default namespace on the nearest container map to ""
+
+            base.setAttr( _locale.createXmlns( null ), "" );
+            
+            return "";
+        }
+
+        // Look for an exisiting mapping for the desired uri which has a visible prefix 
+
+        for ( Xobj c = base ; c != null ; c = c._parent )
+            for ( Xobj a = c.firstAttr() ; a != null ; a = a.nextAttr() )
+                if (a.isXmlns() && a.getXmlnsUri().equals( ns ))
+                    if (base.findXmlnsForPrefix( a.getXmlnsPrefix() ) == a)
+                        return a.getXmlnsPrefix();
+
+        // No exisiting xmlns I can use, need to create one.  See if I can first
+
+        if (!createIfMissing)
+            return null;
+
+        // Sanitize the suggestion.
+
+        if (suggestion != null &&
+              (suggestion.length() == 0 || suggestion.toLowerCase().startsWith( "xml" ) ||
+                    base.findXmlnsForPrefix( suggestion ) != null))
+        {
+            suggestion = null;
+        }
+
+        // If no suggestion, make one up
+
+        if (suggestion == null)
+        {
+            String prefixBase = QNameHelper.suggestPrefix( ns );
+            
+            suggestion = prefixBase;
+            
+            for ( int i = 1 ; ; suggestion = prefixBase + i++ )
+                if (base.findXmlnsForPrefix( suggestion ) == null)
+                    break;
+        }
+
+        // Add a new namespace decl at the top elem if one exists, otherwise at root
+
+        Xobj c = base;
+
+        while ( !c.isRoot() && !c.ensureParent().isRoot() )
+            c = c._parent;
+        
+        base.setAttr( _locale.createXmlns( suggestion ), ns );
+
+        return suggestion;
+    }
+    
     final QName getValueAsQName ( )
     {
         assert !hasChildren();
@@ -1133,7 +1414,7 @@ abstract class Xobj implements TypeStore
         // when I make the store capable of handling strong simple types this
         // can be done ...
 
-        String value = getValue( Locale.WS_COLLAPSE );
+        String value = getValueAsString( Locale.WS_COLLAPSE );
 
         String prefix, localname;
 
@@ -1161,7 +1442,7 @@ abstract class Xobj implements TypeStore
     final Xobj getAttr ( QName name )
     {
         for ( Xobj x = _firstChild ; x != null && x.isAttr() ; x = x._nextSibling )
-            if (x._name.equals( Locale._xsiType ))
+            if (x._name.equals( name ))
                 return x;
 
         return null;
@@ -1176,6 +1457,11 @@ abstract class Xobj implements TypeStore
         return a == null ? null : a.getValueAsQName();
     }
 
+    final XmlObject getObject ( )
+    {
+        return isUserNode() ?  (XmlObject) getUser() : null;
+    }
+    
     final TypeStoreUser getUser ( )
     {
         assert isUserNode();
@@ -1233,10 +1519,19 @@ abstract class Xobj implements TypeStore
 
             c.next();
 
+            long saveVersion = _locale._versionAll;
+            long saveVersionSansText = _locale._versionSansText;
+
             c.insertString( value );
+
+            assert saveVersion != _locale._versionAll;
+            assert saveVersionSansText == _locale._versionSansText;
+            
+            _locale._versionAll = saveVersion;
 
             c.release();
 
+            assert _user == null;
             _user = user;
         }
     }
@@ -1288,6 +1583,7 @@ abstract class Xobj implements TypeStore
                     c.moveNodeContents( null, false );
                     c.release();
 
+                    assert _user == null;
                     _user = user;
                 }
 
@@ -1302,11 +1598,20 @@ abstract class Xobj implements TypeStore
         }
     }
 
-    public String fetch_text ( int whitespaceRule )
+    public String fetch_text ( int wsr )
     {
-        assert isValid() && isOccupied();
+        _locale.enter();
 
-        return getValue( whitespaceRule );
+        try
+        {
+            assert isValid() && isOccupied();
+
+            return getValueAsString( wsr );
+        }
+        finally
+        {
+            _locale.exit();
+        }
     }
 
     public XmlCursor new_cursor ( )
@@ -1401,6 +1706,9 @@ abstract class Xobj implements TypeStore
     {
         _locale.enter();
 
+        TypeStoreUser user = _user;
+        _user = null;
+
         try
         {
             Cur c = tempCur();
@@ -1417,6 +1725,9 @@ abstract class Xobj implements TypeStore
         }
         finally
         {
+            assert _user == null;
+            _user = user;
+            
             _locale.exit();
         }
     }
@@ -1499,7 +1810,7 @@ abstract class Xobj implements TypeStore
             if (a == null)
                 return false;
 
-            String value = a.getValue( Locale.WS_COLLAPSE );
+            String value = a.getValueAsString( Locale.WS_COLLAPSE );
 
             return value.equals( "true" ) || value.equals( "1" );
         }
@@ -1533,7 +1844,7 @@ abstract class Xobj implements TypeStore
     {
         int count = 0;
 
-        for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
             if (x.isElem() && x._name.equals( name ))
                 count++;
 
@@ -1544,7 +1855,7 @@ abstract class Xobj implements TypeStore
     {
         int count = 0;
 
-        for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
             if (x.isElem() && names.contains( x._name ))
                 count++;
 
@@ -1562,7 +1873,7 @@ abstract class Xobj implements TypeStore
 
     public TypeStoreUser find_element_user ( QNameSet names, int i )
     {
-        for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
             if (x.isElem() && names.contains( x._name ) && --i < 0)
                 return x.getUser();
 
@@ -1578,12 +1889,12 @@ abstract class Xobj implements TypeStore
 
     public void find_all_element_users ( QNameSet names, List fillMeUp )
     {
-        for ( Xobj x = _parent._firstChild ; x != null ; x = x._nextSibling )
+        for ( Xobj x = _firstChild ; x != null ; x = x._nextSibling )
             if (x.isElem() && names.contains( x._name ))
                 fillMeUp.add( x.getUser() );
     }
 
-    static TypeStoreUser insertElement ( QName name, Xobj x, int pos )
+    private static TypeStoreUser insertElement ( QName name, Xobj x, int pos )
     {
         x._locale.enter();
 
@@ -1640,21 +1951,19 @@ abstract class Xobj implements TypeStore
         QNameSet endSet = null;
         Xobj candidate = null;
 
-        for ( ; ; )
+        for ( Xobj x = _lastChild ; x != null ; x = x._prevSibling )
         {
-            Xobj x = candidate == null ? _lastChild : candidate._prevSibling;
+            if (x.isContainer())
+            {
+                if (x._name.equals( name ))
+                    break;
 
-            while ( x != null && !x.isElem() )
-                x = x._prevSibling;
+                if (endSet == null)
+                    endSet = _user.get_element_ending_delimiters( name );
 
-            if (x == null || x._name.equals( name ))
-                break;
-
-            if (endSet == null)
-                endSet = _user.get_element_ending_delimiters( name );
-
-            if (endSet.contains( x._name ))
-                candidate = x;
+                if (endSet.contains( x._name ))
+                    candidate = x;
+            }
         }
 
         return
@@ -1663,7 +1972,7 @@ abstract class Xobj implements TypeStore
                 : insertElement( name, candidate, 0 );
     }
 
-    static void removeElement ( Xobj x )
+    private static void removeElement ( Xobj x )
     {
         if (x == null)
             throw new IndexOutOfBoundsException();
@@ -1742,6 +2051,8 @@ abstract class Xobj implements TypeStore
 
     public void remove_attribute ( QName name )
     {
+        _locale.enter();
+        
         try
         {
             if (!removeAttr( name ))
@@ -1755,12 +2066,181 @@ abstract class Xobj implements TypeStore
 
     public TypeStoreUser copy_contents_from ( TypeStore source )
     {
-        throw new RuntimeException( "Not implemeneted" );
+        Xobj xSrc = (Xobj) source;
+        
+        if (xSrc == this)
+            return getUser();
+
+        _locale.enter();
+        
+        try
+        {
+            xSrc._locale.enter();
+            
+            Cur c = tempCur();
+            
+            try
+            {
+
+                Map sourceNamespaces = Locale.getAllNamespaces( c, null );
+                
+                if (isAttr())
+                {
+                    Cur cSrc = xSrc.tempCur();
+                    String value = Locale.getTextValue( cSrc );
+                    cSrc.release();
+                    
+                    c.setValue( value );
+                }
+                else
+                {
+                    // Here I save away the user of this node so that it does not get whacked
+                    // in the following operations.
+
+                    disconnectChildrenUsers();
+
+                    TypeStoreUser savedUser = _user;
+                    _user = null;
+                    
+                    QName xsiType = isContainer() ? getXsiTypeName() : null;
+                
+                    Xobj copy = xSrc.copyNode( _locale );
+
+                    Cur.moveNodeContents( this, null, true );
+
+                    c.next();
+
+                    Cur.moveNodeContents( copy, c, true );
+
+                    c.moveTo( this );
+                    
+                    if (xsiType != null)
+                        c.setXsiType( xsiType );
+
+                    assert _user == null;
+
+                    _user = savedUser;
+                }
+
+                if (sourceNamespaces != null)
+                {
+                    if (!c.isContainer())
+                        c.toParent();
+                    
+                    Locale.applyNamespaces( c, sourceNamespaces );
+                }
+
+            }
+            finally
+            {
+                c.release();
+                
+                xSrc._locale.exit();
+            }
+        }
+        finally
+        {
+            _locale.exit();
+        }
+        
+        return getUser();
     }
 
     public void array_setter ( XmlObject[] sources, QName elementName )
     {
-        throw new RuntimeException( "Not implemeneted" );
+        _locale.enter();
+
+        try
+        {
+            // TODO - this is the quick and dirty implementation, make this faster
+
+            int m = sources.length;
+
+            ArrayList copies = new ArrayList();
+            ArrayList types = new ArrayList();
+
+            for ( int i = 0 ; i < m ; i++ )
+            {
+    // TODO - deal with null sources[ i ] here -- what to do?
+
+                if (sources[ i ] == null)
+                    throw new IllegalArgumentException( "Array element null" );
+
+                else if (sources[ i ].isImmutable())
+                {
+                    copies.add( null );
+                    types.add( null );
+                }
+                else
+                {
+                    Xobj x = ((Xobj) ((TypeStoreUser) sources[ i ]).get_store());
+
+                    if (x._locale == _locale)
+                        copies.add( x.copyNode( _locale ) );
+                    else
+                    {
+                        x._locale.enter();
+
+                        try
+                        {
+                            copies.add( x.copyNode( _locale ) );
+                        }
+                        finally
+                        {
+                            x._locale.exit();
+                        }
+                    }
+
+                    types.add( sources[ i ].schemaType() );
+                }
+            }
+
+            int n = count_elements( elementName );
+
+            for ( ; n > m ; n-- )
+                remove_element( elementName, m );
+
+            for ( ; m > n ; n++ )
+                add_element_user( elementName );
+
+            assert m == n;
+
+            ArrayList elements = new ArrayList();
+
+            find_all_element_users( elementName, elements );
+
+            for ( int i = 0 ; i < elements.size() ; i++ )
+                elements.set( i, (Xobj) ((TypeStoreUser) elements.get( i )).get_store() );
+
+            assert elements.size() == n;
+
+            Cur c = tempCur();
+
+            for ( int i = 0 ; i < n ; i++ )
+            {
+                Xobj x = (Xobj) elements.get( i );
+
+                if (sources[ i ].isImmutable())
+                    x.getObject().set( sources[ i ] );
+                else
+                {
+                    Cur.moveNodeContents( x, null, true );
+
+                    c.moveTo( x );
+                    c.next();
+
+                    Cur.moveNodeContents( (Xobj) copies.get( i ), c, true );
+
+                    x.change_type( (SchemaType) types.get( i ) );
+                }
+            }
+
+            c.release();
+        }
+        finally
+        {
+            _locale.exit();
+        }
     }
 
     public void visit_elements ( TypeStoreVisitor visitor )
@@ -1775,12 +2255,21 @@ abstract class Xobj implements TypeStore
 
     public String find_prefix_for_nsuri ( String nsuri, String suggested_prefix )
     {
-        throw new RuntimeException( "Not implemeneted" );
+        _locale.enter();
+
+        try
+        {
+            return prefixForNamespace( nsuri, suggested_prefix, true );
+        }
+        finally
+        {
+            _locale.exit();
+        }
     }
 
     public String getNamespaceForPrefix ( String prefix )
     {
-        throw new RuntimeException( "Not implemeneted" );
+        return namespaceForPrefix( prefix, true );
     }
 
     //
@@ -2298,7 +2787,7 @@ abstract class Xobj implements TypeStore
     //
     //
 
-    static class Bookmark
+    static class Bookmark implements XmlMark
     {
         boolean isOnList ( Bookmark head )
         {
@@ -2365,6 +2854,22 @@ abstract class Xobj implements TypeStore
             _pos = p;
         }
 
+        //
+        // XmlCursor.XmlMark method
+        //
+        
+        public XmlCursor createCursor ( )
+        {
+            if (_xobj == null)
+            {
+                throw new IllegalStateException(
+                    "Attempting to create a cursor on a bookmark that " +
+                        "has been cleared or replaced.");
+            }
+
+            return Cursor.newCursor( _xobj, _pos );
+        }
+        
         //
         //
         //

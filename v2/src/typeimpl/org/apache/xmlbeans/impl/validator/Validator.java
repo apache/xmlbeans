@@ -1618,18 +1618,20 @@ public final class Validator
         _localAttribute = null;
     }
 
-    public SchemaLocalElement getCurrentElement()
+    public SchemaLocalElement getCurrentElement ( )
     {
         if (_localElement != null)
             return _localElement;
 
         // it means the element is to be skiped and it doesn't have a known SchemaLocalElement
-        if (_eatContent>0)
+        
+        if (_eatContent > 0)
             return null;
 
         //try getting it from the stack (this should happen after END)
-        if (_stateStack!=null && _stateStack._field instanceof SchemaLocalElement )
-            return (SchemaLocalElement)_stateStack._field;
+        
+        if (_stateStack != null && _stateStack._field instanceof SchemaLocalElement)
+            return (SchemaLocalElement) _stateStack._field;
 
         return null;
     }

@@ -65,7 +65,7 @@ public class MoveTest extends BasicCursorTestCase {
         toNextTokenOfType(m_xc, TokenType.TEXT);
         toNextTokenOfType(xc1, TokenType.TEXT);
         m_xc.moveXml(xc1);
-        xc1.toPrevToken();
+        xc1.toParent();
         // verify xc1
         assertEquals("01234text", xc1.getTextValue());
         xc1.dispose();

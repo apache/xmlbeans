@@ -1507,8 +1507,7 @@ final class DomImpl
         {
             Cur c = n.tempCur();
             
-            if (c.toFirstAttr())
-                hasAttrs = true;
+            hasAttrs = c.hasAttrs();
 
             c.release();
         }
@@ -2310,7 +2309,7 @@ final class DomImpl
                 s = CharUtil.getString( node._src, node._off, node._cch );
             else
             {
-                s = c.getString( node._cch );
+                s = c.getCharsAsString( node._cch );
                 c.release();
             }
 
@@ -2779,20 +2778,12 @@ final class DomImpl
     
     public static int attributes_getLength ( Dom e )
     {
-        Cur c = e.tempCur();
-
         int n = 0;
 
-        if (c.toFirstAttr())
-        {
-            for ( ; ; )
-            {
-                n++;
-                
-                if (!c.toNextSibling())
-                    break;
-            }
-        }
+        Cur c = e.tempCur();
+
+        while ( c.toNextAttr() )
+            n++;
 
         c.release();
 
@@ -2836,34 +2827,26 @@ final class DomImpl
 
         Cur c = e.tempCur();
 
-        if (c.toFirstAttr())
+        while ( c.toNextAttr() )
         {
-            while ( c.isAttr() )
+            Dom aa = c.getDom();
+
+            if (_node_getNodeName( aa ).equals( name ))
             {
-                Dom aa = c.getDom();
-
-                boolean hasNext = c.toNextSibling();
-                
-                if (_node_getNodeName( aa ).equals( name ))
+                if (oldAttr == null)
+                    oldAttr = aa;
+                else
                 {
-                    if (oldAttr == null)
-                        oldAttr = aa;
-                    else
-                        removeNode( aa );
+                    removeNode( aa );
+                    c.toPrevAttr();
                 }
-
-                if (!hasNext)
-                    break;
             }
         }
 
         if (oldAttr == null)
         {
             c.moveToDom( e );
-            
-            if (!c.toFirstChild())
-                c.toEnd();
-
+            c.next();
             Cur.moveNode( (Xobj) a, c );
         }
         else
@@ -2900,20 +2883,14 @@ final class DomImpl
 
         Cur c = e.tempCur();
 
-        if (c.toFirstAttr())
+        while ( c.toNextAttr() )
         {
-            for ( ; ; )
+            Dom d = c.getDom();
+
+            if (_node_getNodeName( d ).equals( name ))
             {
-                Dom d = c.getDom();
-                
-                if (_node_getNodeName( d ).equals( name ))
-                {
-                    a = d;
-                    break;
-                }
-                
-                if (!c.toNextSibling())
-                    break;
+                a = d;
+                break;
             }
         }
 
@@ -2947,22 +2924,16 @@ final class DomImpl
 
         Cur c = e.tempCur();
 
-        if (c.toFirstAttr())
+        while ( c.toNextAttr() )
         {
-            for ( ; ; )
+            Dom d = c.getDom();
+
+            QName n = d.getQName();
+
+            if (n.getNamespaceURI().equals( uri ) && n.getLocalPart().equals( local ))
             {
-                Dom d = c.getDom();
-
-                QName n = d.getQName();
-
-                if (n.getNamespaceURI().equals( uri ) && n.getLocalPart().equals( local ))
-                {
-                    a = d;
-                    break;
-                }
-
-                if (!c.toNextSibling())
-                    break;
+                a = d;
+                break;
             }
         }
 
@@ -2993,24 +2964,17 @@ final class DomImpl
 
         Cur c = e.tempCur();
 
-        if (c.toFirstAttr())
+        while ( c.toNextAttr() )
         {
-            while ( c.isAttr() )
+            Dom aa = c.getDom();
+
+            if (_node_getNodeName( aa ).equals( name ))
             {
-                Dom aa = c.getDom();
+                if (oldAttr == null)
+                    oldAttr = aa;
 
-                boolean hasNext = c.toNextSibling();
-
-                if (_node_getNodeName( aa ).equals( name ))
-                {
-                    if (oldAttr == null)
-                        oldAttr = aa;
-                    
-                    removeNode( aa );
-                }
-
-                if (!hasNext)
-                    break;
+                removeNode( aa );
+                c.toPrevAttr();
             }
         }
         
@@ -3047,26 +3011,20 @@ final class DomImpl
 
         Cur c = e.tempCur();
 
-        if (c.toFirstAttr())
+        while ( c.toNextAttr() )
         {
-            while ( c.isAttr() )
+            Dom aa = c.getDom();
+
+            QName qn = aa.getQName();
+
+            if (qn.getNamespaceURI().equals( uri ) && qn.getLocalPart().equals( local ))
             {
-                Dom aa = c.getDom();
+                if (oldAttr == null)
+                    oldAttr = aa;
 
-                boolean hasNext = c.toNextSibling();
-
-                QName qn = aa.getQName();
-
-                if (qn.getNamespaceURI().equals( uri ) && qn.getLocalPart().equals( local ))
-                {
-                    if (oldAttr == null)
-                        oldAttr = aa;
-                    
-                    removeNode( aa );
-                }
-
-                if (!hasNext)
-                    break;
+                removeNode( aa );
+                
+                c.toPrevAttr();
             }
         }
 
@@ -3120,24 +3078,19 @@ final class DomImpl
 
         Cur c = e.tempCur();
 
-        if (c.toFirstAttr())
+        while ( c.toNextAttr() )
         {
-            while ( c.isAttr() )
+            Dom aa = c.getDom();
+
+            if (aa.getQName().equals( name ))
             {
-                Dom aa = c.getDom();
-
-                boolean hasNext = c.toNextSibling();
-
-                if (aa.getQName().equals( name ))
+                if (oldAttr == null)
+                    oldAttr = aa;
+                else
                 {
-                    if (oldAttr == null)
-                        oldAttr = aa;
-                    else
-                        removeNode( aa );
+                    removeNode( aa );
+                    c.toPrevAttr();
                 }
-
-                if (!hasNext)
-                    break;
             }
         }
 
@@ -3184,18 +3137,12 @@ final class DomImpl
 
         Dom a = null;
 
-        if (c.toFirstAttr())
+        while ( c.toNextAttr() )
         {
-            for ( ; ; )
+            if (index-- == 0)
             {
-                if (index-- == 0)
-                {
-                    a = c.getDom();
-                    break;
-                }
-
-                if (!c.toNextSibling())
-                    break;
+                a = c.getDom();
+                break;
             }
         }
 

@@ -123,7 +123,10 @@ public class SelectChldAttTests extends TestCase
         //print("8     selectAttributes set'##other' : ", xos[0].selectAttributes(QNameSet.forWildcardNamespaceString("##other", uri)));
         Assert.assertTrue("8     selectAttributes set'##other' : ",
             verifyResult(xos[0].selectAttributes(QNameSet.forWildcardNamespaceString("##other", uri)),
+// NEWSTORE START
+//            new String[]{"<xml-fragment xmlns:p=\"uri:other_namespace\">attribute in #other namespace</xml-fragment>"}));
             new String[]{"<xml-fragment>attribute in #other namespace</xml-fragment>"}));
+// NEWSTORE END
 
         // elemC
         xos = doc.selectChildren(new QName(uri, "elemC"));
@@ -161,12 +164,19 @@ public class SelectChldAttTests extends TestCase
         //print("12a    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectAttributes(qnsb.toQNameSet()));
         Assert.assertTrue("12a    selectChildren in the any bucket for typeExtendedC: ",
             verifyResult(xos[0].selectAttributes(qnsb.toQNameSet()),
+// NEWSTORE START
+//            new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">attribute in any bucket</xml-fragment>"}));
             new String[]{"<xml-fragment>attribute in any bucket</xml-fragment>"}));
+// NEWSTORE END
         //print("12b    selectChildren in the any bucket for typeExtendedC: " , xos[0].selectAttributes(TypeExtendedC.type.qnameSetForWildcardAttributes()));
         Assert.assertTrue("12b    selectChildren in the any bucket for typeExtendedC: ",
             verifyResult(xos[0].selectAttributes(TypeExtendedC.type.qnameSetForWildcardAttributes()),
+// NEWSTORE START
+//            new String[]{"<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">typeExtendedC</xml-fragment>",
+//            "<xml-fragment xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:p=\"uri_other_namespace\">attribute in any bucket</xml-fragment>"}));
             new String[]{"<xml-fragment>typeExtendedC</xml-fragment>",
             "<xml-fragment>attribute in any bucket</xml-fragment>"}));
+// NEWSTORE END
     }
 
     private static void print(String msg, XmlObject[] xos)

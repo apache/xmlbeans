@@ -673,6 +673,7 @@ public class SchemaCompiler
                 catch (Exception e)
                 {
                     StscState.addError(errorListener, "Cannot load file " + xsdFiles[i] + ": " + e, XmlErrorContext.CANNOT_LOAD_XSD_FILE, xsdFiles[i]);
+e.printStackTrace();
                 }
             }
         }
@@ -723,6 +724,7 @@ public class SchemaCompiler
                 catch (Exception e)
                 {
                     StscState.addError(errorListener, "Cannot load file " + wsdlFiles[i] + ": " + e, XmlErrorContext.CANNOT_LOAD_XSD_FILE, wsdlFiles[i]);
+e.printStackTrace();
                 }
             }
         }

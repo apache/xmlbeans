@@ -45,6 +45,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
+import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.DocumentFragment;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -4415,7 +4416,15 @@ public abstract class Saver implements NamespaceManager
             // TODO - add an options which specifies a Document with which
             // to create the fragment
 
+// NEWSTORE START
+//            DOMImplementation impl =
+//                org.apache.xmlbeans.impl.newstore2.Public2.getDomImplementation();
+//
+//            _doc = impl.createDocument( null, "foo", null );
+//
+//            _doc.removeChild( _doc.getDocumentElement() );
             _doc = ((DocumentBuilder) _threadDocumentBuilderFactory.get()).newDocument();
+// NEWSTORE END
 
             Node result;
 

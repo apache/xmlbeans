@@ -29,6 +29,7 @@ import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlException;
 
 import java.io.PrintStream;
 
@@ -54,17 +55,17 @@ import org.apache.xmlbeans.QNameSet;
 public final class Public2
 {
     public static final String SAAJ_IMPL = "SAAJ_IMPL";
-    
+
     private static Locale newLocale ( Saaj saaj )
     {
         XmlOptions options = null;
-        
+
         if (saaj != null)
         {
             options = new XmlOptions();
             options.put( SAAJ_IMPL, saaj );
         }
-        
+
         return Locale.getLocale( null, options );
     }
 
@@ -86,13 +87,14 @@ public final class Public2
     {
         return newLocale( null );
     }
-    
+
     public static DOMImplementation getDomImplementation ( Saaj saaj )
     {
         return newLocale( saaj );
     }
-    
+
     public static Document parse ( String s )
+        throws XmlException
     {
         Locale l = newLocale( null );
 
@@ -103,8 +105,9 @@ public final class Public2
 
         return (Document) d;
     }
-    
+
     public static Document parse ( String s, XmlOptions options )
+        throws XmlException
     {
         Locale l = newLocale( null );
 
@@ -115,8 +118,9 @@ public final class Public2
 
         return (Document) d;
     }
-    
+
     public static Document parse ( String s, Saaj saaj )
+        throws XmlException
     {
         Locale l = newLocale( saaj );
 
@@ -127,8 +131,9 @@ public final class Public2
 
         return (Document) d;
     }
-    
+
     public static Document parse ( InputStream is, XmlOptions options )
+        throws XmlException, IOException
     {
         Locale l = newLocale( null );
 
@@ -139,8 +144,9 @@ public final class Public2
 
         return (Document) d;
     }
-    
+
     public static Document parse ( InputStream is, Saaj saaj )
+        throws XmlException, IOException
     {
         Locale l = newLocale( saaj );
 
@@ -151,18 +157,18 @@ public final class Public2
 
         return (Document) d;
     }
-    
+
     public static Node getNode ( XMLStreamReader s )
     {
         return Jsr173.nodeFromStream( s );
     }
-    
+
     public static XMLStreamReader getStream ( Node n )
     {
         assert n instanceof Dom;
 
         Dom d = (Dom) n;
-        
+
         Locale l = d.locale();
 
         if (l.noSync())         { l.enter(); try { return DomImpl.getXmlStreamReader( d ); } finally { l.exit(); } }
@@ -173,7 +179,7 @@ public final class Public2
     {
         return save( n, null );
     }
-    
+
     public static void save ( Node n, OutputStream os, XmlOptions options ) throws IOException
     {
         XmlCursor c = getCursor( n );
@@ -182,69 +188,69 @@ public final class Public2
 
         c.dispose();
     }
-    
+
     public static String save ( Node n, XmlOptions options )
     {
         assert n instanceof Dom;
 
         Dom d = (Dom) n;
-        
+
         Locale l = d.locale();
 
         if (l.noSync())         { l.enter(); try { return saveImpl( d, options ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return saveImpl( d, options ); } finally { l.exit(); } }
     }
-    
+
     private static String saveImpl ( Dom d, XmlOptions options )
     {
         Cur c = d.tempCur();
-        
+
         String s = new TextSaver( c, options, null ).saveToString();
 
         c.release();
 
         return s;
     }
-    
+
     public static String save ( XmlCursor c )
     {
         return save( c, null );
     }
-    
+
     public static String save ( XmlCursor xc, XmlOptions options )
     {
         Cursor cursor = (Cursor) xc;
-        
+
         Locale l = cursor.locale();
 
         if (l.noSync())         { l.enter(); try { return saveImpl( cursor, options ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return saveImpl( cursor, options ); } finally { l.exit(); } }
     }
-    
+
     private static String saveImpl ( Cursor cursor, XmlOptions options )
     {
         Cur c = cursor.tempCur();
 
         String s = new TextSaver( c, options, null ).saveToString();
-        
+
         c.release();
 
         return s;
     }
-    
+
     public static XmlCursor newStore ( )
     {
         return newStore( null );
     }
-    
+
     public static XmlCursor newStore ( Saaj saaj )
     {
         Locale l = newLocale( saaj );
-        
+
         if (l.noSync())         { l.enter(); try { return _newStore( l ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return _newStore( l ); } finally { l.exit(); } }
     }
-        
+
     public static XmlCursor _newStore ( Locale l )
     {
         Cur c = l.tempCur();
@@ -269,7 +275,7 @@ public final class Public2
         if (l.noSync())         { l.enter(); try { return DomImpl.getXmlCursor( d ); } finally { l.exit(); } }
         else synchronized ( l ) { l.enter(); try { return DomImpl.getXmlCursor( d ); } finally { l.exit(); } }
     }
-    
+
     public static void dump ( PrintStream o, Dom d )
     {
         d.dump( o );
@@ -285,9 +291,20 @@ public final class Public2
         ((Cursor) c).dump( o );
     }
 
+    public static void dump ( PrintStream o, XmlObject x )
+    {
+        XmlCursor xc = x.newCursor();
+        Node n = xc.getDomNode();
+        Dom d = (Dom) n;
+        xc.dispose();
+        
+        dump( o, d );
+    }
+
     public static void dump ( Dom  d )      { dump( System.out, d ); }
     public static void dump ( Node n )      { dump( System.out, n ); }
     public static void dump ( XmlCursor c ) { dump( System.out, c ); }
+    public static void dump ( XmlObject x ) { dump( System.out, x ); }
 
     private static class TestTypeStoreUser implements TypeStoreUser
     {
@@ -321,28 +338,30 @@ public final class Public2
 
     public static void test ( ) throws Exception
     {
-        Locale l = newLocale( null );
+        Xobj x = (Xobj) Public2.parse( "<a>XY</a>" );
+        
+        Locale l = x._locale;
 
         l.enter();
 
         try
         {
-            Cur c = l.parse( "<a x='y'>AA<b/>BB<c/>CC</a>", XmlObject.type, null );
-            c.setId( "From" );
-            c.next();
-            c.next();
+            Cur c = x.tempCur();
 
-            c.setBookmark( Public2.class, null );
-            
             c.next();
             
-            c.setBookmark( Public2.class, null );
-
-            c.toParent();
+            Cur c2 = c.tempCur();
+            c2.next();
+            
+            Cur c3 = c2.tempCur();
+            c3.nextChars( 1 );
+            
+            Cur c4 = c3.tempCur();
+            c4.nextChars( 1 );
 
             c.dump();
             
-            c.moveNodeContents( null, false );
+            c.moveNodeContents( c, true );
             
             c.dump();
         }
@@ -356,4 +375,3 @@ public final class Public2
         }
     }
 }
- 

@@ -3044,7 +3044,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         }
     }
 
-    private boolean isFragment()
+    private boolean isFragment ( )
     {
         if (! isStartdoc())
             return true;
