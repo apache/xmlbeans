@@ -311,7 +311,7 @@
 
         <mkdir dir="build/private/xmlbeans-${version.base}/lib"/>
         <copy todir="build/private/xmlbeans-${version.base}/lib">
-            <fileset dir="build/lib" includes="xbean.jar,jsr173_api.jar"/>
+            <fileset dir="build/lib" includes="xbean.jar,xmlpublic.jar,xbean_xpath.jar,resolver.jar,jsr173_api.jar"/>
         </copy>
 
         <mkdir dir="build/private/xmlbeans-${version.base}/docs"/>
