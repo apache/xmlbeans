@@ -1,6 +1,6 @@
 
 import javax.xml.namespace.QName;
-import com.bea.xml.*;
+import org.apache.xmlbeans.*;
 
 import dumbNS.RootDocument;
 
@@ -29,8 +29,8 @@ public class SimpleXmlObject
             throws Exception
     {
         try {
-            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n" +
-                         "<root xmlns=\"dumbNS\" xmlns:bar=\"barNS\" b=\"3\" bar:b=\"4\"/>";
+            String xml = "<?xml version=\"1.0\" encoding=\"UTF-8\" ?>"+
+                         "<root xmlns=\"dumbNS:::\" xmlns:bar=\"barNS\" b=\"3\" bar:b=\"4\"/>";
             RootDocument rootDoc = (RootDocument)XmlObject.Factory.parse(xml);
             // Set the underlying XmlObject
             _under = (XmlObject) rootDoc;
@@ -47,6 +47,14 @@ public class SimpleXmlObject
     public XmlObject underlyingXmlObject()
     {
         return _under;
+    }
+
+    public XmlObject substitute(javax.xml.namespace.QName qName,org.apache.xmlbeans.SchemaType schemaType){
+        return underlyingXmlObject().substitute(qName, schemaType);
+    }
+
+    public void dump(){
+        System.out.println( _under.xmlText());
     }
 
     /**

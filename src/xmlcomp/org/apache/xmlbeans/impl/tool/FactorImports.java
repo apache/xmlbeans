@@ -46,18 +46,23 @@ import javax.xml.namespace.QName;
  * name definitions, and factors out the first instance of each of those into
  * a common.xsd file, adding an appropriate <import> statement in the original
  * xsd file.
- */ 
+ */
 public class FactorImports
 {
     public static void printUsage()
     {
-        System.out.println("Refactors a directory of .xsd files to remove name conflicts");
-        System.out.println("Usage:");
-        System.out.println("sfactor [-import common.xsd] [-out outputdir] inputdir");
-        System.out.println(" where inputdir is a directory containing .xsd files");
-        System.out.println(" and outputdir is a directory into which new xsd files,");
-        System.out.println(" plus a commonly imported common.xsd, is placed.");
-        System.out.println(" -license prints license information");
+        System.out.println("Refactors a directory of XSD files to remove name conflicts.");
+        System.out.println("Usage: sfactor [-import common.xsd] [-out outputdir] inputdir");
+        System.out.println("    -import common.xsd - The XSD file to contain redundant ");
+        System.out.println("                         definitions for importing.");
+        System.out.println("    -out outputdir - The directory into which to place XSD ");
+        System.out.println("                     files resulting from refactoring, ");
+        System.out.println("                     plus a commonly imported common.xsd.");
+        System.out.println("    inputdir - The directory containing the XSD files with");
+        System.out.println("               redundant definitions.");
+        System.out.println("    -license - Print license information.");
+        System.out.println();
+
     }
 
     public static void main(String[] args) throws Exception
@@ -70,7 +75,7 @@ public class FactorImports
         flags.add("version");
 
         CommandLine cl = new CommandLine(args, flags, Arrays.asList(new String[] {"import", "out"}));
-        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null || args.length < 1)
         {
             printUsage();
             System.exit(0);
@@ -107,11 +112,11 @@ public class FactorImports
             System.exit(0);
             return;
         }
-        
+
         String commonName = cl.getOpt("import");
         if (commonName == null)
             commonName = "common.xsd";
-        
+
         String out = cl.getOpt("out");
         if (out == null)
         {
@@ -120,7 +125,7 @@ public class FactorImports
         }
         File outdir = new File(out);
         File basedir = new File(args[0]);
-        
+
         // first, parse all the schema files
         File[] files = cl.getFiles();
         Map schemaDocs = new HashMap();
@@ -129,14 +134,14 @@ public class FactorImports
         Set typeNames = new HashSet();
         Set modelGroupNames = new HashSet();
         Set attrGroupNames = new HashSet();
-        
+
         Set dupeElementNames = new HashSet();
         Set dupeAttributeNames = new HashSet();
         Set dupeTypeNames = new HashSet();
         Set dupeModelGroupNames = new HashSet();
         Set dupeAttrGroupNames = new HashSet();
         Set dupeNamespaces = new HashSet();
-        
+
         for (int i = 0; i < files.length; i++)
         {
             try
@@ -144,16 +149,16 @@ public class FactorImports
                 // load schema
                 SchemaDocument doc = SchemaDocument.Factory.parse(files[i]);
                 schemaDocs.put(doc, files[i]);
-                
+
                 // warn about for imports, includes
                 if (doc.getSchema().sizeOfImportArray() > 0 || doc.getSchema().sizeOfIncludeArray() > 0)
                     System.out.println("warning: " + files[i] + " contains imports or includes that are being ignored.");
-                
+
                 // collect together names
                 String targetNamespace = doc.getSchema().getTargetNamespace();
                 if (targetNamespace == null)
                     targetNamespace = "";
-                
+
                 TopLevelComplexType ct[] = doc.getSchema().getComplexTypeArray();
                 for (int j = 0; j < ct.length; j++)
                     noteName(ct[j].getName(), targetNamespace, typeNames, dupeTypeNames, dupeNamespaces);
@@ -169,15 +174,15 @@ public class FactorImports
                 TopLevelAttribute at[] = doc.getSchema().getAttributeArray();
                 for (int j = 0; j < at.length; j++)
                     noteName(at[j].getName(), targetNamespace, attributeNames, dupeAttributeNames, dupeNamespaces);
-                
+
                 NamedGroup gr[] = doc.getSchema().getGroupArray();
                 for (int j = 0; j < gr.length; j++)
                     noteName(gr[j].getName(), targetNamespace, modelGroupNames, dupeModelGroupNames, dupeNamespaces);
-                
+
                 NamedAttributeGroup ag[] = doc.getSchema().getAttributeGroupArray();
                 for (int j = 0; j < ag.length; j++)
                     noteName(ag[j].getName(), targetNamespace, attrGroupNames, dupeAttrGroupNames, dupeNamespaces);
-                
+
             }
             catch (XmlException e)
             {
@@ -190,14 +195,14 @@ public class FactorImports
                 return;
             }
         }
-        
+
         if (schemaDocs.size() == 0)
         {
             System.out.println("No schema files found.");
             System.exit(0);
             return;
         }
-        
+
         if (dupeTypeNames.size() + dupeElementNames.size() + dupeAttributeNames.size() +
                 dupeModelGroupNames.size() + dupeAttrGroupNames.size() == 0)
         {
@@ -205,7 +210,7 @@ public class FactorImports
             System.exit(0);
             return;
         }
-        
+
         // create a schema doc for each namespace to be imported
         Map commonDocs = new HashMap();
         Map commonFiles = new HashMap();
@@ -222,23 +227,23 @@ public class FactorImports
             commonDocs.put(namespace, commonDoc);
             commonFiles.put(commonDoc, commonFileFor(commonName, namespace, count++, outdir));
         }
-        
+
         // pull out all the duplicate definitions and drop them into the file
         // we reuse the elementNames (etc) sets to keep track of which definitions
         // we have already inserted.
         for (Iterator i = schemaDocs.keySet().iterator(); i.hasNext(); )
         {
             SchemaDocument doc = (SchemaDocument)i.next();
-            
+
             // collect together names
             String targetNamespace = doc.getSchema().getTargetNamespace();
             if (targetNamespace == null)
                 targetNamespace = "";
-            
+
             SchemaDocument commonDoc = (SchemaDocument)commonDocs.get(targetNamespace);
-            
+
             boolean needImport = false;
-                
+
             TopLevelComplexType ct[] = doc.getSchema().getComplexTypeArray();
             for (int j = ct.length - 1; j >= 0; j--)
             {
@@ -293,7 +298,7 @@ public class FactorImports
                 needImport = true;
                 doc.getSchema().removeElement(j);
             }
-                
+
             NamedAttributeGroup ag[] = doc.getSchema().getAttributeGroupArray();
             for (int j = 0; j < ag.length; j++)
             {
@@ -304,7 +309,7 @@ public class FactorImports
                 needImport = true;
                 doc.getSchema().removeElement(j);
             }
-            
+
             if (needImport)
             {
                 IncludeDocument.Include newInclude = doc.getSchema().addNewInclude();
@@ -315,7 +320,7 @@ public class FactorImports
                     newInclude.setSchemaLocation(relativeURIFor(outputFile, commonFile));
             }
         }
-        
+
         // make the directory for output
         if (!outdir.isDirectory() && !outdir.mkdirs())
         {
@@ -323,7 +328,7 @@ public class FactorImports
             System.exit(1);
             return;
         }
-        
+
         // now write all those docs back out.
         for (Iterator i = schemaDocs.keySet().iterator(); i.hasNext(); )
         {
@@ -335,16 +340,16 @@ public class FactorImports
             else
                 doc.save(outputFile, new XmlOptions().setSavePrettyPrint().setSaveAggresiveNamespaces());
         }
-        
+
         for (Iterator i = commonFiles.keySet().iterator(); i.hasNext(); )
         {
             SchemaDocument doc = (SchemaDocument)i.next();
             File outputFile = (File)commonFiles.get(doc);
             doc.save(outputFile, new XmlOptions().setSavePrettyPrint().setSaveAggresiveNamespaces());
         }
-        
+
     }
-    
+
     private static File outputFileFor(File file, File baseDir, File outdir)
     {
         URI base = baseDir.getAbsoluteFile().toURI();
@@ -355,12 +360,12 @@ public class FactorImports
             System.out.println("Cannot relativize " + file);
             return null;
         }
-        
+
         URI outbase = outdir.toURI();
         URI out = CodeGenUtil.resolve(outbase, rel);
         return new File(out);
     }
-    
+
     private static URI commonAncestor(URI first, URI second)
     {
         String firstStr = first.toString();
@@ -388,8 +393,8 @@ public class FactorImports
             return null;
         }
     }
-    
-    
+
+
     private static String relativeURIFor(File source, File target)
     {
         URI base = source.getAbsoluteFile().toURI();
@@ -398,7 +403,7 @@ public class FactorImports
         URI commonBase = commonAncestor(base, abs);
         if (commonBase == null)
             return abs.toString();
-        
+
         URI baserel = commonBase.relativize(base);
         URI targetrel = commonBase.relativize(abs);
         if (baserel.isAbsolute() || targetrel.isAbsolute())
@@ -415,7 +420,7 @@ public class FactorImports
         }
         return prefix + targetrel.toString();
     }
-    
+
     private static File commonFileFor(String commonName, String namespace, int i, File outdir)
     {
         String name = commonName;
@@ -428,8 +433,8 @@ public class FactorImports
         }
         return new File(outdir, name);
     }
-    
-    
+
+
     private static void noteName(String name, String targetNamespace, Set seen, Set dupes, Set dupeNamespaces)
     {
         if (name == null)
@@ -442,9 +447,9 @@ public class FactorImports
         }
         else
             seen.add(qName);
-        
+
     }
-        
+
     private static boolean isFirstDuplicate(String name, String targetNamespace, Set notseen, Set dupes)
     {
         if (name == null)
@@ -457,7 +462,7 @@ public class FactorImports
         }
         return false;
     }
-    
+
     private static boolean isDuplicate(String name, String targetNamespace, Set dupes)
     {
         if (name == null)
@@ -465,6 +470,6 @@ public class FactorImports
         QName qName = new QName(targetNamespace, name);
         return (dupes.contains(qName));
     }
-        
-    
+
+
 }

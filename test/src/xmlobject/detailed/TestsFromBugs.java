@@ -114,7 +114,8 @@ public class TestsFromBugs extends TestCase
     }
 
     /**
-     * Simple Compilation Tests.
+     * Simple Compilation Tests - If the methods are not present,
+     *                          - this class won't compile
      * Ensures method getSourceName is on SchemaComponent and
      * can be called from SchemaGlobalElement and SchemaGlobalAttribute
      * @throws Exception
@@ -128,42 +129,24 @@ public class TestsFromBugs extends TestCase
                 "    xmlns:pre=\"noResolutionNamespace\"\n" +
                 "    elementFormDefault=\"qualified\"\n" +
                 "    attributeFormDefault=\"unqualified\">\n" +
-                "    <xs:element name=\"ItemRequest\" type=\"tns:ItemRequestType\"/>\n" +
-                "    <xs:complexType name=\"ItemRequestType\">\n" +
-                "        <xs:annotation>\n" +
-                "            <xs:documentation>\n" +
-                "                Ensure that XML content is allowed and not validated when the novdoc option is set\n" +
-                "                provided content is XHTML compliant and no elements use the schema namespaces\n" +
-                "                        <tns:ItemRequest>\n" +
-                "                            foobaz\n" +
-                "                        </tns:ItemRequest>\n" +
-                "                <xs:complexType name=\"foobar\">\n" +
-                "                    <xs:sequence>\n" +
-                "                        <xs:element name=\"foobaz\" type=\"pre:String\"/>\n" +
-                "                    </xs:sequence>\n" +
-                "                </xs:complexType>\n" +
-                "                provided content is XHTML compliant and no elements use the schema namespaces\n" +
-                "            </xs:documentation>\n" +
-                "        </xs:annotation>\n" +
-                "                <xs:sequence>\n" +
-                "                    <xs:element name=\"foobaz\" type=\"xs:string\">\n" +
-                "                        <xs:annotation>\n" +
-                "                            <xs:documentation>\n" +
-                "                   Ensure that XML content is allowed and not validated when the novdoc option is set\n" +
-                "                provided content is XHTML compliant and no elements use the schema namespaces\n" +
-                "                            </xs:documentation>\n" +
-                "                        </xs:annotation>\n" +
-                "                    </xs:element>\n" +
-                "                </xs:sequence>\n" +
-                "        <xs:attribute name=\"baz\" use=\"required\"/>\n" +
-                "    </xs:complexType>\n" +
+                "   <xs:element name=\"QuantityElement\" type=\"tns:quantity\" />"+
+                "   <xs:simpleType name=\"quantity\">\n" +
+                "    <xs:restriction base=\"xs:NMTOKEN\">\n" +
+                "      <xs:enumeration value=\"all\"/>\n" +
+                "      <xs:enumeration value=\"most\"/>\n" +
+                "      <xs:enumeration value=\"some\"/>\n" +
+                "      <xs:enumeration value=\"few\"/>\n" +
+                "      <xs:enumeration value=\"none\"/>\n" +
+                "    </xs:restriction>\n" +
+                "  </xs:simpleType>" +
                 "</xs:schema>";
 
         XmlObject[] schemas = new XmlObject[]{
             XmlObject.Factory.parse(str)};
+        XmlOptions xOpt = new XmlOptions().setValidateTreatLaxAsSkip();
 
         SchemaTypeSystem sts = XmlBeans.compileXmlBeans(null, null, schemas,
-                null, null, null, null);
+                null, XmlBeans.getBuiltinTypeSystem(), null, xOpt);
 
         //ensure SchemaGlobalElement has getSourceName Method
         SchemaGlobalElement[] sge = sts.globalElements();

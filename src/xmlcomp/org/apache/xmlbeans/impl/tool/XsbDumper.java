@@ -37,8 +37,24 @@ import javax.xml.namespace.QName;
 
 public class XsbDumper
 {
+    public static void printUsage()
+    {
+        System.out.println("Prints the contents of an XSB file in human-readable form.");
+        System.out.println("An XSB file contains schema meta information needed to ");
+        System.out.println("perform tasks such as binding and validation.");
+        System.out.println("Usage: dumpxsb myfile.xsb");
+        System.out.println("    myfile.xsb - Path to an XSB file.");
+        System.out.println();
+    }
+
     public static void main(String[] args)
     {
+        if (args.length == 0) {
+            printUsage();
+            System.exit(0);
+            return;
+        }
+
         for (int i = 0; i < args.length; i++)
         {
             dump(new File(args[i]), true);
@@ -377,7 +393,7 @@ public class XsbDumper
 
         // qname map of document types, by the qname of the contained element
         dumpQNameMap("Document types");
-        
+
         // qname map of attribute types, by the qname of the contained attribute
         dumpQNameMap("Attribute types");
 
@@ -386,7 +402,7 @@ public class XsbDumper
 
         // all the namespaces
         dumpStringArray("Defined namespaces");
-        
+
         // version 15 stuff for redefines
         if (atLeast(2, 15, 0))
         {
@@ -680,7 +696,7 @@ public class XsbDumper
     {
         int n = readInt();
         if (n > 0)
-        {             
+        {
             emit("Top-level annotations (" + n + "):");
             indent();
             for (int i = 0; i < n; i++)
@@ -1018,7 +1034,7 @@ public class XsbDumper
 
     private static final XmlOptions prettyOptions =
         new XmlOptions().setSavePrettyPrint();
-    
+
     void dumpXml()
     {
         String xml = readString();
@@ -1032,7 +1048,7 @@ public class XsbDumper
             emit( xml );
         }
     }
-    
+
     void dumpModelGroupData()
     {
         emit("Name: " + qnameString(readQName()));
@@ -1148,7 +1164,7 @@ public class XsbDumper
         String type = readType();
         if (type == null)
             return "null";
-        
+
         int btc = readShort();
         String value;
         switch (btc)

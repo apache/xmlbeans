@@ -43,13 +43,15 @@ public class StreamInstanceValidator
 
     public static void printUsage()
     {
-        System.out.println("Validates a schema defintion and instances within the schema.");
-        System.out.println("Usage: validate [switches] schema.xsd instance.xml");
-        System.out.println("Switches:");
-        System.out.println("    -dl    enable network downloads for imports and includes");
-        System.out.println("    -nopvr disable particle valid (restriction) rule");
-        System.out.println("    -noupa diable unique particle attributeion rule");
-        System.out.println("    -license prints license information");
+        System.out.println("Validates the specified instance against the specified schema.");
+        System.out.println("A streaming validation useful for validating very large instance ");
+        System.out.println("documents with less memory. Contrast with the validate tool.");
+        System.out.println("Usage: svalidate [-dl] [-nopvr] [-noupa] [-license] schema.xsd instance.xml");
+        System.out.println("Options:");
+        System.out.println("    -dl - permit network downloads for imports and includes (default is off)");
+        System.out.println("    -noupa - do not enforce the unique particle attribution rule");
+        System.out.println("    -nopvr - do not enforce the particle valid (restriction) rule");
+        System.out.println("    -license - prints license information");
     }
 
     public static void main(String[] args)
@@ -65,7 +67,7 @@ public class StreamInstanceValidator
         flags.add("noupa");
 
         CommandLine cl = new CommandLine(args, flags, Collections.EMPTY_SET);
-        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
+        if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null || args.length < 1)
         {
             printUsage();
             System.exit(0);
@@ -137,7 +139,7 @@ public class StreamInstanceValidator
 
         if (jarFiles != null && jarFiles.length > 0)
             sLoader = XmlBeans.typeLoaderForResource(XmlBeans.resourceLoaderForPath(jarFiles));
-        
+
         try {
             if (schemas != null && schemas.length > 0)
                 sLoader = XmlBeans.compileXsd(schemas, sLoader, schemaOptions);
@@ -182,7 +184,7 @@ public class StreamInstanceValidator
 
                 time = System.currentTimeMillis();
                 vsr.init(rdr, true, null, sLoader, options, errors);
-                
+
                 while (vsr.hasNext()) {
                     vsr.next();
                 }
