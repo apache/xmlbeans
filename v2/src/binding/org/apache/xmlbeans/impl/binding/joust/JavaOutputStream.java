@@ -237,20 +237,52 @@ public interface JavaOutputStream {
           throws IOException;
 
   /**
-   * Writes out a source-code comment in the current class.  The comment
+   * <p>Writes out a source-code comment in the current class.  The comment
    * will usually be interpreted as applying to whatever is written next
    * in the stream, i.e. to write comments about a given class, you should
-   * first call writeComment and then call writeClass.  The precise
-   * formatting of the comments will be implementation-dependendent, and
-   * some implementations may ignore comments altogether.
+   * first call writeComment and then call writeClass.</p>
+   *
+   * <p>Line breaks in the comment will be respected, but it should NOT
+   * include any formatting tokens such as '/*' or '//' - the implementation
+   * will properly format the comments based on context.  Also note that
+   * you should not use writeComment to add javadoc tags; code metadata
+   * should be added with writeAnnotation.</p>
    *
    * @param comment The text of the comment.
    *
    * @throws IllegalStateException if the current stream state does not allow
-   *         a field declaration (e.g. if startClass has not been called).
+   *         writing a comment (e.g. if startFile has not been called).
    *         writeComment should be a valid operation at all other times.
    */
   public void writeComment(String comment) throws IOException;
+
+  /**
+   * <p>Writes out an annotation in the current class.  The annotation will
+   * apply to whatever is written next in the stream, i.e. to an annotation
+   * for a method, call wrteAnnotation just before writing the method with
+   * writeMethod.  The way in which the annotations are
+   * implementation-dependent, but this typically will result in either
+   * javadoc tags or JSR175 annotations being produced.</p>
+   *
+   * <p>Note that the caller is free to re-use the Annotation parameter object
+   * after making a call to this method.</p>
+   *
+   * @param ann the annotation to write to the stream.
+   *
+   * @throws IllegalStateException if the current stream state does not allow
+   *         writing an annotation (e.g. if startFile has not been called).
+   *         writeComment should be a valid operation at most other times.
+   */
+  public void writeAnnotation(Annotation ann) throws IOException;
+
+  /**
+   * Returns an Annotation object of the given type that can be populated
+   * with some values (setValue) and then passed to the writeAnnotation
+   * method.
+   *
+   * @return An ExpressionFactory.  Must never return null.
+   */
+  public Annotation createAnnotation(String type);
 
   /**
    * Writes out a return statement for the current method that returns
@@ -310,8 +342,6 @@ public interface JavaOutputStream {
    */
   public void endFile() throws IOException;
 
-
-
   /**
    * Closes the JavaOutputStream.  This should be called exactly once and
    * only when you are completely finished with the stream.  Note that in
@@ -327,6 +357,7 @@ public interface JavaOutputStream {
    * @return An ExpressionFactory.  Must never return null.
    */
   public ExpressionFactory getExpressionFactory();
+
 
 
 }

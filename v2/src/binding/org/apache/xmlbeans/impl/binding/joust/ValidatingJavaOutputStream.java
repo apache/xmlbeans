@@ -154,6 +154,14 @@ public class ValidatingJavaOutputStream implements JavaOutputStream {
     mDest.writeComment(comment);
   }
 
+  public void writeAnnotation(Annotation ann) throws IOException {
+    mDest.writeAnnotation(ann);
+  }
+
+  public Annotation createAnnotation(String type) {
+    return mDest.createAnnotation(type);
+  }
+
   public void writeReturnStatement(Expression expression) throws IOException {
     mDest.writeReturnStatement(expression);
   }

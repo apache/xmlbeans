@@ -58,10 +58,10 @@ package org.apache.xmlbeans.impl.binding.joust;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.io.File;
+import java.io.StringWriter;
 import java.lang.reflect.Modifier;
+import java.util.Iterator;
 import java.util.StringTokenizer;
-import java.util.Collection;
 
 /**
  * <p>Implementation of JavaOutputStream which outputs Java source code.</p>
@@ -131,8 +131,9 @@ public class SourceJavaOutputStream
   private String mPackageName = null;
   private String mClassOrInterfaceName = null;
   private WriterFactory mWriterFactory;
+  private StringWriter mCommentBuffer = null;
+  private PrintWriter mCommentPrinter = null;
   protected boolean mVerbose = false;
-
 
   // ========================================================================
   // Constructors
@@ -157,7 +158,7 @@ public class SourceJavaOutputStream
   // JavaOutputStream implementation
 
   public void startFile(String packageName,
-                           String classOrInterfaceName) throws IOException {
+                        String classOrInterfaceName) throws IOException {
     if (packageName == null) {
       throw new IllegalArgumentException("null package");
     }
@@ -180,6 +181,7 @@ public class SourceJavaOutputStream
                          String[] interfaceNames)
           throws IOException {
     checkStateForWrite();
+    printCommentsIfNeeded();
     if (mVerbose) verbose("startClass "+mPackageName+"."+mClassOrInterfaceName);
     extendsClassName = makeI18nSafe(extendsClassName);
     mOut.println("package " + mPackageName + ";");
@@ -210,9 +212,8 @@ public class SourceJavaOutputStream
           throws IOException {
     if (mVerbose) verbose("startInterface "+mPackageName+"."+mClassOrInterfaceName);
     checkStateForWrite();
-    mClassOrInterfaceName = makeI18nSafe(mClassOrInterfaceName);
+    printCommentsIfNeeded();
     mPackageName = makeI18nSafe(mPackageName);
-    this.mClassOrInterfaceName = null;
     mOut.println("package " + mPackageName + ";");
     // We need to write up the actual class declaration and save it until
     // after the imports have been written
@@ -237,6 +238,7 @@ public class SourceJavaOutputStream
                              Expression defaultValue) throws IOException {
     if (mVerbose) verbose("writeField "+typeName+" "+fieldName);
     checkStateForWrite();
+    printCommentsIfNeeded();
     printIndents();
     typeName = makeI18nSafe(typeName);
     fieldName = makeI18nSafe(fieldName);
@@ -259,7 +261,7 @@ public class SourceJavaOutputStream
                                      String[] paramNames,
                                      String[] exceptionClassNames)
           throws IOException {
-    return startMethod(modifiers, mClassOrInterfaceName, null,
+    return startMethod(modifiers, null, mClassOrInterfaceName,
                        paramTypeNames, paramNames, exceptionClassNames);
   }
 
@@ -272,6 +274,7 @@ public class SourceJavaOutputStream
           throws IOException {
     if (mVerbose) verbose("startMethod "+methodName);
     checkStateForWrite();
+    printCommentsIfNeeded();
     methodName = makeI18nSafe(methodName);
     returnTypeName = makeI18nSafe(returnTypeName);
     printIndents();
@@ -312,23 +315,31 @@ public class SourceJavaOutputStream
 
   public void writeComment(String comment) throws IOException {
     if (mVerbose) verbose("comment");
-    checkStateForWrite();
-    printIndents();
-    mOut.println("/**");
-    StringTokenizer st = new StringTokenizer(makeI18nSafe(comment),
-                                             COMMENT_LINE_DELIMITERS);
-    while (st.hasMoreTokens()) {
-      printIndents();
-      mOut.print(" * ");
-      mOut.println(st.nextToken());
+    getCommentPrinter().println(comment);
+  }
+
+  public void writeAnnotation(Annotation ann) throws IOException {
+    //FIXME haven't really thought much about how to write annotations
+    //as javadoc - this is more just proof-of-concept at this point.
+    //FIXME Eventually, will also need a switch for writing out jsr175
+    PrintWriter out = getCommentPrinter();
+    Iterator i = ((AnnotationImpl)ann).getPropertyNames();
+    while(i.hasNext()) {
+      String n = i.next().toString();
+      out.print('@');
+      out.print(((AnnotationImpl)ann).getType());
+      out.print('.');
+      out.print(n);
+      out.print(" = ");
+      out.print(((AnnotationImpl)ann).getValueDeclaration(n));
+      out.println();
     }
-    printIndents();
-    mOut.println(" */");
   }
 
   public void writeReturnStatement(Expression expression) throws IOException {
     if (mVerbose) verbose("return");
     checkStateForWrite();
+    printCommentsIfNeeded();
     printIndents();
     mOut.print("return ");
     mOut.print(((String) expression.getMemento()));
@@ -339,6 +350,7 @@ public class SourceJavaOutputStream
           throws IOException {
     if (mVerbose) verbose("assignment");
     checkStateForWrite();
+    printCommentsIfNeeded();
     printIndents();
     mOut.print(((String) left.getMemento()));
     mOut.print(" = ");
@@ -349,6 +361,7 @@ public class SourceJavaOutputStream
   public void endMethodOrConstructor() throws IOException {
     if (mVerbose) verbose("endMethodOrConstructor");
     checkStateForWrite();
+    printCommentsIfNeeded();
     reduceIndent();
     printIndents();
     mOut.println('}');
@@ -358,6 +371,7 @@ public class SourceJavaOutputStream
   public void endClassOrInterface() throws IOException {
     if (mVerbose) verbose("endClassOrInterface");
     checkStateForWrite();
+    printCommentsIfNeeded();
     reduceIndent();
     printIndents();
     mOut.println('}');
@@ -365,12 +379,17 @@ public class SourceJavaOutputStream
 
   public void endFile() throws IOException {
     checkStateForWrite();
+    printCommentsIfNeeded();
     if (mVerbose) verbose("endFile");
     closeOut();
   }
 
   public ExpressionFactory getExpressionFactory() {
     return this;
+  }
+
+  public Annotation createAnnotation(String type) {
+    return new AnnotationImpl(type);
   }
 
   public void close() throws IOException {
@@ -404,11 +423,39 @@ public class SourceJavaOutputStream
   // ========================================================================
   // Private methods
 
+  private PrintWriter getCommentPrinter() {
+    if (mCommentPrinter == null) {
+      mCommentBuffer = new StringWriter();
+      mCommentPrinter = new PrintWriter(mCommentBuffer);
+    }
+    return mCommentPrinter;
+  }
+
+  private void printCommentsIfNeeded() {
+    if (mCommentBuffer == null) return;
+    checkStateForWrite();
+    String comment = mCommentBuffer.toString();
+    printIndents();
+    mOut.println("/**");
+    StringTokenizer st = new StringTokenizer(makeI18nSafe(comment),
+                                             COMMENT_LINE_DELIMITERS);
+    while (st.hasMoreTokens()) {
+      printIndents();
+      mOut.print(" * ");
+      mOut.println(st.nextToken());
+    }
+    printIndents();
+    mOut.println(" */");
+    mCommentBuffer = null;
+    mCommentPrinter = null;
+  }
+
   private void checkStateForWrite() {
     if (mOut == null) {
       throw new IllegalStateException("Attempt to generate code when no "+
-                                      "file open.  This is due to broken" +
-                                      "logic in the calling class");
+                                      "file open.  This is indicates that "+
+                                      "there is some broken logic in the " +
+                                      "calling class");
     }
   }
 
@@ -425,8 +472,9 @@ public class SourceJavaOutputStream
     mIndentLevel--;
     if (mIndentLevel < 0) {
       throw new IllegalStateException("Indent level reduced below zero. "+
-                                      "This is a result of an error in the "+
-                                      "calling code.");
+                                      "This is indicates that "+
+                                      "there is some broken logic in the " +
+                                      "calling class");
     }
   }
 
@@ -511,15 +559,25 @@ public class SourceJavaOutputStream
      JavaOutputStream joust = new ValidatingJavaOutputStream(sjos);
     ExpressionFactory exp = joust.getExpressionFactory();
     joust.startFile("foo.bar.baz","MyClass");
+    Annotation author = joust.createAnnotation("author");
+    author.setValue("name","Patrick Calahan");
+    joust.writeComment("Test class");
+    joust.writeAnnotation(author);
+
+
     joust.startClass(Modifier.PUBLIC | Modifier.FINAL,"MyBaseClass", null);
-    String[] paramNames = {"count", "fooList"};
     String[] paramTypes = {"int", "List"};
+    String[] paramNames = {"count", "fooList"};
     String[] exceptions = {"IOException"};
+    Annotation deprecated = joust.createAnnotation("deprecated");
+    deprecated.setValue("value",true);
     Variable counter =
             joust.writeField(Modifier.PRIVATE, "int", "counter", exp.createInt(99));
-    joust.writeComment("This is the constructor\n@foo godzilla\n@bar mothra");
+    joust.writeComment("This is the constructor comment");
+    joust.writeComment("And here is another.\n\n  ok?");
+    joust.writeAnnotation(deprecated);
     Variable[] params = joust.startConstructor
-            (Modifier.PUBLIC, paramNames, paramTypes, exceptions);
+            (Modifier.PUBLIC, paramTypes, paramNames, exceptions);
     joust.writeAssignmentStatement(counter, params[0]);
     joust.endMethodOrConstructor();
     joust.endClassOrInterface();
