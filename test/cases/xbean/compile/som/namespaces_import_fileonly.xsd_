@@ -38,10 +38,10 @@
 
     <!-- import with just the file name -->
     <xs:import namespace="http://openuri.org/namespaceimported"
-                schemaLocation="namespaces1.xsd" />
+                schemaLocation="namespaces1.xsd_" />
 
 
-    <xs:element name="NamespaceRootElem">
+    <xs:element name="NamespaceRootElem1">
         <xs:complexType>
             <xs:sequence>
                 <xs:element ref="imp:ImportedSchemaElem">

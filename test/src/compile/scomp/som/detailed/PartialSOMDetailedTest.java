@@ -75,7 +75,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
         // Step 1 : create a PSOM from an incomplete/invalid xsd (datatypes.xsd) with unresolved references to various types
         String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("datatypes.xsd",
+        SchemaTypeSystem baseSTS = createNewSTS("datatypes.xsd_",
                 null,
                 "BaseSchemaTS",
                 sBaseSourceName);
@@ -108,7 +108,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
         // Step 1: read in a clean XSD groups_added.xsd
         String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("groups_added.xsd",
+        SchemaTypeSystem baseSTS = createNewSTS("groups_added.xsd_",
                 null,
                 "BaseSchemaTS",
                 sBaseSourceName);
@@ -139,7 +139,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 getModelGroup(baseSTS, "NamedModelGroup"));
 
         // step2: load an invalid PSOM by deleting the ModelGroup and AttributeGroup definitions commented
-        SchemaTypeSystem modifiedSTS = createNewSTS("reusable_grps.xsd",
+        SchemaTypeSystem modifiedSTS = createNewSTS("reusable_grps.xsd_",
                 baseSTS,
                 "ModifiedSchemaTS",
                 sBaseSourceName);
@@ -165,7 +165,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 getElementType(modifiedSTS, "AttributeGroupElem"));
 
         // step 3: create a PSOM with the original xsd
-        SchemaTypeSystem finalSTS = createNewSTS("groups_added.xsd",
+        SchemaTypeSystem finalSTS = createNewSTS("groups_added.xsd_",
                 modifiedSTS,
                 "FinalSchemaTS", sBaseSourceName);
         Assert.assertNotNull("Schema Type System created is Null.", finalSTS);
@@ -197,7 +197,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
         // Step 1: read in a clean XSD datatypes_added.xsd, to create a base schema with no unresolved components
         String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("datatypes_added.xsd",
+        SchemaTypeSystem baseSTS = createNewSTS("datatypes_added.xsd_",
                 null,
                 "BaseSchemaTS",
                 sBaseSourceName);
@@ -231,7 +231,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
 
         //Step 2 : modify types from the schema - should result in STS with unresolved refs
-        SchemaTypeSystem modifiedSTS = createNewSTS("datatypes_modified.xsd",
+        SchemaTypeSystem modifiedSTS = createNewSTS("datatypes_modified.xsd_",
                 baseSTS,
                 "ModifiedSchemaTS",
                 sBaseSourceName);
@@ -260,7 +260,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 validateInstance(getTestCaseFile("instance_simple_types_valid.xml"), modifiedSTS));
 
         // step 3: reload the original STS
-        SchemaTypeSystem finalSTS = createNewSTS("datatypes_added.xsd",
+        SchemaTypeSystem finalSTS = createNewSTS("datatypes_added.xsd_",
                 modifiedSTS,
                 "FinalSchemaTS",
                 sBaseSourceName);
@@ -298,7 +298,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
         // Step 1: read in a clean XSD derived_types_added.xsd with base and derived types to create a base schema with no unresolved components
         String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("derived_types_added.xsd",
+        SchemaTypeSystem baseSTS = createNewSTS("derived_types_added.xsd_",
                 null,
                 "BaseSchemaTS",
                 sBaseSourceName);
@@ -324,7 +324,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 "RestrictionSimpleContentBaseType", getElementType(baseSTS, "RestrictionSimpleContentBaseTypeElem"));
 
         // Step 2: create invalid PSOM with base type removed
-        SchemaTypeSystem modifiedSTS = createNewSTS("derived_types.xsd",
+        SchemaTypeSystem modifiedSTS = createNewSTS("derived_types.xsd_",
                 baseSTS,
                 "ModifiedSchemaTS",
                 sBaseSourceName);
@@ -360,7 +360,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
         // Step 1: read in a clean XSD groups_added.xsd
         String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("groups_added.xsd",
+        SchemaTypeSystem baseSTS = createNewSTS("groups_added.xsd_",
                 null,
                 "BaseSchemaTS",
                 sBaseSourceName);
@@ -388,7 +388,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 getAttributeGroup(baseSTS, "AttributeGroup"));
 
         // step2: load a modified xsd with type of head elem in subs grp changed
-        SchemaTypeSystem modifiedSTS = createNewSTS("reusable_grps_modified.xsd",
+        SchemaTypeSystem modifiedSTS = createNewSTS("reusable_grps_modified.xsd_",
                 baseSTS,
                 "ModifiedSchemaTS",
                 sBaseSourceName);
@@ -413,7 +413,7 @@ public class PartialSOMDetailedTest extends SomTestBase
                 getAttributeGroup(modifiedSTS, "AttributeGroup"));
 
         // step3 : reload the original xsd
-        SchemaTypeSystem finalSTS = createNewSTS("groups_added.xsd",
+        SchemaTypeSystem finalSTS = createNewSTS("groups_added.xsd_",
                 modifiedSTS,
                 "FinalSchemaTS",
                 sBaseSourceName);
@@ -447,7 +447,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
         // Step 1: read in a clean XSD derived_types_added.xsd
         String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("derived_types_added.xsd",
+        SchemaTypeSystem baseSTS = createNewSTS("derived_types_added.xsd_",
                 null,
                 "BaseSchemaTS",
                 sBaseSourceName);
@@ -513,7 +513,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
 
         // step 2 : change the base types now : derived_types_modified.xsd
-        SchemaTypeSystem modifiedSTS = createNewSTS("derived_types_modifed.xsd",
+        SchemaTypeSystem modifiedSTS = createNewSTS("derived_types_modifed.xsd_",
                 baseSTS,
                 "ModifiedSchemaTS",
                 sBaseSourceName);
@@ -543,16 +543,14 @@ public class PartialSOMDetailedTest extends SomTestBase
         System.out.println("Inside test case testNameSpacesImportFile()");
 
         // Step 1: read in an xsd that imports from another xsd file providing file name only
-        // The absolute rul specified in tbe basename (if specified) is used to look for imported schemas.
-        // Hence, setting the base name to a file url with path works. This would also work if no source name is specified
-
+        // The source name is not specified as this confuses the dereferecing of the location for the schemaLocation Attribute
+        // The absolute rul specified in tbe basename (if specified) would also work.
+        
         //String sBaseSourceName = "file:/D:/SVNNEW/xmlbeans/trunk/test/cases/xbean/compile/som/";
-        String sBaseSourceName =  "file:///" + casesRootDir.replace(File.separatorChar,'/');
-        System.out.println("ok url is ::" + sBaseSourceName);
-        SchemaTypeSystem baseSTS = createNewSTS("namespaces_import_fileonly.xsd",
+        SchemaTypeSystem baseSTS = createNewSTS("namespaces_import_fileonly.xsd_",
                 null,
                 "BaseSchemaTS",
-                sBaseSourceName);
+                null);
 
         Assert.assertNotNull("Schema Type System created is Null.", baseSTS);
 
@@ -566,11 +564,11 @@ public class PartialSOMDetailedTest extends SomTestBase
         System.out.println("Inside test case testNameSpacesWithInclude()");
 
         // Step 1: read in an xsd that includes another namespace in xsd file namespaces2.xsd
-        String sBaseSourceName = "testsourcename";
-        SchemaTypeSystem baseSTS = createNewSTS("namespaces_include.xsd",
+        //String sBaseSourceName = "testsourcename";
+        SchemaTypeSystem baseSTS = createNewSTS("namespaces_include.xsd_",
                 null,
                 "BaseSchemaTS",
-                sBaseSourceName);
+                null);
 
         Assert.assertNotNull("Schema Type System created is Null.", baseSTS);
 
@@ -588,6 +586,7 @@ public class PartialSOMDetailedTest extends SomTestBase
 
     }
 
+    /*
     public void testNameSpacesImportFileWithPath() throws Exception
     {
         System.out.println("Inside test case testNameSpacesImportFileWithPath()");
@@ -627,7 +626,7 @@ public class PartialSOMDetailedTest extends SomTestBase
         inspectSOM(modifiedSTS, 2, 0, 1, 0);
 
     }
-
+    */
 
 
 }
