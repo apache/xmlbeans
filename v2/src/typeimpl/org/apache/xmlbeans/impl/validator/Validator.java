@@ -53,6 +53,7 @@ import org.apache.xmlbeans.SchemaParticle;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.XmlValidationError;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.SimpleValue;
@@ -93,7 +94,11 @@ public final class Validator
     {
         public void invalid ( String message )
         {
-            Validator.this.emitError( _event, message );
+            // TODO (dutta) Addtional Attributes for validation error have limited information
+            //at this time but will be a part of the second round of refactoring
+
+            Validator.this.emitError(_event, message, null, null, null,
+                XmlValidationError.ATTRIBUTE_TYPE_INVALID, null);
         }
 
         Event _event;
@@ -104,12 +109,17 @@ public final class Validator
         return !_invalid && _constraintEngine.isValid();
     }
 
-    private void emitError ( Event event, String msg )
+    private void emitError ( Event event, String msg, QName offendingQName,
+                             SchemaType expectedSchemaType, List expectedQNames,
+                             int errorType, SchemaType badSchemaType)
     {
-        emitError(event, msg, XmlError.SEVERITY_ERROR);
+        emitError(event, msg, XmlError.SEVERITY_ERROR, offendingQName , expectedSchemaType,
+            expectedQNames , errorType, badSchemaType);
     }
 
-    private void emitError ( Event event, String msg, int severity )
+    private void emitError ( Event event, String msg, int severity, QName offendingQName,
+                             SchemaType expectedSchemaType, List expectedQNames,
+                             int errorType, SchemaType badSchemaType )
     {
         _errorState++;
 
@@ -121,31 +131,33 @@ public final class Validator
             if (_errorListener != null)
             {
                 assert event != null;
-
-                _errorListener.add(IdentityConstraint.errorForEvent(msg, severity, event));
+                _errorListener.add(
+                    XmlValidationError.forCursorWithDetails( msg, severity, event.getLocationAsCursor(),
+                        offendingQName, expectedSchemaType, expectedQNames,
+                        errorType, badSchemaType));
             }
         }
     }
 
-    private void emitFieldError ( Event event, String msg, QName name )
+    private void emitFieldError ( Event event, String msg, QName offendingQName,
+                                  SchemaType expectedSchemaType, List expectedQNames,
+                                  int errorType, SchemaType badSchemaType )
     {
-        emitFieldError( event, msg + " " + QNameHelper.pretty( name ) );
+        emitFieldError(event, msg, XmlError.SEVERITY_ERROR, offendingQName,
+            expectedSchemaType, expectedQNames , errorType, badSchemaType);
     }
 
-    private void emitFieldError ( Event event, String msg )
-    {
-        emitFieldError(event, msg, XmlError.SEVERITY_ERROR);
-    }
-
-    private void emitFieldError ( Event event, String msg, int severity )
+    private void emitFieldError ( Event event, String msg, int severity, QName offendingQName,
+                                  SchemaType expectedSchemaType, List expectedQNames,
+                                  int errorType, SchemaType badSchemaType )
     {
         if (_stateStack != null && _stateStack._field != null)
         {
-            msg +=
-                " in element " + QNameHelper.pretty( _stateStack._field.getName() );
+            msg += " in element " + QNameHelper.pretty( _stateStack._field.getName() );
         }
 
-        Validator.this.emitError( event, msg, severity );
+        Validator.this.emitError( event, msg, severity, offendingQName , expectedSchemaType,
+            expectedQNames , errorType, badSchemaType);
     }
 
     // For XmlEventListener.error
@@ -196,7 +208,6 @@ public final class Validator
     {
         _localElement = null;
         _wildcardElement = null;
-        String message = null;
         State state = topState();
 
         SchemaType  elementType  = null;
@@ -218,23 +229,18 @@ public final class Validator
 
             if (state._isNil)
             {
-                emitFieldError(event,  "Nil element cannot have element content");
+                emitFieldError(event, "Nil element cannot have element content",
+                    state._field.getName(), state._type, null,
+                    XmlValidationError.NIL_ELEMENT, state._type);
+
                 _eatContent = 1;
                 return;
             }
 
             if (!state.visit( name ))
             {
-                message = findDetailedErrorBegin(state , name);
-                if (message != null)
-                {
-                  emitFieldError(event, message);
-                  message = null;
-                }
-                else
-                {
-                  emitFieldError(event, "Element not allowed:", name);
-                }
+                findDetailedErrorBegin(event ,state , name);
+
                 _eatContent = 1;
 
                 return;
@@ -252,7 +258,11 @@ public final class Validator
                 {
                     // Additional processing may be needed to generate more
                     // descriptive messages
-                    emitFieldError( event, "Element not allowed:", name );
+                    emitFieldError(event,
+                        "Element not allowed: " + QNameHelper.pretty(name) ,
+                        name, null, null,
+                        XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
+
                     _eatContent = 1;
 
                     return;
@@ -273,8 +283,10 @@ public final class Validator
                 {
                     if (wildcardProcess == SchemaParticle.STRICT)
                     {
-                        emitFieldError(
-                            event, "Element not allowed (strict wildcard, and no definition found):", name );
+                        emitFieldError( event,
+                            "Element not allowed (strict wildcard, and no definition found): " +  QNameHelper.pretty(name),
+                            name, state._type, null,
+                            XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
                     }
 
                     _eatContent = 1;
@@ -284,8 +296,7 @@ public final class Validator
             }
             else
             {
-                assert
-                    currentParticle.getParticleType() == SchemaParticle.ELEMENT;
+                assert currentParticle.getParticleType() == SchemaParticle.ELEMENT;
 
                 // If the current element particle name does not match the name
                 // of the event, then the current element is a substitute for
@@ -296,8 +307,11 @@ public final class Validator
                 {
                     if (((SchemaLocalElement)currentParticle).blockSubstitution())
                     {
-                        emitFieldError(event,
-                            "Element substitution not allowed when group head has block='substitution'", name);
+                        emitFieldError( event,
+                            "Element substitution not allowed when group head has block='substitution'" + QNameHelper.pretty( name),
+                            name, state._type, null,
+                            XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
+
                         _eatContent = 1;
                         return;
                     }
@@ -329,7 +343,9 @@ public final class Validator
 
         if (elementType.isNoType())
         {
-            emitFieldError(event, "Invalid type.");
+            emitFieldError( event, "Invalid type.", event.getName(), null, null,
+                XmlValidationError.ELEMENT_TYPE_INVALID, null);
+
             _eatContent = 1;
         }
 
@@ -355,10 +371,7 @@ public final class Validator
             {
                 _vc._event = null;
 
-                xsiType =
-                    _globalTypes.findType(
-                        XmlQNameImpl.validateLexical( value, _vc, event ) );
-
+                xsiType = _globalTypes.findType( XmlQNameImpl.validateLexical( value, _vc, event ) );
             }
             catch ( Throwable t )
             {
@@ -371,8 +384,10 @@ public final class Validator
 
             if (originalErrorState != _errorState)
             {
-                emitFieldError(
-                    event, "Invalid xsi:type qname: '" + value + "'" );
+                // not sure how to extract this one
+                emitFieldError( event, "Invalid xsi:type qname: '" + value + "'",
+                    event.getName(), xsiType, null,
+                    XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
 
                 _eatContent = 1;
 
@@ -380,7 +395,10 @@ public final class Validator
             }
             else if (xsiType == null)
             {
-                emitError(event,  "Could not find xsi:type: '" + value + "'");
+                // NOT SURE errorAttributes._expectedSchemaType = xsiType;
+                emitError(event,  "Could not find xsi:type: '" + value + "'",
+                          event.getName(), null, null,
+                          XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
                 _eatContent = 1;
 
@@ -392,10 +410,10 @@ public final class Validator
         {
             if (!elementType.isAssignableFrom(xsiType))
             {
-                emitFieldError(
-                    event,
-                    "Type '" + xsiType +
-                        "' is not derived from '" + elementType + "'" );
+                emitFieldError( event, "Type '" + xsiType +
+                    "' is not derived from '" + elementType + "'",
+                    event.getName(), elementType, null,
+                    XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
 
                 _eatContent = 1;
 
@@ -409,11 +427,11 @@ public final class Validator
                 {
                     if (t.getDerivationType() == SchemaType.DT_EXTENSION)
                     {
-                        emitFieldError(
-                            event,
-                            "Extension type: '" + xsiType +
-                                "' may not be substituted for: '" +
-                                    elementType + "'" );
+                        emitFieldError( event, "Extension type: '" + xsiType +
+                            "' may not be substituted for: '" + elementType + "'",
+                            event.getName(), elementType, null,
+                            XmlValidationError.ELEMENT_TYPE_INVALID,
+                            state._type);
 
                         _eatContent = 1;
 
@@ -429,11 +447,10 @@ public final class Validator
                 {
                     if (t.getDerivationType() == SchemaType.DT_RESTRICTION)
                     {
-                        emitFieldError(
-                            event,
-                            "Restriction type: '" + xsiType +
-                                "' may not be substituted for: '" +
-                                    elementType + "'" );
+                        emitFieldError( event, "Restriction type: '" + xsiType +
+                            "' may not be substituted for: '" + elementType + "'",
+                            event.getName(), elementType, null,
+                            XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
 
                         _eatContent = 1;
 
@@ -455,11 +472,10 @@ public final class Validator
                         if ((t.getDerivationType() == SchemaType.DT_RESTRICTION && sle.blockRestriction()) ||
                             (t.getDerivationType() == SchemaType.DT_EXTENSION && sle.blockExtension()))
                         {
-                            emitError(
-                                event,
-                                "Derived type: '" + xsiType +
-                                    "' may not be substituted for element '" +
-                                    QNameHelper.pretty(sle.getName()) + "'" );
+                            //need to find a way to get the right type
+                            emitError( event, "Derived type: '" + xsiType +
+                                "' may not be substituted for element '" + QNameHelper.pretty(sle.getName()) + "'" ,
+                                sle.getName(), null, null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
                             _eatContent = 1;
 
@@ -467,7 +483,6 @@ public final class Validator
                         }
                     }
                 }
-
             }
 
             elementType = xsiType;
@@ -480,8 +495,11 @@ public final class Validator
 
             if (sle.isAbstract())
             {
-                emitError(event,  "Element '" + QNameHelper.pretty(sle.getName()) +
-                    "' is abstract and cannot be used in an instance.");
+                //todo (dutta) need to find a way to get the right type
+                emitError(event, "Element '" + QNameHelper.pretty(sle.getName()) +
+                    "' is abstract and cannot be used in an instance.",
+                    sle.getName(), null, null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+
                 _eatContent = 1;
                 return;
             }
@@ -489,10 +507,8 @@ public final class Validator
 
         if (elementType != null && elementType.isAbstract())
         {
-            emitFieldError(
-                event,
-                "Abstract type: " + elementType +
-                    " cannot be used in an instance" );
+            emitFieldError( event, "Abstract type: " + elementType + " cannot be used in an instance",
+                event.getName(), elementType, null, XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
 
             _eatContent = 1;
 
@@ -512,7 +528,9 @@ public final class Validator
         // note in schema spec 3.3.4, you're not even allowed to say xsi:nil="false" if you're not nillable!
         if (hasNil && !elementField.isNillable())
         {
-            emitFieldError(event,  "Element has xsi:nil attribute but is not nillable");
+            emitFieldError( event, "Element has xsi:nil attribute but is not nillable",
+                elementField.getName(), elementField.getType(), null,
+                XmlValidationError.ELEMENT_TYPE_INVALID, state._type);
 
             _eatContent = 1;
             return;
@@ -542,9 +560,9 @@ public final class Validator
 
         if (state._attrs.contains( attrName ))
         {
-            emitFieldError(
-                event,
-                "Duplicate attribute: " + QNameHelper.pretty( attrName ) );
+            // todo (dutta) need additional logic to determine the expectedSchemaType
+            emitFieldError( event, "Duplicate attribute: " + QNameHelper.pretty( attrName ),
+                attrName, null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type );
 
             return;
         }
@@ -553,7 +571,9 @@ public final class Validator
 
         if (!state._canHaveAttrs)
         {
-            emitFieldError( event, "Can't have attributes" );
+            // todo (dutta) need additional logic to determine the expectedSchemaType
+            emitFieldError( event, "Can't have attributes", attrName, null, null,
+                XmlValidationError.INCORRECT_ATTRIBUTE, state._type);
             return;
         }
 
@@ -568,10 +588,9 @@ public final class Validator
 
             if (attrSchema.getUse() == SchemaLocalAttribute.PROHIBITED)
             {
-                emitFieldError(
-                    event,
-                    "Attribute is prohibited: "
-                        + QNameHelper.pretty( attrName ) );
+                // todo (dutta) need additional logic to determine the expectedSchemaType
+                emitFieldError( event, "Attribute is prohibited: " + QNameHelper.pretty( attrName ),
+                    attrName, null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type );
 
                 return;
             }
@@ -590,10 +609,10 @@ public final class Validator
 
         if (wildcardProcess == SchemaAttributeModel.NONE)
         {
-            emitFieldError(
-                event,
-                "Attribute not allowed (no wildcards allowed): "
-                    + QNameHelper.pretty( attrName ) );
+            // todo (dutta) need additional logic to determine the expectedSchemaType
+            emitFieldError( event,
+                "Attribute not allowed (no wildcards allowed): " + QNameHelper.pretty( attrName ),
+                attrName, null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type);
 
             return;
         }
@@ -602,13 +621,12 @@ public final class Validator
 
         if (!attrWildcardSet.contains( attrName ))
         {
-            emitFieldError(
-                event,
-                "Attribute not allowed: " + QNameHelper.pretty( attrName ) );
+            // todo (dutta) need additional logic to determine the expectedSchemaType
+            emitFieldError( event, "Attribute not allowed: " + QNameHelper.pretty( attrName ),
+                attrName, null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type);
 
             return;
         }
-
 
         if (wildcardProcess == SchemaAttributeModel.SKIP)
             return;
@@ -623,9 +641,10 @@ public final class Validator
 
             assert wildcardProcess == SchemaAttributeModel.STRICT;
 
-            emitFieldError(
-                event,
-                "Attribute not allowed (strict wildcard, and no definition found): " + QNameHelper.pretty( attrName ) );
+            // todo (dutta) need additional logic to determine the expectedSchemaType
+            emitFieldError( event,
+                "Attribute not allowed (strict wildcard, and no definition found): " + QNameHelper.pretty( attrName ),
+                attrName, null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type);
 
             return;
         }
@@ -654,8 +673,8 @@ public final class Validator
                 {
                     if (sla.getUse() == SchemaLocalAttribute.REQUIRED)
                     {
-                        emitFieldError(
-                            event, "Expected attribute: ", sla.getName() );
+                        emitFieldError( event, "Expected attribute: " + QNameHelper.pretty (sla.getName()),
+                            sla.getName(), null, null, XmlValidationError.INCORRECT_ATTRIBUTE, state._type);
                     }
                     else if (sla.isDefault() || sla.isFixed())
                     {
@@ -700,17 +719,7 @@ public final class Validator
         {
             if (!state.end())
             {
-
-                message = findDetailedErrorEnd(state);
-
-                if (message != null)
-                {
-                  emitFieldError(event, message);
-                }
-                else
-                {
-                  emitFieldError(event, "Expected element(s)");
-                }
+                findDetailedErrorEnd(event,state);
             }
 
             // This end event has no text, use this fact to pass no text to
@@ -730,7 +739,11 @@ public final class Validator
         State state = topState();
 
         if (state._isNil)
-            emitFieldError(event, "Nil element cannot have simple content");
+        {
+          emitFieldError( event, "Nil element cannot have simple content",
+              state._field.getName(), state._type, null,
+              XmlValidationError.NIL_ELEMENT, state._type );
+        }
         else
             handleText( event, false, state._field );
 
@@ -767,21 +780,27 @@ public final class Validator
             if (field instanceof SchemaLocalElement)
             {
                 SchemaLocalElement e = (SchemaLocalElement)field;
-                emitError(event, "Element: '" + QNameHelper.pretty(e.getName()) + "' cannot have mixed content.");
+
+                emitError(event, "Element: '" + QNameHelper.pretty(e.getName()) +
+                    "' cannot have mixed content.", e.getName(), field.getType(),
+                    null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
             }
             else
-                emitError( event, "Can't have mixed content" );
+            {
+              // todo (dutta) offendingQName = not sure how to get this(event.getName()??);
+              emitError(event, "Can't have mixed content", event.getName(),
+                  state._type, null, XmlValidationError.ELEMENT_TYPE_INVALID, null);
+            }
         }
 
         if (!emptyContent)
             state._sawText = true;
     }
 
-    private String findDetailedErrorBegin(State state, QName qName)
+    private void findDetailedErrorBegin(Event event, State state, QName qName)
     {
         String message = null;
         SchemaProperty[] eltProperties = state._type.getElementProperties();
-
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
@@ -791,13 +810,23 @@ public final class Validator
             if (state.test(sProp.getName()))
             {
                 message = "Expected element " + QNameHelper.pretty(sProp.getName()) + " instead of " + QNameHelper.pretty(qName) + " here";
+                ArrayList expectedNames = new ArrayList();
+                expectedNames.add(sProp.getName());
+
+                emitFieldError( event, message, qName, sProp.getType(),
+                    expectedNames, XmlValidationError.INCORRECT_ELEMENT, state._type);
+
                 break;
             }
         }
-        return message;
+        if (message == null)
+        {
+            emitFieldError( event, "Element not allowed: " + QNameHelper.pretty( qName),
+                qName, null, null, XmlValidationError.INCORRECT_ELEMENT, state._type);
+        }
     }
 
-    private String findDetailedErrorEnd(State state)
+    private void findDetailedErrorEnd(Event event, State state)
     {
         SchemaProperty[] eltProperties  = state._type.getElementProperties();
         String message = null;
@@ -812,10 +841,22 @@ public final class Validator
             {
                 message = "Expected element " + QNameHelper.pretty(sProp.getName()) +
                           " at the end of the content";
+
+                ArrayList expectedNames = new ArrayList();
+                expectedNames.add(sProp.getName());
+
+                emitFieldError (event, message, null, sProp.getType(), expectedNames,
+                    XmlValidationError.INCORRECT_ELEMENT, state._type);
+
                 break;
             }
         }
-        return message;
+
+        if (message == null)
+        {
+            emitFieldError( event, "Expected element(s)", null, null, null,
+                XmlValidationError.ELEMENT_NOT_ALLOWED, state._type);
+        }
     }
 
 
@@ -981,7 +1022,9 @@ public final class Validator
 
         if (type.isNoType())
         {
-            emitError(event, "Invalid type.");
+            emitError( event, "Invalid type.", field.getName(), type, null,
+                XmlValidationError.ELEMENT_TYPE_INVALID, null);
+
             return null;
         }
 
@@ -1003,11 +1046,10 @@ public final class Validator
         {
             if (XmlQName.type.isAssignableFrom(type))
             {
-                emitError(
-                    event,
-                    "Default QName values are unsupported for " +
-                        QNameHelper.readable(type) + " - ignoring.",
-                    XmlError.SEVERITY_INFO);
+                emitError( event, "Default QName values are unsupported for " +
+                    QNameHelper.readable(type) + " - ignoring.",
+                    XmlError.SEVERITY_INFO, field.getName(), type, null,
+                    XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
                 return null;
             }
@@ -1041,11 +1083,10 @@ public final class Validator
 
             if (!val.valueEquals( def ))
             {
-                // BUGBUG - make this more verbose
-
-                emitError(
-                    event,
-                    "Value not equal to fixed value. " + value );
+                // TODO (dutta) - make this more verbose
+                emitError( event, "Value not equal to fixed value. " + value,
+                    field.getName(), field.getType(), null,
+                    XmlValidationError.ELEMENT_TYPE_INVALID, null);
 
                 return null;
             }
@@ -1224,13 +1265,12 @@ public final class Validator
 
         if (!type.matchPatternFacet( value ))
         {
-            emitError(
-                event,
-                "List '" + value + "' does not match pattern for " + QNameHelper.readable(type) );
+            emitError( event,
+                "List '" + value + "' does not match pattern for " + QNameHelper.readable(type),
+                null, type, null, XmlValidationError.LIST_INVALID, null);
         }
 
         String[] items = XmlListImpl.split_list(value);
-
 
         int i;
         XmlObject o;
@@ -1239,10 +1279,10 @@ public final class Validator
         {
             if ((i = ((SimpleValue)o).getIntValue()) != items.length)
             {
-                emitError(
-                    event,
-                    "List (" + value + ") does not have " + i +
-                        " items per length facet for " + QNameHelper.readable(type));
+                //offending Qname not valid
+                emitError( event, "List (" + value + ") does not have " + i +
+                    " items per length facet for " + QNameHelper.readable(type),
+                    null, type, null, XmlValidationError.LIST_INVALID, null);
             }
         }
 
@@ -1250,10 +1290,10 @@ public final class Validator
         {
             if ((i = ((SimpleValue)o).getIntValue()) > items.length)
             {
-                emitError(
-                    event,
-                    "List (" + value + ") has only " + items.length +
-                        " items, fewer than min length facet (" + i + ") for " + QNameHelper.readable(type) );
+                //offending Qname not valid
+                emitError( event, "List (" + value + ") has only " + items.length +
+                    " items, fewer than min length facet (" + i + ") for " + QNameHelper.readable(type),
+                    null, type, null, XmlValidationError.LIST_INVALID, null);
             }
         }
 
@@ -1261,10 +1301,10 @@ public final class Validator
         {
             if ((i = ((SimpleValue)o).getIntValue()) < items.length)
             {
-                emitError(
-                    event,
-                    "List (" + value + ") has " + items.length +
-                        " items, more than max length facet (" + i + ") for " + QNameHelper.readable(type) );
+                //offending Qname not valid
+                emitError( event, "List (" + value + ") has " + items.length +
+                    " items, more than max length facet (" + i + ") for " + QNameHelper.readable(type),
+                    null, type, null,  XmlValidationError.LIST_INVALID, null);
             }
         }
 
@@ -1297,10 +1337,10 @@ public final class Validator
                 }
                 catch (XmlValueOutOfRangeException e)
                 {
-                    emitError(
-                        event,
-                        "List value (" + value +
-                            ") is not a valid enumeration value for " + QNameHelper.readable(type));
+                    //offending Qname not valid ??
+                    emitError( event, "List value (" + value +
+                        ") is not a valid enumeration value for " + QNameHelper.readable(type),
+                        null, type, null, XmlValidationError.LIST_INVALID, null);
                 }
                 finally
                 {
@@ -1318,9 +1358,10 @@ public final class Validator
 
         if (!type.matchPatternFacet( value ))
         {
-            emitError(
-                event,
-                "Union '" + value + "' does not match pattern for " + QNameHelper.readable(type));
+            //offending Qname not valid ??
+            emitError( event,
+                "Union '" + value + "' does not match pattern for " + QNameHelper.readable(type),
+                null, type, null, XmlValidationError.UNION_INVALID, null);
         }
 
         int currentWsr = SchemaType.WS_PRESERVE;
@@ -1368,9 +1409,10 @@ public final class Validator
 
         if (i >= types.length)
         {
-            emitError(
-                event,
-                "Union '" + value + "' does not match any members of " + QNameHelper.readable(type) );
+            //offending Qname not valid ??
+            emitError( event,
+                "Union '" + value + "' does not match any members of " + QNameHelper.readable(type),
+                null, type, null, XmlValidationError.UNION_INVALID, null);
         }
         else
         {
@@ -1394,19 +1436,21 @@ public final class Validator
 
                     if (i >= unionEnumvals.length)
                     {
-                        emitError(
-                            event,
-                            "Union '" + value +
-                                "' is not a valid enumeration value for " + QNameHelper.readable(type) );
+
+                        //offending Qname not valid ??
+                        emitError( event, "Union '" + value +
+                            "' is not a valid enumeration value for " + QNameHelper.readable(type),
+                            null, type, null, XmlValidationError.UNION_INVALID, null);
                     }
                 }
                 catch (XmlValueOutOfRangeException e)
                 {
                     // actually, the current union code always ends up here when invalid
-                    emitError(
-                        event,
-                        "Union '" + value +
-                            "' is not a valid enumeration value for " + QNameHelper.readable(type) );
+
+                    //offending Qname not valid ??
+                    emitError( event, "Union '" + value +
+                        "' is not a valid enumeration value for " + QNameHelper.readable(type),
+                        null, type, null, XmlValidationError.UNION_INVALID, null );
                 }
                 finally
                 {

@@ -44,6 +44,7 @@ public class StandaloneTests extends TestCase
         suite.addTest(DomTests.suite());
         suite.addTest(GDateTests.suite());
         suite.addTest(SubstGroupTests.suite());
+        suite.addTest(ValidatorTests.suite());
         return suite;
     }
 }

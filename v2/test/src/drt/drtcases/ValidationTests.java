@@ -27,7 +27,6 @@ import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XMLStreamValidationException;
 import org.apache.xmlbeans.XmlDecimal;
 import org.apache.xmlbeans.impl.values.XmlValueOutOfRangeException;
-import org.openuri.testNumerals.DocDocument;
 
 import java.io.File;
 import java.util.ArrayList;
