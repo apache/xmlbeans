@@ -73,6 +73,7 @@ public class SimpleSchemaToJavaResultCompiler
     public static class Params
     {
         private File outputJar;
+        private File outputDir;
 
         public File getOutputJar()
         {
@@ -83,6 +84,16 @@ public class SimpleSchemaToJavaResultCompiler
         {
             this.outputJar = outputJar;
         }
+        
+        public File getOutputDir()
+        {
+            return outputDir;
+        }
+        
+        public void setOutputDir(File outputDir)
+        {
+            this.outputDir = outputDir;
+        }
     }
     
     public static void compile(SchemaToJavaResult sources, Params params) throws IOException
@@ -90,7 +101,9 @@ public class SimpleSchemaToJavaResultCompiler
         // first, pick temp directory
         File tempDir = createTempDir();
         File sourceDir = createDir(tempDir, "sources");
-        File classDir = createDir(tempDir, "classes");
+        File classDir = params.getOutputDir();
+                
+                createDir(tempDir, "classes");
         
         // next, output all the .java files to the temp dir
         List javaFileList = new ArrayList();

@@ -16,8 +16,8 @@
   <target name="clean">
     <delete dir="build"/>
   </target>
-
-  <target name="deploy" depends="sources, xbean, drt.jar, random.jar" />
+    
+  <target name="deploy" depends="xbean" />
 
   <target name="sources" depends="dirs">
     <zip destfile="build/ar/xbeansrc.zip" basedir="." excludes="build/**"/>
@@ -92,7 +92,9 @@
     <mkdir dir="build/private/lib"/>
   </target>
 
-  <target name="drt" >
+  <target name="drt" depends="builddrt, rundrt"/>
+
+  <target name="rundrt" >
       <echo message="Running random tester"/>
        <java classname="Random" fork="true" failonerror="true">
           <classpath>
@@ -175,6 +177,14 @@
     <echo message="overwriting old external/lib/oldxbean.jar"/>
     <copy file="build/private/lib/oldxbean.jar" tofile="external/lib/oldxbean.jar"/>
   </target>
+
+  <target name="quickbootstrap">
+    <echo message="=========================================================="/>
+    <echo message="Bootstrapping currently built xbean.jar without verifying."/>
+    <echo message="=========================================================="/>
+    <copy file="build/ar/xbean.jar" tofile="external/lib/oldxbean.jar"/>
+  </target>
+
 
   <!-- zipcompare (for checking bootstrap) ============================ -->
 
@@ -915,7 +925,7 @@
         <echo message="editing repackage build file: ${token} -->${replacement}"/>
 
         <java classname="repackage.EditBuildScript" failonerror="true">
-            <arg value="${basedir}/build/repackage/build.xml"/>
+            <arg value="${rp_target_dir}/build.xml"/>
             <arg value="${token}"/>
             <arg value="${replacement}"/>
             <classpath>
@@ -942,11 +952,20 @@
 
                 The name of the class which will new the new schema compiler.  Will replace
                 ${schema_compiler} during the bootstrap process.
+
+            rp_source_dir
+
+                From where the sources come...
+
+            rp_target_dir
+
+                To where the repackaged sources are built
     -->
+
 
     <target name="repackage" depends="repackage.classes">
 
-        <echo message="Re-packaging XMlBeans"/>
+        <echo message="Re-packaging XmlBeans"/>
 
         <property
             name="new_repackage_arg"
@@ -956,7 +975,7 @@
             <classpath>
                 <pathelement location="build/classes/repackage"/>
             </classpath>
-            <arg line="${new_repackage_arg}"/>
+            <arg line="${new_repackage_arg} -f ${rp_source_dir} -t ${rp_target_dir}"/>
         </java>
 
         <antcall target="edit_build_script">
@@ -969,14 +988,14 @@
             <param name="replacement" value="${new_schema_compiler}"/>
         </antcall>
 
-        <ant dir="build/repackage" target="xbean" inheritAll="false"/>
+        <ant dir="${rp_target_dir}" target="xbean" inheritAll="false"/>
 
         <antcall target="edit_build_script">
             <param name="token"       value="bootstrap_schema_compiler"/>
             <param name="replacement" value="${new_schema_compiler}"/>
         </antcall>
 
-        <ant dir="build/repackage" target="bootstrap" inheritAll="false"/>
+        <ant dir="${rp_target_dir}" target="quickbootstrap" inheritAll="false"/>
 
     </target>
 

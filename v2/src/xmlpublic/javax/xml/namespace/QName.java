@@ -70,7 +70,9 @@ import java.io.Serializable;
  * @version 1.1
  */
 public class QName implements Serializable {
-
+    
+    private static final long serialVersionUID = -9120448754896609940L;
+    
     /** comment/shared empty string */
     private static final String emptyString = "".intern();
 

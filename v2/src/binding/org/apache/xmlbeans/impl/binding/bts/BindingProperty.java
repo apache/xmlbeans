@@ -86,7 +86,7 @@ public abstract class BindingProperty
      * 
      * Subclasses should have ctors of the same signature and call super(..) first.
      */ 
-    protected BindingProperty(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    protected BindingProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
     {
         this.btName = BindingTypeName.forPair(
                         JavaName.forString(node.getJavatype()),
@@ -104,9 +104,9 @@ public abstract class BindingProperty
      * 
      * Subclasses should override and call super.write first.
      */ 
-    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingProperty write(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
     {
-        node = (org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty)node.changeType(kinds.typeForClass(this.getClass()));
+        node = (org.apache.xml.xmlbeans.bindingConfig.BindingProperty)node.changeType(kinds.typeForClass(this.getClass()));
         
         node.setJavatype(btName.getJavaName().toString());
         node.setXmlcomponent(btName.getXmlName().toString());
@@ -183,9 +183,9 @@ public abstract class BindingProperty
     
     /* REGISTRY OF SUBCLASSES */
     
-    private static final Class[] ctorArgs = new Class[] {org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty.class};
+    private static final Class[] ctorArgs = new Class[] {org.apache.xml.xmlbeans.bindingConfig.BindingProperty.class};
     
-    public static BindingProperty forNode(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    public static BindingProperty forNode(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
     {
         try
         {
@@ -207,14 +207,14 @@ public abstract class BindingProperty
     {
         if (!BindingProperty.class.isAssignableFrom(clazz))
             throw new IllegalArgumentException("Classes must inherit from BindingProperty");
-        if (!org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty.type.isAssignableFrom(type))
+        if (!org.apache.xml.xmlbeans.bindingConfig.BindingProperty.type.isAssignableFrom(type))
             throw new IllegalArgumentException("Schema types must inherit from binding-property");
         kinds.registerClassAndType(clazz, type);
     }
     
     static
     {
-        registerClassAndType(QNameProperty.class, org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty.type);
-        registerClassAndType(ParticleProperty.class, org.apache.xmlbeans.x2003.x09.bindingConfig.ParticleProperty.type);
+        registerClassAndType(QNameProperty.class, org.apache.xml.xmlbeans.bindingConfig.QnameProperty.type);
+        registerClassAndType(ParticleProperty.class, org.apache.xml.xmlbeans.bindingConfig.ParticleProperty.type);
     }
 }

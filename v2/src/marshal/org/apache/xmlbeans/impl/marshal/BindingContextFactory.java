@@ -64,7 +64,7 @@ import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
-import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import java.io.File;
 import java.io.IOException;

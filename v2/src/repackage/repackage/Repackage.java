@@ -64,16 +64,40 @@ public class Repackage
 {
     public static void main ( String[] args ) throws Exception
     {
-        new Repackage().repackage( args );
+        new Repackage(args).repackage();
     }
     
-    public void repackage ( String[] args ) throws Exception
+    private Repackage(String[] args)
     {
-        if (args.length != 2 || !args[0].equals( "-repackage" ))
-            throw new RuntimeException( "Usage: repackage -repackage [spec]" );
+        String sourceDir = null;
+        String targetDir = null;
+        String repackageSpec = null;
+        boolean failure = false;
         
-        _repackager = new Repackager( args[ 1 ] );
-
+        for (int i = 0; i < args.length; i++)
+        {
+            if (args[i].equals("-repackage") && i + 1 < args.length)
+                repackageSpec = args[++i];
+            else if (args[i].equals("-f") && i + 1 < args.length)
+                sourceDir = args[++i];
+            else if (args[i].equals("-t") && i + 1 < args.length)
+                targetDir = args[++i];
+            else
+                failure = true;
+        }
+        
+        if (failure || sourceDir == null || targetDir == null || repackageSpec == null)
+            throw new RuntimeException("Usage: repackage -repackage [spec] -f [sourcedir] -t [targetdir]");
+        
+        _repackager = new Repackager(repackageSpec);
+        
+        _sourceBase = new File(sourceDir);
+        _targetBase = new File(targetDir);
+    }
+  
+    
+    public void repackage () throws Exception
+    {
         _fromPackages = _repackager.getFromPackages();
         _toPackages = _repackager.getToPackages();
         
@@ -83,26 +107,18 @@ public class Repackage
         _moveAlongFiles = new ArrayList();
         _movedDirs = new HashMap();
         
-        File currentDir   = new File( "." );
-        File buildDir     = new File( currentDir, "build" );
-        File repackageDir = new File( buildDir, "repackage" );
-
-        System.out.println( "Deleting repackage dir ..." );
+//        System.out.println( "Deleting repackage dir ..." );
+//        recursiveDelete( _targetBase );
         
-        recursiveDelete( repackageDir );
-
-        repackageDir.mkdirs();
+        _targetBase.mkdirs();
         
         ArrayList files = new ArrayList();
 
-        fillFiles( files, currentDir );
+        fillFiles( files, _sourceBase );
         
         System.out.println( "Repackaging " + files.size() + " files ..." );
 
-        int prefixLength = currentDir.getCanonicalPath().length();
-
-        _sourceBase = currentDir;
-        _targetBase = repackageDir;
+        int prefixLength = _sourceBase.getCanonicalPath().length();
 
         for ( int i = 0 ; i < files.size() ; i++ )
         {
@@ -114,6 +130,16 @@ public class Repackage
         }
         
         finishMovingFiles();
+        
+        if (_skippedFiles > 0)
+            System.out.println("Skipped " + _skippedFiles + " unmodified files.");
+    }
+    
+    private boolean fileIsUnchanged(String name)
+    {
+        File sourceFile = new File( _sourceBase, name );
+        File targetFile = new File( _targetBase, name );
+        return (sourceFile.lastModified() < targetFile.lastModified());
     }
 
     public void repackageFile ( String name )
@@ -149,36 +175,63 @@ public class Repackage
                 toName = new File( toDir, new File( name ).getName() ).toString(); 
 
             if (name.endsWith( ".html" ))
-                repackageNonJavaFile( name, toName );
+                repackageNonJavaFile(name, toName);
             else
-                copyFile( new File( _sourceBase, name ), new File( _targetBase, toName ) );
+                justMoveNonJavaFile(name, toName);
         }
     }
 
-    public void repackageNonJavaFile ( String name )
+    public void repackageNonJavaFile(String name)
         throws IOException
     {
-        StringBuffer sb = readFile( new File( _sourceBase, name ) );
-
-        _repackager.repackage( sb );
+        File sourceFile = new File(_sourceBase, name);
+        File targetFile = new File(_targetBase, name);
+        if (sourceFile.lastModified() < targetFile.lastModified())
+        {
+            _skippedFiles += 1;
+            return;
+        }
         
-        writeFile( new File( _targetBase, name ), sb );
+        StringBuffer sb = readFile(sourceFile);
+        _repackager.repackage( sb );
+        writeFile(targetFile, sb );
     }
     
     public void repackageNonJavaFile ( String sourceName, String targetName )
         throws IOException
     {
-        StringBuffer sb = readFile( new File( _sourceBase, sourceName ) );
-
-        _repackager.repackage( sb );
+        File sourceFile = new File(_sourceBase, sourceName);
+        File targetFile = new File(_targetBase, targetName);
+        if (sourceFile.lastModified() < targetFile.lastModified())
+        {
+            _skippedFiles += 1;
+            return;
+        }
         
-        writeFile( new File( _targetBase, targetName ), sb );
+        StringBuffer sb = readFile(sourceFile);
+        _repackager.repackage(sb);
+        writeFile(targetFile, sb);
+    }
+    
+    public void justMoveNonJavaFile ( String sourceName, String targetName )
+        throws IOException
+    {
+        File sourceFile = new File(_sourceBase, sourceName);
+        File targetFile = new File(_targetBase, targetName);
+        if (sourceFile.lastModified() < targetFile.lastModified())
+        {
+            _skippedFiles += 1;
+            return;
+        }
+        
+        copyFile(sourceFile, targetFile);
     }
     
     public void repackageJavaFile ( String name )
         throws IOException
     {
-        StringBuffer sb = readFile( new File( _sourceBase, name ) );
+        File sourceFile = new File(_sourceBase, name);
+        StringBuffer sb = readFile(sourceFile);
 
         Matcher packageMatcher = _packagePattern.matcher( sb );
 
@@ -289,9 +342,16 @@ public class Repackage
                 }
             }
         }
+        
+        File targetFile = new File(_targetBase, name); // new name
+        
+        if (sourceFile.lastModified() < targetFile.lastModified())
+        {
+            _skippedFiles += 1;
+            return;
+        }
 
         _repackager.repackage( sb );
-        
         writeFile( new File( _targetBase, name ), sb );
     }
 
@@ -421,4 +481,5 @@ public class Repackage
     
     private Map _movedDirs;
     private List _moveAlongFiles;
+    private int _skippedFiles;
 }

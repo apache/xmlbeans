@@ -59,7 +59,7 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.schema.FileResourceLoader;
-import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 
 import java.util.ArrayList;
 import java.util.List;

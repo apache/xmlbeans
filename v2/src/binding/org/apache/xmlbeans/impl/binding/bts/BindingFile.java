@@ -80,7 +80,7 @@ public class BindingFile extends BaseBindingLoader
     /**
      * Loader
      */
-    public static BindingFile forDoc(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc)
+    public static BindingFile forDoc(org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument doc)
     {
         return new BindingFile(doc);
     }
@@ -88,7 +88,7 @@ public class BindingFile extends BaseBindingLoader
     /**
      * This constructor loads an instance from an XML file
      */
-    protected BindingFile(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc)
+    protected BindingFile(org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument doc)
     {
         List errors = new ArrayList();
         if (!doc.validate(new XmlOptions().setErrorListener(errors)))
@@ -96,14 +96,14 @@ public class BindingFile extends BaseBindingLoader
 
         // todo: in the loops below, validate that entries are unique, or modify schema to do so.
 
-        org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType[] btNodes =
+        org.apache.xml.xmlbeans.bindingConfig.BindingType[] btNodes =
                 doc.getBindingConfig().getBindings().getBindingTypeArray();
         for (int i = 0; i < btNodes.length; i++)
         {
             BindingType next = BindingType.loadFromBindingTypeNode(btNodes[i]);
             addBindingType(next, false, false);
         }
-        org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping[] mNodes =
+        org.apache.xml.xmlbeans.bindingConfig.Mapping[] mNodes =
                 doc.getBindingConfig().getJavaToXml().getMappingArray();
         for (int i = 0; i < mNodes.length; i++)
         {
@@ -140,10 +140,10 @@ public class BindingFile extends BaseBindingLoader
     /**
      * Writes out to XML
      */
-    public org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument write() throws IOException
+    public org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument write() throws IOException
     {
-        org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc =
-                org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument.Factory.newInstance();
+        org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument doc =
+                org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument.Factory.newInstance();
         write(doc);
         return doc;
     }
@@ -151,24 +151,24 @@ public class BindingFile extends BaseBindingLoader
     /**
      * This function copies an instance into an empty doc.
      */
-    private void write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument doc)
+    private void write(org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument doc)
     {
         if (doc.getBindingConfig() != null)
             throw new IllegalArgumentException("Can only write into empty doc");
-        org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument.BindingConfig bcNode = doc.addNewBindingConfig();
+        org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument.BindingConfig bcNode = doc.addNewBindingConfig();
 
         // make tables
-        org.apache.xmlbeans.x2003.x09.bindingConfig.BindingTable btabNode = bcNode.addNewBindings();
-        org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable typetabNode = bcNode.addNewJavaToXml();
-        org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable elementtabNode = bcNode.addNewJavaToElement();
-        org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable pojotabNode = bcNode.addNewXmlToPojo();
-        org.apache.xmlbeans.x2003.x09.bindingConfig.MappingTable xotabNode = bcNode.addNewXmlToXmlobj();
+        org.apache.xml.xmlbeans.bindingConfig.BindingTable btabNode = bcNode.addNewBindings();
+        org.apache.xml.xmlbeans.bindingConfig.MappingTable typetabNode = bcNode.addNewJavaToXml();
+        org.apache.xml.xmlbeans.bindingConfig.MappingTable elementtabNode = bcNode.addNewJavaToElement();
+        org.apache.xml.xmlbeans.bindingConfig.MappingTable pojotabNode = bcNode.addNewXmlToPojo();
+        org.apache.xml.xmlbeans.bindingConfig.MappingTable xotabNode = bcNode.addNewXmlToXmlobj();
 
         // fill em in: binding types (delegate to BindingType.write)
         for (Iterator i = bindingTypes().iterator(); i.hasNext(); )
         {
             BindingType bType = (BindingType)i.next();
-            org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType btNode = btabNode.addNewBindingType();
+            org.apache.xml.xmlbeans.bindingConfig.BindingType btNode = btabNode.addNewBindingType();
             bType.write(btNode);
         }
 
@@ -177,7 +177,7 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = (JavaName)i.next();
             BindingTypeName pair = lookupTypeFor(jName);
-            org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = typetabNode.addNewMapping();
+            org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = typetabNode.addNewMapping();
             mNode.setJavatype(jName.toString());
             mNode.setXmlcomponent(pair.getXmlName().toString());
         }
@@ -187,7 +187,7 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = (JavaName)i.next();
             BindingTypeName pair = lookupElementFor(jName);
-            org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = elementtabNode.addNewMapping();
+            org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = elementtabNode.addNewMapping();
             mNode.setJavatype(jName.toString());
             mNode.setXmlcomponent(pair.getXmlName().toString());
         }
@@ -197,7 +197,7 @@ public class BindingFile extends BaseBindingLoader
         {
             XmlName xName = (XmlName)i.next();
             BindingTypeName pair = lookupPojoFor(xName);
-            org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = pojotabNode.addNewMapping();
+            org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = pojotabNode.addNewMapping();
             mNode.setJavatype(pair.getJavaName().toString());
             mNode.setXmlcomponent(xName.toString());
         }
@@ -207,7 +207,7 @@ public class BindingFile extends BaseBindingLoader
         {
             XmlName xName = (XmlName)i.next();
             BindingTypeName pair = lookupXmlObjectFor(xName);
-            org.apache.xmlbeans.x2003.x09.bindingConfig.Mapping mNode = xotabNode.addNewMapping();
+            org.apache.xml.xmlbeans.bindingConfig.Mapping mNode = xotabNode.addNewMapping();
             mNode.setJavatype(pair.getJavaName().toString());
             mNode.setXmlcomponent(xName.toString());
         }

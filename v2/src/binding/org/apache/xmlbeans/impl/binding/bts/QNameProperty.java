@@ -76,11 +76,11 @@ public class QNameProperty extends BindingProperty
         super();
     }
 
-    public QNameProperty(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    public QNameProperty(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
     {
         super(node);
-        org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty qpNode =
-                (org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty)node;
+        org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode =
+                (org.apache.xml.xmlbeans.bindingConfig.QnameProperty)node;
         theName = qpNode.getQname();
         isAttribute = qpNode.getAttribute();
         isMultiple = qpNode.getMultiple();
@@ -93,12 +93,12 @@ public class QNameProperty extends BindingProperty
      * 
      * Subclasses should override and call super.write first.
      */ 
-    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingProperty node)
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingProperty write(org.apache.xml.xmlbeans.bindingConfig.BindingProperty node)
     {
         node = super.write(node);
         
-        org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty qpNode =
-                (org.apache.xmlbeans.x2003.x09.bindingConfig.QnameProperty)node;
+        org.apache.xml.xmlbeans.bindingConfig.QnameProperty qpNode =
+                (org.apache.xml.xmlbeans.bindingConfig.QnameProperty)node;
         
         qpNode.setQname(theName);
         if (isAttribute)

@@ -1,7 +1,7 @@
 <xs:schema
   xmlns:xs="http://www.w3.org/2001/XMLSchema"
-  xmlns:tns="http://xmlbeans.apache.org/2003/09/binding-config"
-  targetNamespace="http://xmlbeans.apache.org/2003/09/binding-config"
+  xmlns:tns="http://xml.apache.org/xmlbeans/binding-config"
+  targetNamespace="http://xml.apache.org/xmlbeans/binding-config"
   elementFormDefault="qualified">
 
   <xs:element name="binding-config">

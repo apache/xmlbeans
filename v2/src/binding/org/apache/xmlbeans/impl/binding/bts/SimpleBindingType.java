@@ -68,16 +68,16 @@ public class SimpleBindingType extends BindingType
         super(btName);
     }
 
-    public SimpleBindingType(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    public SimpleBindingType(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
         super(node);
-        org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleType stNode = (org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleType)node;
+        org.apache.xml.xmlbeans.bindingConfig.SimpleType stNode = (org.apache.xml.xmlbeans.bindingConfig.SimpleType)node;
         asIfXmlType = XmlName.forString(stNode.getAsXml());
     }
 
-    protected org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType write(org.apache.xmlbeans.x2003.x09.bindingConfig.BindingType node)
+    protected org.apache.xml.xmlbeans.bindingConfig.BindingType write(org.apache.xml.xmlbeans.bindingConfig.BindingType node)
     {
-        org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleType stNode = (org.apache.xmlbeans.x2003.x09.bindingConfig.SimpleType)super.write(node);
+        org.apache.xml.xmlbeans.bindingConfig.SimpleType stNode = (org.apache.xml.xmlbeans.bindingConfig.SimpleType)super.write(node);
         stNode.setAsXml(asIfXmlType.toString());
         return stNode;
     }

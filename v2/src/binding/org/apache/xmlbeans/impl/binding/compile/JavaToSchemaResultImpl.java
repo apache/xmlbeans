@@ -58,7 +58,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import org.apache.xmlbeans.impl.binding.bts.BindingFile;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.x2003.x09.bindingConfig.BindingConfigDocument;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.File;
