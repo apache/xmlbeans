@@ -304,6 +304,12 @@
             />
     </target>
 
+      <target name="build.xsdcases" description="Builds xmlcases.jar">
+       <jar destfile="${build.dir.test.lib}/xsdcases.jar"
+            basedir="${build.dir.test.schemas}" update="false"
+            includes="**/*.xsd"
+            excludes="xstc/**"/>
+    </target>
     <!-- compile directory of .xsd files -->
     <target name="scomp.dir">
         <basename path="${schemasrc}" property="jarname"/>
@@ -592,6 +598,7 @@
             </then>
         </if>
         <antcall target="build.xmlcases"/>
+        <antcall target="build.xsdcases"/>
         <echo message="***EXCLUDE : ${excludes.from.compile}"/>
         <javac srcdir="${xbeans.test.src}"
             destdir="${build.dir.test.src}"
