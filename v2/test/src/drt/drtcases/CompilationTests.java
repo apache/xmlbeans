@@ -57,7 +57,6 @@ public class CompilationTests extends TestCase
         params.setSrcDir(srcdir);
         params.setClassesDir(classesdir);
         params.setOutputJar(outputjar);
-        params.setVerbose(true);
         Assert.assertTrue("Build failed", SchemaCompiler.compile(params));
         Assert.assertTrue("Cannout find " + outputjar, outputjar.exists());
     }
