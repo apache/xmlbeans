@@ -45,13 +45,15 @@ public abstract class BaseTylarImpl implements Tylar {
     return null;
   }
 
-  public BindingLoader getBindingLoader() throws IOException, XmlException {
-    //REVIEW should consider caching this result
+  public BindingLoader getBindingLoader() /*throws IOException, XmlException*/ {
+try {
+  //REVIEW should consider caching this result
     BindingFile[] bfs = getBindingFiles();
     BindingLoader[] loaders = new BindingLoader[bfs.length+1];
     System.arraycopy(bfs,0,loaders,0,bfs.length);
     loaders[loaders.length-1] = BuiltinBindingLoader.getBuiltinBindingLoader(false);
     return CompositeBindingLoader.forPath(loaders);
+} catch(Exception e) { throw new RuntimeException(e); } //fixme
   }
 
   public JamClassLoader getJamClassLoader()

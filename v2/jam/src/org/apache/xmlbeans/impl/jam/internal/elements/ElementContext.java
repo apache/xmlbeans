@@ -34,14 +34,9 @@ public interface ElementContext extends JamLogger /**REMOVE THIS EXTENDS PLEASE*
   public JamClassLoader getClassLoader();
 
   /**
-   * <p>Creates an empty appropriate proxy for the named javadoc tag.</p>
-   */
-  public AnnotationProxy createProxyForTag(String tagname);
-
-  /**
    * <p>Creates an empty appropriate proxy for the given 175 annotation
    * instance.</p>
    */
-  public AnnotationProxy createProxyForAnnotationType(String jsr175typename);
+  public AnnotationProxy createAnnotationProxy(String jsr175typename);
 
 }

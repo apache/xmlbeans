@@ -56,6 +56,7 @@
 package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.JamClassLoader;
+import org.apache.xmlbeans.impl.jam.annotation.JavadocTagParser;
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
 
 import java.io.File;
@@ -116,6 +117,14 @@ public interface JamServiceContext extends JamLogger/*killme*/ {
   public JamLogger getLogger();
 
   public JamClassBuilder getBaseBuilder();
+
+  /**
+   * <p>Returns the JavadocTagParser to be used in processing javadoc tags.
+   * This never returns null - if no parser was specified by the user,
+   * the default one is used.  This method should be used only by
+   * JavadocClassBuilder.</p>
+   */
+  public JavadocTagParser getTagParser();
 
   //public PrintWriter getOut();
 

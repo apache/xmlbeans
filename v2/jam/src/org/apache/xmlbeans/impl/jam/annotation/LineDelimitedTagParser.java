@@ -16,14 +16,11 @@ package org.apache.xmlbeans.impl.jam.annotation;
 
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
-import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
-
-import java.util.Properties;
-import java.util.Enumeration;
 import java.util.StringTokenizer;
 import java.io.StringWriter;
+
+import com.sun.javadoc.Tag;
 
 /**
  * <p>Attempts to parse tag contents as a series of line-delimited name-value
@@ -31,7 +28,7 @@ import java.io.StringWriter;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class LineDelimitedTagParser extends TagParser {
+public class LineDelimitedTagParser extends JavadocTagParser {
 
   // ========================================================================
   // Constants
@@ -40,19 +37,13 @@ public class LineDelimitedTagParser extends TagParser {
   private static final String LINE_DELIMS = "\n\f\r";
 
   // ========================================================================
-  // TagParser implementation
+  // JavadocTagParser implementation
 
-  public void parse(MAnnotatedElement target,
-                      String tagName,
-                      String tagText)
-  {
-    if (tagText == null) throw new IllegalArgumentException("null tagText");
-    if (tagName == null) throw new IllegalArgumentException("null tagName");
-    if (target == null) throw new IllegalArgumentException("null target");
-    MAnnotation ann = createAnnotation(target,tagName);
-    tagText = tagText.trim();
-    if (tagText.length() == 0) return;
-    ann.setSimpleValue(JAnnotation.SINGLE_VALUE_NAME,tagText,getStringType());
+  public void parse(MAnnotatedElement target, Tag tag) {
+    if (target == null) throw new IllegalArgumentException("null tagText");
+    if (tag == null) throw new IllegalArgumentException("null tagName");
+    MAnnotation[] anns = createAnnotations(target,tag);
+    String tagText = tag.text();
     StringTokenizer st = new StringTokenizer(tagText, LINE_DELIMS);
     while (st.hasMoreTokens()) {
       String pair = st.nextToken();
@@ -64,23 +55,9 @@ public class LineDelimitedTagParser extends TagParser {
         if (value.startsWith(VALUE_QUOTE)) {
           value = parseQuotedValue(value.substring(1),st);
         }
-        setValue(ann,name,value);
+        setValue(anns,name,value);
       }
     }
-  }
-
-  // ========================================================================
-  // Protected methods
-
-  protected MAnnotation createAnnotation(MAnnotatedElement target,
-                                         String tagName) {
-    return target.findOrCreateAnnotation(tagName);
-  }
-
-  protected void setValue(MAnnotation ann,
-                          String memberName,
-                          String value) {
-    ann.setSimpleValue(memberName,value,getStringType());
   }
 
   // ========================================================================

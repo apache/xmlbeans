@@ -82,7 +82,7 @@ public class CompositeTylar extends BaseTylarImpl {
     return "CompositeTylar containing "+mTylars.length+" tylars";
   }
 
-  public BindingFile[] getBindingFiles() throws IOException, XmlException {
+  public BindingFile[] getBindingFiles() /*throws IOException, XmlException*/ {
     //REVIEW consider caching
     Collection all = new ArrayList();
     for(int i=0; i<mTylars.length; i++) {
@@ -93,7 +93,7 @@ public class CompositeTylar extends BaseTylarImpl {
     return out;
   }
 
-  public SchemaDocument[] getSchemas() throws IOException, XmlException {
+  public SchemaDocument[] getSchemas() /*throws IOException, XmlException*/ {
     //REVIEW consider caching
     Collection all = new ArrayList();
     for(int i=0; i<mTylars.length; i++) {

@@ -18,47 +18,44 @@ import org.apache.xmlbeans.impl.jam.mutable.MAnnotatedElement;
 import org.apache.xmlbeans.impl.jam.mutable.MAnnotation;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
-import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 import java.util.Properties;
 import java.util.Enumeration;
 
+import com.sun.javadoc.Tag;
+
 /**
+ * This provides ejbgen-style tag parsing: tag contents
+ * are treated as whitespace-separated name=value pairs, where values
+ * can be double-quoted.
+ * 
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class WhitespaceDelimitedTagParser extends TagParser {
+public class WhitespaceDelimitedTagParser extends JavadocTagParser {
 
-  public void parse(MAnnotatedElement target,
-                      String tagName,
-                      String tagText)
-  {
-    //FIXME AND REVIEW so we're saying that tag values are always strings,
-    //at least by default.  not clear that we can do any better than that.
-    //even if so, the way this is implemented here with this cast
-    //is somewhat gross
-    JClass type = getStringType();
-    if (tagText == null) throw new IllegalArgumentException("null tagText");
+  public void parse(MAnnotatedElement target,  Tag tag) {
+    MAnnotation[] anns = createAnnotations(target,tag);
+    String tagText = tag.text();
+    if (tagText == null) return;
     tagText = tagText.trim();
     if (tagText.length() == 0) return;
     Properties props = new Properties();
-    parseAssignments(props,tagText);
-
-    MAnnotation ann = target.findOrCreateAnnotation(tagName);
-    if (props.size() == 0) {
-      // if there are no name-value pairs, then just make a single value
-      // named 'value' with a value equal to the contents of the tag.
-      ann.setSimpleValue(JAnnotation.SINGLE_VALUE_NAME,tagText, type);
-    } else {
+    parseAssignments(props,tagText); //FIXME no need to create Properties here
+    if (props.size() > 0) {
       Enumeration names = props.propertyNames();
       while(names.hasMoreElements()) {
         String name = (String)names.nextElement();
-        ann.setSimpleValue(name,props.getProperty(name), type);
+        setValue(anns,name,props.getProperty(name));
       }
+    } else {
+      //add the single member text if and only if there are no name-value
+      //pairs.  this is how ejbgen likes it but i'm not sure it's the right
+      //thing - might be nicer to have the info always available
+       setSingleValueText(anns,tag);
     }
-
   }
 
-// ========================================================================
+  // ========================================================================
   // Private methods
 
   //REVIEW the comment parsing logic here should be factored and made pluggable
@@ -198,93 +195,5 @@ public class WhitespaceDelimitedTagParser extends TagParser {
     return (! isBlank(c)) && c != '=';
 //     return Character.isJavaIdentifierStart(c) || c == '-' || Character.isDigit(c) || c == '.';
   }
-
-  /*
-  OLD TAG PARSING CODE
-
-  public void initFromJavadocTag(String tagline) {
-    if (tagline == null) throw new IllegalArgumentException("null tagline");
-    StringTokenizer st = new StringTokenizer(tagline, mNvPairDelims);
-    while (st.hasMoreTokens()) {
-      String pair = st.nextToken();
-      int eq = pair.indexOf('=');
-      if (eq <= 0) continue; // if not there or is first character
-      String name = pair.substring(0, eq).trim();
-      if (eq < pair.length() - 1) {
-        String value = pair.substring(eq + 1).trim();
-        if (value.startsWith(VALUE_QUOTE)) {
-          value = parseQuotedValue(value.substring(1),st);
-        }
-        setValue(name,value);
-      }
-    }
-  }
-
-  private String parseQuotedValue(String line, StringTokenizer st) {
-    StringWriter out = new StringWriter();
-    while(true) {
-      int endQuote = line.indexOf(VALUE_QUOTE);
-      if (endQuote == -1) {
-        out.write(line);
-        if (!st.hasMoreTokens()) return out.toString();
-        out.write('\n');
-        line = st.nextToken().trim();
-        continue;
-      } else {
-        out.write(line.substring(0,endQuote).trim());
-        return out.toString();
-      }
-    }
-  }
-  */
-
-  /**
-   * <p>Called by JAM to initialize this proxy's properties using a
-   * JSR175 annotation instnce.  The value is guaranteed to be an instance
-   * of the 1.5-specific <code>java.lang.annotation.Annotation</code>
-   * marker interface.  (It's typed as <code>Object</code> in order to
-   * preserve pre-1.5 compatibility).</p>
-   *
-   * <p>The implementation of this method introspects the given object
-   * for JSR175 annotation member methods, invokes them, and then calls
-   * <code>setMemberValue</code> using the method's name and invocation
-   * result as the name and value.</p>
-   *
-   * <p>Extending classes are free to override this method if different
-   * behavior is required.</p>
-
-  public void initFromAnnotationInstance(Class annType,
-                                         Object jsr175annotationObject) {
-    if (jsr175annotationObject == null) throw new IllegalArgumentException();
-    //FIXME this is a bit clumsy right now - I think we need to be a little
-    // more surgical in identifying the annotation member methods
-    Method[] methods = annType.getMethods();
-    for(int i=0; i<methods.length; i++) {
-      int mods = methods[i].getModifiers();
-      if (Modifier.isStatic(mods)) continue;
-      if (!Modifier.isPublic(mods)) continue;
-      if (methods[i].getParameterTypes().length > 0) continue;
-      {
-        // try to limit it to real annotation methods.
-        // FIXME seems like this could be better
-        Class c = methods[i].getDeclaringClass();
-        String name = c.getName();
-        if (name.equals("java.lang.Object") ||
-          name.equals("java.lang.annotation.Annotation")) {
-          continue;
-        }
-      }
-      try {
-        setValue(methods[i].getName(),
-                 methods[i].invoke(jsr175annotationObject,null), null);
-      } catch (IllegalAccessException e) {
-        //getLogger().warning(e);
-      } catch (InvocationTargetException e) {
-        //getLogger().warning(e);
-      }
-    }
-  }
-   */
-
 
 }

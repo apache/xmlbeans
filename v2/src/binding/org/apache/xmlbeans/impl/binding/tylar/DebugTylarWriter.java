@@ -86,7 +86,7 @@ public class DebugTylarWriter implements TylarWriter, WriterFactory {
         writeSchema(xsds[i],null);
       }
       mOut.println("==== End Type Library contents ========================");
-    } catch(XmlException xe) {
+    } catch(Exception xe) {
       xe.printStackTrace();
       throw new IOException(xe.getMessage());
     }

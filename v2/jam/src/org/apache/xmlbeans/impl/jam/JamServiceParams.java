@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam;
 
 import org.apache.xmlbeans.impl.jam.visitor.MVisitor;
-import org.apache.xmlbeans.impl.jam.annotation.TagParser;
+import org.apache.xmlbeans.impl.jam.annotation.JavadocTagParser;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -265,49 +265,13 @@ public interface JamServiceParams {
    * @throws IllegalArgumentException if the proxyClass parameter is null,
    * does not have a public default constructor, or is not a subclass of
    * <code>TypedAnnotationProxyBase</code>.
-   * @throws IllegalArgumentException if the qualified175AnnotationClassname
+   * @throws IllegalArgumentException if the annotationName
    * is null or not a valid java classname.
    * @throws IllegalArgumentException if a proxy has already been registered
    * for the given 175 annotation class.
    */
-  public void register175AnnotationProxy(Class annotationProxyClass,
-                                         String qualified175AnnotationClassname);
-
-  /**
-   * <p>Registers a given class to serve as proxy for a javadoc tag.
-   * JAM will create instances of the given class to act as
-   * proxies to the tag's metadata.  The proxy class must extend
-   * <code>TypedAnnotationProxyBase</code>.
-   *
-   * <p>Note that the 175 Annotation type is specified by name (as opposed
-   * to Class) so that it is not required for the Annotation class to be
-   * compiled.  However, this name MUST be a fully-qualified java
-   * classname.</p>
-   *
-   * <pYou must register a unique TypedAnnotationProxyBase subclass for each javadoc
-   * tag name.  This is because JAM (like JSR175) will only expose one
-   * annotation of a given (proxy) type per java elements.</p>
-   *
-   * <p>However, it is acceptable (and often desirable) to register the same
-   * TypedAnnotationProxyBase subclass for both a javadoc tag and a 175 annotation
-   * type.  This allows JAM to provide your application with a unified view of
-   * java metadata, whether it is represented as javadoc tags or JSR175
-   * annotations.</p>
-   *
-   * @throws IllegalArgumentException if the proxyClass parameter is null,
-   * does not have a public default constructor, or is not a subclass of
-   * <code>TypedAnnotationProxyBase</code>.
-   * @throws IllegalArgumentException if the tagname is null or not a valid
-   * javadoc tag name.
-   * @throws IllegalArgumentException if a proxy has already been registered
-   * for the given tag name.
-   */
-  public void registerJavadocTagProxy(Class annotationProxyClass,
-                                      String tagname);
-
-
-  //DOCME
-  public void setCommentInitializer(MVisitor initializer);
+  public void registerAnnotationProxy(Class annotationProxyClass,
+                                      String annotationName);
 
   //DOCME
   public void setPropertyInitializer(MVisitor initializer);
@@ -316,7 +280,7 @@ public interface JamServiceParams {
   public void addInitializer(MVisitor initializer);
 
   //DOCME
-  public void setTagParser(TagParser tp);
+  public void setJavadocTagParser(JavadocTagParser tp);
 
 
   /**

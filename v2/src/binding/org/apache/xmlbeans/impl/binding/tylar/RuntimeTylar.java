@@ -91,7 +91,8 @@ public class RuntimeTylar implements Tylar, TylarConstants {
 
   public URL[] getLocations() { return mLocations; }
 
-  public BindingLoader getBindingLoader() throws IOException, XmlException {
+  public BindingLoader getBindingLoader() /*throws IOException, XmlException*/ {
+try {
     if (mBindingLoader == null) {
       BindingFile[] bfs = getBindingFiles();
       BindingLoader[] loaders = new BindingLoader[bfs.length+1];
@@ -100,9 +101,11 @@ public class RuntimeTylar implements Tylar, TylarConstants {
       mBindingLoader = CompositeBindingLoader.forPath(loaders);
     }
     return mBindingLoader;
+} catch(Exception e) { throw new RuntimeException(e); }
   }
 
-  public BindingFile[] getBindingFiles() throws IOException, XmlException {
+  public BindingFile[] getBindingFiles() /*throws IOException, XmlException*/ {
+try {
     if (mBindingFiles == null) {
       List list = new ArrayList();
       Enumeration urls = mClassLoader.getResources(BINDING_FILE);
@@ -122,6 +125,7 @@ public class RuntimeTylar implements Tylar, TylarConstants {
       list.toArray(mBindingFiles);
     }
     return mBindingFiles;
+} catch(Exception e) { throw new RuntimeException(e); } //FIXME
   }
 
   public SchemaDocument[] getSchemas() {

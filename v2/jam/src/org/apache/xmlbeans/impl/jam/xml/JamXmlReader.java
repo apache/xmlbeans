@@ -201,7 +201,7 @@ import java.net.URISyntaxException;
       nextElement();
       //REVIEW creating ann for tag is not the right thing to do here.
       //we may need to store more info about exactly what the annotation was
-      MAnnotation ann = element.addAnnotation(assertCurrentString(NAME));
+      MAnnotation ann = element.addLiteralAnnotation(assertCurrentString(NAME));
       while(ANNOTATIONVALUE.equals(getElementName())) {
         nextElement();
         String name = assertCurrentString(NAME);

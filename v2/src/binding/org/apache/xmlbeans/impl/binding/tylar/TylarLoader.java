@@ -17,6 +17,7 @@ package org.apache.xmlbeans.impl.binding.tylar;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URI;
 
 import org.apache.xmlbeans.XmlException;
 
@@ -50,5 +51,10 @@ public interface TylarLoader {
    * tylars.
    */
   public Tylar load(URL[] urls) throws IOException, XmlException;
+
+  /**
+   * @deprecated
+   */
+  public Tylar load(URI uri) throws IOException, XmlException;
 
 }

@@ -68,38 +68,5 @@ public class DefaultAnnotationProxy extends AnnotationProxy {
     mValues.add(new AnnotationValueImpl((ElementContext)getLogger(),//yikes, nasty.  FIXME
                                         name,value,type));
   }
-
-
-  /**
-   * Introspects the src object for annotation member methods, invokes them
-   * and creates corresponding EAnnotationMembers in the given dest object.
-
-  private void populateAnnotationMembers(MAnnotation dest,
-                                         Object src,
-                                         Class srcClass)
-  {
-    Method[] methods = srcClass.getDeclaredMethods();
-    for(int i=0; i<methods.length; i++) {
-      if (methods[i].getParameterTypes().length > 0) continue;
-      EAnnotationMember member = dest.addNewMember();
-      member.setSimpleName(methods[i].getName());
-      try {
-        member.setValue(methods[i].invoke(src,null));
-      } catch(IllegalAccessException iae) {
-        iae.printStackTrace(); // this is not expected
-      } catch(InvocationTargetException ite) {
-        ite.printStackTrace();
-      }
-    }
-    //REVIEW will it be a superclass or an interface?  this might be broken
-    srcClass = srcClass.getSuperclass();
-    if (srcClass != null &&
-            !srcClass.getName().equals("java.lang.annotation.Annotation") &&
-            !srcClass.getName().equals("java.lang.Object")) {
-      populateAnnotationMembers(dest,src,srcClass);
-    }
-  }
-   */
-
 }
 

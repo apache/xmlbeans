@@ -23,6 +23,7 @@ import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.provider.JamClassPopulator;
+import org.apache.xmlbeans.impl.jam.annotation.JavadocTagParser;
 
 import java.io.*;
 import java.util.StringTokenizer;
@@ -50,6 +51,7 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
   private JamServiceContext mServiceContext;
   private JamLogger mLogger;
   private Javadoc15Delegate mDelegate = null;
+  private JavadocTagParser mTagParser = null;
 
   private boolean mParseTags = true;//FIXME
 
@@ -60,6 +62,7 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     if (ctx == null) throw new IllegalArgumentException("null context");
     mServiceContext = ctx;
     mLogger = ctx.getLogger();
+    mTagParser = ctx.getTagParser();
     String pct = ctx.getProperty(PARSETAGS_PROPERTY);
     if (pct != null) {
       mParseTags = Boolean.valueOf(pct).booleanValue();
@@ -287,6 +290,25 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     return out;
   }
 
+  private void addAnnotations(MAnnotatedElement dest, ProgramElementDoc src) {
+    String comments = src.commentText();
+    if (comments != null) dest.createComment().setText(comments);
+    Tag[] tags = src.tags();
+    //if (mLogger.isVerbose(this)) {
+    //  mLogger.verbose("processing "+tags.length+" javadoc tags on "+dest);
+    //}
+    for(int i=0; i<tags.length; i++) {
+      if (mLogger.isVerbose(this)) {
+        mLogger.verbose("...'"+tags[i].name()+"' ' "+tags[i].text());
+      }
+      //note name() returns the '@', so we strip it here
+      mTagParser.parse(dest,tags[i]);
+    }
+    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
+  }
+
+  // ========================================================================
+  // Shared(?) utilities
 
   /**
    * Returns a classfile-style field descriptor for the given type.
@@ -334,29 +356,4 @@ public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopu
     if (f != null) sp.setSourceURI(f.toURI());
   }
 
-
-
-  private void addAnnotations(MAnnotatedElement dest, ProgramElementDoc src) {
-    if (mParseTags) {
-      //THIS IS THE CURRENT DEFAULT BEHAVIOR - LET JAVADOC IDENTIFY THE
-      //TAGS FOR US
-      String comments = src.commentText();
-      if (comments != null) dest.createComment().setText(comments);
-      Tag[] tags = src.tags();
-      //if (mLogger.isVerbose(this)) {
-      //  mLogger.verbose("processing "+tags.length+" javadoc tags on "+dest);
-      //}
-      for(int i=0; i<tags.length; i++) {
-        if (mLogger.isVerbose(this)) {
-          mLogger.verbose("...'"+tags[i].name()+"' ' "+tags[i].text());
-        }
-        //note: name() returns the '@', so we strip it
-        dest.addAnnotationForTag(tags[i].name().substring(1),tags[i].text());
-      }
-    } else {
-      String comments = src.getRawCommentText();
-      if (comments != null) dest.createComment().setText(comments);
-    }
-    if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
-  }
 }
