@@ -239,7 +239,10 @@ public class ClassImpl extends MemberImpl implements MClass,
 
   public JClass[] getClasses() {
     ensureLoaded();
-    return new JClass[0];//FIXME
+    if (mInnerClasses == null) return new JClass[0];
+    JClass[] out = new JClass[mInnerClasses.size()];
+    mInnerClasses.toArray(out);
+    return out;
   }
 
   public String getFieldDescriptor() {
