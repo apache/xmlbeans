@@ -125,7 +125,7 @@ public class InstanceValidationTests extends TestCase
             Assert.assertEquals(xmlValError.getErrorType(), XmlValidationError.INCORRECT_ELEMENT);
             Assert.assertEquals(xmlValError.getBadSchemaType().getName().getLocalPart(), "biff");
             Assert.assertEquals(xmlValError.getOffendingQName().getLocalPart(), "q");
-            Assert.assertEquals(xmlValError.getMessage(), "Expected element a@http://openuri.org/bobschema instead of q@http://openuri.org/bobschema here in element foo@http://openuri.org/bobschema");
+            Assert.assertEquals(xmlValError.getMessage(), "Expected element 'a@http://openuri.org/bobschema' instead of 'q@http://openuri.org/bobschema' here in element foo@http://openuri.org/bobschema");
         }
     }
 
@@ -261,7 +261,7 @@ public class InstanceValidationTests extends TestCase
         Assert.assertEquals(XmlValidationError.INCORRECT_ELEMENT, xmlValError.getErrorType());
         Assert.assertEquals("personType", xmlValError.getBadSchemaType().getName().getLocalPart());
         // todo debug this Assert.assertEquals(xmlValError.getOffendingQName().getLocalPart(), "age");
-        Assert.assertEquals("Expected element name instead of age here in element person", xmlValError.getMessage());
+        Assert.assertEquals("Expected element 'name' instead of 'age' here in element person", xmlValError.getMessage());
 
         Assert.assertTrue(it.hasNext());
 
@@ -269,7 +269,7 @@ public class InstanceValidationTests extends TestCase
         Assert.assertEquals(XmlValidationError.INCORRECT_ELEMENT, xmlValError.getErrorType());
         Assert.assertEquals("personType", xmlValError.getBadSchemaType().getName().getLocalPart());
         // todo debug this Assert.assertEquals(xmlValError.getOffendingQName().getLocalPart(), "age");
-        Assert.assertEquals("Expected element name at the end of the content in element person", xmlValError.getMessage());
+        Assert.assertEquals("Expected element 'name' at the end of the content in element person", xmlValError.getMessage());
     }
 
     public void testValidationElementNotAllowedError() throws XmlException
@@ -440,7 +440,7 @@ public class InstanceValidationTests extends TestCase
         for (Iterator it = errors.iterator(); it.hasNext();)
         {
             XmlError xmlError = (XmlError) it.next();
-            Assert.assertEquals(xmlError.getMessage(), "Expected element a@http://openuri.org/bobschema instead of q@http://openuri.org/bobschema here in element foo@http://openuri.org/bobschema");
+            Assert.assertEquals(xmlError.getMessage(), "Expected element 'a@http://openuri.org/bobschema' instead of 'q@http://openuri.org/bobschema' here in element foo@http://openuri.org/bobschema");
             // todo check XmlValidationError
         }
     }

@@ -148,10 +148,40 @@ public abstract class XmlErrorCodes
     public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$SIMPLE_TYPE_WITH_CONTENT = "cvc-complex-type.2.2";
 
     /**
+     * cvc-complex-type.2.4a: See clause 2.4 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-complex-type">XMLSchema Structures 1.0: Element Locally Valid (Complex Type)</a>
+     */
+    public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT = "cvc-complex-type.2.4a";
+
+    /**
+     * cvc-complex-type.2.4b: See clause 2.4 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-complex-type">XMLSchema Structures 1.0: Element Locally Valid (Complex Type)</a>
+     */
+    public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_NOT_ALLOWED = "cvc-complex-type.2.4b";
+
+    /**
+     * cvc-complex-type.2.4c: See clause 2.4 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-complex-type">XMLSchema Structures 1.0: Element Locally Valid (Complex Type)</a>
+     */
+    public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_ELEMENT = "cvc-complex-type.2.4c";
+
+    /**
+     * cvc-complex-type.2.4d: See clause 2.4 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-complex-type">XMLSchema Structures 1.0: Element Locally Valid (Complex Type)</a>
+     */
+    public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_ELEMENT = "cvc-complex-type.2.4d";
+
+    /**
      * cvc-complex-type.2.3: See clause 2.3 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-complex-type">XMLSchema Structures 1.0: Element Locally Valid (Complex Type)</a>
      */
     public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT = "cvc-complex-type.2.3";
+
+    /**
+     * cvc-complex-type.3.1: See clause 3.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-complex-type">XMLSchema Structures 1.0: Element Locally Valid (Complex Type)</a>
+     */
+    public static final String ELEM_COMPLEX_TYPE_LOCALLY_VALID$ATTRIBUTE_VALID = "cvc-complex-type.3.1";
 
     /**
      * cvc-complex-type.3.2.1: See clause 3.2.1 of
@@ -208,6 +238,18 @@ public abstract class XmlErrorCodes
     public static final String ELEM_LOCALLY_VALID$ABSTRACT = "cvc-elt.2";
 
     /**
+     * cvc-elt.3.1: See clause 3.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
+     */
+    public static final String ELEM_LOCALLY_VALID$NOT_NILLABLE = "cvc-elt.3.1";
+
+    /**
+     * cvc-elt.3.2.1: See clause 3.2.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
+     */
+    public static final String ELEM_LOCALLY_VALID$NIL_WITH_CONTENT = "cvc-elt.3.2.1";
+
+    /**
      * cvc-elt.4.1: See clause 4.1 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
      */
@@ -238,22 +280,22 @@ public abstract class XmlErrorCodes
     public static final String ELEM_LOCALLY_VALID$XSI_TYPE_BLOCK_RESTRICTION = "cvc-elt.4.3c";
 
     /**
+     * cvc-elt.5.2.2.2.1: See clause 5.2.2.2.1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
+     */
+    public static final String ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT = "cvc-elt.5.2.2.2.1";
+
+    /**
+     * cvc-elt.5.2.2.2.2: See clause 5.2.2.2.2 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
+     */
+    public static final String ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE = "cvc-elt.5.2.2.2.2";
+
+    /**
      * cvc-elt.4.3d: See clause 4.3 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
      */
     public static final String ELEM_LOCALLY_VALID$XSI_TYPE_PROHIBITED_SUBST = "cvc-elt.4.3d";
-
-    /**
-     * cvc-elt.3.1: See clause 3.1 of
-     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
-     */
-    public static final String ELEM_LOCALLY_VALID$NOT_NILLABLE = "cvc-elt.3.1";
-
-    /**
-     * cvc-elt.3.2.1: See clause 3.2.1 of
-     * <a href="http://www.w3c.org/TR/xmlschema-1/#cvc-elt">XMLSchema Structures 1.0: Element Locally Valid (Element)</a>
-     */
-    public static final String ELEM_LOCALLY_VALID$NIL_WITH_CONTENT = "cvc-elt.3.2.1";
 
     /**
      * cvc-enumeration-valid: See
@@ -772,6 +814,12 @@ public abstract class XmlErrorCodes
     public static final String IDENTITY_CONSTRAINT_PROPERTIES = "c-props-correct";
 
     /**
+     * c-props-correct.1: See clause 1 of
+     * <a href="http://www.w3c.org/TR/xmlschema-1/#c-props-correct">XMLSchema Structures 1.0: Identity-constraint Definition Properties Correct</a>
+     */
+    public static final String IDENTITY_CONSTRAINT_PROPERTIES$KEYREF_REFERS_TO_KEYREF = "c-props-correct.1";
+
+    /**
      * c-props-correct.2: See clause 2 of
      * <a href="http://www.w3c.org/TR/xmlschema-1/#c-props-correct">XMLSchema Structures 1.0: Identity-constraint Definition Properties Correct</a>
      */
@@ -1100,18 +1148,6 @@ public abstract class XmlErrorCodes
      * <a href="http://www.w3c.org/TR/xmlschema-1/#e-props-correct">XMLSchema Structures 1.0: Element Declaration Properties Correct</a>
      */
     public static final String ELEM_PROPERTIES$CONSTRAINT_VALID = "e-props-correct.2";
-
-    /**
-     * e-props-correct.3: See clause 3 of
-     * <a href="http://www.w3c.org/TR/xmlschema-1/#e-props-correct">XMLSchema Structures 1.0: Element Declaration Properties Correct</a>
-     */
-    public static final String ELEM_PROPERTIES$3 = "e-props-correct.3";
-
-    /**
-     * e-props-correct.4: See clause 4 of
-     * <a href="http://www.w3c.org/TR/xmlschema-1/#e-props-correct">XMLSchema Structures 1.0: Element Declaration Properties Correct</a>
-     */
-    public static final String ELEM_PROPERTIES$4 = "e-props-correct.4";
 
     /**
      * enumeration-required-notation: See

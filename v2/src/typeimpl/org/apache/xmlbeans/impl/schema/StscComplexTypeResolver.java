@@ -1338,6 +1338,8 @@ public class StscComplexTypeResolver
 
         if (maxOccurs != null && maxOccurs.compareTo(BigInteger.ONE) < 0)
         {
+            state.warning(XmlErrorCodes.PARTICLE_PROPERTIES$MAX_GTE_1, null, parseTree);
+
             // remove from the list of anonymous types if it was added
             anonymousTypes.remove(sPart.getType());
             return null; // maxOccurs == minOccurs == 0, same as no particle at all.
