@@ -1,0 +1,22 @@
+This software consists of voluntary contributions made by many
+individuals on behalf of the Apache Software Foundation and was
+originally based on software copyright (c) 2000-2003 BEA Systems 
+Inc., <http://www.bea.com/>. For more information on the Apache 
+Software Foundation, please see <http://www.apache.org/>.
+
+Aside from contributions to the Apache XMLBeans project, this 
+software also includes:
+
+- one or more source files from the Apache Xerces-J and Apache 
+Axis products, Copyright (c) 1999-2003 Apache Software Foundation
+
+- jaxen, Copyright 2003 (c) The Werken Company.
+
+- W3C XML Schema documents Copyright 2001-2003 (c) World Wide 
+Web Consortium  (Massachusetts Institute of Technology, European 
+Research Consortium  for Informatics and Mathematics, Keio 
+University)
+
+See the LICENSE.txt file for information on all licenses 
+associated with this software.
+

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+	<properties>
+		<title>XMLBeans Maven Plug-in</title>
+		<author email="s-dutta at sbcglobal dot net">Dutta Satadip</author>
+		<author email="jhindsley at providerlink dot com">Joseph Hindsley</author>
+	</properties>
+	<body>
+		<section name="Maven XMLBeans Plug-in">
+			<p>This plugin is a wrapper to the xmlbean ant task (see 
+<a href="http://xml.apache.org/xmlbeans/">http://xml.apache.org/xmlbeans/</a>
+for more information on XMLBeans) which 
+generates and compiles XMLBeans from XML Schema (*.xsd) files.
+</p>
+			<p>By default the plugin looks for the XML Schema files in the src/xmlbeans 
+directory. Java source files for the generated XMLBeans are put into the 
+target/xmlbeans/src directory. Class files and generated resource files are 
+compiled into the target/classes directory. The plugin also creates a jar 
+file (containing the generated class and resource files) which is put into
+the target/xmlbeans directory.
+</p>
+			<section name="Dependencies">
+				<p>You will need the XMLBean's xbean.jar file to use this plugin. You can get the
+jar from <a href="http://xml.apache.org/xmlbeans/">http://xml.apache.org/xmlbeans/</a>.
+The project.xml currently will download the xbeans-1.0-DEV.jar from <a href="http://www.ibiblio.org/maven/xmlbeans/jars/">http://www.ibiblio.org/maven/xmlbeans/jars/</a>.
+As new releases are made the dependency will have to changed in the project.xml
+</p>
+			</section>
+		</section>
+	</body>
+</document>

@@ -1,0 +1,220 @@
+<?xml version="1.0"?>
+<!-- Copyright 2004 The Apache Software Foundation
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License. -->
+<!-- ====================================================
+      License information for this file is provided in LICENSE.TXT, as published
+      on the Open Applications Group web site. www.openapplications.org
+
+      For support, more information, or to report implementation bugs,
+      please contact the Open Applications Group at xml@openapplications.org
+
+    $Revision$
+    $Date$
+    Open Applications Group XSD
+    Copyright 1998-2001, All Rights Reserved
+
+   $Name:  $
+
+cmk	6.2.0   	11/22/1999	Initial Release - update from version 003
+							Add POLNSTATUS, DATETIME.NEEDDELV to POORDERLIN
+							Fix processing note rules
+rjj	7.0.0		10/15/2000	Special Revision Update
+rjj	7.0.2		11/24/2000	Allow multiple instances of NOTES.
+mlr	7.1		04/16/2001	Add ATTCHREF to BOD.
+ajw		7.2.1			10/31/2001		W3C Schema Release
+
+Structure Overview
+
+	PROCESS_PO (POORDERHDR, POORDERLIN+)
+		POORDERHDR (PARTNER+, ATTCHREF*, CHARGE*, POTERM*)
+			POTERM ()
+		POORDERLIN (ATTCHREF*, CHARGE*, DISTRIBUTN*, PARTNER*, POTERM*,
+		  POBSUBLINE*, POLINESCHD*)
+			POTERM ()
+			POSUBLINE ()
+			POLINESCHD ()
+
+Notes:
+
+-->
+<xs:schema targetNamespace="http://www.openapplications.org/003_process_po_007" xmlns:os="http://www.openapplications.org/oagis_segments" xmlns:of="http://www.openapplications.org/oagis_fields" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns="http://www.openapplications.org/003_process_po_007">
+	<xs:import namespace="http://www.openapplications.org/oagis_segments" schemaLocation="oagis_segments.xsd"/>
+	<xs:import namespace="http://www.openapplications.org/oagis_fields" schemaLocation="oagis_fields.xsd"/>
+	<xs:element name="PROCESS_PO_007">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="os:CNTROLAREA"/>
+				<xs:element ref="DATAAREA" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="DATAAREA">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="PROCESS_PO"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="PROCESS_PO">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="POORDERHDR"/>
+				<xs:element ref="POORDERLIN" maxOccurs="unbounded"/>
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="POORDERHDR">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="os:DATETIMEANY" minOccurs="0"/>
+				<xs:element ref="os:OPERAMT" minOccurs="0"/>
+				<xs:element ref="of:POID"/>
+				<xs:element ref="of:POTYPE"/>
+				<xs:element ref="of:ACKREQUEST" minOccurs="0"/>
+				<xs:element ref="of:CONTRACTB" minOccurs="0"/>
+				<xs:element ref="of:CONTRACTS" minOccurs="0"/>
+				<xs:element ref="of:DESCRIPTN" minOccurs="0"/>
+				<xs:element ref="of:NOTES" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="of:OPRAMTAUTH" minOccurs="0"/>
+				<xs:element ref="of:PORELEASE" minOccurs="0"/>
+				<xs:element ref="of:TAXWHEXMPT" minOccurs="0"/>
+				<xs:element ref="of:USERAREA" minOccurs="0"/>
+				<xs:element ref="os:PARTNER" maxOccurs="unbounded"/>
+				<xs:element ref="os:ATTCHREF" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="os:CHARGE" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="POTERM" minOccurs="0" maxOccurs="unbounded"/>
+				<!-- (%DATETIME.DOCUMENT;)? -->
+				<!-- (%OPERAMT.EXTENDED.T;)? -->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="POTERM">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="of:DESCRIPTN" minOccurs="0"/>
+				<xs:element ref="of:TERMID" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="of:DAYOFMONTH"/>
+						<xs:element ref="of:PROXMONTH"/>
+					</xs:sequence>
+					<xs:element ref="of:DAYSNUM"/>
+				</xs:choice>
+				<xs:choice>
+					<xs:element ref="os:OPERAMT"/>
+					<xs:element ref="os:QUANTITY"/>
+					<!-- (%OPERAMT.EXTENDED.T;)? -->
+					<!-- (%QUANTITY.PERCENT;) -->
+				</xs:choice>
+				<xs:element ref="of:USERAREA" minOccurs="0"/>
+				<!-- ((DAYOFMONTH, PROXMONTH) | DAYSNUM), ((%OPERAMT.EXTENDED.T;) | (%QUANTITY.PERCENT;)) -->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="POORDERLIN">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="os:QUANTITY"/>
+				<xs:element ref="os:DATETIMEANY" minOccurs="0"/>
+				<xs:element ref="os:OPERAMT" minOccurs="0"/>
+				<xs:element ref="of:POLINENUM"/>
+				<xs:element ref="of:DRAWING" minOccurs="0"/>
+				<xs:element ref="of:HAZRDMATL" minOccurs="0"/>
+				<xs:element ref="of:ITEMRV" minOccurs="0"/>
+				<xs:element ref="of:ITEMRVX" minOccurs="0"/>
+				<xs:element ref="of:NOTES" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="of:PACKING" minOccurs="0"/>
+				<xs:element ref="of:POLNSTATUS" minOccurs="0"/>
+				<xs:element ref="of:TAXWHEXMPT" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="of:DESCRIPTN"/>
+						<xs:element ref="of:ITEM" minOccurs="0"/>
+						<xs:element ref="of:ITEMX" minOccurs="0"/>
+						<xs:element ref="of:UPC" minOccurs="0"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="of:ITEM"/>
+						<xs:element ref="of:ITEMX" minOccurs="0"/>
+						<xs:element ref="of:UPC" minOccurs="0"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="of:ITEMX"/>
+						<xs:element ref="of:UPC" minOccurs="0"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="of:UPC"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="of:USERAREA" minOccurs="0"/>
+				<xs:element ref="os:ATTCHREF" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="os:CHARGE" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="os:DISTRIBUTN" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="os:PARTNER" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="POTERM" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="POSUBLINE" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="POLINESCHD" minOccurs="0" maxOccurs="unbounded"/>
+				<!-- (%QUANTITY.PERCENT;)) -->
+				<!-- (%DATETIME.NEEDDELV;)? -->
+				<!-- (%OPERAMT.UNIT.T;)? -->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="POSUBLINE">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="os:QUANTITY"/>
+				<xs:element ref="of:DRAWING" minOccurs="0"/>
+				<xs:element ref="of:ITEMRV" minOccurs="0"/>
+				<xs:element ref="of:ITEMRVX" minOccurs="0"/>
+				<xs:element ref="of:PSBLINENUM" minOccurs="0"/>
+				<xs:choice>
+					<xs:sequence>
+						<xs:element ref="of:DESCRIPTN"/>
+						<xs:element ref="of:ITEM" minOccurs="0"/>
+						<xs:element ref="of:ITEMX" minOccurs="0"/>
+						<xs:element ref="of:UPC" minOccurs="0"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="of:ITEM"/>
+						<xs:element ref="of:ITEMX" minOccurs="0"/>
+						<xs:element ref="of:UPC" minOccurs="0"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="of:ITEMX"/>
+						<xs:element ref="of:UPC" minOccurs="0"/>
+					</xs:sequence>
+					<xs:sequence>
+						<xs:element ref="of:UPC"/>
+					</xs:sequence>
+				</xs:choice>
+				<xs:element ref="of:USERAREA" minOccurs="0"/>
+				<!-- (%QUANTITY.ITEM;) -->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+	<xs:element name="POLINESCHD">
+		<xs:complexType>
+			<xs:sequence>
+				<xs:element ref="os:DATETIMEANY" minOccurs="0"/>
+				<xs:element ref="os:QUANTITY"/>
+				<xs:element ref="of:DESCRIPTN" minOccurs="0"/>
+				<xs:element ref="of:PSCLINENUM" minOccurs="0"/>
+				<xs:element ref="of:USERAREA" minOccurs="0"/>
+				<!-- (%DATETIME.NEEDDELV;) -->
+				<!-- (%QUANTITY.ORDERED;) -->
+			</xs:sequence>
+		</xs:complexType>
+	</xs:element>
+</xs:schema>

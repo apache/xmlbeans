@@ -1,0 +1,1348 @@
+<?xml version="1.0" ?>
+<!-- Copyright 2004 The Apache Software Foundation
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+         http://www.apache.org/licenses/LICENSE-2.0
+
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License. -->
+<xsd:schema targetNamespace="http://www.annuitynet.com/namespace/profiles"
+
+  xmlns="http://www.annuitynet.com/namespace/profiles"
+  xmlns:cvoe="http://www.contivo.com/xmlns/2002/enrichment"
+  xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+
+  <xsd:complexType name="Type2">
+    <xsd:sequence>
+      <xsd:element name="CODE">
+        <xsd:simpleType>
+          <xsd:restriction base="xsd:string">
+            <xsd:length value="2"/>
+          </xsd:restriction>
+        </xsd:simpleType>
+      </xsd:element>
+      <xsd:element name="BEGIN_DATE" minOccurs="0" type="xsd:date"/>
+      <xsd:element name="END_DATE" minOccurs="0" type="xsd:date"/>
+      <xsd:element name="TERM_DATE" minOccurs="0" type="xsd:date"/>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:complexType name="Type1">
+    <xsd:sequence>
+      <xsd:element name="ID" maxOccurs="unbounded">
+        <xsd:complexType>
+          <xsd:simpleContent>
+            <xsd:extension base="xsd:string">
+              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+            </xsd:extension>
+          </xsd:simpleContent>
+        </xsd:complexType>
+      </xsd:element>
+    </xsd:sequence>
+  </xsd:complexType>
+
+  <xsd:element name="ENVELOPE">
+    <xsd:complexType>
+      <xsd:sequence>
+        <xsd:element name="HEADER">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="SENDING_PARTY_ID" type="xsd:string"/>
+              <xsd:element name="RECEIVING_PARTY_ID" type="xsd:string"/>
+              <xsd:element name="TRANSACTION_COUNT" type="xsd:integer"/>
+              <xsd:element name="TEST" minOccurs="0" default="0" type="xsd:boolean"/>
+            </xsd:sequence>
+          </xsd:complexType>
+        </xsd:element>
+        <xsd:element name="TRANSACTION" maxOccurs="unbounded">
+          <xsd:complexType>
+            <xsd:sequence>
+              <xsd:element name="HEADER">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="EFFECTIVE_DATE" minOccurs="0" type="xsd:date"/>
+                    <xsd:element name="AS_OF_DATETIME" minOccurs="0" type="xsd:dateTime"/>
+                    <xsd:element name="ACTIVITY">
+                      <xsd:simpleType>
+                        <xsd:restriction base="xsd:string">
+                          <xsd:enumeration value="ADD"/>
+                          <xsd:enumeration value="MODIFY"/>
+                          <xsd:enumeration value="DELETE"/>
+                        </xsd:restriction>
+                      </xsd:simpleType>
+                    </xsd:element>
+                    <xsd:element name="TRANSACTION_ID" maxOccurs="unbounded">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="PARTY_ID" type="xsd:string"/>
+                          <xsd:element name="TRANSACTION_ID" type="xsd:string"/>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ROUTING">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="STEP" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="RECEIVING_PARTY_ID" type="xsd:string"/>
+                                <xsd:element name="SENDING_PARTY_ID" type="xsd:string"/>
+                                <xsd:element name="ORDER" type="xsd:integer"/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ROUTING_HISTORY">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="STEP" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="RECEIVING_PARTY_ID" type="xsd:string"/>
+                                <xsd:element name="SENDING_PARTY_ID" type="xsd:string"/>
+                                <xsd:element name="SEND_DATETIME" type="xsd:dateTime"/>
+                                <xsd:element name="RECEIVE_DATETIME" minOccurs="0" type="xsd:dateTime"/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="TRANSACTION_TYPE">
+                      <xsd:simpleType>
+                        <xsd:restriction base="xsd:string">
+                          <xsd:enumeration value="BUSINESS_UNIT_DEFINITION"/>
+                        </xsd:restriction>
+                      </xsd:simpleType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+              <xsd:element name="REQUEST">
+                <xsd:complexType>
+                  <xsd:sequence>
+                    <xsd:element name="BUSINESS_UNITS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="BUSINESS_UNIT" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="ID">
+                                  <xsd:complexType>
+                                    <xsd:simpleContent>
+                                      <xsd:extension base="xsd:string">
+                                        <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                      </xsd:extension>
+                                    </xsd:simpleContent>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="ACTIVE" minOccurs="0" type="xsd:boolean"/>
+                                <xsd:element name="IDS" type="Type1"/>
+                                <xsd:element name="NAME" type="xsd:string"/>
+                                <xsd:element name="CLASS" type="xsd:string"/>
+                                <xsd:element name="TIN" type="xsd:string"/>
+                                <xsd:element name="ACCOUNT_LINKS" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ACCOUNT_LINK" maxOccurs="unbounded">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="ID">
+                                              <xsd:complexType>
+                                                <xsd:simpleContent>
+                                                  <xsd:extension base="xsd:string">
+                                                    <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                  </xsd:extension>
+                                                </xsd:simpleContent>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="CONTACT_LINKS" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="CONTACT_LINK" maxOccurs="unbounded">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="ID">
+                                              <xsd:complexType>
+                                                <xsd:simpleContent>
+                                                  <xsd:extension base="xsd:string">
+                                                    <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                  </xsd:extension>
+                                                </xsd:simpleContent>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="RESPONSIBILITY" minOccurs="0" maxOccurs="unbounded" type="xsd:string"/>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="USERS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="USER" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="IDS" type="Type1"/>
+                                <xsd:element name="ACTIVE" minOccurs="0" type="xsd:boolean"/>
+                                <xsd:element name="TIN" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="USER_LOGON_ID" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="PASSWORD" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="LAST_NAME" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="FIRST_NAME" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="MIDDLE_INITIAL" minOccurs="0">
+                                  <xsd:simpleType>
+                                    <xsd:restriction base="xsd:string">
+                                      <xsd:maxLength value="1"/>
+                                    </xsd:restriction>
+                                  </xsd:simpleType>
+                                </xsd:element>
+                                <xsd:element name="SALUTATION_CD" minOccurs="0">
+                                  <xsd:simpleType>
+                                    <xsd:restriction base="xsd:string">
+                                      <xsd:enumeration value="Mr"/>
+                                      <xsd:enumeration value="Mrs"/>
+                                      <xsd:enumeration value="Ms"/>
+                                      <xsd:enumeration value="Miss"/>
+                                      <xsd:enumeration value="Dr"/>
+                                      <xsd:enumeration value="Rev"/>
+                                      <xsd:enumeration value="Atty"/>
+                                    </xsd:restriction>
+                                  </xsd:simpleType>
+                                </xsd:element>
+                                <xsd:element name="SUFFIX_CD" minOccurs="0">
+                                  <xsd:simpleType>
+                                    <xsd:restriction base="xsd:string">
+                                      <xsd:enumeration value="Jr"/>
+                                      <xsd:enumeration value="Sr"/>
+                                      <xsd:enumeration value="II"/>
+                                      <xsd:enumeration value="III"/>
+                                      <xsd:enumeration value="IV"/>
+                                      <xsd:enumeration value="MD"/>
+                                    </xsd:restriction>
+                                  </xsd:simpleType>
+                                </xsd:element>
+                                <xsd:element name="EMAIL" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="PHONE_NUMBER" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="LICENSES" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="LICENSE" maxOccurs="2">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="TYPE">
+                                              <xsd:simpleType>
+                                                <xsd:restriction base="xsd:string">
+                                                  <xsd:enumeration value="FIXED"/>
+                                                  <xsd:enumeration value="VARIABLE"/>
+                                                </xsd:restriction>
+                                              </xsd:simpleType>
+                                            </xsd:element>
+                                            <xsd:element name="STATES">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                  <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="APPOINTMENTS" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="APPOINTMENT" maxOccurs="unbounded">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="STATUS">
+                                              <xsd:simpleType>
+                                                <xsd:restriction base="xsd:string">
+                                                  <xsd:enumeration value="PENDING"/>
+                                                  <xsd:enumeration value="APPOINTED"/>
+                                                  <xsd:enumeration value="TERMINATED"/>
+                                                </xsd:restriction>
+                                              </xsd:simpleType>
+                                            </xsd:element>
+                                            <xsd:element name="NEW_BUSINESS" type="xsd:boolean"/>
+                                            <xsd:element name="COMMISSIONS" type="xsd:boolean"/>
+                                            <xsd:element name="WRITING_COMPANY">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="ID">
+                                                    <xsd:complexType>
+                                                      <xsd:simpleContent>
+                                                        <xsd:extension base="xsd:string">
+                                                          <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                        </xsd:extension>
+                                                      </xsd:simpleContent>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                  <xsd:element name="LINES_OF_BUSINESS" minOccurs="0">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="LINE_OF_BUSINESS" maxOccurs="unbounded">
+                                                          <xsd:simpleType>
+                                                            <xsd:restriction base="xsd:string">
+                                                              <xsd:enumeration value="INDIVIDUAL_LIFE"/>
+                                                              <xsd:enumeration value="VARIABLE_ANNUITIES"/>
+                                                              <xsd:enumeration value="FIXED_ANNUITIES"/>
+                                                              <xsd:enumeration value="GROUP_LIFE"/>
+                                                              <xsd:enumeration value="VARIABLE_LIFE"/>
+                                                              <xsd:enumeration value="ALL"/>
+                                                            </xsd:restriction>
+                                                          </xsd:simpleType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="STATES">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                  <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="USER_ROLES" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="USER_ROLE" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="IDS" type="Type1"/>
+                                <xsd:element name="DESCRIPTION" minOccurs="0" type="xsd:string"/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="ACCOUNTS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="ACCOUNT" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="IDS" type="Type1"/>
+                                <xsd:element name="ACCOUNT_NAME" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="OWNER_NAME" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="ABA_NUMBER" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="ACCOUNT_NUMBER" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="PURPOSE" minOccurs="0">
+                                  <xsd:simpleType>
+                                    <xsd:restriction base="xsd:string">
+                                      <xsd:enumeration value="PREMIUM COLLECTION"/>
+                                      <xsd:enumeration value="COMMISSION RECIEPTS"/>
+                                    </xsd:restriction>
+                                  </xsd:simpleType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="CONTACTS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="CONTACT" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="IDS" type="Type1"/>
+                                <xsd:element name="NAME" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="PHONE_NUMBER" minOccurs="0" type="xsd:string"/>
+                                <xsd:element name="EMAIL" minOccurs="0" type="xsd:string"/>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="BUSINESS_UNIT_AVAILABILITY" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="BUSINESS_UNIT_LINKS">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="BUSINESS_UNIT_LINK" maxOccurs="unbounded">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                      <xsd:element name="AVAILABILITY">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="PRODUCTS" minOccurs="0">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="PRODUCT_LINKS">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                              <xsd:element name="STATES" minOccurs="0">
+                                                                <xsd:complexType>
+                                                                  <xsd:sequence>
+                                                                    <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                                    <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                                  </xsd:sequence>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="PRODUCTS_PLANS" minOccurs="0">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="PRODUCT_LINKS">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                              <xsd:element name="PLAN_LINKS" minOccurs="0">
+                                                                <xsd:complexType>
+                                                                  <xsd:sequence>
+                                                                    <xsd:element name="PLAN_LINK" maxOccurs="unbounded">
+                                                                      <xsd:complexType>
+                                                                        <xsd:sequence>
+                                                                          <xsd:element name="ID">
+                                                                            <xsd:complexType>
+                                                                              <xsd:simpleContent>
+                                                                                <xsd:extension base="xsd:string">
+                                                                                  <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                </xsd:extension>
+                                                                              </xsd:simpleContent>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="STATES" minOccurs="0">
+                                                                            <xsd:complexType>
+                                                                              <xsd:sequence>
+                                                                                <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                                                <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                                              </xsd:sequence>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                        </xsd:sequence>
+                                                                      </xsd:complexType>
+                                                                    </xsd:element>
+                                                                  </xsd:sequence>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="PRODUCTS_RIDERS">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="PRODUCT_LINKS">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                              <xsd:element name="RIDER_LINKS" minOccurs="0">
+                                                                <xsd:complexType>
+                                                                  <xsd:sequence>
+                                                                    <xsd:element name="RIDER_LINK" maxOccurs="unbounded">
+                                                                      <xsd:complexType>
+                                                                        <xsd:sequence>
+                                                                          <xsd:element name="ID">
+                                                                            <xsd:complexType>
+                                                                              <xsd:simpleContent>
+                                                                                <xsd:extension base="xsd:string">
+                                                                                  <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                </xsd:extension>
+                                                                              </xsd:simpleContent>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="CONFIGURATION_LINKS" minOccurs="0">
+                                                                            <xsd:complexType>
+                                                                              <xsd:sequence>
+                                                                                <xsd:element name="CONFIGURATION_LINK" maxOccurs="unbounded">
+                                                                                  <xsd:complexType>
+                                                                                    <xsd:sequence>
+                                                                                      <xsd:element name="ID">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:simpleContent>
+                                                                                            <xsd:extension base="xsd:string">
+                                                                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                            </xsd:extension>
+                                                                                          </xsd:simpleContent>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                      <xsd:element name="STATES" minOccurs="0">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:sequence>
+                                                                                            <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                                                            <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                                                          </xsd:sequence>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                    </xsd:sequence>
+                                                                                  </xsd:complexType>
+                                                                                </xsd:element>
+                                                                              </xsd:sequence>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="OPTIONALITY" minOccurs="0" default="OPTIONAL">
+                                                                            <xsd:simpleType>
+                                                                              <xsd:restriction base="xsd:string">
+                                                                                <xsd:enumeration value="REQUIRED"/>
+                                                                                <xsd:enumeration value="OPTIONAL"/>
+                                                                              </xsd:restriction>
+                                                                            </xsd:simpleType>
+                                                                          </xsd:element>
+                                                                        </xsd:sequence>
+                                                                      </xsd:complexType>
+                                                                    </xsd:element>
+                                                                  </xsd:sequence>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="PRODUCTS_PLANS_RIDERS">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="PRODUCT_LINKS">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                              <xsd:element name="PLAN_LINKS" minOccurs="0">
+                                                                <xsd:complexType>
+                                                                  <xsd:sequence>
+                                                                    <xsd:element name="PLAN_LINK" maxOccurs="unbounded">
+                                                                      <xsd:complexType>
+                                                                        <xsd:sequence>
+                                                                          <xsd:element name="ID">
+                                                                            <xsd:complexType>
+                                                                              <xsd:simpleContent>
+                                                                                <xsd:extension base="xsd:string">
+                                                                                  <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                </xsd:extension>
+                                                                              </xsd:simpleContent>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="RIDER_LINKS" minOccurs="0">
+                                                                            <xsd:complexType>
+                                                                              <xsd:sequence>
+                                                                                <xsd:element name="RIDER_LINK" maxOccurs="unbounded">
+                                                                                  <xsd:complexType>
+                                                                                    <xsd:sequence>
+                                                                                      <xsd:element name="ID">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:simpleContent>
+                                                                                            <xsd:extension base="xsd:string">
+                                                                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                            </xsd:extension>
+                                                                                          </xsd:simpleContent>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                      <xsd:element name="CONFIGURATION_LINKS" minOccurs="0">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:sequence>
+                                                                                            <xsd:element name="CONFIGURATION_LINK" maxOccurs="unbounded">
+                                                                                              <xsd:complexType>
+                                                                                                <xsd:sequence>
+                                                                                                  <xsd:element name="ID">
+                                                                                                    <xsd:complexType>
+                                                                                                      <xsd:simpleContent>
+                                                                                                        <xsd:extension base="xsd:string">
+                                                                                                          <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                                        </xsd:extension>
+                                                                                                      </xsd:simpleContent>
+                                                                                                    </xsd:complexType>
+                                                                                                  </xsd:element>
+                                                                                                  <xsd:element name="STATES" minOccurs="0">
+                                                                                                    <xsd:complexType>
+                                                                                                      <xsd:sequence>
+                                                                                                        <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                                                                        <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                                                                      </xsd:sequence>
+                                                                                                    </xsd:complexType>
+                                                                                                  </xsd:element>
+                                                                                                </xsd:sequence>
+                                                                                              </xsd:complexType>
+                                                                                            </xsd:element>
+                                                                                          </xsd:sequence>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                      <xsd:element name="OPTIONALITY" minOccurs="0" default="OPTIONAL">
+                                                                                        <xsd:simpleType>
+                                                                                          <xsd:restriction base="xsd:string">
+                                                                                            <xsd:enumeration value="REQUIRED"/>
+                                                                                            <xsd:enumeration value="OPTIONAL"/>
+                                                                                          </xsd:restriction>
+                                                                                        </xsd:simpleType>
+                                                                                      </xsd:element>
+                                                                                    </xsd:sequence>
+                                                                                  </xsd:complexType>
+                                                                                </xsd:element>
+                                                                              </xsd:sequence>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                        </xsd:sequence>
+                                                                      </xsd:complexType>
+                                                                    </xsd:element>
+                                                                  </xsd:sequence>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="PRODUCTS_SERVICE_PROGRAMS">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="PRODUCT_LINKS">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                              <xsd:element name="SERVICE_PROGRAM_LINKS" minOccurs="0">
+                                                                <xsd:complexType>
+                                                                  <xsd:sequence>
+                                                                    <xsd:element name="SERVICE_PROGRAM_LINK" maxOccurs="unbounded">
+                                                                      <xsd:complexType>
+                                                                        <xsd:sequence>
+                                                                          <xsd:element name="ID">
+                                                                            <xsd:complexType>
+                                                                              <xsd:simpleContent>
+                                                                                <xsd:extension base="xsd:string">
+                                                                                  <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                </xsd:extension>
+                                                                              </xsd:simpleContent>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="OPTION_LINKS" minOccurs="0">
+                                                                            <xsd:complexType>
+                                                                              <xsd:sequence>
+                                                                                <xsd:element name="OPTION_LINK" maxOccurs="unbounded">
+                                                                                  <xsd:complexType>
+                                                                                    <xsd:sequence>
+                                                                                      <xsd:element name="ID">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:simpleContent>
+                                                                                            <xsd:extension base="xsd:string">
+                                                                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                            </xsd:extension>
+                                                                                          </xsd:simpleContent>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                    </xsd:sequence>
+                                                                                  </xsd:complexType>
+                                                                                </xsd:element>
+                                                                              </xsd:sequence>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="CONFIGURATION_LINKS" minOccurs="0">
+                                                                            <xsd:complexType>
+                                                                              <xsd:sequence>
+                                                                                <xsd:element name="CONFIGURATION_LINK" maxOccurs="unbounded">
+                                                                                  <xsd:complexType>
+                                                                                    <xsd:sequence>
+                                                                                      <xsd:element name="ID">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:simpleContent>
+                                                                                            <xsd:extension base="xsd:string">
+                                                                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                            </xsd:extension>
+                                                                                          </xsd:simpleContent>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                      <xsd:element name="STATES" minOccurs="0">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:sequence>
+                                                                                            <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                                                            <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                                                          </xsd:sequence>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                    </xsd:sequence>
+                                                                                  </xsd:complexType>
+                                                                                </xsd:element>
+                                                                              </xsd:sequence>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="OPTIONALITY" minOccurs="0" default="OPTIONAL">
+                                                                            <xsd:simpleType>
+                                                                              <xsd:restriction base="xsd:string">
+                                                                                <xsd:enumeration value="REQUIRED"/>
+                                                                                <xsd:enumeration value="OPTIONAL"/>
+                                                                              </xsd:restriction>
+                                                                            </xsd:simpleType>
+                                                                          </xsd:element>
+                                                                        </xsd:sequence>
+                                                                      </xsd:complexType>
+                                                                    </xsd:element>
+                                                                  </xsd:sequence>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="PRODUCTS_PLANS_SERVICE_PROGRAMS">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="PRODUCT_LINKS">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                              <xsd:element name="PLAN_LINKS" minOccurs="0">
+                                                                <xsd:complexType>
+                                                                  <xsd:sequence>
+                                                                    <xsd:element name="PLAN_LINK" maxOccurs="unbounded">
+                                                                      <xsd:complexType>
+                                                                        <xsd:sequence>
+                                                                          <xsd:element name="ID">
+                                                                            <xsd:complexType>
+                                                                              <xsd:simpleContent>
+                                                                                <xsd:extension base="xsd:string">
+                                                                                  <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                </xsd:extension>
+                                                                              </xsd:simpleContent>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="SERVICE_PROGRAM_LINKS" minOccurs="0">
+                                                                            <xsd:complexType>
+                                                                              <xsd:sequence>
+                                                                                <xsd:element name="SERVICE_PROGRAM_LINK" maxOccurs="unbounded">
+                                                                                  <xsd:complexType>
+                                                                                    <xsd:sequence>
+                                                                                      <xsd:element name="ID">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:simpleContent>
+                                                                                            <xsd:extension base="xsd:string">
+                                                                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                            </xsd:extension>
+                                                                                          </xsd:simpleContent>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                      <xsd:element name="OPTION__LINKS" minOccurs="0">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:sequence>
+                                                                                            <xsd:element name="OPTION__LINK" maxOccurs="unbounded">
+                                                                                              <xsd:complexType>
+                                                                                                <xsd:sequence>
+                                                                                                  <xsd:element name="ID">
+                                                                                                    <xsd:complexType>
+                                                                                                      <xsd:simpleContent>
+                                                                                                        <xsd:extension base="xsd:string">
+                                                                                                          <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                                        </xsd:extension>
+                                                                                                      </xsd:simpleContent>
+                                                                                                    </xsd:complexType>
+                                                                                                  </xsd:element>
+                                                                                                </xsd:sequence>
+                                                                                              </xsd:complexType>
+                                                                                            </xsd:element>
+                                                                                          </xsd:sequence>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                      <xsd:element name="CONFIGURATION_LINKS" minOccurs="0">
+                                                                                        <xsd:complexType>
+                                                                                          <xsd:sequence>
+                                                                                            <xsd:element name="CONFIGURATION_LINK" maxOccurs="unbounded">
+                                                                                              <xsd:complexType>
+                                                                                                <xsd:sequence>
+                                                                                                  <xsd:element name="ID">
+                                                                                                    <xsd:complexType>
+                                                                                                      <xsd:simpleContent>
+                                                                                                        <xsd:extension base="xsd:string">
+                                                                                                          <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                                        </xsd:extension>
+                                                                                                      </xsd:simpleContent>
+                                                                                                    </xsd:complexType>
+                                                                                                  </xsd:element>
+                                                                                                  <xsd:element name="STATES" minOccurs="0">
+                                                                                                    <xsd:complexType>
+                                                                                                      <xsd:sequence>
+                                                                                                        <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                                                                        <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                                                                      </xsd:sequence>
+                                                                                                    </xsd:complexType>
+                                                                                                  </xsd:element>
+                                                                                                </xsd:sequence>
+                                                                                              </xsd:complexType>
+                                                                                            </xsd:element>
+                                                                                          </xsd:sequence>
+                                                                                        </xsd:complexType>
+                                                                                      </xsd:element>
+                                                                                      <xsd:element name="OPTIONALITY" minOccurs="0" default="OPTIONAL">
+                                                                                        <xsd:simpleType>
+                                                                                          <xsd:restriction base="xsd:string">
+                                                                                            <xsd:enumeration value="REQUIRED"/>
+                                                                                            <xsd:enumeration value="OPTIONAL"/>
+                                                                                          </xsd:restriction>
+                                                                                        </xsd:simpleType>
+                                                                                      </xsd:element>
+                                                                                    </xsd:sequence>
+                                                                                  </xsd:complexType>
+                                                                                </xsd:element>
+                                                                              </xsd:sequence>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                        </xsd:sequence>
+                                                                      </xsd:complexType>
+                                                                    </xsd:element>
+                                                                  </xsd:sequence>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                            <xsd:element name="PRODUCTS_INVESTMENT_OPTIONS" minOccurs="0">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="PRODUCT_LINKS">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                              <xsd:element name="INVESTMENT_OPTIONS_LINKS" minOccurs="0">
+                                                                <xsd:complexType>
+                                                                  <xsd:sequence>
+                                                                    <xsd:element name="INVESTMENT_OPTIONS_LINK" maxOccurs="unbounded">
+                                                                      <xsd:complexType>
+                                                                        <xsd:sequence>
+                                                                          <xsd:element name="ID">
+                                                                            <xsd:complexType>
+                                                                              <xsd:simpleContent>
+                                                                                <xsd:extension base="xsd:string">
+                                                                                  <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                                </xsd:extension>
+                                                                              </xsd:simpleContent>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                          <xsd:element name="STATES" minOccurs="0">
+                                                                            <xsd:complexType>
+                                                                              <xsd:sequence>
+                                                                                <xsd:element name="EXCEPTION" minOccurs="0" default="0" type="xsd:boolean"/>
+                                                                                <xsd:element name="STATE" minOccurs="0" maxOccurs="unbounded" type="Type2"/>
+                                                                              </xsd:sequence>
+                                                                            </xsd:complexType>
+                                                                          </xsd:element>
+                                                                        </xsd:sequence>
+                                                                      </xsd:complexType>
+                                                                    </xsd:element>
+                                                                  </xsd:sequence>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="OPERATING_PROFILES" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="OPERATING_PROFILE" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="IDS" type="Type1"/>
+                                <xsd:element name="NETTING_OPTION" minOccurs="0" type="xsd:boolean"/>
+                                <xsd:element name="COMMISSION_OPTION_LINKS" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="COMMISSION_OPTION_LINK" maxOccurs="unbounded">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="ID">
+                                              <xsd:complexType>
+                                                <xsd:simpleContent>
+                                                  <xsd:extension base="xsd:string">
+                                                    <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                  </xsd:extension>
+                                                </xsd:simpleContent>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="TRANSACTION_TYPES" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="TRANSACTION_TYPE" maxOccurs="unbounded">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="TYPE">
+                                              <xsd:simpleType>
+                                                <xsd:restriction base="xsd:string">
+                                                  <xsd:enumeration value="APPLICATION"/>
+                                                  <xsd:enumeration value="INITIAL_PREMIUM"/>
+                                                  <xsd:enumeration value="SUBSEQUENT_PREMIUM"/>
+                                                  <xsd:enumeration value="SCHEDULED_ACH_PROGRAM"/>
+                                                  <xsd:enumeration value="WITHDRAWAL"/>
+                                                  <xsd:enumeration value="SURRENDER"/>
+                                                  <xsd:enumeration value="TRANSFER"/>
+                                                  <xsd:enumeration value="REBALANCE"/>
+                                                  <xsd:enumeration value="SYSTEMATIC_WITHDRAWAL_PROGRAM"/>
+                                                  <xsd:enumeration value="MRD_PROGRAM"/>
+                                                  <xsd:enumeration value="MRD"/>
+                                                  <xsd:enumeration value="SCHEDULED_REBALANCE_PROGRAM"/>
+                                                  <xsd:enumeration value="DCA"/>
+                                                  <xsd:enumeration value="DCA_PROGRAM"/>
+                                                  <xsd:enumeration value="SYSTEMATIC_WITHDRAWAL_PROGRAM"/>
+                                                  <xsd:enumeration value="RENEWAL"/>
+                                                  <xsd:enumeration value="ANNUITIZATION"/>
+                                                  <xsd:enumeration value="PAYOUT"/>
+                                                  <xsd:enumeration value="DEATH_CLAIM_PENDING"/>
+                                                  <xsd:enumeration value="DEATH_CLAIM"/>
+                                                  <xsd:enumeration value="SYSTEMATIC_WITHDRAWAL"/>
+                                                  <xsd:enumeration value="SCHEDULED_ACH"/>
+                                                </xsd:restriction>
+                                              </xsd:simpleType>
+                                            </xsd:element>
+                                            <xsd:element name="MONEY_FORMS" minOccurs="0">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="MONEY_FORM" maxOccurs="unbounded" type="xsd:string"/>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="TRANSACTION_ROUTING_LINK" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                      <xsd:element name="PARAMETERS" minOccurs="0">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="PARAMETER" maxOccurs="unbounded">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="NAME" type="xsd:string"/>
+                                                  <xsd:element name="New Character Item" type="xsd:string"/>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="TRANSACTION_ROUTINGS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="TRANSACTION_ROUTING" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="ID">
+                                  <xsd:complexType>
+                                    <xsd:simpleContent>
+                                      <xsd:extension base="xsd:string">
+                                        <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                      </xsd:extension>
+                                    </xsd:simpleContent>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="IDS" type="Type1"/>
+                                <xsd:element name="NAME" type="xsd:string"/>
+                                <xsd:element name="FORMAT">
+                                  <xsd:simpleType>
+                                    <xsd:restriction base="xsd:string">
+                                      <xsd:enumeration value="ANSI"/>
+                                      <xsd:enumeration value="NSCC"/>
+                                      <xsd:enumeration value="ANNUITYNET_PROFILE_V1.0"/>
+                                      <xsd:enumeration value="XMLIFE"/>
+                                      <xsd:enumeration value="TXMLIFE"/>
+                                    </xsd:restriction>
+                                  </xsd:simpleType>
+                                </xsd:element>
+                                <xsd:element name="PARAMETERS" minOccurs="0">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="PARAMETER" maxOccurs="unbounded">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="NAME" type="xsd:string"/>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="USER_TO_BUSINESS_UNIT_MAPPINGS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="USER_TO_BUSINESS_UNIT_MAPPING" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="BUSINESS_UNIT_LINK">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="USER_LINK">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="USER_ROLE_LINK">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="BUSINESS_UNIT_RELATIONSHIPS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="BUSINESS_UNIT_RELATIONSHIP" maxOccurs="unbounded">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="PARENT_BUSINESS_UNIT_LINK">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                                <xsd:element name="CHILD_BUSINESS_UNIT_LINK">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                    <xsd:element name="BUSINESS_UNIT_OPERATING_PROFILE_LINKS" minOccurs="0">
+                      <xsd:complexType>
+                        <xsd:sequence>
+                          <xsd:element name="BUSINESS_UNIT_LINKS">
+                            <xsd:complexType>
+                              <xsd:sequence>
+                                <xsd:element name="BUSINESS_UNIT_LINK" maxOccurs="unbounded">
+                                  <xsd:complexType>
+                                    <xsd:sequence>
+                                      <xsd:element name="ID">
+                                        <xsd:complexType>
+                                          <xsd:simpleContent>
+                                            <xsd:extension base="xsd:string">
+                                              <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                            </xsd:extension>
+                                          </xsd:simpleContent>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                      <xsd:element name="PRODUCT_LINKS">
+                                        <xsd:complexType>
+                                          <xsd:sequence>
+                                            <xsd:element name="PRODUCT_LINK" maxOccurs="unbounded">
+                                              <xsd:complexType>
+                                                <xsd:sequence>
+                                                  <xsd:element name="ID">
+                                                    <xsd:complexType>
+                                                      <xsd:simpleContent>
+                                                        <xsd:extension base="xsd:string">
+                                                          <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                        </xsd:extension>
+                                                      </xsd:simpleContent>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                  <xsd:element name="OPERATING_PROFILE_LINKS" minOccurs="0">
+                                                    <xsd:complexType>
+                                                      <xsd:sequence>
+                                                        <xsd:element name="OPERATING_PROFILE_LINK" maxOccurs="unbounded">
+                                                          <xsd:complexType>
+                                                            <xsd:sequence>
+                                                              <xsd:element name="ID">
+                                                                <xsd:complexType>
+                                                                  <xsd:simpleContent>
+                                                                    <xsd:extension base="xsd:string">
+                                                                      <xsd:attribute name="@PARTY_LINK_ID" use="required" type="xsd:string"/>
+                                                                    </xsd:extension>
+                                                                  </xsd:simpleContent>
+                                                                </xsd:complexType>
+                                                              </xsd:element>
+                                                            </xsd:sequence>
+                                                          </xsd:complexType>
+                                                        </xsd:element>
+                                                      </xsd:sequence>
+                                                    </xsd:complexType>
+                                                  </xsd:element>
+                                                </xsd:sequence>
+                                              </xsd:complexType>
+                                            </xsd:element>
+                                          </xsd:sequence>
+                                        </xsd:complexType>
+                                      </xsd:element>
+                                    </xsd:sequence>
+                                  </xsd:complexType>
+                                </xsd:element>
+                              </xsd:sequence>
+                            </xsd:complexType>
+                          </xsd:element>
+                        </xsd:sequence>
+                      </xsd:complexType>
+                    </xsd:element>
+                  </xsd:sequence>
+                </xsd:complexType>
+              </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="SCHEMA_VERSION" use="required">
+              <xsd:simpleType>
+                <xsd:restriction base="xsd:string">
+                  <xsd:enumeration value="PARTNER_XML_INTERFACE_V1.10"/>
+                </xsd:restriction>
+              </xsd:simpleType>
+            </xsd:attribute>
+          </xsd:complexType>
+        </xsd:element>
+      </xsd:sequence>
+    </xsd:complexType>
+  </xsd:element>
+
+</xsd:schema>
