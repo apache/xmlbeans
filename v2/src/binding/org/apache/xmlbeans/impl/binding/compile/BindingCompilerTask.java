@@ -144,7 +144,9 @@ public abstract class BindingCompilerTask extends MatchingTask {
     for (int i = 0; i < xsdFiles.length; i++) {
         xsds[i] = parseSchemaFile(xsdFiles[i]);
     }
-    return XmlBeans.compileXsd(xsds, XmlBeans.getBuiltinTypeSystem(), null);
+    SchemaTypeLoader soapencLoader = org.apache.xmlbeans.impl.schema.SoapEncSchemaTypeSystem.get();
+    SchemaTypeLoader xsdLoader = XmlBeans.getBuiltinTypeSystem();
+    return XmlBeans.compileXsd(xsds, XmlBeans.typeLoaderUnion(new SchemaTypeLoader[] {xsdLoader, soapencLoader}), null);
   }
 
   protected JClass[] loadJClasses(final File[] javaFiles, String classpath)

@@ -612,6 +612,20 @@
      </tar>
   </target>
 
+  <target name="enum-support.jar"
+        depends="dirs, xmlpublic.classes, typeimpl.classes">
+    <jar jarfile="build/lib/enum-support.jar" index="false">
+      <fileset dir="build/classes/typeimpl/">
+        <include name="org/apache/xmlbeans/impl/values/XmlListImpl.class"/>
+        <include name="org/apache/xmlbeans/impl/values/XmlObjectBase.class"/>
+        <include name="org/apache/xmlbeans/impl/util/XsTypeConverter.class"/>
+      </fileset>
+      <fileset dir="build/classes/xmlpublic/">
+        <include name="org/apache/xmlbeans/XmlCalendar.class"/>
+      </fileset>
+    </jar>
+  </target>
+
   <!-- previously in xbean.xml -->
 
   <target name="xbean.jar"
