@@ -372,6 +372,12 @@ final class SoapMarshallerImpl
             setCurrObject(curr_obj, curr_prop);
         }
 
+        public void visit(SoapArrayRuntimeBindingType soapArrayRuntimeBindingType)
+            throws XmlException
+        {
+            throw new AssertionError("UNIMP");
+        }
+
         public void visit(ListArrayRuntimeBindingType listArrayRuntimeBindingType)
             throws XmlException
         {

@@ -31,6 +31,7 @@ import org.apache.xmlbeans.impl.binding.bts.ListArrayType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
+import org.apache.xmlbeans.impl.binding.bts.SoapArrayType;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
 import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
@@ -136,6 +137,15 @@ final class RuntimeBindingTypeTable
         final RuntimeBindingType rtt =
             createRuntimeTypeInternal(type, binding_loader);
         return (WrappedArrayRuntimeBindingType)rtt;
+    }
+
+    private SoapArrayRuntimeBindingType createRuntimeType(SoapArrayType type,
+                                                          BindingLoader binding_loader)
+        throws XmlException
+    {
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, binding_loader);
+        return (SoapArrayRuntimeBindingType)rtt;
     }
 
     private ListArrayRuntimeBindingType createRuntimeType(ListArrayType type,
@@ -713,6 +723,14 @@ final class RuntimeBindingTypeTable
             typeUnmarshaller = new WrappedArrayUnmarshaller(rtt);
         }
 
+        public void visit(SoapArrayType soapArrayType)
+            throws XmlException
+        {
+            SoapArrayRuntimeBindingType rtt =
+                typeTable.createRuntimeType(soapArrayType, loader);
+            typeUnmarshaller = new SoapArrayUnmarshaller(rtt);
+        }
+
         public void visit(ListArrayType listArrayType)
             throws XmlException
         {
@@ -780,6 +798,12 @@ final class RuntimeBindingTypeTable
             throws XmlException
         {
             runtimeBindingType = new WrappedArrayRuntimeBindingType(wrappedArrayType);
+        }
+
+        public void visit(SoapArrayType soapArrayType)
+            throws XmlException
+        {
+            runtimeBindingType = new SoapArrayRuntimeBindingType(soapArrayType);
         }
 
         public void visit(ListArrayType listArrayType)
