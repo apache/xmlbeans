@@ -497,6 +497,24 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         _tzh = tzHour;
         _tzm = tzMinute;
     }
+    
+    /**
+     * Sets the time zone based on a number of offset minutes rather
+     * than sign/hour/minute; for example, setTimeZone(-60) is the
+     * same as setTimeZone(-1, 1, 0).
+     */
+    public void setTimeZone(int tzTotalMinutes)
+    {
+        if (tzTotalMinutes < -14 * 60 || tzTotalMinutes > 14 * 60)
+            throw new IllegalArgumentException("time zone out of range (-840 to 840 minutes). (" + tzTotalMinutes + ")");
+        
+        int tzSign = tzTotalMinutes < 0 ? -1 : tzTotalMinutes > 0 ? 1 : 0;
+        tzTotalMinutes *= tzSign;
+        int tzH = tzTotalMinutes / 60;
+        int tzM = tzTotalMinutes - tzH * 60;
+        
+        setTimeZone(tzSign, tzH, tzM);
+    }
 
     /**
      * Clears the year. After clearing, hasYear returns false and the
@@ -687,6 +705,24 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
         _tzh = tzHour;
         _tzm = tzMinute;
         addDuration(1, 0, 0, 0, hshift, mshift, 0, null);
+    }
+
+    /**
+     * Normalizes to a time zone specified by a number of offset minutes rather
+     * than sign/hour/minute; for example, normalizeToTimeZone(-60) is the
+     * same as normalizeToTimeZone(-1, 1, 0).
+     */
+    public void normalizeToTimeZone(int tzTotalMinutes)
+    {
+        if (tzTotalMinutes < -14 * 60 || tzTotalMinutes > 14 * 60)
+            throw new IllegalArgumentException("time zone out of range (-840 to 840 minutes). (" + tzTotalMinutes + ")");
+        
+        int tzSign = tzTotalMinutes < 0 ? -1 : tzTotalMinutes > 0 ? 1 : 0;
+        tzTotalMinutes *= tzSign;
+        int tzH = tzTotalMinutes / 60;
+        int tzM = tzTotalMinutes - tzH * 60;
+        
+        normalizeToTimeZone(tzSign, tzH, tzM);
     }
 
 
