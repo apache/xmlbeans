@@ -745,7 +745,7 @@ public class Jsr173
         {
             checkChanged();
             
-            throw new RuntimeException( "Not implemented" );
+            return this;
 
 //            XmlCursor c = getCursor();
 //
@@ -859,8 +859,8 @@ public class Jsr173
         public int    getLineNumber      ( ) { return _line;   }
         public String getLocationURI     ( ) { return _uri;    }
         
-        public String getPublicId() { throw new UnsupportedOperationException("NYI"); }
-        public String getSystemId() { throw new UnsupportedOperationException("NYI"); }
+        public String getPublicId() { return null; }
+        public String getSystemId() { return null; }
 
         public String getNamespaceURI ( String prefix )
         {
@@ -933,7 +933,9 @@ public class Jsr173
         private long   _version;
         
         String _uri;
-        int _line, _column, _offset;
+        int _line=-1;
+        int _column=-1;
+        int _offset=-1;
     }
     
     //
