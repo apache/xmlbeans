@@ -59,8 +59,7 @@ public class RichParserTests extends TestCase
     {
         XMLInputFactory factory = XMLInputFactory.newInstance();
         XMLStreamReader xsr = factory.createXMLStreamReader(new FileInputStream(
-                 JarUtil.getResourceFromJarasFile("xmlcases.jar",
-                         "xbean/misc/primitiveTypes.xml")));
+                 JarUtil.getResourceFromJarasFile("xbean/misc/primitiveTypes.xml")));
         XMLStreamReaderExt xsrext = new XMLStreamReaderExtImpl(xsr);
 
         while (xsrext.hasNext())

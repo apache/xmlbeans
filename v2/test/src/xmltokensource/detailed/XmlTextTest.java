@@ -90,8 +90,7 @@ public class XmlTextTest extends BasicCursorTestCase {
 
     public void testDefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//FleetID");
         m_xc.toNextSelection();
@@ -104,8 +103,7 @@ public class XmlTextTest extends BasicCursorTestCase {
 
     public void testSTARTDOCvsFirstChild() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
         xc1.toFirstChild();

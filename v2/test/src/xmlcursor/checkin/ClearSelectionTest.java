@@ -39,8 +39,7 @@ public class ClearSelectionTest extends BasicCursorTestCase {
     public void testClearSelection() throws Exception {
         //m_xo = XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
@@ -56,8 +55,7 @@ public class ClearSelectionTest extends BasicCursorTestCase {
 
     public void testClearSelectionNoSelection() throws Exception {
         m_xo = XmlObject.Factory.parse(
-               JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+               JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         m_xc.clearSelections();
     }

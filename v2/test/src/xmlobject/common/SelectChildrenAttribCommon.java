@@ -88,7 +88,7 @@ public class SelectChildrenAttribCommon
     public static String getXml(String file)
         throws java.io.IOException
     {
-        return JarUtil.getResourceFromJar("xmlcases.jar", file);
+        return JarUtil.getResourceFromJar(file);
     }
 
 

@@ -60,9 +60,9 @@ public class ValidatingXMLStreamReaderTests extends TestCase
     public void testValidateDoc() throws FileNotFoundException, XMLStreamException,Exception
     {
         File[] files = new File[] {
-             JarUtil.getResourceFromJarasFile("xmlcases.jar","xbean/xmlobject/enumtest.xml") ,
-             JarUtil.getResourceFromJarasFile("xmlcases.jar","xbean/xmlobject/nameworld.xml") ,
-             JarUtil.getResourceFromJarasFile("xsdcases.jar","xbean/misc/xmldsig-core-schema.xsd") ,
+             JarUtil.getResourceFromJarasFile("xbean/xmlobject/enumtest.xml") ,
+             JarUtil.getResourceFromJarasFile("xbean/xmlobject/nameworld.xml") ,
+             JarUtil.getResourceFromJarasFile("xbean/misc/xmldsig-core-schema.xsd") ,
             //TestEnv.xbeanCase("xbean/misc/signature-example.xml")
         };
 

@@ -55,16 +55,14 @@ public class NilTest extends BasicCursorTestCase {
 
     public void testIsNilFalse() throws Exception {
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         CarLocationMessage clm = clmDoc.getCarLocationMessage();
         assertEquals(false, clm.isNil());
     }
 
     public void testSetNilNillable() throws Exception {
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         m_xo = pod.getPurchaseOrder().getShipTo().xgetName();
         m_xo.setNil();
         assertEquals(true, m_xo.isNil());
@@ -72,8 +70,7 @@ public class NilTest extends BasicCursorTestCase {
 
     public void testSetNilNotNillable() throws Exception {
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         try {
             clmDoc.setNil();
             fail("Expected XmlValueNotNillableException");

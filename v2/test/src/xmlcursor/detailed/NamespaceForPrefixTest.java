@@ -107,8 +107,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
 
     public void testNamespaceForPrefixFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
         assertEquals("http://www.w3.org/2000/10/XMLSchema-instance",
@@ -117,8 +116,7 @@ public class NamespaceForPrefixTest extends BasicCursorTestCase {
 
     public void testNamespaceForPrefixFromSTARTdefaultNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toFirstChild();
         assertEquals("http://www.tranxml.org/TranXML/Version4.0",

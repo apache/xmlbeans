@@ -66,8 +66,7 @@ public class SelectPathTest extends BasicCursorTestCase {
         */
     public void testSelectPathNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         String sLocalPath ="$this//FleetID";
         m_xc.selectPath(sLocalPath);
@@ -79,8 +78,7 @@ public class SelectPathTest extends BasicCursorTestCase {
 
     public void testSelectPathCaseSensitive() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         m_xc.selectPath(ns+" $this//po:ciTy");
@@ -91,8 +89,7 @@ public class SelectPathTest extends BasicCursorTestCase {
 
     public void testSelectPathReservedKeyword() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         m_xc.selectPath(ns+" $this//po:item");
@@ -101,8 +98,7 @@ public class SelectPathTest extends BasicCursorTestCase {
 
     public void testSelectPathNull() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         // TODO: surround with appropriate t-c once ericvas creates the exception type
         // see bugs 18009 and/or 18718
@@ -116,8 +112,7 @@ public class SelectPathTest extends BasicCursorTestCase {
 
     public void testSelectPathInvalidXPath() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         // TODO: surround with appropriate t-c once ericvas creates the exception type
         // see bugs 18009 and/or 18718

@@ -25,10 +25,6 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 
 
-/**
- *
- *
- */
 public class GetNameTest extends BasicCursorTestCase {
     public GetNameTest(String sName) {
         super(sName);
@@ -72,7 +68,7 @@ public class GetNameTest extends BasicCursorTestCase {
                 "        </po:item>\n" +
                 "    </po:items>\n" +
                 "</po:purchaseOrder>";
-                m_xo = XmlObject.Factory.parse(   test);
+                m_xo = XmlObject.Factory.parse(test);
                /*   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
                         Common.TRANXML_FILE_XMLCURSOR_PO));
                         */
@@ -89,8 +85,7 @@ public class GetNameTest extends BasicCursorTestCase {
 
     public void testGetNameFromSTART() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
@@ -109,8 +104,7 @@ public class GetNameTest extends BasicCursorTestCase {
 
     public void testGetNameFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
@@ -129,8 +123,7 @@ public class GetNameTest extends BasicCursorTestCase {
 
     public void testGetNameElementWithDefaultNamespace() throws Exception {
         m_xo =  XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//ETA");
         m_xc.toNextSelection();

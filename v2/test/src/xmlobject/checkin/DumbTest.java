@@ -45,7 +45,7 @@ public class DumbTest extends TestCase {
     public void setUp() {
 
         try {
-            instance = JarUtil.getResourceFromJar(Common.XMLCASES_JAR, "xbean/simple/dumb/dumb.xml");
+            instance = JarUtil.getResourceFromJar("xbean/simple/dumb/dumb.xml");
         } catch (IOException e) {
             System.err.println("Could not load xbean/simple/dumb/dumb.xml from " + Common.XMLCASES_JAR
                                + e.getMessage());

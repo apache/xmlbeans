@@ -114,8 +114,7 @@ public class CursorGeneratedTypedObjectTest extends TestCase {
     public void testGetObjectGL() throws Exception {
         String sNamespace = "xmlns=\"http://www.tranxml.org/TranXML/Version4.0\" xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\"";
         CarLocationMessageDocument clm = CarLocationMessageDocument.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         XmlCursor xc = clm.newCursor();
         xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                 "$this//GeographicLocation");

@@ -49,8 +49,8 @@ public class XPathFunctionAuxTest extends BasicCursorTestCase {
         return "$this"+path;
     }
     public void testFunctionCount_caseB() throws Exception {
-	XmlObject xDoc = XmlObject.Factory.parse(JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-									    "xbean/xmlcursor/xpath/cdcatalog.xml"));
+	XmlObject xDoc = XmlObject.Factory.parse(
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/cdcatalog.xml"));
 
 	String ex1Simple = "count(//cd)";
         String ex1R1 = Common.XMLFRAG_BEGINTAG+"26"+Common.XMLFRAG_ENDTAG;

@@ -85,7 +85,7 @@ public class QNameTests extends TestCase
         targetQName.set( sourceQName );
 
         Assert.assertTrue(
-            targetQName.qNameValue().getNamespaceURI().equals( "xxx.com" ) );
+            targetQName.getQNameValue().getNamespaceURI().equals( "xxx.com" ) );
 
         //
         // Test the set_text function on XmlQNameImpl
@@ -104,7 +104,7 @@ public class QNameTests extends TestCase
 
         try
         {
-            targetQName.set( "zzz:abc" );
+            targetQName.setStringValue( "zzz:abc" );
             
             Assert.assertTrue( false ); // Must fail
         }
@@ -112,9 +112,9 @@ public class QNameTests extends TestCase
         {
         }
         
-        targetQName.set( "xxx:abc" );
+        targetQName.setStringValue( "xxx:abc" );
         
         Assert.assertTrue(
-            targetQName.qNameValue().getNamespaceURI().equals( "xxx.com" ) );
+            targetQName.getQNameValue().getNamespaceURI().equals( "xxx.com" ) );
     }
 }

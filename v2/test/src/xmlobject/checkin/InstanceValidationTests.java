@@ -551,8 +551,8 @@ public class InstanceValidationTests extends TestCase
             //
 
              File schemeFile =
-                     JarUtil.getResourceFromJarasFile("xsdcases.jar","xbean/xmlobject/store/XMLSchema.xsd" );
-            File xmlFile =  JarUtil.getResourceFromJarasFile("xsdcases.jar","xbean/xmlobject/store/XML.xsd" );
+                     JarUtil.getResourceFromJarasFile("xbean/xmlobject/store/XMLSchema.xsd" );
+            File xmlFile =  JarUtil.getResourceFromJarasFile("xbean/xmlobject/store/XML.xsd" );
 
             File[] schemasF = { schemeFile, xmlFile };
 
@@ -1840,7 +1840,7 @@ public class InstanceValidationTests extends TestCase
             XmlDecimal dec = (XmlDecimal)stl.newInstance(st, validate);
 
             try {
-                dec.set("200");
+                dec.setStringValue("200");
                 fail("Expected XmlValueOutOfRangeException");
             }
             catch (XmlValueOutOfRangeException e) {}
@@ -1848,7 +1848,7 @@ public class InstanceValidationTests extends TestCase
             dec = (XmlDecimal)stl.newInstance(st, noValidate);
 
             try {
-                dec.set("200");
+                dec.setStringValue("200");
             }
             catch (XmlValueOutOfRangeException e) {
                 fail("Should not throw exception");

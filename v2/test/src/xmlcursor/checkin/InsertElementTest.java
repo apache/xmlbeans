@@ -131,8 +131,7 @@ public class InsertElementTest extends BasicCursorTestCase {
 
     public void testInsertElementInStoreWithNamespace() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                Common.TRANXML_FILE_CLM));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                         "$this//FleetID");

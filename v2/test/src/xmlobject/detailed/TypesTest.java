@@ -53,8 +53,7 @@ public class TypesTest extends BasicCursorTestCase {
 
     public void testSchemaTypeFromStronglyTypedBuiltIn() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                 "$this//EventStatus/Date");
@@ -69,8 +68,7 @@ public class TypesTest extends BasicCursorTestCase {
 
     public void testSchemaTypeFromStronglyTyped() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                 "$this//EventStatus");
@@ -99,8 +97,7 @@ public class TypesTest extends BasicCursorTestCase {
 
     public void testInstanceTypeNotNillable() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                 "$this//EventStatus");
@@ -110,8 +107,7 @@ public class TypesTest extends BasicCursorTestCase {
 
     public void testInstanceTypeNil() throws Exception {
         PurchaseOrderDocument pod = (PurchaseOrderDocument) XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar("xmlcases.jar",
-                        "xbean/xmlcursor/po.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/po.xml"));
         m_xo = pod.getPurchaseOrder().getShipTo().xgetName();
         m_xo.setNil();
         assertEquals(true, m_xo.isNil());

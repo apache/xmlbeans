@@ -52,7 +52,7 @@ public class CursorVsObjectAttributeTest extends TestCase {
 
     public void testAttributeSet() throws Exception {
         CarLocationMessageDocument clmDoc = CarLocationMessageDocument.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         XmlCursor xc = clmDoc.newCursor();
         xc.toFirstChild();
         CarLocationMessage clm = (CarLocationMessage) xc.getObject();
@@ -67,7 +67,7 @@ public class CursorVsObjectAttributeTest extends TestCase {
     public void testAttributeUnsetRemove() throws Exception {
         CarLocationMessageDocument clmDoc =
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM));
+                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         XmlCursor xc = clmDoc.newCursor();
         xc.toFirstChild();
         CarLocationMessage clm = (CarLocationMessage) xc.getObject();
@@ -87,7 +87,7 @@ public class CursorVsObjectAttributeTest extends TestCase {
 
         CarLocationMessageDocument clmDoc =
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM), map);
+                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM), map);
         XmlCursor xc = clmDoc.newCursor();
         xc.toFirstChild();
         CarLocationMessage clm = (CarLocationMessage) xc.getObject();

@@ -51,8 +51,7 @@ public class GetTextTest extends BasicCursorTestCase {
 
     public void testGetTextFromEND() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.toEndDoc();
         m_xc.toPrevToken();
@@ -126,8 +125,7 @@ public class GetTextTest extends BasicCursorTestCase {
 
     public void testGetTextFromSTART_NotNested() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//FleetID");
 
@@ -138,8 +136,7 @@ public class GetTextTest extends BasicCursorTestCase {
 
     public void testGetTextFromSTART_Nested() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT + "$this//EventStatus/EquipmentStructure");
         m_xc.toNextSelection();
@@ -164,8 +161,7 @@ public class GetTextTest extends BasicCursorTestCase {
 
     public void testGetTextFromATTR_Nested() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                  JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         m_xc.selectPath("$this//billTo");
         m_xc.toNextSelection();

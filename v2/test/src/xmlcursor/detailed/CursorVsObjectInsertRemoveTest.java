@@ -54,7 +54,7 @@ public class CursorVsObjectInsertRemoveTest extends TestCase {
     public void testInsertRemove() throws Exception {
         CarLocationMessageDocument clm =
                 (CarLocationMessageDocument) XmlObject.Factory.parse(
-                        JarUtil.getResourceFromJar(Common.XMLCASES_JAR, Common.TRANXML_FILE_CLM));
+                        JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         assertNotNull(clm);
         XmlCursor xc = clm.newCursor();
         xc.toFirstChild();

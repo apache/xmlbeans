@@ -34,8 +34,8 @@ public class IntTests extends TestCase
           "<p:position xmlns:p='java:int.test'><p:lat>43</p:lat><p:lon>020</p:lon></p:position>");
         Assert.assertEquals(43, doc.getPosition().getLat());
         Assert.assertEquals(20, doc.getPosition().getLon());
-        doc.getPosition().xgetLat().set("07");
-        doc.getPosition().xgetLon().set("040");
+        doc.getPosition().xgetLat().setStringValue("07");
+        doc.getPosition().xgetLon().setStringValue("040");
         Assert.assertEquals(7, doc.getPosition().getLat());
         Assert.assertEquals(40, doc.getPosition().getLon());
         doc.getPosition().setLat((short)22);

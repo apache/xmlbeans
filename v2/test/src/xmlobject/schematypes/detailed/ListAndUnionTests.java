@@ -149,8 +149,8 @@ public class ListAndUnionTests extends TestCase
         Assert.assertEquals(3, gd.length);
         for (int i = 0; i < 3; i++)
         {
-            Assert.assertEquals(((SimpleValue)dt[i]).gDateValue(), new GDate(gd[i]));
-            Assert.assertEquals(gd[i], dt[i].objectValue());
+            Assert.assertEquals(((SimpleValue)dt[i]).getGDateValue(), new GDate(gd[i]));
+            Assert.assertEquals(gd[i], dt[i].getObjectValue());
         }
 
         Assert.assertEquals(new XmlCalendar("2001-08-06T03:34:00"), gd[0]);

@@ -250,6 +250,21 @@
 
 
     <property name="schema.compiler" value="org.apache.xmlbeans.impl.tool.SchemaCompiler"/>
+
+     <target name="build.xmlcases" description="Builds xmlcases.jar">
+        <jar destfile="${build.dir.test.lib}/xmlcases.jar"
+            basedir="${build.dir.test.schemas}" update="false"
+            includes="**/*.*"
+            excludes="**/*.xsd, xstc/**"
+            />
+    </target>
+
+      <target name="build.xsdcases" description="Builds xmlcases.jar">
+       <jar destfile="${build.dir.test.lib}/xsdcases.jar"
+            basedir="${build.dir.test.schemas}" update="false"
+            includes="**/*.xsd"
+            excludes="xstc/**"/>
+    </target>
     <!-- run scomp on all directories in ${schema.dirs} -->
     <target name="build.schemas" depends="init, copy.schemas, uncompress"
         description="Build test schemas.">
@@ -289,8 +304,8 @@
                     inheritall="true" inheritrefs="true"/>
             </else>
         </if>
-        <ant target="build.xmlcases"/>
-        <ant target="build.xsdcases"/>
+        <antcall target="build.xmlcases"/>
+        <antcall target="build.xsdcases"/>
     </target>
 
     <target name="copy.schemas">
@@ -299,20 +314,7 @@
         </copy>
     </target>
 
-    <target name="build.xmlcases" description="Builds xmlcases.jar">
-        <jar destfile="${build.dir.test.lib}/xmlcases.jar"
-            basedir="${build.dir.test.schemas}" update="false"
-            includes="**/*.*"
-            excludes="**/*.xsd, xstc/**"
-            />
-    </target>
 
-      <target name="build.xsdcases" description="Builds xmlcases.jar">
-       <jar destfile="${build.dir.test.lib}/xsdcases.jar"
-            basedir="${build.dir.test.schemas}" update="false"
-            includes="**/*.xsd"
-            excludes="xstc/**"/>
-    </target>
     <!-- compile directory of .xsd files -->
     <target name="scomp.dir">
         <basename path="${schemasrc}" property="jarname"/>
@@ -776,7 +778,7 @@
     </target>
 
     <target name="detailed">
-        <property name="test.area" value="**/detailed/**"/>
+        <property name="test.area.run" value="**/detailed/**"/>
         <antcall target="build"/>
         <antcall target="run.junit"/>
     </target>

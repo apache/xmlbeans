@@ -122,8 +122,7 @@ public class ToBookmarkTest extends BasicCursorTestCase {
 
     public void testPostMoveBookmarkInsideMove() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
@@ -148,8 +147,7 @@ public class ToBookmarkTest extends BasicCursorTestCase {
 
     public void testPostMoveBookmarkToRightOfMove() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
         String exp_ns="xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";
 
@@ -180,8 +178,7 @@ public class ToBookmarkTest extends BasicCursorTestCase {
 
     public void testToBookmarkPostCopy() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         XmlCursor xc1 = m_xo.newCursor();
         String ns="declare namespace po=\"http://xbean.test/xmlcursor/PurchaseOrder\"";

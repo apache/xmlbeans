@@ -47,7 +47,7 @@ public class SaveLoadTests extends TestCase
     public void testLoadSave()
             throws IOException, SAXException, ParserConfigurationException, XmlException, XMLStreamException
     {
-        File file =  JarUtil.getResourceFromJarasFile("xmlcases.jar","xbean/xmlcursor/doc.xml");
+        File file =  JarUtil.getResourceFromJarasFile("xbean/xmlcursor/doc.xml");
 
         Document doc = LoadSaveUtils.xmlText2GenericDom(new FileInputStream(file),
                 DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument());
@@ -60,7 +60,7 @@ public class SaveLoadTests extends TestCase
         LoadSaveUtils.xmlStreamReader2XmlText(xsr, bos);
 
         check( XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJarasFile("xmlcases.jar",
+                 JarUtil.getResourceFromJarasFile(
                          "xbean/xmlcursor/doc.xml")).toString(), bos.toString() );
     }
 

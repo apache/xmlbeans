@@ -69,8 +69,7 @@ public class SetAttributeTextTest extends BasicCursorTestCase {
 
     public void testSetAttributeTextFromSTARTChildHasATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         m_xc.selectPath("$this//purchaseOrder");
         QName name = new QName("country");
@@ -80,8 +79,7 @@ public class SetAttributeTextTest extends BasicCursorTestCase {
 
     public void testSetAttributeTextFromATTR() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                 JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_XMLCURSOR_PO));
+                 JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         QName name = new QName("orderDate");

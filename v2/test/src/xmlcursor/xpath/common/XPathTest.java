@@ -60,8 +60,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample1() throws Exception {
         System.out.println("====== Example-1 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon1.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon1.xml"));
 
         String ex1Simple = "/AAA";
         String ex1Expanded = "";
@@ -114,8 +113,7 @@ public class XPathTest extends BasicCursorTestCase {
         System.out.println("====== Example-2 ==========");
 
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon2.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon2.xml"));
         String ex1Simple = "//BBB";
         String ex1Expanded = "";
 
@@ -154,8 +152,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample3() throws Exception {
         System.out.println("====== Example-3 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon3.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon3.xml"));
         String ex1Simple = "/AAA/CCC/DDD/*";
         String ex1R1 = "<BBB/>"; // * 5
         String ex1R2 = "<EEE/>";
@@ -263,8 +260,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample4() throws Exception {
         System.out.println("====== Example-4 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon4.xml"));
+                JarUtil.getResourceFromJar( "xbean/xmlcursor/xpath/zvon4.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/BBB[1]";
         String ex2Simple = "/AAA/BBB[last()]";
@@ -295,8 +291,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample5() throws Exception {
         System.out.println("====== Example-5 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon5.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon5.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//@id";
@@ -369,8 +364,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample6() throws Exception {
         System.out.println("====== Example-16 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon6.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon6.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//BBB[@id='b1']";
@@ -415,8 +409,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample7() throws Exception {
         System.out.println("====== Example-7 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon7.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon7.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//*[count(BBB)=2]";
@@ -461,8 +454,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample8() throws Exception {
         System.out.println("====== Example-8 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon8.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon8.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "//*[xf:get-local-name-from-QName(xf:node-name(.))='BBB']";
         XmlObject[] ex1Xml = new XmlObject[]{XmlObject.Factory.parse("<BBB/>"),
@@ -533,8 +525,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample9() throws Exception {
         System.out.println("====== Example-9 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon9.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon9.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "//*[xf:string-length(" +
                 "xf:get-local-name-from-QName(xf:node-name(.))" +
@@ -583,8 +574,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample10() throws Exception {
         System.out.println("====== Example-10 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon10.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon10.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "$this//CCC | $this//BBB";
         //document order
@@ -640,8 +630,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample11() throws Exception {
         System.out.println("====== Example-11 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon11.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon11.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -705,8 +694,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample12() throws Exception {
         System.out.println("====== Example-12 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon12.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon12.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/descendant::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -790,8 +778,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample13() throws Exception {
         System.out.println("====== Example-13 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon13.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon13.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "//DDD/parent::*";
 
@@ -819,8 +806,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample14() throws Exception {
         System.out.println("====== Example-14 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon14.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon14.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/BBB/DDD/CCC/EEE/ancestor::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -868,8 +854,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample15() throws Exception {
         System.out.println("====== Example-15 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon15.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon15.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/BBB/following-sibling::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -905,8 +890,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample16() throws Exception {
         System.out.println("====== Example-16 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon16.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon16.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/preceding-sibling::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -942,8 +926,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample17() throws Exception {
         System.out.println("====== Example-17 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon17.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon17.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/following::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -988,8 +971,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample18() throws Exception {
         System.out.println("====== Example-18 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon18.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon18.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/preceding::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -1055,8 +1037,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample19() throws Exception {
         System.out.println("====== Example-19 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon19.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon19.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "/AAA/XXX/descendant-or-self::*";
 
@@ -1103,8 +1084,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample20() throws Exception {
         System.out.println("====== Example-20 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon20.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon20.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "/AAA/XXX/DDD/EEE/ancestor-or-self::*";
@@ -1153,8 +1133,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample21() throws Exception {
         System.out.println("====== Example-21 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon21.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon21.xml"));
         XmlCursor xc = xDoc.newCursor();
         String ex1Simple = "//GGG/ancestor::*";
         XmlObject[] ex1Xml = new XmlObject[]{
@@ -1274,8 +1253,7 @@ public class XPathTest extends BasicCursorTestCase {
     public void testZvonExample22() throws Exception {
         System.out.println("====== Example-22 ==========");
         XmlObject xDoc = XmlObject.Factory.parse(
-                JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        "xbean/xmlcursor/xpath/zvon22.xml"));
+                JarUtil.getResourceFromJar("xbean/xmlcursor/xpath/zvon22.xml"));
         XmlCursor xc = xDoc.newCursor();
 
         String ex1Simple = "//BBB[position() mod 2 = 0 ]";

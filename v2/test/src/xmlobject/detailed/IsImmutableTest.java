@@ -72,15 +72,13 @@ public class IsImmutableTest extends BasicCursorTestCase {
     public void testIsImmutableFalse() throws Exception {
         CarLocationMessageDocument clmDoc =
                 (CarLocationMessageDocument) XmlObject.Factory
-                .parse(   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                .parse(   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         assertEquals(false, clmDoc.isImmutable());
     }
 
     public void testIsImmutableTrue() throws Exception {
         m_xo = XmlObject.Factory.parse(
-                   JarUtil.getResourceFromJar(Common.XMLCASES_JAR,
-                        Common.TRANXML_FILE_CLM));
+                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
         m_xc = m_xo.newCursor();
         m_xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                         "$this//Initial");

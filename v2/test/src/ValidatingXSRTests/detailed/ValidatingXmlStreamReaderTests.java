@@ -116,8 +116,7 @@ public class ValidatingXmlStreamReaderTests
     public void testContentName()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "person-frag.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "person-frag.xml");
         SchemaType type = Name.type;
 
         assertTrue("Xml-fragment is not valid:\n" + sXml,
@@ -130,8 +129,7 @@ public class ValidatingXmlStreamReaderTests
     public void testContentName2()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "person-frag2.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "person-frag2.xml");
         SchemaType type = Name.type;
 
         assertTrue("Xml-fragment is not valid:\n" + sXml,
@@ -141,8 +139,7 @@ public class ValidatingXmlStreamReaderTests
     public void testContentSibling()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "person-sibling.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "person-sibling.xml");
         SchemaType type = PersonType.type;
         assertTrue("Xml-fragment is not valid:\n" + sXml,
                    checkContent(sXml, type, true));
@@ -151,8 +148,7 @@ public class ValidatingXmlStreamReaderTests
     public void testInvalidContentSibling()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "person-sibling-inv.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "person-sibling-inv.xml");
         SchemaType type = PersonType.type;
         assertTrue("Invalid Xml-fragment is getting validated:\n" + sXml,
                    !checkContent(sXml, type, true));
@@ -161,8 +157,7 @@ public class ValidatingXmlStreamReaderTests
     public void testValidXsiType()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "person-justname.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "person-justname.xml");
         SchemaType type = Name.type;
         assertTrue("Xml-fragment is not valid:\n" + sXml,
                    checkContent(sXml, type, true));
@@ -171,8 +166,7 @@ public class ValidatingXmlStreamReaderTests
     public void testInvalidXsiType()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "person-justname-inv.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "person-justname-inv.xml");
         SchemaType type = Name.type;
         assertTrue("Invalid Xml-fragment is getting validated:\n" + sXml,
                    !checkContent(sXml, type, true));
@@ -181,8 +175,7 @@ public class ValidatingXmlStreamReaderTests
     public void testIncompatibleXsiType()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "person-xsi-inv.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "person-xsi-inv.xml");
         SchemaType type = Name.type;
         assertTrue("Invalid Xml-fragment is getting validated:\n" + sXml,
                    !checkContent(sXml, type, true));
@@ -191,8 +184,7 @@ public class ValidatingXmlStreamReaderTests
     public void testValidMixedContent()
         throws Exception
     {
-        String sXml = JarUtil.getResourceFromJar("xmlcases.jar",
-                                                 casesLoc + "mixed-content.xml");
+        String sXml = JarUtil.getResourceFromJar(casesLoc + "mixed-content.xml");
         SchemaType type = org.openuri.test.mixedContent.LetterType.type;
         assertTrue("Xml-fragment is not valid:\n" + sXml,
                    checkContent(sXml, type, true));
@@ -400,7 +392,7 @@ public class ValidatingXmlStreamReaderTests
     private static File getCasesFile(String path)
         throws java.io.IOException
     {
-        return JarUtil.getResourceFromJarasFile("xmlcases.jar", path);
+        return JarUtil.getResourceFromJarasFile(path);
         //return new File(casesRoot + path);
     }
 

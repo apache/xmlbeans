@@ -49,15 +49,15 @@ public class SubstGroupTests extends TestCase
 
         XmlString a = root.xgetAArray(0);
         assertTrue(a.schemaType().equals(XmlString.type));
-        assertEquals("\ta\ta\t", a.stringValue());
+        assertEquals("\ta\ta\t", a.getStringValue());
 
         XmlString b = root.xgetAArray(1);
         assertTrue(b.schemaType().equals(XmlNormalizedString.type));
-        assertEquals(" b b ", b.stringValue());
+        assertEquals(" b b ", b.getStringValue());
 
         XmlString c = root.xgetAArray(2);
         assertTrue(c.schemaType().equals(XmlToken.type));
-        assertEquals("c c", c.stringValue());
+        assertEquals("c c", c.getStringValue());
 
         root.insertA(2, "d d");
         assertEquals("d d", root.getAArray(2));
@@ -95,19 +95,19 @@ public class SubstGroupTests extends TestCase
         ADocument d1 = ADocument.Factory.parse(xml1);
         XmlString a = d1.xgetA();
         assertTrue(a.schemaType().equals(XmlString.type));
-        assertEquals("\ta\ta\t", a.stringValue());
+        assertEquals("\ta\ta\t", a.getStringValue());
 
         ADocument d2 = ADocument.Factory.parse(xml2);
         XmlString b = d2.xgetA();
         assertTrue(d2.schemaType().equals(BDocument.type));
         assertTrue(b.schemaType().equals(XmlNormalizedString.type));
-        assertEquals(" b b ", b.stringValue());
+        assertEquals(" b b ", b.getStringValue());
 
         ADocument d3 = ADocument.Factory.parse(xml3);
         XmlString c = d3.xgetA();
         assertTrue(d3.schemaType().equals(CDocument.type));
         assertTrue(c.schemaType().equals(XmlToken.type));
-        assertEquals("c c", c.stringValue());
+        assertEquals("c c", c.getStringValue());
     }
 
     public static final String[] invalidSchemas = 
