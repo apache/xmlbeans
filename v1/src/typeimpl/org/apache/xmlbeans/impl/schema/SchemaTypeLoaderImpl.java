@@ -131,7 +131,9 @@ public class SchemaTypeLoaderImpl extends SchemaTypeLoaderBase
 
         private SchemaTypeLoader[] toArray()
         {
-            return (SchemaTypeLoader[])theList.toArray(EMPTY_SCHEMATYPELOADER_ARRAY);
+            if (theList.size() == 0)
+                return EMPTY_SCHEMATYPELOADER_ARRAY;
+            return (SchemaTypeLoader[])theList.toArray(new SchemaTypeLoader[theList.size()]);
         }
     }
 

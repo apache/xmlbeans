@@ -142,7 +142,10 @@ public class CommandLine
 
     public File[] getFiles()
     {
-        return (File[])getFileList().toArray(EMPTY_FILEARRAY);
+        int size = getFileList().size();
+        if (size == 0)
+            return EMPTY_FILEARRAY;
+        return (File[])getFileList().toArray(new File[size]);
     }
 
     public File getBaseDir()
@@ -159,6 +162,6 @@ public class CommandLine
             if (f.getName().endsWith(ext))
                 result.add(f);
         }
-        return (File[])result.toArray(EMPTY_FILEARRAY);
+        return (File[])result.toArray(new File[result.size()]);
     }
 }
