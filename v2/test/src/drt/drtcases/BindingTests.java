@@ -147,7 +147,7 @@ public class BindingTests extends TestCase
 
         // now load
         BindingFile bfc = BindingFile.forDoc(doc);
-        BindingLoader lc = PathBindingLoader.forPath(new BindingLoader[] {builtins, bfc});
+        BindingLoader lc = CompositeBindingLoader.forPath(new BindingLoader[] {builtins, bfc});
         ByNameBean bnbc = (ByNameBean)bfc.getBindingType(BindingTypeName.forPair(JavaTypeName.forString("com.mytest.MyClass"), XmlTypeName.forString("t=my-type@http://www.mytest.com/")));
         ByNameBean bnb2c = (ByNameBean)bfc.getBindingType(BindingTypeName.forPair(JavaTypeName.forString("com.mytest.YourClass"), XmlTypeName.forString("t=your-type@http://www.mytest.com/")));
         SimpleBindingType sbtc = (SimpleBindingType)bfc.getBindingType(BindingTypeName.forPair(JavaTypeName.forString("java.lang.String"), XmlTypeName.forString("t=custom-string@http://www.mytest.com/")));
