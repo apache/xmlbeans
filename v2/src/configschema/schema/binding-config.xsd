@@ -131,6 +131,23 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="soap-array">
+    <xs:complexContent>
+      <xs:extension base="tns:binding-type">
+        <xs:sequence>
+          <xs:element name="item-name" type="xs:QName" minOccurs="0"/>
+          <xs:element name="item-type" type="tns:mapping" minOccurs="0"/>
+          <xs:element name="item-nillable" type="xs:boolean" default="false" minOccurs="0"/>
+          <xs:element name="ranks" minOccurs="0">
+            <xs:simpleType>
+              <xs:list itemType="xs:int"/>
+            </xs:simpleType>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="list-array">
     <xs:complexContent>
       <xs:extension base="tns:binding-type">

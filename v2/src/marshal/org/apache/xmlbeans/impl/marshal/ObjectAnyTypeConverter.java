@@ -38,6 +38,12 @@ public final class ObjectAnyTypeConverter
         throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
+    public void unmarshalIntoIntermediary(Object intermediary,
+                                          UnmarshalResult result)
+    {
+        throw new UnsupportedOperationException("not used: " + this);
+    }
+
     public Object unmarshalAttribute(UnmarshalResult result)
         throws XmlException
     {

@@ -76,7 +76,6 @@ abstract class PushMarshalResult
     {
         try {
             writeStartElement(name);
-            writeXsiAttributes(obj, actual_rtt, prop);
             updateState(obj, prop);
             writeContents(actual_rtt);
             writeEndElement();
@@ -98,14 +97,12 @@ abstract class PushMarshalResult
         currProp = prop;
     }
 
-    protected final void writeXsiAttributes(final Object obj,
-                                            final RuntimeBindingType actual_rtt,
-                                            final RuntimeBindingProperty prop)
+    private void writeXsiAttributes(final RuntimeBindingType actual_rtt)
         throws XmlException
     {
-        if (obj == null) {
+        if (currObject == null) {
             addXsiNilAttribute();
-        } else if (actual_rtt != prop.getRuntimeBindingType()) {
+        } else if (actual_rtt != currProp.getRuntimeBindingType()) {
             addXsiTypeAttribute(actual_rtt);
         }
     }
@@ -113,6 +110,7 @@ abstract class PushMarshalResult
     protected void writeContents(final RuntimeBindingType actual_rtt)
         throws XmlException
     {
+        writeXsiAttributes(actual_rtt);
         actual_rtt.accept(this);
     }
 

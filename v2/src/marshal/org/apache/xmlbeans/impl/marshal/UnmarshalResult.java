@@ -18,12 +18,10 @@ package org.apache.xmlbeans.impl.marshal;
 import org.apache.xmlbeans.GDate;
 import org.apache.xmlbeans.GDuration;
 import org.apache.xmlbeans.ObjectFactory;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlCalendar;
+import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
-import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
@@ -33,7 +31,6 @@ import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.common.InvalidLexicalValueException;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExt;
 import org.apache.xmlbeans.impl.richParser.XMLStreamReaderExtImpl;
-import org.apache.xmlbeans.impl.validator.ValidatingXMLStreamReader;
 
 import javax.xml.namespace.NamespaceContext;
 import javax.xml.namespace.QName;
@@ -56,17 +53,16 @@ import java.util.Date;
  * Only one thread should ever be accessing this object, and a new one will be
  * required for each unmarshalling pass.
  */
-final class UnmarshalResult
+abstract class UnmarshalResult
 {
     //per binding context objects
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
-    private final SchemaTypeLoaderProvider schemaTypeLoaderProvider;
 
     //our state
-    private XMLStreamReaderExt baseReader;
-    private final XmlOptions options;
-    private final Collection errors;
+    protected XMLStreamReaderExt baseReader;
+    protected final XmlOptions options;
+    protected final Collection errors;
     private final XsiAttributeHolder xsiAttributeHolder =
         new XsiAttributeHolder();
     private boolean gotXsiAttributes;
@@ -79,12 +75,10 @@ final class UnmarshalResult
 
     UnmarshalResult(BindingLoader bindingLoader,
                     RuntimeBindingTypeTable typeTable,
-                    SchemaTypeLoaderProvider provider,
                     XmlOptions options)
     {
         this.bindingLoader = bindingLoader;
         this.typeTable = typeTable;
-        this.schemaTypeLoaderProvider = provider;
         this.options = options;
         this.errors = BindingContextImpl.extractErrorHandler(options);
     }
@@ -128,6 +122,12 @@ final class UnmarshalResult
         return binding_type;
     }
 
+
+    NamespaceContext getNamespaceContext()
+    {
+        return baseReader.getNamespaceContext();
+    }
+
     void addError(String msg)
     {
         addError(msg, baseReader.getLocation());
@@ -157,25 +157,17 @@ final class UnmarshalResult
     Object unmarshalDocument(XMLStreamReader reader)
         throws XmlException
     {
-        if (isValidating()) {
-            ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
-            final SchemaTypeLoader schemaTypeLoader =
-                schemaTypeLoaderProvider.getSchemaTypeLoader();
-            vr.init(reader, false, null, schemaTypeLoader, options, errors);
-            enrichXmlStream(vr);
-        } else {
-            enrichXmlStream(reader);
-        }
+        enrichXmlStream(getValidatingStream(reader));
         advanceToFirstItemOfInterest();
         BindingType bindingType = determineRootType();
         return unmarshalBindingType(bindingType);
     }
 
 
-    private Object unmarshalBindingType(BindingType bindingType)
+    protected Object unmarshalBindingType(BindingType bindingType)
         throws XmlException
     {
-        this.updateAttributeState();
+        updateAttributeState();
 
         final TypeUnmarshaller um;
         final ObjectFactory of = extractObjectFactory();
@@ -202,7 +194,7 @@ final class UnmarshalResult
         }
     }
 
-    private ObjectFactory extractObjectFactory()
+    protected ObjectFactory extractObjectFactory()
     {
         if (options == null) return null;
 
@@ -241,22 +233,16 @@ final class UnmarshalResult
                               XMLStreamReader reader)
         throws XmlException
     {
-        if (isValidating()) {
-            ValidatingXMLStreamReader vr = new ValidatingXMLStreamReader();
-            SchemaTypeLoader schemaTypeLoader =
-                schemaTypeLoaderProvider.getSchemaTypeLoader();
-            SchemaType schema_type = schemaTypeLoader.findType(schemaType);
-            if (schema_type == null) {
-                String e = "unable to locate definition of type " +
-                    schemaType + " in supplied schema type system";
-                throw new XmlException(e);
-            }
-            vr.init(reader, false, schema_type, schemaTypeLoader, options, errors);
-            reader = vr; //note changing param
-        }
-
+        reader = getValidatingStream(schemaType, reader);
         enrichXmlStream(reader);
     }
+
+
+    protected abstract XMLStreamReader getValidatingStream(XMLStreamReader reader);
+
+    protected abstract XMLStreamReader getValidatingStream(QName schemaType,
+                                                           XMLStreamReader reader)
+        throws XmlException;
 
 
     Object unmarshalElement(XMLStreamReader reader,
@@ -292,13 +278,6 @@ final class UnmarshalResult
         return unmarshalBindingType(btype);
     }
 
-
-    private boolean isValidating()
-    {
-        if (options == null) return false;
-
-        return options.hasOption(XmlOptions.UNMARSHAL_VALIDATE);
-    }
 
     private BindingType determineBindingType(QName schemaType, String javaType)
     {
@@ -835,7 +814,9 @@ final class UnmarshalResult
     {
         try {
             final int new_state = baseReader.next();
-            updateAttributeState();
+            if (new_state == XMLStreamReader.START_ELEMENT) {
+                updateAttributeState();
+            }
             return new_state;
         }
         catch (XMLStreamException e) {
@@ -854,7 +835,7 @@ final class UnmarshalResult
     }
 
 
-    private void updateAttributeState()
+    protected void updateAttributeState()
     {
         xsiAttributeHolder.reset();
         gotXsiAttributes = false;
@@ -1033,10 +1014,21 @@ final class UnmarshalResult
         return expected_type.isAssignableFrom(actual_type);
     }
 
+    abstract void extractAndFillElementProp(RuntimeBindingProperty prop,
+                                            Object inter)
+        throws XmlException;
 
-    NamespaceContext getNamespaceContext()
+
+    protected TypeUnmarshaller getUnmarshaller(RuntimeBindingType actual_rtt)
+        throws XmlException
     {
-        return baseReader.getNamespaceContext();
+        final TypeUnmarshaller um;
+        if (hasXsiNil()) {
+            um = NullUnmarshaller.getInstance();
+        } else {
+            um = actual_rtt.getUnmarshaller();
+        }
+        return um;
     }
 
 }

@@ -29,4 +29,25 @@
         </xs:restriction>
     </xs:simpleType>
 
+
+    <xs:complexType name="ZTestOne">
+        <xs:sequence>
+            <xs:element name="subone">
+                <xs:complexType>
+                    <xs:sequence>
+                        <xs:element name="partOne" type="xs:string">
+                        </xs:element>
+                    </xs:sequence>
+                </xs:complexType>
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="subone">
+        <xs:sequence>
+            <xs:element name="name" type="xs:string">
+            </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
 </xs:schema>

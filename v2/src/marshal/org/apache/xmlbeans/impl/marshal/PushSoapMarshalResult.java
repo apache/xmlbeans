@@ -63,10 +63,10 @@ abstract class PushSoapMarshalResult
 
         try {
             writeStartElement(actual_rtt.getSchemaTypeName());
-            fillAndAddAttribute(getIdQName(), getIdValue(val.getId()));
-            writeXsiAttributes(obj, actual_rtt, prop);
+            fillAndAddAttribute(getIdQName(),
+                                getIdValue(val.getId()));
             updateState(obj, prop);
-            writeContents(actual_rtt);
+            super.writeContents(actual_rtt);
             writeEndElement();
         }
         catch (XMLStreamException e) {
@@ -95,8 +95,5 @@ abstract class PushSoapMarshalResult
 
     protected abstract QName getIdQName();
 
-    private static String getIdValue(int id)
-    {
-        return PullSoapMarshalResult.ID_PREFIX + id;
-    }
+    protected abstract String getIdValue(int id);
 }

@@ -21,9 +21,8 @@ import java.io.InputStream;
 
 /**
  * An Unmarshaller is used to unmarshal xml documents into Java objects.
- * The object is not thread safe and should not be shared
- * amonst threads.  It can however be shared across different invocations of
- * Unmarshaller.unmarshalType() for a given document.
+ * The object is thread safe and can be shared
+ * amonst threads.  
  */
 public interface Unmarshaller
 {

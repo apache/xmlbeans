@@ -36,7 +36,7 @@ final class SimpleContentUnmarshaller
     {
         RuntimeBindingProperty scprop =
             simpleContentRuntimeBindingType.getSimpleContentProperty();
-        scprop.extractAndFillElementProp(context, inter);
+        context.extractAndFillElementProp(scprop, inter);
     }
 
 

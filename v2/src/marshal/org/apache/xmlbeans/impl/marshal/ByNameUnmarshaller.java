@@ -45,7 +45,7 @@ final class ByNameUnmarshaller
                 context.skipElement();
             } else {
                 //TODO: implement first one wins?, this is last one wins
-                prop.extractAndFillElementProp(context, inter);
+                context.extractAndFillElementProp(prop, inter);
             }
         }
 

@@ -45,6 +45,13 @@ public class WrappedArrayUnmarshaller
         throw new UnsupportedOperationException("not supported: this=" + this);
     }
 
+    public void unmarshalIntoIntermediary(Object intermediary,
+                                          UnmarshalResult result)
+        throws XmlException
+    {
+        throw new AssertionError("UNIMP!!");
+    }
+
     //TODO: cleanup this code.  We are doing extra work for assertion checking
     //also might consider consolidating the common code with the ByNameUnmarshaller
     private void deserializeContents(Object inter,
@@ -60,7 +67,7 @@ public class WrappedArrayUnmarshaller
             assert context.isStartElement();
 
             if (matchesItemElement(context)) {
-                type.getElementProperty().extractAndFillElementProp(context, inter);
+                context.extractAndFillElementProp(type.getElementProperty(), inter);
             }
         }
 

@@ -35,6 +35,7 @@ import org.apache.xmlbeans.Marshaller;
 import org.apache.xmlbeans.ObjectFactory;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SoapMarshaller;
+import org.apache.xmlbeans.SoapUnmarshaller;
 import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlCalendar;
@@ -42,12 +43,14 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
 import org.apache.xmlbeans.impl.common.XmlReaderToWriter;
 import org.apache.xmlbeans.impl.common.XmlStreamUtils;
 import org.apache.xmlbeans.impl.marshal.BindingContextFactoryImpl;
 import org.apache.xmlbeans.impl.marshal.util.ArrayUtils;
 import org.apache.xmlbeans.impl.tool.PrettyPrinter;
+import org.apache.xmlbeans.impl.newstore2.Jsr173;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
@@ -62,6 +65,7 @@ import java.io.CharArrayReader;
 import java.io.CharArrayWriter;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -69,7 +73,6 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.io.FileOutputStream;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.net.URI;
@@ -93,6 +96,8 @@ public class MarshalTests extends TestCase
         new BigInteger("876587658765876587658765876587658765");
     private static final String XSD_URI = "http://www.w3.org/2001/XMLSchema";
     private static final String SOAPENC_URI = "http://schemas.xmlsoap.org/soap/encoding/";
+    private static final QName DFLT_ELEM_NAME = new QName("java:com.mytest", "load");
+    private static final QName MYCLASS_NAME = new QName("java:com.mytest", "MyClass");
 
 
     public MarshalTests(String name)
@@ -134,13 +139,15 @@ public class MarshalTests extends TestCase
         final String lname = "lname";
 
         writer.writeStartElement(prefix, lname, uri);
-        if (writer.getPrefix(uri) == null) {
-            writer.writeNamespace(prefix, uri);
-        }
+        writer.writeNamespace(prefix, uri);
         writer.writeEndElement();
 
-        writer.writeStartElement(prefix, lname, uri);
+        boolean writeit = false;
         if (writer.getPrefix(uri) == null) {
+            writeit = true;
+        }
+        writer.writeStartElement(prefix, lname, uri);
+        if (writeit) {
             writer.writeNamespace(prefix, uri);
         }
         writer.writeEndElement();
@@ -470,8 +477,8 @@ public class MarshalTests extends TestCase
 
 
         final XMLStreamReader reader =
-            ctx.marshalType(mc, new QName("java:com.mytest", "load"),
-                            new QName("java:com.mytest", "MyClass"),
+            ctx.marshalType(mc, DFLT_ELEM_NAME,
+                            MYCLASS_NAME,
                             mc.getClass().getName(), options);
 
 //
@@ -545,8 +552,8 @@ public class MarshalTests extends TestCase
 
 
         final XMLStreamReader reader =
-            ctx.marshalType(mc, new QName("java:com.mytest", "load"),
-                            new QName("java:com.mytest", "MyClass"),
+            ctx.marshalType(mc, DFLT_ELEM_NAME,
+                            MYCLASS_NAME,
                             mc.getClass().getName(), options);
 
         dumpReader(reader, verbose);
@@ -567,11 +574,61 @@ public class MarshalTests extends TestCase
     public void testByNameMarshalSoapViaWriter()
         throws Exception
     {
-        final boolean verbose = false;
+        final Collection errors = new LinkedList();
 
-        com.mytest.MyClass mc = new com.mytest.MyClass();
+        final String xmldoc = createSoapExampleXmlString(errors);
+
+        inform("=======SOAPOUT-XML:\n" +
+               PrettyPrinter.indent(xmldoc));
+        reportErrors(errors, "byname-marshal-soap-writer");
+        Assert.assertTrue(errors.isEmpty());
+    }
+
+
+    public void DISABLED_testByNameSoapUnmarshal()
+        throws Exception
+    {
+        final Collection errors = new LinkedList();
+        final String xmldoc = createSoapExampleXmlString(errors);
+        reportErrors(errors, "byname-marshal-soap-writer");
+        Assert.assertTrue(errors.isEmpty());
+
+        BindingContext bindingContext =
+            getBindingContext(getBindingConfigDocument());
+
+        final SoapUnmarshaller um =
+            bindingContext.createSoapUnmarshaller(EncodingStyle.SOAP11);
+
+        final XmlObject xmlObject = XmlObject.Factory.parse(xmldoc);
+        final XMLStreamReader xrdr = xmlObject.newXMLStreamReader();
+
+        while (!xrdr.isStartElement()) {
+            xrdr.next();
+        }
+        xrdr.next();
+        //now at Dummy node
+        while (!xrdr.isStartElement()) {
+            xrdr.next();
+        }
+        //now at actual type
+        xrdr.require(XMLStreamReader.START_ELEMENT,
+                     DFLT_ELEM_NAME.getNamespaceURI(),
+                     DFLT_ELEM_NAME.getLocalPart());
+
+        final Object obj =
+            um.unmarshalType(xrdr, MYCLASS_NAME, MyClass.class.getName(), null);
+
+        inform("GOT OBJ"  + obj, true);
+
+        xrdr.close();
+    }
+
+    private String createSoapExampleXmlString(final Collection errors)
+        throws Exception
+    {
+        MyClass mc = new MyClass();
         mc.setMyatt("attval");
-        com.mytest.YourClass myelt = new com.mytest.YourClass();
+        YourClass myelt = new YourClass();
         myelt.setAttrib(99999.777f);
         myelt.setMyFloat(5555.4444f);
 
@@ -608,7 +665,6 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         final XmlOptions options = new XmlOptions();
-        Collection errors = new LinkedList();
         options.setErrorListener(errors);
 
         final SoapMarshaller ctx =
@@ -616,43 +672,41 @@ public class MarshalTests extends TestCase
 
         Assert.assertNotNull(ctx);
 
-        {
+        StringWriter sw = new StringWriter();
+        XMLStreamWriter xml_out =
+            XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
 
-            StringWriter sw = new StringWriter();
-            XMLStreamWriter xml_out =
-                XMLOutputFactory.newInstance().createXMLStreamWriter(sw);
+        xml_out.writeStartDocument();
+        xml_out.writeStartElement("DUMMY_ROOT");
+        xml_out.writeNamespace("xs", XSD_URI);
+        xml_out.writeNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        xml_out.writeNamespace("jt", "java:com.mytest");
 
-            ctx.marshalType(xml_out, mc, new QName("java:com.mytest", "load"),
-                            new QName("java:com.mytest", "MyClass"),
-                            mc.getClass().getName(), options);
-//        ctx.marshalType(xml_out, "TEST1", new QName("someuri", "str"),
-//                        new QName(XSD_URI, "string"),
-//                        String.class.getName(), options);
-            xml_out.close();
-            sw.close();
 
-            inform("=======SOAPOUT-XML:\n" +
-                   PrettyPrinter.indent(sw.getBuffer().toString()));
-            reportErrors(errors, "byname-marshal-soap-writer");
-            Assert.assertTrue(errors.isEmpty());
-        }
+        ctx.marshalType(xml_out, mc, DFLT_ELEM_NAME,
+                        MYCLASS_NAME,
+                        mc.getClass().getName(), options);
 
-        {
-            StringWriter sw2 = new StringWriter();
-            XMLStreamWriter xml_out2 =
-                XMLOutputFactory.newInstance().createXMLStreamWriter(sw2);
-            xml_out2.writeStartDocument();
-            xml_out2.writeStartElement("ID_DUMMY");
-            ctx.marshalReferenced(xml_out2, options);
-            xml_out2.writeEndElement();
-            xml_out2.writeEndDocument();
-            xml_out2.close();
-            sw2.close();
+//            xml_out.writeComment("simple string");
+//            ctx.marshalType(xml_out, "TEST1", new QName("someuri", "str"),
+//                            new QName(XSD_URI, "string"),
+//                            String.class.getName(), options);
+//
 
-            inform("=======2SOAPOUT-XML:\n" + sw2.getBuffer().toString());
-            reportErrors(errors, "byname-marshal-soap-writer");
-            Assert.assertTrue(errors.isEmpty());
-        }
+
+        xml_out.writeComment("ids are coming next");
+
+
+        ctx.marshalReferenced(xml_out, options);
+        xml_out.writeEndElement();
+
+
+        xml_out.writeEndDocument();
+
+
+        xml_out.close();
+        sw.close();
+        return sw.getBuffer().toString();
     }
 
 
@@ -735,8 +789,8 @@ public class MarshalTests extends TestCase
         Assert.assertNotNull(ctx);
 
 
-        final QName elem_name = new QName("java:com.mytest", "load");
-        final QName type_name = new QName("java:com.mytest", "MyClass");
+        final QName elem_name = DFLT_ELEM_NAME;
+        final QName type_name = MYCLASS_NAME;
         ctx.marshalType(w, mc,
                         elem_name,
                         type_name,
@@ -834,7 +888,7 @@ public class MarshalTests extends TestCase
             bindingContext.createMarshaller();
         Assert.assertNotNull(ctx);
 
-        final QName elem_name = new QName("java:com.mytest", "load");
+        final QName elem_name = DFLT_ELEM_NAME;
         ctx.marshalElement(w,
                            mc,
                            elem_name,
@@ -1009,8 +1063,8 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         final String javaType = "com.mytest.MyClass";
-        final QName schemaType = new QName("java:com.mytest", "MyClass");
-        final QName elem_name = new QName("java:com.mytest", "load");
+        final QName schemaType = MYCLASS_NAME;
+        final QName elem_name = DFLT_ELEM_NAME;
         final String class_name = top_obj.getClass().getName();
 
         Object out_obj = null;
@@ -1091,8 +1145,8 @@ public class MarshalTests extends TestCase
         BindingContext bindingContext = getBindingContext(getBindingConfigDocument());
 
         final String javaType = "com.mytest.MyClass";
-        final QName schemaType = new QName("java:com.mytest", "MyClass");
-        final QName elem_name = new QName("java:com.mytest", "load");
+        final QName schemaType = MYCLASS_NAME;
+        final QName elem_name = DFLT_ELEM_NAME;
         final String class_name = top_obj.getClass().getName();
 
         final Marshaller msh = bindingContext.createMarshaller();
@@ -1261,8 +1315,8 @@ public class MarshalTests extends TestCase
 
         //TODO: remove hard coded values
         final String javaType = "com.mytest.MyClass";
-        final QName schemaType = new QName("java:com.mytest", "MyClass");
-        final QName elem_name = new QName("java:com.mytest", "load");
+        final QName schemaType = MYCLASS_NAME;
+        final QName elem_name = DFLT_ELEM_NAME;
         final String class_name = top_obj.getClass().getName();
 
         Object out_obj = null;
@@ -1422,7 +1476,7 @@ public class MarshalTests extends TestCase
 
         final File doc = TestEnv.xbeanCase("marshal/doc.xml");
         final String javaType = "com.mytest.MyClass";
-        final QName schemaType = new QName("java:com.mytest", "MyClass");
+        final QName schemaType = MYCLASS_NAME;
 
         final XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
         XMLStreamReader xrdr =

@@ -54,6 +54,19 @@ interface TypeUnmarshaller
     void unmarshal(Object object, UnmarshalResult result)
         throws XmlException;
 
+
+    /**
+     * unmarshal into an intermediate value.  required only for types that
+     * have element children.  used for soap unmarshalling
+     *
+     * @param intermediary
+     * @param result
+     */
+    void unmarshalIntoIntermediary(Object intermediary,
+                                   UnmarshalResult result)
+        throws XmlException;
+
+
     /**
      * unmarshal the lexical value of an instance of xsd:anySimpleType.
      * This could be called on an attribute value or on element content.
@@ -111,4 +124,5 @@ interface TypeUnmarshaller
      */
     void initialize(RuntimeBindingTypeTable typeTable,
                     BindingLoader bindingLoader);
+
 }

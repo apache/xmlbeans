@@ -57,6 +57,11 @@ public class XMLStreamReaderExtImpl
         _charSeq = new CharSeqTrimWS(this);
     }
 
+    public XMLStreamReader getUnderlyingXmlStream()
+    {
+        return _xmlStream;
+    }
+
     // XMLStreamReaderExt methods
     public String getStringValue()
         throws XMLStreamException

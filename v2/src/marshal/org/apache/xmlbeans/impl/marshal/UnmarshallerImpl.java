@@ -26,7 +26,8 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.InputStream;
 
-class UnmarshallerImpl implements Unmarshaller
+final class UnmarshallerImpl
+    implements Unmarshaller
 {
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
@@ -57,8 +58,8 @@ class UnmarshallerImpl implements Unmarshaller
         throws XmlException
     {
         final UnmarshalResult result =
-            new UnmarshalResult(bindingLoader, typeTable,
-                                schemaTypeLoaderProvider, options);
+            new LiteralUnmarshalResult(bindingLoader, typeTable,
+                                       schemaTypeLoaderProvider, options);
 
         return result.unmarshalDocument(reader);
     }
@@ -106,8 +107,8 @@ class UnmarshallerImpl implements Unmarshaller
         }
 
         final UnmarshalResult result =
-            new UnmarshalResult(bindingLoader, typeTable,
-                                schemaTypeLoaderProvider, options);
+            new LiteralUnmarshalResult(bindingLoader, typeTable,
+                                       schemaTypeLoaderProvider, options);
 
         return result.unmarshalType(reader, schemaType, javaType);
     }
@@ -129,8 +130,8 @@ class UnmarshallerImpl implements Unmarshaller
         }
 
         final UnmarshalResult result =
-            new UnmarshalResult(bindingLoader, typeTable,
-                                schemaTypeLoaderProvider, options);
+            new LiteralUnmarshalResult(bindingLoader, typeTable,
+                                       schemaTypeLoaderProvider, options);
 
         return result.unmarshalElement(reader, globalElement, javaType);
     }
