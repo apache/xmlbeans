@@ -513,6 +513,7 @@
       <fileset dir="build/classes/binding"/>
       <fileset dir="build/classes/marshal"/>
       <fileset dir="build/classes/repackage"/>
+      <fileset dir="build/classes/jam"/>
       <fileset dir="src/license"/>
     </jar>
   </target>
