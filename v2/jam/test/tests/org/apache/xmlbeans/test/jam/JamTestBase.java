@@ -98,7 +98,7 @@ public abstract class JamTestBase extends TestCase {
   // Constants
 
   private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
-  private static final boolean WRITE_RESULT_ON_FAIL = false;
+  private static final boolean WRITE_RESULT_ON_FAIL = true;
 
   private static final String WRITE_RESULT_PREFIX = "result-";
 
@@ -745,7 +745,7 @@ public abstract class JamTestBase extends TestCase {
 
     //format.setIndenting(true);
     //format.setIndent(2);
-    XMLSerializer serializer = new FixedXMLSerializer(s, format);
+    XMLSerializer serializer = new XMLSerializer(s, format);
     serializer.serialize(doc);
     return s.toString();
   }
@@ -821,19 +821,5 @@ public abstract class JamTestBase extends TestCase {
   }
 
 
-
-  //THIS IS A HACK to fix Sun's stupid bug for them
-  private class FixedXMLSerializer extends XMLSerializer {
-    public FixedXMLSerializer( Writer writer, OutputFormat format ) {
-      super(writer,format);
-    }
-
-    protected boolean getFeature(String feature){
-      if (fFeatures == null) return false;
-      Boolean b = (Boolean)fFeatures.get(feature);
-      if (b == null) return false;
-      return b.booleanValue();
-    }
-  }
 
 }

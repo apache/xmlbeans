@@ -18,6 +18,7 @@ import org.apache.xmlbeans.impl.jam.mutable.*;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.provider.JamClassPopulator;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 import java.lang.reflect.Constructor;
@@ -28,7 +29,7 @@ import java.lang.reflect.Method;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ReflectClassBuilder extends JamClassBuilder {
+public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopulator {
 
   // ========================================================================
   // Constants
@@ -108,10 +109,13 @@ public class ReflectClassBuilder extends JamClassBuilder {
       getLogger().verbose(cnfe,this);
       return null;
     }
-    MClass out = createClassToBuild(packageName, className, null);
+    MClass out = createClassToBuild(packageName, className, null, this);
     out.setArtifact(rclass);
     return out;
   }
+
+  // ========================================================================
+  // JamClassPopulator implementation
 
   public void populate(MClass dest) {
     Class src = (Class)dest.getArtifact();

@@ -62,13 +62,40 @@ public abstract class JamClassBuilder {
    */
   protected MClass createClassToBuild(String packageName,
                                       String className,
+                                      String[] importSpecs,
+                                      JamClassPopulator pop)
+  {
+    if (mContext == null) throw new IllegalStateException("init not called");
+    if (packageName == null) throw new IllegalArgumentException("null pkg");
+    if (className == null) throw new IllegalArgumentException("null class");
+    if (pop == null) throw new IllegalArgumentException("null pop");
+    className = className.replace('.','$');
+    ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs,pop);
+    return out;
+  }
+
+  /**
+   * <p>When a JamClassBuilder decides that it is going to be able
+   * to respond to a build() request, it must call this method to get an
+   * initial instance of MClass to return.</p>
+   *
+   * @param packageName qualified name of the package that contains the
+   * class to create
+   * @param className simple name of the class to create.
+   * @param importSpecs array of import specs to be used in the class,
+   * or null if not known or relevant.  Import specs are only needed if
+   * the builder is planning on setting any unqualified type references
+   * on the class.
+   */
+  protected MClass createClassToBuild(String packageName,
+                                      String className,
                                       String[] importSpecs)
   {
     if (mContext == null) throw new IllegalStateException("init not called");
     if (packageName == null) throw new IllegalArgumentException("null pkg");
     if (className == null) throw new IllegalArgumentException("null class");
     className = className.replace('.','$');
-    ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs,this);
+    ClassImpl out = new ClassImpl(packageName,className,mContext,importSpecs);
     return out;
   }
 
@@ -84,11 +111,9 @@ public abstract class JamClassBuilder {
    * <p>This is called by JAM when it attempts to load a class.  If the
    * builder has access to an artifact (typically a java source or classfile)
    * that represents the given type, it should call createClassToBuild() to get
-   * a new instance of MClass and then return it.  It should not populate
-   * the class in any way (e.g. add methods and fields to it) - this must
-   * be done later when the JamClassLoader calls populate().  Nor should
-   * any caching be performed - if an MClass is going to be returned,
-   * it should be a new instance returned by createClassToBuild()</p>
+   * a new instance of MClass and then return it.  No caching should be
+   * performed - if an MClass is going to be returned, it should be a new
+   * instance returned by createClassToBuild()</p>
    *
    * <p>If no artififact is available, the builder should just return null,
    * signalling that other JamClassBuilders should attempt to build the
@@ -100,13 +125,4 @@ public abstract class JamClassBuilder {
    */ 
   public abstract MClass build(String packageName, String className);
 
-  /**
-   * <p>Called by JAM to 'fill out' an instance of a given MClass with
-   * things like methods and fields.  The implementing builder is responsible
-   * for inspecting the source artificat (typically a source or class file)
-   * to call the appropriate createX methods on the given MClass.</p>
-   *
-   * @param c
-   */
-  public abstract void populate(MClass c);
 }

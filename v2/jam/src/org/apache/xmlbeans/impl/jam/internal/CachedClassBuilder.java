@@ -54,8 +54,6 @@ public class CachedClassBuilder extends JamClassBuilder {
     return (MClass)mQcname2jclass.get(className);
   }
 
-  public void populate(MClass c) { }
-
   // ========================================================================
   // Public methods
 

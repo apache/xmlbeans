@@ -20,6 +20,7 @@ import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.ResourcePath;
+import org.apache.xmlbeans.impl.jam.provider.JamClassPopulator;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ import java.util.List;
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class ParserClassBuilder extends JamClassBuilder {
+public class ParserClassBuilder extends JamClassBuilder implements JamClassPopulator {
 
   // ========================================================================
   // Constants
@@ -94,6 +95,9 @@ public class ParserClassBuilder extends JamClassBuilder {
     return null;
   }
 
+  // ========================================================================
+  // JamClassPopulator implementation
+  
   public void populate(MClass m) {
     throw new IllegalStateException("NYI");
   }

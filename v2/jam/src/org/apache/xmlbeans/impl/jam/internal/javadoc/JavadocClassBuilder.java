@@ -22,6 +22,7 @@ import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.provider.JamClassPopulator;
 
 import java.io.*;
 import java.util.StringTokenizer;
@@ -29,7 +30,7 @@ import java.util.StringTokenizer;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class JavadocClassBuilder extends JamClassBuilder {
+public class JavadocClassBuilder extends JamClassBuilder implements JamClassPopulator {
 
   // ========================================================================
   // Constants
@@ -185,10 +186,13 @@ public class JavadocClassBuilder extends JamClassBuilder {
         }
       }
     }
-    MClass out = createClassToBuild(packageName, className, importSpecs);
+    MClass out = createClassToBuild(packageName, className, importSpecs, this);
     out.setArtifact(cd);
     return out;
   }
+
+  // ========================================================================
+  // JamClassPopulator implementation
 
   public void populate(MClass dest) {
     ClassDoc src = (ClassDoc)dest.getArtifact();
