@@ -61,6 +61,8 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JFactory;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.SchemaTypeLoader;
@@ -109,6 +111,7 @@ public abstract class BindingCompiler {
   private Tylar[] mBaseLibraries = null;
   private BindingLoader mBaseBindingLoader = null;
   private SchemaTypeLoader mBaseSchemaTypeLoader = null;
+  private JClassLoader mBaseJClassLoader = null;
   private boolean mIsCompilationStarted = false;
 
   // this is the joust we use to build up the tylar that is passed to
@@ -349,6 +352,36 @@ public abstract class BindingCompiler {
 
     }
     return mBaseSchemaTypeLoader;
+  }
+
+  /**
+   * Returns a JClassLoader to be used as a basis for the binding process.
+   * Normally, this will simply be the loader backed by the system
+   * classloader.  However, if the user has setBaseLibraries, the returned
+   * loader will also load java classes that may be stored those libraries.
+   * Note that this method must not be called until binding has actually
+   * begun.
+   *
+   * @throws IllegalStateException if this method is called before
+   * the abstract bind() method is called.
+   */
+  protected JClassLoader getBaseJavaTypeLoader() throws XmlException
+  {
+    assertCompilationStarted(true);
+    if (mBaseJClassLoader == null) {
+      if (mBaseLibraries == null) {
+        mBaseJClassLoader = JFactory.getInstance().getSystemClassLoader();
+      } else {
+        //create a classloader chain that runs throw all of the base tylars
+        ClassLoader cl = ClassLoader.getSystemClassLoader();//FIXME this needs a knob
+        for(int i = mBaseLibraries.length; i >= 0; i--) {
+          cl = mBaseLibraries[i].createClassLoader(cl);
+        }
+        mBaseJClassLoader = JFactory.getInstance().
+                createClassLoader(cl,null,null);
+      }
+    }
+    return mBaseJClassLoader;
   }
 
   /**
