@@ -259,7 +259,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
 
             do {
                 conn = url.openConnection();
-                conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.2");
+                conn.addRequestProperty("User-Agent", "Apache XMLBeans/1.0.3");
                 conn.addRequestProperty("Accept", "application/xml, text/xml, */*");
                 if (conn instanceof HttpURLConnection)
                 {

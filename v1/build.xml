@@ -619,6 +619,7 @@
      <copy todir="build/private/xmlbeans-${product.version}">
         <fileset dir="xkit"/>
         <fileset dir="." includes="bin/**"/>
+        <fileset file="CHANGES.txt" />
      </copy>
      <copy todir="build/private/xmlbeans-${product.version}/schemas/s4s">
         <fileset dir="src/xsdschema/schema" includes="XMLSchema.xsd,w3c-schema-license.html"/>
@@ -645,14 +646,14 @@
      <zip destfile="build/private/incubating-xmlbeans-${product.version}.zip"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
-          excludes="xmlbeans-${product.version}/schemas/cyclone/**, xmlbeans-${product.version}/schemas/j2ee/**">
+          excludes="">
          <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
      </zip>
      <tar destfile="build/private/incubating-xmlbeans-${product.version}.tgz"
           basedir="build/private"
           includes="xmlbeans-${product.version}/**"
-          excludes="xmlbeans-${product.version}/schemas/cyclone/**, xmlbeans-${product.version}/schemas/j2ee/**"
+          excludes=""
           compression="gzip">
          <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
@@ -667,9 +668,8 @@
      	<zipfileset
      		dir="."
        		includes="**"
-                excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar,
-                xkit/schemas/cyclone/**, xkit/schemas/j2ee/**"
+            excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
        		prefix="xmlbeans-${product.version}" />
          <zipfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <zipfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
@@ -680,8 +680,7 @@
      		dir="."
        		includes="**"
        		excludes="build/**, test/src/teststore/**, test/src/easypouse/**, test/src/nameworlduse/**,
-                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar,
-                xkit/schemas/cyclone/**, xkit/schemas/j2ee/**"
+                test/src/stsschema/**, test/src/unmarshal/**, test/cases/schema/**, external/lib/junit.jar"
        		prefix="xmlbeans-${product.version}"/>
          <tarfileset dir="." includes="src/license/LICENSE.txt" fullpath="xmlbeans-${product.version}/LICENSE.txt"/>
          <tarfileset dir="." includes="src/license/NOTICE.txt" fullpath="xmlbeans-${product.version}/NOTICE.txt"/>
