@@ -17,10 +17,8 @@
 package xmlcursor.jsr173.common;
 
 
-import org.apache.xmlbeans.impl.newstore2.Public2;
-import org.apache.xmlbeans.impl.newstore2.Jsr173;
-
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamConstants;
@@ -68,7 +66,7 @@ public abstract class ElementTest extends TestCase {
 
         //mixed content txt1, PI, COMMENT,txt2:
         //should coalesce txt1 & txt2
-        cur = Public2.newStore();
+        cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
         cur.beginElement("foo");
         cur.insertChars("  \n ");
@@ -123,7 +121,7 @@ public abstract class ElementTest extends TestCase {
     }
 
     public void setUp() throws Exception {
-        cur = Public2.newStore();
+        cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
 
         cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),

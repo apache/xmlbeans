@@ -15,10 +15,8 @@
 
 package xmlcursor.jsr173.common;
 
-
-import org.apache.xmlbeans.impl.newstore2.Public2;
-
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.*;
@@ -98,7 +96,7 @@ public abstract class GeneralMethodsTest extends TestCase {
 
 
     public void setUp() throws Exception {
-        cur = Public2.newStore();
+        cur = XmlObject.Factory.newInstance().newCursor();
         cur.toNextToken();
 
         cur.insertAttributeWithValue(new QName("foo.org", "at0", "pre"),

@@ -20,6 +20,10 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import javax.xml.stream.XMLStreamReader;
+
+import org.w3c.dom.Node;
+
 /**
  * Provides an assortment of utilities
  * for managing XML Bean types, type systems, QNames, paths,
@@ -69,10 +73,15 @@ public final class XmlBeans
     private static final Method _getNoTypeMethod = buildGetNoTypeMethod();
     private static final Method _typeLoaderBuilderMethod = buildTypeLoaderBuilderMethod();
     private static final Method _compilationMethod = buildCompilationMethod();
+    private static final Method _nodeToCursorMethod = buildNodeToCursorMethod();
+    private static final Method _nodeToXmlObjectMethod = buildNodeToXmlObjectMethod();
+    private static final Method _nodeToXmlStreamMethod = buildNodeToXmlStreamMethod();
+    private static final Method _streamToNodeMethod = buildStreamToNodeMethod();
 
-    private static RuntimeException causedException(RuntimeException e, Throwable cause)
+    private static RuntimeException causedException ( RuntimeException e, Throwable cause )
     {
-        e.initCause(cause);
+        e.initCause( cause );
+        
         return e;
     }
 
@@ -84,68 +93,104 @@ public final class XmlBeans
         return new XmlException( e.getMessage(), e );
     }
 
-    private static Method buildGetContextTypeLoaderMethod()
+    private static final Method buildMethod ( String className, String methodName, Class[] args )
     {
         try
         {
-            return Class.forName("org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl", false, XmlBeans.class.getClassLoader()).getMethod("getContextTypeLoader", new Class[0]);
+            return
+                Class.forName(
+                    className, false, XmlBeans.class.getClassLoader() ).
+                        getMethod( methodName, args );
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            throw causedException(new IllegalStateException("Cannot load SchemaTypeLoaderImpl: verify that xbean.jar is on the classpath"), e);
+            throw causedException(
+                new IllegalStateException(
+                    "Cannot load " + methodName +
+                        ": verify that xbean.jar is on the classpath" ), e );
         }
+    }
+
+    private static final Method buildNoArgMethod ( String className, String methodName )
+    {
+        return buildMethod( className, methodName, new Class[ 0 ] );
+    }
+
+    private static final Method buildNodeMethod ( String className, String methodName )
+    {
+        return buildMethod( className, methodName, new Class[] { Node.class } );
+    }
+
+    private static Method buildGetContextTypeLoaderMethod()
+    {
+        return buildNoArgMethod( "org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl", "getContextTypeLoader" );
     }
 
 
     private static final Method buildGetBuiltinSchemaTypeSystemMethod()
     {
-        try
-        {
-            return Class.forName("org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem", false, XmlBeans.class.getClassLoader()).getMethod("get", new Class[0]);
-        }
-        catch (Exception e)
-        {
-            throw causedException(new IllegalStateException("Cannot load BuiltinSchemaTypeSystem: verify that xbean.jar is on the classpath"), e);
-        }
+        return buildNoArgMethod( "org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem", "get" );
     }
 
     private static final Method buildGetNoTypeMethod()
     {
-        try
-        {
-            return Class.forName("org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem", false, XmlBeans.class.getClassLoader()).getMethod("getNoType", new Class[0]);
-        }
-        catch (Exception e)
-        {
-            throw causedException(new IllegalStateException("Cannot load BuiltinSchemaTypeSystem: verify that xbean.jar is on the classpath"), e);
-        }
+        return buildNoArgMethod( "org.apache.xmlbeans.impl.schema.BuiltinSchemaTypeSystem", "getNoType" );
     }
 
-
-    private static final Method buildTypeLoaderBuilderMethod()
+    private static final Method buildTypeLoaderBuilderMethod ( )
     {
+        Class resourceLoaderClass;
+        
         try
         {
-            Class resourceLoaderClass = Class.forName("org.apache.xmlbeans.impl.schema.ResourceLoader", false, XmlBeans.class.getClassLoader());
-            return Class.forName("org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl", false, XmlBeans.class.getClassLoader()).getMethod("build", new Class[] { SchemaTypeLoader[].class, resourceLoaderClass, ClassLoader.class });
+            resourceLoaderClass =
+                Class.forName(
+                    "org.apache.xmlbeans.impl.schema.ResourceLoader",
+                    false, XmlBeans.class.getClassLoader() );
         }
-        catch (Exception e)
+        catch ( Exception e )
         {
-            throw causedException(new IllegalStateException("Cannot load SchemaTypeLoaderImpl: verify that xbean.jar is on the classpath"), e);
+            throw causedException(
+                new IllegalStateException(
+                    "Cannot load " + "ResourceLoader" +
+                        ": verify that xbean.jar is on the classpath" ), e );
         }
+        
+        return
+            buildMethod(
+                "org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl", "build",
+                new Class[] { SchemaTypeLoader[].class, resourceLoaderClass, ClassLoader.class } );
     }
-
 
     private static final Method buildCompilationMethod()
     {
-        try
-        {
-            return Class.forName("org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl", false, XmlBeans.class.getClassLoader()).getMethod("forSchemaXml", new Class[] { SchemaTypeSystem.class, XmlObject[].class, SchemaTypeLoader.class, XmlOptions.class });
-        }
-        catch (Exception e)
-        {
-            throw causedException(new IllegalStateException("Cannot load SchemaTypeSystemImpl: verify that xbean.jar is on the classpath"), e);
-        }
+        return
+            buildMethod(
+                "org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl", "forSchemaXml",
+                new Class[] { SchemaTypeSystem.class, XmlObject[].class, SchemaTypeLoader.class, XmlOptions.class } );
+    }
+
+    private static final Method buildNodeToCursorMethod()
+    {
+        return buildNodeMethod( "org.apache.xmlbeans.impl.newstore2.Locale", "nodeToCursor" );
+    }
+
+    private static final Method buildNodeToXmlObjectMethod()
+    {
+        return buildNodeMethod( "org.apache.xmlbeans.impl.newstore2.Locale", "nodeToXmlObject" );
+    }
+
+    private static final Method buildNodeToXmlStreamMethod()
+    {
+        return buildNodeMethod( "org.apache.xmlbeans.impl.newstore2.Locale", "nodeToXmlStream" );
+    }
+
+    private static final Method buildStreamToNodeMethod()
+    {
+        return
+            buildMethod(
+                "org.apache.xmlbeans.impl.newstore2.Locale", "streamToNode",
+                new Class[] { XMLStreamReader.class } );
     }
 
     /**
@@ -241,6 +286,90 @@ public final class XmlBeans
         catch (InvocationTargetException e)
         {
             throw causedException(new IllegalStateException(e.getMessage()), e.getCause());
+        }
+    }
+
+    /**
+     * Creates an XmlCursor for a DOM node which is implemented by XmlBwans
+     */
+    public static XmlCursor nodeToCursor ( Node n )
+    {
+        try
+        {
+            return (XmlCursor) _nodeToCursorMethod.invoke( null, new Object[] { n } );
+        }
+        catch ( IllegalAccessException e )
+        {
+            throw causedException(
+                new IllegalStateException(
+                    "No access to nodeToCursor verify that version of xbean.jar is correct" ), e );
+        }
+        catch ( InvocationTargetException e )
+        {
+            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
+        }
+    }
+
+    /**
+     * Creates an XmlObject for a DOM node which is implemented by XmlBwans
+     */
+    public static XmlObject nodeToXmlObject ( Node n )
+    {
+        try
+        {
+            return (XmlObject) _nodeToXmlObjectMethod.invoke( null, new Object[] { n } );
+        }
+        catch ( IllegalAccessException e )
+        {
+            throw causedException(
+                new IllegalStateException(
+                    "No access to nodeToXmlObject verify that version of xbean.jar is correct" ), e );
+        }
+        catch ( InvocationTargetException e )
+        {
+            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
+        }
+    }
+
+    /**
+     * Creates an XmlObject for a DOM node which is implemented by XmlBwans
+     */
+    public static XMLStreamReader nodeToXmlStreamReader ( Node n )
+    {
+        try
+        {
+            return (XMLStreamReader) _nodeToXmlStreamMethod.invoke( null, new Object[] { n } );
+        }
+        catch ( IllegalAccessException e )
+        {
+            throw causedException(
+                new IllegalStateException(
+                    "No access to nodeToXmlStreamReader verify that version of xbean.jar is correct" ), e );
+        }
+        catch ( InvocationTargetException e )
+        {
+            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
+        }
+    }
+
+    /**
+     * Returns the XmlObject for a DOM node which is implemented by XmlBwans
+     */
+    public static Node streamToNode ( XMLStreamReader xs )
+    {
+        try
+        {
+            return (Node) _streamToNodeMethod.invoke( null, new Object[] { xs } );
+        }
+        catch ( IllegalAccessException e )
+        {
+            throw causedException(
+                new IllegalStateException(
+                    "No access to streamToNode verify that version of xbean.jar is correct" ), e );
+        }
+        catch ( InvocationTargetException e )
+        {
+            throw causedException( new IllegalStateException( e.getMessage() ), e.getCause() );
         }
     }
 

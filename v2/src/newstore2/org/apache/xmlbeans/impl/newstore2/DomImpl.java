@@ -63,7 +63,10 @@ import java.util.Iterator;
 import javax.xml.transform.Source;
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlRuntimeException;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 
 final class DomImpl
 {
@@ -552,6 +555,17 @@ final class DomImpl
 
         if (doctype != null)
             throw new RuntimeException( "Not impl" );
+
+        c.toParent();
+
+        try
+        {
+            Locale.autoTypeDocument( c, null, null );
+        }
+        catch (XmlException e )
+        {
+            throw new XmlRuntimeException( e );
+        }
 
         c.release();
         
@@ -3477,6 +3491,29 @@ final class DomImpl
         c.release();
 
         return xc;
+    }
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+    //////////////////////////////////////////////////////////////////////////////////////
+
+    public static XmlObject _getXmlObject ( Dom n )
+    {
+        Locale l = n.locale();
+
+        if (l.noSync())         { l.enter(); try { return getXmlObject( n ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return getXmlObject( n ); } finally { l.exit(); } }
+    }
+
+    public static XmlObject getXmlObject ( Dom n )
+    {
+        Cur c = n.tempCur();
+
+        XmlObject x = c.getObject();
+
+        c.release();
+
+        return x;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////

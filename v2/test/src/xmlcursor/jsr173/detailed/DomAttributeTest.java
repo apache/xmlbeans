@@ -22,7 +22,8 @@ import xmlcursor.jsr173.common.AttributeTest;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.xmlbeans.XmlCursor;
-import org.apache.xmlbeans.impl.newstore2.Public2;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlBeans;
 import org.w3c.dom.Node;
 /**
  *
@@ -38,13 +39,13 @@ public  class DomAttributeTest
     public  XMLStreamReader getStream(XmlCursor c)
     throws Exception{
         String xml=c.xmlText();
-        Node dom=Public2.parse(xml);//c.newDomNode();
+        Node dom = (Node) XmlObject.Factory.parse( xml ).getDomNode();
         //brutal hack since we can't get dom from the cursor and need
         //to go via the saver
         if (xml.startsWith("<xml-frag")){
         dom=dom.getFirstChild();
         dom=dom.getAttributes().item(0); }
-        return Public2.getStream(dom);
+        return XmlBeans.nodeToXmlStreamReader(dom);
     }
 
       public static Test suite() {

@@ -829,6 +829,7 @@ public interface XmlCursor extends XmlTokenSource
      * to.
      * @param  name  The name of the element to move to.
      * @return  true if the cursor was moved; otherwise, false.
+     * @throws  IllegalArgumentException  If the name is not a valid local name.
      */
 
     boolean toChild ( String namespace, String name );

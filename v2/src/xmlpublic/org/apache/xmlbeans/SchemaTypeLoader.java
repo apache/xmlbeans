@@ -28,6 +28,7 @@ import java.net.URL;
 import javax.xml.stream.XMLStreamReader;
 
 import org.w3c.dom.Node;
+import org.w3c.dom.DOMImplementation;
 
 /**
  * Represents a searchable set of XML Schema component definitions.
@@ -153,6 +154,8 @@ public interface SchemaTypeLoader
     public XmlObject parse ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
     /** Returns an XmlSaxHandler that can parse an instance of the given type. */
     public XmlSaxHandler newXmlSaxHandler ( SchemaType type, XmlOptions options );
+    /** Returns a DOMImplementation. */
+    public DOMImplementation newDomImplementation ( XmlOptions options );
     /** Returns a validating XMLInputStream that will throw an exception if the XML is not valid */
     public XMLInputStream newValidatingXMLInputStream ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException;
 }

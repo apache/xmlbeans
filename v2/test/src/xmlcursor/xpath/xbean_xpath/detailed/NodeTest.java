@@ -17,8 +17,8 @@ package xmlcursor.xpath.xbean_xpath.detailed;
 
 import junit.framework.TestCase;
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlException;
-import org.apache.xmlbeans.impl.newstore2.Public2;
 
 /**
  *  Nodes Tested:
@@ -49,7 +49,7 @@ public class NodeTest extends TestCase {
     String sXmlPI= "<foo><?xml-stylesheet target=\"http://someuri\"?></foo>";
     public void testNameTestStar() throws XmlException {
         String sQuery1 = "./*";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected = c.xmlText();
         c.selectPath(sQuery1);
         assertEquals(1, c.getSelectionCount());
@@ -60,7 +60,7 @@ public class NodeTest extends TestCase {
 
     public void testNameTestNCName() throws XmlException {
         String sQuery1 = "$this//*";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
         c.selectPath(sQuery1);
@@ -72,7 +72,7 @@ public class NodeTest extends TestCase {
 
      public void testNameTestQName_1() throws XmlException {
         String sQuery1 = "declare namespace pre=\"http://uri\" $this//pre:*";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<pre:baz pre:at0=\"val1\" xmlns:pre=\"http://uri\"/>";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
          assertEquals("foo",c.getName().getLocalPart());
@@ -85,7 +85,7 @@ public class NodeTest extends TestCase {
 
      public void testNameTestQName_2() throws XmlException {
         String sQuery1 = "declare namespace pre=\"http://uri\" $this//pre:baz";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<pre:baz pre:at0=\"val1\" xmlns:pre=\"http://uri\"/>";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
         c.selectPath(sQuery1);
@@ -97,7 +97,7 @@ public class NodeTest extends TestCase {
 
      public void testNameTestQName_3() throws XmlException {
         String sQuery1 = "$this//bar";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
             "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</bar>";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
@@ -114,7 +114,7 @@ public class NodeTest extends TestCase {
 
     public void testNodeTypeNode() throws XmlException {
             String sQuery1 = "$this/foo/node()";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
             "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</bar>";
         c.selectPath(sQuery1);
@@ -124,7 +124,7 @@ public class NodeTest extends TestCase {
      }
       public void testNodeTypeNodeAbbrev() throws XmlException {
              String sQuery1 = "$this/foo/*";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<bar at0=\"val0\" xmlns:pre=\"http://uri.com\">" +
             "<pre:baz baz:at0=\"val1\" xmlns:baz=\"http://uri\"/>txt child</bar>";
         c.selectPath(sQuery1);
@@ -134,7 +134,7 @@ public class NodeTest extends TestCase {
      }
      public void testNodeTypePI() throws XmlException {
 
-           XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected ="<foo><?xml-stylesheet target=\"http://someuri\"?></foo>";
          String sQuery="./foo/processing-instruction()";
         c.selectPath(sQuery);
@@ -146,7 +146,7 @@ public class NodeTest extends TestCase {
 
      public void testNodeTypeText() throws XmlException {
            String sQuery1 = "$this//text()";
-        XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
+        XmlCursor c = XmlObject.Factory.parse( sXmlChild ).newCursor();
         String sExpected =" ";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
         c.selectPath(sQuery1);
@@ -157,7 +157,7 @@ public class NodeTest extends TestCase {
 
       public void testPI() throws XmlException {
 
-           XmlCursor c = Public2.getCursor(Public2.parse(sXmlPI));
+        XmlCursor c = XmlObject.Factory.parse( sXmlPI ).newCursor();
         String sExpected ="<?xml-stylesheet target=\"http://someuri\"?>";
          String sQuery="./foo/processing-instruction('xml-stylesheet')";
         c.selectPath(sQuery);
@@ -169,7 +169,7 @@ public class NodeTest extends TestCase {
 
     public void testPIDNE() throws XmlException {
 
-           XmlCursor c = Public2.getCursor(Public2.parse(sXmlPI));
+        XmlCursor c = XmlObject.Factory.parse( sXmlPI ).newCursor();
         String sQuery="./foo/processing-instruction('stylesheet')";
         c.selectPath(sQuery);
         assertEquals(0, c.getSelectionCount());
