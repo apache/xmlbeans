@@ -1403,12 +1403,19 @@ public class StscChecker
     }
 
     private static boolean checkAllDerivationsForRestriction(SchemaType baseType, SchemaType derivedType, Collection errors, XmlObject context) {
-
         boolean allDerivationsAreRestrictions = true;
         SchemaType currentType = derivedType;
+
+        // XMLBEANS-66: if baseType is a union, check restriction is of one of the constituant types
+        List possibleTypes;
+        if (baseType.getSimpleVariety() == SchemaType.UNION)
+            possibleTypes = Arrays.asList(baseType.getUnionConstituentTypes());
+        else
+            possibleTypes = Arrays.asList(new SchemaType[] { baseType });
+
         // run up the types hierarchy from derived Type to base Type and make sure that all are derived by
         //   restriction.  If any are not then this is not a valid restriction.
-        while (!baseType.equals(currentType)) {
+        while (!possibleTypes.contains(currentType)) {
             if (currentType.getDerivationType() == SchemaType.DT_RESTRICTION) {
                 currentType = currentType.getBaseType();
             } else {

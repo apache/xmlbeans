@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 
+<!-- XMLBEANS-57: colon at end of targetNamespace -->
 <xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
         xmlns:bar="barNS"
-        xmlns="dumbNS"
-        targetNamespace="dumbNS"
+        xmlns="dumbNS:::"
+        targetNamespace="dumbNS:::"
         elementFormDefault="qualified">
 
     <xs:import namespace="barNS" schemaLocation="sub/bar.xsd" />

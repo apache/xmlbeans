@@ -19,6 +19,7 @@ import xbean.scomp.derivation.elementRestriction.RestrictedEltT;
 import org.apache.xmlbeans.XmlObject;
 import org.apache.xmlbeans.XmlString;
 import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.XmlDecimal;
 import scomp.common.BaseCase;
 
 
@@ -60,11 +61,16 @@ public class ElementRestriction extends BaseCase {
         elt.setB(bValue);
         //c is of type xsd:token
         elt.setC("foobar:123");
+        //d is an xsd:integer
+        XmlDecimal dValue = XmlDecimal.Factory.newInstance();
+        dValue.setBigDecimalValue(new java.math.BigDecimal("3.5"));
+        elt.setD(dValue);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
         String[] errExpected = new String[]{
             XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$EXPECTED_DIFFERENT_ELEMENT,
-            XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_SIMPLE_TYPE,
+            XmlErrorCodes.ELEM_LOCALLY_VALID$FIXED_VALID_MIXED_CONTENT,
+            XmlErrorCodes.DATATYPE_FRACTION_DIGITS_VALID,
         };
                      assertTrue(compareErrorCodes(errExpected));
 
@@ -72,6 +78,7 @@ public class ElementRestriction extends BaseCase {
         elt.removeA(2);
         bValue.setStringValue("myval");
         elt.setB(bValue);
+        elt.setD(new Integer(3));
         assertEquals("myval",
                 ((XmlString)elt.getB()).getStringValue());
         try {

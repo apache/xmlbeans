@@ -3,12 +3,18 @@
     xmlns="http://xbean/scomp/derivation/ElementRestriction"
     targetNamespace="http://xbean/scomp/derivation/ElementRestriction"
     >
+
+   <xsd:simpleType name="uniontype">
+     <xsd:union memberTypes="xsd:integer xsd:decimal xsd:string xsd:double"/>
+   </xsd:simpleType>
+
    <!--Walmsley p.320-->
     <xsd:complexType name="baseT">
         <xsd:sequence>
             <xsd:element name="a" maxOccurs="3"/>
             <xsd:element name="b" fixed="myval"/>
             <xsd:element name="c" type="xsd:string"/>
+            <xsd:element name="d" type="uniontype"/>
         </xsd:sequence>
     </xsd:complexType>
 
@@ -19,11 +25,13 @@
                     <xsd:element name="a" maxOccurs="2"/>
                     <xsd:element name="b" fixed="myval"/>
                     <xsd:element name="c" type="xsd:token"/>
+                    <xsd:element name="d" type="xsd:integer"/>
                 </xsd:sequence>
             </xsd:restriction>
         </xsd:complexContent>
     </xsd:complexType>
 
     <xsd:element name="Element" type="RestrictedEltT"/>
+
 </xsd:schema>
 
