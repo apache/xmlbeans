@@ -150,7 +150,7 @@ public class ClassImpl extends MemberImpl implements EClass,
   }
 
   public String getFieldDescriptor() {
-    return mPackageName+"."+getSimpleName();
+    return getQualifiedName();
   }
 
   public JClass forName(String name) {
@@ -326,7 +326,7 @@ public class ClassImpl extends MemberImpl implements EClass,
   public void setIsAnnotationType(boolean b) { mIsAnnotationType = b; }
 
   public String getQualifiedName() {
-    return mPackageName+ '.' +getSimpleName();
+    return mPackageName+ '.' +mSimpleName;
   }
 
   // ========================================================================

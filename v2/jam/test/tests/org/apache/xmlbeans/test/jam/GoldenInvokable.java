@@ -140,16 +140,20 @@ public class GoldenInvokable {
 
 
   public void compare(JInvokable invk, boolean compareParamNames, Assert a) {
+    System.out.println("compare! "+invk.getSimpleName());
     a.assertTrue("invokable names are different",
                  invk.getSimpleName().equals(mName));
     a.assertTrue("modifiers are different on "+invk.getSimpleName()+
                  "["+invk.getModifiers()+","+mModifers+"]",
                  invk.getModifiers() == mModifers);
     {
+          System.out.println("compare! "+invk.getSimpleName());
       JParameter[] params = invk.getParameters();
       a.assertTrue("parameter lists are of different lengths",
                    params.length == mParamTypes.length);
+      System.out.println("compare! "+invk.getSimpleName());
       for(int i=0; i<params.length; i++) {
+        System.out.println("comparxxxxe! "+invk.getSimpleName());
         a.assertTrue("parameter type is different on "+invk.getSimpleName()+
                      "["+params[i].getType().getQualifiedName()+","+mParamTypes[i]+"]",
                      params[i].getType().getQualifiedName().equals(mParamTypes[i]));

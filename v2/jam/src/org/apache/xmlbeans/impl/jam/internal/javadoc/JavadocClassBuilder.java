@@ -18,12 +18,14 @@ import com.sun.javadoc.*;
 import org.apache.xmlbeans.impl.jam.annotation.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.editable.*;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
+import org.apache.xmlbeans.impl.jam.internal.JamServiceContextImpl;
 import org.apache.xmlbeans.impl.jam.provider.JamClassBuilder;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
 
@@ -37,6 +39,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
 
   private RootDoc mRootDoc = null;
   private JamServiceContext mServiceContext;
+  private boolean mIs15 = false;
 
   // ========================================================================
   // Constructors
@@ -60,8 +63,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
       return;
     }
     if (files == null || files.length == 0) {
-      ctx.debug("No files found.");
-      return;
+      throw new IllegalArgumentException("No source files in context.");
     }
     String sourcePath = (mServiceContext.getInputSourcepath() == null) ? null :
       mServiceContext.getInputSourcepath().toString();
@@ -69,11 +71,18 @@ public class JavadocClassBuilder extends JamClassBuilder {
       mServiceContext.getInputClasspath().toString();
     JavadocRunner jdr = new JavadocRunner();
     try {
-      jdr.run(files,
-              mServiceContext.getOut(),
-              sourcePath,
-              classPath,
-              null);//FIXME get javadoc args from param props
+      PrintWriter out = null;
+      if (((JamServiceContextImpl)mServiceContext).isVerbose()) {
+        out = new PrintWriter(System.out);
+      }
+      mRootDoc = jdr.run(files,
+                         out,
+                         sourcePath,
+                         classPath,
+                         null);//FIXME get javadoc args from param props
+      if (mRootDoc == null) {
+        ctx.debug("Javadoc returned a null root");//FIXME error
+      }
     } catch (FileNotFoundException e) {
       ctx.error(e);
     } catch (IOException e) {
@@ -150,17 +159,29 @@ public class JavadocClassBuilder extends JamClassBuilder {
     dest.setArtifact(src);
     dest.setSimpleName(src.name());
     dest.setType(src.typeName());
-    addAnnotations(dest, callGetAnnotations(src));
+    if (mIs15) addAnnotations(dest, callGetAnnotations(src));
   }
+
+  private void addSourcePosition(EElement dest, Doc src) {
+    SourcePosition jds = src.position();
+    if (jds == null) return;
+    ESourcePosition sp = dest.createSourcePosition();
+    sp.setColumn(jds.column());
+    sp.setLine(jds.line());
+    File f = jds.file();
+    if (f != null) sp.setSourceURI(f.toURI());
+  }
+
 
   private void addAnnotations(EAnnotatedElement dest, ProgramElementDoc src) {
     String comments = src.getRawCommentText();
     if (comments != null) dest.createComment().setText(comments);
-    addAnnotations(dest,callGetAnnotations(src));
+    if (mIs15) addAnnotations(dest,callGetAnnotations(src));
   }
 
   private void addAnnotations(EAnnotatedElement dest, Object[] descs) {
     if (descs == null) return;
+    if (!mIs15) return;
     for(int i=0; i<descs.length; i++) {
       EAnnotation ann =
         dest.addAnnotationForType(callGetAnnotationType(descs[i]).typeName());
@@ -175,15 +196,6 @@ public class JavadocClassBuilder extends JamClassBuilder {
     }
   }
 
-  private void addSourcePosition(EElement dest, Doc src) {
-    SourcePosition jds = src.position();
-    if (jds == null) return;
-    ESourcePosition sp = dest.createSourcePosition();
-    sp.setColumn(jds.column());
-    sp.setLine(jds.line());
-    File f = jds.file();
-    if (f != null) sp.setSourceURI(f.toURI());
-  }
 
   // ========================================================================
   // Goofy reflection stuff to keep us 1.4-safe
@@ -249,6 +261,7 @@ public class JavadocClassBuilder extends JamClassBuilder {
     } catch (ClassNotFoundException e) {
       mServiceContext.debug(e);
     }
+    mIs15 = true;
   }
 
   private Method getGetter(Class c, String name) {

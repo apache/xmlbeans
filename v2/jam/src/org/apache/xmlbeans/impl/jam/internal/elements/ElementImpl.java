@@ -47,7 +47,7 @@ public abstract class ElementImpl implements EElement {
   // Variables
 
   private ElementContext mContext;
-  private String mSimpleName;
+  protected String mSimpleName;
   private ESourcePosition mPosition = null;
   private Object mArtifact = null;
   private ElementImpl mParent;
@@ -57,6 +57,14 @@ public abstract class ElementImpl implements EElement {
 
   protected ElementImpl(ElementImpl parent) {
     if (parent == null) throw new IllegalArgumentException("null ctx");
+    if (parent == this) {
+      throw new IllegalArgumentException("An element cannot be its own parent");
+    }
+    JElement check = parent.getParent();
+    while(check != null) {
+      if (check == this) throw new IllegalArgumentException("cycle detected");
+      check = check.getParent();
+    };
     mContext = parent.getContext();
     mParent = parent;
   }
@@ -69,7 +77,7 @@ public abstract class ElementImpl implements EElement {
   // ========================================================================
   // JElement implementation
 
-  public JElement getParent() { return mParent; }
+  public final JElement getParent() { return mParent; }
 
   public String getSimpleName() { return mSimpleName; }
 

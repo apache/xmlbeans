@@ -27,6 +27,7 @@ import org.apache.xmlbeans.impl.jam.internal.javadoc.JavadocClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.parser.ParserClassBuilder;
 
 import java.io.IOException;
+import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -103,7 +104,7 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
   protected JamClassLoader createClassLoader(JamServiceContext ctx)
           throws IOException
   {
-    JamClassBuilder builder = createClassBuilder(ctx);
+    JamClassBuilder builder = createBuilder(ctx);
     return new JamClassLoaderImpl((ElementContext)ctx,//eww
       builder,ctx.getInitializer());
   }
@@ -114,18 +115,24 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
    * It usually includes the system classbuilders and always contains the
    * builtin classbuilder.</b>
    */
-  protected JamClassBuilder createClassBuilder(JamServiceContext ctx) {
+  protected JamClassBuilder createBuilder(JamServiceContext ctx)
+    throws IOException
+
+  {
     List builders = new ArrayList();  // make a list of the builders we want
     JamClassBuilder b = createSourceBuilder(ctx);
     if (b != null) builders.add(b);   // prefer first source
-    b = createClassBuilder(ctx);
-    if (b != null) builders.add(b);   // then custom classpath
+    b = createClassfileBuilder(ctx);  // then custom classpath
+    if (b != null) builders.add(b);
     if (ctx.isUseSystemClasspath()) { // then system classpath
       builders.add(ReflectingClassBuilder.getSystemClassBuilder());
     }
     JamClassBuilder[] barray = new JamClassBuilder[builders.size()];
     builders.toArray(barray);
-    return new CompositeJamClassBuilder(barray);
+    JamClassBuilder out = new CompositeJamClassBuilder(barray);
+    out.init((ElementContext)ctx);
+    return out;
+
   }
 
 
@@ -134,7 +141,11 @@ public class JamServiceFactoryImpl extends JamServiceFactory {
    * If no source files or paths are specified in the context,
    * just returns null.</p>
    */
-  protected JamClassBuilder createSourceBuilder(JamServiceContext ctx) {
+  protected JamClassBuilder createSourceBuilder(JamServiceContext ctx)
+    throws IOException
+  {
+    File[] sources = ctx.getSourceFiles();
+    if (sources == null || sources.length == 0) return null;
     if(ctx.getProperty(USE_NEW_PARSER) == null) {
       return new JavadocClassBuilder(ctx);
     } else {

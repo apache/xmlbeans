@@ -39,7 +39,7 @@ public class ParameterImpl extends MemberImpl implements EParameter {
   // Constructors
 
   /*package*/ ParameterImpl(String simpleName,
-                            MemberImpl containingMember,
+                            InvokableImpl containingMember,
                             String typeName)
   {
     super(containingMember);

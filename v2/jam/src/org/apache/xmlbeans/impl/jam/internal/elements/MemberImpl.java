@@ -16,6 +16,8 @@
 package org.apache.xmlbeans.impl.jam.internal.elements;
 
 import org.apache.xmlbeans.impl.jam.JClass;
+import org.apache.xmlbeans.impl.jam.JMember;
+import org.apache.xmlbeans.impl.jam.JElement;
 import org.apache.xmlbeans.impl.jam.editable.EMember;
 
 import java.lang.reflect.Modifier;
@@ -47,7 +49,11 @@ public abstract class MemberImpl extends AnnotatedElementImpl implements EMember
   // JMember implementation
 
   public JClass getContainingClass() {
-    if (getParent() instanceof JClass) return (JClass)getParent();
+    System.out.println("--------cont class in Memberiml "+this.getClass());
+    JElement p = getParent();
+    //FIXME very gross
+    if (p instanceof JClass) return (JClass)p;
+    if (p instanceof JMember) return ((JMember)p).getContainingClass();
     return null;
   }
 

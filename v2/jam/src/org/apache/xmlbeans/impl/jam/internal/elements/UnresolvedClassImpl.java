@@ -40,7 +40,7 @@ public final class UnresolvedClassImpl extends BuiltinClassImpl {
     super(ctx);
     if (packageName == null) throw new IllegalArgumentException("null pkg");
     mPackageName = packageName;
-    setSimpleName(simpleName);
+    reallySetSimpleName(simpleName);
   }
 
   // ========================================================================

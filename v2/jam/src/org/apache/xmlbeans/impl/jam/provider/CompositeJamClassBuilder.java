@@ -15,6 +15,7 @@
 package org.apache.xmlbeans.impl.jam.provider;
 
 import org.apache.xmlbeans.impl.jam.editable.EClass;
+import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 
 /**
  * <p>Composite implementation of JamClassBuilder.  When building,
@@ -39,6 +40,10 @@ public class CompositeJamClassBuilder extends JamClassBuilder {
 
   // ========================================================================
   // JamClassBuilder implementation
+
+  public void init(ElementContext ctx) {
+    for(int i=0; i<mBuilders.length; i++) mBuilders[i].init(ctx);
+  }
 
   public EClass build(String pkg, String cname) {
     EClass out = null;

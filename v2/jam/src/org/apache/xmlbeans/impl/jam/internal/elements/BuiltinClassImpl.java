@@ -55,9 +55,9 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
     visitAnnotations(visitor);
   }
 
-  public String getQualifiedName() { return getSimpleName(); }
+  public String getQualifiedName() { return mSimpleName; }
 
-  public String getFieldDescriptor() { return getSimpleName(); }
+  public String getFieldDescriptor() { return mSimpleName; }
 
   // ========================================================================
   // JMember implementation
@@ -151,6 +151,13 @@ public abstract class BuiltinClassImpl extends AnnotatedElementImpl
   }
 
   public int hashCode() { return getFieldDescriptor().hashCode(); }
+
+  // ========================================================================
+  // Protected methods
+
+  protected void reallySetSimpleName(String name) {
+    super.setSimpleName(name);
+  }
 
   // ========================================================================
   // Private methods
