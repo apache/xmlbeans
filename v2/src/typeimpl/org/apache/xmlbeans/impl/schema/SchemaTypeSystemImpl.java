@@ -75,6 +75,8 @@ import org.w3.x2001.xmlSchema.AppinfoDocument;
 import org.w3.x2001.xmlSchema.DocumentationDocument;
 import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 
+import repackage.Repackager;
+
 public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements SchemaTypeSystem
 {
     public static final int DATA_BABE = 0xDA7ABABE;
@@ -377,12 +379,18 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     {
         String indexClassName = SchemaTypeCodePrinter.indexClassForSystem(this);
         String[] replace = makeClassStrings(indexClassName);
+        assert replace.length == HOLDER_TEMPLATE_NAMES.length;
 
         InputStream is = null;
         OutputStream os = null;
 
         DataInputStream in = null;
         DataOutputStream out = null;
+
+        Repackager repackager = null;
+        if (_filer instanceof FilerImpl)
+            repackager = ((FilerImpl)_filer).getRepackager();
+
         try
         {
             is = SchemaTypeSystemImpl.class.getResourceAsStream(HOLDER_TEMPLATE_CLASSFILE);
@@ -413,17 +421,7 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
                 {
                     case CONSTANT_UTF8:
                         String value = in.readUTF();
-                        int j = 0;
-                        inner: for (; j < HOLDER_TEMPLATE_NAMES.length; j++)
-                        {
-                            if (HOLDER_TEMPLATE_NAMES[j].equals(value))
-                            {
-                                out.writeUTF(replace[j]);
-                                break inner;
-                            }
-                        }
-                        if (j == HOLDER_TEMPLATE_NAMES.length)
-                            out.writeUTF(value);
+                        out.writeUTF(repackageConstant(value, replace, repackager));
                         break;
 
                     case CONSTANT_CLASS:
@@ -497,6 +495,18 @@ public class SchemaTypeSystemImpl extends SchemaTypeLoaderBase implements Schema
     private static final int CONSTANT_INTERFACEMETHOD = 11;
     private static final int CONSTANT_NAMEANDTYPE = 12;
 
+
+    private static String repackageConstant(String value, String[] replace, Repackager repackager)
+    {
+        for (int i = 0; i < HOLDER_TEMPLATE_NAMES.length; i++)
+            if (HOLDER_TEMPLATE_NAMES[i].equals(value))
+                return replace[i];
+
+        if (repackager != null)
+            return repackager.repackage(new StringBuffer(value)).toString();
+
+        return value;
+    }
 
     /**
      * Construct an array of Strings found in a class file for a classname.
