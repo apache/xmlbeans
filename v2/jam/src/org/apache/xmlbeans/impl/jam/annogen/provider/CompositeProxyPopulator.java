@@ -17,17 +17,17 @@ package org.apache.xmlbeans.impl.jam.annogen.provider;
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class CompositeAnnoPopulator extends AnnotationPopulator {
+public class CompositeProxyPopulator implements ProxyPopulator {
 
   // ========================================================================
   // Variables
 
-  private AnnotationPopulator[] mPops;
+  private ProxyPopulator[] mPops;
 
   // ========================================================================
   // Constructors
 
-  public CompositeAnnoPopulator(AnnotationPopulator[] pops) {
+  public CompositeProxyPopulator(ProxyPopulator[] pops) {
     if (pops == null) throw new IllegalArgumentException("null pops");
     mPops = pops;
   }
@@ -42,9 +42,9 @@ public class CompositeAnnoPopulator extends AnnotationPopulator {
     return false;
   }
 
-  public void populateAnnotation(ElementId id,
-                                 Class annoType,
-                                 ValueSetter builder) {
-    for(int i=0; i<mPops.length; i++) mPops[i].populateAnnotation(id,annoType,builder);
+  public void populateProxy(ElementId id,
+                            Class annoType,
+                            AnnotationProxy proxy) {
+    for(int i=0; i<mPops.length; i++) mPops[i].populateProxy(id,annoType,proxy);
   }
 }

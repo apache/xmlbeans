@@ -98,6 +98,7 @@ public class SourceJavaOutputStream
   private StringWriter mImportBuffer = null;
   private PrintWriter mCommentPrinter = null;
   private PrintWriter mImportPrinter = null;
+  private boolean mVerbose = false;
 
   // ========================================================================
   // Constructors
@@ -123,6 +124,7 @@ public class SourceJavaOutputStream
   public void setLogger(JamLogger bl) {
     if (bl == null) throw new IllegalArgumentException("null logging");
     mLogger = bl;
+    mVerbose = bl.isVerbose(this);
   }
 
   // ========================================================================
@@ -160,7 +162,9 @@ public class SourceJavaOutputStream
           throws IOException {
     checkStateForWrite();
     printCommentsIfNeeded();
-    mLogger.verbose("startClass "+mPackageName+"."+mClassOrInterfaceName);
+    if (mVerbose) {
+      mLogger.verbose("startClass "+mPackageName+"."+mClassOrInterfaceName);
+    }
     extendsClassName = makeI18nSafe(extendsClassName);
     mOut.println("package " + mPackageName + ";");
     mOut.println();
@@ -189,7 +193,9 @@ public class SourceJavaOutputStream
 
   public void startInterface(String[] extendsInterfaceNames)
           throws IOException {
-    mLogger.verbose("startInterface "+mPackageName+"."+mClassOrInterfaceName);
+    if (mVerbose) {
+      mLogger.verbose("startInterface "+mPackageName+"."+mClassOrInterfaceName);
+    }
     checkStateForWrite();
     printCommentsIfNeeded();
     mPackageName = makeI18nSafe(mPackageName);
@@ -216,7 +222,9 @@ public class SourceJavaOutputStream
                              String typeName,
                              String fieldName,
                              Expression defaultValue) throws IOException {
-    mLogger.verbose("writeField "+typeName+" "+fieldName);
+    if (mVerbose) {
+      mLogger.verbose("writeField "+typeName+" "+fieldName);
+    }
     checkStateForWrite();
     printCommentsIfNeeded();
     printIndents();
@@ -252,7 +260,9 @@ public class SourceJavaOutputStream
                                 String[] paramNames,
                                 String[] exceptionClassNames)
           throws IOException {
-    mLogger.verbose("startMethod "+methodName);
+    if (mVerbose) {
+      mLogger.verbose("startMethod "+methodName);
+    }
     checkStateForWrite();
     printCommentsIfNeeded();
     methodName = makeI18nSafe(methodName);
@@ -294,7 +304,7 @@ public class SourceJavaOutputStream
   }
 
   public void writeComment(String comment) throws IOException {
-    mLogger.verbose("comment");
+    if (mVerbose)  mLogger.verbose("comment");
     getCommentPrinter().println(comment);
   }
 
@@ -334,7 +344,7 @@ public class SourceJavaOutputStream
   }
 
   public void writeReturnStatement(Expression expression) throws IOException {
-    mLogger.verbose("return");
+    if (mVerbose) mLogger.verbose("return");
     checkStateForWrite();
     printCommentsIfNeeded();
     printIndents();

@@ -14,49 +14,35 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal;
 
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.annogen.tools.Annogen;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ValueSetter;
 
-import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 /**
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class DefaultValueSetter implements ValueSetter {
+public /*abstract*/ class AnnotationProxyBase implements AnnotationProxy {
 
   // ========================================================================
-  // Variables
+  // AnnotationProxy implementation
 
-  private Object mTargetAnno;
-
-  // ========================================================================
-  // Constructors
-
-  public DefaultValueSetter(Object targetAnno) {
-    mTargetAnno = targetAnno;
-  }
-
-  // ========================================================================
-  // TargetAnnotation implementation
-
+  /**
+   * Just try to set the value via reflection.
+   */ 
   public void setValue(String valueName, Object value)
+    throws IllegalAccessException, InvocationTargetException
   {
     Class[] sig = new Class[] {value.getClass()};
     Method setter = null;
     try {
-      setter = mTargetAnno.getClass().
+      setter = this.getClass().
             getMethod(Annogen.SETTER_PREFIX + valueName, sig);
     } catch (NoSuchMethodException e) {
       e.printStackTrace();  //FIXME log this
       return;
     }
-    try {
-      setter.invoke(mTargetAnno, new Object[]{value});
-    } catch (IllegalAccessException e) {
-      e.printStackTrace();  //FIXME log this
-    } catch (InvocationTargetException e) {
-      e.printStackTrace();  //FIXME log this
-    }
+    setter.invoke(this, new Object[]{value});
   }
 }

@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 import org.apache.xmlbeans.impl.jam.annogen.AnnotationServiceParams;
 
 import java.io.Reader;
@@ -51,19 +51,19 @@ public class AnnotationServiceParamsImpl implements AnnotationServiceParams {
     // addNewPopulator(new XmlPopulator(in));
   }
 
-  public void insertPopulator(AnnotationPopulator pop) {
+  public void insertPopulator(ProxyPopulator pop) {
     mPopulators.addFirst(pop);
   }
 
-  public void appendPopulator(AnnotationPopulator pop) {
+  public void appendPopulator(ProxyPopulator pop) {
     mPopulators.addLast(pop);
   }
 
   // ========================================================================
   // Pacakge methods
 
-  /*package*/ AnnotationPopulator[] getPopulators() {
-    AnnotationPopulator[] out = new AnnotationPopulator[mPopulators.size()];
+  /*package*/ ProxyPopulator[] getPopulators() {
+    ProxyPopulator[] out = new ProxyPopulator[mPopulators.size()];
     mPopulators.toArray(out);
     return out;
   }

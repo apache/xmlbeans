@@ -17,8 +17,8 @@ package org.apache.xmlbeans.impl.jam.annogen.internal;
 import org.apache.xmlbeans.impl.jam.annogen.tools.Annogen;
 import org.apache.xmlbeans.impl.jam.annogen.AnnotationService;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
-import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationPopulator;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ValueSetter;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
 import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
 
 import java.util.HashMap;
@@ -35,7 +35,7 @@ public class BaseAnnotationService implements AnnotationService {
   // ========================================================================
   // Variables
 
-  private AnnotationPopulator mPopulator;
+  private ProxyPopulator mPopulator;
   private Map mCache = new HashMap();
   private ReflectElementIdFactory mReflectIdFactory =
     ReflectElementIdFactory.getInstance();
@@ -43,7 +43,7 @@ public class BaseAnnotationService implements AnnotationService {
   // ========================================================================
   // Constructors
 
-  public BaseAnnotationService(AnnotationPopulator pop) {
+  public BaseAnnotationService(ProxyPopulator pop) {
     if (pop == null) throw new IllegalArgumentException("null pop");
     mPopulator = pop;
   }
@@ -87,17 +87,16 @@ public class BaseAnnotationService implements AnnotationService {
 
   public Object getAnnotation(Class annoType, ElementId id) {
     if (!mPopulator.hasAnnotation(id,annoType)) return null;
-    Object out = getCachedAnnotationFor(id,annoType);
+    AnnotationProxy out = getCachedProxyFor(id,annoType);
     if (out != null) return out;
     try {
-      out = createAnnotationFor(annoType);
+      out = createProxyFor(annoType);
     } catch(Exception e) {
       e.printStackTrace(); //FIXME
       return null;
     }
     if (out == null) return null;
-    ValueSetter vs = new DefaultValueSetter(out);
-    mPopulator.populateAnnotation(id,annoType,vs);
+    mPopulator.populateProxy(id,annoType,out);
     return out;
   }
 
@@ -108,21 +107,21 @@ public class BaseAnnotationService implements AnnotationService {
   // let them extend and override this method, or might be worth exposing
   // an 'AnnotationInstanceFactory' interface for them to implement.
 
-  protected Object createAnnotationFor(Class annoType)
+  protected AnnotationProxy createProxyFor(Class annoType)
     throws ClassNotFoundException, InstantiationException,
            IllegalAccessException
   {
     String implName = Annogen.getImplClassFor(annoType);
     Class annoImpl = annoType.getClassLoader().loadClass(implName);
-    return annoImpl.newInstance();
+    return (AnnotationProxy)annoImpl.newInstance();
   }
 
 
   // ========================================================================
   // Private methods
 
-  private Object getCachedAnnotationFor(ElementId id, Class annoType) {
-    return mCache.get(getCacheKey(id,annoType));
+  private AnnotationProxy getCachedProxyFor(ElementId id, Class annoType) {
+    return (AnnotationProxy)mCache.get(getCacheKey(id,annoType));
   }
 
   private String getCacheKey(ElementId id, Class annoType) {

@@ -14,7 +14,7 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,8 +32,8 @@ public interface AnnotationServiceParams {
 
   public void addXmlOverrides(Reader in);
 
-  public void insertPopulator(AnnotationPopulator pop);
+  public void insertPopulator(ProxyPopulator pop);
 
-  public void appendPopulator(AnnotationPopulator pop);
+  public void appendPopulator(ProxyPopulator pop);
 
 }
