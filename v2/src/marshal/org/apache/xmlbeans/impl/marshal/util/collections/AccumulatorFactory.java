@@ -109,6 +109,7 @@ public final class AccumulatorFactory
                                                 int initial_capacity)
     {
         if (container_type.isArray()) {
+            assert (container_type.getComponentType().isAssignableFrom(component_type));
             return createAccumulator(component_type, initial_capacity);
         } else if (java.util.Collection.class.isAssignableFrom(container_type)) {
             return createCollectionAccumulator(container_type,

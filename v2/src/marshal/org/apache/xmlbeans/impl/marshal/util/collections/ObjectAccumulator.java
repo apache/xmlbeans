@@ -73,7 +73,11 @@ public abstract class ObjectAccumulator
                              int initial_capacity,
                              boolean return_collection)
     {
-        assert (!component_type.isPrimitive());
+        if (!return_collection) {
+            if (component_type.isPrimitive()) {
+                throw new AssertionError("odd: " + component_type);
+            }
+        }
 
         componentType = component_type;
         returnCollectionForArray = return_collection;
@@ -96,11 +100,11 @@ public abstract class ObjectAccumulator
 
     public void append(Object o)
     {
-        if (o != null && !componentType.isAssignableFrom(o.getClass())) {
-            String msg = "Invalid type: " + o.getClass().getName() +
-                " expecting: " + componentType.getName();
-            throw new IllegalArgumentException(msg);
-        }
+//        if (o != null && !componentType.isAssignableFrom(o.getClass())) {
+//            String msg = "Invalid type: " + o.getClass().getName() +
+//                " expecting: " + componentType.getName();
+//            throw new IllegalArgumentException(msg);
+//        }
 
         store.add(o);
     }

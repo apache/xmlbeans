@@ -63,6 +63,9 @@ import org.apache.xmlbeans.impl.binding.bts.BindingType;
 import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
 import org.apache.xmlbeans.impl.binding.bts.JavaName;
 import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.marshal.util.collections.Accumulator;
+import org.apache.xmlbeans.impl.marshal.util.collections.AccumulatorFactory;
 
 import javax.xml.namespace.QName;
 import java.lang.reflect.InvocationTargetException;
@@ -76,6 +79,7 @@ final class ByNameRuntimeBindingType
     private final ByNameBean byNameBean;
     private final Property[] properties;
     private final Class javaClass;
+    private final boolean hasMulti;  //has any multi properties
 
     ByNameRuntimeBindingType(ByNameBean btype)
     {
@@ -89,6 +93,17 @@ final class ByNameRuntimeBindingType
         }
 
         properties = new Property[btype.getProperties().size()];
+        hasMulti = hasMulti(btype);
+    }
+
+    private static boolean hasMulti(ByNameBean btype)
+    {
+        for (Iterator itr = btype.getProperties().iterator(); itr.hasNext();) {
+            QNameProperty bprop = (QNameProperty)itr.next();
+            if (bprop.isMultiple())
+                return true;
+        }
+        return false;
     }
 
     //prepare internal data structures for use
@@ -98,14 +113,29 @@ final class ByNameRuntimeBindingType
         int idx = 0;
         for (Iterator itr = byNameBean.getProperties().iterator(); itr.hasNext();) {
             QNameProperty bprop = (QNameProperty)itr.next();
-            Property prop = new Property(javaClass, bprop, typeTable, loader);
+            Property prop = new Property(idx, javaClass, hasMulti, bprop, typeTable, loader);
             properties[idx++] = prop;
         }
     }
 
     Object createIntermediary(UnmarshalContextImpl context)
     {
-        return ClassLoadingUtils.newInstance(javaClass);
+        if (hasMulti) {
+            return new UResultHolder(this);
+        } else {
+            return ClassLoadingUtils.newInstance(javaClass);
+        }
+    }
+
+    Object getFinalObjectFromIntermediary(Object retval,
+                                          UnmarshalContextImpl context)
+    {
+        if (hasMulti) {
+            UResultHolder rh = (UResultHolder)retval;
+            return rh.getFinalValue();
+        } else {
+            return retval;
+        }
     }
 
     private static Class getJavaClass(BindingType btype, ClassLoader backup)
@@ -116,11 +146,6 @@ final class ByNameRuntimeBindingType
         return ClassLoadingUtils.loadClass(jclass, backup);
     }
 
-    Object getFinalObjectFromIntermediary(Object retval,
-                                                 UnmarshalContextImpl context)
-    {
-        return retval;
-    }
 
     RuntimeBindingProperty getProperty(int index)
     {
@@ -169,30 +194,38 @@ final class ByNameRuntimeBindingType
 
     private static final class Property implements RuntimeBindingProperty
     {
+        private final int propertyIndex;
         private final Class beanClass;
+        private final boolean beanHasMulti;          //consider a subclass
         private final QNameProperty bindingProperty;
         private final BindingType bindingType;
+        private final Class propertyClass;
+        private final Class collectionElementClass; //null for non collections
         private final TypeUnmarshaller unmarshaller;
         private final TypeMarshaller marshaller; // used only for simple types
         private final Method getMethod;
         private final Method setMethod;
         private final boolean javaPrimitive;
+
         private static final Object[] EMPTY_OBJECT_ARRAY = new Object[]{};
         private static final Class[] EMPTY_CLASS_ARRAY = new Class[]{};
 
-        Property(Class beanClass,
+        Property(int property_index,
+                 Class beanClass,
+                 boolean bean_has_multis,
                  QNameProperty prop,
                  RuntimeBindingTypeTable typeTable,
                  BindingLoader loader)
         {
+            this.propertyIndex = property_index;
             this.beanClass = beanClass;
+            this.beanHasMulti = bean_has_multis;
             this.bindingProperty = prop;
             this.unmarshaller = lookupUnmarshaller(prop, typeTable, loader);
             this.marshaller = lookupMarshaller(prop, typeTable, loader);
             this.bindingType = loader.getBindingType(prop.getTypeName());
-
-            final Class propertyClass = getPropertyClass(prop, bindingType);
-
+            propertyClass = getPropertyClass(prop, bindingType);
+            collectionElementClass = getCollectionElementClass(prop, bindingType);
             getMethod = getGetterMethod(prop, beanClass);
             setMethod = getSetterMethod(prop, beanClass, propertyClass);
             javaPrimitive = propertyClass.isPrimitive();
@@ -223,6 +256,29 @@ final class ByNameRuntimeBindingType
         }
 
 
+        private Class getCollectionElementClass(QNameProperty prop,
+                                                BindingType btype)
+        {
+            assert btype != null;
+
+            try {
+                final JavaName collectionClass = prop.getCollectionClass();
+
+                if (collectionClass == null) {
+                    return null;
+                } else {
+                    final ClassLoader our_cl = getClass().getClassLoader();
+                    return getJavaClass(btype, our_cl);
+                }
+            }
+            catch (ClassNotFoundException ex) {
+                final String s = "error loading " +
+                    btype.getName().getJavaName();
+                throw (RuntimeException)(new RuntimeException(s).initCause(ex));
+            }
+        }
+
+
         public BindingType getType()
         {
             return bindingType;
@@ -237,11 +293,20 @@ final class ByNameRuntimeBindingType
                                                     RuntimeBindingTypeTable typeTable,
                                                     BindingLoader bindingLoader)
         {
-            final BindingType bindingType =
-                bindingLoader.getBindingType(prop.getTypeName());
-            TypeUnmarshaller um = typeTable.getTypeUnmarshaller(bindingType);
+            assert prop != null;
+            final BindingTypeName type_name = prop.getTypeName();
+            assert type_name != null;
+            final BindingType binding_type =
+                bindingLoader.getBindingType(type_name);
+            if (binding_type == null) {
+                throw new XmlRuntimeException("failed to load type: " +
+                                              type_name);
+            }
+
+            TypeUnmarshaller um = typeTable.getTypeUnmarshaller(binding_type);
             if (um == null) {
-                throw new AssertionError("failed to get unmarshaller for " + prop);
+                throw new AssertionError("failed to get unmarshaller for " +
+                                         type_name);
             }
             return um;
         }
@@ -270,7 +335,7 @@ final class ByNameRuntimeBindingType
             return unmarshaller;
         }
 
-        public void fill(Object inter, Object prop_obj)
+        public void fill(final Object inter, final Object prop_obj)
         {
             //means xsi:nil was true but we're a primtive.
             //schema should have nillable="false" so this
@@ -278,6 +343,33 @@ final class ByNameRuntimeBindingType
             if (prop_obj == null && javaPrimitive)
                 return;
 
+            try {
+                if (beanHasMulti) {
+                    final UResultHolder rh = (UResultHolder)inter;
+
+                    if (isMultiple()) {
+                        rh.addItem(propertyIndex, prop_obj);
+                    } else {
+                        setMethod.invoke(rh.getValue(), new Object[]{prop_obj});
+                    }
+                } else {
+                    setMethod.invoke(inter, new Object[]{prop_obj});
+                }
+            }
+            catch (SecurityException e) {
+                throw new XmlRuntimeException(e);
+            }
+            catch (IllegalAccessException e) {
+                throw new XmlRuntimeException(e);
+            }
+            catch (InvocationTargetException e) {
+                throw new XmlRuntimeException(e);
+            }
+        }
+
+        public void fillCollection(final Object inter, final Object prop_obj)
+        {
+            assert isMultiple();
             try {
                 setMethod.invoke(inter, new Object[]{prop_obj});
             }
@@ -387,5 +479,64 @@ final class ByNameRuntimeBindingType
         }
 
     }
+
+
+    static final class UResultHolder
+    {
+        private final ByNameRuntimeBindingType runtimeBindingType;
+        private final Object value;
+        private Accumulator[] accumulators;
+
+        UResultHolder(ByNameRuntimeBindingType type)
+        {
+            runtimeBindingType = type;
+            value = ClassLoadingUtils.newInstance(type.javaClass);
+        }
+
+
+        Object getFinalValue()
+        {
+            if (accumulators != null) {
+                final Property[] props = runtimeBindingType.properties;
+                for (int i = 0, len = accumulators.length; i < len; i++) {
+                    final Accumulator accum = accumulators[i];
+                    if (accum != null) {
+                        final Property prop = props[i];
+                        prop.fillCollection(value, accum.getFinalArray());
+                    }
+                }
+            }
+            return value;
+        }
+
+        void addItem(int property_index, Object value)
+        {
+            initAccumulator(property_index);
+            accumulators[property_index].append(value);
+        }
+
+        private void initAccumulator(int property_index)
+        {
+            Accumulator[] accs = accumulators;
+            if (accs == null) {
+                accs = new Accumulator[runtimeBindingType.getPropertyCount()];
+                accumulators = accs;
+            }
+            if (accs[property_index] == null) {
+                final Property p = runtimeBindingType.properties[property_index];
+                accs[property_index] =
+                    AccumulatorFactory.createAccumulator(p.propertyClass,
+                                                         p.collectionElementClass);
+            }
+        }
+
+        public Object getValue()
+        {
+            return value;
+        }
+
+
+    }
+
 
 }

@@ -54,112 +54,31 @@
 * Foundation, please see <http://www.apache.org/>.
 */
 
-package org.apache.xmlbeans.impl.marshal.util.collections;
+package org.apache.xmlbeans.impl.marshal.util;
 
-/**
- minimal, simplisitic typesafe version of ArrayList for Strings
- wraps String[]
+import java.lang.reflect.Array;
 
- not syncronized.
- */
-
-
-public final class StringList
-    implements Accumulator
+public class ArrayUtils
 {
-    private String[] store;
-    private int size = 0;
 
-
-    public StringList()
+    public static String arrayToString(Object array)
     {
-        this(Accumulator.DEFAULT_INITIAL_CAPACITY);
-    }
+        if (array == null) return "null";
+        if (!array.getClass().isArray()) return array.toString();
 
-    public StringList(int initial_capacity)
-    {
-        store = new String[initial_capacity];
-    }
+        StringBuffer buf = new StringBuffer();
+        buf.append("[");
 
-    /**
-     get array used as backing store.  do not modify this array.
-     effeciency wins here vs. safety.
-     */
-    public String[] getStore()
-    {
-        return store;
-    }
-
-    public Object getFinalArray()
-    {
-        return getMinSizedArray();
-    }
-
-    /**
-     get a new array just large enough to hold the items
-     */
-    public String[] getMinSizedArray()
-    {
-        String[] new_a = new String[size];
-        System.arraycopy(store, 0, new_a, 0, size);
-        //if (DEBUG) Debug.say("getMinSizedArray size="+size);
-        return new_a;
-    }
-
-    public int getCapacity()
-    {
-        return store.length;
-    }
-
-    public int getSize()
-    {
-        return size;
-    }
-
-    public void append(Object o)
-    {
-        assert (o instanceof String);
-        add((String)o);
-    }
-
-    /**
-     * Appends the specified element to the end of this list.
-     *
-     * @param i element to be appended to this list.
-     */
-    public void add(String i)
-    {
-        ensureCapacity(size + 1);
-        store[size++] = i;
-    }
-
-    public String get(int idx)
-    {
-        //let array do range checking.
-        return store[idx];
-    }
-
-
-    /**
-     * Increases the capacity of this <tt>StringList</tt> instance, if
-     * necessary, to ensure  that it can hold at least the number of elements
-     * specified by the minimum capacity argument.
-     *
-     * @param   minCapacity   the desired minimum capacity.
-     */
-    public void ensureCapacity(int minCapacity)
-    {
-        int oldCapacity = store.length;
-        if (minCapacity > oldCapacity) {
-            String oldData[] = store;
-            int newCapacity = (oldCapacity * 2) + 1;
-            if (newCapacity < minCapacity)
-                newCapacity = minCapacity;
-            store = new String[newCapacity];
-            System.arraycopy(oldData, 0, store, 0, size);
+        final int lim = -1 + Array.getLength(array);
+        for (int i = 0; i <= lim; i++) {
+            Object o = Array.get(array, i);
+            buf.append((o == array) ? "(this Array)" : arrayToString(o));
+            if (i < lim)
+                buf.append(", ");
         }
-    }
 
+        buf.append("]");
+        return buf.toString();
+    }
 
 }
-

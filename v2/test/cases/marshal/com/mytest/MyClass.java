@@ -7,7 +7,7 @@ public class MyClass {
 
 
     private YourClass myelt;
-    private String myatt = "DEFAULT:"+System.currentTimeMillis();
+    private String myatt = "DEFAULT:"+YourClass.RND.nextInt();
 
 
     public YourClass getMyelt()

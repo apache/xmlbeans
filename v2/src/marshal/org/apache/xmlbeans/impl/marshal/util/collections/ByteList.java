@@ -151,7 +151,7 @@ public final class ByteList
         int oldCapacity = store.length;
         if (minCapacity > oldCapacity) {
             byte oldData[] = store;
-            int newCapacity = (oldCapacity * 3) / 2 + 1;
+            int newCapacity = (oldCapacity * 2) + 1;
             if (newCapacity < minCapacity)
                 newCapacity = minCapacity;
             store = new byte[newCapacity];

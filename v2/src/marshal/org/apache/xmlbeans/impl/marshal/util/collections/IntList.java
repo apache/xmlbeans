@@ -150,7 +150,7 @@ public final class IntList
         int oldCapacity = store.length;
         if (minCapacity > oldCapacity) {
             int oldData[] = store;
-            int newCapacity = (oldCapacity * 3) / 2 + 1;
+            int newCapacity = (oldCapacity * 2) + 1;
             if (newCapacity < minCapacity)
                 newCapacity = minCapacity;
             store = new int[newCapacity];
