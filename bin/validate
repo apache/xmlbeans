@@ -4,13 +4,9 @@
 #
 # Validates an instance against a schema.
 
-CP=
-if [ -f $XMLBEANS_HOME/build/ar/xbean.jar ];
-then
-CP=$CP:$XMLBEANS_HOME/build/ar/xbean.jar:$XMLBEANS_HOME/build/lib/jsr173_api.jar
-else
-CP=$CP:$XMLBEANS_HOME/lib/xbean.jar:$XMLBEANS_HOME/lib/jsr173_api.jar
-fi
+if [ -z $XMLBEANS_LIB ]; then . `dirname $0`/_setlib; fi
+
+CP=$XMLBEANS_LIB/xbean.jar:$XMLBEANS_LIB/jsr173_api.jar
 
 case "`uname`" in
     CYGWIN*)
