@@ -56,10 +56,6 @@ public class MaxMemUntypedBisLoadV2
     catch (OutOfMemoryError oom)
     {
     	System.gc();
-    }
-    finally
-    {
-    	System.gc();
         System.out.print(Constants.DELIM+test.getClass().getSimpleName()+" flavor="+flavor+" ");
         System.out.print("hash "+hash+" ");
         System.out.print("memory "+memory+" ");

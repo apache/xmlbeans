@@ -83,15 +83,17 @@ public class PerfUtil
       }
       buff.append(rootEnd);
     }
-    //System.out.println("num chars: "+buff.length());
+    //System.out.println("num chars:"+buff.length());
     return buff.toString().toCharArray();
   }
 
   public byte[] createXmlDataBytes(String flavor, int size)
   {
-    char[] chars = this.createXmlData(flavor,size);
-    String sXml = new String(chars);
-    return sXml.getBytes();
+    char[] chars = createXmlData(flavor,size);
+    //System.gc();
+    StringBuffer buff = new StringBuffer(chars.length);
+    buff.append(chars);
+    return buff.toString().getBytes();
   }
 
 
