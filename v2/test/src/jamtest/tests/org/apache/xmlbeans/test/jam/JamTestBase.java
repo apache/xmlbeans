@@ -212,8 +212,8 @@ public abstract class JamTestBase extends TestCase {
    */
   public void testFooImplMethods() {
     JClass fooImpl = resolved(mLoader.loadClass(DUMMY+".FooImpl"));
-    GoldenMethod[] methods = GoldenMethod.createArray(FOOIMPL_METHODS);
-    GoldenMethod.doComparison(fooImpl.getDeclaredMethods(),
+    GoldenInvokable[] methods = GoldenInvokable.createArray(FOOIMPL_METHODS);
+    GoldenInvokable.doComparison(fooImpl.getDeclaredMethods(),
                               methods,isParameterNamesKnown(),this);
   }
 

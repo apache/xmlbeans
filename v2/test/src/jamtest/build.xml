@@ -10,10 +10,8 @@
 
   <path id='classpath' >
 
- <!-- prefer build/classes to jar just for develpment convenience -->
-    <pathelement path='../../../build/classes' />
-
-    <pathelement path='../../../build/lib/xbean.jar' />
+ <!-- use build/classes instead of xbean.jar for develpment convenience -->
+    <pathelement path='../../../build/classes/jam' />
     <pathelement location='${build-dir}' />
     <pathelement location='${junit-jar}'/>
     <pathelement path='${java.class.path}' />
@@ -58,9 +56,10 @@
         <pathelement path='${classpath-value}'/> <!--ref no workie-->
       </classpath>
       <formatter type='plain' usefile='false'/>
-<!--
+
+      <!--
       <test name='org.apache.xmlbeans.test.jam.ParserJamTest'/>
--->
+      -->
       <test name='org.apache.xmlbeans.test.jam.SourcesJamTest'/>
       <test name='org.apache.xmlbeans.test.jam.ClassesJamTest'/>
 

@@ -138,5 +138,21 @@ public abstract class EElementImpl implements EElement {
     return "unnamed_"+count;
   }
 
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (!(o instanceof EElementImpl)) return false;
+    final EElementImpl eElement = (EElementImpl) o;
+    String qn = getQualifiedName();
+    if (qn == null) return false;
+    String oqn = eElement.getQualifiedName();
+    if (oqn == null) return false;
+    return qn.equals(oqn);
+  }
+
+  public int hashCode() {
+    String qn = getQualifiedName();
+    return (qn == null) ? 0 : qn.hashCode();
+  }
+
 
 }

@@ -37,6 +37,7 @@ public class EParameterImpl extends EMemberImpl implements EParameter {
   // ========================================================================
   // Constructors
 
+  // be careful with this one, should really only be used by the parser
   public EParameterImpl() {}
 
   public EParameterImpl(String simpleName,
@@ -85,6 +86,7 @@ public class EParameterImpl extends EMemberImpl implements EParameter {
   // Package methods
 
   /*package*/ void setContainingMember(EMemberImpl member) {
+    System.out.println("\n\n\n\nSSET CONTAINING MEMBER "+member);
     super.setContainingClass((EClassImpl)member.getContainingClass());
   }
 }
