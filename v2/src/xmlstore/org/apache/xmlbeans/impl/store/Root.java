@@ -1200,6 +1200,20 @@ public final class Root extends Finish
             return _context == null ? null : this;
         }
 
+        public void bookmarkLastEvent ( XmlCursor.XmlBookmark mark )
+        {
+            assert _context != null;
+
+            _context.annotateLastElement( mark );
+        }
+
+        public void bookmarkLastAttr ( QName attrName, XmlCursor.XmlBookmark mark )
+        {
+            assert _context != null;
+            
+            throw new RuntimeException( "Not implemented" );
+        }
+        
         public XmlObject getObject ( ) throws XmlException
         {
             if (_context == null)
@@ -1776,8 +1790,17 @@ public final class Root extends Finish
         // Annotates the last thing inserted
         void annotate ( XmlBookmark xmlBookmark )
         {
-            new Annotation( _root, xmlBookmark ).
-                set( _lastSplay, _lastPos );
+            new Annotation( _root, xmlBookmark ).set( _lastSplay, _lastPos );
+        }
+        
+        void annotateLastElement ( XmlBookmark xmlBookmark )
+        {
+            Splay s = _lastSplay;
+            
+            if (s.isAttr())
+                s = s.getContainer();
+            
+            new Annotation( _root, xmlBookmark ).set( s, 0 );
         }
 
         void lineNumberAnnotation ( int line, int column, int offset )
