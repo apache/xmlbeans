@@ -65,6 +65,10 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.*;
 
+//FIXME somehow we had a mix up and this class got named badly - it
+//is not an implementation of JavaToSchemaResult.  I think this needs to
+//be revisited.
+
 /**
  * This class addresses the impedence mismatch between Java2Schema's
  * desire to push it's results out and the public API's desire to
@@ -84,10 +88,11 @@ import java.util.*;
 
   private Map mTNS2Schema = new HashMap();
   private List mBindingFiles = new ArrayList();
-  private JavaToSchemaInput javaSourceSet;
-    
+  private JavaToSchemaInput mJavaSourceSet;
+  private List mErrors = null;
+
   JavaToSchemaResultImpl(JavaToSchemaInput javaSourceSet) {
-    this.javaSourceSet = javaSourceSet;
+    mJavaSourceSet = javaSourceSet;
   }
 
   // ========================================================================
@@ -103,7 +108,15 @@ import java.util.*;
   /*package*/ void addBindingFile(BindingFile bf) { mBindingFiles.add(bf); }
     
   JavaToSchemaInput getJavaSourceSet() {
-    return javaSourceSet;
+    return mJavaSourceSet;
+  }
+
+
+  //REVIEW this is a makeshift mechanism for logging errors encounted
+  //during the build.  probably need something cleaner.
+  /*package*/ void logError(Throwable e) {
+    if (mErrors == null) mErrors = new ArrayList();
+    mErrors.add(e);
   }
 
   // ========================================================================

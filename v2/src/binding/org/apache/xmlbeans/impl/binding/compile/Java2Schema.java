@@ -62,6 +62,7 @@ import org.w3.x2001.xmlSchema.*;
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Collection;
 
 /**
  * Transforms a set of JClasses into a BTS and a schema.  This is really just
@@ -86,6 +87,8 @@ public class Java2Schema {
   private static final String TAG_EL               = "xsdgen:element";
   private static final String TAG_EL_NAME          = TAG_EL+".name";
   private static final String TAG_EL_NILLABLE      = TAG_EL+".nillable";
+  private static final String TAG_EL_EXCLUDE       = TAG_EL+".exclude";
+  private static final String TAG_EL_ASTYPE        = TAG_EL+".astype";
 
   private static final String TAG_AT               = "xsdgen:attribute";
   private static final String TAG_AT_NAME          = TAG_AT+".name";
@@ -100,6 +103,7 @@ public class Java2Schema {
   private SchemaDocument.Schema mSchema; //KILLME
   //
   private JavaToSchemaInput mInput;
+  private Collection mErrors = null;
 
   // =========================================================================
   // Constructors
@@ -120,7 +124,15 @@ public class Java2Schema {
   public JavaToSchemaResult bind() {
     final JavaToSchemaResultImpl out = new JavaToSchemaResultImpl(mInput);
     bind(mInput.getJClasses(),out);
+    final Throwable[] errors;
+    if (mErrors == null) {
+      errors = new Throwable[0];
+    } else {
+      errors = new Throwable[mErrors.size()];
+      mErrors.toArray(errors);
+    }
     return new JavaToSchemaResult() {
+      public Throwable[] getErrors() { return errors; }
       public BindingFileGenerator getBindingFileGenerator() { return out; }
       public SchemaGenerator getSchemaGenerator() { return out; }
       public JavaToSchemaInput getJavaSourceSet() { return out.getJavaSourceSet(); }
@@ -133,8 +145,8 @@ public class Java2Schema {
   /**
    *
    */
-  private void bind(JClass[] classes, JavaToSchemaResultImpl tb) {
-    tb.addBindingFile(mBindingFile = new BindingFile());
+  private void bind(JClass[] classes, JavaToSchemaResultImpl jtsr) {
+    jtsr.addBindingFile(mBindingFile = new BindingFile());
     mLoader = PathBindingLoader.forPath
             (new BindingLoader[] {mBindingFile,
                                   BuiltinBindingLoader.getInstance()});
@@ -146,7 +158,7 @@ public class Java2Schema {
       mSchema.setTargetNamespace(getTargetNamespace(classes[0]));
     }
     for(int i=0; i<classes.length; i++) getBindingTypeFor(classes[i]);
-    tb.addSchema(mSchemaDocument);
+    jtsr.addSchema(mSchemaDocument);
   }
 
   // =========================================================================
@@ -166,7 +178,8 @@ public class Java2Schema {
 
   private BindingType createBindingTypeFor(JClass clazz) {
     if (clazz.isPrimitive()) {
-      throw new IllegalStateException(clazz.getSimpleName());
+      throw new IllegalStateException("unexpected simple type "+
+                                      clazz.getSimpleName());
     }
     // create the schema type
     TopLevelComplexType xsdType = mSchema.addNewComplexType();
@@ -174,6 +187,15 @@ public class Java2Schema {
     String xsdName = getAnnotation(clazz,TAG_CT_TYPENAME,clazz.getSimpleName());
     QName qname = new QName(tns,xsdName);
     xsdType.setName(xsdName);
+    // see if it extends anything
+    // REVIEW we're ignoring interfaces, is that ok?
+    JClass superclass = clazz.getSuperclass();
+    if (superclass != null && !superclass.isObject()) {
+      BindingType superBindingType = getBindingTypeFor(superclass);
+      ComplexContentDocument.ComplexContent ccd = xsdType.addNewComplexContent();
+      ExtensionType et = ccd.addNewExtension();
+      et.setBase(superBindingType.getName().getXmlName().getQName());
+    }
     // create a binding type
     BindingTypeName btname = BindingTypeName.forPair(getJavaName(clazz),
                                                      XmlName.forTypeNamed(qname));
@@ -193,6 +215,7 @@ public class Java2Schema {
     Group xsdSequence = null;
     List attributes = null;
     for(int i=0; i<props.length; i++) {
+      if (getAnnotation(props[i],TAG_EL_EXCLUDE,false)) continue;
       if (props[i].getGetter() == null || props[i].getSetter() == null) {
         continue; // we can only deal with read-write props
       }
@@ -203,7 +226,7 @@ public class Java2Schema {
       } else {
         propName = getAnnotation(props[i],TAG_EL_NAME,props[i].getSimpleName());
       }
-      BindingType propType = getBindingTypeFor(props[i].getType());
+      BindingType propType = getBindingTypeFor(getPropertyType(props[i]));
       QNameProperty qprop = new QNameProperty();
       qprop.setBindingType(propType);
       qprop.setQName(new QName(tns,propName));
@@ -259,8 +282,22 @@ public class Java2Schema {
   }
 
 
-  private void addAttributeFor(QNameProperty prop) {
-
+  /**
+   * Returns the type that should be used for binding the given java property.
+   * This is simply the type of the property unless overridden by an 'astype'
+   * annotation.
+   */
+  private JClass getPropertyType(JProperty property)
+  {
+    String real = getAnnotation(property,TAG_EL_ASTYPE,null);
+    if (real == null) return property.getType();
+    try {
+      return property.getType().forName(real);
+      //FIXME this needs to change when we put isUnresolved in JClass.
+    } catch(ClassNotFoundException cnfe) {
+      logError(cnfe);             // log it
+      return property.getType();  // and try to stumble along
+    }
   }
 
   //REVIEW seems like having this functionality in jam (getters w/defaults)
@@ -302,6 +339,12 @@ public class Java2Schema {
       }
     }
     return JAVA_URI_SCHEME + pkg_name;
+  }
+
+
+  private void logError(Throwable error) {
+    if (mErrors == null) mErrors = new ArrayList();
+    mErrors.add(error);
   }
 
   /*

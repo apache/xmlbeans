@@ -58,7 +58,23 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 public interface JavaToSchemaResult
 {
-    BindingFileGenerator getBindingFileGenerator();
-    SchemaGenerator getSchemaGenerator();
-    JavaToSchemaInput getJavaSourceSet();
+
+  /**
+   * Returns an array containing the set of fatal errors that were encountered
+   * during the binding process.  Returns an empty array if no fatal errors
+   * were encounted.
+   */
+  public Throwable[] getErrors();
+
+  // REVIEW I'm still uncomfortable with the names of these generator types.
+  // A 'result' object should contain 'results', not generators.  The fact
+  // that that is how they are in fact implemented only makes the case
+  // stronger - all of the generation has already occurred by the time
+  // you get an instance of this result object.
+
+  BindingFileGenerator getBindingFileGenerator();
+
+  SchemaGenerator getSchemaGenerator();
+
+  JavaToSchemaInput getJavaSourceSet();
 }
