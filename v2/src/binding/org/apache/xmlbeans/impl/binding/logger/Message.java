@@ -53,40 +53,51 @@
 * Inc., <http://www.bea.com/>. For more information on the Apache Software
 * Foundation, please see <http://www.apache.org/>.
 */
-package org.apache.xmlbeans.impl.binding.compile;
+package org.apache.xmlbeans.impl.binding.logger;
+
+import org.apache.xmlbeans.SchemaProperty;
+import org.apache.xmlbeans.SchemaType;
+import org.apache.xmlbeans.impl.jam.JElement;
 
 import java.util.logging.Level;
-import java.io.PrintWriter;
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.w3.x2001.xmlSchema.Element;
 
 /**
- * Implementation of BindingLogger that just spews out to some Writer.
+ * Encapsulates a message that was generated while running a BindingCompiler.
+ *
+ * @author Patrick Calahan <pcal@bea.com>
  */
-public class SimpleBindingLogger implements BindingLogger {
+public interface Message {
 
-  // ========================================================================
-  // Variables
+  /**
+   * @return The severity level of the message.  This must never return null.
+   */
+  public Level getLevel();
 
-  private PrintWriter mOut;
+  /**
+   * @return The text of the message.  This must never return null.
+   */
+  public String getMessage();
 
-  // ========================================================================
-  // Constructors
+  /**
+   * @return The exception which caused the message, or null.
+   */
+  public Throwable getException();
 
-  public SimpleBindingLogger() {
-    this(new PrintWriter(System.out));
-  }
+  /**
+   * @return The JElement representing the java construct to which the message
+   * applies, or null.
+   */
+  public JElement getJavaContext();
 
-  public SimpleBindingLogger(PrintWriter out) {
-    if (out == null) throw new IllegalArgumentException();
-    mOut = out;
-  }
+  /**
+   * @return The SchemaType representing the xsd type to which the message
+   * applies, or null.
+   */
+  public SchemaType getSchemaTypeContext();
 
-  // ========================================================================
-  // BindingLogger implementation
-
-  public void log(BindingLoggerMessage msg) {
-    mOut.print(msg.toString());
-    mOut.flush();
-  }
+  /**
+   * @return The SchemaProperty representing the xsd property to which the
+   * message applies, or null.
+   */
+  public SchemaProperty getSchemaPropertyContext();
 }

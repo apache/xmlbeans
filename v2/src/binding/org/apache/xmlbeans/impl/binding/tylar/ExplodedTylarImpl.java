@@ -101,7 +101,7 @@ public class ExplodedTylarImpl
   private File mSourceRoot;
   private File mSchemaDir;
   private BindingFile mBindingFile = null;
-  private JavaOutputStream mJoust;
+  private JavaOutputStream mJoust = null;
   private Collection mSchemaDocuments = null;
 
   // ========================================================================
@@ -197,7 +197,7 @@ public class ExplodedTylarImpl
   }
 
   public void close() throws IOException {
-    mJoust.close();
+    if (mJoust != null) mJoust.close();
   }
 
   // ========================================================================

@@ -62,16 +62,13 @@ import org.apache.xmlbeans.Unmarshaller;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
-import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
-
 import java.util.Collection;
 
 /**
  * Main entry point into marshalling framework.
  * Use the BindingContextFactory to create one
  */
-final class BindingContextImpl
-    implements BindingContext
+public final class BindingContextImpl implements BindingContext
 {
     private final BindingLoader bindingLoader;
     private final RuntimeBindingTypeTable typeTable;
@@ -108,6 +105,12 @@ final class BindingContextImpl
                                   typeTable,
                                   options);
     }
+
+
+    /**
+     * @deprecated do not use this
+     */
+    public BindingLoader getBindingLoader() { return bindingLoader; }
 
     static Collection extractErrorHandler(XmlOptions options)
     {

@@ -58,8 +58,10 @@ package org.apache.xmlbeans.impl.binding.compile;
 
 import org.apache.xmlbeans.impl.binding.bts.*;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
+import org.apache.xmlbeans.impl.binding.tylar.TylarConstants;
 import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.Variable;
+import org.apache.xmlbeans.impl.binding.joust.CompilingJavaOutputStream;
 import org.apache.xmlbeans.impl.common.NameUtil;
 import org.apache.xmlbeans.*;
 import org.apache.xmlbeans.soap.SOAPArrayType;
@@ -98,7 +100,7 @@ public class Schema2Java extends BindingCompiler {
   private BindingLoader mLoader;
   private int structureCount;
   private BindingFile bindingFile = new BindingFile();
-  private JavaOutputStream mJoust = null;
+  private CompilingJavaOutputStream mJoust;
 
   // ========================================================================
   // Constructors
@@ -108,6 +110,8 @@ public class Schema2Java extends BindingCompiler {
    */
   public Schema2Java(SchemaTypeSystem s) {
     setSchemaTypeSystem(s);
+    mJoust = new CompilingJavaOutputStream();
+    mJoust.setLogger(this);
   }
 
   /**
@@ -122,7 +126,59 @@ public class Schema2Java extends BindingCompiler {
   }
 
   // ========================================================================
+  // Public methods
+
+  /**
+   * Sets whether javac should be run on the generated java sources.
+   * The default is true.
+   */
+  public void setCompileJava(boolean b) {
+    assertCompilationStarted(false);
+    mJoust.setDoCompile(b);
+  }
+
+  /**
+   * Sets the location of javac to be invoked.  Default compiler is used
+   * if this is not set.  Ignored if doCompile is set to false.  Also note
+   * that not all BindingCompilers generate any source code at all, so
+   * setting this may have no effect.
+   */
+  public void setJavac(String javacPath) {
+    assertCompilationStarted(false);
+    mJoust.setJavac(javacPath);
+  }
+
+  /**
+   * Sets the classpath to use for compilation of generated sources.
+   * The System classpath is used by default.  This is ignored if doCompile is
+   * false.  Also note that not all BindingCompilers generate any source
+   * code at all, so setting this may have no effect.
+   */
+  public void setJavacClasspath(File[] classpath) {
+    assertCompilationStarted(false);
+    mJoust.setJavacClasspath(classpath);
+  }
+
+  /**
+   * Sets whether this BindingCompiler should keep any generated java source
+   * code it generates.  The default is true.  This will have no effect if
+   * doCompile is set to false.  Also note that not all BindingCompilers
+   * generate any source code at all, so setting this may have no effect in
+   * any event.
+   */
+  public void setKeepGeneratedJava(boolean b) {
+    assertCompilationStarted(false);
+    mJoust.setKeepGenerated(b);
+  }
+
+  // ========================================================================
   // BindingCompiler implementation
+
+  public JavaOutputStream getJoust(File tylarDestDir) {
+    mJoust.setSourceDir(new File(tylarDestDir,TylarConstants.SRC_ROOT));
+    mJoust.setCompilationDir(tylarDestDir);
+    return mJoust;
+  }
 
   /**
    * Computes the binding.
@@ -130,8 +186,10 @@ public class Schema2Java extends BindingCompiler {
   public void bind(TylarWriter writer) {
     if (sts == null) throw new IllegalStateException("SchemaTypeSystem not set");
     super.notifyCompilationStarted();
-    mJoust = writer.getJavaOutputStream();
-    if (mJoust == null) throw new IllegalStateException("joust is null");
+    if (writer.getJavaOutputStream() == null) {
+      //sanity check
+      throw new IllegalStateException("joust is null");
+    }
     bind();
     try {
       writer.writeBindingFile(bindingFile);
@@ -139,11 +197,7 @@ public class Schema2Java extends BindingCompiler {
       if (!logError(ioe)) return;
     }
     //FIXME also write the input schemas
-    try {
-      writeJavaFiles();
-    } catch(IOException ioe) {
-      if (!logError(ioe)) return;
-    }
+    writeJavaFiles();
   }
 
   // ========================================================================
@@ -868,7 +922,6 @@ public class Schema2Java extends BindingCompiler {
     }
   }
 
-
   // ========================================================================
   // Java Codegen methods
   //
@@ -876,7 +929,7 @@ public class Schema2Java extends BindingCompiler {
   // class someday.  Somebody conceivably might want to plug in here (at their
   // own risk, of course).   pcal 12/12/03
 
-  private void writeJavaFiles() throws IOException {
+  private void writeJavaFiles() {
     Collection classnames = getToplevelClasses();
     for (Iterator i = classnames.iterator(); i.hasNext();) {
       String className = (String) i.next();

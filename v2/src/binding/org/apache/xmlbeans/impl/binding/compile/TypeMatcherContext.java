@@ -55,49 +55,14 @@
 */
 package org.apache.xmlbeans.impl.binding.compile;
 
-import org.apache.xmlbeans.impl.jam.JElement;
-import org.apache.xmlbeans.SchemaType;
-import org.apache.xmlbeans.SchemaProperty;
-
-import java.util.logging.Level;
+import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
 
 /**
- * Encapsulates a message that was generated while running a BindingCompiler.
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public interface BindingLoggerMessage {
+public interface TypeMatcherContext {
 
-  /**
-   * @return The severity level of the message.  This must never return null.
-   */
-  public Level getLevel();
+  public BindingLogger getLogger();
 
-  /**
-   * @return The text of the message.  This must never return null.
-   */
-  public String getMessage();
-
-  /**
-   * @return The exception which caused the message, or null.
-   */
-  public Throwable getException();
-
-  /**
-   * @return The JElement representing the java construct to which the message
-   * applies, or null.
-   */
-  public JElement getJavaContext();
-
-  /**
-   * @return The SchemaType representing the xsd type to which the message
-   * applies, or null.
-   */
-  public SchemaType getSchemaTypeContext();
-
-  /**
-   * @return The SchemaProperty representing the xsd property to which the
-   * message applies, or null.
-   */
-  public SchemaProperty getSchemaPropertyContext();
 }

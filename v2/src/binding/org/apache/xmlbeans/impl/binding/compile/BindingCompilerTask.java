@@ -58,6 +58,8 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.taskdefs.MatchingTask;
 import org.apache.xmlbeans.impl.binding.tylar.Tylar;
+import org.apache.xmlbeans.impl.binding.logger.MessageSink;
+import org.apache.xmlbeans.impl.binding.logger.SimpleMessageSink;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
@@ -67,7 +69,6 @@ import org.apache.xmlbeans.SchemaTypeLoader;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 import java.io.File;
 import java.io.IOException;
-import java.util.logging.Level;
 
 /**
  * Abstract base class for Ant Task classes which drive a BindingCompiler.
@@ -146,7 +147,7 @@ public abstract class BindingCompilerTask extends MatchingTask {
     try {
       BindingCompiler bc = getCompilerToExecute();
       bc.setIgnoreSevereErrors(mIgnoreErrors);
-      bc.setLogger(createLogger());
+      bc.setMessageSink(createMessageSink());
       bc.setVerbose(mVerbose);
       if (mDestDir != null) {
         tylar = bc.bindAsExplodedTylar(mDestDir);
@@ -197,8 +198,8 @@ public abstract class BindingCompilerTask extends MatchingTask {
               (file, SchemaDocument.type, options);
   }
 
-  private  BindingLogger createLogger() {
+  private  MessageSink createMessageSink() {
     //FIXME this should be an AntBindingLogger
-    return new SimpleBindingLogger();
+    return new SimpleMessageSink();
   }
 }

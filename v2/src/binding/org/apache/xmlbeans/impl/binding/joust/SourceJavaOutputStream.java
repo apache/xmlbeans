@@ -55,6 +55,8 @@
 */
 package org.apache.xmlbeans.impl.binding.joust;
 
+import org.apache.xmlbeans.impl.binding.logger.BindingLogger;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
@@ -122,10 +124,10 @@ public class SourceJavaOutputStream
     'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F', 'F',
   };
 
-
   // ========================================================================
   // Variables
 
+  protected BindingLogger mLogger = BindingLogger.DEFAULT;
   private PrintWriter mOut = null;
   private int mIndentLevel = 0;
   private String mPackageName = null;
@@ -133,7 +135,6 @@ public class SourceJavaOutputStream
   private WriterFactory mWriterFactory;
   private StringWriter mCommentBuffer = null;
   private PrintWriter mCommentPrinter = null;
-  protected boolean mVerbose = false;
 
   // ========================================================================
   // Constructors
@@ -152,7 +153,14 @@ public class SourceJavaOutputStream
   // ========================================================================
   // Public methods
 
-  public void setVerbose(boolean b) { mVerbose = b; }
+
+  /**
+   * Sets the logger to log messages to.
+   */
+  public void setLogger(BindingLogger bl) {
+    if (bl == null) throw new IllegalArgumentException("null logger");
+    mLogger = bl;
+  }
 
   // ========================================================================
   // JavaOutputStream implementation
@@ -182,7 +190,7 @@ public class SourceJavaOutputStream
           throws IOException {
     checkStateForWrite();
     printCommentsIfNeeded();
-    if (mVerbose) verbose("startClass "+mPackageName+"."+mClassOrInterfaceName);
+    mLogger.logVerbose("startClass "+mPackageName+"."+mClassOrInterfaceName);
     extendsClassName = makeI18nSafe(extendsClassName);
     mOut.println("package " + mPackageName + ";");
     mOut.println();
@@ -210,7 +218,7 @@ public class SourceJavaOutputStream
 
   public void startInterface(String[] extendsInterfaceNames)
           throws IOException {
-    if (mVerbose) verbose("startInterface "+mPackageName+"."+mClassOrInterfaceName);
+    mLogger.logVerbose("startInterface "+mPackageName+"."+mClassOrInterfaceName);
     checkStateForWrite();
     printCommentsIfNeeded();
     mPackageName = makeI18nSafe(mPackageName);
@@ -236,7 +244,7 @@ public class SourceJavaOutputStream
                              String typeName,
                              String fieldName,
                              Expression defaultValue) throws IOException {
-    if (mVerbose) verbose("writeField "+typeName+" "+fieldName);
+    mLogger.logVerbose("writeField "+typeName+" "+fieldName);
     checkStateForWrite();
     printCommentsIfNeeded();
     printIndents();
@@ -272,7 +280,7 @@ public class SourceJavaOutputStream
                                 String[] paramNames,
                                 String[] exceptionClassNames)
           throws IOException {
-    if (mVerbose) verbose("startMethod "+methodName);
+    mLogger.logVerbose("startMethod "+methodName);
     checkStateForWrite();
     printCommentsIfNeeded();
     methodName = makeI18nSafe(methodName);
@@ -314,7 +322,7 @@ public class SourceJavaOutputStream
   }
 
   public void writeComment(String comment) throws IOException {
-    if (mVerbose) verbose("comment");
+    mLogger.logVerbose("comment");
     getCommentPrinter().println(comment);
   }
 
@@ -337,7 +345,7 @@ public class SourceJavaOutputStream
   }
 
   public void writeReturnStatement(Expression expression) throws IOException {
-    if (mVerbose) verbose("return");
+    mLogger.logVerbose("return");
     checkStateForWrite();
     printCommentsIfNeeded();
     printIndents();
@@ -348,7 +356,7 @@ public class SourceJavaOutputStream
 
   public void writeAssignmentStatement(Variable left, Expression right)
           throws IOException {
-    if (mVerbose) verbose("assignment");
+    mLogger.logVerbose("assignment");
     checkStateForWrite();
     printCommentsIfNeeded();
     printIndents();
@@ -359,7 +367,7 @@ public class SourceJavaOutputStream
   }
 
   public void endMethodOrConstructor() throws IOException {
-    if (mVerbose) verbose("endMethodOrConstructor");
+    mLogger.logVerbose("endMethodOrConstructor");
     checkStateForWrite();
     printCommentsIfNeeded();
     reduceIndent();
@@ -369,7 +377,7 @@ public class SourceJavaOutputStream
   }
 
   public void endClassOrInterface() throws IOException {
-    if (mVerbose) verbose("endClassOrInterface");
+    mLogger.logVerbose("endClassOrInterface");
     checkStateForWrite();
     printCommentsIfNeeded();
     reduceIndent();
@@ -380,7 +388,7 @@ public class SourceJavaOutputStream
   public void endFile() throws IOException {
     checkStateForWrite();
     printCommentsIfNeeded();
-    if (mVerbose) verbose("endFile");
+    mLogger.logVerbose("endFile");
     closeOut();
   }
 
@@ -393,7 +401,7 @@ public class SourceJavaOutputStream
   }
 
   public void close() throws IOException {
-    if (mVerbose) verbose("close");
+    mLogger.logVerbose("close");
     closeOut();//just to be safe
   }
 
@@ -538,10 +546,6 @@ public class SourceJavaOutputStream
       }
       j = i;
     }
-  }
-
-  private void verbose(String msg) {
-    if (mVerbose) System.out.println(msg);
   }
 
   // ========================================================================
