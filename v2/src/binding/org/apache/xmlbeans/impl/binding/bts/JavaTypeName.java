@@ -275,9 +275,8 @@ public final class JavaTypeName
         if (out != null) return out;
         return loader.loadClass(s);
       } else {
-        String s = toString();
-        Class clazz = PrimitiveJClass.getPrimitiveClass(s);
-        if (clazz == null) clazz = loader.loadClass(s);
+        Class clazz = PrimitiveJClass.getPrimitiveClass(className);
+        if (clazz == null) clazz = loader.loadClass(className);
         int[] dimensions = new int[d];
         return Array.newInstance(clazz,dimensions).getClass();
 
