@@ -39,6 +39,9 @@ import java.util.Collection;
 import java.math.BigInteger;
 import java.math.BigDecimal;
 
+import com.mytest.MySubClass;
+import com.mytest.MyClass;
+
 
 public class MarshalTests extends TestCase
 {
@@ -155,11 +158,13 @@ public class MarshalTests extends TestCase
         myelt.setAttrib(99999.777f);
         myelt.setMyFloat(5555.4444f);
 //        myelt.setMyClass(new com.mytest.MyClass());
-        myelt.setMyClass(null);
+        MySubClass sub = new MySubClass();
+        sub.setBigInt(new BigInteger("123431234321234321234321234212341234"));
+        myelt.setMyClass(sub);
         mc.setMyelt(myelt);
 
         myelt.setStringArray(new String[]{"one", "two", "three"});
-
+        myelt.setMyClassArray(new MyClass[]{sub, new MyClass(), sub});
 
         final File bcdoc = getBindingConfigDocument();
 

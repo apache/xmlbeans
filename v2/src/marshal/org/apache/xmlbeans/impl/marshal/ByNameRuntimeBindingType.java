@@ -81,6 +81,12 @@ final class ByNameRuntimeBindingType
     private final Class javaClass;
     private final boolean hasMulti;  //has any multi properties
 
+    //is this a subtype of something besides the ultimate parent type?
+    //(XmlObject or java.lang.Object, though only the latter
+    //is currently considered)
+    private final boolean isSubType;
+
+
     ByNameRuntimeBindingType(ByNameBean btype)
     {
         byNameBean = btype;
@@ -89,11 +95,23 @@ final class ByNameRuntimeBindingType
         }
         catch (ClassNotFoundException e) {
             final String msg = "failed to load " + btype.getName().getJavaName();
-            throw (RuntimeException)(new RuntimeException(msg).initCause(e));
+            throw new XmlRuntimeException(msg, e);
         }
 
         properties = new Property[btype.getProperties().size()];
         hasMulti = hasMulti(btype);
+
+        isSubType = determineIsSubType(javaClass);
+    }
+
+    private static boolean determineIsSubType(Class javaClass)
+    {
+        int cnt = 0;
+        for (Class p = javaClass.getSuperclass(); p != null; p = p.getSuperclass()) {
+            if (cnt > 0) return true;
+            cnt++;
+        }
+        return false;
     }
 
     private static boolean hasMulti(ByNameBean btype)
@@ -191,7 +209,16 @@ final class ByNameRuntimeBindingType
         return properties.length;
     }
 
+    public boolean isSubType()
+    {
+        return isSubType;
+    }
 
+    public QName getSchemaTypeName() {
+        return byNameBean.getName().getXmlName().getQName();
+    }
+
+    
     private static final class Property implements RuntimeBindingProperty
     {
         private final int propertyIndex;
