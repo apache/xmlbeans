@@ -16,16 +16,15 @@
 
 package xmlobject.xmlloader.detailed;
 
-import org.apache.xmlbeans.*;
-import org.apache.xmlbeans.XmlCursor.TokenType;
-import tools.util.JarUtil;
-import tools.util.Util;
-import xmlcursor.common.BasicCursorTestCase;
-import xmlcursor.common.Common;
 import junit.framework.Test;
 import junit.framework.TestSuite;
+import org.apache.xmlbeans.*;
+import org.apache.xmlbeans.XmlCursor.TokenType;
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
 import org.tranxml.tranXML.version40.GeographicLocationDocument.GeographicLocation;
+import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
 
 import javax.xml.namespace.QName;
 import java.util.Collections;

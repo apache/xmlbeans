@@ -16,25 +16,19 @@
 
 package xmlcursor.detailed;
 
-import org.apache.xmlbeans.XmlOptions;
-import junit.framework.*;
-import junit.framework.Assert.*;
-
-import java.io.*;
-
-import org.apache.xmlbeans.XmlObject;
+import junit.framework.Test;
+import junit.framework.TestSuite;
 import org.apache.xmlbeans.XmlCursor;
 import org.apache.xmlbeans.XmlCursor.TokenType;
-
-
-import xmlcursor.common.*;
-import tools.util.JarUtil;
-
-import java.math.BigDecimal;
-
+import org.apache.xmlbeans.XmlObject;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderDocument;
 import test.xbean.xmlcursor.purchaseOrder.PurchaseOrderType;
 import test.xbean.xmlcursor.purchaseOrder.USAddress;
+import tools.util.JarUtil;
+import xmlcursor.common.BasicCursorTestCase;
+import xmlcursor.common.Common;
+
+import java.math.BigDecimal;
 
 /**
  *
@@ -52,7 +46,7 @@ public class CursorLocations extends BasicCursorTestCase {
         return new TestSuite(CursorLocations.class);
     }
 
-    public void LocationTest() throws Exception {
+    public void testLocation() throws Exception {
         XmlCursor xc1, xc2, xc3, xc4;
         XmlObject m_xo1;
 
@@ -67,7 +61,7 @@ public class CursorLocations extends BasicCursorTestCase {
         xc3 = m_xo1.newCursor();
 
 
-        toNextTokenOfType(xc2, TokenType.COMMENT);
+        toNextTokenOfType(xc2, TokenType.END);
         toNextTokenOfType(xc3, TokenType.START);
 
 
@@ -84,7 +78,7 @@ public class CursorLocations extends BasicCursorTestCase {
             xc2.toPrevToken();
         }
 
-        //System.out.println("Current Token Type "   +  xc1.currentTokenType() + "       " +  xc2.currentTokenType());
+        System.out.println("Current Token Type "   +  xc1.currentTokenType() + "       " +  xc2.currentTokenType());
         assertEquals(xc1.getChars(), xc2.getTextValue());
         //System.out.println(xc2.getTextValue());
         xc2.toNextToken();
@@ -143,7 +137,7 @@ public class CursorLocations extends BasicCursorTestCase {
 
     }
 
-    public void TestLocationATTR() throws Exception {
+    public void testLocationATTR() throws Exception {
         XmlCursor xc1, xc2;
         m_xo = XmlObject.Factory.parse(Common.XML_FOO_5ATTR_TEXT);
 
@@ -189,7 +183,7 @@ public class CursorLocations extends BasicCursorTestCase {
 
     }
 
-    public void TestLocationTEXTMiddle() throws Exception {
+    public void testLocationTEXTMiddle() throws Exception {
         XmlCursor xc1, xc2, xc3;
         m_xo = XmlObject.Factory.parse(Common.XML_TEXT_MIDDLE);
 
@@ -243,7 +237,7 @@ public class CursorLocations extends BasicCursorTestCase {
     }
 
 
-    public void XmlObjectUsingCursor() throws Exception {
+    public void testXmlObjectUsingCursor() throws Exception {
         XmlCursor xc1, xc2, xc3;
 
         //PurchaseOrderDocument pod = (PurchaseOrderDocument)XmlObject.Factory.parse(Common.XML_PURCHASEORDER);

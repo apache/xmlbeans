@@ -163,7 +163,8 @@ public class GetTextTest extends BasicCursorTestCase {
         m_xo = XmlObject.Factory.parse(
                   JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         m_xc = m_xo.newCursor();
-        m_xc.selectPath("$this//billTo");
+        m_xc.selectPath(".//po:billTo");
+        assertEquals(1,m_xc.getSelectionCount());
         m_xc.toNextSelection();
         toNextTokenOfType(m_xc, TokenType.ATTR);
         assertEquals("US", m_xc.getTextValue());

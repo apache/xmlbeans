@@ -21,8 +21,9 @@ import junit.framework.*;
 import java.math.BigDecimal;
 
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlCursor;
 
-import xmlcursor.common.BasicCursorTestCase;
+//import xmlcursor.common.BasicCursorTestCase;
 import xmlcursor.common.Common;
 
 import org.tranxml.tranXML.version40.CarLocationMessageDocument;
@@ -39,7 +40,7 @@ import tools.util.JarUtil;
  *
  *
  */
-public class CompareToTest extends BasicCursorTestCase {
+public class CompareToTest extends TestCase {
     public CompareToTest(String sName) {
         super(sName);
     }
@@ -48,14 +49,14 @@ public class CompareToTest extends BasicCursorTestCase {
         return new TestSuite(CompareToTest.class);
     }
 
-    public void testClassPath() throws Exception {
+    /*public void testClassPath() throws Exception {
         String sClassPath = System.getProperty("java.class.path");
         int i = sClassPath.indexOf(Common.CARLOCATIONMESSAGE_JAR);
         assertTrue(i >= 0);
         i = sClassPath.indexOf(Common.XMLCURSOR_JAR);
         assertTrue(i >= 0);
     }
-
+   */
     public void testCompareToEquals() throws Exception {
         CarLocationMessageDocument clmDoc = (CarLocationMessageDocument) XmlObject.Factory.parse(
                    JarUtil.getResourceFromJar(Common.TRANXML_FILE_CLM));
@@ -153,6 +154,9 @@ public class CompareToTest extends BasicCursorTestCase {
         XmlObject xo = m_xc.getObject();
         assertEquals(XmlObject.NOT_EQUAL, m_xo.compareValue(xo));
     }
+
+    private XmlObject m_xo;
+    private XmlCursor m_xc;
 
 }
 

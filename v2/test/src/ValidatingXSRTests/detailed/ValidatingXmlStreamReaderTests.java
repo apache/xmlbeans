@@ -392,6 +392,8 @@ public class ValidatingXmlStreamReaderTests
     private static File getCasesFile(String path)
         throws java.io.IOException
     {
+        if (path.length()==0)
+        throw new IOException("getCasesFile was called with path of len 0");
         return JarUtil.getResourceFromJarasFile(path);
         //return new File(casesRoot + path);
     }
