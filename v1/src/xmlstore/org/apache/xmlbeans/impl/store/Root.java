@@ -1397,7 +1397,7 @@ public final class Root extends Finish implements XmlStore
             // loading.  When finished loading, bump it.
 
             _root.invalidateVersion();
-
+            
             assert _root.isLeftOnly();
         }
 
@@ -1485,7 +1485,19 @@ public final class Root extends Finish implements XmlStore
                 _docElemDiscarded = true;
 
                 if (_replaceDocElem == null)
+                {
+                    // Remove all content up to now because the
+                    // document element is to be removed, and I dont
+                    // want that content to mix with the real content.
+                    
+                    _root.ensureEmpty();
+                    _lastNonAttr = _root._doc;
+                    _lastSplay = _root._doc;
+                    _lastPos = 0;
+                    _frontier = _root._doc;
+                    
                     return;
+                }
 
                 name = _replaceDocElem;
             }
@@ -2288,7 +2300,7 @@ public final class Root extends Finish implements XmlStore
             if (src instanceof Cursor)
             {
                 ps.println(
-                    "  from cursor " + ((CursorGoober)((Cursor) src)._goober).getDebugId() );
+                    "  from cursor " + ((CursorGoober)((Cursor) src)._data._goober).getDebugId() );
             }
             else if (src instanceof Splay)
                 ps.println( "  from splay " + ((Splay) src).getDebugId() );
