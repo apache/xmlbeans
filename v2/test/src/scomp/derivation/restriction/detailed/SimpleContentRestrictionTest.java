@@ -17,6 +17,7 @@ package scomp.derivation.restriction.detailed;
 import xbean.scomp.derivation.simpleExtension.SimpleRestrictionEltDocument;
 import xbean.scomp.derivation.simpleExtension.SimpleRestrictionT;
 import scomp.common.BaseCase;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -45,7 +46,9 @@ public class SimpleContentRestrictionTest extends BaseCase {
         assertTrue(!doc.validate(validateOptions));
 
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_MAX_INCLUSIVE_VALID
+        };
         assertTrue(compareErrorCodes(errExpected));
 
 

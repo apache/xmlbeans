@@ -18,6 +18,7 @@ import xbean.scomp.attribute.globalAttrDefault.GlobalAttrDefaultDocDocument;
 import xbean.scomp.attribute.globalAttrDefault.GlobalAttrDefaultT;
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -74,7 +75,9 @@ public class GlobalAttrDefault extends BaseCase {
                 GlobalAttrDefaultDocDocument.Factory.parse("<pre:GlobalAttrDefaultDoc" +
                 " xmlns:pre=\"http://xbean/scomp/attribute/GlobalAttrDefault\" " +
                 "pre:testattributeInt=\"\"/>").getGlobalAttrDefaultDoc();
-        String[] errExpected=new String[]{"cvc-attr"};
+        String[] errExpected=new String[]{
+            XmlErrorCodes.DECIMAL
+        };
         assertTrue(!testDoc.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();

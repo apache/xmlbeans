@@ -291,7 +291,9 @@ public class AttributeWC extends BaseCase {
                 " foo:LocalAttr=\"foo\"/>");
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DECIMAL
+        };
         assertTrue(compareErrorCodes(errExpected));
 
     }

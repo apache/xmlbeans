@@ -47,22 +47,20 @@ public class NamedTest extends BaseCase {
         assertEquals("<xml-fragment><child2>5</child2>" +
                 "<child3>1</child3></xml-fragment>",
                 testElt.xmlText());
-         testElt.setChild1(BigInteger.ONE);
-        testElt.xsetChild2(
-                XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
+        testElt.setChild1(BigInteger.ONE);
+        testElt.xsetChild2(XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
         assertEquals("<xml-fragment><child1>1</child1><child2>3</child2>" +
                 "<child3>1</child3></xml-fragment>",
                 testElt.xmlText());
-           try {
+        try {
             assertTrue(testElt.validate(validateOptions));
-        }
-        catch (Throwable t) {
+        } catch (Throwable t) {
             showErrors();
             throw t;
         }
     }
 
-    public void testMixedAnonymous() throws Exception {
+    public void testMixedAnonymous() throws Throwable {
         NamedMixedEltDocument doc =
                 NamedMixedEltDocument.Factory.newInstance();
 
@@ -75,17 +73,30 @@ public class NamedTest extends BaseCase {
         assertEquals(5, testElt.getChild2().intValue());
         XmlInteger expected = XmlInteger.Factory.newInstance();
         expected.setBigIntegerValue(new BigInteger("5"));
-        assertEquals(expected,
-                testElt.xgetChild2());
+        assertTrue(expected.valueEquals(testElt.xgetChild2()));
+
         XmlCursor cur = testElt.newCursor();
+        cur.toFirstContentToken();
         cur.insertChars("Random mixed content");
         testElt.setChild3(new BigInteger("1"));
-        assertEquals("", testElt.xmlText());
+        assertEquals("<xml-fragment>Random mixed content" +
+                "<child2>5</child2><child3>1</child3></xml-fragment>",
+                testElt.xmlText());
 
-        testElt.xsetChild2(XmlInteger.Factory.parse("3"));
-        assertEquals("", testElt.xmlText());
-        assertTrue(testElt.validate());
+        testElt.xsetChild2(XmlInteger.Factory.parse("<xml-fragment>3</xml-fragment>"));
+        assertEquals("<xml-fragment>" +
+                "Random mixed content" +
+                "<child2>3</child2>" +
+                "<child3>1</child3>" +
+                "</xml-fragment>",
+                testElt.xmlText());
+        testElt.xsetChild1(XmlInteger.Factory.parse("<xml-fragment>0</xml-fragment>"));
 
-
+        try {
+            assertTrue(testElt.validate(validateOptions));
+        } catch (Throwable t) {
+            showErrors();
+            throw t;
+        }
     }
 }
