@@ -408,6 +408,7 @@ public class SchemaCompiler
         private Set mdefNamespaces = Collections.EMPTY_SET;
         private String catalogFile;
         private SchemaCodePrinter schemaCodePrinter;
+        private EntityResolver entityResolver;
 
         public File getBaseDir()
         {
@@ -728,6 +729,14 @@ public class SchemaCompiler
         {
             this.schemaCodePrinter = schemaCodePrinter;
         }
+
+        public EntityResolver getEntityResolver() {
+            return entityResolver;
+        }
+
+        public void setEntityResolver(EntityResolver entityResolver) {
+            this.entityResolver = entityResolver;
+        }
     }
 
     private static SchemaTypeSystem loadTypeSystem(String name, File[] xsdFiles, File[] wsdlFiles, URL[] urlFiles, File[] configFiles,
@@ -1030,7 +1039,8 @@ public class SchemaCompiler
         List extensions = params.getExtensions();
         Set mdefNamespaces = params.getMdefNamespaces();
 
-        EntityResolver cmdLineEntRes = ResolverUtil.resolverForCatalog(params.getCatalogFile());
+        EntityResolver cmdLineEntRes = params.getEntityResolver() == null ?
+            ResolverUtil.resolverForCatalog(params.getCatalogFile()) : params.getEntityResolver();
 
         if (srcDir == null || classesDir == null)
             throw new IllegalArgumentException("src and class gen directories may not be null.");
