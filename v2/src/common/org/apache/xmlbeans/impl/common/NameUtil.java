@@ -36,6 +36,7 @@ public class NameUtil
     private final static Set javaWords = new HashSet(Arrays.asList(
         new String[]
         {
+              "assert",
               "abstract",
               "boolean",
               "break",

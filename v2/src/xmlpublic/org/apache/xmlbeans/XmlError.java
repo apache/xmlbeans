@@ -31,15 +31,15 @@ import javax.xml.stream.Location;
  * an XML document.  The class includes methods for extracting
  * the location as a line number, XmlCursor, or XmlObject, as
  * well as for obtaining and message and severity of the
- * error. 
- * 
+ * error.
+ *
  * @see XmlOptions#setErrorListener
  * @see XmlException
  */
 public class XmlError implements java.io.Serializable
 {
     private static final long serialVersionUID = 1L;
-    
+
     private static final ResourceBundle _bundle = PropertyResourceBundle.getBundle("org.apache.xmlbeans.message");
 
     private String _message;
@@ -49,9 +49,9 @@ public class XmlError implements java.io.Serializable
     private int    _line = -1;
     private int    _column = -1;
     private int    _offset = -1;
-    
+
     private transient XmlCursor _cursor;
-    
+
     /**
      * Copy constructor.
      * @param src The original XmlError to copy.
@@ -84,8 +84,8 @@ public class XmlError implements java.io.Serializable
         _offset = offset;
         _cursor = cursor;
     }
-    
-    private XmlError(String code, Object[] args, int severity, 
+
+    private XmlError(String code, Object[] args, int severity,
                      String source, int line, int column, int offset, XmlCursor cursor)
     {
         this(XmlError.formattedMessage(code, args), code, severity,  source, line, column, offset, cursor);
@@ -134,12 +134,12 @@ public class XmlError implements java.io.Serializable
         _offset = offset;
         _cursor = cursor;
     }
-    
+
     protected XmlError(String code, Object[] args, int severity, XmlCursor cursor)
     {
         this(XmlError.formattedMessage(code, args), code, severity, cursor);
     }
-    
+
     /**
      * The static factory methods should be used instead of
      * this constructor.
@@ -168,11 +168,11 @@ public class XmlError implements java.io.Serializable
     {
         this(XmlError.formattedMessage(code, args), code, severity, loc);
     }
-    
+
      /**
      * Returns an XmlError for the given message, with no location and {@link #SEVERITY_ERROR}.
      * @param message the error message
-     */ 
+     */
     public static XmlError forMessage(String message)
     {
         return forMessage(message, SEVERITY_ERROR);
@@ -182,31 +182,64 @@ public class XmlError implements java.io.Serializable
      * Returns an XmlError for the given message, with no location and the given severity.
      * @param message the error message
      * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
-     */ 
+     */
     public static XmlError forMessage(String message, int severity)
     {
         return forSource(message, severity, null);
     }
 
     /**
+     * Returns an XmlError for the given message, with no location and the given severity.
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
+     */
+    public static XmlError forErrorCode(String code, Object[] args)
+    {
+        return forSource(code, args, SEVERITY_ERROR, null);
+    }
+
+    /**
+     * Returns an XmlError for the given message, with no location and the given severity.
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
+     * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
+     */
+    public static XmlError forErrorCode(String code, Object[] args, int severity)
+    {
+        return forSource(code, args, severity, null);
+    }
+
+    /**
      * Returns an XmlError for the given message, located in the given file and {@link #SEVERITY_ERROR}.
      * @param message the error message
      * @param sourceName the URL or other name for the file
-     */ 
+     */
     public static XmlError forSource(String message, String sourceName)
     {
         return forLocation(message, SEVERITY_ERROR, sourceName, -1, -1, -1);
     }
-    
+
     /**
      * Returns an XmlError for the given message, with the given severity, located in the given file.
      * @param message the error message
      * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
      * @param sourceName the URL or other name for the file
-     */ 
+     */
     public static XmlError forSource(String message, int severity, String sourceName)
     {
         return forLocation(message, severity, sourceName, -1, -1, -1);
+    }
+
+    /**
+     * Returns an XmlError for the given message, with the given severity, located in the given file.
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
+     * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
+     * @param sourceName the URL or other name for the file
+     */
+    public static XmlError forSource(String code, Object[] args, int severity, String sourceName)
+    {
+        return forLocation(code, args, severity, sourceName, -1, -1, -1);
     }
 
     /**
@@ -214,7 +247,7 @@ public class XmlError implements java.io.Serializable
      * @param message the error message
      * @param sourceName the URL or other name for the file
      * @param location the location from an xml stream
-     */ 
+     */
     public static XmlError forLocation(String message, String sourceName, Location location)
     {
         return new XmlError(message, (String)null, SEVERITY_ERROR, sourceName,
@@ -228,12 +261,27 @@ public class XmlError implements java.io.Serializable
      * @param line the 1-based line number, or -1 if not known
      * @param column the 1-based column number, or -1 if not known
      * @param offset the 0-base file character offset, or -1 if not known
-     */ 
+     */
     public static XmlError forLocation(String message, String sourceName, int line, int column, int offset)
     {
         return new XmlError(message, (String)null, SEVERITY_ERROR, sourceName, line, column, offset, null);
     }
-    
+
+    /**
+     * Returns an XmlError for the given message, with the given severity, located at a specific point in the given file.
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
+     * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
+     * @param sourceName the URL or other name for the file
+     * @param line the 1-based line number, or -1 if not known
+     * @param column the 1-based column number, or -1 if not known
+     * @param offset the 0-base file character offset, or -1 if not known
+     */
+    public static XmlError forLocation(String code, Object[] args, int severity, String sourceName, int line, int column, int offset)
+    {
+        return new XmlError(code, args, severity, sourceName, line, column, offset, null);
+    }
+
     /**
      * Returns an XmlError for the given message, with the given severity, located at a specific point in the given file.
      * @param message the error message
@@ -242,7 +290,7 @@ public class XmlError implements java.io.Serializable
      * @param line the 1-based line number, or -1 if not known
      * @param column the 1-based column number, or -1 if not known
      * @param offset the 0-base file character offset, or -1 if not known
-     */ 
+     */
     public static XmlError forLocation(String message, int severity, String sourceName, int line, int column, int offset)
     {
         return new XmlError(message, (String)null, severity, sourceName, line, column, offset, null);
@@ -257,7 +305,7 @@ public class XmlError implements java.io.Serializable
      * @param column the 1-based column number, or -1 if not known
      * @param offset the 0-base file character offset, or -1 if not known
      * @param cursor the XmlCursor representing the location of the error
-     */ 
+     */
     public static XmlError forLocationAndCursor(String message, int severity, String sourceName, int line, int column, int offset, XmlCursor cursor)
     {
         return new XmlError(message, (String)null, severity, sourceName, line, column, offset, cursor);
@@ -272,10 +320,11 @@ public class XmlError implements java.io.Serializable
     {
         return forObject(message, SEVERITY_ERROR, xobj);
     }
-    
+
     /**
      * Returns an XmlError for the given message, located at the XmlObject, with {@link #SEVERITY_ERROR}.
-     * @param message the error message
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
      * @param xobj the XmlObject representing the location of the error
      */
     public static XmlError forObject(String code, Object[] args, XmlObject xobj)
@@ -293,7 +342,7 @@ public class XmlError implements java.io.Serializable
     {
         if (xobj == null)
             return forMessage(message, severity);
-        
+
         XmlCursor cur = xobj.newCursor();
         XmlError result = forCursor(message, severity, cur);
         if (cur != null)
@@ -301,6 +350,13 @@ public class XmlError implements java.io.Serializable
         return result;
     }
 
+    /**
+     * Returns an XmlError for the given message, with the given severity, located at the XmlObject.
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
+     * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
+     * @param xobj the XmlObject representing the location of the error
+     */
     public static XmlError forObject(String code, Object[] args, int severity, XmlObject xobj)
     {
         if (xobj == null)
@@ -322,10 +378,11 @@ public class XmlError implements java.io.Serializable
     {
         return forCursor(message, SEVERITY_ERROR, cursor);
     }
-    
+
     /**
      * Returns an XmlError for the given message, located at the XmlCursor, with {@link #SEVERITY_ERROR}.
-     * @param message the error message
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
      * @param cursor the XmlCursor representing the location of the error
      */
     public static XmlError forCursor(String code, Object[] args, XmlCursor cursor)
@@ -343,7 +400,14 @@ public class XmlError implements java.io.Serializable
     {
         return new XmlError(message, (String)null, severity, cursor);
     }
-    
+
+    /**
+     * Returns an XmlError for the given message, with the given severity, located at the XmlCursor.
+     * @param code the error code
+     * @param args the arguments to use in formatting the error message
+     * @param severity the severity ({@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO})
+     * @param cursor the XmlCursor representing the location of the error
+     */
     public static XmlError forCursor(String code, Object[] args, int severity, XmlCursor cursor)
     {
         return new XmlError(code, args, severity, cursor);
@@ -393,17 +457,17 @@ public class XmlError implements java.io.Serializable
 
         return uri.toString();
     }
-    
+
     /**
-     * Tried to format a message using the error code.
-     */ 
-    protected static String formattedMessage(String code, Object[] args)
+     * Tries to format a message using the error code.
+     */
+    public static String formattedMessage(String code, Object[] args)
     {
         if (code == null)
             return null;
-        
+
         String message;
-        
+
         try
         {
             message = MessageFormat.format(_bundle.getString(code), args);
@@ -418,62 +482,62 @@ public class XmlError implements java.io.Serializable
             return MessageFormat.format(_bundle.getString("message.pattern.invalid"),
                 new Object[] { e.getMessage() });
         }
-        
+
         return message;
     }
-    
+
     /**
      * An error. See {@link #getSeverity}.
-     */ 
+     */
     public static final int SEVERITY_ERROR   = 0;
     /**
      * A warning. See {@link #getSeverity}.
-     */ 
+     */
     public static final int SEVERITY_WARNING = 1;
     /**
      * An informational message. See {@link #getSeverity}.
-     */ 
+     */
     public static final int SEVERITY_INFO    = 2;
 
     /**
      * Returns the severity.  Either {@link #SEVERITY_ERROR}, {@link #SEVERITY_WARNING}, or {@link #SEVERITY_INFO}.
-     */ 
+     */
     public int    getSeverity   ( ) { return _severity; }
-    
+
     /**
      * Returns the error message without location information.
-     */ 
+     */
     public String getMessage    ( ) { return _message; }
 
     /**
      * Returns the error code or null. See {@link XmlErrorCodes}.
-     */ 
+     */
     public String getErrorCode  ( ) { return _code; }
-    
+
     /**
      * Returns the URL (or other name) of the file with the error, if available.
-     */ 
+     */
     public String getSourceName ( ) { return _source; }
-    
+
     /**
      * Returns the line number of the error, if available, -1 if not.
-     */ 
+     */
     public int    getLine       ( ) { return _line; }
-    
+
     /**
      * Returns the column number of the error, if available, -1 if not.
-     */ 
+     */
     public int    getColumn     ( ) { return _column; }
-    
+
     /**
      * Returns the file character offset of the error, if available, -1 if not.
-     */ 
+     */
     public int    getOffset     ( ) { return _offset; }
-    
+
     /**
      * Returns a location object of the given type.  XmlCursor.class and
      * XmlObject.class can be passed, for example.  Null if not available.
-     */ 
+     */
     public Object getLocation ( Object type )
     {
         if (type == XmlCursor.class)
@@ -486,7 +550,7 @@ public class XmlError implements java.io.Serializable
     /**
      * Returns a location of the error as an {@link XmlCursor}, null if
      * not available.
-     */ 
+     */
     public XmlCursor getCursorLocation ( )
     {
         return (XmlCursor) getLocation( XmlCursor.class );
@@ -495,7 +559,7 @@ public class XmlError implements java.io.Serializable
     /**
      * Returns a location of the error as an {@link XmlObject}, null if
      * not available.
-     */ 
+     */
     public XmlObject getObjectLocation ( )
     {
         return (XmlObject) getLocation( XmlObject.class );
@@ -554,7 +618,7 @@ public class XmlError implements java.io.Serializable
         {
             sb.append(getErrorCode()).append(": ");
         }
-        
+
         String msg = getMessage();
 
         sb.append( msg == null ? "<Unspecified message>" : msg );

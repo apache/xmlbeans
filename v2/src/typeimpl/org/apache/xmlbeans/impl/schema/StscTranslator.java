@@ -74,7 +74,7 @@ public class StscTranslator
         {
             state.warning("Schema <notation> is not yet supported for this release.", XmlErrorCodes.UNSUPPORTED_FEATURE, schema.getNotationArray(0));
         }
-        
+
         // figure namespace (taking into account chameleons)
         String targetNamespace = schema.getTargetNamespace();
         boolean chameleon = false;
@@ -237,7 +237,7 @@ public class StscTranslator
         for (int i = 0; i < redefinitions.length; i++)
             redefinitions[i].complainAboutMissingDefinitions();
     }
-    
+
     private static class RedefinitionHolder
     {
         // record redefinitions
@@ -246,33 +246,34 @@ public class StscTranslator
         private Map agRedefinitions = Collections.EMPTY_MAP;
         private Map mgRedefinitions = Collections.EMPTY_MAP;
         private String schemaLocation = "";
-        
+
         // first build set of redefined components
         RedefinitionHolder(Redefine redefine)
         {
             if (redefine != null)
             {
                 StscState state = StscState.get();
-            
+
                 stRedefinitions = new HashMap();
                 ctRedefinitions = new HashMap();
                 agRedefinitions = new HashMap();
                 mgRedefinitions = new HashMap();
                 if (redefine.getSchemaLocation() != null)
                     schemaLocation = redefine.getSchemaLocation();
-                
+
                 TopLevelComplexType[] complexTypes = redefine.getComplexTypeArray();
                 for (int i = 0; i < complexTypes.length; i++)
                 {
                     if (complexTypes[i].getName() != null)
                     {
+                        // KHK: which rule? sch-props-correct.2?
                         if (ctRedefinitions.containsKey(complexTypes[i].getName()))
                             state.error("Duplicate type redefinition: " + complexTypes[i].getName(), XmlErrorCodes.DUPLICATE_GLOBAL_TYPE, null);
                         else
                             ctRedefinitions.put(complexTypes[i].getName(), complexTypes[i]);
                     }
                 }
-    
+
                 TopLevelSimpleType[] simpleTypes = redefine.getSimpleTypeArray();
                 for (int i = 0; i < simpleTypes.length; i++)
                 {
@@ -284,7 +285,7 @@ public class StscTranslator
                             stRedefinitions.put(simpleTypes[i].getName(), simpleTypes[i]);
                     }
                 }
-                
+
                 NamedGroup[] modelgroups = redefine.getGroupArray();
                 for (int i = 0; i < modelgroups.length; i++)
                 {
@@ -296,7 +297,7 @@ public class StscTranslator
                             mgRedefinitions.put(modelgroups[i].getName(), modelgroups[i]);
                     }
                 }
-    
+
                 NamedAttributeGroup[] attrgroups = redefine.getAttributeGroupArray();
                 for (int i = 0; i < attrgroups.length; i++)
                 {
@@ -310,43 +311,43 @@ public class StscTranslator
                 }
             }
         }
-        
+
         public TopLevelSimpleType redefineSimpleType(String name)
         {
             if (name == null || !stRedefinitions.containsKey(name))
                 return null;
             return (TopLevelSimpleType)stRedefinitions.remove(name);
         }
-        
+
         public TopLevelComplexType redefineComplexType(String name)
         {
             if (name == null || !ctRedefinitions.containsKey(name))
                 return null;
             return (TopLevelComplexType)ctRedefinitions.remove(name);
         }
-        
+
         public NamedGroup redefineModelGroup(String name)
         {
             if (name == null || !mgRedefinitions.containsKey(name))
                 return null;
             return (NamedGroup)mgRedefinitions.remove(name);
         }
-        
+
         public NamedAttributeGroup redefineAttributeGroup(String name)
         {
             if (name == null || !agRedefinitions.containsKey(name))
                 return null;
             return (NamedAttributeGroup)agRedefinitions.remove(name);
         }
-        
+
         public void complainAboutMissingDefinitions()
         {
             if (stRedefinitions.isEmpty() && ctRedefinitions.isEmpty() &&
                     agRedefinitions.isEmpty() && mgRedefinitions.isEmpty())
                 return;
-            
+
             StscState state = StscState.get();
-            
+
             for (Iterator i = stRedefinitions.keySet().iterator(); i.hasNext(); )
             {
                 String name = (String)i.next();
@@ -358,13 +359,13 @@ public class StscTranslator
                 String name = (String)i.next();
                 state.error("Redefined complex type " + name + " not found in " + schemaLocation, XmlErrorCodes.GENERIC_ERROR, (XmlObject)ctRedefinitions.get(name));
             }
-            
+
             for (Iterator i = agRedefinitions.keySet().iterator(); i.hasNext(); )
             {
                 String name = (String)i.next();
                 state.error("Redefined attribute group " + name + " not found in " + schemaLocation, XmlErrorCodes.GENERIC_ERROR, (XmlObject)agRedefinitions.get(name));
             }
-            
+
             for (Iterator i = mgRedefinitions.keySet().iterator(); i.hasNext(); )
             {
                 String name = (String)i.next();
@@ -381,25 +382,25 @@ public class StscTranslator
     private static SchemaTypeImpl translateDocumentType ( TopLevelElement xsdType, String targetNamespace, boolean chameleon )
     {
         SchemaTypeImpl sType = new SchemaTypeImpl( StscState.get().getContainer(targetNamespace) );
-        
+
         sType.setDocumentType(true);
         sType.setParseContext( xsdType, targetNamespace, chameleon, false);
         sType.setFilename( findFilename( xsdType ) );
 
         return sType;
     }
-    
+
     private static SchemaTypeImpl translateAttributeType ( TopLevelAttribute xsdType, String targetNamespace, boolean chameleon )
     {
         SchemaTypeImpl sType = new SchemaTypeImpl( StscState.get().getContainer(targetNamespace) );
-        
+
         sType.setAttributeType(true);
         sType.setParseContext( xsdType, targetNamespace, chameleon, false);
         sType.setFilename( findFilename( xsdType ) );
-        
+
         return sType;
     }
-    
+
     private static SchemaTypeImpl translateGlobalComplexType(TopLevelComplexType xsdType, String targetNamespace, boolean chameleon, boolean redefinition)
     {
         StscState state = StscState.get();
@@ -407,21 +408,21 @@ public class StscTranslator
         String localname = xsdType.getName();
         if (localname == null)
         {
-            state.error("Global type missing a name", XmlErrorCodes.GLOBAL_TYPE_MISSING_NAME, xsdType);
+            state.error(XmlErrorCodes.MISSING_NAME, new Object[] { "global type" }, xsdType);
             // recovery: ignore unnamed types.
             return null;
         }
         if (!XMLChar.isValidNCName(localname))
         {
-            state.error("Invalid type name \"" + localname + "\"", XmlErrorCodes.INVALID_NAME, xsdType.xgetName());
+            state.error(XmlErrorCodes.INVALID_VALUE, new Object[] { localname, "name" }, xsdType.xgetName());
             // recovery: let the name go through anyway.
         }
 
         QName name = QNameHelper.forLNS(localname, targetNamespace);
-        
+
         if (isReservedTypeName(name))
         {
-            state.warning("Skipping definition of built-in type " + QNameHelper.pretty(name), XmlErrorCodes.RESERVED_TYPE_NAME, xsdType);
+            state.warning(XmlErrorCodes.RESERVED_TYPE_NAME, new Object[] { QNameHelper.pretty(name) }, xsdType);
             return null;
         }
         // System.err.println("Recording type " + QNameHelper.pretty(name));
@@ -442,21 +443,21 @@ public class StscTranslator
         String localname = xsdType.getName();
         if (localname == null)
         {
-            state.error("Global type missing a name", XmlErrorCodes.GLOBAL_TYPE_MISSING_NAME, xsdType);
+            state.error(XmlErrorCodes.MISSING_NAME, new Object[] { "global type" }, xsdType);
             // recovery: ignore unnamed types.
             return null;
         }
         if (!XMLChar.isValidNCName(localname))
         {
-            state.error("Invalid type name \"" + localname + "\"", XmlErrorCodes.INVALID_NAME, xsdType.xgetName());
+            state.error(XmlErrorCodes.INVALID_VALUE, new Object[] { localname, "name" }, xsdType.xgetName());
             // recovery: let the name go through anyway.
         }
-        
+
         QName name = QNameHelper.forLNS(localname, targetNamespace);
-        
+
         if (isReservedTypeName(name))
         {
-            state.warning("Skipping definition of built-in type " + QNameHelper.pretty(name), XmlErrorCodes.RESERVED_TYPE_NAME, xsdType);
+            state.warning(XmlErrorCodes.RESERVED_TYPE_NAME, new Object[] { QNameHelper.pretty(name) }, xsdType);
             return null;
         }
         // System.err.println("Recording type " + QNameHelper.pretty(name));
@@ -546,66 +547,90 @@ public class StscTranslator
             // if (name.equals(ref.getLocalPart()) && uriMatch(targetNamespace, ref.getNamespaceURI()))
             //     state.warning("Element " + name + " specifies both a ref and a name", XmlErrorCodes.ELEMENT_EXTRA_REF, xsdElt.xgetRef());
             // else
-                state.error("Element " + name + " specifies both a ref and a name", XmlErrorCodes.ELEMENT_EXTRA_REF, xsdElt.xgetRef());
+                state.error(XmlErrorCodes.SCHEMA_ELEM$REF_OR_NAME_HAS_BOTH, new Object[] { name }, xsdElt.xgetRef());
             // ignore name
             name = null;
         }
         if (ref == null && name == null)
         {
-            state.error("Element has no name", XmlErrorCodes.ELEMENT_MISSING_NAME, xsdElt);
+            state.error(XmlErrorCodes.SCHEMA_ELEM$REF_OR_NAME_HAS_NEITHER, null, xsdElt);
             // recovery: ignore this element
             return null;
         }
         if (name != null && !XMLChar.isValidNCName(name))
         {
-            state.error("Invalid element name \"" + name + "\"", XmlErrorCodes.INVALID_NAME, xsdElt.xgetName());
+            state.error(XmlErrorCodes.INVALID_VALUE, new Object[] { name, "name" }, xsdElt.xgetName());
             // recovery: let the name go through anyway.
         }
 
         if (ref != null)
         {
-            if (xsdElt.getType() != null || xsdElt.getSimpleType() != null || xsdElt.getComplexType() != null)
+            if (xsdElt.getType() != null)
             {
-                state.error("Element reference cannot also specify a type", XmlErrorCodes.INVALID_NAME, xsdElt);
+                state.error(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "type" }, xsdElt.xgetType());
                 // recovery: let the name go through anyway.
             }
-            
+
+            if (xsdElt.getSimpleType() != null)
+            {
+                state.error(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "<simpleType>" }, xsdElt.getSimpleType());
+                // recovery: let the name go through anyway.
+            }
+
+            if (xsdElt.getComplexType() != null)
+            {
+                state.error(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "<complexType>" }, xsdElt.getComplexType());
+                // recovery: let the name go through anyway.
+            }
+
             if (xsdElt.getForm() != null)
             {
-                state.error("Element reference cannot also specify form", XmlErrorCodes.INVALID_NAME, xsdElt);
+                state.error(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "form" }, xsdElt.xgetForm());
                 // recovery: let the name go through anyway.
             }
-            
-            if (xsdElt.sizeOfKeyArray() > 0 || xsdElt.sizeOfKeyrefArray() > 0 || xsdElt.sizeOfUniqueArray() > 0)
+
+            if (xsdElt.sizeOfKeyArray() > 0)
             {
-                state.warning("Element reference cannot also contain key, keyref, or unique", XmlErrorCodes.GENERIC_ERROR, xsdElt);
+                state.warning(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "<key>" }, xsdElt);
                 // recovery: ignore
             }
-            
+
+            if (xsdElt.sizeOfKeyrefArray() > 0)
+            {
+                state.warning(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "<keyref>" }, xsdElt);
+                // recovery: ignore
+            }
+
+            if (xsdElt.sizeOfUniqueArray() > 0)
+            {
+                state.warning(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "<unique>" }, xsdElt);
+                // recovery: ignore
+            }
+
             if (xsdElt.isSetDefault())
             {
-                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify default", XmlErrorCodes.GENERIC_ERROR, xsdElt);
+                state.warning(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "default" }, xsdElt.xgetDefault());
                 // recovery: ignore
             }
-            
+
             if (xsdElt.isSetFixed())
             {
-                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify fixed", XmlErrorCodes.GENERIC_ERROR, xsdElt);
+                state.warning(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "fixed" }, xsdElt.xgetFixed());
                 // recovery: ignore
             }
-            
+
             if (xsdElt.isSetBlock())
             {
-                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify block", XmlErrorCodes.GENERIC_ERROR, xsdElt);
+                state.warning(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "block" }, xsdElt.xgetBlock());
                 // recovery: ignore
             }
-            
+
             if (xsdElt.isSetNillable())
             {
-                state.warning("Element with reference to '" + ref.getLocalPart() + "' cannot also specify nillable", XmlErrorCodes.GENERIC_ERROR, xsdElt);
+                state.warning(XmlErrorCodes.SCHEMA_ELEM$REF_FEATURES, new Object[] { "nillable" }, xsdElt.xgetNillable());
                 // recovery: ignore
             }
-            
+
             assert(xsdElt instanceof LocalElement);
             SchemaGlobalElement referenced = state.findGlobalElement(ref, chameleon ? targetNamespace : null, targetNamespace);
             if (referenced == null)
@@ -711,7 +736,7 @@ public class StscTranslator
 
         if ((sType != null) && typedef != null)
         {
-            state.error("Illegal to define a nested type when a type attribute is specified", XmlErrorCodes.REDUNDANT_NESTED_TYPE, typedef);
+            state.error(XmlErrorCodes.SCHEMA_ELEM$TYPE_ATTR_OR_NESTED_TYPE, null, typedef);
             typedef = null;
         }
 
@@ -762,7 +787,7 @@ public class StscTranslator
         boolean isFixed = xsdElt.isSetFixed();
         if (xsdElt.isSetDefault() && isFixed)
         {
-            state.error("Should not set both default and fixed on the same element", XmlErrorCodes.REDUNDANT_DEFAULT_FIXED, xsdElt.xgetFixed());
+            state.error(XmlErrorCodes.SCHEMA_ELEM$DEFAULT_OR_FIXED, null, xsdElt.xgetFixed());
             // recovery: ignore fixed
             isFixed = false;
         }
@@ -793,7 +818,7 @@ public class StscTranslator
                     blockSubst = true;
             }
         }
-        
+
         impl.setBlock(blockExt, blockRest, blockSubst);
 
         boolean constraintFailed = false;
@@ -845,7 +870,7 @@ public class StscTranslator
 
         return impl;
     }
-    
+
     private static String removeWhitespace(String xpath)
     {
         StringBuffer sb = new StringBuffer();
@@ -858,17 +883,17 @@ public class StscTranslator
         }
         return sb.toString();
     }
-    
+
     public static final org.apache.xmlbeans.impl.regex.RegularExpression XPATH_REGEXP = new org.apache.xmlbeans.impl.regex.RegularExpression("(\\.//)?((((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)/)*((((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)|((attribute::|@)((\\i\\c*:)?(\\i\\c*|\\*))))(\\|(\\.//)?((((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)/)*((((child::)?((\\i\\c*:)?(\\i\\c*|\\*)))|\\.)|((attribute::|@)((\\i\\c*:)?(\\i\\c*|\\*)))))*", "X");
-    
+
     private static boolean checkXPathSyntax(String xpath)
     {
         if (xpath == null)
             return false;
-        
+
         // strip whitespace from xpath
         xpath = removeWhitespace(xpath);
-        
+
         // apply regexp
         synchronized (XPATH_REGEXP)
         {
@@ -876,31 +901,29 @@ public class StscTranslator
         }
     }
 
-    private static SchemaIdentityConstraintImpl translateIdentityConstraint(Keybase parseIC, 
+    private static SchemaIdentityConstraintImpl translateIdentityConstraint(Keybase parseIC,
         String targetNamespace, boolean chameleon)
     {
         StscState state = StscState.get();
-        
+
         // first do some checking
         String selector = parseIC.getSelector() == null ? null : parseIC.getSelector().getXpath();
         if (!checkXPathSyntax(selector))
         {
-            StscState.get().error("Invalid xpath in selector.",
-                XmlErrorCodes.XPATH_COMPILATION_FAILURE, parseIC.getSelector().xgetXpath());
+            state.error(XmlErrorCodes.SELECTOR_XPATH, new Object[] { selector }, parseIC.getSelector().xgetXpath());
             return null;
         }
-        
+
         FieldDocument.Field[] fieldElts = parseIC.getFieldArray();
         for (int j = 0; j < fieldElts.length; j++)
         {
             if (!checkXPathSyntax(fieldElts[j].getXpath()))
             {
-                StscState.get().error("Invalid xpath in field.",
-                    XmlErrorCodes.XPATH_COMPILATION_FAILURE, fieldElts[j].xgetXpath());
+                state.error(XmlErrorCodes.FIELDS_XPATH, new Object[] { fieldElts[j].getXpath() }, fieldElts[j].xgetXpath());
                 return null;
             }
         }
-        
+
         // then translate.
         SchemaIdentityConstraintImpl ic = new SchemaIdentityConstraintImpl(state.getContainer(targetNamespace));
         ic.setName(QNameHelper.forLNS(parseIC.getName(), targetNamespace));
@@ -928,9 +951,7 @@ public class StscTranslator
             ic.buildPaths();
         }
         catch (XPath.XPathCompileException e) {
-            StscState.get().error("Invalid xpath in identity constraint: " + e.getMessage(),
-                XmlErrorCodes.XPATH_COMPILATION_FAILURE, parseIC);
-
+            state.error(XmlErrorCodes.INVALID_XPATH, new Object[] { e.getMessage() }, parseIC);
             return null;
         }
 
@@ -945,7 +966,7 @@ public class StscTranslator
         String name = namedGroup.getName();
         if (name == null)
         {
-            StscState.get().error("Model groups must be named", XmlErrorCodes.MODEL_GROUP_MISSING_NAME, namedGroup);
+            StscState.get().error(XmlErrorCodes.MISSING_NAME, new Object[] { "model group" }, namedGroup);
             return null;
         }
         SchemaContainer c = StscState.get().getContainer(targetNamespace);
@@ -960,7 +981,7 @@ public class StscTranslator
         String name = attrGroup.getName();
         if (name == null)
         {
-            StscState.get().error("Attribute groups must be named", XmlErrorCodes.ATTRIBUTE_GROUP_MISSING_NAME, attrGroup);
+            StscState.get().error(XmlErrorCodes.MISSING_NAME, new Object[] { "attribute group" }, attrGroup);
             return null;
         }
         SchemaContainer c = StscState.get().getContainer(targetNamespace);
@@ -991,21 +1012,21 @@ public class StscTranslator
         if (ref != null && name != null)
         {
             if (name.equals(ref.getLocalPart()) && uriMatch(targetNamespace, ref.getNamespaceURI()))
-                state.warning("Attribute " + name + " specifies both a ref and a name", XmlErrorCodes.ELEMENT_EXTRA_REF, xsdAttr.xgetRef());
+                state.warning(XmlErrorCodes.SCHEMA_ATTR$REF_OR_NAME_HAS_BOTH, new Object[] { name }, xsdAttr.xgetRef());
             else
-                state.error("Attribute " + name + " specifies both a ref and a name", XmlErrorCodes.ELEMENT_EXTRA_REF, xsdAttr.xgetRef());
+                state.error(XmlErrorCodes.SCHEMA_ATTR$REF_OR_NAME_HAS_BOTH, new Object[] { name }, xsdAttr.xgetRef());
             // ignore name
             name = null;
         }
         if (ref == null && name == null)
         {
-            state.error("Attribute has no name", XmlErrorCodes.ELEMENT_MISSING_NAME, xsdAttr);
+            state.error(XmlErrorCodes.SCHEMA_ATTR$REF_OR_NAME_HAS_NEITHER, null, xsdAttr);
             // recovery: ignore this element
             return null;
         }
         if (name != null && !XMLChar.isValidNCName(name))
         {
-            state.error("Invalid attribute name \"" + name + "\"", XmlErrorCodes.INVALID_NAME, xsdAttr.xgetName());
+            state.error(XmlErrorCodes.INVALID_VALUE, new Object[] { name, "name" }, xsdAttr.xgetName());
             // recovery: let the name go through anyway.
         }
 
@@ -1026,18 +1047,24 @@ public class StscTranslator
 
         if (ref != null)
         {
-            if (xsdAttr.getType() != null || xsdAttr.getSimpleType() != null)
+            if (xsdAttr.getType() != null)
             {
-                state.error("Attribute reference cannot also specify type", XmlErrorCodes.INVALID_NAME, xsdAttr);
+                state.error(XmlErrorCodes.SCHEMA_ATTR$REF_FEATURES, new Object[] { "type" }, xsdAttr.xgetType());
                 // recovery: ignore type, simpleType
             }
-            
+
+            if (xsdAttr.getSimpleType() != null)
+            {
+                state.error(XmlErrorCodes.SCHEMA_ATTR$REF_FEATURES, new Object[] { "<simpleType>" }, xsdAttr.getSimpleType());
+                // recovery: ignore type, simpleType
+            }
+
             if (xsdAttr.getForm() != null)
             {
-                state.error("Attribute reference cannot also specify form", XmlErrorCodes.INVALID_NAME, xsdAttr);
+                state.error(XmlErrorCodes.SCHEMA_ATTR$REF_FEATURES, new Object[] { "form" }, xsdAttr.xgetForm());
                 // recovery: ignore form
             }
-            
+
             SchemaGlobalAttribute referenced = state.findGlobalAttribute(ref, chameleon ? targetNamespace : null, targetNamespace);
             if (referenced == null)
             {
@@ -1078,22 +1105,22 @@ public class StscTranslator
                 if (sType == null)
                     state.notFoundError(xsdAttr.getType(), SchemaType.TYPE, xsdAttr.xgetType());
             }
-            
+
             if (qname.getNamespaceURI().equals("http://www.w3.org/2001/XMLSchema-instance"))
             {
-                state.error("Illegal namespace for attribute declaration.", XmlErrorCodes.INVALID_NAME, xsdAttr.xgetName());
+                state.error(XmlErrorCodes.NO_XSI, new Object[] { "http://www.w3.org/2001/XMLSchema-instance" }, xsdAttr.xgetName());
             }
-            
+
             if (qname.getNamespaceURI().length() == 0 && qname.getLocalPart().equals("xmlns"))
             {
-                state.error("Illegal name for attribute declaration.", XmlErrorCodes.INVALID_NAME, xsdAttr.xgetName());
+                state.error(XmlErrorCodes.NO_XMLNS, null, xsdAttr.xgetName());
             }
-            
+
             LocalSimpleType typedef = xsdAttr.getSimpleType();
 
             if ((sType != null) && typedef != null)
             {
-                state.error("Illegal to define a nested type when a type attribute is specified", XmlErrorCodes.REDUNDANT_NESTED_TYPE, typedef);
+                state.error(XmlErrorCodes.SCHEMA_ATTR$TYPE_ATTR_OR_NESTED_TYPE, null, typedef);
                 typedef = null;
             }
 
@@ -1110,7 +1137,7 @@ public class StscTranslator
                 sTypeImpl.setAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), typedef));
                 sTypeImpl.setUserData(getUserData(typedef));
             }
-            
+
             if (sType == null && baseModel != null && baseModel.getAttribute(qname) != null)
                 sType = baseModel.getAttribute(qname).getType();
         }
@@ -1120,30 +1147,31 @@ public class StscTranslator
 
         if (!sType.isSimpleType())
         {
+            // KHK: which rule? could use #a-simple_type_definition
             state.error("Attributes must have a simple type (not complex).", XmlErrorCodes.INVALID_SCHEMA, xsdAttr);
             // recovery: switch to the any-type
             sType = BuiltinSchemaTypeSystem.ST_ANY_SIMPLE;
         }
-        
+
         if (xsdAttr.isSetUse())
         {
             use = translateUseCode(xsdAttr.xgetUse());
-            
+
             // ignore referenced default if no longer optional
             if (use != SchemaLocalAttribute.OPTIONAL && !isFixed)
                 deftext = null;
         }
-        
+
         if (xsdAttr.isSetDefault() || xsdAttr.isSetFixed())
         {
             if (isFixed && !xsdAttr.isSetFixed())
                 state.error("A use of a fixed attribute definition must also be fixed", XmlErrorCodes.REDUNDANT_DEFAULT_FIXED, xsdAttr.xgetFixed());
-            
+
             isFixed = xsdAttr.isSetFixed();
-            
+
             if (xsdAttr.isSetDefault() && isFixed)
             {
-                state.error("Should not set both default and fixed on the same attribute", XmlErrorCodes.REDUNDANT_DEFAULT_FIXED, xsdAttr.xgetFixed());
+                state.error(XmlErrorCodes.SCHEMA_ATTR$DEFAULT_OR_FIXED, null, xsdAttr.xgetFixed());
                 // recovery: ignore fixed
                 isFixed = false;
             }
@@ -1202,13 +1230,13 @@ public class StscTranslator
         }
         catch (NumberFormatException e)
         {
-            StscState.get().error("Must be nonnegative integer", XmlErrorCodes.MALFORMED_NUMBER, value);
+            StscState.get().error(XmlErrorCodes.INVALID_VALUE_DETAIL, new Object[] { text, "nonNegativeInteger", e.getMessage() }, value);
             return null;
         }
 
         if (bigInt.signum() < 0)
         {
-            StscState.get().error("Must be nonnegative integer", XmlErrorCodes.MALFORMED_NUMBER, value);
+            StscState.get().error(XmlErrorCodes.INVALID_VALUE, new Object[] { text, "nonNegativeInteger" }, value);
             return null;
         }
         try

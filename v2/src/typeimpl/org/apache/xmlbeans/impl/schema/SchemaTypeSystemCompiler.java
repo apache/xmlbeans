@@ -343,17 +343,17 @@ public class SchemaTypeSystemCompiler
                 }
                 catch (java.net.MalformedURLException mfe)
                 {
-                    StscState.get().error("Malformed url while trying to load " + url + ": " + mfe.getMessage(), XmlErrorCodes.CANNOT_LOAD_XSD_FILE, null);
+                    StscState.get().error(XmlErrorCodes.EXCEPTION_LOADING_URL, new Object[] { "MalformedURLException", url, mfe.getMessage() }, null);
                     continue;
                 }
                 catch (java.io.IOException ioe)
                 {
-                    StscState.get().error("IOException while trying to load " + url + ": " + ioe.getMessage(), XmlErrorCodes.CANNOT_LOAD_XSD_FILE, null);
+                    StscState.get().error(XmlErrorCodes.EXCEPTION_LOADING_URL, new Object[] { "IOException", url, ioe.getMessage() }, null);
                     continue;
                 }
                 catch (XmlException xmle)
                 {
-                    StscState.get().error("XmlException while trying to load " + url + ": " + xmle.getMessage(), XmlErrorCodes.CANNOT_LOAD_XSD_FILE, null);
+                    StscState.get().error(XmlErrorCodes.EXCEPTION_LOADING_URL, new Object[] { "XmlException", url, xmle.getMessage() }, null);
                     continue;
                 }
             }
