@@ -87,10 +87,12 @@ public class SchemaCodeGenerator
 
     private static void deleteDirRecursively(File root, File dir)
     {
-        while (dir.list().length == 0 && !dir.equals(root))
+        String[] list = dir.list();
+        while (list != null && list.length == 0 && !dir.equals(root))
         {
             dir.delete();
             dir = dir.getParentFile();
+            list = dir.list();
         }
     }
 
@@ -142,9 +144,10 @@ try {
         {
             if (dir.isDirectory())
             {
-                String[] list = dir.list();
-                for (int i = 0; i < list.length; i++)
-                    tryToDelete(new File(dir, list[i]));
+                String[] list = dir.list(); // can return null if I/O error
+                if (list != null)
+                    for (int i = 0; i < list.length; i++)
+                        tryToDelete(new File(dir, list[i]));
             }
             if (!dir.delete())
                 return; // don't try very hard, because we're just deleting tmp
