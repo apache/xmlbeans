@@ -17,7 +17,6 @@ package org.apache.xmlbeans.impl.inst2xsd;
 import org.apache.xmlbeans.impl.inst2xsd.util.Element;
 import org.apache.xmlbeans.impl.inst2xsd.util.TypeSystemHolder;
 import org.apache.xmlbeans.impl.inst2xsd.util.Type;
-import org.apache.xmlbeans.impl.inst2xsd.util.Attribute;
 
 import javax.xml.namespace.QName;
 
@@ -91,27 +90,27 @@ public class VenetianBlindStrategy
         return true;
     }
 
-    private boolean typeIsReferencedInside(Type entity, Type container)
-    {
-        for (int i = 0; i < container.getElements().size(); i++)
-        {
-            Element element = (Element) container.getElements().get(i);
-            if (entity==element.getType())
-                return true;
-
-            if (typeIsReferencedInside(entity, element.getType()))
-                return true;
-        }
-
-        for (int i = 0; i < container.getAttributes().size(); i++)
-        {
-            Attribute attribute = (Attribute) container.getAttributes().get(i);
-            if (entity==attribute.getType())
-                return true;
-
-            if (typeIsReferencedInside(entity, attribute.getType()))
-                return true;
-        }
-        return false;
-    }
+//    private boolean typeIsReferencedInside(Type entity, Type container)
+//    {
+//        for (int i = 0; i < container.getElements().size(); i++)
+//        {
+//            Element element = (Element) container.getElements().get(i);
+//            if (entity==element.getType())
+//                return true;
+//
+//            if (typeIsReferencedInside(entity, element.getType()))
+//                return true;
+//        }
+//
+//        for (int i = 0; i < container.getAttributes().size(); i++)
+//        {
+//            Attribute attribute = (Attribute) container.getAttributes().get(i);
+//            if (entity==attribute.getType())
+//                return true;
+//
+//            if (typeIsReferencedInside(entity, attribute.getType()))
+//                return true;
+//        }
+//        return false;
+//    }
 }

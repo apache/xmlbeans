@@ -34,6 +34,12 @@ public class SalamiSliceStrategy
         referencedElem.setName(child.getName());
         referencedElem.setType(child.getType());
 
+        if (child.isNillable())
+        {
+            referencedElem.setNillable(true);
+            child.setNillable(false);
+        }
+
         referencedElem = addGlobalElement(referencedElem, typeSystemHolder, options);
 
         child.setRef(referencedElem); // clears child's type
