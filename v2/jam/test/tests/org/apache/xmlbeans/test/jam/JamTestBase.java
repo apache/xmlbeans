@@ -92,8 +92,8 @@ public abstract class JamTestBase extends TestCase {
   // ========================================================================
   // Constants
 
-  private static final boolean CONTINUE_ON_COMPARE_FAIL = false;
-  private static final boolean WRITE_RESULT_ON_FAIL = false;
+  private static final boolean CONTINUE_ON_COMPARE_FAIL = true;
+  private static final boolean WRITE_RESULT_ON_FAIL = true;
 
   private static final String WRITE_RESULT_PREFIX = "result-";
 
@@ -251,6 +251,35 @@ public abstract class JamTestBase extends TestCase {
                classNames.containsAll(expected));
     assertTrue("result contains more than expected classes",
                expected.containsAll(classNames));
+  }
+
+  public void testAnnotationUrlValues() {
+    if (!isAnnotationsAvailable()) return;
+    JClass clazz = resolved(mLoader.loadClass(DUMMY+".ValuesById"));
+    {
+      final String ANN = "xsdgen:type@target_namespace";
+      final String VAL = "http://www.yahoo.com";
+      JAnnotationValue tns = clazz.getAnnotationValue(ANN);
+      assertTrue("no "+ANN, tns !=  null);
+      assertTrue(ANN+" does not equal "+VAL+", instead is '"+tns.asString(),
+                 tns.asString().equals(VAL));
+    }
+    {
+      final String ANN = "xsdgen:type@quoted_tns";
+      final String VAL = "http://homestarrunner.com/sbemail58.html";
+      JAnnotationValue tns = clazz.getAnnotationValue(ANN);
+      assertTrue("no "+ANN, tns !=  null);
+      assertTrue(ANN+" does not equal "+VAL+", instead is '"+tns.asString(),
+                 tns.asString().equals(VAL));
+    }
+    {
+      final String ANN = "someurl";
+      final String VAL = "http://www.apache.org/foo";
+      JAnnotationValue tns = clazz.getAnnotationValue(ANN);
+      assertTrue("no "+ANN, tns !=  null);
+      assertTrue(ANN+" does not equal "+VAL+", instead is '"+tns.asString(),
+                 tns.asString().equals(VAL));
+    }
   }
 
   public void testAnnotationValuesById() {
@@ -453,8 +482,6 @@ public abstract class JamTestBase extends TestCase {
     if (!isAnnotationsAvailable()) return;
     JClass mt = resolved(mLoader.loadClass(DUMMY+".MultilineTags"));
     JAnnotation ann = mt.getAllJavadocTags()[5];
-    System.out.println("\n\n\n=== "+ann.getValue("signature").asString());
-    System.out.println("\n\n\n=== "+ann.getValue("ejb-ql").asString());
     compare(resolved(mt), "testMultilineTags.xml");
   }
 

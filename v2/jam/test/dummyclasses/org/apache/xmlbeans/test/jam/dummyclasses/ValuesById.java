@@ -25,6 +25,10 @@ package org.apache.xmlbeans.test.jam.dummyclasses;
  *
  * @baz I have no pairs.
  *
+ * @xsdgen:type target_namespace=http://www.yahoo.com
+ * @xsdgen:type quoted_tns="http://homestarrunner.com/sbemail58.html" 
+ * @someurl http://www.apache.org/foo
+ *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
 public class ValuesById {

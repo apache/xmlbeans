@@ -60,15 +60,11 @@ public abstract class AnnotatedElementImpl extends ElementImpl
 
     int delim = valueId.indexOf('@');
     if (delim == -1 || delim == valueId.length()-1) {
-          System.out.println("--- single   "+valueId);
       JAnnotation ann = getAnnotation(valueId);
       if (ann == null) return null;
       return ann.getValue(JAnnotation.SINGLE_VALUE_NAME);
     } else {
-      System.out.println("--- double '"+valueId.substring(0,delim)+"'   '"+
-                         valueId.substring(delim+1)+"'");
       JAnnotation ann = getAnnotation(valueId.substring(0,delim));
-      System.out.println("    the ann is "+ann);
       if (ann == null) return null;
 
       return ann.getValue(valueId.substring(delim+1));
