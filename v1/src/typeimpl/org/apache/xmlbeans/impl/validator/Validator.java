@@ -60,11 +60,13 @@ import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.XmlString;
 
 import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 import javax.xml.namespace.QName;
 
 public final class Validator
@@ -801,6 +803,9 @@ public final class Validator
         String message = null;
         SchemaProperty[] eltProperties = state._type.getElementProperties();
 
+        ArrayList expectedNames = new ArrayList();
+        ArrayList optionalNames = new ArrayList();
+
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
@@ -809,10 +814,28 @@ public final class Validator
             // test if the element is valid
             if (state.test(sProp.getName()))
             {
-                message = "Expected element " + QNameHelper.pretty(sProp.getName()) + " instead of " + QNameHelper.pretty(qName) + " here";
-                break;
+                if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs()))
+                    optionalNames.add(sProp.getName());
+                else
+                    expectedNames.add(sProp.getName());
             }
         }
+
+        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+
+        if (names.size() > 0)
+        {
+            StringBuffer buf = new StringBuffer();
+            for (Iterator iter = names.iterator(); iter.hasNext(); )
+            {
+                buf.append(QNameHelper.pretty((QName)iter.next()));
+                buf.append(" ");
+            }
+
+            message = "Expected element" + (names.size()>1 ? "s " : " ") +
+                      buf.toString() + "at the end of the content";
+        }
+
         return message;
     }
 
@@ -821,6 +844,9 @@ public final class Validator
         SchemaProperty[] eltProperties  = state._type.getElementProperties();
         String message = null;
 
+        ArrayList expectedNames = new ArrayList();
+        ArrayList optionalNames = new ArrayList();
+
         for (int ii = 0; ii < eltProperties.length; ii++)
         {
             //Get the element from the schema
@@ -829,11 +855,28 @@ public final class Validator
             // test if the element is valid
             if (state.test(sProp.getName()))
             {
-                message = "Expected element " + QNameHelper.pretty(sProp.getName()) +
-                          " at the end of the content";
-                break;
+                if (0 == BigInteger.ZERO.compareTo(sProp.getMinOccurs()))
+                    optionalNames.add(sProp.getName());
+                else
+                    expectedNames.add(sProp.getName());
             }
         }
+
+        List names = (expectedNames.size() > 0 ? expectedNames : optionalNames);
+
+        if (names.size() > 0)
+        {
+            StringBuffer buf = new StringBuffer();
+            for (Iterator iter = names.iterator(); iter.hasNext(); )
+            {
+                buf.append(QNameHelper.pretty((QName)iter.next()));
+                buf.append(" ");
+            }
+
+            message = "Expected element" + (names.size()>1 ? "s " : " ") +
+                      buf.toString() + "at the end of the content";
+        }
+
         return message;
     }
 
