@@ -172,7 +172,7 @@ public class Java2Schema extends BindingCompiler {
     // deal with inheritance - see if it extends anything
     JClass superclass = clazz.getSuperclass();
     if (superclass != null && !superclass.isObject() &&
-            !getAnnotation(superclass,TAG_CT_IGNORESUPER,false)) {
+            !getAnnotation(clazz,TAG_CT_IGNORESUPER,false)) {
       // FIXME we're ignoring interfaces at the moment
       BindingType superBindingType = getBindingTypeFor(superclass);
       ComplexContentDocument.ComplexContent ccd = xsType.addNewComplexContent();
