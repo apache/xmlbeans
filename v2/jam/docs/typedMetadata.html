@@ -125,7 +125,7 @@ about JSR175 in the first place.
 <p>JAM's solution to this problem is simple: return control of the 
 metadata access model to the compiler authors.  This is achieved by
 allowing authors to create a bean which acts as a proxy to the JSR 175
-annotation data; these beans are called <i>JAnnotationProxies</i>.</p>
+annotation data; these beans are called <i>AnnotationProxies</i>.</p>
 
 <p>
 The annotation data being proxied may in fact reside on an instance of 
@@ -134,7 +134,7 @@ looking at an annotation in a 1.5 VM.  However, it may also simply
 be an 175 annotation declaration in a java source file (remember,
 again, that there we have no way to instantiate the 175 interface for
 the annotation be declared).  JAM does all the work to plug the 
-data into the JAnnotationProxy proxy.  The compiler author in turn gets a 
+data into the AnnotationProxy.  The compiler author in turn gets a 
 strongly-typed, consistent API metadata without having to worry about
 where it's coming from.
 </p>
@@ -153,9 +153,12 @@ a 175 annotation type, like the following:
 </pre>
 
 <p>
-Our compiler author would then define a proxy to MyAnnotation that
-would probably look something like this (except for the verbose
-javadocs, which you can ignore unless you're looking for more detail):
+Our compiler author would then define a proxy to represent the SpecialId
+annotation which would probably look something like this:
+</p>
+
+<p>
+(you can ignore the verbose javadocs unless you're looking for more detail):
 </p>
 
 <pre>
@@ -176,12 +179,12 @@ javadocs, which you can ignore unless you're looking for more detail):
    * non-abstract, and have a public default constructor.  It also is
    * required that you provide setter methods that correspond to the type
    * and names of the annotation properties so that JAM can use reflection 
-   * to populate the JAnnotationProxy.  (Actually, even this is not a really
+   * to populate the AnnotationProxy.  (Actually, even this is not a really
    * firm requirement if you're willing to do a little extra work - see
-   * the JAnnotationProxy javadocs for details).
+   * the TypedAnnotationProxyBase javadocs for details).
    */
 -->
-  public class SpecialIdProxy extends JAnnotationProxyBase {
+  public class SpecialIdProxy extends TypedAnnotationProxyBase {
     public SpecialIdProxy() {}              // a public no-arg constructor is required
     public int id() { return mId;}          // just like the 175 annotation method
     public void setId(int id) { mId = id; } // this gets called by JAM
@@ -190,10 +193,36 @@ javadocs, which you can ignore unless you're looking for more detail):
 </pre>
 
 <p>
-So far so redundant, right?  Ok, let's write a very simple compiler-like
-tool that wants to inspect a single java source file or java class, print out
-it's comments (if it has any) and output the value of the SpecialId 
-annotation.  That program would look something like this:
+We have chosen to make the SpecialIdProxy expose the same public face
+as our JSR175 interface, <code>SpecialId</code> (they both have an
+<code>id()</code> property accessor).  However, it is worth noting that 
+SpecialIdProxy does <b>not</b> implement <code>SpecialId</code>.
+There are two reasons for this:
+</p><p>
+<ul>
+  <li>
+    Doing so would immediately lock our code into JDK 1.5.  This
+    is beacuse SpecialId will extend from  
+    <code>java.lang.annotation-Annotation</code>, which is 1.5-specific.
+  </li>
+  <li>
+    As of this writing, it's not entirely clear that writing your own
+    implementation of a JSR175 annotation interface is a valid thing to do
+  </li>
+</ul>
+</p>
+
+<p>
+  So, now we have an JSR175 annotation interface, and we've written a
+  proxy class that looks just like it (but does not implement it).
+  So far, so redundant, right?  
+</p>
+
+<p>
+  To see why we have done this, let's write a very simple compiler-like
+  tool that inspects a single java source file or java class, prints out
+  it's comments (if it has any) and outputs the value of the SpecialId 
+  annotation.  That program would look something like this:
 </p>
 
 <pre>
@@ -209,15 +238,15 @@ public class SpecialIdViewer {
                           "relative source file path");
     }
 
-    // Bootstrap into JAM.  We need to create a JService that has either
+    // Bootstrap into JAM.  We need to create a JamService that has either
     // a class- or source- based representation of a class, depending
     // on what they specified.
 
-    JServiceFactory factory = JServiceFactory.getInstance();
-    JServiceParams params = factory.createServiceParams();
+    JamServiceFactory factory = JamServiceFactory.getInstance();
+    JamServiceParams params = factory.createServiceParams();
 
     // Establish a mapping between the 175 annotation type and our proxy
-    params.mapAnnotationProxy(SpecialIdProxy.class, "com.special.SpecialId");
+    params.register175AnnotationProxy(SpecialIdProxy.class,"com.special.SpecialId");
 
     // Decide whether they want to look at a source file or a class
     if (args[0].endsWith(".java")) {
@@ -227,7 +256,7 @@ public class SpecialIdViewer {
     }
 
     // Ok, create our entry point into JAM
-    JService service = factory.createService(params);
+    JamService service = factory.createService(params);
 
     // Whew!  Ok, enough set up, let's get some real work done
 
