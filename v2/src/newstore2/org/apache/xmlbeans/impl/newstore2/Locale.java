@@ -1048,13 +1048,12 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
         public void bookmarkLastEvent ( XmlBookmark mark )
         {
-            _context.bookmark( mark );
+            _context.bookmarkLastNonAttr( mark );
         }
 
         public void bookmarkLastAttr ( QName attrName, XmlBookmark mark )
         {
-            // TODO - add a method to LoadContext to bookmark an attr of the last container
-            throw new RuntimeException( "Not implemented" );
+            _context.bookmarkLastAttr( attrName, mark );
         }
         
         public XmlObject getObject ( ) throws XmlException
@@ -2250,6 +2249,9 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         protected abstract void abort  ( );
 
         protected abstract void bookmark ( XmlBookmark bm );
+        protected abstract void bookmarkLastNonAttr ( XmlBookmark bm );
+        protected abstract void bookmarkLastAttr ( QName attrName, XmlBookmark bm );
+        
         protected abstract void lineNumber ( int line, int column, int offset );
     }
 
