@@ -55,7 +55,7 @@ public class Schema2Java extends BindingCompiler {
   // Variables
 
   private Set usedNames = new HashSet();
-  private SchemaTypeLoader sts = null;
+  private SchemaTypeSystem sts = null;
   private Map scratchFromXmlName = new LinkedHashMap();
   private Map scratchFromSchemaType = new HashMap(); // for convenience
   private Map scratchFromJavaNameString = new HashMap(); // for printing

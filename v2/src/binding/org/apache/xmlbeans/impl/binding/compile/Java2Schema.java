@@ -130,11 +130,16 @@ public class Java2Schema extends BindingCompiler {
       SchemaTypeSystem sts = XmlBeans.compileXsd
         (new XmlObject[] {mSchemaDocument},XmlBeans.getBuiltinTypeSystem(),null);
       writer.writeSchemaTypeSystem(sts);
-    } catch(XmlException xe) {
+    } catch(Exception e) {
+      System.out.println("[XBEANS] Java2Schema encoutnered a problem trying to write out xsbs.  Ignoring for now: ");
+      e.printStackTrace(System.out);
+    }
+/*    } catch(XmlException xe) {
       logError(xe);
     } catch(IOException ioe) {
       logError(ioe);
     }
+*/
   }
 
   // ========================================================================
