@@ -44,7 +44,16 @@ import java.io.IOException;
 import javax.xml.stream.XMLStreamReader;
 import javax.xml.stream.XMLStreamException;
 
+import org.apache.xmlbeans.xml.stream.Attribute;
+import org.apache.xmlbeans.xml.stream.AttributeIterator;
+import org.apache.xmlbeans.xml.stream.CharacterData;
+import org.apache.xmlbeans.xml.stream.ProcessingInstruction;
+import org.apache.xmlbeans.xml.stream.Space;
+import org.apache.xmlbeans.xml.stream.StartDocument;
+import org.apache.xmlbeans.xml.stream.StartElement;
+import org.apache.xmlbeans.xml.stream.XMLEvent;
 import org.apache.xmlbeans.xml.stream.XMLInputStream;
+import org.apache.xmlbeans.xml.stream.XMLName;
 
 import org.w3c.dom.DOMImplementation;
 import org.w3c.dom.Document;
@@ -55,6 +64,7 @@ import org.w3c.dom.Element;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.impl.common.XMLNameHelper;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.common.XmlLocale;
 import org.apache.xmlbeans.impl.common.ResolverUtil;
@@ -639,10 +649,34 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         SchemaTypeLoader stl, XMLInputStream xis, SchemaType type, XmlOptions options )
             throws XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException
     {
-        throw new RuntimeException( "Not impl" );
-//        Root r = new Root( stl, null, options );
-//        r.loadXml( xis, type, options );
-//        return r.getObject();
+        Locale l = getLocale( stl, options );
+
+        if (l.noSync())         { l.enter(); try { return l.parseToXmlObject( xis, type, options ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return l.parseToXmlObject( xis, type, options ); } finally { l.exit(); } }
+    }
+    
+    public XmlObject parseToXmlObject (
+        XMLInputStream xis, SchemaType type, XmlOptions options )
+            throws XmlException, org.apache.xmlbeans.xml.stream.XMLStreamException
+    {
+        Cur c;
+        
+        try
+        {
+            c = loadXMLInputStream( xis, options );
+        }
+        catch ( org.apache.xmlbeans.xml.stream.XMLStreamException e )
+        {
+            throw new XmlException( e.getMessage(), e );
+        }
+            
+        autoTypeDocument( c, type, options );
+
+        XmlObject x = (XmlObject) c.getUser();
+
+        c.release();
+        
+        return x;
     }
 
     //
@@ -680,6 +714,14 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
         c.release();
         
         return x;
+    }
+
+    private static void lineNumber ( XMLEvent xe, LoadContext context )
+    {
+        org.apache.xmlbeans.xml.stream.Location loc = xe.getLocation();
+        
+        if (loc != null)
+            context.lineNumber( loc.getLineNumber(), loc.getColumnNumber(), -1 );
     }
 
     private static void lineNumber ( XMLStreamReader xsr, LoadContext context )
@@ -723,6 +765,178 @@ public final class Locale implements DOMImplementation, SaajCallback, XmlLocale
 
     }
 
+    private Cur loadXMLInputStream ( XMLInputStream xis, XmlOptions options )
+        throws org.apache.xmlbeans.xml.stream.XMLStreamException
+    {
+        options = XmlOptions.maskNull( options );
+
+        boolean lineNums = options.hasOption( XmlOptions.LOAD_LINE_NUMBERS );
+
+        XMLEvent x = xis.peek();
+        
+        if (x != null && x.getType() == XMLEvent.START_ELEMENT)
+        {
+            Map nsMap = ((StartElement) x).getNamespaceMap();
+
+            if (nsMap != null && nsMap.size() > 0)
+            {
+                Map namespaces = new HashMap();
+                
+                namespaces.putAll( nsMap );
+
+                options = new XmlOptions( options );
+
+                options.put( XmlOptions.LOAD_ADDITIONAL_NAMESPACES, namespaces );
+            }
+        }
+
+        String systemId = null;
+        String encoding = null;
+        String version = null;
+        boolean standAlone = true;
+
+        LoadContext context = new Cur.CurLoadContext( this, options );
+
+        events:
+        for ( XMLEvent xe = xis.next() ; xe != null ; xe = xis.next() )
+        {
+            switch ( xe.getType() )
+            {
+            case XMLEvent.START_DOCUMENT :
+                StartDocument doc = (StartDocument) xe;
+
+                systemId = doc.getSystemId();
+                encoding = doc.getCharacterEncodingScheme();
+                version = doc.getVersion();
+                standAlone = doc.isStandalone();
+                standAlone = doc.isStandalone();
+
+                if (lineNums)
+                    lineNumber( xe, context );
+
+                break;
+
+            case XMLEvent.END_DOCUMENT :
+                if (lineNums)
+                    lineNumber( xe, context );
+
+                break events;
+
+            case XMLEvent.NULL_ELEMENT :
+                if (!xis.hasNext())
+                    break events;
+                break;
+
+            case XMLEvent.START_ELEMENT :
+                context.startElement(XMLNameHelper.getQName( xe.getName() ) );
+
+                if (lineNums)
+                    lineNumber( xe, context );
+
+                for ( AttributeIterator ai = ((StartElement) xe).getAttributes() ; ai.hasNext() ; )
+                {
+                    Attribute attr = ai.next();
+
+                    context.attr(
+                        XMLNameHelper.getQName( attr.getName() ),
+                        attr.getValue() );
+                }
+
+                for ( AttributeIterator ai = ((StartElement) xe).getNamespaces()
+                      ; ai.hasNext() ; )
+                {
+                    Attribute attr = ai.next();
+
+                    XMLName name = attr.getName();
+                    String local = name.getLocalName();
+
+                    if (name.getPrefix() == null && local.equals( "xmlns" ))
+                        local = "";
+
+                    context.xmlns( local, attr.getValue() );
+                }
+
+                break;
+
+            case XMLEvent.END_ELEMENT :
+                context.endElement();
+
+                if (lineNums)
+                    lineNumber( xe, context );
+
+                break;
+
+            case XMLEvent.SPACE :
+                if (((Space) xe).ignorable())
+                    break;
+
+                // Fall through
+
+            case XMLEvent.CHARACTER_DATA :
+                CharacterData cd = (CharacterData) xe;
+
+                if (cd.hasContent())
+                {
+                    context.text( cd.getContent() );
+
+                    if (lineNums)
+                        lineNumber( xe, context );
+                }
+
+                break;
+
+            case XMLEvent.COMMENT :
+                org.apache.xmlbeans.xml.stream.Comment comment =
+                    (org.apache.xmlbeans.xml.stream.Comment) xe;
+
+                if (comment.hasContent())
+                {
+                    context.comment( comment.getContent() );
+
+                    if (lineNums)
+                        lineNumber( xe, context );
+                }
+
+                break;
+
+            case XMLEvent.PROCESSING_INSTRUCTION :
+                ProcessingInstruction procInstr = (ProcessingInstruction) xe;
+
+                context.procInst( procInstr.getTarget(), procInstr.getData() );
+
+                if (lineNums)
+                    lineNumber( xe, context );
+
+                break;
+
+            // These are ignored
+            case XMLEvent.ENTITY_REFERENCE :
+            case XMLEvent.START_PREFIX_MAPPING :
+            case XMLEvent.END_PREFIX_MAPPING :
+            case XMLEvent.CHANGE_PREFIX_MAPPING :
+            case XMLEvent.XML_EVENT :
+                break;
+
+            default :
+                throw new RuntimeException(
+                    "Unhandled xml event type: " + xe.getTypeAsString() );
+            }
+        }
+
+        Cur c = context.finish();
+        
+        associateSourceName( c, options );
+        
+        XmlDocumentProperties props = getDocProps( c, true );
+
+        props.setDoctypeSystemId( systemId );
+        props.setEncoding( encoding );
+        props.setVersion( version );
+        props.setStandalone( standAlone );
+
+        return c;
+    }
+    
     private Cur loadXMLStreamReader ( XMLStreamReader xsr, XmlOptions options )
         throws XMLStreamException
     {

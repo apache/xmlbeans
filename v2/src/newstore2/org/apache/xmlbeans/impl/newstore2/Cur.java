@@ -2560,12 +2560,25 @@ final class Cur
 
         if (_state != POOLED && _state != DISPOSED)
         {
+            // Clean up ant state
+            
+            while ( _stackTop != -1 )
+                popButStay();
+
+            clearSelection();
+
+            _id = null;
+
+            // Unposition
+            
             moveToCur( null );
 
             assert isNormal();
 
             assert _xobj == null;
             assert _pos  == NO_POS;
+
+            // Release weak reference and attacked value
 
             if (_value != null && _value instanceof Locale.Ref)
             {
@@ -2577,6 +2590,8 @@ final class Cur
 
             _value = null;
             _key = null;
+
+            // Unregister and either diapose of cursor or add it back to pool
 
             assert _state == REGISTERED;
             _locale._registered = listRemove( _locale._registered );
@@ -2592,13 +2607,6 @@ final class Cur
                 _locale = null;
                 _state = DISPOSED;
             }
-
-            while ( _stackTop != -1 )
-                popButStay();
-
-            clearSelection();
-
-            _id = null;
         }
     }
 
