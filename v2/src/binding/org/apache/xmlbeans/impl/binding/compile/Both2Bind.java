@@ -594,6 +594,14 @@ public class Both2Bind extends BindingCompiler /*implements BindingFileResult*/ 
       prop.setGetterName(MethodName.create(jProp.getGetter()));
       JMethod isSetter = matchedProperties[i].getIsSetter();
       if (isSetter != null) prop.setIssetterName(MethodName.create(isSetter));
+      {
+        // see if a factory method was specified
+        JMethod factory = matchedProperties[i].getFactoryMethod();
+        if (factory != null) {
+          prop.setJavaInstanceFactory(new ParentInstanceFactory
+            (MethodName.create(factory)));
+        }
+      }
       prop.setCollectionClass(collection);
       prop.setBindingType(bType);
       prop.setNillable(sProp.hasNillable() != SchemaProperty.NEVER);

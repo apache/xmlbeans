@@ -18,6 +18,7 @@ package org.apache.xmlbeans.impl.binding.compile;
 import org.apache.xmlbeans.impl.jam.JClass;
 import org.apache.xmlbeans.impl.jam.JProperty;
 import org.apache.xmlbeans.impl.jam.JMethod;
+import org.apache.xmlbeans.impl.jam.JParameter;
 import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaTypeSystem;
@@ -109,12 +110,24 @@ public interface TypeMatcher
         private JProperty jProperty;
         private SchemaProperty sProperty;
         private JMethod isSetter = null;
+        private JMethod factoryMethod = null;      
 
         public MatchedProperties(JProperty jProperty, SchemaProperty sProperty)
         {
             this(jProperty,sProperty,null);
         }
 
+        public MatchedProperties(JProperty jProperty,
+                                 SchemaProperty sProperty,
+                                 JMethod isSetter,
+                                 JMethod factoryMethod)
+        {
+          this(jProperty,sProperty,isSetter);
+          validateFactoryMethod(factoryMethod, jProperty);
+          this.factoryMethod = factoryMethod;
+        }
+
+      
         public MatchedProperties(JProperty jProperty,
                                  SchemaProperty sProperty,
                                  JMethod isSetter)
@@ -150,6 +163,33 @@ public interface TypeMatcher
         public JMethod getIsSetter()
         {
             return isSetter;
+        }
+
+        public JMethod getFactoryMethod()
+        {
+            return factoryMethod;
+        }
+
+        // ensure that the given factory is valid a factory factory for
+        // the given property
+        private static final void validateFactoryMethod(JMethod factory,
+                                                        JProperty prop) {
+          JParameter[] params = factory.getParameters();
+          if (params.length != 1) {
+            throw new IllegalArgumentException
+              (factory.getQualifiedName()+
+               " not a valid factory factory, must have exactly 1 parameter");
+          }
+          if (!params[0].getType().getQualifiedName().equals("java.lang.Class")) {
+            throw new IllegalArgumentException
+              (factory.getQualifiedName()+
+               " must take a java.lang.Class as a parameter");
+          }
+          if (!prop.getType().isAssignableFrom(factory.getReturnType())) {
+            throw new IllegalArgumentException
+              (factory.getQualifiedName()+
+               " must return an "+prop.getType().getQualifiedName());
+          }
         }
 
     }

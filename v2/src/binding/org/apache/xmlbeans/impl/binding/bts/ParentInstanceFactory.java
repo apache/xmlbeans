@@ -37,6 +37,13 @@ public class ParentInstanceFactory extends JavaInstanceFactory
         super();
     }
 
+    public ParentInstanceFactory(MethodName factoryMethod)
+    {
+        super();
+        setCreateObjectMethod(factoryMethod);
+    }
+
+
     public ParentInstanceFactory(org.apache.xml.xmlbeans.bindingConfig.JavaInstanceFactory node)
     {
         super(node);
