@@ -18,37 +18,12 @@ public class JUnitXRunner extends BaseTestRunner
         implements JUnitXResultFormatter {
     public static void main(String args[])
             throws Exception {
-        // TODO: A good clean way to pass arguments would be using something
-        // like GetOpt, and make it flexible to change the order of the
-        // arguments. right now we impose a rigid sequence on the arguments
-
-        // TODO: allow specifying a single JUnit class to run.. would ideally
-        // follow the above TODO.
 
         File file = new File(args[0]);
         String resListener = null;
         String outFile = null;
         boolean showOutput = false;
-        /*if (args.length > 1)
-        {
-            if (args[1].equalsIgnoreCase("showoutput"))
-                showOutput = true;
-            else
-            {
-                resListener = args[1];
-                if (args.length < 3)
-                    throw new RuntimeException("No output file specified");
-                outFile = args[2];
-            }
-        }
 
-        // do we have more?
-        if (args.length > 3)
-        {
-            if (args[3].equalsIgnoreCase("showoutput"))
-                showOutput = true;
-        }
-        */
         Collection options=new TreeSet();
         options.add(JUnitXTask.resultListener);
         options.add(JUnitXTask.outFile);
@@ -91,7 +66,9 @@ public class JUnitXRunner extends BaseTestRunner
         } else
             runner = new JUnitXRunner(files, showOutput);
 
+
         int nFailureCount = runner.runTests();
+
         System.exit(nFailureCount);
     }
 
@@ -142,6 +119,7 @@ public class JUnitXRunner extends BaseTestRunner
             throw new RuntimeException("Unable to initialize output to file "
                     + outFile + "\n" + fnfe.getMessage());
         }
+       
         _listener.showTestOutput(showOutput);
         _listener.startRun();
         while (itr.hasNext()) {

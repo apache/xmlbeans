@@ -834,8 +834,8 @@ public final class CharUtil
     private static ThreadLocal tl_charIter =
         new ThreadLocal() { protected Object initialValue() { return new CharIterator(); } };
     
-    private static final int MAX_COPY = 8;
-//    private static final int MAX_COPY = 64;
+ //   private static final int MAX_COPY = 8;
+    private static final int MAX_COPY = 64;
 
     // Current char buffer we're allcoating new chars to
 

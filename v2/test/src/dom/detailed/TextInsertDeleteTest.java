@@ -108,13 +108,13 @@ public class TextInsertDeleteTest extends TestCase {
         for (int i = 0; i < nNodeCnt; i++) {
             ((Text)ch.item(i++)).splitText(2);
         }
-
+        System.out.println();
         //delete all even entries;go fwd
         for (int i = 0; i < nodes.length; i++) {
             if (i % 2 == 0)
                 m_node.removeChild(nodes[i]);
         }
-
+          System.out.println();
         for (int i = 0; i < nNodeCnt / 2; i++) {
 
             assertEquals("r" + 2 * i, ch.item(i).getNodeValue());
