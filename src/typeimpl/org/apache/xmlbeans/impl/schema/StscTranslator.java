@@ -77,10 +77,27 @@ public class StscTranslator
     public static void addAllDefinitions(StscImporter.SchemaToProcess[] schemasAndChameleons)
     {
         // Build all redefine objects
-        RedefinitionHolder redefinitions[] =
-            new RedefinitionHolder[schemasAndChameleons.length];
+        List redefinitions = new ArrayList();
         for (int i = 0; i < schemasAndChameleons.length; i++)
-            redefinitions[i] = new RedefinitionHolder(schemasAndChameleons[i].getRedefine());
+        {
+            List redefines = schemasAndChameleons[i].getRedefines();
+            if (redefines != null)
+            {
+                List redefineObjects = schemasAndChameleons[i].getRedefineObjects();
+                Iterator it = redefines.iterator();
+                Iterator ito = redefineObjects.iterator();
+                for (; it.hasNext(); )
+                {
+                    assert ito.hasNext() :
+                    "The array of redefines and redefine objects have to have the same length";
+                    redefinitions.add(new RedefinitionHolder(
+                            (StscImporter.SchemaToProcess) it.next(),
+                            (Redefine) ito.next()));
+                }
+            }
+        }
+        RedefinitionMaster globalRedefinitions = new RedefinitionMaster((RedefinitionHolder[])
+            redefinitions.toArray(new RedefinitionHolder[redefinitions.size()]));
 
         StscState state = StscState.get();
         for (int j = 0; j < schemasAndChameleons.length; j++)
@@ -120,20 +137,22 @@ public class StscTranslator
         {
             TopLevelComplexType type = complexTypes[i];
             TopLevelComplexType redef;
-            int p = j;
             // 1. Traverse the list of redefining Schemas putting all redefinitions
             // of this type in a List
-            do
+            RedefinitionHolder[] rhArray = globalRedefinitions.getComplexTypeRedefinitions(
+                type.getName(), schemasAndChameleons[j]);
+            for (int k = 0; k < rhArray.length; k++)
             {
-                redef = redefinitions[p].redefineComplexType(type.getName());
-                if (redef != null)
+                // In error cases, some redefinitions were nulled out in the list
+                // which is why we need to perform this check
+                if (rhArray[k] != null)
                 {
+                    redef = rhArray[k].redefineComplexType(type.getName());
+                    assert redef != null; // This was already checked
                     redefChain.add(type);
                     type = redef;
                 }
-                p = schemasAndChameleons[p].getRedefinedBy();
             }
-            while (p >= 0);
 
             SchemaTypeImpl t = translateGlobalComplexType(type, targetNamespace, chameleon, redefChain.size() > 0);
             state.addGlobalType(t, null);
@@ -154,18 +173,20 @@ public class StscTranslator
         {
             TopLevelSimpleType type = simpleTypes[i];
             TopLevelSimpleType redef;
-            int p = j;
-            do
+            RedefinitionHolder[] rhArray = globalRedefinitions.getSimpleTypeRedefinitions(
+                type.getName(), schemasAndChameleons[j]);
+            for (int k = 0; k < rhArray.length; k++)
             {
-                redef = redefinitions[p].redefineSimpleType(type.getName());
-                if (redef != null)
+                // In error cases, some redefinitions were nulled out in the list
+                // which is why we need to perform this check
+                if (rhArray[k] != null)
                 {
+                    redef = rhArray[k].redefineSimpleType(type.getName());
+                    assert redef != null; // This was already checked
                     redefChain.add(type);
                     type = redef;
                 }
-                p = schemasAndChameleons[p].getRedefinedBy();
             }
-            while (p >= 0);
 
             SchemaTypeImpl t = translateGlobalSimpleType(type, targetNamespace, chameleon,redefChain.size() > 0);
             state.addGlobalType(t, null);
@@ -198,18 +219,20 @@ public class StscTranslator
         {
             NamedGroup group = modelgroups[i];
             NamedGroup redef;
-            int p = j;
-            do
+            RedefinitionHolder[] rhArray = globalRedefinitions.getModelGroupRedefinitions(
+                group.getName(), schemasAndChameleons[j]);
+            for (int k = 0; k < rhArray.length; k++)
             {
-                redef = redefinitions[p].redefineModelGroup(group.getName());
-                if (redef != null)
+                // In error cases, some redefinitions were nulled out in the list
+                // which is why we need to perform this check
+                if (rhArray[k] != null)
                 {
+                    redef = rhArray[k].redefineModelGroup(group.getName());
+                    assert redef != null; // This was already checked
                     redefChain.add(group);
                     group = redef;
                 }
-                p = schemasAndChameleons[p].getRedefinedBy();
             }
-            while (p >= 0);
 
             SchemaModelGroupImpl g = translateModelGroup(group, targetNamespace, chameleon, redefChain.size() > 0);
             state.addModelGroup(g, null);
@@ -228,18 +251,20 @@ public class StscTranslator
         {
             NamedAttributeGroup group = attrgroups[i];
             NamedAttributeGroup redef;
-            int p = j;
-            do
+            RedefinitionHolder[] rhArray = globalRedefinitions.getAttributeGroupRedefinitions(
+                group.getName(), schemasAndChameleons[j]);
+            for (int k = 0; k < rhArray.length; k++)
             {
-                redef = redefinitions[p].redefineAttributeGroup(group.getName());
-                if (redef != null)
+                // In error cases, some redefinitions were nulled out in the list
+                // which is why we need to perform this check
+                if (rhArray[k] != null)
                 {
+                    redef = rhArray[k].redefineAttributeGroup(group.getName());
+                    assert redef != null; // This was already checked
                     redefChain.add(group);
                     group = redef;
                 }
-                p = schemasAndChameleons[p].getRedefinedBy();
             }
-            while (p >= 0);
 
             SchemaAttributeGroupImpl g = translateAttributeGroup(group, targetNamespace, chameleon, redefChain.size() > 0);
             state.addAttributeGroup(g, null);
@@ -258,8 +283,8 @@ public class StscTranslator
             state.addAnnotation(SchemaAnnotationImpl.getAnnotation(state.getContainer(targetNamespace), schema, annotations[i]), targetNamespace);
         }
 
-        for (int i = 0; i < redefinitions.length; i++)
-            redefinitions[i].complainAboutMissingDefinitions();
+        for (int i = 0; i < redefinitions.size(); i++)
+            ((RedefinitionHolder) redefinitions.get(i)).complainAboutMissingDefinitions();
     }
 
     private static class RedefinitionHolder
@@ -270,10 +295,12 @@ public class StscTranslator
         private Map agRedefinitions = Collections.EMPTY_MAP;
         private Map mgRedefinitions = Collections.EMPTY_MAP;
         private String schemaLocation = "";
+        private StscImporter.SchemaToProcess schemaRedefined;
 
         // first build set of redefined components
-        RedefinitionHolder(Redefine redefine)
+        RedefinitionHolder(StscImporter.SchemaToProcess schemaToProcess, Redefine redefine)
         {
+            schemaRedefined = schemaToProcess;
             if (redefine != null)
             {
                 StscState state = StscState.get();
@@ -395,6 +422,297 @@ public class StscTranslator
                 String name = (String)i.next();
                 state.error("Redefined model group " + name + " not found in " + schemaLocation, XmlErrorCodes.GENERIC_ERROR, (XmlObject)mgRedefinitions.get(name));
             }
+        }
+    }
+
+    /**
+     * This is used to aggregate all redefinitions for a specific component name.
+     * The idea is to record the list of &lt;redefine%gt; sections that could
+     * potentially redefine this component. When the list of actual redefinitions
+     * is requested, the potential redefinitions are first filtered based on
+     * accessibilty of the schema currently being processed from the redefining Schemas
+     * and then topologically sorted based on the inclusion relationship to
+     * ensure that redefinitions are applied in the right order.
+     */
+    private static class RedefinitionMaster
+    {
+        // record redefinitions
+        private Map stRedefinitions = Collections.EMPTY_MAP;
+        private Map ctRedefinitions = Collections.EMPTY_MAP;
+        private Map agRedefinitions = Collections.EMPTY_MAP;
+        private Map mgRedefinitions = Collections.EMPTY_MAP;
+        private static final RedefinitionHolder[] EMPTY_REDEFINTION_HOLDER_ARRAY =
+            new RedefinitionHolder[0];
+
+        RedefinitionMaster(RedefinitionHolder[] redefHolders)
+        {
+            if (redefHolders.length > 0)
+            {
+                stRedefinitions = new HashMap();
+                ctRedefinitions = new HashMap();
+                agRedefinitions = new HashMap();
+                mgRedefinitions = new HashMap();
+
+                for (int i = 0; i < redefHolders.length; i++)
+                {
+                    RedefinitionHolder redefHolder = redefHolders[i];
+                    for (Iterator it = redefHolder.stRedefinitions.keySet().iterator(); it.hasNext();)
+                    {
+                        Object key = it.next();
+                        List redefinedIn = (List) stRedefinitions.get(key);
+                        if (redefinedIn == null)
+                        {
+                            redefinedIn = new ArrayList();
+                            stRedefinitions.put(key, redefinedIn);
+                        }
+                        redefinedIn.add(redefHolders[i]);
+                    }
+                    for (Iterator it = redefHolder.ctRedefinitions.keySet().iterator(); it.hasNext();)
+                    {
+                        Object key = it.next();
+                        List redefinedIn = (List) ctRedefinitions.get(key);
+                        if (redefinedIn == null)
+                        {
+                            redefinedIn = new ArrayList();
+                            ctRedefinitions.put(key, redefinedIn);
+                        }
+                        redefinedIn.add(redefHolders[i]);
+                    }
+                    for (Iterator it = redefHolder.agRedefinitions.keySet().iterator(); it.hasNext();)
+                    {
+                        Object key = it.next();
+                        List redefinedIn = (List) agRedefinitions.get(key);
+                        if (redefinedIn == null)
+                        {
+                            redefinedIn = new ArrayList();
+                            agRedefinitions.put(key, redefinedIn);
+                        }
+                        redefinedIn.add(redefHolders[i]);
+                    }
+                    for (Iterator it = redefHolder.mgRedefinitions.keySet().iterator(); it.hasNext();)
+                    {
+                        Object key = it.next();
+                        List redefinedIn = (List) mgRedefinitions.get(key);
+                        if (redefinedIn == null)
+                        {
+                            redefinedIn = new ArrayList();
+                            mgRedefinitions.put(key, redefinedIn);
+                        }
+                        redefinedIn.add(redefHolders[i]);
+                    }
+                }
+            }
+        }
+
+        RedefinitionHolder[] getSimpleTypeRedefinitions(String name,
+            StscImporter.SchemaToProcess schema)
+        {
+            List redefines = (List) stRedefinitions.get(name);
+            if (redefines == null)
+                return EMPTY_REDEFINTION_HOLDER_ARRAY;
+            return doTopologicalSort(redefines, schema, name, SIMPLE_TYPE);
+        }
+
+        RedefinitionHolder[] getComplexTypeRedefinitions(String name,
+            StscImporter.SchemaToProcess schema)
+        {
+            List redefines = (List) ctRedefinitions.get(name);
+            if (redefines == null)
+                return EMPTY_REDEFINTION_HOLDER_ARRAY;
+            return doTopologicalSort(redefines, schema, name, COMPLEX_TYPE);
+        }
+
+        RedefinitionHolder[] getAttributeGroupRedefinitions(String name,
+            StscImporter.SchemaToProcess schema)
+        {
+            List redefines = (List) agRedefinitions.get(name);
+            if (redefines == null)
+                return EMPTY_REDEFINTION_HOLDER_ARRAY;
+            return doTopologicalSort(redefines, schema, name, ATTRIBUTE_GROUP);
+        }
+
+        RedefinitionHolder[] getModelGroupRedefinitions(String name,
+            StscImporter.SchemaToProcess schema)
+        {
+            List redefines = (List) mgRedefinitions.get(name);
+            if (redefines == null)
+                return EMPTY_REDEFINTION_HOLDER_ARRAY;
+            return doTopologicalSort(redefines, schema, name, MODEL_GROUP);
+        }
+
+        private final static short SIMPLE_TYPE = 1;
+        private final static short COMPLEX_TYPE = 2;
+        private final static short MODEL_GROUP = 3;
+        private final static short ATTRIBUTE_GROUP = 4;
+
+        private RedefinitionHolder[] doTopologicalSort(List genericRedefines,
+            StscImporter.SchemaToProcess schema, String name, short componentType)
+        {
+            // We have a list of files that redefine this name
+            // Filter out the ones that don't redefine this file in particular
+            RedefinitionHolder[] specificRedefines = new RedefinitionHolder[genericRedefines.size()];
+            int n = 0;
+            for (int i = 0; i < genericRedefines.size(); i++)
+            {
+                RedefinitionHolder h = (RedefinitionHolder) genericRedefines.get(i);
+                if (h.schemaRedefined == schema ||
+                    h.schemaRedefined.indirectIncludes(schema))
+                    specificRedefines[n++] = h;
+            }
+            // Now we have the list of files that specifically redefine the
+            // name in the file that we are looking for
+            // Sort this list into topological order to get the right order
+            // and figure out if there are multiple redefinitions involved
+            RedefinitionHolder[] sortedRedefines = new RedefinitionHolder[n];
+            int[] numberOfIncludes = new int[n];
+            // Just count the number of inclusions for each redefinition
+            for (int i = 0; i < n-1; i++)
+            {
+                RedefinitionHolder current = specificRedefines[i];
+                for (int j = i + 1; j < n; j++)
+                {
+                    if (current.schemaRedefined.indirectIncludes(specificRedefines[j].schemaRedefined))
+                        numberOfIncludes[i]++;
+                    if (specificRedefines[j].schemaRedefined.indirectIncludes(current.schemaRedefined))
+                        numberOfIncludes[j]++;
+                }
+            }
+            // Eliminate members one by one, according to the number of schemas
+            // that they include, to complete the sort
+            int position = 0;
+            boolean errorReported = false;
+            while (position < n)
+            {
+                int index = -1;
+                for (int i = 0; i < numberOfIncludes.length; i++)
+                    if (numberOfIncludes[i] == 0)
+                    {
+                        if (index < 0)
+                            index = i;
+                    }
+                if (index < 0)
+                {
+                    // Error! Circular redefinition
+                    if (!errorReported)
+                    {
+                        StringBuffer fileNameList = new StringBuffer();
+                        XmlObject location = null;
+                        for (int i = 0; i < n; i++)
+                            if (specificRedefines[i] != null)
+                            {
+                                fileNameList.append(specificRedefines[i].schemaLocation).
+                                    append(',').append(' ');
+                                if (location == null)
+                                    location = locationFromRedefinitionAndCode(
+                                        specificRedefines[i], name, componentType);
+                            }
+                        StscState.get().error("Detected circular redefinition of " +
+                            componentNameFromCode(componentType) + " \"" + name +
+                            "\"; Files involved: " + fileNameList.toString(),
+                            XmlErrorCodes.GENERIC_ERROR, location);
+                        errorReported = true;
+                    }
+                    int min = n;
+                    for (int i = 0; i < n; i++)
+                        if (numberOfIncludes[i] > 0 && numberOfIncludes[i] < min)
+                        {
+                            min = numberOfIncludes[i];
+                            index = i;
+                        }
+                    numberOfIncludes[index]--;
+                }
+                else
+                {
+                    assert specificRedefines[index] != null;
+                    sortedRedefines[position++] = specificRedefines[index];
+                    for (int i = 0; i < n; i++)
+                        if (specificRedefines[i] != null &&
+                            specificRedefines[i].schemaRedefined.
+                                indirectIncludes(specificRedefines[index].
+                                    schemaRedefined))
+                            numberOfIncludes[i]--;
+                    specificRedefines[index] = null;
+                    numberOfIncludes[index]--;
+                }
+            }
+            // Nice. We now have all the redefinitions of this name in the list
+            // Each one has to transitively redefine the one before, otherwise
+            // it means we are attepting two different redefinitions for the same
+            // component
+            for (int i = 1; i < n; i++)
+            {
+                // Find the previous index with non-null Schema
+                // Since i is never 0, such index always exists
+                int j;
+                for (j = i-1; j >= 0; j--)
+                    if (sortedRedefines[j] != null)
+                        break;
+
+                if (!sortedRedefines[i].schemaRedefined.indirectIncludes(
+                        sortedRedefines[j].schemaRedefined))
+                {
+                    StscState.get().error("Detected multiple redefinitions of " +
+                        componentNameFromCode(componentType) +
+                        " \"" + name + "\"; Files involved: " +
+                        sortedRedefines[j].schemaRedefined.getSourceName() + ", " +
+                        sortedRedefines[i].schemaRedefined.getSourceName(),
+                        XmlErrorCodes.DUPLICATE_GLOBAL_TYPE,
+                        locationFromRedefinitionAndCode(sortedRedefines[i], name, componentType));
+                    // Ignore this redefinition
+                    switch (componentType)
+                    {
+                    case SIMPLE_TYPE:
+                        sortedRedefines[i].redefineSimpleType(name); break;
+                    case COMPLEX_TYPE:
+                        sortedRedefines[i].redefineComplexType(name); break;
+                    case ATTRIBUTE_GROUP:
+                        sortedRedefines[i].redefineAttributeGroup(name); break;
+                    case MODEL_GROUP:
+                        sortedRedefines[i].redefineModelGroup(name); break;
+                    }
+                    sortedRedefines[i] = null;
+                }
+            }
+
+            return sortedRedefines;
+        }
+
+        private String componentNameFromCode(short code)
+        {
+            String componentName;
+            switch (code)
+            {
+            case SIMPLE_TYPE: componentName = "simple type"; break;
+            case COMPLEX_TYPE: componentName = "complex type"; break;
+            case MODEL_GROUP: componentName = "model group"; break;
+            case ATTRIBUTE_GROUP: componentName = "attribute group"; break;
+            default: componentName = "";
+            }
+            return componentName;
+        }
+
+        private XmlObject locationFromRedefinitionAndCode(RedefinitionHolder redefinition,
+            String name, short code)
+        {
+            XmlObject location;
+            switch (code)
+            {
+            case SIMPLE_TYPE:
+                location = (XmlObject) redefinition.stRedefinitions.get(name);
+                break;
+            case COMPLEX_TYPE:
+                location = (XmlObject) redefinition.ctRedefinitions.get(name);
+                break;
+            case MODEL_GROUP:
+                location = (XmlObject) redefinition.mgRedefinitions.get(name);
+                break;
+            case ATTRIBUTE_GROUP:
+                location = (XmlObject) redefinition.agRedefinitions.get(name);
+                break;
+            default:
+                location = null;
+            }
+            return location;
         }
     }
 

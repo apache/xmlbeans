@@ -42,7 +42,6 @@ import java.io.FileOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayReader;
-import java.io.FileWriter;
 import java.io.Writer;
 import java.io.CharArrayWriter;
 import java.io.OutputStreamWriter;
@@ -70,28 +69,16 @@ public class StscImporter
     {
         private Schema schema;
         private String chameleonNamespace;
-        private Redefine redefine;
-        private int redefinedBy;
+        private List includes; // list of SchemaToProcess objects directly included by this
+        private List redefines; // list of SchemaToProcess objects directly redefined by this
+        private List redefineObjects; // list of Redefine objects associated to each redefinition
+        private Set indirectIncludes; // set of SchemaToProcess  objects directly/indirectly included by this
+        private Set indirectIncludedBy; // set of SchemaToProcess objects that include this directly/indirectly
 
-        public SchemaToProcess(Schema schema, String chameleonNamespace, Redefine redefine)
+        public SchemaToProcess(Schema schema, String chameleonNamespace)
         {
             this.schema = schema;
             this.chameleonNamespace = chameleonNamespace;
-            assert redefine == null : "Not expecting a redefine";
-            this.redefinedBy = -1;
-        }
-
-        // This makes sense only when part of a list, which is always the case
-        public SchemaToProcess(Schema schema, String chameleonNamespace, Redefine redefine, int redefinedBy)
-        {
-            this.schema = schema;
-            this.chameleonNamespace = chameleonNamespace;
-            assert (redefine != null && redefinedBy >= 0 ) ||
-                (redefine == null && redefinedBy < 0) :
-                "Not expecting redefine = " + redefine +
-                    " and redefinedBy = " + redefinedBy;
-            this.redefine = redefine;
-            this.redefinedBy = redefinedBy;
         }
 
         /**
@@ -111,22 +98,6 @@ public class StscImporter
         }
         
         /**
-         * The redefine element, if processed via redefine
-         */
-        public Redefine getRedefine()
-        {
-            return redefine;
-        }
-
-        /**
-         * The index of the redefining schema if processed via redefine
-         */
-        public int getRedefinedBy()
-        {
-            return redefinedBy;
-        }
-
-        /**
          * The chameleon namespace. Null if this schema is not being treated
          * as a chameleon. (The ordinary targetNamespace will just be extracted
          * from the syntax of the schema.)
@@ -134,6 +105,98 @@ public class StscImporter
         public String getChameleonNamespace()
         {
             return chameleonNamespace;
+        }
+
+        /**
+         * This method and the remaining methods are used to represent a
+         * directed graph of includes/redefines. This is required in order
+         * to establish identity component by component, as required in
+         * xmlschema-1, chapter 4.2.2
+         * @return
+         */
+        public List getRedefines()
+        {
+            return redefines;
+        }
+
+        public List getRedefineObjects()
+        {
+            return redefineObjects;
+        }
+
+        private void addInclude(SchemaToProcess include)
+        {
+            if (includes == null)
+                includes = new ArrayList();
+            includes.add(include);
+        }
+
+        private void addRedefine(SchemaToProcess redefine, Redefine object)
+        {
+            if (redefines == null || redefineObjects == null)
+            {
+                redefines = new ArrayList();
+                redefineObjects = new ArrayList();
+            }
+            redefines.add(redefine);
+            redefineObjects.add(object);
+        }
+
+        private void buildIndirectReferences()
+        {
+            if (includes != null)
+                for (int i = 0; i < includes.size(); i++)
+                {
+                    SchemaToProcess schemaToProcess = (SchemaToProcess) includes.get(i);
+                    /* We have a this-schemaToProcess vertex
+                    * This means that all nodes accessible from schemaToProcess are
+                    * also accessible from this and all nodes that have access to
+                    * this also have access to schemaToProcess */
+                    this.addIndirectIncludes(schemaToProcess);
+                }
+            // Repeat the same algorithm for redefines, since redefines are also includes
+            if (redefines != null)
+                for (int i = 0; i < redefines.size(); i++)
+                {
+                    SchemaToProcess schemaToProcess = (SchemaToProcess) redefines.get(i);
+                    this.addIndirectIncludes(schemaToProcess);
+                }
+        }
+
+        private void addIndirectIncludes(SchemaToProcess schemaToProcess)
+        {
+            if (indirectIncludes == null)
+                indirectIncludes = new HashSet();
+            indirectIncludes.add(schemaToProcess);
+            if (schemaToProcess.indirectIncludedBy == null)
+                schemaToProcess.indirectIncludedBy = new HashSet();
+            schemaToProcess.indirectIncludedBy.add(this);
+            addIndirectIncludesHelper(this, schemaToProcess);
+            if (indirectIncludedBy != null)
+                for (Iterator it = indirectIncludedBy.iterator(); it.hasNext();)
+                {
+                    SchemaToProcess stp = (SchemaToProcess) it.next();
+                    stp.indirectIncludes.add(schemaToProcess);
+                    schemaToProcess.indirectIncludedBy.add(stp);
+                    addIndirectIncludesHelper(stp, schemaToProcess);
+                }
+        }
+
+        private static void addIndirectIncludesHelper(SchemaToProcess including,
+            SchemaToProcess schemaToProcess)
+        {
+            if (schemaToProcess.indirectIncludes != null)
+                for (Iterator it = schemaToProcess.indirectIncludes.iterator(); it.hasNext();)
+                {
+                    SchemaToProcess stp = (SchemaToProcess) it.next();
+                    including.indirectIncludes.add(stp);
+                    stp.indirectIncludedBy.add(including);
+                }
+        }
+
+        public boolean indirectIncludes(SchemaToProcess schemaToProcess)
+        {
+            return indirectIncludes != null && indirectIncludes.contains(schemaToProcess);
         }
 
         public boolean equals(Object o)
@@ -144,8 +207,7 @@ public class StscImporter
             final SchemaToProcess schemaToProcess = (SchemaToProcess) o;
 
             if (chameleonNamespace != null ? !chameleonNamespace.equals(schemaToProcess.chameleonNamespace) : schemaToProcess.chameleonNamespace != null) return false;
-            if (redefine != null ? !redefine.equals(schemaToProcess.redefine) : schemaToProcess.redefine != null) return false;
-            if (!schema.equals(schemaToProcess.schema)) return false;
+            if (!(schema == schemaToProcess.schema)) return false;
 
             return true;
         }
@@ -155,7 +217,6 @@ public class StscImporter
             int result;
             result = schema.hashCode();
             result = 29 * result + (chameleonNamespace != null ? chameleonNamespace.hashCode() : 0);
-            result = 29 * result + (redefine != null ? redefine.hashCode() : 0);
             return result;
         }
     }
@@ -194,7 +255,7 @@ public class StscImporter
                 return null;
         }
     }
-    
+
     //workaround for Sun bug # 4723726
     private static URI resolve(URI base, String child)
         throws URISyntaxException
@@ -206,7 +267,7 @@ public class StscImporter
         // if URI.resolve doesn't do anything useful with it) and the base
         // URI is pointing at something nested inside a jar, we seem to have
         // to this ourselves to make sure that the nested jar url gets
-        // resolved correctly   
+        // resolved correctly
         if (childUri.equals(ruri) &&
           (base.getScheme().equals("jar") || base.getScheme().equals("zip"))) {
             String r = base.toString();
@@ -319,7 +380,7 @@ public class StscImporter
         private Map schemaByDigestKey = new HashMap();
         private LinkedList scanNeeded = new LinkedList();
         private Set emptyNamespaceSchemas = new HashSet();
-        private Set scannedAlready = new HashSet();
+        private Map scannedAlready = new HashMap();
         private Set failedDownloads = new HashSet();
 
         private Schema downloadSchema(XmlObject referencedBy, String targetNamespace, String locationURL)
@@ -599,37 +660,16 @@ public class StscImporter
             return s;
         }
 
-        private void addScanNeeded(SchemaToProcess stp)
+        private SchemaToProcess addScanNeeded(SchemaToProcess stp)
         {
-            if (stp.getRedefine() != null && stp.getChameleonNamespace() == null)
+            if (!scannedAlready.containsKey(stp))
             {
-                // We have to check if the same SchemaToProcess exists without
-                // redefine and if it does, replace the redefine information on it
-                // rather than use a new SchemaToProcess.
-                SchemaToProcess nonRedefineVersion = new SchemaToProcess(
-                    stp.getSchema(), null, null);
-                if (scannedAlready.contains(nonRedefineVersion))
-                {
-                    // Unfortunately, we can't get the corresponding Object
-                    // from the Java Set implementation, so we have to search
-                    // for it...
-                    for (Iterator it = scannedAlready.iterator(); it.hasNext(); )
-                    {
-                        SchemaToProcess stp2 = (SchemaToProcess) it.next();
-                        if (stp2.equals(nonRedefineVersion))
-                        {
-                            stp2.redefine = stp.getRedefine();
-                            stp2.redefinedBy = stp.getRedefinedBy();
-                            return;
-                        }
-                    }
-                }
-            }
-            if (!scannedAlready.contains(stp))
-            {
-                scannedAlready.add(stp);
+                scannedAlready.put(stp, stp);
                 scanNeeded.add(stp);
+                return stp;
             }
+            else
+                return (SchemaToProcess) scannedAlready.get(stp);
         }
 
         private void addEmptyNamespaceSchema(Schema s)
@@ -650,7 +690,7 @@ public class StscImporter
             for (Iterator i = emptyNamespaceSchemas.iterator(); i.hasNext();)
             {
                 Schema schema = (Schema)i.next();
-                addScanNeeded(new SchemaToProcess(schema, null, null));
+                addScanNeeded(new SchemaToProcess(schema, null));
             }
 
             emptyNamespaceSchemas.clear();
@@ -676,7 +716,7 @@ public class StscImporter
                 NsLocPair key = new NsLocPair(targetNamespace, baseURLForDoc(startWith[i]));
                 addSuccessfulDownload(key, startWith[i]);
                 if (targetNamespace != null)
-                    addScanNeeded(new SchemaToProcess(startWith[i], null, null));
+                    addScanNeeded(new SchemaToProcess(startWith[i], null));
                 else
                     addEmptyNamespaceSchema(startWith[i]);
             }
@@ -686,12 +726,13 @@ public class StscImporter
         {
             StscState state = StscState.get();
             List result = new ArrayList();
+            boolean hasRedefinitions = false;
 
             // algorithm is to scan through each schema document and
             // 1. download each import and include (if not already downloaded)
             // 2. queue each imported or included schema to be process (if not already queued)
 
-            // The algorithm is run twice twice: first we begin with non-empty
+            // The algorithm is run twice: first we begin with non-empty
             // namespace schemas only.  Then we repeat starting with any
             // empty empty-namespace schemas that have NOT been chameleon-
             // included by other schemas and process them.
@@ -723,7 +764,7 @@ public class StscImporter
                             }
                             else
                             {
-                                addScanNeeded(new SchemaToProcess(imported, null, null));
+                                addScanNeeded(new SchemaToProcess(imported, null));
                             }
                         }
                     }
@@ -745,7 +786,8 @@ public class StscImporter
                             if (emptyStringIfNull(included.getTargetNamespace()).equals(sourceNamespace))
                             {
                                 // non-chameleon case - just like an import
-                                addScanNeeded(new SchemaToProcess(included, null, null));
+                                SchemaToProcess s = addScanNeeded(new SchemaToProcess(included, null));
+                                stp.addInclude(s);
                             }
                             else if (included.getTargetNamespace() != null)
                             {
@@ -755,7 +797,8 @@ public class StscImporter
                             else
                             {
                                 // chameleon include
-                                addScanNeeded(new SchemaToProcess(included, sourceNamespace, null));
+                                SchemaToProcess s = addScanNeeded(new SchemaToProcess(included, sourceNamespace));
+                                stp.addInclude(s);
                                 usedEmptyNamespaceSchema(included);
                             }
                         }
@@ -777,7 +820,9 @@ public class StscImporter
                             if (emptyStringIfNull(redefined.getTargetNamespace()).equals(sourceNamespace))
                             {
                                 // non-chameleon case
-                                addScanNeeded(new SchemaToProcess(redefined, null, redefines[i], result.size()-1));
+                                SchemaToProcess s = addScanNeeded(new SchemaToProcess(redefined, null));
+                                stp.addRedefine(s, redefines[i]);
+                                hasRedefinitions = true;
                             }
                             else if (redefined.getTargetNamespace() != null)
                             {
@@ -787,8 +832,10 @@ public class StscImporter
                             else
                             {
                                 // chameleon redefine
-                                addScanNeeded(new SchemaToProcess(redefined, sourceNamespace, redefines[i], result.size()-1));
+                                SchemaToProcess s = addScanNeeded(new SchemaToProcess(redefined, sourceNamespace));
+                                stp.addRedefine(s, redefines[i]);
                                 usedEmptyNamespaceSchema(redefined);
+                                hasRedefinitions = true;
                             }
                         }
                     }
@@ -798,6 +845,14 @@ public class StscImporter
                     break;
             }
 
+            // Build the lists of indirect references
+            // Make all the effort only if there are redefinitions
+            if (hasRedefinitions)
+                for (int i = 0; i < result.size(); i++)
+                {
+                    SchemaToProcess schemaToProcess = (SchemaToProcess) result.get(i);
+                    schemaToProcess.buildIndirectReferences();
+                }
             return (SchemaToProcess[])result.toArray(new SchemaToProcess[result.size()]);
         }
 
