@@ -60,12 +60,16 @@ import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.PathBindingLoader;
 import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
 import org.apache.xmlbeans.impl.jam.JClassLoader;
+import org.apache.xmlbeans.impl.jam.JFactory;
 import org.apache.xmlbeans.impl.schema.SchemaTypeLoaderImpl;
 import org.apache.xmlbeans.impl.schema.PathResourceLoader;
 import org.apache.xmlbeans.SchemaTypeLoader;
 import org.apache.xmlbeans.XmlBeans;
 
 import java.io.File;
+import java.net.URLClassLoader;
+import java.net.URL;
+import java.net.MalformedURLException;
 
 public class SimpleTylarLoader implements TylarLoader
 {
@@ -99,7 +103,8 @@ public class SimpleTylarLoader implements TylarLoader
     public static TylarLoader forClassLoader(ClassLoader loader)
     {
         BindingLoader bindingLoader = PathBindingLoader.forClassLoader(loader);
-        JClassLoader jClassLoader = null; // todo by pcal
+        JClassLoader jClassLoader =
+                JFactory.getInstance().createClassLoader(loader,null,null);
         SchemaTypeLoader sTypeLoader = XmlBeans.typeLoaderForClassLoader(loader);
         
         return new SimpleTylarLoader(bindingLoader, jClassLoader, sTypeLoader);
@@ -108,16 +113,27 @@ public class SimpleTylarLoader implements TylarLoader
     public static TylarLoader forClassPath(File[] classpath)
     {
         BindingLoader bindingLoader = PathBindingLoader.forClasspath(classpath);
-        JClassLoader jClassLoader = null; // todo by pcal
+        URL[] classpathURLs = new URL[classpath.length];
+        for(int i=0; i<classpathURLs.length; i++) {
+          try {
+            classpathURLs[i] = classpath[i].toURL();
+          } catch(MalformedURLException mue) {
+            //todo: review.  MUE is unlikely, but is this the proper response?
+            throw new IllegalArgumentException("malformed path element: "+
+                                               classpath[i]);
+          }
+        }
+        URLClassLoader ucl = new URLClassLoader(classpathURLs);
+        JClassLoader jClassLoader =
+                JFactory.getInstance().createClassLoader(ucl,null,null);
         SchemaTypeLoader sTypeLoader = SchemaTypeLoaderImpl.build(null, new PathResourceLoader(classpath), null);
-        
         return new SimpleTylarLoader(bindingLoader, jClassLoader, sTypeLoader);
     }
     
     public static TylarLoader forBuiltins()
     {
         BindingLoader bindingLoader = BuiltinBindingLoader.getInstance();
-        JClassLoader jClassLoader = null; // todo by pcal
+        JClassLoader jClassLoader = JFactory.getInstance().getSystemClassLoader();
         SchemaTypeLoader sTypeLoader = XmlBeans.getBuiltinTypeSystem();
         
         return new SimpleTylarLoader(bindingLoader, jClassLoader, sTypeLoader);
