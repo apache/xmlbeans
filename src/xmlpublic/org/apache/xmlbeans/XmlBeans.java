@@ -31,26 +31,18 @@ import org.w3c.dom.Node;
  */
 public final class XmlBeans
 {
-    private static String XMLBEANS_TITLE;
-    private static String XMLBEANS_VERSION;
-    private static String XMLBEANS_VENDOR;
+    private static String XMLBEANS_TITLE = "org.apache.xmlbeans";
+    private static String XMLBEANS_VERSION = "2.0.0-beta1";
+    private static String XMLBEANS_VENDOR = "Apache Software Foundation";
 
     static
     {
         Package pkg = XmlBeans.class.getPackage();
-        XMLBEANS_TITLE = pkg.getImplementationTitle();
-        XMLBEANS_VERSION = pkg.getImplementationVersion();
-        XMLBEANS_VENDOR = pkg.getImplementationVendor();
-
-        if (XMLBEANS_TITLE == null || XMLBEANS_VERSION == null || XMLBEANS_VENDOR == null)
+        if (pkg != null)
         {
-            try {
-//                 throw new Exception("missing manifest information");
-            }
-            catch (Exception e) {
-                System.err.println("XMLBEANS DEBUG missing manifest information");
-                e.printStackTrace();
-            }
+            XMLBEANS_TITLE = pkg.getImplementationTitle();
+            XMLBEANS_VERSION = pkg.getImplementationVersion();
+            XMLBEANS_VENDOR = pkg.getImplementationVendor();
         }
     }
 

@@ -4,6 +4,10 @@
         <echo message="${java.version}"/>
     </target>
 
+    <target name="usage">
+      <echo message="See test/docs/BuildingAndRunningTests.txt"/>
+    </target>
+
     <!-- =============================================================== -->
     <!-- START: Properties Section                                       -->
 
