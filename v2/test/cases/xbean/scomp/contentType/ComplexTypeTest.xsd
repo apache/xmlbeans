@@ -39,7 +39,7 @@
 
       <xsd:element name="MixedFixedElt" fixed="abc">
             <xsd:complexType mixed="true">
-                <xsd:sequence>
+                <xsd:sequence minOccurs="0">
                     <xsd:element name="a" type="xsd:string"/>
                 </xsd:sequence>
             </xsd:complexType>

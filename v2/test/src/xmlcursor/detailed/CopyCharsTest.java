@@ -57,7 +57,8 @@ public class CopyCharsTest extends BasicCursorTestCase {
     }
 
     public void testCopyCharsNegative() throws Exception {
-        m_xo = XmlObject.Factory.parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
+        m_xo = XmlObject.Factory
+                .parse("<foo><bar>0123</bar><bar>WXYZ</bar></foo>");
         m_xc = m_xo.newCursor();
         toNextTokenOfType(m_xc, TokenType.TEXT);
         XmlCursor xc0 = m_xc.newCursor();
