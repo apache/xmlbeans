@@ -1453,10 +1453,13 @@ public interface XmlCursor extends XmlTokenSource
      * 
      * @param  toHere  The cursor at the location to which the XML should
      * be moved.
-     * @return true if anything was moved; false only if the cursor is 
-     * just before END or ENDDOC token.
+     * @return true if anything was moved.  This only happens when the XML to be
+     * moved contains the target of the move.
      * @throws java.lang.IllegalArgumentException  If the operation is not allowed
-     * at the cursor's location.
+     * at the cursor's location.  This includes attempting to move an end token or the
+     * document as a whole.  Also, moving to a location before the start document or moving
+     * an attribute to a location other than after another attribute or start token
+     * will throw.
      */
 
     boolean moveXml ( XmlCursor toHere );

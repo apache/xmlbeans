@@ -356,13 +356,13 @@ final class DomImpl
     private static void validateName ( String name )
     {
         if (name == null)
-            throw new IllegalArgumentException( "Target is null" );
+            throw new IllegalArgumentException( "Name is null" );
             
         if (name.length() == 0)
-            throw new IllegalArgumentException( "Target is empty" );
+            throw new IllegalArgumentException( "Name is empty" );
             
         if (!XMLChar.isValidName( name ))
-            throw new InvalidCharacterError( "Target has an invalid character" );
+            throw new InvalidCharacterError( "Name has an invalid character" );
     }
      
     private static void validateNcName ( String name )
@@ -371,25 +371,53 @@ final class DomImpl
             throw new InvalidCharacterError();
     }
     
-    private static void validateQualifiedName ( String name )
+    private static void validateQualifiedName ( String name, String uri, boolean isAttr )
     {
         assert name != null;
+
+        if (uri == null)
+            uri = "";
         
         int i = name.indexOf( ':' );
 
+        String local;
+        
         if (i < 0)
-            validateNcName( name );
+        {
+            validateNcName( local = name );
+
+            if (isAttr && local.equals( "xmlns" ) && !uri.equals( Locale._xmlnsUri ))
+            {
+                throw
+                    new NamespaceErr(
+                        "Default xmlns attribute does not have namespace: " + Locale._xmlnsUri );
+            }
+        }
         else
         {
-            validateNcName( name.substring( 0, i ) );
+            if (i == 0)
+                throw new NamespaceErr( "Invalid qualified name, no prefix specified" );
+
+            String prefix = name.substring( 0, i );
             
-            String local = name.substring( i + 1 );
+            validateNcName( prefix );
+
+            if (uri.length() == 0)
+                throw new NamespaceErr( "Attempt to give a prefix for no namespace" );
+            
+            local = name.substring( i + 1 );
             
             if (local.indexOf( ':' ) >= 0)
                 throw new NamespaceErr( "Invalid qualified name, more than one colon" );
             
             validateNcName( local );
+
+            if (prefix.equals( "xml" ) && !uri.equals( Locale._xml1998Uri ))
+                throw new NamespaceErr( "Invalid prefix - begins with 'xml'" );
         }
+        
+        if (local.length() == 0)
+            throw new NamespaceErr( "Invalid qualified name, no local part specified" );
     }
 
     private static void removeNode ( Dom n )
@@ -532,16 +560,14 @@ final class DomImpl
     {
         Document d;
 
-        if (l.noSync())         { l.enter(); try { d = domImplementation_createDocument( l, u, n, t ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { d = domImplementation_createDocument( l, u, n, t ); } finally { l.exit(); } }
-
-        return d;
+        if (l.noSync())         { l.enter(); try { return domImplementation_createDocument( l, u, n, t ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return domImplementation_createDocument( l, u, n, t ); } finally { l.exit(); } }
     }
 
     public static Document domImplementation_createDocument (
         Locale l, String namespaceURI, String qualifiedName, DocumentType doctype )
     {
-        validateQualifiedName( qualifiedName );
+        validateQualifiedName( qualifiedName, namespaceURI, false );
         
         Cur c = l.tempCur();
 
@@ -670,7 +696,7 @@ final class DomImpl
 
     public static Dom document_createElement ( Dom d, String name )
     {
-        validateQualifiedName( name );
+        validateName( name );
         
         Locale l = d.locale();
 
@@ -703,7 +729,7 @@ final class DomImpl
 
     public static Dom document_createElementNS ( Dom d, String uri, String qname )
     {
-        validateQualifiedName( qname );
+        validateQualifiedName( qname, uri, false );
         
         Locale l = d.locale();
         
@@ -736,7 +762,7 @@ final class DomImpl
 
     public static Dom document_createAttribute ( Dom d, String name )
     {
-        validateQualifiedName( name );
+        validateName( name );
 
         Locale l = d.locale();
 
@@ -769,7 +795,7 @@ final class DomImpl
     
     public static Dom document_createAttributeNS ( Dom d, String uri, String qname )
     {
-        validateQualifiedName( qname );
+        validateQualifiedName( qname, uri, true );
 
         Locale l = d.locale();
 
@@ -839,7 +865,14 @@ final class DomImpl
     
     public static Dom document_createProcessingInstruction ( Dom d, String target, String data )
     {
-        validateName( target );
+        if (target == null)
+            throw new IllegalArgumentException( "Target is null" );
+            
+        if (target.length() == 0)
+            throw new IllegalArgumentException( "Target is empty" );
+            
+        if (!XMLChar.isValidName( target ))
+            throw new InvalidCharacterError( "Target has an invalid character" );
         
         if (Locale.beginsWithXml( target ) && target.length() == 3)
             throw new InvalidCharacterError( "Invalid target - is 'xml'" );
@@ -931,12 +964,8 @@ final class DomImpl
     {
         Locale l = d.locale();
 
-        NodeList nl;
-
-        if (l.noSync())         { l.enter(); try { nl = document_getElementsByTagName( d, name ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { nl = document_getElementsByTagName( d, name ); } finally { l.exit(); } }
-
-        return nl;
+        if (l.noSync())         { l.enter(); try { return document_getElementsByTagName( d, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return document_getElementsByTagName( d, name ); } finally { l.exit(); } }
     }
     
     public static NodeList document_getElementsByTagName ( Dom d, String name )
@@ -952,12 +981,8 @@ final class DomImpl
     {
         Locale l = d.locale();
 
-        NodeList nl;
-
-        if (l.noSync())         { l.enter(); try { nl = document_getElementsByTagNameNS( d, uri, local ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { nl = document_getElementsByTagNameNS( d, uri, local ); } finally { l.exit(); } }
-
-        return nl;
+        if (l.noSync())         { l.enter(); try { return document_getElementsByTagNameNS( d, uri, local ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return document_getElementsByTagNameNS( d, uri, local ); } finally { l.exit(); } }
     }
     
     public static NodeList document_getElementsByTagNameNS ( Dom d, String uri, String local )
@@ -1021,14 +1046,14 @@ final class DomImpl
                 i = document_createElement( d, n.getNodeName() );
             else
             {
-                i = document_createElementNS( d, n.getNamespaceURI(), local );
-                
-                // TODO - unify creating element and setting prefix for perf ...
-
                 String prefix = n.getPrefix();
-                
-                if (prefix != null && prefix.length() > 0)
-                    node_setPrefix( i, prefix );
+                String name = prefix == null || prefix.length() == 0 ? local : prefix + ":" + local;
+                String uri = n.getNamespaceURI();
+
+                if (uri == null || uri.length() == 0)
+                    i = document_createElement( d, name );
+                else
+                    i = document_createElementNS( d, uri, name );
             }
 
             NamedNodeMap attrs = n.getAttributes();
@@ -1049,14 +1074,14 @@ final class DomImpl
                 i = document_createAttribute( d, n.getNodeName() );
             else
             {
-                i = document_createAttributeNS( d, n.getNamespaceURI(), local );
-                
-                // TODO - unify creating attr and setting prefix for perf ...
-
                 String prefix = n.getPrefix();
-                
-                if (prefix != null && prefix.length() > 0)
-                    node_setPrefix( i, prefix );
+                String name = prefix == null || prefix.length() == 0 ? local : prefix + ":" + local;
+                String uri = n.getNamespaceURI();
+
+                if (uri == null || uri.length() == 0)
+                    i = document_createAttribute( d, name );
+                else
+                    i = document_createAttributeNS( d, uri, name );
             }
 
             copyChildren = true;
@@ -1120,14 +1145,21 @@ final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static DocumentType _document_getDoctype ( Dom n )
+    public static DocumentType _document_getDoctype ( Dom d )
     {
-        throw new RuntimeException( "Not implemented" );
+        Locale l = d.locale();
+
+        Dom dt;
+
+        if (l.noSync())         { l.enter(); try { dt = document_getDoctype( d ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { dt = document_getDoctype( d ); } finally { l.exit(); } }
+
+        return (DocumentType) dt;
     }
 
-    public static Dom document_getDoctype ( Dom n )
+    public static Dom document_getDoctype ( Dom d )
     {
-        throw new RuntimeException( "Not implemented" );
+        return null;
     }
 
     //////////////////////////////////////////////////////////////////////////////////////
@@ -1579,8 +1611,10 @@ final class DomImpl
 
         c.push();
 
-        for ( c.nextWithAttrs() ; ! c.isAtEndOfLastPush() ; c.nextWithAttrs() )
+        do
         {
+            c.nextWithAttrs();
+
             CharNode cn = c.getCharNodes();
 
             if (cn != null)
@@ -1607,7 +1641,8 @@ final class DomImpl
                 c.setCharNodes( cn );
             }
         }
-        
+        while ( ! c.isAtEndOfLastPush() );
+
         c.release();
     }
 
@@ -1660,7 +1695,6 @@ final class DomImpl
         else synchronized ( l ) { l.enter(); try { d = node_replaceChild( p, nc, oc ); } finally { l.exit(); } }
 
         return (Node) d;
-        
     }
     
     public static Dom node_replaceChild ( Dom p, Dom newChild, Dom oldChild )
@@ -2140,7 +2174,7 @@ final class DomImpl
             QName name = c.getName();
             String uri = name.getNamespaceURI();
             String local = name.getLocalPart();
-            
+
             prefix = validatePrefix( prefix, uri, local, n.nodeType() == ATTR );
                                   
             c.setName( n.locale().makeQName( uri, local, prefix ) );
@@ -2710,17 +2744,19 @@ final class DomImpl
     //////////////////////////////////////////////////////////////////////////////////////
     //////////////////////////////////////////////////////////////////////////////////////
 
-    public static void _element_setAttributeNS ( Dom e, String uri, String qName, String value )
+    public static void _element_setAttributeNS ( Dom e, String uri, String qname, String value )
     {
         Locale l = e.locale();
 
-        if (l.noSync())         { l.enter(); try { element_setAttributeNS( e, uri, qName, value ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { element_setAttributeNS( e, uri, qName, value ); } finally { l.exit(); } }
+        if (l.noSync())         { l.enter(); try { element_setAttributeNS( e, uri, qname, value ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { element_setAttributeNS( e, uri, qname, value ); } finally { l.exit(); } }
     }
     
-    public static void element_setAttributeNS ( Dom e, String uri, String qName, String value )
+    public static void element_setAttributeNS ( Dom e, String uri, String qname, String value )
     {
-        QName name = e.locale().makeQualifiedQName( uri, qName );
+        validateQualifiedName( qname, uri, true );
+        
+        QName name = e.locale().makeQualifiedQName( uri, qname );
         String local = name.getLocalPart();
         String prefix = validatePrefix( name.getPrefix(), uri, local, true );
 
@@ -2744,12 +2780,8 @@ final class DomImpl
     {
         Locale l = e.locale();
 
-        NodeList nl;
-
-        if (l.noSync())         { l.enter(); try { nl = element_getElementsByTagName( e, name ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { nl = element_getElementsByTagName( e, name ); } finally { l.exit(); } }
-
-        return nl;
+        if (l.noSync())         { l.enter(); try { return element_getElementsByTagName( e, name ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return element_getElementsByTagName( e, name ); } finally { l.exit(); } }
 
     }
     public static NodeList element_getElementsByTagName ( Dom e, String name )
@@ -2765,12 +2797,8 @@ final class DomImpl
     {
         Locale l = e.locale();
 
-        NodeList nl;
-
-        if (l.noSync())         { l.enter(); try { nl = element_getElementsByTagNameNS( e, uri, local ); } finally { l.exit(); } }
-        else synchronized ( l ) { l.enter(); try { nl = element_getElementsByTagNameNS( e, uri, local ); } finally { l.exit(); } }
-
-        return nl;
+        if (l.noSync())         { l.enter(); try { return element_getElementsByTagNameNS( e, uri, local ); } finally { l.exit(); } }
+        else synchronized ( l ) { l.enter(); try { return element_getElementsByTagNameNS( e, uri, local ); } finally { l.exit(); } }
     }
     
     public static NodeList element_getElementsByTagNameNS ( Dom e, String uri, String local )

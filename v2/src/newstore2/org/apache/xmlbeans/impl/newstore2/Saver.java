@@ -425,11 +425,8 @@ abstract class Saver
     {
         _currentMapping = _namespaceStack.size();
 
-        while ( _currentMapping > 0 &&
-                  _namespaceStack.get( _currentMapping - 1 ) != null )
-        {
+        while ( _currentMapping > 0 && _namespaceStack.get( _currentMapping - 1 ) != null )
             _currentMapping -= 8;
-        }
     }
 
     boolean hasMapping ( )
@@ -454,12 +451,6 @@ abstract class Saver
         return (String) _namespaceStack.get( _currentMapping + 7 );
     }
 
-    String mappingPrevPrefixUri ( )
-    {
-        assert hasMapping();
-        return (String) _namespaceStack.get( _currentMapping + 5 );
-    }
-
     private final void pushMappings ( SaveCur c, boolean ensureDefaultEmpty )
     {
         assert c.isContainer();
@@ -470,16 +461,8 @@ abstract class Saver
 
         namespaces:
         for ( boolean A = c.toFirstAttr() ; A ; A = c.toNextAttr() )
-        {
             if (c.isXmlns())
-            {
-                String prefix = c.getXmlnsPrefix();
-                String uri = c.getXmlnsUri();
-
-                if (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)
-                    addNewFrameMapping( prefix, uri );
-            }
-        }
+                addNewFrameMapping( c.getXmlnsPrefix(), c.getXmlnsUri(), ensureDefaultEmpty );
 
         c.pop();
 
@@ -490,8 +473,7 @@ abstract class Saver
                 String prefix = (String) _ancestorNamespaces.get( i );
                 String uri    = (String) _ancestorNamespaces.get( i + 1 );
                 
-                if (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0)
-                    addNewFrameMapping( prefix, uri );
+                addNewFrameMapping( prefix, uri, ensureDefaultEmpty );
             }
 
             _ancestorNamespaces = null;
@@ -509,15 +491,23 @@ abstract class Saver
         }
     }
 
-    private final void addNewFrameMapping ( String prefix, String uri )
+    private final void addNewFrameMapping ( String prefix, String uri, boolean ensureDefaultEmpty )
     {
-        // Make sure the prefix is not already mapped in this frame
+        // If the prefix maps to "", this don't include this mapping 'cause it's not well formed.
+        // Also, if we want to make sure that the default namespace is always "", then check that
+        // here as well.
+        
+        if ((prefix.length() == 0 || uri.length() > 0) &&
+                (!ensureDefaultEmpty || prefix.length() > 0 || uri.length() == 0))
+        {
+            // Make sure the prefix is not already mapped in this frame
 
-        for ( iterateMappings() ; hasMapping() ; nextMapping() )
-            if (mappingPrefix().equals( prefix ))
-                return;
+            for ( iterateMappings() ; hasMapping() ; nextMapping() )
+                if (mappingPrefix().equals( prefix ))
+                    return;
 
-        addMapping( prefix, uri );
+            addMapping( prefix, uri );
+        }
     }
 
     private final void addMapping ( String prefix, String uri )
@@ -750,6 +740,26 @@ abstract class Saver
         return (String) _uriMap.get( uri );
     }
 
+    String getNonDefaultUriMapping ( String uri )
+    {
+        String prefix = (String) _uriMap.get( uri );
+
+        if (prefix != null && prefix.length() > 0)
+            return prefix;
+        
+        for ( Iterator keys = _prefixMap.keySet().iterator() ; keys.hasNext() ; )
+        {
+            prefix = (String) keys.next();
+
+            if (prefix.length() > 0 && _prefixMap.get( prefix ).equals( uri ))
+                return prefix;
+        }
+
+        assert false : "Could not find non-default mapping";
+
+        return null;
+    }
+
     private final boolean tryPrefix ( String prefix )
     {
         if (prefix == null || Locale.beginsWithXml( prefix ))
@@ -838,7 +848,7 @@ abstract class Saver
             assert c.isElem();
 
             emit( '<' );
-            emitName( c.getName() );
+            emitName( c.getName(), false );
 
             if (saveNamespacesFirst())
                 emitNamespacesHelper();
@@ -864,7 +874,7 @@ abstract class Saver
         protected void emitFinish ( SaveCur c )
         {
             emit( "</" );
-            emitName( c.getName() );
+            emitName( c.getName(), false );
             emit( '>' );
         }
         
@@ -903,7 +913,7 @@ abstract class Saver
         private void emitAttrHelper ( QName attrName, String attrValue )
         {
             emit( ' ' );
-            emitName( attrName );
+            emitName( attrName, true );
             emit( "=\"" );
             emit( attrValue );
             entitizeAttrValue();
@@ -965,7 +975,7 @@ abstract class Saver
         //
         //
         
-        private void emitName ( QName name )
+        private void emitName ( QName name, boolean needsPrefix )
         {
             assert name != null;
 
@@ -980,6 +990,16 @@ abstract class Saver
 
                 if (mappedUri == null || !mappedUri.equals( uri ))
                     prefix = getUriMapping( uri );
+
+                // Attrs need a prefix.  If I have not found one, then there must be a default
+                // prefix obscuring the prefix needed for this attr.  Find it manually.
+
+                // NOTE - Consider keeping the currently mapped default URI separate fromn the
+                // _urpMap and _prefixMap.  This way, I would not have to look it up manually
+                // here
+                
+                if (needsPrefix && prefix.length() == 0)
+                    prefix = getNonDefaultUriMapping( uri );
 
                 if (prefix.length() > 0)
                 {
@@ -2341,8 +2361,16 @@ abstract class Saver
                     {
                         if (c.isXmlns())
                         {
-                            _ancestorNamespaces.add( c.getXmlnsPrefix() );
-                            _ancestorNamespaces.add( c.getXmlnsUri() );
+                            String prefix = c.getXmlnsPrefix();
+                            String uri = c.getXmlnsUri();
+
+                            // Don't let xmlns:foo="" get used
+                            
+                            if (uri.length() > 0 || prefix.length() == 0)
+                            {
+                                _ancestorNamespaces.add( c.getXmlnsPrefix() );
+                                _ancestorNamespaces.add( c.getXmlnsUri() );
+                            }
                         }
                     }
                     while ( c.toNextAttr() );
@@ -2693,8 +2721,11 @@ abstract class Saver
 
                 k = _cur.kind();
 
-                // Check for non leaf
-                if (prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
+                // Check for non leaf, _prettyIndent < 0 means that the save is all on one line
+                
+                if (_prettyIndent >= 0 &&
+                      prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
+//                if (prevKind != COMMENT && prevKind != PROCINST && (prevKind != ELEM || k != -ELEM))
                 {
                     if (_sb.length() > 0)
                     {

@@ -119,11 +119,6 @@ public final class Cursor implements XmlCursor, ChangeListener
         _cur.dump( o );
     }
     
-    public void dump ( )
-    {
-        dump( System.out );
-    }
-
     static void validateLocalName ( QName name )
     {
         if (name == null)
@@ -856,8 +851,9 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void notifyChange ( )
     {
-        // TODO - need to exhaust the selection here ....
-        throw new RuntimeException( "Not implemented" );
+        // Force any path to get exausted
+
+        _getSelectionCount();
     }
 
     public void setNextChangeListener ( ChangeListener listener )
@@ -882,6 +878,8 @@ public final class Cursor implements XmlCursor, ChangeListener
         assert _pathEngine == null;
         
         _pathEngine = Path.getCompiledPath( pathExpr, options ).execute( _cur );
+
+        _cur._locale.registerForChange( this );
     }
     
     public boolean _hasNextSelection ( )
@@ -907,6 +905,9 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public boolean _toSelection ( int i )
     {
+        if (i < 0)
+            return false;
+        
         while ( i >= _cur.selectionCount() )
         {
             if (_pathEngine == null)
@@ -1128,6 +1129,12 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public String _getAttributeText ( QName attrName )
     {
+        if (attrName == null)
+            throw new IllegalArgumentException( "Attr name is null" );
+
+        if (!_cur.isContainer())
+            return null;
+
         return _cur.getAttrValue( attrName );
     }
     
@@ -1173,6 +1180,9 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public int _getTextValue ( char[] chars, int offset, int max )
     {
+        if (_cur.isText())
+            return _getChars( chars, offset, max );
+
         if (chars == null)
             throw new IllegalArgumentException( "char buffer is null" );
 
@@ -1188,9 +1198,6 @@ public final class Cursor implements XmlCursor, ChangeListener
         if (offset + max > chars.length)
             max = chars.length - offset;
         
-        if (_cur.isText())
-            return _getChars( chars, offset, max );
-
         if (!_cur.isNode())
         {
             throw new IllegalStateException(
@@ -1241,10 +1248,28 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public void _setTextValue ( char[] sourceChars, int offset, int length )
     {
+        if (length < 0)
+            throw new IndexOutOfBoundsException( "setTextValue: length < 0" );
+        
+        if (sourceChars == null)
+        {
+            if (length > 0)
+                throw new IllegalArgumentException( "setTextValue: sourceChars == null" );
+            
+            setTextValue( null, 0, 0 );
+
+            return;
+        }
+        
+        if (offset < 0 || offset >= sourceChars.length)
+            throw new IndexOutOfBoundsException( "setTextValue: offset out of bounds" );
+        
+        if (offset + length > sourceChars.length)
+            length = sourceChars.length - offset;
+        
         CharUtil cu = _cur._locale.getCharUtil();
         
-        setTextValue(
-            cu.saveChars( sourceChars, offset, length, null, 0, 0 ), cu._offSrc, cu._cchSrc );
+        setTextValue( cu.saveChars( sourceChars, offset, length ), cu._offSrc, cu._cchSrc );
     }
     
     public String _getChars ( )
@@ -1501,8 +1526,7 @@ public final class Cursor implements XmlCursor, ChangeListener
         {
             int cchRight = _cur.cchRight();
 
-            if (cchRight <= 0)
-                return false;
+            assert cchRight > 0;
             
             if (_cur.inChars( to._cur, cchRight, true ))
                 return false;
@@ -1670,12 +1694,17 @@ public final class Cursor implements XmlCursor, ChangeListener
     
     public int _copyChars ( int cch, Cursor to )
     {
-        if (_cur.cchRight() <= 0 || cch <= 0)
+        int cchRight = _cur.cchRight();
+        
+        if (cchRight <= 0 || cch == 0)
             return 0;
+
+        if (cch < 0 || cch > cchRight)
+            cch = cchRight;
 
         to.checkInsertionValidity( _cur );
         
-        to._cur.insertChars( _cur.getChars( -1 ), _cur._offSrc, _cur._cchSrc );
+        to._cur.insertChars( _cur.getChars( cch ), _cur._offSrc, _cur._cchSrc );
 
         to._cur.nextChars( _cur._cchSrc );
         
@@ -1795,6 +1824,11 @@ public final class Cursor implements XmlCursor, ChangeListener
         insertNode( c, text );
         
         c.release();
+    }
+    
+    public void _dump ( )
+    {
+        _cur.dump();
     }
 
     //
@@ -2146,6 +2180,7 @@ public final class Cursor implements XmlCursor, ChangeListener
     public void insertNamespace ( String prefix, String namespace ) { if (preCheck()) { _cur._locale.enter(); try { _insertNamespace( prefix, namespace ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _insertNamespace( prefix, namespace ); } finally { _cur._locale.exit(); } } }
     public void insertComment ( String text ) { if (preCheck()) { _cur._locale.enter(); try { _insertComment( text ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _insertComment( text ); } finally { _cur._locale.exit(); } } }
     public void insertProcInst ( String target, String text ) { if (preCheck()) { _cur._locale.enter(); try { _insertProcInst( target, text ); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _insertProcInst( target, text ); } finally { _cur._locale.exit(); } } }
+    public void dump ( ) { if (preCheck()) { _cur._locale.enter(); try { _dump(); } finally { _cur._locale.exit(); } } else synchronized ( _cur._locale ) { _cur._locale.enter(); try { _dump(); } finally { _cur._locale.exit(); } } }
     
     //
     //

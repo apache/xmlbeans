@@ -74,14 +74,7 @@ public class ToFirstContentTokenTest extends BasicCursorTestCase {
         assertEquals(TokenType.NONE, m_xc.toFirstContentToken());
         assertEquals(TokenType.NAMESPACE, m_xc.currentTokenType());
 
-// NEWSTORE START
         assertEquals(m_xc.getTextValue(),"nsuri");
-//        try {
-//            m_xc.getTextValue();
-//            fail("Expecting Illegal State Exception");
-//        } catch (IllegalStateException ie) {
-//        }
-// NEWSTORE END
     }
 
     public void testToFirstContentTokenFromSTARTwithContent() throws Exception {

@@ -153,18 +153,11 @@ public class CopyTest extends BasicCursorTestCase {
         // should contain all the namespaces for the document
         xc0.toPrevSibling();
         // assertEquals("<zip xmlns=\"" + Common.CLM_NS + "\" " + Common.CLM_XSI_NS + ">90952</zip>", xc0.xmlText());
-// NEWSTORE START
         String sExpected = "<po:zip " +
                 "xmlns=\"http://www.tranxml.org/TranXML/Version4.0\" " +
                 "xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\" " +
                 "xmlns:po=\"http://xbean.test/xmlcursor/PurchaseOrder\">" +
                 "90952</po:zip>";
-//        String sExpected = "<pur:zip " +
-//                "xmlns=\"http://www.tranxml.org/TranXML/Version4.0\" " +
-//                "xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\" " +
-//                "xmlns:pur=\"http://xbean.test/xmlcursor/PurchaseOrder\">" +
-//                "90952</pur:zip>";
-// NEWSTORE END
 
         assertEquals(sExpected, xc0.xmlText());
         xc0.dispose();

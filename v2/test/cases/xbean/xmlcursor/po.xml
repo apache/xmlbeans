@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
-
-<po:purchaseOrder xmlns:po="http://xbean.test/xmlcursor/PurchaseOrder" orderDate="1999-10-20"><po:shipTo country="US"><po:name>Alice Smith</po:name><po:street>123 Maple Street</po:street><po:city>Mill Valley</po:city><po:state>CA</po:state><po:zip>90952</po:zip>
+<po:purchaseOrder xmlns:po="http://xbean.test/xmlcursor/PurchaseOrder" orderDate="1999-10-20">
+    <po:shipTo country="US">
+        <po:name>Alice Smith</po:name>
+        <po:street>123 Maple Street</po:street>
+        <po:city>Mill Valley</po:city>
+        <po:state>CA</po:state>
+        <po:zip>90952</po:zip>
     </po:shipTo>
     <po:billTo country="US">
         <po:name>Robert Smith</po:name>

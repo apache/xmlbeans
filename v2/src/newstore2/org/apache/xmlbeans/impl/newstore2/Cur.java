@@ -154,9 +154,9 @@ final class Cur
     boolean isFinish    ( ) { assert isPositioned(); return _pos == END_POS && kindIsContainer( _xobj.kind() ); }
     boolean isUserNode  ( ) { assert isPositioned(); int k = kind(); return k == ELEM || k == ROOT || (k == ATTR && !isXmlns()); }
     
-    boolean isNormalAttr ( ) { assert isNode(); return _xobj.isNormalAttr(); }
-    boolean isXmlns      ( ) { assert isNode(); return _xobj.isXmlns(); }
-
+    boolean isNormalAttr ( ) { return isNode() && _xobj.isNormalAttr(); }
+    boolean isXmlns      ( ) { return isNode() && _xobj.isXmlns(); }
+    
     QName   getName  ( ) { assert isNode() || isEnd(); return _xobj._name; }
     String  getLocal ( ) { return getName().getLocalPart(); }
     String  getUri   ( ) { return getName().getNamespaceURI(); }
@@ -367,7 +367,11 @@ final class Cur
         while ( dThis > dThat ) { dThis--; xThis = xThis._parent; }
         while ( dThat > dThis ) { dThat--; xThat = xThat._parent; }
 
-        assert dThat == dThis && dThis != 0;
+        assert dThat == dThis;
+        
+        if (dThat == 0)
+            return 2;
+
         assert xThis._parent != null && xThat._parent != null;
 
         while ( xThis._parent != xThat._parent )
@@ -2724,14 +2728,17 @@ final class Cur
             _locale._versionSansText++;
         }
 
+        // 
+        // Really primitive load context operations
+        // 
+
         private void start ( Xobj xo )
         {
             assert _frontier != null;
             assert !_after || _frontier._parent != null;
 
-            if (_stripWhitespace)
-                stripLeadingWhitespace();
-            
+            flushText();
+
             if (_after)
             {
                 _frontier = _frontier._parent;
@@ -2750,9 +2757,8 @@ final class Cur
             assert _frontier != null;
             assert !_after || _frontier._parent != null;
 
-            if (_stripWhitespace)
-                stripLeadingWhitespace();
-            
+            flushText();
+
             if (_after)
                 _frontier = _frontier._parent;
             else
@@ -2762,6 +2768,69 @@ final class Cur
             _lastPos  = END_POS;
         }
 
+        private void text ( Object src, int off, int cch )
+        {
+            if (cch <= 0)
+                return;
+
+            _lastXobj = _frontier;
+            _lastPos  = _frontier._cchValue + 1;
+            
+            if (_after)
+            {
+                _lastPos += _frontier._cchAfter + 1;
+                
+                _frontier._srcAfter =
+                    _charUtil.saveChars(
+                        src, off, cch,
+                        _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
+
+                _frontier._offAfter = _charUtil._offSrc;
+                _frontier._cchAfter = _charUtil._cchSrc;
+                
+            }
+            else
+            {
+                _frontier._srcValue =
+                    _charUtil.saveChars(
+                        src, off, cch,
+                        _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
+
+                _frontier._offValue = _charUtil._offSrc;
+                _frontier._cchValue = _charUtil._cchSrc;
+            }
+        }
+
+        private void flushText ( )
+        {
+            if (_stripWhitespace)
+            {
+                if (_after)
+                {
+                    _frontier._srcAfter =
+                        _charUtil.stripRight(
+                            _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
+
+                    _frontier._offAfter = _charUtil._offSrc;
+                    _frontier._cchAfter = _charUtil._cchSrc;
+                }
+                else
+                {
+                    _frontier._srcValue =
+                        _charUtil.stripRight(
+                            _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
+
+                    _frontier._offValue = _charUtil._offSrc;
+                    _frontier._cchValue = _charUtil._cchSrc;
+                }
+            }
+        }
+        
+        private Xobj parent ( )
+        {
+            return _after ? _frontier._parent : _frontier;
+        }
+        
         private QName checkName ( QName name, boolean local )
         {
             if (_substituteNamespaces != null && (!local || name.getNamespaceURI().length() > 0))
@@ -2775,24 +2844,26 @@ final class Cur
             return name;
         }
         
+        //
+        //
+        //
+        
         protected void startElement ( QName name )
         {
-            start(
-                createElementXobj(
-                    _locale, checkName( name, false ),
-                    (_after ? _frontier._parent :_frontier)._name ) );
+            start( createElementXobj( _locale, checkName( name, false ), parent()._name ) );
         }
         
         protected void endElement ( )
         {
-            assert (_after ? _frontier._parent : _frontier).isElem();
+            assert parent().isElem();
             
             end();
         }
         
         protected void xmlns ( String prefix, String uri )
         {
-            assert (_after ? _frontier._parent : _frontier).isContainer();
+            assert parent().isContainer();
+            // BUGBUG - should assert there that there is no text before this attr
 
             // Namespace attrs are different than regular attrs -- I don't change their name,
             // I change their value!
@@ -2808,9 +2879,7 @@ final class Cur
             Xobj x = new Xobj.AttrXobj( _locale, _locale.createXmlns( prefix ) );
             
             start( x );
-
             text( uri, 0, uri.length() );
-            
             end();
             
             _lastXobj = x;
@@ -2819,14 +2888,13 @@ final class Cur
         
         protected void attr ( QName name, String value )
         {
-            assert (_after ? _frontier._parent : _frontier).isContainer();
+            assert parent().isContainer();
+            // BUGBUG - should assert there that there is no text before this attr
             
             Xobj x = new Xobj.AttrXobj( _locale, checkName( name, true ) );
             
             start( x );
-            
             text( value, 0, value.length() );
-            
             end();
             
             _lastXobj = x;
@@ -2864,8 +2932,8 @@ final class Cur
             if (!_stripComments)
             {
                 comment(
-                    _charUtil.saveChars(
-                        chars, off, cch, null, 0, 0 ), _charUtil._offSrc, _charUtil._cchSrc );
+                    _charUtil.saveChars( chars, off, cch ),
+                    _charUtil._offSrc, _charUtil._cchSrc );
             }
         }
 
@@ -2881,78 +2949,29 @@ final class Cur
             _lastPos  = 0;
         }
 
-        private void stripLeadingWhitespace ( )
+        private void stripText ( Object src, int off, int cch )
         {
-            if (_after)
-            {
-                _frontier._srcAfter =
-                    _charUtil.stripRight(
-                        _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
-                
-                _frontier._offAfter = _charUtil._offSrc;
-                _frontier._cchAfter = _charUtil._cchSrc;
-            }
-            else
-            {
-                _frontier._srcValue =
-                    _charUtil.stripRight(
-                        _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
-                
-                _frontier._offValue = _charUtil._offSrc;
-                _frontier._cchValue = _charUtil._cchSrc;
-            }
-        }
-        
-        private void text ( Object src, int off, int cch )
-        {
-            if (cch <= 0)
-                return;
-
-            _lastXobj = _frontier;
-            _lastPos  = _frontier._cchValue + 1;
-            
-            if (_after)
-            {
-                _lastPos += _frontier._cchAfter + 1;
-                
-                _frontier._srcAfter =
-                    _charUtil.saveChars(
-                        src, off, cch,
-                        _frontier._srcAfter, _frontier._offAfter, _frontier._cchAfter );
-
-                _frontier._offAfter = _charUtil._offSrc;
-                _frontier._cchAfter = _charUtil._cchSrc;
-                
-            }
-            else
-            {
-                _frontier._srcValue =
-                    _charUtil.saveChars(
-                        src, off, cch,
-                        _frontier._srcValue, _frontier._offValue, _frontier._cchValue );
-
-                _frontier._offValue = _charUtil._offSrc;
-                _frontier._cchValue = _charUtil._cchSrc;
-            }
-        }
-        
-        protected void text ( String s )
-        {
-            text( s, 0, s.length() );
-        }
-        
-        protected void text ( char[] src, int off, int cch )
-        {
-            Object srcObj = src;
-            
             if (_stripWhitespace)
             {
-                srcObj = _charUtil.stripLeft( srcObj, off, cch );
+                src = _charUtil.stripLeft( src, off, cch );
                 off = _charUtil._offSrc;
                 cch = _charUtil._cchSrc;
             }
             
-            text( srcObj, off, cch );
+            text( src, off, cch );
+        }
+
+        protected void text ( String s )
+        {
+            if (s == null)
+                return;
+
+            stripText( s, 0, s.length() );
+        }
+        
+        protected void text ( char[] src, int off, int cch )
+        {
+            stripText( src, off, cch );
         }
         
         protected void bookmark ( XmlBookmark bm )
@@ -2995,7 +3014,7 @@ final class Cur
         
         protected void abort ( )
         {
-            while ( !(_after ? _frontier._parent : _frontier).isRoot() )
+            while ( !parent().isRoot() )
                 end();
             
             finish().release();
@@ -3003,8 +3022,7 @@ final class Cur
         
         protected Cur finish ( )
         {
-            if (_stripWhitespace)
-                stripLeadingWhitespace();
+            flushText();
             
             if (_after)
                 _frontier = _frontier._parent;

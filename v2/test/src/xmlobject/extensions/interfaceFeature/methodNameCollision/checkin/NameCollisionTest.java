@@ -48,11 +48,7 @@ public class NameCollisionTest extends TestCase{
                      XmlString s= XmlString.Factory.newInstance();
                      it[i].setAge(50);
                     it[i].setName4("BEAN Name"+i);
-// NEWSTORE START
                       sExpected.append("<consultant age=\"50\" name=\"BEAN Name"+i+"\"/>");
-//                      sExpected.append("<consultant name=\"BEAN Name"+i+"\" " +
-//                              "age=\"50\"/>");
-// NEWSTORE END
               }
 
             sExpected.append("</departments></com:company>");

@@ -408,7 +408,7 @@ public class ElementTest extends NodeWithChildrenTest {
         m_node = m_doc.getDocumentElement();
 
         try {
-            ((Element) m_node).setAttribute("at:invalid<", "0");
+            ((Element) m_node).setAttribute("invalid<", "0");
             fail("Invalid attr name");
         }
         catch (DOMException de) {

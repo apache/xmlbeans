@@ -4414,14 +4414,11 @@ public abstract class Saver implements NamespaceManager
             // TODO - add an options which specifies a Document with which
             // to create the fragment
 
-// NEWSTORE START
             DOMImplementation impl = XmlObject.Factory.newDomImplementation();
 
             _doc = impl.createDocument( null, "foo", null );
 
             _doc.removeChild( _doc.getDocumentElement() );
-//            _doc = ((DocumentBuilder) _threadDocumentBuilderFactory.get()).newDocument();
-// NEWSTORE END
 
             Node result;
 

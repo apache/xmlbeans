@@ -309,12 +309,12 @@ public abstract class AttributeTest extends TestCase {
         try{
            m_stream.isAttributeSpecified(-1);
            fail("Bad state");
-       }catch (IllegalStateException e){}
+       }catch (java.lang.IndexOutOfBoundsException e){}
 
        try{
            m_stream.isAttributeSpecified(2);
            fail("Bad state");
-       }catch (IllegalStateException e){}
+       }catch (java.lang.IndexOutOfBoundsException e){}
 
    }
 

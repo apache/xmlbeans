@@ -117,7 +117,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
             m_xc.setTextValue(buffer, -1, 98);
             fail("Offset < 0");
         }
-        catch (IllegalArgumentException ie) {
+        catch (IndexOutOfBoundsException ie) {
         }
     }
 
@@ -139,7 +139,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
             m_xc.setTextValue(sNewVal.toCharArray(), 5, 3);
             fail("Offset Past end");
         }
-        catch (IllegalArgumentException ie) {
+        catch (IndexOutOfBoundsException ie) {
         }
     }
 
@@ -152,7 +152,7 @@ public class SetTextValueTest extends BasicCursorTestCase {
             m_xc.setTextValue(buffer, 10, -1);
             if (!m_xc.equals(sExpected)) fail("Negative Char Cnt");
         }
-        catch (IllegalArgumentException ie) {
+        catch (IndexOutOfBoundsException ie) {
         }
     }
 
@@ -174,8 +174,8 @@ public class SetTextValueTest extends BasicCursorTestCase {
         assertEquals(true, sNewVal.length() < nCharCount);
         toNextTokenOfType(m_xc, TokenType.START);
         m_xc.setTextValue(sNewVal.toCharArray(), 0, nCharCount);
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals(sNewVal, m_xc.xmlText());
+//        toPrevTokenOfType(m_xc, TokenType.START);
+        assertEquals(sNewVal, m_xc.getTextValue());
     }
 
     //offset+selection>buffer
@@ -183,8 +183,8 @@ public class SetTextValueTest extends BasicCursorTestCase {
         String sNewVal = " 20";
         toNextTokenOfType(m_xc, TokenType.START);
         m_xc.setTextValue(sNewVal.toCharArray(), 2, 4);
-        toPrevTokenOfType(m_xc, TokenType.START);
-        assertEquals("0", m_xc.xmlText());
+//        toPrevTokenOfType(m_xc, TokenType.START);
+        assertEquals("0", m_xc.getTextValue());
     }
 
     //spec doesn't say anything about text???

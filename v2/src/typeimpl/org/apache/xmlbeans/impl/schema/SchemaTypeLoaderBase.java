@@ -18,10 +18,7 @@ package org.apache.xmlbeans.impl.schema;
 import org.apache.xmlbeans.impl.common.QNameHelper;
 import org.apache.xmlbeans.impl.validator.ValidatingXMLInputStream;
 
-// NEWSTORE START
 import org.apache.xmlbeans.impl.newstore2.Locale;
-//import org.apache.xmlbeans.impl.store.Root;
-// NEWSTORE END
 
 import org.apache.xmlbeans.SchemaAttributeGroup;
 import org.apache.xmlbeans.SchemaField;
@@ -187,10 +184,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.newInstance( this, type, options );
 
-// NEWSTORE START
         return Locale.newInstance( this, type, options );
-//        return Root.newInstance( this, type, options );
-// NEWSTORE END
     }
 
     public XmlObject parse ( String xmlText, SchemaType type, XmlOptions options ) throws XmlException
@@ -200,10 +194,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.parse( this, xmlText, type, options );
 
-// NEWSTORE START
         return Locale.parseToXmlObject( this, xmlText, type, options );
-//        return Root.parse( this, xmlText, type, options );
-// NEWSTORE END
     }
 
     public XmlObject parse ( XMLInputStream xis, SchemaType type, XmlOptions options ) throws XmlException, XMLStreamException
@@ -213,10 +204,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.parse( this, xis, type, options );
         
-// NEWSTORE START
         return Locale.parseToXmlObject( this, xis, type, options );
-//        return Root.parse( this, xis, type, options );
-// NEWSTORE END
     }
 
     public XmlObject parse ( XMLStreamReader xsr, SchemaType type, XmlOptions options ) throws XmlException
@@ -226,10 +214,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.parse( this, xsr, type, options );
 
-// NEWSTORE START
         return Locale.parseToXmlObject( this, xsr, type, options );
-//        return Root.parse( this, xsr, type, options );
-// NEWSTORE END
     }
     
     public XmlObject parse ( File file, SchemaType type, XmlOptions options ) throws XmlException, IOException
@@ -343,10 +328,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.parse( this, jiois, type, options );
 
-// NEWSTORE START
         XmlObject result = Locale.parseToXmlObject( this, jiois, type, options );
-//        XmlObject result = Root.parse( this, jiois, type, options );
-// NEWSTORE END
 
         if (digestStream != null)
             result.documentProperties().setMessageDigest( digestStream.getMessageDigest().digest() );
@@ -361,10 +343,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.parse( this, jior, type, options );
 
-// NEWSTORE START
         return Locale.parseToXmlObject( this, jior, type, options );
-//        return Root.parse( this, jior, type, options );
-// NEWSTORE END
     }
 
     public XmlObject parse ( Node node, SchemaType type, XmlOptions options ) throws XmlException
@@ -374,10 +353,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.parse( this, node, type, options );
 
-// NEWSTORE START
         return Locale.parseToXmlObject( this, node, type, options );
-//        return Root.parse( this, node, type, options );
-// NEWSTORE END
     }
 
     public XmlSaxHandler newXmlSaxHandler ( SchemaType type, XmlOptions options )
@@ -387,10 +363,7 @@ public abstract class SchemaTypeLoaderBase implements SchemaTypeLoader
         if (hook != null)
             return hook.newXmlSaxHandler( this, type, options );
 
-// NEWSTORE START
         return Locale.newSaxHandler( this, type, options );
-//        return Root.newSaxHandler( this, type, options );
-// NEWSTORE END
     }
 
     public DOMImplementation newDomImplementation ( XmlOptions options )

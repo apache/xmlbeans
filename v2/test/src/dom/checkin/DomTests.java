@@ -106,20 +106,6 @@ public class DomTests extends TestCase {
 
         doTestDomExport(xml);
 
-// NEWSTORE START
-//        try {
-//            xml =
-//                    "<xml-fragment " +
-//                    "  foo='bar'>" +
-//                    "</xml-fragment>";
-//
-//            doTestDomExport(xml);
-//
-//            Assert.assertTrue(false);
-//        }
-//        catch (Exception e) {
-//        }
-// NEWSTORE END
 
         XmlObject x = XmlObject.Factory.parse(xx);
 
