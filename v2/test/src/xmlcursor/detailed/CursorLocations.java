@@ -78,7 +78,8 @@ public class CursorLocations extends BasicCursorTestCase {
             xc2.toPrevToken();
         }
 
-        System.out.println("Current Token Type "   +  xc1.currentTokenType() + "       " +  xc2.currentTokenType());
+       assertEquals("Current Token Type ",xc1.currentTokenType(), xc2.currentTokenType());
+        assertEquals(xc1.getChars(), xc1.getTextValue());
         assertEquals(xc1.getChars(), xc2.getTextValue());
         //System.out.println(xc2.getTextValue());
         xc2.toNextToken();
@@ -240,22 +241,12 @@ public class CursorLocations extends BasicCursorTestCase {
     public void testXmlObjectUsingCursor() throws Exception {
         XmlCursor xc1, xc2, xc3;
 
-        //PurchaseOrderDocument pod = (PurchaseOrderDocument)XmlObject.Factory.parse(Common.XML_PURCHASEORDER);
-        PurchaseOrderDocument pod = PurchaseOrderDocument.Factory.parse(
+       PurchaseOrderDocument pod = PurchaseOrderDocument.Factory.parse(
                  JarUtil.getResourceFromJar(Common.TRANXML_FILE_XMLCURSOR_PO));
         xc1 = pod.newCursor();
         xc2 = pod.newCursor();
         xc3 = pod.newCursor();
 
-        //while(xc1.currentTokenType() != TokenType.ENDDOC)
-        // {
-        //System.out.println(xc1.currentTokenType());
-
-        //if (xc1.currentTokenType() == TokenType.TEXT)
-        //System.out.println( xc1.getChars());
-
-        //xc1.toNextToken();
-        //}
 
         //moving cursor location so that it comes to zip under shipto
 
@@ -276,10 +267,11 @@ public class CursorLocations extends BasicCursorTestCase {
         toPrevTokenOfType(xc2, TokenType.TEXT);
         toPrevTokenOfType(xc3, TokenType.TEXT);
         toPrevTokenOfType(xc3, TokenType.TEXT);
-
+       //all cursors are now at: 90952
         assertEquals(xc1.getChars(), xc2.getChars(), xc3.getChars());
-
+       //at 52
         xc2.toNextChar(3);
+        //after 90952
         xc3.toNextChar(5);
         assertEquals(false, xc2.isAtSamePositionAs(xc3));
         assertEquals(false, xc3.isAtSamePositionAs(xc1));
@@ -290,13 +282,14 @@ public class CursorLocations extends BasicCursorTestCase {
         USAddress usa = pt.getShipTo();
         usa.setZip(new BigDecimal(500));
 
-        //System.out.println(usa.getZip());
-
+      assertEquals(500,usa.getZip().intValue());
+       //xc2 and xc3 should now both be past 500
+        //xc1 should be right at 500
         assertEquals(true, xc2.isAtSamePositionAs(xc3));
-        assertEquals(true, xc3.isAtSamePositionAs(xc1));
+        assertEquals(false, xc3.isAtSamePositionAs(xc1));
 
-        xc1.toPrevChar(3);
-        xc2.toPrevChar(3);
+        assertEquals(0,xc1.toPrevChar(3));
+        assertEquals(3,xc2.toPrevChar(3));
 
         //System.out.println(xc1.getChars());
         assertEquals(xc1.getChars(), xc2.getChars());

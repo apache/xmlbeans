@@ -71,7 +71,8 @@ public class MultipleCopyFromCursorTest extends TestCase {
             xc.toStartDoc();
             xc.selectPath(Common.CLM_NS_XQUERY_DEFAULT +
                           "$this//GeographicLocation");
-            xc.toNextSelection();
+            assertTrue( xc.getSelectionCount() > 0 );
+            assertTrue( xc.toNextSelection());
             aCursors[0].toLastChild();
             assertEquals("TX", aCursors[0].getTextValue());
 
@@ -81,9 +82,10 @@ public class MultipleCopyFromCursorTest extends TestCase {
             aCursors[0].toNextToken();
             assertEquals(TokenType.END, aCursors[0].currentTokenType());
 
-            aCursors[0].insertElement("LocationIdentifier",
+            aCursors[0].beginElement("LocationIdentifier",
                                       "http://www.tranxml.org/TranXML/Version4.0");
             aCursors[0].insertAttributeWithValue("Qualifier", "FR");
+             aCursors[0].toEndToken();
             aCursors[0].insertElementWithText("CountrySubdivisionCode",
                                               "http://www.tranxml.org/TranXML/Version4.0",
                                               "xyz");

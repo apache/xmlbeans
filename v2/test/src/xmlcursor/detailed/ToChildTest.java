@@ -68,7 +68,9 @@ public class ToChildTest extends BasicCursorTestCase {
     }
     public void testToChildInvalidName()throws Exception{
 	m_xc = XmlObject.Factory.parse(sDoc).newCursor();
+
 	assertEquals(false,m_xc.toChild(""));
+   
     }
 
     public void testToChildNull()throws Exception{

@@ -165,7 +165,7 @@ public class AxesTest extends TestCase {
 
 
     public void testChildAttribute() throws XmlException {
-        String sExpected = "<xml-fragment at0=\"val0\"/>";
+        String sExpected = "<xml-fragment at0=\"val0\" xmlns:pre=\"http://uri.com\"/>";
         String sQuery1 = "$this/foo/bar/attribute::at0";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         c.selectPath(sQuery1, options );
@@ -175,7 +175,7 @@ public class AxesTest extends TestCase {
     }
 
     public void testChildAttributeAbbrev() throws XmlException {
-        String sExpected = "<xml-fragment at0=\"val0\"/>";
+        String sExpected = "<xml-fragment at0=\"val0\" xmlns:pre=\"http://uri.com\"/>";
         ;
         String sQuery1 = "$this/foo/bar/@at0";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
@@ -186,7 +186,7 @@ public class AxesTest extends TestCase {
     }
 
     public void testDescAttribute() throws XmlException {
-        String sExpected = "<xml-fragment at0=\"val0\"/>";
+        String sExpected = "<xml-fragment at0=\"val0\" xmlns:pre=\"http://uri.com\"/>";
         String sQuery1 = "$this//attribute::at0";
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         assertEquals(XmlCursor.TokenType.START, c.toNextToken());

@@ -93,8 +93,8 @@ public class CursorGeneratedTypedObjectTest extends TestCase {
                "<loc:SubdivisionCode>xyz</loc:SubdivisionCode>" +
         "</xml-fragment>";
         XmlOptions map = new XmlOptions();
-        map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
-        map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
+        //map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
+        //map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
         try {
             assertEquals(sExpectedXML, xc0.xmlText(map));
             loc = (LocationDocument.Location) xc0.getObject();
@@ -133,9 +133,10 @@ public class CursorGeneratedTypedObjectTest extends TestCase {
             xc0.toNextToken();
             assertEquals(TokenType.END, xc0.currentTokenType());
 
-            xc0.insertElement("LocationIdentifier",
+            xc0.beginElement("LocationIdentifier",
                     "http://www.tranxml.org/TranXML/Version4.0");
             xc0.insertAttributeWithValue("Qualifier", "FR");
+            xc0.toEndToken();
             xc0.insertElementWithText("CountrySubdivisionCode",
                     "http://www.tranxml.org/TranXML/Version4.0", "xyz");
             xc0.toCursor(xc);
@@ -143,9 +144,9 @@ public class CursorGeneratedTypedObjectTest extends TestCase {
             String sExpectedXML = "<GeographicLocation " + sNamespace +
                     "><CityName>DALLAS</CityName><StateOrProvinceCode>TX</StateOrProvinceCode><LocationIdentifier Qualifier=\"FR\"/><CountrySubdivisionCode>xyz</CountrySubdivisionCode></GeographicLocation>";
             XmlOptions map = new XmlOptions();
-            map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
-            map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
-            assertEquals(sExpectedXML, xc0.xmlText(map));
+          //  map.put(XmlOptions.SAVE_PRETTY_PRINT, "");
+          //  map.put(XmlOptions.SAVE_PRETTY_PRINT_INDENT, new Integer(-1));
+            assertEquals(sExpectedXML, xc0.xmlText());
 
             String sOExpectedXML = "<xml-fragment xmlns:xsi=\"http://www.w3.org/2000/10/XMLSchema-instance\"><ver:CityName xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">DALLAS</ver:CityName><ver:StateOrProvinceCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">TX</ver:StateOrProvinceCode><ver:LocationIdentifier Qualifier=\"FR\" xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\"/><ver:CountrySubdivisionCode xmlns:ver=\"http://www.tranxml.org/TranXML/Version4.0\">xyz</ver:CountrySubdivisionCode></xml-fragment>";
 

@@ -75,6 +75,7 @@ public class NodeTest extends TestCase {
         XmlCursor c = Public2.getCursor(Public2.parse(sXmlChild));
         String sExpected ="<pre:baz pre:at0=\"val1\" xmlns:pre=\"http://uri\"/>";
         assertEquals( XmlCursor.TokenType.START, c.toNextToken() );
+         assertEquals("foo",c.getName().getLocalPart());
         c.selectPath(sQuery1);
         assertEquals(1, c.getSelectionCount());
         c.toNextSelection();
