@@ -1529,7 +1529,6 @@ abstract class Xobj implements TypeStore
 
             c.insertString( value );
 
-            assert saveVersion != _locale._versionAll;
             assert saveVersionSansText == _locale._versionSansText;
             
             _locale._versionAll = saveVersion;

@@ -193,8 +193,15 @@ public class XmlOptions implements java.io.Serializable
      * @see XmlTokenSource#save(java.io.File, XmlOptions)
      * @see XmlTokenSource#xmlText(XmlOptions)
      */
-    public XmlOptions setSaveAggresiveNamespaces() { 
+    public XmlOptions setSaveAggressiveNamespaces() {
         return set( SAVE_AGGRESSIVE_NAMESPACES ); 
+    }
+
+    /**
+     * @deprecated replaced by {@link #setSaveAggressiveNamespaces}
+     */
+    public XmlOptions setSaveAggresiveNamespaces() { 
+        return setSaveAggressiveNamespaces(); 
     }
 
     /**

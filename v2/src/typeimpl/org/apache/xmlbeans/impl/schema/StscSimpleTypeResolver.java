@@ -36,6 +36,7 @@ import org.apache.xmlbeans.XmlUnsignedByte;
 import org.apache.xmlbeans.XmlPositiveInteger;
 import org.apache.xmlbeans.XmlNonNegativeInteger;
 import org.w3.x2001.xmlSchema.*;
+import org.w3.x2001.xmlSchema.SchemaDocument.Schema;
 
 public class StscSimpleTypeResolver
 {
@@ -58,6 +59,8 @@ public class StscSimpleTypeResolver
         SimpleType parseSt = (SimpleType)sImpl.getParseObject();
         
         assert sImpl.isSimpleType();
+
+        Schema schema = StscComplexTypeResolver.getSchema(parseSt);
 
         // Verify: have list, union, or restriction, but not more than one
         int count =
@@ -87,9 +90,27 @@ public class StscSimpleTypeResolver
         boolean finalList = false;
         boolean finalUnion = false;
 
+        String value = null;
+        List sValue = null;
         if (parseSt.isSetFinal())
         {
-            String value = parseSt.getFinal();
+            value = parseSt.getFinal();
+        }
+        // Inspect the final default attribute on the schema
+        else if (schema != null && schema.isSetFinalDefault())
+        {
+            Object fd = schema.getFinalDefault();
+            if (fd != null)
+            {
+                if (fd instanceof String)
+                    value = (String) fd;
+                else if (fd instanceof List)
+                    sValue = (List) fd;
+            }
+        }
+
+        if (value != null)
+        {
             if (value.equals("#all"))
                 finalRest = finalList = finalUnion = true;
             else if (value.equals("restriction"))
@@ -99,6 +120,20 @@ public class StscSimpleTypeResolver
             else if (value.equals("union"))
                 finalUnion = true;
         }
+        else if (sValue != null)
+        {
+            // In case of simple types we ignore the "extension" value
+
+            if (sValue.contains("restriction"))
+                finalRest = true;
+
+            if (sValue.contains("list"))
+                finalList = true;
+
+            if (sValue.contains("union"))
+                finalUnion= true;
+        }
+
         sImpl.setSimpleFinal(finalRest, finalList, finalUnion);
 
         List anonTypes = new ArrayList();
