@@ -4602,7 +4602,7 @@ public abstract class Saver implements NamespaceManager
                                 c.getCpForPos( r, 1 ), c.getCchValue() );
                     }
 
-                    if (text != null && _currentNode != _doc)
+                    if (text != null)
                         e.insertBefore( _doc.createTextNode( text ), null );
                 }
                 else
