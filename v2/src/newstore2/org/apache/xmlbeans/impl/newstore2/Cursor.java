@@ -51,10 +51,10 @@ import org.xml.sax.ext.LexicalHandler;
 import org.xml.sax.SAXException;
 
 import org.apache.xmlbeans.impl.newstore2.Saver.TextSaver;
-import org.apache.xmlbeans.impl.newstore2.Locale.GeneralChangeListener;
+import org.apache.xmlbeans.impl.newstore2.Locale.ChangeListener;
 import org.apache.xmlbeans.impl.newstore2.Path.PathEngine;
 
-public final class Cursor implements XmlCursor, GeneralChangeListener
+public final class Cursor implements XmlCursor, ChangeListener
 {
     static final int ROOT     = Cur.ROOT;
     static final int ELEM     = Cur.ELEM;
@@ -192,7 +192,7 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
         if (text != null && text.length() > 0)
         {
             thisStuff.next();
-            thisStuff.insertChars( text, 0, text.length() );
+            thisStuff.insertString( text );
             thisStuff.toParent();
         }
 
@@ -582,20 +582,20 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
         return _cur.pop();
     }
     
-    public void notifyGeneralChange ( )
+    public void notifyChange ( )
     {
-        // Noit sure why I need a general change notification .. .is text enuf?
+        // TODO - need to exhaust the selection here ....
         throw new RuntimeException( "Not implemented" );
     }
 
-    public void setNextGeneralChangeListener ( GeneralChangeListener listener )
+    public void setNextChangeListener ( ChangeListener listener )
     {
-        _nextGeneralChangeListener = listener;
+        _nextChangeListener = listener;
     }
         
-    public GeneralChangeListener getNextGeneralChangeListener ( )
+    public ChangeListener getNextChangeListener ( )
     {
-        return _nextGeneralChangeListener;
+        return _nextChangeListener;
     }
     
     public void _selectPath ( String path )
@@ -991,12 +991,12 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
         
         if (_cur.isText())
         {
-            if (_cur.inChars( to._cur, -1 ))
+            if (_cur.inChars( to._cur, -1, true ))
                 return false;
 
             _cur.moveChars( to._cur, -1 );
         }
-        else if (_cur.ancestorOf( to._cur ) ||
+        else if (_cur.contains( to._cur ) ||
                     _cur.isSamePos( to._cur ) || to._cur.isJustAfterEnd( _cur ))
         {
             return false;
@@ -1533,5 +1533,5 @@ public final class Cursor implements XmlCursor, GeneralChangeListener
     private PathEngine _pathEngine;
     private int        _currentSelection;
 
-    private GeneralChangeListener _nextGeneralChangeListener;
+    private ChangeListener _nextChangeListener;
 } 

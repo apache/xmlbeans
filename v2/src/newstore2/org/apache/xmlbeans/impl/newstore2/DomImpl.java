@@ -295,7 +295,7 @@ final class DomImpl
         if (parent == child)
             throw new HierarchyRequestErr( "New child and parent are the same node" );
 
-        while ( (child = parent( child )) != null )
+        while ( (parent = parent( parent )) != null )
         {
             // TODO - use read only state on a node to know if it is under an
             // entity ref
@@ -361,7 +361,7 @@ final class DomImpl
         if (!XMLChar.isValidName( name ))
             throw new InvalidCharacterError( "Target has an invalid character" );
     }
-    
+     
     private static void validateNcName ( String name )
     {
         if (name != null && name.length() > 0 && !XMLChar.isValidNCName( name ))
@@ -393,11 +393,14 @@ final class DomImpl
     {
         assert n.nodeType() != TEXT && n.nodeType() != CDATA;
         
-        Cur cTo = n.tempCur();
         Cur cFrom = n.tempCur();
 
         cFrom.toEnd();
 
+        // Move any char nodes which ater after the node to remove to be before it.  The call to
+        // Next here does two things, it tells me if I can get after the move to remove (all nodes
+        // but the root) and it positions me at the place where there are char nodes after.
+        
         if (cFrom.next())
         {
             CharNode fromNodes = cFrom.getCharNodes();
@@ -405,14 +408,15 @@ final class DomImpl
             if (fromNodes != null)
             {
                 cFrom.setCharNodes( null );
+                Cur cTo = n.tempCur();
                 cTo.setCharNodes( CharNode.appendNodes( cTo.getCharNodes(), fromNodes ) );
+                cTo.release();
             }
         }
 
-        cTo.moveNode( null );
-
-        cTo.release();
         cFrom.release();
+
+        Cur.moveNode( (Xobj) n, null );
     }
 
     private abstract static class ElementsNodeList implements NodeList
@@ -795,7 +799,7 @@ final class DomImpl
         if (data != null)
         {
             c.next();
-            c.insertChars( data, 0, data.length() );
+            c.insertString( data );
         }
 
         c.release();
@@ -837,7 +841,7 @@ final class DomImpl
         if (data != null)
         {
             c.next();
-            c.insertChars( data, 0, data.length() );
+            c.insertString( data );
         }
 
         c.release();
@@ -861,10 +865,8 @@ final class DomImpl
         if (data == null)
             data = "";
 
-        t._src = data;
-        t._off = 0;
-        t._cch = data.length();
-
+        t.setChars( data, 0, data.length() );
+        
         return t;
     }
 
@@ -884,9 +886,7 @@ final class DomImpl
         if (data == null)
             data = "";
 
-        t._src = data;
-        t._off = 0;
-        t._cch = data.length();
+        t.setChars( data, 0, data.length() );
 
         return t;
     }
@@ -1576,10 +1576,7 @@ final class DomImpl
                 {
                     while ( cn != null )
                     {
-                        cn._src = null;
-                        cn._off = 0;
-                        cn._cch = 0;
-
+                        cn.setChars( null, 0, 0 );
                         cn = CharNode.remove( cn, cn );
                     }
                 }
@@ -1587,10 +1584,7 @@ final class DomImpl
                 {
                     while ( cn._next != null )
                     {
-                        cn._next._src = null;
-                        cn._next._off = 0;
-                        cn._next._cch = 0;
-
+                        cn.setChars( null, 0, 0 );
                         cn = CharNode.remove( cn, cn._next );
                     }
 
@@ -1715,6 +1709,11 @@ final class DomImpl
     {
         assert nc != null;
 
+        // Inserting self before self is a no-op
+
+        if (nc == rc)
+            return nc;
+
         if (rc != null && parent( rc ) != p)
             throw new NotFoundErr( "RefChild is not a child of this node" );
 
@@ -1769,9 +1768,7 @@ final class DomImpl
             {
                 Cur cTo = p.tempCur();
                 cTo.toEnd();
-                Cur cFrom = nc.tempCur();
-                cFrom.moveNode( cTo );
-                cFrom.release();
+                Cur.moveNode( (Xobj) nc, cTo );
                 cTo.release();
             }
             else
@@ -1815,10 +1812,8 @@ final class DomImpl
                 else
                 {
                     assert rck == ELEMENT || rck == PROCINST || rck == COMMENT;
-                    Cur cFrom = nc.tempCur();
                     Cur cTo = rc.tempCur();
-                    cFrom.moveNode( cTo );
-                    cFrom.release();
+                    Cur.moveNode( (Xobj) nc, cTo );
                     cTo.release();
                 }
             }
@@ -1936,9 +1931,7 @@ final class DomImpl
 
             assert cn._src instanceof Dom;
 
-            cn._src = c.moveChars( null, cn._cch );
-            cn._off = c._offSrc;
-            cn._cch = c._cchSrc;
+            cn.setChars( c.moveChars( null, cn._cch ), c._offSrc, c._cchSrc );
             
             c.setCharNodes( CharNode.remove( nodes, cn ) );
 
@@ -2064,9 +2057,7 @@ final class DomImpl
 
                 CharNode cn = n.nodeType() == TEXT ? l.createTextNode() : l.createCdataNode();
 
-                cn._src = c.getChars( ((CharNode) n)._cch );
-                cn._off = c._offSrc;
-                cn._cch = c._cchSrc;
+                cn.setChars( c.getChars( ((CharNode) n)._cch ), c._offSrc, c._cchSrc );
 
                 clone = cn;
 
@@ -2228,15 +2219,12 @@ final class DomImpl
                 if ((c = cn.tempCur()) != null)
                 {
                     c.moveChars( null, cn._cch );
-                    c.insertChars( nodeValue, 0, cn._cch = nodeValue.length() );
+                    cn._cch = nodeValue.length();
+                    c.insertString( nodeValue );
                     c.release();
                 }
                 else
-                {
-                    cn._src = nodeValue;
-                    cn._off = 0;
-                    cn._cch = nodeValue.length();
-                }
+                    cn.setChars( nodeValue, 0, nodeValue.length() );
 
                 break;
             }
@@ -2253,10 +2241,7 @@ final class DomImpl
                 if (children.getLength() == 0)
                 {
                     TextNode tn = n.locale().createTextNode();
-                    tn._src = nodeValue;
-                    tn._off = 0;
-                    tn._cch = nodeValue.length();
-                    
+                    tn.setChars( nodeValue, 0, nodeValue.length() );
                     node_insertBefore( n, tn, null );
                 }
                 else
@@ -2276,7 +2261,7 @@ final class DomImpl
                 
                 c.getChars( -1 );
                 c.moveChars( null, c._cchSrc );
-                c.insertChars( nodeValue, 0, nodeValue.length() );
+                c.insertString( nodeValue );
                 
                 c.release();
 
@@ -2872,8 +2857,6 @@ final class DomImpl
             }
         }
 
-        Cur ac = a.tempCur();
-
         if (oldAttr == null)
         {
             c.moveToDom( e );
@@ -2881,17 +2864,16 @@ final class DomImpl
             if (!c.toFirstChild())
                 c.toEnd();
 
-            ac.moveNode( c );
+            Cur.moveNode( (Xobj) a, c );
         }
         else
         {
             c.moveToDom( oldAttr );
-            ac.moveNode( c );
+            Cur.moveNode( (Xobj) a, c );
             removeNode( oldAttr );
         }
 
         c.release();
-        ac.release();
         
         return oldAttr;
     }
@@ -3159,23 +3141,20 @@ final class DomImpl
             }
         }
 
-        Cur ac = a.tempCur();
-
         if (oldAttr == null)
         {
             c.moveToDom( e );
             c.next();
-            ac.moveNode( c );
+            Cur.moveNode( (Xobj) a, c );
         }
         else
         {
             c.moveToDom( oldAttr );
-            ac.moveNode( c );
+            Cur.moveNode( (Xobj) a, c );
             removeNode( oldAttr );
         }
 
         c.release();
-        ac.release();
 
         return oldAttr;
     }
@@ -3283,7 +3262,10 @@ final class DomImpl
         Cur c = n.tempCur();
 
         if (!c.toParentRaw())
+        {
+            c.release();
             return null;
+        }
 
         Dom p = c.getDom();
 
@@ -3558,6 +3540,8 @@ final class DomImpl
     {
         public CharNode ( Locale l )
         {
+            assert l != null;
+            
             _locale = l;
         }
         
@@ -3568,22 +3552,64 @@ final class DomImpl
 
         public Locale locale ( )
         {
-            return _locale;
+            assert isValid();
+            
+            return _locale == null ? ((Dom) _src).locale() : _locale;
+        }
+
+        public void setChars ( Object src, int off, int cch )
+        {
+            assert CharUtil.isValid( src, off, cch );
+            assert _locale != null || _src instanceof Dom;
+
+            if (_locale == null)
+                _locale = ((Dom) _src).locale();
+
+            _src = src;
+            _off = off;
+            _cch = cch;
+        }
+
+        public Dom getDom ( )
+        {
+            assert isValid();
+            
+            if (_src instanceof Dom)
+                return (Dom) _src;
+
+            return null;
+        }
+
+        public void setDom ( Dom d )
+        {
+            assert d != null;
+            
+            _src = d;
+            _locale = null;
         }
 
         public Cur tempCur ( )
         {
-            Cur c;
+            assert isValid();
 
-            if (_src instanceof Dom)
-            {
-                c = _locale.tempCur();
-                c.moveToCharNode( this );
-            }
-            else
-                c = null;
-
+            if (!(_src instanceof Dom))
+                return null;
+            
+            Cur c = locale().tempCur();
+            c.moveToCharNode( this );
+            
             return c;
+        }
+
+        private boolean isValid ( )
+        {
+            if (_src instanceof Dom)
+                return _locale == null;
+
+            if (_locale == null)
+                return false;
+
+            return true;
         }
 
         public static boolean isOnList ( CharNode nodes, CharNode node )
@@ -3682,15 +3708,13 @@ final class DomImpl
                 CharNode newNode;
 
                 if (nodes instanceof TextNode)
-                    newNode = nodes._locale.createTextNode();
+                    newNode = nodes.locale().createTextNode();
                 else
-                    newNode = nodes._locale.createCdataNode();
+                    newNode = nodes.locale().createCdataNode();
 
                 // How to deal with entity refs??
 
-                newNode._src = newSrc;
-                newNode._off = nodes._off;
-                newNode._cch = nodes._cch;
+                newNode.setChars( newSrc, nodes._off, nodes._cch );
 
                 if (newNodes == null)
                     newNodes = newNode;
@@ -3774,14 +3798,15 @@ final class DomImpl
         public void setData ( String data ) { DomImpl._characterData_setData( this, data ); }
         public String substringData ( int offset, int count ) { return DomImpl._characterData_substringData( this, offset, count ); }
 
-        Locale _locale;
+        private Locale _locale;
 
         CharNode _next;
         CharNode _prev;
 
-        Object _src;
-        int    _off;
-        int    _cch;
+        private Object _src;
+        
+        int _off;
+        int _cch;
     }
     
     static class TextNode extends CharNode implements Text
