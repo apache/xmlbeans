@@ -2030,14 +2030,14 @@ public abstract class Saver implements NamespaceManager
             if (dCch == 0)
             {
                 _buf[ i ] = replacement.charAt( 0 );
-                return i + 1;
+                return (i + 1) % _buf.length;
             }
 
             assert _free >= 0;
 
             if (dCch > _free)
                 i = resize( dCch, i );
-            
+
             assert _free >= 0;
 
             assert _free >= dCch;
@@ -2051,6 +2051,13 @@ public abstract class Saver implements NamespaceManager
             }
             else
             {
+                if (_in + dCch >= _buf.length) {
+                  System.arraycopy(_buf, _out, _buf, 0, _in - _out);
+                  i -= _out;
+                  _in -= _out;
+                  _out = 0;
+                }
+
                 assert i < _in;
                 System.arraycopy( _buf, i, _buf, i + dCch, _in - i );
                 _in += dCch;
@@ -2062,7 +2069,7 @@ public abstract class Saver implements NamespaceManager
             
             assert _free >= 0;
 
-            return i + dCch + 1;
+            return (i + dCch + 1) % _buf.length;
         }
 
         int getAvailable ( )
