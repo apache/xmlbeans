@@ -11,7 +11,7 @@ Kit contents:
     ./lib/xbean.jar
 
 (2) License information for XML Beans and included libraries
-    ./license.txt ???????????????
+    ./LICENSE.txt
 
 (3) One folder full of command-line scripts, pointing to the
     useful main() functions in the JAR.
@@ -32,9 +32,6 @@ Kit contents:
     this README file and the two samples, you should be well on
     your way to becoming an XmlBeans expert
     ./samples
-
-(8) Tests ??????
-    ./tests
 
 Where to start?
 
@@ -135,7 +132,8 @@ Where to start?
     1. "xpretty instance.xml" pretty-prints an XML instance
        document.
 
-       The code is in xml.apache.org.tool.PrettyPrinter and is
+       The code is in (available via source SVN access)
+       org.apache.xmlbeans.impl.tool.PrettyPrinter and is
        a reasonable example of how to load and save out an
        arbitrary XML document.  XmlOptions are used to produce
        the pretty-printing.
@@ -144,7 +142,8 @@ Where to start?
        instance against the schema.  XMLBeans is intended to
        be a very accurate XML schema validator.
 
-       The code is in xml.apache.org.tool.InstanceValidator.
+       The code is in (available via source SVN access)
+       org.apache.xmlbeans.impl.tool.InstanceValidator.
        It is an excellent example of how to load a schema
        type system dynamically at runtime, load and validate
        an instance within that type system, and how to obtain
@@ -164,6 +163,17 @@ Where to start?
        of a type system.  They are analogous to .class files
        for .java.
 
-    5. "inst2xsd"
+    5. "inst2xsd mydoc.xml" will generate a [set of] XmlSchema
+       file based on the instance document provided. This is
+       useful as a starting point in authoring an XmlSchema
+       document. 
 
-    6. "xsd2inst"
+    6. "xsd2inst schema.xsd -name root" will generate a
+       sample xml document with root "root", based on the
+       schema definitions from the provided file.
+
+       The code is in (available via source SVN access)
+       org.apache.xmlbeans.impl.xsd2inst.SampleXmlUtil and is
+       a great example of how to combine the XmlCursor and
+       SchemaType APIs to create a full [sub]document
+       that includes required children, default values etc.
