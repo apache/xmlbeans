@@ -28,6 +28,7 @@ import org.apache.xmlbeans.impl.common.IOUtil;
 import org.apache.xmlbeans.impl.values.XmlListImpl;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaTypeLoader;
+import org.apache.xmlbeans.SchemaCodePrinter;
 import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.XmlOptions;
 import org.apache.xmlbeans.XmlObject;
@@ -74,6 +75,7 @@ public class SchemaCompiler
             System.out.println("    -repackage - repackage specification");
             System.out.println("    -extension - registers a schema compiler extension");
             System.out.println("    -extensionParms - specify parameters for the compiler extension");
+            System.out.println("    -schemaCodePrinter - specify SchemaCodePrinter class");
             */
             System.out.println();
             System.out.println("If you require a different java compiler, use the XMLBean Ant task instead.");
@@ -92,6 +94,7 @@ public class SchemaCompiler
         opts.add("ms");
         opts.add("mx");
         opts.add("repackage");
+        opts.add("schemaCodePrinter");
         opts.add("extension");
         opts.add("extensionParms");
         opts.add("allowmdef");
@@ -114,6 +117,23 @@ public class SchemaCompiler
         String outputfilename = cl.getOpt("out");
 
         String repackage = cl.getOpt("repackage");
+
+        String codePrinterClass = cl.getOpt("schemaCodePrinter");
+        SchemaCodePrinter codePrinter = null;
+        if (codePrinterClass != null)
+        {
+            try
+            {
+                codePrinter = (SchemaCodePrinter)
+                    Class.forName(codePrinterClass).newInstance();
+            }
+            catch (Exception e)
+            {
+                System.err.println
+                    ("Failed to load SchemaCodePrinter class " +
+                     codePrinterClass + "; proceeding with default printer");
+            }
+        }
 
         String name = cl.getOpt("name");
 
@@ -269,6 +289,7 @@ public class SchemaCompiler
         params.setExtensions(extensions);
         params.setMdefNamespaces(mdefNamespaces);
         params.setCatalogFile(catString);
+        params.setSchemaCodePrinter(codePrinter);
 
         boolean result = compile(params);
 
@@ -310,6 +331,7 @@ public class SchemaCompiler
         private List extensions = Collections.EMPTY_LIST;
         private Set mdefNamespaces = Collections.EMPTY_SET;
         private String catalogFile;
+        private SchemaCodePrinter schemaCodePrinter;
 
         public File getBaseDir()
         {
@@ -579,6 +601,15 @@ public class SchemaCompiler
             this.catalogFile = catalogPropFile;
         }
 
+        public SchemaCodePrinter getSchemaCodePrinter()
+        {
+            return schemaCodePrinter;
+        }
+
+        public void setSchemaCodePrinter(SchemaCodePrinter schemaCodePrinter)
+        {
+            this.schemaCodePrinter = schemaCodePrinter;
+        }
     }
 
     private static SchemaTypeSystem loadTypeSystem(
@@ -783,6 +814,7 @@ public class SchemaCompiler
         boolean noAnn = params.isNoAnn();
         Collection outerErrorListener = params.getErrorListener();
         String repackage = params.getRepackage();
+        SchemaCodePrinter codePrinter = params.getSchemaCodePrinter();
         List extensions = params.getExtensions();
         Set mdefNamespaces = params.getMdefNamespaces();
 
@@ -827,7 +859,7 @@ public class SchemaCompiler
             // generate source and .xsb
             List sourcefiles = new ArrayList();
             result &= SchemaCodeGenerator.compileTypeSystem(system, srcDir, javaFiles, sourcesToCopyMap,
-                classpath, classesDir, outputJar, nojavac, errorListener, repackage, verbose,
+                classpath, classesDir, outputJar, nojavac, errorListener, repackage, codePrinter, verbose,
                 sourcefiles, schemasDir);
             result &= !errorListener.hasError();
 

@@ -27,11 +27,13 @@ import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.SchemaProperty;
 import org.apache.xmlbeans.SchemaStringEnumEntry;
 import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlOptions;
+import org.apache.xmlbeans.SchemaCodePrinter;
 
 /**
  * Prints the java code for a single schema type
  */
-public final class SchemaTypeCodePrinter
+public final class SchemaTypeCodePrinter implements SchemaCodePrinter
 {
     Writer _writer;
     int    _indent;
@@ -46,9 +48,40 @@ public final class SchemaTypeCodePrinter
 
     public static final String INDEX_CLASSNAME = "TypeSystemHolder";
 
-    public SchemaTypeCodePrinter ( Writer writer )
+    public static void printTypeImpl ( Writer writer, SchemaType sType,
+                                       XmlOptions opt )
+        throws IOException
     {
-        _writer = writer;
+        getPrinter(opt).printTypeImpl( writer, sType );
+    }
+
+    public static void printType ( Writer writer, SchemaType sType,
+                                   XmlOptions opt )
+        throws IOException
+    {
+        getPrinter(opt).printType( writer, sType );
+    }
+
+    public static void printLoader ( Writer writer, SchemaTypeSystem system,
+                                     XmlOptions opt )
+        throws IOException
+    {
+        getPrinter(opt).printLoader( writer, system );
+    }
+
+    private static SchemaCodePrinter getPrinter(XmlOptions opt)
+    {
+        Object printer = XmlOptions.safeGet
+            (opt, XmlOptions.SCHEMA_CODE_PRINTER);
+        if (printer == null || !(printer instanceof SchemaCodePrinter))
+        {
+            printer = new SchemaTypeCodePrinter();
+        }
+        return (SchemaCodePrinter) printer;
+    }
+
+    public SchemaTypeCodePrinter ()
+    {
         _indent = 0;
     }
 
@@ -124,38 +157,23 @@ public final class SchemaTypeCodePrinter
         // System.out.println(s);
     }
 
-    public static void printTypeImpl ( Writer writer, SchemaType sType )
-        throws IOException
+    public void printType(Writer writer, SchemaType sType) throws IOException
     {
-        new SchemaTypeCodePrinter( writer ).printTypeImpl( sType, sType.getTypeSystem() );
-    }
-
-    public static void printType ( Writer writer, SchemaType sType )
-        throws IOException
-    {
-        new SchemaTypeCodePrinter( writer ). printType( sType, sType.getTypeSystem() );
-    }
-
-    public static void printLoader ( Writer writer, SchemaTypeSystem system )
-        throws IOException
-    {
-        new SchemaTypeCodePrinter( writer ).printIndexType( system );
-    }
-
-    void printType(SchemaType sType, SchemaTypeSystem system) throws IOException
-    {
+        _writer = writer;
         printTopComment(sType);
         printPackage(sType, true);
         emit("");
-        printInnerType(sType, system);
+        printInnerType(sType, sType.getTypeSystem());
         _writer.flush();
     }
 
-    void printTypeImpl(SchemaType sType, SchemaTypeSystem system) throws IOException
+    public void printTypeImpl(Writer writer, SchemaType sType) 
+        throws IOException
     {
+        _writer = writer;
         printTopComment(sType);
         printPackage(sType, false);
-        printInnerTypeImpl(sType, system, false);
+        printInnerTypeImpl(sType, sType.getTypeSystem(), false);
     }
 
     /**
@@ -241,8 +259,10 @@ public final class SchemaTypeCodePrinter
                 ((SchemaTypeSystemImpl)system).handleForType(sType) + "\");");
     }
 
-    void printIndexType(SchemaTypeSystem system) throws IOException
+    public void printLoader(Writer writer, SchemaTypeSystem system)
+        throws IOException
     {
+        _writer = writer;
         String shortName = shortIndexClassForSystem(system);
         emit("package " + system.getName() + ";");
         emit("");

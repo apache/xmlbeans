@@ -19,6 +19,8 @@ import org.apache.xmlbeans.SchemaType;
 import org.apache.xmlbeans.SchemaTypeSystem;
 import org.apache.xmlbeans.impl.common.XmlErrorWatcher;
 import org.apache.xmlbeans.impl.schema.SchemaTypeCodePrinter;
+import org.apache.xmlbeans.SchemaCodePrinter;
+import org.apache.xmlbeans.XmlOptions;
 import repackage.Repackager;
 
 import java.io.File;
@@ -40,7 +42,7 @@ public class SchemaCodeGenerator
     // todo: output jar
     public static boolean compileTypeSystem(SchemaTypeSystem saver, File sourcedir, File[] javasrc,
          Map sourcesToCopyMap, File[] classpath, File classesdir, File outputJar, boolean nojavac,
-         XmlErrorWatcher errors, String repackage, boolean verbose, List sourcefiles,
+         XmlErrorWatcher errors, String repackage, SchemaCodePrinter codePrinter, boolean verbose, List sourcefiles,
          File schemasDir)
     {
 
@@ -87,6 +89,14 @@ public class SchemaCodeGenerator
 
         Repackager repackager = repackage == null ? null : new Repackager( repackage );
 
+        // Create XmlOptions - currently just for SchemaCodePrinter,
+        // but could be used more in future
+        XmlOptions opts = new XmlOptions();
+        if (codePrinter != null)
+        {
+            opts.setSchemaCodePrinter(codePrinter);
+        }
+
         try
         {
             String filename = SchemaTypeCodePrinter.indexClassForSystem(saver).replace('.', File.separatorChar) + ".java";
@@ -98,7 +108,7 @@ public class SchemaCodeGenerator
                     ? (Writer) new FileWriter( sourcefile )
                     : (Writer) new RepackagingWriter( sourcefile, repackager );
                             
-            SchemaTypeCodePrinter.printLoader(writer, saver);
+            SchemaTypeCodePrinter.printLoader(writer, saver, opts);
             
             writer.close();
             
@@ -110,7 +120,7 @@ public class SchemaCodeGenerator
             failure = true;
         }
 
-        failure &= genTypes(saver, sourcefiles, sourcedir, repackager, verbose);
+        failure &= genTypes(saver, sourcefiles, sourcedir, repackager, verbose, opts);
 
         if (failure)
             return false;
@@ -118,7 +128,7 @@ public class SchemaCodeGenerator
         return true;
     }
 
-    private static boolean genTypes(SchemaTypeSystem saver, List sourcefiles, File sourcedir, Repackager repackager, boolean verbose)
+    private static boolean genTypes(SchemaTypeSystem saver, List sourcefiles, File sourcedir, Repackager repackager, boolean verbose, XmlOptions opts)
     {
         boolean failure = false;
 
@@ -162,7 +172,7 @@ public class SchemaCodeGenerator
                         : (Writer) new RepackagingWriter( sourcefile, repackager );
                 
 
-                SchemaTypeCodePrinter.printType(writer, type);
+                SchemaTypeCodePrinter.printType(writer, type, opts);
                 
                 writer.close();
                 
@@ -192,7 +202,7 @@ public class SchemaCodeGenerator
                         ? (Writer) new FileWriter( implFile )
                         : (Writer) new RepackagingWriter( implFile, repackager );
                 
-                SchemaTypeCodePrinter.printTypeImpl(writer, type);
+                SchemaTypeCodePrinter.printTypeImpl(writer, type, opts);
                 
                 writer.close();
                 
