@@ -15,6 +15,7 @@
 
 package org.apache.xmlbeans.impl.tool;
 
+import org.apache.xmlbeans.XmlBeans;
 import org.apache.xmlbeans.impl.common.IOUtil;
 
 import java.io.File;
@@ -81,6 +82,11 @@ public class CommandLine
         {
             System.out.println("License available in this JAR in LICENSE.txt");
         }
+    }
+
+    public static void printVersion()
+    {
+        System.out.println(XmlBeans.getVendor() + ", " + XmlBeans.getTitle() + ".XmlBeans version " + XmlBeans.getVersion());
     }
 
     private Map _options;

@@ -73,6 +73,7 @@ public class SchemaCompiler
         System.out.println("    -debug - compile with debug symbols");
         System.out.println("    -quiet - print fewer informational messages");
         System.out.println("    -verbose - print more informational messages");
+        System.out.println("    -version - prints version information");
         System.out.println("    -license - prints license information");
         System.out.println("    -allowmdef \"[ns] [ns] [ns]\" - ignores multiple defs in given namespaces");
         System.out.println("    -catalog [file] -  catalog file for org.apache.xml.resolver.tools.CatalogResolver. (Note: needs resolver.jar from http://xml.apache.org/commons/components/resolver/index.html)");
@@ -102,6 +103,7 @@ public class SchemaCompiler
         flags.add("license");
         flags.add("quiet");
         flags.add("verbose");
+        flags.add("version");
         flags.add("dl");
         flags.add("noupa");
         flags.add("nopvr");
@@ -147,6 +149,13 @@ public class SchemaCompiler
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
             System.exit(0);
             return;
         }

@@ -41,6 +41,7 @@ public class RunXQuery
         flags.add("help");
         flags.add("usage");
         flags.add("license");
+        flags.add("version");
         flags.add("verbose");
         flags.add("pretty");
 
@@ -69,6 +70,13 @@ public class RunXQuery
         if (cl.getOpt("license") != null)
         {
             CommandLine.printLicense();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
             System.exit(0);
             return;
         }

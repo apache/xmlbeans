@@ -49,6 +49,7 @@ public class XSTCTester
         flags.add("h");
         flags.add("help");
         flags.add("usage");
+        flags.add("version");
         flags.add("showpass");
         flags.add("errcode");
 
@@ -58,6 +59,13 @@ public class XSTCTester
         if (cl.getOpt("h") != null || cl.getOpt("help") != null || cl.getOpt("usage") != null)
         {
             printUsage();
+            System.exit(0);
+            return;
+        }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
             System.exit(0);
             return;
         }

@@ -52,6 +52,7 @@ public class TypeHierarchyPrinter
         flags.add("help");
         flags.add("usage");
         flags.add("license");
+        flags.add("version");
         flags.add("noanon");
         flags.add("noupr");
         flags.add("noupa");
@@ -80,6 +81,14 @@ public class TypeHierarchyPrinter
             System.exit(0);
             return;
         }
+
+        if (cl.getOpt("version") != null)
+        {
+            CommandLine.printVersion();
+            System.exit(0);
+            return;
+        }
+
         if (cl.args().length == 0)
         {
             printUsage();
