@@ -120,6 +120,10 @@ public final class ReflectionUtils
         }
     }
 
+    public static boolean isMethodStatic(Method m) {
+        return Modifier.isStatic(m.getModifiers());
+    }
+
     public static boolean isClassFinal(Class javaClass)
     {
         final int modifiers = javaClass.getModifiers();

@@ -54,6 +54,34 @@
     </xs:complexContent>
   </xs:complexType>
 
+  <xs:complexType name="jaxrpc-enum-type">
+    <xs:annotation>
+      <xs:documentation>represents the binding of a enumerated type in schema to
+        a JAX-RPC style typesafe enum class.  See JAX-RPC 1.1 Section 4.2.4
+      </xs:documentation>
+    </xs:annotation>
+    <xs:complexContent>
+      <xs:extension base="tns:binding-type">
+        <xs:sequence>
+          <xs:element name="base-xmlcomponent" type="tns:xml-signature"/>
+          <xs:element name="base-javatype" type="tns:java-class-name"/>
+          <xs:element name="getValue-method" type="tns:java-method-name"/>
+          <xs:element name="fromValue-method" type="tns:java-method-name"/>
+          <xs:element name="fromString-method" type="tns:java-method-name"/>
+          <xs:element name="toXML-method" type="tns:java-method-name" minOccurs="0">
+            <xs:annotation>
+              <xs:documentation>not required by jax-rpc, but used if present
+                for more efficient serialization of an enumeration value to xml.
+                Must return a String value that will be used as the xml
+                serialization for the given enum value (method is not static).
+              </xs:documentation>
+            </xs:annotation>
+          </xs:element>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
   <xs:complexType name="simple-document-binding">
     <xs:complexContent>
       <xs:extension base="tns:binding-type">

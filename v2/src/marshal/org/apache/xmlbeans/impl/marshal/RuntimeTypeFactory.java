@@ -25,6 +25,7 @@ import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
 import org.apache.xmlbeans.impl.binding.bts.SimpleContentBean;
 import org.apache.xmlbeans.impl.binding.bts.SimpleDocumentBinding;
 import org.apache.xmlbeans.impl.binding.bts.WrappedArrayType;
+import org.apache.xmlbeans.impl.binding.bts.JaxrpcEnumType;
 import org.apache.xmlbeans.impl.common.ConcurrentReaderHashMap;
 
 import java.util.HashMap;
@@ -129,6 +130,16 @@ final class RuntimeTypeFactory
         return (SimpleContentRuntimeBindingType)rtt;
     }
 
+    public JaxrpcEnumRuntimeBindingType createRuntimeType(JaxrpcEnumType type,
+                                                          RuntimeBindingTypeTable type_table,
+                                                          BindingLoader binding_loader)
+        throws XmlException
+    {
+        final RuntimeBindingType rtt =
+            createRuntimeTypeInternal(type, type_table, binding_loader);
+        return (JaxrpcEnumRuntimeBindingType)rtt;
+    }
+
 
     //avoids a cast to deal with overloaded methods
     private RuntimeBindingType createRuntimeTypeInternal(BindingType type,
@@ -179,6 +190,12 @@ final class RuntimeTypeFactory
             throws XmlException
         {
             runtimeBindingType = new SimpleRuntimeBindingType(simpleBindingType);
+        }
+
+        public void visit(JaxrpcEnumType jaxrpcEnumType)
+            throws XmlException
+        {
+            runtimeBindingType = new JaxrpcEnumRuntimeBindingType(jaxrpcEnumType);
         }
 
         public void visit(SimpleDocumentBinding simpleDocumentBinding)
