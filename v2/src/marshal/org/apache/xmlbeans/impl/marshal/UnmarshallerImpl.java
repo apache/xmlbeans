@@ -97,6 +97,9 @@ class UnmarshallerImpl implements Unmarshaller
         if (reader == null) throw new IllegalArgumentException("null reader");
         if (schemaType == null) throw new IllegalArgumentException("null schemaType");
         if (javaType == null) throw new IllegalArgumentException("null javaType");
+        if (!reader.isStartElement()) {
+            throw new IllegalStateException("reader must be positioned on a start element");
+        }
 
         final UnmarshalResult result =
             new UnmarshalResult(bindingLoader, typeTable, options);

@@ -96,12 +96,6 @@ final class UnmarshalResult
         }
     }
 
-    RuntimeBindingTypeTable getTypeTable()
-    {
-        return typeTable;
-    }
-
-
     //returns null and updates errors if there was a problem.
     TypeUnmarshaller getTypeUnmarshaller(QName xsi_type)
     {
@@ -125,9 +119,7 @@ final class UnmarshalResult
 
     private void addError(String msg)
     {
-        MarshalStreamUtils.addError(errors, msg,
-                                    baseReader.getLocation(),
-                                    "<unknown>");
+        addError(msg, baseReader.getLocation());
     }
 
 
@@ -167,7 +159,18 @@ final class UnmarshalResult
     {
         setXmlStream(reader);
 
-        BindingType btype = determineBindingType(schemaType, javaType);
+        final QName xsi_type = getXsiType();
+
+        BindingType btype = null;
+
+        if (xsi_type != null) {
+            btype = getPojoTypeFromXsiType(xsi_type);
+        }
+
+        if (btype == null) {
+            btype = determineBindingType(schemaType, javaType);
+        }
+
         if (btype == null) {
             final String msg = "unable to find binding type for " +
                 schemaType + " : " + javaType;
@@ -189,38 +192,62 @@ final class UnmarshalResult
     {
         QName xsi_type = this.getXsiType();
 
-        if (xsi_type == null) {
+        BindingType retval = null;
+        if (xsi_type != null) {
+            retval = getPojoTypeFromXsiType(xsi_type);
+        }
+
+        if (retval == null) {
             QName root_elem_qname = new QName(this.getNamespaceURI(),
                                               this.getLocalName());
             final XmlTypeName type_name =
                 XmlTypeName.forGlobalName(XmlTypeName.ELEMENT, root_elem_qname);
-            final BindingType doc_binding_type = getPojoBindingType(type_name);
+            BindingType doc_binding_type = getPojoBindingType(type_name, true);
             SimpleDocumentBinding sd = (SimpleDocumentBinding)doc_binding_type;
-            return getPojoBindingType(sd.getTypeOfElement());
-        } else {
-            //TODO: we are too trusting of the xsi type -- if we don't know about
-            //that type we should just use the expected type for the element,
-            //add an error and keep going
-            final XmlTypeName type_name = XmlTypeName.forTypeNamed(xsi_type);
-            final BindingType pojoBindingType = getPojoBindingType(type_name);
-            assert !(pojoBindingType instanceof SimpleDocumentBinding);
-            return pojoBindingType;
+            retval = getPojoBindingType(sd.getTypeOfElement(), true);
         }
+
+        return retval;
     }
 
-    private BindingType getPojoBindingType(final XmlTypeName type_name)
+    //will return null on error and log errors
+    private BindingType getPojoTypeFromXsiType(QName xsi_type)
+        throws XmlException
+    {
+        final XmlTypeName type_name = XmlTypeName.forTypeNamed(xsi_type);
+        final BindingType pojoBindingType = getPojoBindingType(type_name, false);
+        assert !(pojoBindingType instanceof SimpleDocumentBinding);
+        return pojoBindingType;
+    }
+
+
+    private BindingType getPojoBindingType(final XmlTypeName type_name,
+                                           boolean fail_fast)
         throws XmlException
     {
         final BindingTypeName btName = bindingLoader.lookupPojoFor(type_name);
         if (btName == null) {
-            throw new XmlException("failed to load java type" +
-                                   " corresponding to " + type_name);
+            final String msg = "failed to load java type corresponding " +
+                "to " + type_name;
+            if (fail_fast) {
+                throw new XmlException(msg);
+            } else {
+                addError(msg);
+                return null;
+            }
+
         }
 
         BindingType bt = bindingLoader.getBindingType(btName);
 
         if (bt == null) {
-            throw new XmlException("failed to load BindingType for " + btName);
+            final String msg = "failed to load BindingType for " + btName;
+            if (fail_fast) {
+                throw new XmlException(msg);
+            } else {
+                addError(msg);
+                return null;
+            }
         }
 
         return bt;
@@ -645,12 +672,7 @@ final class UnmarshalResult
         throws XmlException
     {
         final boolean ret;
-        try {
-            ret = MarshalStreamUtils.advanceToNextStartElement(baseReader);
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
+        ret = MarshalStreamUtils.advanceToNextStartElement(baseReader);
         updateAttributeState();
         return ret;
     }
@@ -660,12 +682,7 @@ final class UnmarshalResult
         throws XmlException
     {
         assert baseReader != null;
-        try {
-            MarshalStreamUtils.advanceToFirstItemOfInterest(baseReader);
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
+        MarshalStreamUtils.advanceToFirstItemOfInterest(baseReader);
     }
 
     int next() throws XmlException
@@ -691,7 +708,7 @@ final class UnmarshalResult
     }
 
 
-    void updateAttributeState()
+    private void updateAttributeState()
     {
         xsiAttributeHolder.reset();
         gotXsiAttributes = false;
@@ -738,12 +755,7 @@ final class UnmarshalResult
     void skipElement()
         throws XmlException
     {
-        try {
-            MarshalStreamUtils.skipElement(baseReader);
-        }
-        catch (XMLStreamException e) {
-            throw new XmlException(e);
-        }
+        MarshalStreamUtils.skipElement(baseReader);
         updateAttributeState();
     }
 
