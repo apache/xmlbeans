@@ -86,11 +86,11 @@ import java.io.Writer;
   public void write(JClass clazz) throws XMLStreamException {
     assertStarted();
     mOut.writeStartElement(CLASS);
-    writeValueElement(CLASS_NAME,clazz.getQualifiedName());
+    writeValueElement(CLASS_NAME,clazz.getFieldDescriptor());
     writeValueElement(ISINTERFACE,clazz.isInterface());
     writeModifiers(clazz.getModifiers());
     JClass sc = clazz.getSuperclass();
-    if (sc != null) writeValueElement(SUPERCLASS,sc.getQualifiedName());
+    if (sc != null) writeValueElement(SUPERCLASS,sc.getFieldDescriptor());
     writeClassList(INTERFACE,clazz.getInterfaces());
     {
       JField[] f = clazz.getDeclaredFields();
@@ -115,7 +115,7 @@ import java.io.Writer;
     mOut.writeStartElement(METHOD);
     writeValueElement(NAME,method.getSimpleName());
     writeValueElement(RETURNTYPE,
-                      method.getReturnType().getQualifiedName());
+                      method.getReturnType().getFieldDescriptor());
     writeInvokable(method);
     mOut.writeEndElement();
   }
@@ -130,7 +130,7 @@ import java.io.Writer;
     mOut.writeStartElement(FIELD);
     writeValueElement(NAME,field.getSimpleName());
     writeModifiers(field.getModifiers());
-    writeValueElement(TYPE,field.getType().getQualifiedName());
+    writeValueElement(TYPE,field.getType().getFieldDescriptor());
     writeAnnotatedElement(field);
     mOut.writeEndElement();
   }
@@ -141,7 +141,7 @@ import java.io.Writer;
     for(int i=0; i<params.length; i++) {
       mOut.writeStartElement(PARAMETER);
       writeValueElement(NAME,params[i].getSimpleName());
-      writeValueElement(TYPE,params[i].getType().getQualifiedName());
+      writeValueElement(TYPE,params[i].getType().getFieldDescriptor());
       writeAnnotatedElement(params[i]);
       mOut.writeEndElement();
     }
@@ -153,7 +153,7 @@ import java.io.Writer;
   {
     for(int i=0; i<clazzes.length; i++) {
       mOut.writeStartElement(elementName);
-      mOut.writeCharacters(clazzes[i].getQualifiedName());
+      mOut.writeCharacters(clazzes[i].getFieldDescriptor());
       mOut.writeEndElement();
     }
   }
@@ -187,6 +187,13 @@ import java.io.Writer;
     mOut.writeCharacters(val);
     mOut.writeEndElement();
   }
+
+  private void writeValueElement(String elementName, String[] vals)
+    throws XMLStreamException
+  {
+    for(int i=0; i<vals.length; i++) writeValueElement(elementName,vals[i]);
+  }
+
 
   private void writeAnnotatedElement(JAnnotatedElement ae)
     throws XMLStreamException
@@ -237,13 +244,9 @@ import java.io.Writer;
   {
     mOut.writeStartElement(ANNOTATIONVALUE);
     writeValueElement(NAME,val.getName());
-    writeValueElement(TYPE,val.getType().getQualifiedName());
+    writeValueElement(TYPE,val.getType().getFieldDescriptor());
     if (val.getType().isArrayType()) {
-      System.out.println("[JAM] WARNING - arrays not yet implemented for XML serialization!!");
-      //FIXME
-      //throw new IllegalStateException("Serializing annotation members of an "+
-    //                                  "array type is not yet supported");
-      writeValueElement(VALUE,"SORRY, ARRAYS ARE NYI");
+      writeValueElement(VALUE,val.asStringArray());
     } else {
       writeValueElement(VALUE,val.asString());
     }
