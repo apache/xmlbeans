@@ -59,7 +59,7 @@ http://java.sun.com/xml/ns/j2ee
 
 and by indicating the version of the schema by
 using the version element as shown below:
-
+<![CDATA[
     <application-client xmlns="http://java.sun.com/xml/ns/j2ee"
      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee
@@ -68,7 +68,7 @@ using the version element as shown below:
 
     ...
     </application-client>
-
+]]>
 The instance documents may indicate the published version of
 the schema using the xsi:schemaLocation attribute for J2EE
 namespace with the following location:

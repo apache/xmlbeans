@@ -105,27 +105,34 @@ public class XsbDumper
 
     public static void dump(InputStream input)
     {
-        dump(input, "");
+        dump(input, "", System.out);
     }
 
     public static void dump(InputStream input, String indent)
     {
-        XsbDumper dumper = new XsbDumper(input, indent);
+        dump(input, indent, System.out);
+    }
+
+    public static void dump(InputStream input, String indent, PrintStream output)
+    {
+        XsbDumper dumper = new XsbDumper(input, indent, output);
         dumper.dumpAll();
     }
 
-    private XsbDumper(InputStream stream, String indent)
+    private XsbDumper(InputStream stream, String indent, PrintStream ostream)
     {
         _input = new DataInputStream(stream);
         _indent = indent;
+        _out = ostream;
     }
 
-    void flush() { System.out.flush(); }
-    void emit(String str) { System.out.println(_indent + str); flush(); }
-    void emit() { System.out.println(); flush(); }
-    void error(Exception e) { System.out.println(e.toString()); flush(); IllegalStateException e2 = new IllegalStateException( e.getMessage() ); e2.initCause( e ); throw e2; }
-    void error(String str) { System.out.println(str); flush(); IllegalStateException e2 = new IllegalStateException( str ); throw e2; }
+    void flush() { _out.flush(); }
+    void emit(String str) { _out.println(_indent + str); flush(); }
+    void emit() { _out.println(); flush(); }
+    void error(Exception e) { _out.println(e.toString()); flush(); IllegalStateException e2 = new IllegalStateException( e.getMessage() ); e2.initCause( e ); throw e2; }
+    void error(String str) { _out.println(str); flush(); IllegalStateException e2 = new IllegalStateException( str ); throw e2; }
     private String _indent;
+    private PrintStream _out;
     void indent() { _indent += "  "; }
     void outdent() { _indent = _indent.substring(0, _indent.length() - 2); }
 

@@ -735,8 +735,17 @@ public class StscState
     {
         if (idc != null)
         {
-            _idConstraints.put(idc.getName(), idc);
-            addSpelling(idc.getName(), idc);
+            QName name = idc.getName();
+            if (_idConstraints.containsKey(name))
+            {
+                if (!ignoreMdef(name))
+                    warning("Duplicate identity constraint: " + QNameHelper.pretty(name), XmlErrorContext.DUPLICATE_IDENTITY_CONSTRAINT, null);
+            }
+            else
+            {
+                _idConstraints.put(name, idc);
+                addSpelling(idc.getName(), idc);
+            }
         }
     }
 
