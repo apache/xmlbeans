@@ -16,7 +16,7 @@
 package org.apache.xmlbeans.impl.jam;
 
 import org.apache.xmlbeans.impl.jam.internal.JamPrinter;
-import org.apache.xmlbeans.impl.jam.provider.DefaultJResultFactory;
+import org.apache.xmlbeans.impl.jam.provider.DefaultJServiceFactory;
 
 import java.io.IOException;
 import java.io.File;
@@ -42,7 +42,7 @@ public abstract class JServiceFactory {
   // ========================================================================
   // Constants
 
-  private static final JServiceFactory DEFAULT = new DefaultJResultFactory();
+  private static final JServiceFactory DEFAULT = new DefaultJServiceFactory();
 
   // ========================================================================
   // Singleton

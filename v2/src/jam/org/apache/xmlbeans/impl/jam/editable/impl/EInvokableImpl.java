@@ -32,7 +32,7 @@ import java.io.StringWriter;
  *
  * @author Patrick Calahan <pcal@bea.com>
  */
-public class EInvokableImpl extends EMemberImpl implements EInvokable {
+public abstract class EInvokableImpl extends EMemberImpl implements EInvokable {
 
   // ========================================================================
   // Variables

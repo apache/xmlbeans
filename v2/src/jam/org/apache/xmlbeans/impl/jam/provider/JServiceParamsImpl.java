@@ -51,6 +51,8 @@ public class JServiceParamsImpl implements JServiceParams, JStoreParams
   private boolean mUseSystemClasspath = true;
   private boolean mVerbose = false;
   private JClassLoader mParentClassloader = null;
+  private EClassInitializer mCommentInitializer = null;
+  private List mOtherInitializers = null;
 
   // ========================================================================
   // Constructors
@@ -206,6 +208,15 @@ public class JServiceParamsImpl implements JServiceParams, JStoreParams
     mUseSystemClasspath = use;
   }
 
+  public void setCommentInitializer(EClassInitializer init) {
+    mCommentInitializer = init;
+  }
+
+  public void addCustomInitializer(EClassInitializer init) {
+    if (mOtherInitializers == null) mOtherInitializers = new ArrayList();
+    mOtherInitializers.add(init);
+  }
+
   // ========================================================================
   // JStoreParams implementation
 
@@ -243,6 +254,20 @@ public class JServiceParamsImpl implements JServiceParams, JStoreParams
       }
     }
     return null;
+  }
+
+  public EClassInitializer getInitializer() {
+    List initers = new ArrayList();
+    if (mCommentInitializer != null) {
+      initers.add(mCommentInitializer);
+    } else {
+      //FIXME initers.add(new DefaultCommentInitializer());
+    }
+    if (mOtherInitializers != null) initers.addAll(mOtherInitializers);
+    // now go
+    EClassInitializer[] inits = new EClassInitializer[initers.size()];
+    initers.toArray(inits);
+    return new CompositeClassInitializer(inits);
   }
 
 

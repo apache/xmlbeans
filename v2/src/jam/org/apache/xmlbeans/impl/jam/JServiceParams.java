@@ -15,6 +15,8 @@
 
 package org.apache.xmlbeans.impl.jam;
 
+import org.apache.xmlbeans.impl.jam.provider.EClassInitializer;
+
 import java.io.File;
 import java.io.PrintWriter;
 
@@ -245,4 +247,9 @@ public interface JServiceParams {
    * @throws IllegalArgumentException if either argument is null.
    */
   public File getRootForFile(File[] sourceRoots, File sourceFile);
+
+
+  public void setCommentInitializer(EClassInitializer init);
+
+  public void addCustomInitializer(EClassInitializer init);
 }

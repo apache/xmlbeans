@@ -15,6 +15,7 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EAnnotationMember;
+import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.DirectJClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.JAnnotation;
@@ -238,5 +239,20 @@ public class EAnnotationMemberImpl extends EElementImpl
 
   public char[] getValueAsCharArray() throws IllegalArgumentException {
     return new char[0];
+  }
+
+
+  // ========================================================================
+  // EElement implementation
+
+  public void accept(EElementVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  public void acceptAndWalk(EElementVisitor visitor) {
+    accept(visitor);
+    if (mValue instanceof EAnnotationMember) {
+      ((EAnnotationMember)mValue).acceptAndWalk(visitor); //REVIEW is ok???
+    }
   }
 }

@@ -23,6 +23,7 @@ import org.apache.xmlbeans.impl.jam.JElement;
  */
 public interface EElement extends JElement {
 
+
   public void setSimpleName(String name);
 
   public ESourcePosition createSourcePosition();
@@ -34,4 +35,31 @@ public interface EElement extends JElement {
   public EAnnotation addNewAnnotation();
 
   public void removeAnnotation(EAnnotation ann);
+
+  /**
+   * <p>Accepts the given visitor.</p>
+   */
+  public void accept(EElementVisitor visitor);
+
+  /**
+   * <p>Calls accept() with the given visitor, and then recursively calls
+   * acceptAndWalk for all of our component elements.  Calling this on
+   * an EClass will cause the EClass to accept the visitor, and then
+   * all of it's declared fields constructors, and methods.  The parameter
+   * for each constructor and method will also in turn be accepted.
+   * Any annotations for each of these element types will also be visited
+   * after their other children have been visited.  Note that inherited
+   * members are never visited, nor are referenced classes (e.g. referenced
+   * via inheritance or member types).  </p>
+   *
+   * Class
+   *   Field
+   *   Method
+   *     Parameter
+   *   Constructor
+   *     Parameter
+   *
+   * </p>
+   */
+  public void acceptAndWalk(EElementVisitor visitor);
 }

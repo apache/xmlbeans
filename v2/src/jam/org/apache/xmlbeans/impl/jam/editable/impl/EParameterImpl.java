@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EParameter;
+import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.DirectJClassRef;
@@ -79,4 +80,15 @@ public class EParameterImpl extends EMemberImpl implements EParameter {
     return mTypeClassRef.getRefClass();
   }
 
+  // ========================================================================
+  // EElement implementation
+
+  public void accept(EElementVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  public void acceptAndWalk(EElementVisitor visitor) {
+    accept(visitor);
+    acceptAndWalkAll(visitor,getEditableAnnotations());
+  }
 }

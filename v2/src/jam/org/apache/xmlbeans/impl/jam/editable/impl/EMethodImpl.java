@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EMethod;
+import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
@@ -94,4 +95,18 @@ public class EMethodImpl extends EInvokableImpl implements EMethod {
   public boolean isSynchronized() {
     return Modifier.isSynchronized(getModifiers());
   }
+
+  // ========================================================================
+  // EElement implementation
+
+  public void accept(EElementVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  public void acceptAndWalk(EElementVisitor visitor) {
+    accept(visitor);
+    acceptAndWalkAll(visitor,getEditableParameters());
+    acceptAndWalkAll(visitor,getEditableAnnotations());
+  }
+
 }

@@ -16,6 +16,7 @@
 package org.apache.xmlbeans.impl.jam.editable.impl;
 
 import org.apache.xmlbeans.impl.jam.editable.EField;
+import org.apache.xmlbeans.impl.jam.editable.EElementVisitor;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.JClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.QualifiedJClassRef;
 import org.apache.xmlbeans.impl.jam.editable.impl.ref.UnqualifiedJClassRef;
@@ -54,6 +55,7 @@ public class EFieldImpl extends EMemberImpl implements EField {
     //REVIEW
     return getContainingClass().getQualifiedName()+"."+getSimpleName();
   }
+
 
   // ========================================================================
   // EField implementation
@@ -98,4 +100,17 @@ public class EFieldImpl extends EMemberImpl implements EField {
   public boolean isTransient() {
     return Modifier.isTransient(getModifiers());
   }
+
+  // ========================================================================
+  // EElement implementation
+
+  public void accept(EElementVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  public void acceptAndWalk(EElementVisitor visitor) {
+    accept(visitor);
+    acceptAndWalkAll(visitor,getEditableAnnotations());
+  }
+
 }

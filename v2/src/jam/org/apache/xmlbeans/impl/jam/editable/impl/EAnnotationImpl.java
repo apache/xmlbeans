@@ -166,4 +166,16 @@ public class EAnnotationImpl extends EMemberImpl implements EAnnotation {
     return 0;
   }
 
+  // ========================================================================
+  // EElement implementation
+
+  public void accept(EElementVisitor visitor) {
+    visitor.visit(this);
+  }
+
+  public void acceptAndWalk(EElementVisitor visitor) {
+    accept(visitor);
+    acceptAndWalkAll(visitor,getEditableMembers());
+  }
+
 }
