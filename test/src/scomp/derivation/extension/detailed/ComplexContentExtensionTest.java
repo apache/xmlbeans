@@ -21,10 +21,9 @@ import xbean.scomp.derivation.complexExtension.SequenceExtensionEltDocument;
 import xbean.scomp.derivation.complexExtension.SequenceExtensionT;
 
 import java.math.BigInteger;
+import java.util.Iterator;
 
-import org.apache.xmlbeans.XmlInteger;
-import org.apache.xmlbeans.XmlString;
-import org.apache.xmlbeans.XmlErrorCodes;
+import org.apache.xmlbeans.*;
 
 /**
  *
@@ -144,9 +143,183 @@ public class ComplexContentExtensionTest extends BaseCase {
 
     }
 
-    public void testAllExtension() {
-        fail("Compile Time test");
+    /**
+     * The follwing are test for the 'final' attribute used in a base type that affects extenstion/restriction
+     * They are negative tests and test for #all, restriction, extenstion and 'extenstion restriction' values
+     */
+    public void testFinalAll() {
+        String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "    <xsd:complexType name=\"BaseProductTypeFinalAll\" final=\"#all\">\n" +
+                "        <xsd:sequence>\n" +
+                "            <xsd:element name=\"number\" type=\"xsd:integer\" />\n" +
+                "            <xsd:element name=\"name\" type=\"xsd:string\" minOccurs=\"0\" />\n" +
+                "        </xsd:sequence>\n" +
+                "    </xsd:complexType>\n" +
+                "\n" +
+                "    <xsd:complexType name=\"ProductTypeExtension\">\n" +
+                "        <xsd:complexContent>\n" +
+                "            <xsd:extension base=\"BaseProductTypeFinalAll\">\n" +
+                "                <xsd:sequence>\n" +
+                "                    <xsd:element name=\"subcategory\" type=\"xsd:string\"/>\n" +
+                "                </xsd:sequence>\n" +
+                "            </xsd:extension>\n" +
+                "        </xsd:complexContent>\n" +
+                "    </xsd:complexType>    \n" +
+                "\n" +
+                "    <xsd:complexType name=\"ProductTypeRestriction\">\n" +
+                "        <xsd:complexContent>\n" +
+                "            <xsd:restriction base=\"BaseProductTypeFinalAll\">\n" +
+                "                <xsd:sequence>\n" +
+                "                    <xsd:element name=\"number\" type=\"xsd:integer\"/>\n" +
+                "                </xsd:sequence>\n" +
+                "            </xsd:restriction>\n" +
+                "        </xsd:complexContent>\n" +
+                "    </xsd:complexType>    \n" +
+                "\n" +
+                "    </xsd:schema>";
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            //assertEquals(2, xme.getErrors().size());
+
+            Iterator itr = xme.getErrors().iterator();
+            XmlError eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+
+            eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+
+        }
     }
 
-   
+    public void testFinalExtension() {
+        String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "    <xsd:complexType name=\"BaseProductTypeFinalExtension\" final=\"extension\">\n" +
+                "        <xsd:sequence>\n" +
+                "            <xsd:element name=\"number\" type=\"xsd:integer\" />\n" +
+                "            <xsd:element name=\"name\" type=\"xsd:string\" minOccurs=\"0\" />\n" +
+                "        </xsd:sequence>\n" +
+                "    </xsd:complexType>\n" +
+                "\n" +
+                "    <xsd:complexType name=\"ProductTypeExtension\">\n" +
+                "        <xsd:complexContent>\n" +
+                "            <xsd:extension base=\"BaseProductTypeFinalExtension\">\n" +
+                "                <xsd:sequence>\n" +
+                "                    <xsd:element name=\"subcategory\" type=\"xsd:string\"/>\n" +
+                "                </xsd:sequence>\n" +
+                "            </xsd:extension>\n" +
+                "        </xsd:complexContent>\n" +
+                "    </xsd:complexType>    \n" +
+                "\n" +
+                "    </xsd:schema>";
+
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(xme.getErrors().size(), 1);
+
+            XmlError eacherr = (XmlError) xme.getErrors().iterator().next();
+            System.out.println("error:" + eacherr.getErrorCode());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+        }
+    }
+
+    public void testFinalRestriction() {
+        String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "    <xsd:complexType name=\"BaseProductTypeFinalRestriction\" final=\"restriction\">\n" +
+                "        <xsd:sequence>\n" +
+                "            <xsd:element name=\"number\" type=\"xsd:integer\" />\n" +
+                "            <xsd:element name=\"name\" type=\"xsd:string\" />\n" +
+                "        </xsd:sequence>\n" +
+                "    </xsd:complexType>\n" +
+                "\n" +
+                "    <xsd:complexType name=\"ProductTypeRestriction\">\n" +
+                "        <xsd:complexContent>\n" +
+                "            <xsd:restriction base=\"BaseProductTypeFinalRestriction\">\n" +
+                "                <xsd:sequence>\n" +
+                "                    <xsd:element name=\"number\" type=\"xsd:integer\"/>\n" +
+                "                </xsd:sequence>\n" +
+                "            </xsd:restriction>\n" +
+                "        </xsd:complexContent>\n" +
+                "    </xsd:complexType>    " +
+                "    </xsd:schema>";
+
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(1, xme.getErrors().size());
+
+            XmlError eacherr = (XmlError) xme.getErrors().iterator().next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+        }
+    }
+
+    public void testFinalRestrExt() {
+        String inputXsd = "    <xsd:schema xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\">\n" +
+                "    <xsd:complexType name=\"BaseProductTypeFinalAll\" final=\"restriction extension\">\n" +
+                "        <xsd:sequence>\n" +
+                "            <xsd:element name=\"number\" type=\"xsd:integer\" />\n" +
+                "            <xsd:element name=\"name\" type=\"xsd:string\" minOccurs=\"0\" />\n" +
+                "        </xsd:sequence>\n" +
+                "    </xsd:complexType>\n" +
+                "\n" +
+                "    <xsd:complexType name=\"ProductTypeExtension\">\n" +
+                "        <xsd:complexContent>\n" +
+                "            <xsd:extension base=\"BaseProductTypeFinalAll\">\n" +
+                "                <xsd:sequence>\n" +
+                "                    <xsd:element name=\"subcategory\" type=\"xsd:string\"/>\n" +
+                "                </xsd:sequence>\n" +
+                "            </xsd:extension>\n" +
+                "        </xsd:complexContent>\n" +
+                "    </xsd:complexType>    \n" +
+                "\n" +
+                "    <xsd:complexType name=\"ProductTypeRestriction\">\n" +
+                "        <xsd:complexContent>\n" +
+                "            <xsd:restriction base=\"BaseProductTypeFinalAll\">\n" +
+                "                <xsd:sequence>\n" +
+                "                    <xsd:element name=\"number\" type=\"xsd:integer\"/>\n" +
+                "                </xsd:sequence>\n" +
+                "            </xsd:restriction>\n" +
+                "        </xsd:complexContent>\n" +
+                "    </xsd:complexType>    \n" +
+                "\n" +
+                "    </xsd:schema>";
+
+        try {
+            XmlObject xobj = XmlObject.Factory.parse(inputXsd);
+            XmlObject[] compInput = new XmlObject[]{xobj};
+            XmlBeans.compileXmlBeans(null, null, compInput, null, XmlBeans.getBuiltinTypeSystem(), null, null);
+        }
+        catch (XmlException xme) {
+            assertEquals(2, xme.getErrors().size());
+
+            Iterator itr = xme.getErrors().iterator();
+            XmlError eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+
+            eacherr = (XmlError) itr.next();
+            System.out.println("Err:" + eacherr.getMessage());
+            assertNotNull(eacherr.getErrorCode());
+            assertEquals("cvc-3.4.6", eacherr.getErrorCode());
+        }
+    }
+
 }
