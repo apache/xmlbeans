@@ -7,7 +7,7 @@
 >
     <xsd:simpleType name="GlobalSimpleT1">
         <xsd:restriction base="xsd:integer">
-            <xsd:minExclusive value="1"/>
+            <xsd:minInclusive value="1"/>
             <xsd:maxInclusive value="3"/>
         </xsd:restriction>
     </xsd:simpleType>

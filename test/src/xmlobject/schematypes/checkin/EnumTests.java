@@ -19,6 +19,8 @@ import junit.framework.Test;
 import junit.framework.TestSuite;
 import junit.framework.Assert;
 import junit.framework.TestCase;
+import org.apache.xmlbeans.XmlBeans;
+import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlObject;
 import com.enumtest.StatusreportDocument;
 import com.enumtest.SalesreportDocument;
@@ -135,5 +137,44 @@ public class EnumTests extends TestCase
         }
     }
 
+    public static void testEnumRestriction() throws Exception
+    {
+        String schema =
+            "<xs:schema xmlns:xs=\"http://www.w3.org/2001/XMLSchema\"\n" +
+            "    xmlns:tns=\"foo\" targetNamespace=\"foo\">\n" +
+            "\n" +
+            "    <xs:simpleType name=\"parent\">\n" +
+            "        <xs:restriction base=\"xs:string\">\n" +
+            "            <xs:enumeration value=\"abc\"/>\n" +
+            "            <xs:enumeration value=\"123\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
+            "    <xs:simpleType name=\"child\">\n" +
+            "        <xs:restriction base=\"tns:parent\">\n" +
+            "            <xs:enumeration value=\"abc\"/>\n" +
+            "            <xs:enumeration value=\"123\"/>\n" +
+                         // 'xyz' is an invalid enumeration value
+            "            <xs:enumeration value=\"xyz\"/>\n" +
+            "        </xs:restriction>\n" +
+            "    </xs:simpleType>\n" +
+            "\n" +
+            "</xs:schema>\n";
+
+        XmlObject xobj = XmlObject.Factory.parse(schema);
+        //ArrayList errors = new ArrayList();
+        //XmlOptions opts = new XmlOptions().setErrorListener(errors);
+
+        try
+        {
+            XmlBeans.loadXsd(new XmlObject[]{xobj});
+            fail("Expected loadXsd() to throw an exception.");
+        }
+        catch (XmlException xe)
+        {
+            //
+            System.out.println("caught: " + xe);
+        }
+    }
 
 }
