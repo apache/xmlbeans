@@ -110,7 +110,6 @@ import java.util.Random;
 import javax.xml.namespace.QName;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import javax.xml.stream.XMLStreamReader;
 import org.w3.x2001.xmlSchema.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.XMLReader;
