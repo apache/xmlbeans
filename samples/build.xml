@@ -30,35 +30,35 @@ limitations under the License.
     </target>
 
     <target name="clean-SampleTemplate">
-        <ant dir="template/SampleTemplate" target="clean"/>
+        <ant dir="SampleTemplate" target="clean"/>
     </target>
 
     <target name="clean-MixedContent">
-        <ant dir="cursor/MixedContent" target="clean"/>
+        <ant dir="MixedContent" target="clean"/>
     </target>
 
     <target name="clean-OrderMatters">
-        <ant dir="cursor/OrderMatters" target="clean"/>
+        <ant dir="OrderMatters" target="clean"/>
     </target>
 
     <target name="clean-vxsdb">
-        <ant dir="db/vxsdb" target="clean"/>
+        <ant dir="vxsdb" target="clean"/>
     </target>
 
     <target name="clean-SchemaEnum">
-        <ant dir="enumeration/SchemaEnum" target="clean"/>
+        <ant dir="SchemaEnum" target="clean"/>
     </target>
 
     <target name="clean-AbstractTypes">
-        <ant dir="abstracttypes/AbstractTypes" target="clean"/>
+        <ant dir="AbstractTypes" target="clean"/>
     </target>
 
     <target name="clean-SubstitutionGroup">
-        <ant dir="substitutiongroup/SubstitutionGroup" target="clean"/>
+        <ant dir="SubstitutionGroup" target="clean"/>
     </target>
 
     <target name="clean-DateTime">
-        <ant dir="values/DateTime" target="clean"/>
+        <ant dir="DateTime" target="clean"/>
     </target>
 
     <!-- ========================== build ==== -->
@@ -75,35 +75,35 @@ limitations under the License.
     </target>
 
     <target name="build-SampleTemplate">
-        <ant dir="template/SampleTemplate" target="build"/>
+        <ant dir="SampleTemplate" target="build"/>
     </target>
 
     <target name="build-MixedContent">
-        <ant dir="cursor/MixedContent" target="build"/>
+        <ant dir="MixedContent" target="build"/>
     </target>
 
     <target name="build-OrderMatters">
-        <ant dir="cursor/OrderMatters" target="build"/>
+        <ant dir="OrderMatters" target="build"/>
     </target>
 
     <target name="build-vxsdb">
-        <ant dir="db/vxsdb" target="build"/>
+        <ant dir="vxsdb" target="build"/>
     </target>
 
     <target name="build-SchemaEnum">
-        <ant dir="enumeration/SchemaEnum" target="build"/>
+        <ant dir="SchemaEnum" target="build"/>
     </target>
 
     <target name="build-AbstractTypes">
-        <ant dir="abstracttypes/AbstractTypes" target="build"/>
+        <ant dir="AbstractTypes" target="build"/>
     </target>
 
     <target name="build-SubstitutionGroup">
-        <ant dir="substitutiongroup/SubstitutionGroup" target="build"/>
+        <ant dir="SubstitutionGroup" target="build"/>
     </target>
 
     <target name="build-DateTime">
-        <ant dir="values/DateTime" target="build"/>
+        <ant dir="DateTime" target="build"/>
     </target>
 
     <!-- ========================== test ==== -->
@@ -121,35 +121,35 @@ limitations under the License.
     </target>
 
     <target name="test-SampleTemplate">
-        <ant dir="template/SampleTemplate" target="test"/>
+        <ant dir="SampleTemplate" target="test"/>
     </target>
 
     <target name="test-MixedContent">
-        <ant dir="cursor/MixedContent" target="test"/>
+        <ant dir="MixedContent" target="test"/>
     </target>
 
     <target name="test-OrderMatters">
-        <ant dir="cursor/OrderMatters" target="test"/>
+        <ant dir="OrderMatters" target="test"/>
     </target>
 
     <target name="test-vxsdb">
-        <!--ant dir="db/vxsdb" target="test"/-->
+        <!--ant dir="vxsdb" target="test"/-->
     </target>
 
     <target name="test-SchemaEnum">
-        <ant dir="enumeration/SchemaEnum" target="test"/>
+        <ant dir="SchemaEnum" target="test"/>
     </target>
 
     <target name="test-AbstractTypes">
-        <ant dir="abstracttypes/AbstractTypes" target="test"/>
+        <ant dir="AbstractTypes" target="test"/>
     </target>
 
     <target name="test-SubstitutionGroup">
-        <ant dir="substitutiongroup/SubstitutionGroup" target="test"/>
+        <ant dir="SubstitutionGroup" target="test"/>
     </target>
 
     <target name="test-DateTime">
-        <ant dir="values/DateTime" target="test"/>
+        <ant dir="DateTime" target="test"/>
     </target>
 
     <!-- ========================== dist ==== -->
@@ -179,12 +179,12 @@ limitations under the License.
     <target name="dist-SampleTemplate">
         <mkdir dir="build"/>
         <zip destfile="build/SampleTemplate.zip"
-            basedir="template"
+            basedir="."
             includes="SampleTemplate/**"
             excludes="SampleTemplate/build/**"
             />
         <tar destfile="build/SampleTemplate.tgz"
-            basedir="template"
+            basedir="."
             includes="SampleTemplate/**"
             excludes="SampleTemplate/build/**"
             compression="gzip"
@@ -195,12 +195,12 @@ limitations under the License.
     <target name="dist-MixedContent">
         <mkdir dir="build"/>
         <zip destfile="build/MixedContent.zip"
-            basedir="cursor"
+            basedir="."
             includes="MixedContent/**"
             excludes="MixedContent/build/**"
             />
         <tar destfile="build/MixedContent.tgz"
-            basedir="cursor"
+            basedir="."
             includes="MixedContent/**"
             excludes="MixedContent/build/**"
             compression="gzip"
@@ -210,12 +210,12 @@ limitations under the License.
     <target name="dist-OrderMatters">
         <mkdir dir="build"/>
         <zip destfile="build/OrderMatters.zip"
-            basedir="cursor"
+            basedir="."
             includes="OrderMatters/**"
             excludes="OrderMatters/build/**"
             />
         <tar destfile="build/OrderMatters.tgz"
-            basedir="cursor"
+            basedir="."
             includes="OrderMatters/**"
             excludes="OrderMatters/build/**"
             compression="gzip"
@@ -225,12 +225,12 @@ limitations under the License.
     <target name="dist-vxsdb">
         <mkdir dir="build"/>
         <zip destfile="build/vxsdb.zip"
-            basedir="db"
+            basedir="."
             includes="vxsdb/**"
             excludes="vxsdb/build/**"
             />
         <tar destfile="build/vxsdb.tgz"
-            basedir="db"
+            basedir="."
             includes="vxsdb/**"
             excludes="vxsdb/build/**"
             compression="gzip"
@@ -240,12 +240,12 @@ limitations under the License.
     <target name="dist-SchemaEnum">
         <mkdir dir="build"/>
         <zip destfile="build/SchemaEnum.zip"
-            basedir="enumeration"
+            basedir="."
             includes="SchemaEnum/**"
             excludes="SchemaEnum/build/**"
             />
         <tar destfile="build/SchemaEnum.tgz"
-            basedir="enumeration"
+            basedir="."
             includes="SchemaEnum/**"
             excludes="SchemaEnum/build/**"
             compression="gzip"
@@ -255,12 +255,12 @@ limitations under the License.
     <target name="dist-AbstractTypes">
         <mkdir dir="build"/>
         <zip destfile="build/AbstractTypes.zip"
-            basedir="abstracttypes"
+            basedir="."
             includes="AbstractTypes/**"
             excludes="AbstractTypes/build/**"
         />
         <tar destfile="build/AbstractTypes.tgz"
-            basedir="abstracttypes"
+            basedir="."
             includes="AbstractTypes/**"
             excludes="AbstractTypes/build/**"
             compression="gzip"
@@ -270,12 +270,12 @@ limitations under the License.
     <target name="dist-SubstitutionGroup">
         <mkdir dir="build"/>
         <zip destfile="build/SubstitutionGroup.zip"
-            basedir="substitutiongroup"
+            basedir="."
             includes="SubstitutionGroup/**"
             excludes="SubstitutionGroup/build/**"
             />
         <tar destfile="build/SubstitutionGroup.tgz"
-            basedir="substitutiongroup"
+            basedir="."
             includes="SubstitutionGroup/**"
             excludes="SubstitutionGroup/build/**"
             compression="gzip"
@@ -285,12 +285,12 @@ limitations under the License.
     <target name="dist-DateTime">
         <mkdir dir="build"/>
         <zip destfile="build/DateTime.zip"
-            basedir="values"
+            basedir="."
             includes="DateTime/**"
             excludes="DateTime/build/**"
             />
         <tar destfile="build/DateTime.tgz"
-            basedir="values"
+            basedir="."
             includes="DateTime/**"
             excludes="DateTime/build/**"
             compression="gzip"
