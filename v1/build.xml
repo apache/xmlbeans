@@ -90,50 +90,164 @@
   </target>
 
     <!-- extensions test -->
+    <fileset id="extension.jars" dir="build/private/lib">
+      <include name="extensions.jar"/>
+      <include name="fixedAttrBean.jar"/>
+      <include name="averageCase.jar"/>
+      <include name="multInterfaces.jar"/>
+      <include name="readOnlyBean.jar"/>
+      <include name="ValueRestriction.jar"/>
+    </fileset>
+
     <target name="extensionsTest" depends="extensions.compile">
-        <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
-        <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
-            <jvmarg value="-ea"/>
-            <classpath>
-                <pathelement location="external/lib/junit.jar"/>
-                <pathelement location="build/ar/xbean.jar"/>
-                <pathelement location="build/private/lib/extensions.jar"/>
-                <pathelement location="build/test/extensionsuse"/>
-            </classpath>
-            <formatter type="plain"/>
-            <test name="drtcases.ExtensionsTest" outfile="build/test/output/drt-extensions"/>
-        </junit>
+      <echo message="JUnit output being sent to build/test/output/drt-extensions.txt"/>
+      <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="external/lib/junit.jar"/>
+          <fileset refid="extension.jars"/>
+          <pathelement location="build/test/extensionsuse"/>
+        </classpath>
+        <formatter type="plain"/>
+        <test name="drtcases.ExtensionsTest" outfile="build/test/output/drt-extensions"/>
+      </junit>
     </target>
 
-    <target name="extensions.compile" >
-        <mkdir dir="build/test/extensions"/>
-        <javac srcdir="test/src/extensions" destdir="build/test/extensions" debug="on">
-            <classpath>
-                <pathelement location="build/ar/xbean.jar"/>
-            </classpath>
-        </javac>
-
-        <java classname="${schema_compiler}" fork="true" failonerror="true">
-            <jvmarg value="-ea"/>
-            <classpath>
-                <pathelement location="build/ar/xbean.jar" />
-                <pathelement location="build/test/extensions" />
-            </classpath>
-            <arg line="-out build/private/lib/extensions.jar test/src/extensions"/>
-        </java>
-
-        <mkdir dir="build/test/extensionsuse"/>
-        <javac srcdir="test/src/extensionsuse" destdir="build/test/extensionsuse" debug="on">
-            <classpath>
-                <pathelement location="build/ar/xbean.jar"/>
-                <pathelement location="external/lib/junit.jar"/>
-                <pathelement location="build/private/lib/extensions.jar"/>
-                <pathelement location="build/test/extensionsuse"/>
-            </classpath>
-        </javac>
+    <!--The extensions use the bean types, compile first-->
+    <target name="simpleBeans.check">
+      <uptodate property="simpleBeans.notRequired" targetfile="build/private/lib/fixedAttrBean.jar">
+        <srcfiles dir="test/src/extensions" includes="**/*"/>
+        <srcfiles dir="test/src/extensionsuse" includes="**/*"/>
+        <srcfiles dir="build/ar" includes="xbean.jar"/>
+      </uptodate>
     </target>
-    <!-- extensions test -->
 
+    <target name="build.simpleBeans" unless="simpleBeans.notRequired" depends="simpleBeans.check">
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean/po.xsd"/>
+      </java>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase/po.xsd"/>
+      </java>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/multInterfaces.jar test/src/extensions/multInterfaces/po.xsd"/>
+      </java>
+
+      <!-- **Pre/Post Handlers -->
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/readOnlyBean.jar test/src/extensions/prePostFeature/readOnlyBean/po.xsd"/>
+      </java>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/ValueRestriction.jar test/src/extensions/prePostFeature/ValueRestriction/company.xsd"/>
+      </java>
+    </target>
+
+    <target name="extensions.compile" depends="build.simpleBeans, simpleBeans.check" unless="simpleBeans.notRequired">
+      <mkdir dir="build/test/extensions"/>
+      <javac srcdir="test/src/extensions" destdir="build/test/extensions" debug="on">
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <fileset refid="extension.jars"/>
+        </classpath>
+      </javac>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/extensions.jar test/src/extensions/myPackage"/>
+      </java>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/fixedAttrBean.jar test/src/extensions/fixedAttrBean"/>
+      </java>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/averageCase.jar test/src/extensions/averageCase"/>
+      </java>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/multInterfaces.jar test/src/extensions/multInterfaces"/>
+      </java>
+      <!--Pre Post Feature -->
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/readOnlyBean.jar test/src/extensions/prePostFeature/readOnlyBean"/>
+      </java>
+
+      <java classname="${schema_compiler}" fork="true" failonerror="true">
+        <jvmarg value="-ea"/>
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="build/test/extensions"/>
+        </classpath>
+        <arg line="-out build/private/lib/ValueRestriction.jar test/src/extensions/prePostFeature/ValueRestriction"/>
+      </java>
+
+
+      <mkdir dir="build/test/extensionsuse"/>
+      <javac srcdir="test/src/extensionsuse" destdir="build/test/extensionsuse" debug="on">
+        <classpath>
+          <pathelement location="build/ar/xbean.jar" />
+          <pathelement location="external/lib/junit.jar"/>
+          <fileset refid="extension.jars"/>
+          <pathelement location="build/test/extensionsuse"/>
+        </classpath>
+      </javac>
+    </target>
+
+  <!-- builddrt target -->
   <target name="builddrt" depends="drt.jar, random.jar, eric"/>
 
   <target name="eric" depends="erictest.jar"/>
