@@ -920,11 +920,13 @@
    <target name="drt.classes" depends="dirs,test_marshal.classes, jsr173_ri.jar">
        <mkdir dir="build/private/classes/drt"/>
        <javac
-          srcdir="test/src/drt"
           destdir="build/private/classes/drt"
           classpathref="test.compile.path"
           source="${javac.source}" target="${javac.target}"
-          debug="on"/>
+          debug="on">
+         <src path="test/cases/xbean/marshal"/>
+         <src path="test/src/drt"/>
+      </javac>
      </target>
 
      <target name="drt.jar" depends="drt.classes">
