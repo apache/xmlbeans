@@ -19,6 +19,8 @@ import xbean.scomp.namespace.attributeFormDefault.AttributeUnqualifiedDocument;
 
 import javax.xml.namespace.QName;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+
 /**
  * @owner: ykadiysk
  * Date: Jul 14, 2004
@@ -55,7 +57,8 @@ public class LocalAttrForm extends BaseCase{
          assertTrue( !doc.validate(validateOptions) );
         System.out.println(doc.xmlText());
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]
+        {XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NO_WILDCARD};
             assertTrue(compareErrorCodes(errExpected));
         
 

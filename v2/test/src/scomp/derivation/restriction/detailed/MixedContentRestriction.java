@@ -20,6 +20,7 @@ import scomp.common.BaseCase;
 import java.math.BigInteger;
 
 import org.apache.xmlbeans.XmlCursor;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -64,7 +65,8 @@ public class MixedContentRestriction extends BaseCase{
         cur.insertChars("My chars");
         assertTrue( !doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$ELEMENT_ONLY_WITH_TEXT};
                             assertTrue(compareErrorCodes(errExpected));
 
         //should be valid w/o the Text there

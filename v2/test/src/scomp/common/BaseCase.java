@@ -20,6 +20,7 @@ import org.apache.xmlbeans.XmlError;
 import org.apache.xmlbeans.XmlErrorCodes;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * @owner: ykadiysk
@@ -59,8 +60,12 @@ public class BaseCase extends TestCase {
 
     //TODO: compare regardless of order
     public boolean compareErrorCodes(String[] expected) {
-       // if ( errorList.size() != expected.length)
-      //     return false;
+        if ( errorList.size() != expected.length){
+            System.err.println(
+                                   stringOfCodes(expected,errorList));
+                           
+           return false;
+        }
         StringBuffer errMessage=
                 new StringBuffer();
         for (int i = 0; i < errorList.size(); i++) {
@@ -71,10 +76,29 @@ public class BaseCase extends TestCase {
             if (expected[i] != error.getErrorCode()){
                 if (errMessage.length() >0)
                     System.err.println(errMessage);
+                ArrayList exp=new ArrayList();
+
+                System.err.println(
+                        stringOfCodes(expected,errorList));
                 return false;
             }
         }
         return true;
     }
+
+    public String stringOfCodes(String[] errorCodes
+                                  ,ArrayList actual_errorCodes){
+       StringBuffer res=new StringBuffer();
+        res.append("\n Expected codes(from LTGfmt file):\n");
+          int i=0;
+          for (;i < errorCodes.length; i++ )
+              res.append( errorCodes[i]+"\t" );
+          res.append("\nBut Got: \n");
+             for ( i=0 ;i < actual_errorCodes.size(); i++ )
+              res.append( actual_errorCodes.get(i)+"\t" );
+
+          return res.toString();
+
+      }
 
 }

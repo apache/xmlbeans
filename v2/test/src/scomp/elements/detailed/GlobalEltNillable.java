@@ -18,6 +18,7 @@ package scomp.elements.detailed;
 import scomp.common.BaseCase;
 import xbean.scomp.element.globalEltNillable.*;
 import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -36,7 +37,8 @@ public class GlobalEltNillable extends BaseCase {
                 " xsi:nil=\"false\"/>");
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
-        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
              assertTrue(compareErrorCodes(errExpected));
 
 
@@ -68,7 +70,9 @@ public class GlobalEltNillable extends BaseCase {
         assertTrue(!testElt.validate(validateOptions));
         assertEquals(1, errorList.size());
         showErrors();
-        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        String[] errExpected =
+                new String[]{
+                    XmlErrorCodes.ELEM_LOCALLY_VALID$NOT_NILLABLE};
              assertTrue(compareErrorCodes(errExpected));
 
         fail("Why is the last setter not throwing an exception?");
@@ -138,7 +142,8 @@ public class GlobalEltNillable extends BaseCase {
         assertEquals(1, errorList.size());
 
         showErrors();
-        String[] errExpected = new String[]{"cvc-elt3.3.4"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_LOCALLY_VALID$NIL_WITH_CONTENT};
              assertTrue(compareErrorCodes(errExpected));
 
         testElt = GlobalEltComplexDocument

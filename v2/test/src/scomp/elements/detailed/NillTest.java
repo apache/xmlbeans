@@ -26,17 +26,26 @@ import org.apache.xmlbeans.impl.values.XmlValueNotNillableException;
  * Date: Jul 28, 2004
  * Time: 9:08:41 AM
  */
+
+/** this test illustrates somewhat inconsistent behavior
+ * of nillable:
+ * 
+ */
 public class NillTest extends BaseCase {
     /**
-     * Tests exceptions when setting values to null for non-nillable elems
+     * Tests exceptions when setting values to
+     * null for non-nillable elems
      */
     public void testNillable() {
         Contact contact = Contact.Factory.newInstance();
 
-// if the first name is null, xmlbeans doest not thrown any exceptions...
-        //eric says this should fail: elt is not nillable
+       // if the first name is null, xmlbeans doest not thrown any exceptions...
+        //eric says this should fail:
+        // elt is not nillable--at least xsi:nil should never be there
         contact.setFirstName(null);
-
+       assertEquals("<firstName " +
+               "xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"/>",
+               contact.xmlText());
         GlobalEltNotNillableDocument testElt = GlobalEltNotNillableDocument
                 .Factory.newInstance();
         testElt.setGlobalEltNotNillable(null);
@@ -48,14 +57,8 @@ public class NillTest extends BaseCase {
         }
         catch (XmlValueNotNillableException e) {
         }
-       // try {
-           // doc.setCityName(null);
-            testElt.setGlobalEltNotNillable(null);
-        //    fail("Expected XmlValueNotNillableException");
-        //}
-        //catch (XmlValueNotNillableException e) {}
-
-        AddressInfo address = AddressInfo.Factory.newInstance();
+       testElt.setGlobalEltNotNillable(null);
+       AddressInfo address = AddressInfo.Factory.newInstance();
         //this can be null
         address.setGlobalEltNotNillable(null);
         // ...whereas this optional field cannot be null

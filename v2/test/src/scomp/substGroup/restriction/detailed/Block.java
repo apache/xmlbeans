@@ -26,7 +26,8 @@ import java.math.BigInteger;
  */
 public class Block extends BaseCase {
     /**
-     * TODO: verify that w/ respect to substitution groups block all
+     * TODO: verify that w/ respect to substitution
+     * groups block all
      * and block substitution are the same thing;
      *
      * @throws Throwable

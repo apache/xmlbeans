@@ -24,6 +24,8 @@ import xbean.scomp.contentType.union.UnionOfListsDocument;
 import java.util.List;
 import java.util.ArrayList;
 
+import org.apache.xmlbeans.XmlErrorCodes;
+
 /**
  * @owner: ykadiysk
  * Date: Aug 3, 2004
@@ -63,7 +65,8 @@ public class UnionType extends BaseCase {
         doc.setUnionElt(new Integer(5));
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$UNION};
                     assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -105,7 +108,8 @@ public class UnionType extends BaseCase {
         UnionEltDocument doc = UnionEltDocument.Factory.parse(input);
         assertTrue(!doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.DATATYPE_VALID$UNION};
                     assertTrue(compareErrorCodes(errExpected));
 
     }

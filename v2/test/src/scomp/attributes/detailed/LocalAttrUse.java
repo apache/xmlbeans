@@ -17,6 +17,7 @@ package scomp.attributes.detailed;
 
 import scomp.common.BaseCase;
 import org.apache.xmlbeans.XmlException;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 import xbean.scomp.attribute.localAttrUse.LocalAttrUseDocDocument;
 import xbean.scomp.attribute.localAttrUse.LocalAttrUseT;
@@ -107,7 +108,11 @@ public class LocalAttrUse extends BaseCase {
         //assertEquals(1, errorList.size());
 
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            "cvc-attribute",
+            XmlErrorCodes.
+                      ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+                  };
         assertTrue(compareErrorCodes(errExpected));
 
 
@@ -131,7 +136,9 @@ public class LocalAttrUse extends BaseCase {
         //attr locally valid for fixed val
         String[] errExpected = new String[]{
             "cvc-attribute",
-            "cvc-attribute"};
+            XmlErrorCodes.
+                      ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+                      };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -147,8 +154,12 @@ public class LocalAttrUse extends BaseCase {
         assertEquals("newval", testDoc.getAttRequiredDefault());
         showErrors();
         String[] errExpected = new String[]{
-            "cvc-attribute",
-            "cvc-attribute"};
+           XmlErrorCodes.
+           ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+          ,
+           XmlErrorCodes.
+                     ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE
+                  };
         assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -171,6 +182,7 @@ public class LocalAttrUse extends BaseCase {
         elt.setAttOpt("bla");
         assertTrue(!elt.validate(validateOptions));
         showErrors();
+        //does Kevin have the right code here? doesn't seem so to me?
         String[] errExpected = new String[]{"cvc-attribute"};
         assertTrue(compareErrorCodes(errExpected));
 

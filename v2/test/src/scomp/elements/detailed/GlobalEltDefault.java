@@ -30,14 +30,25 @@ public class GlobalEltDefault extends BaseCase {
     GlobalEltDefaultStrDocument testDoc=GlobalEltDefaultStrDocument
             .Factory.newInstance();
      assertEquals(null,testDoc.getGlobalEltDefaultStr());
-       assertTrue(testDoc.validate());  
+try{
+    assertTrue(testDoc.validate(validateOptions));
+}catch(Throwable t){
+    showErrors();
+    throw t;
+}
         }
 
     //default value is used
-    public void testIntType(){
+    public void testIntType()throws Throwable{
        GlobalEltDefaultIntDocument testDoc
-                =GlobalEltDefaultIntDocument.Factory.newInstance();
+                =GlobalEltDefaultIntDocument.Factory
+               .newInstance();
      assertEquals(0,testDoc.getGlobalEltDefaultInt());
-      assertTrue(testDoc.validate());
+    try{
+    assertTrue(testDoc.validate(validateOptions));
+}catch(Throwable t){
+    showErrors();
+    throw t;
+}
     }
 }

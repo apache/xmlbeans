@@ -48,7 +48,9 @@ public class AttrGroupTest extends BaseCase {
         cur.toNextToken();
         cur.insertAttribute(new QName("http://org.apache.sample", "attr",
                 "pre"));
-        String[] errExpected=new String[]{"cvc-attr"};
+        String[] errExpected=new String[]{
+            XmlErrorCodes
+                .ELEM_COMPLEX_TYPE_LOCALLY_VALID$MISSING_REQUIRED_ATTRIBUTE};
         assertTrue( !doc.validate(validateOptions) );
 
        /*  assertTrue( compareErrorCodes(new String[]{

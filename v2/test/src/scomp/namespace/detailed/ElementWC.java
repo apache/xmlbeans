@@ -18,6 +18,11 @@ package scomp.namespace.detailed;
 import scomp.common.BaseCase;
 import xbean.scomp.namespace.elementWC.*;
 
+import javax.xml.namespace.QName;
+
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlString;
+
 /**
  * @owner: ykadiysk
  * Date: Aug 5, 2004
@@ -78,6 +83,11 @@ public class ElementWC extends BaseCase {
         if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
+        XmlObject[] arr=doc.getAnyStrict()
+                .selectChildren(new QName(
+                        "http://xbean/scomp/element/GlobalEltDefault",
+                        "GlobalEltDefaultStr","elt"));
+        assertEquals(arr[0].schemaType(),XmlString.type);
     }
 
     public void testAnyStrictIllegal() throws Throwable {
@@ -206,10 +216,10 @@ public class ElementWC extends BaseCase {
     public void testListStrictLegal() throws Throwable {
         ListStrictDocument doc = ListStrictDocument.Factory
                 .parse("<foo:ListStrict " +
-                " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" " +
-                "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
+                 "xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\"" +
                 " xmlns:elt=\"http://xbean/scomp/element/GlobalEltDefault\">" +
-                " <elt:child/></foo:ListStrict>");
+                " <elt:GlobalEltDefaultInt/>" +
+                "</foo:ListStrict>");
         if (!doc.validate(validateOptions)) {
             showErrors();
             fail("testFailed");
@@ -239,6 +249,8 @@ public class ElementWC extends BaseCase {
         if (!doc.validate(validateOptions))
             showErrors();
         assertTrue(doc.validate(validateOptions));
+        XmlObject[] arr=doc.getTargetLax().selectChildren("","child");
+        assertEquals(arr[0].schemaType(),XmlObject.type);
     }
 
     public void testTargetLaxIllegal() throws Throwable {
@@ -281,8 +293,13 @@ public class ElementWC extends BaseCase {
         TargetStrictDocument doc = TargetStrictDocument.Factory
                 .parse("<foo:TargetStrict " +
                 " xmlns:foo=\"http://xbean/scomp/namespace/ElementWC\">" +
-                " <foo:child/></foo:TargetStrict>");
+                " <foo:LocalElt/></foo:TargetStrict>");
+        try{
         assertTrue(doc.validate(validateOptions));
+        }catch(Throwable t){
+                showErrors();
+                throw t;
+            }
     }
 
     public void testTargetStrictIllegal() throws Throwable {

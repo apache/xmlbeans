@@ -17,6 +17,7 @@ package scomp.derivation.restriction.detailed;
 
 import scomp.common.BaseCase;
 import xbean.scomp.derivation.attributeWCRestriction.*;
+import org.apache.xmlbeans.XmlErrorCodes;
 
 /**
  * @owner: ykadiysk
@@ -80,7 +81,8 @@ public class AttrWCRestriction extends BaseCase {
                  Any2LocalDocument.Factory.parse(input);
         assertTrue (! doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
                      assertTrue(compareErrorCodes(errExpected));
 
     }
@@ -99,7 +101,8 @@ public class AttrWCRestriction extends BaseCase {
                  List2SubsetDocument.Factory.parse(input);
         //this is a non-existing NS...strict should complain
         assertTrue ( !doc.validate(validateOptions));
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
                      assertTrue(compareErrorCodes(errExpected));
 
 
@@ -129,7 +132,8 @@ public class AttrWCRestriction extends BaseCase {
                  Other2ListDocument.Factory.parse(input);
         assertTrue (! doc.validate(validateOptions));
         showErrors();
-        String[] errExpected = new String[]{"cvc-attribute"};
+        String[] errExpected = new String[]{
+            XmlErrorCodes.ELEM_COMPLEX_TYPE_LOCALLY_VALID$NOT_WILDCARD_VALID};
                      assertTrue(compareErrorCodes(errExpected));
 
     }
