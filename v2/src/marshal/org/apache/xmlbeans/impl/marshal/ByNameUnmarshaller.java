@@ -85,6 +85,10 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
         assert um != null;
 
         try {
+            final String lexical_default = prop.getLexicalDefault();
+            if (lexical_default != null) {
+                context.setNextElementDefault(lexical_default);
+            }
             final Object prop_val = um.unmarshal(context);
             prop.fill(inter, prop_val);
         }
@@ -128,7 +132,7 @@ final class ByNameUnmarshaller implements TypeUnmarshaller
             context.advanceAttribute();
         }
 
-       type.fillDefaultAttributes(inter, context);
+        type.fillDefaultAttributes(inter, context);
     }
 
     private RuntimeBindingProperty findMatchingAttributeProperty(UnmarshalResult context)

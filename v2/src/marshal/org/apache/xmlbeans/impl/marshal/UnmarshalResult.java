@@ -797,7 +797,7 @@ final class UnmarshalResult
         return baseReader.getAttributeLocalName(currentAttributeIndex);
     }
 
-    public void attributePresent(int att_idx)
+    void attributePresent(int att_idx)
     {
         if (defaultAttributeBits == null) {
             int bits_size = getAttributeCount();
@@ -807,12 +807,23 @@ final class UnmarshalResult
         defaultAttributeBits.set(att_idx);
     }
 
-    public boolean isAttributePresent(int att_idx)
+    boolean isAttributePresent(int att_idx)
     {
         if (defaultAttributeBits == null)
             return false;
 
         return defaultAttributeBits.get(att_idx);
+    }
+
+    void setNextElementDefault(String lexical_default)
+        throws XmlException
+    {
+        try {
+            baseReader.setDefaultValue(lexical_default);
+        }
+        catch (XMLStreamException e) {
+            throw new XmlException(e);
+        }
     }
 
 }

@@ -67,6 +67,10 @@ public class MarshalTests extends TestCase
 {
     private static final boolean VERBOSE = false;
 
+    //must be in sync with binding config file
+    private static final BigInteger DEFAULT_BIG_INT =
+        new BigInteger("876587658765876587658765876587658765");
+
     public MarshalTests(String name)
     {
         super(name);
@@ -925,6 +929,11 @@ public class MarshalTests extends TestCase
             inform("ERROR: " + itr.next());
         }
         inform("+++++TYPE obj = " + obj);
+
+        MyClass mc = (MyClass)obj;
+        MySubClass first = (MySubClass)mc.getMyelt().getMyClassArray()[0];
+        Assert.assertEquals(DEFAULT_BIG_INT, first.getBigInt());
+
 
         for (Iterator itr = errors.iterator(); itr.hasNext();) {
             XmlError xmlError = (XmlError)itr.next();

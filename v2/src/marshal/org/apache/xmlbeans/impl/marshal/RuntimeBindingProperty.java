@@ -53,4 +53,11 @@ interface RuntimeBindingProperty
 
     boolean isNillable();
 
+    /**
+     * returns null if this property has no default
+     *
+     * @return
+     */
+    String getLexicalDefault();
+
 }
