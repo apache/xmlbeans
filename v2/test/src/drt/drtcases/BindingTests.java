@@ -19,19 +19,33 @@ import junit.framework.Assert;
 import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
-import org.apache.xmlbeans.impl.binding.bts.*;
+import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.apache.xmlbeans.SchemaTypeSystem;
-import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
+import org.apache.xmlbeans.impl.binding.bts.BindingFile;
+import org.apache.xmlbeans.impl.binding.bts.BindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.BindingType;
+import org.apache.xmlbeans.impl.binding.bts.BindingTypeName;
+import org.apache.xmlbeans.impl.binding.bts.BuiltinBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.ByNameBean;
+import org.apache.xmlbeans.impl.binding.bts.CompositeBindingLoader;
+import org.apache.xmlbeans.impl.binding.bts.JavaTypeName;
+import org.apache.xmlbeans.impl.binding.bts.MethodName;
+import org.apache.xmlbeans.impl.binding.bts.QNameProperty;
+import org.apache.xmlbeans.impl.binding.bts.SimpleBindingType;
+import org.apache.xmlbeans.impl.binding.bts.XmlTypeName;
 import org.apache.xmlbeans.impl.binding.compile.BindingCompilerTask;
+import org.apache.xmlbeans.impl.binding.compile.Schema2Java;
+import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.SourceJavaOutputStream;
 import org.apache.xmlbeans.impl.binding.joust.WriterFactory;
-import org.apache.xmlbeans.impl.binding.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.binding.tylar.TylarWriter;
-import org.apache.xml.xmlbeans.bindingConfig.BindingConfigDocument;
 import org.w3.x2001.xmlSchema.SchemaDocument;
 
 import javax.xml.namespace.QName;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Writer;
 
 public class BindingTests extends TestCase
 {
@@ -71,6 +85,41 @@ public class BindingTests extends TestCase
         // to test later
         //SimpleSchemaToJavaResultCompiler.compile(result, params);
     }
+//
+//    public void testIsSetAnnotation()
+//        throws Exception
+//    {
+//        final File sourcefile =
+//            TestEnv.xbeanCase("marshal/com/mytest/MySubClass.java");
+//        Assert.assertTrue(sourcefile.exists());
+//
+//        File sourcepath =
+//            TestEnv.xbeanCase("marshal");
+//        Assert.assertTrue(sourcepath.exists());
+//        Assert.assertTrue(sourcepath.isDirectory());
+//
+//        JamServiceFactory jf = JamServiceFactory.getInstance();
+//        JamServiceParams params = jf.createServiceParams();
+//
+//        params.includeSourceFile(new File[]{sourcepath}, sourcefile);
+//
+//        JamService service = jf.createService(params);
+//
+//        final Java2Schema j2s = new Java2Schema(service.getAllClasses());
+//
+////        j2s.setVerbose(true);
+//
+//
+//        final File tmpfile = File.createTempFile("bindingTests", "-tylar");
+//        if (!tmpfile.delete()) {
+//            throw new AssertionError("delete failed on " + tmpfile);
+//        }
+//        final boolean ok = tmpfile.mkdirs();
+//        Assert.assertTrue("mkdir" + tmpfile + " failed", ok);
+//
+//        j2s.bindAsExplodedTylar(tmpfile);
+//
+//    }
 
   //creates a JavaOutputStream that either spits out to System.out
   //or swallows the source output entirely.  This is temporary.  -pcal
