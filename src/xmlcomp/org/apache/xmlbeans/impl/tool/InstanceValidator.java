@@ -163,6 +163,9 @@ public class InstanceValidator
             for (Iterator i = compErrors.iterator(); i.hasNext(); )
                 System.out.println(i.next());
         }
+
+        if (sLoader == null)
+            sLoader = XmlBeans.getContextTypeLoader();
         
         for (int i = 0; i < instanceFiles.length; i++)
         {

@@ -50,6 +50,16 @@ public class TypeSystemHolder
     {
         try
         {
+            // The fact that we are using TypeSystemHolder.class.getClassLoader()
+            // to load the SchemaTypeSystem class means that the TypeSystemHolder's
+            // classloader MUST be a descendant of the XmlBeans classloader, even
+            // though it can be different.
+            // In other words, each Schema type has only one copy per VM, not one
+            // copy per copy of XmlBeans in use, therefore this implies that
+            // there either must be one copy of XmlBeans in the VM or copies in
+            // different classloaders will each need a different copy of one
+            // Schema type, which seems a reasonable restriction, but needs to be
+            // understood nevertheless
             return (SchemaTypeSystem)
                 Class.forName(
                     "org.apache.xmlbeans.impl.schema.SchemaTypeSystemImpl",
