@@ -305,11 +305,22 @@ public class CodeGenUtil
         return (File[])cp.toArray(new File[cp.size()]);
     }
 
+  //Note - I have added a new class, JarHelper, in impl.common which provides
+  //more jarring functionality and does not require invoking jar.exe.  You
+  //may want to consider migrating your code to use this as it will be
+  //considerably faster.  pcal  12/10/2003
+
+  /**
+   * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
+   */
     static public boolean externalJar(File srcdir, File outfile)
     {
         return externalJar(srcdir, outfile, DEFAULT_JAR, false, false);
     }
 
+  /**
+   * @deprecated Use org.apache.xmlbeans.impl.common.JarHelper instead.
+   */
     static public boolean externalJar(File srcdir, File outfile, String jarPath, boolean quiet, boolean verbose)
     {
         List args = new ArrayList();
