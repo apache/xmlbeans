@@ -23,9 +23,8 @@ import org.apache.xmlbeans.impl.jam.annogen.internal.joust.JavaOutputStream;
 import org.apache.xmlbeans.impl.jam.annogen.internal.joust.WriterFactory;
 import org.apache.xmlbeans.impl.jam.annogen.internal.joust.FileWriterFactory;
 import org.apache.xmlbeans.impl.jam.annogen.internal.joust.SourceJavaOutputStream;
-import org.apache.xmlbeans.impl.jam.annogen.internal.joust.ExpressionFactory;
 import org.apache.xmlbeans.impl.jam.annogen.internal.joust.Variable;
-import org.apache.xmlbeans.impl.jam.annogen.internal.AnnotationProxyBase;
+import org.apache.xmlbeans.impl.jam.annogen.internal.AnnoProxyBase;
 
 import java.util.Arrays;
 import java.util.List;
@@ -83,7 +82,7 @@ public class Annogen {
   public static final String SETTER_PREFIX = "set_";
   private static final String FIELD_PREFIX = "_";
   private static final String IMPL_SUFFIX = "Impl";
-  private static final String BASE_CLASS = AnnotationProxyBase.class.getName();
+  private static final String BASE_CLASS = AnnoProxyBase.class.getName();
 
   // ========================================================================
   // Variables
@@ -153,6 +152,7 @@ public class Annogen {
     mJoust.startClass(Modifier.PUBLIC,
                       BASE_CLASS,
                       implementInterface);
+
     for(int i=0; i<methods.length; i++) {
       String fieldName = FIELD_PREFIX+ methods[i].getSimpleName();
       JClass type = methods[i].getReturnType();

@@ -29,7 +29,7 @@ public class JavadocClassloadingException extends RuntimeException {
   private static final String SOME_CLASS_IN_TOOLS_JAR =
     "com.sun.javadoc.Doclet";
 
-  public static String EXPLANATION =
+  private static final String STANDARD_EXPLANATION =
     "An error has occurred while invoking javadoc to inspect your source\n"+
     "files.  This may be due to the fact that $JAVA_HOME/lib/tools.jar does\n"+
     "not seem to be in your system classloader.  One common case in which \n"+
@@ -53,6 +53,8 @@ public class JavadocClassloadingException extends RuntimeException {
     "parameter.  If you are running ant, you will need to modify the standard\n"+
     "ant script to include tools.jar in the -classpath.\n";
 
+
+
   // ========================================================================
   // Static utilities
 
@@ -71,18 +73,25 @@ public class JavadocClassloadingException extends RuntimeException {
     }
   }
 
+  // ========================================================================
+  // Constructors
+
+  public JavadocClassloadingException() {
+    super((ALTERNATE_EXPLANATION != null) ? ALTERNATE_EXPLANATION :
+            STANDARD_EXPLANATION);
+  }
+
+  // ========================================================================
+  // hack
+
+  private static String ALTERNATE_EXPLANATION = null;
+
   /**
    * Quick and dirty way for user to alter the explanation for this problem
    * with more specific information or solutions.
    */
   public static void setExplanation(String msg) {
-    EXPLANATION = msg;
+    ALTERNATE_EXPLANATION = msg;
   }
 
-  // ========================================================================
-  // Constructors
-
-  public JavadocClassloadingException() {
-    super(EXPLANATION);
-  }
 }

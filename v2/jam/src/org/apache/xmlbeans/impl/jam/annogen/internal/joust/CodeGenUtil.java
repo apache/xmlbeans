@@ -30,10 +30,10 @@ import java.net.URISyntaxException;
 
 public class CodeGenUtil
 {
-    public static String DEFAULT_MEM_START = "8m";
-    public static String DEFAULT_MEM_MAX = "256m";
-    public static String DEFAULT_COMPILER = "javac";
-    public static String DEFAULT_JAR = "jar";
+    public static final String DEFAULT_MEM_START = "8m";
+    public static final String DEFAULT_MEM_MAX = "256m";
+    public static final String DEFAULT_COMPILER = "javac";
+    public static final String DEFAULT_JAR = "jar";
 
     //workaround for Sun bug # 4723726
     public static URI resolve(URI base, URI child)

@@ -33,17 +33,17 @@ public abstract class ElementImpl implements Comparable, MElement {
   // Constants
 
   // help reduce waste
-  protected static final ElementImpl[] NO_NODE = new ElementImpl[0];
-  protected static final ClassImpl[] NO_CLASS = new ClassImpl[0];
-  protected static final FieldImpl[] NO_FIELD = new FieldImpl[0];
-  protected static final ConstructorImpl[] NO_CONSTRUCTOR = new ConstructorImpl[0];
-  protected static final MethodImpl[] NO_METHOD = new MethodImpl[0];
-  protected static final ParameterImpl[] NO_PARAMETER = new ParameterImpl[0];
-  protected static final JPackage[] NO_PACKAGE = new JPackage[0];//FIXME
-  protected static final AnnotationImpl[] NO_ANNOTATION = new AnnotationImpl[0];
+  public static final ElementImpl[] NO_NODE = new ElementImpl[0];
+  public static final ClassImpl[] NO_CLASS = new ClassImpl[0];
+  public static final FieldImpl[] NO_FIELD = new FieldImpl[0];
+  public static final ConstructorImpl[] NO_CONSTRUCTOR = new ConstructorImpl[0];
+  public static final MethodImpl[] NO_METHOD = new MethodImpl[0];
+  public static final ParameterImpl[] NO_PARAMETER = new ParameterImpl[0];
+  public static final JPackage[] NO_PACKAGE = new JPackage[0];//FIXME
+  public static final AnnotationImpl[] NO_ANNOTATION = new AnnotationImpl[0];
 
-  protected static final CommentImpl[] NO_COMMENT = new CommentImpl[0];
-  protected static final JProperty[] NO_PROPERTY = new JProperty[0];//FIXME
+  public static final CommentImpl[] NO_COMMENT = new CommentImpl[0];
+  public static final JProperty[] NO_PROPERTY = new JProperty[0];//FIXME
 
   // ========================================================================
   // Variables

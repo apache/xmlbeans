@@ -41,7 +41,7 @@ import java.io.PrintWriter;
  * params.includeSources(new File("c:/myproject/src","mypackage/*.java"));
  *
  * // Create a JamService, which will contain JClasses for the classes found in mypackage
- * JamService service = factory.createService(params);
+ * JamService service = factory.createServiceRoot(params);
  * </pre>
  *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
@@ -71,7 +71,7 @@ public abstract class JamServiceFactory {
 
   /**
    * Create a new JamServiceParams instance.  The params can be populated
-   * and then given to the createService method to create a new JamService.
+   * and then given to the createServiceRoot method to create a new JamService.
    */
   public abstract JamServiceParams createServiceParams();
 

@@ -9,4 +9,6 @@ package org.apache.xmlbeans.test.jam.cases;
 public class Baz implements Runnable {
 
   public void run() {}
+
+
 }

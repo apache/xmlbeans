@@ -105,11 +105,15 @@ public class ReflectClassBuilder extends JamClassBuilder implements JamClassPopu
     // add the methods
     Method[] methods = src.getDeclaredMethods();
     for(int i=0; i<methods.length; i++) populate(dest.addNewMethod(),methods[i]);
+
+    if (mDelegate != null) mDelegate.populateAnnotationTypeIfNecessary(src,dest,this);
+
     // add the constructors
     Constructor[] ctors = src.getDeclaredConstructors();
     for(int i=0; i<ctors.length; i++) populate(dest.addNewConstructor(),ctors[i]);
     // add the annotations
     if (mDelegate != null) mDelegate.extractAnnotations(dest,src);
+
 
     // add any inner classes
     Class[] inners = src.getDeclaredClasses();

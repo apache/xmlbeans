@@ -15,6 +15,7 @@
 package org.apache.xmlbeans.impl.jam.internal.java15;
 
 import org.apache.xmlbeans.impl.jam.internal.reflect.Reflect15Delegate;
+import org.apache.xmlbeans.impl.jam.internal.reflect.ReflectClassBuilder;
 import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
 import org.apache.xmlbeans.impl.jam.mutable.MMember;
 import org.apache.xmlbeans.impl.jam.mutable.MConstructor;
@@ -41,6 +42,7 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
   // ========================================================================
   // Variables
 
+  //FIXME make this a stateless singleton, please
   private ElementContext mContext = null;
   private JamLogger mLogger = null;
 
@@ -52,6 +54,56 @@ public class Reflect15DelegateImpl implements Reflect15Delegate {
     mContext = ctx;
     mLogger = mContext.getLogger();
   }
+
+  public void populateAnnotationTypeIfNecessary(Class cd,
+                                                MClass clazz,
+                                                ReflectClassBuilder builder) {
+    clazz.setIsAnnotationType(cd.isAnnotation());
+    //FIXME deal with defaults here
+  }
+
+  public Class getAnnotationClassFor(/*Annotation*/Object annotation) {
+    return ((Annotation)annotation).annotationType();
+  }
+
+  public void init(JamLogger logger) {
+    mLogger = logger;
+  }
+
+  // ========================================================================
+  // ReflectAnnoExtractor implementation
+
+
+  public /*Annotation[]*/ Object[] getAnnotations(Package on) {
+    return on.getAnnotations();
+  }
+
+  public /*Annotation[]*/ Object[] getAnnotations(Class on) {
+    return on.getAnnotations();
+  }
+
+  public /*Annotation[]*/ Object[] getAnnotations(Method on) {
+    return on.getAnnotations();
+  }
+
+  public /*Annotation[]*/ Object[] getAnnotations(Field on) {
+    return on.getAnnotations();
+  }
+
+  public /*Annotation[]*/ Object[] getAnnotations(Constructor on) {
+    return on.getAnnotations();
+  }
+
+  public /*Annotation[]*/ Object[] getAnnotations(Method on, int pnum) {
+    return on.getParameterAnnotations()[pnum];
+  }
+
+  public /*Annotation[]*/ Object[] getAnnotations(Constructor on, int pnum) {
+    return on.getParameterAnnotations()[pnum];
+  }
+
+  // ========================================================================
+  // Deprecated stuff
 
   public void extractAnnotations(MMember dest, Method src) {
     Annotation[] anns = src.getDeclaredAnnotations();

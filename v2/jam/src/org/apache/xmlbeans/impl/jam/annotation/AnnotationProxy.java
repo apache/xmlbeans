@@ -18,10 +18,6 @@ import org.apache.xmlbeans.impl.jam.provider.JamLogger;
 import org.apache.xmlbeans.impl.jam.provider.JamServiceContext;
 import org.apache.xmlbeans.impl.jam.JAnnotationValue;
 import org.apache.xmlbeans.impl.jam.JClass;
-import org.apache.xmlbeans.impl.jam.internal.elements.ElementContext;
-
-import java.util.Properties;
-import java.util.Enumeration;
 
 /**
  * <p>Provides a proxied view of some annotation artifact.  JAM calls the
@@ -53,9 +49,6 @@ public abstract class AnnotationProxy {
   // Variables
 
   protected JamServiceContext mContext;
-
-  //FIXME need to expose a knob for setting this
-  private String mNvPairDelims = DEFAULT_NVPAIR_DELIMS;
 
   // ========================================================================
   // Initialization methods - called by JAM, don't implement

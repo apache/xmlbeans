@@ -15,21 +15,30 @@
 package org.apache.xmlbeans.impl.jam.annogen.provider;
 
 /**
+ * <p>Gives providers an opportunity to say something extra about the
+ * annotations which apply to a given element.</p>
+ *
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public interface ProxyPopulator {
+public interface AnnoModifier {
 
   // ========================================================================
   // Public methods
 
-  //REVIEW i think this 'has' model is broken.  a better model would be to
-  // simply ask the populator once about the annotation types it can find
-  // on a given element.
-  public abstract boolean hasAnnotation(ElementId id, Class annoType);
+  /**
+   * <p>Provides the Populator with a context object to access various services
+   * such as logging.  For a given instance, this method is guranteed to be
+   * called exactly once and before any other methods in this interface.</p>
+   */
+  public void init(ProviderContext pc);
 
-  public abstract void populateProxy(ElementId id,
-                                     Class annotationType,
-                                     AnnotationProxy targetProxy);
+  /**
+   * <p>Called to give the Populator a chance to modify the annotations which
+   * apply to a given element.</p>
+   *
+   * @param id  Element to which the annotations apply.
+   * @param currentAnnos Currently applicable annotations.
+   */
 
-  public void init(ProxyContext pc);
+  public void modifyAnnos(ElementId id, AnnoProxySet currentAnnos);
 }

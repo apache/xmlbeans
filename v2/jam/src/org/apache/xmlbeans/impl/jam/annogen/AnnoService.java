@@ -12,23 +12,19 @@
  *   See the License for the specific language governing permissions and
  *  limitations under the License.
  */
-package org.apache.xmlbeans.impl.jam.annogen.provider;
+package org.apache.xmlbeans.impl.jam.annogen;
 
-import org.apache.xmlbeans.impl.jam.provider.JamLogger;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
+import org.apache.xmlbeans.impl.jam.JElement;
+import org.apache.xmlbeans.impl.jam.JAnnotatedElement;
+
+import java.lang.reflect.Method;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 
 /**
- * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
+ * @deprecated REMOVEME
  */
-public interface ProxyContext {
-
-  // ========================================================================
-  // Public methods
-
-  public JamLogger getLogger();
-
-  public ProxyTypeMapping getProxyTypeMapping();
-
-  public ClassLoader getClassLoader();
-
+public interface AnnoService {
 
 }

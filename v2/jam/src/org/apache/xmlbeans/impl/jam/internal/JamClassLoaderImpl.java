@@ -151,7 +151,7 @@ public class JamClassLoaderImpl implements JamClassLoader {
   }
 
   private void cachePut(JClass clazz) {
-    mFd2ClassCache.put(new String(clazz.getFieldDescriptor().trim()),
+    mFd2ClassCache.put(clazz.getFieldDescriptor().trim(),
                        new WeakReference(clazz));
   }
 

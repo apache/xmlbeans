@@ -14,10 +14,10 @@
  */
 package org.apache.xmlbeans.impl.jam.annogen.internal.java15;
 
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyPopulator;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnoModifier;
 import org.apache.xmlbeans.impl.jam.annogen.provider.ElementId;
-import org.apache.xmlbeans.impl.jam.annogen.provider.AnnotationProxy;
-import org.apache.xmlbeans.impl.jam.annogen.provider.ProxyContext;
+import org.apache.xmlbeans.impl.jam.annogen.provider.AnnoProxy;
+import org.apache.xmlbeans.impl.jam.annogen.provider.ProviderContext;
 import org.apache.xmlbeans.impl.jam.annogen.internal.ReflectElementId;
 
 import java.lang.reflect.AnnotatedElement;
@@ -26,9 +26,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.annotation.Annotation;
 
 /**
+ * @deprecated remove me
  * @author Patrick Calahan &lt;email: pcal-at-bea-dot-com&gt;
  */
-public class Reflect175ProxyPopulator implements ProxyPopulator {
+public class Reflect175ProxyPopulator {
+  /*implements ProxyPopulator {
+
 
   // ========================================================================
   // Variables
@@ -67,7 +70,7 @@ public class Reflect175ProxyPopulator implements ProxyPopulator {
       if (methods[i].getParameterTypes().length > 0) continue;
       try {
         Object value = methods[i].invoke(ann,(Object[])null);
-        targetInstance.setSimpleValue(methods[i].getName(),value,returnType);
+        targetInstance.setValue(methods[i].getName(),value,returnType);
       } catch(IllegalAccessException iae) {
         iae.printStackTrace();//FIXME log this
       } catch(InvocationTargetException ite) {
@@ -76,5 +79,7 @@ public class Reflect175ProxyPopulator implements ProxyPopulator {
     }
   }
 
-  public void init(ProxyContext pc) { mContext = null; }
+public void init(ProxyContext pc) { mContext = null; }
+
+*/
 }
