@@ -123,6 +123,7 @@ abstract class Xobj implements TypeStore
     final boolean isAttr      ( ) { return kind() == ATTR; }
     final boolean isElem      ( ) { return kind() == ELEM; }
     final boolean isProcinst  ( ) { return kind() == PROCINST; }
+    final boolean isComment   ( ) { return kind() == COMMENT; }
     final boolean isContainer ( ) { return Cur.kindIsContainer( kind() ); }
     final boolean isUserNode  ( ) { int k = kind(); return k == ELEM || k == ROOT || (k == ATTR && !isXmlns()); }
 
@@ -964,8 +965,8 @@ abstract class Xobj implements TypeStore
             newX._cchAfter = x._cchAfter;
 
             // TODO - strange to have charNode stuff inside here .....
-            newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX );
-            newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX );
+            newX._charNodesValue = CharNode.copyNodes( x._charNodesValue, newX._srcValue );
+            newX._charNodesAfter = CharNode.copyNodes( x._charNodesAfter, newX._srcAfter );
 
             if (newParent == null)
                 copy = newX;
@@ -1308,7 +1309,7 @@ abstract class Xobj implements TypeStore
      * "xmlns" and returns their well-known namespace URIs.
      *
      * @param prefix The prefix to look up.
-     * @param mapDefault If true, return the no-namespace for the default namespace if not set.
+     * @param defaultAlwaysMapped If true, return the no-namespace for the default namespace if not set.
      * @return The mapped namespace URI ("" if no-namespace), or null if no mapping.
      */
 
