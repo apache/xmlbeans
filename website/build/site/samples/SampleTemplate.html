@@ -2,7 +2,7 @@
 <html>
 <head>
 <META http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>XMLBeans Project Management</title>
+<title>Sample Template</title>
 <link type="text/css" href="../skin/page.css" rel="stylesheet">
 </head>
 <body text="#000000" bgcolor="#FFFFFF">
@@ -81,12 +81,9 @@
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
-<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
+<table summary="selected tab" style="height: 1.8em" border="0" cellpadding="0" cellspacing="0">
 <tr>
-<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../samples/index.html">Samples</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
-</tr>
-<tr>
-<td colspan="3" height="1"></td>
+<td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-left.gif"></td><td valign="middle" bgcolor="#4C6C8F"><font color="#ffffff" size="2" face="Arial, Helvetica, Sans-serif"><b><a class="base-selected" href="../samples/index.html">Samples</a></b></font></td><td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-right.gif"></td>
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
@@ -99,9 +96,12 @@
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
-<table summary="selected tab" style="height: 1.8em" border="0" cellpadding="0" cellspacing="0">
+<table summary="non selected tab" style="height: 1.6em" border="0" cellpadding="0" cellspacing="0">
 <tr>
-<td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-left.gif"></td><td valign="middle" bgcolor="#4C6C8F"><font color="#ffffff" size="2" face="Arial, Helvetica, Sans-serif"><b><a class="base-selected" href="../projectManagement/index.html">Project</a></b></font></td><td valign="top" width="5" bgcolor="#4C6C8F"><img height="5" width="5" alt="" src="../skin/images/tabSel-right.gif"></td>
+<td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-left.gif"></td><td valign="middle" bgcolor="#B2C4E0"><a class="base-not-selected" href="../projectManagement/index.html">Project</a></td><td valign="top" width="5" bgcolor="#B2C4E0"><img height="5" width="5" alt="" src="../skin/images/tab-right.gif"></td>
+</tr>
+<tr>
+<td colspan="3" height="1"></td>
 </tr>
 </table>
 </td><td width="6"><img alt="" height="8" width="6" src="../skin/images/spacer.gif"></td><td valign="bottom">
@@ -150,26 +150,28 @@
 <div class="menu">
 <ul>
 <li>
-<font color="#CFDCED">Project</font>
+<font color="#CFDCED">Samples</font>
 <ul>
         
         
 <li>
-<a href="../projectManagement/index.html#XMLBeans+Version+1+Project+Management" title="Read a note on the progress of XMLBeans Version 1">About Version 1</a>
-</li>
-        
+<font color="#CFDCED">Samples List</font>
+<ul>
+            
 <li>
-<a href="../projectManagement/index.html#XMLBeans+Version+2+Project+Management" title="Read information on the progress of XMLBeans Version 2">About Version 2 Plans</a>
+<a href="../samples/MixedContent.html">MixedContent</a>
 </li>
-        
+            
 <li>
-<a href="../projectManagement/index.html#XMLBeans+Bug+Lists" title="Find or log XMLBeans bugs">Bug Tracking</a>
+<a href="../samples/SchemaEnum.html">SchemaEnum</a>
 </li>
-        
-        
+            
 <li>
-<a href="http://nagoya.apache.org/wiki/apachewiki.cgi?XmlBeansRoadMap" title="Read ideas for future evolution">XMLBeans Road Map</a>
+<span class="sel"><font color="#ffcc00">SampleTemplate</font></span>
 </li>
+        
+</ul>
+</li>  
     
 </ul>
 </li>
@@ -211,34 +213,158 @@
 <table class="title" summary="">
 <tr>
 <td valign="middle">
-<h1>XMLBeans Project Management</h1>
-</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="index.pdf"><img alt="PDF" src="../skin/images/pdfdoc.gif" class="skin"><br>
+<h1>Sample Template</h1>
+</td><td nowrap="nowrap" width="40" align="center"><a class="dida" href="SampleTemplate.pdf"><img alt="PDF" src="../skin/images/pdfdoc.gif" class="skin"><br>
           PDF</a></td>
 </tr>
 </table>
-		
-<a name="N1000C"></a><a name="XMLBeans+Version+1+Project+Management"></a>
-<h3>XMLBeans Version 1 Project Management</h3>
+        
+<a name="N1000C"></a><a name="Description"></a>
+<h3>Description</h3>
 <div style="margin-left: 0 ; border: 2px">
-<p>XMLBeans Version 1 is the current stable release</p>
+<p>Available: 2004-09-15</p>
+<p>This sample template is the recommended way of writing a
+              sample.  If you'd like to contribute, please do!
+              Once you've written it, post a new
+              <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10436">Jira</a>
+              bug with component=Samples. For ideas, see
+              <a href="http://wiki.apache.org/xmlbeans/XmlBeansSampleSuggestions">XmlBeansSampleSuggestions</a>
+              on the wiki.  Thanks for submitting!
+            </p>
 </div>
-		
-<a name="N10016"></a><a name="XMLBeans+Version+2+Project+Management"></a>
-<h3>XMLBeans Version 2 Project Management</h3>
+        
+<a name="N10021"></a><a name="Files"></a>
+<h3>Files</h3>
 <div style="margin-left: 0 ; border: 2px">
-<p>You can find information about XMLBeans 2.0 planning at  <a href="http://wiki.apache.org/xmlbeans/V2Features">XMLBeans Feature Plan</a> 
-			if you want to provide ideas or feedback on this planning it is best to post it to either dev@xmlbeans.apache.org or
-			user@xmlbeans.apache.org.</p>
-</div>
-		
-<a name="N10024"></a><a name="XMLBeans+Bug+Lists"></a>
-<h3>XMLBeans Bug Lists</h3>
-<div style="margin-left: 0 ; border: 2px">
-<p>Open XMLBeans bugs (from JIRA): <a href="http://nagoya.apache.org/jira/secure/BrowseProject.jspa?id=10436">JIRA XMLBeans</a>
-			
+<p>
+              
+<a href="SampleTemplate.zip">Zip of all files (SampleTemplate.zip)</a>
+            
+</p>
+<p>
+              
+<a href="SampleTemplate.tgz">Tar gzip of all files
+                (SampleTemplate.tgz)</a>
+            
+</p>
+<p>
+                
+<a href="http://cvs.apache.org/viewcvs.cgi/*checkout*/xml-xmlbeans/samples/cursor/SampleTemplate/README.txt">Readme file</a>
+            
 </p>
 </div>
-	
+        
+<a name="N1003D"></a><a name="Authoring+Samples"></a>
+<h3>Authoring Samples</h3>
+<div style="margin-left: 0 ; border: 2px">
+<p>
+            If you have an idea for a sample that you'd like to share with the
+            community, we'd be happy to review and add it to the collection!
+            Because we want all of the samples available from this site to be
+            useful (and you probably do, too), we'd like you to follow the
+            guidelines on this page when writing an XMLBeans sample.
+          </p>
+<p>
+            To contrubute the sample, please create a new Jira bug with
+            component=Samples and attach the sample zip to the bug.
+          </p>
+<div class="frame note">
+<div class="label">Note</div>
+<div class="content">
+            All sample code accepted for use on the XMLBeans web site becomes
+            the property of the Apache Software Foundation. In other words,
+            thanks for donating a sample!
+          </div>
+</div>
+<a name="N1004C"></a><a name="Sample+scope"></a>
+<h4>Sample scope</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>
+              Try to keep your sample reasonably small and well-defined. It's
+              going to be more useful, and more easily found, if it's about
+              something specific -- handling schema enums (or some other
+              particular aspect of schema), handling validation errors,
+              constructing mixed content with a cursor, and so on.  Large
+              samples that do lots of things are often hard to get to know and
+              learn something useful from. </p>
+<p>
+              Your code will be most useful if it can be copied and pasted
+              into someone else's app. However, schema dependencies will
+              differ greatly from user to user, so samples that use generated
+              types will tend to be fairly specific. Moreover, code that
+              effectively demonstrates how a particular aspect of XMLBeans
+              works is a good teacher, even if would take quite a bit of
+              massaging to coerce it to another application.
+            </p>
+</div>
+<a name="N10059"></a><a name="Code+comments"></a>
+<h4>Code comments</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>
+              Obviously, comments are an essential part of making a sample
+              useful. In general, the more comments your code has, the better.
+              But here are a few guidelines that we ask you to keep in mind:
+            </p>
+<ul>
+              
+<li>
+                Each sample file (including non-Java files) must include the
+                Apache copyright notice. If it's not there when it's accepted,
+                we'll add it.
+              </li>
+              
+<li>
+                Each class and method should include a comment in the Javadoc
+                style. It's not necessary to include specific Javadoc
+                annotations (@param, @return, and so on), but your sample
+                isn't as useful to others unless it's commented well.
+              </li>
+              
+<li>
+                Class-level comments should describe what the class
+                demonstrates. In particular, the comments should be sure to
+                describe the XMLBeans technologies that the class includes.
+                Other description text should describe what the sample's user
+                should expect to see when they run the sample.
+              </li>
+              
+<li>
+                Method-level comments should describe what the method does.
+                Comments should focus on the role of XMLBeans technologies.
+              </li>
+              
+<li>
+                Where useful, add more comments!
+              </li>
+            
+</ul>
+</div>
+<a name="N10075"></a><a name="Code+conventions"></a>
+<h4>Code conventions</h4>
+<div style="margin-left: 0 ; border: 2px">
+<p>
+              To help make XMLBeans samples as a set easier for others to use,
+              we encourage you to follow a few simple code conventions. In
+              this way, users can spend less time deciphering code and more
+              time getting the things it demonstrates. Most of these are
+              common practice anyway.
+            </p>
+<ul>
+              
+<li>Package name words should all be lower-case.</li>
+              
+<li>
+                Package names should begin with 'org.apache.xmlbeans.samples'
+                and end with the sample's name, and should
+                indicate what the sample illustrates. Examples are
+                'org.apache.xmlbeans.samples.anytype.*' or '
+                'org.apache.xmlbeans.samples.dynamiccompilation.*'
+              </li>
+            
+</ul>
+</div>
+</div>
+    
 <div class="attribution"></div>
 </div>
 </td><td width="10"><img width="10" height="1" alt="" src="../skin/images/spacer.gif" class="spacer"></td>
@@ -261,11 +387,7 @@
             //  --></script></font></td>
 </tr>
 <tr>
-<td colspan="2" align="left" bgcolor="#CFDCED" class="logos">
-<div>
-<a href="http://validator.w3.org/check/referer"><img width="88" height="31" alt="Valid HTML 4.01!" src="../skin/images/valid-html401.png" class="logoImage"></a><a href="http://jigsaw.w3.org/css-validator/"><img width="88" height="31" alt="Valid CSS!" src="../skin/images/vcss.png" class="logoImage"></a><img alt="" height="1" width="10" src="../skin/images/spacer.gif"><a href="http://xml.apache.org/forrest/"><img border="0" alt="Built with Forrest logo" src="../images/built-with-forrest-button.png" width="88" height="31"><img height="1" width="5" alt="" src="../skin/images/spacer.gif" class="spacer"></a>
-</div>
-</td>
+<td colspan="2" align="left" bgcolor="#CFDCED" class="logos"></td>
 </tr>
 </table>
 <!--================= end Footer ==================-->

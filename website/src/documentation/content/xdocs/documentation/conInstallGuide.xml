@@ -6,11 +6,19 @@
 	</header>
 	<body>
 		<section>
+      <title>Requirements</title>
+      <p>
+        Before installing XMLBeans, you will need to have JDK 1.4 installed
+        and <link href="http://ant.apache.org/">Ant</link>.  Once you have
+        those, continue with the steps below.
+      </p>
+    </section>
+		<section>
 			<title>Download XMLBeans</title>
 			<p>To start out, you'll need the XMLBeans binaries. You can get these in one of two ways:</p>
 			<ul>
 			<li>To get started more quickly, you can 
-			<link href="../sourceAndBinaries/index.html#XMLBeans+Version+1+Binary+and+Development+Kit">Download the
+			<link href="../sourceAndBinaries/index.html#XMLBeans+Binary+and+Development+Kit">Download the
 			XMLBeans release.</link></li>
 			<li>If you're interested, you can also <link href="../sourceAndBinaries/index.html#XMLBeans+Source">build 
 			from the source</link>.</li>

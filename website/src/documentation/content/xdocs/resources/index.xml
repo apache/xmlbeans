@@ -8,13 +8,13 @@
 		<section>
 			<title>XMLBeans Tools</title>
 			<p>
-				<link href="http://xmlbeans.webappshosting.com/schemaToolsV103">XMLBeans Schema Tools (XMLBeans Version 1.03)</link>
+				<link href="http://xmlbeans.webappshosting.com/schemaToolsV103">XMLBeans Schema Tools (XMLBeans Version 1.0.3)</link>
 				&nbsp;This site allows XML Schema validation and compilation tools.  You can submit an XML Schema (via file upload or
 				cut and paste) or a set of XML Schemas (zip file) and you can download the resulting XMLBeans JAR file.
 			</p>
 				<ul>
-					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV103/validate.do" >XMLBeans V1.03 Schema Validation</link></li>
-					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV103/compile.do" >XMLBeans V1.03 Schema Compilation</link></li>
+					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV103/validate.do" >XMLBeans V1.0.3 Schema Validation</link></li>
+					<li><link href="http://xmlbeans.webappshosting.com/schemaToolsV103/compile.do" >XMLBeans V1.0.3 Schema Compilation</link></li>
 				</ul>
 			<p>
 				<link href="http://xmlbeans.webappshosting.com/schemaToolsV2">XMLBeans Schema Tools (XMLBeans Version 2.0)</link>
