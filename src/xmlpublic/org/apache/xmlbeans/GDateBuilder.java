@@ -688,9 +688,9 @@ public final class GDateBuilder implements GDateSpecification, java.io.Serializa
     {
         if (!((tzSign == 0 && tzHour == 0 && tzMinute == 0) ||
               ((tzSign == -1 || tzSign == 1) &&
-               (tzHour == 0 && tzMinute > 0 || tzHour > 0 && tzMinute >= 0) &&
+               (tzHour >= 0 && tzMinute >= 0) &&
                (tzHour == 14 && tzMinute == 0 || tzHour < 14 && tzMinute < 60))))
-            throw new IllegalArgumentException("time zone must be betwen -14:00 and +14:00");
+            throw new IllegalArgumentException("time zone must be between -14:00 and +14:00");
 
         if (!hasTimeZone() || !hasTime())
             throw new IllegalStateException("cannot normalize time zone without both time and timezone");
