@@ -113,7 +113,7 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = JavaName.forString(mNodes[i].getJavatype());
             XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
-            xmlFromJava.put(jName, xName);
+            xmlFromJava.put(jName, pair(jName, xName));
         }
         
         mNodes = doc.getBindingConfig().getXmlToPojo().getMappingArray();
@@ -121,7 +121,7 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = JavaName.forString(mNodes[i].getJavatype());
             XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
-            javaFromXmlPojo.put(xName, jName);
+            javaFromXmlPojo.put(xName, pair(jName, xName));
         }
 
         mNodes = doc.getBindingConfig().getXmlToXmlobj().getMappingArray();
@@ -129,7 +129,7 @@ public class BindingFile extends BaseBindingLoader
         {
             JavaName jName = JavaName.forString(mNodes[i].getJavatype());
             XmlName xName = XmlName.forString(mNodes[i].getXmlcomponent());
-            javaFromXmlObj.put(xName, jName);
+            javaFromXmlObj.put(xName, pair(jName, xName));
         }
     }
     
