@@ -15,18 +15,20 @@
 
 package org.apache.xmlbeans.impl.config;
 
-import javax.xml.namespace.QName;
-
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Iterator;
-
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.ConfigDocument.Config;
+import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Extensionconfig;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Nsconfig;
 import org.apache.xml.xmlbeans.x2004.x02.xbean.config.Qnameconfig;
+import org.apache.xmlbeans.XmlObject;
+import org.apache.xmlbeans.XmlError;
+import org.apache.xmlbeans.impl.schema.StscState;
+
+import javax.xml.namespace.QName;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 public class SchemaConfig
 {
@@ -34,6 +36,7 @@ public class SchemaConfig
     private Map _prefixMap;
     private Map _suffixMap;
     private Map _qnameMap;
+    private ExtensionHolder _extensionHolder;
 
     private SchemaConfig()
     {
@@ -41,6 +44,7 @@ public class SchemaConfig
         _prefixMap = Collections.EMPTY_MAP;
         _suffixMap = Collections.EMPTY_MAP;
         _qnameMap = Collections.EMPTY_MAP;
+        _extensionHolder = null;
     }
     
     public static SchemaConfig forConfigDocuments(Config[] configs)
@@ -54,6 +58,8 @@ public class SchemaConfig
         _prefixMap = new LinkedHashMap();
         _suffixMap = new LinkedHashMap();
         _qnameMap = new LinkedHashMap();
+        _extensionHolder = new ExtensionHolder();
+
         for (int i = 0; i < configs.length; i++)
         {
             Config config = configs[i];
@@ -70,7 +76,16 @@ public class SchemaConfig
             {
                 _qnameMap.put(qnc[j].getName(), qnc[j].getJavaname());
             }
+
+            Extensionconfig[] ext = config.getExtensionArray();
+            for (int j = 0; j < ext.length; j++)
+            {
+                recordExtensionSetting(ext[j]);
+            }
         }
+
+        _extensionHolder.secondPhaseValidation();
+        //todo _extensionHolder.normalize();
     }
 
     private static void recordNamespaceSetting(Object key, String value, Map result)
@@ -92,7 +107,40 @@ public class SchemaConfig
             }
         }
     }
-    
+
+    private void recordExtensionSetting(Extensionconfig ext)
+    {
+        NameSet xbeanSet = null;
+        Object key = ext.getFor();
+
+
+        if (key instanceof String && "*".equals(key))
+            xbeanSet = NameSet.EVERYTHING;
+        else if (key instanceof List)
+        {
+            NameSetBuilder xbeanSetBuilder = new NameSetBuilder();
+            for (Iterator i = ((List)key).iterator(); i.hasNext(); )
+            {
+                String xbeanName = (String)i.next();
+                xbeanSetBuilder.add(xbeanName);
+            }
+            xbeanSet = xbeanSetBuilder.toNameSet();
+        }
+
+        if (xbeanSet==null)
+            error("Invalid value of attribute 'for' : '" + key + "'.", ext);
+
+        Extensionconfig.Interface[] intfXO = ext.getInterfaceArray();
+
+        for (int i = 0; i < intfXO.length; i++)
+        {
+            _extensionHolder.addInterfaceExtension(InterfaceExtension.newInstance(xbeanSet, intfXO[i]));
+        }
+
+        _extensionHolder.addPrePostExtension(PrePostExtension.newInstance(xbeanSet, ext.getPrePostSet()));
+    }
+
+
     private String lookup(Map map, String uri)
     {
         if (uri == null)
@@ -103,6 +151,18 @@ public class SchemaConfig
         return (String)map.get("##any");
     }
 
+    //package methods
+    static void warning(String s, XmlObject xo)
+    {
+        StscState.get().error(s, XmlError.SEVERITY_WARNING, xo);
+    }
+
+    static void error(String s, XmlObject xo)
+    {
+        StscState.get().error(s, XmlError.SEVERITY_ERROR, xo);
+    }
+
+    //public methods
     public String lookupPackageForNamespace(String uri)
     {
         return lookup(_packageMap, uri);
@@ -121,5 +181,15 @@ public class SchemaConfig
     public String lookupJavanameForQName(QName qname)
     {
         return (String)_qnameMap.get(qname);
+    }
+
+    public ExtensionHolder extensionHolderFor(String fullJavaName)
+    {
+        return _extensionHolder.extensionHolderFor(fullJavaName);
+    }
+
+    public ExtensionHolder getExtensionHolder()
+    {
+        return _extensionHolder;
     }
 }

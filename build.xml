@@ -65,7 +65,7 @@
 
     <mkdir dir="build/test/output"/>
     <echo message="Running xbean product drt tests"/>
-    <echo message="JUnit output being sent to xbean/build/test/output/drt-product.txt"/>
+    <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
     <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
       <jvmarg value="-ea"/>
       <sysproperty key="xbean.rootdir" value="${basedir}"/>
@@ -85,7 +85,54 @@
       <formatter type="plain"/>
       <test name="drtcases.SmokeTests" outfile="build/test/output/drt-product" />
     </junit>
+
+      <antcall target="extensionsTest" />
   </target>
+
+    <!-- extensions test -->
+    <target name="extensionsTest" depends="extensions.compile">
+        <echo message="JUnit output being sent to build/test/output/drt-product.txt"/>
+        <junit fork="yes" printsummary="yes" haltonfailure="yes" showoutput="yes">
+            <jvmarg value="-ea"/>
+            <classpath>
+                <pathelement location="external/lib/junit.jar"/>
+                <pathelement location="build/ar/xbean.jar"/>
+                <pathelement location="build/private/lib/extensions.jar"/>
+                <pathelement location="build/test/extensionsuse"/>
+            </classpath>
+            <formatter type="plain"/>
+            <test name="drtcases.ExtensionsTest" outfile="build/test/output/drt-extensions"/>
+        </junit>
+    </target>
+
+    <target name="extensions.compile" >
+        <mkdir dir="build/test/extensions"/>
+        <javac srcdir="test/src/extensions" destdir="build/test/extensions" debug="on">
+            <classpath>
+                <pathelement location="build/ar/xbean.jar"/>
+            </classpath>
+        </javac>
+
+        <java classname="${schema_compiler}" fork="true" failonerror="true">
+            <jvmarg value="-ea"/>
+            <classpath>
+                <pathelement location="build/ar/xbean.jar" />
+                <pathelement location="build/test/extensions" />
+            </classpath>
+            <arg line="-out build/private/lib/extensions.jar test/src/extensions"/>
+        </java>
+
+        <mkdir dir="build/test/extensionsuse"/>
+        <javac srcdir="test/src/extensionsuse" destdir="build/test/extensionsuse" debug="on">
+            <classpath>
+                <pathelement location="build/ar/xbean.jar"/>
+                <pathelement location="external/lib/junit.jar"/>
+                <pathelement location="build/private/lib/extensions.jar"/>
+                <pathelement location="build/test/extensionsuse"/>
+            </classpath>
+        </javac>
+    </target>
+    <!-- extensions test -->
 
   <target name="builddrt" depends="drt.jar, random.jar, eric"/>
 
