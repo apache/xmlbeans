@@ -691,6 +691,7 @@
 
   <path id="bootstrap.run.path">
     <pathelement location="build/private/lib/oldxbean.jar"/>
+    <pathelement location="build/lib/jsr173_07_api.jar"/>
   </path>
 
   <path id="bootstrap.compile.path">
@@ -736,7 +737,7 @@
     </condition>
   </target>
 
-  <target name="xmlschema.classes" depends="xmlschema.check, xmlpublic.classes, oldxbean.jar" unless="xmlschema.notRequired">
+  <target name="xmlschema.classes" depends="xmlschema.check, xmlpublic.classes, oldxbean.jar, jsr173_07_api.jar" unless="xmlschema.notRequired">
     <delete dir="build/classes/xmlschema"/>
     <delete dir="build/src/xmlschema"/>
     <java classname="${bootstrap_schema_compiler}" classpathref="bootstrap.run.path" fork="true" failonerror="true">
