@@ -128,6 +128,8 @@ public class JDClassLoaderFactory extends Doclet {
     } else {
       spewWriter = out;
     }
+
+    ClassLoader originalCCL = Thread.currentThread().getContextClassLoader();
     JavadocResults.prepare();
     int result = com.sun.tools.javadoc.Main.execute("JAM",
                                                     spewWriter,
@@ -142,6 +144,7 @@ public class JDClassLoaderFactory extends Doclet {
                                  ", root="+root+":\n"+
                                  ((spew == null) ? "" : spew.toString()));
     }
+    Thread.currentThread().setContextClassLoader(originalCCL);
     return JDFactory.getInstance().createClassLoader(root,parentLoader);
   }
 
